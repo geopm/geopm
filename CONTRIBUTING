@@ -1,0 +1,44 @@
+
+CONTRIBUTING
+============
+This file describes how to contribute to the Auto-Tuner project.
+
+CODING STYLE
+============
+Code formatting can be corrected to conform to the standard using
+astyle with the following options:
+
+    astyle --style=linux --indent=spaces=4 -y -S -C -N
+
+BUILD INSTRUCTIONS
+==================
+To build the library and install it in a "build" subdirectory of your
+home directory run the following commands
+
+    ./autogen.sh
+    CC=$MPICC CXX=$MPICXX ./configure --prefix=$HOME/build
+    make
+    make install
+
+TEST INSTRUCTIONS
+=================
+To test the library once it has been built run
+
+    make check
+
+
+COVERAGE INSTRUCTIONS
+=====================
+To generate a coverage report, first be sure that you have installed
+the lcov package available here:
+
+    http://ltp.sourceforge.net/coverage/lcov.php
+
+The library must be configured with the "--enable-coverage" option.
+Then simply run
+
+    make coverage
+
+which run tests and produce a coverage report in
+
+    coverage/index.html

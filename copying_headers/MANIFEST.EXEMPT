@@ -1,5 +1,10 @@
+CONTRIBUTING
 COPYING
 copying_headers/header.freeBSD3
+copying_headers/header.intel-confidential
+copying_headers/MANIFEST.EXEMPT
+copying_headers/MANIFEST.intel-confidential
 copying_headers/test-license
 MANIFEST
 README
+TODO

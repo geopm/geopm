@@ -1,0 +1,23 @@
+Notes on Phases
+===============
+
+Application Constraints
+-----------------------
+Application must call into geopm API's from per-rank serial code.
+
+Resolution of control is limited to sets of CPU's assigned to each MPI
+rank.
+
+If a library linked by the applicaiton uses geopm mark up for phases,
+it must have some mechanism for generating a unique phase ID set
+(offset based?).
+
+Make mark up phase_end() API calls into a MPI_Barrier over the ranks
+on the calling process' node?
+
+All ranks must call mark up in same exact sequence.
+
+All threads associated with an MPI rank must run within the same
+resolution of control (e.g. socket/tile).
+
+
