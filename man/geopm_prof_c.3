@@ -1,0 +1,348 @@
+.\"
+.\" Copyright (c) 2015, Intel Corporation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above copyright
+.\"       notice, this list of conditions and the following disclaimer in
+.\"       the documentation and/or other materials provided with the
+.\"       distribution.
+.\"
+.\"     * Neither the name of Intel Corporation nor the names of its
+.\"       contributors may be used to endorse or promote products derived
+.\"       from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH "GEOPM_PROF_C" 3 "2015-09-15" "Intel Corporation" "GEOPM_PROF_C" \" -*- nroff -*-
+.SH "NAME"
+geopm_prof_c \- geopm application profiling structure
+.SH "SYNOPSIS"
+.nf
+.B #include <geopm.h>
+.sp
+.B Link with -lgeopm
+.sp
+.BI "int geopm_prof_create(const char *" "name" ,
+.BI "                      int " "sample_reduce" ,
+.BI "                      const char *" "sample_key",
+.BI "                      struct geopm_prof_c **" "prof" );
+.sp
+.BI "int geopm_prof_destroy(struct geopm_prof_c *" "prof" );
+.sp
+.BI "int geopm_prof_register(struct geopm_prof_c *" "prof" ,
+.BI "                        const char *" "region_name" ,
+.BI "                        long " "policy_hint" ,
+.BI "                        int *" "region_id" );
+.sp
+.BI "int geopm_prof_enter(struct geopm_prof_c *" "prof" ,
+.BI "                     int " "region_id" );
+.sp
+.BI "int geopm_prof_exit(struct geopm_prof_c *" "prof" ,
+.BI "                    int " "region_id" );
+.sp
+.BI "int geopm_prof_progress(struct geopm_prof_c *" "prof" ,
+.BI "                        int " "region_id" ,
+.BI "                        double " "fraction" );
+.sp
+.BI "int geopm_prof_outer_sync(struct geopm_prof_c *" "prof" );
+.sp
+.BI "int geopm_prof_sample(struct geopm_prof_c *" "prof" );
+.sp
+.BI "int geopm_prof_disable(struct geopm_prof_c *" "prof" ,
+.BI "                       const char *" "feature_name" );
+.sp
+.BI "int geopm_prof_print(struct geopm_prof_c *" "prof" ,
+.BI "                     int " "depth" );
+.sp
+.BI "int geopm_prof_fprint(struct geopm_prof_c *" "prof" ,
+.BI "                      int " "depth" ,
+.BI "                      FILE *" "fid" );
+.sp
+.B "HELPER FUNCTIONS:"
+.sp
+.BI "int geopm_omp_sched_static_norm(int " "num_iter" ,
+.BI "                                int " "chunk_size",
+.BI "                                int " "num_thread",
+.BI "                                double *" "norm" );
+.sp
+.BI "double geopm_progress_threaded_min(int " "num_thread" ,
+.BI "                                   size_t " "stride" ,
+.BI "                                   const uint32_t *" "progress" ,
+.BI "                                   const double *" "norm" );
+.sp
+.BI "double geopm_progress_threaded_sum(int " "num_thread" ,
+.BI "                                   size_t " "stride" ,
+.BI "                                   const uint32_t *" "progress" ,
+.BI "                                   double " "norm");
+.sp
+.sp
+.SH "DESCRIPTION"
+.PP
+The geomp_prof_c structure enables application profiling for geopm.  The
+functions associated with he geopm_prof_c structure are described here.  These
+functions enable application feedback to the control algorithm for identifying
+regions of code, progress within regions, and global synchronization points in
+the application.  Regions of code define periods in the application during
+which control parameters are tuned with the expectation that control
+parameters for a region can be optimized independently of other regions.  In
+this way a region is associated with a set of control parameters which can be
+optimized, and future time intervals associated with the same region will
+benefit from the application of control parameters which were determined from
+tuning within previous occurrences of the region.  There are two competing
+motivations for defining a region within the application.  The first is to
+identify a section of code that has distinct compute, memory or network
+characteristics.  The second is to avoid defining these regions such that they
+are nested within each other, as nested regions are ignored, and only the
+outer most region is used for tuning when nesting occurs.  Identifying
+progress within a region can be used to alleviate load imbalance in the
+application under the assumption that the region is bulk synchronous.  Under
+the assumption that the application employs an iterative algorithm which
+synchronizes periodically the user can alleviate load imbalance on larger time
+scales than the regions provide.  This is done by marking the end of the outer
+most loop, or the "outer synchronization point."
+.PP
+.BR geopm_prof_create ()
+creates a profile object
+.IR prof .
+Requires a
+.I name
+which is displayed when the profile is printed.  The
+.I sample_reduce
+parameter determines the level of reduction that occurs when a sample is generated with the
+.BR geopm_prof_sample ()
+API.  If
+.I sample_reduce
+is 0, no reduction occurs when sampling and samples include thread specific
+information. If
+.I sample_reduce
+ is 1 then thread specific data is aggregated to the MPI rank level.  If
+.I sample_reduce
+is 2 then data is aggregated to the compute node granularity over all MPI
+ranks on each compute node. If the
+.I sample_key
+is non-NULL then calls to
+.BR geopm_prof_sample ()
+will write the sampled data to POSIX shared memory associated with the given
+key to be read by an external control process running on the same compute
+node.
+.BR geopm_prof_destroy ()
+destroys all resources associated with the prof object.
+.BR geopm_prof_register ()
+registers an application region with the profile structure.  The
+.I region_name
+and
+.I hint
+are input parameters, and the
+.I region_id
+is returned.  If the region name has been previously registered, a call to
+this function will set the
+.I region_id
+but the state in the
+.I prof
+structure associated with the region is unmodified.  The
+.I region_name
+is used to determine the output
+.I region_id
+and is also displayed in the profiling report to identify the region.   The
+.I hint
+is one of the values given by the geopm_prof_hint_e enum defined in
+.I geopm.h
+which determines the initial control settings.
+.BR geopm_prof_enter ()
+is called by the compute application to mark the beginning of
+the profiled compute region associated with the
+.IR region_id .
+If this call is made after entering a different region, but before exiting
+that region, the call is ignored and an error code is returned (i.e. nested
+regions are ignored).
+.BR geopm_prof_exit ()
+is called by compute application to mark the end of a compute region.  If this
+region is nested then the call is ignored and an error code is returned.
+.PP
+.BR geopm_prof_progress ()
+is called by compute application in single threaded context to signal the
+fractional progress,
+.I fraction
+through the work required to complete the region where
+.I fraction
+is between 0 and 1.  If the
+.I region_id
+does not match the
+.I region_id
+of the last call to geopm_prof_prof_enter() which was not nested, then this
+call is ignored and an error code is returned.
+.PP
+.BR geopm_prof_outer_sync ()
+is called just prior to the highest level global synchronization point in an
+application.  This occurs in the application's outermost loop in an
+iterative algorithm just prior to the last synchronizing MPI call.  There
+should be just one place in an application code where this call occurs, and
+it should be called repeatedly inside of a loop.
+.PP
+.BR geopm_prof_sample ()
+is called to derive a sample base on the profiling information collected.
+This may aggregate data as specified by the
+.I sample_reduce
+parameters passed when the
+.I prof
+structure was created.
+.PP
+.BR geopm_prof_disable ()
+is called at application start up to disable a profiling feature.  By default
+all profiling features available on the system are enabled.  The set of all
+possible values for
+.I feature_name
+are: "instr", "flop", and "joules".
+.PP
+.BR geopm_prof_print ()
+writes a profile report to standard output based on the data collected so
+far.  This is intended for use just prior to application termination.  All
+profile information above the specified
+.I depth
+in the control tree hierarchy is contained in the report.  A depth of 0 gives
+only statistics aggregated over all MPI processes.
+.PP
+.BR geopm_prof_fprint ()
+writes the profile report to the file descriptor
+.I fid
+rather than standard output and is otherwise the same as
+.BR geopm_prof_print ().
+.sp
+.B "HELPER FUNCTIONS:"
+.sp
+.BR geopm_num_node ()
+sets
+.I num_node
+to the number of compute nodes associated with the communicator
+.IR comm .
+A compute node is defined to be a shared memory coherency domain.  The product of the
+elements of
+.I fan_out
+passed to
+.BR geopm_ctl_create ()
+must equal
+.IR num_node .
+.PP
+.BR geopm_no_omp_cpu ()
+sets the
+.I no_omp
+.BR CPU_SET (3)
+allocated with
+.I num_cpu
+bits to a mask which can be used with
+.BR pthread_attr_setaffinity_np (3)
+to bind the pthread created by
+.BR geopm_ctl_pthread ()
+to CPUs that do not have an OpenMP thread affinity.  The mask generated when
+OpenMP threads are not statically affinitized is unreliable.  The
+.I no_omp
+mask is zeroed and an error code is returned when all online CPUs have an
+OpenMP thread affinity.
+.PP
+.BR geopm_omp_sched_static_norm ()
+calculates the
+.I norm
+array of length
+.I num_thread
+that can be used with
+.BR geopm_ctl_prof_progress_threaded_min ()
+in the case where a for loop is OpenMP parallel using the static scheduling
+algorithm with the specified
+.IR chunk_size .
+The
+.I num_iter
+parameter is the number of iterations specified in the for loop, and the
+.I num_thread
+parameter determines the number of OpenMP threads that are used to parallelize
+the loop.
+.PP
+.BR geopm_progress_threaded_min ()
+is called by a compute application by one thread in a multi-threaded context
+using
+.I num_thread
+threads.  This function returns the fractional progress through the work
+required to complete the region.  The fractional progress is calculated as the
+minimum of the fractional progress of all of the threads that are given work,
+i.e. the minimum over all
+.I i
+of
+.br
+.IR "progress" "[" "stride" "*" "i" "]*" "norm" "[" "i" "]."
+.br
+Note that the
+.I progress
+array is assumed to be strided where the separation in number of integers of
+valid progress is given by the parameter
+.IR stride .
+The
+.I stride
+can be used to avoid performance loss due to false sharing since multiple
+threads must write to the progress array simultaneously.  On the x86
+architecture it is recommended that a stride of 16 or greater is used to have
+each thread writing to a different 64 byte cache line.  The
+.I norm
+array is used to normalize the integer
+.I progress
+array such that each element of
+.I norm
+is the inverse of each strided value of the
+.I progress
+array upon completion of all work in the region.
+.PP
+.BR geopm_progress_threaded_sum ()
+is called by a compute application by one thread in a multi-threaded context
+using
+.I num_thread
+threads.  This function is very much like
+.BR geopm_progress_threaded_min ()
+except that it sums the values in the
+.I progress
+array and multiplies the sum of the strided progress values by
+.I norm
+where
+.I norm
+is the inverse of the sum of all progress values upon completion of all work.
+The fractional progress is calculated as the sum of the progress of all of the
+threads that are given work normalized by the inverse of the amount of
+aggregate work assigned to all threads,
+.IR norm .
+This can be less accurate for determining load imbalance than using
+.BR geopm_progress_threaded_min ()
+but is applicable in contexts where the amount of work assigned to each thread
+is not known in advance, e.g. OpenMP dynamic scheduling.  The progress array
+is assumed to be strided in the same way and for the same reasons as described
+above for
+.BR geopm_threaded_progress_min ().
+.PP
+.SH "ERRORS"
+All functions described on this man page return an error code.  See
+.BR geopm_error_e (3)
+for a full description of the error numbers and how to convert them to
+strings.
+.SH "COPYRIGHT"
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+.SH "SEE ALSO"
+.BR geopm (3),
+.BR geopm_ctl_c (3),
+.BR geopm_policy_c (3),
+.BR geopm_error_e (3),
+.BR geopm_version (3),
+.BR geopmctl (3),
+.BR geopmkey (3),
+.BR geopmpolicy (3)

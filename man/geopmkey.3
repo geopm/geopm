@@ -1,0 +1,74 @@
+.\"
+.\" Copyright (c) 2015, Intel Corporation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above copyright
+.\"       notice, this list of conditions and the following disclaimer in
+.\"       the documentation and/or other materials provided with the
+.\"       distribution.
+.\"
+.\"     * Neither the name of Intel Corporation nor the names of its
+.\"       contributors may be used to endorse or promote products derived
+.\"       from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH "GEOPMKEY" 3 "2015-08-31" "Intel Corporation" "GEOPMKEY" \" -*- nroff -*-
+.SH "NAME"
+geopmkey \- generate shared memory keys for geopm
+.SH "SYNOPSIS"
+.sp
+.BR "geopmkey" " [" "\-\-version" "] [" "\-\-help" "]"
+.sp
+.SH "DESCRIPTION"
+.sp
+Creates a temporary file and prints the name of this file to standard output.
+This file can be used to produce unique shared memory keys for use with geopm
+enabled applications.  The file's first line is the control key and the second
+line is the sample key.  The keys are of the form /<PID>-<type>-<mkstemp>
+.SH "OPTIONS"
+.TP
+.B \-\-version
+Print version of geopm to standard output, then exit.
+.TP
+.B \-\-help
+Print brief summary of the command line usage information, then exit.
+.SH "EXAMPLE"
+$ keyfile=$(geopmkey)
+.br
+$ cat $keyfile
+.br
+/555-sample-a9b8c7
+.br
+/555-control-a9b8c7
+.br
+$ geopmctl -k $(grep control $keyfile) \\
+.br
+           -s $(grep sample $keyfile)
+.SH "COPYRIGHT"
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+.SH "SEE ALSO"
+.BR geopm (3),
+.BR geopm_ctl_c (3),
+.BR geopm_policy_c (3),
+.BR geopm_prof_c (3),
+.BR geopm_error_e (3),
+.BR geopm_version (3),
+.BR geopmctl (3),
+.BR geopmpolicy (3)

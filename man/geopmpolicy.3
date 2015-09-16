@@ -1,0 +1,194 @@
+.\"
+.\" Copyright (c) 2015, Intel Corporation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above copyright
+.\"       notice, this list of conditions and the following disclaimer in
+.\"       the documentation and/or other materials provided with the
+.\"       distribution.
+.\"
+.\"     * Neither the name of Intel Corporation nor the names of its
+.\"       contributors may be used to endorse or promote products derived
+.\"       from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH "GEOPMPOLICY" 3 "2015-09-15" "Intel Corporation" "GEOPMPOLICY" \" -*- nroff -*-
+.SH "NAME"
+geopmpolicy \- geopm configuration file creator
+.SH "SYNOPSIS"
+.sp
+.BR "geopmpolicy" " [" "\-\-version" "] [" "\-\-help" "] [" "\-o" " config_file]"
+.br
+.BR "           " " [" "\-m" " mode] [" "-d" " key0:value0,key1:value1...]"
+.sp
+.SH "DESCRIPTION"
+.sp
+The
+.B geopmpolicy
+application creates a
+.BR geopm (3)
+configuration file by parsing command line arguments.  The configuration file
+can be used for the static configuration of the
+.BR geopmctl (3)
+and the
+.BR geopm_ctl_c (3)
+interfaces.  With
+.B geopmpolicy
+a resource manager can configure
+.BR geopmctl (3)
+through a plug-in without introducing a linking dependency between geopm and
+the resource manager (as is required with the
+.BR geopm_policy_c (3)
+interface).  This enables a set of geopmctl features which can be described
+through a "mode" selection flag and a "dictionary" flag for modifying the
+behavior of the mode by matching key strings to value strings.
+.SH "OPTIONS"
+.TP
+.B \-\-version
+Print version of geopm to standard output, then exit.
+.TP
+.B \-\-help
+Print brief summary of the command line usage information, then exit.
+.TP
+.BR "\-o" " config_file"
+Output configuration file.
+.TP
+.BR "\-m" " mode"
+Power management mode, must be one of those described in the
+.B MODES
+section below.  The static modes do not require the geopm runtime to be
+running concurrently with the primary computational application, where as
+dynamic modes do have a runtime requirement on geopm.
+.TP
+.BR "\-d" " key0:value0,key1:value1"
+Specifies a dictionary of key value pairs which modify the behavior of a
+mode.  The key and value options for each mode are described in the
+.B MODES
+sections below.
+.SH "MODES"
+.TP
+.B tdp_balance_static
+.br
+Implements the GEOPM_MODE_TDP_BALANCE_STATIC mode described in the
+.BR geopm_policy_c (3)
+man page in the
+.B STATIC MODES
+section.  The only key required to be passed to
+the
+.B "\-d"
+flag is the "percent_tdp" key which has a value that is the percent (0-100) of
+the Thermal Design Power at which to run each processor under RAPL control.
+All other keys are ignored.
+.TP
+.B freq_uniform_static
+.br
+Implements the GEOPM_MODE_FREQ_UNIFORM_STATIC mode described in the
+.BR geopm_policy_c (3)
+man page in the
+.B STATIC MODES
+section.  The only key required to be passed to
+the
+.B "\-d"
+flag is the "cpu_mhz" key which has a value that is the CPU frequency in
+units of MHz.  All other keys are ignored.
+.TP
+.B freq_hybrid_static
+.br
+Implements the GEOPM_MODE_FREQ_HYBRID_STATIC mode described in the
+.BR geopm_policy_c (3)
+man page in the
+.B STATIC MODES
+section.  There are three keys required to be
+passed to the
+.B "\-d"
+flag for the freq_hybrid mode: "cpu_mhz" giving operating frequency for
+restrained CPUs in units of MHz, "num_cpu_max_perf" giving the number of CPUs
+running at maximum peformance, and "affinity" which can have a value of
+"compact" or "scatter" describing the distribution of the CPUs running at
+maximum performance.  All other keys are ignored.
+.TP
+.B perf_balance_dynamic
+Implements the GEOPM_MODE_PERF_BALANCE_DYNAMIC mode described in the
+.BR geopm_policy_c (3)
+man page in the
+.B DYNAMIC MODES
+section.  The only key required to be passed to
+the
+.B "\-d"
+flag is the "power_budget" which is the power budget in units of Watts for all
+compute nodes allocated to the job. All other keys are ignored.
+.TP
+.B freq_uniform_dynamic
+Implements the GEOPM_MODE_FREQ_UNIFORM_DYNAMIC mode described in the
+.BR geopm_policy_c (3)
+man page in the
+.B DYNAMIC MODES
+section.  The only key required to be passed to
+the
+.B "\-d"
+flag is the "power_budget" which is the power budget in units of Watts for all
+compute nodes allocated to the job. All other keys are ignored.
+.TP
+.B freq_hybrid_dynamic
+Implements the GEOPM_MODE_FREQ_HYBRID_DYNAMIC mode described in the
+.BR geopm_policy_c (3)
+man page in the
+.B DYNAMIC MODES
+section.  There are three keys required to be passed to the
+.B "\-d"
+flag for the freq_hybrid mode: "power_budget" which is the power budget in
+units of Watts for all compute nodes allocated to the job , "num_cpu_max_perf"
+giving the number of CPUs running at maximum performance, and "affinity" which
+can have a value of "compact" or "scatter" describing the distribution of the
+CPUs running at maximum performance.  All other keys are ignored.
+.SH "EXAMPLES"
+Create a configuration file which disables power management with RAPL:
+.br
+$ geopmpolicy -o geopm.conf -m tdp_balance_static -d percent_tdp:100
+.TP
+Create a configuration file for a fixed frequency of 1.5 GHz:
+.br
+$ geopmpolicy -o geopm.conf -m freq_uniform_static -d cpu_freq:1500
+.TP
+Create a configuration file for a hybrid frequency of 2.5 GHz where 4 cores are unconstrained and using scatter distribution:
+.br
+$ geopmpolicy -o geopm.conf -m freq_hybrid_static \\
+.br
+  -d cpu_freq:2500,num_cpu_max_perf:4,affinity:scatter
+.TP
+Create a configuration file for all processors to run at 75% of the Thermal Design Power:
+.br
+$ geopmpolicy -o geopm.conf -m tdp_balance_static -d percent_tdp:75
+.TP
+.TP
+Create a configuration file for global energy optimization with a power budget of 1 MWatt:
+.br
+$ geopmpolicy -o geopm.conf -m perf_balance_dynamic -d power_budget:1000000
+.SH "COPYRIGHT"
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+.SH "SEE ALSO"
+.BR geopm (3),
+.BR geopm_ctl_c (3),
+.BR geopm_policy_c (3),
+.BR geopm_prof_c (3),
+.BR geopm_error_e (3),
+.BR geopm_version (3),
+.BR geopmctl (3),
+.BR geopmkey (3),

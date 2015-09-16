@@ -1,0 +1,253 @@
+.\"
+.\" Copyright (c) 2015, Intel Corporation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above copyright
+.\"       notice, this list of conditions and the following disclaimer in
+.\"       the documentation and/or other materials provided with the
+.\"       distribution.
+.\"
+.\"     * Neither the name of Intel Corporation nor the names of its
+.\"       contributors may be used to endorse or promote products derived
+.\"       from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH "GEOPM_CTL_C" 3 "2015-09-15" "Intel Corporation" "GEOPM" \" -*- nroff -*-
+.SH "NAME"
+geopm_ctl_c \- geopm power controller structure
+.SH "SYNOPSIS"
+.nf
+.B #include <geopm.h>
+.sp
+.B Link with -lgeopm
+.sp
+.BI "int geopm_ctl_create(int " "num_level" ,
+.BI "                     const int *" "fan_out" ,
+.BI "                     const char *" "policy_config" ,
+.BI "                     const char *" "policy_key",
+.BI "                     MPI_Comm " "comm" ,
+.BI "                     struct geopm_prof_c *" "sample_prof" ,
+.BI "                     char *" "sample_key" ,
+.BI "                     struct geopm_ctl_c **" "ctl" );
+.sp
+.BI "int geopm_ctl_destroy(struct geopm_ctl_c *" "ctl" );
+.sp
+.BI "int geopm_ctl_step(struct geopm_ctl_c *" "ctl" );
+.sp
+.BI "int geopm_ctl_run(struct geopm_ctl_c *" "ctl" );
+.sp
+.BI "int geopm_ctl_pthread(struct geopm_ctl_c *" "ctl" ,
+.BI "                      const pthread_attr_t *" "attr" ,
+.BI "                      pthread_t *" "thread" );
+.sp
+.BI "int geopm_ctl_spawn(struct geopm_ctl_c *" "ctl" );
+.sp
+.B "HELPER FUNCTIONS:"
+.br
+.BI "int geopm_num_node(MPI_Comm " "comm" ,
+.BI "                   int *" "num_node" );
+.sp
+.BI "int geopm_no_omp_cpu(int " "num_cpu" ", cpu_set_t *" "no_omp" );
+.sp
+.SH "DESCRIPTION"
+.PP
+The geopm_ctl_c structure is used to lauch or step the global energy
+optimization power management algorithm.  There are several ways to enable
+control: explicit stepping of the control algorithm by the application under
+control, running the control algorithm as a distinct processes from the
+application under control, running the control algorithm as a separate pthread
+owned by the application process under control, or the application under
+control can spawn a new MPI communicator that runs the control algorithm in
+conjunction with its own distinct MPI_COMM_WORLD.  Each of these methods has
+different requirements and trade offs.
+.PP
+.BR geopm_ctl_create ()
+creates a geopm_ctl_c object which is an opaque structure that holds the
+state used for control.  An error will occur and an error code returned if
+both
+.I policy_config
+and
+.I policy_key
+are specified or both are unspecified.  The number of levels of the hierarchy
+tree is determined by the
+.I num_level
+parameter.  If zero is specified for the number of levels an optimal value
+will be guessed based on the size of the MPI communicator passed by the
+.I comm
+parameter.  The power management is implemented as a hierarchical control
+system which is based on a balanced tree where the number of children that a
+node in the tree has is a function of its depth in the tree.  This fan out is
+given by the
+.I fan_out
+parameter which is an array indexed by tree depth such that
+.IR "fan_out" "[0]"
+is the number of children of the root of the tree.  The product of values in
+.I fan_out
+must equal the
+.I num_node
+calculated by the function
+.BR geopm_num_node ()
+otherwise an error occurs and an error code is returned.  If a NULL pointer is
+passed for
+.I fan_out
+then the output of
+.BR MPI_Dims_create ()
+will be used to determine the structure of the tree.  The power management
+policy is determined in one of two ways: statically with a configuration file
+or dynamically controlled by the resource manager through shared memory.  See
+the
+.BR geopm_policy_c (3)
+man page for more details about how to create the configuration file or shared
+memory region.  The
+.I policy_config
+input parameter is a path to a policy configuration file.  The
+.I policy_key
+parameter is the POSIX shared memory key referencing a shared memory region on
+the root node of the communicator under control which is passed as the
+.IR comm .
+Note that either
+.I policy_config
+or
+.I policy_key
+must be NULL, and the other must be specified.  An error will occur and an
+error code returned if neither or both of these parameters are passed as
+NULL.   The control algorithm relies on feedback about the application
+profile.  If the control is being executed in the application process then the
+.I sample_prof
+parameter provides a handle to obtain the profile information.  See
+.BR geopm_prof_c (3)
+for information on how to create this structure.  In this case the
+.I sample_key
+should be passed as NULL.  If the control process is distinct from the
+process providing profile information then the
+.I sample_key
+references a POSIX shared memory region that the profiling process writes to.
+In this case the
+.I sample_prof
+should be passes as NULL.  Note that either
+.I sample_prof
+or
+.I sample_key
+must be NULL, and the other must be specified.  An error will occur and an
+error code returned if neither or both of these parameters are passed as NULL.
+The result of calling this function is to produce the controller structure,
+.I ctl
+which is used to execute the control algorithm with one of the other
+functions described in this man page.
+.PP
+.BR geopm_ctl_destroy ()
+destroys all resources associated with the
+.I ctl
+structure which allocated by a previous call to
+.BR geopm_ctl_create ().
+.PP
+.BR geopm_ctl_step ()
+is called to execute one step in the hierarchical control algorithm by the
+application process.  The call is a blocking call for those processes that are
+the lowest MPI rank on the compute node and a no-op for those that are not.  A
+call to this function sends samples up the tree, then policies down the
+tree, and finally if the policy has been changed for the node of the calling
+process then the policy is enforced by writing MSR values.  When this function
+is being called by the application under control the profile feedback is
+acquired directly.  In this case the
+.I ctl
+structure must have been created with the
+.I sample_prof
+specified, otherwise an error occurs and an error code is returned.
+.PP
+.BR geopm_ctl_run ()
+steps the control algorithm continuously until the kill signal is received.
+Since this is a blocking call that never returns, it is intended that
+profiling information is provided through POSIX shared memory.  When used in
+this way the
+.I ctl
+structure must have been created with the
+.I sample_key
+specified.
+.PP
+.BR geopm_ctl_pthread ()
+creates a POSIX thread running the control algorithm continuously until the
+thread is killed.  This is intended to be called by the application under
+control and so the profile feedback is acquired directly.  In this case the
+.I ctl
+structure must have been created with
+.I sample_prof
+specified.  With this method of launch the supporting MPI implementation must
+be enabled for MPI_THREAD_MULITPLE using MPI_Init_thread().
+.PP
+.BR geopm_ctl_spawn ()
+use MPI_Comm_spawn() to spawn a new communicator with one process per compute
+node.  The geopmctl application will be spawned on this communicator which
+will rely on profile information read from POSIX shared memory.  For this
+reason the
+.I ctl
+structure must have been created with the
+.I sample_key
+specified, otherwise an error occurs and an error code is returned.
+.sp
+.B "HELPER FUNCTIONS:"
+.br
+.PP
+.BR geopm_num_node ()
+sets
+.I num_node
+to the number of compute nodes associated with the communicator
+.IR comm .
+A compute node is defined to be a shared memory coherency domain.  The product
+of the elements of the
+.I fan_out
+array passed to
+.BR geomp_ctl_create ()
+must equal
+.IR num_node .
+.PP
+.BR geopm_no_omp_cpu
+sets the
+.BR CPU_SET (3)
+given by
+.I no_omp
+such that it includes all CPUs not used in an OpenMP parallel region.  This
+cpu mask can be used with
+.BR pthread_setaffinity_np (3)
+to bind the pthread created by
+.BR geopm_ctl_pthread ()
+to CPUs that do not have an OpenMP thread affinity.  The mask generated when
+OpenMP threads are not statically affinitized is unreliable.  The
+.I no_omp
+mask is zeroed and an error code is returned when all online CPUs have an
+OpenMP thread affinity.  The
+.I num_cpu
+parameter specifies size of the CPU_SET in terms of number of CPUs.
+.SH "ERRORS"
+All functions described on this man page return an error code.  See
+.BR geopm_error_e (3)
+for a full description of the error numbers and how to convert them to
+strings.
+.SH "COPYRIGHT"
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+.SH "SEE ALSO"
+.BR geopm (3),
+.BR geopm_policy_c (3),
+.BR geopm_prof_c (3),
+.BR geopm_error_e (3),
+.BR geopm_version (3),
+.BR geopmctl (3),
+.BR geopmkey (3),
+.BR geopmpolicy (3)

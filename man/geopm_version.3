@@ -1,0 +1,63 @@
+.\"
+.\" Copyright (c) 2015, Intel Corporation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above copyright
+.\"       notice, this list of conditions and the following disclaimer in
+.\"       the documentation and/or other materials provided with the
+.\"       distribution.
+.\"
+.\"     * Neither the name of Intel Corporation nor the names of its
+.\"       contributors may be used to endorse or promote products derived
+.\"       from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH "GEOPM_VERSION" 3 "2015-09-15" "Intel Corporation" "GEOPM_VERSION" \" -*- nroff -*-
+.SH "NAME"
+geopm_version \- geopm library version
+.SH "SYNOPSIS"
+.nf
+.B #include <geopm.h>
+.sp
+.B Link with -lgeopm
+.sp
+.B const char *geopm_version(void);
+.sp
+.SH "DESCRIPTION"
+.PP
+Returns a human readable string describing the version of the geopm library
+linked to the calling application.  The form is <MAJOR>.<MINOR>.<HOTFIX> for
+released versions and <MAJOR>.<MINOR>.<HOTFIX>+dev<COUNT>g<HASH> for
+development snapshots.  MAJOR is the major revision number, MINOR is the minor
+revision number, HOTFIX is the hofix iteration, COUNT is the number of git
+commits since the tagged release and HASH is the git SHA-1 hash of the last
+commit.
+.SH "COPYRIGHT"
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+.SH "SEE ALSO"
+.BR geopm (3),
+.BR geopm_ctl_c (3),
+.BR geopm_policy_c (3),
+.BR geopm_prof_c (3),
+.BR geopm_error_e (3),
+.BR geopmctl (3),
+.BR geopmkey (3),
+.BR geopmpolicy (3)
+.BR git-describe (1)

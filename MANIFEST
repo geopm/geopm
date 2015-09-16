@@ -1,0 +1,13 @@
+COPYING
+copying_headers/header.freeBSD3
+copying_headers/test-license
+man/geopm.3
+man/geopmctl.3
+man/geopm_ctl_c.3
+man/geopmkey.3
+man/geopmpolicy.3
+man/geopm_policy_c.3
+man/geopm_prof_c.3
+man/geopm_version.3
+MANIFEST
+README
