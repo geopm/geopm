@@ -33,6 +33,7 @@ AC_PREREQ([2.62])
 AC_INIT([geopm],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 geopm_abi_version=0:0:0
 AC_SUBST(geopm_abi_version)
@@ -64,11 +65,10 @@ AC_PROG_AWK
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
-AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+LT_INIT
 
 
 AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
@@ -148,7 +148,8 @@ CFLAGS="${CFLAGS} -Wall -Werror -std=c99"
 CXXFLAGS="${CXXFLAGS} -Wall -Werror -std=c++11"
 LDFLAGS="${LDFLAGS} -lrt -lhwloc"
 
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
 
 # ============================================================================
 # Print out the results of configuration.

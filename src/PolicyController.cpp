@@ -55,7 +55,7 @@ int geopm_policy_controller_create(char *shm_key, struct geopm_policy_message_s 
         err = 1;
     }
     if (!err) {
-        *policy_controller = (geopm_policy_controller_c *)polctl;
+        *policy_controller = (struct geopm_policy_controller_c *)polctl;
     }
     return err;
 }

@@ -29,6 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(top_srcdir)/src
 lib_LTLIBRARIES = libgeopm.la libgeopmpolicy.la
 
@@ -57,24 +58,24 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/PlatformImp.hpp \
                       src/PlatformTopology.cpp \
                       src/PlatformTopology.hpp \
-                      src/Policy.cpp \
-                      src/Policy.hpp \
                       src/PowerModel.cpp \
                       src/PowerModel.hpp \
                       src/TreeCommunicator.cpp \
                       src/TreeCommunicator.hpp \
                       src/geopm_ctl_spawn.c \
-                      src/geopm_policy.c \
+                      src/geopm_policy_message.c \
+                      src/geopm_policy_message.h \
                       # end
 
-libgeopmpolicy_la_SOURCES = src/PolicyController.cpp \
-                            src/PolicyController.hpp \
+libgeopmpolicy_la_SOURCES = src/Policy.cpp \
+                            src/Policy.hpp \
                             src/geopm_policy.c \
                             src/geopm_policy.h \
                             # end
 
 include_HEADERS = src/geopm.h \
-                  src/geopm_policy.h
+                  src/geopm_policy.h \
+                  src/geopm_policy_message.h \
                   # end
 
 bin_PROGRAMS = geopmctl
@@ -84,6 +85,16 @@ geopmctl_SOURCES = src/geopmctl_main.c \
                    # end
 
 geopmctl_LDADD = libgeopm.la
+
+dist_man_MANS = man/geopm.3 \
+                man/geopmctl.3 \
+                man/geopm_ctl_c.3 \
+                man/geopmkey.3 \
+                man/geopmpolicy.3 \
+                man/geopm_policy_c.3 \
+                man/geopm_prof_c.3 \
+                man/geopm_version.3 \
+                # end
 
 EXTRA_DIST = CONTRIBUTING \
              autogen.sh \

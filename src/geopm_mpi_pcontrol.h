@@ -30,5 +30,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_policy_controller.h"
+#ifndef GEOPM_MPI_PCONTROL_H_INCLUDE
+#define GEOPM_MPI_PCONTROL_H_INCLUDE
 
+#include <mpi.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum geopm_pcontrol_level_e {
+    GEOPM_PCONTROL_FLAG_DISABLE = 0,
+    GEOPM_PCONTROL_FLAG_ENABLE = 1,
+    GEOPM_PCONTROL_FLAG_FLUSH = 2,
+    GEOPM_PCONTROL_FLAG_INIT = -1,
+    GEOPM_PCONTROL_FLAG_REGISTER = -2,
+    GEOPM_PCONTROL_FLAG_REPORT = -3,
+    GEOPM_PCONTROL_FLAG_OUTER_SYNC = -4,
+    GEOPM_PCONTROL_FLAG_MAX = 32,
+};
+
+int MPI_Pcontrol(int level, ...);
+
+int geopm_mpi_pcontrol(int level,
+                       struct geopm_ctl_c *ctl,
+                       int in_region_id,
+                       const char *region_name,
+                       long policy_hint,
+                       int *out_region_id);
+
+
+
+
+#ifdef __cplusplus
+}
+#endif
+#endif

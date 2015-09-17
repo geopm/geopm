@@ -34,8 +34,13 @@
 
 #include <mpi.h>
 
-
-int geopm_ctl_spawn(MPI_Comm app_comm, const char *geopmctl_path, MPI_Comm *ctl_intercomm)
+int geopm_ctl_spawn(int num_factor,
+                    const int *factor,
+                    const char *control,
+                    const char *report,
+                    const char *geopmctl_path,
+                    MPI_Comm app_comm,
+                    MPI_Comm *ctl_intercomm)
 {
     int err = 0, i;
     int *ctl_err;

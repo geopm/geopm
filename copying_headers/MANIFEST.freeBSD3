@@ -20,6 +20,8 @@ src/geopm_ctl_spawn.c
 src/geopm.h
 src/geopm_policy.c
 src/geopm_policy.h
+src/geopm_policy_message.c
+src/geopm_policy_message.h
 src/HSXPlatformImp.cpp
 src/HSXPlatformImp.hpp
 src/IVTPlatform.cpp
@@ -56,6 +58,7 @@ test/googletest.mk
 test/Makefile.mk
 test/MPIControllerTest.cpp
 test/MPITreeCommunicatorTest.cpp
+test/no_omp_cpu.c
 test/ObservationTest.cpp
 test/openmp_phase_progress.c
 test/PlatformFactoryTest.cpp

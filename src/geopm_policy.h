@@ -33,46 +33,32 @@
 #ifndef GEOPM_POLICY_H_INCLUDE
 #define GEOPM_POLICY_H_INCLUDE
 
-#include <pthread.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct geopm_policy_message_s {
-    long phase_id;
-    int goal;
-    int mode;
-    int num_sample;
-    double power_budget;
-};
+struct geopm_policy_c;
 
-struct geopm_policy_shmem_s {
-    int is_init;
-    pthread_mutex_t lock;
-    struct geopm_policy_message_s policy;
-};
+int geopm_policy_create(const char *config_path,
+                        const char *policy_key,
+                        struct geopm_policy_c **policy);
 
-enum geopm_policy_goal_e {
-    GEOPM_GOAL_PERFORMANCE = 1,
-    GEOPM_GOAL_EFFICENCY = 2,
-};
+int geopm_policy_destroy(struct geopm_policy_c *policy);
 
-enum geopm_policy_mode_e {
-    GEOPM_MODE_UNIFORM_FREQ = 1,
-    GEOPM_MODE_DYNAMIC_POWER = 2,
-    GEOPM_MODE_SHUTDOWN = 3,
-};
+int geopm_policy_power(struct geopm_policy_c *policy,
+                       double power_budget);
 
-extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
+int geopm_policy_mode(struct geopm_policy_c *policy,
+                      int mode);
 
-struct geopm_policy_controller_c;
+int geopm_policy_flags(struct geopm_policy_c *policy,
+                       unsigned long flags);
 
-int geopm_policy_controller_create(char *shm_key, struct geopm_policy_message_s initial_policy, struct geopm_policy_controller_c **policy_controller);
-int geopm_policy_controller_destroy(struct geopm_policy_controller_c *policy_controller);
-int geopm_policy_controller_set_policy(struct geopm_policy_controller_c *policy_controller, struct geopm_policy_message_s policy);
+int geopm_policy_write(const struct geopm_policy_c *policy);
 
-int is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b);
+int geopm_uniform_freq_flags_update(int pct_perf,
+                                    int num_cpu_full_perf,
+                                    unsigned long *flags);
 
 #ifdef __cplusplus
 }

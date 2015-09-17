@@ -31,6 +31,7 @@
  */
 
 #include "Controller.hpp"
+#include "geopm_policy_message.h"
 
 extern "C"
 {
@@ -108,13 +109,13 @@ namespace geopm
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
 
-        // FIXME Do calls to is_policy_equal() below belong inside of the Decider?
+        // FIXME Do calls to geopm_is_policy_equal() below belong inside of the Decider?
         // Should m_last_policy be a Decider member variable?
 
         level = m_comm.num_level() - 1;
         m_comm.get_policy(level, policy_msg);
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
-            if (!is_policy_equal(&policy_msg, &(m_last_policy[level]))) {
+            if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy[level]))) {
                 m_tree_decider->split_policy(policy_msg, m_split_policy);
                 m_comm.send_policy(level - 1, m_split_policy);
                 m_last_policy[level] = policy_msg;
@@ -125,7 +126,7 @@ namespace geopm
             do_shutdown = 1;
         }
         else {
-            if (!is_policy_equal(&policy_msg, &(m_last_policy[0]))) {
+            if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy[0]))) {
                 m_leaf_decider->update_policy(policy_msg);
             }
         }

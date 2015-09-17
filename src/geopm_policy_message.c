@@ -30,5 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_policy_controller.h"
+#include "geopm_policy_message.h"
 
+const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY = {-1, -1, -1, -1, -1.0};
+
+int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b)
+{
+    int result = 1;
+    if (a->phase_id != b->phase_id ||
+        a->goal != b->goal ||
+        a->mode != b->mode ||
+        a->num_sample != b->num_sample ||
+        a->power_budget != b->power_budget) {
+        result = 0;
+    }
+    return result;
+}

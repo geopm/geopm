@@ -44,6 +44,7 @@
 #include <system_error>
 
 #include "TreeCommunicator.hpp"
+#include "PolicyController.hpp"
 
 namespace geopm
 {
@@ -569,7 +570,7 @@ namespace geopm
             check_mpi(MPI_Irecv(&m_policy_mailbox, 1, m_policy_mpi_type, 0, GEOPM_POLICY_TAG, m_comm, &m_policy_request));
         }
         policy = m_policy;
-        if (is_policy_equal(&policy, &GEOPM_UNKNOWN_POLICY)) {
+        if (geopm_is_policy_equal(&policy, &GEOPM_UNKNOWN_POLICY)) {
             throw unknown_policy_error();
         }
     }

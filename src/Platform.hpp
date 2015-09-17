@@ -59,6 +59,7 @@ namespace geopm
             void buffer_index(hwloc_obj_t domain,
                               const std::vector <std::string> &signal_names,
                               std::vector <int> &buffer_index) const;
+            void observe(struct sample_message_s &sample) const;
             void observe(const std::vector <struct sample_message_s> &sample) const;
             PowerModel *power_model(int domain_type) const;
             virtual void observe(void) = 0;
