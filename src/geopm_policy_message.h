@@ -75,6 +75,7 @@ enum geopm_policy_mode_e {
     GEOPM_MODE_PERF_BALANCE_DYNAMIC = 4,
     GEOPM_MODE_FREQ_UNIFORM_DYNAMIC = 5,
     GEOPM_MODE_FREQ_HYBRID_DYNAMIC = 6,
+    GEOPM_MODE_SHUTDOWN = 255,
 };
 
 struct geopm_policy_message_s {
