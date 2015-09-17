@@ -225,11 +225,12 @@ given by
 .I no_omp
 such that it includes all CPUs not used in an OpenMP parallel region.  This
 cpu mask can be used with
-.BR pthread_setaffinity_np (3)
-to bind the pthread created by
+.BR pthread_attr_setaffinity_np (3)
+to modify the attriutes passed to
 .BR geopm_ctl_pthread ()
-to CPUs that do not have an OpenMP thread affinity.  The mask generated when
-OpenMP threads are not statically affinitized is unreliable.  The
+so that the pthread created is affinitized to CPUs that do not have an OpenMP
+thread affinity.  The mask generated when OpenMP threads are not statically
+affinitized is unreliable.  The
 .I no_omp
 mask is zeroed and an error code is returned when all online CPUs have an
 OpenMP thread affinity.  The
