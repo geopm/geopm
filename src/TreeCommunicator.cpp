@@ -45,6 +45,7 @@
 
 #include "TreeCommunicator.hpp"
 #include "PolicyController.hpp"
+#include "Configuration.hpp"
 
 namespace geopm
 {
@@ -79,7 +80,7 @@ namespace geopm
     class TreeCommunicatorRootConfig : public TreeCommunicatorRoot
     {
         public:
-            TreeCommunicatorRootConfig(std::string config_path);
+            TreeCommunicatorRootConfig(Configuration *config);
             ~TreeCommunicatorRootConfig();
             void get_policy(struct geopm_policy_message_s &policy);
         protected:
@@ -170,7 +171,7 @@ namespace geopm
     {
         int blocklength[5] = {1, 1, 1, 1, 1};
         MPI_Datatype mpi_type[5] = {MPI_INT,
-                                    MPI_INT,
+                                    MPI_LONG,
                                     MPI_INT,
                                     MPI_INT,
                                     MPI_DOUBLE
@@ -179,7 +180,7 @@ namespace geopm
         MPI_Datatype result;
 
         offset[0] = offsetof(struct geopm_policy_message_s, phase_id);
-        offset[1] = offsetof(struct geopm_policy_message_s, goal);
+        offset[1] = offsetof(struct geopm_policy_message_s, flags);
         offset[2] = offsetof(struct geopm_policy_message_s, mode);
         offset[3] = offsetof(struct geopm_policy_message_s, num_sample);
         offset[4] = offsetof(struct geopm_policy_message_s, power_budget);
@@ -192,12 +193,12 @@ namespace geopm
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const std::string &control, const MPI_Comm &comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const Configuration *config, const MPI_Comm &comm)
         : m_fan_out(fan_out),
           m_comm(fan_out.size()),
           m_level(fan_out.size())
     {
-        root_create(control);
+        root_create(config);
         mpi_type_create();
         comm_create(comm);
         level_create();
@@ -332,7 +333,7 @@ namespace geopm
         }
     }
 
-    void TreeCommunicator::root_create(const std::string &control)
+    void TreeCommunicator::root_create(Configuration *config)
     {
         if (control.empty()) {
             // this rank is not at root of tree
@@ -446,63 +447,9 @@ namespace geopm
         }
     }
 
-    TreeCommunicatorRootConfig::TreeCommunicatorRootConfig(std::string config_path)
+    TreeCommunicatorRootConfig::TreeCommunicatorRootConfig(Configuration *config)
+        :m_config(config)
     {
-        std::string line, key, value;
-        std::ifstream fid;
-        size_t off;
-
-        m_policy = GEOPM_UNKNOWN_POLICY;
-
-        fid.open(config_path, std::ios_base::in);
-
-        while (std::getline(fid, line)) {
-            if (!line.empty()) {
-                off = line.find(':');
-                key = line.substr(0,off);
-                value = line.substr(off + 1);
-                if (!value.empty()) {
-                    if (key == "goal") {
-                        if (value == "performance") {
-                            m_policy.goal = GEOPM_GOAL_PERFORMANCE;
-                        }
-                        else if (value == "efficency") {
-                            m_policy.goal = GEOPM_GOAL_EFFICENCY;
-                        }
-                        else {
-                            throw std::invalid_argument("Could not parse goal in geopm configuration file.\n");
-                        }
-                    }
-                    else if (key == "mode") {
-                        if (value == "uniform_freq") {
-                            m_policy.mode = GEOPM_MODE_UNIFORM_FREQ;
-                        }
-                        else if (value == "dynamic_power") {
-                            m_policy.mode = GEOPM_MODE_DYNAMIC_POWER;
-                        }
-                        else {
-                            throw std::invalid_argument("Could not parse mode in geopm configuration file.\n");
-                        }
-                    }
-                    else if (key == "power_budget") {
-                        m_policy.power_budget = std::stod(value);
-                    }
-                    else {
-                        throw std::invalid_argument("Could not parse key in geopm configuration file.\n");
-                    }
-                }
-            }
-        }
-        if (m_policy.goal == -1) {
-            throw std::invalid_argument("Goal not set in geopm configuration file.\n");
-        }
-        if (m_policy.mode == -1) {
-            throw std::invalid_argument("Mode not set in geopm configuration file.\n");
-        }
-        if (m_policy.power_budget == -1) {
-            throw std::invalid_argument("Power budget not set in geopm configuration file\n");
-        }
-        fid.close();
     }
 
     TreeCommunicatorRootConfig::~TreeCommunicatorRootConfig() {}

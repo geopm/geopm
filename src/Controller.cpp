@@ -44,7 +44,8 @@ extern "C"
             std::string control_str(control);
             std::string report_str(report);
             factor_vec.assign(factor, factor + num_factor);
-            geopm::Controller ctl(factor_vec, control_str, report_str, comm);
+            geopm::Configuration config(control);
+            geopm::Controller ctl(factor_vec, &config, report_str, comm);
             ctl.run();
         }
         catch (std::exception ex) {
@@ -57,8 +58,11 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(std::vector<int> factor, std::string control, std::string report, MPI_Comm comm)
-        : m_factor(factor), m_control(control), m_report(report), m_comm(factor, control, comm), m_last_policy(m_comm.num_level())
+    Controller::Controller(std::vector<int> factor, Configuration *config, std::string report, MPI_Comm comm)
+        : m_factor(factor)
+        , m_config(config)
+        , m_report(report)
+        , m_comm(factor, config, comm)
     {
         int max_size = 0;
         for (int level = 0; level < m_comm.num_level(); ++level) {

@@ -38,6 +38,8 @@ libgeopmpolicy_la_LDFLAGS = -version-info $(geopm_abi_version)
 
 libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/CircularBuffer.hpp \
+                      src/Configuration.cpp \
+                      src/Configuration.hpp \
                       src/Controller.cpp \
                       src/Controller.hpp \
                       src/Decider.cpp \
@@ -78,11 +80,15 @@ include_HEADERS = src/geopm.h \
                   src/geopm_policy_message.h \
                   # end
 
-bin_PROGRAMS = geopmctl
+bin_PROGRAMS = geopmctl geopmpolicy
 
 geopmctl_SOURCES = src/geopmctl_main.c \
                    src/geopm.h \
                    # end
+
+geopmpolicy_SOURCES = src/geopmpolicy_main.c \
+                      src/geopm_policy_message.h \
+                      # end
 
 geopmctl_LDADD = libgeopm.la
 

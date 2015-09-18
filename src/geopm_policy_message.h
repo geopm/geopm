@@ -79,6 +79,7 @@ enum geopm_policy_mode_e {
 };
 
 struct geopm_policy_message_s {
+    int phase_id;
     int mode;
     unsigned long flags;
     int num_sample;
