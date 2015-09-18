@@ -38,13 +38,9 @@ geopm_ctl_c \- geopm power controller structure
 .sp
 .B Link with -lgeopm
 .sp
-.BI "int geopm_ctl_create(int " "num_level" ,
-.BI "                     const int *" "fan_out" ,
-.BI "                     const char *" "policy_config" ,
-.BI "                     const char *" "policy_key",
-.BI "                     MPI_Comm " "comm" ,
+.BI "int geopm_ctl_create(const char *" "policy_config" ,
 .BI "                     struct geopm_prof_c *" "sample_prof" ,
-.BI "                     char *" "sample_key" ,
+.BI "                     MPI_Comm " "comm" ,
 .BI "                     struct geopm_ctl_c **" "ctl" );
 .sp
 .BI "int geopm_ctl_destroy(struct geopm_ctl_c *" "ctl" );
@@ -61,9 +57,6 @@ geopm_ctl_c \- geopm power controller structure
 .sp
 .B "HELPER FUNCTIONS:"
 .br
-.BI "int geopm_num_node(MPI_Comm " "comm" ,
-.BI "                   int *" "num_node" );
-.sp
 .BI "int geopm_no_omp_cpu(int " "num_cpu" ", cpu_set_t *" "no_omp" );
 .sp
 .SH "DESCRIPTION"
@@ -93,26 +86,12 @@ will be guessed based on the size of the MPI communicator passed by the
 .I comm
 parameter.  The power management is implemented as a hierarchical control
 system which is based on a balanced tree where the number of children that a
-node in the tree has is a function of its depth in the tree.  This fan out is
-given by the
-.I fan_out
-parameter which is an array indexed by tree depth such that
-.IR "fan_out" "[0]"
-is the number of children of the root of the tree.  The product of values in
-.I fan_out
-must equal the
-.I num_node
-calculated by the function
-.BR geopm_num_node ()
-otherwise an error occurs and an error code is returned.  If a NULL pointer is
-passed for
-.I fan_out
-then the output of
+node in the tree has is a function of its depth in the tree.  The output of
 .BR MPI_Dims_create ()
-will be used to determine the structure of the tree.  The power management
-policy is determined in one of two ways: statically with a configuration file
-or dynamically controlled by the resource manager through shared memory.  See
-the
+will be used to help determine the structure of the tree.  The power
+management policy is determined in one of two ways: statically with a
+configuration file or dynamically controlled by the resource manager through
+shared memory.  See the
 .BR geopm_policy_c (3)
 man page for more details about how to create the configuration file or shared
 memory region.  The
@@ -204,19 +183,6 @@ specified, otherwise an error occurs and an error code is returned.
 .sp
 .B "HELPER FUNCTIONS:"
 .br
-.PP
-.BR geopm_num_node ()
-sets
-.I num_node
-to the number of compute nodes associated with the communicator
-.IR comm .
-A compute node is defined to be a shared memory coherency domain.  The product
-of the elements of the
-.I fan_out
-array passed to
-.BR geomp_ctl_create ()
-must equal
-.IR num_node .
 .PP
 .BR geopm_no_omp_cpu
 sets the
