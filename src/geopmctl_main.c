@@ -37,6 +37,7 @@
 #include <getopt.h>
 
 #include "geopm.h"
+#include "Controller.hpp"
 
 enum geopmctl_const {
     GEOPMCTL_MAX_FACTOR = 8,
@@ -143,7 +144,7 @@ int main(int argc, char **argv)
             fprintf(stdout, "control: %s\n", control);
             fprintf(stdout, "report: %s\n", report);
         }
-        err0 = geopm_ctl_run(num_factor, factor, control, report, MPI_COMM_WORLD);
+        err0 = geopm_ctl_run(control, report, MPI_COMM_WORLD);
     }
 
     if (err_mpi) {
@@ -188,3 +189,4 @@ static int parse_csv_int(const char *csv_string, int *num_el, int *result)
     }
     return err;
 }
+

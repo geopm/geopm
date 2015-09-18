@@ -35,9 +35,13 @@
 
 extern "C"
 {
-    int geopm_ctl_run(int num_factor, const int *factor, const char *control, const char *report, MPI_Comm comm)
+    int geopm_ctl_run(const char *control, const char *report, MPI_Comm comm)
     {
         int err = 0;
+        int num_factor = 3;
+        int num_nodes;
+        err = geopm_num_nodes(comm, &num_nodes);
+        MPI_Dims_create(num_nodes, num_factor, factor);
 
         try {
             std::vector<int> factor_vec(num_factor);
@@ -51,6 +55,47 @@ extern "C"
         catch (std::exception ex) {
             std::cerr << ex.what();
             err = -1;
+        }
+        return err;
+    }
+
+    int geopm_num_nodes(MPI_Comm comm, int *num_nodes)
+    {
+        int err, comm_size, comm_rank;
+        MPI_Comm shm_comm = MPI_NULL_COMM, split_comm = MPI_NULL_COMM;
+
+        err = MPI_Comm_size(comm, &comm_size);
+        if (!err) {
+            err = MPI_Comm_rank(comm, &comm_rank);
+        }
+        if (!err) {
+            err = MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, comm_rank, MPI_INFO_NULL, &shm_comm);
+        }
+        if (!err) {
+            err = MPI_Comm_rank(shm_comm, &shm_rank);
+        }
+        if (!err) {
+            if (!shm_rank) {
+                is_shm_root = 1;
+            }
+            else {
+                is_shm_root = 0;
+            }
+            err = MPI_Comm_split(comm, is_shm_root, comm_rank, &split_comm);
+        }
+        if (!err) {
+            if (is_shm_root == 1) {
+                err = MPI_Comm_size(split_comm, num_nodes);
+            }
+        }
+        if (!err) {
+            err = MPI_Bcast(num_nodes, 1, MPI_INT, 0, shm_comm);
+        }
+        if (shm_comm != MPI_NULL_COMM) {
+            MPI_Comm_free(&shm_comm);
+        }
+        if (split_comm != MPI_NULL_COMM) {
+            MPI_Comm_free(&split_comm);
         }
         return err;
     }

@@ -34,52 +34,51 @@
 
 #include <mpi.h>
 
-int geopm_ctl_spawn(int num_factor,
-                    const int *factor,
-                    const char *control,
+// FIXME calling sequence does not match geopm.h header fileor 
+int geopm_ctl_spawn(const char *control,
                     const char *report,
                     const char *geopmctl_path,
                     MPI_Comm app_comm,
                     MPI_Comm *ctl_intercomm)
 {
     int err = 0, i;
-    int *ctl_err;
+    int *ctl_err = NULL;
     const char *geopmctl_path_default = "geopmctl";
     int world_size, world_rank, shm_rank, ctl_size, is_shm_root;
     MPI_Comm shm_comm, split_comm;
-    MPI_Info info;
+    MPI_Info info = MPI_INFO_NULL;
 
     if (!geopmctl_path) {
         geopmctl_path = geopmctl_path_default;
     }
-
-    MPI_Comm_size(app_comm, &world_size);
-    MPI_Comm_rank(app_comm, &world_rank);
-    MPI_Comm_split_type(app_comm, MPI_COMM_TYPE_SHARED, world_rank, MPI_INFO_NULL, &shm_comm);
-    MPI_Comm_rank(shm_comm, &shm_rank);
-    if (!shm_rank) {
-        is_shm_root = 1;
+    err = geopm_num_nodes(app_comm, &ctl_size);
+    if (!err) {
+        ctl_err = (int *)calloc(ctl_size, sizeof(int));
+        if (ctl_err == NULL) {
+            err = ENOMEM;
+        }
     }
-    else {
-        is_shm_root = 0;
+    if (!err) {
+        err = MPI_Info_create(&info);
     }
-    MPI_Comm_split(app_comm, is_shm_root, world_rank, &split_comm);
-    if (is_shm_root == 1) {
-        MPI_Comm_size(split_comm, &ctl_size);
+    if (!err) {
+        err = MPI_Info_set(info, "pernode", "true");
     }
-    MPI_Bcast(&ctl_size, 1, MPI_INT, 0, shm_comm);
-    ctl_err = (int *)calloc(ctl_size, sizeof(int));
-    MPI_Info_create(&info);
-    MPI_Info_set(info, "pernode", "true");
-    MPI_Comm_spawn((char *)geopmctl_path, NULL, ctl_size, info, 0, app_comm, ctl_intercomm, ctl_err);
+    if (!err) {
+        // FIXME need to construct argv from control and report
+        err = MPI_Comm_spawn((char *)geopmctl_path, NULL, ctl_size, info, 0, app_comm, ctl_intercomm, ctl_err);
+    }
     for (i = 0; i < ctl_size; ++i) {
         if (ctl_err[i] != MPI_SUCCESS) {
             err = ctl_err[i];
             break;
         }
     }
-    free(ctl_err);
-    // FIXME Destroy info, shm_comm, and split_comm
-    // FIXME Check return codes
+    if (ctl_err) {
+        free(ctl_err);
+    }
+    if (info != MPI_INFO_NULL) {
+        MPI_Info_free(&info);
+    }
     return err;
 }

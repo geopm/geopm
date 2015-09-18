@@ -30,5 +30,5 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_policy_controller.h"
+#include "geopm_policy.h"
 

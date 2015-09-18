@@ -4,12 +4,21 @@ currently available without even going into what the example would compute.
 OPTIONS
 =======
 
+Policy
+------
+- Configuration file
+  * RM linked
+  * RM calls executable
+  * Without geopm runtime
+  * With geopm runtime
+- Shared memory RM interface
+  * With geopm runtime
+
 Control Execution
 -----------------
 - geopmctl
 - geopm_ctl_spawn()
 - geopm_ctl_pthread()
-- geopm_ctl_step()
 
 Control Granularity
 -------------------

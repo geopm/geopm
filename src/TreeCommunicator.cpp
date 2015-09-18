@@ -171,8 +171,8 @@ namespace geopm
     {
         int blocklength[5] = {1, 1, 1, 1, 1};
         MPI_Datatype mpi_type[5] = {MPI_INT,
-                                    MPI_LONG,
                                     MPI_INT,
+                                    MPI_UNSIGNED_LONG,
                                     MPI_INT,
                                     MPI_DOUBLE
                                    };
@@ -180,8 +180,8 @@ namespace geopm
         MPI_Datatype result;
 
         offset[0] = offsetof(struct geopm_policy_message_s, phase_id);
-        offset[1] = offsetof(struct geopm_policy_message_s, flags);
-        offset[2] = offsetof(struct geopm_policy_message_s, mode);
+        offset[1] = offsetof(struct geopm_policy_message_s, mode);
+        offset[2] = offsetof(struct geopm_policy_message_s, flags);
         offset[3] = offsetof(struct geopm_policy_message_s, num_sample);
         offset[4] = offsetof(struct geopm_policy_message_s, power_budget);
         check_mpi(MPI_Type_create_struct(5, blocklength, offset, mpi_type, &result));

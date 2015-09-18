@@ -36,6 +36,7 @@
 #include <stdexcept>
 #include <string>
 #include <json-c/json.h>
+#include <string.h>
 
 #include "geopm_policy_message.h"
 #include "Configuration.hpp"

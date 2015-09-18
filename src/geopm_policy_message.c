@@ -38,8 +38,8 @@ int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct g
 {
     int result = 1;
     if (a->phase_id != b->phase_id ||
-        a->goal != b->goal ||
         a->mode != b->mode ||
+        a->flags != b->flags ||
         a->num_sample != b->num_sample ||
         a->power_budget != b->power_budget) {
         result = 0;

@@ -48,7 +48,7 @@ namespace geopm
     class Controller
     {
         public:
-            Controller(std::vector<int> factor, Configuration *config, std::string report, MPI_Comm comm);
+            Controller(std::string control, std::string report, MPI_Comm comm);
             virtual ~Controller();
             void run();
             void phase_register(std::string phase_name, long phase_id, int hint);
