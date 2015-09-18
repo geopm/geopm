@@ -39,7 +39,7 @@ extern "C" {
 
 struct geopm_policy_c;
 
-int geopm_policy_create(const char *config_path,
+int geopm_policy_create(const char *policy_config,
                         const char *policy_key,
                         struct geopm_policy_c **policy);
 
@@ -56,9 +56,15 @@ int geopm_policy_flags(struct geopm_policy_c *policy,
 
 int geopm_policy_write(const struct geopm_policy_c *policy);
 
-int geopm_uniform_freq_flags_update(int pct_perf,
-                                    int num_cpu_full_perf,
-                                    unsigned long *flags);
+int geopm_policy_flags_update_cpu_freq(int cpu_mhz,
+                                       unsigned long *flags);
+
+int geopm_policy_flags_update_full_perf(int num_cpu_full_perf,
+                                        unsigned long *flags);
+
+int geopm_policy_flags_update_tdp_percent(int percent_tdp,
+                                          unsigned long *flags);
+
 
 #ifdef __cplusplus
 }

@@ -39,73 +39,73 @@
 #include <string.h>
 
 #include "geopm_policy_message.h"
-#include "Configuration.hpp"
+#include "GlobalPolicy.hpp"
 
 namespace geopm
 {
-    Configuration::Configuration(std::string control)
+    GlobalPolicy::GlobalPolicy(std::string config)
         :m_mode(-1)
         ,m_cpu_freq_mhz(-1)
         ,m_num_max_perf(-1)
         ,m_percent_tdp(-1)
         ,m_power_budget_watts(-1)
     {
-        parse(control);
+        parse(config);
     }
 
-    Configuration::~Configuration() {}
+    GlobalPolicy::~GlobalPolicy() {}
 
-    int Configuration::mode(void) const
+    int GlobalPolicy::mode(void) const
     {
         return m_mode;
     }
 
-    int Configuration::frequency_mhz(void) const
+    int GlobalPolicy::frequency_mhz(void) const
     {
         return m_cpu_freq_mhz;
     }
 
-    int Configuration::percent_tdp(void) const
+    int GlobalPolicy::percent_tdp(void) const
     {
         return m_cpu_freq_mhz;
     }
 
-    int Configuration::budget_watts(void) const
+    int GlobalPolicy::budget_watts(void) const
     {
         return m_power_budget_watts;
     }
 
-    int Configuration::affinity(void) const
+    int GlobalPolicy::affinity(void) const
     {
         return m_affinity;
     }
 
-    void Configuration::mode(int mode)
+    void GlobalPolicy::mode(int mode)
     {
         m_mode = mode;
     }
 
-    void Configuration::frequency_mhz(int frequency)
+    void GlobalPolicy::frequency_mhz(int frequency)
     {
         m_cpu_freq_mhz = frequency;
     }
 
-    void Configuration::percent_tdp(int percentage)
+    void GlobalPolicy::percent_tdp(int percentage)
     {
         m_cpu_freq_mhz = percentage;
     }
 
-    void Configuration::budget_watts(int budget)
+    void GlobalPolicy::budget_watts(int budget)
     {
         m_power_budget_watts = budget;
     }
 
-    void Configuration::affinity(int affinity)
+    void GlobalPolicy::affinity(int affinity)
     {
         m_affinity = affinity;
     }
 
-    void Configuration::parse(std::string path)
+    void GlobalPolicy::parse(std::string path)
     {
         std::ifstream control_file("policy.conf");
         std::string policy_string;
@@ -288,6 +288,82 @@ namespace geopm
             if (m_affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
                 std::cout << ",affinity=scatter" << "\n";
             }
+        }
+    }
+
+    void GlobalPolicy::write(std::string config)
+    {
+        json_object *policy, *options;
+        std::ofstream config_file;
+        std::string affinity_name;
+
+        if (config.empty()) {
+            throw std::runtime_error("invalid path specified");
+        }
+
+        config_file.open(config.c_str(), std::ifstream::out);
+
+        policy = json_object_new_object();
+        options = json_object_new_object();
+
+        switch (m_mode) {
+            case GEOPM_MODE_SHUTDOWN:
+                break;
+            case GEOPM_MODE_TDP_BALANCE_STATIC:
+                json_object_object_add(policy,"mode",json_object_new_string("tdp_balanced_static"));
+                json_object_object_add(options,"percent_tdp",json_object_new_int(m_percent_tdp));
+                json_object_object_add(policy,"options",options);
+                break;
+            case GEOPM_MODE_FREQ_UNIFORM_STATIC:
+                json_object_object_add(policy,"mode",json_object_new_string("freq_uniform_static"));
+                json_object_object_add(options,"cpu_mhz",json_object_new_int(m_cpu_freq_mhz));
+                json_object_object_add(policy,"options",options);
+                break;
+            case GEOPM_MODE_FREQ_HYBRID_STATIC:
+                json_object_object_add(policy,"mode",json_object_new_string("freq_hybrid_static"));
+                json_object_object_add(options,"cpu_mhz",json_object_new_int(m_cpu_freq_mhz));
+                json_object_object_add(options,"num_cpu_max_perf",json_object_new_int(m_num_max_perf));
+                affinity_string(m_affinity, affinity_name);
+                json_object_object_add(options,"affinity",json_object_new_string(affinity_name.c_str()));
+                json_object_object_add(policy,"options",options);
+                break;
+            case GEOPM_MODE_PERF_BALANCE_DYNAMIC:
+                json_object_object_add(policy,"mode",json_object_new_string("perf_balanced_dynamic"));
+                json_object_object_add(options,"power_budget",json_object_new_int(m_power_budget_watts));
+                json_object_object_add(policy,"options",options);
+                break;
+            case GEOPM_MODE_FREQ_UNIFORM_DYNAMIC:
+                json_object_object_add(policy,"mode",json_object_new_string("freq_uniform_dynamic"));
+                json_object_object_add(options,"power_budget",json_object_new_int(m_power_budget_watts));
+                json_object_object_add(policy,"options",options);
+                break;
+            case GEOPM_MODE_FREQ_HYBRID_DYNAMIC:
+                json_object_object_add(policy,"mode",json_object_new_string("freq_hybrid_dynamic"));
+                json_object_object_add(options,"power_budget",json_object_new_int(m_power_budget_watts));
+                json_object_object_add(options,"num_cpu_max_perf",json_object_new_int(m_num_max_perf));
+                affinity_string(m_affinity, affinity_name);
+                json_object_object_add(options,"affinity",json_object_new_string(affinity_name.c_str()));
+                json_object_object_add(policy,"options",options);
+                break;
+            default:
+                throw std::runtime_error("invalid mode specified");
+        }
+        config_file << json_object_to_json_string(policy);
+        config_file.close();
+    }
+
+    void GlobalPolicy::affinity_string(int value, std::string &name)
+    {
+        switch (value) {
+            case GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT:
+                name.assign("compact");
+                break;
+            case GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER:
+                name.assign("scatter");
+                break;
+            default:
+                throw std::runtime_error("invalid affinity specified");
+                break;
         }
     }
 }

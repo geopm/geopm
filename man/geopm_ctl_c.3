@@ -38,7 +38,8 @@ geopm_ctl_c \- geopm power controller structure
 .sp
 .B Link with -lgeopm
 .sp
-.BI "int geopm_ctl_create(const char *" "policy_config" ,
+.BI "int geopm_ctl_create(const char *" "policy_config"  ,
+.BI "                     const char *" "policy_key" ,
 .BI "                     struct geopm_prof_c *" "sample_prof" ,
 .BI "                     MPI_Comm " "comm" ,
 .BI "                     struct geopm_ctl_c **" "ctl" );

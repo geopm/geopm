@@ -41,7 +41,7 @@
 #include "Platform.hpp"
 #include "Decider.hpp"
 #include "Phase.hpp"
-#include "Configuration.hpp"
+#include "GlobalPolicy.hpp"
 
 namespace geopm
 {
@@ -59,7 +59,7 @@ namespace geopm
             int walk_down(void);
             int walk_up(void);
             std::vector<int> m_factor;
-            Configuration *m_config;
+            GlobalPolicy *m_config;
             std::string m_report;
             TreeCommunicator m_comm;
             TreeDecider *m_tree_decider;

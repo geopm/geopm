@@ -38,12 +38,12 @@ libgeopmpolicy_la_LDFLAGS = -version-info $(geopm_abi_version)
 
 libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/CircularBuffer.hpp \
-                      src/Configuration.cpp \
-                      src/Configuration.hpp \
                       src/Controller.cpp \
                       src/Controller.hpp \
                       src/Decider.cpp \
                       src/Decider.hpp \
+                      src/GlobalPolicy.cpp \
+                      src/GlobalPolicy.hpp \
                       src/IVTPlatform.cpp \
                       src/IVTPlatform.hpp \
                       src/IVTPlatformImp.cpp \

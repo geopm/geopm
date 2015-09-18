@@ -48,7 +48,7 @@ extern "C"
             std::string control_str(control);
             std::string report_str(report);
             factor_vec.assign(factor, factor + num_factor);
-            geopm::Configuration config(control);
+            geopm::GlobalPolicy config(control);
             geopm::Controller ctl(factor_vec, &config, report_str, comm);
             ctl.run();
         }
@@ -103,7 +103,7 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(std::vector<int> factor, Configuration *config, std::string report, MPI_Comm comm)
+    Controller::Controller(std::vector<int> factor, GlobalPolicy *config, std::string report, MPI_Comm comm)
         : m_factor(factor)
         , m_config(config)
         , m_report(report)

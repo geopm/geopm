@@ -41,52 +41,5 @@
 
 int main(int argc, char** argv)
 {
-
-    policy = json_object_new_object();
-    options = json_object_new_object();
-
-    switch (mode) {
-        case MODE_NONE:
-            break;
-        case MODE_TDP_STATIC:
-            json_object_object_add(policy,"mode",json_object_new_string("tdp_balanced_static"));
-            json_object_object_add(options,"percent_tdp",json_object_new_int(percentage));
-            json_object_object_add(policy,"options",options);
-            break;
-        case MODE_UNIFORM_STATIC:
-            json_object_object_add(policy,"mode",json_object_new_string("freq_uniform_static"));
-            json_object_object_add(options,"cpu_mhz",json_object_new_int(frequency));
-            json_object_object_add(policy,"options",options);
-            break;
-        case MODE_HYBRID_STATIC:
-            json_object_object_add(policy,"mode",json_object_new_string("freq_hybrid_static"));
-            json_object_object_add(options,"cpu_mhz",json_object_new_int(frequency));
-            json_object_object_add(options,"num_cpu_max_perf",json_object_new_int(num_cpus));
-            json_object_object_add(options,"affinity",json_object_new_string(affinity));
-            json_object_object_add(policy,"options",options);
-            break;
-        case MODE_PERF_DYNAMIC:
-            json_object_object_add(policy,"mode",json_object_new_string("perf_balanced_dynamic"));
-            json_object_object_add(options,"power_budget",json_object_new_int(budget));
-            json_object_object_add(policy,"options",options);
-            break;
-        case MODE_UNIFORM_DYNAMIC:
-            json_object_object_add(policy,"mode",json_object_new_string("freq_uniform_dynamic"));
-            json_object_object_add(options,"power_budget",json_object_new_int(budget));
-            json_object_object_add(policy,"options",options);
-            break;
-        case MODE_HYBRID_DYNAMIC:
-            json_object_object_add(policy,"mode",json_object_new_string("freq_hybrid_dynamic"));
-            json_object_object_add(options,"power_budget",json_object_new_int(budget));
-            json_object_object_add(options,"num_cpu_max_perf",json_object_new_int(num_cpus));
-            json_object_object_add(options,"affinity",json_object_new_string(affinity));
-            json_object_object_add(policy,"options",options);
-            break;
-        default:
-            slurm_error("energy-mode: invalid mode: %d", mode);
-            return ESPANK_BAD_ARG;
-    }
-    fprintf(config_file, "%s", json_object_to_json_string(policy));
-
-    return 0;
+   
 }

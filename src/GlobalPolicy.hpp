@@ -30,18 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIGURATION_HPP_INCLUDE
-#define CONFIGURATION_HPP_INCLUDE
+#ifndef GLOBALPOLICY_HPP_INCLUDE
+#define GLOBALPOLICY_HPP_INCLUDE
 
 #include <string>
 
 namespace geopm
 {
-    class Configuration
+    class GlobalPolicy
     {
         public:
-            Configuration(std::string control);
-            virtual ~Configuration();
+            GlobalPolicy(std::string config);
+            virtual ~GlobalPolicy();
             int mode(void) const;
             int frequency_mhz(void) const;
             int percent_tdp(void) const;
@@ -52,8 +52,10 @@ namespace geopm
             void percent_tdp(int percentage);
             void budget_watts(int budget);
             void affinity(int affinity);
+            void write(std::string config);
         protected:
             void parse(std::string path);
+            void affinity_string(int value, std::string &name);
             int m_mode;
             int m_cpu_freq_mhz;
             int m_num_max_perf;

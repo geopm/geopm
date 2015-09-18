@@ -51,19 +51,22 @@ geopm_policy_c \- geopm mpi job policy management structure
 .BI "int geopm_policy_mode(struct geopm_policy_c *" "policy" ,
 .BI "                      int " "mode" );
 .sp
-.BI "int geopm_policy_flags(struct geopm_policy_c *" "policy" ,
-.BI "                       unsigned long " "flags" );
+.BI "int geopm_policy_cpu_freq(struct geopm_policy_c *" "policy" ,
+.BI "                          int " "cpu_mhz");
+.sp
+.BI "int geopm_policy_full_perf(struct geopm_policy_c *" "policy" ,
+.BI "                           int " "num_cpu_full_perf");
+.sp
+.BI "int geopm_policy_tdp_percent(struct geopm_policy_c *" "policy" ,
+.BI "                             int " "percent_tdp");
+.sp
+.BI "int geopm_policy_affinity(struct geopm_policy_c *" "policy" ,
+.BI "                          int " "affinity");
+.sp
+.BI "int geopm_policy_goal(struct geopm_policy_c *" "policy" ,
+.BI "                      int " "goal");
 .sp
 .BI "int geopm_policy_write(const struct geopm_policy_c *" "policy" );
-.sp
-.B "HELPER FUNCTIONS:"
-.br
-.BI "int geopm_cpu_freq_flags_update(int " "cpu_mhz" ,
-.BI "                                int " "num_cpu_full_perf" ,
-.BI "                                unsigned long *" "flags" );
-.sp
-.BI "int geopm_tdp_percent_flags_update(int " "percent_tdp" ,
-.BI "                                   unsigned long *" "flags" );
 .sp
 .SH "DESCRIPTION"
 .PP
@@ -135,51 +138,54 @@ and these options are described in the
 .B MODE
 section below.
 .PP
-.BR geopm_policy_flags ()
-sets the mode
-.I flags
-for the
+.BR geopm_policy_cpu_freq ()
+sets the
+.I cpu_mhz
+frequency in MHz to which the
 .I policy
-which can be used to augment the behavior of a control mode.  The flags are
-enumerated in the
-.I geopm_policy_message.h
-header and described in the
-.B FLAGS
-section below.  The flags can be combined with the bitwise OR operator, and
-some flags may be silently ignored by some modes.
+will constrain the restricted CPUs.
+.PP
+.BR geopm_policy_cpu_full_perf ()
+sets the number of CPUs,
+.I num_cpu_full_perf
+which are run unconstrained at full performance for the
+.IR policy .
+This parameter is used by GEOPM_MODE_FREQ_HYBRID_STATIC AND
+GEOPM_MODE_FREQ_HYBRID_DYNAMIC for "big CPUs".
+.PP
+.BR geopm_policy_tdp_percent ()
+sets the percent of Thermal Design Power,
+.I percent_tdp
+to give restricted CPUs under control under the
+.IR policy .
+.PP
+.BR geopm_policy_affinity ()
+sets the
+.I affinity
+for the
+.IR policy .
+The affinity is used to place the unrestricted CPUs ("big CPUs") under control
+in the GEOPM_MODE_FREQ_HYBRID_STATIC and GEOPM_MODE_FREQ_HYBRID_DYNAMIC modes.
+The affinity options are discussed in the
+.B AFFINITY
+section below.
+.PP
+.BR geopm_policy_goal ()
+sets the
+.I goal
+for the
+.I policy.
+The goal affects the behavior of the policy when using dynamic power modes.
+.R The goal options are discussed in the
+.B GOALS
+section below.
 .PP
 .BR geopm_policy_write ()
 writes the state stored in the
 .I policy
-to a configuration file or
-shared memory depending on the values passed to
+to a configuration file or shared memory depending on the values passed to
 .BR geopm_policy_create ().
 .sp
-.B "HELPER FUNCTIONS:"
-.br
-.PP
-.BR geopm_cpu_freq_flags_update ()
-is used to update the
-.I flags
-to configure the uniform frequency control modes.  The input
-.I cpu_mhz
-gives the CPU frequency in units of MHz to which the restricted CPUs are
-contrained.  The input
-.I num_cpu_full_perf
-value determines the number of CPUs which are run unconstrained at full
-performance (used by GEOPM_MODE_FREQ_HYBRID_STATIC AND
-GEOPM_MODE_FREQ_HYBRID_DYNAMIC for "big CPUs").  Note that this function
-modifies only the bits in
-.I flags
-which control these features; other bits in
-.I flags
-are unmodified by this function.
-.PP
-.BR geopm_tdp_percent_flags_update ()
-is used to update the
-.I flags
-to configure the percent of Thermal Design Power to restricted CPUs under
-control.
 .SH "STATIC MODES"
 The modes listed in this section do not have a run time requirement on geopm.
 They are used to enact a power policy that does not require power setting
@@ -250,7 +256,7 @@ result in exceeding the job’s aggregate power bound. This mode is intended to
 address load imbalance due to manufacturing variation while mitigating
 application scaling challenges. This mode achieves higher performance than the
 FREQ_HYBRID_STATIC mode.
-.SH "FLAGS"
+.SH "GOALS"
 .TP
 .B GEOPM_FLAGS_GOAL_CPU_EFFICIENCY
 Set energy policy to maximize CPU efficiency, not performance (not yet
@@ -263,6 +269,7 @@ implemented).
 .B GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
 Set energy policy to maximize memory efficiency, not performance (not yet
 implemented).
+.SH "AFFINITY"
 .TP
 .B GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT
 The "big CPUs" are located nearby each other on the processor package.

@@ -45,7 +45,7 @@
 
 #include "TreeCommunicator.hpp"
 #include "PolicyController.hpp"
-#include "Configuration.hpp"
+#include "GlobalPolicy.hpp"
 
 namespace geopm
 {
@@ -80,7 +80,7 @@ namespace geopm
     class TreeCommunicatorRootConfig : public TreeCommunicatorRoot
     {
         public:
-            TreeCommunicatorRootConfig(Configuration *config);
+            TreeCommunicatorRootConfig(GlobalPolicy *config);
             ~TreeCommunicatorRootConfig();
             void get_policy(struct geopm_policy_message_s &policy);
         protected:
@@ -193,7 +193,7 @@ namespace geopm
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const Configuration *config, const MPI_Comm &comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *config, const MPI_Comm &comm)
         : m_fan_out(fan_out),
           m_comm(fan_out.size()),
           m_level(fan_out.size())
@@ -333,7 +333,7 @@ namespace geopm
         }
     }
 
-    void TreeCommunicator::root_create(Configuration *config)
+    void TreeCommunicator::root_create(GlobalPolicy *config)
     {
         if (control.empty()) {
             // this rank is not at root of tree
@@ -447,7 +447,7 @@ namespace geopm
         }
     }
 
-    TreeCommunicatorRootConfig::TreeCommunicatorRootConfig(Configuration *config)
+    TreeCommunicatorRootConfig::TreeCommunicatorRootConfig(GlobalPolicy *config)
         :m_config(config)
     {
     }

@@ -20,8 +20,6 @@ MANIFEST
 README
 src/CircularBuffer.cpp
 src/CircularBuffer.hpp
-src/Configuration.cpp
-src/Configuration.hpp
 src/Controller.cpp
 src/Controller.hpp
 src/Decider.cpp
@@ -34,6 +32,8 @@ src/geopm_policy.c
 src/geopm_policy.h
 src/geopm_policy_message.c
 src/geopm_policy_message.h
+src/GlobalPolicy.cpp
+src/GlobalPolicy.hpp
 src/HSXPlatformImp.cpp
 src/HSXPlatformImp.hpp
 src/IVTPlatform.cpp

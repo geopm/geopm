@@ -34,9 +34,9 @@
 geopmctl \- geopm runtime mpi application
 .SH "SYNOPSIS"
 .sp
-.BR "geopmctl" " [" "\-\-version" "] [" "\-\-help" "] [" "\-f" " factor_list] [" "\-c" " config_file]"
+.BR "geopmctl" " [" "\-\-version" "] [" "\-\-help" "] [" "\-c" " policy_config]"
 .br
-.BR "        " " [" "\-k" " control_key] [" "\-s" " sample_key] [" "\-r" " report]"
+.BR "        " " [" "\-k" " policy_key] [" "\-s" " sample_key] [" "\-r" " report]"
 .sp
 .SH "DESCRIPTION"
 .sp
@@ -50,10 +50,6 @@ Print version of geopm to standard output, then exit.
 .TP
 .B \-\-help
 Print brief summary of the command line usage information, then exit.
-.TP
-.BR "\-f" " factor_list"
-Specify comma separated list of tree hierarchy factors: root fan out factor
-first and leaf fan-out factor last.
 .TP
 .BR "\-c" " config_file"
 Policy configuration file which may be created with the
