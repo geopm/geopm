@@ -30,39 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GLOBALPOLICY_HPP_INCLUDE
-#define GLOBALPOLICY_HPP_INCLUDE
-
-#include <string>
+#ifndef PROFILE_HPP_INCLUDE
+#define PROFILE_HPP_INCLUDE
 
 namespace geopm
 {
-    class GlobalPolicy
+    class Profile
     {
         public:
-            GlobalPolicy(std::string config, std::string key);
-            virtual ~GlobalPolicy();
-            int mode(void) const;
-            int frequency_mhz(void) const;
-            int percent_tdp(void) const;
-            int budget_watts(void) const;
-            int affinity(void) const;
-            void mode(int mode);
-            void frequency_mhz(int frequency);
-            void percent_tdp(int percentage);
-            void budget_watts(int budget);
-            void affinity(int affinity);
-            void write(std::string config);
+            Profile(const std::string name, const std::string sample_key, int sample_reduce) {}
+            ~Profile() {}
         protected:
-            void parse(std::string path);
-            void affinity_string(int value, std::string &name);
-            int m_mode;
-            int m_cpu_freq_mhz;
-            int m_num_max_perf;
-            int m_percent_tdp;
-            int m_affinity;
-            int m_power_budget_watts;
+            std::string m_name;
+            std::string m_sample_key;
+            int m_sample_reduce;
     };
-
 }
+
 #endif

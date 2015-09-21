@@ -34,7 +34,7 @@
 geopmctl \- geopm runtime mpi application
 .SH "SYNOPSIS"
 .sp
-.BR "geopmctl" " [" "\-\-version" "] [" "\-\-help" "] [" "\-c" " policy_config]"
+.BR "geopmctl" " [" "\-\-version" "] [" "\-\-help" "] [" "\-m" "] [" "\-c" " policy_config]"
 .br
 .BR "        " " [" "\-k" " policy_key] [" "\-s" " sample_key] [" "\-r" " report]"
 .sp
@@ -51,7 +51,11 @@ Print version of geopm to standard output, then exit.
 .B \-\-help
 Print brief summary of the command line usage information, then exit.
 .TP
-.BR "\-c" " config_file"
+.B "\-m"
+.br
+Enable MPI runtime.
+.TP
+.BR "\-c" " policy_config"
 Policy configuration file which may be created with the
 .BR geopm_policy_c (3)
 interface or the

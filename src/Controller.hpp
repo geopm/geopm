@@ -42,13 +42,14 @@
 #include "Decider.hpp"
 #include "Phase.hpp"
 #include "GlobalPolicy.hpp"
+#include "Profile.hpp"
 
 namespace geopm
 {
     class Controller
     {
         public:
-            Controller(std::string control, std::string report, MPI_Comm comm);
+            Controller(std::vector<int> fan_out, GlobalPolicy *global_policy, Profile *profile, MPI_Comm comm);
             virtual ~Controller();
             void run();
             void phase_register(std::string phase_name, long phase_id, int hint);
@@ -58,10 +59,10 @@ namespace geopm
         protected:
             int walk_down(void);
             int walk_up(void);
-            std::vector<int> m_factor;
-            GlobalPolicy *m_config;
-            std::string m_report;
-            TreeCommunicator m_comm;
+            std::vector<int> m_fan_out;
+            GlobalPolicy *m_global_policy;
+            Profile *m_profile;
+            TreeCommunicator m_tree_comm;
             TreeDecider *m_tree_decider;
             LeafDecider *m_leaf_decider;
             // Per-level platforms

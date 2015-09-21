@@ -49,144 +49,171 @@ static int parse_csv_int(const char *csv_string, int *num_el, int *result);
 int main(int argc, char **argv)
 {
     int opt;
-    int world_size, my_rank, i;
+    int use_mpi = 0;
+    int sample_reduce = 0;
+    int world_size = 1, my_rank = 0, i;
     int err0 = 0;
     int err_mpi = 0;
     int num_factor = GEOPMCTL_MAX_FACTOR;
     int factor[GEOPMCTL_MAX_FACTOR] = {0};
     size_t factor_prod;
-    char report[GEOPMCTL_STRING_LENGTH] = {0};
-    char control[GEOPMCTL_STRING_LENGTH] = {0};
-    const char *usage = "Usage: %s -f factor_list [-c control] [-r report]\n"
-                        "    factor_list:   Comma separated list of tree hierarchy factors\n"
-                        "                   root fan out factor first and leaf fan-out\n"
-                        "                   factor last.\n"
-                        "    control:       File which modifies geopmctl behavior\n"
-                        "    report:        Output file that will hold the report when\n"
-                        "                   program terminates\n"
-                        "\n";
+    char error_str[GEOPMCTL_STRING_LENGTH] = {0};
+    char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
+    char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
+    char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
+    char report[GEOPMCTL_STRING_LExNGTH] = {0};
+    char job_name[GEOPMCTL_STRING_LExNGTH] = {0};
+    char *arg_ptr = NULL;
+    MPI_Comm comm_world = MPI_COMM_NULL;
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    const char *usage = "     geopmctl [--version] [--help] [-m] [-c policy_config]\n"
+                        "              [-k policy_key] [-s sample_key] [-r report]\n"
+                        "\n"
+                        "     --version\n"
+                        "          Print version of geopm to standard output, then exit.\n"
+                        "\n"
+                        "     --help\n"
+                        "          Print  brief   summary  of   the  command   line  usage\n"
+                        "          information, then exit.\n"
+                        "\n"
+                        "     -m\n"
+                        "          Enable MPI runtime.\n"
+                        "\n"
+                        "     -c policy_config\n"
+                        "          Policy configuration file which may be created with the\n"
+                        "          geopm_policy_c(3)   interface  or   the  geopmpolicy(3)\n"
+                        "          application.  If -c is specified  then -k should not be\n"
+                        "          specified.  If both  are specified -k is  ignored and a\n"
+                        "          warning is printed.\n"
+                        "\n"
+                        "     -k policy_key\n"
+                        "          POSIX  shared memory  key which  determines policy  for\n"
+                        "          geopmctl.  See geopm_policy_c(3) for information on how\n"
+                        "          to  create  and  modify  a  shared  memory  region  for\n"
+                        "          control.\n"
+                        "\n"
+                        "     -s sample_key\n"
+                        "          POSIX shared  memory key referencing memory  written to\n"
+                        "          by  the compute  application  to  provide the  geopmctl\n"
+                        "          application with performance  profile information.  See\n"
+                        "          geopm_ctl_c(3)  for information  on how  to create  the\n"
+                        "          sample shared memory region for profile feedback.\n"
+                        "\n"
+                        "     -r report\n"
+                        "          Output  text file  that  will hold  the human  readable\n"
+                        "          report when program terminates.\n"
+                        "\n"
+                        "     Copyright (C) 2015 Intel Corporation. All rights reserved.\n"
+                        "\n"
 
-    if (!my_rank) {
-        while (!err0 && (opt = getopt(argc, argv, "hf:c:r:")) != -1) {
-            switch (opt) {
-                case 'f':
-                    err0 = parse_csv_int(optarg, &num_factor, factor);
-                    if (err0) {
-                        fprintf(stderr, "ERROR: parsing factor list \"%s\"\n", optarg);
-                    }
-                    break;
-                case 'c':
-                    strncpy(control, optarg, GEOPMCTL_STRING_LENGTH);
-                    if (control[GEOPMCTL_STRING_LENGTH - 1] != '\0') {
-                        fprintf(stderr, "ERROR: control name too long\n");
-                        err0 = -1;
-                    }
-                    break;
-                case 'r':
-                    strncpy(report, optarg, GEOPMCTL_STRING_LENGTH);
-                    if (report[GEOPMCTL_STRING_LENGTH - 1] != '\0') {
-                        fprintf(stderr, "ERROR: report name too long\n");
-                        err0 = -1;
-                    }
-                    break;
-                case 'h':
-                    fprintf(stderr, usage, argv[0]);
-                    err0 = -1;
-                    break;
-                default:
-                    fprintf(stderr, "ERROR: unknown parameter \"%c\"\n", opt);
-                    fprintf(stderr, usage, argv[0]);
-                    err0 = -1;
-            }
-        }
-        if (!err0 && optind != argc) {
-            fprintf(stderr, "ERROR: %s does not take positional arguments\n", argv[0]);
-            fprintf(stderr, usage, argv[0]);
-            err0 = -1;
-        }
-        if (!err0 && factor[0] == 0) {
-            fprintf(stderr, "ERROR: Flag -f is required, and factor must be non-zero\n");
-            fprintf(stderr, usage, argv[0]);
-            err0 = -1;
+
+    if (argc >= 1 &&
+        strncmp(argv[1], "--version", strlen("--version")) == 0) {
+        printf(geopm_version());
+        printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
+        return 0;
+    }
+    if (argc >= 1 && (
+        strncmp(argv[1], "--help", strlen("--help")) == 0 ||
+        strncmp(argv[1], "-h", strlen("-h")))) {
+        printf(usage);
+        return 0;
+    }
+
+    while (!err0 && (opt = getopt(argc, argv, "mc:k:s:r:")) != -1) {
+        arg_ptr = NULL;
+        switch (opt) {
+            case 'm':
+                use_mpi = 1;
+                break;
+            case 'c':
+                arg_ptr = policy_config;
+                break;
+            case 'k':
+                arg_ptr = policy_key;
+                break;
+            case 's':
+                arg_ptr = sample_key;
+                break;
+            case 'r':
+                arg_ptr = report;
+                break;
+            default:
+                fprintf(stderr, "ERROR: unknown parameter \"%c\"\n", opt);
+                fprintf(stderr, usage, argv[0]);
+                err0 = EINVAL;
+                break;
         }
         if (!err0) {
-            factor_prod = 1;
-            for (i = 0; i < num_factor; ++i) {
-                factor_prod *= factor[i];
-            }
-            if (factor_prod != (size_t)world_size) {
-                fprintf(stderr, "ERROR: Product of factors must equal size of MPI_COMM_WORLD\n");
-                err0 = -1;
+            strncpy(arg_ptr, optarg, GEOPMCTL_STRING_LENGTH);
+            if (arg_ptr[GEOPMCTL_STRING_LENGTH - 1] != '\0') {
+               fprintf(stderr, "ERROR: config_file name too long\n");
+               err0 = EINVAL;
             }
         }
     }
-    err_mpi = MPI_Bcast(&err0, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    if (err_mpi && !my_rank) {
-        err0 = err_mpi;
-    }
-    if (!err0 && !err_mpi) {
-        err_mpi = MPI_Bcast(&num_factor, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    }
-    if (!err0 && !err_mpi) {
-        err_mpi = MPI_Bcast(factor, num_factor, MPI_INT, 0, MPI_COMM_WORLD);
-    }
-    if (!err0 && !err_mpi) {
-        if (!my_rank) {
-            fprintf(stdout, "factors: ");
-            for (i = 0 ; i < num_factor; ++i) {
-                fprintf(stdout, "%d ", factor[i]);
-            }
-            fprintf(stdout, "\n");
-            fprintf(stdout, "control: %s\n", control);
-            fprintf(stdout, "report: %s\n", report);
-        }
-        err0 = geopm_ctl_run(control, report, MPI_COMM_WORLD);
+    if (!err0 && optind != argc) {
+        fprintf(stderr, "ERROR: %s does not take positional arguments\n", argv[0]);
+        fprintf(stderr, usage, argv[0]);
+        err0 = EINVAL;
     }
 
+    if (!err0 && use_mpi) {
+        err_mpi = MPI_Init(&argc, &argv);
+        comm_world = MPI_COMM_WORLD;
+        if (!err_mpi) {
+            err_mpi = MPI_Comm_size(comm_world, &world_size);
+        }
+        if (!err_mpi) {
+            err_mpi = MPI_Comm_rank(comm_world, &my_rank);
+        }
+    }
     if (err_mpi) {
         i = GEOPMCTL_STRING_LENGTH;
-        MPI_Error_string(err_mpi, control, &i);
-        fprintf(stderr, "ERROR: %s\n", control);
+        MPI_Error_string(err_mpi, error_str, &i);
+        fprintf(stderr, "ERROR: %s\n", error_str);
         err0 = err_mpi;
     }
-    MPI_Finalize();
+
+    if (!err0 && (!use_mpi || !my_rank)) {
+        if (use_mpi)
+            printf("    Enable MPI:    TRUE\n");
+        }
+        else {
+            printf("    Enable MPI:    FALSE\n");
+        }
+        if (policy_config[0]) {
+            printf("    Policy config: %s\n", policy_config);
+        }
+        if (policy_key[0]) {
+            printf("    Policy key:    %s\n", policy_key);
+        }
+        if (sample_key[0]) {
+            printf("    Sample key:    %s\n", sample_key);
+        }
+        if (report[0]) {
+            printf("    Report file:   %s\n");
+        }
+        printf("\n");
+    }
+    if (!err0) {
+        snprintf(job_name, GEOPMCTL_STRING_LENGTH, "geopmctl-%d", (int)getpid());
+        err0 = geopm_prof_create(job_name, sample_reduce, sample_key, &prof);
+    }
+    if (!err0) {
+        err0 = geopm_ctl_create(policy_config, policy_key, sample_prof, comm_world, &ctl);
+    }
+    if (!err0) {
+        err0 = geopm_ctl_run(ctl);
+    }
+    if (!err0) {
+        err0 = geopm_ctl_destroy(ctl);
+    }
+    if (!err0) {
+        err0 = geopm_prof_destroy(prof);
+    }
+    if (use_mpi) {
+        MPI_Finalize();
+    }
     return err0;
 }
-
-static int parse_csv_int(const char *csv_string, int *num_el, int *result)
-{
-    int err = 0;
-    int i;
-    int max_num_el = *num_el;
-    char *begin_ptr, *end_ptr;
-    char csv_copy[GEOPMCTL_STRING_LENGTH] = {0};
-
-    *num_el = 0;
-    strncpy(csv_copy, csv_string, GEOPMCTL_STRING_LENGTH);
-    if (csv_copy[GEOPMCTL_STRING_LENGTH - 1] != 0) {
-        err = -1;
-    }
-
-    begin_ptr = csv_copy;
-    end_ptr = csv_copy;
-    for (i = 0; *begin_ptr && end_ptr && i < max_num_el; ++i) {
-        end_ptr = strchr(begin_ptr, ',');
-        if (end_ptr) {
-            *end_ptr = '\0';
-        }
-        result[i] = atoi(begin_ptr);
-        if (end_ptr) {
-            begin_ptr = end_ptr + 1;
-        }
-    }
-    *num_el = i;
-    if (*num_el == 0) {
-        err = -1;
-    }
-    return err;
-}
-

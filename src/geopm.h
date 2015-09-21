@@ -41,30 +41,35 @@
 extern "C" {
 #endif
 
+enum geopm_const_e {
+    GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL = 3,
+};
+
 /* Opaque structure which is a handle for a geopm::Controller object. */
 struct geopm_ctl_c;
 
+/* Opaque structure which is a handle for a geopm::Profile object. */
 struct geopm_prof_c;
 
-/* Returns a human readable string representing the geopm version of the
-   linked geopm library. */
 const char *geopm_version(void);
 
 /************************/
 /* OBJECT INSTANTIATION */
 /************************/
-int geopm_ctl_create(const char *policy_config,
-                     MPI_Comm comm,
+int geopm_ctl_create(struct geopm_policy_c *policy,
                      struct geopm_prof_c *prof,
+                     MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 
-
-/* Destroy all resources associated with the "ctl" object. */
 int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 
 /********************/
 /* POWER MANAGEMENT */
 /********************/
+int geopm_ctl_step(struct geopm_ctl_c *ctl);
+
+int geopm_ctl_run(struct geopm_ctl_c *ctl);
+
 int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                       const pthread_attr_t *attr,
                       pthread_t *thread);
@@ -118,6 +123,10 @@ int geopm_prof_fprint(struct geopm_prof_c *prof,
 /* HELPER APIS */
 /***************/
 int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp);
+
+int geopm_num_nodes(MPI_Comm comm, int *num_nodes);
+
+int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm);
 
 int geopm_omp_sched_static_norm(int num_iter,
                                 int chunk_size,
