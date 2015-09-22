@@ -65,7 +65,7 @@ enum geopm_policy_flags_e {
     GEOMP_FLAGS_TDP_PERCENT_64 = 1ULL << 24,
     GEOPM_FLAGS_GOAL_CPU_EFFICIENCY = 1ULL << 25,
     GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY = 1ULL << 26,
-    GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY = 1ULL << 28,
+    GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY = 1ULL << 27,
 };
 
 enum geopm_policy_mode_e {
@@ -84,6 +84,12 @@ struct geopm_policy_message_s {
     unsigned long flags;
     int num_sample;
     double power_budget;
+};
+
+struct geopm_policy_shmem_s {
+    int is_init;
+    pthread_mutex_t lock;
+    struct geopm_policy_message_s policy;
 };
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;

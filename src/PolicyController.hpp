@@ -40,12 +40,6 @@
 
 namespace geopm
 {
-    struct geopm_policy_shmem_s {
-        int is_init;
-        pthread_mutex_t lock;
-        struct geopm_policy_message_s policy;
-    };
-
     class PolicyController
     {
         public:

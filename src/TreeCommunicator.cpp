@@ -44,7 +44,6 @@
 #include <system_error>
 
 #include "TreeCommunicator.hpp"
-#include "PolicyController.hpp"
 #include "GlobalPolicy.hpp"
 
 namespace geopm
@@ -193,12 +192,12 @@ namespace geopm
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *config, const MPI_Comm &comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *global_policy, const MPI_Comm &comm)
         : m_fan_out(fan_out),
           m_comm(fan_out.size()),
-          m_level(fan_out.size())
+          m_level(fan_out.size()),
+          m_global_policy(global_policy)
     {
-        root_create(config);
         mpi_type_create();
         comm_create(comm);
         level_create();

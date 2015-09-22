@@ -57,7 +57,7 @@ namespace geopm
     {
         public:
             /// TreeCommunicator constructor.
-            TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *config, const MPI_Comm &comm);
+            TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *global_policy, const MPI_Comm &comm);
             /// TreeCommunicator destructor.
             ~TreeCommunicator();
             /// Returns the number of levels of which the calling
@@ -106,9 +106,7 @@ namespace geopm
             /// for levels this rank does not participate in).
             std::vector<MPI_Comm> m_comm;
             /// GlobalPolicy object defining the policy
-            GlobalPolicy *m_config;
-            // Root control
-            TreeCommunicatorRoot *m_root;
+            GlobalPolicy *m_global_policy;
             /// Intermediate levels
             std::vector<TreeCommunicatorLevel *> m_level;
             /// MPI data type for sample message
