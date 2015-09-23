@@ -39,8 +39,8 @@ geopm_policy_c \- geopm mpi job policy management structure
 .sp
 .B Link with -lgeopmpolicy
 .sp
-.BI "int geopm_policy_create(const char *" "config_path" ,
-.BI "                        const char *" "shm_key" ,
+.BI "int geopm_policy_create(const char *" "in_config" ,
+.BI "                        const char *" "out_config" ,
 .BI "                        struct geopm_policy_c **" "policy" );
 .sp
 .BI "int geopm_policy_destroy(struct geopm_policy_c *" "policy" );
@@ -68,6 +68,8 @@ geopm_policy_c \- geopm mpi job policy management structure
 .sp
 .BI "int geopm_policy_write(const struct geopm_policy_c *" "policy" );
 .sp
+.BI "int geopm_policy_read(const struct geopm_policy_c *" "policy" );
+.sp
 .SH "DESCRIPTION"
 .PP
 The
@@ -94,23 +96,27 @@ creates
 an opaque pointer to a geopm_policy_c structure which can create a
 configuration file or a shared memory region to control the energy policy for
 an MPI job.  If
-.I config_path
-is not NULL then a configuration file will be produced when the
+.I in_config
+is not NULL then a configuration file or shared memory region can be read from
+when
 .I policy
 is passed to
-.BR geopm_policy_write ().
+.BR geopm_policy_read () .
+The string can contain either a config file path or a shm key.
 If
-.I shm_key
-is not NULL then a shared memory region will be created and when
+.I out_config
+is not NULL then a configuration file or shared memory region will be created
+and when
 .I policy
 is passed to
 .BR geopm_policy_write ()
-the current policy will be written to the region.
+the current policy will be written to the region. The string can contain either
+a config file path or a shm key.
 If both
-.I config_path
+.I in_config
 and
-.I policy
-are non-NULL the creation will fail and an error code is returned.
+.I out_config
+are NULL the creation will fail and an error code is returned.
 .PP
 .BR geopm_policy_destroy ()
 destroys the policy controller referenced by
@@ -185,6 +191,12 @@ writes the state stored in the
 .I policy
 to a configuration file or shared memory depending on the values passed to
 .BR geopm_policy_create ().
+.PP
+.BR geopm_policy_read ()
+reads the state stored in a configuration file or shared memory depending on the values passed to
+.BR geopm_policy_create ()
+and records the read values to the
+.IR policy .
 .sp
 .SH "STATIC MODES"
 The modes listed in this section do not have a run time requirement on geopm.
