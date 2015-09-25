@@ -29,46 +29,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef GEOPM_POLICY_H_INCLUDE
-#define GEOPM_POLICY_H_INCLUDE
-
 #include "geopm.h"
+#include "config.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-int geopm_policy_create(const char *in_config,
-                        const char *out_config,
-                        struct geopm_policy_c **policy);
-
-int geopm_policy_destroy(struct geopm_policy_c *policy);
-
-int geopm_policy_power(struct geopm_policy_c *policy,
-                       double power_budget);
-
-int geopm_policy_mode(struct geopm_policy_c *policy,
-                      int mode);
-
-int geopm_policy_cpu_freq(struct geopm_policy_c *policy,
-                          int cpu_mhz);
-
-int geopm_policy_full_perf(struct geopm_policy_c *policy,
-                           int num_cpu_full_perf);
-
-int geopm_policy_tdp_percent(struct geopm_policy_c *policy,
-                             int percent_tdp);
-
-int geopm_policy_affinity(struct geopm_policy_c *policy,
-                          int affinity);
-
-int geopm_policy_goal(struct geopm_policy_c *policy,
-                      int goal);
-
-int geopm_policy_write(const struct geopm_policy_c *policy);
-
-#ifdef __cplusplus
+const char *geopm_version(void)
+{
+    return PACKAGE_VERSION;
 }
-#endif
-#endif

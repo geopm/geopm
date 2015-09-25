@@ -71,6 +71,20 @@ extern "C"
         return err;
     }
 
+    int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
+    {
+        int err = 0;
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+        try {
+            delete ctl_obj;
+        }
+        catch (std::exception ex) {
+            std::cerr << ex.what();
+            err = -1;
+        }
+        return err;
+    }
+
     int geopm_ctl_run(struct geopm_ctl_c *ctl)
     {
         int err = 0;

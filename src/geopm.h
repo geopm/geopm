@@ -34,6 +34,7 @@
 #define GEOPM_H_INCLUDE
 
 #include <mpi.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
 
@@ -45,11 +46,20 @@ enum geopm_const_e {
     GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL = 3,
 };
 
+enum geopm_sample_reduce_e {
+    GEOPM_SAMPLE_REDUCE_THREAD = 1,
+    GEOPM_SAMPLE_REDUCE_PROC = 2,
+    GEOPM_SAMPLE_REDUCE_NODE = 3,
+};
+
 /* Opaque structure which is a handle for a geopm::Controller object. */
 struct geopm_ctl_c;
 
 /* Opaque structure which is a handle for a geopm::Profile object. */
 struct geopm_prof_c;
+
+/* opaque structure that is a handle for a geopm::Policy object. */
+struct geopm_policy_c;
 
 const char *geopm_version(void);
 

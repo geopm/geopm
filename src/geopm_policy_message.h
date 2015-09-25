@@ -33,6 +33,8 @@
 #ifndef GEOPM_POLICY_MESSAGE_H_INCLUDE
 #define GEOPM_POLICY_MESSAGE_H_INCLUDE
 
+#include <pthread.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

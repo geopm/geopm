@@ -62,11 +62,16 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/PlatformTopology.hpp \
                       src/PowerModel.cpp \
                       src/PowerModel.hpp \
+                      src/Policy.cpp \
+                      src/Policy.hpp \
+                      src/Profile.cpp \
+                      src/Profile.hpp \
                       src/TreeCommunicator.cpp \
                       src/TreeCommunicator.hpp \
                       src/geopm_ctl_spawn.c \
                       src/geopm_policy_message.c \
                       src/geopm_policy_message.h \
+                      src/geopm_version.c \
                       # end
 
 libgeopmpolicy_la_SOURCES = src/Policy.cpp \

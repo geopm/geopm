@@ -60,6 +60,26 @@ if test "x$with_hwloc_lib" != x; then
   LDFLAGS="$LDFLAGS -L$with_hwloc_lib"
 fi
 
+AC_ARG_WITH([json_c], [AS_HELP_STRING([--with-json-c=PATH],
+            [specify prefix directory for installed json-c package.])])
+
+if test "x$with_json_c" != x; then
+  CPPFLAGS="$CPPFLAGS -I$with_json_c/include"
+  LD_LIBRARY_PATH="$with_json_c/lib:$LD_LIBRARY_PATH"
+  LDFLAGS="$LDFLAGS -L$with_json_c/lib"
+fi
+AC_ARG_WITH([json_c-include], [AS_HELP_STRING([--with-json_c-include=PATH],
+            [specify directory for the installed json-c include files.])])
+if test "x$with_json_c_include" != x; then
+  CPPFLAGS="$CPPFLAGS -I$with_json_c_include"
+fi
+AC_ARG_WITH([json_c-lib], [AS_HELP_STRING([--with-json_c-lib=PATH],
+            [specify directory for installed json_c library])])
+if test "x$with_json_c_lib" != x; then
+  LD_LIBRARY_PATH="$with_json_c_lib:$LD_LIBRARY_PATH"
+  LDFLAGS="$LDFLAGS -L$with_json_c_lib"
+fi
+
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_CXX
@@ -146,7 +166,7 @@ AC_SUBST([enable_coverage])
 
 CFLAGS="${CFLAGS} -Wall -Werror -std=c99"
 CXXFLAGS="${CXXFLAGS} -Wall -Werror -std=c++11"
-LDFLAGS="${LDFLAGS} -lrt -lhwloc"
+LDFLAGS="${LDFLAGS} -lrt -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

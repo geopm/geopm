@@ -35,38 +35,36 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <errno.h>
 
 #include "geopm.h"
-#include "Controller.hpp"
+#include "geopm_policy.h"
 
 enum geopmctl_const {
-    GEOPMCTL_MAX_FACTOR = 8,
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-static int parse_csv_int(const char *csv_string, int *num_el, int *result);
 
 int main(int argc, char **argv)
 {
     int opt;
-    int use_mpi = 0;
     int sample_reduce = 0;
     int world_size = 1, my_rank = 0, i;
     int err0 = 0;
     int err_mpi = 0;
-    int num_factor = GEOPMCTL_MAX_FACTOR;
-    int factor[GEOPMCTL_MAX_FACTOR] = {0};
-    size_t factor_prod;
     char error_str[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
-    char report[GEOPMCTL_STRING_LExNGTH] = {0};
-    char job_name[GEOPMCTL_STRING_LExNGTH] = {0};
+    char report[GEOPMCTL_STRING_LENGTH] = {0};
+    char job_name[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
+    struct geopm_prof_c *prof = NULL;
+    struct geopm_ctl_c *ctl = NULL;
+    struct geopm_policy_c *policy = NULL;
 
-    const char *usage = "     geopmctl [--version] [--help] [-m] [-c policy_config]\n"
+    const char *usage = "     geopmctl [--version] [--help] [-c policy_config]\n"
                         "              [-k policy_key] [-s sample_key] [-r report]\n"
                         "\n"
                         "     --version\n"
@@ -75,9 +73,6 @@ int main(int argc, char **argv)
                         "     --help\n"
                         "          Print  brief   summary  of   the  command   line  usage\n"
                         "          information, then exit.\n"
-                        "\n"
-                        "     -m\n"
-                        "          Enable MPI runtime.\n"
                         "\n"
                         "     -c policy_config\n"
                         "          Policy configuration file which may be created with the\n"
@@ -104,7 +99,7 @@ int main(int argc, char **argv)
                         "          report when program terminates.\n"
                         "\n"
                         "     Copyright (C) 2015 Intel Corporation. All rights reserved.\n"
-                        "\n"
+                        "\n";
 
 
     if (argc >= 1 &&
@@ -120,12 +115,9 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    while (!err0 && (opt = getopt(argc, argv, "mc:k:s:r:")) != -1) {
+    while (!err0 && (opt = getopt(argc, argv, "c:k:s:r:")) != -1) {
         arg_ptr = NULL;
         switch (opt) {
-            case 'm':
-                use_mpi = 1;
-                break;
             case 'c':
                 arg_ptr = policy_config;
                 break;
@@ -158,7 +150,7 @@ int main(int argc, char **argv)
         err0 = EINVAL;
     }
 
-    if (!err0 && use_mpi) {
+    if (!err0) {
         err_mpi = MPI_Init(&argc, &argv);
         comm_world = MPI_COMM_WORLD;
         if (!err_mpi) {
@@ -175,13 +167,7 @@ int main(int argc, char **argv)
         err0 = err_mpi;
     }
 
-    if (!err0 && (!use_mpi || !my_rank)) {
-        if (use_mpi)
-            printf("    Enable MPI:    TRUE\n");
-        }
-        else {
-            printf("    Enable MPI:    FALSE\n");
-        }
+    if (!err0 && !my_rank) {
         if (policy_config[0]) {
             printf("    Policy config: %s\n", policy_config);
         }
@@ -192,7 +178,7 @@ int main(int argc, char **argv)
             printf("    Sample key:    %s\n", sample_key);
         }
         if (report[0]) {
-            printf("    Report file:   %s\n");
+            printf("    Report file:   %s\n", report);
         }
         printf("\n");
     }
@@ -201,7 +187,10 @@ int main(int argc, char **argv)
         err0 = geopm_prof_create(job_name, sample_reduce, sample_key, &prof);
     }
     if (!err0) {
-        err0 = geopm_ctl_create(policy_config, policy_key, sample_prof, comm_world, &ctl);
+        err0 = geopm_policy_create(policy_config, policy_key, &policy);
+    }
+    if (!err0) {
+        err0 = geopm_ctl_create(policy, prof, comm_world, &ctl);
     }
     if (!err0) {
         err0 = geopm_ctl_run(ctl);
@@ -212,8 +201,6 @@ int main(int argc, char **argv)
     if (!err0) {
         err0 = geopm_prof_destroy(prof);
     }
-    if (use_mpi) {
-        MPI_Finalize();
-    }
+    MPI_Finalize();
     return err0;
 }

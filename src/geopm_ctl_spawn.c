@@ -31,16 +31,15 @@
  */
 
 #include <stdlib.h>
-
 #include <mpi.h>
 
-// FIXME calling sequence does not match geopm.h header fileor 
-int geopm_ctl_spawn(const char *control,
-                    const char *report,
-                    const char *geopmctl_path,
-                    MPI_Comm app_comm,
-                    MPI_Comm *ctl_intercomm)
+#include "geopm.h"
+#include "geopm_policy.h"
+
+int geopm_ctl_spawn(struct geopm_ctl_c *ctl)
 {
+#if 0
+/* FIX ME use ctl structure properly*/
     int err = 0, i;
     int *ctl_err = NULL;
     const char *geopmctl_path_default = "geopmctl";
@@ -81,4 +80,6 @@ int geopm_ctl_spawn(const char *control,
         MPI_Info_free(&info);
     }
     return err;
+#endif
+    return 0;
 }

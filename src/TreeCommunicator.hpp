@@ -90,14 +90,12 @@ namespace geopm
             /// since startup throws geopm::unknown_policy_error.
             void get_policy(int level, struct geopm_policy_message_s &policy);
         protected:
-            void root_create(const std::string &control);
             void mpi_type_create(void);
             void comm_create(const MPI_Comm &comm);
             void level_create(void);
             void level_destroy(void);
             void comm_destroy(void);
             void mpi_type_destroy(void);
-            void root_destroy(void);
             /// Number of levels this rank participates in
             int m_num_level;
             /// Tree fan out from root to leaf. Note levels go from leaf to root
@@ -106,7 +104,7 @@ namespace geopm
             /// for levels this rank does not participate in).
             std::vector<MPI_Comm> m_comm;
             /// GlobalPolicy object defining the policy
-            GlobalPolicy *m_global_policy;
+            const GlobalPolicy *m_global_policy;
             /// Intermediate levels
             std::vector<TreeCommunicatorLevel *> m_level;
             /// MPI data type for sample message

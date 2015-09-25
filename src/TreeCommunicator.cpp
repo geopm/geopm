@@ -69,33 +69,6 @@ namespace geopm
     // Internal class declarations //
     /////////////////////////////////
 
-    class TreeCommunicatorRoot
-    {
-        public:
-            virtual ~TreeCommunicatorRoot();
-            virtual void get_policy(struct geopm_policy_message_s &policy) = 0;
-    };
-
-    class TreeCommunicatorRootConfig : public TreeCommunicatorRoot
-    {
-        public:
-            TreeCommunicatorRootConfig(GlobalPolicy *config);
-            ~TreeCommunicatorRootConfig();
-            void get_policy(struct geopm_policy_message_s &policy);
-        protected:
-            struct geopm_policy_message_s m_policy;
-    };
-
-    class TreeCommunicatorRootShared : public TreeCommunicatorRoot
-    {
-        public:
-            TreeCommunicatorRootShared(std::string shm_key);
-            ~TreeCommunicatorRootShared();
-            void get_policy(struct geopm_policy_message_s &policy);
-        protected:
-            struct geopm_policy_shmem_s *m_policy_shmem;
-    };
-
     class TreeCommunicatorLevel
     {
         public:
@@ -193,10 +166,10 @@ namespace geopm
     ///////////////////////////////////
 
     TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *global_policy, const MPI_Comm &comm)
-        : m_fan_out(fan_out),
-          m_comm(fan_out.size()),
-          m_level(fan_out.size()),
-          m_global_policy(global_policy)
+        : m_fan_out(fan_out)
+        , m_comm(fan_out.size())
+        , m_global_policy(global_policy)
+        , m_level(fan_out.size())
     {
         mpi_type_create();
         comm_create(comm);
@@ -208,7 +181,6 @@ namespace geopm
         level_destroy();
         comm_destroy();
         mpi_type_destroy();
-        root_destroy();
     }
 
     int TreeCommunicator::num_level(void)
@@ -266,7 +238,7 @@ namespace geopm
             throw std::invalid_argument("Called with level out of range\n");
         }
         if (level == root_level()) {
-            m_root->get_policy(policy);
+            m_global_policy->policy_message(policy);
         }
         else {
             m_level[level]->get_policy(policy);
@@ -320,31 +292,15 @@ namespace geopm
 
         m_comm.resize(m_num_level);
 
-        if (m_root) {
+        if (m_global_policy) {
             m_num_level++;
         }
 
-        if (rank_cart == 0 && m_root == NULL) {
+        if (rank_cart == 0 && m_global_policy == NULL) {
             throw std::runtime_error("Process at root of tree communicator has not mapped the control file.");
         }
-        if (rank_cart != 0 && m_root != NULL) {
+        if (rank_cart != 0 && m_global_policy != NULL) {
             throw std::runtime_error("Process not at root of tree communicator has mapped the control file.");
-        }
-    }
-
-    void TreeCommunicator::root_create(GlobalPolicy *config)
-    {
-        if (control.empty()) {
-            // this rank is not at root of tree
-            m_root = NULL;
-        }
-        else if (control[0] == '/' && control.find_last_of('/') == 0) {
-            // control is shared memory key
-            m_root = new TreeCommunicatorRootShared(control);
-        }
-        else {
-            // control is a configation file
-            m_root = new TreeCommunicatorRootConfig(control);
         }
     }
 
@@ -371,11 +327,6 @@ namespace geopm
         }
     }
 
-    void TreeCommunicator::root_destroy(void)
-    {
-        delete m_root;
-    }
-
     void TreeCommunicator::comm_destroy(void)
     {
         for (auto comm_it = m_comm.begin(); comm_it < m_comm.end(); ++comm_it) {
@@ -389,83 +340,14 @@ namespace geopm
         MPI_Type_free(&m_sample_mpi_type);
     }
 
-    ////////////////////////////////
-    // TreeCommunicatorRoot API's //
-    ////////////////////////////////
-
-    TreeCommunicatorRoot::~TreeCommunicatorRoot() {}
-
-    TreeCommunicatorRootShared::TreeCommunicatorRootShared(std::string shm_key)
-    {
-        int err, shm_id;
-
-        shm_id = shm_open(shm_key.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
-        if (shm_id < 0) {
-            throw std::system_error(std::error_code(errno, std::system_category()),
-                                    "Could not open shared memory region for root policy.\n");
-        }
-        m_policy_shmem = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
-                         PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
-        if (m_policy_shmem == MAP_FAILED) {
-            (void) close(shm_id);
-            throw std::system_error(std::error_code(errno, std::system_category()),
-                                    "Could not map shared memory region for root policy.\n");
-        }
-        err = close(shm_id);
-        if (err) {
-            munmap(m_policy_shmem, sizeof(struct geopm_policy_shmem_s));
-            throw std::system_error(std::error_code(errno, std::system_category()),
-                                    "Could not close file descriptor for root policy shared memory region.\n");
-        }
-        while (!m_policy_shmem->is_init) {
-            (void) sched_yield();
-        }
-    }
-
-    TreeCommunicatorRootShared::~TreeCommunicatorRootShared()
-    {
-        if (munmap(m_policy_shmem, sizeof(struct geopm_policy_message_s))) {
-            throw std::system_error(std::error_code(errno, std::system_category()),
-                                    "Could not unmap root policy shared memory region.\n");
-        }
-    }
-
-    void TreeCommunicatorRootShared::get_policy(struct geopm_policy_message_s &policy)
-    {
-        int err;
-        err = pthread_mutex_lock(&(m_policy_shmem->lock));
-        if (err) {
-            throw std::system_error(std::error_code(err, std::system_category()),
-                                    "Could not lock shared memory region for root of tree.\n");
-        }
-        policy = m_policy_shmem->policy;
-        err = pthread_mutex_unlock(&(m_policy_shmem->lock));
-        if (err) {
-            throw std::system_error(std::error_code(err, std::system_category()),
-                                    "Could not unlock shared memory region for root of tree.\n");
-        }
-    }
-
-    TreeCommunicatorRootConfig::TreeCommunicatorRootConfig(GlobalPolicy *config)
-        :m_config(config)
-    {
-    }
-
-    TreeCommunicatorRootConfig::~TreeCommunicatorRootConfig() {}
-
-    void TreeCommunicatorRootConfig::get_policy(struct geopm_policy_message_s &policy)
-    {
-        policy = m_policy;
-    }
-
     /////////////////////////////////
     // TreeCommunicatorLevel API's //
     /////////////////////////////////
 
     TreeCommunicatorLevel::TreeCommunicatorLevel(MPI_Comm comm, MPI_Datatype sample_mpi_type, MPI_Datatype policy_mpi_type)
-        : m_comm(comm),
-          m_sample_mpi_type(sample_mpi_type),
-          m_policy_mpi_type(policy_mpi_type)
+        : m_comm(comm)
+        , m_sample_mpi_type(sample_mpi_type)
+        , m_policy_mpi_type(policy_mpi_type)
     {
         check_mpi(MPI_Comm_size(comm, &m_size));
         check_mpi(MPI_Comm_rank(comm, &m_rank));
