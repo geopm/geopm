@@ -40,28 +40,14 @@
 
 extern "C"
 {
-    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm);
-
     int geopm_ctl_create(struct geopm_policy_c *policy, struct geopm_prof_c *prof, MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
-        int num_level = GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL;
-        int fan_out[GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL] = {0};
-        int num_nodes;
-
-        *ctl = NULL;
-        err = geopm_num_nodes(comm, &num_nodes);
-        if (!err) {
-            err = MPI_Dims_create(num_nodes, num_level, fan_out);
-        }
         if (!err) {
             try {
-                std::vector<int> fan_out_vec(num_level);
-                fan_out_vec.assign(fan_out, fan_out + num_level);
-                std::reverse(fan_out_vec.begin(), fan_out_vec.end());
                 geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
                 geopm::Profile *profile = (geopm::Profile *)prof;
-                *ctl = (struct geopm_ctl_c *)(new geopm::Controller(fan_out_vec, global_policy, profile, comm));
+                *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, profile, comm));
             }
             catch (std::exception ex) {
                std::cerr << ex.what();
@@ -98,80 +84,32 @@ extern "C"
         }
         return err;
     }
-
-    int geopm_num_nodes(MPI_Comm comm, int *num_nodes)
-    {
-        return geopm_comm_split_ppn1_imp(comm, num_nodes, NULL);
-    }
-
-    int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)
-    {
-        int num_nodes;
-        return geopm_comm_split_ppn1_imp(comm, &num_nodes, ppn1_comm);
-    }
-
-    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm)
-    {
-        int err, comm_size, comm_rank, shm_rank, is_shm_root;
-        MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
-        MPI_Comm *ppn1_comm_ptr;
-
-        if (ppn1_comm) {
-            ppn1_comm_ptr = ppn1_comm;
-        }
-        else {
-            ppn1_comm_ptr = &tmp_comm;
-        }
-
-        err = MPI_Comm_size(comm, &comm_size);
-        if (!err) {
-            err = MPI_Comm_rank(comm, &comm_rank);
-        }
-        if (!err) {
-            err = MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, comm_rank, MPI_INFO_NULL, &shm_comm);
-        }
-        if (!err) {
-            err = MPI_Comm_rank(shm_comm, &shm_rank);
-        }
-        if (!err) {
-            if (!shm_rank) {
-                is_shm_root = 1;
-            }
-            else {
-                is_shm_root = 0;
-            }
-            err = MPI_Comm_split(comm, is_shm_root, comm_rank, ppn1_comm_ptr);
-        }
-        if (!err) {
-            if (is_shm_root == 1) {
-                err = MPI_Comm_size(*ppn1_comm_ptr, num_nodes);
-            }
-        }
-        if (!err) {
-            err = MPI_Bcast(num_nodes, 1, MPI_INT, 0, shm_comm);
-        }
-        if (shm_comm != MPI_COMM_NULL) {
-            MPI_Comm_free(&shm_comm);
-        }
-        if (!ppn1_comm) {
-            MPI_Comm_free(ppn1_comm_ptr);
-        }
-        return err;
-    }
 }
 
 namespace geopm
 {
-    Controller::Controller(std::vector<int> fan_out, GlobalPolicy *global_policy, Profile *profile, MPI_Comm comm)
-        : m_fan_out(fan_out)
-        , m_global_policy(global_policy)
+    Controller::Controller(const GlobalPolicy *global_policy, const Profile *profile, MPI_Comm comm)
+        : m_global_policy(global_policy)
         , m_profile(profile)
-        , m_tree_comm(fan_out, global_policy, comm)
     {
+        int num_level = GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL;
+        std::vector<int> fan_out(num_level);
+        int num_nodes;
+
+        int err = geopm_num_nodes(comm, &num_nodes);
+        if (!err) {
+            err = MPI_Dims_create(num_nodes, num_level, fan_out.data());
+        }
+        if (!err) {
+            std::reverse(fan_out.begin(), fan_out.end());
+        }
+
+        m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
+
         int max_size = 0;
-        for (int level = 0; level < m_tree_comm.num_level(); ++level) {
-            if (m_tree_comm.level_size(level) > max_size) {
-                max_size = m_tree_comm.level_size(level);
+        for (int level = 0; level < m_tree_comm->num_level(); ++level) {
+            if (m_tree_comm->level_size(level) > max_size) {
+                max_size = m_tree_comm->level_size(level);
             }
         }
         m_split_policy.resize(max_size);
@@ -179,7 +117,10 @@ namespace geopm
         std::fill(m_last_policy.begin(), m_last_policy.end(), GEOPM_UNKNOWN_POLICY);
     }
 
-    Controller::~Controller() {}
+    Controller::~Controller()
+    {
+        delete m_tree_comm;
+    }
 
     void Controller::run()
     {
@@ -188,10 +129,10 @@ namespace geopm
         struct geopm_policy_message_s policy;
 
         // Spin waiting for for first policy message
-        level = m_tree_comm.num_level() - 1;
+        level = m_tree_comm->num_level() - 1;
         do {
             try {
-                m_tree_comm.get_policy(level, policy);
+                m_tree_comm->get_policy(level, policy);
                 err = 0;
             }
             catch (unknown_policy_error ex) {
@@ -220,15 +161,15 @@ namespace geopm
         // FIXME Do calls to geopm_is_policy_equal() below belong inside of the Decider?
         // Should m_last_policy be a Decider member variable?
 
-        level = m_tree_comm.num_level() - 1;
-        m_tree_comm.get_policy(level, policy_msg);
+        level = m_tree_comm->num_level() - 1;
+        m_tree_comm->get_policy(level, policy_msg);
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy[level]))) {
-                m_tree_decider->split_policy(policy_msg, m_split_policy);
-                m_tree_comm.send_policy(level - 1, m_split_policy);
+                m_tree_decider[level]->split_policy(policy_msg, m_split_policy);
+                m_tree_comm->send_policy(level - 1, m_split_policy);
                 m_last_policy[level] = policy_msg;
             }
-            m_tree_comm.get_policy(level - 1, policy_msg);
+            m_tree_comm->get_policy(level - 1, policy_msg);
         }
         if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {
             do_shutdown = 1;
@@ -249,17 +190,17 @@ namespace geopm
         struct sample_message_s sample_msg;
         Policy policy;
 
-        m_tree_comm.get_policy(0, policy_msg);
-        for (level = 0; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level < m_tree_comm.num_level(); ++level) {
+        m_tree_comm->get_policy(0, policy_msg);
+        for (level = 0; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
-                    m_tree_comm.get_sample(level, m_child_sample);
+                    m_tree_comm->get_sample(level, m_child_sample);
                     m_platform[level]->observe(m_child_sample);
                 }
                 catch (incomplete_sample_error ex) {
                     break;
                 }
-                m_tree_decider->get_policy(m_platform[level], policy);
+                m_tree_decider[level]->get_policy(m_platform[level], policy);
                 m_platform[level]->enforce_policy(policy);
             }
             else {
@@ -267,9 +208,9 @@ namespace geopm
                 m_leaf_decider->get_policy(m_platform[0], policy);
                 m_platform[0]->enforce_policy(policy);
             }
-            if (level && m_tree_decider->is_converged()) {
+            if (level && m_tree_decider[level]->is_converged()) {
                 m_platform[level]->sample(sample_msg);
-                m_tree_comm.send_sample(level, sample_msg);
+                m_tree_comm->send_sample(level, sample_msg);
             }
         }
         if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {

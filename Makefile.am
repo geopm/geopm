@@ -31,7 +31,9 @@
 
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(top_srcdir)/src
-lib_LTLIBRARIES = libgeopm.la libgeopmpolicy.la
+lib_LTLIBRARIES = libgeopm.la \
+                  libgeopmpolicy.la \
+                  # end
 
 libgeopm_la_LDFLAGS = -version-info $(geopm_abi_version)
 libgeopmpolicy_la_LDFLAGS = -version-info $(geopm_abi_version)
@@ -86,6 +88,8 @@ libgeopmpolicy_la_SOURCES = src/GlobalPolicy.cpp \
                             src/PlatformImp.hpp \
                             src/StaticModeController.cpp \
                             src/StaticModeController.hpp \
+                            src/PlatformTopology.cpp \
+                            src/PlatformTopology.hpp \
                             src/geopm_policy.h \
                             src/geopm_static.h \
                             src/geopm_version.c \
@@ -96,19 +100,21 @@ include_HEADERS = src/geopm.h \
                   src/geopm_policy_message.h \
                   # end
 
-bin_PROGRAMS = geopmctl geopmpolicy
+bin_PROGRAMS = geopmctl \
+               geopmpolicy \
+               # end
 
 geopmctl_SOURCES = src/geopmctl_main.c \
                    src/geopm.h \
                    # end
+
+geopmctl_LDADD = libgeopm.la
 
 geopmpolicy_SOURCES = src/geopmpolicy_main.c \
                       src/geopm_policy.h \
                       src/geopm_policy_message.h \
                       src/geopm_static.h \
                       # end
-
-geopmctl_LDADD = libgeopm.la
 
 geopmpolicy_LDADD = libgeopmpolicy.la
 
@@ -126,7 +132,10 @@ EXTRA_DIST = CONTRIBUTING \
              autogen.sh \
              # end
 
-dist_doc_DATA = README COPYING VERSION
+dist_doc_DATA = README \
+                COPYING \
+                VERSION \
+                # end
 
 clean-local: clean-local-coverage
 

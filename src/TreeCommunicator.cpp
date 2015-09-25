@@ -46,6 +46,71 @@
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
 
+extern "C"
+{
+    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm);
+
+    int geopm_num_nodes(MPI_Comm comm, int *num_nodes)
+    {
+        return geopm_comm_split_ppn1_imp(comm, num_nodes, NULL);
+    }
+
+    int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)
+    {
+        int num_nodes;
+        return geopm_comm_split_ppn1_imp(comm, &num_nodes, ppn1_comm);
+    }
+
+    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm)
+    {
+        int err, comm_size, comm_rank, shm_rank, is_shm_root;
+        MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
+        MPI_Comm *ppn1_comm_ptr;
+
+        if (ppn1_comm) {
+            ppn1_comm_ptr = ppn1_comm;
+        }
+        else {
+            ppn1_comm_ptr = &tmp_comm;
+        }
+
+        err = MPI_Comm_size(comm, &comm_size);
+        if (!err) {
+            err = MPI_Comm_rank(comm, &comm_rank);
+        }
+        if (!err) {
+            err = MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, comm_rank, MPI_INFO_NULL, &shm_comm);
+        }
+        if (!err) {
+            err = MPI_Comm_rank(shm_comm, &shm_rank);
+        }
+        if (!err) {
+            if (!shm_rank) {
+                is_shm_root = 1;
+            }
+            else {
+                is_shm_root = 0;
+            }
+            err = MPI_Comm_split(comm, is_shm_root, comm_rank, ppn1_comm_ptr);
+        }
+        if (!err) {
+            if (is_shm_root == 1) {
+                err = MPI_Comm_size(*ppn1_comm_ptr, num_nodes);
+            }
+        }
+        if (!err) {
+            err = MPI_Bcast(num_nodes, 1, MPI_INT, 0, shm_comm);
+        }
+        if (shm_comm != MPI_COMM_NULL) {
+            MPI_Comm_free(&shm_comm);
+        }
+        if (!ppn1_comm) {
+            MPI_Comm_free(ppn1_comm_ptr);
+        }
+        return err;
+    }
+}
+
 namespace geopm
 {
     //////////////////////
@@ -183,22 +248,22 @@ namespace geopm
         mpi_type_destroy();
     }
 
-    int TreeCommunicator::num_level(void)
+    int TreeCommunicator::num_level(void) const
     {
         return m_num_level;
     }
 
-    int TreeCommunicator::root_level(void)
+    int TreeCommunicator::root_level(void) const
     {
         return m_fan_out.size();
     }
 
-    int TreeCommunicator::level_rank(int level)
+    int TreeCommunicator::level_rank(int level) const
     {
         return m_level[level]->level_rank();
     }
 
-    int TreeCommunicator::level_size(int level)
+    int TreeCommunicator::level_size(int level) const
     {
         int result = 1;
         if (level < (int)m_fan_out.size()) {

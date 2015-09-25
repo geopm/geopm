@@ -77,7 +77,6 @@ double geopm_progress_threaded_min(int num_thread,
     double progress_min = DBL_MAX;
     double progress_tmp;
     int j;
-    double frac;
 
     for (j = 0; j < num_thread; ++j) {
         progress_tmp = progress[j * stride] * norm[j];

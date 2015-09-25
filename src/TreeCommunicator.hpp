@@ -62,13 +62,13 @@ namespace geopm
             ~TreeCommunicator();
             /// Returns the number of levels of which the calling
             /// process is a member.
-            int num_level(void);
+            int num_level(void) const;
             /// Returns the level of root (max level for any rank).
-            int root_level(void);
+            int root_level(void) const;
             /// Returns rank of the calling process in the level.
-            int level_rank(int level);
+            int level_rank(int level) const;
             /// Number of ranks that participate in the level.
-            int level_size(int level);
+            int level_size(int level) const;
             /// Send sample to root of the level.  If no recieve has
             /// been posted samples are not sent and no exception is
             /// thrown.

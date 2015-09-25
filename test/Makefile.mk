@@ -69,7 +69,9 @@ TESTS += test/gtest_links/ObservationTest.hello_mean \
          test/gtest_links/CircularBufferTest.buffer_size \
          test/gtest_links/CircularBufferTest.buffer_values \
          test/gtest_links/CircularBufferTest.buffer_capacity \
-         test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
+         # end
+
+         #test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
          test/gtest_links/GlobalPolicyTest.mode_freq_uniform_static \
          test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_static \
          test/gtest_links/GlobalPolicyTest.mode_perf_balance_dynamic \
@@ -92,7 +94,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformFactoryTest.cpp \
                           test/PlatformImpTest.cpp \
                           test/CircularBufferTest.cpp \
-                          test/GlobalPolicyTest.cpp
+                          #test/GlobalPolicyTest.cpp
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
