@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include <unistd.h>
 #include <iostream>
 
 #include "gtest/gtest.h"
@@ -51,25 +51,25 @@ class GlobalPolicyTestShmem: public :: testing :: Test
         geopm::GlobalPolicy *m_policy;
 };
 
-GlobalPolicyTest:SetUp()
+void GlobalPolicyTest::SetUp()
 {
-    std::string path("policy.conf");
-    m_policy = new GlobalPolicy(path, path);
+    std::string path("./policy.conf");
+    m_policy = new geopm::GlobalPolicy(path, path);
 }
 
-GlobalPolicyTest:TearDown()
+void GlobalPolicyTest::TearDown()
 {
     delete m_policy;
 }
 
-GlobalPolicyTestShmem:SetUp()
+void GlobalPolicyTestShmem::SetUp()
 {
     std::string key("/GlobalPolicyTestShmem-");
-    key.append((long)get_pid());
-    m_policy = new GlobalPolicy(key, key);
+    key.append(std::to_string(getpid()));
+    m_policy = new geopm::GlobalPolicy(key, key);
 }
 
-GlobalPolicyTestShmem:TearDown()
+void GlobalPolicyTestShmem::TearDown()
 {
     delete m_policy;
 }
@@ -83,11 +83,11 @@ TEST_F(GlobalPolicyTest, mode_tdp_balance_static)
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
     m_policy->percent_tdp(34);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(34, m_policy->percent_tdp());
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(34, m_policy->percent_tdp());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
+    EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
     EXPECT_DOUBLE_EQ(75, m_policy->percent_tdp());
 }
 
@@ -100,11 +100,11 @@ TEST_F(GlobalPolicyTest, mode_freq_uniform_static)
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
     m_policy->frequency_mhz(3400);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(3400, m_policy->frequency_mhz());
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
+    EXPECT_EQ(3400, m_policy->frequency_mhz());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
     EXPECT_DOUBLE_EQ(1800, m_policy->frequency_mhz());
 }
 
@@ -114,82 +114,82 @@ TEST_F(GlobalPolicyTest, mode_freq_hybrid_static)
     m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
     m_policy->frequency_mhz(1800);
     m_policy->num_max_perf(16);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
     m_policy->frequency_mhz(3600);
     m_policy->num_max_perf(42);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(3600, m_policy->frequency_mhz());
-    EXPECT_INTEGER_EQ(42, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(3600, m_policy->frequency_mhz());
+    EXPECT_EQ(42, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(1800, m_policy->frequency_mhz());
-    EXPECT_INTEGER_EQ(16, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
+    EXPECT_EQ(1800, m_policy->frequency_mhz());
+    EXPECT_EQ(16, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
 }
 
 TEST_F(GlobalPolicyTest, mode_perf_balance_dynamic)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
-    m_policy->power_budget_watts(75500);
+    m_policy->budget_watts(75500);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->power_budget_watts(850);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(850, m_policy->power_budget_watts());
+    m_policy->budget_watts(850);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(850, m_policy->budget_watts());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75500, m_policy->power_budget_watts());
+    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
+    EXPECT_DOUBLE_EQ(75500, m_policy->budget_watts());
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_uniform_dynamic)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC);
-    m_policy->power_budget_watts(1025);
+    m_policy->budget_watts(1025);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->power_budget_watts(625);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(625, m_policy->power_budget_watts());
+    m_policy->budget_watts(625);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(625, m_policy->budget_watts());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(1025, m_policy->power_budget_watts());
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, m_policy->mode());
+    EXPECT_DOUBLE_EQ(1025, m_policy->budget_watts());
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_hybrid_dynamic)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
-    m_policy->power_budget_watts(9612);
+    m_policy->budget_watts(9612);
     m_policy->num_max_perf(24);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->frequency_mhz(4242);
+    m_policy->budget_watts(4242);
     m_policy->num_max_perf(86);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTRE);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(4242, m_policy->power_budget_watts());
-    EXPECT_INTEGER_EQ(86, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(4242, m_policy->budget_watts());
+    EXPECT_EQ(86, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(9612, m_policy->power_budget_watts());
-    EXPECT_INTEGER_EQ(24, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_DYNAMIC, m_policy->mode());
+    EXPECT_EQ(9612, m_policy->budget_watts());
+    EXPECT_EQ(24, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
@@ -201,11 +201,11 @@ TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
     m_policy->percent_tdp(34);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(34, m_policy->percent_tdp());
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(34, m_policy->percent_tdp());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
+    EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
     EXPECT_DOUBLE_EQ(75, m_policy->percent_tdp());
 }
 
@@ -218,11 +218,11 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_static)
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
     m_policy->frequency_mhz(3400);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(3400, m_policy->frequency_mhz());
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
+    EXPECT_EQ(3400, m_policy->frequency_mhz());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
     EXPECT_DOUBLE_EQ(1800, m_policy->frequency_mhz());
 }
 
@@ -232,80 +232,80 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_static)
     m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
     m_policy->frequency_mhz(1800);
     m_policy->num_max_perf(16);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
     m_policy->frequency_mhz(3600);
     m_policy->num_max_perf(42);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(3600, m_policy->frequency_mhz());
-    EXPECT_INTEGER_EQ(42, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(3600, m_policy->frequency_mhz());
+    EXPECT_EQ(42, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(1800, m_policy->frequency_mhz());
-    EXPECT_INTEGER_EQ(16, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
+    EXPECT_EQ(1800, m_policy->frequency_mhz());
+    EXPECT_EQ(16, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_perf_balance_dynamic)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
-    m_policy->power_budget_watts(75500);
+    m_policy->budget_watts(75500);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->power_budget_watts(850);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(850, m_policy->power_budget_watts());
+    m_policy->budget_watts(850);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(850, m_policy->budget_watts());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75500, m_policy->power_budget_watts());
+    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
+    EXPECT_DOUBLE_EQ(75500, m_policy->budget_watts());
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_dynamic)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC);
-    m_policy->power_budget_watts(1025);
+    m_policy->budget_watts(1025);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->power_budget_watts(625);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(625, m_policy->power_budget_watts());
+    m_policy->budget_watts(625);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(625, m_policy->budget_watts());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(1025, m_policy->power_budget_watts());
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, m_policy->mode());
+    EXPECT_DOUBLE_EQ(1025, m_policy->budget_watts());
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_dynamic)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
-    m_policy->power_budget_watts(9612);
+    m_policy->budget_watts(9612);
     m_policy->num_max_perf(24);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->frequency_mhz(4242);
+    m_policy->budget_watts(4242);
     m_policy->num_max_perf(86);
-    m_polict->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTRE);
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(4242, m_policy->power_budget_watts());
-    EXPECT_INTEGER_EQ(86, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    m_policy->affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
+    EXPECT_EQ(4242, m_policy->budget_watts());
+    EXPECT_EQ(86, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
     //read saved values back
     m_policy->read();
-    EXPECT_INTEGER_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_INTEGER_EQ(9612, m_policy->power_budget_watts());
-    EXPECT_INTEGER_EQ(24, m_policy->num_max_perf());
-    EXPECT_INTEGER_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_DYNAMIC, m_policy->mode());
+    EXPECT_EQ(9612, m_policy->budget_watts());
+    EXPECT_EQ(24, m_policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
 }

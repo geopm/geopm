@@ -83,7 +83,7 @@ int geopm_policy_destroy(struct geopm_policy_c *policy)
     return err;
 }
 
-int geopm_policy_power(struct geopm_policy_c *policy, double power_budget)
+int geopm_policy_power(struct geopm_policy_c *policy, int power_budget)
 {
     int err = 0;
 
@@ -146,7 +146,7 @@ int geopm_policy_full_perf(struct geopm_policy_c *policy, int num_cpu_full_perf)
     return err;
 }
 
-int geopm_policy_tdp_percent(struct geopm_policy_c *policy, int percent)
+int geopm_policy_percent_tdp(struct geopm_policy_c *policy, int percent)
 {
     int err = 0;
 
@@ -209,7 +209,6 @@ int geopm_policy_write(const struct geopm_policy_c *policy)
 
     return err;
 }
-
 #ifdef __cplusplus
 }
 #endif
@@ -234,35 +233,7 @@ namespace geopm
             throw std::runtime_error("at least one of in_config or out_config must be set");
         }
 
-        if (!m_in_config.empty()) {
-            do_read = true;
-            if (m_in_config[0] == '/' && m_in_config.find_last_of('/') == 0) {
-                is_shm_in = true;
-                shm_id = shm_open(m_in_config.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
-
-                if (shm_id < 0) {
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not open shared memory region for root policy.\n");
-                }
-                m_policy_shmem_in = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
-                                    PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
-                if (m_policy_shmem_in == MAP_FAILED) {
-                    (void) close(shm_id);
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not map shared memory region for root policy.\n");
-                }
-                err = close(shm_id);
-                if (err) {
-                    munmap(m_policy_shmem_in, sizeof(struct geopm_policy_shmem_s));
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not close file descriptor for root policy shared memory region.\n");
-                }
-            }
-            else {
-                m_config_file_in.open(m_in_config.c_str(), std::ifstream::out);
-            }
-        }
-        else if (!m_out_config.empty()) {
+        if (!m_out_config.empty()) {
             do_write = true;
             if (m_out_config[0] == '/' && m_out_config.find_last_of('/') == 0) {
                 is_shm_out = true;
@@ -293,9 +264,42 @@ namespace geopm
                     throw std::system_error(std::error_code(errno, std::system_category()),
                                             "Could not close file descriptor for root policy shared memory region.\n");
                 }
+                if (pthread_mutex_init(&(m_policy_shmem_out->lock), NULL) != 0) {
+                    munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
+                    throw std::system_error(std::error_code(errno, std::system_category()),
+                                            "Could not initialize pthread mutex for shared memory region.\n");
+                }
             }
             else {
                 m_config_file_out.open(m_out_config.c_str(), std::ifstream::out);
+            }
+        }
+        if (!m_in_config.empty()) {
+            do_read = true;
+            if (m_in_config[0] == '/' && m_in_config.find_last_of('/') == 0) {
+                is_shm_in = true;
+                shm_id = shm_open(m_in_config.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
+
+                if (shm_id < 0) {
+                    throw std::system_error(std::error_code(errno, std::system_category()),
+                                            "Could not open shared memory region for root policy.\n");
+                }
+                m_policy_shmem_in = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
+                                    PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
+                if (m_policy_shmem_in == MAP_FAILED) {
+                    (void) close(shm_id);
+                    throw std::system_error(std::error_code(errno, std::system_category()),
+                                            "Could not map shared memory region for root policy.\n");
+                }
+                err = close(shm_id);
+                if (err) {
+                    munmap(m_policy_shmem_in, sizeof(struct geopm_policy_shmem_s));
+                    throw std::system_error(std::error_code(errno, std::system_category()),
+                                            "Could not close file descriptor for root policy shared memory region.\n");
+                }
+            }
+            else {
+                m_config_file_in.open(m_in_config.c_str(), std::ifstream::in);
             }
         }
     }
@@ -441,6 +445,7 @@ namespace geopm
             m_mode = m_policy_shmem_in->policy.mode;
             m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
             m_flags = m_policy_shmem_in->policy.flags;
+            err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw std::system_error(std::error_code(err, std::system_category()),
                                         "Could not unlock shared memory region for root of tree.\n");
@@ -638,6 +643,7 @@ namespace geopm
         }
         if (is_shm_out) {
             int err;
+
             err = pthread_mutex_lock(&(m_policy_shmem_out->lock));
             if (err) {
                 throw std::system_error(std::error_code(err, std::system_category()),
@@ -646,6 +652,7 @@ namespace geopm
             m_policy_shmem_out->policy.mode = m_mode;
             m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
             m_policy_shmem_out->policy.flags = m_flags;
+            err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw std::system_error(std::error_code(err, std::system_category()),
                                         "Could not unlock shared memory region for resource manager.\n");
@@ -662,7 +669,7 @@ namespace geopm
                 case GEOPM_MODE_SHUTDOWN:
                     break;
                 case GEOPM_MODE_TDP_BALANCE_STATIC:
-                    json_object_object_add(policy,"mode",json_object_new_string("tdp_balanced_static"));
+                    json_object_object_add(policy,"mode",json_object_new_string("tdp_balance_static"));
                     json_object_object_add(options,"percent_tdp",json_object_new_int(percent_tdp()));
                     json_object_object_add(policy,"options",options);
                     break;
@@ -680,7 +687,7 @@ namespace geopm
                     json_object_object_add(policy,"options",options);
                     break;
                 case GEOPM_MODE_PERF_BALANCE_DYNAMIC:
-                    json_object_object_add(policy,"mode",json_object_new_string("perf_balanced_dynamic"));
+                    json_object_object_add(policy,"mode",json_object_new_string("perf_balance_dynamic"));
                     json_object_object_add(options,"power_budget",json_object_new_int(budget_watts()));
                     json_object_object_add(policy,"options",options);
                     break;
@@ -701,6 +708,7 @@ namespace geopm
                     throw std::runtime_error("invalid mode specified");
             }
             m_config_file_out << json_object_to_json_string(policy);
+            m_config_file_out.flush();
         }
     }
 

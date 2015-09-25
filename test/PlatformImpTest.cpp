@@ -56,7 +56,7 @@ class TestPlatformImp : public geopm::PlatformImp
 
 TestPlatformImp::TestPlatformImp()
 {
-    m_hyperthreaded = false;
+    m_hyperthreads = 1;
     m_num_cpu = NUM_CPU;
     m_num_tile = NUM_TILE;
     m_num_package = NUM_PACKAGE;
@@ -214,7 +214,7 @@ TEST_F(PlatformImpTest, platform_get_cpu)
 
 TEST_F(PlatformImpTest, platform_get_hyperthreaded)
 {
-    EXPECT_FALSE(m_platform->is_hyperthread_enabled());
+    EXPECT_TRUE(m_platform->get_num_hyperthreads() == 1);
 }
 
 TEST_F(PlatformImpTest, platform_get_offsets)

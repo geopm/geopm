@@ -104,14 +104,14 @@ int main(int argc, char **argv)
 
     if (argc >= 1 &&
         strncmp(argv[1], "--version", strlen("--version")) == 0) {
-        printf(geopm_version());
+        printf("%s\n", geopm_version());
         printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (argc >= 1 && (
-        strncmp(argv[1], "--help", strlen("--help")) == 0 ||
-        strncmp(argv[1], "-h", strlen("-h")))) {
-        printf(usage);
+            strncmp(argv[1], "--help", strlen("--help")) == 0 ||
+            strncmp(argv[1], "-h", strlen("-h")))) {
+        printf("%s\n", usage);
         return 0;
     }
 
@@ -139,8 +139,8 @@ int main(int argc, char **argv)
         if (!err0) {
             strncpy(arg_ptr, optarg, GEOPMCTL_STRING_LENGTH);
             if (arg_ptr[GEOPMCTL_STRING_LENGTH - 1] != '\0') {
-               fprintf(stderr, "ERROR: config_file name too long\n");
-               err0 = EINVAL;
+                fprintf(stderr, "ERROR: config_file name too long\n");
+                err0 = EINVAL;
             }
         }
     }

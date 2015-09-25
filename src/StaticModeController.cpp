@@ -39,6 +39,9 @@
 #include <stdexcept>
 #include <sstream>
 
+#include "geopm_policy_message.h"
+
+#include "GlobalPolicy.hpp"
 #include "StaticModeController.hpp"
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
@@ -46,13 +49,30 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int staticpm_ctl_run_tdp(int mode, float percentage)
+int staticpm_ctl_enforce(char* path)
 {
     int err = 0;
+    int mode = 0;
+    geopm::GlobalPolicy policy(std::string(path), std::string(""));
     geopm::StaticModeController controller;
 
     try {
-        controller.tdp_limit(percentage);
+        policy.read();
+        mode = policy.mode();
+        switch (mode) {
+            case GEOPM_MODE_TDP_BALANCE_STATIC:
+                controller.tdp_limit(policy.percent_tdp());
+                break;
+            case GEOPM_MODE_FREQ_UNIFORM_STATIC:
+                controller.manual_frequency(policy.frequency_mhz(), 0, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                break;
+            case GEOPM_MODE_FREQ_HYBRID_STATIC:
+                controller.manual_frequency(policy.frequency_mhz(), policy.num_max_perf(), policy.affinity());
+                break;
+            default:
+                std::cerr << "unsupported enforcement mode\n";
+                return EINVAL;
+        };
     }
     catch (std::exception ex) {
         std::cerr << ex.what();
@@ -61,29 +81,13 @@ int staticpm_ctl_run_tdp(int mode, float percentage)
     return err;
 }
 
-int staticpm_ctl_run_fixed(int mode, float frequency)
-{
-    int err = 0;
-    geopm::StaticModeController controller;
-    int mask = 0;
-
-    try {
-        controller.manual_frequency(frequency, 0, (int*)&mask);
-    }
-    catch (std::exception ex) {
-        std::cerr << ex.what();
-        err = -1;
-    }
-    return err;
-}
-
-int staticpm_ctl_run_hybrid(int mode, float frequency, int mask_size, int* mask)
+int staticpm_ctl_save(char *path)
 {
     int err = 0;
     geopm::StaticModeController controller;
 
     try {
-        controller.manual_frequency(frequency, mask_size, mask);
+        controller.save_msr_state(path);
     }
     catch (std::exception ex) {
         std::cerr << ex.what();
@@ -93,21 +97,22 @@ int staticpm_ctl_run_hybrid(int mode, float frequency, int mask_size, int* mask)
     return err;
 }
 
-int staticpm_ctl_restore()
+int staticpm_ctl_restore(char *path)
 {
     int err = 0;
     geopm::StaticModeController controller;
 
     try {
-        controller.restore_state();
+        controller.restore_msr_state(path);
     }
     catch (std::exception ex) {
         std::cerr << ex.what();
         err = -1;
     }
+
     return err;
 }
-#ifdef _cplusplus
+#ifdef __cplusplus
 }
 #endif
 
@@ -120,12 +125,9 @@ namespace geopm
 
     StaticModeController::~StaticModeController() {}
 
-    void StaticModeController::tdp_limit(float percentage)
+    void StaticModeController::tdp_limit(int percentage)
     {
         init_platform();
-        std::ofstream restore_file;
-        restore_file.open("static_reg_restore.txt");
-        printf("perc2 = %f\n", percentage);
 
         //Get the TDP for each socket and set it's power limit to match
         double tdp = 0.0;
@@ -135,66 +137,110 @@ namespace geopm
 
         for (int i = 0; i <  num_packages; i++) {
             tdp = ((double)(m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
-            tdp *= (percentage * 0.01);
+            tdp *= ((double)percentage * 0.01);
             pkg_lim = (int64_t)(tdp * tdp);
             pkg_magic = pkg_lim | (pkg_lim << 32) | PKG_POWER_LIMIT_MASK_MAGIC;
             old_val = m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_platform->get_msr_offset("PKG_POWER_LIMIT")
-                         << ":" << old_val << "\n";
             m_platform->write_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", pkg_magic);
         }
-        restore_file.close();
     }
 
-    void StaticModeController::manual_frequency(float frequency, int mask_size, int *mask)
+    void StaticModeController::manual_frequency(int frequency, int num_cpu_max_perf, int affinity)
     {
         init_platform();
-        std::ofstream restore_file;
-        restore_file.open("static_reg_restore.txt");
-        printf("freq2 = %f\n", frequency);
+
         //Set the frequency for each cpu
         int64_t freq_perc;
-        int num_cpus = m_platform->get_num_cpu();
-        if (m_platform->is_hyperthread_enabled()) {
-            num_cpus/=2;
+        bool small = false;
+        int num_logical_cpus = m_platform->get_num_cpu();
+        int num_hyperthreads = m_platform->get_num_hyperthreads();
+        int num_real_cpus = num_logical_cpus / num_hyperthreads;
+        int num_packages = m_platform->get_num_package();
+        int num_cpus_per_package = num_real_cpus / num_packages;
+        int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / num_packages);
+
+        if (num_cpu_max_perf >= num_real_cpus) {
+            throw std::runtime_error("requested number of max perf cpus is greater than controllable number of frequency domains on the platform");
         }
-        for (int i = 0; i < num_cpus; i++) {
-            int masknum = i/32;
-            int bitnum = i%32;
-            int temp_mask = 1 << bitnum;
-            printf("\n\ncpu %d\n", i);
-            printf("masknum = %d, bitnum = %d\n", masknum, bitnum);
-            printf("mask[%d] = %x, tempmask = %x\n",masknum,mask[masknum],temp_mask);
-            if ((mask[masknum] & temp_mask) == 0) {
-                freq_perc = m_platform->read_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_STATUS") & 0xffff;
-                restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_platform->get_msr_offset("PKG_POWER_LIMIT")
-                             << ":" << freq_perc << "\n";
-                printf("perf status = %d:%f\n", freq_perc, (float)(freq_perc >> 8) * 0.1);
+
+        for (int i = 0; i < num_logical_cpus; i++) {
+            int real_cpu = i % num_real_cpus;
+            if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
+                int package = real_cpu % num_cpus_per_package;
+                int extra = num_cpu_max_perf % num_packages;
+                extra = (package < extra) ? 1 : 0;
+                int package_start = package * num_cpus_per_package;
+                int small_cpu_end = package_start + num_small_cores_per_package + extra;
+                if (real_cpu >= package_start && real_cpu < small_cpu_end) {
+                    small = true;
+                }
+            }
+            else if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT) {
+                if (real_cpu > (num_cpu_max_perf % num_hyperthreads)) {
+                    small = true;
+                }
+            }
+            else {
+                small = true;
+            }
+            if (small) {
                 freq_perc = ((int64_t)(frequency * 10.01) << 8) & 0xffff;
                 m_platform->write_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL", freq_perc & 0xffff);
-                freq_perc = m_platform->read_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL") & 0xffff;
-                printf("frequency = %f, divided = %d, shifted = %d\n", frequency, (int)(frequency*10.01), ((int(frequency*10))<<8));
-                printf("perf control = %d:%f\n", freq_perc, (float)(freq_perc >> 8) * 0.1);
             }
+            small = false;
         }
-        restore_file.close();
-
     }
 
-    void StaticModeController::restore_state(void)
+    void StaticModeController::save_msr_state(char *path)
+    {
+        init_platform();
+
+        uint64_t msr_val;
+        int niter = m_platform->get_num_package();
+        std::ofstream restore_file;
+
+        restore_file.open(path);
+
+        //per package state
+        for (int i = 0; i < niter; i++) {
+            msr_val = m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_platform->get_msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
+            msr_val = m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_platform->get_msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
+            msr_val = m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_platform->get_msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
+        }
+
+        niter = m_platform->get_num_cpu() / m_platform->get_num_hyperthreads();
+
+        //per cpu state
+        for (int i = 0; i < niter; i++) {
+            msr_val = m_platform->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_platform->get_msr_offset("PERF_FIXED_CTR_CTR") << ":" << msr_val << "\n";
+            msr_val = m_platform->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_platform->get_msr_offset("PERF_GLOBAL_CTR") << ":" << msr_val << "\n";
+            msr_val = m_platform->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_platform->get_msr_offset("PERF_GLOBAL_OVF_CTR") << ":" << msr_val << "\n";
+
+        }
+
+        restore_file.close();
+    }
+
+    void StaticModeController::restore_msr_state(char *path)
     {
         init_platform();
         std::ifstream restore_file;
         std::string line;
         std::vector<int64_t> vals;
         std::string item;
-        restore_file.open("static_reg_restore.txt");
+        restore_file.open(path);
         while (std::getline(restore_file,line)) {
             std::stringstream ss(line);
             while (std::getline(ss, item, ':')) {
                 vals.push_back((int64_t)atol(item.c_str()));
             }
-            if(vals.size() == 4) {
+            if (vals.size() == 4) {
                 m_platform->write_msr(vals[0], vals[1], vals[2], vals[3]);
             }
             else {
@@ -209,7 +255,7 @@ namespace geopm
     void StaticModeController::init_platform(void)
     {
         int cpuid = read_cpuid();
-        m_platform == NULL;
+        m_platform = NULL;
 
 
         switch (cpuid) {
@@ -240,13 +286,7 @@ namespace geopm
         const uint32_t extended_model_mask = 0xF0000;
         const uint32_t extended_family_mask = 0xFF00000;
 
-        //Not sure if this is the correct call
         __get_cpuid(key, &proc_info, &ebx, &ecx, &edx);
-        //Commenting out assembly which works only on x86_64
-        //__asm__("cpuid"
-        //        :"=a"(proc_info)
-        //        :"0"(key)
-        //        :"%ebx","%ecx","%edx");
 
         model = (proc_info & model_mask) >> 4;
         family = (proc_info & family_mask) >> 8;

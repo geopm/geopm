@@ -45,12 +45,10 @@ namespace geopm
 {
 
     PlatformImp::PlatformImp()
-        : m_hyperthreaded(false)
+        : m_hyperthreads(0)
         , m_num_cpu(0)
         , m_num_tile(0)
         , m_num_package(0)
-
-
     {
         parse_hw_topology();
     }
@@ -72,9 +70,9 @@ namespace geopm
         return m_num_cpu;
     }
 
-    bool PlatformImp::is_hyperthread_enabled(void) const
+    uint32_t PlatformImp::get_num_hyperthreads(void) const
     {
-        return m_hyperthreaded;
+        return m_hyperthreads;
     }
 
     PlatformTopology PlatformImp::topology(void) const
@@ -202,6 +200,6 @@ namespace geopm
     {
         m_num_cpu = m_topology.num_domain(GEOPM_DOMAIN_CPU);
         m_num_package = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
-        m_hyperthreaded = (m_num_cpu != m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE));
+        m_hyperthreads = (m_num_cpu / m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE));
     }
 }

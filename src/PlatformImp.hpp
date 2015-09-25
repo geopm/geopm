@@ -72,7 +72,7 @@ namespace geopm
             uint32_t get_num_package(void) const;
             uint32_t get_num_tile(void) const;
             uint32_t get_num_cpu(void) const;
-            bool is_hyperthread_enabled(void) const;
+            uint32_t get_num_hyperthreads(void) const;
             PlatformTopology topology(void) const;
 
             ///////////////////////////
@@ -100,7 +100,7 @@ namespace geopm
             PlatformTopology m_topology;
             std::vector<int> m_cpu_file_descs;
             std::map<std::string, off_t> m_msr_offset_map;
-            bool m_hyperthreaded;
+            int m_hyperthreads;
             int m_num_cpu;
             int m_num_tile;
             int m_num_package;

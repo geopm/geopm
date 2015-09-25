@@ -155,7 +155,7 @@ namespace geopm
     void HSXPlatformImp::cbo_counters_init()
     {
         int msr_num = m_num_cpu/m_num_package;
-        msr_num = m_hyperthreaded ? msr_num/2 : msr_num;
+        msr_num = msr_num/m_hyperthreads;
         for (int i = 0; i < msr_num; i++) {
             std::string msr_name("_MSR_PMON_CTL1");
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
@@ -203,7 +203,7 @@ namespace geopm
     void HSXPlatformImp::fixed_counters_init()
     {
         int msr_num = m_num_cpu/m_num_package;
-        msr_num = m_hyperthreaded ? msr_num/2 : msr_num;
+        msr_num = msr_num/m_hyperthreads;
         for (int cpu = 0; cpu < msr_num; cpu++) {
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR_CTRL", 0x0333);
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x70000000F);
@@ -226,7 +226,7 @@ namespace geopm
     {
         // FIXME: Instead of resetting, should we restore state?
         int msr_num = m_num_cpu/m_num_package;
-        msr_num = m_hyperthreaded ? msr_num/2 : msr_num;
+        msr_num = msr_num/m_hyperthreads;
         for (int i = 0; i < msr_num; i++) {
             std::string msr_name("_MSR_PMON_BOX_CTL");
             msr_name.insert(0, std::to_string(i));
@@ -241,7 +241,7 @@ namespace geopm
     void HSXPlatformImp::fixed_counters_reset()
     {
         int msr_num = m_num_cpu/m_num_package;
-        msr_num = m_hyperthreaded ? msr_num/2 : msr_num;
+        msr_num = msr_num/m_hyperthreads;
         for (int cpu = 0; cpu < msr_num; cpu++) {
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR0", 0x0);
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR1", 0x0);

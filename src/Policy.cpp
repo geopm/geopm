@@ -30,8 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+#include "geopm.h"
 #include "Policy.hpp"
+
+const double GEOPM_POLICY_CONST_INVALID_TARGET = DBL_MIN;
 
 namespace geopm
 {
@@ -41,7 +43,7 @@ namespace geopm
         : m_target(num_domain),
           m_updated(num_domain)
     {
-        std::fill(m_target.begin(), m_target.end(), INVALID_TARGET);
+        std::fill(m_target.begin(), m_target.end(), GEOPM_POLICY_CONST_INVALID_TARGET);
         std::fill(m_updated.begin(), m_updated.end(), false);
     }
 
@@ -56,7 +58,7 @@ namespace geopm
 
     void Policy::clear(void)
     {
-        std::fill(m_target.begin(), m_target.end(), INVALID_TARGET);
+        std::fill(m_target.begin(), m_target.end(), GEOPM_POLICY_CONST_INVALID_TARGET);
         std::fill(m_updated.begin(), m_updated.end(), true);
     }
 
@@ -70,7 +72,7 @@ namespace geopm
             size_t in_size = m_target.size();
             m_target.resize(domain + 1);
             m_updated.resize(domain + 1);
-            std::fill(m_target.begin() + in_size, m_target.end(), INVALID_TARGET);
+            std::fill(m_target.begin() + in_size, m_target.end(), GEOPM_POLICY_CONST_INVALID_TARGET);
             std::fill(m_updated.begin() + in_size, m_updated.end(), false);
             m_target[domain] = target;
             m_updated[domain] = true;
@@ -88,7 +90,7 @@ namespace geopm
     {
         target.clear();
         for (int i = 0; i < (int)m_target.size(); ++i) {
-            if (m_updated[i] == true && m_target[i] != INVALID_TARGET) {
+            if (m_updated[i] == true && m_target[i] != GEOPM_POLICY_CONST_INVALID_TARGET) {
                 target.insert(std::pair <int, double>(i, m_target[i]));
                 m_updated[i] = false;
             }
@@ -119,7 +121,7 @@ namespace geopm
     {
         target.clear();
         for (int i = 0; i < (int)m_target.size(); ++i) {
-            if (m_target[i] != INVALID_TARGET) {
+            if (m_target[i] != GEOPM_POLICY_CONST_INVALID_TARGET) {
                 target.insert(std::pair <int, double>(i, m_target[i]));
             }
         }

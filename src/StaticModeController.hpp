@@ -42,9 +42,10 @@ namespace geopm
         public:
             StaticModeController();
             virtual ~StaticModeController();
-            void tdp_limit(float percentage);
-            void manual_frequency(float frequency, int mask_size, int *mask);
-            void restore_state(void);
+            void tdp_limit(int percentage);
+            void manual_frequency(int frequency, int num_cpu_max_perf, int affinity);
+            void save_msr_state(char *path);
+            void restore_msr_state(char *path);
         protected:
             void init_platform(void);
             int read_cpuid(void);

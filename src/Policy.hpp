@@ -33,7 +33,6 @@
 #ifndef POLICY_HPP_INCLUDE
 #define POLICY_HPP_INCLUDE
 
-#include <float.h>
 #include <vector>
 #include <map>
 
@@ -54,7 +53,6 @@ namespace geopm
             void target(int domain, double &target);
             int num_domain(void) const;
             void valid_target(std::map <int, double> &target) const;
-            static constexpr double INVALID_TARGET = -1.0 * DBL_MAX;
         protected:
             std::vector <double> m_target;
             std::vector <bool> m_updated;

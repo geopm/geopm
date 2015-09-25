@@ -57,7 +57,7 @@ geopm_policy_c \- geopm mpi job policy management structure
 .BI "int geopm_policy_full_perf(struct geopm_policy_c *" "policy" ,
 .BI "                           int " "num_cpu_full_perf");
 .sp
-.BI "int geopm_policy_tdp_percent(struct geopm_policy_c *" "policy" ,
+.BI "int geopm_policy_percent_tdp(struct geopm_policy_c *" "policy" ,
 .BI "                             int " "percent_tdp");
 .sp
 .BI "int geopm_policy_affinity(struct geopm_policy_c *" "policy" ,
@@ -159,7 +159,7 @@ which are run unconstrained at full performance for the
 This parameter is used by GEOPM_MODE_FREQ_HYBRID_STATIC AND
 GEOPM_MODE_FREQ_HYBRID_DYNAMIC for "big CPUs".
 .PP
-.BR geopm_policy_tdp_percent ()
+.BR geopm_policy_percent_tdp ()
 sets the percent of Thermal Design Power,
 .I percent_tdp
 to give restricted CPUs under control under the

@@ -40,10 +40,10 @@ namespace geopm
     IVTPlatform::IVTPlatform()
     {
         m_num_cpu = m_imp->get_num_cpu();
-        bool hyper = m_imp->is_hyperthread_enabled();
+        int hyper = m_imp->get_num_hyperthreads();
 
         //Set up our indexes into the circular buffers for all the observables
-        int cpu_offset = hyper ? (m_num_cpu / 2) : m_num_cpu;
+        int cpu_offset = hyper ? (m_num_cpu / hyper) : m_num_cpu;
         m_buffer_index.package0_pkg_energy = 0;
         m_buffer_index.package1_pkg_energy = 1;
         m_buffer_index.package0_pp0_energy = 2;

@@ -30,5 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_policy.h"
+#ifndef GEOPM_STATIC_H_INCLUDE
+#define GEOPM_STATIC_H_INCLUDE
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int staticpm_ctl_enforce(char* path);
+
+int staticpm_ctl_save(char *path);
+
+int staticpm_ctl_restore(char *path);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

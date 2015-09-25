@@ -44,6 +44,8 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/Decider.hpp \
                       src/GlobalPolicy.cpp \
                       src/GlobalPolicy.hpp \
+                      src/HSXPlatformImp.cpp \
+                      src/HSXPlatformImp.hpp \
                       src/IVTPlatform.cpp \
                       src/IVTPlatform.hpp \
                       src/IVTPlatformImp.cpp \
@@ -60,10 +62,10 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/PlatformImp.hpp \
                       src/PlatformTopology.cpp \
                       src/PlatformTopology.hpp \
-                      src/PowerModel.cpp \
-                      src/PowerModel.hpp \
                       src/Policy.cpp \
                       src/Policy.hpp \
+                      src/PowerModel.cpp \
+                      src/PowerModel.hpp \
                       src/Profile.cpp \
                       src/Profile.hpp \
                       src/TreeCommunicator.cpp \
@@ -74,10 +76,19 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/geopm_version.c \
                       # end
 
-libgeopmpolicy_la_SOURCES = src/Policy.cpp \
-                            src/Policy.hpp \
-                            src/geopm_policy.c \
+libgeopmpolicy_la_SOURCES = src/GlobalPolicy.cpp \
+                            src/GlobalPolicy.hpp \
+                            src/HSXPlatformImp.cpp \
+                            src/HSXPlatformImp.hpp \
+                            src/IVTPlatformImp.cpp \
+                            src/IVTPlatformImp.hpp \
+                            src/PlatformImp.cpp \
+                            src/PlatformImp.hpp \
+                            src/StaticModeController.cpp \
+                            src/StaticModeController.hpp \
                             src/geopm_policy.h \
+                            src/geopm_static.h \
+                            src/geopm_version.c \
                             # end
 
 include_HEADERS = src/geopm.h \
@@ -92,10 +103,14 @@ geopmctl_SOURCES = src/geopmctl_main.c \
                    # end
 
 geopmpolicy_SOURCES = src/geopmpolicy_main.c \
+                      src/geopm_policy.h \
                       src/geopm_policy_message.h \
+                      src/geopm_static.h \
                       # end
 
 geopmctl_LDADD = libgeopm.la
+
+geopmpolicy_LDADD = libgeopmpolicy.la
 
 dist_man_MANS = man/geopm.3 \
                 man/geopmctl.3 \
