@@ -33,7 +33,6 @@ AM_CPPFLAGS += -I$(googletest)/include
 AM_CPPFLAGS += -I$(googlemock)/include
 
 check_PROGRAMS += test/geopm_test \
-                  test/geopm_mpi_test \
                   # end
 
 TESTS += test/gtest_links/ObservationTest.hello_mean \
@@ -43,12 +42,6 @@ TESTS += test/gtest_links/ObservationTest.hello_mean \
          test/gtest_links/ObservationTest.hello_min \
          test/gtest_links/ObservationTest.negative_not_allocated \
          test/gtest_links/ObservationTest.negative_empty \
-         test/gtest_links/MPIControllerTest.hello \
-         test/gtest_links/MPIControllerTest.geopm_ctl_run \
-         test/gtest_links/MPITreeCommunicatorTest.hello \
-         test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
-         test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
-         test/gtest_links/MPITreeCommunicatorTestShmem.hello \
          test/gtest_links/PlatformFactoryTest.platform_register \
          test/gtest_links/PlatformFactoryTest.no_supported_platform \
          test/gtest_links/PlatformImpTest.platform_get_name \
@@ -60,7 +53,6 @@ TESTS += test/gtest_links/ObservationTest.hello_mean \
          test/gtest_links/PlatformImpTest.cpu_msr_read_write \
          test/gtest_links/PlatformImpTest.tile_msr_read_write \
          test/gtest_links/PlatformImpTest.socket_msr_read_write \
-         test/gtest_links/PlatformImpTest.parse_topology \
          test/gtest_links/PlatformImpTest.negative_read_no_desc \
          test/gtest_links/PlatformImpTest.negative_write_no_desc \
          test/gtest_links/PlatformImpTest.negative_read_bad_desc \
@@ -69,9 +61,7 @@ TESTS += test/gtest_links/ObservationTest.hello_mean \
          test/gtest_links/CircularBufferTest.buffer_size \
          test/gtest_links/CircularBufferTest.buffer_values \
          test/gtest_links/CircularBufferTest.buffer_capacity \
-         # end
-
-         #test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
+         test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
          test/gtest_links/GlobalPolicyTest.mode_freq_uniform_static \
          test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_static \
          test/gtest_links/GlobalPolicyTest.mode_perf_balance_dynamic \
@@ -94,7 +84,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformFactoryTest.cpp \
                           test/PlatformImpTest.cpp \
                           test/CircularBufferTest.cpp \
-                          #test/GlobalPolicyTest.cpp
+                          test/GlobalPolicyTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
@@ -102,17 +92,6 @@ test_geopm_test_LDADD = libgtest.a \
                         libgeopm.la \
                         libgeopmpolicy.la \
                         # end
-
-test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
-                              test/MPIControllerTest.cpp \
-                              test/MPITreeCommunicatorTest.cpp \
-                              # end
-
-test_geopm_mpi_test_LDADD = libgtest.a \
-                            libgmock.a \
-                            libgeopm.la \
-                            libgeopmpolicy.la \
-                            # end
 
 $(TESTS): test/gtest_links/%:
 	mkdir -p test/gtest_links
