@@ -127,6 +127,7 @@ EXTRA_DIST = .gitignore \
              src/Comm.hpp \
              test/geopm_static_modes_test.sh \
              TODO \
+             tracker/track \
              $(TUTORIAL_DIST) \
              geopm-tutorial.tar.gz \
              # end
