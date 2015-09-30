@@ -43,15 +43,18 @@ namespace geopm
 
     PlatformFactory::PlatformFactory()
     {
-        //register all the platforms we know about
-//        std::unique_ptr<Platform> ivb_plat(new IVTPlatform());
-//        std::unique_ptr<PlatformImp> ivb_plat_imp(new IVTPlatformImp());
-//        register_platform(move(ivb_plat), move(ivb_plat_imp));
-//        register_platform(std::unique_ptr<geopm::Platform>(new IVTPlatform()),
-//                          std::unique_ptr<geopm::PlatformImp>(new IVTPlatformImp()));
+#if 0
+        // FIXME removed code for *some* reason
+        // register all the platforms we know about
+        std::unique_ptr<Platform> ivb_plat(new IVTPlatform());
+        std::unique_ptr<PlatformImp> ivb_plat_imp(new IVTPlatformImp());
+        register_platform(move(ivb_plat), move(ivb_plat_imp));
+        register_platform(std::unique_ptr<geopm::Platform>(new IVTPlatform()),
+                          std::unique_ptr<geopm::PlatformImp>(new IVTPlatformImp()));
 
-//        ivb_plat->release();
-//        ivb_plat_imp->release();
+        ivb_plat->release();
+        ivb_plat_imp->release();
+#endif
     }
 
     PlatformFactory::~PlatformFactory()
@@ -62,7 +65,7 @@ namespace geopm
         }
     }
 
-    Platform& PlatformFactory::platform(int level)
+    Platform* PlatformFactory::platform(int level)
     {
         int platform_id;
         Platform *result = NULL;
@@ -89,7 +92,7 @@ namespace geopm
             throw std::invalid_argument("no plugin found to support current platform");
         }
 
-        return *result;
+        return result;
     }
 
     void PlatformFactory::register_platform(std::unique_ptr<Platform> platform, std::unique_ptr<PlatformImp> platform_imp)

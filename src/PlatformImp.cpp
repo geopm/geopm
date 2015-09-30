@@ -197,9 +197,12 @@ namespace geopm
     }
 
     void PlatformImp::parse_hw_topology()
-    {
+    {   
+        int num_core = 0;
+
         m_num_cpu = m_topology.num_domain(GEOPM_DOMAIN_CPU);
         m_num_package = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
-        m_hyperthreads = (m_num_cpu / m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE));
+        num_core = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE);
+        m_hyperthreads = num_core ? (m_num_cpu / num_core) : 1;
     }
 }

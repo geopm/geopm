@@ -33,6 +33,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
+#include "geopm_policy.h"
 #include "GlobalPolicy.hpp"
 
 class GlobalPolicyTest: public :: testing :: Test
@@ -308,4 +309,38 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_dynamic)
     EXPECT_EQ(9612, m_policy->budget_watts());
     EXPECT_EQ(24, m_policy->num_max_perf());
     EXPECT_EQ(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+}
+
+TEST_F(GlobalPolicyTest, c_interface)
+{
+    struct geopm_policy_c *policy;
+    const char path[] = {"/tmp/policy.conf"};
+
+    EXPECT_EQ(0, geopm_policy_create("", path, &policy));
+    EXPECT_EQ(0, geopm_policy_power(policy, 2500));
+    EXPECT_EQ(0, geopm_policy_mode(policy, GEOPM_MODE_FREQ_HYBRID_DYNAMIC));
+    EXPECT_EQ(0, geopm_policy_cpu_freq(policy, 2200));
+    EXPECT_EQ(0, geopm_policy_full_perf(policy, 8));
+    EXPECT_EQ(0, geopm_policy_percent_tdp(policy, 60));
+    EXPECT_EQ(0, geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER));
+    EXPECT_EQ(0, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
+    EXPECT_EQ(0, geopm_policy_write(policy));
+    EXPECT_EQ(0, geopm_policy_destroy(policy));
+    EXPECT_EQ(0, remove(path));
+}
+
+TEST_F(GlobalPolicyTest, negative_c_interface)
+{
+    struct geopm_policy_c *policy = NULL;
+
+    EXPECT_EQ(-1, geopm_policy_create("", "", &policy));
+    EXPECT_EQ(-1, geopm_policy_power(policy, 2500));
+    EXPECT_EQ(-1, geopm_policy_mode(policy, GEOPM_MODE_FREQ_HYBRID_DYNAMIC));
+    EXPECT_EQ(-1, geopm_policy_cpu_freq(policy, 2200));
+    EXPECT_EQ(-1, geopm_policy_full_perf(policy, 8));
+    EXPECT_EQ(-1, geopm_policy_percent_tdp(policy, 60));
+    EXPECT_EQ(-1, geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER));
+    EXPECT_EQ(-1, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
+    EXPECT_EQ(-1, geopm_policy_write(policy));
+    EXPECT_EQ(-1, geopm_policy_destroy(policy));
 }

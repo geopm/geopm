@@ -78,20 +78,29 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/geopm_version.c \
                       # end
 
-libgeopmpolicy_la_SOURCES = src/GlobalPolicy.cpp \
+libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
+                            src/CircularBuffer.hpp \
+                            src/GlobalPolicy.cpp \
                             src/GlobalPolicy.hpp \
                             src/HSXPlatformImp.cpp \
                             src/HSXPlatformImp.hpp \
                             src/IVTPlatformImp.cpp \
                             src/IVTPlatformImp.hpp \
+                            src/Observation.cpp \
+                            src/Observation.hpp \
+                            src/Phase.cpp \
+                            src/Phase.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
-                            src/StaticModeController.cpp \
-                            src/StaticModeController.hpp \
+                            src/Platform.cpp \
+                            src/Platform.hpp \
+                            src/PlatformFactory.cpp \
+                            src/PlatformFactory.hpp \
                             src/PlatformTopology.cpp \
                             src/PlatformTopology.hpp \
+                            src/PowerModel.cpp \
+                            src/PowerModel.hpp \
                             src/geopm_policy.h \
-                            src/geopm_static.h \
                             src/geopm_version.c \
                             # end
 
@@ -113,7 +122,6 @@ geopmctl_LDADD = libgeopm.la
 geopmpolicy_SOURCES = src/geopmpolicy_main.c \
                       src/geopm_policy.h \
                       src/geopm_policy_message.h \
-                      src/geopm_static.h \
                       # end
 
 geopmpolicy_LDADD = libgeopmpolicy.la

@@ -93,7 +93,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     .WillOnce(Return(pname));
 
     m_platform_fact.register_platform(move(m_ap), move(m_ap_imp));
-    p = &m_platform_fact.platform(0);
+    p = m_platform_fact.platform(0);
     ASSERT_FALSE(p == NULL);
 
     ans = p->name();
@@ -118,7 +118,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     m_platform_fact.register_platform(move(m_ap), move(m_ap_imp));
 
     try {
-        p = &m_platform_fact.platform(0);
+        p = m_platform_fact.platform(0);
     }
     catch (std::invalid_argument e) {
         thrown = 1;

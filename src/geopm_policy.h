@@ -68,6 +68,12 @@ int geopm_policy_goal(struct geopm_policy_c *policy,
 
 int geopm_policy_write(const struct geopm_policy_c *policy);
 
+int geopm_policy_enforce_static(const struct geopm_policy_c *policy);
+
+int geopm_platform_msr_save(const char *path);
+
+int geopm_platform_msr_restore(const char *path);
+
 #ifdef __cplusplus
 }
 #endif

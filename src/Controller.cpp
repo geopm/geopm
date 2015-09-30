@@ -32,31 +32,43 @@
 
 #include <vector>
 #include <algorithm>
+#include <libgen.h>
 
 #include "geopm.h"
 #include "geopm_policy_message.h"
 #include "Controller.hpp"
 #include "Profile.hpp"
 
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
+
 extern "C"
 {
     int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
     {
         int err = 0;
-        try {
-            std::string policy_config_str(policy_config);
-            std::string policy_key_str(policy_key);
-            std::string sample_key_str(sample_key);
-            std::string report_str(report);
-            std::string profile_name(basename(report));
-            geopm::GlobalPolicy policy(policy_config_str, "");
-            geopm::Profile profile(profile_name, sample_key_str, 0); //FIXME how should the last parameter be determined?
-            geopm::Controller ctl(&policy, &profile, MPI_COMM_WORLD);
-            ctl.run();
+        char profile_name[NAME_MAX] = {0};
+        strncpy(profile_name, report, NAME_MAX);
+        if (profile_name[NAME_MAX-1] != '\0') {
+            err = EINVAL;
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        if (!err) {
+            try {
+                std::string policy_config_str(policy_config);
+                std::string policy_key_str(policy_key);
+                std::string sample_key_str(sample_key);
+                std::string report_str(report);
+                std::string profile_name_str(basename(profile_name));
+                geopm::GlobalPolicy policy(policy_config_str, "");
+                geopm::Profile profile(profile_name_str, sample_key_str, 0); //FIXME how should the last parameter be determined?
+                geopm::Controller ctl(&policy, &profile, MPI_COMM_WORLD);
+                ctl.run();
+            }
+            catch (std::exception ex) {
+                std::cerr << ex.what();
+                err = -1;
+            }
         }
         return err;
     }

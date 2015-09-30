@@ -32,10 +32,63 @@
 
 #include <set>
 
+#include <string>
+#include <inttypes.h>
+#include <cpuid.h>
+#include <iostream>
+#include <fstream>
+#include <math.h>
+#include <stdexcept>
+#include <sstream>
+
 #include "Platform.hpp"
+#include "PlatformFactory.hpp"
+#include "geopm_policy_message.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int geopm_platform_msr_save(const char *path)
+{
+    int err = 0;
+    geopm::PlatformFactory platform_factory;
+    geopm::Platform *platform = platform_factory.platform(0);
+    try {
+        platform->save_msr_state(path);
+    }
+    catch (std::exception ex) {
+        std::cerr << ex.what();
+        err = -1;
+    }
+
+    return err;
+}
+
+int geopm_platform_msr_restore(const char *path)
+{
+    int err = 0;
+    geopm::PlatformFactory platform_factory;
+    geopm::Platform *platform = platform_factory.platform(0);
+
+    try {
+        platform->restore_msr_state(path);
+    }
+    catch (std::exception ex) {
+        std::cerr << ex.what();
+        err = -1;
+    }
+
+    return err;
+}
+
+#ifdef __cplusplus
+}
+#endif
 
 namespace geopm
 {
+    static const uint64_t PKG_POWER_LIMIT_MASK_MAGIC  = 0x0007800000078000ul;
 
     Platform::Platform()
         : m_imp(NULL),
@@ -129,5 +182,124 @@ namespace geopm
             throw std::invalid_argument("No PowerModel found for given domain_type\n");
         }
         return model->second;
+    }
+
+    void Platform::tdp_limit(int percentage) const
+    {
+        //Get the TDP for each socket and set it's power limit to match
+        double tdp = 0.0;
+        double power_units = pow(2, (double)((m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
+        int num_packages = m_imp->get_num_package();
+        int64_t pkg_lim, pkg_magic;
+
+        for (int i = 0; i <  num_packages; i++) {
+            tdp = ((double)(m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
+            tdp *= ((double)percentage * 0.01);
+            pkg_lim = (int64_t)(tdp * tdp);
+            pkg_magic = pkg_lim | (pkg_lim << 32) | PKG_POWER_LIMIT_MASK_MAGIC;
+            m_imp->write_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", pkg_magic);
+        }
+    }
+
+    void Platform::manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const
+    {
+        //Set the frequency for each cpu
+        int64_t freq_perc;
+        bool small = false;
+        int num_logical_cpus = m_imp->get_num_cpu();
+        int num_hyperthreads = m_imp->get_num_hyperthreads();
+        int num_real_cpus = num_logical_cpus / num_hyperthreads;
+        int num_packages = m_imp->get_num_package();
+        int num_cpus_per_package = num_real_cpus / num_packages;
+        int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / num_packages);
+
+        if (num_cpu_max_perf >= num_real_cpus) {
+            throw std::runtime_error("requested number of max perf cpus is greater than controllable number of frequency domains on the platform");
+        }
+
+        for (int i = 0; i < num_logical_cpus; i++) {
+            int real_cpu = i % num_real_cpus;
+            if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
+                int package = real_cpu % num_cpus_per_package;
+                int extra = num_cpu_max_perf % num_packages;
+                extra = (package < extra) ? 1 : 0;
+                int package_start = package * num_cpus_per_package;
+                int small_cpu_end = package_start + num_small_cores_per_package + extra;
+                if (real_cpu >= package_start && real_cpu < small_cpu_end) {
+                    small = true;
+                }
+            }
+            else if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT) {
+                if (real_cpu > (num_cpu_max_perf % num_hyperthreads)) {
+                    small = true;
+                }
+            }
+            else {
+                small = true;
+            }
+            if (small) {
+                freq_perc = ((int64_t)(frequency * 10.01) << 8) & 0xffff;
+                m_imp->write_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL", freq_perc & 0xffff);
+            }
+            small = false;
+        }
+    }
+
+    void Platform::save_msr_state(const char *path) const
+    {
+        uint64_t msr_val;
+        int niter = m_imp->get_num_package();
+        std::ofstream restore_file;
+
+        restore_file.open(path);
+
+        //per package state
+        for (int i = 0; i < niter; i++) {
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
+        }
+
+        niter = m_imp->get_num_cpu() / m_imp->get_num_hyperthreads();
+
+        //per cpu state
+        for (int i = 0; i < niter; i++) {
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_FIXED_CTR_CTR") << ":" << msr_val << "\n";
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_CTR") << ":" << msr_val << "\n";
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_OVF_CTR") << ":" << msr_val << "\n";
+
+        }
+
+        restore_file.close();
+    }
+
+    void Platform::restore_msr_state(const char *path) const
+    {
+        std::ifstream restore_file;
+        std::string line;
+        std::vector<int64_t> vals;
+        std::string item;
+        restore_file.open(path);
+        while (std::getline(restore_file,line)) {
+            std::stringstream ss(line);
+            while (std::getline(ss, item, ':')) {
+                vals.push_back((int64_t)atol(item.c_str()));
+            }
+            if (vals.size() == 4) {
+                m_imp->write_msr(vals[0], vals[1], vals[2], vals[3]);
+            }
+            else {
+                throw std::runtime_error("error detected in restore file. Could not restore msr states");
+            }
+            vals.clear();
+        }
+        restore_file.close();
+        remove("static_reg_restore.txt");
     }
 }

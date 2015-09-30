@@ -62,6 +62,10 @@ namespace geopm
             void observe(struct sample_message_s &sample) const;
             void observe(const std::vector <struct sample_message_s> &sample) const;
             PowerModel *power_model(int domain_type) const;
+            void tdp_limit(int percentage) const;
+            void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const;
+            void save_msr_state(const char *path) const;
+            void restore_msr_state(const char *path) const;
             virtual void observe(void) = 0;
             virtual bool model_supported(int platform_id) const = 0;
             virtual void sample(struct sample_message_s &sample) const = 0;

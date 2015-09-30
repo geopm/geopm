@@ -39,27 +39,25 @@
 #include <getopt.h>
 
 #include "geopm_policy.h"
-#include "geopm_static.h"
 #include "geopm_policy_message.h"
 
 enum geopmpolicy_const {
-    GEOPMPOLICY_MODE_CREATE = 0,
-    GEOPMPOLICY_MODE_ENFORCE = 1,
-    GEOPMPOLICY_MODE_SAVE = 2,
-    GEOPMPOLICY_MODE_RESTORE = 3,
+    GEOPMPOLICY_EXEC_MODE_CREATE = 0,
+    GEOPMPOLICY_EXEC_MODE_ENFORCE = 1,
+    GEOPMPOLICY_EXEC_MODE_SAVE = 2,
+    GEOPMPOLICY_EXEC_MODE_RESTORE = 3,
     GEOPMPOLICY_STRING_LENGTH = 128,
 };
 
-int _policy_create(char *path, char* mode, char *options);
-int _policy_enforce(char *path, char *mode, char *options);
-int _policy_save(char *path);
-int _policy_restore(char *path);
+
+static int _geopm_policy_mode_parse(struct geopm_policy_c *policy, const char *mode_str);
+static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *options);
 
 int main(int argc, char** argv)
 {
     int opt;
     int err = 0;
-    int mode = 0;
+    int exec_mode = 0;
     char file[GEOPMPOLICY_STRING_LENGTH] = {0};
     char mode_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char option_string[GEOPMPOLICY_STRING_LENGTH] = {0};
@@ -67,6 +65,7 @@ int main(int argc, char** argv)
     FILE *infile;
     FILE *outfile;
     char *arg_ptr = NULL;
+    struct geopm_policy_c *policy;
 
     const char *usage = "   geopmpolicy --version | --help\n"
                         "   geopmpolicy -c -f output -m mode -d key0:value0,key1:value1...\n"
@@ -140,16 +139,16 @@ int main(int argc, char** argv)
         arg_ptr = NULL;
         switch (opt) {
             case 'c':
-                mode = GEOPMPOLICY_MODE_CREATE;
+                exec_mode = GEOPMPOLICY_EXEC_MODE_CREATE;
                 break;
             case 'e':
-                mode = GEOPMPOLICY_MODE_ENFORCE;
+                exec_mode = GEOPMPOLICY_EXEC_MODE_ENFORCE;
                 break;
             case 's':
-                mode = GEOPMPOLICY_MODE_SAVE;
+                exec_mode = GEOPMPOLICY_EXEC_MODE_SAVE;
                 break;
             case 'r':
-                mode = GEOPMPOLICY_MODE_RESTORE;
+                exec_mode = GEOPMPOLICY_EXEC_MODE_RESTORE;
                 break;
             case 'm':
                 arg_ptr = mode_string;
@@ -184,19 +183,19 @@ int main(int argc, char** argv)
         err = EINVAL;
     }
 
-    if (!err && (mode == GEOPMPOLICY_MODE_CREATE &&
+    if (!err && (exec_mode == GEOPMPOLICY_EXEC_MODE_CREATE &&
                  (strlen(mode_string) == 0 || strlen(option_string) == 0))) {
-        fprintf(stderr, "Error: In mode create, -m and -d are not optional\n");
+        fprintf(stderr, "Error: In execute mode create, -m and -d are not optional\n");
         err = EINVAL;
     }
 
-    if (!err && (mode == GEOPMPOLICY_MODE_ENFORCE && strlen(file) == 0 &&
+    if (!err && (exec_mode == GEOPMPOLICY_EXEC_MODE_ENFORCE && strlen(file) == 0 &&
                  (strlen(mode_string) == 0 || strlen(option_string) == 0))) {
-        fprintf(stderr, "Error: In mode enforce, either -i or -m and -d must be specified\n");
+        fprintf(stderr, "Error: In execute mode enforce, either -i or -m and -d must be specified\n");
         err = EINVAL;
     }
 
-    if (!err && mode == GEOPMPOLICY_MODE_ENFORCE && strlen(file) == 0) {
+    if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_ENFORCE && strlen(file) == 0) {
         infile = fopen(file, "r");
         if (infile == NULL) {
             fprintf(stderr, "Error: Cannot open specified file for reading: %s\n", file);
@@ -205,7 +204,7 @@ int main(int argc, char** argv)
         fclose(infile);
     }
 
-    if (!err && mode == GEOPMPOLICY_MODE_RESTORE) {
+    if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_RESTORE) {
         if(strlen(file) == 0) {
             snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
         }
@@ -237,7 +236,7 @@ int main(int argc, char** argv)
     }
 
 
-    if (!err && mode == GEOPMPOLICY_MODE_CREATE) {
+    if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_CREATE) {
         outfile = fopen(file, "w");
         if (outfile == NULL) {
             fprintf(stderr, "Error: Cannot open specified file for writing: %s\n", file);
@@ -246,7 +245,7 @@ int main(int argc, char** argv)
         fclose(outfile);
     }
 
-    if (!err && mode == GEOPMPOLICY_MODE_SAVE) {
+    if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_SAVE) {
         if(strlen(file) == 0) {
             snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
         }
@@ -278,18 +277,41 @@ int main(int argc, char** argv)
     }
 
     if (!err) {
-        switch (mode) {
-            case GEOPMPOLICY_MODE_CREATE:
-                err = _policy_create(file, mode_string, option_string);
+        switch (exec_mode) {
+            case GEOPMPOLICY_EXEC_MODE_CREATE:
+                err = geopm_policy_create(NULL, file, &policy);
+                if (!err) {
+                    err = _geopm_policy_mode_parse(policy, mode_string);
+                }
+                if (!err) {
+                    err = _geopm_policy_dict_parse(policy, option_string);
+                }
+                if (!err) {
+                    err = geopm_policy_write(policy);
+                }
                 break;
-            case GEOPMPOLICY_MODE_ENFORCE:
-                err = _policy_enforce(file, mode_string, option_string);
+            case GEOPMPOLICY_EXEC_MODE_ENFORCE:
+                if (strlen(file) != 0) {
+                    err = geopm_policy_create(file, NULL, &policy);
+                }
+                else {
+                    err = geopm_policy_create(NULL, "/tmp/geopmpolicy_tmp", &policy);
+                    if (!err) {
+                        err = _geopm_policy_mode_parse(policy, mode_string);
+                    }
+                    if (!err) {
+                        err = _geopm_policy_dict_parse(policy, option_string);
+                    }
+                }
+                if (!err) {
+                    err = geopm_policy_enforce_static(policy);
+                }
                 break;
-            case GEOPMPOLICY_MODE_SAVE:
-                err = _policy_save(file);
+            case GEOPMPOLICY_EXEC_MODE_SAVE:
+                err = geopm_platform_msr_save(file);
                 break;
-            case GEOPMPOLICY_MODE_RESTORE:
-                err = _policy_restore(file);
+            case GEOPMPOLICY_EXEC_MODE_RESTORE:
+                err = geopm_platform_msr_restore(file);
                 break;
             default:
                 fprintf(stderr, "Error: Invalid execution mode.\n");
@@ -301,131 +323,93 @@ int main(int argc, char** argv)
     return err;
 }
 
-int _policy_create(char *path, char* mode, char *options)
+
+static int _geopm_policy_mode_parse(struct geopm_policy_c *policy, const char *mode_str)
 {
     int err = 0;
-    int mode_e = -1;
-    struct geopm_policy_c *policy;
-    char *key, *value;
+    int mode = -1;
 
-    err = geopm_policy_create("", path, &policy);
-    if (err) {
-        fprintf(stderr, "Error, could not create geopm_policy\n");
-        return err;
+    if (strncmp(mode_str, "tdp_balance_static", strlen("tdp_balance_static")) == 0) {
+        mode = GEOPM_MODE_TDP_BALANCE_STATIC;
     }
-
-    if (strncmp(mode, "tdp_balance_static", strlen("tdp_balance_static")) == 0) {
-        mode_e = GEOPM_MODE_TDP_BALANCE_STATIC;
+    else if (strncmp(mode_str, "freq_uniform_static", strlen("freq_uniform_static")) == 0) {
+        mode = GEOPM_MODE_FREQ_UNIFORM_STATIC;
     }
-    else if (strncmp(mode, "freq_uniform_static", strlen("freq_uniform_static")) == 0) {
-        mode_e = GEOPM_MODE_FREQ_UNIFORM_STATIC;
+    else if (strncmp(mode_str, "freq_hybrid_static", strlen("freq_hybrid_static")) == 0) {
+        mode = GEOPM_MODE_FREQ_HYBRID_STATIC;
     }
-    else if (strncmp(mode, "freq_hybrid_static", strlen("freq_hybrid_static")) == 0) {
-        mode_e = GEOPM_MODE_FREQ_HYBRID_STATIC;
+    else if (strncmp(mode_str, "perf_balance_dynamic", strlen("perf_balance_dynamic")) == 0) {
+        mode = GEOPM_MODE_PERF_BALANCE_DYNAMIC;
     }
-    else if (strncmp(mode, "perf_balance_dynamic", strlen("perf_balance_dynamic")) == 0) {
-        mode_e = GEOPM_MODE_PERF_BALANCE_DYNAMIC;
+    else if (strncmp(mode_str, "freq_uniform_dynamic", strlen("freq_uniform_dynamic")) == 0) {
+        mode = GEOPM_MODE_FREQ_UNIFORM_DYNAMIC;
     }
-    else if (strncmp(mode, "freq_uniform_dynamic", strlen("freq_uniform_dynamic")) == 0) {
-        mode_e = GEOPM_MODE_FREQ_UNIFORM_DYNAMIC;
-    }
-    else if (strncmp(mode, "freq_hybrid_dynamic", strlen("freq_hybrid_dynamic")) == 0) {
-        mode_e = GEOPM_MODE_FREQ_HYBRID_DYNAMIC;
+    else if (strncmp(mode_str, "freq_hybrid_dynamic", strlen("freq_hybrid_dynamic")) == 0) {
+        mode = GEOPM_MODE_FREQ_HYBRID_DYNAMIC;
     }
     else {
-        fprintf(stderr, "Error: Invalid power mode: %s\n", mode);
+        fprintf(stderr, "Error: Invalid power mode: %s\n", mode_str);
         err = EINVAL;
     }
-
-    if (!err ) {
-        err = geopm_policy_mode(policy, mode_e);
+    if (!err) {
+        geopm_policy_mode(policy, mode);
     }
 
-    key = strtok(options, ":");
-    do {
-        value = strtok(NULL, ",");
-        if (value == NULL) {
-            fprintf(stderr, "Error: Invalid execution mode.\n");
-            err = EINVAL;
-        }
-        if (!err) {
-            if(strncmp(key, "percent_tdp", strlen("percent_tdp")) == 0) {
-                err = geopm_policy_percent_tdp(policy, atoi(value));
+    return err;
+}
+
+static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *options)
+{
+    int err = 0;
+    char options_cpy[GEOPMPOLICY_STRING_LENGTH] = {0};
+    char *key, *value;
+
+    strncpy(options_cpy, options, GEOPMPOLICY_STRING_LENGTH);
+    if (options_cpy[GEOPMPOLICY_STRING_LENGTH - 1] != '\0') {
+        err = EINVAL;
+    }
+    if (!err) {
+        key = strtok(options_cpy, ":");
+        do {
+            value = strtok(NULL, ",");
+            if (value == NULL) {
+                fprintf(stderr, "Error: Invalid execution mode.\n");
+                err = EINVAL;
             }
-            else if(strncmp(key, "cpu_mhz", strlen("cpu_mhz")) == 0) {
-                err = geopm_policy_cpu_freq(policy, atoi(value));
-            }
-            else if(strncmp(key, "num_cpu_max_perf", strlen("num_cpu_max_perf")) == 0) {
-                err = geopm_policy_full_perf(policy, atoi(value));
-            }
-            else if(strncmp(key, "affinity", strlen("affinity")) == 0) {
-                if (strncmp(value, "compact", strlen("compact")) == 0) {
-                    err = geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+            if (!err) {
+                if(strncmp(key, "percent_tdp", strlen("percent_tdp")) == 0) {
+                    err = geopm_policy_percent_tdp(policy, atoi(value));
                 }
-                else if (strncmp(value, "scatter", strlen("scatter")) == 0) {
-                    err = geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                else if(strncmp(key, "cpu_mhz", strlen("cpu_mhz")) == 0) {
+                    err = geopm_policy_cpu_freq(policy, atoi(value));
+                }
+                else if(strncmp(key, "num_cpu_max_perf", strlen("num_cpu_max_perf")) == 0) {
+                    err = geopm_policy_full_perf(policy, atoi(value));
+                }
+                else if(strncmp(key, "affinity", strlen("affinity")) == 0) {
+                    if (strncmp(value, "compact", strlen("compact")) == 0) {
+                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+                    }
+                    else if (strncmp(value, "scatter", strlen("scatter")) == 0) {
+                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                    }
+                    else {
+                        fprintf(stderr, "Error: invalid affinity value: %s\n", value);
+                        err = EINVAL;
+                    }
+                }
+                else if(strncmp(key, "power_budget", strlen("power_budget")) == 0) {
+                    err = geopm_policy_power(policy, atoi(value));
                 }
                 else {
-                    fprintf(stderr, "Error: invalid affinity value: %s\n", value);
+                    fprintf(stderr, "Error: invalid option: %s\n", key);
                     err = EINVAL;
                 }
             }
-            else if(strncmp(key, "power_budget", strlen("power_budget")) == 0) {
-                err = geopm_policy_power(policy, atoi(value));
-            }
-            else {
-                fprintf(stderr, "Error: invalid option: %s\n", key);
-                err = EINVAL;
-            }
         }
-    }
-    while (!err && ((key = strtok(NULL, ":")) != NULL));
-
-    err = geopm_policy_write(policy);
-
-    return err;
-}
-
-int _policy_enforce(char *path, char *mode, char *options)
-{
-    int err = 0;
-
-    if (strlen(path) == 0) {
-        err = _policy_create("/tmp/geomp_policy.conf", mode, options);
-        if (err) {
-            fprintf(stderr, "Error: Could not create policy file\n");
-        }
-        if (!err) {
-            err = staticpm_ctl_enforce("/tmp/geomp_policy.conf");
-            if (err) {
-                fprintf(stderr, "Error: Could not enforce policy\n");
-            }
-        }
-    }
-    else {
-        err = staticpm_ctl_enforce(path);
-        if (err) {
-            fprintf(stderr, "Error: Could not enforce policy\n");
-        }
+        while (!err && ((key = strtok(NULL, ":")) != NULL));
     }
 
     return err;
 }
 
-int _policy_save(char *path)
-{
-    int err = 0;
-
-    err = staticpm_ctl_save(path);
-
-    return err;
-}
-
-int _policy_restore(char *path)
-{
-    int err = 0;
-
-    err = staticpm_ctl_restore(path);
-
-    return err;
-}

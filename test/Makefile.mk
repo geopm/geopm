@@ -73,6 +73,8 @@ TESTS += test/gtest_links/ObservationTest.hello_mean \
          test/gtest_links/GlobalPolicyTestShmem.mode_perf_balance_dynamic \
          test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_dynamic \
          test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_dynamic \
+         test/gtest_links/GlobalPolicyTest.c_interface \
+         test/gtest_links/GlobalPolicyTest.negative_c_interface \
          # end
 
 EXTRA_DIST += test/geopm_test.sh \

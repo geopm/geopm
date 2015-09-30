@@ -47,13 +47,13 @@ namespace geopm
             /// PlatformFactory constructor
             PlatformFactory();
             /// PlatformFactory destructor
-            ~PlatformFactory();
+            virtual ~PlatformFactory();
 
             /// Returns an abstract Platform reference to a concrete platform.
             /// The concrete Platform is specific to the underlying hardware
             /// it is being run on.
             /// throws a std::invalid_argument if no acceptable Platform is found.
-            Platform& platform(int level);
+            Platform *platform(int level);
             /// Concrete Platforms register with the factory through this API.
             /// The unique_ptr assures that the object cannot be destroyed
             /// before it is copied.

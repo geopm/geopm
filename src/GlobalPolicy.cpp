@@ -45,6 +45,8 @@
 #include "geopm_policy_message.h"
 #include "geopm_policy.h"
 #include "GlobalPolicy.hpp"
+#include "Platform.hpp"
+#include "PlatformFactory.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +74,12 @@ int geopm_policy_destroy(struct geopm_policy_c *policy)
     int err = 0;
 
     try {
-        delete (geopm::GlobalPolicy*)(policy);
+        geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
+        delete (policy_obj);
         policy = NULL;
     }
     catch (std::exception ex) {
@@ -89,6 +96,10 @@ int geopm_policy_power(struct geopm_policy_c *policy, int power_budget)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->budget_watts(power_budget);
     }
     catch (std::exception ex) {
@@ -105,6 +116,10 @@ int geopm_policy_mode(struct geopm_policy_c *policy, int mode)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->mode(mode);
     }
     catch (std::exception ex) {
@@ -121,6 +136,10 @@ int geopm_policy_cpu_freq(struct geopm_policy_c *policy, int cpu_mhz)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->frequency_mhz(cpu_mhz);
     }
     catch (std::exception ex) {
@@ -136,6 +155,10 @@ int geopm_policy_full_perf(struct geopm_policy_c *policy, int num_cpu_full_perf)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->num_max_perf(num_cpu_full_perf);
     }
     catch (std::exception ex) {
@@ -152,6 +175,10 @@ int geopm_policy_percent_tdp(struct geopm_policy_c *policy, int percent)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->percent_tdp(percent);
     }
     catch (std::exception ex) {
@@ -168,6 +195,10 @@ int geopm_policy_affinity(struct geopm_policy_c *policy, int cpu_affinity)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->affinity(cpu_affinity);
     }
     catch (std::exception ex) {
@@ -184,6 +215,10 @@ int geopm_policy_goal(struct geopm_policy_c *policy, int geo_goal)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->goal(geo_goal);
     }
     catch (std::exception ex) {
@@ -200,6 +235,10 @@ int geopm_policy_write(const struct geopm_policy_c *policy)
 
     try {
         geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
         policy_obj->write();
     }
     catch (std::exception ex) {
@@ -209,6 +248,46 @@ int geopm_policy_write(const struct geopm_policy_c *policy)
 
     return err;
 }
+
+int geopm_policy_enforce_static(const struct geopm_policy_c *policy)
+{
+    int err = 0;
+    int mode = 0;
+
+    try {
+        geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
+        geopm::PlatformFactory platform_factory;
+        geopm::Platform *platform = platform_factory.platform(0);
+
+        if (policy_obj == NULL)
+        {
+            throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+        }
+        policy_obj->read();
+        mode = policy_obj->mode();
+        switch (mode) {
+            case GEOPM_MODE_TDP_BALANCE_STATIC:
+                platform->tdp_limit(policy_obj->percent_tdp());
+                break;
+            case GEOPM_MODE_FREQ_UNIFORM_STATIC:
+                platform->manual_frequency(policy_obj->frequency_mhz(), 0, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                break;
+            case GEOPM_MODE_FREQ_HYBRID_STATIC:
+                platform->manual_frequency(policy_obj->frequency_mhz(), policy_obj->num_max_perf(), policy_obj->affinity());
+                break;
+            default:
+                std::cerr << "unsupported enforcement mode\n";
+                return EINVAL;
+        };
+    }
+    catch (std::exception ex) {
+        std::cerr << ex.what();
+        err = -1;
+    }
+    return err;
+}
+
+
 #ifdef __cplusplus
 }
 #endif

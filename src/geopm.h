@@ -38,6 +38,10 @@
 #include <stdint.h>
 #include <pthread.h>
 
+#ifndef __linux__
+typedef struct cpu_set_t { long int x[512]; } cpu_set_t;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
