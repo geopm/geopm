@@ -197,7 +197,7 @@ namespace geopm
     }
 
     void PlatformImp::parse_hw_topology()
-    {   
+    {
         int num_core = 0;
 
         m_num_cpu = m_topology.num_domain(GEOPM_DOMAIN_CPU);

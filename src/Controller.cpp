@@ -82,8 +82,8 @@ extern "C"
             *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, profile, comm));
         }
         catch (std::exception ex) {
-           std::cerr << ex.what();
-           err = -1;
+            std::cerr << ex.what();
+            err = -1;
         }
         return err;
     }

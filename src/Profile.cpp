@@ -34,109 +34,111 @@
 
 #include "geopm.h"
 
-int geopm_prof_create(const char *name, int sample_reduce, const char *sample_key, struct geopm_prof_c **prof)
+extern "C"
 {
-    return 0;
-}
-
-int geopm_prof_destroy(struct geopm_prof_c *prof)
-{
-    return 0;
-}
-
-int geopm_prof_register(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int *region_id)
-{
-    return 0;
-}
-
-int geopm_prof_enter(struct geopm_prof_c *prof, int region_id)
-{
-    return 0;
-}
-
-int geopm_prof_exit(struct geopm_prof_c *prof,
-                    int region_id)
-{
-    return 0;
-}
-
-int geopm_prof_progress(struct geopm_prof_c *prof, int region_id, double fraction)
-{
-    return 0;
-}
-
-int geopm_prof_outer_sync(struct geopm_prof_c *prof)
-{
-    return 0;
-}
-
-int geopm_prof_sample(struct geopm_prof_c *prof)
-{
-    return 0;
-}
-
-int geopm_prof_enable(struct geopm_prof_c *prof, const char *feature_name)
-{
-    return 0;
-}
-
-int geopm_prof_disable(struct geopm_prof_c *prof, const char *feature_name)
-{
-    return 0;
-}
-
-int geopm_prof_print(struct geopm_prof_c *prof, int depth)
-{
-    return 0;
-}
-
-int geopm_prof_fprint(struct geopm_prof_c *prof, int depth, FILE *fid)
-{
-    return 0;
-}
-
-double geopm_progress_threaded_min(int num_thread,
-                                   size_t stride,
-                                   const uint32_t *progress,
-                                   const double *norm)
-{
-    double progress_min = DBL_MAX;
-    double progress_tmp;
-    int j;
-
-    for (j = 0; j < num_thread; ++j) {
-        progress_tmp = progress[j * stride] * norm[j];
-        progress_min =  progress_tmp < progress_min ?
-                        progress_tmp : progress_min;
+    int geopm_prof_create(const char *name, int sample_reduce, const char *sample_key, struct geopm_prof_c **prof)
+    {
+        return 0;
     }
-    return progress_min;
-}
 
-int geopm_omp_sched_static_norm(int num_iter, int chunk_size, int num_thread, double *norm)
-{
-    int remain = num_iter;
-    int i = 0;
-
-    /* inefficient but robust way of calculating the norm based on
-       OpenMP documentation. */
-    memset(norm, 0, sizeof(double) * num_thread);
-    while (remain) {
-        if (remain > chunk_size) {
-            norm[i] += chunk_size;
-            remain -= chunk_size;
-        }
-        else {
-            norm[i] += remain;
-            remain = 0;
-        }
-        i++;
-        if (i == num_thread) {
-            i = 0;
-        }
+    int geopm_prof_destroy(struct geopm_prof_c *prof)
+    {
+        return 0;
     }
-    for (i = 0; i < num_thread; ++i) {
-        norm[i] = 1.0 / norm[i];
-    }
-    return 0;
-}
 
+    int geopm_prof_register(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int *region_id)
+    {
+        return 0;
+    }
+
+    int geopm_prof_enter(struct geopm_prof_c *prof, int region_id)
+    {
+        return 0;
+    }
+
+    int geopm_prof_exit(struct geopm_prof_c *prof,
+                        int region_id)
+    {
+        return 0;
+    }
+
+    int geopm_prof_progress(struct geopm_prof_c *prof, int region_id, double fraction)
+    {
+        return 0;
+    }
+
+    int geopm_prof_outer_sync(struct geopm_prof_c *prof)
+    {
+        return 0;
+    }
+
+    int geopm_prof_sample(struct geopm_prof_c *prof)
+    {
+        return 0;
+    }
+
+    int geopm_prof_enable(struct geopm_prof_c *prof, const char *feature_name)
+    {
+        return 0;
+    }
+
+    int geopm_prof_disable(struct geopm_prof_c *prof, const char *feature_name)
+    {
+        return 0;
+    }
+
+    int geopm_prof_print(struct geopm_prof_c *prof, int depth)
+    {
+        return 0;
+    }
+
+    int geopm_prof_fprint(struct geopm_prof_c *prof, int depth, FILE *fid)
+    {
+        return 0;
+    }
+
+    double geopm_progress_threaded_min(int num_thread,
+                                       size_t stride,
+                                       const uint32_t *progress,
+                                       const double *norm)
+    {
+        double progress_min = DBL_MAX;
+        double progress_tmp;
+        int j;
+
+        for (j = 0; j < num_thread; ++j) {
+            progress_tmp = progress[j * stride] * norm[j];
+            progress_min =  progress_tmp < progress_min ?
+                            progress_tmp : progress_min;
+        }
+        return progress_min;
+    }
+
+    int geopm_omp_sched_static_norm(int num_iter, int chunk_size, int num_thread, double *norm)
+    {
+        int remain = num_iter;
+        int i = 0;
+
+        /* inefficient but robust way of calculating the norm based on
+           OpenMP documentation. */
+        memset(norm, 0, sizeof(double) * num_thread);
+        while (remain) {
+            if (remain > chunk_size) {
+                norm[i] += chunk_size;
+                remain -= chunk_size;
+            }
+            else {
+                norm[i] += remain;
+                remain = 0;
+            }
+            i++;
+            if (i == num_thread) {
+                i = 0;
+            }
+        }
+        for (i = 0; i < num_thread; ++i) {
+            norm[i] = 1.0 / norm[i];
+        }
+        return 0;
+    }
+}

@@ -39,7 +39,7 @@
 int geopm_ctl_spawn(struct geopm_ctl_c *ctl)
 {
 #if 0
-/* FIX ME use ctl structure properly*/
+    /* FIX ME use ctl structure properly*/
     int err = 0, i;
     int *ctl_err = NULL;
     const char *geopmctl_path_default = "geopmctl";

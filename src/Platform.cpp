@@ -45,46 +45,41 @@
 #include "PlatformFactory.hpp"
 #include "geopm_policy_message.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-int geopm_platform_msr_save(const char *path)
+extern "C"
 {
-    int err = 0;
-    geopm::PlatformFactory platform_factory;
-    geopm::Platform *platform = platform_factory.platform(0);
-    try {
-        platform->save_msr_state(path);
-    }
-    catch (std::exception ex) {
-        std::cerr << ex.what();
-        err = -1;
+    int geopm_platform_msr_save(const char *path)
+    {
+        int err = 0;
+        geopm::PlatformFactory platform_factory;
+        geopm::Platform *platform = platform_factory.platform(0);
+        try {
+            platform->save_msr_state(path);
+        }
+        catch (std::exception ex) {
+            std::cerr << ex.what();
+            err = -1;
+        }
+
+        return err;
     }
 
-    return err;
+    int geopm_platform_msr_restore(const char *path)
+    {
+        int err = 0;
+        geopm::PlatformFactory platform_factory;
+        geopm::Platform *platform = platform_factory.platform(0);
+
+        try {
+            platform->restore_msr_state(path);
+        }
+        catch (std::exception ex) {
+            std::cerr << ex.what();
+            err = -1;
+        }
+
+        return err;
+    }
 }
-
-int geopm_platform_msr_restore(const char *path)
-{
-    int err = 0;
-    geopm::PlatformFactory platform_factory;
-    geopm::Platform *platform = platform_factory.platform(0);
-
-    try {
-        platform->restore_msr_state(path);
-    }
-    catch (std::exception ex) {
-        std::cerr << ex.what();
-        err = -1;
-    }
-
-    return err;
-}
-
-#ifdef __cplusplus
-}
-#endif
 
 namespace geopm
 {
