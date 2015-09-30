@@ -44,6 +44,7 @@
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
 
+
 namespace geopm
 {
     class Controller
@@ -77,4 +78,5 @@ namespace geopm
     };
 
 }
+
 #endif

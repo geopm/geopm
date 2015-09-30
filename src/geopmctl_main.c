@@ -44,11 +44,11 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
+int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report);
 
 int main(int argc, char **argv)
 {
     int opt;
-    int sample_reduce = 0;
     int world_size = 1, my_rank = 0, i;
     int err0 = 0;
     int err_mpi = 0;
@@ -57,13 +57,8 @@ int main(int argc, char **argv)
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
     char report[GEOPMCTL_STRING_LENGTH] = {0};
-    char job_name[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
-    struct geopm_prof_c *prof = NULL;
-    struct geopm_ctl_c *ctl = NULL;
-    struct geopm_policy_c *policy = NULL;
-
     const char *usage = "     geopmctl [--version] [--help] [-c policy_config]\n"
                         "              [-k policy_key] [-s sample_key] [-r report]\n"
                         "\n"
@@ -182,25 +177,8 @@ int main(int argc, char **argv)
         }
         printf("\n");
     }
-    if (!err0) {
-        snprintf(job_name, GEOPMCTL_STRING_LENGTH, "geopmctl-%d", (int)getpid());
-        err0 = geopm_prof_create(job_name, sample_reduce, sample_key, &prof);
-    }
-    if (!err0) {
-        err0 = geopm_policy_create(policy_config, policy_key, &policy);
-    }
-    if (!err0) {
-        err0 = geopm_ctl_create(policy, prof, comm_world, &ctl);
-    }
-    if (!err0) {
-        err0 = geopm_ctl_run(ctl);
-    }
-    if (!err0) {
-        err0 = geopm_ctl_destroy(ctl);
-    }
-    if (!err0) {
-        err0 = geopm_prof_destroy(prof);
-    }
+    err0 = geopmctl_main(policy_config, policy_key, sample_key, report);
+
     MPI_Finalize();
     return err0;
 }

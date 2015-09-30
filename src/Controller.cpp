@@ -40,19 +40,38 @@
 
 extern "C"
 {
+    int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
+    {
+        int err = 0;
+        try {
+            std::string policy_config_str(policy_config);
+            std::string policy_key_str(policy_key);
+            std::string sample_key_str(sample_key);
+            std::string report_str(report);
+            std::string profile_name(basename(report));
+            geopm::GlobalPolicy policy(policy_config_str, "");
+            geopm::Profile profile(profile_name, sample_key_str, 0); //FIXME how should the last parameter be determined?
+            geopm::Controller ctl(&policy, &profile, MPI_COMM_WORLD);
+            ctl.run();
+        }
+        catch (std::exception ex) {
+            std::cerr << ex.what();
+            err = -1;
+        }
+        return err;
+    }
+
     int geopm_ctl_create(struct geopm_policy_c *policy, struct geopm_prof_c *prof, MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
-        if (!err) {
-            try {
-                geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
-                geopm::Profile *profile = (geopm::Profile *)prof;
-                *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, profile, comm));
-            }
-            catch (std::exception ex) {
-               std::cerr << ex.what();
-               err = -1;
-            }
+        try {
+            geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
+            geopm::Profile *profile = (geopm::Profile *)prof;
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, profile, comm));
+        }
+        catch (std::exception ex) {
+           std::cerr << ex.what();
+           err = -1;
         }
         return err;
     }

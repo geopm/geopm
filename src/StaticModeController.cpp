@@ -133,14 +133,13 @@ namespace geopm
         double tdp = 0.0;
         double power_units = pow(2, (double)((m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
         int num_packages = m_platform->get_num_package();
-        int64_t pkg_lim, pkg_magic, old_val;;
+        int64_t pkg_lim, pkg_magic;
 
         for (int i = 0; i <  num_packages; i++) {
             tdp = ((double)(m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
             tdp *= ((double)percentage * 0.01);
             pkg_lim = (int64_t)(tdp * tdp);
             pkg_magic = pkg_lim | (pkg_lim << 32) | PKG_POWER_LIMIT_MASK_MAGIC;
-            old_val = m_platform->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
             m_platform->write_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", pkg_magic);
         }
     }
