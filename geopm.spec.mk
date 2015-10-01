@@ -99,6 +99,7 @@ for MPI jobs.
 %package devel
 Summary: Global Energy Optimization Power Management - development
 Group: Development/Libraries
+Requires: geopm
 
 %description devel
 
