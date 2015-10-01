@@ -57,8 +57,8 @@ geopm_policy_c \- geopm mpi job policy management structure
 .BI "int geopm_policy_full_perf(struct geopm_policy_c *" "policy" ,
 .BI "                           int " "num_cpu_full_perf");
 .sp
-.BI "int geopm_policy_percent_tdp(struct geopm_policy_c *" "policy" ,
-.BI "                             int " "percent_tdp");
+.BI "int geopm_policy_tdp_percent(struct geopm_policy_c *" "policy" ,
+.BI "                             int " "tdp_percent");
 .sp
 .BI "int geopm_policy_affinity(struct geopm_policy_c *" "policy" ,
 .BI "                          int " "affinity");
@@ -70,6 +70,11 @@ geopm_policy_c \- geopm mpi job policy management structure
 .sp
 .BI "int geopm_policy_read(const struct geopm_policy_c *" "policy" );
 .sp
+.BI "int geopm_policy_enforce_static(const struct geopm_policy_c *" "policy" );
+.sp
+.BI "int geopm_platform_msr_save(const char *" "path" );
+.sp
+.BI "int geopm_platform_msr_restore(const char *" "path" );
 .SH "DESCRIPTION"
 .PP
 The
@@ -159,9 +164,9 @@ which are run unconstrained at full performance for the
 This parameter is used by GEOPM_MODE_FREQ_HYBRID_STATIC AND
 GEOPM_MODE_FREQ_HYBRID_DYNAMIC for "big CPUs".
 .PP
-.BR geopm_policy_percent_tdp ()
+.BR geopm_policy_tdp_percent ()
 sets the percent of Thermal Design Power,
-.I percent_tdp
+.I tdp_percent
 to give restricted CPUs under control under the
 .IR policy .
 .PP
@@ -197,7 +202,23 @@ reads the state stored in a configuration file or shared memory depending on the
 .BR geopm_policy_create ()
 and records the read values to the
 .IR policy .
-.sp
+.PP
+.BR geopm_platform_msr_save ()
+Write the state of all MSR values that
+.BR geopm (3)
+may modify to a file specified by
+.I path
+so that they can be restored at a later time.
+.PP
+.BR geopm_platform_msr_restore ()
+Read a set of MSR values from a file specified by
+.I path
+and set the MSR values of the system to match those given in the file.
+.PP
+.BR geopm_policy_enforce_static ()
+enforces the static policy described by the
+.I policy
+through modifying the system configuration (e.g. setting MSR values).
 .SH "STATIC MODES"
 The modes listed in this section do not have a run time requirement on geopm.
 They are used to enact a power policy that does not require power setting

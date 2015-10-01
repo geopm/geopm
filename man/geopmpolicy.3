@@ -176,7 +176,7 @@ man page in the
 section.  The only key required to be passed to
 the
 .B "\-d"
-flag is the "percent_tdp" key which has a value that is the percent (0-100) of
+flag is the "tdp_percent" key which has a value that is the percent (0-100) of
 the Thermal Design Power at which to run each processor under RAPL control.
 All other keys are ignored.
 .TP
@@ -245,7 +245,7 @@ CPUs running at maximum performance.  All other keys are ignored.
 .TP
 Create a configuration file which disables power management with RAPL:
 .br
-$ geopmpolicy -c -f geopm.conf -m tdp_balance_static -d percent_tdp:100
+$ geopmpolicy -c -f geopm.conf -m tdp_balance_static -d tdp_percent:100
 .TP
 Create a configuration file for a fixed frequency of 1.5 GHz:
 .br
@@ -259,7 +259,7 @@ $ geopmpolicy -c -f geopm.conf -m freq_hybrid_static \\
 .TP
 Create a configuration file for all processors to run at 75% of the Thermal Design Power:
 .br
-$ geopmpolicy -c -f geopm.conf -m tdp_balance_static -d percent_tdp:75
+$ geopmpolicy -c -f geopm.conf -m tdp_balance_static -d tdp_percent:75
 .TP
 Create a configuration file for global energy optimization with a power budget of 1 MWatt:
 .br
@@ -271,7 +271,7 @@ $ geopmpolicy -e -f geopm.conf
 .TP
 Enforce a static policy where all processors to run at 75% of the Thermal Design Power:
 .br
-$ geopmpolicy -e -m tdp_balance_static -d percent_tdp:75
+$ geopmpolicy -e -m tdp_balance_static -d tdp_percent:75
 .TP
 Save off the current state of the system MSRs:
 .br

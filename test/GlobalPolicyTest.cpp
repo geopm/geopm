@@ -79,17 +79,17 @@ TEST_F(GlobalPolicyTest, mode_tdp_balance_static)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_TDP_BALANCE_STATIC);
-    m_policy->percent_tdp(75);
+    m_policy->tdp_percent(75);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->percent_tdp(34);
+    m_policy->tdp_percent(34);
     EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(34, m_policy->percent_tdp());
+    EXPECT_EQ(34, m_policy->tdp_percent());
     //read saved values back
     m_policy->read();
     EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75, m_policy->percent_tdp());
+    EXPECT_DOUBLE_EQ(75, m_policy->tdp_percent());
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_uniform_static)
@@ -197,17 +197,17 @@ TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
 {
     // write values to file
     m_policy->mode(GEOPM_MODE_TDP_BALANCE_STATIC);
-    m_policy->percent_tdp(75);
+    m_policy->tdp_percent(75);
     m_policy->write();
     //overwrite local values
     m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->percent_tdp(34);
+    m_policy->tdp_percent(34);
     EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(34, m_policy->percent_tdp());
+    EXPECT_EQ(34, m_policy->tdp_percent());
     //read saved values back
     m_policy->read();
     EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75, m_policy->percent_tdp());
+    EXPECT_DOUBLE_EQ(75, m_policy->tdp_percent());
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_static)
@@ -321,7 +321,7 @@ TEST_F(GlobalPolicyTest, c_interface)
     EXPECT_EQ(0, geopm_policy_mode(policy, GEOPM_MODE_FREQ_HYBRID_DYNAMIC));
     EXPECT_EQ(0, geopm_policy_cpu_freq(policy, 2200));
     EXPECT_EQ(0, geopm_policy_full_perf(policy, 8));
-    EXPECT_EQ(0, geopm_policy_percent_tdp(policy, 60));
+    EXPECT_EQ(0, geopm_policy_tdp_percent(policy, 60));
     EXPECT_EQ(0, geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER));
     EXPECT_EQ(0, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
     EXPECT_EQ(0, geopm_policy_write(policy));
@@ -338,7 +338,7 @@ TEST_F(GlobalPolicyTest, negative_c_interface)
     EXPECT_EQ(-1, geopm_policy_mode(policy, GEOPM_MODE_FREQ_HYBRID_DYNAMIC));
     EXPECT_EQ(-1, geopm_policy_cpu_freq(policy, 2200));
     EXPECT_EQ(-1, geopm_policy_full_perf(policy, 8));
-    EXPECT_EQ(-1, geopm_policy_percent_tdp(policy, 60));
+    EXPECT_EQ(-1, geopm_policy_tdp_percent(policy, 60));
     EXPECT_EQ(-1, geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER));
     EXPECT_EQ(-1, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
     EXPECT_EQ(-1, geopm_policy_write(policy));

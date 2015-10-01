@@ -57,8 +57,8 @@ int geopm_policy_cpu_freq(struct geopm_policy_c *policy,
 int geopm_policy_full_perf(struct geopm_policy_c *policy,
                            int num_cpu_full_perf);
 
-int geopm_policy_percent_tdp(struct geopm_policy_c *policy,
-                             int percent_tdp);
+int geopm_policy_tdp_percent(struct geopm_policy_c *policy,
+                             int tdp_percent);
 
 int geopm_policy_affinity(struct geopm_policy_c *policy,
                           int affinity);

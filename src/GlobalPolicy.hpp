@@ -46,7 +46,7 @@ namespace geopm
             virtual ~GlobalPolicy();
             int mode(void) const;
             int frequency_mhz(void) const;
-            int percent_tdp(void) const;
+            int tdp_percent(void) const;
             int budget_watts(void) const;
             int affinity(void) const;
             int goal(void) const;
@@ -55,7 +55,7 @@ namespace geopm
             void policy_message(struct geopm_policy_message_s &policy_message) const;
             void mode(int mode);
             void frequency_mhz(int frequency);
-            void percent_tdp(int percentage);
+            void tdp_percent(int percentage);
             void budget_watts(int budget);
             void affinity(int cpu_affinity);
             void goal(int geo_goal);

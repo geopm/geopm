@@ -168,7 +168,7 @@ extern "C"
         return err;
     }
 
-    int geopm_policy_percent_tdp(struct geopm_policy_c *policy, int percent)
+    int geopm_policy_tdp_percent(struct geopm_policy_c *policy, int percent)
     {
         int err = 0;
 
@@ -178,7 +178,7 @@ extern "C"
             {
                 throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
             }
-            policy_obj->percent_tdp(percent);
+            policy_obj->tdp_percent(percent);
         }
         catch (std::exception ex) {
             std::cerr << ex.what();
@@ -266,7 +266,7 @@ extern "C"
             mode = policy_obj->mode();
             switch (mode) {
                 case GEOPM_MODE_TDP_BALANCE_STATIC:
-                    platform->tdp_limit(policy_obj->percent_tdp());
+                    platform->tdp_limit(policy_obj->tdp_percent());
                     break;
                 case GEOPM_MODE_FREQ_UNIFORM_STATIC:
                     platform->manual_frequency(policy_obj->frequency_mhz(), 0, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
@@ -420,7 +420,7 @@ namespace geopm
         return (int)freq*100;
     }
 
-    int GlobalPolicy::percent_tdp(void) const
+    int GlobalPolicy::tdp_percent(void) const
     {
         long int perc = (m_flags & 0x0000000001FC0000UL) >> 18;
         return (int)perc;;
@@ -474,7 +474,7 @@ namespace geopm
         m_flags = m_flags | (frequency/100);
     }
 
-    void GlobalPolicy::percent_tdp(int percentage)
+    void GlobalPolicy::tdp_percent(int percentage)
     {
         m_flags = m_flags & 0xFFFFFFFFFE03FFFFUL;
         long int perc = percentage << 18;
@@ -596,11 +596,11 @@ namespace geopm
 
             json_object_object_foreach(options_obj, subkey, subval) {
                 key_string.assign(subkey);
-                if (!key_string.compare("percent_tdp")) {
+                if (!key_string.compare("tdp_percent")) {
                     if (json_object_get_type(subval) != json_type_int) {
-                        throw std::runtime_error("percent_tdp expected to be an integer type");
+                        throw std::runtime_error("tdp_percent expected to be an integer type");
                     }
-                    percent_tdp(json_object_get_int(subval));
+                    tdp_percent(json_object_get_int(subval));
                 }
                 else if (!key_string.compare("cpu_mhz")) {
                     if (json_object_get_type(subval) != json_type_int) {
@@ -645,10 +645,10 @@ namespace geopm
             }
 
             if (m_mode == GEOPM_MODE_TDP_BALANCE_STATIC) {
-                if (percent_tdp() < 0 || percent_tdp() > 100) {
+                if (tdp_percent() < 0 || tdp_percent() > 100) {
                     throw std::runtime_error("percent tdp must be between 0 and 100");
                 }
-                std::cout << "mode=tdp_balance_static,percent_tdp=" << percent_tdp() << "\n";
+                std::cout << "mode=tdp_balance_static,tdp_percent=" << tdp_percent() << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_UNIFORM_STATIC) {
                 if (frequency_mhz() < 0) {
@@ -745,7 +745,7 @@ namespace geopm
                     break;
                 case GEOPM_MODE_TDP_BALANCE_STATIC:
                     json_object_object_add(policy,"mode",json_object_new_string("tdp_balance_static"));
-                    json_object_object_add(options,"percent_tdp",json_object_new_int(percent_tdp()));
+                    json_object_object_add(options,"tdp_percent",json_object_new_int(tdp_percent()));
                     json_object_object_add(policy,"options",options);
                     break;
                 case GEOPM_MODE_FREQ_UNIFORM_STATIC:
