@@ -8,7 +8,7 @@ Application must call into geopm API's from per-rank serial code.
 Resolution of control is limited to sets of CPU's assigned to each MPI
 rank.
 
-If a library linked by the applicaiton uses geopm mark up for phases,
+If a library linked by the application uses geopm mark up for phases,
 it must have some mechanism for generating a unique phase ID set
 (offset based?).
 

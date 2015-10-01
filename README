@@ -8,7 +8,7 @@ SEE COPYING FILE FOR LICENSE INFORMATION.
 LAST UPDATE
 -----------
 Christopher Cantalupo <christopher.m.cantalupo@intel.com>
-2015 June 16
+2015 October 1
 
 
 SUMMARY
@@ -77,8 +77,4 @@ processes.
 
 STATUS
 ------
-This software is pre-alpha quality and largely incomplete.  This
-source code is considered Intel Confidential material.  We will be
-petitioning the Intel OS-PDT to license it under an open source BSD
-style license soon, but currently it is licensed under a restrictive
-Intel Confidential license.  See COPYING for details.
+This software is pre-alpha quality and largely incomplete.

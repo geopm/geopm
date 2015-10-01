@@ -50,3 +50,5 @@
 /gmock-1.7.0/
 /gmock-all.o
 /libgmock.a
+/geopm-*.spec
+/geopm-*.tar.gz

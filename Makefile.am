@@ -138,6 +138,8 @@ dist_man_MANS = man/geopm.3 \
 
 EXTRA_DIST = CONTRIBUTING \
              autogen.sh \
+             geopm.spec.mk \
+             geopm-$(VERSION).spec \
              # end
 
 dist_doc_DATA = README \
@@ -145,10 +147,20 @@ dist_doc_DATA = README \
                 VERSION \
                 # end
 
+CLEANFILES = geopm-$(VERSION).spec
+DISTCLEANFILES = VERSION
+
 clean-local: clean-local-coverage
 
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
+
+geopm-$(VERSION).spec:
+	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
+
+rpm: dist
+	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
+		-f geopm.spec.mk $@
 
 check_PROGRAMS =
 TESTS =
