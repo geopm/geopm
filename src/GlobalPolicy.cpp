@@ -61,9 +61,8 @@ extern "C"
         try {
             *policy = (struct geopm_policy_c*)(new geopm::GlobalPolicy(std::string(in_config), std::string(out_config)));
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -81,9 +80,8 @@ extern "C"
             delete (policy_obj);
             policy = NULL;
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -100,9 +98,8 @@ extern "C"
             }
             policy_obj->budget_watts(power_budget);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -119,9 +116,8 @@ extern "C"
             }
             policy_obj->mode(mode);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -138,9 +134,8 @@ extern "C"
             }
             policy_obj->frequency_mhz(cpu_mhz);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -156,9 +151,8 @@ extern "C"
             }
             policy_obj->num_max_perf(num_cpu_full_perf);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -175,9 +169,8 @@ extern "C"
             }
             policy_obj->tdp_percent(percent);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -194,9 +187,8 @@ extern "C"
             }
             policy_obj->affinity(cpu_affinity);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -213,9 +205,8 @@ extern "C"
             }
             policy_obj->goal(geo_goal);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -232,9 +223,8 @@ extern "C"
             }
             policy_obj->write();
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -270,9 +260,8 @@ extern "C"
                     return EINVAL;
             };
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }

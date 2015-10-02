@@ -57,9 +57,8 @@ extern "C"
         try {
             platform->save_msr_state(path);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;
@@ -74,9 +73,8 @@ extern "C"
         try {
             platform->restore_msr_state(path);
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
 
         return err;

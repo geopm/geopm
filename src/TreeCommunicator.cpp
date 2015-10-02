@@ -43,6 +43,8 @@
 #include <fstream>
 #include <system_error>
 
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
 
@@ -62,7 +64,7 @@ extern "C"
     }
 
     static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm)
-    {/*
+    {
         int err, comm_size, comm_rank, shm_rank, is_shm_root;
         MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
         MPI_Comm *ppn1_comm_ptr;
@@ -108,7 +110,6 @@ extern "C"
             MPI_Comm_free(ppn1_comm_ptr);
         }
         return err;
-*/ return 0;
     }
 }
 
@@ -276,7 +277,7 @@ namespace geopm
     void TreeCommunicator::send_sample(int level, const struct sample_message_s &sample)
     {
         if (level < 0 || level >= num_level() || level == root_level()) {
-            throw std::invalid_argument("Called with level out of range\n");
+            throw Exception("TreeCommunicator::send_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
         m_level[level]->send_sample(sample);
     }
@@ -284,7 +285,7 @@ namespace geopm
     void TreeCommunicator::send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy)
     {
         if (level < 0 || level >= num_level() || level == root_level()) {
-            throw std::invalid_argument("Called with level out of range\n");
+            throw Exception("TreeCommunicator::send_policy()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
         else {
             m_level[level]->send_policy(policy);
@@ -294,14 +295,14 @@ namespace geopm
     void TreeCommunicator::get_sample(int level, std::vector<struct sample_message_s> &sample)
     {
         if (level < 0 || level >= num_level() || level == root_level()) {
-            throw std::invalid_argument("Called with level out of range\n");
+            throw Exception("TreeCommunicator::get_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
         m_level[level]->get_sample(sample);
     }
     void TreeCommunicator::get_policy(int level, struct geopm_policy_message_s &policy)
     {
         if (level < 0 || level >= num_level()) {
-            throw std::invalid_argument("Called with level out of range\n");
+            throw Exception("TreeCommunicator::get_policy()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
         if (level == root_level()) {
             m_global_policy->policy_message(policy);
@@ -363,10 +364,10 @@ namespace geopm
         }
 
         if (rank_cart == 0 && m_global_policy == NULL) {
-            throw std::runtime_error("Process at root of tree communicator has not mapped the control file.");
+            throw Exception("TreeCommunicator: Process at root of tree communicator has not mapped the control file.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (rank_cart != 0 && m_global_policy != NULL) {
-            throw std::runtime_error("Process not at root of tree communicator has mapped the control file.");
+            throw Exception("TreeCommunicator: Process not at root of tree communicator has mapped the control file.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -441,7 +442,7 @@ namespace geopm
             }
         }
         if (sample.size() < m_sample_mailbox.size()) {
-            throw std::range_error("input sample vector too small\n");
+            throw Exception("TreeCommunicator: input sample vector too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         copy(m_sample_mailbox.begin(), m_sample_mailbox.end(), sample.begin());
         source = 0;
@@ -483,7 +484,7 @@ namespace geopm
         MPI_Request request;
 
         if (m_rank != 0) {
-            throw std::domain_error("Called send_policy() from rank not at root of level\n");
+            throw Exception("TreeCommunicator: called send_policy() from rank not at root of level", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         dest = 0;
         for (auto policy_it = policy.begin(); policy_it < policy.end(); ++policy_it, ++dest) {

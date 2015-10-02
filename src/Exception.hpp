@@ -36,6 +36,7 @@
 
 namespace geopm
 {
+    int exception_handler(std::exception_ptr eptr);
     class Exception: public std::runtime_error
     {
         public:
@@ -44,5 +45,8 @@ namespace geopm
             Exception(int err, const char *file, int line);
             Exception(const std::string &what, int err, const char *file, int line);
             virtual ~Exception();
+            int err_value(void) const;
+        private:
+            int m_err;
     };
 }

@@ -35,6 +35,8 @@
 #include <stdexcept>
 #include <algorithm>
 
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "Observation.hpp"
 
 namespace geopm
@@ -52,7 +54,7 @@ namespace geopm
             m_data[buffer_index].insert(value);
         }
         else {
-            throw std::invalid_argument("unknown data type");
+            throw Exception("Observation: unknown data type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
@@ -63,7 +65,7 @@ namespace geopm
         size_t len = 0;
 
         if ((unsigned int)buffer_index >= m_data.size()) {
-            throw std::invalid_argument("unknown data type");
+            throw Exception("Observation: unknown data type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         for (int i = 0; i < m_data[buffer_index].size(); i++) {
@@ -74,7 +76,7 @@ namespace geopm
             result = sum / len;
         }
         else {
-            throw std::length_error("data vector of zero length");
+            throw Exception("Observation: data vector of zero length", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         return result;
@@ -87,7 +89,7 @@ namespace geopm
         std::vector<double> sorted;
 
         if ((unsigned int)buffer_index >= m_data.size()) {
-            throw std::invalid_argument("unknown data type");
+            throw Exception("Observation: unknown data type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         len = m_data[buffer_index].size();
@@ -99,7 +101,7 @@ namespace geopm
             result = sorted[(len - 1)/ 2];
         }
         else {
-            throw std::length_error("data vector of zero length");
+            throw Exception("Observation: data vector of zero length", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
@@ -123,7 +125,7 @@ namespace geopm
             result = sqrt(sum / (len - 1));
         }
         else {
-            throw std::length_error("data vector length less than two");
+            throw Exception("Observation: data vector of zero length", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
@@ -134,7 +136,7 @@ namespace geopm
         int len = 0;
 
         if ((unsigned int)buffer_index >= m_data.size()) {
-            throw std::invalid_argument("unknown data type");
+            throw Exception("Observation: unknown data type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         len = m_data[buffer_index].size();
@@ -146,7 +148,7 @@ namespace geopm
             }
         }
         else {
-            throw std::length_error("data vector of zero length");
+            throw Exception("Observation: data vector of zero length", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
@@ -157,7 +159,7 @@ namespace geopm
         int len = 0;
 
         if ((unsigned int)buffer_index >= m_data.size()) {
-            throw std::invalid_argument("unknown data type");
+            throw Exception("Observation: unknown data type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         len = m_data[buffer_index].size();
@@ -169,7 +171,7 @@ namespace geopm
             }
         }
         else {
-            throw std::length_error("data vector of zero length");
+            throw Exception("Observation: data vector of zero length", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
@@ -181,7 +183,7 @@ namespace geopm
         int len = m_data[buffer_index].size();
 
         if (m_data[0].size() != len) {
-            throw(std::runtime_error("Cannot integrate buffer over time, length doesn't match timestamp buffer."));
+            throw Exception("Observation: cannot integrate buffer over time, length doesn't match timestamp buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         if (len) {

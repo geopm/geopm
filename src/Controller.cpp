@@ -38,6 +38,7 @@
 #include "geopm_policy_message.h"
 #include "Controller.hpp"
 #include "Profile.hpp"
+#include "Exception.hpp"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
@@ -65,9 +66,8 @@ extern "C"
                 geopm::Controller ctl(&policy, &profile, MPI_COMM_WORLD);
                 ctl.run();
             }
-            catch (std::exception ex) {
-                std::cerr << ex.what();
-                err = -1;
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception());
             }
         }
         return err;
@@ -81,9 +81,8 @@ extern "C"
             geopm::Profile *profile = (geopm::Profile *)prof;
             *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, profile, comm));
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }
@@ -95,9 +94,8 @@ extern "C"
         try {
             delete ctl_obj;
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }
@@ -109,9 +107,8 @@ extern "C"
         try {
             ctl_obj->run();
         }
-        catch (std::exception ex) {
-            std::cerr << ex.what();
-            err = -1;
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }

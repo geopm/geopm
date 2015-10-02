@@ -32,9 +32,12 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <iostream>
+#include <errno.h>
 
 #include "geopm_error.h"
 #include "Exception.hpp"
+#include "config.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
@@ -54,12 +57,14 @@ extern "C"
             case GEOPM_ERROR_INVALID:
                 strncpy(msg, "<geopm> Invalid arguement", size);
                 break;
-
             case GEOPM_ERROR_POLICY_NULL:
-                strncpy(msg, "<geopm> geopm_policy_c pointer is NULL, use geopm_policy_create", size);
+                strncpy(msg, "<geopm> The geopm_policy_c pointer is NULL, use geopm_policy_create", size);
                 break;
             case GEOPM_ERROR_FILE_PARSE:
-                strncpy(msg, "<geopm> unable to parse input file", size);
+                strncpy(msg, "<geopm> Unable to parse input file", size);
+                break;
+            case GEOPM_ERROR_LEVEL_RANGE:
+                strncpy(msg, "<geomp> Control hierarchy level is out of range", size);
                 break;
             default:
 #ifndef _GNU_SOURCE
@@ -80,26 +85,78 @@ extern "C"
 
 namespace geopm
 {
+
     static std::string error_message(int err);
+
+    int exception_handler(std::exception_ptr eptr)
+    {
+        int err = GEOPM_ERROR_RUNTIME;
+        try {
+            if (eptr) {
+                std::rethrow_exception(eptr);
+            }
+        }
+        catch (const std::exception &ex) {
+            const geopm::Exception *ex_geopm = dynamic_cast<const geopm::Exception *>(&ex);
+            const std::system_error *ex_sys = dynamic_cast<const std::system_error *>(&ex);
+            const std::runtime_error *ex_rt = dynamic_cast<const std::runtime_error *>(&ex);
+
+            if (ex_geopm) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "ERROR: " << ex_geopm->what() << std::endl;
+#endif
+                err = ex_geopm->err_value();
+            }
+            else if (ex_sys) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "ERROR: " << ex_sys->what() << std::endl;
+#endif
+                err = ex_sys->code().value();
+            }
+            else if (ex_rt) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "ERROR: " << ex_rt->what() << std::endl;
+#endif
+                err = errno ? errno : GEOPM_ERROR_RUNTIME;
+            }
+            else {
+#ifdef GEOPM_DEBUG
+                std::cerr << "ERROR: " << ex.what() << std::endl;
+#endif
+                err = errno ? errno : GEOPM_ERROR_RUNTIME;
+            }
+        }
+        return err;
+     }
+
 
     Exception::Exception(int err)
         : std::runtime_error(error_message(err))
+        , m_err(err)
     {}
 
     Exception::Exception(const std::string &what, int err)
-        : std::runtime_error(error_message(err) + ": " + what) 
+        : std::runtime_error(error_message(err) + ": " + what)
+        , m_err(err)
     {}
 
     Exception::Exception(const std::string &what, int err, const char *file, int line)
         : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line) + (what.size() == 0 ? "" : ": " + what))
+        , m_err(err)
     {}
 
     Exception::Exception(int err, const char *file, int line)
         : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line))
+        , m_err(err)
     {}
 
     Exception::~Exception()
-        {}
+    {}
+
+    int Exception::err_value(void) const
+    {
+        return m_err;
+    }
 
     static std::string error_message(int err)
     {

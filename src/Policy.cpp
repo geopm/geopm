@@ -33,6 +33,8 @@
 #include <float.h>
 
 #include "geopm.h"
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "Policy.hpp"
 
 const double GEOPM_POLICY_CONST_INVALID_TARGET = DBL_MIN;
@@ -108,7 +110,7 @@ namespace geopm
     void Policy::target(int domain, double &target)
     {
         if (domain >= (int)m_target.size()) {
-            throw std::invalid_argument("Domain index out of range\n");
+            throw Exception("Policy: domain index out of range", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         target = m_target[domain];
         m_updated[domain] = false;

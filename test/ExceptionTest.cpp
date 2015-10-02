@@ -40,25 +40,33 @@ class ExceptionTest: public :: testing :: Test {};
 TEST_F(ExceptionTest, hello)
 {
     geopm::Exception ex0(GEOPM_ERROR_RUNTIME);
-    std::cout << "ERROR: " << ex0.what() << std::endl;
+    std::cerr << "ERROR: " << ex0.what() << std::endl;
     geopm::Exception ex1("Hello world", GEOPM_ERROR_LOGIC);
-    std::cout << "ERROR: " << ex1.what() << std::endl;
+    std::cerr << "ERROR: " << ex1.what() << std::endl;
     geopm::Exception ex2(GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    std::cout << "ERROR: " << ex2.what() << std::endl;
-    geopm::Exception ex3("Hello world", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-    std::cout << "ERROR: " << ex3.what() << std::endl;
+    std::cerr << "ERROR: " << ex2.what() << std::endl;
+    geopm::Exception ex3("Hello world", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+    std::cerr << "ERROR: " << ex3.what() << std::endl;
+    std::cerr << "Error value = " << ex3.err_value() << std::endl;
+    try {
+        throw ex3;
+    }
+    catch (...) {
+        int err = geopm::exception_handler(std::current_exception());
+        std::cerr << "Error number = " << err << std::endl;
+    }
 }
 
 TEST_F(ExceptionTest, hello_invalid)
 {
     geopm::Exception ex("Hello world EINVAL error", EINVAL);
-    std::cout << "ERROR: " << ex.what() << std::endl;
+    std::cerr << "ERROR: " << ex.what() << std::endl;
 }
 
 TEST_F(ExceptionTest, file_info)
 {
     geopm::Exception ex("With file info", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    std::cout << "ERROR: " << ex.what() << std::endl;
+    std::cerr << "ERROR: " << ex.what() << std::endl;
     geopm::Exception ex2("", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    std::cout << "ERROR: " << ex2.what() << std::endl;
+    std::cerr << "ERROR: " << ex2.what() << std::endl;
 }
