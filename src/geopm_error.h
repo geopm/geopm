@@ -30,19 +30,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <system_error>
-#include "geopm_error.h"
+#ifndef GEOPM_ERROR_H_INCLUDE
+#define GEOPM_ERROR_H_INCLUDE
 
-namespace geopm
-{
-    class Exception: public std::runtime_error
-    {
-        public:
-            Exception(int err);
-            Exception(const std::string &what, int err);
-            Exception(int err, const char *file, int line);
-            Exception(const std::string &what, int err, const char *file, int line);
-            virtual ~Exception();
-    };
+#include <stdlib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum geomp_error_e {
+    GEOPM_ERROR_RUNTIME = -1,
+    GEOPM_ERROR_LOGIC = -2,
+    GEOPM_ERROR_INVALID = -3,
+    GEOPM_ERROR_POLICY_NULL = -4,
+    GEOPM_ERROR_FILE_PARSE = -5,
+};
+
+/* Convert error number into an error message */
+void geopm_error_message(int err, char *msg, size_t size);
+
+#ifdef __cplusplus
 }
+#endif
+#endif

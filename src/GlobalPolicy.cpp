@@ -44,6 +44,7 @@
 
 #include "geopm_policy_message.h"
 #include "geopm_policy.h"
+#include "Exception.hpp"
 #include "GlobalPolicy.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
@@ -74,9 +75,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             delete (policy_obj);
             policy = NULL;
@@ -95,9 +95,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->budget_watts(power_budget);
         }
@@ -115,9 +114,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->mode(mode);
         }
@@ -135,9 +133,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->frequency_mhz(cpu_mhz);
         }
@@ -154,9 +151,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->num_max_perf(num_cpu_full_perf);
         }
@@ -174,9 +170,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->tdp_percent(percent);
         }
@@ -194,9 +189,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->affinity(cpu_affinity);
         }
@@ -214,9 +208,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL){
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->goal(geo_goal);
         }
@@ -234,9 +227,8 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->write();
         }
@@ -258,9 +250,8 @@ extern "C"
             geopm::PlatformFactory platform_factory;
             geopm::Platform *platform = platform_factory.platform(0);
 
-            if (policy_obj == NULL)
-            {
-                throw std::runtime_error("geopm_policy_c pointer is NULL, use geopm_policy_create");
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->read();
             mode = policy_obj->mode();
@@ -296,53 +287,48 @@ namespace geopm
         ,m_mode(-1)
         ,m_power_budget_watts(-1)
         ,m_flags(0)
-        ,is_shm_in(false)
-        ,is_shm_out(false)
-        ,do_read(false)
-        ,do_write(false)
+        ,m_is_shm_in(false)
+        ,m_is_shm_out(false)
+        ,m_do_read(false)
+        ,m_do_write(false)
     {
         int shm_id;
         int err = 0;
 
         if (m_in_config.empty() && m_out_config.empty()) {
-            throw std::runtime_error("at least one of in_config or out_config must be set");
+            throw Exception("GlobalPolicy: at least one of in_config or out_config must be set", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (!m_out_config.empty()) {
-            do_write = true;
+            m_do_write = true;
             if (m_out_config[0] == '/' && m_out_config.find_last_of('/') == 0) {
-                is_shm_out = true;
+                m_is_shm_out = true;
                 shm_id = shm_open(m_out_config.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRWXU | S_IRWXG);
                 if (shm_id < 0) {
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not open shared memory region for root policy.\n");
+                    throw Exception("GlobalPolicy: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
 
                 err = ftruncate(shm_id, sizeof(struct geopm_policy_shmem_s));
                 if (err) {
                     (void) shm_unlink(m_out_config.c_str());
                     (void) close(shm_id);
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not extend shared memory region with ftruncate for policy control.\n");
+                    throw Exception("GlobalPolicy: Could not extend shared memory region with ftruncate for policy control", errno, __FILE__, __LINE__);
                 }
 
                 m_policy_shmem_out = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
                                      PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
                 if (m_policy_shmem_out == MAP_FAILED) {
                     (void) close(shm_id);
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not map shared memory region for root policy.\n");
+                    throw Exception("GlobalPolicy: Could not map shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
                 err = close(shm_id);
                 if (err) {
                     munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not close file descriptor for root policy shared memory region.\n");
+                    throw Exception("GlobalPolicy: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
                 }
                 if (pthread_mutex_init(&(m_policy_shmem_out->lock), NULL) != 0) {
                     munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not initialize pthread mutex for shared memory region.\n");
+                    throw Exception("GlobalPolicy: Could not initialize pthread mutex for shared memory region", errno, __FILE__, __LINE__);
                 }
             }
             else {
@@ -350,27 +336,24 @@ namespace geopm
             }
         }
         if (!m_in_config.empty()) {
-            do_read = true;
+            m_do_read = true;
             if (m_in_config[0] == '/' && m_in_config.find_last_of('/') == 0) {
-                is_shm_in = true;
+                m_is_shm_in = true;
                 shm_id = shm_open(m_in_config.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
 
                 if (shm_id < 0) {
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not open shared memory region for root policy.\n");
+                    throw Exception("GlobalPolicy: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
                 m_policy_shmem_in = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
                                     PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
                 if (m_policy_shmem_in == MAP_FAILED) {
                     (void) close(shm_id);
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not map shared memory region for root policy.\n");
+                    throw Exception("GlobalPolicy: Could not map shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
                 err = close(shm_id);
                 if (err) {
                     munmap(m_policy_shmem_in, sizeof(struct geopm_policy_shmem_s));
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not close file descriptor for root policy shared memory region.\n");
+                    throw Exception("GlobalPolicy: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
                 }
             }
             else {
@@ -381,26 +364,23 @@ namespace geopm
 
     GlobalPolicy::~GlobalPolicy()
     {
-        if (do_read) {
-            if(is_shm_in) {
+        if (m_do_read) {
+            if(m_is_shm_in) {
                 if (munmap(m_policy_shmem_in, sizeof(struct geopm_policy_message_s))) {
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not unmap root policy shared memory region.\n");
+                    throw Exception("GlobalPolicy: Could not unmap root policy shared memory region", errno, __FILE__, __LINE__);
                 }
             }
             else {
                 m_config_file_in.close();
             }
         }
-        if (do_write) {
-            if(is_shm_out) {
+        if (m_do_write) {
+            if(m_is_shm_out) {
                 if (munmap(m_policy_shmem_out, sizeof(struct geopm_policy_message_s))) {
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not unmap root policy shared memory region.\n");
+                    throw Exception("GlobalPolicy: Could not unmap root policy shared memory region", errno, __FILE__, __LINE__);
                 }
                 if (shm_unlink(m_out_config.c_str())) {
-                    throw std::system_error(std::error_code(errno, std::system_category()),
-                                            "Could not unlink shared memory region on GlobalPolicy destruction.\n");
+                    throw Exception("GlobalPolicy: Could not unlink shared memory region on GlobalPolicy destruction", errno, __FILE__, __LINE__);
                 }
             }
             else {
@@ -507,23 +487,21 @@ namespace geopm
 
     void GlobalPolicy::read()
     {
-        if (!do_read) {
-            throw std::runtime_error("invalid operation, in_config not specified");
+        if (!m_do_read) {
+            throw Exception("GlobalPolicy: Invalid operation, in_config not specified in constructor", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (is_shm_in) {
+        if (m_is_shm_in) {
             int err;
             err = pthread_mutex_lock(&(m_policy_shmem_in->lock));
             if (err) {
-                throw std::system_error(std::error_code(err, std::system_category()),
-                                        "Could not lock shared memory region for root of tree.\n");
+                throw Exception("GlobalPolicy: Could not lock shared memory region for root of tree", err, __FILE__, __LINE__);
             }
             m_mode = m_policy_shmem_in->policy.mode;
             m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
             m_flags = m_policy_shmem_in->policy.flags;
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
-                throw std::system_error(std::error_code(err, std::system_category()),
-                                        "Could not unlock shared memory region for root of tree.\n");
+                throw Exception("GlobalPolicy: Could not unlock shared memory region for root of tree", err, __FILE__, __LINE__);
             }
         }
         else {
@@ -548,7 +526,7 @@ namespace geopm
             type = json_object_get_type(object);
 
             if (type != json_type_object ) {
-                throw std::runtime_error("detected a malformed json config file");;
+                throw Exception("GlobalPolicy: detected a malformed json config file", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
 
             json_object_object_foreach(object, key, val) {
@@ -560,18 +538,18 @@ namespace geopm
                     options_obj = val;
                 }
                 else {
-                    throw std::runtime_error("unsupported key or malformed json config file");
+                    throw Exception("GlobalPolicy: unsupported key or malformed json config file", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
 
             if (mode_obj == NULL || options_obj == NULL) {
-                throw std::runtime_error("config file must contain a mode and options");
+                throw Exception("GlobalPolicy: config file does not contain a mode or options", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             if (json_object_get_type(mode_obj) != json_type_string) {
-                throw std::runtime_error("mode expected to be a string type");
+                throw Exception("GlobalPolicy: mode expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             if (json_object_get_type(options_obj) != json_type_object) {
-                throw std::runtime_error("mode expected to be an object type");
+                throw Exception("GlobalPolicy: mode expected to be an object type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
 
             value_string.assign(json_object_get_string(mode_obj));
@@ -598,25 +576,25 @@ namespace geopm
                 key_string.assign(subkey);
                 if (!key_string.compare("tdp_percent")) {
                     if (json_object_get_type(subval) != json_type_int) {
-                        throw std::runtime_error("tdp_percent expected to be an integer type");
+                        throw Exception("GlobalPolicy: tdp_percent expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                     }
                     tdp_percent(json_object_get_int(subval));
                 }
                 else if (!key_string.compare("cpu_mhz")) {
                     if (json_object_get_type(subval) != json_type_int) {
-                        throw std::runtime_error("cpu_mhz expected to be an integer type");
+                        throw Exception("GlobalPolicy: cpu_mhz expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                     }
                     frequency_mhz(json_object_get_int(subval));
                 }
                 else if (!key_string.compare("num_cpu_max_perf")) {
                     if (json_object_get_type(subval) != json_type_int) {
-                        throw std::runtime_error("num_cpu_max_perf expected to be an integer type");
+                        throw Exception("GlobalPolicy: num_cpu_max_perf expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                     }
                     num_max_perf(json_object_get_int(subval));
                 }
                 else if (!key_string.compare("affinity")) {
                     if (json_object_get_type(subval) != json_type_string) {
-                        throw std::runtime_error("affinity expected to be a string type");
+                        throw Exception("GlobalPolicy: affinity expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                     }
                     value_string.assign(json_object_get_string(subval));
                     if (!value_string.compare("compact")) {
@@ -628,44 +606,44 @@ namespace geopm
                     else {
                         err_string.assign("unsupported affinity type : ");
                         err_string.append(value_string);
-                        throw std::runtime_error(err_string.c_str());
+                        throw Exception(("GlobalPolicy: " + err_string).c_str(), GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                     }
                 }
                 else if (!key_string.compare("power_budget")) {
                     if (json_object_get_type(subval) != json_type_int) {
-                        throw std::runtime_error("power_budget expected to be an integer type");
+                        throw Exception("GlobalPolicy: power_budget expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                     }
                     budget_watts(json_object_get_int(subval));
                 }
                 else {
                     err_string.assign("unknown option : ");
                     err_string.append(key_string);
-                    throw std::runtime_error(err_string.c_str());
+                    throw Exception(("GlobalPolicy: " + err_string).c_str(), GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
 
             if (m_mode == GEOPM_MODE_TDP_BALANCE_STATIC) {
                 if (tdp_percent() < 0 || tdp_percent() > 100) {
-                    throw std::runtime_error("percent tdp must be between 0 and 100");
+                    throw Exception("GlobalPolicy: percent tdp must be between 0 and 100", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 std::cout << "mode=tdp_balance_static,tdp_percent=" << tdp_percent() << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_UNIFORM_STATIC) {
                 if (frequency_mhz() < 0) {
-                    throw std::runtime_error("frequency is out of bounds");
+                    throw Exception("GlobalPolicy: frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 std::cout << "mode=freq_uniform_static,cpu_mhz=" << frequency_mhz() << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_HYBRID_STATIC) {
                 if (frequency_mhz() < 0) {
-                    throw std::runtime_error("frequency is out of bounds");
+                    throw Exception("GlobalPolicy: frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 if (num_max_perf() < 0) {
-                    throw std::runtime_error("number of max perf cpus is out of bounds");
+                    throw Exception("GlobalPolicy: number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 if (affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT &&
                     affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
-                    throw std::runtime_error("affiniy must be set to 'scatter' or 'compact'");
+                    throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 std::cout << "mode=freq_hybrid_static,cpu_mhz=" << frequency_mhz()
                           << ",num_cpu_max_perf=" << num_max_perf();
@@ -678,26 +656,26 @@ namespace geopm
             }
             if (m_mode == GEOPM_MODE_PERF_BALANCE_DYNAMIC) {
                 if (budget_watts() < 0) {
-                    throw std::runtime_error("power budget is out of bounds");
+                    throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 std::cout << "mode=perf_balance_dynamic,power_budget=" << m_power_budget_watts << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_UNIFORM_DYNAMIC) {
                 if (budget_watts() < 0) {
-                    throw std::runtime_error("power budget is out of bounds");
+                    throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 std::cout << "mode=freq_uniform_dynamic,power_budget=" << m_power_budget_watts << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_HYBRID_DYNAMIC) {
                 if (budget_watts() < 0) {
-                    throw std::runtime_error("power budget is out of bounds");
+                    throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 if (num_max_perf() < 0) {
-                    throw std::runtime_error("number of max perf cpus is out of bounds");
+                    throw Exception("GlobalPolicy: number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 if (affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT &&
                     affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
-                    throw std::runtime_error("affiniy must be set to 'scatter' or 'compact'");
+                    throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 std::cout << "mode=freq_hybrid_dynamic,power_budget=" << m_power_budget_watts
                           << ",num_cpu_max_perf=" << num_max_perf();
@@ -713,24 +691,22 @@ namespace geopm
 
     void GlobalPolicy::write()
     {
-        if (!do_write) {
-            throw std::runtime_error("invalid operation, out_config not specified");
+        if (!m_do_write) {
+            throw Exception("GlobalPolicy: invalid operation, out_config not specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
-        if (is_shm_out) {
+        if (m_is_shm_out) {
             int err;
 
             err = pthread_mutex_lock(&(m_policy_shmem_out->lock));
             if (err) {
-                throw std::system_error(std::error_code(err, std::system_category()),
-                                        "Could not lock shared memory region for resource manager.\n");
+                throw Exception("GlobalPolicy: Could not lock shared memory region for resource manager", errno, __FILE__, __LINE__);
             }
             m_policy_shmem_out->policy.mode = m_mode;
             m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
             m_policy_shmem_out->policy.flags = m_flags;
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
-                throw std::system_error(std::error_code(err, std::system_category()),
-                                        "Could not unlock shared memory region for resource manager.\n");
+                throw Exception("GlobalPolicy: Could not unlock shared memory region for resource manager", errno, __FILE__, __LINE__);
             }
         }
         else {
@@ -780,7 +756,7 @@ namespace geopm
                     json_object_object_add(policy,"options",options);
                     break;
                 default:
-                    throw std::runtime_error("invalid mode specified");
+                    throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             m_config_file_out << json_object_to_json_string(policy);
             m_config_file_out.flush();
@@ -797,7 +773,7 @@ namespace geopm
                 name.assign("scatter");
                 break;
             default:
-                throw std::runtime_error("invalid affinity specified");
+                throw Exception("GlobalPolicy: invalid affinity specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 break;
         }
     }

@@ -28,6 +28,7 @@ src/Exception.cpp
 src/Exception.hpp
 src/geopmctl_main.c
 src/geopm_ctl_spawn.c
+src/geopm_error.h
 src/geopm.h
 src/geopm_mpi_pcontrol.h
 src/geopm_policy.h
@@ -64,6 +65,7 @@ src/Profile.hpp
 src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 test/CircularBufferTest.cpp
+test/ExceptionTest.cpp
 test/geopm_mpi_test.cpp
 test/geopm_prof_example_openmp_static.c
 test/geopm_test.cpp

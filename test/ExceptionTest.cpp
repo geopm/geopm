@@ -30,19 +30,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <system_error>
+#include "errno.h"
+#include "gtest/gtest.h"
 #include "geopm_error.h"
+#include "Exception.hpp"
 
-namespace geopm
+class ExceptionTest: public :: testing :: Test {};
+
+TEST_F(ExceptionTest, hello)
 {
-    class Exception: public std::runtime_error
-    {
-        public:
-            Exception(int err);
-            Exception(const std::string &what, int err);
-            Exception(int err, const char *file, int line);
-            Exception(const std::string &what, int err, const char *file, int line);
-            virtual ~Exception();
-    };
+    geopm::Exception ex0(GEOPM_ERROR_RUNTIME);
+    std::cout << "ERROR: " << ex0.what() << std::endl;
+    geopm::Exception ex1("Hello world", GEOPM_ERROR_LOGIC);
+    std::cout << "ERROR: " << ex1.what() << std::endl;
+    geopm::Exception ex2(GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    std::cout << "ERROR: " << ex2.what() << std::endl;
+    geopm::Exception ex3("Hello world", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    std::cout << "ERROR: " << ex3.what() << std::endl;
+}
+
+TEST_F(ExceptionTest, hello_invalid)
+{
+    geopm::Exception ex("Hello world EINVAL error", EINVAL);
+    std::cout << "ERROR: " << ex.what() << std::endl;
+}
+
+TEST_F(ExceptionTest, file_info)
+{
+    geopm::Exception ex("With file info", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+    std::cout << "ERROR: " << ex.what() << std::endl;
+    geopm::Exception ex2("", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+    std::cout << "ERROR: " << ex2.what() << std::endl;
 }

@@ -33,8 +33,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "geopm.h"
+#include "geopm_error.h"
 #include "Exception.hpp"
+
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
 
 extern "C"
 {
@@ -42,16 +46,30 @@ extern "C"
     {
         switch (err) {
             case GEOPM_ERROR_RUNTIME:
-                strncpy(msg, "<geopm> Runtime error.", size);
+                strncpy(msg, "<geopm> Runtime error", size);
                 break;
             case GEOPM_ERROR_LOGIC:
-                strncpy(msg, "<geopm> Logic error.", size);
+                strncpy(msg, "<geopm> Logic error", size);
                 break;
             case GEOPM_ERROR_INVALID:
-                strncpy(msg, "<geopm> Invalid arguement.", size);
+                strncpy(msg, "<geopm> Invalid arguement", size);
+                break;
+
+            case GEOPM_ERROR_POLICY_NULL:
+                strncpy(msg, "<geopm> geopm_policy_c pointer is NULL, use geopm_policy_create", size);
+                break;
+            case GEOPM_ERROR_FILE_PARSE:
+                strncpy(msg, "<geopm> unable to parse input file", size);
                 break;
             default:
-                snprintf(msg, size, "<geopm> Undefined error number: %i", err);
+#ifndef _GNU_SOURCE
+                int undef = strerror_r(err, msg, size);
+                if (undef && undef != ERANGE) {
+                    snprintf(msg, size, "<geopm> Undefined error number: %i", err);
+                }
+#else
+                strncpy(msg, strerror_r(err, msg, size), size);
+#endif
                 break;
         }
         if (size > 0) {
@@ -64,8 +82,20 @@ namespace geopm
 {
     static std::string error_message(int err);
 
+    Exception::Exception(int err)
+        : std::runtime_error(error_message(err))
+    {}
+
     Exception::Exception(const std::string &what, int err)
-        : std::runtime_error(error_message(err) + "\n" + what) 
+        : std::runtime_error(error_message(err) + ": " + what) 
+    {}
+
+    Exception::Exception(const std::string &what, int err, const char *file, int line)
+        : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line) + (what.size() == 0 ? "" : ": " + what))
+    {}
+
+    Exception::Exception(int err, const char *file, int line)
+        : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line))
     {}
 
     Exception::~Exception()

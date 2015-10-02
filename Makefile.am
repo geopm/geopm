@@ -75,6 +75,7 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/TreeCommunicator.cpp \
                       src/TreeCommunicator.hpp \
                       src/geopm_ctl_spawn.c \
+                      src/geopm_error.h \
                       src/geopm_policy_message.c \
                       src/geopm_policy_message.h \
                       src/geopm_version.c \
@@ -82,6 +83,8 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
 
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/CircularBuffer.hpp \
+                            src/Exception.cpp \
+                            src/Exception.hpp \
                             src/GlobalPolicy.cpp \
                             src/GlobalPolicy.hpp \
                             src/HSXPlatformImp.cpp \
@@ -102,6 +105,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/PlatformTopology.hpp \
                             src/PowerModel.cpp \
                             src/PowerModel.hpp \
+                            src/geopm_error.h \
                             src/geopm_policy.h \
                             src/geopm_version.c \
                             # end

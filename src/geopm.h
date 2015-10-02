@@ -52,12 +52,6 @@ enum geopm_const_e {
     GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL = 3,
 };
 
-enum geomp_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-};
-
 enum geopm_sample_reduce_e {
     GEOPM_SAMPLE_REDUCE_THREAD = 1,
     GEOPM_SAMPLE_REDUCE_PROC = 2,
@@ -75,9 +69,6 @@ struct geopm_policy_c;
 
 /* Return a human readable version. */
 const char *geopm_version(void);
-
-/* Convert error number into an error message */
-void geopm_error_message(int err, char *msg, size_t size);
 
 /************************/
 /* OBJECT INSTANTIATION */

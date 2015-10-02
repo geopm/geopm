@@ -69,10 +69,10 @@ namespace geopm
             int m_mode;
             int m_power_budget_watts;
             long int m_flags;
-            bool is_shm_in;
-            bool is_shm_out;
-            bool do_read;
-            bool do_write;
+            bool m_is_shm_in;
+            bool m_is_shm_out;
+            bool m_do_read;
+            bool m_do_write;
             struct geopm_policy_shmem_s *m_policy_shmem_in;
             struct geopm_policy_shmem_s *m_policy_shmem_out;
             std::ifstream m_config_file_in;
