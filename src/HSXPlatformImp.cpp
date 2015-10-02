@@ -32,6 +32,8 @@
 
 #include <math.h>
 #include <unistd.h>
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "HSXPlatformImp.hpp"
 
 namespace geopm
@@ -119,7 +121,7 @@ namespace geopm
             double energy = pow(0.5, (double)((tmp >> 8) & 0x1F));
             double power = pow(2, (double)((tmp >> 0) & 0xF));
             if (energy != energy_units || power != power_units) {
-                throw std::runtime_error("detected inconsistent power units among packages");
+                throw Exception("detected inconsistent power units among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
 
@@ -137,13 +139,13 @@ namespace geopm
             double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
             double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
             if (pkg_min != m_min_pkg_watts || pkg_max != m_max_pkg_watts) {
-                throw std::runtime_error("detected inconsistent power pkg bounds among packages");
+                throw Exception("detected inconsistent power pkg bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             tmp = read_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_INFO");
             double dram_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
             double dram_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
             if (dram_min != m_min_dram_watts || dram_max != m_max_dram_watts) {
-                throw std::runtime_error("detected inconsistent power dram bounds among packages");
+                throw Exception("detected inconsistent power dram bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         m_min_pp0_watts = m_min_pkg_watts;

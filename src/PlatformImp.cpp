@@ -30,9 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PlatformImp.hpp"
-#include <system_error>
-
 // c includes for system programming
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -40,6 +37,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+
+#include "geopm_error.h"
+#include "Exception.hpp"
+#include "PlatformImp.hpp"
 
 namespace geopm
 {
@@ -94,11 +95,11 @@ namespace geopm
             device_index = (m_num_cpu / m_num_tile) * device_index;
 
         if (m_cpu_file_descs.size() < (uint64_t)device_index) {
-            throw std::invalid_argument("no file descriptor found for device");
+            throw Exception("no file descriptor found for cpu device", ENODEV, __FILE__, __LINE__);
         }
         int rv = pwrite(m_cpu_file_descs[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
-            throw std::runtime_error("error writing to msr");
+            throw Exception("error writing to msr", EBADF, __FILE__, __LINE__);
         }
     }
 
@@ -119,11 +120,11 @@ namespace geopm
 
 
         if (m_cpu_file_descs.size() < (uint64_t)device_index) {
-            throw std::invalid_argument("no file descriptor found for device");
+            throw Exception("no file descriptor found for cpu device", ENODEV, __FILE__, __LINE__);
         }
         int rv = pread(m_cpu_file_descs[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
-            throw std::runtime_error("error reading msr");
+            throw Exception("error reading msr", EBADF, __FILE__, __LINE__);
         }
 
         return value;
@@ -153,7 +154,7 @@ namespace geopm
             return;
         }
 
-        throw std::system_error(std::error_code(errno, std::system_category()), "could not stat msr directory");
+        throw Exception("could not stat msr directory", errno, __FILE__, __LINE__);
     }
 
     void PlatformImp::open_msr(int cpu)
@@ -175,7 +176,7 @@ namespace geopm
             else {
                 snprintf(error_string, NAME_MAX, "system error opening cpu device %s", m_msr_path);
             }
-            throw std::system_error(std::error_code(errno, std::system_category()), error_string);
+            throw Exception(error_string, errno, __FILE__, __LINE__);
 
             return;
         }
@@ -192,7 +193,7 @@ namespace geopm
 
         //check for errors
         if (rv < 0) {
-            throw std::system_error(std::error_code(errno, std::system_category()), "system error closing cpu device");
+            throw Exception("system error closing cpu device", errno, __FILE__, __LINE__);
         }
     }
 

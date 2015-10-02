@@ -89,6 +89,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/GlobalPolicy.hpp \
                             src/HSXPlatformImp.cpp \
                             src/HSXPlatformImp.hpp \
+                            src/IVTPlatform.cpp \
+                            src/IVTPlatform.hpp \
                             src/IVTPlatformImp.cpp \
                             src/IVTPlatformImp.hpp \
                             src/Observation.cpp \

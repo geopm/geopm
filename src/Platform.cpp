@@ -41,6 +41,8 @@
 #include <stdexcept>
 #include <sstream>
 
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
 #include "geopm_policy_message.h"
@@ -113,7 +115,7 @@ namespace geopm
     std::string Platform::name(void) const
     {
         if (m_imp == NULL) {
-            throw std::runtime_error("Platform implementation is missing");
+            throw Exception("Platform implementation is missing", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return m_imp->get_platform_name();
     }
@@ -123,7 +125,7 @@ namespace geopm
                                 std::vector <int> &buffer_index) const
     {
         /* FIXME need to figure out how to implement this function */
-        throw std::runtime_error("Platform does not support buffer_index() method\n");
+        throw Exception("Platform does not support buffer_index() method", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 
     int Platform::level(void) const
@@ -149,7 +151,7 @@ namespace geopm
     void Platform::domain_index(int domain_type, std::vector <int> &domain_index) const
     {
         // FIXME
-        throw(std::runtime_error("Platform does not support domain_index() method"));
+        throw Exception("Platform does not support domain_index() method", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 
     void Platform::observe(const std::vector <struct sample_message_s> &sample) const
@@ -174,7 +176,7 @@ namespace geopm
     {
         auto model =  m_power_model.find(domain_type);
         if (model == m_power_model.end()) {
-            throw std::invalid_argument("No PowerModel found for given domain_type\n");
+            throw Exception("No PowerModel found for given domain_type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return model->second;
     }
@@ -209,7 +211,8 @@ namespace geopm
         int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / num_packages);
 
         if (num_cpu_max_perf >= num_real_cpus) {
-            throw std::runtime_error("requested number of max perf cpus is greater than controllable number of frequency domains on the platform");
+            throw Exception("requested number of max perf cpus is greater than controllable number of frequency domains on the platform", 
+                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         for (int i = 0; i < num_logical_cpus; i++) {
@@ -290,7 +293,7 @@ namespace geopm
                 m_imp->write_msr(vals[0], vals[1], vals[2], vals[3]);
             }
             else {
-                throw std::runtime_error("error detected in restore file. Could not restore msr states");
+                throw Exception("error detected in restore file. Could not restore msr states", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             vals.clear();
         }

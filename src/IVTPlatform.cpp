@@ -30,15 +30,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "IVTPlatform.hpp"
 
 namespace geopm
 {
+    static const int hsx_id = 0x63F;
     static const int ivb_id = 0x63E;
     static const int snb_id = 0x62D;
 
     IVTPlatform::IVTPlatform()
     {
+    }
+
+    IVTPlatform::~IVTPlatform()
+    {
+
+    }
+
+    bool IVTPlatform::model_supported(int platform_id) const
+    {
+        return (platform_id == ivb_id || platform_id == snb_id ||platform_id == hsx_id);
+    }
+
+    void IVTPlatform::set_implementation(PlatformImp* platform_imp)
+    {
+        PowerModel *power_model = new PowerModel();
+        m_imp = platform_imp;
+        m_imp->initialize_msrs();
+        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE, power_model));
+        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE_UNCORE, power_model));
+        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
+
         m_num_cpu = m_imp->get_num_cpu();
         int hyper = m_imp->get_num_hyperthreads();
 
@@ -75,16 +99,6 @@ namespace geopm
         m_enforce_msr_offsets.push_back(m_imp->get_msr_offset("PKG_DRAM_LIMIT"));
         m_enforce_msr_offsets.push_back(m_imp->get_msr_offset("PKG_PP0_LIMIT"));
 
-    }
-
-    IVTPlatform::~IVTPlatform()
-    {
-
-    }
-
-    bool IVTPlatform::model_supported(int platform_id) const
-    {
-        return (platform_id == ivb_id || platform_id == snb_id);
     }
 
     void IVTPlatform::observe(void)

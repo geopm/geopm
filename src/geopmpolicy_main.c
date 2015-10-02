@@ -279,7 +279,7 @@ int main(int argc, char** argv)
     if (!err) {
         switch (exec_mode) {
             case GEOPMPOLICY_EXEC_MODE_CREATE:
-                err = geopm_policy_create(NULL, file, &policy);
+                err = geopm_policy_create("", file, &policy);
                 if (!err) {
                     err = _geopm_policy_mode_parse(policy, mode_string);
                 }
@@ -292,10 +292,10 @@ int main(int argc, char** argv)
                 break;
             case GEOPMPOLICY_EXEC_MODE_ENFORCE:
                 if (strlen(file) != 0) {
-                    err = geopm_policy_create(file, NULL, &policy);
+                    err = geopm_policy_create(file, "", &policy);
                 }
                 else {
-                    err = geopm_policy_create(NULL, "/tmp/geopmpolicy_tmp", &policy);
+                    err = geopm_policy_create("", "/tmp/geopmpolicy_tmp", &policy);
                     if (!err) {
                         err = _geopm_policy_mode_parse(policy, mode_string);
                     }

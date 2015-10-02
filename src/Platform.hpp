@@ -48,7 +48,7 @@ namespace geopm
         public:
             Platform();
             virtual ~Platform();
-            void set_implementation(PlatformImp* platform_imp);
+            virtual void set_implementation(PlatformImp* platform_imp);
             void phase_begin(Phase *phase);
             void phase_end(void);
             Phase *cur_phase(void) const;

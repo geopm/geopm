@@ -34,27 +34,30 @@
 #include <inttypes.h>
 #include <cpuid.h>
 
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "PlatformFactory.hpp"
 #include "IVTPlatform.hpp"
 #include "IVTPlatformImp.hpp"
+#include "HSXPlatformImp.hpp"
 
 namespace geopm
 {
 
     PlatformFactory::PlatformFactory()
     {
-#if 0
-        // FIXME removed code for *some* reason
         // register all the platforms we know about
-        std::unique_ptr<Platform> ivb_plat(new IVTPlatform());
-        std::unique_ptr<PlatformImp> ivb_plat_imp(new IVTPlatformImp());
-        register_platform(move(ivb_plat), move(ivb_plat_imp));
-        register_platform(std::unique_ptr<geopm::Platform>(new IVTPlatform()),
-                          std::unique_ptr<geopm::PlatformImp>(new IVTPlatformImp()));
+        IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
+        IVTPlatform *ivb_plat = new IVTPlatform();
+        HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();
+        IVTPlatform *hsx_plat = new IVTPlatform();
+        std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(ivb_plat);
+        std::unique_ptr<PlatformImp> pplat_imp = std::unique_ptr<PlatformImp>(ivb_plat_imp);
+        register_platform(move(pplat), move(pplat_imp));
 
-        ivb_plat->release();
-        ivb_plat_imp->release();
-#endif
+        pplat = std::unique_ptr<Platform>(hsx_plat);
+        pplat_imp = std::unique_ptr<PlatformImp>(hsx_plat_imp);
+        register_platform(move(pplat), move(pplat_imp));
     }
 
     PlatformFactory::~PlatformFactory()
@@ -89,7 +92,7 @@ namespace geopm
         }
         if (!result) {
             // If we get here, no acceptable platform was found
-            throw std::invalid_argument("no plugin found to support current platform");
+            throw Exception("no plugin found to support current platform", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         return result;

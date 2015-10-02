@@ -59,6 +59,7 @@ namespace geopm
         public:
             IVTPlatform();
             virtual ~IVTPlatform();
+            virtual void set_implementation(PlatformImp* platform_imp);
             virtual bool model_supported(int platform_id) const;
             virtual void observe(void);
             virtual void sample(struct sample_message_s &sample) const;
