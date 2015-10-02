@@ -79,6 +79,8 @@ TESTS += test/gtest_links/ObservationTest.hello_mean \
 
 EXTRA_DIST += test/geopm_test.sh \
               $(googlemock_archive) \
+              test/geopm_mpi_test.cpp \
+              test/geopm_prof_example_openmp_static.c \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \

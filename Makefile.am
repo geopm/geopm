@@ -138,10 +138,21 @@ dist_man_MANS = man/geopm.3 \
                 man/geopm_version.3 \
                 # end
 
-EXTRA_DIST = CONTRIBUTING \
-             autogen.sh \
+EXTRA_DIST = autogen.sh \
+             ChangeLog \
+             configure.ac \
+             CONTRIBUTING \
+             copying_headers/header.freeBSD3 \
+             copying_headers/test-license \
+             copying_headers/MANIFEST.EXEMPT \
+             copying_headers/MANIFEST.freeBSD3 \
+             examples/README \
+             examples/threaded_step_example.c \
              geopm.spec.mk \
              geopm-$(VERSION).spec \
+             Makefile.am \
+             MANIFEST \
+             TODO \
              # end
 
 dist_doc_DATA = README \

@@ -5,6 +5,7 @@ copying_headers/header.intel-confidential
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.intel-confidential
 copying_headers/test-license
+examples/README
 MANIFEST
 README
 TODO
