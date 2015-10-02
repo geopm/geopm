@@ -44,6 +44,8 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/Controller.hpp \
                       src/Decider.cpp \
                       src/Decider.hpp \
+                      src/Exception.cpp \
+                      src/Exception.hpp \
                       src/GlobalPolicy.cpp \
                       src/GlobalPolicy.hpp \
                       src/HSXPlatformImp.cpp \
