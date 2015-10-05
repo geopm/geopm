@@ -34,6 +34,8 @@
 
 #include "gtest/gtest.h"
 #include "geopm_policy.h"
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "GlobalPolicy.hpp"
 
 class GlobalPolicyTest: public :: testing :: Test
@@ -333,14 +335,14 @@ TEST_F(GlobalPolicyTest, negative_c_interface)
 {
     struct geopm_policy_c *policy = NULL;
 
-    EXPECT_EQ(-1, geopm_policy_create("", "", &policy));
-    EXPECT_EQ(-1, geopm_policy_power(policy, 2500));
-    EXPECT_EQ(-1, geopm_policy_mode(policy, GEOPM_MODE_FREQ_HYBRID_DYNAMIC));
-    EXPECT_EQ(-1, geopm_policy_cpu_freq(policy, 2200));
-    EXPECT_EQ(-1, geopm_policy_full_perf(policy, 8));
-    EXPECT_EQ(-1, geopm_policy_tdp_percent(policy, 60));
-    EXPECT_EQ(-1, geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER));
-    EXPECT_EQ(-1, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
-    EXPECT_EQ(-1, geopm_policy_write(policy));
-    EXPECT_EQ(-1, geopm_policy_destroy(policy));
+    EXPECT_EQ(GEOPM_ERROR_INVALID, geopm_policy_create("", "", &policy));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_power(policy, 2500));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_mode(policy, GEOPM_MODE_FREQ_HYBRID_DYNAMIC));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_cpu_freq(policy, 2200));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_full_perf(policy, 8));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_tdp_percent(policy, 60));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_write(policy));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_destroy(policy));
 }

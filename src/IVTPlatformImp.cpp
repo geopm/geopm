@@ -67,8 +67,6 @@ namespace geopm
         , m_max_dram_watts(100)
         , m_platform_id(ivb_id)
     {
-        parse_hw_topology();
-        initialize_msrs();
     }
 
     IVTPlatformImp::~IVTPlatformImp()

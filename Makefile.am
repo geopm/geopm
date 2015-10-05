@@ -50,8 +50,6 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/GlobalPolicy.hpp \
                       src/HSXPlatformImp.cpp \
                       src/HSXPlatformImp.hpp \
-                      src/IVTPlatform.cpp \
-                      src/IVTPlatform.hpp \
                       src/IVTPlatformImp.cpp \
                       src/IVTPlatformImp.hpp \
                       src/Observation.cpp \
@@ -72,6 +70,8 @@ libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                       src/PowerModel.hpp \
                       src/Profile.cpp \
                       src/Profile.hpp \
+                      src/RAPLPlatform.cpp \
+                      src/RAPLPlatform.hpp \
                       src/TreeCommunicator.cpp \
                       src/TreeCommunicator.hpp \
                       src/geopm_ctl_spawn.c \
@@ -89,8 +89,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/GlobalPolicy.hpp \
                             src/HSXPlatformImp.cpp \
                             src/HSXPlatformImp.hpp \
-                            src/IVTPlatform.cpp \
-                            src/IVTPlatform.hpp \
                             src/IVTPlatformImp.cpp \
                             src/IVTPlatformImp.hpp \
                             src/Observation.cpp \
@@ -107,6 +105,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/PlatformTopology.hpp \
                             src/PowerModel.cpp \
                             src/PowerModel.hpp \
+                            src/RAPLPlatform.cpp \
+                            src/RAPLPlatform.hpp \
                             src/geopm_error.h \
                             src/geopm_policy.h \
                             src/geopm_version.c \

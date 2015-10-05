@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef IVTPLATFORM_HPP_INCLUDE
-#define IVTPLATFORM_HPP_INCLUDE
+#ifndef RAPLPLATFORM_HPP_INCLUDE
+#define RAPLPLATFORM_HPP_INCLUDE
 
 #include "Phase.hpp"
 #include "Policy.hpp"
@@ -54,11 +54,11 @@ namespace geopm
         int num_slot;
     };
 
-    class IVTPlatform : public Platform
+    class RAPLPlatform : public Platform
     {
         public:
-            IVTPlatform();
-            virtual ~IVTPlatform();
+            RAPLPlatform();
+            virtual ~RAPLPlatform();
             virtual void set_implementation(PlatformImp* platform_imp);
             virtual bool model_supported(int platform_id) const;
             virtual void observe(void);

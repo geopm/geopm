@@ -34,6 +34,8 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "PlatformFactory.hpp"
 
 using ::testing::Return;
@@ -45,9 +47,23 @@ class MockPlatformImp : public geopm::PlatformImp
     public:
         MOCK_METHOD1(model_supported, bool(int platform_id));
         MOCK_METHOD0(get_platform_name, std::string());
-        MOCK_METHOD0(initialize_msrs, void());
-        MOCK_METHOD0(reset_msrs, void());
+        virtual void initialize(void);
+        virtual void reset_msrs(void);
+    protected:
+        virtual void initialize_msrs();
 };
+
+void MockPlatformImp::initialize(void)
+{
+}
+
+void MockPlatformImp::initialize_msrs(void)
+{
+}
+
+void MockPlatformImp::reset_msrs(void)
+{
+}
 
 class MockPlatform : public geopm::Platform
 {
@@ -63,7 +79,6 @@ class PlatformFactoryTest: public :: testing :: Test
 {
     protected:
         void SetUp();
-        geopm::PlatformFactory m_platform_fact;
 };
 
 void PlatformFactoryTest::SetUp()
@@ -76,6 +91,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     MockPlatformImp *m_platform_imp = new MockPlatformImp();
     std::unique_ptr<geopm::Platform> m_ap = std::unique_ptr<geopm::Platform>(m_platform);
     std::unique_ptr<geopm::PlatformImp> m_ap_imp = std::unique_ptr<geopm::PlatformImp>(m_platform_imp);
+    geopm::PlatformFactory m_platform_fact(move(m_ap), move(m_ap_imp));
     std::string pname = "Haswell";
     std::string ans;
     geopm::Platform* p = NULL;
@@ -92,7 +108,6 @@ TEST_F(PlatformFactoryTest, platform_register)
     .Times(1)
     .WillOnce(Return(pname));
 
-    m_platform_fact.register_platform(move(m_ap), move(m_ap_imp));
     p = m_platform_fact.platform(0);
     ASSERT_FALSE(p == NULL);
 
@@ -108,6 +123,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     MockPlatformImp *m_platform_imp = new MockPlatformImp();
     std::unique_ptr<geopm::Platform> m_ap = std::unique_ptr<geopm::Platform>(m_platform);
     std::unique_ptr<geopm::PlatformImp> m_ap_imp = std::unique_ptr<geopm::PlatformImp>(m_platform_imp);
+    geopm::PlatformFactory m_platform_fact(move(m_ap), move(m_ap_imp));
     geopm::Platform* p = NULL;
     int thrown = 0;
 
@@ -120,9 +136,9 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     try {
         p = m_platform_fact.platform(0);
     }
-    catch (std::invalid_argument e) {
-        thrown = 1;
+    catch (geopm::Exception e) {
+        thrown = e.err_value();
     }
     ASSERT_TRUE(p == NULL);
-    EXPECT_TRUE(thrown ==1);
+    EXPECT_TRUE(thrown == GEOPM_ERROR_INVALID);
 }

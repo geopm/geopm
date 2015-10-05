@@ -46,7 +46,7 @@ namespace geopm
         // Single processor package
         GEOPM_DOMAIN_PACKAGE = HWLOC_OBJ_NODE,
         // All CPU's within a package
-        GEOPM_DOMAIN_PACKAGE_CORE = HWLOC_OBJ_SOCKET,
+        GEOPM_DOMAIN_PACKAGE_CORE = HWLOC_OBJ_CORE,
         // Everything on package other than the cores
         GEOPM_DOMAIN_PACKAGE_UNCORE = HWLOC_OBJ_CACHE,
         // Single processing unit

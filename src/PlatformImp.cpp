@@ -51,10 +51,15 @@ namespace geopm
         , m_num_tile(0)
         , m_num_package(0)
     {
-        parse_hw_topology();
     }
 
     PlatformImp::~PlatformImp() {}
+
+    void PlatformImp::initialize()
+    {
+        parse_hw_topology();
+        initialize_msrs();
+    }
 
     uint32_t PlatformImp::get_num_package(void) const
     {
@@ -197,7 +202,7 @@ namespace geopm
         }
     }
 
-    void PlatformImp::parse_hw_topology()
+    void PlatformImp::parse_hw_topology(void)
     {
         int num_core = 0;
 

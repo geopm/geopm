@@ -37,7 +37,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "PlatformFactory.hpp"
-#include "IVTPlatform.hpp"
+#include "RAPLPlatform.hpp"
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
 
@@ -48,9 +48,9 @@ namespace geopm
     {
         // register all the platforms we know about
         IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
-        IVTPlatform *ivb_plat = new IVTPlatform();
+        RAPLPlatform *ivb_plat = new RAPLPlatform();
         HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();
-        IVTPlatform *hsx_plat = new IVTPlatform();
+        RAPLPlatform *hsx_plat = new RAPLPlatform();
         std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(ivb_plat);
         std::unique_ptr<PlatformImp> pplat_imp = std::unique_ptr<PlatformImp>(ivb_plat_imp);
         register_platform(move(pplat), move(pplat_imp));
@@ -58,6 +58,12 @@ namespace geopm
         pplat = std::unique_ptr<Platform>(hsx_plat);
         pplat_imp = std::unique_ptr<PlatformImp>(hsx_plat_imp);
         register_platform(move(pplat), move(pplat_imp));
+    }
+
+    PlatformFactory::PlatformFactory(std::unique_ptr<Platform> platform,
+                                     std::unique_ptr<PlatformImp> platform_imp)
+    {
+        register_platform(move(platform), move(platform_imp));
     }
 
     PlatformFactory::~PlatformFactory()
@@ -80,6 +86,7 @@ namespace geopm
                     it->second->model_supported(platform_id)) {
                     it->first->set_implementation(it->second);
                     result =  it->first;
+                    break;
                 }
             }
         }
@@ -117,13 +124,7 @@ namespace geopm
         const uint32_t extended_model_mask = 0xF0000;
         const uint32_t extended_family_mask = 0xFF00000;
 
-        //Not sure if this is the correct call
         __get_cpuid(key, &proc_info, &ebx, &ecx, &edx);
-        //Commenting out assembly which works only on x86_64
-        //__asm__("cpuid"
-        //        :"=a"(proc_info)
-        //        :"0"(key)
-        //        :"%ebx","%ecx","%edx");
 
         model = (proc_info & model_mask) >> 4;
         family = (proc_info & family_mask) >> 8;

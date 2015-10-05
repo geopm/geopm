@@ -33,6 +33,8 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "Observation.hpp"
 
 enum buff {
@@ -105,20 +107,20 @@ TEST_F(ObservationTest, hello_min)
 
 TEST_F(ObservationTest, negative_empty)
 {
-    ASSERT_THROW(m_hello_obs.mean(EMPTY), std::length_error);
-    ASSERT_THROW(m_hello_obs.median(EMPTY), std::length_error);
-    ASSERT_THROW(m_hello_obs.stddev(EMPTY), std::length_error);
-    ASSERT_THROW(m_hello_obs.max(EMPTY), std::length_error);
-    ASSERT_THROW(m_hello_obs.min(EMPTY), std::length_error);
-    ASSERT_THROW(m_hello_obs.stddev(ONE), std::length_error);
+    ASSERT_THROW(m_hello_obs.mean(EMPTY), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.median(EMPTY), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.stddev(EMPTY), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.max(EMPTY), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.min(EMPTY), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.stddev(ONE), geopm::Exception);
 }
 
 TEST_F(ObservationTest, negative_not_allocated)
 {
-    ASSERT_THROW(m_hello_obs.insert(NOTALLOCATED, 0.0), std::invalid_argument);
-    ASSERT_THROW(m_hello_obs.mean(NOTALLOCATED), std::invalid_argument);
-    ASSERT_THROW(m_hello_obs.median(NOTALLOCATED), std::invalid_argument);
-    ASSERT_THROW(m_hello_obs.stddev(NOTALLOCATED), std::invalid_argument);
-    ASSERT_THROW(m_hello_obs.max(NOTALLOCATED), std::invalid_argument);
-    ASSERT_THROW(m_hello_obs.min(NOTALLOCATED), std::invalid_argument);
+    ASSERT_THROW(m_hello_obs.insert(NOTALLOCATED, 0.0), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.mean(NOTALLOCATED), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.median(NOTALLOCATED), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.stddev(NOTALLOCATED), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.max(NOTALLOCATED), geopm::Exception);
+    ASSERT_THROW(m_hello_obs.min(NOTALLOCATED), geopm::Exception);
 }

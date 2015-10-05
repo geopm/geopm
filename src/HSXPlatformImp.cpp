@@ -65,8 +65,6 @@ namespace geopm
         , m_max_dram_watts(100)
         , m_platform_id(hsx_id)
     {
-        parse_hw_topology();
-        initialize_msrs();
     }
 
     HSXPlatformImp::~HSXPlatformImp()

@@ -36,6 +36,8 @@
 #include <system_error>
 
 #include "gtest/gtest.h"
+#include "geopm_error.h"
+#include "Exception.hpp"
 #include "PlatformImp.hpp"
 
 #define NUM_CPU 16
@@ -288,11 +290,11 @@ TEST_F(PlatformImpTest, negative_read_no_desc)
     try {
         (void) m_platform->read_msr(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name);
     }
-    catch(std::invalid_argument e) {
-        thrown = 1;
+    catch(geopm::Exception e) {
+        thrown = e.err_value();
     }
 
-    EXPECT_TRUE((thrown==1));
+    EXPECT_TRUE((thrown ==  ENODEV));
 }
 
 TEST_F(PlatformImpTest, negative_write_no_desc)
@@ -304,11 +306,11 @@ TEST_F(PlatformImpTest, negative_write_no_desc)
     try {
         m_platform->write_msr(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name, value);
     }
-    catch(std::invalid_argument e) {
-        thrown = 1;
+    catch(geopm::Exception e) {
+        thrown = e.err_value();
     }
 
-    EXPECT_TRUE((thrown==1));
+    EXPECT_TRUE((thrown == ENODEV));
 }
 
 TEST_F(PlatformImpTest, negative_read_bad_desc)
@@ -350,7 +352,7 @@ TEST_F(PlatformImpTest, negative_open_msr)
     try {
         p.open_msr(5000);
     }
-    catch(std::system_error e) {
+    catch(geopm::Exception e) {
         thrown = 1;
     }
 

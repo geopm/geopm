@@ -46,6 +46,8 @@ namespace geopm
         public:
             /// PlatformFactory constructor
             PlatformFactory();
+            PlatformFactory(std::unique_ptr<Platform> platform,
+                            std::unique_ptr<PlatformImp> platform_imp);
             /// PlatformFactory destructor
             virtual ~PlatformFactory();
 

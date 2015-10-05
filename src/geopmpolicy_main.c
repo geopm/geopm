@@ -37,6 +37,9 @@
 #include <errno.h>
 #include <pthread.h>
 #include <getopt.h>
+#include <libgen.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "geopm_policy.h"
 #include "geopm_policy_message.h"
@@ -201,7 +204,9 @@ int main(int argc, char** argv)
             fprintf(stderr, "Error: Cannot open specified file for reading: %s\n", file);
             err = EINVAL;
         }
-        fclose(infile);
+        else {
+            fclose(infile);
+        }
     }
 
     if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_RESTORE) {
@@ -217,22 +222,24 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     if (file[0] == '/') {
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
+                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
                         strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
                     }
                     else {
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
+                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
                         strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
                     }
                 }
             }
         }
-        infile = fopen(file, "w");
+        infile = fopen(file, "r");
         if (infile == NULL) {
             fprintf(stderr, "Error: Cannot open file for reading: %s\n", file);
             err = EINVAL;
         }
-        fclose(infile);
+        else {
+            fclose(infile);
+        }
     }
 
 
@@ -242,10 +249,15 @@ int main(int argc, char** argv)
             fprintf(stderr, "Error: Cannot open specified file for writing: %s\n", file);
             err = EINVAL;
         }
-        fclose(outfile);
+        else {
+            fclose(outfile);
+        }
     }
 
     if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_SAVE) {
+        struct stat statbuffer;
+        char* pdir;
+
         if(strlen(file) == 0) {
             snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
         }
@@ -258,14 +270,36 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     if (file[0] == '/') {
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
-                        strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
-                    }
-                    else {
                         snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
                         strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
                     }
+                    else {
+                        printf("file = %s\n",file);
+                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
+                        strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
+                        printf("file = %s\n",file);
+                    }
                 }
+            }
+        }
+        //make sure path exists, if not, create
+        pdir = dirname(copy_string);
+        for(int i = 1; i < strlen(pdir); i++) {
+            if (pdir[i] == '/') {
+                pdir[i] = 0;
+                if(stat(pdir, &statbuffer) == -1) {
+                    if(mkdir(pdir, S_IRWXU)) {
+                        fprintf(stderr, "ERROR: Could not create directory %s\n", dirname(file));
+                        return errno;
+                    }
+                }
+                pdir[i] = '/';
+            }
+        }
+        if(stat(pdir, &statbuffer) == -1) {
+            if(mkdir(pdir, S_IRWXU)) {
+                fprintf(stderr, "ERROR: Could not create directory %s\n", dirname(file));
+                return errno;
             }
         }
         outfile = fopen(file, "w");
@@ -273,7 +307,9 @@ int main(int argc, char** argv)
             fprintf(stderr, "Error: Cannot open file for writing: %s\n", file);
             err = EINVAL;
         }
-        fclose(outfile);
+        else {
+            fclose(outfile);
+        }
     }
 
     if (!err) {

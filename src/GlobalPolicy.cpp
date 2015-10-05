@@ -200,7 +200,7 @@ extern "C"
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
-            if (policy_obj == NULL){
+            if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
             policy_obj->goal(geo_goal);
@@ -519,7 +519,6 @@ namespace geopm
             }
 
             json_object_object_foreach(object, key, val) {
-                std::cout << "key: " << key << "\n";
                 if (!strcmp(key, "mode")) {
                     mode_obj = val;
                 }
@@ -615,13 +614,11 @@ namespace geopm
                 if (tdp_percent() < 0 || tdp_percent() > 100) {
                     throw Exception("GlobalPolicy: percent tdp must be between 0 and 100", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                std::cout << "mode=tdp_balance_static,tdp_percent=" << tdp_percent() << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_UNIFORM_STATIC) {
                 if (frequency_mhz() < 0) {
                     throw Exception("GlobalPolicy: frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                std::cout << "mode=freq_uniform_static,cpu_mhz=" << frequency_mhz() << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_HYBRID_STATIC) {
                 if (frequency_mhz() < 0) {
@@ -634,26 +631,16 @@ namespace geopm
                     affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                std::cout << "mode=freq_hybrid_static,cpu_mhz=" << frequency_mhz()
-                          << ",num_cpu_max_perf=" << num_max_perf();
-                if (affinity() == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT) {
-                    std::cout << ",affinity=compact" << "\n";
-                }
-                if (affinity() == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
-                    std::cout << ",affinity=scatter" << "\n";
-                }
             }
             if (m_mode == GEOPM_MODE_PERF_BALANCE_DYNAMIC) {
                 if (budget_watts() < 0) {
                     throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                std::cout << "mode=perf_balance_dynamic,power_budget=" << m_power_budget_watts << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_UNIFORM_DYNAMIC) {
                 if (budget_watts() < 0) {
                     throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                std::cout << "mode=freq_uniform_dynamic,power_budget=" << m_power_budget_watts << "\n";
             }
             if (m_mode == GEOPM_MODE_FREQ_HYBRID_DYNAMIC) {
                 if (budget_watts() < 0) {
@@ -665,14 +652,6 @@ namespace geopm
                 if (affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT &&
                     affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-                }
-                std::cout << "mode=freq_hybrid_dynamic,power_budget=" << m_power_budget_watts
-                          << ",num_cpu_max_perf=" << num_max_perf();
-                if (affinity() == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT) {
-                    std::cout << ",affinity=compact" << "\n";
-                }
-                if (affinity() == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
-                    std::cout << ",affinity=scatter" << "\n";
                 }
             }
         }

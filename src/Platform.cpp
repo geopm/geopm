@@ -104,7 +104,7 @@ namespace geopm
     {
         PowerModel *power_model = new PowerModel();
         m_imp = platform_imp;
-        m_imp->initialize_msrs();
+        m_imp->initialize();
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE, power_model));
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE_UNCORE, power_model));
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
@@ -209,24 +209,19 @@ namespace geopm
         int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / num_packages);
 
         if (num_cpu_max_perf >= num_real_cpus) {
-            throw Exception("requested number of max perf cpus is greater than controllable number of frequency domains on the platform", 
-                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("requested number of max perf cpus is greater than controllable number of frequency domains on the platform",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         for (int i = 0; i < num_logical_cpus; i++) {
             int real_cpu = i % num_real_cpus;
-            if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
-                int package = real_cpu % num_cpus_per_package;
-                int extra = num_cpu_max_perf % num_packages;
-                extra = (package < extra) ? 1 : 0;
-                int package_start = package * num_cpus_per_package;
-                int small_cpu_end = package_start + num_small_cores_per_package + extra;
-                if (real_cpu >= package_start && real_cpu < small_cpu_end) {
+            if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER && num_cpu_max_perf > 0) {
+                if ((real_cpu % num_cpus_per_package) < num_small_cores_per_package) {
                     small = true;
                 }
             }
-            else if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT) {
-                if (real_cpu > (num_cpu_max_perf % num_hyperthreads)) {
+            else if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT && num_cpu_max_perf > 0) {
+                if (real_cpu < (num_real_cpus - num_cpu_max_perf)) {
                     small = true;
                 }
             }
@@ -234,7 +229,7 @@ namespace geopm
                 small = true;
             }
             if (small) {
-                freq_perc = ((int64_t)(frequency * 10.01) << 8) & 0xffff;
+                freq_perc = ((int64_t)(frequency * 0.01) << 8) & 0xffff;
                 m_imp->write_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL", freq_perc & 0xffff);
             }
             small = false;
@@ -264,11 +259,13 @@ namespace geopm
         //per cpu state
         for (int i = 0; i < niter; i++) {
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_FIXED_CTR_CTR") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_CTR") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_OVF_CTR") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
+            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
 
         }
 
@@ -281,7 +278,9 @@ namespace geopm
         std::string line;
         std::vector<int64_t> vals;
         std::string item;
-        restore_file.open(path);
+
+        restore_file.open(path, std::ios_base::in);
+
         while (std::getline(restore_file,line)) {
             std::stringstream ss(line);
             while (std::getline(ss, item, ':')) {

@@ -32,7 +32,7 @@
 
 #include "geopm_error.h"
 #include "Exception.hpp"
-#include "IVTPlatform.hpp"
+#include "RAPLPlatform.hpp"
 
 namespace geopm
 {
@@ -40,25 +40,25 @@ namespace geopm
     static const int ivb_id = 0x63E;
     static const int snb_id = 0x62D;
 
-    IVTPlatform::IVTPlatform()
+    RAPLPlatform::RAPLPlatform()
     {
     }
 
-    IVTPlatform::~IVTPlatform()
+    RAPLPlatform::~RAPLPlatform()
     {
 
     }
 
-    bool IVTPlatform::model_supported(int platform_id) const
+    bool RAPLPlatform::model_supported(int platform_id) const
     {
-        return (platform_id == ivb_id || platform_id == snb_id ||platform_id == hsx_id);
+        return (platform_id == ivb_id || platform_id == snb_id || platform_id == hsx_id);
     }
 
-    void IVTPlatform::set_implementation(PlatformImp* platform_imp)
+    void RAPLPlatform::set_implementation(PlatformImp* platform_imp)
     {
         PowerModel *power_model = new PowerModel();
         m_imp = platform_imp;
-        m_imp->initialize_msrs();
+        m_imp->initialize();
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE, power_model));
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE_UNCORE, power_model));
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
@@ -101,7 +101,7 @@ namespace geopm
 
     }
 
-    void IVTPlatform::observe(void)
+    void RAPLPlatform::observe(void)
     {
         //record per package energy readings
         m_curr_phase->observation_insert(m_buffer_index.package0_pkg_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, m_observe_msr_offsets[0]));
@@ -124,7 +124,7 @@ namespace geopm
         }
     }
 
-    void IVTPlatform::sample(struct sample_message_s &sample) const
+    void RAPLPlatform::sample(struct sample_message_s &sample) const
     {
         sample.phase_id = m_curr_phase->identifier();
         sample.runtime = m_curr_phase->observation_mean(0);
@@ -133,8 +133,8 @@ namespace geopm
         sample.frequency = m_curr_phase->observation_mean(0);
     }
 
-    void IVTPlatform::enforce_policy(const Policy &policy) const
+    void RAPLPlatform::enforce_policy(const Policy &policy) const
     {
-        // FIXME
+
     }
 } //geopm

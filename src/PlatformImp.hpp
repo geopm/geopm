@@ -83,6 +83,7 @@ namespace geopm
             uint64_t read_msr(int device_type, int device_index, const std::string &msr_name);
             uint64_t read_msr(int device_type, int device_index, off_t msr_offset);
             off_t get_msr_offset(std::string msr_name);
+            virtual void initialize(void);
             virtual void set_msr_path(int cpu_num);
 
             ////////////////////////////////////////
@@ -90,13 +91,13 @@ namespace geopm
             ////////////////////////////////////////
             virtual bool model_supported(int platform_id) = 0;
             virtual std::string get_platform_name(void) = 0;
-            virtual void initialize_msrs() = 0;
             virtual void reset_msrs(void) = 0;
 
         protected:
             void open_msr(int cpu);
             void close_msr(int cpu);
             virtual void parse_hw_topology(void);
+            virtual void initialize_msrs() = 0;
             PlatformTopology m_topology;
             std::vector<int> m_cpu_file_descs;
             std::map<std::string, off_t> m_msr_offset_map;

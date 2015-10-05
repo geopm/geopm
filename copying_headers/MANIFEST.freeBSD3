@@ -32,8 +32,6 @@ src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
 src/HSXPlatformImp.cpp
 src/HSXPlatformImp.hpp
-src/IVTPlatform.cpp
-src/IVTPlatform.hpp
 src/IVTPlatformImp.cpp
 src/IVTPlatformImp.hpp
 src/Observation.cpp
@@ -54,6 +52,8 @@ src/PowerModel.cpp
 src/PowerModel.hpp
 src/Profile.cpp
 src/Profile.hpp
+src/RAPLPlatform.cpp
+src/RAPLPlatform.hpp
 src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 test/CircularBufferTest.cpp
