@@ -41,17 +41,9 @@
 
 namespace geopm
 {
-    struct sample_message_s {
-        long phase_id;
-        double runtime;
-        double progress;
-        double energy;
-        double frequency;
-    };
-
     class TreeCommunicatorRoot;
     class TreeCommunicatorLevel;
-    class GlobalPolicy;;
+    class GlobalPolicy;
 
     class TreeCommunicator
     {
@@ -72,7 +64,7 @@ namespace geopm
             /// Send sample to root of the level.  If no recieve has
             /// been posted samples are not sent and no exception is
             /// thrown.
-            void send_sample(int level, const struct sample_message_s &sample);
+            void send_sample(int level, const struct geopm_sample_message_s &sample);
             /// Called only by root process of the level.  Send policy
             /// to each member of the level.  If no recieve has been
             /// posted then the policy is not sent and no exception is
@@ -82,7 +74,7 @@ namespace geopm
             /// samples from each member of the level.  Throws
             /// geopm::incomplete_sample_error if message has not been
             /// received by all members of the level since last call.
-            void get_sample(int level, std::vector<struct sample_message_s> &sample);
+            void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
             /// Record current policy for calling process rank on the
             /// level.  Will post another recieve for the next update
             /// if the root of the level has sent an update since last call.

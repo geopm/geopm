@@ -80,6 +80,46 @@ if test "x$with_json_c_lib" != x; then
   LDFLAGS="$LDFLAGS -L$with_json_c_lib"
 fi
 
+AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
+            [specify directory for mpi compiler wrapper binaries])])
+if test "x$with_mpi_bin" != x; then
+  MPICC=$with_mpi_bin/mpicc
+  MPICXX=$with_mpi_bin/mpicxx
+fi
+
+AC_ARG_WITH([mpicc], [AS_HELP_STRING([--with-mpicc=PATH],
+            [specify path to mpi C compiler wrapper])])
+if test "x$with_mpicc" != x; then
+  MPICC=$with_mpicc
+fi
+
+AC_ARG_WITH([mpicxx], [AS_HELP_STRING([--with-mpicxx=PATH],
+            [specify path to mpi C++ compiler wrapper])])
+if test "x$with_mpicxx" != x; then
+  MPICC=$with_mpicxx
+fi
+
+AC_ARG_ENABLE([mpi],
+  [AS_HELP_STRING([--disable-mpi], [Do not build components that require MPI])],
+[if test "x$enable_mpi" = "xno" ; then
+  enable_mpi="0"
+else
+  enable_mpi="1"
+fi
+],
+[enable_mpi="1"]
+)
+AC_SUBST([enable_mpi])
+AM_CONDITIONAL([ENABLE_MPI], [test "x$enable_mpi" = "x1"])
+
+m4_include([m4/lx_find_mpi.m4])
+LX_FIND_MPI()
+if test "x$enable_mpi" = "x1"; then
+  AS_IF([test "x$have_CXX_mpi" == "xyes"],
+         AC_MSG_NOTICE([building with mpi support]),
+         AC_MSG_ERROR([mpi compile environment has not been properly detected]))
+fi
+
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_CXX
@@ -96,9 +136,6 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
     exit -1])
 AC_CHECK_HEADER([pthread.h], [], [
     echo "pthread.h is required for this library"
-    exit -1])
-AC_CHECK_LIB([mpi], [MPI_Init], [], [
-    echo "mpi is required for this library"
     exit -1])
 
 # Checks for header files.
@@ -195,4 +232,5 @@ AC_MSG_RESULT([mandir             : ${mandir}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
+AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([===============================================================================])

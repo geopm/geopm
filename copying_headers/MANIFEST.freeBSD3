@@ -1,5 +1,6 @@
 autogen.sh
 configure.ac
+geopm.spec.mk
 examples/threaded_step_example.c
 Makefile.am
 man/geopm.3
@@ -28,6 +29,7 @@ src/geopmpolicy_main.c
 src/geopm_policy_message.c
 src/geopm_policy_message.h
 src/geopm_version.c
+src/geopm_version.h
 src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
 src/HSXPlatformImp.cpp
@@ -71,3 +73,4 @@ test/no_omp_cpu.c
 test/ObservationTest.cpp
 test/PlatformFactoryTest.cpp
 test/PlatformImpTest.cpp
+

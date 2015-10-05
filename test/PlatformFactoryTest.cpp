@@ -70,7 +70,7 @@ class MockPlatform : public geopm::Platform
     public:
         MOCK_METHOD0(observe, void(void));
         MOCK_CONST_METHOD1(model_supported, bool(int platform_id));
-        MOCK_CONST_METHOD1(sample, void(geopm::sample_message_s &sample));
+        MOCK_CONST_METHOD1(sample, void(struct geopm_sample_message_s &sample));
         MOCK_CONST_METHOD1(enforce_policy, void(const geopm::Policy &policy));
 };
 

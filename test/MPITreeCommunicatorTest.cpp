@@ -216,8 +216,8 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
 TEST_F(MPITreeCommunicatorTest, send_sample_up)
 {
     int success;
-    std::vector <struct geopm::sample_message_s> sample;
-    struct geopm::sample_message_s send_sample = {0};
+    std::vector <struct geopm_sample_message_s> sample;
+    struct geopm_sample_message_s send_sample = {0};
 
     int num_level = m_tcomm->num_level();
     if (m_tcomm->root_level() == num_level - 1) {

@@ -94,6 +94,16 @@ struct geopm_policy_shmem_s {
     struct geopm_policy_message_s policy;
 };
 
+struct geopm_sample_message_s {
+    long phase_id;
+    double runtime;
+    double progress;
+    double energy;
+    double frequency;
+};
+
+
+
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
 
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b);

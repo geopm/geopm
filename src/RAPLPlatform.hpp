@@ -35,7 +35,6 @@
 
 #include "Phase.hpp"
 #include "Policy.hpp"
-#include "TreeCommunicator.hpp"
 #include "Platform.hpp"
 
 namespace geopm
@@ -62,7 +61,7 @@ namespace geopm
             virtual void set_implementation(PlatformImp* platform_imp);
             virtual bool model_supported(int platform_id) const;
             virtual void observe(void);
-            virtual void sample(struct sample_message_s &sample) const;
+            virtual void sample(struct geopm_sample_message_s &sample) const;
             virtual void enforce_policy(const Policy &policy) const;
         protected:
             struct buffer_index_s m_buffer_index;

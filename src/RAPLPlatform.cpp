@@ -33,6 +33,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "RAPLPlatform.hpp"
+#include "geopm_policy_message.h"
 
 namespace geopm
 {
@@ -42,6 +43,7 @@ namespace geopm
 
     RAPLPlatform::RAPLPlatform()
     {
+
     }
 
     RAPLPlatform::~RAPLPlatform()
@@ -124,7 +126,7 @@ namespace geopm
         }
     }
 
-    void RAPLPlatform::sample(struct sample_message_s &sample) const
+    void RAPLPlatform::sample(struct geopm_sample_message_s &sample) const
     {
         sample.phase_id = m_curr_phase->identifier();
         sample.runtime = m_curr_phase->observation_mean(0);

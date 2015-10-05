@@ -215,7 +215,7 @@ namespace geopm
         int level;
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
-        struct sample_message_s sample_msg;
+        struct geopm_sample_message_s sample_msg;
         Policy policy;
 
         m_tree_comm->get_policy(0, policy_msg);

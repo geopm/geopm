@@ -33,11 +33,12 @@
 #ifndef GEOPM_POLICY_H_INCLUDE
 #define GEOPM_POLICY_H_INCLUDE
 
-#include "geopm.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* opaque structure that is a handle for a geopm::Policy object. */
+struct geopm_policy_c;
 
 int geopm_policy_create(const char *in_config,
                         const char *out_config,

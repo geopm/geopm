@@ -30,54 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONTROLLER_HPP_INCLUDE
-#define CONTROLLER_HPP_INCLUDE
+#ifndef GEOPM_VERSION_H_INCLUDE
+#define GEOPM_VERSION_H_INCLUDE
 
-#include <vector>
-#include <string>
-#include <mpi.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "TreeCommunicator.hpp"
-#include "Platform.hpp"
-#include "Decider.hpp"
-#include "Phase.hpp"
-#include "GlobalPolicy.hpp"
-#include "Profile.hpp"
+const char *geopm_version(void);
 
-
-namespace geopm
-{
-    class Controller
-    {
-        public:
-            Controller(const GlobalPolicy *global_policy, const Profile *profile, MPI_Comm comm);
-            virtual ~Controller();
-            void run(void);
-            void step(void);
-            void pthread(const pthread_attr_t *attr, pthread_t *thread);
-            void spawn(void);
-            int num_level(void);
-            const
-            void leaf_decider(const LeafDecider *leaf_decider);
-            void tree_decider(int level, const TreeDecider *tree_decider);
-        protected:
-            int walk_down(void);
-            int walk_up(void);
-            std::vector<int> m_fan_out;
-            const GlobalPolicy *m_global_policy;
-            const Profile *m_profile;
-            TreeCommunicator *m_tree_comm;
-            std::vector <TreeDecider *> m_tree_decider;
-            LeafDecider *m_leaf_decider;
-            // Per-level platforms
-            std::vector <Platform *> m_platform;
-            // Per level vector of maps from phase identifier to phase object
-            std::vector <std::map <long, Phase *> > m_phase;
-            std::vector <struct geopm_policy_message_s> m_split_policy;
-            std::vector <struct geopm_sample_message_s> m_child_sample;
-            std::vector <struct geopm_policy_message_s> m_last_policy;
-    };
-
+#ifdef __cplusplus
 }
-
+#endif
 #endif

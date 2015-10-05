@@ -37,9 +37,9 @@
 
 #include "Phase.hpp"
 #include "Policy.hpp"
-#include "TreeCommunicator.hpp"
 #include "PlatformImp.hpp"
 #include "PowerModel.hpp"
+#include "geopm_policy_message.h"
 
 namespace geopm
 {
@@ -59,8 +59,8 @@ namespace geopm
             void buffer_index(hwloc_obj_t domain,
                               const std::vector <std::string> &signal_names,
                               std::vector <int> &buffer_index) const;
-            void observe(struct sample_message_s &sample) const;
-            void observe(const std::vector <struct sample_message_s> &sample) const;
+            void observe(struct geopm_sample_message_s &sample) const;
+            void observe(const std::vector <struct geopm_sample_message_s> &sample) const;
             PowerModel *power_model(int domain_type) const;
             void tdp_limit(int percentage) const;
             void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const;
@@ -68,7 +68,7 @@ namespace geopm
             void restore_msr_state(const char *path) const;
             virtual void observe(void) = 0;
             virtual bool model_supported(int platform_id) const = 0;
-            virtual void sample(struct sample_message_s &sample) const = 0;
+            virtual void sample(struct geopm_sample_message_s &sample) const = 0;
             virtual void enforce_policy(const Policy &policy) const = 0;
             const PlatformTopology topology() const;
         protected:

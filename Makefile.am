@@ -29,58 +29,82 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(top_srcdir)/src
-lib_LTLIBRARIES = libgeopm.la \
-                  libgeopmpolicy.la \
+
+# THINGS THAT ARE INSTALLED
+lib_LTLIBRARIES = libgeopmpolicy.la
+if ENABLE_MPI
+    lib_LTLIBRARIES += libgeopm.la
+endif
+
+bin_PROGRAMS = geopmpolicy
+if ENABLE_MPI
+    bin_PROGRAMS += geopmctl
+endif
+
+include_HEADERS = src/geopm.h \
+                  src/geopm_version.h \
+                  src/geopm_policy.h \
+                  src/geopm_policy_message.h \
                   # end
 
-libgeopm_la_LDFLAGS = -version-info $(geopm_abi_version)
-libgeopmpolicy_la_LDFLAGS = -version-info $(geopm_abi_version)
+dist_man_MANS = man/geopm.3 \
+                man/geopmctl.3 \
+                man/geopm_ctl_c.3 \
+                man/geopmkey.3 \
+                man/geopmpolicy.3 \
+                man/geopm_policy_c.3 \
+                man/geopm_prof_c.3 \
+                man/geopm_version.3 \
+                # end
 
-libgeopm_la_SOURCES = src/CircularBuffer.cpp \
-                      src/CircularBuffer.hpp \
-                      src/Controller.cpp \
-                      src/Controller.hpp \
-                      src/Decider.cpp \
-                      src/Decider.hpp \
-                      src/Exception.cpp \
-                      src/Exception.hpp \
-                      src/GlobalPolicy.cpp \
-                      src/GlobalPolicy.hpp \
-                      src/HSXPlatformImp.cpp \
-                      src/HSXPlatformImp.hpp \
-                      src/IVTPlatformImp.cpp \
-                      src/IVTPlatformImp.hpp \
-                      src/Observation.cpp \
-                      src/Observation.hpp \
-                      src/Phase.cpp \
-                      src/Phase.hpp \
-                      src/Platform.cpp \
-                      src/PlatformFactory.cpp \
-                      src/PlatformFactory.hpp \
-                      src/Platform.hpp \
-                      src/PlatformImp.cpp \
-                      src/PlatformImp.hpp \
-                      src/PlatformTopology.cpp \
-                      src/PlatformTopology.hpp \
-                      src/Policy.cpp \
-                      src/Policy.hpp \
-                      src/PowerModel.cpp \
-                      src/PowerModel.hpp \
-                      src/Profile.cpp \
-                      src/Profile.hpp \
-                      src/RAPLPlatform.cpp \
-                      src/RAPLPlatform.hpp \
-                      src/TreeCommunicator.cpp \
-                      src/TreeCommunicator.hpp \
-                      src/geopm_ctl_spawn.c \
-                      src/geopm_error.h \
-                      src/geopm_policy_message.c \
-                      src/geopm_policy_message.h \
-                      src/geopm_version.c \
-                      # end
+dist_doc_DATA = README \
+                COPYING \
+                VERSION \
+                # end
 
+EXTRA_DIST = autogen.sh \
+             ChangeLog \
+             configure.ac \
+             CONTRIBUTING \
+             copying_headers/header.freeBSD3 \
+             copying_headers/test-license \
+             copying_headers/MANIFEST.EXEMPT \
+             copying_headers/MANIFEST.freeBSD3 \
+             examples/README \
+             examples/threaded_step_example.c \
+             geopm.spec.mk \
+             geopm-$(VERSION).spec \
+             Makefile.am \
+             MANIFEST \
+             TODO \
+             # end
+
+# EXTEND FLAGS FOR MPI TAGETS
+if ENABLE_MPI
+    libgeopm_la_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version)
+    libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+
+    geopmctl_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+endif
+
+# EXTEND FLAGS FOR NON-MPI TARGETS
+libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+
+# ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
+geopmpolicy_LDADD = libgeopmpolicy.la
+if ENABLE_MPI
+    geopmctl_LDADD = libgeopm.la
+endif
+
+# SOURCE LISTS FOR EACH TARGET
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/CircularBuffer.hpp \
                             src/Exception.cpp \
@@ -110,62 +134,68 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/geopm_error.h \
                             src/geopm_policy.h \
                             src/geopm_version.c \
+                            src/geopm_version.h \
                             # end
-
-include_HEADERS = src/geopm.h \
-                  src/geopm_policy.h \
-                  src/geopm_policy_message.h \
-                  # end
-
-bin_PROGRAMS = geopmctl \
-               geopmpolicy \
-               # end
-
-geopmctl_SOURCES = src/geopmctl_main.c \
-                   src/geopm.h \
-                   # end
-
-geopmctl_LDADD = libgeopm.la
 
 geopmpolicy_SOURCES = src/geopmpolicy_main.c \
                       src/geopm_policy.h \
                       src/geopm_policy_message.h \
+                      src/geopm_version.h \
                       # end
 
-geopmpolicy_LDADD = libgeopmpolicy.la
 
-dist_man_MANS = man/geopm.3 \
-                man/geopmctl.3 \
-                man/geopm_ctl_c.3 \
-                man/geopmkey.3 \
-                man/geopmpolicy.3 \
-                man/geopm_policy_c.3 \
-                man/geopm_prof_c.3 \
-                man/geopm_version.3 \
-                # end
+if ENABLE_MPI
+    libgeopm_la_SOURCES = src/CircularBuffer.cpp \
+                          src/CircularBuffer.hpp \
+                          src/Controller.cpp \
+                          src/Controller.hpp \
+                          src/Decider.cpp \
+                          src/Decider.hpp \
+                          src/Exception.cpp \
+                          src/Exception.hpp \
+                          src/GlobalPolicy.cpp \
+                          src/GlobalPolicy.hpp \
+                          src/HSXPlatformImp.cpp \
+                          src/HSXPlatformImp.hpp \
+                          src/IVTPlatformImp.cpp \
+                          src/IVTPlatformImp.hpp \
+                          src/Observation.cpp \
+                          src/Observation.hpp \
+                          src/Phase.cpp \
+                          src/Phase.hpp \
+                          src/Platform.cpp \
+                          src/PlatformFactory.cpp \
+                          src/PlatformFactory.hpp \
+                          src/Platform.hpp \
+                          src/PlatformImp.cpp \
+                          src/PlatformImp.hpp \
+                          src/PlatformTopology.cpp \
+                          src/PlatformTopology.hpp \
+                          src/Policy.cpp \
+                          src/Policy.hpp \
+                          src/PowerModel.cpp \
+                          src/PowerModel.hpp \
+                          src/Profile.cpp \
+                          src/Profile.hpp \
+                          src/RAPLPlatform.cpp \
+                          src/RAPLPlatform.hpp \
+                          src/TreeCommunicator.cpp \
+                          src/TreeCommunicator.hpp \
+                          src/geopm_ctl_spawn.c \
+                          src/geopm_error.h \
+                          src/geopm_policy_message.c \
+                          src/geopm_policy_message.h \
+                          src/geopm_version.c \
+                          src/geopm_version.h \
+                          # end
 
-EXTRA_DIST = autogen.sh \
-             ChangeLog \
-             configure.ac \
-             CONTRIBUTING \
-             copying_headers/header.freeBSD3 \
-             copying_headers/test-license \
-             copying_headers/MANIFEST.EXEMPT \
-             copying_headers/MANIFEST.freeBSD3 \
-             examples/README \
-             examples/threaded_step_example.c \
-             geopm.spec.mk \
-             geopm-$(VERSION).spec \
-             Makefile.am \
-             MANIFEST \
-             TODO \
-             # end
+    geopmctl_SOURCES = src/geopmctl_main.c \
+                       src/geopm.h \
+                       src/geopm_version.h \
+                       # end
+endif
 
-dist_doc_DATA = README \
-                COPYING \
-                VERSION \
-                # end
-
+# CLEAN TARGETS
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION
 
@@ -174,6 +204,11 @@ clean-local: clean-local-coverage
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
+# MANIFEST CREATION
+MANIFEST:
+	git ls-tree --full-tree -r HEAD | awk '{print $$4}' | sort > MANIFEST
+
+# RPM TAGET
 geopm-$(VERSION).spec:
 	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
 
@@ -181,7 +216,10 @@ rpm: dist
 	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		-f geopm.spec.mk $@
 
+# INCLUDES
 check_PROGRAMS =
 TESTS =
 
 include test/Makefile.mk
+
+.PHONY: MANIFEST

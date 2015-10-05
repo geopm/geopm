@@ -38,6 +38,8 @@
 #include <stdint.h>
 #include <pthread.h>
 
+#include "geopm_policy.h"
+
 #ifndef __linux__
 typedef struct cpu_set_t {
     long int x[512];
@@ -63,12 +65,6 @@ struct geopm_ctl_c;
 
 /* Opaque structure which is a handle for a geopm::Profile object. */
 struct geopm_prof_c;
-
-/* Opaque structure that is a handle for a geopm::Policy object. */
-struct geopm_policy_c;
-
-/* Return a human readable version. */
-const char *geopm_version(void);
 
 /************************/
 /* OBJECT INSTANTIATION */

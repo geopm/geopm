@@ -35,49 +35,52 @@ AM_CPPFLAGS += -I$(googlemock)/include
 check_PROGRAMS += test/geopm_test \
                   # end
 
-TESTS += test/gtest_links/ObservationTest.hello_mean \
-         test/gtest_links/ObservationTest.hello_median \
-         test/gtest_links/ObservationTest.hello_stddev \
-         test/gtest_links/ObservationTest.hello_max \
-         test/gtest_links/ObservationTest.hello_min \
-         test/gtest_links/ObservationTest.negative_not_allocated \
-         test/gtest_links/ObservationTest.negative_empty \
-         test/gtest_links/PlatformFactoryTest.platform_register \
-         test/gtest_links/PlatformFactoryTest.no_supported_platform \
-         test/gtest_links/PlatformImpTest.platform_get_name \
-         test/gtest_links/PlatformImpTest.platform_get_sockets \
-         test/gtest_links/PlatformImpTest.platform_get_tiles \
-         test/gtest_links/PlatformImpTest.platform_get_cpus \
-         test/gtest_links/PlatformImpTest.platform_get_hyperthreaded \
-         test/gtest_links/PlatformImpTest.platform_get_offsets \
-         test/gtest_links/PlatformImpTest.cpu_msr_read_write \
-         test/gtest_links/PlatformImpTest.tile_msr_read_write \
-         test/gtest_links/PlatformImpTest.socket_msr_read_write \
-         test/gtest_links/PlatformImpTest.negative_read_no_desc \
-         test/gtest_links/PlatformImpTest.negative_write_no_desc \
-         test/gtest_links/PlatformImpTest.negative_read_bad_desc \
-         test/gtest_links/PlatformImpTest.negative_write_bad_desc \
-         test/gtest_links/PlatformImpTest.negative_open_msr \
-         test/gtest_links/CircularBufferTest.buffer_size \
-         test/gtest_links/CircularBufferTest.buffer_values \
-         test/gtest_links/CircularBufferTest.buffer_capacity \
-         test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
-         test/gtest_links/GlobalPolicyTest.mode_freq_uniform_static \
-         test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_static \
-         test/gtest_links/GlobalPolicyTest.mode_perf_balance_dynamic \
-         test/gtest_links/GlobalPolicyTest.mode_freq_uniform_dynamic \
-         test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_dynamic \
-         test/gtest_links/GlobalPolicyTestShmem.mode_tdp_balance_static \
-         test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_static \
-         test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_static \
-         test/gtest_links/GlobalPolicyTestShmem.mode_perf_balance_dynamic \
-         test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_dynamic \
-         test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_dynamic \
-         test/gtest_links/GlobalPolicyTest.c_interface \
-         test/gtest_links/GlobalPolicyTest.negative_c_interface \
-         test/gtest_links/ExceptionTest.hello \
-         test/gtest_links/ExceptionTest.hello_invalid \
-         test/gtest_links/ExceptionTest.file_info \
+GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
+              test/gtest_links/ObservationTest.hello_median \
+              test/gtest_links/ObservationTest.hello_stddev \
+              test/gtest_links/ObservationTest.hello_max \
+              test/gtest_links/ObservationTest.hello_min \
+              test/gtest_links/ObservationTest.negative_not_allocated \
+              test/gtest_links/ObservationTest.negative_empty \
+              test/gtest_links/PlatformFactoryTest.platform_register \
+              test/gtest_links/PlatformFactoryTest.no_supported_platform \
+              test/gtest_links/PlatformImpTest.platform_get_name \
+              test/gtest_links/PlatformImpTest.platform_get_sockets \
+              test/gtest_links/PlatformImpTest.platform_get_tiles \
+              test/gtest_links/PlatformImpTest.platform_get_cpus \
+              test/gtest_links/PlatformImpTest.platform_get_hyperthreaded \
+              test/gtest_links/PlatformImpTest.platform_get_offsets \
+              test/gtest_links/PlatformImpTest.cpu_msr_read_write \
+              test/gtest_links/PlatformImpTest.tile_msr_read_write \
+              test/gtest_links/PlatformImpTest.socket_msr_read_write \
+              test/gtest_links/PlatformImpTest.negative_read_no_desc \
+              test/gtest_links/PlatformImpTest.negative_write_no_desc \
+              test/gtest_links/PlatformImpTest.negative_read_bad_desc \
+              test/gtest_links/PlatformImpTest.negative_write_bad_desc \
+              test/gtest_links/PlatformImpTest.negative_open_msr \
+              test/gtest_links/CircularBufferTest.buffer_size \
+              test/gtest_links/CircularBufferTest.buffer_values \
+              test/gtest_links/CircularBufferTest.buffer_capacity \
+              test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
+              test/gtest_links/GlobalPolicyTest.mode_freq_uniform_static \
+              test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_static \
+              test/gtest_links/GlobalPolicyTest.mode_perf_balance_dynamic \
+              test/gtest_links/GlobalPolicyTest.mode_freq_uniform_dynamic \
+              test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_dynamic \
+              test/gtest_links/GlobalPolicyTestShmem.mode_tdp_balance_static \
+              test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_static \
+              test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_static \
+              test/gtest_links/GlobalPolicyTestShmem.mode_perf_balance_dynamic \
+              test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_dynamic \
+              test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_dynamic \
+              test/gtest_links/GlobalPolicyTest.c_interface \
+              test/gtest_links/GlobalPolicyTest.negative_c_interface \
+              test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/ExceptionTest.hello_invalid \
+              test/gtest_links/ExceptionTest.file_info \
+              # end
+TESTS += $(GTEST_TESTS) \
+         copying_headers/test-license \
          # end
 
 EXTRA_DIST += test/geopm_test.sh \
@@ -101,7 +104,9 @@ test_geopm_test_LDADD = libgtest.a \
                         libgeopmpolicy.la \
                         # end
 
-$(TESTS): test/gtest_links/%:
+check-am: MANIFEST
+
+$(GTEST_TESTS): test/gtest_links/%:
 	mkdir -p test/gtest_links
 	ln -s ../geopm_test.sh $@
 

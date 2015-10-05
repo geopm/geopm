@@ -47,6 +47,7 @@
 #include "Exception.hpp"
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
+#include "geopm_policy_message.h"
 
 extern "C"
 {
@@ -144,7 +145,7 @@ namespace geopm
             /// Check sample mailbox for each child and if all are
             /// full copy them into sample and post a new MPI_Irecv(),
             /// otherwise throw incomplete_sample_error
-            void get_sample(std::vector<struct sample_message_s> &sample);
+            void get_sample(std::vector<struct geopm_sample_message_s> &sample);
             /// Check policy mailbox and if full copy to m_policy and
             /// post a new MPI_Irecv(). If mailbox is empty set policy
             /// to last known policy.  If mailbox is empty and no
@@ -152,7 +153,7 @@ namespace geopm
             void get_policy(struct geopm_policy_message_s &policy);
             /// Send sample via MPI_Irsend() to root of level, skip if
             /// no recieve has been posted.
-            void send_sample(const struct sample_message_s &sample);
+            void send_sample(const struct geopm_sample_message_s &sample);
             /// Send policy via MPI_Irsend() to all children, skip if
             /// no recieve has been posted.
             void send_policy(const std::vector<struct geopm_policy_message_s> &policy);
@@ -166,7 +167,7 @@ namespace geopm
             MPI_Datatype m_policy_mpi_type; // MPI data type for policy message
             int m_size;
             int m_rank;
-            std::vector <struct sample_message_s> m_sample_mailbox;
+            std::vector <struct geopm_sample_message_s> m_sample_mailbox;
             std::vector<MPI_Request> m_sample_request;
             struct geopm_policy_message_s m_policy_mailbox;
             MPI_Request m_policy_request;
@@ -195,11 +196,11 @@ namespace geopm
                                    };
         MPI_Aint offset[5];
         MPI_Datatype result;
-        offset[0] = offsetof(struct sample_message_s, phase_id);
-        offset[1] = offsetof(struct sample_message_s, runtime);
-        offset[2] = offsetof(struct sample_message_s, progress);
-        offset[3] = offsetof(struct sample_message_s, energy);
-        offset[4] = offsetof(struct sample_message_s, frequency);
+        offset[0] = offsetof(struct geopm_sample_message_s, phase_id);
+        offset[1] = offsetof(struct geopm_sample_message_s, runtime);
+        offset[2] = offsetof(struct geopm_sample_message_s, progress);
+        offset[3] = offsetof(struct geopm_sample_message_s, energy);
+        offset[4] = offsetof(struct geopm_sample_message_s, frequency);
         check_mpi(MPI_Type_create_struct(5, blocklength, offset, mpi_type, &result));
         check_mpi(MPI_Type_commit(&result));
         return result;
@@ -274,7 +275,7 @@ namespace geopm
         return result;
     }
 
-    void TreeCommunicator::send_sample(int level, const struct sample_message_s &sample)
+    void TreeCommunicator::send_sample(int level, const struct geopm_sample_message_s &sample)
     {
         if (level < 0 || level >= num_level() || level == root_level()) {
             throw Exception("TreeCommunicator::send_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
@@ -292,7 +293,7 @@ namespace geopm
         }
     }
 
-    void TreeCommunicator::get_sample(int level, std::vector<struct sample_message_s> &sample)
+    void TreeCommunicator::get_sample(int level, std::vector<struct geopm_sample_message_s> &sample)
     {
         if (level < 0 || level >= num_level() || level == root_level()) {
             throw Exception("TreeCommunicator::get_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
@@ -429,7 +430,7 @@ namespace geopm
         close_recv();
     }
 
-    void TreeCommunicatorLevel::get_sample(std::vector<struct sample_message_s> &sample)
+    void TreeCommunicatorLevel::get_sample(std::vector<struct geopm_sample_message_s> &sample)
     {
         int is_complete;
         int source;
@@ -470,12 +471,12 @@ namespace geopm
         }
     }
 
-    void TreeCommunicatorLevel::send_sample(const struct sample_message_s &sample)
+    void TreeCommunicatorLevel::send_sample(const struct geopm_sample_message_s &sample)
     {
         MPI_Request request;
 
         // Don't check return code or hold onto request, drop message if receiver not ready
-        (void) MPI_Irsend(const_cast<struct sample_message_s*>(&sample), 1, m_sample_mpi_type, 0, GEOPM_SAMPLE_TAG, m_comm, &request);
+        (void) MPI_Irsend(const_cast<struct geopm_sample_message_s*>(&sample), 1, m_sample_mpi_type, 0, GEOPM_SAMPLE_TAG, m_comm, &request);
     }
 
     void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy)

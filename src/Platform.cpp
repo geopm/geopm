@@ -152,7 +152,7 @@ namespace geopm
         throw Exception("Platform does not support domain_index() method", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 
-    void Platform::observe(const std::vector <struct sample_message_s> &sample) const
+    void Platform::observe(const std::vector <struct geopm_sample_message_s> &sample) const
     {
         //check if we are in unmarked code
         if (m_cur_phase == NULL) {
