@@ -66,7 +66,8 @@ TestPlatformImp::TestPlatformImp()
     for(off_t i = 0; (int)i < m_num_cpu; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        m_msr_offset_map.insert(std::pair<std::string, off_t>(name, i*64));
+        std::pair<off_t, unsigned long> msr_info(i*64, 0x0000000000000000);
+        m_msr_offset_map.insert(std::pair<std::string, std::pair<off_t, unsigned long> >(name, msr_info));
         open_msr(i);
     }
     //for negative tests
@@ -77,6 +78,8 @@ TestPlatformImp::~TestPlatformImp()
 {
     for(off_t i = 0; (int)i < m_num_cpu; i++) {
         close_msr(i);
+        snprintf(m_msr_path, 256, "/tmp/msrfile%d", (int)i);
+        remove(m_msr_path);
     }
 }
 
@@ -280,6 +283,57 @@ TEST_F(PlatformImpTest, package_msr_read_write)
         value = m_platform->read_msr(geopm::GEOPM_DOMAIN_PACKAGE, i, name);
         EXPECT_TRUE((value == (i*5)));
     }
+}
+
+TEST_F(PlatformImpTest, write_msr_whitelist)
+{
+    size_t size;
+    std::ifstream val;
+    FILE *fd;
+    char *val_buf;
+    bool same = false;
+
+    const char key_buf[] = {"# MSR      Write Mask         # Comment\n" \
+                            "0x00000000 0x0000000000000000 # MSR_TEST_0\n" \
+                            "0x00000040 0x0000000000000000 # MSR_TEST_1\n" \
+                            "0x00000280 0x0000000000000000 # MSR_TEST_10\n" \
+                            "0x000002c0 0x0000000000000000 # MSR_TEST_11\n" \
+                            "0x00000300 0x0000000000000000 # MSR_TEST_12\n" \
+                            "0x00000340 0x0000000000000000 # MSR_TEST_13\n" \
+                            "0x00000380 0x0000000000000000 # MSR_TEST_14\n" \
+                            "0x000003c0 0x0000000000000000 # MSR_TEST_15\n" \
+                            "0x00000080 0x0000000000000000 # MSR_TEST_2\n" \
+                            "0x000000c0 0x0000000000000000 # MSR_TEST_3\n" \
+                            "0x00000100 0x0000000000000000 # MSR_TEST_4\n" \
+                            "0x00000140 0x0000000000000000 # MSR_TEST_5\n" \
+                            "0x00000180 0x0000000000000000 # MSR_TEST_6\n" \
+                            "0x000001c0 0x0000000000000000 # MSR_TEST_7\n" \
+                            "0x00000200 0x0000000000000000 # MSR_TEST_8\n" \
+                            "0x00000240 0x0000000000000000 # MSR_TEST_9\0"
+                           };
+
+    fd = fopen("/tmp/whitelist", "w");
+    m_platform->whitelist(fd);
+    fclose(fd);
+
+    val.open("/tmp/whitelist");
+
+    size = strlen(key_buf);
+    //Compare with size + 1 due to null character at end of file
+    EXPECT_TRUE((int)(val.seekg(0, std::ifstream::end).tellg()) == (size + 1));
+    val.seekg(0, std::ifstream::beg);
+
+    val_buf = (char*)malloc(size);
+    val.read(val_buf, size);
+    val.close();
+
+    same = (memcmp(val_buf, key_buf, size) == 0);
+
+    free(val_buf);
+
+    EXPECT_TRUE(same);
+
+    remove("/tmp/whitelist");
 }
 
 TEST_F(PlatformImpTest, negative_read_no_desc)

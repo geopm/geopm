@@ -75,6 +75,8 @@ int geopm_platform_msr_save(const char *path);
 
 int geopm_platform_msr_restore(const char *path);
 
+int geopm_platform_msr_whitelist(FILE *file_desc);
+
 #ifdef __cplusplus
 }
 #endif

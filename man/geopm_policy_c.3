@@ -75,6 +75,8 @@ geopm_policy_c \- geopm mpi job policy management structure
 .BI "int geopm_platform_msr_save(const char *" "path" );
 .sp
 .BI "int geopm_platform_msr_restore(const char *" "path" );
+.sp
+.BI "int geopm_platform_msr_whitelist(FILE *" "file_desc" );
 .SH "DESCRIPTION"
 .PP
 The
@@ -84,7 +86,8 @@ control the global energy policy for each MPI job allocation.  The
 geopm_policy_c structure holds the control state for an MPI job and must be
 created prior to launching the job.  The interface provided by the policy
 interface enables job policy to be enforced statically or dynamically over the
-compute application runtime.  For static policy control, this interface can be
+compute application runtime.  This interface can output a MSR whitelist file for
+use with the Linux MSR driver. For static policy control, this interface can be
 used to create a configuration file that is parsed by the geopm setup or geopm
 runtime.  For dynamic control, a daemon can use this interface to create and
 modify an interprocess shared memory region on the compute node hosting the
@@ -214,6 +217,13 @@ so that they can be restored at a later time.
 Read a set of MSR values from a file specified by
 .I path
 and set the MSR values of the system to match those given in the file.
+.PP
+.BR geopm_platform_msr_whitelist ()
+Write a MSR whitelist consisting of all MSR offsets and writemasks needed
+for full operation of geopm power modes. It is intended to be used with the
+whitelisting feature of the Linux MSR driver. The whitelist is written out to
+.I file_desc
+which should be a valid file descriptor.
 .PP
 .BR geopm_policy_enforce_static ()
 enforces the static policy described by the

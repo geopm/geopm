@@ -41,13 +41,15 @@ geopmpolicy \- geopm configuration creator and static mode enforcer
 .BR "geopmpolicy \-s" " [" "\-f" " output]"
 .SS RESTORE MSR:
 .BR "geopmpolicy \-r" " [" "\-f" " input]"
+.SS CREATE MSR WHITELIST:
+.BR "geopmpolicy \-w" " [" "\-f" " output]"
 .SS PRINT VERSION OR HELP:
 .BR "geopmpolicy \-\-version" "|" "\-\-help"
 .SH "DESCRIPTION"
 .sp
 The
 .B geopmpolicy
-application can be used for four purposes: to create a
+application can be used for five purposes: to create a
 .BR geopm (3)
 configuration file
 .RB ( \-c ),
@@ -58,8 +60,10 @@ all MSR values that
 .BR geopm (3)
 may modify
 .RB ( \-s ),
-or restore the MSR values from a saved state file
-.RB ( \-r ).
+restore the MSR values from a saved state file
+.RB ( \-r ),
+or create a msr whitelist for the Linux msr driver
+.RB ( \-w ).
 The
 geopmpolicy application also respects the standard
 .BR "\-\-verison" " and " "\-\-help"
@@ -134,6 +138,12 @@ Restore the MSR values that are recored in an existing MSR save state file.
 The infput file may be specified with the
 .B "\-f"
 option.
+.TP
+.BR "\-w"
+.br
+Create a Linux msr driver whitelist file for the current platform, if
+.B "\-f"
+is not specified when using this option, the whitelist will be printed to stdout.
 .TP
 .BR "\-m" " mode"
 .br
@@ -280,6 +290,10 @@ $ geopmpolicy -s -f geopm_restore.log
 Restore the system MSRs to their previous state:
 .br
 $ geopmpolicy -r -f geopm_restore.log
+.TP
+Output a msr whitelist file for use with the Linux msr driver:
+.br
+$ geopmpolicy -w -f msr_whiteist.conf
 .SH "COPYRIGHT"
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 .SH "SEE ALSO"

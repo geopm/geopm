@@ -66,6 +66,7 @@ namespace geopm
             void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const;
             void save_msr_state(const char *path) const;
             void restore_msr_state(const char *path) const;
+            void write_msr_whitelist(FILE *file_desc) const;
             virtual void observe(void) = 0;
             virtual bool model_supported(int platform_id) const = 0;
             virtual void sample(struct geopm_sample_message_s &sample) const = 0;

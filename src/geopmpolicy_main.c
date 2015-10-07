@@ -50,6 +50,7 @@ enum geopmpolicy_const {
     GEOPMPOLICY_EXEC_MODE_ENFORCE = 1,
     GEOPMPOLICY_EXEC_MODE_SAVE = 2,
     GEOPMPOLICY_EXEC_MODE_RESTORE = 3,
+    GEOPMPOLICY_EXEC_MODE_WHITELIST = 4,
     GEOPMPOLICY_STRING_LENGTH = 128,
 };
 
@@ -76,6 +77,7 @@ int main(int argc, char** argv)
                         "   geopmpolicy -e (-f input | -m mode -d key0:value0,key1:value1...)\n"
                         "   geopmpolicy -s [-f output]\n"
                         "   geopmpolicy -r [-f input]\n"
+                        "   geopmpolicy -w [-f output]\n"
                         "\n"
                         "   --version\n"
                         "      Print version of geopm to standard file, then exit.\n"
@@ -102,6 +104,11 @@ int main(int argc, char** argv)
                         "       Restore the MSR values that are recored in an existing\n"
                         "       MSR save state file.  The infput file can be  specified\n"
                         "       with the -f option.\n"
+                        "\n"
+                        "   -w\n"
+                        "       Create a Linux msr driver whitelist file for the current\n"
+                        "       platform, -f must  be  specified when using this option which\n"
+                        "       gives the path to the ouptut whitelist file.\n"
                         "\n"
                         "   -m mode\n"
                         "       Power management mode, must be one of those described\n"
@@ -139,7 +146,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while (!err && (opt = getopt(argc, argv, "hcesrm:d:f:")) != -1) {
+    while (!err && (opt = getopt(argc, argv, "hcesrwm:d:f:")) != -1) {
         arg_ptr = NULL;
         switch (opt) {
             case 'c':
@@ -153,6 +160,9 @@ int main(int argc, char** argv)
                 break;
             case 'r':
                 exec_mode = GEOPMPOLICY_EXEC_MODE_RESTORE;
+                break;
+            case 'w':
+                exec_mode = GEOPMPOLICY_EXEC_MODE_WHITELIST;
                 break;
             case 'm':
                 arg_ptr = mode_string;
@@ -314,6 +324,7 @@ int main(int argc, char** argv)
     }
 
     if (!err) {
+    FILE *fd;
         switch (exec_mode) {
             case GEOPMPOLICY_EXEC_MODE_CREATE:
                 err = geopm_policy_create("", file, &policy);
@@ -342,13 +353,28 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     err = geopm_policy_enforce_static(policy);
-                }
+               }
                 break;
             case GEOPMPOLICY_EXEC_MODE_SAVE:
                 err = geopm_platform_msr_save(file);
                 break;
             case GEOPMPOLICY_EXEC_MODE_RESTORE:
                 err = geopm_platform_msr_restore(file);
+                break;
+            case GEOPMPOLICY_EXEC_MODE_WHITELIST:
+                if (strlen(file) == 0) {
+                    fd = stdout;
+                }
+                else {
+                    fd = fopen(file, "w");
+                    if (fd == NULL) {
+                        err = errno;
+                    }
+                }
+                if (!err) {
+                    err = geopm_platform_msr_whitelist(fd);
+                    fclose(fd);
+                }
                 break;
             default:
                 fprintf(stderr, "Error: Invalid execution mode.\n");

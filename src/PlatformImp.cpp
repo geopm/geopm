@@ -38,6 +38,9 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <fstream>
+#include <iomanip>
+
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "PlatformImp.hpp"
@@ -88,7 +91,7 @@ namespace geopm
 
     void PlatformImp::write_msr(int device_type, int device_index, const std::string &msr_name, uint64_t value)
     {
-        off_t offset = m_msr_offset_map.find(msr_name)->second;
+        off_t offset = m_msr_offset_map.find(msr_name)->second.first;
         write_msr(device_type, device_index, offset, value);
     }
 
@@ -110,7 +113,7 @@ namespace geopm
 
     uint64_t PlatformImp::read_msr(int device_type, int device_index, const std::string &msr_name)
     {
-        off_t offset = m_msr_offset_map.find(msr_name)->second;
+        off_t offset = m_msr_offset_map.find(msr_name)->second.first;
         return read_msr(device_type, device_index, offset);
     }
 
@@ -137,7 +140,7 @@ namespace geopm
 
     off_t PlatformImp::get_msr_offset(std::string msr_name)
     {
-        return m_msr_offset_map.find(msr_name)->second;
+        return m_msr_offset_map.find(msr_name)->second.first;
     }
 
     void PlatformImp::set_msr_path(int cpu_num)
@@ -199,6 +202,14 @@ namespace geopm
         //check for errors
         if (rv < 0) {
             throw Exception("system error closing cpu device", errno, __FILE__, __LINE__);
+        }
+    }
+
+    void PlatformImp::whitelist(FILE *file_desc)
+    {
+        fprintf(file_desc, "# MSR      Write Mask         # Comment\n");
+        for (auto it : m_msr_offset_map) {
+            fprintf(file_desc, "0x%.8llx 0x%.16lx # %s\n",it.second.first, it.second.second, it.first.c_str());
         }
     }
 

@@ -53,6 +53,7 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/PlatformImpTest.cpu_msr_read_write \
               test/gtest_links/PlatformImpTest.tile_msr_read_write \
               test/gtest_links/PlatformImpTest.socket_msr_read_write \
+              test/gtest_links/PlatformImpTest.write_msr_whitelist \
               test/gtest_links/PlatformImpTest.negative_read_no_desc \
               test/gtest_links/PlatformImpTest.negative_write_no_desc \
               test/gtest_links/PlatformImpTest.negative_read_bad_desc \

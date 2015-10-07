@@ -41,6 +41,7 @@
 #include <stdint.h>
 #include <vector>
 #include <map>
+#include <utility>
 #include <string>
 
 #include "PlatformTopology.hpp"
@@ -83,6 +84,7 @@ namespace geopm
             uint64_t read_msr(int device_type, int device_index, const std::string &msr_name);
             uint64_t read_msr(int device_type, int device_index, off_t msr_offset);
             off_t get_msr_offset(std::string msr_name);
+            void whitelist(FILE* file_desc);
             virtual void initialize(void);
             virtual void set_msr_path(int cpu_num);
 
@@ -100,7 +102,7 @@ namespace geopm
             virtual void initialize_msrs() = 0;
             PlatformTopology m_topology;
             std::vector<int> m_cpu_file_descs;
-            std::map<std::string, off_t> m_msr_offset_map;
+            std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
             int m_hyperthreads;
             int m_num_cpu;
             int m_num_tile;

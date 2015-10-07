@@ -79,6 +79,22 @@ extern "C"
 
         return err;
     }
+
+    int geopm_platform_msr_whitelist(FILE *file_desc)
+    {
+        int err = 0;
+        geopm::PlatformFactory platform_factory;
+        geopm::Platform *platform = platform_factory.platform(0);
+
+        try {
+            platform->write_msr_whitelist(file_desc);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+
+        return err;
+    }
 }
 
 namespace geopm
@@ -254,7 +270,7 @@ namespace geopm
             restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
         }
 
-        niter = m_imp->get_num_cpu() / m_imp->get_num_hyperthreads();
+        niter = m_imp->get_num_cpu();
 
         //per cpu state
         for (int i = 0; i < niter; i++) {
@@ -295,6 +311,12 @@ namespace geopm
             vals.clear();
         }
         restore_file.close();
-        remove("static_reg_restore.txt");
+        remove(path);
     }
+
+    void Platform::write_msr_whitelist(FILE *file_desc) const
+    {
+        m_imp->whitelist(file_desc);
+    }
+
 }
