@@ -36,9 +36,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
+#include <mpi.h>
 
-#include "geopm.h"
-#include "geopm_policy.h"
 #include "geopm_version.h"
 
 enum geopmctl_const {

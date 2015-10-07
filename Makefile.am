@@ -44,10 +44,13 @@ if ENABLE_MPI
     bin_PROGRAMS += geopmctl
 endif
 
+
 include_HEADERS = src/geopm.h \
-                  src/geopm_version.h \
+                  src/geopm_error.h \
+                  src/geopm_mpi_pcontrol.h \
                   src/geopm_policy.h \
                   src/geopm_policy_message.h \
+                  src/geopm_version.h \
                   # end
 
 dist_man_MANS = man/geopm.3 \
@@ -65,20 +68,26 @@ dist_doc_DATA = README \
                 VERSION \
                 # end
 
-EXTRA_DIST = autogen.sh \
+EXTRA_DIST = .gitignore \
+             autogen.sh \
              ChangeLog \
              configure.ac \
              CONTRIBUTING \
              copying_headers/header.freeBSD3 \
-             copying_headers/test-license \
+             copying_headers/header.freeBSD3-llnl \
+             copying_headers/MANIFEST.freeBSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.freeBSD3 \
+             copying_headers/test-license \
              examples/README \
              examples/threaded_step_example.c \
              geopm.spec.mk \
              geopm-$(VERSION).spec \
              Makefile.am \
              MANIFEST \
+             test/MPIControllerTest.cpp \
+             test/MPITreeCommunicatorTest.cpp \
+             test/no_omp_cpu.c \
              TODO \
              # end
 
@@ -183,6 +192,7 @@ if ENABLE_MPI
                           src/TreeCommunicator.hpp \
                           src/geopm_ctl_spawn.c \
                           src/geopm_error.h \
+                          src/geopm_mpi_pcontrol.h \
                           src/geopm_policy_message.c \
                           src/geopm_policy_message.h \
                           src/geopm_version.c \
@@ -190,14 +200,13 @@ if ENABLE_MPI
                           # end
 
     geopmctl_SOURCES = src/geopmctl_main.c \
-                       src/geopm.h \
                        src/geopm_version.h \
                        # end
 endif
 
 # CLEAN TARGETS
 CLEANFILES = geopm-$(VERSION).spec
-DISTCLEANFILES = VERSION
+DISTCLEANFILES = VERSION MANIFEST
 
 clean-local: clean-local-coverage
 
@@ -222,4 +231,3 @@ TESTS =
 
 include test/Makefile.mk
 
-.PHONY: MANIFEST
