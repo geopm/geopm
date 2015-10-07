@@ -57,3 +57,5 @@
 /geopm-*.spec
 /geopm-*.tar.gz
 /MANIFEST
+/copying_headers/test-license.log
+/copying_headers/test-license.trs
