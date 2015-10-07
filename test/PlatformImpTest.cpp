@@ -320,7 +320,7 @@ TEST_F(PlatformImpTest, write_msr_whitelist)
 
     size = strlen(key_buf);
     //Compare with size + 1 due to null character at end of file
-    EXPECT_TRUE((int)(val.seekg(0, std::ifstream::end).tellg()) == (size + 1));
+    EXPECT_TRUE((size_t)(val.seekg(0, std::ifstream::end).tellg()) == (size + 1));
     val.seekg(0, std::ifstream::beg);
 
     val_buf = (char*)malloc(size);

@@ -46,6 +46,10 @@ enum geomp_error_e {
     GEOPM_ERROR_POLICY_NULL = -4,
     GEOPM_ERROR_FILE_PARSE = -5,
     GEOPM_ERROR_LEVEL_RANGE = -6,
+    GEOPM_ERROR_CTL_COMM = -7,
+    GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
+    GEOPM_ERROR_POLICY_UNKNOWN = -9,
+    GEOPM_ERROR_NOT_IMPLEMENTED = -10,
 };
 
 /* Convert error number into an error message */

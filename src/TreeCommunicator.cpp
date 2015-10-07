@@ -142,20 +142,22 @@ namespace geopm
         public:
             TreeCommunicatorLevel(MPI_Comm comm, MPI_Datatype sample_mpi_type, MPI_Datatype policy_mpi_type);
             ~TreeCommunicatorLevel();
-            /// Check sample mailbox for each child and if all are
-            /// full copy them into sample and post a new MPI_Irecv(),
-            /// otherwise throw incomplete_sample_error
+            /// Check sample mailbox for each child and if all are full copy
+            /// them into sample and post a new MPI_Irecv(), otherwise throw
+            /// geopm::Exception with err_value() of
+            /// GEOPM_ERROR_SAMPLE_INCOMPLETE
             void get_sample(std::vector<struct geopm_sample_message_s> &sample);
-            /// Check policy mailbox and if full copy to m_policy and
-            /// post a new MPI_Irecv(). If mailbox is empty set policy
-            /// to last known policy.  If mailbox is empty and no
-            /// policy has been set throw unknown_policy_error.
+            /// Check policy mailbox and if full copy to m_policy and post a
+            /// new MPI_Irecv(). If mailbox is empty set policy to last known
+            /// policy.  If mailbox is empty and no policy has been set throw
+            /// a geopm::Exception with err_value() of
+            /// GEOPM_ERROR_POLICY_UNKNOWN.
             void get_policy(struct geopm_policy_message_s &policy);
-            /// Send sample via MPI_Irsend() to root of level, skip if
-            /// no recieve has been posted.
+            /// Send sample via MPI_Irsend() to root of level, skip if no
+            /// recieve has been posted.
             void send_sample(const struct geopm_sample_message_s &sample);
-            /// Send policy via MPI_Irsend() to all children, skip if
-            /// no recieve has been posted.
+            /// Send policy via MPI_Irsend() to all children, skip if no
+            /// recieve has been posted.
             void send_policy(const std::vector<struct geopm_policy_message_s> &policy);
             /// Returns the level rank of the calling process.
             int level_rank(void);
@@ -365,10 +367,10 @@ namespace geopm
         }
 
         if (rank_cart == 0 && m_global_policy == NULL) {
-            throw Exception("TreeCommunicator: Process at root of tree communicator has not mapped the control file.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("process at root of tree communicator has not mapped the control file", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
         if (rank_cart != 0 && m_global_policy != NULL) {
-            throw Exception("TreeCommunicator: Process not at root of tree communicator has mapped the control file.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("process not at root of tree communicator has mapped the control file", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
     }
 
@@ -439,11 +441,11 @@ namespace geopm
         for (auto request_it = m_sample_request.begin(); request_it < m_sample_request.end(); ++request_it) {
             check_mpi(MPI_Test(&(*request_it), &is_complete, &status));
             if (!is_complete) {
-                throw incomplete_sample_error();
+                throw Exception("TreeCommunicatorLevel::get_sample", GEOPM_ERROR_SAMPLE_INCOMPLETE, __FILE__, __LINE__);
             }
         }
         if (sample.size() < m_sample_mailbox.size()) {
-            throw Exception("TreeCommunicator: input sample vector too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("input sample vector too small", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
         copy(m_sample_mailbox.begin(), m_sample_mailbox.end(), sample.begin());
         source = 0;
@@ -467,7 +469,7 @@ namespace geopm
         }
         policy = m_policy;
         if (geopm_is_policy_equal(&policy, &GEOPM_UNKNOWN_POLICY)) {
-            throw unknown_policy_error();
+            throw Exception("TreeCommunicatorLevel::get_policy", GEOPM_ERROR_POLICY_UNKNOWN, __FILE__, __LINE__);
         }
     }
 
@@ -485,7 +487,7 @@ namespace geopm
         MPI_Request request;
 
         if (m_rank != 0) {
-            throw Exception("TreeCommunicator: called send_policy() from rank not at root of level", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("called send_policy() from rank not at root of level", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
         dest = 0;
         for (auto policy_it = policy.begin(); policy_it < policy.end(); ++policy_it, ++dest) {

@@ -209,7 +209,7 @@ namespace geopm
     {
         fprintf(file_desc, "# MSR      Write Mask         # Comment\n");
         for (auto it : m_msr_offset_map) {
-            fprintf(file_desc, "0x%.8llx 0x%.16lx # %s\n",it.second.first, it.second.second, it.first.c_str());
+            fprintf(file_desc, "0x%.8llx 0x%.16lx # %s\n", (long long)it.second.first, it.second.second, it.first.c_str());
         }
     }
 

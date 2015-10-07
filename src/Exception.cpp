@@ -66,6 +66,18 @@ extern "C"
             case GEOPM_ERROR_LEVEL_RANGE:
                 strncpy(msg, "<geomp> Control hierarchy level is out of range", size);
                 break;
+            case GEOPM_ERROR_CTL_COMM:
+                strncpy(msg, "<geopm> Communication error in control hierarchy", size);
+                break;
+            case GEOPM_ERROR_SAMPLE_INCOMPLETE:
+                strncpy(msg, "<geopm> All children have not sent all samples", size);
+                break;
+            case GEOPM_ERROR_POLICY_UNKNOWN:
+                strncpy(msg, "<geopm> No policy has been set", size);
+                break;
+            case GEOPM_ERROR_NOT_IMPLEMENTED:
+                strncpy(msg, "<geopm> Feature not yet implemented", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);
@@ -132,26 +144,36 @@ namespace geopm
 
     Exception::Exception(int err)
         : std::runtime_error(error_message(err))
-        , m_err(err)
-    {}
+        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+    {
+
+    }
 
     Exception::Exception(const std::string &what, int err)
         : std::runtime_error(error_message(err) + ": " + what)
-        , m_err(err)
-    {}
+        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+    {
+
+    }
 
     Exception::Exception(const std::string &what, int err, const char *file, int line)
         : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line) + (what.size() == 0 ? "" : ": " + what))
-        , m_err(err)
-    {}
+        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+    {
+
+    }
 
     Exception::Exception(int err, const char *file, int line)
         : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line))
-        , m_err(err)
-    {}
+        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+    {
+
+    }
 
     Exception::~Exception()
-    {}
+    {
+
+    }
 
     int Exception::err_value(void) const
     {

@@ -44,6 +44,7 @@
 #include "geopm_policy.h"
 #include "geopm_policy_message.h"
 #include "geopm_version.h"
+#include "geopm_error.h"
 
 enum geopmpolicy_const {
     GEOPMPOLICY_EXEC_MODE_CREATE = 0,
@@ -301,7 +302,7 @@ int main(int argc, char** argv)
                 if(stat(pdir, &statbuffer) == -1) {
                     if(mkdir(pdir, S_IRWXU)) {
                         fprintf(stderr, "ERROR: Could not create directory %s\n", dirname(file));
-                        return errno;
+                        return errno ? errno : GEOPM_ERROR_RUNTIME;
                     }
                 }
                 pdir[i] = '/';
@@ -310,7 +311,7 @@ int main(int argc, char** argv)
         if(stat(pdir, &statbuffer) == -1) {
             if(mkdir(pdir, S_IRWXU)) {
                 fprintf(stderr, "ERROR: Could not create directory %s\n", dirname(file));
-                return errno;
+                return errno ? errno : GEOPM_ERROR_RUNTIME;
             }
         }
         outfile = fopen(file, "w");
@@ -368,7 +369,7 @@ int main(int argc, char** argv)
                 else {
                     fd = fopen(file, "w");
                     if (fd == NULL) {
-                        err = errno;
+                        err = errno ? errno : GEOPM_ERROR_RUNTIME;
                     }
                 }
                 if (!err) {

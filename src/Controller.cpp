@@ -163,7 +163,10 @@ namespace geopm
                 m_tree_comm->get_policy(level, policy);
                 err = 0;
             }
-            catch (unknown_policy_error ex) {
+            catch (Exception ex) {
+                if (ex.err_value() != GEOPM_ERROR_POLICY_UNKNOWN) {
+                    throw ex;
+                }
                 err = 1;
             }
         }
@@ -225,7 +228,10 @@ namespace geopm
                     m_tree_comm->get_sample(level, m_child_sample);
                     m_platform[level]->observe(m_child_sample);
                 }
-                catch (incomplete_sample_error ex) {
+                catch (Exception ex) {
+                    if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
+                        throw ex;
+                    }
                     break;
                 }
                 m_tree_decider[level]->get_policy(m_platform[level], policy);
