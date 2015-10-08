@@ -126,6 +126,8 @@ namespace geopm
         : m_global_policy(global_policy)
         , m_profile(profile)
     {
+        throw Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+
         int num_nodes = 0;
         int err = geopm_num_nodes(comm, &num_nodes);
         if (err) {
@@ -144,6 +146,8 @@ namespace geopm
             fan_out.resize(num_level);
         }
         std::reverse(fan_out.begin(), fan_out.end());
+        m_last_policy.resize(num_level);
+        std::fill(m_last_policy.begin(), m_last_policy.end(), GEOPM_UNKNOWN_POLICY);
 
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
 
@@ -155,7 +159,6 @@ namespace geopm
         }
         m_split_policy.resize(max_size);
         m_child_sample.resize(max_size);
-        std::fill(m_last_policy.begin(), m_last_policy.end(), GEOPM_UNKNOWN_POLICY);
     }
 
     Controller::~Controller()
