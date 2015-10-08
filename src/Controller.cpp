@@ -46,6 +46,12 @@
 
 extern "C"
 {
+
+    enum geopm_controller_cont_e {
+        GEOPM_CTL_MAX_FAN_OUT = 16,
+    };
+
+
     int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
     {
         int err = 0;
@@ -120,17 +126,24 @@ namespace geopm
         : m_global_policy(global_policy)
         , m_profile(profile)
     {
-        int num_level = GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL;
-        std::vector<int> fan_out(num_level);
-        int num_nodes;
-
+        int num_nodes = 0;
         int err = geopm_num_nodes(comm, &num_nodes);
-        if (!err) {
-            err = MPI_Dims_create(num_nodes, num_level, fan_out.data());
+        if (err) {
+            throw Exception("geopm_num_nodes()", err, __FILE__, __LINE__);
         }
-        if (!err) {
-            std::reverse(fan_out.begin(), fan_out.end());
+        int num_level = 1;
+        std::vector<int> fan_out(num_level);
+        fan_out[0] = num_nodes;
+        while (fan_out[0] > GEOPM_CTL_MAX_FAN_OUT && fan_out[num_level - 1] != 1) {
+            ++num_level;
+            fan_out.resize(num_level);
+            check_mpi(MPI_Dims_create(num_nodes, num_level, fan_out.data()));
         }
+        if (num_level > 1 && fan_out[num_level - 1] == 1) {
+            --num_level;
+            fan_out.resize(num_level);
+        }
+        std::reverse(fan_out.begin(), fan_out.end());
 
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
 
