@@ -50,6 +50,7 @@ enum geomp_error_e {
     GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
     GEOPM_ERROR_POLICY_UNKNOWN = -9,
     GEOPM_ERROR_NOT_IMPLEMENTED = -10,
+    GEOPM_ERROR_NOT_TESTED = -11,
 };
 
 /* Convert error number into an error message */

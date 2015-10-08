@@ -78,6 +78,9 @@ extern "C"
             case GEOPM_ERROR_NOT_IMPLEMENTED:
                 strncpy(msg, "<geopm> Feature not yet implemented", size);
                 break;
+            case GEOPM_ERROR_NOT_TESTED:
+                strncpy(msg, "<geopm> Feature not yet tested", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

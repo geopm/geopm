@@ -33,68 +33,156 @@
 #include <float.h>
 
 #include "geopm.h"
+#include "Profile.hpp"
+#include "Exception.hpp"
 
 extern "C"
 {
     int geopm_prof_create(const char *name, int sample_reduce, const char *sample_key, struct geopm_prof_c **prof)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_create()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
     }
 
     int geopm_prof_destroy(struct geopm_prof_c *prof)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_destroy()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
     }
 
     int geopm_prof_register(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int *region_id)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_register()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_enter(struct geopm_prof_c *prof, int region_id)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_enter()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_exit(struct geopm_prof_c *prof,
                         int region_id)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_exit()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_progress(struct geopm_prof_c *prof, int region_id, double fraction)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_progress()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_outer_sync(struct geopm_prof_c *prof)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_outer_sync()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_sample(struct geopm_prof_c *prof)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_sample()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_enable(struct geopm_prof_c *prof, const char *feature_name)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_enable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_disable(struct geopm_prof_c *prof, const char *feature_name)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_disable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     int geopm_prof_print(struct geopm_prof_c *prof, int depth)
     {
-        return 0;
+        return geopm_prof_fprint(prof, depth, stdout);
     }
 
     int geopm_prof_fprint(struct geopm_prof_c *prof, int depth, FILE *fid)
     {
-        return 0;
+        int err = 0;
+        try {
+            throw geopm::Exception("Profile::geopm_prof_fprint()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
     }
 
     double geopm_progress_threaded_min(int num_thread,
@@ -137,8 +225,26 @@ extern "C"
             }
         }
         for (i = 0; i < num_thread; ++i) {
-            norm[i] = 1.0 / norm[i];
+            if (norm[i] != 0.0) {
+                norm[i] = 1.0 / norm[i];
+            }
         }
         return 0;
+    }
+}
+
+namespace geopm
+{
+    Profile::Profile(const std::string name, const std::string sample_key, int sample_reduce)
+    : m_name(name)
+    , m_sample_key(sample_key)
+    , m_sample_reduce(sample_reduce)
+    {
+        throw geopm::Exception("class Profile", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    Profile::~Profile()
+    {
+
     }
 }

@@ -38,8 +38,8 @@ namespace geopm
     class Profile
     {
         public:
-            Profile(const std::string name, const std::string sample_key, int sample_reduce) {}
-            ~Profile() {}
+            Profile(const std::string name, const std::string sample_key, int sample_reduce);
+            virtual ~Profile();
         protected:
             std::string m_name;
             std::string m_sample_key;
