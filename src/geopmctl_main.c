@@ -97,13 +97,13 @@ int main(int argc, char **argv)
                         "\n";
 
 
-    if (argc >= 1 &&
+    if (argc > 1 &&
         strncmp(argv[1], "--version", strlen("--version")) == 0) {
         printf("%s\n", geopm_version());
         printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
-    if (argc >= 1 && (
+    if (argc > 1 && (
             strncmp(argv[1], "--help", strlen("--help")) == 0 ||
             strncmp(argv[1], "-h", strlen("-h")))) {
         printf("%s\n", usage);

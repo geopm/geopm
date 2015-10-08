@@ -55,7 +55,7 @@ extern "C"
                 strncpy(msg, "<geopm> Logic error", size);
                 break;
             case GEOPM_ERROR_INVALID:
-                strncpy(msg, "<geopm> Invalid arguement", size);
+                strncpy(msg, "<geopm> Invalid argument", size);
                 break;
             case GEOPM_ERROR_POLICY_NULL:
                 strncpy(msg, "<geopm> The geopm_policy_c pointer is NULL, use geopm_policy_create", size);
@@ -141,31 +141,35 @@ namespace geopm
         return err;
      }
 
+    Exception::Exception(const std::string &what, int err, const char *file, int line)
+        : std::runtime_error(error_message(err) + (
+          what.size() != 0 ? (": " + what) : "") + (
+          file != NULL ? (": at geopm/" + std::string(file) + ":" + std::to_string(line)) : ""))
+        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+    {
+
+    }
+
+    Exception::Exception()
+        : Exception("", GEOPM_ERROR_RUNTIME, NULL, 0)
+    {
+
+    }
 
     Exception::Exception(int err)
-        : std::runtime_error(error_message(err))
-        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+        : Exception("", err, NULL, 0)
     {
 
     }
 
     Exception::Exception(const std::string &what, int err)
-        : std::runtime_error(error_message(err) + ": " + what)
-        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
-    {
-
-    }
-
-    Exception::Exception(const std::string &what, int err, const char *file, int line)
-        : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line) + (what.size() == 0 ? "" : ": " + what))
-        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+        : Exception(what, err, NULL, 0)
     {
 
     }
 
     Exception::Exception(int err, const char *file, int line)
-        : std::runtime_error(error_message(err) + ": In file " + std::string(file) + " on line "  + std::to_string(line))
-        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
+        : Exception("", err, file, line)
     {
 
     }
@@ -183,6 +187,7 @@ namespace geopm
     static std::string error_message(int err)
     {
         char tmp_msg[NAME_MAX];
+        err = err ? err : GEOPM_ERROR_RUNTIME;
         geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
         return tmp_msg;
     }

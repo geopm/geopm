@@ -30,43 +30,76 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "errno.h"
+#include <errno.h>
+#include <string>
+
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
+
 
 class ExceptionTest: public :: testing :: Test {};
 
 TEST_F(ExceptionTest, hello)
 {
-    geopm::Exception ex0(GEOPM_ERROR_RUNTIME);
+    const std::string geopm_tag("<geopm> ");
+    std::string what_str;
+
+    geopm::Exception ex0(GEOPM_ERROR_INVALID);
+    EXPECT_EQ(GEOPM_ERROR_INVALID, ex0.err_value());
+    what_str = std::string(ex0.what());
+    EXPECT_TRUE(what_str.size() != 0);
+    EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
+    EXPECT_TRUE(what_str.find("argument") != std::string::npos);
     std::cerr << "ERROR: " << ex0.what() << std::endl;
+
     geopm::Exception ex1("Hello world", GEOPM_ERROR_LOGIC);
+    EXPECT_EQ(GEOPM_ERROR_LOGIC, ex1.err_value());
+    what_str = std::string(ex1.what());
+    EXPECT_TRUE(what_str.size() != 0);
+    EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
+    EXPECT_TRUE(what_str.find("Hello world") != std::string::npos);
     std::cerr << "ERROR: " << ex1.what() << std::endl;
-    geopm::Exception ex2(GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+    geopm::Exception ex2(GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+    EXPECT_EQ(GEOPM_ERROR_FILE_PARSE, ex2.err_value());
+    what_str = std::string(ex2.what());
+    EXPECT_TRUE(what_str.size() != 0);
+    EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
+    EXPECT_TRUE(what_str.find("parse") != std::string::npos);
+    EXPECT_TRUE(what_str.find("ExceptionTest.cpp") != std::string::npos);
     std::cerr << "ERROR: " << ex2.what() << std::endl;
-    geopm::Exception ex3("Hello world", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    std::cerr << "ERROR: " << ex3.what() << std::endl;
+
+    geopm::Exception ex3("Hello world", GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, ex3.err_value());
+    what_str = std::string(ex3.what());
+    EXPECT_TRUE(what_str.size() != 0);
+    EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
+    EXPECT_TRUE(what_str.find("policy") != std::string::npos);
+    EXPECT_TRUE(what_str.find("ExceptionTest.cpp") != std::string::npos);
     std::cerr << "Error value = " << ex3.err_value() << std::endl;
     try {
         throw ex3;
     }
     catch (...) {
         int err = geopm::exception_handler(std::current_exception());
-        std::cerr << "Error number = " << err << std::endl;
+        EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, err);
     }
+
+    geopm::Exception ex4(0);
+    EXPECT_EQ(GEOPM_ERROR_RUNTIME, ex4.err_value());
+    what_str = std::string(ex4.what());
+    EXPECT_TRUE(what_str.size() != 0);
+    EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
+    EXPECT_TRUE(what_str.find("untime") != std::string::npos);
+    std::cerr << "ERROR: " << ex4.what() << std::endl;
+
+    geopm::Exception ex5;
+    EXPECT_EQ(GEOPM_ERROR_RUNTIME, ex5.err_value());
+    what_str = std::string(ex5.what());
+    EXPECT_TRUE(what_str.size() != 0);
+    EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
+    EXPECT_TRUE(what_str.find("untime") != std::string::npos);
+    std::cerr << "ERROR: " << ex5.what() << std::endl;
 }
 
-TEST_F(ExceptionTest, hello_invalid)
-{
-    geopm::Exception ex("Hello world EINVAL error", EINVAL);
-    std::cerr << "ERROR: " << ex.what() << std::endl;
-}
-
-TEST_F(ExceptionTest, file_info)
-{
-    geopm::Exception ex("With file info", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    std::cerr << "ERROR: " << ex.what() << std::endl;
-    geopm::Exception ex2("", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    std::cerr << "ERROR: " << ex2.what() << std::endl;
-}

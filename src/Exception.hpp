@@ -40,6 +40,7 @@ namespace geopm
     class Exception: public std::runtime_error
     {
         public:
+            Exception();
             Exception(int err);
             Exception(const std::string &what, int err);
             Exception(int err, const char *file, int line);

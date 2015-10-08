@@ -126,21 +126,9 @@ set energy policy control parameters for MPI jobs.
 %build
 test -f configure || ./autogen.sh
 
-%if %{defined suse_version}
-CC=%{_libdir}/mpi/gcc/openmpi/bin/mpicc \
-CXX=%{_libdir}/mpi/gcc/openmpi/bin/mpicxx \
-./configure LDFLAGS="-L%{_libdir}/mpi/gcc/openmpi/lib -lmpi_cxx" \
-            --prefix=%{_prefix} --libdir=%{_libdir} \
+./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir}
-%else
-CC=%{_libdir}/openmpi/bin/mpicc \
-CXX=%{_libdir}/openmpi/bin/mpicxx \
-./configure LDFLAGS="-L%{_libdir}/openmpi/lib -lmpi_cxx" \
-            --prefix=%{_prefix} --libdir=%{_libdir} \
-            --includedir=%{_includedir} --sbindir=%{_sbindir} \
-            --mandir=%{_mandir} --docdir=%{docdir}
-%endif
 %{__make}
 
 %install
@@ -188,8 +176,11 @@ $(extra_files)
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/geopm.h
+%{_includedir}/geopm_error.h
+%{_includedir}/geopm_mpi_pcontrol.h
 %{_includedir}/geopm_policy.h
 %{_includedir}/geopm_policy_message.h
+%{_includedir}/geopm_version.h
 
 %changelog
 endef

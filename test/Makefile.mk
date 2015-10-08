@@ -77,8 +77,6 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
-              test/gtest_links/ExceptionTest.hello_invalid \
-              test/gtest_links/ExceptionTest.file_info \
               # end
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
