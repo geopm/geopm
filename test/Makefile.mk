@@ -32,8 +32,11 @@
 AM_CPPFLAGS += -I$(googletest)/include
 AM_CPPFLAGS += -I$(googlemock)/include
 
-check_PROGRAMS += test/geopm_test \
-                  # end
+check_PROGRAMS += test/geopm_test
+
+if ENABLE_MPI
+    check_PROGRAMS += test/geopm_mpi_test
+endif
 
 GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/ObservationTest.hello_median \
@@ -77,6 +80,10 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/MPITreeCommunicatorTest.hello \
+              test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
+              test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
+              test/gtest_links/MPITreeCommunicatorTestShmem.hello \
               # end
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
@@ -84,7 +91,6 @@ TESTS += $(GTEST_TESTS) \
 
 EXTRA_DIST += test/geopm_test.sh \
               $(googlemock_archive) \
-              test/geopm_mpi_test.cpp \
               test/geopm_prof_example_openmp_static.c \
               # end
 
@@ -99,9 +105,27 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
 
 test_geopm_test_LDADD = libgtest.a \
                         libgmock.a \
-                        libgeopm.la \
                         libgeopmpolicy.la \
                         # end
+
+if ENABLE_MPI
+    test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
+                                  test/MPITreeCommunicatorTest.cpp \
+                                  # end
+
+    test_geopm_mpi_test_LDADD = libgtest.a \
+                                libgmock.a \
+                                libgeopm.la \
+                                # end
+
+    test_geopm_mpi_test_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+
+endif
+
+
 
 check-am: MANIFEST
 
