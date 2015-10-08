@@ -41,6 +41,8 @@
 
 namespace geopm
 {
+    void check_mpi(int err);
+
     class TreeCommunicatorRoot;
     class TreeCommunicatorLevel;
     class GlobalPolicy;

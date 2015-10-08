@@ -125,11 +125,20 @@ namespace geopm
         GEOPM_POLICY_TAG,
     };
 
+    ///////////////////////////////
+    // Helper for MPI exceptions //
+    ///////////////////////////////
+    void check_mpi(int err)
+    {
+        if (err) {
+            throw MPI::Exception(err);
+        }
+    }
+
     //////////////////////////////////
     // Static function declarations //
     //////////////////////////////////
 
-    static inline void check_mpi(int err);
     static MPI_Datatype create_sample_mpi_type(void);
     static MPI_Datatype create_policy_mpi_type(void);
 
@@ -179,13 +188,6 @@ namespace geopm
     /////////////////////////////////
     // Static function definitions //
     /////////////////////////////////
-
-    static inline void check_mpi(int err)
-    {
-        if (err) {
-            throw MPI::Exception(err);
-        }
-    }
 
     static MPI_Datatype create_sample_mpi_type(void)
     {
