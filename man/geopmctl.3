@@ -34,9 +34,11 @@
 geopmctl \- geopm runtime mpi application
 .SH "SYNOPSIS"
 .sp
-.BR "geopmctl" " [" "\-\-version" "] [" "\-\-help" "] [" "\-m" "] [" "\-c" " policy_config]"
+.BR "geopmctl" "[" "\-\-help" "] [" "\-\-version" "]"
 .br
-.BR "        " " [" "\-k" " policy_key] [" "\-s" " sample_key] [" "\-r" " report]"
+.BR "        " "(" "\-c" " policy_config | " "\-k" " policy_key)"
+.br
+.BR "        " "[" "\-s" " sample_key] [" "\-r" " report]"
 .sp
 .SH "DESCRIPTION"
 .sp
@@ -45,15 +47,11 @@ application to manage power settings on compute nodes allocated to the
 computation MPI application.
 .SH "OPTIONS"
 .TP
-.B \-\-version
-Print version of geopm to standard output, then exit.
-.TP
 .B \-\-help
 Print brief summary of the command line usage information, then exit.
 .TP
-.B "\-m"
-.br
-Enable MPI runtime.
+.B \-\-version
+Print version of geopm to standard output, then exit.
 .TP
 .BR "\-c" " policy_config"
 Policy configuration file which may be created with the

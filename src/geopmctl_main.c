@@ -39,6 +39,7 @@
 #include <mpi.h>
 
 #include "geopm_version.h"
+#include "geopm_error.h"
 
 enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
@@ -59,43 +60,36 @@ int main(int argc, char **argv)
     char report[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
-    const char *usage = "     geopmctl [--version] [--help] [-c policy_config]\n"
-                        "              [-k policy_key] [-s sample_key] [-r report]\n"
+    const char *usage = "    %s [--help] [--version]\n"
+                        "            (-c policy_config | -k policy_key)\n"
+                        "            [-s sample_key] [-r report]\n"
                         "\n"
-                        "     --version\n"
-                        "          Print version of geopm to standard output, then exit.\n"
+                        "    --help\n"
+                        "           Print  brief summary of the command line usage information, then\n"
+                        "           exit.\n"
+                        "    --version\n"
+                        "           Print version of geopm to standard output, then exit.\n"
+                        "    -c policy_config\n"
+                        "           Policy  configuration  file  which  may  be  created  with   the\n"
+                        "           geopm_policy_c(3)  interface  or the geopmpolicy(3) application.\n"
+                        "           If -c is specified then -k should not be specified.  If both are\n"
+                        "           specified -k is ignored and a warning is printed.\n"
+                        "    -k control_key\n"
+                        "           POSIX  shared  memory  key which determines policy for geopmctl.\n"
+                        "           See geopm_policy_c(3) for information on how to create and  mod-\n"
+                        "           ify a shared memory region for control.\n"
+                        "    -s sample_key\n"
+                        "           POSIX  shared  memory  key  referencing memory written to by the\n"
+                        "           compute application to provide  the  geopmctl  application  with\n"
+                        "           performance  profile information.  See geopm_ctl_c(3) for infor-\n"
+                        "           mation on how to create the sample shared memory region for pro-\n"
+                        "           file feedback.\n"
+                        "    -r report\n"
+                        "           Output  text  file that will hold the human readable report when\n"
+                        "           program terminates.\n"
                         "\n"
-                        "     --help\n"
-                        "          Print  brief   summary  of   the  command   line  usage\n"
-                        "          information, then exit.\n"
-                        "\n"
-                        "     -c policy_config\n"
-                        "          Policy configuration file which may be created with the\n"
-                        "          geopm_policy_c(3)   interface  or   the  geopmpolicy(3)\n"
-                        "          application.  If -c is specified  then -k should not be\n"
-                        "          specified.  If both  are specified -k is  ignored and a\n"
-                        "          warning is printed.\n"
-                        "\n"
-                        "     -k policy_key\n"
-                        "          POSIX  shared memory  key which  determines policy  for\n"
-                        "          geopmctl.  See geopm_policy_c(3) for information on how\n"
-                        "          to  create  and  modify  a  shared  memory  region  for\n"
-                        "          control.\n"
-                        "\n"
-                        "     -s sample_key\n"
-                        "          POSIX shared  memory key referencing memory  written to\n"
-                        "          by  the compute  application  to  provide the  geopmctl\n"
-                        "          application with performance  profile information.  See\n"
-                        "          geopm_ctl_c(3)  for information  on how  to create  the\n"
-                        "          sample shared memory region for profile feedback.\n"
-                        "\n"
-                        "     -r report\n"
-                        "          Output  text file  that  will hold  the human  readable\n"
-                        "          report when program terminates.\n"
-                        "\n"
-                        "     Copyright (C) 2015 Intel Corporation. All rights reserved.\n"
+                        "    Copyright (C) 2015 Intel Corporation. All rights reserved.\n"
                         "\n";
-
 
     if (argc > 1 &&
         strncmp(argv[1], "--version", strlen("--version")) == 0) {
@@ -105,8 +99,8 @@ int main(int argc, char **argv)
     }
     if (argc > 1 && (
             strncmp(argv[1], "--help", strlen("--help")) == 0 ||
-            strncmp(argv[1], "-h", strlen("-h")))) {
-        printf("%s\n", usage);
+            strncmp(argv[1], "-h", strlen("-h")) == 0)) {
+        printf(usage, argv[0]);
         return 0;
     }
 
@@ -162,6 +156,13 @@ int main(int argc, char **argv)
         err0 = err_mpi;
     }
 
+    if (!err0 &&
+        strlen(policy_config) == 0 &&
+        strlen(policy_key) == 0) {
+        err0 = EINVAL;
+        fprintf(stderr, "ERROR: %s either -c or -k must be specified\n", argv[0]);
+    }
+
     if (!err0 && !my_rank) {
         if (policy_config[0]) {
             printf("    Policy config: %s\n", policy_config);
@@ -177,7 +178,14 @@ int main(int argc, char **argv)
         }
         printf("\n");
     }
-    err0 = geopmctl_main(policy_config, policy_key, sample_key, report);
+
+    if (!err0) {
+        err0 = geopmctl_main(policy_config, policy_key, sample_key, report);
+        if (err0) {
+            geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
+            fprintf(stderr, "ERROR: %s\n", error_str);
+        }
+    }
 
     MPI_Finalize();
     return err0;
