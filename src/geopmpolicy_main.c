@@ -325,7 +325,7 @@ int main(int argc, char** argv)
     }
 
     if (!err) {
-    FILE *fd;
+        FILE *fd;
         switch (exec_mode) {
             case GEOPMPOLICY_EXEC_MODE_CREATE:
                 err = geopm_policy_create("", file, &policy);
@@ -354,7 +354,7 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     err = geopm_policy_enforce_static(policy);
-               }
+                }
                 break;
             case GEOPMPOLICY_EXEC_MODE_SAVE:
                 err = geopm_platform_msr_save(file);
