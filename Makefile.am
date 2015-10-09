@@ -85,6 +85,7 @@ EXTRA_DIST = .gitignore \
              geopm-$(VERSION).spec \
              Makefile.am \
              MANIFEST \
+             README.md \
              test/MPIControllerTest.cpp \
              test/MPITreeCommunicatorTest.cpp \
              test/no_omp_cpu.c \
