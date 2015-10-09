@@ -59,3 +59,9 @@
 /MANIFEST
 /copying_headers/test-license.log
 /copying_headers/test-license.trs
+/examples/.deps/
+/examples/.dirstamp
+/examples/.libs/
+/examples/geopm_print_error
+/examples/*.o
+/test/geopm_print_error

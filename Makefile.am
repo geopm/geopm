@@ -231,4 +231,4 @@ check_PROGRAMS =
 TESTS =
 
 include test/Makefile.mk
-
+include examples/Makefile.mk

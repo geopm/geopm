@@ -64,7 +64,7 @@ extern "C"
                 strncpy(msg, "<geopm> Unable to parse input file", size);
                 break;
             case GEOPM_ERROR_LEVEL_RANGE:
-                strncpy(msg, "<geomp> Control hierarchy level is out of range", size);
+                strncpy(msg, "<geopm> Control hierarchy level is out of range", size);
                 break;
             case GEOPM_ERROR_CTL_COMM:
                 strncpy(msg, "<geopm> Communication error in control hierarchy", size);

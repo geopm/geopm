@@ -87,6 +87,7 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               # end
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
+         test/geopm_print_error \
          # end
 
 EXTRA_DIST += test/geopm_test.sh \
@@ -125,6 +126,10 @@ if ENABLE_MPI
 
 endif
 
+# Examples as tests
+test_geopm_print_error_SOURCES = examples/geopm_print_error.c
+test_geopm_print_error_LDADD = libgeopmpolicy.la
+check_PROGRAMS += test/geopm_print_error
 
 
 check-am: MANIFEST
