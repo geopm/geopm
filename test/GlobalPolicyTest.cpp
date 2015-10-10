@@ -44,6 +44,7 @@ class GlobalPolicyTest: public :: testing :: Test
         void SetUp();
         void TearDown();
         geopm::GlobalPolicy *m_policy;
+        std::string m_path;
 };
 
 class GlobalPolicyTestShmem: public :: testing :: Test
@@ -56,13 +57,14 @@ class GlobalPolicyTestShmem: public :: testing :: Test
 
 void GlobalPolicyTest::SetUp()
 {
-    std::string path("./policy.conf");
-    m_policy = new geopm::GlobalPolicy(path, path);
+    m_path = "./policy.conf";
+    m_policy = new geopm::GlobalPolicy(m_path, m_path);
 }
 
 void GlobalPolicyTest::TearDown()
 {
     delete m_policy;
+    unlink(m_path.c_str());
 }
 
 void GlobalPolicyTestShmem::SetUp()
