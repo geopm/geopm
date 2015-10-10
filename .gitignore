@@ -37,6 +37,8 @@
 /test/.dirstamp
 /test/.libs/
 /test/*.o
+/test/*.log
+/test/*.trs
 /test/geopm_test
 /test/geopm_mpi_test
 /test/gtest_links/*
