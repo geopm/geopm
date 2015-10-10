@@ -109,7 +109,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "ERROR: <%s> Value for geomp error code is non-negative\n", argv[0]);
             return_code = -2;
         }
-        if (strstr(message, "<geopm> Undefined error number:") == message ||
+        if (strstr(message, "<geopm> Unknown error:") == message ||
             strstr(message, "Unknown error") == message) {
             fprintf(stderr, "Error: <%s> Message has not been implemented for error code.\n", argv[0]);
             return_code = -3;

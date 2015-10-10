@@ -85,7 +85,7 @@ extern "C"
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);
                 if (undef && undef != ERANGE) {
-                    snprintf(msg, size, "<geopm> Undefined error number: %i", err);
+                    snprintf(msg, size, "<geopm> Unknown error: %i", err);
                 }
 #else
                 strncpy(msg, strerror_r(err, msg, size), size);
