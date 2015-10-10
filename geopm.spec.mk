@@ -63,7 +63,6 @@ BuildRequires: json-c-devel
 BuildRequires: openmpi-devel
 BuildRequires: hwloc-devel
 Prefix: %{_prefix}
-Prefix: %{_initddir}
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm
