@@ -40,6 +40,12 @@ AC_SUBST(geopm_abi_version)
 
 LT_PREREQ([2.2.6])
 
+AC_ARG_VAR([MPICC],
+           [MPICC the MPI C compiler wrapper used to determine flags required for inclusion of MPI for C.])
+
+AC_ARG_VAR([MPICXX],
+           [MPICXX the MPI C++ compiler wrapper used to determine flags required for inclusion of MPI for C++.])
+
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
             [specify prefix directory for installed hwloc package.])])
 
