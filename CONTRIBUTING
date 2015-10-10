@@ -10,16 +10,6 @@ astyle with the following options:
 
     astyle --style=linux --indent=spaces=4 -y -S -C -N
 
-BUILD INSTRUCTIONS
-==================
-To build the library and install it in a "build" subdirectory of your
-home directory run the following commands
-
-    ./autogen.sh
-    CC=$MPICC CXX=$MPICXX ./configure --prefix=$HOME/build
-    make
-    make install
-
 TEST INSTRUCTIONS
 =================
 To test the library once it has been built run
