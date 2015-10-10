@@ -122,7 +122,10 @@ m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
 if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_CXX_mpi" == "xyes"],
-         AC_MSG_NOTICE([building with mpi support]),
+         AC_MSG_NOTICE([building with MPI C++ support]),
+         AC_MSG_ERROR([mpi compile environment has not been properly detected]))
+  AS_IF([test "x$have_C_mpi" == "xyes"],
+         AC_MSG_NOTICE([building with MPI C support]),
          AC_MSG_ERROR([mpi compile environment has not been properly detected]))
 fi
 
