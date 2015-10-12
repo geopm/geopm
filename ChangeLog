@@ -1,2 +1,10 @@
+* Mon Oct 12 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.2
+- Initial release to <https://github.com/geopm/geopm>.
+- Updates to man pages.
+- Support for static power modes.
+- Support for Platform abstraction.
+- Whitelist generation for MSR driver.
+- TreeCommunicator implementation to support hierarchy in MPI.
+- Build and test infrastructure.
 * Thu Oct 1 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.1
 - Inital tag which includes initial draft of man pages only.
