@@ -140,5 +140,5 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
         thrown = e.err_value();
     }
     ASSERT_TRUE(p == NULL);
-    EXPECT_TRUE(thrown == GEOPM_ERROR_INVALID);
+    EXPECT_TRUE(thrown == GEOPM_ERROR_PLATFORM_UNSUPPORTED);
 }

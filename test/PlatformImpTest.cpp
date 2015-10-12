@@ -348,7 +348,7 @@ TEST_F(PlatformImpTest, negative_read_no_desc)
         thrown = e.err_value();
     }
 
-    EXPECT_TRUE((thrown ==  ENODEV));
+    EXPECT_TRUE((thrown == GEOPM_ERROR_MSR_READ));
 }
 
 TEST_F(PlatformImpTest, negative_write_no_desc)
@@ -364,7 +364,7 @@ TEST_F(PlatformImpTest, negative_write_no_desc)
         thrown = e.err_value();
     }
 
-    EXPECT_TRUE((thrown == ENODEV));
+    EXPECT_TRUE((thrown == GEOPM_ERROR_MSR_WRITE));
 }
 
 TEST_F(PlatformImpTest, negative_read_bad_desc)
