@@ -99,7 +99,7 @@ namespace geopm
         }
         if (!result) {
             // If we get here, no acceptable platform was found
-            throw Exception("no plugin found to support current platform", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("cpuid: " + std::to_string(platform_id), GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
 
         return result;

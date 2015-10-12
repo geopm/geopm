@@ -68,6 +68,7 @@ int main(int argc, char** argv)
     char mode_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char option_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char copy_string[GEOPMPOLICY_STRING_LENGTH] = {0};
+    char error_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     FILE *infile;
     FILE *outfile;
     char *arg_ptr = NULL;
@@ -384,6 +385,10 @@ int main(int argc, char** argv)
         };
     }
 
+    if (err) {
+        geopm_error_message(err, error_string, GEOPMPOLICY_STRING_LENGTH);
+        fprintf(stderr, "Error: %s.\n", error_string);
+    }
     return err;
 }
 

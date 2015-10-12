@@ -52,9 +52,9 @@ extern "C"
     int geopm_platform_msr_save(const char *path)
     {
         int err = 0;
-        geopm::PlatformFactory platform_factory;
-        geopm::Platform *platform = platform_factory.platform(0);
         try {
+            geopm::PlatformFactory platform_factory;
+            geopm::Platform *platform = platform_factory.platform(0);
             platform->save_msr_state(path);
         }
         catch (...) {
@@ -67,10 +67,10 @@ extern "C"
     int geopm_platform_msr_restore(const char *path)
     {
         int err = 0;
-        geopm::PlatformFactory platform_factory;
-        geopm::Platform *platform = platform_factory.platform(0);
 
         try {
+            geopm::PlatformFactory platform_factory;
+            geopm::Platform *platform = platform_factory.platform(0);
             platform->restore_msr_state(path);
         }
         catch (...) {
@@ -83,10 +83,10 @@ extern "C"
     int geopm_platform_msr_whitelist(FILE *file_desc)
     {
         int err = 0;
-        geopm::PlatformFactory platform_factory;
-        geopm::Platform *platform = platform_factory.platform(0);
-
         try {
+            geopm::PlatformFactory platform_factory;
+            geopm::Platform *platform = platform_factory.platform(0);
+
             platform->write_msr_whitelist(file_desc);
         }
         catch (...) {

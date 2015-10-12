@@ -56,6 +56,7 @@ int main(int argc, char **argv)
         GEOPM_ERROR_POLICY_UNKNOWN,
         GEOPM_ERROR_NOT_IMPLEMENTED,
         GEOPM_ERROR_NOT_TESTED,
+        GEOPM_ERROR_PLATFORM_UNSUPPORTED,
     };
 
     const char *error_names[] = {
@@ -70,6 +71,7 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_POLICY_UNKNOWN",
         "GEOPM_ERROR_NOT_IMPLEMENTED",
         "GEOPM_ERROR_NOT_TESTED",
+        "GEOPM_ERROR_PLATFORM_UNSUPPORTED",
     };
 
     const int num_error = sizeof(error_codes) / sizeof(int);
@@ -95,7 +97,9 @@ int main(int argc, char **argv)
         return EINVAL;
     }
 
-    printf("GEOPM ERROR CODES\n");
+    if (*format_ptr != format_roff) {
+        printf("GEOPM ERROR CODES\n");
+    }
     for (i = 0; !return_code && i < num_error; ++i) {
         geopm_error_message(error_codes[i], message, NAME_MAX);
         if (strstr(message, tag) == message) {

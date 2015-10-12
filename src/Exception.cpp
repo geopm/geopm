@@ -81,6 +81,9 @@ extern "C"
             case GEOPM_ERROR_NOT_TESTED:
                 strncpy(msg, "<geopm> Feature not yet tested", size);
                 break;
+            case GEOPM_ERROR_PLATFORM_UNSUPPORTED:
+                strncpy(msg, "<geopm> Current platform not supported or unrecognized", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

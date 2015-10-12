@@ -51,6 +51,7 @@ enum geomp_error_e {
     GEOPM_ERROR_POLICY_UNKNOWN = -9,
     GEOPM_ERROR_NOT_IMPLEMENTED = -10,
     GEOPM_ERROR_NOT_TESTED = -11,
+    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
 };
 
 /* Convert error number into an error message */
