@@ -103,11 +103,11 @@ namespace geopm
             device_index = (m_num_cpu / m_num_tile) * device_index;
 
         if (m_cpu_file_descs.size() < (uint64_t)device_index) {
-            throw Exception("no file descriptor found for cpu device", ENODEV, __FILE__, __LINE__);
+            throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
         int rv = pwrite(m_cpu_file_descs[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
-            throw Exception("error writing to msr", EBADF, __FILE__, __LINE__);
+            throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
     }
 
@@ -128,11 +128,11 @@ namespace geopm
 
 
         if (m_cpu_file_descs.size() < (uint64_t)device_index) {
-            throw Exception("no file descriptor found for cpu device", ENODEV, __FILE__, __LINE__);
+            throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
         int rv = pread(m_cpu_file_descs[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
-            throw Exception("error reading msr", EBADF, __FILE__, __LINE__);
+            throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
 
         return value;
@@ -162,7 +162,7 @@ namespace geopm
             return;
         }
 
-        throw Exception("could not stat msr directory", errno, __FILE__, __LINE__);
+        throw Exception("checked /dev/cpu/0/msr and /dev/cpu/0/msr_safe", GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
     }
 
     void PlatformImp::open_msr(int cpu)
@@ -184,7 +184,7 @@ namespace geopm
             else {
                 snprintf(error_string, NAME_MAX, "system error opening cpu device %s", m_msr_path);
             }
-            throw Exception(error_string, errno, __FILE__, __LINE__);
+            throw Exception(error_string, GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
 
             return;
         }
@@ -201,7 +201,7 @@ namespace geopm
 
         //check for errors
         if (rv < 0) {
-            throw Exception("system error closing cpu device", errno, __FILE__, __LINE__);
+            throw Exception("system error closing cpu device", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 

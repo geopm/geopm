@@ -52,6 +52,9 @@ enum geomp_error_e {
     GEOPM_ERROR_NOT_IMPLEMENTED = -10,
     GEOPM_ERROR_NOT_TESTED = -11,
     GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
+    GEOPM_ERROR_MSR_OPEN = -13,
+    GEOPM_ERROR_MSR_READ = -14,
+    GEOPM_ERROR_MSR_WRITE = -15,
 };
 
 /* Convert error number into an error message */

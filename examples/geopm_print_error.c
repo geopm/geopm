@@ -57,6 +57,9 @@ int main(int argc, char **argv)
         GEOPM_ERROR_NOT_IMPLEMENTED,
         GEOPM_ERROR_NOT_TESTED,
         GEOPM_ERROR_PLATFORM_UNSUPPORTED,
+        GEOPM_ERROR_MSR_OPEN,
+        GEOPM_ERROR_MSR_READ,
+        GEOPM_ERROR_MSR_WRITE,
     };
 
     const char *error_names[] = {
@@ -72,6 +75,9 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_NOT_IMPLEMENTED",
         "GEOPM_ERROR_NOT_TESTED",
         "GEOPM_ERROR_PLATFORM_UNSUPPORTED",
+        "GEOPM_ERROR_MSR_OPEN",
+        "GEOPM_ERROR_MSR_READ",
+        "GEOPM_ERROR_MSR_WRITE",
     };
 
     const int num_error = sizeof(error_codes) / sizeof(int);

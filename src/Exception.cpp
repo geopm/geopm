@@ -84,6 +84,15 @@ extern "C"
             case GEOPM_ERROR_PLATFORM_UNSUPPORTED:
                 strncpy(msg, "<geopm> Current platform not supported or unrecognized", size);
                 break;
+            case GEOPM_ERROR_MSR_OPEN:
+                strncpy(msg, "<geopm> Could not open MSR device", size);
+                break;
+            case GEOPM_ERROR_MSR_READ:
+                strncpy(msg, "<geopm> Could not read from MSR device", size);
+                break;
+            case GEOPM_ERROR_MSR_WRITE:
+                strncpy(msg, "<geopm> Could not write to MSR device", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);
