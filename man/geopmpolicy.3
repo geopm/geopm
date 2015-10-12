@@ -62,7 +62,7 @@ may modify
 .RB ( \-s ),
 restore the MSR values from a saved state file
 .RB ( \-r ),
-or create a msr whitelist for the Linux msr driver
+or create a MSR whitelist for the Linux MSR driver
 .RB ( \-w ).
 The
 geopmpolicy application also respects the standard
@@ -141,9 +141,16 @@ option.
 .TP
 .BR "\-w"
 .br
-Create a Linux msr driver whitelist file for the current platform, if
+Create a Linux MSR driver whitelist file for the current platform, if
 .B "\-f"
-is not specified when using this option, the whitelist will be printed to stdout.
+is not specified when using this option, the whitelist will be printed to
+stdout.  This whitelist is the minimum set of MSR register privileges required
+to enable all geopm functionality.  Enabling user access to these registers
+may have security implications on a multi-user system.  Each line of the
+whitelist output ends with a name describing the register as derived from the
+Intel (R) Software Developer's Manual.  Please cross-reference Intel (R)
+Software Developer's Manual to get details about the security implications of
+the whitelist before enabling user access.
 .TP
 .BR "\-m" " mode"
 .br
@@ -291,7 +298,7 @@ Restore the system MSRs to their previous state:
 .br
 $ geopmpolicy -r -f geopm_restore.log
 .TP
-Output a msr whitelist file for use with the Linux msr driver:
+Output a MSR whitelist file for use with the Linux MSR driver:
 .br
 $ geopmpolicy -w -f msr_whiteist.conf
 .SH "COPYRIGHT"
