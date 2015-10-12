@@ -51,7 +51,7 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.size() != 0);
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
     EXPECT_TRUE(what_str.find("argument") != std::string::npos);
-    std::cerr << "ERROR: " << ex0.what() << std::endl;
+    std::cerr << "Error: " << ex0.what() << std::endl;
 
     geopm::Exception ex1("Hello world", GEOPM_ERROR_LOGIC);
     EXPECT_EQ(GEOPM_ERROR_LOGIC, ex1.err_value());
@@ -59,7 +59,7 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.size() != 0);
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
     EXPECT_TRUE(what_str.find("Hello world") != std::string::npos);
-    std::cerr << "ERROR: " << ex1.what() << std::endl;
+    std::cerr << "Error: " << ex1.what() << std::endl;
 
     geopm::Exception ex2(GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
     EXPECT_EQ(GEOPM_ERROR_FILE_PARSE, ex2.err_value());
@@ -68,7 +68,7 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
     EXPECT_TRUE(what_str.find("parse") != std::string::npos);
     EXPECT_TRUE(what_str.find("ExceptionTest.cpp") != std::string::npos);
-    std::cerr << "ERROR: " << ex2.what() << std::endl;
+    std::cerr << "Error: " << ex2.what() << std::endl;
 
     geopm::Exception ex3("Hello world", GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, ex3.err_value());
@@ -92,7 +92,7 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.size() != 0);
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
     EXPECT_TRUE(what_str.find("untime") != std::string::npos);
-    std::cerr << "ERROR: " << ex4.what() << std::endl;
+    std::cerr << "Error: " << ex4.what() << std::endl;
 
     geopm::Exception ex5;
     EXPECT_EQ(GEOPM_ERROR_RUNTIME, ex5.err_value());
@@ -100,6 +100,6 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.size() != 0);
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
     EXPECT_TRUE(what_str.find("untime") != std::string::npos);
-    std::cerr << "ERROR: " << ex5.what() << std::endl;
+    std::cerr << "Error: " << ex5.what() << std::endl;
 }
 

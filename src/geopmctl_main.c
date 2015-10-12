@@ -120,7 +120,7 @@ int main(int argc, char **argv)
                 arg_ptr = report;
                 break;
             default:
-                fprintf(stderr, "ERROR: unknown parameter \"%c\"\n", opt);
+                fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
                 fprintf(stderr, usage, argv[0]);
                 err0 = EINVAL;
                 break;
@@ -128,13 +128,13 @@ int main(int argc, char **argv)
         if (!err0) {
             strncpy(arg_ptr, optarg, GEOPMCTL_STRING_LENGTH);
             if (arg_ptr[GEOPMCTL_STRING_LENGTH - 1] != '\0') {
-                fprintf(stderr, "ERROR: config_file name too long\n");
+                fprintf(stderr, "Error: config_file name too long\n");
                 err0 = EINVAL;
             }
         }
     }
     if (!err0 && optind != argc) {
-        fprintf(stderr, "ERROR: %s does not take positional arguments\n", argv[0]);
+        fprintf(stderr, "Error: %s does not take positional arguments\n", argv[0]);
         fprintf(stderr, usage, argv[0]);
         err0 = EINVAL;
     }
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
     if (err_mpi) {
         i = GEOPMCTL_STRING_LENGTH;
         MPI_Error_string(err_mpi, error_str, &i);
-        fprintf(stderr, "ERROR: %s\n", error_str);
+        fprintf(stderr, "Error: %s\n", error_str);
         err0 = err_mpi;
     }
 
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         strlen(policy_config) == 0 &&
         strlen(policy_key) == 0) {
         err0 = EINVAL;
-        fprintf(stderr, "ERROR: %s either -c or -k must be specified\n", argv[0]);
+        fprintf(stderr, "Error: %s either -c or -k must be specified\n", argv[0]);
     }
 
     if (!err0 && !my_rank) {
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
         err0 = geopmctl_main(policy_config, policy_key, sample_key, report);
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
-            fprintf(stderr, "ERROR: %s\n", error_str);
+            fprintf(stderr, "Error: %s\n", error_str);
         }
     }
 

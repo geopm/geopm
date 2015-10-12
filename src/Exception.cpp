@@ -121,25 +121,25 @@ namespace geopm
 
             if (ex_geopm) {
 #ifdef GEOPM_DEBUG
-                std::cerr << "ERROR: " << ex_geopm->what() << std::endl;
+                std::cerr << "Error: " << ex_geopm->what() << std::endl;
 #endif
                 err = ex_geopm->err_value();
             }
             else if (ex_sys) {
 #ifdef GEOPM_DEBUG
-                std::cerr << "ERROR: " << ex_sys->what() << std::endl;
+                std::cerr << "Error: " << ex_sys->what() << std::endl;
 #endif
                 err = ex_sys->code().value();
             }
             else if (ex_rt) {
 #ifdef GEOPM_DEBUG
-                std::cerr << "ERROR: " << ex_rt->what() << std::endl;
+                std::cerr << "Error: " << ex_rt->what() << std::endl;
 #endif
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
             else {
 #ifdef GEOPM_DEBUG
-                std::cerr << "ERROR: " << ex.what() << std::endl;
+                std::cerr << "Error: " << ex.what() << std::endl;
 #endif
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }

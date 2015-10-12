@@ -134,7 +134,7 @@ int main(int argc, char** argv)
                         "\n";
 
     if (argc < 2) {
-        fprintf(stderr, "ERROR: No arguments specified\n");
+        fprintf(stderr, "Error: No arguments specified\n");
         fprintf(stderr, usage, argv[0]);
         return EINVAL;
     }
@@ -179,7 +179,7 @@ int main(int argc, char** argv)
                 printf("%s\n",usage);
                 return 0;
             default:
-                fprintf(stderr, "ERROR: unknown parameter \"%c\"\n", opt);
+                fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
                 fprintf(stderr, usage, argv[0]);
                 err = EINVAL;
                 break;
@@ -187,14 +187,14 @@ int main(int argc, char** argv)
         if (!err && optarg != NULL) {
             strncpy(arg_ptr, optarg, GEOPMPOLICY_STRING_LENGTH);
             if (arg_ptr[GEOPMPOLICY_STRING_LENGTH - 1] != '\0') {
-                fprintf(stderr, "ERROR: option string too long\n");
+                fprintf(stderr, "Error: option string too long\n");
                 err = EINVAL;
             }
         }
     }
 
     if (!err && optind != argc) {
-        fprintf(stderr, "ERROR: %s does not take positional arguments\n", argv[0]);
+        fprintf(stderr, "Error: %s does not take positional arguments\n", argv[0]);
         fprintf(stderr, usage, argv[0]);
         err = EINVAL;
     }
@@ -230,7 +230,7 @@ int main(int argc, char** argv)
             //Make sure we are using tempfs to keep these files local to the machine
             if (strncmp(file, "/tmp/", 5)) {
                 if (strlen(file) > (GEOPMPOLICY_STRING_LENGTH - strlen("/tmp/"))) {
-                    fprintf(stderr, "ERROR: Specified file path too long\n");
+                    fprintf(stderr, "Error: Specified file path too long\n");
                     err = EINVAL;
                 }
                 if (!err) {
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
             //Make sure we are using tempfs to keep these files local to the machine
             if (strncmp(file, "/tmp/", 5)) {
                 if (strlen(file) > (GEOPMPOLICY_STRING_LENGTH - strlen("/tmp/"))) {
-                    fprintf(stderr, "ERROR: Specified file path too long\n");
+                    fprintf(stderr, "Error: Specified file path too long\n");
                     err = EINVAL;
                 }
                 if (!err) {
@@ -302,7 +302,7 @@ int main(int argc, char** argv)
                 pdir[i] = 0;
                 if(stat(pdir, &statbuffer) == -1) {
                     if(mkdir(pdir, S_IRWXU)) {
-                        fprintf(stderr, "ERROR: Could not create directory %s\n", dirname(file));
+                        fprintf(stderr, "Error: Could not create directory %s\n", dirname(file));
                         return errno ? errno : GEOPM_ERROR_RUNTIME;
                     }
                 }
@@ -311,7 +311,7 @@ int main(int argc, char** argv)
         }
         if(stat(pdir, &statbuffer) == -1) {
             if(mkdir(pdir, S_IRWXU)) {
-                fprintf(stderr, "ERROR: Could not create directory %s\n", dirname(file));
+                fprintf(stderr, "Error: Could not create directory %s\n", dirname(file));
                 return errno ? errno : GEOPM_ERROR_RUNTIME;
             }
         }

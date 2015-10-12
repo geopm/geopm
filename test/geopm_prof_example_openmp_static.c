@@ -159,7 +159,7 @@ struct geopm_prof_c *prof_g;
 inline void error_handler(int err)
 {
     if (err) {
-        fprintf(stderr, "ERROR: %i, fatal\n\n", err);
+        fprintf(stderr, "Error: %i, fatal\n\n", err);
         exit(err);
     }
 }

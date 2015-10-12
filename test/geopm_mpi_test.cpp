@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     }
     catch (std::exception ex) {
         err = err ? err : 1;
-        std::cerr << "ERROR: <geopm_mpi_test> "<< ex.what();
+        std::cerr << "Error: <geopm_mpi_test> "<< ex.what();
     }
     if (err) {
         MPI_Abort(MPI_COMM_WORLD, err);
