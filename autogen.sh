@@ -47,5 +47,14 @@ if [ ! -f VERSION ]; then
     echo $version > VERSION
 fi
 
+if [ ! -f MANIFEST ]; then
+    if [ -f .git/config ]; then
+        git ls-tree --full-tree -r HEAD | awk '{print $4}' | sort > MANIFEST
+    else
+        echo "WARNING: MANIFEST file does not exist and working directory is not a git repository, creating with find" 2>&1
+        find . -type f | sed 's|^\./||' | sort > MANIFEST
+    fi
+fi
+
 mkdir -p m4
 autoreconf -i -f

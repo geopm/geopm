@@ -214,10 +214,6 @@ clean-local: clean-local-coverage
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
-# MANIFEST CREATION
-MANIFEST:
-	git ls-tree --full-tree -r HEAD | awk '{print $$4}' | sort > MANIFEST
-
 # RPM TAGET
 geopm-$(VERSION).spec:
 	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
