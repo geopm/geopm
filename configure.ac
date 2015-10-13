@@ -120,6 +120,9 @@ AM_CONDITIONAL([ENABLE_MPI], [test "x$enable_mpi" = "x1"])
 
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
+AC_LANG_PUSH([C++])
+LX_FIND_MPI()
+AC_LANG_POP([C++])
 if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_CXX_mpi" == "xyes"],
          AC_MSG_NOTICE([building with MPI C++ support]),
@@ -138,6 +141,9 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_OPENMP
+AC_LANG_PUSH([C++])
+AC_OPENMP
+AC_LANG_POP([C++])
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 AM_PROG_CC_C_O
@@ -216,7 +222,7 @@ AC_SUBST([enable_coverage])
 
 CFLAGS="${CFLAGS} ${OPENMP_CFLAGS} -Wall -Werror -std=c99"
 CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11"
-LDFLAGS="${LDFLAGS} ${OPENMP_LDFLAGS} -lhwloc -ljson-c"
+LDFLAGS="${LDFLAGS} ${OPENMP_CFLAGS} -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
