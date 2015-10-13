@@ -29,39 +29,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#define _GNU_SOURCE
+#include <sched.h>
 
-#ifndef GEOPM_ERROR_H_INCLUDE
-#define GEOPM_ERROR_H_INCLUDE
+#include "geopm_error.h"
 
-#include <stdlib.h>
+#ifdef _OPENMP
+#include <omp.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-enum geomp_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-    GEOPM_ERROR_POLICY_NULL = -4,
-    GEOPM_ERROR_FILE_PARSE = -5,
-    GEOPM_ERROR_LEVEL_RANGE = -6,
-    GEOPM_ERROR_CTL_COMM = -7,
-    GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
-    GEOPM_ERROR_POLICY_UNKNOWN = -9,
-    GEOPM_ERROR_NOT_IMPLEMENTED = -10,
-    GEOPM_ERROR_NOT_TESTED = -11,
-    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
-    GEOPM_ERROR_MSR_OPEN = -13,
-    GEOPM_ERROR_MSR_READ = -14,
-    GEOPM_ERROR_MSR_WRITE = -15,
-    GEOPM_ERROR_OPENMP_UNSUPPORTED = -16,
-};
-
-/* Convert error number into an error message */
-void geopm_error_message(int err, char *msg, size_t size);
-
-#ifdef __cplusplus
+int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
+{
+    int err = 0;
+    for (int i = 0; i < num_cpu; ++i) {
+        CPU_SET(i, no_omp);
+    }
+    #pragma omp parallel default(shared)
+    {
+        #pragma omp critical
+        {
+            int cpu_index = sched_getcpu();
+            if (cpu_index < num_cpu) {
+                CPU_CLR(cpu_index, no_omp);
+            }
+            else {
+                err = GEOPM_ERROR_RUNTIME;
+            }
+        } /* end pragma omp critical */
+    } /* end pragma omp parallel */
+    return err;
 }
-#endif
+#else
+
+int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
+{
+    return GEOPM_ERROR_OPENMP_UNSUPPORTED;
+}
+
 #endif

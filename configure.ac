@@ -134,6 +134,7 @@ AC_PROG_AWK
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_MAKE_SET
+AC_OPENMP
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 AM_PROG_CC_C_O
@@ -210,9 +211,9 @@ if test "x$enable_coverage" = "x1" ; then
 fi
 AC_SUBST([enable_coverage])
 
-CFLAGS="${CFLAGS} -Wall -Werror -std=c99"
-CXXFLAGS="${CXXFLAGS} -Wall -Werror -std=c++11"
-LDFLAGS="${LDFLAGS} -lrt -lhwloc -ljson-c"
+CFLAGS="${CFLAGS} ${OPENMP_CFLAGS} -Wall -Werror -std=c99"
+CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11"
+LDFLAGS="${LDFLAGS} ${OPENMP_LDFLAGS} -lrt -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

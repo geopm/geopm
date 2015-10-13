@@ -93,6 +93,9 @@ extern "C"
             case GEOPM_ERROR_MSR_WRITE:
                 strncpy(msg, "<geopm> Could not write to MSR device", size);
                 break;
+            case GEOPM_ERROR_OPENMP_UNSUPPORTED:
+                strncpy(msg, "<geopm> Not compiled with support for OpenMP", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

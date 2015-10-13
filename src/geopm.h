@@ -135,8 +135,6 @@ int geopm_prof_fprint(struct geopm_prof_c *prof,
 /***************/
 /* HELPER APIS */
 /***************/
-int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp);
-
 int geopm_num_nodes(MPI_Comm comm, int *num_nodes);
 
 int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm);

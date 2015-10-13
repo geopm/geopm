@@ -29,69 +29,54 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.TH "GEOPMCTL" 3 "2015-10-12" "Intel Corporation" "GEOPM" \" -*- nroff -*-
+.TH "GEOPM_OMP" 3 "2015-10-12" "Intel Corporation" "GEOPM" \" -*- nroff -*-
 .SH "NAME"
-geopmctl \- geopm runtime mpi application
+geopm_omp.h \- geopm interface for OpenMP
 .SH "SYNOPSIS"
+.nf
+.B #include <geopm_omp.h>
 .sp
-.BR "geopmctl" "[" "\-\-help" "] [" "\-\-version" "]"
-.br
-.BR "        " "(" "\-c" " policy_config | " "\-k" " policy_key)"
-.br
-.BR "        " "[" "\-s" " sample_key] [" "\-r" " report]"
+.B Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)
+.sp
+.BI "int geopm_no_omp_cpu(int " "num_cpu" ", cpu_set_t *" "no_omp");
 .sp
 .SH "DESCRIPTION"
-.sp
-The geopmctl application runs concurrently with a computational MPI
-application to manage power settings on compute nodes allocated to the
-computation MPI application.
-.SH "OPTIONS"
-.TP
-.B \-\-help
-Print brief summary of the command line usage information, then exit.
-.TP
-.B \-\-version
-Print version of geopm to standard output, then exit.
-.TP
-.BR "\-c" " policy_config"
-Policy configuration file which may be created with the
-.BR geopm_policy_c (3)
-interface or the
-.BR geopmpolicy (3)
-application.  If
-.B "\-c"
-is specified then
-.B "\-k"
-should not be specified.  If both are specified
-.B "\-k"
-is ignored and a warning is printed.
-.TP
-.BR "\-k" " control_key"
-POSIX shared memory key which determines policy for geopmctl.  See
-.BR geopm_policy_c (3)
-for information on how to create and modify a shared memory region for
-control.
-.TP
-.BR "\-s" " sample_key"
-POSIX shared memory key referencing memory written to by the compute
-application to provide the geopmctl application with performance profile
-information.  See
-.BR geopm_ctl_c (3)
-for information on how to create the sample shared memory region for
-profile feedback.
-.TP
-.BR "\-r" " report"
-Output text file that will hold the human readable report when program
-terminates.
+The
+.I geopm_omp.h
+header defines geopm interfaces for interacting with the OpenMP runtime
+environment.  This set of interfaces will grow in the future.
+.PP
+.BR geopm_no_omp_cpu ()
+sets the
+.BR CPU_SET (3)
+given by
+.I no_omp
+such that it includes all CPUs not used in an OpenMP parallel region.  This
+cpu mask can be used with
+.BR pthread_attr_setaffinity_np (3)
+to modify the attributes passed to
+.BR geopm_ctl_pthread ()
+so that the pthread created is affinitized to CPUs that do not have an OpenMP
+thread affinity.  The mask generated when OpenMP threads are not statically
+affinitized is unreliable.  The
+.I no_omp
+mask is zeroed and an error code is returned when all online CPUs have an
+OpenMP thread affinity.  The
+.I num_cpu
+parameter specifies size of the CPU_SET in terms of number of CPUs.
 .SH "COPYRIGHT"
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 .SH "SEE ALSO"
 .BR geopm (3),
+.BR geopmctl (3),
+.BR geopmkey (3),
+.BR geopmpolicy (3),
 .BR geopm_ctl_c (3),
-.BR geopm_omp (3),
 .BR geopm_error (3),
+.BR geopm_omp (3),
 .BR geopm_policy_c (3),
 .BR geopm_prof_c (3),
 .BR geopm_version (3),
-.BR geopmkey (3),
-.BR geopmpolicy (3)
+.BR CPU_SET (3),
+.BR pthread_setaffinity_np (3),
+.BR pthread_attr_setaffinity_np (3)

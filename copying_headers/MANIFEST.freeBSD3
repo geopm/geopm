@@ -29,6 +29,8 @@ src/geopm.h
 src/geopm_mpi_pcontrol.h
 src/geopm_policy.h
 src/geopmpolicy_main.c
+src/geopm_omp.c
+src/geopm_omp.h
 src/geopm_policy_message.c
 src/geopm_policy_message.h
 src/geopm_version.c
@@ -76,4 +78,3 @@ test/no_omp_cpu.c
 test/ObservationTest.cpp
 test/PlatformFactoryTest.cpp
 test/PlatformImpTest.cpp
-

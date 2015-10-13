@@ -56,10 +56,6 @@ geopm_ctl_c \- geopm power controller structure
 .sp
 .BI "int geopm_ctl_spawn(struct geopm_ctl_c *" "ctl" );
 .sp
-.B "HELPER FUNCTIONS:"
-.br
-.BI "int geopm_no_omp_cpu(int " "num_cpu" ", cpu_set_t *" "no_omp" );
-.sp
 .SH "DESCRIPTION"
 .PP
 The geopm_ctl_c structure is used to lauch or step the global energy
@@ -182,27 +178,6 @@ structure must have been created with the
 .I sample_key
 specified, otherwise an error occurs and an error code is returned.
 .sp
-.B "HELPER FUNCTIONS:"
-.br
-.PP
-.BR geopm_no_omp_cpu
-sets the
-.BR CPU_SET (3)
-given by
-.I no_omp
-such that it includes all CPUs not used in an OpenMP parallel region.  This
-cpu mask can be used with
-.BR pthread_attr_setaffinity_np (3)
-to modify the attributes passed to
-.BR geopm_ctl_pthread ()
-so that the pthread created is affinitized to CPUs that do not have an OpenMP
-thread affinity.  The mask generated when OpenMP threads are not statically
-affinitized is unreliable.  The
-.I no_omp
-mask is zeroed and an error code is returned when all online CPUs have an
-OpenMP thread affinity.  The
-.I num_cpu
-parameter specifies size of the CPU_SET in terms of number of CPUs.
 .SH "ERRORS"
 All functions described on this man page return an error code.  See
 .BR geopm_error (3)
@@ -212,9 +187,10 @@ strings.
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 .SH "SEE ALSO"
 .BR geopm (3),
+.BR geopm_error (3),
+.BR geopm_omp (3),
 .BR geopm_policy_c (3),
 .BR geopm_prof_c (3),
-.BR geopm_error (3),
 .BR geopm_version (3),
 .BR geopmctl (3),
 .BR geopmkey (3),
