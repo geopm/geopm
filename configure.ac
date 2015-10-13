@@ -156,6 +156,18 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "pthread.h is required for this library"
     exit -1])
+AC_CHECK_LIB([hwloc], [hwloc_topology_init], [], [
+    echo "hwloc is required for this library: <http://www.open-mpi.org/projects/hwloc/>"
+    exit -1])
+AC_CHECK_HEADER([hwloc.h], [], [
+    echo "hwloc.h is required for this library: <http://www.open-mpi.org/projects/hwloc/>"
+    exit -1])
+AC_CHECK_LIB([json-c], [json_tokener_parse], [], [
+    echo "json-c is required for this library: <https://github.com/json-c/json-c/wiki>"
+    exit -1])
+AC_CHECK_HEADER([json-c/json.h], [], [
+    echo "json-c/json.h is required for this library: <https://github.com/json-c/json-c/wiki>"
+    exit -1])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
