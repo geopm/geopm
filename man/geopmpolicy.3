@@ -66,7 +66,7 @@ or create a MSR whitelist for the Linux MSR driver
 .RB ( \-w ).
 The
 geopmpolicy application also respects the standard
-.BR "\-\-verison" " and " "\-\-help"
+.BR "\-\-version" " and " "\-\-help"
 options for printing the geopm version or a brief message about
 usage.  The output from using the
 .B \-c
@@ -111,9 +111,9 @@ to standard output, then exit.
 .br
 Create a
 .BR geopm (3)
-configurtion file,
+configuration file,
 .B "\-f"
-must be specified when using this option which gives the path to the ouptut
+must be specified when using this option which gives the path to the output
 configuration file.
 .TP
 .BR "\-e"
@@ -135,7 +135,7 @@ option.
 .B "\-r"
 .br
 Restore the MSR values that are recored in an existing MSR save state file.
-The infput file may be specified with the
+The input file may be specified with the
 .B "\-f"
 option.
 .TP
@@ -177,7 +177,7 @@ file_path is an output file.  When used with
 .BR "\-e" " or " "\-r"
 file_path is an input file.  This is a
 .BR geopm (3)
-cogfigration file when used with
+configuration file when used with
 .BR "\-c" " or " "\-e"
 and an MSR save state file when used with
 .BR "\-s" " or " "\-r" .
@@ -220,7 +220,7 @@ passed to the
 .B "\-d"
 flag for the freq_hybrid mode: "cpu_mhz" giving operating frequency for
 restrained CPUs in units of MHz, "num_cpu_max_perf" giving the number of CPUs
-running at maximum peformance, and "affinity" which can have a value of
+running at maximum performance, and "affinity" which can have a value of
 "compact" or "scatter" describing the distribution of the CPUs running at
 maximum performance.  All other keys are ignored.
 .TP
@@ -300,7 +300,7 @@ $ geopmpolicy -r -f geopm_restore.log
 .TP
 Output a MSR whitelist file for use with the Linux MSR driver:
 .br
-$ geopmpolicy -w -f msr_whiteist.conf
+$ geopmpolicy -w -f msr_whitelist.conf
 .SH "COPYRIGHT"
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 .SH "SEE ALSO"

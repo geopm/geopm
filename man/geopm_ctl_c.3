@@ -170,7 +170,7 @@ control and so the profile feedback is acquired directly.  In this case the
 structure must have been created with
 .I sample_prof
 specified.  With this method of launch the supporting MPI implementation must
-be enabled for MPI_THREAD_MULITPLE using MPI_Init_thread().
+be enabled for MPI_THREAD_MULTIPLE using MPI_Init_thread().
 .PP
 .BR geopm_ctl_spawn ()
 use MPI_Comm_spawn() to spawn a new communicator with one process per compute
@@ -193,7 +193,7 @@ given by
 such that it includes all CPUs not used in an OpenMP parallel region.  This
 cpu mask can be used with
 .BR pthread_attr_setaffinity_np (3)
-to modify the attriutes passed to
+to modify the attributes passed to
 .BR geopm_ctl_pthread ()
 so that the pthread created is affinitized to CPUs that do not have an OpenMP
 thread affinity.  The mask generated when OpenMP threads are not statically

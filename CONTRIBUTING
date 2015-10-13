@@ -1,4 +1,3 @@
-
 CONTRIBUTING
 ============
 This file describes how to contribute to the geopm project.
@@ -34,6 +33,7 @@ which run tests and produce a coverage report in
     coverage/index.html
 
 Note that all tests must pass in order to generate a coverage report.
+
 
 LIBRARY DESIGN
 ==============
@@ -132,7 +132,7 @@ benefit, at least during the process phases which are bounded by memory
 constraints.  There are several challenges introduced by this solution with
 regard to process creation and interprocess communication.
 
-Modify job launch script to simultaniously launch MPI application used for
+Modify job launch script to simultaneously launch MPI application used for
 control.  This control application communicates by POSIX shared memory with
 one of the primary application processes on each compute node.  The POSIX
 shared memory key must be passed to the primary application at start up, and
@@ -154,13 +154,13 @@ versions of geopm.
 
 Node local optimizations
 
-- Temporal energy stearing from one phase to another
+- Temporal energy steering from one phase to another
 
-- Per phase optimization energy stearing between cpus on a package (tile
+- Per phase optimization energy steering between CPUs on a package (tile
   groups)
 
-- Spacially stearing optimzation of power between different HW resources
+- Spatially steering optimization of power between different hardware resources
 
-Internode optimzations
+Internode optimizations
 
-- Spacially stearing the allocation of power between nodes
+- Spatially steering the allocation of power between nodes

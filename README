@@ -68,7 +68,7 @@ options.  The
     ./configure --disable-mpi
 
 option can be used to build only targets which do not require MPI.  By
-defaulte MPI targets are built.
+default MPI targets are built.
 
 
 BUILD INSTRUCTIONS

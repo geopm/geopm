@@ -110,7 +110,7 @@ when
 .I policy
 is passed to
 .BR geopm_policy_read () .
-The string can contain either a config file path or a shm key.
+The string can contain either a config file path or a POSIX shared memory key.
 If
 .I out_config
 is not NULL then a configuration file or shared memory region will be created
@@ -119,7 +119,7 @@ and when
 is passed to
 .BR geopm_policy_write ()
 the current policy will be written to the region. The string can contain either
-a config file path or a shm key.
+a config file path or a POSIX shared memory key.
 If both
 .I in_config
 and
@@ -219,7 +219,7 @@ Read a set of MSR values from a file specified by
 and set the MSR values of the system to match those given in the file.
 .PP
 .BR geopm_platform_msr_whitelist ()
-Write a MSR whitelist consisting of all MSR offsets and writemasks needed
+Write a MSR whitelist consisting of all MSR offsets and write masks needed
 for full operation of geopm power modes. It is intended to be used with the
 whitelisting feature of the Linux MSR driver. The whitelist is written out to
 .I file_desc

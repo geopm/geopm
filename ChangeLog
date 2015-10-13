@@ -5,6 +5,6 @@
 - Support for Platform abstraction.
 - Whitelist generation for MSR driver.
 - TreeCommunicator implementation to support hierarchy in MPI.
-- Build and test infrastructure.
+- Build and test infrastructure (autotools, gtest, gmock).
 * Thu Oct 1 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.1
-- Inital tag which includes initial draft of man pages only.
+- Initial tag which includes initial draft of man pages only.

@@ -43,13 +43,19 @@ geopm_error \- geopm error handling
 .BI "                         size_t " "size" );
 .sp
 .SH "DESCRIPTION"
-Almost all geopm C API's return an error number, and this is GEOPM's method of
-exception handling.  This man page describes how to interpret these numbers.
-A returned error number of zero by a GEOPM API indicates successs.  If the
-error number returned by a GEOPM API is positive then this indicates a system
-error, and if the error number is negative this indicates a GEOPM specific
-error has occured.  Any non-zero error number can be converted into a
-descriptive string with the
+All
+.BR geopm (3)
+C APIs which can have an error condition occur during runtime return an error
+number.  This is the way
+.BR geopm (3)
+handles errors, and almost all of the interfaces behave this way.  This man
+page describes how to interpret these returned error codes.  A returned error
+number of zero by a geopm API indicates success.  If the error number returned
+by a geopm API is positive then this indicates a generic system error, and if
+the error number is negative this indicates a
+.BR geopm (3)
+specific error has occurred.  Any non-zero error number can be converted into
+a descriptive string with the
 .BR geopm_error_message ()
 function.  The GEOPM specific error numbers are enumerated in the
 .I geopm_error.h
@@ -115,3 +121,4 @@ Copyright (C) 2015 Intel Corporation. All rights reserved.
 .BR geopmctl (3),
 .BR geopmkey (3),
 .BR geopmpolicy (3)
+.BR errno (3)

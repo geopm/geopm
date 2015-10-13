@@ -1,11 +1,19 @@
+ISSUES
+======
+
+issue-geopmpolicy-whitelist-root
+    - "geopmpolicy -w" requires root access, but output is only a function of
+      cpuid (2015-10-12).
+
+
 Notes on Phases
 ===============
 
 Application Constraints
 -----------------------
-Application must call into geopm API's from per-rank serial code.
+Application must call into geopm APIs from per-rank serial code.
 
-Resolution of control is limited to sets of CPU's assigned to each MPI
+Resolution of control is limited to sets of CPUs assigned to each MPI
 rank.
 
 If a library linked by the application uses geopm mark up for phases,
