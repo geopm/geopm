@@ -32,7 +32,6 @@
 # targets for building rpm
 version ?= 0.0.0
 release ?= 1
-arch = $(shell uname -p)
 
 rpm: geopm-$(version).tar.gz
 	rpmbuild $(rpmbuild_flags) $^ -ta
@@ -136,7 +135,6 @@ rm -f %{buildroot}/%{_libdir}/libgeopm.a
 rm -f %{buildroot}/%{_libdir}/libgeopm.la
 rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.a
 rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
-$(extra_install)
 
 %clean
 
@@ -170,7 +168,6 @@ $(extra_install)
 %doc %{_mandir}/man3/geopm_policy_c.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
 %doc %{_mandir}/man3/geopm_version.3.gz
-$(extra_files)
 
 %files devel
 %defattr(-,root,root,-)
