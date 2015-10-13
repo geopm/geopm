@@ -129,6 +129,9 @@ if test "x$enable_mpi" = "x1"; then
          AC_MSG_ERROR([mpi compile environment has not been properly detected]))
 fi
 
+AC_SEARCH_LIBS([shm_open], [rt])
+AC_SEARCH_LIBS([shm_unlink], [rt])
+
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_CXX
@@ -213,7 +216,7 @@ AC_SUBST([enable_coverage])
 
 CFLAGS="${CFLAGS} ${OPENMP_CFLAGS} -Wall -Werror -std=c99"
 CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11"
-LDFLAGS="${LDFLAGS} ${OPENMP_LDFLAGS} -lrt -lhwloc -ljson-c"
+LDFLAGS="${LDFLAGS} ${OPENMP_LDFLAGS} -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
