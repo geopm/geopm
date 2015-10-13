@@ -29,11 +29,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#define _GNU_SOURCE
-#include <sched.h>
-
-#include "geopm_error.h"
 #include "geopm_omp.h"
+#include "geopm_error.h"
 
 #ifdef _OPENMP
 #include <omp.h>

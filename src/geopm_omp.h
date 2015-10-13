@@ -33,6 +33,9 @@
 #ifndef GEOPM_OMP_H_INCLUDE
 #define GEOPM_OMP_H_INCLUDE
 
+#define _GNU_SOURCE
+#include <sched.h>
+
 #ifndef __linux__
 typedef struct cpu_set_t {
     long int x[512];
