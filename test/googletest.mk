@@ -40,7 +40,7 @@ googlemock_archive = $(googlemock).zip
 googlemock_sha1 = f9d9dd882a25f4069ed9ee48e70aff1b53e3c5a5
 
 $(googlemock_archive):
-	wget http://googlemock.googlecode.com/files/$(googlemock_archive)
+	curl -O http://googlemock.googlecode.com/files/$(googlemock_archive)
 	if [ $$(sha1sum $(googlemock_archive) | awk '{print $$1}') != $(googlemock_sha1) ]; then exit -1; fi
 
 $(googlemock)/VERSION: $(googlemock_archive)

@@ -33,6 +33,7 @@
 #include <sched.h>
 
 #include "geopm_error.h"
+#include "geopm_omp.h"
 
 #ifdef _OPENMP
 #include <omp.h>
