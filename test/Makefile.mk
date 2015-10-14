@@ -131,8 +131,9 @@ test_geopm_print_error_SOURCES = examples/geopm_print_error.c
 test_geopm_print_error_LDADD = libgeopmpolicy.la
 check_PROGRAMS += test/geopm_print_error
 
-
-check-am: MANIFEST
+# Target for building test programs.
+checkprogs: $(check_PROGRAMS)
+.PHONY: checkprogs
 
 $(GTEST_TESTS): test/gtest_links/%:
 	mkdir -p test/gtest_links

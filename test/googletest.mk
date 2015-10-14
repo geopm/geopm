@@ -30,6 +30,7 @@
 #
 
 check-am: libgmock.a libgtest.a
+BUILT_SOURCES = $(googlemock)/VERSION
 
 clean-local: clean-local-gmock
 
