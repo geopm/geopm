@@ -29,6 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# 2.62 required for OpenMP macro and others
 AC_PREREQ([2.62])
 AC_INIT([geopm],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax])
@@ -42,13 +43,11 @@ LT_PREREQ([2.2.6])
 
 AC_ARG_VAR([MPICC],
            [MPICC the MPI C compiler wrapper used to determine flags required for inclusion of MPI for C.])
-
 AC_ARG_VAR([MPICXX],
            [MPICXX the MPI C++ compiler wrapper used to determine flags required for inclusion of MPI for C++.])
 
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
-            [specify prefix directory for installed hwloc package.])])
-
+            [specify directory for installed hwloc package.])])
 if test "x$with_hwloc" != x; then
   CPPFLAGS="$CPPFLAGS -I$with_hwloc/include"
   LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
@@ -66,24 +65,24 @@ if test "x$with_hwloc_lib" != x; then
   LDFLAGS="$LDFLAGS -L$with_hwloc_lib"
 fi
 
-AC_ARG_WITH([json_c], [AS_HELP_STRING([--with-json-c=PATH],
-            [specify prefix directory for installed json-c package.])])
+AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
+            [specify directory for installed json-c package.])])
 
-if test "x$with_json_c" != x; then
-  CPPFLAGS="$CPPFLAGS -I$with_json_c/include"
-  LD_LIBRARY_PATH="$with_json_c/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$LDFLAGS -L$with_json_c/lib"
+if test "x$with_json" != x; then
+  CPPFLAGS="$CPPFLAGS -I$with_json/include"
+  LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
+  LDFLAGS="$LDFLAGS -L$with_json/lib"
 fi
-AC_ARG_WITH([json_c-include], [AS_HELP_STRING([--with-json_c-include=PATH],
+AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
             [specify directory for the installed json-c include files.])])
-if test "x$with_json_c_include" != x; then
-  CPPFLAGS="$CPPFLAGS -I$with_json_c_include"
+if test "x$with_json_include" != x; then
+  CPPFLAGS="$CPPFLAGS -I$with_json_include"
 fi
-AC_ARG_WITH([json_c-lib], [AS_HELP_STRING([--with-json_c-lib=PATH],
-            [specify directory for installed json_c library])])
-if test "x$with_json_c_lib" != x; then
-  LD_LIBRARY_PATH="$with_json_c_lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$LDFLAGS -L$with_json_c_lib"
+AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
+            [specify directory for installed json-c library])])
+if test "x$with_json_lib" != x; then
+  LD_LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
+  LDFLAGS="$LDFLAGS -L$with_json_lib"
 fi
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
@@ -125,11 +124,11 @@ LX_FIND_MPI()
 AC_LANG_POP([C++])
 if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_CXX_mpi" == "xyes"],
-         AC_MSG_NOTICE([building with MPI C++ support]),
-         AC_MSG_ERROR([mpi compile environment has not been properly detected]))
+         AC_MSG_NOTICE([Building with MPI C++ support]),
+         AC_MSG_ERROR([Failed to determine MPI C++ build flags, use --with-mpi-bin or --with-mpicxx]))
   AS_IF([test "x$have_C_mpi" == "xyes"],
-         AC_MSG_NOTICE([building with MPI C support]),
-         AC_MSG_ERROR([mpi compile environment has not been properly detected]))
+         AC_MSG_NOTICE([Building with MPI C support]),
+         AC_MSG_ERROR([Failed to determine MPI C build flags, use --with-mpi-bin or --with-mpicc]))
 fi
 
 AC_SEARCH_LIBS([shm_open], [rt])
@@ -151,22 +150,22 @@ LT_INIT
 
 
 AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
-    echo "pthread is required for this library"
+    echo "missing libpthread: POSIX thread interface is required"
     exit -1])
 AC_CHECK_HEADER([pthread.h], [], [
-    echo "pthread.h is required for this library"
+    echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
 AC_CHECK_LIB([hwloc], [hwloc_topology_init], [], [
-    echo "hwloc is required for this library: <http://www.open-mpi.org/projects/hwloc/>"
+    echo "missing libhwloc: <http://www.open-mpi.org/projects/hwloc>, use --with-hwloc or --with-hwloc-lib"
     exit -1])
 AC_CHECK_HEADER([hwloc.h], [], [
-    echo "hwloc.h is required for this library: <http://www.open-mpi.org/projects/hwloc/>"
+    echo "missing hwloc.h: <http://www.open-mpi.org/projects/hwloc>, use --with-hwloc or --with-hwloc-include"
     exit -1])
 AC_CHECK_LIB([json-c], [json_tokener_parse], [], [
-    echo "json-c is required for this library: <https://github.com/json-c/json-c/wiki>"
+    echo "missing libjson-c: <https://github.com/json-c/json-c/wiki>, use --with-json or --with-json-lib"
     exit -1])
 AC_CHECK_HEADER([json-c/json.h], [], [
-    echo "json-c/json.h is required for this library: <https://github.com/json-c/json-c/wiki>"
+    echo "missing json-c/json.h: <https://github.com/json-c/json-c/wiki>, use --with-json or --with-json-include"
     exit -1])
 
 # Checks for header files.
