@@ -229,6 +229,7 @@ rpm: dist
 # INCLUDES
 check_PROGRAMS =
 TESTS =
+BUILT_SOURCES =
 
 include test/Makefile.mk
 include examples/Makefile.mk

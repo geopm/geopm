@@ -29,9 +29,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-AM_CPPFLAGS += -I$(googletest)/include
-AM_CPPFLAGS += -I$(googlemock)/include
-
 check_PROGRAMS += test/geopm_test
 
 if ENABLE_MPI
@@ -91,7 +88,6 @@ TESTS += $(GTEST_TESTS) \
          # end
 
 EXTRA_DIST += test/geopm_test.sh \
-              $(googlemock_archive) \
               test/geopm_prof_example_openmp_static.c \
               # end
 
