@@ -105,6 +105,11 @@ test_geopm_test_LDADD = libgtest.a \
                         libgeopmpolicy.la \
                         # end
 
+test_geopm_static_modes_test_SOURCES = test/geopm_static_modes_test.cpp
+test_geopm_static_modes_test_LDADD = libgeopmpolicy.la
+check_PROGRAMS += test/geopm_static_modes_test
+
+
 if ENABLE_MPI
     test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
                                   test/MPITreeCommunicatorTest.cpp \

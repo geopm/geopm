@@ -330,32 +330,62 @@ int main(int argc, char** argv)
         switch (exec_mode) {
             case GEOPMPOLICY_EXEC_MODE_CREATE:
                 err = geopm_policy_create("", file, &policy);
-                if (!err) {
-                    err = _geopm_policy_mode_parse(policy, mode_string);
+                if (err) {
+                    break;
                 }
-                if (!err) {
-                    err = _geopm_policy_dict_parse(policy, option_string);
+                err = _geopm_policy_mode_parse(policy, mode_string);
+                if (err) {
+                    geopm_policy_destroy(policy);
+                    break;
                 }
-                if (!err) {
-                    err = geopm_policy_write(policy);
+                err = _geopm_policy_dict_parse(policy, option_string);
+                if (err) {
+                    geopm_policy_destroy(policy);
+                    break;
+                }
+                err = geopm_policy_write(policy);
+                if (err) {
+                    geopm_policy_destroy(policy);
+                    break;
                 }
                 break;
             case GEOPMPOLICY_EXEC_MODE_ENFORCE:
                 if (strlen(file) != 0) {
                     err = geopm_policy_create(file, "", &policy);
+                    if (err) {
+                        break;
+                    }
                 }
                 else {
                     err = geopm_policy_create("", "/tmp/geopmpolicy_tmp", &policy);
-                    if (!err) {
-                        err = _geopm_policy_mode_parse(policy, mode_string);
+                    if (err) {
+                        break;
                     }
-                    if (!err) {
-                        err = _geopm_policy_dict_parse(policy, option_string);
+                    err = _geopm_policy_mode_parse(policy, mode_string);
+                    if (err) {
+                        geopm_policy_destroy(policy);
+                        break;
+                    }
+                    err = _geopm_policy_dict_parse(policy, option_string);
+                    if (err) {
+                        geopm_policy_destroy(policy);
+                        break;
+                    }
+                    err = geopm_policy_write(policy);
+                    if (err) {
+                        geopm_policy_destroy(policy);
+                        break;
+                    }
+                    err = geopm_policy_destroy(policy);
+                    if (err) {
+                        break;
+                    }
+                    err = geopm_policy_create("/tmp/geopmpolicy_tmp", "", &policy);
+                    if (err) {
+                        break;
                     }
                 }
-                if (!err) {
-                    err = geopm_policy_enforce_static(policy);
-                }
+                err = geopm_policy_enforce_static(policy);
                 break;
             case GEOPMPOLICY_EXEC_MODE_SAVE:
                 err = geopm_platform_msr_save(file);
