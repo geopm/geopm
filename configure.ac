@@ -123,12 +123,12 @@ AC_LANG_PUSH([C++])
 LX_FIND_MPI()
 AC_LANG_POP([C++])
 if test "x$enable_mpi" = "x1"; then
-  AS_IF([test "x$have_CXX_mpi" == "xyes"],
-         AC_MSG_NOTICE([Building with MPI C++ support]),
-         AC_MSG_ERROR([Failed to determine MPI C++ build flags, use --with-mpi-bin or --with-mpicxx]))
   AS_IF([test "x$have_C_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI C support]),
-         AC_MSG_ERROR([Failed to determine MPI C build flags, use --with-mpi-bin or --with-mpicc]))
+         AC_MSG_ERROR([Failed to determine MPI C build flags use --with-mpi-bin or --with-mpicc or --disable-mpi]))
+  AS_IF([test "x$have_CXX_mpi" == "xyes"],
+         AC_MSG_NOTICE([Building with MPI C++ support]),
+         AC_MSG_ERROR([Failed to determine MPI C++ build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
 fi
 
 AC_SEARCH_LIBS([shm_open], [rt])
@@ -156,16 +156,16 @@ AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
 AC_CHECK_LIB([hwloc], [hwloc_topology_init], [], [
-    echo "missing libhwloc: <http://www.open-mpi.org/projects/hwloc>, use --with-hwloc or --with-hwloc-lib"
+    echo "missing libhwloc: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-lib"
     exit -1])
 AC_CHECK_HEADER([hwloc.h], [], [
-    echo "missing hwloc.h: <http://www.open-mpi.org/projects/hwloc>, use --with-hwloc or --with-hwloc-include"
+    echo "missing hwloc.h: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-include"
     exit -1])
 AC_CHECK_LIB([json-c], [json_tokener_parse], [], [
-    echo "missing libjson-c: <https://github.com/json-c/json-c/wiki>, use --with-json or --with-json-lib"
+    echo "missing libjson-c: <https://github.com/json-c/json-c/wiki> use --with-json or --with-json-lib"
     exit -1])
 AC_CHECK_HEADER([json-c/json.h], [], [
-    echo "missing json-c/json.h: <https://github.com/json-c/json-c/wiki>, use --with-json or --with-json-include"
+    echo "missing json-c/json.h: <https://github.com/json-c/json-c/wiki> use --with-json or --with-json-include"
     exit -1])
 
 # Checks for header files.
