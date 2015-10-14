@@ -211,7 +211,7 @@ int main(int argc, char** argv)
         err = EINVAL;
     }
 
-    if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_ENFORCE && strlen(file) == 0) {
+    if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_ENFORCE && strlen(file) > 0) {
         infile = fopen(file, "r");
         if (infile == NULL) {
             fprintf(stderr, "Error: Cannot open specified file for reading: %s\n", file);

@@ -252,7 +252,7 @@ namespace geopm
     {
         std::map<std::string,std::pair<off_t,unsigned long> > msr_map = {
             {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000}},
-            {"IA32_PERF_CTL",           {0x0199, 0x0000000000000000}},
+            {"IA32_PERF_CTL",           {0x0199, 0x000000010000ffff}},
             {"RAPL_POWER_UNIT",         {0x0606, 0x0000000000000000}},
             {"PKG_POWER_LIMIT",         {0x0610, 0x00ffffff00ffffff}},
             {"PKG_ENERGY_STATUS",       {0x0611, 0x0000000000000000}},
