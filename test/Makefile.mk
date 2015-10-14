@@ -132,7 +132,7 @@ test_geopm_print_error_LDADD = libgeopmpolicy.la
 check_PROGRAMS += test/geopm_print_error
 
 # Target for building test programs.
-checkprogs: $(check_PROGRAMS)
+checkprogs: $(check_PROGRAMS) $(GTEST_TESTS)
 .PHONY: checkprogs
 
 $(GTEST_TESTS): test/gtest_links/%:
