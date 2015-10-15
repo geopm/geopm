@@ -67,7 +67,7 @@ googlemock_archive_check: $(googlemock_archive)
 .PHONY: googlemock_archive_check
 
 $(googlemock)/VERSION: $(googlemock_archive)
-	if [ ! -s $^ ]; then \
+	@if [ ! -s $^ ]; then \
 	    mkdir -p $(googlemock); \
 	    touch $(googlemock)/VERSION; \
 	elif [ $$(sha1sum $^ | awk '{print $$1}') != $(googlemock_sha1) ]; then \
@@ -80,7 +80,7 @@ $(googlemock)/VERSION: $(googlemock_archive)
 	fi
 
 libgmock.a: $(googlemock)/VERSION
-	if [ ! -s $^ ]; then \
+	@if [ ! -s $^ ]; then \
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
@@ -89,7 +89,7 @@ libgmock.a: $(googlemock)/VERSION
 	ar -rv libgmock.a gmock-all.o
 
 libgtest.a: $(googlemock)/VERSION
-	if [ ! -s $^ ]; then \
+	@if [ ! -s $^ ]; then \
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi

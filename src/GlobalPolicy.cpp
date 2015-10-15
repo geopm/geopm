@@ -233,32 +233,14 @@ extern "C"
     int geopm_policy_enforce_static(const struct geopm_policy_c *policy)
     {
         int err = 0;
-        int mode = 0;
 
         try {
             geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
-            geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform(0);
 
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
-            policy_obj->read();
-            mode = policy_obj->mode();
-            switch (mode) {
-                case GEOPM_MODE_TDP_BALANCE_STATIC:
-                    platform->tdp_limit(policy_obj->tdp_percent());
-                    break;
-                case GEOPM_MODE_FREQ_UNIFORM_STATIC:
-                    platform->manual_frequency(policy_obj->frequency_mhz(), 0, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
-                    break;
-                case GEOPM_MODE_FREQ_HYBRID_STATIC:
-                    platform->manual_frequency(policy_obj->frequency_mhz(), policy_obj->num_max_perf(), policy_obj->affinity());
-                    break;
-                default:
-                    std::cerr << "unsupported enforcement mode\n";
-                    return EINVAL;
-            };
+            policy_obj->enforce_static_mode();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -744,5 +726,28 @@ namespace geopm
                 throw Exception("GlobalPolicy: invalid affinity specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 break;
         }
+    }
+
+    void GlobalPolicy::enforce_static_mode()
+    {
+        PlatformFactory platform_factory;
+        Platform *platform = platform_factory.platform(0);
+
+        if(m_do_read) {
+            read();
+        }
+        switch (m_mode) {
+            case GEOPM_MODE_TDP_BALANCE_STATIC:
+                platform->tdp_limit(tdp_percent());
+                break;
+            case GEOPM_MODE_FREQ_UNIFORM_STATIC:
+                platform->manual_frequency(frequency_mhz(), 0, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                break;
+            case GEOPM_MODE_FREQ_HYBRID_STATIC:
+                platform->manual_frequency(frequency_mhz(), num_max_perf(), affinity());
+                break;
+            default:
+                throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        };
     }
 }

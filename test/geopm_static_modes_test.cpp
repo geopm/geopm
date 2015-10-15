@@ -43,7 +43,7 @@
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
 
-#define ASSERT(x) if (!(x)) { printf("Test failure in %s:%d\n",__FILE__,__LINE__); exit(-1); }
+#define ASSERT(x) if (!(x)) { fprintf(stderr, "Error: Test failure in %s:%d\n", __FILE__, __LINE__); exit(-1); }
 
 static const int ivb_id = 0x63E;
 static const int snb_id = 0x62D;

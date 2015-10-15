@@ -62,6 +62,7 @@ namespace geopm
             void num_max_perf(int num_big_cores);
             void write(void);
             void read(void);
+            void enforce_static_mode();
         protected:
             void affinity_string(int value, std::string &name);
             std::string m_in_config;

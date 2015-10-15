@@ -73,11 +73,11 @@ EXTRA_DIST = .gitignore \
              ChangeLog \
              configure.ac \
              CONTRIBUTING \
-             copying_headers/header.freeBSD3 \
-             copying_headers/header.freeBSD3-llnl \
-             copying_headers/MANIFEST.freeBSD3-llnl \
+             copying_headers/header.BSD3-intel \
+             copying_headers/header.BSD3-llnl \
+             copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
-             copying_headers/MANIFEST.freeBSD3 \
+             copying_headers/MANIFEST.BSD3-intel \
              copying_headers/test-license \
              examples/README \
              examples/threaded_step_example.c \
