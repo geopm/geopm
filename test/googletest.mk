@@ -33,7 +33,11 @@ AM_CPPFLAGS += -I$(googletest)/include
 AM_CPPFLAGS += -I$(googlemock)/include
 BUILT_SOURCES += $(googlemock)/VERSION
 EXTRA_DIST += $(googlemock_archive)
+DISTCLEANFILES += $(googlemock)/VERSION \
+                  $(googlemock_archive) \
+                  # end
 
+dist: googlemock_archive_check
 check-am: libgmock.a libgtest.a
 clean-local: clean-local-gmock
 
@@ -50,16 +54,28 @@ $(googlemock_archive):
 	echo "Warning: Unable to download gmock archive" 2>&1 && \
 	touch $(googlemock_archive)
 
+googlemock_archive_check: $(googlemock_archive)
+	@if [ ! -s $^ ]; then \
+	    echo "Error: The gmock archive is empty" 2>&1; \
+	    exit -1; \
+	fi
+	@if [ $$(sha1sum $^ | awk '{print $$1}') != $(googlemock_sha1) ]; then \
+	    echo "Error: The gmock archive does not have the correct SHA-1 checksum" 2>&1; \
+	    exit -1; \
+	fi
+	@echo '[ PASSED ] googlemock_archive_check'
+.PHONY: googlemock_archive_check
+
 $(googlemock)/VERSION: $(googlemock_archive)
-	if [ ! -s $(googlemock_archive) ]; then \
+	if [ ! -s $^ ]; then \
 	    mkdir -p $(googlemock); \
 	    touch $(googlemock)/VERSION; \
-	elif [ $$(sha1sum $(googlemock_archive) | awk '{print $$1}') != $(googlemock_sha1) ]; then \
+	elif [ $$(sha1sum $^ | awk '{print $$1}') != $(googlemock_sha1) ]; then \
 	    echo "Error: The gmock archive does not have the correct SHA-1 checksum" 2>&1; \
 	    exit -1; \
 	else \
 	    rm -rf $(googlemock); \
-	    unzip $(googlemock_archive); \
+	    unzip $^; \
 	    echo $(googlemock_version) > $(googlemock)/VERSION; \
 	fi
 
@@ -83,3 +99,4 @@ libgtest.a: $(googlemock)/VERSION
 
 clean-local-gmock:
 	rm -rf libgtest.a libgmock.a $(googlemock)
+.PHONY: clean-local-gmock
