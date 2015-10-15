@@ -33,7 +33,6 @@
 #include <string>
 #include <cmath>
 
-#include <assert.h>
 #include <cpuid.h>
 #include <omp.h>
 #include <pthread.h>
@@ -43,6 +42,8 @@
 
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
+
+#define ASSERT(x) if (!(x)) { printf("Test failure in %s:%d\n",__FILE__,__LINE__); exit(-1); }
 
 static const int ivb_id = 0x63E;
 static const int snb_id = 0x62D;
@@ -94,19 +95,19 @@ int main(int argc, char **argv)
     else
         plat = NULL;
 
-    assert(plat != NULL);
+    ASSERT(plat != NULL);
 
     plat->initialize();
 
     cpus = plat->get_num_cpu();
-    assert(cpus);
-    assert(geopm_no_omp_cpu(cpus, &no_omp) == 0);
+    ASSERT(cpus);
+    ASSERT(geopm_no_omp_cpu(cpus, &no_omp) == 0);
 
     //spawn worker threads on all cpus
     pthread_t *threads = (pthread_t*)malloc(sizeof(pthread_t) * cpus);
-    assert(threads);
+    ASSERT(threads);
     struct work_s *work = (struct work_s*)malloc(sizeof(struct work_s) * cpus);
-    assert(work);
+    ASSERT(work);
     pthread_attr_init(&attr);
 
     for (int i = 0; i < cpus; i++) {
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
         CPU_SET(i, &cpu_mask);
         pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpu_mask);
         err = pthread_create(&threads[i], &attr, do_something, (void *)(&work[i]));
-        assert (err == 0);
+        ASSERT (err == 0);
     }
 
     sleep(1);
@@ -142,7 +143,7 @@ int main(int argc, char **argv)
     exit_signal = 1;
 
     for (int i = 0; i < cpus; i++) {
-        assert(pthread_join(threads[i], NULL) == 0);
+        ASSERT(pthread_join(threads[i], NULL) == 0);
     }
 
     for (int i = 0; i < cpus; i++) {
@@ -151,7 +152,7 @@ int main(int argc, char **argv)
 
     std::cout << "sum = " << sum << std::endl;
     //assert that everyone was under the frequency limit
-    assert(count == num_omp_cpus);
+    ASSERT(count == num_omp_cpus);
 
     free(threads);
     free(work);
