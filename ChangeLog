@@ -1,4 +1,4 @@
-* Mon Oct 12 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.2
+* Fri Oct 16 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.2
 - Initial release to <https://github.com/geopm/geopm>.
 - Updates to man pages.
 - Support for static power modes.
