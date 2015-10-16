@@ -105,7 +105,6 @@ MPI targets are built.
 
 RUN REQUIREMENTS
 ----------------
-
 We are targeting SLES12 and RHEL7 distributions for functional runtime
 support.  The msr-safe kernel driver must be loaded at runtime to support user
 level read and write of white-listed MSRs.  The source code for the driver can
@@ -121,6 +120,7 @@ geopm, and these must be disabled.  We suggest the following:
     echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
 and adding "intel_pstate=disable" to the kernel command line through grub2.
+
 
 TESTING
 -------
