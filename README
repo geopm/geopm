@@ -98,12 +98,24 @@ target.
 
 RUN REQUIREMENTS
 ----------------
-The msr-safe kernel driver must be loaded at runtime to support user
-level read and write of white-listed MSRs.  The source code for the
-driver can be found here:
+
+We are targeting SLES12 and RHEL7 distributions for functional runtime
+support.  The msr-safe kernel driver must be loaded at runtime to support user
+level read and write of white-listed MSRs.  The source code for the driver can
+be found here:
 
     https://github.com/scalability-llnl/msr-safe
 
+Alternately you can run geopm as root with the standard msr driver loaded:
+
+    modprobe msr
+
+Note that other Linux mechanisms for power management can interfere with
+geopm, and these must be disabled.  We suggest the following:
+
+    echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+
+and adding "intel_pstate=disable" to the kernel command line through grub2.
 
 TESTING
 -------

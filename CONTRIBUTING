@@ -1,6 +1,10 @@
 CONTRIBUTING
 ============
-This file describes how to contribute to the geopm project.
+This file describes how to contribute to the geopm project.  We would like to
+support development (build and unit testing) on a number of platforms.  Please
+report any issues you have with build and unit testing on your favorite
+development platform.
+
 
 CODING STYLE
 ============
