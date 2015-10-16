@@ -49,17 +49,13 @@ and installing the openmpi-devel package version 1.7 or greater on RHEL or
 SLES Linux.  Additionally building the geopm package requires the json-c
 library and the hwloc library.
 
-openmpi development package:
-    SuSE: zypper install openmpi-devel
-    RHEL: yum install openmpi-devel
+SuSE:
 
-json-c development package:
-    SuSE: zypper install libjson-c-devel
-    RHEL: yum install json-c-devel
+    zypper install openmpi-devel libjson-c-devel hwloc-devel
 
-hwloc development package:
-    SuSE: zypper install hwloc-devel
-    RHEL: yum install hwloc-devel
+RHEL:
+
+    yum install openmpi-devel json-c-devel hwloc-devel
 
 Alternatively these can be installed from source, and an alternate MPI
 implementation to OpenMPI can be selected.  See
@@ -71,12 +67,7 @@ requirements through the
 
     ./configure --with-<feature>
 
-options.  The
-
-    ./configure --disable-mpi
-
-option can be used to build only targets which do not require MPI.  By
-default MPI targets are built.
+options.
 
 
 BUILD INSTRUCTIONS
@@ -93,7 +84,23 @@ An RPM can be created on a RHEL or SuSE system with the
 
     make rpm
 
-target.
+target.  Note that the --with-mpi-bin option may be required to inform
+configure about the location of the MPI compiler wrappers.  The following
+command may be sufficient to determine the location:
+
+    dirname $(find /usr -name mpicc)
+
+To build in an environment without support for OpenMP (i.e. clang on Mac OS X)
+use the
+
+    ./configure --disable-openmp
+
+option.  The
+
+    ./configure --disable-mpi
+
+option can be used to build only targets which do not require MPI.  By default
+MPI targets are built.
 
 
 RUN REQUIREMENTS
@@ -102,9 +109,7 @@ RUN REQUIREMENTS
 We are targeting SLES12 and RHEL7 distributions for functional runtime
 support.  The msr-safe kernel driver must be loaded at runtime to support user
 level read and write of white-listed MSRs.  The source code for the driver can
-be found here:
-
-    https://github.com/scalability-llnl/msr-safe
+be found here: <https://github.com/scalability-llnl/msr-safe>.
 
 Alternately you can run geopm as root with the standard msr driver loaded:
 
@@ -139,36 +144,36 @@ libgeopm is incomplete.
 Test coverage is limited.  The line coverage results from gcov as reported by
 gcovr for a recent build are below:
 
----------------------------------------------------------------
-                     GCC Code Coverage Report
-Directory: src
----------------------------------------------------------------
-File                                       Lines    Exec  Cover
----------------------------------------------------------------
-CircularBuffer.cpp                            38      38   100%
-CircularBuffer.hpp                             1       1   100%
-Controller.cpp                               100       1     1%
-Decider.cpp                                   73       0     0%
-Exception.cpp                                 76      68    89%
-Exception.hpp                                  1       0     0%
-GlobalPolicy.cpp                             401     319    79%
-HSXPlatformImp.cpp                           127       2     1%
-IVTPlatformImp.cpp                           130       3     2%
-Observation.cpp                               87      75    86%
-Observation.hpp                                2       0     0%
-Phase.cpp                                     25       0     0%
-Platform.cpp                                 152      22    14%
-PlatformFactory.cpp                           59      41    69%
-PlatformImp.cpp                               90      58    64%
-PlatformTopology.cpp                          22       7    31%
-Policy.cpp                                    58       1     1%
-PowerModel.cpp                                12       3    25%
-Profile.cpp                                   97       1     1%
-RAPLPlatform.cpp                              65       0     0%
-TreeCommunicator.cpp                         220     179    81%
-geopm_ctl_spawn.c                              2       0     0%
-geopm_policy_message.c                         9       9   100%
-geopm_version.c                                2       0     0%
----------------------------------------------------------------
-TOTAL                                       1849     828    44%
----------------------------------------------------------------
+    ---------------------------------------------------------------
+                         GCC Code Coverage Report
+    Directory: src
+    ---------------------------------------------------------------
+    File                                       Lines    Exec  Cover
+    ---------------------------------------------------------------
+    CircularBuffer.cpp                            38      38   100%
+    CircularBuffer.hpp                             1       1   100%
+    Controller.cpp                               100       1     1%
+    Decider.cpp                                   73       0     0%
+    Exception.cpp                                 76      68    89%
+    Exception.hpp                                  1       0     0%
+    GlobalPolicy.cpp                             401     319    79%
+    HSXPlatformImp.cpp                           127       2     1%
+    IVTPlatformImp.cpp                           130       3     2%
+    Observation.cpp                               87      75    86%
+    Observation.hpp                                2       0     0%
+    Phase.cpp                                     25       0     0%
+    Platform.cpp                                 152      22    14%
+    PlatformFactory.cpp                           59      41    69%
+    PlatformImp.cpp                               90      58    64%
+    PlatformTopology.cpp                          22       7    31%
+    Policy.cpp                                    58       1     1%
+    PowerModel.cpp                                12       3    25%
+    Profile.cpp                                   97       1     1%
+    RAPLPlatform.cpp                              65       0     0%
+    TreeCommunicator.cpp                         220     179    81%
+    geopm_ctl_spawn.c                              2       0     0%
+    geopm_policy_message.c                         9       9   100%
+    geopm_version.c                                2       0     0%
+    ---------------------------------------------------------------
+    TOTAL                                       1849     828    44%
+    ---------------------------------------------------------------
