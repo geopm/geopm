@@ -215,6 +215,12 @@ fi
 [enable_coverage="0"]
 )
 
+if test "x$enable_openmp" = "xno" ; then
+  enable_openmp="0"
+else
+  enable_openmp="1"
+fi
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
@@ -230,6 +236,9 @@ if test "x$enable_coverage" = "x1" ; then
   LDFLAGS="$LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
+
+AC_SUBST([enable_opnemp])
+AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 CFLAGS="${CFLAGS} ${OPENMP_CFLAGS} -Wall -Werror -std=c99"
 CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11"
@@ -263,4 +272,5 @@ AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
+AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([===============================================================================])
