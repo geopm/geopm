@@ -124,9 +124,18 @@ set energy policy control parameters for MPI jobs.
 %build
 test -f configure || ./autogen.sh
 
+%if %{defined suse_version}
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
-            --mandir=%{_mandir} --docdir=%{docdir}
+            --mandir=%{_mandir} --docdir=%{docdir} \
+            --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin
+%else
+./configure --prefix=%{_prefix} --libdir=%{_libdir} \
+            --includedir=%{_includedir} --sbindir=%{_sbindir} \
+            --mandir=%{_mandir} --docdir=%{docdir} \
+            --with-mpi-bin=%{_libdir}/openmpi/bin
+%endif
+
 %{__make}
 
 %install
