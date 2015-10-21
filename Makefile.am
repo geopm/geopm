@@ -79,6 +79,7 @@ EXTRA_DIST = .gitignore \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.BSD3-intel \
              copying_headers/test-license \
+             dox/Doxyfile \
              examples/README \
              examples/threaded_step_example.c \
              geopm.spec.mk \
@@ -218,13 +219,17 @@ clean-local: clean-local-coverage
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
-# RPM TAGET
+# RPM TARGET
 geopm-$(VERSION).spec:
 	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
 
 rpm: dist
 	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		-f geopm.spec.mk $@
+
+#DOXYGEN TARGET
+doxygen:
+	doxygen dox/Doxyfile
 
 # INCLUDES
 check_PROGRAMS =
