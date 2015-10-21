@@ -142,8 +142,10 @@ is non-NULL then calls to
 will write the sampled data to POSIX shared memory associated with the given
 key to be read by an external control process running on the same compute
 node.
+.PP
 .BR geopm_prof_destroy ()
 destroys all resources associated with the prof object.
+.PP
 .BR geopm_prof_register ()
 registers an application region with the profile structure.  The
 .I region_name
@@ -165,6 +167,7 @@ and is also displayed in the profiling report to identify the region.   The
 is one of the values given by the geopm_prof_hint_e enum defined in
 .I geopm.h
 which determines the initial control settings.
+.PP
 .BR geopm_prof_enter ()
 is called by the compute application to mark the beginning of
 the profiled compute region associated with the
@@ -172,6 +175,7 @@ the profiled compute region associated with the
 If this call is made after entering a different region, but before exiting
 that region, the call is ignored and an error code is returned (i.e. nested
 regions are ignored).
+.PP
 .BR geopm_prof_exit ()
 is called by compute application to mark the end of a compute region.  If this
 region is nested then the call is ignored and an error code is returned.
