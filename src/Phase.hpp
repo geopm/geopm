@@ -37,6 +37,7 @@
 #include <string>
 
 #include "Observation.hpp"
+#include "Policy.hpp"
 
 namespace geopm
 {
@@ -49,6 +50,9 @@ namespace geopm
             void observation_insert(int buffer_index, double value);
             void name(std::string &name) const;
             int hint(void) const;
+            void policy(Policy* policy);
+            Policy* policy(void);
+            Policy* last_policy(void);
             double observation_mean(int buffer_index) const;
             double observation_median(int buffer_index) const;
             double observation_stddev(int buffer_index) const;
@@ -57,6 +61,8 @@ namespace geopm
             double observation_integrate_time(int buffer_index) const;
         protected:
             Observation m_obs;
+            Policy m_policy;
+            Policy m_last_policy;
             std::string m_name;
             long m_identifier;
             int m_hint;

@@ -60,6 +60,18 @@ namespace geopm
 
     Policy::~Policy() {}
 
+    bool Policy::operator==(const Policy& other) const
+    {
+        bool same = true;
+
+        if (m_target != other.m_target &&
+            m_updated != other.m_updated) {
+            same = false;
+        }
+
+        return same;
+    }
+
     void Policy::clear(void)
     {
         std::fill(m_target.begin(), m_target.end(), GEOPM_POLICY_CONST_INVALID_TARGET);

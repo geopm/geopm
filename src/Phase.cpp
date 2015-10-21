@@ -60,6 +60,22 @@ namespace geopm
         return m_hint;
     }
 
+    void Phase::policy(Policy* policy)
+    {
+        m_last_policy = m_policy;
+        m_policy = *policy;
+    }
+
+    Policy* Phase::policy(void)
+    {
+        return &m_policy;
+    }
+
+    Policy* Phase::last_policy(void)
+    {
+        return &m_last_policy;
+    }
+
     double Phase::observation_mean(int buffer_index) const
     {
         return m_obs.mean(buffer_index);

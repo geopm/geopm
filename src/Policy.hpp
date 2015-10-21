@@ -45,6 +45,7 @@ namespace geopm
             Policy(int num_domain);
             Policy(const std::vector <double> &target);
             virtual ~Policy();
+            bool operator==(const Policy& other) const;
             void clear(void);
             void update(int domain, double target);
             void update(const std::vector <double> &target);
