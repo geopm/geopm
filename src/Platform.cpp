@@ -31,7 +31,6 @@
  */
 
 #include <set>
-
 #include <string>
 #include <inttypes.h>
 #include <cpuid.h>
@@ -149,12 +148,12 @@ namespace geopm
 
     void Platform::phase_begin(Phase *phase)
     {
-        m_cur_phase = phase;
+        m_curr_phase = phase;
     }
 
     void Platform::phase_end(void)
     {
-        m_cur_phase = NULL;
+        m_curr_phase = NULL;
     }
 
     int Platform::num_domain(void) const
@@ -171,14 +170,14 @@ namespace geopm
     void Platform::observe(const std::vector <struct geopm_sample_message_s> &sample) const
     {
         //check if we are in unmarked code
-        if (m_cur_phase == NULL) {
+        if (m_curr_phase == NULL) {
             return;
         }
     }
 
     Phase *Platform::cur_phase(void) const
     {
-        return m_cur_phase;
+        return m_curr_phase;
     }
 
     const PlatformTopology Platform::topology(void) const

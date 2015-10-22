@@ -45,7 +45,7 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report);
+int geopmctl_main(const char *policy_path, const char *sample_key, const char *report);
 
 int main(int argc, char **argv)
 {
@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     char error_str[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
+    char *policy_ptr = NULL;
     char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
     char report[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
@@ -163,6 +164,13 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error: %s either -c or -k must be specified\n", argv[0]);
     }
 
+    if (!err0 &&
+        strlen(policy_config != 0 &&
+        strlen(policy_key) != 0) {
+        err0 = EINVAL;
+        fprintf(stderr, "Error: %s either -c and -k cannot both be specified\n", argv[0]);
+    }
+
     if (!err0 && !my_rank) {
         if (policy_config[0]) {
             printf("    Policy config: %s\n", policy_config);
@@ -180,7 +188,13 @@ int main(int argc, char **argv)
     }
 
     if (!err0) {
-        err0 = geopmctl_main(policy_config, policy_key, sample_key, report);
+        if (strlen(policy_config)) {
+            policy_ptr = policy_config;
+        }
+        else {
+            policy_ptr = policy_key;
+        }
+        err0 = geopmctl_main(policy_ptr, sample_key, report);
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
             fprintf(stderr, "Error: %s\n", error_str);

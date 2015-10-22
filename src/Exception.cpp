@@ -58,7 +58,7 @@ extern "C"
                 strncpy(msg, "<geopm> Invalid argument", size);
                 break;
             case GEOPM_ERROR_POLICY_NULL:
-                strncpy(msg, "<geopm> The geopm_policy_c pointer is NULL, use geopm_policy_create", size);
+                strncpy(msg, "<geopm> The geopm_policy_c pointer is NULL, use geopm_policy_create()", size);
                 break;
             case GEOPM_ERROR_FILE_PARSE:
                 strncpy(msg, "<geopm> Unable to parse input file", size);
@@ -95,6 +95,9 @@ extern "C"
                 break;
             case GEOPM_ERROR_OPENMP_UNSUPPORTED:
                 strncpy(msg, "<geopm> Not compiled with support for OpenMP", size);
+                break;
+            case GEOPM_ERROR_PROF_NULL:
+                strncpy(msg, "<geopm> The geopm_prof_c pointer is NULL, use geopm_prof_create()", size);
                 break;
             default:
 #ifndef _GNU_SOURCE

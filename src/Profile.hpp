@@ -33,17 +33,30 @@
 #ifndef PROFILE_HPP_INCLUDE
 #define PROFILE_HPP_INCLUDE
 
+#include <string>
+
 namespace geopm
 {
     class Profile
     {
         public:
-            Profile(const std::string name, const std::string sample_key, int sample_reduce);
+            Profile(const std::string name, int sample_reduce, struct geopm_sample_shmem_s *sample_shmem);
             virtual ~Profile();
+            int region(const std::string region_name, long policy_hint);
+            void enter(int region_id);
+            void exit(int region_id);
+            void progress(int region_id, double fraction);
+            void outer_sync(void);
+            void sample(void);
+            void enable(const std::string feature_name);
+            void disable(const std::string feature_name);
+            void print(FILE *fid, int depth) const;
         protected:
             std::string m_name;
             std::string m_sample_key;
             int m_sample_reduce;
+            int m_curr_region_id;
+            struct geopm_sample_shmem *m_sample_shmem;
     };
 }
 

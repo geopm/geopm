@@ -76,7 +76,7 @@ Logic error
 Invalid argument
 .TP
 .B GEOPM_ERROR_POLICY_NULL = -4
-The geopm_policy_c pointer is NULL, use geopm_policy_create
+The geopm_policy_c pointer is NULL, use geopm_policy_create()
 .TP
 .B GEOPM_ERROR_FILE_PARSE = -5
 Unable to parse input file
@@ -113,6 +113,9 @@ Could not write to MSR device
 .TP
 .B GEOPM_ERROR_OPENMP_UNSUPPORTED = -16
 Not compiled with support for OpenMP
+.TP
+.B GEOPM_ERROR_PROF_NULL = -17
+The geopm_prof_c pointer is NULL, use geopm_prof_create()
 .SH "COPYRIGHT"
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 .SH "SEE ALSO"

@@ -119,11 +119,9 @@ int geopm_prof_disable(struct geopm_prof_c *prof,
                        const char *feature_name);
 
 int geopm_prof_print(struct geopm_prof_c *prof,
+                     FILE *fid,
                      int depth);
 
-int geopm_prof_fprint(struct geopm_prof_c *prof,
-                      int depth,
-                      FILE *fid);
 
 
 /***************/

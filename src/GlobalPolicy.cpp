@@ -38,9 +38,12 @@
 #include <json-c/json.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
+
+
 
 #include "geopm_policy_message.h"
 #include "geopm_policy.h"
@@ -59,7 +62,7 @@ extern "C"
         *policy = NULL;
 
         try {
-            *policy = (struct geopm_policy_c*)(new geopm::GlobalPolicy(std::string(in_config), std::string(out_config)));
+            *policy = (struct geopm_policy_c *)(new geopm::GlobalPolicy(std::string(in_config), std::string(out_config)));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -73,12 +76,11 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
-            delete (policy_obj);
-            policy = NULL;
+            delete policy_obj;
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -92,7 +94,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -110,7 +112,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -128,7 +130,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -145,7 +147,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -163,7 +165,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -181,7 +183,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -199,7 +201,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
@@ -217,7 +219,7 @@ extern "C"
         int err = 0;
 
         try {
-            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy*)policy;
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }

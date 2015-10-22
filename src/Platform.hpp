@@ -74,7 +74,7 @@ namespace geopm
             const PlatformTopology topology() const;
         protected:
             PlatformImp *m_imp;
-            Phase *m_cur_phase;
+            Phase *m_curr_phase;
             std::map <int, PowerModel *> m_power_model;
             int m_num_domains;
             int m_window_size;
