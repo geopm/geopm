@@ -138,6 +138,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/PlatformFactory.hpp \
                             src/PlatformTopology.cpp \
                             src/PlatformTopology.hpp \
+                            src/Policy.cpp \
+                            src/Policy.hpp \
                             src/PowerModel.cpp \
                             src/PowerModel.hpp \
                             src/RAPLPlatform.cpp \
