@@ -315,11 +315,12 @@ implemented).
 .SH "AFFINITY"
 .TP
 .B GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT
-The "big CPUs" are located nearby each other on the processor package.
+The "small CPUs" are located nearby each other on the processor package.
+This should match the openmp runtime environment.
 .TP
 .B GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER
-The "big CPUs" are located as far from each other as possible across the
-processor package.
+The "small CPUs" are located as far from each other as possible across the
+processor package.  This should match the openmp runtime environment.
 .SH "ERRORS"
 All functions described on this man page return an error code.  See
 .BR geopm_error (3)
