@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <string>
 
+#include "geopm_policy_message.h"
 #include "Observation.hpp"
 #include "Policy.hpp"
 
@@ -44,7 +45,7 @@ namespace geopm
     class Phase
     {
         public:
-            Phase(const std::string &name, long identifier, int hint);
+            Phase(const std::string &name, long identifier, int hint, int size);
             virtual ~Phase();
             long identifier(void) const;
             void observation_insert(int buffer_index, double value);
@@ -52,7 +53,10 @@ namespace geopm
             int hint(void) const;
             void policy(Policy* policy);
             Policy* policy(void);
-            Policy* last_policy(void);
+            struct geopm_policy_message_s* last_policy();
+            std::vector <struct geopm_policy_message_s>* split_policy(void);
+            std::vector <struct geopm_sample_message_s>* child_sample(void);
+            void last_policy(const struct geopm_policy_message_s &policy);
             double observation_mean(int buffer_index) const;
             double observation_median(int buffer_index) const;
             double observation_stddev(int buffer_index) const;
@@ -62,7 +66,9 @@ namespace geopm
         protected:
             Observation m_obs;
             Policy m_policy;
-            Policy m_last_policy;
+            std::vector <struct geopm_policy_message_s> m_split_policy;
+            std::vector <struct geopm_sample_message_s> m_child_sample;
+            struct geopm_policy_message_s m_last_policy;
             std::string m_name;
             long m_identifier;
             int m_hint;

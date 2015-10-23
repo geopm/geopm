@@ -39,6 +39,7 @@
 #include <pthread.h>
 
 #include "geopm_policy.h"
+#include "geopm_policy_message.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,7 +89,7 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 /*************************/
 int geopm_prof_create(const char *name,
                       int sample_reduce,
-                      const char *sample_key,
+                      struct geopm_sample_shmem_s *sample,
                       struct geopm_prof_c **prof);
 
 int geopm_prof_destroy(struct geopm_prof_c *prof);

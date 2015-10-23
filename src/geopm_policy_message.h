@@ -102,7 +102,10 @@ struct geopm_sample_message_s {
     double frequency;
 };
 
-
+struct geopm_sample_shmem_s {
+    pthread_mutex_t lock;
+    struct geopm_sample_message_s sample;
+};
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
 

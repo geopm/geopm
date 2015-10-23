@@ -45,7 +45,7 @@ namespace geopm
         public:
             Decider();
             virtual ~Decider();
-            virtual void update_policy(const struct geopm_policy_message_s &policy_msg);
+            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Phase* curr_phase);
             virtual bool is_converged(void);
             virtual void get_policy(Platform const *platform, Policy &policy) = 0;
         protected:
@@ -66,7 +66,7 @@ namespace geopm
             TreeDecider(int num_children);
             virtual ~TreeDecider();
             virtual void get_policy(Platform const *platform, Policy &policy);
-            virtual void split_policy(const struct geopm_policy_message_s &policy, std::vector <struct geopm_policy_message_s> &split_policy_msg);
+            virtual void split_policy(const struct geopm_policy_message_s &policy, Phase* curr_phase);
         protected:
             int m_num_children;
     };

@@ -42,8 +42,9 @@ namespace geopm
 
     Decider::~Decider() {}
 
-    void Decider::update_policy(const struct geopm_policy_message_s &policy)
+    void Decider::update_policy(const struct geopm_policy_message_s &policy, Phase* curr_phase)
     {
+        curr_phase->last_policy(m_phase_policy_msg_map.find(policy.phase_id)->second);
         m_phase_policy_msg_map.erase(policy.phase_id);
         m_phase_policy_msg_map.insert(std::pair <long, struct geopm_policy_message_s>(policy.phase_id, policy));
     }
@@ -73,12 +74,13 @@ namespace geopm
     }
 
 
-    void TreeDecider::split_policy(const struct geopm_policy_message_s &policy, std::vector <struct geopm_policy_message_s> &split_policy)
+    void TreeDecider::split_policy(const struct geopm_policy_message_s &policy, Phase *phase)
     {
         double norm = 1.0 / m_num_children;
-        split_policy.resize(m_num_children);
-        std::fill(split_policy.begin(), split_policy.end(), policy);
-        for (auto policy_it = split_policy.begin(); policy_it != split_policy.end(); ++policy_it) {
+        std::vector<geopm_policy_message_s> *spolicy = phase->split_policy();
+        spolicy->resize(m_num_children);
+        std::fill(spolicy->begin(), spolicy->end(), policy);
+        for (auto policy_it = spolicy->begin(); policy_it != spolicy->end(); ++policy_it) {
             policy_it->power_budget *= norm;
         }
     }

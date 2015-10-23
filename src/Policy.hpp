@@ -55,6 +55,12 @@ namespace geopm
             int num_domain(void) const;
             void valid_target(std::map <int, double> &target) const;
         protected:
+            int m_mode;
+            int m_num_sample;
+            double m_budget;
+            double m_flags;
+            int m_goal;
+            
             std::vector <double> m_target;
             std::vector <bool> m_updated;
     };

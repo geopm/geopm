@@ -38,11 +38,11 @@
 
 extern "C"
 {
-    int geopm_prof_create(const char *name, int sample_reduce, const char *sample_key, struct geopm_prof_c **prof)
+    int geopm_prof_create(const char *name, int sample_reduce, struct geopm_sample_shmem_s *sample, struct geopm_prof_c **prof)
     {
         int err = 0;
         try {
-            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, std::string(sample_key)));
+            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, sample));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -269,9 +269,8 @@ extern "C"
 
 namespace geopm
 {
-    Profile::Profile(const std::string name, int sample_reduce, struct geopm_sample_shmem_s *sample_shmem);
+    Profile::Profile(const std::string name, int sample_reduce, struct geopm_sample_shmem_s *sample_shmem)
     : m_name(name)
-    , m_sample_key(sample_key)
     , m_sample_reduce(sample_reduce)
     , m_sample_shmem(sample_shmem)
     {

@@ -50,7 +50,7 @@ namespace geopm
     class Controller
     {
         public:
-            Controller(const GlobalPolicy *global_policy, const Profile *profile, MPI_Comm comm);
+            Controller(const GlobalPolicy *global_policy, struct geopm_sample_shmem_s *shm, MPI_Comm comm);
             virtual ~Controller();
             void run(void);
             void step(void);
@@ -60,12 +60,15 @@ namespace geopm
             const
             void leaf_decider(const LeafDecider *leaf_decider);
             void tree_decider(int level, const TreeDecider *tree_decider);
+            void process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample);
+            void enforce_child_policy(const int level, const Policy &policy);
         protected:
             int walk_down(void);
             int walk_up(void);
+            int m_max_size;
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
-            const Profile *m_profile;
+            struct geopm_sample_shmem_s *m_shm;
             TreeCommunicator *m_tree_comm;
             std::vector <TreeDecider *> m_tree_decider;
             LeafDecider *m_leaf_decider;
@@ -73,9 +76,6 @@ namespace geopm
             std::vector <Platform *> m_platform;
             // Per level vector of maps from phase identifier to phase object
             std::vector <std::map <long, Phase *> > m_phase;
-            std::vector <struct geopm_policy_message_s> m_split_policy;
-            std::vector <struct geopm_sample_message_s> m_child_sample;
-            std::vector <struct geopm_policy_message_s> m_last_policy;
     };
 
 }

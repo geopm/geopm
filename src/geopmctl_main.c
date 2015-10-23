@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     }
 
     if (!err0 &&
-        strlen(policy_config != 0 &&
+        strlen(policy_config) != 0 &&
         strlen(policy_key) != 0) {
         err0 = EINVAL;
         fprintf(stderr, "Error: %s either -c and -k cannot both be specified\n", argv[0]);

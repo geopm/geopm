@@ -34,10 +34,16 @@
 
 namespace geopm
 {
-    Phase::Phase(const std::string &name, long identifier, int hint)
-        : m_name(name),
-          m_identifier(identifier),
-          m_hint(hint) {}
+    Phase::Phase(const std::string &name, long identifier, int hint, int size)
+        : m_last_policy(GEOPM_UNKNOWN_POLICY)
+        , m_name(name)
+        , m_identifier(identifier)
+        , m_hint(hint)
+    {
+        m_split_policy.resize(size);
+        m_child_sample.resize(size);
+    }
+
     Phase::~Phase() {}
 
     void Phase::observation_insert(int index, double value)
@@ -62,8 +68,17 @@ namespace geopm
 
     void Phase::policy(Policy* policy)
     {
-        m_last_policy = m_policy;
         m_policy = *policy;
+    }
+
+    struct geopm_policy_message_s* Phase::last_policy(void)
+    {
+        return &m_last_policy;
+    }
+
+    void Phase::last_policy(const struct geopm_policy_message_s &policy)
+    {
+        m_last_policy = policy;
     }
 
     Policy* Phase::policy(void)
@@ -71,9 +86,14 @@ namespace geopm
         return &m_policy;
     }
 
-    Policy* Phase::last_policy(void)
+    std::vector <struct geopm_policy_message_s>* Phase::split_policy(void)
     {
-        return &m_last_policy;
+        return &m_split_policy;
+    }
+
+    std::vector <struct geopm_sample_message_s>* Phase::child_sample(void)
+    {
+        return &m_child_sample;
     }
 
     double Phase::observation_mean(int buffer_index) const

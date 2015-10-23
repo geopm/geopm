@@ -33,11 +33,21 @@
 #include <vector>
 #include <algorithm>
 #include <libgen.h>
+#include <iostream>
+#include <fstream>
+#include <streambuf>
+#include <stdexcept>
+#include <string>
+#include <json-c/json.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <system_error>
+#include <unistd.h>
 
 #include "geopm.h"
 #include "geopm_policy_message.h"
 #include "Controller.hpp"
-#include "Profile.hpp"
 #include "Exception.hpp"
 
 #ifndef NAME_MAX
@@ -55,6 +65,8 @@ extern "C"
     int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
     {
         int err = 0;
+        int shm_id = 0;
+        struct geopm_sample_shmem_s *shm_sample;
         char profile_name[NAME_MAX] = {0};
         strncpy(profile_name, report, NAME_MAX);
         if (profile_name[NAME_MAX-1] != '\0') {
@@ -68,8 +80,35 @@ extern "C"
                 std::string report_str(report);
                 std::string profile_name_str(basename(profile_name));
                 geopm::GlobalPolicy policy(policy_config_str, "");
-                geopm::Profile profile(profile_name_str, sample_key_str, 0); //FIXME how should the last parameter be determined?
-                geopm::Controller ctl(&policy, &profile, MPI_COMM_WORLD);
+                shm_id = shm_open(sample_key, O_RDWR | O_CREAT | O_EXCL, S_IRWXU | S_IRWXG);
+                if (shm_id < 0) {
+                    throw geopm::Exception("geopmctl_main: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
+                }
+
+                err = ftruncate(shm_id, sizeof(struct geopm_policy_shmem_s));
+                if (err) {
+                    (void) shm_unlink(sample_key);
+                    (void) close(shm_id);
+                    throw geopm::Exception("geopmctl_main: Could not extend shared memory region with ftruncate for policy control", errno, __FILE__, __LINE__);
+                }
+
+                shm_sample = (struct geopm_sample_shmem_s *) mmap(NULL, sizeof(struct geopm_sample_shmem_s),
+                                     PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
+                if (shm_sample == MAP_FAILED) {
+                    (void) close(shm_id);
+                    throw geopm::Exception("geopmctl_main: Could not map shared memory region for root policy", errno, __FILE__, __LINE__);
+                }
+                err = close(shm_id);
+                if (err) {
+                    munmap(shm_sample, sizeof(struct geopm_sample_shmem_s));
+                    throw geopm::Exception("geopmctl_main: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
+                }
+                if (pthread_mutex_init(&(shm_sample->lock), NULL) != 0) {
+                    munmap(shm_sample, sizeof(struct geopm_sample_shmem_s));
+                    throw geopm::Exception("geopmctl_main: Could not initialize pthread mutex for shared memory region", errno, __FILE__, __LINE__);
+                }
+
+                geopm::Controller ctl(&policy, shm_sample, MPI_COMM_WORLD);
                 ctl.run();
             }
             catch (...) {
@@ -84,8 +123,11 @@ extern "C"
         int err = 0;
         try {
             geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
-            geopm::Profile *profile = (geopm::Profile *)prof;
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, profile, comm));
+            struct geopm_sample_shmem_s *sample_mem = (struct geopm_sample_shmem_s*)malloc(sizeof(struct geopm_sample_message_s));
+            if (sample_mem == NULL) {
+            }
+
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_mem, comm));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -122,16 +164,17 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(const GlobalPolicy *global_policy, const Profile *profile, MPI_Comm comm)
-        : m_global_policy(global_policy)
-        , m_profile(profile)
+    Controller::Controller(const GlobalPolicy *global_policy, struct geopm_sample_shmem_s *shm, MPI_Comm comm)
+        : m_max_size(0)
+        , m_global_policy(global_policy)
+        , m_shm(shm)
     {
-        throw Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
 
         int num_nodes = 0;
         int err = geopm_num_nodes(comm, &num_nodes);
         if (err) {
-            throw Exception("geopm_num_nodes()", err, __FILE__, __LINE__);
+            throw geopm::Exception("geopm_num_nodes()", err, __FILE__, __LINE__);
         }
         int num_level = 1;
         std::vector<int> fan_out(num_level);
@@ -146,19 +189,14 @@ namespace geopm
             fan_out.resize(num_level);
         }
         std::reverse(fan_out.begin(), fan_out.end());
-        m_last_policy.resize(num_level);
-        std::fill(m_last_policy.begin(), m_last_policy.end(), GEOPM_UNKNOWN_POLICY);
 
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
 
-        int max_size = 0;
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
-            if (m_tree_comm->level_size(level) > max_size) {
-                max_size = m_tree_comm->level_size(level);
+            if (m_tree_comm->level_size(level) > m_max_size) {
+                m_max_size = m_tree_comm->level_size(level);
             }
         }
-        m_split_policy.resize(max_size);
-        m_child_sample.resize(max_size);
     }
 
     Controller::~Controller()
@@ -179,7 +217,7 @@ namespace geopm
                 m_tree_comm->get_policy(level, policy);
                 err = 0;
             }
-            catch (Exception ex) {
+            catch (geopm::Exception ex) {
                 if (ex.err_value() != GEOPM_ERROR_POLICY_UNKNOWN) {
                     throw ex;
                 }
@@ -202,19 +240,22 @@ namespace geopm
     int Controller::walk_down(void)
     {
         int level;
+        long phase_id;
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
+        Phase *curr_phase;
 
         // FIXME Do calls to geopm_is_policy_equal() below belong inside of the Decider?
         // Should m_last_policy be a Decider member variable?
 
         level = m_tree_comm->num_level() - 1;
         m_tree_comm->get_policy(level, policy_msg);
+        phase_id = policy_msg.phase_id;
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
-            if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy[level]))) {
-                m_tree_decider[level]->split_policy(policy_msg, m_split_policy);
-                m_tree_comm->send_policy(level - 1, m_split_policy);
-                m_last_policy[level] = policy_msg;
+            curr_phase = m_phase[level].find(phase_id)->second;
+            if (!geopm_is_policy_equal(&policy_msg, curr_phase->last_policy())) {
+                m_tree_decider[level]->split_policy(policy_msg, curr_phase);
+                m_tree_comm->send_policy(level - 1, *(curr_phase->split_policy()));
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
         }
@@ -222,8 +263,9 @@ namespace geopm
             do_shutdown = 1;
         }
         else {
-            if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy[0]))) {
-                m_leaf_decider->update_policy(policy_msg);
+            curr_phase = m_phase[0].find(phase_id)->second;
+            if (!geopm_is_policy_equal(&policy_msg, curr_phase->last_policy())) {
+                m_leaf_decider->update_policy(policy_msg, curr_phase);
             }
         }
         return do_shutdown;
@@ -235,23 +277,24 @@ namespace geopm
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
         struct geopm_sample_message_s sample_msg;
+        std::vector<struct geopm_sample_message_s> child_sample;
         Policy policy;
+//        Phase *curr_phase;
 
-        m_tree_comm->get_policy(0, policy_msg);
-        for (level = 0; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level < m_tree_comm->num_level(); ++level) {
+        for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
-                    m_tree_comm->get_sample(level, m_child_sample);
-                    m_platform[level]->observe(m_child_sample);
+                    m_tree_comm->get_sample(level, child_sample);
+                    process_samples(level, child_sample);
                 }
-                catch (Exception ex) {
+                catch (geopm::Exception ex) {
                     if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
                         throw ex;
                     }
                     break;
                 }
                 m_tree_decider[level]->get_policy(m_platform[level], policy);
-                m_platform[level]->enforce_policy(policy);
+                enforce_child_policy(level, policy);
             }
             else {
                 m_platform[0]->observe();
@@ -267,5 +310,22 @@ namespace geopm
             do_shutdown = 1;
         }
         return do_shutdown;
+    }
+
+    void Controller::process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample)
+    {
+        int phase_id = sample[0].phase_id;
+//        Phase *curr_phase = m_phase[level].find(phase_id)->second;
+
+        for (auto sample_it = sample.begin(); sample_it < sample.end(); ++sample_it) {
+            if ((*sample_it).phase_id != phase_id) {
+                throw geopm::Exception("class Controller", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
+    }
+
+    void Controller::enforce_child_policy(const int level, const Policy &policy)
+    {
+
     }
 }
