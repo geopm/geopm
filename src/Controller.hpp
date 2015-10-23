@@ -61,11 +61,11 @@ namespace geopm
             void leaf_decider(const LeafDecider *leaf_decider);
             void tree_decider(int level, const TreeDecider *tree_decider);
             void process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample);
-            void enforce_child_policy(const int level, const Policy &policy);
+            void enforce_child_policy(const int phase_id, const int level, const Policy &policy);
         protected:
             int walk_down(void);
             int walk_up(void);
-            int m_max_size;
+            int m_max_fanout;
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
             struct geopm_sample_shmem_s *m_shm;

@@ -152,7 +152,7 @@ namespace geopm
         if (result_ptr == NULL) {
             throw Exception("LockingHashTable::find: key not found", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        return *result_ptr;        
+        return *result_ptr;
     }
 
 }

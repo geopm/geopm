@@ -36,6 +36,8 @@
 #include <vector>
 #include <map>
 
+#include "geopm_policy_message.h"
+
 namespace geopm
 {
     class Policy
@@ -52,6 +54,7 @@ namespace geopm
             void updated_target(std::map <int, double> &target);
             void target(std::vector <double> &target);
             void target(int domain, double &target);
+            void policy_message(int phaseid, std::vector<geopm_policy_message_s> message) const;
             int num_domain(void) const;
             void valid_target(std::map <int, double> &target) const;
         protected:
@@ -60,7 +63,7 @@ namespace geopm
             double m_budget;
             double m_flags;
             int m_goal;
-            
+
             std::vector <double> m_target;
             std::vector <bool> m_updated;
     };

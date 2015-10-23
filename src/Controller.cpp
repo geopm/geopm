@@ -44,6 +44,7 @@
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include "geopm.h"
 #include "geopm_policy_message.h"
@@ -165,7 +166,7 @@ extern "C"
 namespace geopm
 {
     Controller::Controller(const GlobalPolicy *global_policy, struct geopm_sample_shmem_s *shm, MPI_Comm comm)
-        : m_max_size(0)
+        : m_max_fanout(0)
         , m_global_policy(global_policy)
         , m_shm(shm)
     {
@@ -193,8 +194,8 @@ namespace geopm
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
 
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
-            if (m_tree_comm->level_size(level) > m_max_size) {
-                m_max_size = m_tree_comm->level_size(level);
+            if (m_tree_comm->level_size(level) > m_max_fanout) {
+                m_max_fanout = m_tree_comm->level_size(level);
             }
         }
     }
@@ -279,12 +280,13 @@ namespace geopm
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample;
         Policy policy;
-//        Phase *curr_phase;
+        int phase_id = -1;
 
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
                     m_tree_comm->get_sample(level, child_sample);
+                    phase_id = child_sample[0].phase_id;
                     process_samples(level, child_sample);
                 }
                 catch (geopm::Exception ex) {
@@ -293,8 +295,10 @@ namespace geopm
                     }
                     break;
                 }
-                m_tree_decider[level]->get_policy(m_platform[level], policy);
-                enforce_child_policy(level, policy);
+                if (phase_id != -1) {
+                    m_tree_decider[level]->get_policy(m_platform[level], policy);
+                    enforce_child_policy(phase_id, level, policy);
+                }
             }
             else {
                 m_platform[0]->observe();
@@ -315,17 +319,29 @@ namespace geopm
     void Controller::process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample)
     {
         int phase_id = sample[0].phase_id;
-//        Phase *curr_phase = m_phase[level].find(phase_id)->second;
+        Phase *curr_phase = m_phase[level].find(phase_id)->second;
+        struct timeval t;
+
+        gettimeofday(&t, NULL);
+
+        double usec = ((double)t.tv_sec * 1E6) + (double)t.tv_usec;
 
         for (auto sample_it = sample.begin(); sample_it < sample.end(); ++sample_it) {
-            if ((*sample_it).phase_id != phase_id) {
+            if (sample_it->phase_id != phase_id) {
                 throw geopm::Exception("class Controller", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
+            curr_phase->observation_insert(GEOPM_INDEX_TIMESTAMP, usec);
+            curr_phase->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
+            curr_phase->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
+            curr_phase->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
+            curr_phase->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
         }
     }
 
-    void Controller::enforce_child_policy(const int level, const Policy &policy)
+    void Controller::enforce_child_policy(const int phase_id, const int level, const Policy &policy)
     {
-
+        std::vector<geopm_policy_message_s> message;
+        policy.policy_message(phase_id, message);
+        m_tree_comm->send_policy(level, message);
     }
 }

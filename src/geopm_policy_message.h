@@ -103,6 +103,7 @@ struct geopm_sample_message_s {
 };
 
 struct geopm_sample_shmem_s {
+    int is_init;
     pthread_mutex_t lock;
     struct geopm_sample_message_s sample;
 };

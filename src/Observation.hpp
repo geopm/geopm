@@ -37,6 +37,14 @@
 
 #include "CircularBuffer.hpp"
 
+enum geopm_buffer_index_e {
+    GEOPM_INDEX_TIMESTAMP,
+    GEOPM_INDEX_RUNTIME,
+    GEOPM_INDEX_PROGRESS,
+    GEOPM_INDEX_ENERGY,
+    GEOPM_INDEX_FREQUENCY,
+};
+
 namespace geopm
 {
     class Observation
