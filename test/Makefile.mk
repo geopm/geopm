@@ -81,6 +81,7 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
               test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
               test/gtest_links/MPITreeCommunicatorTestShmem.hello \
+              test/gtest_links/LockingHashTableTest.hello \
               # end
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
@@ -98,6 +99,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
                           test/ExceptionTest.cpp \
+                          test/LockingHashTableTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

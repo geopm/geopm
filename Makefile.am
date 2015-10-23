@@ -148,6 +148,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/geopm_omp.c \
                             src/geopm_omp.h \
                             src/geopm_policy.h \
+                            src/geopm_policy_message.c \
+                            src/geopm_policy_message.h \
                             src/geopm_version.c \
                             src/geopm_version.h \
                             # end

@@ -240,8 +240,8 @@ AC_SUBST([enable_coverage])
 AC_SUBST([enable_opnemp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
-CFLAGS="${CFLAGS} ${OPENMP_CFLAGS} -Wall -Werror -std=c99"
-CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11"
+CFLAGS="${CFLAGS} ${OPENMP_CFLAGS} -Wall -Werror -std=c99 -msse4.2"
+CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
 LDFLAGS="${LDFLAGS} ${OPENMP_CFLAGS} -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])
