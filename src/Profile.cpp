@@ -66,7 +66,7 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_register(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int *region_id)
+    int geopm_prof_region(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int *region_id)
     {
         int err = 0;
         try {
@@ -274,7 +274,7 @@ namespace geopm
     , m_sample_reduce(sample_reduce)
     , m_sample_shmem(sample_shmem)
     {
-        throw geopm::Exception("class Profile", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+
     }
 
     Profile::~Profile()
@@ -284,7 +284,7 @@ namespace geopm
 
     int Profile::region(const std::string region_name, long policy_hint)
     {
-        throw geopm::Exception("Profile::register()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        throw geopm::Exception("Profile::region()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         return -1;
     }
 

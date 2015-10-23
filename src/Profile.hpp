@@ -53,7 +53,6 @@ namespace geopm
             void print(FILE *fid, int depth) const;
         protected:
             std::string m_name;
-            std::string m_sample_key;
             int m_sample_reduce;
             int m_curr_region_id;
             struct geopm_sample_shmem_s *m_sample_shmem;

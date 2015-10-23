@@ -176,6 +176,7 @@ if ENABLE_MPI
                           src/IVTPlatformImp.hpp \
                           src/Observation.cpp \
                           src/Observation.hpp \
+                          src/LockingHashTable.hpp \
                           src/Phase.cpp \
                           src/Phase.hpp \
                           src/Platform.cpp \

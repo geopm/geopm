@@ -94,10 +94,10 @@ int geopm_prof_create(const char *name,
 
 int geopm_prof_destroy(struct geopm_prof_c *prof);
 
-int geopm_prof_register(struct geopm_prof_c *prof,
-                        const char *region_name,
-                        long policy_hint,
-                        int *region_id);
+int geopm_prof_region(struct geopm_prof_c *prof,
+                      const char *region_name,
+                      long policy_hint,
+                      int *region_id);
 
 int geopm_prof_enter(struct geopm_prof_c *prof,
                      int region_id);
