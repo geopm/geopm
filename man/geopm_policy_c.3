@@ -255,7 +255,7 @@ Similar to the GEOPM_MODE_FREQ_UNIFORM_STATIC mode except that it accelerates
 any "big CPUs" designated to run the serial portion of the application.  This
 mode is intended to address static load imbalance due to manufacturing
 variation while mitigating application scaling challenges. Serial CPUs always
-run at max frequency while the parallel "little CPUs" run at the specified
+run at max frequency while the parallel "small CPUs" run at the specified
 uniform static frequency. The job is not managed to an aggregate power bound.
 .SH DYNAMIC MODES
 The modes listed in this section are used to dynamically adapt power policy
@@ -292,8 +292,8 @@ performance than the FREQ_UNIFORM_STATIC mode.
 .TP
 .B GEOPM_MODE_FREQ_HYBRID_DYNAMIC
 Similar to the GEOPM_MODE_FREQ_HYBRID_STATIC mode except that the constrained
-"little CPU" frequencies are the only ones whose frequencies are changed over
-time. The "big CPUs" in each node run at maximum frequency. The "little CPUs"
+"small CPU" frequencies are the only ones whose frequencies are changed over
+time. The "big CPUs" in each node run at maximum frequency. The "small CPUs"
 in each node are throttled to the maximum common frequency that does not
 result in exceeding the job’s aggregate power bound. This mode is intended to
 address load imbalance due to manufacturing variation while mitigating
@@ -314,11 +314,11 @@ Set energy policy to maximize memory efficiency, not performance (not yet
 implemented).
 .SH "AFFINITY"
 .TP
-.B GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT
+.B GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT
 The "small CPUs" are located nearby each other on the processor package.
 This should match the openmp runtime environment.
 .TP
-.B GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER
+.B GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER
 The "small CPUs" are located as far from each other as possible across the
 processor package.  This should match the openmp runtime environment.
 .SH "ERRORS"

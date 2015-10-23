@@ -568,10 +568,10 @@ namespace geopm
                     }
                     value_string.assign(json_object_get_string(subval));
                     if (!value_string.compare("compact")) {
-                        affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+                        affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
                     }
                     else if (!value_string.compare("scatter")) {
-                        affinity(GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                        affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
                     }
                     else {
                         err_string.assign("unsupported affinity type : ");
@@ -609,8 +609,8 @@ namespace geopm
                 if (num_max_perf() < 0) {
                     throw Exception("GlobalPolicy: number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                if (affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT &&
-                    affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
+                if (affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT &&
+                    affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER) {
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
@@ -631,8 +631,8 @@ namespace geopm
                 if (num_max_perf() < 0) {
                     throw Exception("GlobalPolicy: number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                if (affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT &&
-                    affinity() != GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER) {
+                if (affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT &&
+                    affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER) {
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
@@ -716,10 +716,10 @@ namespace geopm
     void GlobalPolicy::affinity_string(int value, std::string &name)
     {
         switch (value) {
-            case GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT:
+            case GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT:
                 name.assign("compact");
                 break;
-            case GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER:
+            case GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER:
                 name.assign("scatter");
                 break;
             default:
@@ -741,7 +741,7 @@ namespace geopm
                 platform->tdp_limit(tdp_percent());
                 break;
             case GEOPM_MODE_FREQ_UNIFORM_STATIC:
-                platform->manual_frequency(frequency_mhz(), 0, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                platform->manual_frequency(frequency_mhz(), 0, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
                 break;
             case GEOPM_MODE_FREQ_HYBRID_STATIC:
                 platform->manual_frequency(frequency_mhz(), num_max_perf(), affinity());

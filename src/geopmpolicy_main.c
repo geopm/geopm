@@ -463,10 +463,10 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                 }
                 else if(strncmp(key, "affinity", strlen("affinity")) == 0) {
                     if (strncmp(value, "compact", strlen("compact")) == 0) {
-                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT);
+                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
                     }
                     else if (strncmp(value, "scatter", strlen("scatter")) == 0) {
-                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER);
+                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
                     }
                     else {
                         fprintf(stderr, "Error: invalid affinity value: %s\n", value);

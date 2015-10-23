@@ -231,12 +231,12 @@ namespace geopm
 
         for (int i = 0; i < num_logical_cpus; i++) {
             int real_cpu = i % num_real_cpus;
-            if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_SCATTER && num_cpu_max_perf > 0) {
+            if (affinity == GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER && num_cpu_max_perf > 0) {
                 if ((real_cpu % num_cpus_per_package) < num_small_cores_per_package) {
                     small = true;
                 }
             }
-            else if (affinity == GEOPM_FLAGS_BIG_CPU_TOPOLOGY_COMPACT && num_cpu_max_perf > 0) {
+            else if (affinity == GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT && num_cpu_max_perf > 0) {
                 if (real_cpu < (num_real_cpus - num_cpu_max_perf)) {
                     small = true;
                 }
