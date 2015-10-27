@@ -100,6 +100,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/GlobalPolicyTest.cpp \
                           test/ExceptionTest.cpp \
                           test/LockingHashTableTest.cpp \
+                          src/LockingHashTable.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

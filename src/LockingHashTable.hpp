@@ -277,6 +277,7 @@ namespace geopm
             for (int depth = 0; depth < GEOPM_HASH_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
                 contents_it->first = m_table[table_idx].key[depth];
                 contents_it->second = m_table[table_idx].value[depth];
+                m_table[table_idx].key[depth] = 0;
                 ++contents_it;
                 ++length;
             }
