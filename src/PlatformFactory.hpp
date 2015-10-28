@@ -55,7 +55,7 @@ namespace geopm
             /// The concrete Platform is specific to the underlying hardware
             /// it is being run on.
             /// throws a std::invalid_argument if no acceptable Platform is found.
-            Platform *platform(int level);
+            Platform *platform();
             /// Concrete Platforms register with the factory through this API.
             /// The unique_ptr assures that the object cannot be destroyed
             /// before it is copied.

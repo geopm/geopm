@@ -82,16 +82,16 @@ namespace geopm
 
     template <class type>
     LockingHashTable<type>::LockingHashTable(size_t size, void *buffer)
-    : m_table_length(table_length(size))
-    , m_mask(m_table_length - 1)
-    , m_table((struct table_entry_s *)buffer)
-    , m_key_map_lock(PTHREAD_MUTEX_INITIALIZER)
-    , m_is_pshared(true)
+        : m_table_length(table_length(size))
+        , m_mask(m_table_length - 1)
+        , m_table((struct table_entry_s *)buffer)
+        , m_key_map_lock(PTHREAD_MUTEX_INITIALIZER)
+        , m_is_pshared(true)
     {
         if (buffer == NULL) {
             throw Exception("LockingHashTable: Buffer pointer is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        struct table_entry_s table_init = {0};
+        struct table_entry_s table_init = {PTHREAD_MUTEX_INITIALIZER, {0}, {0}};
         pthread_mutexattr_t lock_attr;
         int err = pthread_mutexattr_init(&lock_attr);
         if (err) {
@@ -253,7 +253,7 @@ namespace geopm
             if (err) {
                 throw Exception("LockingHashTable::key(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
             }
-	}
+        }
         return result;
     }
 

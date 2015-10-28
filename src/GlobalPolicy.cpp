@@ -733,7 +733,7 @@ namespace geopm
     void GlobalPolicy::enforce_static_mode()
     {
         PlatformFactory platform_factory;
-        Platform *platform = platform_factory.platform(0);
+        Platform *platform = platform_factory.platform();
 
         if(m_do_read) {
             read();

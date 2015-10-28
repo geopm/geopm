@@ -108,7 +108,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     .Times(1)
     .WillOnce(Return(pname));
 
-    p = m_platform_fact.platform(0);
+    p = m_platform_fact.platform();
     ASSERT_FALSE(p == NULL);
 
     ans = p->name();
@@ -134,7 +134,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     m_platform_fact.register_platform(move(m_ap), move(m_ap_imp));
 
     try {
-        p = m_platform_fact.platform(0);
+        p = m_platform_fact.platform();
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();

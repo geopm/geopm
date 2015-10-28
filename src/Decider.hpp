@@ -63,12 +63,10 @@ namespace geopm
     class TreeDecider : public Decider
     {
         public:
-            TreeDecider(int num_children);
+            TreeDecider();
             virtual ~TreeDecider();
             virtual void get_policy(Platform const *platform, Policy &policy);
             virtual void split_policy(const struct geopm_policy_message_s &policy, Phase* curr_phase);
-        protected:
-            int m_num_children;
     };
 
     class GoverningDecider : public LeafDecider

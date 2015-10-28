@@ -73,7 +73,7 @@ namespace geopm
             std::vector <TreeDecider *> m_tree_decider;
             LeafDecider *m_leaf_decider;
             // Per-level platforms
-            std::vector <Platform *> m_platform;
+            Platform * m_platform;
             // Per level vector of maps from phase identifier to phase object
             std::vector <std::map <long, Phase *> > m_phase;
     };

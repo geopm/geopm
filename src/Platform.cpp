@@ -53,7 +53,7 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform(0);
+            geopm::Platform *platform = platform_factory.platform();
             platform->save_msr_state(path);
         }
         catch (...) {
@@ -69,7 +69,7 @@ extern "C"
 
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform(0);
+            geopm::Platform *platform = platform_factory.platform();
             platform->restore_msr_state(path);
         }
         catch (...) {
@@ -84,7 +84,7 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform(0);
+            geopm::Platform *platform = platform_factory.platform();
 
             platform->write_msr_whitelist(file_desc);
         }

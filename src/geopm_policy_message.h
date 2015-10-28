@@ -80,6 +80,15 @@ enum geopm_policy_mode_e {
     GEOPM_MODE_SHUTDOWN = 255,
 };
 
+enum geopm_policy_hint_e {
+    GEOPM_POLICY_HINT_UNKNOWN,
+    GEOPM_POLICY_HINT_COMPUTE,
+    GEOPM_POLICY_HINT_MEMORY,
+    GEOPM_POLICY_HINT_NETWORK,
+};
+
+#define GEOPM_GLOBAL_POLICY_IDENTIFIER -1
+
 struct geopm_policy_message_s {
     int phase_id;
     int mode;

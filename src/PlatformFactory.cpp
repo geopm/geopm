@@ -74,27 +74,18 @@ namespace geopm
         }
     }
 
-    Platform* PlatformFactory::platform(int level)
+    Platform* PlatformFactory::platform()
     {
         int platform_id;
         Platform *result = NULL;
-        if (level == 0) {
-            platform_id = read_cpuid();
-            for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-                if (it->second != NULL &&
-                    it->first->model_supported(platform_id) &&
-                    it->second->model_supported(platform_id)) {
-                    it->first->set_implementation(it->second);
-                    result =  it->first;
-                    break;
-                }
-            }
-        }
-        else {
-            for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-                if (it->first->level() == level) {
-                    result = it->first;
-                }
+        platform_id = read_cpuid();
+        for (auto it = platforms.begin(); it != platforms.end(); ++it) {
+            if (it->second != NULL &&
+                it->first->model_supported(platform_id) &&
+                it->second->model_supported(platform_id)) {
+                it->first->set_implementation(it->second);
+                result =  it->first;
+                break;
             }
         }
         if (!result) {

@@ -58,8 +58,7 @@ namespace geopm
 
     LeafDecider::~LeafDecider() {}
 
-    TreeDecider::TreeDecider(int num_children)
-        : m_num_children(num_children) {}
+    TreeDecider::TreeDecider() {}
 
     TreeDecider::~TreeDecider() {}
 
@@ -76,9 +75,10 @@ namespace geopm
 
     void TreeDecider::split_policy(const struct geopm_policy_message_s &policy, Phase *phase)
     {
-        double norm = 1.0 / m_num_children;
+        int num_child = phase->child_sample()->size();
+        double norm = 1.0 / num_child;
         std::vector<geopm_policy_message_s> *spolicy = phase->split_policy();
-        spolicy->resize(m_num_children);
+        spolicy->resize(num_child);
         std::fill(spolicy->begin(), spolicy->end(), policy);
         for (auto policy_it = spolicy->begin(); policy_it != spolicy->end(); ++policy_it) {
             policy_it->power_budget *= norm;

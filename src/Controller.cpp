@@ -50,6 +50,7 @@
 #include "geopm_policy_message.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
+#include "PlatformFactory.hpp"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
@@ -94,7 +95,7 @@ extern "C"
                 }
 
                 shm_sample = (struct geopm_sample_shmem_s *) mmap(NULL, sizeof(struct geopm_sample_shmem_s),
-                                     PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
+                             PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
                 if (shm_sample == MAP_FAILED) {
                     (void) close(shm_id);
                     throw geopm::Exception("geopmctl_main: Could not map shared memory region for root policy", errno, __FILE__, __LINE__);
@@ -192,10 +193,24 @@ namespace geopm
         std::reverse(fan_out.begin(), fan_out.end());
 
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
+        m_phase.resize(m_tree_comm->num_level());
+        m_phase[0].insert(std::pair<long, Phase *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                          new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                          GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
+
+        PlatformFactory pfact;
+        m_platform = pfact.platform();
 
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
             if (m_tree_comm->level_size(level) > m_max_fanout) {
                 m_max_fanout = m_tree_comm->level_size(level);
+            }
+            // default global phase before application phases have been registered
+            // holds the global power policy
+            if(level) {
+                m_phase[level].insert(std::pair<long, Phase *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                                      new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                                      GEOPM_POLICY_HINT_UNKNOWN, m_tree_comm->level_size(level - 1))));
             }
         }
     }
@@ -296,17 +311,17 @@ namespace geopm
                     break;
                 }
                 if (phase_id != -1) {
-                    m_tree_decider[level]->get_policy(m_platform[level], policy);
+                    m_tree_decider[level]->get_policy(m_platform, policy);
                     enforce_child_policy(phase_id, level, policy);
                 }
             }
             else {
-                m_platform[0]->observe();
-                m_leaf_decider->get_policy(m_platform[0], policy);
-                m_platform[0]->enforce_policy(policy);
+                m_platform->observe();
+                m_leaf_decider->get_policy(m_platform, policy);
+                m_platform->enforce_policy(policy);
             }
             if (level && m_tree_decider[level]->is_converged()) {
-                m_platform[level]->sample(sample_msg);
+                m_platform->sample(sample_msg);
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
@@ -318,9 +333,28 @@ namespace geopm
 
     void Controller::process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample)
     {
-        int phase_id = sample[0].phase_id;
-        Phase *curr_phase = m_phase[level].find(phase_id)->second;
+        long phase_id = sample[0].phase_id;
+        Phase *curr_phase;
+        auto iter = m_phase[level].find(phase_id);
         struct timeval t;
+        int num_domains;
+
+        if (iter == m_phase[level].end()) {
+            //Phase not found. Create a new one.
+            if (level) {
+                num_domains =  m_tree_comm->level_size(level - 1);
+            }
+            else {
+                num_domains = m_platform->num_domain();
+            }
+            curr_phase = new Phase("some_name", phase_id, GEOPM_POLICY_HINT_UNKNOWN, num_domains);
+            //set it's policy equal to the global policy for this level.
+            *(curr_phase->policy()) = *(m_phase[level].find(GEOPM_GLOBAL_POLICY_IDENTIFIER)->second->policy());
+            m_phase[level].insert(std::pair<long, Phase *>(phase_id, curr_phase));
+        }
+        else {
+            curr_phase = iter->second;
+        }
 
         gettimeofday(&t, NULL);
 

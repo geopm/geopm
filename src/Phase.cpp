@@ -35,7 +35,8 @@
 namespace geopm
 {
     Phase::Phase(const std::string &name, long identifier, int hint, int size)
-        : m_last_policy(GEOPM_UNKNOWN_POLICY)
+        : m_policy(size)
+        , m_last_policy(GEOPM_UNKNOWN_POLICY)
         , m_name(name)
         , m_identifier(identifier)
         , m_hint(hint)
