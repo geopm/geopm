@@ -5,6 +5,13 @@ issue-geopmpolicy-whitelist-root
     - "geopmpolicy -w" requires root access, but output is only a function of
       cpuid (2015-10-12).
 
+issue-geopmpolicy-extra-obj
+    - There are many objects compiled into libgeopmpolicy which are not
+      needed (2015-10-30).
+
+issue-out-of-place-testing
+    - Building out of place works correctly, but testing out of place does
+      not, gtest links are broken and the license header check does not work.
 
 Notes on Phases
 ===============
