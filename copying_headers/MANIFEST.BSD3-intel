@@ -65,6 +65,8 @@ src/Profile.cpp
 src/Profile.hpp
 src/RAPLPlatform.cpp
 src/RAPLPlatform.hpp
+src/SharedMemory.cpp
+src/SharedMemory.hpp
 src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 test/CircularBufferTest.cpp
@@ -81,6 +83,7 @@ test/googletest.mk
 test/LockingHashTableTest.cpp
 test/Makefile.mk
 test/MPIControllerTest.cpp
+test/MPISharedMemoryTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/no_omp_cpu.c
 test/ObservationTest.cpp
