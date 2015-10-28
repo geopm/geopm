@@ -56,8 +56,7 @@ namespace geopm
             void step(void);
             void pthread(const pthread_attr_t *attr, pthread_t *thread);
             void spawn(void);
-            int num_level(void);
-            const
+            int num_level(void) const;
             void leaf_decider(const LeafDecider *leaf_decider);
             void tree_decider(int level, const TreeDecider *tree_decider);
             void process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample);
