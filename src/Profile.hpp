@@ -33,19 +33,24 @@
 #ifndef PROFILE_HPP_INCLUDE
 #define PROFILE_HPP_INCLUDE
 
+#include <stdint.h>
 #include <string>
+
+#include "SharedMemory.hpp"
+#include "LockingHashTable.hpp"
 
 namespace geopm
 {
     class Profile
     {
         public:
-            Profile(const std::string name, int sample_reduce, struct geopm_sample_shmem_s *sample_shmem);
+            Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key);
+            Profile(const std::string name, int sample_reduce, size_t table_size);
             virtual ~Profile();
-            int region(const std::string region_name, long policy_hint);
-            void enter(int region_id);
-            void exit(int region_id);
-            void progress(int region_id, double fraction);
+            int64_t region(const std::string region_name, long policy_hint);
+            void enter(int64_t region_id);
+            void exit(int64_t region_id);
+            void progress(int64_t region_id, double fraction);
             void outer_sync(void);
             void sample(void);
             void enable(const std::string feature_name);
@@ -54,8 +59,10 @@ namespace geopm
         protected:
             std::string m_name;
             int m_sample_reduce;
-            int m_curr_region_id;
-            struct geopm_sample_shmem_s *m_sample_shmem;
+            int64_t m_curr_region_id;
+            void *m_table_buffer;
+            SharedMemoryUser *m_shmem;
+            LockingHashTable<struct geopm_sample_message_s> *m_table;
     };
 }
 

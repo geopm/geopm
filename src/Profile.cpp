@@ -35,14 +35,21 @@
 #include "geopm.h"
 #include "Profile.hpp"
 #include "Exception.hpp"
+#include "LockingHashTable.hpp"
+
 
 extern "C"
 {
-    int geopm_prof_create(const char *name, int sample_reduce, struct geopm_sample_shmem_s *sample, struct geopm_prof_c **prof)
+    int geopm_prof_create(const char *name, int sample_reduce, size_t table_size, const char *shm_key, struct geopm_prof_c **prof)
     {
         int err = 0;
         try {
-            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, sample));
+            if (shm_key) {
+                *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, table_size, std::string(shm_key)));
+            }
+            else {
+                *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, table_size));
+            }
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -66,7 +73,7 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_region(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int *region_id)
+    int geopm_prof_region(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int64_t *region_id)
     {
         int err = 0;
         try {
@@ -82,7 +89,7 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_enter(struct geopm_prof_c *prof, int region_id)
+    int geopm_prof_enter(struct geopm_prof_c *prof, int64_t region_id)
     {
         int err = 0;
         try {
@@ -99,8 +106,7 @@ extern "C"
 
     }
 
-    int geopm_prof_exit(struct geopm_prof_c *prof,
-                        int region_id)
+    int geopm_prof_exit(struct geopm_prof_c *prof, int64_t region_id)
     {
         int err = 0;
         try {
@@ -117,7 +123,7 @@ extern "C"
 
     }
 
-    int geopm_prof_progress(struct geopm_prof_c *prof, int region_id, double fraction)
+    int geopm_prof_progress(struct geopm_prof_c *prof, int64_t region_id, double fraction)
     {
         int err = 0;
         try {
@@ -269,36 +275,55 @@ extern "C"
 
 namespace geopm
 {
-    Profile::Profile(const std::string name, int sample_reduce, struct geopm_sample_shmem_s *sample_shmem)
+    Profile::Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key)
     : m_name(name)
     , m_sample_reduce(sample_reduce)
-    , m_sample_shmem(sample_shmem)
     {
+        m_shmem = new SharedMemoryUser(shm_key, table_size);
+        m_table_buffer = m_shmem->pointer();
+        m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
+    }
 
+    Profile::Profile(const std::string name, int sample_reduce, size_t table_size)
+    : m_name(name)
+    , m_sample_reduce(sample_reduce)
+    , m_shmem(NULL)
+    {
+        m_table_buffer = malloc(table_size);
+        if (!m_table_buffer) {
+            throw Exception("Profile: m_table_buffer", ENOMEM, __FILE__, __LINE__);
+        }
+        m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
     }
 
     Profile::~Profile()
     {
-
+        delete m_table;
+        if (m_shmem) {
+            delete m_shmem;
+        }
+        else {
+            free(m_table_buffer);
+        }
     }
 
-    int Profile::region(const std::string region_name, long policy_hint)
+    int64_t Profile::region(const std::string region_name, long policy_hint)
     {
         throw geopm::Exception("Profile::region()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         return -1;
     }
 
-    void Profile::enter(int region_id)
+    void Profile::enter(int64_t region_id)
     {
         throw geopm::Exception("Profile::enter()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    void Profile::exit(int region_id)
+    void Profile::exit(int64_t region_id)
     {
         throw geopm::Exception("Profile::exit()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    void Profile::progress(int region_id, double fraction)
+    void Profile::progress(int64_t region_id, double fraction)
     {
         throw geopm::Exception("Profile::progress()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }

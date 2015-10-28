@@ -89,7 +89,8 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 /*************************/
 int geopm_prof_create(const char *name,
                       int sample_reduce,
-                      struct geopm_sample_shmem_s *sample,
+                      size_t table_size,
+                      const char *shm_key,
                       struct geopm_prof_c **prof);
 
 int geopm_prof_destroy(struct geopm_prof_c *prof);
@@ -97,16 +98,16 @@ int geopm_prof_destroy(struct geopm_prof_c *prof);
 int geopm_prof_region(struct geopm_prof_c *prof,
                       const char *region_name,
                       long policy_hint,
-                      int *region_id);
+                      int64_t *region_id);
 
 int geopm_prof_enter(struct geopm_prof_c *prof,
-                     int region_id);
+                     int64_t region_id);
 
 int geopm_prof_exit(struct geopm_prof_c *prof,
-                    int region_id);
+                    int64_t region_id);
 
 int geopm_prof_progress(struct geopm_prof_c *prof,
-                        int region_id,
+                        int64_t region_id,
                         double fraction);
 
 int geopm_prof_outer_sync(struct geopm_prof_c *prof);
