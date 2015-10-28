@@ -11,7 +11,8 @@ issue-geopmpolicy-extra-obj
 
 issue-out-of-place-testing
     - Building out of place works correctly, but testing out of place does
-      not, gtest links are broken and the license header check does not work.
+      not, gtest links are broken and the license header check does not work
+      (2015-10-30).
 
 Notes on Phases
 ===============
