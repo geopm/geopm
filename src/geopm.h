@@ -47,6 +47,7 @@ extern "C" {
 
 enum geopm_const_e {
     GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL = 3,
+    GEOPM_CONST_PROF_SAMPLE_PERIOD = 64,
 };
 
 enum geopm_sample_reduce_e {
@@ -98,21 +99,22 @@ int geopm_prof_destroy(struct geopm_prof_c *prof);
 int geopm_prof_region(struct geopm_prof_c *prof,
                       const char *region_name,
                       long policy_hint,
-                      int64_t *region_id);
+                      uint64_t *region_id);
 
 int geopm_prof_enter(struct geopm_prof_c *prof,
-                     int64_t region_id);
+                     uint64_t region_id);
 
 int geopm_prof_exit(struct geopm_prof_c *prof,
-                    int64_t region_id);
+                    uint64_t region_id);
 
 int geopm_prof_progress(struct geopm_prof_c *prof,
-                        int64_t region_id,
+                        uint64_t region_id,
                         double fraction);
 
 int geopm_prof_outer_sync(struct geopm_prof_c *prof);
 
-int geopm_prof_sample(struct geopm_prof_c *prof);
+int geopm_prof_sample(struct geopm_prof_c *prof,
+                      uint64_t region_id);
 
 int geopm_prof_enable(struct geopm_prof_c *prof,
                       const char *feature_name);

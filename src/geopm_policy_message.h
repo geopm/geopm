@@ -34,6 +34,7 @@
 #define GEOPM_POLICY_MESSAGE_H_INCLUDE
 
 #include <pthread.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -104,7 +105,7 @@ struct geopm_policy_shmem_s {
 };
 
 struct geopm_sample_message_s {
-    long phase_id;
+    uint64_t phase_id;
     double runtime;
     double progress;
     double energy;
@@ -115,7 +116,7 @@ struct geopm_sample_shmem_s {
     int is_init;
     pthread_mutex_t lock;
     struct geopm_sample_message_s sample;
-};
+}; // FIXME: Controller still uses this, but Profile uses LockingHashTable
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
 

@@ -256,7 +256,7 @@ namespace geopm
     int Controller::walk_down(void)
     {
         int level;
-        long phase_id;
+        uint64_t phase_id;
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
         Phase *curr_phase;
@@ -333,7 +333,7 @@ namespace geopm
 
     void Controller::process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample)
     {
-        long phase_id = sample[0].phase_id;
+        uint64_t phase_id = sample[0].phase_id;
         Phase *curr_phase;
         auto iter = m_phase[level].find(phase_id);
         struct timeval t;

@@ -31,8 +31,10 @@
  */
 
 #include <float.h>
+#include <time.h>
 
 #include "geopm.h"
+#include "geopm_policy_message.h"
 #include "Profile.hpp"
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
@@ -73,7 +75,7 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_region(struct geopm_prof_c *prof, const char *region_name, long policy_hint, int64_t *region_id)
+    int geopm_prof_region(struct geopm_prof_c *prof, const char *region_name, long policy_hint, uint64_t *region_id)
     {
         int err = 0;
         try {
@@ -89,7 +91,7 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_enter(struct geopm_prof_c *prof, int64_t region_id)
+    int geopm_prof_enter(struct geopm_prof_c *prof, uint64_t region_id)
     {
         int err = 0;
         try {
@@ -106,7 +108,7 @@ extern "C"
 
     }
 
-    int geopm_prof_exit(struct geopm_prof_c *prof, int64_t region_id)
+    int geopm_prof_exit(struct geopm_prof_c *prof, uint64_t region_id)
     {
         int err = 0;
         try {
@@ -123,7 +125,7 @@ extern "C"
 
     }
 
-    int geopm_prof_progress(struct geopm_prof_c *prof, int64_t region_id, double fraction)
+    int geopm_prof_progress(struct geopm_prof_c *prof, uint64_t region_id, double fraction)
     {
         int err = 0;
         try {
@@ -157,7 +159,7 @@ extern "C"
 
     }
 
-    int geopm_prof_sample(struct geopm_prof_c *prof)
+    int geopm_prof_sample(struct geopm_prof_c *prof, uint64_t region_id)
     {
         int err = 0;
         try {
@@ -165,7 +167,7 @@ extern "C"
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
-            prof_obj->sample();
+            prof_obj->sample(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -278,22 +280,31 @@ namespace geopm
     Profile::Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key)
     : m_name(name)
     , m_sample_reduce(sample_reduce)
+    , m_curr_region_id(0)
+    , m_enter_time({0, 0})
+    , m_num_enter(0)
+    , m_num_progress(0)
+    , m_progress(0.0)
     {
-        m_shmem = new SharedMemoryUser(shm_key, table_size);
-        m_table_buffer = m_shmem->pointer();
-        m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
+        if (shm_key.length()) {
+            m_shmem = new SharedMemoryUser(shm_key, table_size);
+            m_table_buffer = m_shmem->pointer();
+            m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
+        }
+        else {
+            m_shmem = NULL;
+            m_table_buffer = malloc(table_size);
+            if (!m_table_buffer) {
+                throw Exception("Profile: m_table_buffer", ENOMEM, __FILE__, __LINE__);
+            }
+            m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
+        }
     }
 
     Profile::Profile(const std::string name, int sample_reduce, size_t table_size)
-    : m_name(name)
-    , m_sample_reduce(sample_reduce)
-    , m_shmem(NULL)
+    : Profile(name, sample_reduce, table_size, "")
     {
-        m_table_buffer = malloc(table_size);
-        if (!m_table_buffer) {
-            throw Exception("Profile: m_table_buffer", ENOMEM, __FILE__, __LINE__);
-        }
-        m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
+
     }
 
     Profile::~Profile()
@@ -307,25 +318,51 @@ namespace geopm
         }
     }
 
-    int64_t Profile::region(const std::string region_name, long policy_hint)
+    uint64_t Profile::region(const std::string region_name, long policy_hint)
     {
-        throw geopm::Exception("Profile::region()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return -1;
+        return m_table->key(region_name);
     }
 
-    void Profile::enter(int64_t region_id)
+    void Profile::enter(uint64_t region_id)
     {
-        throw geopm::Exception("Profile::enter()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (!m_curr_region_id) {
+            m_curr_region_id = region_id;
+            m_num_enter = 0;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &m_enter_time);
+        }
+        if (m_curr_region_id == region_id) {
+            ++m_num_enter;
+        }
     }
 
-    void Profile::exit(int64_t region_id)
+    void Profile::exit(uint64_t region_id)
     {
-        throw geopm::Exception("Profile::exit()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (m_curr_region_id == region_id) {
+            --m_num_enter;
+        }
+        if (!m_num_enter) {
+            struct geopm_sample_message_s sample = m_table->find(region_id);
+            sample.phase_id = region_id;
+            sample.progress = 1.0;
+            struct timespec exit_time;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &exit_time);
+            sample.runtime = (exit_time.tv_sec - m_enter_time.tv_sec) +
+                             (exit_time.tv_nsec - m_enter_time.tv_nsec) * 1E-9;
+            m_table->insert(region_id, sample);
+            m_curr_region_id = 0;
+        }
     }
 
-    void Profile::progress(int64_t region_id, double fraction)
+    void Profile::progress(uint64_t region_id, double fraction)
     {
-        throw geopm::Exception("Profile::progress()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (m_num_enter == 1 && m_curr_region_id == region_id) {
+            m_progress = fraction;
+            ++m_num_progress;
+            if (m_num_progress == GEOPM_CONST_PROF_SAMPLE_PERIOD) {
+                sample(region_id);
+                m_num_progress = 0;
+            }
+        }
     }
 
     void Profile::outer_sync(void)
@@ -333,9 +370,20 @@ namespace geopm
         throw geopm::Exception("Profile::outer_sync()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    void Profile::sample(void)
+    void Profile::sample(uint64_t region_id)
     {
-        throw geopm::Exception("Profile::sample()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (region_id == m_curr_region_id) {
+            struct geopm_sample_message_s sample;
+            struct timespec curr_time;
+            sample.phase_id = region_id;
+            (void) clock_gettime(CLOCK_MONOTONIC_RAW, &curr_time);
+            sample.runtime = (curr_time.tv_sec - m_enter_time.tv_sec) +
+                             (curr_time.tv_nsec - m_enter_time.tv_nsec) * 1E-9;
+            sample.progress = m_progress;
+            sample.energy = 0.0;     // FIXME: need to add a platform to Profile and
+            sample.frequency = 0.0;  // update energy and frequency here.
+            m_table->insert(region_id, sample);
+        }
     }
 
     void Profile::enable(const std::string feature_name)
