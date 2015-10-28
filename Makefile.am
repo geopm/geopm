@@ -144,6 +144,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/PowerModel.hpp \
                             src/RAPLPlatform.cpp \
                             src/RAPLPlatform.hpp \
+                            src/SharedMemory.cpp \
+                            src/SharedMemory.hpp \
                             src/geopm_error.h \
                             src/geopm_omp.c \
                             src/geopm_omp.h \
@@ -199,6 +201,8 @@ if ENABLE_MPI
                           src/Profile.hpp \
                           src/RAPLPlatform.cpp \
                           src/RAPLPlatform.hpp \
+                          src/SharedMemory.cpp \
+                          src/SharedMemory.hpp \
                           src/TreeCommunicator.cpp \
                           src/TreeCommunicator.hpp \
                           src/geopm_ctl_spawn.c \

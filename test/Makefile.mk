@@ -84,6 +84,7 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/LockingHashTableTest.hello \
               test/gtest_links/DeciderFactoryTest.decider_register \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
+              test/gtest_links/MPISharedMemoryTest.hello \
               # end
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
@@ -121,6 +122,7 @@ if ENABLE_MPI
     test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
                                   test/MPITreeCommunicatorTest.cpp \
                                   test/DeciderFactoryTest.cpp \
+                                  test/MPISharedMemoryTest.cpp \
                                   # end
 
     test_geopm_mpi_test_LDADD = libgtest.a \
