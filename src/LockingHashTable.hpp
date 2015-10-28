@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <string>
 #include <map>
+#include <set>
 
 #include "Exception.hpp"
 
