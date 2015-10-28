@@ -29,6 +29,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef EXCEPTION_HPP_INCLUDE
+#define EXCEPTION_HPP_INCLUDE
 
 #include <string>
 #include <system_error>
@@ -51,3 +53,5 @@ namespace geopm
             int m_err;
     };
 }
+
+#endif
