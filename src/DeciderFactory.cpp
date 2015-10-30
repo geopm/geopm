@@ -30,40 +30,58 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_ERROR_H_INCLUDE
-#define GEOPM_ERROR_H_INCLUDE
+#include <string>
+#include <inttypes.h>
+#include <cpuid.h>
 
-#include <stdlib.h>
+#include "geopm_error.h"
+#include "Exception.hpp"
+#include "DeciderFactory.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace geopm
+{
 
-enum geomp_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-    GEOPM_ERROR_POLICY_NULL = -4,
-    GEOPM_ERROR_FILE_PARSE = -5,
-    GEOPM_ERROR_LEVEL_RANGE = -6,
-    GEOPM_ERROR_CTL_COMM = -7,
-    GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
-    GEOPM_ERROR_POLICY_UNKNOWN = -9,
-    GEOPM_ERROR_NOT_IMPLEMENTED = -10,
-    GEOPM_ERROR_NOT_TESTED = -11,
-    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
-    GEOPM_ERROR_MSR_OPEN = -13,
-    GEOPM_ERROR_MSR_READ = -14,
-    GEOPM_ERROR_MSR_WRITE = -15,
-    GEOPM_ERROR_OPENMP_UNSUPPORTED = -16,
-    GEOPM_ERROR_PROF_NULL = -17,
-    GEOPM_ERROR_DECIDER_UNSUPPORTED = -18,
-};
+    DeciderFactory::DeciderFactory()
+    {
+        // register all the deciders we know about
+        GoverningDecider *gov_dec = new GoverningDecider();
+        std::unique_ptr<Decider> p_gov_dec = std::unique_ptr<Decider>(gov_dec);
+        register_decider(move(p_gov_dec));
+    }
 
-/* Convert error number into an error message */
-void geopm_error_message(int err, char *msg, size_t size);
+    DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)
+    {
+        register_decider(move(decider));
+    }
 
-#ifdef __cplusplus
+    DeciderFactory::~DeciderFactory()
+    {
+        for (auto it = deciders.rbegin(); it != deciders.rend(); ++it) {
+            delete *it;
+        }
+        deciders.clear();
+    }
+
+    Decider* DeciderFactory::decider(const std::string &description)
+    {
+        Decider *result = NULL;
+        for (auto it = deciders.begin(); it != deciders.end(); ++it) {
+            if (*it != NULL &&
+                (*it)->decider_supported(description)) {
+                result =  *it;
+                break;
+            }
+        }
+        if (!result) {
+            // If we get here, no acceptable decider was found
+            throw Exception("decider: " + description, GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        }
+
+        return result;
+    }
+
+    void DeciderFactory::register_decider(std::unique_ptr<Decider> decider)
+    {
+        deciders.push_back(decider.release());
+    }
 }
-#endif
-#endif

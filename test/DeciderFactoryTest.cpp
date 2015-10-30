@@ -30,40 +30,57 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_ERROR_H_INCLUDE
-#define GEOPM_ERROR_H_INCLUDE
+#include <iostream>
 
-#include <stdlib.h>
+#include "gtest/gtest.h"
+#include "geopm_error.h"
+#include "Exception.hpp"
+#include "DeciderFactory.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-enum geomp_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-    GEOPM_ERROR_POLICY_NULL = -4,
-    GEOPM_ERROR_FILE_PARSE = -5,
-    GEOPM_ERROR_LEVEL_RANGE = -6,
-    GEOPM_ERROR_CTL_COMM = -7,
-    GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
-    GEOPM_ERROR_POLICY_UNKNOWN = -9,
-    GEOPM_ERROR_NOT_IMPLEMENTED = -10,
-    GEOPM_ERROR_NOT_TESTED = -11,
-    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
-    GEOPM_ERROR_MSR_OPEN = -13,
-    GEOPM_ERROR_MSR_READ = -14,
-    GEOPM_ERROR_MSR_WRITE = -15,
-    GEOPM_ERROR_OPENMP_UNSUPPORTED = -16,
-    GEOPM_ERROR_PROF_NULL = -17,
-    GEOPM_ERROR_DECIDER_UNSUPPORTED = -18,
+class DeciderFactoryTest: public :: testing :: Test
+{
+    protected:
+        void SetUp();
 };
 
-/* Convert error number into an error message */
-void geopm_error_message(int err, char *msg, size_t size);
-
-#ifdef __cplusplus
+void DeciderFactoryTest::SetUp()
+{
 }
-#endif
-#endif
+
+TEST_F(DeciderFactoryTest, decider_register)
+{
+    geopm::GoverningDecider *m_decider = new geopm::GoverningDecider();
+    std::unique_ptr<geopm::Decider> m_ad = std::unique_ptr<geopm::Decider>(m_decider);
+    geopm::DeciderFactory m_decider_fact(move(m_ad));
+    const std::string dname = "governing";
+    std::string ans;
+    geopm::Decider* d = NULL;
+
+    d = m_decider_fact.decider(dname);
+    ASSERT_FALSE(d == NULL);
+
+    ans = d->name();
+    ASSERT_FALSE(ans.empty());
+
+    EXPECT_FALSE(ans.compare(dname));
+}
+
+TEST_F(DeciderFactoryTest, no_supported_decider)
+{
+    geopm::GoverningDecider *m_decider = new geopm::GoverningDecider();
+    std::unique_ptr<geopm::Decider> m_ad = std::unique_ptr<geopm::Decider>(m_decider);
+    geopm::DeciderFactory m_decider_fact(move(m_ad));
+    geopm::Decider* d = NULL;
+    const std::string dname = "doesntexist";
+    int thrown = 0;
+
+    try {
+        d = m_decider_fact.decider(dname);
+    }
+    catch (geopm::Exception e) {
+        thrown = e.err_value();
+    }
+    ASSERT_TRUE(d == NULL);
+    EXPECT_TRUE(thrown == GEOPM_ERROR_DECIDER_UNSUPPORTED);
+}

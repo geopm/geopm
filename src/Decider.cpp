@@ -37,6 +37,8 @@
 
 namespace geopm
 {
+    static const std::string gov_decider_desc = "governing";
+
     Decider::Decider()
         : m_is_converged(false) {}
 
@@ -91,6 +93,15 @@ namespace geopm
           m_board_memory_min_power(7) {}
 
     GoverningDecider::~GoverningDecider() {}
+
+    bool GoverningDecider::decider_supported(const std::string &description)
+    {
+        return (description == gov_decider_desc);
+    }
+
+    const std::string& GoverningDecider::name(void) const {
+        return gov_decider_desc;
+    }
 
     void GoverningDecider::get_policy(Platform const *platform, Policy &policy)
     {

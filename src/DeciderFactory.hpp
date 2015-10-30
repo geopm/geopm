@@ -30,40 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_ERROR_H_INCLUDE
-#define GEOPM_ERROR_H_INCLUDE
+#ifndef DECIDERFACTORY_HPP_INCLUDE
+#define DECIDERFACTORY_HPP_INCLUDE
 
-#include <stdlib.h>
+#include <map>
+#include <memory>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "Decider.hpp"
 
-enum geomp_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-    GEOPM_ERROR_POLICY_NULL = -4,
-    GEOPM_ERROR_FILE_PARSE = -5,
-    GEOPM_ERROR_LEVEL_RANGE = -6,
-    GEOPM_ERROR_CTL_COMM = -7,
-    GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
-    GEOPM_ERROR_POLICY_UNKNOWN = -9,
-    GEOPM_ERROR_NOT_IMPLEMENTED = -10,
-    GEOPM_ERROR_NOT_TESTED = -11,
-    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
-    GEOPM_ERROR_MSR_OPEN = -13,
-    GEOPM_ERROR_MSR_READ = -14,
-    GEOPM_ERROR_MSR_WRITE = -15,
-    GEOPM_ERROR_OPENMP_UNSUPPORTED = -16,
-    GEOPM_ERROR_PROF_NULL = -17,
-    GEOPM_ERROR_DECIDER_UNSUPPORTED = -18,
-};
+namespace geopm
+{
 
-/* Convert error number into an error message */
-void geopm_error_message(int err, char *msg, size_t size);
+    class DeciderFactory
+    {
+        public:
+            /// DeciderFactory constructors
+            DeciderFactory();
+            DeciderFactory(std::unique_ptr<Decider> decider);
+            /// DeciderFactory destructor
+            virtual ~DeciderFactory();
 
-#ifdef __cplusplus
+            /// Returns an abstract Decider reference to a concrete decider.
+            /// throws a std::invalid_argument if no acceptable Decider is found.
+            Decider *decider(const std::string &description);
+            /// Concrete Deciders register with the factory through this API.
+            /// The unique_ptr assures that the object cannot be destroyed
+            /// before it is copied.
+            void register_decider(std::unique_ptr<Decider> decider);
+        private:
+            // Holds all registered concrete Decider instances
+            std::vector<Decider*> deciders;
+    };
+
 }
-#endif
+
 #endif

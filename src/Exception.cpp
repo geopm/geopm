@@ -99,6 +99,9 @@ extern "C"
             case GEOPM_ERROR_PROF_NULL:
                 strncpy(msg, "<geopm> The geopm_prof_c pointer is NULL, use geopm_prof_create()", size);
                 break;
+            case GEOPM_ERROR_DECIDER_UNSUPPORTED:
+                strncpy(msg, "<geopm> Specified Decider not supported or unrecognized", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

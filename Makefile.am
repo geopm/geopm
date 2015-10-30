@@ -168,6 +168,8 @@ if ENABLE_MPI
                           src/Controller.hpp \
                           src/Decider.cpp \
                           src/Decider.hpp \
+                          src/DeciderFactory.cpp \
+                          src/DeciderFactory.hpp \
                           src/Exception.cpp \
                           src/Exception.hpp \
                           src/GlobalPolicy.cpp \
