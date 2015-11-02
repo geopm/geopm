@@ -63,6 +63,7 @@ int main(int argc, char **argv)
         GEOPM_ERROR_OPENMP_UNSUPPORTED,
         GEOPM_ERROR_PROF_NULL,
         GEOPM_ERROR_DECIDER_UNSUPPORTED,
+        GEOPM_ERROR_FACTORY_NULL,
     };
 
     const char *error_names[] = {
@@ -84,6 +85,7 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_OPENMP_UNSUPPORTED",
         "GEOPM_ERROR_PROF_NULL",
         "GEOPM_ERROR_DECIDER_UNSUPPORTED",
+        "GEOPM_ERROR_FACTORY_NULL",
     };
 
     const int num_error = sizeof(error_codes) / sizeof(int);

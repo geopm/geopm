@@ -30,57 +30,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <inttypes.h>
-#include <cpuid.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dlfcn.h>
+#include <fts.h>
 
-#include "geopm_error.h"
 #include "geopm_plugin.h"
-#include "Exception.hpp"
-#include "DeciderFactory.hpp"
 
-namespace geopm
+int geopm_plugins_load(const char *func_name,
+                       struct geopm_factory_c *factory)
 {
+    int err = 0;
+    void *plugin;
+    int (*register_func)(struct geopm_factory_c *factory);
+    int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
+    FTS *p_fts;
+    FTSENT *file;
+    char *plugin_dir = PLUGINDIR;
+    char *paths[2];
 
-    DeciderFactory::DeciderFactory()
-    {
-        // register all the deciders we know about
-        geopm_plugins_load("geopm_decider_register", (struct geopm_factory_c *)this);
-    }
+    paths[0] = plugin_dir;
+    paths[1] = NULL;
 
-    DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)
-    {
-        register_decider(move(decider));
-    }
-
-    DeciderFactory::~DeciderFactory()
-    {
-        for (auto it = deciders.rbegin(); it != deciders.rend(); ++it) {
-            delete *it;
-        }
-        deciders.clear();
-    }
-
-    Decider* DeciderFactory::decider(const std::string &description)
-    {
-        Decider *result = NULL;
-        for (auto it = deciders.begin(); it != deciders.end(); ++it) {
-            if (*it != NULL &&
-                (*it)->decider_supported(description)) {
-                result =  *it;
-                break;
+    if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
+        while ((file = fts_read(p_fts)) != NULL) {
+            char *ext = strrchr(file->fts_name,'.');
+            if (file->fts_info == FTS_F && ext != NULL) {
+                if (!strcmp(ext, ".so") || !strcmp(ext, ".dylib")) {
+                    plugin = dlopen(file->fts_path, RTLD_LAZY);
+                    if (plugin != NULL) {
+                        register_func = (int (*)(struct geopm_factory_c *)) dlsym(plugin, (char *)func_name);
+                        if (register_func != NULL) {
+                            register_func(factory);
+                        }
+                    }
+                }
             }
         }
-        if (!result) {
-            // If we get here, no acceptable decider was found
-            throw Exception("decider: " + description, GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-        }
-
-        return result;
+        fts_close(p_fts);
     }
 
-    void DeciderFactory::register_decider(std::unique_ptr<Decider> decider)
-    {
-        deciders.push_back(decider.release());
-    }
+    return err;
 }

@@ -50,9 +50,7 @@ void DeciderFactoryTest::SetUp()
 
 TEST_F(DeciderFactoryTest, decider_register)
 {
-    geopm::GoverningDecider *m_decider = new geopm::GoverningDecider();
-    std::unique_ptr<geopm::Decider> m_ad = std::unique_ptr<geopm::Decider>(m_decider);
-    geopm::DeciderFactory m_decider_fact(move(m_ad));
+    geopm::DeciderFactory m_decider_fact;
     const std::string dname = "governing";
     std::string ans;
     geopm::Decider* d = NULL;
@@ -68,9 +66,7 @@ TEST_F(DeciderFactoryTest, decider_register)
 
 TEST_F(DeciderFactoryTest, no_supported_decider)
 {
-    geopm::GoverningDecider *m_decider = new geopm::GoverningDecider();
-    std::unique_ptr<geopm::Decider> m_ad = std::unique_ptr<geopm::Decider>(m_decider);
-    geopm::DeciderFactory m_decider_fact(move(m_ad));
+    geopm::DeciderFactory m_decider_fact;
     geopm::Decider* d = NULL;
     const std::string dname = "doesntexist";
     int thrown = 0;

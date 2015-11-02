@@ -75,20 +75,6 @@ namespace geopm
             virtual bool decider_supported(const std::string &descripton) = 0;
             virtual const std::string& name(void) const = 0;
     };
-
-    class GoverningDecider : public LeafDecider
-    {
-        public:
-            GoverningDecider();
-            ~GoverningDecider();
-            void get_policy(Platform const *platform, Policy &policy);
-            virtual bool decider_supported(const std::string &descripton);
-            virtual const std::string& name(void) const;
-        private:
-            double m_guard_band;
-            double m_package_min_power;
-            double m_board_memory_min_power;
-    };
 }
 
 #endif

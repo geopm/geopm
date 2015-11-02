@@ -92,7 +92,8 @@ namespace geopm
         if (buffer == NULL) {
             throw Exception("LockingHashTable: Buffer pointer is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        struct table_entry_s table_init = {PTHREAD_MUTEX_INITIALIZER, {0}, {0}};
+        struct table_entry_s table_init;
+        memset((void *)&table_init, 0, sizeof(struct table_entry_s));
         pthread_mutexattr_t lock_attr;
         int err = pthread_mutexattr_init(&lock_attr);
         if (err) {

@@ -58,6 +58,7 @@ enum geomp_error_e {
     GEOPM_ERROR_OPENMP_UNSUPPORTED = -16,
     GEOPM_ERROR_PROF_NULL = -17,
     GEOPM_ERROR_DECIDER_UNSUPPORTED = -18,
+    GEOPM_ERROR_FACTORY_NULL = -19,
 };
 
 /* Convert error number into an error message */

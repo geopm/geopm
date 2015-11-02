@@ -30,57 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <inttypes.h>
-#include <cpuid.h>
+#ifndef GOVERNING_DECIDER_HPP_INCLUDE
+#define GOVERNING_DECIDER_HPP_INCLUDE
 
-#include "geopm_error.h"
+#include "Decider.hpp"
 #include "geopm_plugin.h"
-#include "Exception.hpp"
-#include "DeciderFactory.hpp"
+
+extern "C" int geopm_decider_register(struct geopm_factory_c *factory);
 
 namespace geopm
 {
-
-    DeciderFactory::DeciderFactory()
+    class GoverningDecider : public LeafDecider
     {
-        // register all the deciders we know about
-        geopm_plugins_load("geopm_decider_register", (struct geopm_factory_c *)this);
-    }
-
-    DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)
-    {
-        register_decider(move(decider));
-    }
-
-    DeciderFactory::~DeciderFactory()
-    {
-        for (auto it = deciders.rbegin(); it != deciders.rend(); ++it) {
-            delete *it;
-        }
-        deciders.clear();
-    }
-
-    Decider* DeciderFactory::decider(const std::string &description)
-    {
-        Decider *result = NULL;
-        for (auto it = deciders.begin(); it != deciders.end(); ++it) {
-            if (*it != NULL &&
-                (*it)->decider_supported(description)) {
-                result =  *it;
-                break;
-            }
-        }
-        if (!result) {
-            // If we get here, no acceptable decider was found
-            throw Exception("decider: " + description, GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-        }
-
-        return result;
-    }
-
-    void DeciderFactory::register_decider(std::unique_ptr<Decider> decider)
-    {
-        deciders.push_back(decider.release());
-    }
+        public:
+            GoverningDecider();
+            ~GoverningDecider();
+            void get_policy(Platform const *platform, Policy &policy);
+            virtual bool decider_supported(const std::string &descripton);
+            virtual const std::string& name(void) const;
+        private:
+            double m_guard_band;
+            double m_package_min_power;
+            double m_board_memory_min_power;
+    };
 }
+
+#endif

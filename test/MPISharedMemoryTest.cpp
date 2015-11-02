@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/mman.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <mpi.h>
@@ -41,11 +42,14 @@ class MPISharedMemoryTest: public :: testing :: Test
     public:
         MPISharedMemoryTest();
         virtual ~MPISharedMemoryTest();
+        std::string m_shm_key;
 };
 
 MPISharedMemoryTest::MPISharedMemoryTest()
+    : m_shm_key("/geopm_shared_memory_test")
 {
-
+    std::string shm_key(m_shm_key.c_str());
+    shm_unlink(shm_key.c_str());
 }
 
 MPISharedMemoryTest::~MPISharedMemoryTest()
@@ -56,18 +60,17 @@ MPISharedMemoryTest::~MPISharedMemoryTest()
 TEST_F(MPISharedMemoryTest, hello)
 {
     int rank;
-    std::string shm_key("/geopm_shared_memory_test");
     const char *test_string = "THIS IS THE TEST STRING";
     geopm::SharedMemory *sm = NULL;
     geopm::SharedMemoryUser *smu = NULL;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        sm = new geopm::SharedMemory(shm_key, 128);
+        sm = new geopm::SharedMemory(m_shm_key, 128);
         strcpy((char *)sm->pointer(), test_string);
     }
     else if (rank == 1) {
-        smu = new geopm::SharedMemoryUser(shm_key, 128, 5);
+        smu = new geopm::SharedMemoryUser(m_shm_key, 128, 5);
         EXPECT_EQ(0, strncmp((char *)smu->pointer(), test_string, strlen(test_string)));
     }
     MPI_Barrier(MPI_COMM_WORLD);

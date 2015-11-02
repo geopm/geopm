@@ -30,57 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <inttypes.h>
-#include <cpuid.h>
+#ifndef GEOPM_PLUGIN_H_INCLUDE
+#define GEOPM_PLUGIN_H_INCLUDE
 
-#include "geopm_error.h"
-#include "geopm_plugin.h"
-#include "Exception.hpp"
-#include "DeciderFactory.hpp"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-namespace geopm
-{
+/* opaque structure that is a handle for a specific Factory object. */
+struct geopm_factory_c;
 
-    DeciderFactory::DeciderFactory()
-    {
-        // register all the deciders we know about
-        geopm_plugins_load("geopm_decider_register", (struct geopm_factory_c *)this);
-    }
+int geopm_plugins_load(const char *func_name,
+                       struct geopm_factory_c *factory);
 
-    DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)
-    {
-        register_decider(move(decider));
-    }
-
-    DeciderFactory::~DeciderFactory()
-    {
-        for (auto it = deciders.rbegin(); it != deciders.rend(); ++it) {
-            delete *it;
-        }
-        deciders.clear();
-    }
-
-    Decider* DeciderFactory::decider(const std::string &description)
-    {
-        Decider *result = NULL;
-        for (auto it = deciders.begin(); it != deciders.end(); ++it) {
-            if (*it != NULL &&
-                (*it)->decider_supported(description)) {
-                result =  *it;
-                break;
-            }
-        }
-        if (!result) {
-            // If we get here, no acceptable decider was found
-            throw Exception("decider: " + description, GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-        }
-
-        return result;
-    }
-
-    void DeciderFactory::register_decider(std::unique_ptr<Decider> decider)
-    {
-        deciders.push_back(decider.release());
-    }
+#ifdef __cplusplus
 }
+#endif
+#endif

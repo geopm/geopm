@@ -31,12 +31,13 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = -I$(top_srcdir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\"
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
+    pkglib_LTLIBRARIES = libgoverning.la
 endif
 
 bin_PROGRAMS = geopmpolicy
@@ -51,6 +52,7 @@ include_HEADERS = src/geopm.h \
                   src/geopm_policy.h \
                   src/geopm_policy_message.h \
                   src/geopm_version.h \
+                  src/geopm_plugin.h \
                   # end
 
 dist_man_MANS = man/geopm.3 \
@@ -118,6 +120,10 @@ endif
 # SOURCE LISTS FOR EACH TARGET
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/CircularBuffer.hpp \
+                            src/Decider.cpp \
+                            src/Decider.hpp \
+                            src/DeciderFactory.cpp \
+                            src/DeciderFactory.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \
@@ -149,6 +155,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/geopm_error.h \
                             src/geopm_omp.c \
                             src/geopm_omp.h \
+                            src/geopm_plugin.c \
+                            src/geopm_plugin.h \
                             src/geopm_policy.h \
                             src/geopm_policy_message.c \
                             src/geopm_policy_message.h \
@@ -164,6 +172,12 @@ geopmpolicy_SOURCES = src/geopmpolicy_main.c \
 
 
 if ENABLE_MPI
+    libgoverning_la_SOURCES= src/Decider.hpp \
+                          src/GoverningDecider.cpp \
+                          src/GoverningDecider.hpp \
+                          src/geopm_plugin.h \
+                          # end
+
     libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                           src/CircularBuffer.hpp \
                           src/Controller.cpp \
@@ -210,6 +224,8 @@ if ENABLE_MPI
                           src/geopm_omp.c \
                           src/geopm_omp.h \
                           src/geopm_mpi_pcontrol.h \
+                          src/geopm_plugin.c \
+                          src/geopm_plugin.h \
                           src/geopm_policy_message.c \
                           src/geopm_policy_message.h \
                           src/geopm_version.c \

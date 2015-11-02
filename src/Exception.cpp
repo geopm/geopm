@@ -102,6 +102,9 @@ extern "C"
             case GEOPM_ERROR_DECIDER_UNSUPPORTED:
                 strncpy(msg, "<geopm> Specified Decider not supported or unrecognized", size);
                 break;
+            case GEOPM_ERROR_FACTORY_NULL:
+                strncpy(msg, "<geopm> The geopm_factory_c pointer is NULL, pass in a valid factory object", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

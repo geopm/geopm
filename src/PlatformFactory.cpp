@@ -35,6 +35,7 @@
 #include <cpuid.h>
 
 #include "geopm_error.h"
+#include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "PlatformFactory.hpp"
 #include "RAPLPlatform.hpp"
@@ -47,6 +48,7 @@ namespace geopm
     PlatformFactory::PlatformFactory()
     {
         // register all the platforms we know about
+        geopm_plugins_load("_geopm_platform_register", (struct geopm_factory_c *)this);
         IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
         RAPLPlatform *ivb_plat = new RAPLPlatform();
         HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();

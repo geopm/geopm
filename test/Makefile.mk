@@ -104,6 +104,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/ExceptionTest.cpp \
                           test/LockingHashTableTest.cpp \
                           src/LockingHashTable.hpp \
+                          test/DeciderFactoryTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
@@ -121,7 +122,6 @@ endif
 if ENABLE_MPI
     test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
                                   test/MPITreeCommunicatorTest.cpp \
-                                  test/DeciderFactoryTest.cpp \
                                   test/MPISharedMemoryTest.cpp \
                                   # end
 
