@@ -61,7 +61,7 @@ namespace geopm
             virtual ~LockingHashTable();
             void insert(uint64_t key, const type &value);
             type find(uint64_t key);
-            uint64_t key(const std::string &str);
+            uint64_t key(const std::string &name);
             size_t capacity(void) const;
             void dump(std::vector<std::pair<uint64_t, type> > &contents, size_t &length);
         protected:
@@ -207,14 +207,14 @@ namespace geopm
     }
 
     template <class type>
-    uint64_t LockingHashTable<type>::key(const std::string &str)
+    uint64_t LockingHashTable<type>::key(const std::string &name)
     {
         uint64_t result = 0;
         int err = pthread_mutex_lock(&(m_key_map_lock));
         if (err) {
             throw Exception("LockingHashTable::key(): pthread_mutex_lock()", err, __FILE__, __LINE__);
         }
-        auto key_map_it = m_key_map.find(str);
+        auto key_map_it = m_key_map.find(name);
         err = pthread_mutex_unlock(&(m_key_map_lock));
         if (err) {
             throw Exception("LockingHashTable::key(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
@@ -224,13 +224,13 @@ namespace geopm
             result = key_map_it->second;
         }
         else {
-            size_t num_word = str.length() / 8;
-            const uint64_t *ptr = (const uint64_t *)(&str.front());
+            size_t num_word = name.length() / 8;
+            const uint64_t *ptr = (const uint64_t *)(&name.front());
 
             for (size_t i = 0; i < num_word; ++i) {
                 result = _mm_crc32_u64(result, ptr[i]);
             }
-            size_t extra = str.length() - num_word * 8;
+            size_t extra = name.length() - num_word * 8;
             if (extra) {
                 uint64_t last_word = 0;
                 for (int i = 0; i < extra; ++i) {
@@ -249,7 +249,7 @@ namespace geopm
                 throw Exception("LockingHashTable::key(): String hash collision", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_key_set.insert(result);
-            m_key_map.insert(std::pair<const std::string, uint64_t>(str, result));
+            m_key_map.insert(std::pair<const std::string, uint64_t>(name, result));
             err = pthread_mutex_unlock(&(m_key_map_lock));
             if (err) {
                 throw Exception("LockingHashTable::key(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
