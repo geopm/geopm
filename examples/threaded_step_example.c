@@ -30,11 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
+#include <string.h>
 #include <mpi.h>
 #include <omp.h>
+#include <errno.h>
 
 #include "geopm.h"
+#include "geopm_policy_message.h"
+
+#ifndef NAME_MAX
+#define NAME_MAX 512
+#endif
 
 static inline double do_something(int input)
 {
@@ -46,37 +54,29 @@ static inline double do_something(int input)
     return result;
 }
 
-static int run_something(int num_factor)
+static int run_something(void)
 {
     const size_t cache_line_size = 64;
     int err = 0;
-    int comm_size, comm_rank, num_node, is_shm_root, shm_comm_size, num_factor;
-    MPI_Comm shmem_comm;
-    char shm_key[NAME_MAX];
-    struct geopm_controller_c *ctl;
+    struct geopm_ctl_c *ctl;
+    struct geopm_policy_c *policy;
+    struct geopm_prof_c *prof;
     double x = 0;
     double thread_progress;
     int stride = cache_line_size / sizeof(int);
     int max_threads, i, num_iter = 1000000, iter_per_step = 100, chunk_size = 128;
-    int total_progress;
     int step_counter = 0;
-    int *factor = NULL;
     double *norm = NULL;
     uint32_t *progress = NULL;
     uint32_t *progress_ptr = NULL;
+    uint64_t region_id;
 
-    factor = malloc(sizeof(int) * num_factor);
-    if (!factor) {
-        err = ENOMEM;
+    err = geopm_policy_create(NULL, NULL, &policy);
+    if (!err) {
+        err = geopm_prof_create("threaded_step", GEOPM_SAMPLE_REDUCE_PROC, 4096, NULL, &prof);
     }
     if (!err) {
-        err = geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
-    }
-    if (!err) {
-        err = MPI_Dims_create(num_nodes, num_factor, factor);
-    }
-    if (!err) {
-        err = geopm_ctl_create(num_factor, factor, control, NULL, MPI_COMM_WORLD, &ctl);
+        err = geopm_ctl_create(policy, prof, MPI_COMM_WORLD, &ctl);
     }
     if (!err) {
         err = geopm_ctl_step(ctl);
@@ -92,18 +92,21 @@ static int run_something(int num_factor)
         }
     }
     if (!err) {
+        err = geopm_prof_region(prof, "main-loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+    }
+    if (!err) {
         memset(progress, 0, cache_line_size * max_threads);
-        geopm_openmp_sched_static_norm(num_iter, chunk_size, max_threads, norm);
-        #pragma omp parallel default(shared) private(i, progress_ptr) schedule(static, chunk_size)
+        (void) geopm_omp_sched_static_norm(num_iter, chunk_size, max_threads, norm);
+        #pragma omp parallel default(shared) private(i, progress_ptr)
         {
             progress_ptr = progress + stride * omp_get_thread_num();
-            #pragma omp for
+            #pragma omp for schedule(static, chunk_size)
             for (i = 0; i < num_iter; ++i) {
                 x += do_something(i);
-                *progress_ptr++;
+                (*progress_ptr)++;
                 if (omp_get_thread_num() == 0) {
                     thread_progress = geopm_progress_threaded_min(omp_get_num_threads(), stride, progress, norm);
-                    (void) geomp_ctr_prof_progress(ctl, region_id, thread_progress);
+                    (void) geopm_prof_progress(prof, region_id, thread_progress);
                     step_counter++;
                     if (step_counter == iter_per_step) {
                         geopm_ctl_step(ctl);
@@ -112,15 +115,12 @@ static int run_something(int num_factor)
                 }
             }
         }
-    } /* end pragma omp parallel */
+    }
     if (norm) {
         free(norm);
     }
     if (progress) {
         free(progress);
-    }
-    if (factor) {
-        free(factor);
     }
     return err;
 }
@@ -128,21 +128,7 @@ static int run_something(int num_factor)
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
-
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <num_level>\n\n", argv[0]);
-        err = EINVAL;
-    }
-    if (!err) {
-        num_factor = strtol(argv[1], NULL, 10);
-        if (num_factor < 1 || num_factor > 32) {
-            err = EINVAL;
-        }
-    }
-    if (!err) {
-        err = run_something(num_factor);
-    }
-    return err;
+    return run_something();
 }
 
 

@@ -20,6 +20,7 @@
 /examples/.deps/
 /examples/.dirstamp
 /examples/geopm_print_error
+/examples/threaded_step
 /examples/.libs/
 /examples/*.o
 *.gcda

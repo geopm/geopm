@@ -260,6 +260,7 @@ doxygen:
 
 # INCLUDES
 check_PROGRAMS =
+noinst_PROGRAMS =
 TESTS =
 BUILT_SOURCES =
 

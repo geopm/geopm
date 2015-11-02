@@ -162,6 +162,18 @@ extern "C"
         }
         return err;
     }
+    int geopm_ctl_step(struct geopm_ctl_c *ctl)
+    {
+        int err = 0;
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+        try {
+            ctl_obj->step();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
 }
 
 namespace geopm
@@ -222,7 +234,7 @@ namespace geopm
         delete m_tree_comm;
     }
 
-    void Controller::run()
+    void Controller::run(void)
     {
         int level;
         int err = 0;
@@ -251,6 +263,17 @@ namespace geopm
             if (walk_up()) {
                 break;
             }
+        }
+    }
+
+    void Controller::step(void)
+    {
+        int err = walk_down();
+        if (!err) {
+            err = walk_up();
+        }
+        if (err) {
+            throw Exception("Controller::step(): Shutdown signaled", GEOPM_ERROR_SHUTDOWN, __FILE__, __LINE__);
         }
     }
 
