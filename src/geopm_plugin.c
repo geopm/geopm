@@ -30,13 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define __USE_BSD
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dlfcn.h>
+#ifndef u_short
+#define u_short unsigned short
+#endif
 #include <fts.h>
 
 #include "geopm_plugin.h"

@@ -36,8 +36,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/time.h>
 
+#include "geopm_time.h"
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
 
@@ -104,15 +104,13 @@ namespace geopm
         }
         int shm_id = -1;
         if (timeout) {
-            double timeout_usec = 1E6 * timeout;
-            struct timeval tv;
-            gettimeofday(&tv, NULL);
-            double begin_usec = 1E6 * tv.tv_sec + tv.tv_usec;
-            double curr_usec = begin_usec;
-            for (unsigned int i = 0; shm_id < 0 && curr_usec - begin_usec < timeout_usec; ++i) {
+            struct geopm_time_s begin_time;
+            struct geopm_time_s curr_time;
+            geopm_time(&begin_time);
+            curr_time = begin_time;
+            for (unsigned int i = 0; shm_id < 0 && geopm_time_diff(&begin_time, &curr_time) < (double)timeout; ++i) {
                 shm_id = shm_open(shm_key.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
-                gettimeofday(&tv, NULL);
-                curr_usec = 1E6 * tv.tv_sec + tv.tv_usec;
+                geopm_time(&curr_time);
             }
         }
         else {

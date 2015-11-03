@@ -29,46 +29,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef PROFILE_HPP_INCLUDE
-#define PROFILE_HPP_INCLUDE
-
-#include <stdint.h>
-#include <string>
-
-#include "geopm_time.h"
-#include "SharedMemory.hpp"
-#include "LockingHashTable.hpp"
-
-namespace geopm
+#ifndef GEOPM_TIME_H_INCLUDE
+#define GEOPM_TIME_H_INCLUDE
+#ifdef __cplusplus
+extern "C"
 {
-    class Profile
-    {
-        public:
-            Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key);
-            Profile(const std::string name, int sample_reduce, size_t table_size);
-            virtual ~Profile();
-            uint64_t region(const std::string region_name, long policy_hint);
-            void enter(uint64_t region_id);
-            void exit(uint64_t region_id);
-            void progress(uint64_t region_id, double fraction);
-            void outer_sync(void);
-            void sample(uint64_t region_id);
-            void enable(const std::string feature_name);
-            void disable(const std::string feature_name);
-            void print(FILE *fid, int depth) const;
-        protected:
-            std::string m_name;
-            int m_sample_reduce;
-            uint64_t m_curr_region_id;
-            struct geopm_time_s m_enter_time;
-            int m_num_enter;
-            int m_num_progress;
-            double m_progress;
-            void *m_table_buffer;
-            SharedMemoryUser *m_shmem;
-            LockingHashTable<struct geopm_sample_message_s> *m_table;
-    };
-}
+#endif
 
+    struct geopm_time_s;
+
+    static inline int geopm_time(struct geopm_time_s *time);
+    static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end);
+
+#ifdef __linux__
+#include <time.h>
+
+    struct geopm_time_s {
+        struct timespec t;
+    };
+
+    static inline int geopm_time(struct geopm_time_s *time)
+    {
+        return clock_gettime(CLOCK_MONOTONIC_RAW, &(time->t));
+    }
+
+    static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end)
+    {
+        return (end->t.tv_sec - begin->t.tv_sec) +
+               (end->t.tv_nsec - begin->t.tv_nsec) * 1E-9;
+    }
+
+#else
+#include <sys/time.h>
+
+    struct geopm_time_s {
+        struct timeval t;
+    };
+
+    static inline int geopm_time(struct geopm_time_s *time)
+    {
+        return gettimeofday((struct timeval *)time, NULL);
+    }
+
+    static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end)
+    {
+        return (end->t.tv_sec - begin->t.tv_sec) +
+               (end->t.tv_usec - begin->t.tv_usec) * 1E-6;
+    }
+
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 #endif

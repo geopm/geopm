@@ -31,10 +31,10 @@
  */
 
 #include <float.h>
-#include <time.h>
 
 #include "geopm.h"
 #include "geopm_policy_message.h"
+#include "geopm_time.h"
 #include "Profile.hpp"
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
@@ -328,7 +328,7 @@ namespace geopm
         if (!m_curr_region_id) {
             m_curr_region_id = region_id;
             m_num_enter = 0;
-            clock_gettime(CLOCK_MONOTONIC_RAW, &m_enter_time);
+            (void) geopm_time(&m_enter_time);
         }
         if (m_curr_region_id == region_id) {
             ++m_num_enter;
@@ -344,10 +344,9 @@ namespace geopm
             struct geopm_sample_message_s sample = m_table->find(region_id);
             sample.phase_id = region_id;
             sample.progress = 1.0;
-            struct timespec exit_time;
-            clock_gettime(CLOCK_MONOTONIC_RAW, &exit_time);
-            sample.runtime = (exit_time.tv_sec - m_enter_time.tv_sec) +
-                             (exit_time.tv_nsec - m_enter_time.tv_nsec) * 1E-9;
+            struct geopm_time_s exit_time;
+            (void) geopm_time(&exit_time);
+            sample.runtime = geopm_time_diff(&m_enter_time, &exit_time);
             m_table->insert(region_id, sample);
             m_curr_region_id = 0;
         }
@@ -374,11 +373,10 @@ namespace geopm
     {
         if (region_id == m_curr_region_id) {
             struct geopm_sample_message_s sample;
-            struct timespec curr_time;
+            struct geopm_time_s curr_time;
             sample.phase_id = region_id;
-            (void) clock_gettime(CLOCK_MONOTONIC_RAW, &curr_time);
-            sample.runtime = (curr_time.tv_sec - m_enter_time.tv_sec) +
-                             (curr_time.tv_nsec - m_enter_time.tv_nsec) * 1E-9;
+            (void) geopm_time(&curr_time);
+            sample.runtime = geopm_time_diff(&m_enter_time, &curr_time);
             sample.progress = m_progress;
             sample.energy = 0.0;     // FIXME: need to add a platform to Profile and
             sample.frequency = 0.0;  // update energy and frequency here.

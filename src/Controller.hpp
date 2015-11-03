@@ -43,6 +43,7 @@
 #include "Phase.hpp"
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
+#include "geopm_time.h"
 
 
 namespace geopm
@@ -65,6 +66,7 @@ namespace geopm
             int walk_down(void);
             int walk_up(void);
             int m_max_fanout;
+            struct geopm_time_s m_time_zero;
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
             struct geopm_sample_shmem_s *m_shm;

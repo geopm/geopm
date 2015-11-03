@@ -44,7 +44,6 @@
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
-#include <sys/time.h>
 
 #include "geopm.h"
 #include "geopm_policy_message.h"
@@ -172,6 +171,8 @@ namespace geopm
         , m_shm(shm)
     {
         throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+
+        (void) geopm_time(&m_time_zero);
 
         int num_nodes = 0;
         int err = geopm_num_nodes(comm, &num_nodes);
@@ -336,7 +337,6 @@ namespace geopm
         uint64_t phase_id = sample[0].phase_id;
         Phase *curr_phase;
         auto iter = m_phase[level].find(phase_id);
-        struct timeval t;
         int num_domains;
 
         if (iter == m_phase[level].end()) {
@@ -356,15 +356,15 @@ namespace geopm
             curr_phase = iter->second;
         }
 
-        gettimeofday(&t, NULL);
-
-        double usec = ((double)t.tv_sec * 1E6) + (double)t.tv_usec;
+        struct geopm_time_s time;
+        geopm_time(&time);
+        double timestamp = geopm_time_diff(&m_time_zero, &time);
 
         for (auto sample_it = sample.begin(); sample_it < sample.end(); ++sample_it) {
             if (sample_it->phase_id != phase_id) {
                 throw geopm::Exception("class Controller", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
-            curr_phase->observation_insert(GEOPM_INDEX_TIMESTAMP, usec);
+            curr_phase->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
             curr_phase->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
             curr_phase->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
             curr_phase->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
