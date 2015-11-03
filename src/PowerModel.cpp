@@ -37,11 +37,15 @@
 namespace geopm
 {
     PowerModel::PowerModel()
-        : m_signal_names(
-    {"energy"
-    }) {}
+        : m_signal_names({"energy"})
+    {
 
-    PowerModel::~PowerModel() {}
+    }
+
+    PowerModel::~PowerModel()
+    {
+
+    }
 
     void PowerModel::signal_names(std::vector <std::string> &signal_names) const
     {
