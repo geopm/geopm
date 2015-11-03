@@ -196,7 +196,7 @@ namespace geopm
         m_phase.resize(m_tree_comm->num_level());
         m_phase[0].insert(std::pair<long, Phase *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
                           new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                          GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
+                                    GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
 
         PlatformFactory pfact;
         m_platform = pfact.platform();
@@ -210,7 +210,7 @@ namespace geopm
             if(level) {
                 m_phase[level].insert(std::pair<long, Phase *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                       new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                                      GEOPM_POLICY_HINT_UNKNOWN, m_tree_comm->level_size(level - 1))));
+                                                GEOPM_POLICY_HINT_UNKNOWN, m_tree_comm->level_size(level - 1))));
             }
         }
     }

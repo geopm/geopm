@@ -37,7 +37,9 @@
 namespace geopm
 {
     PowerModel::PowerModel()
-        : m_signal_names({"energy"}) {}
+        : m_signal_names(
+    {"energy"
+    }) {}
 
     PowerModel::~PowerModel() {}
 

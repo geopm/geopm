@@ -111,8 +111,11 @@ MPITreeCommunicatorTest::~MPITreeCommunicatorTest()
 MPITreeCommunicatorTestShmem::MPITreeCommunicatorTestShmem()
     : m_tcomm(NULL)
     ,  m_polctl(NULL)
-    , m_initial_policy({1, 2, 3, 4, 5.0})
-    , m_final_policy({5, 4, 3, 2, 1.0})
+    , m_initial_policy(
+{
+    1, 2, 3, 4, 5.0
+})
+, m_final_policy({5, 4, 3, 2, 1.0})
 {
     int rank, comm_size;
     std::vector<int> factor(2);

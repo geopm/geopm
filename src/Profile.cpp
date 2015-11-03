@@ -278,10 +278,13 @@ extern "C"
 namespace geopm
 {
     Profile::Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key)
-    : m_name(name)
-    , m_sample_reduce(sample_reduce)
-    , m_curr_region_id(0)
-    , m_enter_time({0, 0})
+        : m_name(name)
+        , m_sample_reduce(sample_reduce)
+        , m_curr_region_id(0)
+        , m_enter_time(
+    {
+        0, 0
+    })
     , m_num_enter(0)
     , m_num_progress(0)
     , m_progress(0.0)
@@ -302,7 +305,7 @@ namespace geopm
     }
 
     Profile::Profile(const std::string name, int sample_reduce, size_t table_size)
-    : Profile(name, sample_reduce, table_size, "")
+        : Profile(name, sample_reduce, table_size, "")
     {
 
     }

@@ -50,8 +50,8 @@ class LockingHashTableTest: public :: testing :: Test
 };
 
 LockingHashTableTest::LockingHashTableTest()
-: m_size(sizeof(m_ptr))
-, m_small_size(sizeof(m_small_ptr))
+    : m_size(sizeof(m_ptr))
+    , m_small_size(sizeof(m_small_ptr))
 {
     m_table = new geopm::LockingHashTable<double>(m_size, (void *)m_ptr);
     m_table_small = new geopm::LockingHashTable<double>(m_small_size, (void *)m_small_ptr);

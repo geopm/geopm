@@ -46,7 +46,8 @@ int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
         #pragma omp critical
         {
             int cpu_index = sched_getcpu();
-            if (cpu_index < num_cpu) {
+            if (cpu_index < num_cpu)
+            {
                 CPU_CLR(cpu_index, no_omp);
             }
             else {

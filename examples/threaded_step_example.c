@@ -94,25 +94,25 @@ static int run_something(int num_factor)
     if (!err) {
         memset(progress, 0, cache_line_size * max_threads);
         geopm_openmp_sched_static_norm(num_iter, chunk_size, max_threads, norm);
-#pragma omp parallel default(shared) private(i, progress_ptr) schedule(static, chunk_size)
-{
-        progress_ptr = progress + stride * omp_get_thread_num();
-#pragma omp for
-        for (i = 0; i < num_iter; ++i) {
-            x += do_something(i);
-            *progress_ptr++;
-            if (omp_get_thread_num() == 0) {
-                thread_progress = geopm_progress_threaded_min(omp_get_num_threads(), stride, progress, norm);
-                (void) geomp_ctr_prof_progress(ctl, region_id, thread_progress);
-                step_counter++;
-                if (step_counter == iter_per_step) {
-                    geopm_ctl_step(ctl);
-                    step_counter = 0;
+        #pragma omp parallel default(shared) private(i, progress_ptr) schedule(static, chunk_size)
+        {
+            progress_ptr = progress + stride * omp_get_thread_num();
+            #pragma omp for
+            for (i = 0; i < num_iter; ++i) {
+                x += do_something(i);
+                *progress_ptr++;
+                if (omp_get_thread_num() == 0) {
+                    thread_progress = geopm_progress_threaded_min(omp_get_num_threads(), stride, progress, norm);
+                    (void) geomp_ctr_prof_progress(ctl, region_id, thread_progress);
+                    step_counter++;
+                    if (step_counter == iter_per_step) {
+                        geopm_ctl_step(ctl);
+                        step_counter = 0;
+                    }
                 }
             }
         }
-    }
-} /* end pragma omp parallel */
+    } /* end pragma omp parallel */
     if (norm) {
         free(norm);
     }

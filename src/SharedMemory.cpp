@@ -44,8 +44,8 @@
 namespace geopm
 {
     SharedMemory::SharedMemory(const std::string &shm_key, size_t size)
-    : m_shm_key(shm_key)
-    , m_size(size)
+        : m_shm_key(shm_key)
+        , m_size(size)
     {
         if (size == 0) {
             throw Exception("SharedMemory: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -90,14 +90,14 @@ namespace geopm
     }
 
     SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, size_t size)
-    : SharedMemoryUser(shm_key, size, INT_MAX)
+        : SharedMemoryUser(shm_key, size, INT_MAX)
     {
 
     }
 
     SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, size_t size, unsigned int timeout)
-    : m_shm_key(shm_key)
-    , m_size(size)
+        : m_shm_key(shm_key)
+        , m_size(size)
     {
         if (size == 0) {
             throw Exception("SharedMemoryUser: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
