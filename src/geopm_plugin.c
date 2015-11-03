@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define __USE_BSD
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
