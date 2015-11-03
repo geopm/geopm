@@ -48,8 +48,13 @@ class MPISharedMemoryTest: public :: testing :: Test
 MPISharedMemoryTest::MPISharedMemoryTest()
     : m_shm_key("/geopm_shared_memory_test")
 {
+    int rank;
     std::string shm_key(m_shm_key.c_str());
-    shm_unlink(shm_key.c_str());
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (!rank) {
+        shm_unlink(shm_key.c_str());
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 MPISharedMemoryTest::~MPISharedMemoryTest()
