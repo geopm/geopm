@@ -281,7 +281,7 @@ namespace geopm
         : m_name(name)
         , m_sample_reduce(sample_reduce)
         , m_curr_region_id(0)
-        , m_enter_time({0, 0})
+        , m_enter_time({{0, 0}})
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
