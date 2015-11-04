@@ -61,15 +61,14 @@ int geopm_plugins_load(const char *func_name,
 
     if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
         while ((file = fts_read(p_fts)) != NULL) {
-            char *ext = strrchr(file->fts_name,'.');
-            if (file->fts_info == FTS_F && ext != NULL) {
-                if (!strcmp(ext, ".so") || !strcmp(ext, ".dylib")) {
-                    plugin = dlopen(file->fts_path, RTLD_LAZY);
-                    if (plugin != NULL) {
-                        register_func = (int (*)(struct geopm_factory_c *)) dlsym(plugin, (char *)func_name);
-                        if (register_func != NULL) {
-                            register_func(factory);
-                        }
+            if (file->fts_info == FTS_F &&
+                (strstr(file->fts_name, ".so") ||
+                 strstr(file->fts_name, ".dylib"))) {
+                plugin = dlopen(file->fts_path, RTLD_LAZY);
+                if (plugin != NULL) {
+                    register_func = (int (*)(struct geopm_factory_c *)) dlsym(plugin, (char *)func_name);
+                    if (register_func != NULL) {
+                        register_func(factory);
                     }
                 }
             }
