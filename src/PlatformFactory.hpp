@@ -59,14 +59,16 @@ namespace geopm
             /// Concrete Platforms register with the factory through this API.
             /// The unique_ptr assures that the object cannot be destroyed
             /// before it is copied.
-            void register_platform(std::unique_ptr<Platform> platform, std::unique_ptr<PlatformImp> platform_imp);
+            void register_platform(std::unique_ptr<Platform> platform);
+            void register_platform(std::unique_ptr<PlatformImp> platform_imp);
         private:
             /// Uses the cpuid asm instruction to identify the hardware it
             /// is being run on.
             int read_cpuid();
 
             // Holds all registered concrete Platform instances
-            std::map<Platform*, PlatformImp*> platforms;
+            std::vector<Platform *> platforms;
+            std::vector<PlatformImp *> platform_imps;
     };
 
 }

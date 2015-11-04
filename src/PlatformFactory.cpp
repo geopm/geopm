@@ -52,43 +52,53 @@ namespace geopm
         IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
         RAPLPlatform *ivb_plat = new RAPLPlatform();
         HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();
-        RAPLPlatform *hsx_plat = new RAPLPlatform();
         std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(ivb_plat);
         std::unique_ptr<PlatformImp> pplat_imp = std::unique_ptr<PlatformImp>(ivb_plat_imp);
-        register_platform(move(pplat), move(pplat_imp));
-
-        pplat = std::unique_ptr<Platform>(hsx_plat);
+        register_platform(move(pplat));
+        register_platform(move(pplat_imp));
         pplat_imp = std::unique_ptr<PlatformImp>(hsx_plat_imp);
-        register_platform(move(pplat), move(pplat_imp));
+        register_platform(move(pplat_imp));
     }
 
     PlatformFactory::PlatformFactory(std::unique_ptr<Platform> platform,
                                      std::unique_ptr<PlatformImp> platform_imp)
     {
-        register_platform(move(platform), move(platform_imp));
+        register_platform(move(platform));
+        register_platform(move(platform_imp));
     }
 
     PlatformFactory::~PlatformFactory()
     {
         for (auto it = platforms.rbegin(); it != platforms.rend(); ++it) {
-            delete it->first;
-            delete it->second;
+            delete *it;
+        }
+        for (auto it = platform_imps.rbegin(); it != platform_imps.rend(); ++it) {
+            delete *it;
         }
     }
 
     Platform* PlatformFactory::platform()
     {
         int platform_id;
+        bool found = false;
         Platform *result = NULL;
         platform_id = read_cpuid();
         for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-            if (it->second != NULL &&
-                it->first->model_supported(platform_id) &&
-                it->second->model_supported(platform_id)) {
-                it->first->set_implementation(it->second);
-                result =  it->first;
+            if ((*it) != NULL && (*it)->model_supported(platform_id)) {
+                result = (*it);
                 break;
             }
+        }
+        for (auto it = platform_imps.begin(); it != platform_imps.end(); ++it) {
+            if ((*it) != NULL && result != NULL &&
+                (*it)->model_supported(platform_id)) {
+                result->set_implementation((*it));
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            result = NULL;
         }
         if (!result) {
             // If we get here, no acceptable platform was found
@@ -98,9 +108,14 @@ namespace geopm
         return result;
     }
 
-    void PlatformFactory::register_platform(std::unique_ptr<Platform> platform, std::unique_ptr<PlatformImp> platform_imp)
+    void PlatformFactory::register_platform(std::unique_ptr<Platform> platform)
     {
-        platforms.insert(std::pair<Platform*, PlatformImp*>(platform.release(), platform_imp.release()));
+        platforms.push_back(platform.release());
+    }
+
+    void PlatformFactory::register_platform(std::unique_ptr<PlatformImp> platform_imp)
+    {
+        platform_imps.push_back(platform_imp.release());
     }
 
     int PlatformFactory::read_cpuid()

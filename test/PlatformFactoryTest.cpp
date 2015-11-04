@@ -131,7 +131,8 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     .Times(1)
     .WillOnce(Return(false));
 
-    m_platform_fact.register_platform(move(m_ap), move(m_ap_imp));
+    m_platform_fact.register_platform(move(m_ap_imp));
+    m_platform_fact.register_platform(move(m_ap));
 
     try {
         p = m_platform_fact.platform();
