@@ -53,10 +53,11 @@ int geopm_plugins_load(const char *func_name,
     FTS *p_fts;
     FTSENT *file;
     char *plugin_dir = PLUGINDIR;
-    char *paths[2];
+    char *paths[3];
 
     paths[0] = plugin_dir;
-    paths[1] = NULL;
+    paths[1] = getenv("GEOPM_PLUGIN_DIR");
+    paths[2] = NULL;
 
     if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
         while ((file = fts_read(p_fts)) != NULL) {

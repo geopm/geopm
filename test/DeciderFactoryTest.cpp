@@ -46,6 +46,7 @@ class DeciderFactoryTest: public :: testing :: Test
 
 void DeciderFactoryTest::SetUp()
 {
+    setenv("GEOPM_PLUGIN_DIR", ".libs/", 1);
 }
 
 TEST_F(DeciderFactoryTest, decider_register)
