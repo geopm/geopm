@@ -39,7 +39,7 @@
 #include <pthread.h>
 
 #include "geopm_policy.h"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 #ifdef __cplusplus
 extern "C" {

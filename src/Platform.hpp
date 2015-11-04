@@ -39,7 +39,7 @@
 #include "Policy.hpp"
 #include "PlatformImp.hpp"
 #include "PowerModel.hpp"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 namespace geopm
 {

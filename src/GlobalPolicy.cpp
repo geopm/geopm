@@ -45,7 +45,7 @@
 
 
 
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 #include "geopm_policy.h"
 #include "Exception.hpp"
 #include "GlobalPolicy.hpp"

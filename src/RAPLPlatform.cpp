@@ -33,7 +33,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "RAPLPlatform.hpp"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 namespace geopm
 {

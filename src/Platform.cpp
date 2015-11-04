@@ -44,7 +44,7 @@
 #include "Exception.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 extern "C"
 {

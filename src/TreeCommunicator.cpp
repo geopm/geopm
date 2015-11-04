@@ -47,7 +47,7 @@
 #include "Exception.hpp"
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 extern "C"
 {

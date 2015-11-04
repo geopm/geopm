@@ -32,7 +32,7 @@
 
 #include <hwloc.h>
 
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 #include "GoverningDecider.hpp"
 #include "DeciderFactory.hpp"
 #include "Exception.hpp"

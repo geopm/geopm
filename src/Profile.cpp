@@ -33,7 +33,7 @@
 #include <float.h>
 
 #include "geopm.h"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 #include "geopm_time.h"
 #include "Profile.hpp"
 #include "Exception.hpp"

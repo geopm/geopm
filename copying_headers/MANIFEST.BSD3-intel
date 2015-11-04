@@ -37,7 +37,7 @@ src/geopm_plugin.h
 src/geopm_policy.h
 src/geopmpolicy_main.c
 src/geopm_policy_message.c
-src/geopm_policy_message.h
+src/geopm_message.h
 src/geopm_time.h
 src/geopm_version.c
 src/geopm_version.h

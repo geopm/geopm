@@ -37,7 +37,7 @@
 #include <mpi.h>
 #include <pthread.h>
 
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 namespace geopm
 {

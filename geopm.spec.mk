@@ -184,7 +184,7 @@ rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
 %{_includedir}/geopm_error.h
 %{_includedir}/geopm_mpi_pcontrol.h
 %{_includedir}/geopm_policy.h
-%{_includedir}/geopm_policy_message.h
+%{_includedir}/geopm_message.h
 %{_includedir}/geopm_version.h
 
 %changelog

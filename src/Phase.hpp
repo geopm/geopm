@@ -36,7 +36,7 @@
 #include <stdint.h>
 #include <string>
 
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 #include "Observation.hpp"
 #include "Policy.hpp"
 

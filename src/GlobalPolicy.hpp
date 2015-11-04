@@ -35,7 +35,7 @@
 
 #include <string>
 #include <fstream>
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 namespace geopm
 {

@@ -46,7 +46,7 @@
 #include <unistd.h>
 
 #include "geopm.h"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "PlatformFactory.hpp"

@@ -42,7 +42,7 @@
 #include <sys/types.h>
 
 #include "geopm_policy.h"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 #include "geopm_version.h"
 #include "geopm_error.h"
 

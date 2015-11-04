@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY = {-1, -1, -1, -1, -1.0};
 
