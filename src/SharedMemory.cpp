@@ -106,11 +106,22 @@ namespace geopm
         if (timeout) {
             struct geopm_time_s begin_time;
             struct geopm_time_s curr_time;
+            size_t region_size = 0;
+            struct stat stat_struct;
             geopm_time(&begin_time);
             curr_time = begin_time;
             for (unsigned int i = 0; shm_id < 0 && geopm_time_diff(&begin_time, &curr_time) < (double)timeout; ++i) {
                 shm_id = shm_open(shm_key.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
                 geopm_time(&curr_time);
+            }
+            for (unsigned int i = 0; region_size < size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout; ++i) {
+                (void) fstat(shm_id, &stat_struct);
+                region_size = stat_struct.st_size;
+                geopm_time(&curr_time);
+            }
+            if (region_size < size) {
+                (void) close(shm_id);
+                shm_id = -1;
             }
         }
         else {
