@@ -40,6 +40,8 @@
 extern "C" {
 #endif
 
+#define GEOPM_MAX_NUM_CPU 768
+
 enum geopm_policy_flags_e {
     GEOPM_FLAGS_SMALL_CPU_FREQ_100MHZ_1 = 1ULL << 0,
     GEOPM_FLAGS_SMALL_CPU_FREQ_100MHZ_2 = 1ULL << 1,
@@ -82,13 +84,19 @@ enum geopm_policy_mode_e {
 };
 
 enum geopm_policy_hint_e {
-    GEOPM_POLICY_HINT_UNKNOWN,
-    GEOPM_POLICY_HINT_COMPUTE,
-    GEOPM_POLICY_HINT_MEMORY,
-    GEOPM_POLICY_HINT_NETWORK,
+    GEOPM_POLICY_HINT_UNKNOWN = 0,
+    GEOPM_POLICY_HINT_COMPUTE = 1,
+    GEOPM_POLICY_HINT_MEMORY = 2,
+    GEOPM_POLICY_HINT_NETWORK = 3,
 };
 
-#define GEOPM_GLOBAL_POLICY_IDENTIFIER -1
+enum geopm_status_e {
+    GEOPM_STATUS_UNDEFINED = 0,
+    GEOPM_STATUS_ITIALIZED = 1,
+    GEOPM_STATUS_ACTIVE = 2,
+    GEOPM_STATUS_REPORT = 3,
+    GEOPM_STATUS_SHUTDOWN = 4,
+};
 
 struct geopm_policy_message_s {
     int phase_id;
@@ -110,6 +118,13 @@ struct geopm_sample_message_s {
     double progress;
     double energy;
     double frequency;
+};
+
+struct geopm_ctl_message_s {
+    uint32_t ctl_status;
+    uint32_t app_status;
+    int num_node_rank;
+    int cpu_rank[GEOPM_MAX_NUM_CPU];
 };
 
 struct geopm_sample_shmem_s {

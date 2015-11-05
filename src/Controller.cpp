@@ -54,6 +54,7 @@
 #ifndef NAME_MAX
 #define NAME_MAX 1024
 #endif
+#define GEOPM_GLOBAL_POLICY_IDENTIFIER -1
 
 extern "C"
 {
