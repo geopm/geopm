@@ -44,6 +44,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <stack>
 
 #include "Exception.hpp"
 
@@ -64,6 +65,8 @@ namespace geopm
             uint64_t key(const std::string &name);
             size_t capacity(void) const;
             void dump(std::vector<std::pair<uint64_t, type> > &contents, size_t &length);
+            void name_fill(void);
+            void name_stack(std::stack<std::string> &name);
         protected:
             struct table_entry_s {
                 pthread_mutex_t lock;
@@ -175,7 +178,7 @@ namespace geopm
             throw Exception("LockingHashTable::insert(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
         }
         if (!is_stored) {
-            throw Exception("LockingHashTable::insert(): Too many collisions", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("LockingHashTable::insert()", GEOPM_ERROR_TOO_MANY_COLLISIONS, __FILE__, __LINE__);
         }
     }
 
@@ -288,6 +291,18 @@ namespace geopm
                 throw Exception("LockingHashTable::dump(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
             }
         }
+    }
+
+    template <class type>
+    void LockingHashTable<type>::name_fill(void)
+    {
+        throw Exception("LockingHashTable::name_fill", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    template <class type>
+    void name_stack(std::stack<std::string> &name)
+    {
+        throw Exception("LockingHashTable::name_stack", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 }
 #endif

@@ -89,7 +89,6 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 /* APPLICATION PROFILING */
 /*************************/
 int geopm_prof_create(const char *name,
-                      int sample_reduce,
                       size_t table_size,
                       const char *shm_key,
                       struct geopm_prof_c **prof);
@@ -123,7 +122,7 @@ int geopm_prof_disable(struct geopm_prof_c *prof,
                        const char *feature_name);
 
 int geopm_prof_print(struct geopm_prof_c *prof,
-                     FILE *fid,
+                     const char *file_name,
                      int depth);
 
 

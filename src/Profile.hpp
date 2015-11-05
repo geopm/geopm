@@ -37,6 +37,7 @@
 #include <string>
 
 #include "geopm_time.h"
+#include "geopm_message.h"
 #include "SharedMemory.hpp"
 #include "LockingHashTable.hpp"
 
@@ -45,8 +46,7 @@ namespace geopm
     class Profile
     {
         public:
-            Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key);
-            Profile(const std::string name, int sample_reduce, size_t table_size);
+            Profile(const std::string prof_name, size_t table_size, const std::string shm_key_base);
             virtual ~Profile();
             uint64_t region(const std::string region_name, long policy_hint);
             void enter(uint64_t region_id);
@@ -56,18 +56,38 @@ namespace geopm
             void sample(uint64_t region_id);
             void enable(const std::string feature_name);
             void disable(const std::string feature_name);
-            void print(FILE *fid, int depth) const;
+            void print(const std::string file_name, int depth);
         protected:
-            std::string m_name;
-            int m_sample_reduce;
+            void name_set(const std::string file_name);
+            void shutdown(void);
+            std::string m_prof_name;
             uint64_t m_curr_region_id;
             struct geopm_time_s m_enter_time;
             int m_num_enter;
             int m_num_progress;
             double m_progress;
             void *m_table_buffer;
-            SharedMemoryUser *m_shmem;
+            SharedMemoryUser *m_ctl_shmem;
+            struct geopm_ctl_message_s *m_ctl_msg;
+            SharedMemoryUser *m_table_shmem;
             LockingHashTable<struct geopm_sample_message_s> *m_table;
+    };
+
+    class ProfileSample
+    {
+        public:
+            ProfileSample(size_t table_size, const std::string shm_key_base);
+            virtual ~ProfileSample(void);
+            size_t capacity(void);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length);
+            bool do_shutdown(void);
+        protected:
+            void name_set(std::string &file_name, std::string &prof_name, std::set<std::string> &key_name);
+            void print(const std::string file_name, const std::set<std::string> &key_name);
+            struct geopm_ctl_message_s *m_ctl_msg;
+            std::vector<SharedMemory> m_ctl_shmem;
+            std::vector<SharedMemory> m_table_shmem;
+            std::vector<LockingHashTable<struct geopm_sample_message_s> > m_table;
     };
 }
 

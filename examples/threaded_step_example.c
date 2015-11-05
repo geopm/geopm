@@ -38,7 +38,7 @@
 #include <errno.h>
 
 #include "geopm.h"
-#include "geopm_policy_message.h"
+#include "geopm_message.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 512
@@ -73,7 +73,7 @@ static int run_something(void)
 
     err = geopm_policy_create(NULL, NULL, &policy);
     if (!err) {
-        err = geopm_prof_create("threaded_step", GEOPM_SAMPLE_REDUCE_PROC, 4096, NULL, &prof);
+        err = geopm_prof_create("threaded_step", 4096, "/geopm_threaded_step", &prof);
     }
     if (!err) {
         err = geopm_ctl_create(policy, prof, MPI_COMM_WORLD, &ctl);

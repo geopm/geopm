@@ -42,16 +42,11 @@
 
 extern "C"
 {
-    int geopm_prof_create(const char *name, int sample_reduce, size_t table_size, const char *shm_key, struct geopm_prof_c **prof)
+    int geopm_prof_create(const char *name, size_t table_size, const char *shm_key, struct geopm_prof_c **prof)
     {
         int err = 0;
         try {
-            if (shm_key) {
-                *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, table_size, std::string(shm_key)));
-            }
-            else {
-                *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), sample_reduce, table_size));
-            }
+            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key)));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -210,7 +205,7 @@ extern "C"
 
     }
 
-    int geopm_prof_print(struct geopm_prof_c *prof, FILE *fid, int depth)
+    int geopm_prof_print(struct geopm_prof_c *prof, const char *file_name, int depth)
     {
         int err = 0;
         try {
@@ -218,7 +213,7 @@ extern "C"
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
-            prof_obj->print(fid, depth);
+            prof_obj->print(std::string(file_name), depth);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -277,50 +272,29 @@ extern "C"
 
 namespace geopm
 {
-    Profile::Profile(const std::string name, int sample_reduce, size_t table_size, const std::string shm_key)
-        : m_name(name)
-        , m_sample_reduce(sample_reduce)
+    Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key)
+        : m_prof_name(prof_name)
         , m_curr_region_id(0)
         , m_enter_time({{0, 0}})
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
     {
-        if (shm_key.length()) {
-            m_shmem = new SharedMemoryUser(shm_key, table_size);
-            m_table_buffer = m_shmem->pointer();
-            m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
-        }
-        else {
-            m_shmem = NULL;
-            m_table_buffer = malloc(table_size);
-            if (!m_table_buffer) {
-                throw Exception("Profile: m_table_buffer", ENOMEM, __FILE__, __LINE__);
-            }
-            m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
-        }
-    }
-
-    Profile::Profile(const std::string name, int sample_reduce, size_t table_size)
-        : Profile(name, sample_reduce, table_size, "")
-    {
-
+        m_table_shmem = new SharedMemoryUser(shm_key, table_size);
+        m_table_buffer = m_table_shmem->pointer();
+        m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
     }
 
     Profile::~Profile()
     {
         delete m_table;
-        if (m_shmem) {
-            delete m_shmem;
-        }
-        else {
-            free(m_table_buffer);
-        }
+        delete m_table_shmem;
     }
 
     uint64_t Profile::region(const std::string region_name, long policy_hint)
     {
         return m_table->key(region_name);
+        // FIXME: not using policy_hint
     }
 
     void Profile::enter(uint64_t region_id)
@@ -394,7 +368,7 @@ namespace geopm
         throw geopm::Exception("Profile::disable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    void Profile::print(FILE *fid, int depth) const
+    void Profile::print(const std::string file_name, int depth)
     {
         throw geopm::Exception("Profile::print()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }

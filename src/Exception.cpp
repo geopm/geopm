@@ -108,6 +108,9 @@ extern "C"
             case GEOPM_ERROR_SHUTDOWN:
                 strncpy(msg, "<geopm> Shutdown policy has been signaled", size);
                 break;
+            case GEOPM_ERROR_TOO_MANY_COLLISIONS:
+                strncpy(msg, "<geopm> Too many collisions when inserting into hash table", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

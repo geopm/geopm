@@ -92,7 +92,7 @@ enum geopm_policy_hint_e {
 
 enum geopm_status_e {
     GEOPM_STATUS_UNDEFINED = 0,
-    GEOPM_STATUS_ITIALIZED = 1,
+    GEOPM_STATUS_INITIALIZED = 1,
     GEOPM_STATUS_ACTIVE = 2,
     GEOPM_STATUS_REPORT = 3,
     GEOPM_STATUS_SHUTDOWN = 4,
@@ -113,6 +113,7 @@ struct geopm_policy_shmem_s {
 };
 
 struct geopm_sample_message_s {
+    int rank;
     uint64_t phase_id;
     double runtime;
     double progress;
@@ -121,9 +122,8 @@ struct geopm_sample_message_s {
 };
 
 struct geopm_ctl_message_s {
-    uint32_t ctl_status;
-    uint32_t app_status;
-    int num_node_rank;
+    volitile uint32_t ctl_status;
+    volitile uint32_t app_status;
     int cpu_rank[GEOPM_MAX_NUM_CPU];
 };
 
