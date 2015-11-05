@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <mpi.h>
+#include <string.h>
 #include "gtest/gtest.h"
 #include "SharedMemory.hpp"
 
