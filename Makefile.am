@@ -37,7 +37,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\"
 lib_LTLIBRARIES = libgeopmpolicy.la
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
-    pkglib_LTLIBRARIES = libgoverning.la
+    pkglib_LTLIBRARIES = libgoverning_decider.la
 endif
 
 bin_PROGRAMS = geopmpolicy
@@ -172,11 +172,11 @@ geopmpolicy_SOURCES = src/geopmpolicy_main.c \
 
 
 if ENABLE_MPI
-    libgoverning_la_SOURCES= src/Decider.hpp \
-                          src/GoverningDecider.cpp \
-                          src/GoverningDecider.hpp \
-                          src/geopm_plugin.h \
-                          # end
+    libgoverning_decider_la_SOURCES= src/Decider.hpp \
+                                     src/GoverningDecider.cpp \
+                                     src/GoverningDecider.hpp \
+                                     src/geopm_plugin.h \
+                                     # end
 
     libgeopm_la_SOURCES = src/CircularBuffer.cpp \
                           src/CircularBuffer.hpp \

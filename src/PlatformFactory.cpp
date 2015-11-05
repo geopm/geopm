@@ -80,7 +80,7 @@ namespace geopm
     Platform* PlatformFactory::platform()
     {
         int platform_id;
-        bool found = false;
+        bool is_found = false;
         Platform *result = NULL;
         platform_id = read_cpuid();
         for (auto it = platforms.begin(); it != platforms.end(); ++it) {
@@ -93,11 +93,11 @@ namespace geopm
             if ((*it) != NULL && result != NULL &&
                 (*it)->model_supported(platform_id)) {
                 result->set_implementation((*it));
-                found = true;
+                is_found = true;
                 break;
             }
         }
-        if (!found) {
+        if (!is_found) {
             result = NULL;
         }
         if (!result) {

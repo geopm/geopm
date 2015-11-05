@@ -33,8 +33,8 @@
 #include <hwloc.h>
 
 #include "geopm_message.h"
+#include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
-#include "DeciderFactory.hpp"
 #include "Exception.hpp"
 
 int geopm_decider_register(struct geopm_factory_c *factory)
@@ -42,17 +42,8 @@ int geopm_decider_register(struct geopm_factory_c *factory)
     int err = 0;
 
     try {
-        geopm::DeciderFactory *fact_obj;
-        geopm::Decider *gov_dec;
-        std::unique_ptr<geopm::Decider> p_gov_dec;
-
-        fact_obj = (geopm::DeciderFactory *)(factory);
-        if (fact_obj == NULL) {
-            throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-        }
-        gov_dec = new geopm::GoverningDecider;
-        p_gov_dec = std::unique_ptr<geopm::Decider>(gov_dec);
-        fact_obj->register_decider(move(p_gov_dec));
+        geopm::Decider *gov_dec = new geopm::GoverningDecider;
+        geopm_decider_factory_register(factory, gov_dec);
     }
     catch(...) {
         err = geopm::exception_handler(std::current_exception());

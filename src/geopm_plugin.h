@@ -45,5 +45,41 @@ int geopm_plugins_load(const char *func_name,
 
 #ifdef __cplusplus
 }
+#include "DeciderFactory.hpp"
+#include "PlatformFactory.hpp"
+#include "Exception.hpp"
+
+static inline void geopm_decider_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)
+{
+    std::unique_ptr<geopm::Decider> p_dec;
+    geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
+    if (fact_obj == NULL) {
+        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
+    }
+    p_dec = std::unique_ptr<geopm::Decider>(decider);
+    fact_obj->register_decider(move(p_dec));
+}
+
+static inline void geopm_platform_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
+{
+    std::unique_ptr<geopm::Platform> p_plat;
+    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
+    if (fact_obj == NULL) {
+        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
+    }
+    p_plat = std::unique_ptr<geopm::Platform>(platform);
+    fact_obj->register_platform(move(p_plat));
+}
+
+static inline void geopm_platform_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
+{
+    std::unique_ptr<geopm::PlatformImp> p_plat;
+    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
+    if (fact_obj == NULL) {
+        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
+    }
+    p_plat = std::unique_ptr<geopm::PlatformImp>(platform);
+    fact_obj->register_platform(move(p_plat));
+}
 #endif
 #endif

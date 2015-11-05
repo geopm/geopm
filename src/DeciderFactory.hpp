@@ -33,8 +33,7 @@
 #ifndef DECIDERFACTORY_HPP_INCLUDE
 #define DECIDERFACTORY_HPP_INCLUDE
 
-#include <map>
-#include <memory>
+#include <vector>
 
 #include "Decider.hpp"
 
