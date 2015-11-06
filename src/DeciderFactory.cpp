@@ -30,13 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
 #include <inttypes.h>
 #include <cpuid.h>
+#include <string>
+#include <memory>
 
 #include "geopm_error.h"
 #include "geopm_plugin.h"
 #include "Exception.hpp"
+#include "Decider.hpp"
 #include "DeciderFactory.hpp"
 
 namespace geopm

@@ -34,6 +34,7 @@
 #define DECIDERFACTORY_HPP_INCLUDE
 
 #include <vector>
+#include <memory>
 
 #include "Decider.hpp"
 
