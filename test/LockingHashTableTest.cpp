@@ -93,7 +93,7 @@ TEST_F(LockingHashTableTest, hello)
     EXPECT_THROW(overfill_small(), geopm::Exception);
     std::vector<std::pair<uint64_t, double> > contents(3);
     size_t length;
-    m_table->dump(contents, length);
+    m_table->dump(contents.begin(), length);
     EXPECT_EQ(3, length);
     for (int i = 0; i < 3; ++i) {
         if (contents[i].first == 1234) {

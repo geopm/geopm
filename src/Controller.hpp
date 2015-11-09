@@ -38,12 +38,13 @@
 #include <mpi.h>
 
 #include "TreeCommunicator.hpp"
-#include "Platform.hpp"
-#include "Decider.hpp"
+#include "PlatformFactory.hpp"
+#include "DeciderFactory.hpp"
 #include "Phase.hpp"
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
 #include "geopm_time.h"
+#include "geopm_message.h"
 
 
 namespace geopm
@@ -51,7 +52,7 @@ namespace geopm
     class Controller
     {
         public:
-            Controller(const GlobalPolicy *global_policy, struct geopm_sample_shmem_s *shm, MPI_Comm comm);
+            Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm);
             virtual ~Controller();
             void run(void);
             void step(void);
@@ -69,16 +70,16 @@ namespace geopm
             struct geopm_time_s m_time_zero;
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
-            struct geopm_sample_shmem_s *m_shm;
             TreeCommunicator *m_tree_comm;
             std::vector <TreeDecider *> m_tree_decider;
             LeafDecider *m_leaf_decider;
-            // Per-level platforms
+            DeciderFactory *m_decider_factory;
+            PlatformFactory *m_platform_factory;
             Platform * m_platform;
+            ProfileSampler m_sampler;
             // Per level vector of maps from phase identifier to phase object
             std::vector <std::map <long, Phase *> > m_phase;
     };
-
 }
 
 #endif

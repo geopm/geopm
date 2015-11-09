@@ -35,6 +35,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <forward_list>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
@@ -73,21 +74,21 @@ namespace geopm
             LockingHashTable<struct geopm_sample_message_s> *m_table;
     };
 
-    class ProfileSample
+    class ProfileSampler
     {
         public:
-            ProfileSample(size_t table_size, const std::string shm_key_base);
-            virtual ~ProfileSample(void);
+            ProfileSampler(const std::string shm_key_base, size_t table_size);
+            virtual ~ProfileSampler(void);
             size_t capacity(void);
             void sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length);
             bool do_shutdown(void);
         protected:
             void name_set(std::string &file_name, std::string &prof_name, std::set<std::string> &key_name);
             void print(const std::string file_name, const std::set<std::string> &key_name);
+            SharedMemory m_ctl_shmem;
             struct geopm_ctl_message_s *m_ctl_msg;
-            std::vector<SharedMemory> m_ctl_shmem;
-            std::vector<SharedMemory> m_table_shmem;
-            std::vector<LockingHashTable<struct geopm_sample_message_s> > m_table;
+            std::forward_list<SharedMemory> m_table_shmem;
+            std::forward_list<LockingHashTable<struct geopm_sample_message_s> > m_table;
     };
 }
 

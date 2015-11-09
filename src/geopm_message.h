@@ -40,7 +40,7 @@
 extern "C" {
 #endif
 
-#define GEOPM_MAX_NUM_CPU 768
+#define GEOPM_CONST_MAX_NUM_CPU 768
 
 enum geopm_policy_flags_e {
     GEOPM_FLAGS_SMALL_CPU_FREQ_100MHZ_1 = 1ULL << 0,
@@ -122,9 +122,9 @@ struct geopm_sample_message_s {
 };
 
 struct geopm_ctl_message_s {
-    volitile uint32_t ctl_status;
-    volitile uint32_t app_status;
-    int cpu_rank[GEOPM_MAX_NUM_CPU];
+    volatile uint32_t ctl_status;
+    volatile uint32_t app_status;
+    int cpu_rank[GEOPM_CONST_MAX_NUM_CPU];
 };
 
 struct geopm_sample_shmem_s {

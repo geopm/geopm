@@ -372,4 +372,69 @@ namespace geopm
     {
         throw geopm::Exception("Profile::print()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
+
+    ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
+        : m_ctl_shmem(shm_key_base, table_size)
+        , m_ctl_msg((struct geopm_ctl_message_s *)m_ctl_shmem.pointer())
+    {
+        std::string shm_key;
+
+        while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {;}
+
+        std::set<int> rank_set;
+        for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; i++) {
+            if (m_ctl_msg->cpu_rank[i] >= 0) {
+                (void) rank_set.insert(m_ctl_msg->cpu_rank[i]);
+            }
+        }
+
+        for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
+            shm_key.assign(shm_key_base + "_" + std::to_string(*it));
+            m_table_shmem.push_front(SharedMemory(shm_key, table_size));
+            m_table.push_front(LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_shmem.front().pointer()));
+        }
+
+        m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
+    }
+
+    ProfileSampler::~ProfileSampler(void)
+    {
+    }
+
+    size_t ProfileSampler::capacity(void)
+    {
+        size_t cap = 0;
+
+        for (auto it = m_table.begin(); it != m_table.end(); ++it) {
+            cap += (*it).capacity();
+        }
+
+        return cap;
+    }
+
+    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length) {
+        size_t sub_length = 0;
+
+        switch (m_ctl_msg->app_status) {
+            case GEOPM_STATUS_ACTIVE:
+                length = 0;
+                for (auto it = m_table.begin(); it != m_table.end(); ++it) {
+                    (*it).dump(contents.begin() + length, sub_length);
+                    length += sub_length;
+                }
+                break;
+            case GEOPM_STATUS_REPORT:
+                throw geopm::Exception("ProfileSampler: reporting", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                break;
+            case GEOPM_STATUS_SHUTDOWN:
+                break;
+            default:
+                throw Exception("ProfileSampler: inavlid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+
+    bool ProfileSampler::do_shutdown(void)
+    {
+        return (m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN);
+    }
 }

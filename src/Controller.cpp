@@ -46,10 +46,8 @@
 #include <unistd.h>
 
 #include "geopm.h"
-#include "geopm_message.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
-#include "PlatformFactory.hpp"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
@@ -67,8 +65,6 @@ extern "C"
     int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
     {
         int err = 0;
-        int shm_id = 0;
-        struct geopm_sample_shmem_s *shm_sample;
         char profile_name[NAME_MAX] = {0};
         strncpy(profile_name, report, NAME_MAX);
         if (profile_name[NAME_MAX-1] != '\0') {
@@ -82,35 +78,8 @@ extern "C"
                 std::string report_str(report);
                 std::string profile_name_str(basename(profile_name));
                 geopm::GlobalPolicy policy(policy_config_str, "");
-                shm_id = shm_open(sample_key, O_RDWR | O_CREAT | O_EXCL, S_IRWXU | S_IRWXG);
-                if (shm_id < 0) {
-                    throw geopm::Exception("geopmctl_main: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
-                }
 
-                err = ftruncate(shm_id, sizeof(struct geopm_policy_shmem_s));
-                if (err) {
-                    (void) shm_unlink(sample_key);
-                    (void) close(shm_id);
-                    throw geopm::Exception("geopmctl_main: Could not extend shared memory region with ftruncate for policy control", errno, __FILE__, __LINE__);
-                }
-
-                shm_sample = (struct geopm_sample_shmem_s *) mmap(NULL, sizeof(struct geopm_sample_shmem_s),
-                             PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
-                if (shm_sample == MAP_FAILED) {
-                    (void) close(shm_id);
-                    throw geopm::Exception("geopmctl_main: Could not map shared memory region for root policy", errno, __FILE__, __LINE__);
-                }
-                err = close(shm_id);
-                if (err) {
-                    munmap(shm_sample, sizeof(struct geopm_sample_shmem_s));
-                    throw geopm::Exception("geopmctl_main: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
-                }
-                if (pthread_mutex_init(&(shm_sample->lock), NULL) != 0) {
-                    munmap(shm_sample, sizeof(struct geopm_sample_shmem_s));
-                    throw geopm::Exception("geopmctl_main: Could not initialize pthread mutex for shared memory region", errno, __FILE__, __LINE__);
-                }
-
-                geopm::Controller ctl(&policy, shm_sample, MPI_COMM_WORLD);
+                geopm::Controller ctl(&policy, sample_key_str, MPI_COMM_WORLD);
                 ctl.run();
             }
             catch (...) {
@@ -125,11 +94,9 @@ extern "C"
         int err = 0;
         try {
             geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
-            struct geopm_sample_shmem_s *sample_mem = (struct geopm_sample_shmem_s*)malloc(sizeof(struct geopm_sample_message_s));
-            if (sample_mem == NULL) {
-            }
+            const std::string sample_key("/geopm_shmem_key");
 
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_mem, comm));
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_key, comm));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -178,10 +145,10 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(const GlobalPolicy *global_policy, struct geopm_sample_shmem_s *shm, MPI_Comm comm)
+    Controller::Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
         : m_max_fanout(0)
         , m_global_policy(global_policy)
-        , m_shm(shm)
+        , m_sampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE)
     {
         throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
 
@@ -212,8 +179,8 @@ namespace geopm
                           new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                     GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
 
-        PlatformFactory pfact;
-        m_platform = pfact.platform();
+        m_platform_factory = new PlatformFactory;
+        m_platform = m_platform_factory->platform();
 
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
             if (m_tree_comm->level_size(level) > m_max_fanout) {
@@ -232,6 +199,7 @@ namespace geopm
     Controller::~Controller()
     {
         delete m_tree_comm;
+        delete m_platform_factory;
     }
 
     void Controller::run(void)
