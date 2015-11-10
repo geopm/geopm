@@ -92,7 +92,8 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 int geopm_prof_create(const char *name,
                       size_t table_size,
                       const char *shm_key,
-                      struct geopm_prof_c **prof);
+                      struct geopm_prof_c **prof,
+                      MPI_Comm comm);
 
 int geopm_prof_destroy(struct geopm_prof_c *prof);
 

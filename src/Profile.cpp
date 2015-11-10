@@ -31,22 +31,23 @@
  */
 
 #include <float.h>
+#include <hwloc.h>
 
 #include "geopm.h"
+#include "geopm_cpuset.h"
 #include "geopm_message.h"
 #include "geopm_time.h"
 #include "Profile.hpp"
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
 
-
 extern "C"
 {
-    int geopm_prof_create(const char *name, size_t table_size, const char *shm_key, struct geopm_prof_c **prof)
+    int geopm_prof_create(const char *name, size_t table_size, const char *shm_key, struct geopm_prof_c **prof, MPI_Comm comm)
     {
         int err = 0;
         try {
-            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key)));
+            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key), comm));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -272,7 +273,7 @@ extern "C"
 
 namespace geopm
 {
-    Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key)
+    Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key, MPI_Comm comm)
         : m_prof_name(prof_name)
         , m_curr_region_id(0)
         , m_enter_time({{0, 0}})
@@ -280,9 +281,22 @@ namespace geopm
         , m_num_progress(0)
         , m_progress(0.0)
     {
+        int rank;
+
+        MPI_Comm_rank(comm, &rank);
+        MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &m_shm_comm);
+        MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         m_table_shmem = new SharedMemoryUser(shm_key, table_size);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_buffer);
+        init_cpu_list();
+        for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
+            m_ctl_msg->cpu_rank[*it] = rank;
+        }
+        MPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_INITIALIZED;
+        }
     }
 
     Profile::~Profile()
@@ -370,7 +384,71 @@ namespace geopm
 
     void Profile::print(const std::string file_name, int depth)
     {
-        throw geopm::Exception("Profile::print()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        MPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
+        }
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {;}
+        size_t buffer_offset = 0;
+        char *buffer_ptr = (char *)(m_table_shmem->pointer());
+        if (GEOPM_CONST_SHMEM_REGION_SIZE < file_name.length() + 1 + m_prof_name.length() + 1) {
+            throw Exception("Profile:print() profile file name and profile name are too long to fit in a table buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        strcpy(buffer_ptr, file_name.c_str());
+        buffer_ptr += file_name.length() + 1;
+        buffer_offset += file_name.length() + 1;
+        strcpy(buffer_ptr, m_prof_name.c_str());
+        buffer_ptr += m_prof_name.length() + 1;
+        buffer_offset += m_prof_name.length() + 1;
+        while (m_table->name_fill(buffer_offset)) {
+            MPI_Barrier(m_shm_comm);
+            if (!m_shm_rank) {
+                m_ctl_msg->app_status = GEOPM_STATUS_READY;
+            }
+            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {;}
+            MPI_Barrier(m_shm_comm);
+            if (!m_shm_rank) {
+                m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
+            }
+            buffer_offset = 0;
+        }
+        MPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
+        }
+    }
+
+    void Profile::init_cpu_list(void)
+    {
+        int err = 0;
+        unsigned int i = 0;
+
+        hwloc_topology_t topology;
+        hwloc_cpuset_t set;
+
+        err = hwloc_topology_init(&topology);
+        if (err) {
+            throw Exception("Profile: unable to initialize hwloc", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        err = hwloc_topology_load(topology);
+        if (err) {
+            throw Exception("Profile: unable to load topology in hwloc", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        set = hwloc_bitmap_alloc();
+
+        err = hwloc_get_proc_cpubind(topology, pid, set, HWLOC_CPUBIND_PROCESS);
+        if (err) {
+            throw Exception("Profile: unable to get process binding from hwloc", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        hwloc_bitmap_foreach_begin(i, set) {
+            m_cpu_list.push_front(i);
+        } hwloc_bitmap_foreach_end();
+
+        hwloc_bitmap_free(set);
+        hwloc_topology_destroy(topology);
     }
 
     ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
@@ -424,7 +502,7 @@ namespace geopm
                 }
                 break;
             case GEOPM_STATUS_REPORT:
-                throw geopm::Exception("ProfileSampler: reporting", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                report();
                 break;
             case GEOPM_STATUS_SHUTDOWN:
                 break;
@@ -436,5 +514,18 @@ namespace geopm
     bool ProfileSampler::do_shutdown(void)
     {
         return (m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN);
+    }
+
+    void ProfileSampler::report(void)
+    {
+   //     char *curr_str;
+        m_ctl_msg->ctl_status = GEOPM_STATUS_REPORT;
+        while (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+            while (m_ctl_msg->app_status != GEOPM_STATUS_READY ||
+                   m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {;}
+            if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+  //              for (curr_str = m_table_shmem.front().pointer()) {}//FIXME
+            }
+        }
     }
 }

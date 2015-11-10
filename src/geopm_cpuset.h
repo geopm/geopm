@@ -30,18 +30,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_OMP_H_INCLUDE
-#define GEOPM_OMP_H_INCLUDE
+#ifndef __linux__
+typedef struct cpu_set_t {
+    long int x[512];
+} cpu_set_t;
 
-#include "geopm_cpuset.h"
+static inline void CPU_SET(int cpu, cpu_set_t *set)
+{
+    int array_num = -1;
+    long comp_mask;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    array_num = cpu / 64;
+    comp_mask = 1 << (cpu % 64);
 
-int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp);
-
-#ifdef __cplusplus
+    set->x[array_num] |= comp_mask; 
 }
-#endif
+
+static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
+{
+    int array_num = -1;
+    long comp_mask;
+
+    array_num = cpu / 64;
+    comp_mask = 1 << (cpu % 64);
+
+    return set->x[array_num] &= comp_mask;
+}
+#else
+#include <sched.h>
 #endif

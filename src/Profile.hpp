@@ -35,7 +35,9 @@
 
 #include <stdint.h>
 #include <string>
+#include <list>
 #include <forward_list>
+#include <mpi.h>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
@@ -47,7 +49,7 @@ namespace geopm
     class Profile
     {
         public:
-            Profile(const std::string prof_name, size_t table_size, const std::string shm_key_base);
+            Profile(const std::string prof_name, size_t table_size, const std::string shm_key_base, MPI_Comm comm);
             virtual ~Profile();
             uint64_t region(const std::string region_name, long policy_hint);
             void enter(uint64_t region_id);
@@ -60,7 +62,9 @@ namespace geopm
             void print(const std::string file_name, int depth);
         protected:
             void name_set(const std::string file_name);
+            void report(void);
             void shutdown(void);
+            void init_cpu_list(void);
             std::string m_prof_name;
             uint64_t m_curr_region_id;
             struct geopm_time_s m_enter_time;
@@ -72,6 +76,9 @@ namespace geopm
             struct geopm_ctl_message_s *m_ctl_msg;
             SharedMemoryUser *m_table_shmem;
             LockingHashTable<struct geopm_sample_message_s> *m_table;
+            std::list<int> m_cpu_list;
+            MPI_Comm m_shm_comm;
+            int m_shm_rank;
     };
 
     class ProfileSampler
@@ -82,6 +89,7 @@ namespace geopm
             size_t capacity(void);
             void sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length);
             bool do_shutdown(void);
+            void report(void);
         protected:
             void name_set(std::string &file_name, std::string &prof_name, std::set<std::string> &key_name);
             void print(const std::string file_name, const std::set<std::string> &key_name);

@@ -65,7 +65,7 @@ namespace geopm
             uint64_t key(const std::string &name);
             size_t capacity(void) const;
             void dump(typename std::vector<std::pair<uint64_t, type> >::iterator contents, size_t &length);
-            void name_fill(void);
+            bool name_fill(size_t header_offset);
             void name_stack(std::stack<std::string> &name);
         protected:
             struct table_entry_s {
@@ -82,6 +82,7 @@ namespace geopm
             std::map<const std::string, uint64_t> m_key_map;
             std::set<uint64_t> m_key_set;
             bool m_is_pshared;
+            std::map<const std::string, uint64_t>::iterator m_key_map_last;
     };
 
     template <class type>
@@ -91,6 +92,7 @@ namespace geopm
         , m_table((struct table_entry_s *)buffer)
         , m_key_map_lock(PTHREAD_MUTEX_INITIALIZER)
         , m_is_pshared(true)
+        , m_key_map_last(m_key_map.end())
     {
         if (buffer == NULL) {
             throw Exception("LockingHashTable: Buffer pointer is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -254,6 +256,7 @@ namespace geopm
             }
             m_key_set.insert(result);
             m_key_map.insert(std::pair<const std::string, uint64_t>(name, result));
+            m_key_map_last = m_key_map.begin();
             err = pthread_mutex_unlock(&(m_key_map_lock));
             if (err) {
                 throw Exception("LockingHashTable::key(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
@@ -293,7 +296,7 @@ namespace geopm
     }
 
     template <class type>
-    void LockingHashTable<type>::name_fill(void)
+    bool LockingHashTable<type>::name_fill(size_t header_offset)
     {
         throw Exception("LockingHashTable::name_fill", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
