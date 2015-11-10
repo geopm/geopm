@@ -33,6 +33,7 @@ noinst_PROGRAMS += examples/geopm_print_error
 examples_geopm_print_error_SOURCES = examples/geopm_print_error.c
 examples_geopm_print_error_LDADD = libgeopmpolicy.la
 
+if ENABLE_OPENMP
 if ENABLE_MPI
     noinst_PROGRAMS += examples/threaded_step
     examples_threaded_step_SOURCES = examples/threaded_step_example.c
@@ -41,4 +42,5 @@ if ENABLE_MPI
     examples_threaded_step_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
     examples_threaded_step_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
     examples_threaded_step_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+endif
 endif
