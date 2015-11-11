@@ -390,7 +390,7 @@ namespace geopm
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
         }
-        while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {;}
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {}
         size_t buffer_offset = 0;
         char *buffer_ptr = (char *)(m_table_shmem->pointer());
 
@@ -408,7 +408,7 @@ namespace geopm
             if (!m_shm_rank) {
                 m_ctl_msg->app_status = GEOPM_STATUS_READY;
             }
-            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {;}
+            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {}
             MPI_Barrier(m_shm_comm);
             if (!m_shm_rank && !all_done) {
                 m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
@@ -447,7 +447,8 @@ namespace geopm
 
         hwloc_bitmap_foreach_begin(i, set) {
             m_cpu_list.push_front(i);
-        } hwloc_bitmap_foreach_end();
+        }
+        hwloc_bitmap_foreach_end();
 
         hwloc_bitmap_free(set);
         hwloc_topology_destroy(topology);
@@ -460,7 +461,7 @@ namespace geopm
     {
         std::string shm_key;
 
-        while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {;}
+        while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {}
 
         std::set<int> rank_set;
         for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; i++) {
@@ -494,7 +495,8 @@ namespace geopm
         return cap;
     }
 
-    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length) {
+    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length)
+    {
         size_t sub_length = 0;
 
         switch (m_ctl_msg->app_status) {
@@ -531,7 +533,7 @@ namespace geopm
 
         m_ctl_msg->ctl_status = GEOPM_STATUS_REPORT;
         while (m_ctl_msg->app_status != GEOPM_STATUS_READY ||
-               m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {;}
+               m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {}
         if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
             file_name.assign((char *)m_table_shmem.front().pointer());
             header_offset += file_name.length() + 1;
@@ -549,7 +551,7 @@ namespace geopm
             }
             m_ctl_msg->ctl_status = GEOPM_STATUS_READY;
             while (m_ctl_msg->app_status != GEOPM_STATUS_READY &&
-                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {;}
+                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
             if (!all_done && m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {
                 throw Exception("ProfileSampler::report(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }

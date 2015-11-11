@@ -43,7 +43,7 @@ static inline void CPU_SET(int cpu, cpu_set_t *set)
     array_num = cpu / 64;
     comp_mask = 1 << (cpu % 64);
 
-    set->x[array_num] |= comp_mask; 
+    set->x[array_num] |= comp_mask;
 }
 
 static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
