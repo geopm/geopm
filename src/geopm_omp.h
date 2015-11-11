@@ -33,7 +33,7 @@
 #ifndef GEOPM_OMP_H_INCLUDE
 #define GEOPM_OMP_H_INCLUDE
 
-#include "geopm_cpuset.h"
+#include "geopm_sched.h"
 
 #ifdef __cplusplus
 extern "C" {

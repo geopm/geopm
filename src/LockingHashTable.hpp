@@ -44,7 +44,6 @@
 #include <string>
 #include <map>
 #include <set>
-#include <stack>
 
 #include "Exception.hpp"
 
@@ -66,7 +65,7 @@ namespace geopm
             size_t capacity(void) const;
             void dump(typename std::vector<std::pair<uint64_t, type> >::iterator contents, size_t &length);
             bool name_fill(size_t header_offset);
-            void name_stack(std::stack<std::string> &name);
+            bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
             struct table_entry_s {
                 pthread_mutex_t lock;
@@ -75,6 +74,7 @@ namespace geopm
             };
             size_t hash(uint64_t key) const;
             size_t table_length(size_t buffer_size) const;
+            size_t m_buffer_size;
             size_t m_table_length;
             uint64_t m_mask;
             struct table_entry_s *m_table;
@@ -87,7 +87,8 @@ namespace geopm
 
     template <class type>
     LockingHashTable<type>::LockingHashTable(size_t size, void *buffer)
-        : m_table_length(table_length(size))
+        : m_buffer_size(size)
+        , m_table_length(table_length(m_buffer_size))
         , m_mask(m_table_length - 1)
         , m_table((struct table_entry_s *)buffer)
         , m_key_map_lock(PTHREAD_MUTEX_INITIALIZER)
@@ -298,13 +299,54 @@ namespace geopm
     template <class type>
     bool LockingHashTable<type>::name_fill(size_t header_offset)
     {
-        throw Exception("LockingHashTable::name_fill", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        bool result = false;
+        size_t buffer_remain = m_buffer_size - header_offset;
+        char *buffer_ptr = (char *)m_table + header_offset;
+        while (m_key_map_last != m_key_map.end() &&
+               buffer_remain > (*m_key_map_last).first.length()) {
+            strncpy(buffer_ptr, (*m_key_map_last).first.c_str(), buffer_remain);
+            buffer_remain -= (*m_key_map_last).first.length() + 1;
+            buffer_ptr += (*m_key_map_last).first.length() + 1;
+            ++m_key_map_last;
+        }
+        if (m_key_map_last == m_key_map.end() && buffer_remain) {
+            // We are done, pad with one null char
+            *buffer_ptr = '\0';
+            ++buffer_ptr;
+            --buffer_remain;
+            m_key_map_last = m_key_map.begin();
+            result = true;
+        }
+        memset(buffer_ptr, (unsigned char)(-1), buffer_remain);
+        return result;
     }
 
     template <class type>
-    void name_stack(std::stack<std::string> &name)
+    bool LockingHashTable<type>::name_set(size_t header_offset, std::set<std::string> &name)
     {
-        throw Exception("LockingHashTable::name_stack", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        char tmp_name[NAME_MAX];
+        bool result = false;
+        size_t buffer_remain = m_buffer_size - header_offset;
+        char *buffer_ptr = (char *)m_table + header_offset;
+
+        while(buffer_remain) {
+            tmp_name[NAME_MAX - 1] = '\0';
+            strncpy(tmp_name, buffer_ptr, NAME_MAX);
+            if (strlen(tmp_name)) {
+                if (tmp_name[NAME_MAX -1] == '\0') {
+                    name.insert(std::string(tmp_name));
+                    buffer_remain -= strlen(tmp_name) + 1;
+                    buffer_ptr += strlen(tmp_name) + 1;
+                }
+                else {
+                    buffer_remain = 0;
+                }
+            }
+            else {
+                result = true;
+            }
+        }
+        return result;
     }
 }
 #endif

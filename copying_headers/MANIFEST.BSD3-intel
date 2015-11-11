@@ -26,7 +26,7 @@ src/DeciderFactory.hpp
 src/Exception.cpp
 src/Exception.hpp
 src/geopmctl_main.c
-src/geopm_cpuset.h
+src/geopm_sched.h
 src/geopm_ctl_spawn.c
 src/geopm_error.h
 src/geopm.h

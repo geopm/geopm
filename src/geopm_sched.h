@@ -57,5 +57,8 @@ static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
     return set->x[array_num] &= comp_mask;
 }
 #else
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #include <sched.h>
 #endif

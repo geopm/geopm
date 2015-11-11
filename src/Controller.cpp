@@ -148,7 +148,7 @@ namespace geopm
     Controller::Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
         : m_max_fanout(0)
         , m_global_policy(global_policy)
-        , m_sampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE)
+        , m_sampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE, comm)
     {
         throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
 

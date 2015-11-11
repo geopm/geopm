@@ -84,7 +84,7 @@ namespace geopm
     class ProfileSampler
     {
         public:
-            ProfileSampler(const std::string shm_key_base, size_t table_size);
+            ProfileSampler(const std::string shm_key_base, size_t table_size, MPI_Comm comm);
             virtual ~ProfileSampler(void);
             size_t capacity(void);
             void sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length);
@@ -97,6 +97,7 @@ namespace geopm
             struct geopm_ctl_message_s *m_ctl_msg;
             std::forward_list<SharedMemory> m_table_shmem;
             std::forward_list<LockingHashTable<struct geopm_sample_message_s> > m_table;
+            MPI_Comm m_comm;
     };
 }
 
