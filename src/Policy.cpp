@@ -142,7 +142,7 @@ namespace geopm
         }
     }
 
-    void Policy::policy_message(int phase_id, std::vector<geopm_policy_message_s> message) const
+    void Policy::policy_message(int region_id, std::vector<geopm_policy_message_s> message) const
     {
         int i = 0;
         int sz = m_target.size();
@@ -150,7 +150,7 @@ namespace geopm
         message.resize(sz);
 
         for (i = 0; i < sz; i++) {
-            message[i].phase_id = phase_id;
+            message[i].region_id = region_id;
             message[i].mode = m_mode;
             message[i].flags = m_flags;
             message[i].num_sample = m_num_sample;

@@ -40,7 +40,7 @@
 #include "TreeCommunicator.hpp"
 #include "PlatformFactory.hpp"
 #include "DeciderFactory.hpp"
-#include "Phase.hpp"
+#include "Region.hpp"
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
 #include "geopm_time.h"
@@ -62,7 +62,7 @@ namespace geopm
             void leaf_decider(const LeafDecider *leaf_decider);
             void tree_decider(int level, const TreeDecider *tree_decider);
             void process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample);
-            void enforce_child_policy(const int phase_id, const int level, const Policy &policy);
+            void enforce_child_policy(const int region_id, const int level, const Policy &policy);
         protected:
             int walk_down(void);
             int walk_up(void);
@@ -77,8 +77,8 @@ namespace geopm
             PlatformFactory *m_platform_factory;
             Platform * m_platform;
             ProfileSampler m_sampler;
-            // Per level vector of maps from phase identifier to phase object
-            std::vector <std::map <long, Phase *> > m_phase;
+            // Per level vector of maps from region identifier to region object
+            std::vector <std::map <long, Region *> > m_region;
     };
 }
 

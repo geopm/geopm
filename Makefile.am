@@ -134,8 +134,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/IVTPlatformImp.hpp \
                             src/Observation.cpp \
                             src/Observation.hpp \
-                            src/Phase.cpp \
-                            src/Phase.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
                             src/Platform.cpp \
@@ -150,6 +148,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/PowerModel.hpp \
                             src/RAPLPlatform.cpp \
                             src/RAPLPlatform.hpp \
+                            src/Region.cpp \
+                            src/Region.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
                             src/geopm_error.h \
@@ -197,8 +197,6 @@ if ENABLE_MPI
                           src/Observation.cpp \
                           src/Observation.hpp \
                           src/LockingHashTable.hpp \
-                          src/Phase.cpp \
-                          src/Phase.hpp \
                           src/Platform.cpp \
                           src/PlatformFactory.cpp \
                           src/PlatformFactory.hpp \
@@ -215,6 +213,8 @@ if ENABLE_MPI
                           src/Profile.hpp \
                           src/RAPLPlatform.cpp \
                           src/RAPLPlatform.hpp \
+                          src/Region.cpp \
+                          src/Region.hpp \
                           src/SharedMemory.cpp \
                           src/SharedMemory.hpp \
                           src/TreeCommunicator.cpp \

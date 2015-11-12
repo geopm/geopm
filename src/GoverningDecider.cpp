@@ -78,9 +78,9 @@ namespace geopm
         const PlatformTopology topo = platform->topology();
         const PowerModel *package_power_model = platform->power_model(GEOPM_DOMAIN_PACKAGE);
         const PowerModel *board_memory_power_model = platform->power_model(GEOPM_DOMAIN_BOARD_MEMORY);
-        const Phase *phase = platform->cur_phase();
+        const Region *region = platform->cur_region();
         const std::vector <std::string> signal_names({"energy"});
-        const double budget = m_phase_policy_msg_map.find(phase->identifier())->second.power_budget;
+        const double budget = m_region_policy_msg_map.find(region->identifier())->second.power_budget;
 
         std::vector <hwloc_obj_t> package_domain;
         std::vector <hwloc_obj_t> memory_domain;
@@ -97,12 +97,12 @@ namespace geopm
         double package_power = 0.0;
         for (auto domain_it = package_domain.begin(); domain_it != package_domain.end(); ++domain_it) {
             platform->buffer_index(*domain_it, signal_names, buffer_index);
-            package_power += package_power_model->power(phase, buffer_index);
+            package_power += package_power_model->power(region, buffer_index);
         }
         double memory_power = 0.0;
         for (auto domain_it = memory_domain.begin(); domain_it != memory_domain.end(); ++domain_it) {
             platform->buffer_index(*domain_it, signal_names, buffer_index);
-            memory_power += board_memory_power_model->power(phase, buffer_index);
+            memory_power += board_memory_power_model->power(region, buffer_index);
         }
         double total_power = package_power + memory_power;
 

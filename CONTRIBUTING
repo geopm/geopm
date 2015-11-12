@@ -86,21 +86,21 @@ making calls to GEOPM APIs.
 The application feedback includes:
 
 1) Registration of a string and a 64 bit integer identifier associated with a
-   section of code with a distinct computational signature (phase).  If no
+   section of code with a distinct computational signature (region).  If no
    identifier is provided, define a hash function to map string to 64 bit
    integer.
 
-2) Identifying entry and exit from section of code associated with a phase.
+2) Identifying entry and exit from section of code associated with a region.
 
-3) Measuring performance counter registers to characterize a phase at time of
-   phase entry and phase exit.
+3) Measuring performance counter registers to characterize a region at time of
+   region entry and region exit.
 
-4) Marking fractional progress within a phase.
+4) Marking fractional progress within a region.
 
-5) Phases cannot be nested: only outer-most phase is profiled, nested phases
-   are ignored.  This avoids phase ID lookup for progress reporting which must
+5) Regions cannot be nested: only outer-most region is profiled, nested regions
+   are ignored.  This avoids region ID lookup for progress reporting which must
    be in the fast path.  It also avoids storing counter data for more than one
-   phase at a time, only aggregated data is stored for every phase.
+   region at a time, only aggregated data is stored for every region.
 
 The resource manager feedback includes:
 
@@ -132,7 +132,7 @@ be pinned to a CPU that is not used by the primary application.  The
 alternative solution is more easily justified on a many-core architecture and
 an application which is memory bandwidth bound, or memory footprint bound.  In
 these situations the cores used for control would otherwise provide no
-benefit, at least during the process phases which are bounded by memory
+benefit, at least during the process regions which are bounded by memory
 constraints.  There are several challenges introduced by this solution with
 regard to process creation and interprocess communication.
 
@@ -158,9 +158,9 @@ versions of geopm.
 
 Node local optimizations
 
-- Temporal energy steering from one phase to another
+- Temporal energy steering from one region to another
 
-- Per phase optimization energy steering between CPUs on a package (tile
+- Per region optimization energy steering between CPUs on a package (tile
   groups)
 
 - Spatially steering optimization of power between different hardware resources

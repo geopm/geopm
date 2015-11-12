@@ -88,6 +88,7 @@ namespace geopm
             virtual ~ProfileSampler(void);
             size_t capacity(void);
             void sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length);
+            void calculate_elapsed(const std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, const size_t &length);
             bool do_shutdown(void);
             void report(void);
         protected:
@@ -97,7 +98,10 @@ namespace geopm
             struct geopm_ctl_message_s *m_ctl_msg;
             std::forward_list<SharedMemory> m_table_shmem;
             std::forward_list<LockingHashTable<struct geopm_sample_message_s> > m_table;
+            std::vector<std::map<uint64_t, geopm_sample_message_s> > m_elapsed_data;
+            std::vector<geopm_sample_message_s> m_region_entry_data;
             MPI_Comm m_comm;
+            int m_num_rank;
     };
 }
 

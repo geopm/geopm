@@ -174,9 +174,9 @@ namespace geopm
         std::reverse(fan_out.begin(), fan_out.end());
 
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
-        m_phase.resize(m_tree_comm->num_level());
-        m_phase[0].insert(std::pair<long, Phase *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                          new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
+        m_region.resize(m_tree_comm->num_level());
+        m_region[0].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                          new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                     GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
 
         m_platform_factory = new PlatformFactory;
@@ -186,11 +186,11 @@ namespace geopm
             if (m_tree_comm->level_size(level) > m_max_fanout) {
                 m_max_fanout = m_tree_comm->level_size(level);
             }
-            // default global phase before application phases have been registered
+            // default global region before application regions have been registered
             // holds the global power policy
             if(level) {
-                m_phase[level].insert(std::pair<long, Phase *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                                      new Phase("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                m_region[level].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                                      new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                                 GEOPM_POLICY_HINT_UNKNOWN, m_tree_comm->level_size(level - 1))));
             }
         }
@@ -249,22 +249,22 @@ namespace geopm
     int Controller::walk_down(void)
     {
         int level;
-        uint64_t phase_id;
+        uint64_t region_id;
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
-        Phase *curr_phase;
+        Region *curr_region;
 
         // FIXME Do calls to geopm_is_policy_equal() below belong inside of the Decider?
         // Should m_last_policy be a Decider member variable?
 
         level = m_tree_comm->num_level() - 1;
         m_tree_comm->get_policy(level, policy_msg);
-        phase_id = policy_msg.phase_id;
+        region_id = policy_msg.region_id;
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
-            curr_phase = m_phase[level].find(phase_id)->second;
-            if (!geopm_is_policy_equal(&policy_msg, curr_phase->last_policy())) {
-                m_tree_decider[level]->split_policy(policy_msg, curr_phase);
-                m_tree_comm->send_policy(level - 1, *(curr_phase->split_policy()));
+            curr_region = m_region[level].find(region_id)->second;
+            if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
+                m_tree_decider[level]->split_policy(policy_msg, curr_region);
+                m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
         }
@@ -272,9 +272,9 @@ namespace geopm
             do_shutdown = 1;
         }
         else {
-            curr_phase = m_phase[0].find(phase_id)->second;
-            if (!geopm_is_policy_equal(&policy_msg, curr_phase->last_policy())) {
-                m_leaf_decider->update_policy(policy_msg, curr_phase);
+            curr_region = m_region[0].find(region_id)->second;
+            if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
+                m_leaf_decider->update_policy(policy_msg, curr_region);
             }
         }
         return do_shutdown;
@@ -288,13 +288,13 @@ namespace geopm
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample;
         Policy policy;
-        int phase_id = -1;
+        int region_id = -1;
 
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
                     m_tree_comm->get_sample(level, child_sample);
-                    phase_id = child_sample[0].phase_id;
+                    region_id = child_sample[0].region_id;
                     process_samples(level, child_sample);
                 }
                 catch (geopm::Exception ex) {
@@ -303,9 +303,9 @@ namespace geopm
                     }
                     break;
                 }
-                if (phase_id != -1) {
+                if (region_id != -1) {
                     m_tree_decider[level]->get_policy(m_platform, policy);
-                    enforce_child_policy(phase_id, level, policy);
+                    enforce_child_policy(region_id, level, policy);
                 }
             }
             else {
@@ -326,26 +326,26 @@ namespace geopm
 
     void Controller::process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample)
     {
-        uint64_t phase_id = sample[0].phase_id;
-        Phase *curr_phase;
-        auto iter = m_phase[level].find(phase_id);
+        uint64_t region_id = sample[0].region_id;
+        Region *curr_region;
+        auto iter = m_region[level].find(region_id);
         int num_domains;
 
-        if (iter == m_phase[level].end()) {
-            //Phase not found. Create a new one.
+        if (iter == m_region[level].end()) {
+            //Region not found. Create a new one.
             if (level) {
                 num_domains =  m_tree_comm->level_size(level - 1);
             }
             else {
                 num_domains = m_platform->num_domain();
             }
-            curr_phase = new Phase("some_name", phase_id, GEOPM_POLICY_HINT_UNKNOWN, num_domains);
+            curr_region = new Region("some_name", region_id, GEOPM_POLICY_HINT_UNKNOWN, num_domains);
             //set it's policy equal to the global policy for this level.
-            *(curr_phase->policy()) = *(m_phase[level].find(GEOPM_GLOBAL_POLICY_IDENTIFIER)->second->policy());
-            m_phase[level].insert(std::pair<long, Phase *>(phase_id, curr_phase));
+            *(curr_region->policy()) = *(m_region[level].find(GEOPM_GLOBAL_POLICY_IDENTIFIER)->second->policy());
+            m_region[level].insert(std::pair<long, Region *>(region_id, curr_region));
         }
         else {
-            curr_phase = iter->second;
+            curr_region = iter->second;
         }
 
         struct geopm_time_s time;
@@ -353,21 +353,21 @@ namespace geopm
         double timestamp = geopm_time_diff(&m_time_zero, &time);
 
         for (auto sample_it = sample.begin(); sample_it < sample.end(); ++sample_it) {
-            if (sample_it->phase_id != phase_id) {
+            if (sample_it->region_id != region_id) {
                 throw geopm::Exception("class Controller", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
-            curr_phase->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
-            curr_phase->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
-            curr_phase->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
-            curr_phase->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
-            curr_phase->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
+            curr_region->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
+            curr_region->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
+            curr_region->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
+            curr_region->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
+            curr_region->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
         }
     }
 
-    void Controller::enforce_child_policy(const int phase_id, const int level, const Policy &policy)
+    void Controller::enforce_child_policy(const int region_id, const int level, const Policy &policy)
     {
         std::vector<geopm_policy_message_s> message;
-        policy.policy_message(phase_id, message);
+        policy.policy_message(region_id, message);
         m_tree_comm->send_policy(level, message);
     }
 }

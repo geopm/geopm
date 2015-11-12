@@ -44,11 +44,11 @@ namespace geopm
 
     Decider::~Decider() {}
 
-    void Decider::update_policy(const struct geopm_policy_message_s &policy, Phase* curr_phase)
+    void Decider::update_policy(const struct geopm_policy_message_s &policy, Region* curr_region)
     {
-        curr_phase->last_policy(m_phase_policy_msg_map.find(policy.phase_id)->second);
-        m_phase_policy_msg_map.erase(policy.phase_id);
-        m_phase_policy_msg_map.insert(std::pair <long, struct geopm_policy_message_s>(policy.phase_id, policy));
+        curr_region->last_policy(m_region_policy_msg_map.find(policy.region_id)->second);
+        m_region_policy_msg_map.erase(policy.region_id);
+        m_region_policy_msg_map.insert(std::pair <long, struct geopm_policy_message_s>(policy.region_id, policy));
     }
 
     bool Decider::is_converged(void)
@@ -66,8 +66,8 @@ namespace geopm
 
     void TreeDecider::get_policy(Platform const *platform, Policy &policy)
     {
-        Phase *cur_phase = platform->cur_phase();
-        struct geopm_policy_message_s policy_msg = m_phase_policy_msg_map.find(cur_phase->identifier())->second;
+        Region *cur_region = platform->cur_region();
+        struct geopm_policy_message_s policy_msg = m_region_policy_msg_map.find(cur_region->identifier())->second;
         double target = policy_msg.power_budget / platform->num_domain();
         std::vector <double> target_vec(platform->num_domain());
         std::fill(target_vec.begin(), target_vec.end(), target);
@@ -75,11 +75,11 @@ namespace geopm
     }
 
 
-    void TreeDecider::split_policy(const struct geopm_policy_message_s &policy, Phase *phase)
+    void TreeDecider::split_policy(const struct geopm_policy_message_s &policy, Region *region)
     {
-        int num_child = phase->child_sample()->size();
+        int num_child = region->child_sample()->size();
         double norm = 1.0 / num_child;
-        std::vector<geopm_policy_message_s> *spolicy = phase->split_policy();
+        std::vector<geopm_policy_message_s> *spolicy = region->split_policy();
         spolicy->resize(num_child);
         std::fill(spolicy->begin(), spolicy->end(), policy);
         for (auto policy_it = spolicy->begin(); policy_it != spolicy->end(); ++policy_it) {

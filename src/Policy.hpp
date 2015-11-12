@@ -54,7 +54,7 @@ namespace geopm
             void updated_target(std::map <int, double> &target);
             void target(std::vector <double> &target);
             void target(int domain, double &target);
-            void policy_message(int phaseid, std::vector<geopm_policy_message_s> message) const;
+            void policy_message(int regionid, std::vector<geopm_policy_message_s> message) const;
             int num_domain(void) const;
             void valid_target(std::map <int, double> &target) const;
         protected:

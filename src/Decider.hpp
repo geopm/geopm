@@ -45,7 +45,7 @@ namespace geopm
         public:
             Decider();
             virtual ~Decider();
-            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Phase* curr_phase);
+            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Region* curr_region);
             virtual bool is_converged(void);
             virtual void get_policy(Platform const *platform, Policy &policy) = 0;
             virtual bool decider_supported(const std::string &descripton) = 0;
@@ -53,7 +53,7 @@ namespace geopm
 
         protected:
             int m_is_converged;
-            std::map <long, geopm_policy_message_s> m_phase_policy_msg_map;
+            std::map <long, geopm_policy_message_s> m_region_policy_msg_map;
     };
 
     class LeafDecider : public Decider
@@ -71,7 +71,7 @@ namespace geopm
             TreeDecider();
             virtual ~TreeDecider();
             virtual void get_policy(Platform const *platform, Policy &policy);
-            virtual void split_policy(const struct geopm_policy_message_s &policy, Phase* curr_phase);
+            virtual void split_policy(const struct geopm_policy_message_s &policy, Region* curr_region);
             virtual bool decider_supported(const std::string &descripton) = 0;
             virtual const std::string& name(void) const = 0;
     };

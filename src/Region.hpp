@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHASE_HPP_INCLUDE
-#define PHASE_HPP_INCLUDE
+#ifndef REGION_HPP_INCLUDE
+#define REGION_HPP_INCLUDE
 
 #include <stdint.h>
 #include <string>
@@ -42,11 +42,11 @@
 
 namespace geopm
 {
-    class Phase
+    class Region
     {
         public:
-            Phase(const std::string &name, long identifier, int hint, int size);
-            virtual ~Phase();
+            Region(const std::string &name, long identifier, int hint, int size);
+            virtual ~Region();
             long identifier(void) const;
             void observation_insert(int buffer_index, double value);
             void name(std::string &name) const;

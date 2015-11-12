@@ -37,7 +37,7 @@ const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY = {-1, -1, -1, -1, -1.0
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b)
 {
     int result = 1;
-    if (a->phase_id != b->phase_id ||
+    if (a->region_id != b->region_id ||
         a->mode != b->mode ||
         a->flags != b->flags ||
         a->num_sample != b->num_sample ||

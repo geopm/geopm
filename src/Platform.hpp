@@ -35,7 +35,7 @@
 
 #include <hwloc.h>
 
-#include "Phase.hpp"
+#include "Region.hpp"
 #include "Policy.hpp"
 #include "PlatformImp.hpp"
 #include "PowerModel.hpp"
@@ -49,9 +49,9 @@ namespace geopm
             Platform();
             virtual ~Platform();
             virtual void set_implementation(PlatformImp* platform_imp);
-            void phase_begin(Phase *phase);
-            void phase_end(void);
-            Phase *cur_phase(void) const;
+            void region_begin(Region *region);
+            void region_end(void);
+            Region *cur_region(void) const;
             int num_domain(void) const;
             void domain_index(int domain_type, std::vector <int> &domain_index) const;
             int level(void) const;
@@ -74,7 +74,7 @@ namespace geopm
             const PlatformTopology topology() const;
         protected:
             PlatformImp *m_imp;
-            Phase *m_curr_phase;
+            Region *m_curr_region;
             std::map <int, PowerModel *> m_power_model;
             int m_num_domains;
             int m_window_size;

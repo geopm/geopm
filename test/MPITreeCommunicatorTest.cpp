@@ -196,7 +196,7 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
     for (int level = m_tcomm->num_level() - 1; level >= 0; --level) {
         if (level == m_tcomm->root_level()) {
             m_tcomm->get_policy(level, policy);
-            policy.phase_id = m_tcomm->root_level();
+            policy.region_id = m_tcomm->root_level();
         }
         else {
             if (m_tcomm->level_rank(level) == 0) {
@@ -208,7 +208,7 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
             while (!success) {
                 try {
                     m_tcomm->get_policy(level, policy);
-                    EXPECT_EQ(m_tcomm->root_level(), policy.phase_id);
+                    EXPECT_EQ(m_tcomm->root_level(), policy.region_id);
                     success = 1;
                 }
                 catch (geopm::Exception ex) {
@@ -235,7 +235,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
         num_level--;
     }
     for (int level = 0; level < num_level; ++level) {
-        send_sample.phase_id = m_tcomm->level_rank(level) * level;
+        send_sample.region_id = m_tcomm->level_rank(level) * level;
         m_tcomm->send_sample(level, send_sample);
         if (m_tcomm->level_rank(level) == 0) {
             sample.resize(m_tcomm->level_size(level));
@@ -244,7 +244,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
                 try {
                     m_tcomm->get_sample(level, sample);
                     for (int rank = 0; rank < m_tcomm->level_rank(level); ++rank) {
-                        EXPECT_EQ(rank, sample[rank].phase_id * level);
+                        EXPECT_EQ(rank, sample[rank].region_id * level);
                     }
                     success = 1;
                 }

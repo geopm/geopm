@@ -330,7 +330,7 @@ namespace geopm
         }
         if (!m_num_enter) {
             struct geopm_sample_message_s sample = m_table->find(region_id);
-            sample.phase_id = region_id;
+            sample.region_id = region_id;
             sample.progress = 1.0;
             struct geopm_time_s exit_time;
             (void) geopm_time(&exit_time);
@@ -362,7 +362,7 @@ namespace geopm
         if (region_id == m_curr_region_id) {
             struct geopm_sample_message_s sample;
             struct geopm_time_s curr_time;
-            sample.phase_id = region_id;
+            sample.region_id = region_id;
             (void) geopm_time(&curr_time);
             sample.runtime = geopm_time_diff(&m_enter_time, &curr_time);
             sample.progress = m_progress;
@@ -454,10 +454,13 @@ namespace geopm
         hwloc_topology_destroy(topology);
     }
 
+    const struct geopm_sample_message_s GEOPM_INVALID_SAMPLE = {-1, 0, -1.0, -1.0, -1.0, -1.0};
+
     ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size, MPI_Comm comm)
         : m_ctl_shmem(shm_key_base, table_size)
         , m_ctl_msg((struct geopm_ctl_message_s *)m_ctl_shmem.pointer())
         , m_comm(comm)
+        , m_num_rank(0)
     {
         std::string shm_key;
 
@@ -474,7 +477,11 @@ namespace geopm
             shm_key.assign(shm_key_base + "_" + std::to_string(*it));
             m_table_shmem.push_front(SharedMemory(shm_key, table_size));
             m_table.push_front(LockingHashTable<struct geopm_sample_message_s>(table_size, m_table_shmem.front().pointer()));
+            m_region_entry_data.push_back(GEOPM_INVALID_SAMPLE);
         }
+
+        m_num_rank = rank_set.size();
+        m_elapsed_data.resize(m_num_rank);
 
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
     }
@@ -506,6 +513,7 @@ namespace geopm
                     (*it).dump(contents.begin() + length, sub_length);
                     length += sub_length;
                 }
+                calculate_elapsed(contents, length);
                 break;
             case GEOPM_STATUS_REPORT:
                 report();
@@ -515,6 +523,10 @@ namespace geopm
             default:
                 throw Exception("ProfileSampler: inavlid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+    }
+
+    void ProfileSampler::calculate_elapsed(const std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, const size_t &length) {
+        
     }
 
     bool ProfileSampler::do_shutdown(void)

@@ -100,7 +100,7 @@ enum geopm_status_e {
 };
 
 struct geopm_policy_message_s {
-    int phase_id;
+    int region_id;
     int mode;
     unsigned long flags;
     int num_sample;
@@ -115,7 +115,7 @@ struct geopm_policy_shmem_s {
 
 struct geopm_sample_message_s {
     int rank;
-    uint64_t phase_id;
+    uint64_t region_id;
     double runtime;
     double progress;
     double energy;
@@ -135,6 +135,7 @@ struct geopm_sample_shmem_s {
 }; // FIXME: Controller still uses this, but Profile uses LockingHashTable
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
+extern const struct geopm_sample_message_s GEOPM_INVALID_SAMPLE;
 
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b);
 

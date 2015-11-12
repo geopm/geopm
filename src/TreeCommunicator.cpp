@@ -200,7 +200,7 @@ namespace geopm
                                    };
         MPI_Aint offset[5];
         MPI_Datatype result;
-        offset[0] = offsetof(struct geopm_sample_message_s, phase_id);
+        offset[0] = offsetof(struct geopm_sample_message_s, region_id);
         offset[1] = offsetof(struct geopm_sample_message_s, runtime);
         offset[2] = offsetof(struct geopm_sample_message_s, progress);
         offset[3] = offsetof(struct geopm_sample_message_s, energy);
@@ -223,7 +223,7 @@ namespace geopm
         MPI_Aint offset[5];
         MPI_Datatype result;
 
-        offset[0] = offsetof(struct geopm_policy_message_s, phase_id);
+        offset[0] = offsetof(struct geopm_policy_message_s, region_id);
         offset[1] = offsetof(struct geopm_policy_message_s, mode);
         offset[2] = offsetof(struct geopm_policy_message_s, flags);
         offset[3] = offsetof(struct geopm_policy_message_s, num_sample);

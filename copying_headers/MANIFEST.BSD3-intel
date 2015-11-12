@@ -53,8 +53,6 @@ src/IVTPlatformImp.hpp
 src/LockingHashTable.hpp
 src/Observation.cpp
 src/Observation.hpp
-src/Phase.cpp
-src/Phase.hpp
 src/Platform.cpp
 src/PlatformFactory.cpp
 src/PlatformFactory.hpp
@@ -71,6 +69,8 @@ src/Profile.cpp
 src/Profile.hpp
 src/RAPLPlatform.cpp
 src/RAPLPlatform.hpp
+src/Region.cpp
+src/Region.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
 src/TreeCommunicator.cpp

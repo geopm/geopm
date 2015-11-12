@@ -30,11 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Phase.hpp"
+#include "Region.hpp"
 
 namespace geopm
 {
-    Phase::Phase(const std::string &name, long identifier, int hint, int size)
+    Region::Region(const std::string &name, long identifier, int hint, int size)
         : m_policy(size)
         , m_last_policy(GEOPM_UNKNOWN_POLICY)
         , m_name(name)
@@ -45,84 +45,84 @@ namespace geopm
         m_child_sample.resize(size);
     }
 
-    Phase::~Phase() {}
+    Region::~Region() {}
 
-    void Phase::observation_insert(int index, double value)
+    void Region::observation_insert(int index, double value)
     {
         m_obs.insert(index, value);
     }
 
-    long Phase::identifier(void) const
+    long Region::identifier(void) const
     {
         return m_identifier;
     }
 
-    void Phase::name(std::string &name) const
+    void Region::name(std::string &name) const
     {
         name = m_name;
     }
 
-    int Phase::hint(void) const
+    int Region::hint(void) const
     {
         return m_hint;
     }
 
-    void Phase::policy(Policy* policy)
+    void Region::policy(Policy* policy)
     {
         m_policy = *policy;
     }
 
-    struct geopm_policy_message_s* Phase::last_policy(void)
+    struct geopm_policy_message_s* Region::last_policy(void)
     {
         return &m_last_policy;
     }
 
-    void Phase::last_policy(const struct geopm_policy_message_s &policy)
+    void Region::last_policy(const struct geopm_policy_message_s &policy)
     {
         m_last_policy = policy;
     }
 
-    Policy* Phase::policy(void)
+    Policy* Region::policy(void)
     {
         return &m_policy;
     }
 
-    std::vector <struct geopm_policy_message_s>* Phase::split_policy(void)
+    std::vector <struct geopm_policy_message_s>* Region::split_policy(void)
     {
         return &m_split_policy;
     }
 
-    std::vector <struct geopm_sample_message_s>* Phase::child_sample(void)
+    std::vector <struct geopm_sample_message_s>* Region::child_sample(void)
     {
         return &m_child_sample;
     }
 
-    double Phase::observation_mean(int buffer_index) const
+    double Region::observation_mean(int buffer_index) const
     {
         return m_obs.mean(buffer_index);
     }
 
-    double Phase::observation_median(int buffer_index) const
+    double Region::observation_median(int buffer_index) const
     {
         return m_obs.median(buffer_index);
     }
 
-    double Phase::observation_stddev(int buffer_index) const
+    double Region::observation_stddev(int buffer_index) const
     {
         return m_obs.stddev(buffer_index);
     }
 
-    double Phase::observation_max(int buffer_index) const
+    double Region::observation_max(int buffer_index) const
     {
         return m_obs.max(buffer_index);
     }
 
-    double Phase::observation_min(int buffer_index) const
+    double Region::observation_min(int buffer_index) const
     {
         return m_obs.min(buffer_index);
     }
 
-    double Phase::observation_integrate_time(int buffer_index) const
+    double Region::observation_integrate_time(int buffer_index) const
     {
         return m_obs.integrate_time(buffer_index);
     }

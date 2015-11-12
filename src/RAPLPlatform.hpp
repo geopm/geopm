@@ -33,7 +33,7 @@
 #ifndef RAPLPLATFORM_HPP_INCLUDE
 #define RAPLPLATFORM_HPP_INCLUDE
 
-#include "Phase.hpp"
+#include "Region.hpp"
 #include "Policy.hpp"
 #include "Platform.hpp"
 
@@ -69,7 +69,7 @@ namespace geopm
             std::vector<off_t> m_enforce_msr_offsets;
             int m_num_cpu;
             int m_num_package;
-            Phase* m_curr_phase;
+            Region* m_curr_region;
     };
 }
 

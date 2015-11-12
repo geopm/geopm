@@ -35,7 +35,7 @@
 
 #include <vector>
 
-#include "Phase.hpp"
+#include "Region.hpp"
 
 namespace geopm
 {
@@ -45,9 +45,9 @@ namespace geopm
             PowerModel();
             virtual ~PowerModel();
             void signal_names(std::vector <std::string> &signal_names) const;
-            virtual double intensity(const Phase *phase, const std::vector <int> &buffer_index) const;
-            virtual double power(const Phase *phase, const std::vector <int> &buffer_index) const;
-            virtual double frequency(const Phase *phase, const std::vector <int> &buffer_index) const;
+            virtual double intensity(const Region *region, const std::vector <int> &buffer_index) const;
+            virtual double power(const Region *region, const std::vector <int> &buffer_index) const;
+            virtual double frequency(const Region *region, const std::vector <int> &buffer_index) const;
         protected:
             std::vector <std::string> m_signal_names;
     };

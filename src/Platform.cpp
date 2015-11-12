@@ -146,14 +146,14 @@ namespace geopm
         return m_level;
     }
 
-    void Platform::phase_begin(Phase *phase)
+    void Platform::region_begin(Region *region)
     {
-        m_curr_phase = phase;
+        m_curr_region = region;
     }
 
-    void Platform::phase_end(void)
+    void Platform::region_end(void)
     {
-        m_curr_phase = NULL;
+        m_curr_region = NULL;
     }
 
     int Platform::num_domain(void) const
@@ -170,14 +170,14 @@ namespace geopm
     void Platform::observe(const std::vector <struct geopm_sample_message_s> &sample) const
     {
         //check if we are in unmarked code
-        if (m_curr_phase == NULL) {
+        if (m_curr_region == NULL) {
             return;
         }
     }
 
-    Phase *Platform::cur_phase(void) const
+    Region *Platform::cur_region(void) const
     {
-        return m_curr_phase;
+        return m_curr_region;
     }
 
     const PlatformTopology Platform::topology(void) const

@@ -52,17 +52,17 @@ namespace geopm
         signal_names = m_signal_names;
     }
 
-    double PowerModel::intensity(const Phase *phase, const std::vector <int> &buffer_index) const
+    double PowerModel::intensity(const Region *region, const std::vector <int> &buffer_index) const
     {
         throw(std::runtime_error("PowerModel does not support intensity() method"));
     }
 
-    double PowerModel::power(const Phase *phase, const std::vector <int> &buffer_index) const
+    double PowerModel::power(const Region *region, const std::vector <int> &buffer_index) const
     {
-        return phase->observation_integrate_time(buffer_index[0]);
+        return region->observation_integrate_time(buffer_index[0]);
     }
 
-    double PowerModel::frequency(const Phase *phase, const std::vector <int> &buffer_index) const
+    double PowerModel::frequency(const Region *region, const std::vector <int> &buffer_index) const
     {
         throw(std::runtime_error("PowerModel does not support frequency() method"));
     }

@@ -18,7 +18,7 @@ issue-app-shutdown-signal-shmem
     - Need a way for the application to signal to the geopm runtime that it is
       shutting down (2015-11-04).
 
-Notes on Phases
+Notes on Regions
 ===============
 
 Application Constraints
@@ -28,11 +28,11 @@ Application must call into geopm APIs from per-rank serial code.
 Resolution of control is limited to sets of CPUs assigned to each MPI
 rank.
 
-If a library linked by the application uses geopm mark up for phases,
-it must have some mechanism for generating a unique phase ID set
+If a library linked by the application uses geopm mark up for regionss,
+it must have some mechanism for generating a unique region ID set
 (offset based?).
 
-Make mark up phase_end() API calls into a MPI_Barrier over the ranks
+Make mark up region_end() API calls into a MPI_Barrier over the ranks
 on the calling process' node?
 
 All ranks must call mark up in same exact sequence.

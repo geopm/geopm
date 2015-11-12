@@ -161,7 +161,6 @@ gcovr for a recent build are below:
     IVTPlatformImp.cpp                           130       3     2%
     Observation.cpp                               87      75    86%
     Observation.hpp                                2       0     0%
-    Phase.cpp                                     25       0     0%
     Platform.cpp                                 152      22    14%
     PlatformFactory.cpp                           59      41    69%
     PlatformImp.cpp                               90      58    64%
@@ -170,6 +169,7 @@ gcovr for a recent build are below:
     PowerModel.cpp                                12       3    25%
     Profile.cpp                                   97       1     1%
     RAPLPlatform.cpp                              65       0     0%
+    Region.cpp                                    25       0     0%
     TreeCommunicator.cpp                         220     179    81%
     geopm_ctl_spawn.c                              2       0     0%
     geopm_policy_message.c                         9       9   100%
