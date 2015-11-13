@@ -31,7 +31,9 @@
  */
 #ifndef GEOPM_TIME_H_INCLUDE
 #define GEOPM_TIME_H_INCLUDE
-#ifdef __cplusplus
+#ifndef __cplusplus
+#include <stdbool.h>
+#else
 extern "C"
 {
 #endif
@@ -40,8 +42,10 @@ extern "C"
 
     static inline int geopm_time(struct geopm_time_s *time);
     static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end);
+    static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
 
-#ifdef __linux__
+//#ifdef __linux__ FIXME not sure why clock_gettime() is no longer defined
+#if 0
 #include <time.h>
 
     struct geopm_time_s {
@@ -57,6 +61,15 @@ extern "C"
     {
         return (end->t.tv_sec - begin->t.tv_sec) +
                (end->t.tv_nsec - begin->t.tv_nsec) * 1E-9;
+    }
+
+    static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb)
+    {
+        bool result = aa->t.tv_sec < bb->t.tv_sec;
+        if (!result && aa->t.tv_sec == bb->t.tv_sec) {
+            result = aa->t.tv_nsec < bb->t.tv_nsec;
+        }
+        return result;
     }
 
 #else
@@ -75,6 +88,15 @@ extern "C"
     {
         return (end->t.tv_sec - begin->t.tv_sec) +
                (end->t.tv_usec - begin->t.tv_usec) * 1E-6;
+    }
+
+    static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb)
+    {
+        bool result = aa->t.tv_sec < bb->t.tv_sec;
+        if (!result && aa->t.tv_sec == bb->t.tv_sec) {
+            result = aa->t.tv_usec < bb->t.tv_usec;
+        }
+        return result;
     }
 
 #endif

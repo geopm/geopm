@@ -358,7 +358,7 @@ namespace geopm
             }
             curr_region->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
             curr_region->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
-            curr_region->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
+            //curr_region->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
             curr_region->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
             curr_region->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
         }

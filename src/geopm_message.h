@@ -32,9 +32,10 @@
 
 #ifndef GEOPM_POLICY_MESSAGE_H_INCLUDE
 #define GEOPM_POLICY_MESSAGE_H_INCLUDE
-
 #include <pthread.h>
 #include <stdint.h>
+
+#include "geopm_time.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -117,9 +118,15 @@ struct geopm_sample_message_s {
     int rank;
     uint64_t region_id;
     double runtime;
-    double progress;
     double energy;
     double frequency;
+};
+
+struct geopm_prof_message_s {
+    int rank;
+    uint64_t region_id;
+    struct geopm_time_s timestamp;
+    double progress;
 };
 
 struct geopm_ctl_message_s {

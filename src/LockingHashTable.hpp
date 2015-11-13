@@ -63,7 +63,7 @@ namespace geopm
             type find(uint64_t key);
             uint64_t key(const std::string &name);
             size_t capacity(void) const;
-            void dump(typename std::vector<std::pair<uint64_t, type> >::iterator contents, size_t &length);
+            void dump(typename std::vector<std::pair<uint64_t, type> >::iterator content, size_t &length);
             bool name_fill(size_t header_offset);
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
@@ -273,7 +273,7 @@ namespace geopm
     }
 
     template <class type>
-    void LockingHashTable<type>::dump(typename std::vector<std::pair<uint64_t, type> >::iterator contents, size_t &length)
+    void LockingHashTable<type>::dump(typename std::vector<std::pair<uint64_t, type> >::iterator content, size_t &length)
     {
         int err;
         length = 0;
@@ -283,10 +283,10 @@ namespace geopm
                 throw Exception("LockingHashTable::dump(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
             for (int depth = 0; depth < GEOPM_HASH_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
-                contents->first = m_table[table_idx].key[depth];
-                contents->second = m_table[table_idx].value[depth];
+                content->first = m_table[table_idx].key[depth];
+                content->second = m_table[table_idx].value[depth];
                 m_table[table_idx].key[depth] = 0;
-                ++contents;
+                ++content;
                 ++length;
             }
             err = pthread_mutex_unlock(&(m_table[table_idx].lock));

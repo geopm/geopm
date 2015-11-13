@@ -75,10 +75,23 @@ namespace geopm
             SharedMemoryUser *m_ctl_shmem;
             struct geopm_ctl_message_s *m_ctl_msg;
             SharedMemoryUser *m_table_shmem;
-            LockingHashTable<struct geopm_sample_message_s> *m_table;
+            LockingHashTable<struct geopm_prof_message_s> *m_table;
             std::list<int> m_cpu_list;
             MPI_Comm m_shm_comm;
             int m_shm_rank;
+    };
+
+    class ProfileRankSampler {
+        public:
+            ProfileRankSampler(const std::string shm_key, size_t table_size);
+            virtual ~ProfileRankSampler();
+            void rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
+        protected:
+            SharedMemory m_table_shmem;
+            LockingHashTable<struct geopm_prof_message_s> m_table;
+            std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;
+            struct geopm_prof_message_s m_region_entry;
+            struct geopm_prof_message_s m_region_last;
     };
 
     class ProfileSampler
@@ -87,8 +100,7 @@ namespace geopm
             ProfileSampler(const std::string shm_key_base, size_t table_size, MPI_Comm comm);
             virtual ~ProfileSampler(void);
             size_t capacity(void);
-            void sample(std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, size_t &length);
-            void calculate_elapsed(const std::vector<std::pair<uint64_t, struct geopm_sample_message_s> > &contents, const size_t &length);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length);
             bool do_shutdown(void);
             void report(void);
         protected:
@@ -96,10 +108,7 @@ namespace geopm
             void print(const std::string file_name, const std::set<std::string> &key_name);
             SharedMemory m_ctl_shmem;
             struct geopm_ctl_message_s *m_ctl_msg;
-            std::forward_list<SharedMemory> m_table_shmem;
-            std::forward_list<LockingHashTable<struct geopm_sample_message_s> > m_table;
-            std::vector<std::map<uint64_t, geopm_sample_message_s> > m_elapsed_data;
-            std::vector<geopm_sample_message_s> m_region_entry_data;
+            std::forward_list<ProfileRankSampler> m_rank_sampler;
             MPI_Comm m_comm;
             int m_num_rank;
     };

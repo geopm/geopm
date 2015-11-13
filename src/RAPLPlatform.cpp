@@ -130,7 +130,6 @@ namespace geopm
     {
         sample.region_id = m_curr_region->identifier();
         sample.runtime = m_curr_region->observation_mean(0);
-        sample.progress = m_curr_region->observation_mean(0);
         sample.energy = m_curr_region->observation_mean(0);
         sample.frequency = m_curr_region->observation_mean(0);
     }
