@@ -67,7 +67,6 @@ namespace geopm
             void init_cpu_list(void);
             std::string m_prof_name;
             uint64_t m_curr_region_id;
-            struct geopm_time_s m_enter_time;
             int m_num_enter;
             int m_num_progress;
             double m_progress;
@@ -86,6 +85,7 @@ namespace geopm
             ProfileRankSampler(const std::string shm_key, size_t table_size);
             virtual ~ProfileRankSampler();
             void rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
+            size_t capacity(void);
         protected:
             SharedMemory m_table_shmem;
             LockingHashTable<struct geopm_prof_message_s> m_table;
@@ -110,7 +110,6 @@ namespace geopm
             struct geopm_ctl_message_s *m_ctl_msg;
             std::forward_list<ProfileRankSampler> m_rank_sampler;
             MPI_Comm m_comm;
-            int m_num_rank;
     };
 }
 

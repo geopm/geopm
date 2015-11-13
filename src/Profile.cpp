@@ -278,7 +278,6 @@ namespace geopm
     Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key, MPI_Comm comm)
         : m_prof_name(prof_name)
         , m_curr_region_id(0)
-        , m_enter_time({{0, 0}})
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
@@ -315,11 +314,14 @@ namespace geopm
 
     void Profile::enter(uint64_t region_id)
     {
+        // if we are not currently in a region
         if (!m_curr_region_id) {
             m_curr_region_id = region_id;
             m_num_enter = 0;
-            (void) geopm_time(&m_enter_time);
+            m_progress = 0.0;
+            sample(region_id);
         }
+        // keep track of number of entries to account for nesting
         if (m_curr_region_id == region_id) {
             ++m_num_enter;
         }
@@ -327,17 +329,14 @@ namespace geopm
 
     void Profile::exit(uint64_t region_id)
     {
+        // keep track of number of exits to account for nesting
         if (m_curr_region_id == region_id) {
             --m_num_enter;
         }
+        // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
-            struct geopm_prof_message_s sample = m_table->find(region_id);
-            sample.region_id = region_id;
-            sample.progress = 1.0;
-            struct geopm_time_s exit_time;
-            (void) geopm_time(&exit_time);
-            sample.runtime = geopm_time_diff(&m_enter_time, &exit_time);
-            m_table->insert(region_id, sample);
+            m_progress = 1.0;
+            sample(region_id);
             m_curr_region_id = 0;
         }
     }
@@ -363,13 +362,9 @@ namespace geopm
     {
         if (region_id == m_curr_region_id) {
             struct geopm_prof_message_s sample;
-            struct geopm_time_s curr_time;
             sample.region_id = region_id;
-            (void) geopm_time(&curr_time);
-            sample.runtime = geopm_time_diff(&m_enter_time, &curr_time);
+            (void) geopm_time(&(sample.timestamp));
             sample.progress = m_progress;
-            sample.energy = 0.0;     // FIXME: need to add a platform to Profile and
-            sample.frequency = 0.0;  // update energy and frequency here.
             m_table->insert(region_id, sample);
         }
     }
@@ -462,7 +457,6 @@ namespace geopm
         : m_ctl_shmem(shm_key_base, table_size)
         , m_ctl_msg((struct geopm_ctl_message_s *)m_ctl_shmem.pointer())
         , m_comm(comm)
-        , m_num_rank(0)
     {
         std::string shm_key;
 
@@ -477,12 +471,8 @@ namespace geopm
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
             shm_key.assign(shm_key_base + "_" + std::to_string(*it));
-            m_profile_rank_sampler.push_front(ProfileRankSampler(shm_key, table_size);
+            m_rank_sampler.push_front(ProfileRankSampler(shm_key, table_size));
         }
-
-        m_num_rank = rank_set.size();
-        m_elapsed_data.resize(m_num_rank);
-
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
     }
 
@@ -493,7 +483,11 @@ namespace geopm
 
     size_t ProfileSampler::capacity(void)
     {
-        return m_table.front().capacity();
+        size_t result = 0;
+        for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
+            result += (*it).capacity();
+        }
+        return result;
     }
 
     void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length)
@@ -502,7 +496,9 @@ namespace geopm
             case GEOPM_STATUS_ACTIVE:
                 length = 0;
                 auto content_it = content.begin();
-                for (auto rank_sampler_it = m_rank_sampler.begin(); rank_sampler_it != m_rank_sampler.end(); ++m_rank_sampler) {
+                for (auto rank_sampler_it = m_rank_sampler.begin();
+                     rank_sampler_it != m_rank_sampler.end();
+                     ++rank_sampler_it) {
                     size_t rank_length = 0;
                     (*rank_sampler_it).sample_rank(content_it, rank_length);
                     content_it += rank_length;
@@ -573,6 +569,11 @@ namespace geopm
     ProfileRankSampler::~ProfileRankSampler()
     {
 
+    }
+
+    size_t ProfileRankSampler::capcity(void)
+    {
+        return m_table.capacity();
     }
 
     void ProfileRankSampler::rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
