@@ -191,21 +191,19 @@ namespace geopm
 
     static MPI_Datatype create_sample_mpi_type(void)
     {
-        int blocklength[5] = {1, 1, 1, 1, 1};
+        int blocklength[4] = {1, 1, 1, 1};
         MPI_Datatype mpi_type[5] = {MPI_INT,
-                                    MPI_DOUBLE,
                                     MPI_DOUBLE,
                                     MPI_DOUBLE,
                                     MPI_DOUBLE
                                    };
-        MPI_Aint offset[5];
+        MPI_Aint offset[4];
         MPI_Datatype result;
         offset[0] = offsetof(struct geopm_sample_message_s, region_id);
         offset[1] = offsetof(struct geopm_sample_message_s, runtime);
-        offset[2] = offsetof(struct geopm_sample_message_s, progress);
-        offset[3] = offsetof(struct geopm_sample_message_s, energy);
-        offset[4] = offsetof(struct geopm_sample_message_s, frequency);
-        check_mpi(MPI_Type_create_struct(5, blocklength, offset, mpi_type, &result));
+        offset[2] = offsetof(struct geopm_sample_message_s, energy);
+        offset[3] = offsetof(struct geopm_sample_message_s, frequency);
+        check_mpi(MPI_Type_create_struct(4, blocklength, offset, mpi_type, &result));
         check_mpi(MPI_Type_commit(&result));
         return result;
     }

@@ -37,6 +37,7 @@
 #include <string>
 #include <list>
 #include <forward_list>
+#include <fstream>
 #include <mpi.h>
 
 #include "geopm_time.h"
@@ -86,12 +87,17 @@ namespace geopm
             virtual ~ProfileRankSampler();
             void rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
             size_t capacity(void);
+            void report(std::ofstream &file_desc);
+            bool name_fill(void);
         protected:
             SharedMemory m_table_shmem;
             LockingHashTable<struct geopm_prof_message_s> m_table;
             std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;
             struct geopm_prof_message_s m_region_entry;
             struct geopm_prof_message_s m_region_last;
+            std::string m_prof_name;
+            std::string m_report_name;
+            std::set<std::string> m_name_set;
     };
 
     class ProfileSampler
