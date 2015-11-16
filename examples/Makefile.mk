@@ -34,7 +34,14 @@ examples_geopm_print_error_SOURCES = examples/geopm_print_error.c
 examples_geopm_print_error_LDADD = libgeopmpolicy.la
 
 if ENABLE_MPI
-noinst_PROGRAMS += examples/geopm_ctl_single examples/timed_region
+noinst_PROGRAMS += examples/geopm_ctl_single examples/timed_region examples/synthetic_benchmark
+examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
+examples_synthetic_benchmark_LDADD = libgeopm.la
+examples_synthetic_benchmark_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+examples_synthetic_benchmark_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+examples_synthetic_benchmark_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+examples_synthetic_benchmark_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+
 examples_timed_region_SOURCES = examples/timed_region.cpp
 examples_timed_region_LDADD = libgeopm.la
 examples_timed_region_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)

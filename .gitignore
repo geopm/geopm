@@ -23,6 +23,7 @@
 /examples/geopm_print_error
 /examples/threaded_step
 /examples/geopm_ctl_single
+/examples/synthetic_benchmark
 /examples/timed_region
 /examples/.libs/
 /examples/*.o
