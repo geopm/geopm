@@ -638,25 +638,7 @@ namespace geopm
         file_stream << std::endl << "Rank " << (*m_agg_stats.begin()).second.rank << " Report:" << std::endl;
 
         for (auto it = m_name_set.begin(); it != m_name_set.end(); ++it) {
-            uint64_t region_id;
-            size_t num_word = (*it).length() / 8;
-            const uint64_t *ptr = (const uint64_t *)(&((*it).front()));
-
-            for (size_t i = 0; i < num_word; ++i) {
-                region_id = _mm_crc32_u64(region_id, ptr[i]);
-            }
-            size_t extra = (*it).length() - num_word * 8;
-            if (extra) {
-                uint64_t last_word = 0;
-                for (int i = 0; i < extra; ++i) {
-                    ((char *)(&last_word))[i] = ((char *)(ptr + num_word))[i];
-                }
-                region_id = _mm_crc32_u64(region_id, last_word);
-            }
-            if (!region_id) {
-                throw Exception("ProfileRankSampler::report(): CRC 32 hashed to zero!", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-
+            uint64_t region_id = geopm_crc32_str(0, (*it).c_str());
             file_stream << "Region " + (*it) + ":" << std::endl;
 
             auto entry = m_agg_stats.find(region_id);

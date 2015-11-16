@@ -29,6 +29,8 @@ src/geopmctl_main.c
 src/geopm_sched.h
 src/geopm_ctl_spawn.c
 src/geopm_error.h
+src/geopm_hash.c
+src/geopm_hash.h
 src/geopm.h
 src/geopm_mpi_pcontrol.h
 src/geopm_omp.c

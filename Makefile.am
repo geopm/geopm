@@ -153,6 +153,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
                             src/geopm_error.h \
+                            src/geopm_hash.c \
+                            src/geopm_hash.h \
                             src/geopm_omp.c \
                             src/geopm_omp.h \
                             src/geopm_plugin.c \
@@ -221,6 +223,8 @@ if ENABLE_MPI
                           src/TreeCommunicator.hpp \
                           src/geopm_ctl_spawn.c \
                           src/geopm_error.h \
+                          src/geopm_hash.c \
+                          src/geopm_hash.h \
                           src/geopm_omp.c \
                           src/geopm_omp.h \
                           src/geopm_mpi_pcontrol.h \

@@ -36,7 +36,6 @@
 #include <limits.h>
 #include <pthread.h>
 #include <stdint.h>
-#include <smmintrin.h>
 #include <stdint.h>
 
 #include <vector>
@@ -45,6 +44,7 @@
 #include <map>
 #include <set>
 
+#include "geopm_hash.h"
 #include "Exception.hpp"
 
 #ifndef GEOPM_HASH_TABLE_DEPTH_MAX
@@ -151,7 +151,7 @@ namespace geopm
     template <class type>
     size_t LockingHashTable<type>::hash(uint64_t key) const
     {
-        return _mm_crc32_u64(0, key) & m_mask;
+        return geopm_crc32_u64(0, key) & m_mask;
     }
 
     template <class type>
@@ -231,20 +231,7 @@ namespace geopm
             result = key_map_it->second;
         }
         else {
-            size_t num_word = name.length() / 8;
-            const uint64_t *ptr = (const uint64_t *)(&name.front());
-
-            for (size_t i = 0; i < num_word; ++i) {
-                result = _mm_crc32_u64(result, ptr[i]);
-            }
-            size_t extra = name.length() - num_word * 8;
-            if (extra) {
-                uint64_t last_word = 0;
-                for (int i = 0; i < extra; ++i) {
-                    ((char *)(&last_word))[i] = ((char *)(ptr + num_word))[i];
-                }
-                result = _mm_crc32_u64(result, last_word);
-            }
+            result = geopm_crc32_str(0, (char *)(&name.front()));
             if (!result) {
                 throw Exception("LockingHashTable::key(): CRC 32 hashed to zero!", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
