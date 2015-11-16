@@ -94,7 +94,7 @@ TEST_F(LockingHashTableTest, hello)
     std::vector<std::pair<uint64_t, double> > contents(3);
     size_t length;
     m_table->dump(contents.begin(), length);
-    EXPECT_EQ(3, length);
+    EXPECT_EQ(3ULL, length);
     for (int i = 0; i < 3; ++i) {
         if (contents[i].first == 1234) {
             EXPECT_EQ(1.234, contents[i].second);

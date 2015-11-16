@@ -244,7 +244,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
                 try {
                     m_tcomm->get_sample(level, sample);
                     for (int rank = 0; rank < m_tcomm->level_rank(level); ++rank) {
-                        EXPECT_EQ(rank, sample[rank].region_id * level);
+                        EXPECT_EQ((uint64_t)rank, sample[rank].region_id * level);
                     }
                     success = 1;
                 }
