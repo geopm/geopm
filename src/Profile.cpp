@@ -287,13 +287,13 @@ namespace geopm
         , m_progress(0.0)
     {
         int rank;
+        std::string table_shm_key;
 
         MPI_Comm_rank(comm, &rank);
         MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &m_shm_comm);
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
-        m_table_shmem = new SharedMemoryUser(shm_key, table_size);
-        m_table_buffer = m_table_shmem->pointer();
-        m_table = new LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_buffer);
+        m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 3.0);
+        m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
         init_cpu_list();
         for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
             m_ctl_msg->cpu_rank[*it] = rank;
@@ -302,6 +302,16 @@ namespace geopm
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_INITIALIZED;
         }
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
+        table_shm_key.assign(shm_key + "_" + std::to_string(m_shm_rank));
+        m_table_shmem = new SharedMemoryUser(table_shm_key, table_size, 3.0);
+        m_table_buffer = m_table_shmem->pointer();
+        m_table = new LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_buffer);
+        MPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_ACTIVE;
+        }
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {}
     }
 
     Profile::~Profile()
@@ -387,9 +397,23 @@ namespace geopm
     {
         int is_done = 0;
         int all_done = 0;
+        struct geopm_time_s start;
+        struct geopm_time_s curr;
+        const double TIMEOUT = 1.0;
+        double elapsed = 0;
+
         MPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
+        }
+        geopm_time(&start);
+        while (elapsed < TIMEOUT && m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {
+            geopm_time(&curr);
+            elapsed = geopm_time_diff(&start, &curr);
+        }
+        if (elapsed > TIMEOUT) {
+            m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
+            return;
         }
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {}
         size_t buffer_offset = 0;
@@ -478,6 +502,8 @@ namespace geopm
             m_rank_sampler.push_front(ProfileRankSampler(shm_key, table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
+        while (m_ctl_msg->app_status != GEOPM_STATUS_ACTIVE) {}
+        m_ctl_msg->ctl_status = GEOPM_STATUS_ACTIVE;
     }
 
     ProfileSampler::~ProfileSampler(void)

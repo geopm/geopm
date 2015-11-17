@@ -73,10 +73,10 @@ static int run_something(void)
 
     err = geopm_policy_create(NULL, NULL, &policy);
     if (!err) {
-        err = geopm_prof_create("threaded_step", 4096, "/geopm_threaded_step", MPI_COMM_WORLD, &prof);
+        err = geopm_ctl_create(policy, "/geopm_threaded_step", MPI_COMM_WORLD, &ctl);
     }
     if (!err) {
-        err = geopm_ctl_create(policy, prof, MPI_COMM_WORLD, &ctl);
+        err = geopm_prof_create("threaded_step", 4096, "/geopm_threaded_step", MPI_COMM_WORLD, &prof);
     }
     if (!err) {
         err = geopm_ctl_step(ctl);

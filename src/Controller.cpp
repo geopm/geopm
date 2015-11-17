@@ -61,6 +61,15 @@ extern "C"
         GEOPM_CTL_MAX_FAN_OUT = 16,
     };
 
+    static void *threaded_run(void *args) {
+        long err = 0;
+        struct geopm_ctl_c *ctl = (struct geopm_ctl_c *)args;
+
+        err = geopm_ctl_run(ctl);
+
+        return (void *)err;
+    }
+
 
     int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
     {
@@ -89,12 +98,12 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create(struct geopm_policy_c *policy, struct geopm_prof_c *prof, MPI_Comm comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create(struct geopm_policy_c *policy, const char *shm_key, MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
         try {
             geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
-            const std::string sample_key("/geopm_shmem_key");
+            const std::string sample_key(shm_key);
 
             *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_key, comm));
         }
@@ -139,6 +148,19 @@ extern "C"
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
         }
+        return err;
+    }
+    int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
+                          const pthread_attr_t *attr,
+                          pthread_t *thread) {
+        long err = 0;
+        void *status;
+        err = pthread_create(thread, attr, threaded_run, (void *)ctl);
+        if(!err) {
+            (void) pthread_join(*thread, &status);
+            err = (long)status;
+        }
+
         return err;
     }
 }
@@ -287,9 +309,12 @@ namespace geopm
         struct geopm_policy_message_s policy_msg;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample;
+        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > region_sample;
+        size_t sample_length;
         Policy policy;
         int region_id = -1;
 
+        region_sample.resize(m_sampler.capacity());
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
@@ -304,14 +329,15 @@ namespace geopm
                     break;
                 }
                 if (region_id != -1) {
-                    m_tree_decider[level]->get_policy(m_platform, policy);
-                    enforce_child_policy(region_id, level, policy);
+ //                   m_tree_decider[level]->get_policy(m_platform, policy);
+ //                   enforce_child_policy(region_id, level, policy);
                 }
             }
             else {
-                m_platform->observe();
-                m_leaf_decider->get_policy(m_platform, policy);
-                m_platform->enforce_policy(policy);
+//                m_platform->observe();
+//                m_leaf_decider->get_policy(m_platform, policy);
+//                m_platform->enforce_policy(policy);
+                m_sampler.sample(region_sample, sample_length);
             }
             if (level && m_tree_decider[level]->is_converged()) {
                 m_platform->sample(sample_msg);
