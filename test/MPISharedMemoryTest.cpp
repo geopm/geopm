@@ -75,7 +75,8 @@ TEST_F(MPISharedMemoryTest, hello)
         sm = new geopm::SharedMemory(m_shm_key, 128);
         strcpy((char *)sm->pointer(), test_string);
     }
-    else if (rank == 1) {
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (rank == 1) {
         smu = new geopm::SharedMemoryUser(m_shm_key, 128, 5);
         EXPECT_EQ(0, strncmp((char *)smu->pointer(), test_string, strlen(test_string)));
     }
