@@ -485,6 +485,12 @@ namespace geopm
         : m_ctl_shmem(shm_key_base, table_size)
         , m_ctl_msg((struct geopm_ctl_message_s *)m_ctl_shmem.pointer())
         , m_comm(comm)
+        , m_table_size(table_size)
+    {
+
+    }
+
+    void ProfileSampler::initialize(void)
     {
         std::string shm_key;
 
@@ -498,8 +504,8 @@ namespace geopm
         }
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
-            shm_key.assign(shm_key_base + "_" + std::to_string(*it));
-            m_rank_sampler.push_front(ProfileRankSampler(shm_key, table_size));
+            shm_key.assign(m_ctl_shmem.key() + "_" + std::to_string(*it));
+            m_rank_sampler.push_front(ProfileRankSampler(shm_key, m_table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
         while (m_ctl_msg->app_status != GEOPM_STATUS_ACTIVE) {}

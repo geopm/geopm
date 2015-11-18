@@ -41,6 +41,7 @@ namespace geopm
             SharedMemory(const std::string &shm_key, size_t size);
             virtual ~SharedMemory();
             void *pointer(void);
+            std::string key(void);
         protected:
             std::string m_shm_key;
             size_t m_size;
@@ -54,6 +55,7 @@ namespace geopm
             SharedMemoryUser(const std::string &shm_key, size_t size);
             virtual ~SharedMemoryUser();
             void *pointer(void);
+            std::string key(void);
         protected:
             std::string m_shm_key;
             size_t m_size;

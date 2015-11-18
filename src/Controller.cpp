@@ -154,12 +154,12 @@ extern "C"
                           const pthread_attr_t *attr,
                           pthread_t *thread) {
         long err = 0;
-        void *status;
+//        void *status;
         err = pthread_create(thread, attr, threaded_run, (void *)ctl);
-        if(!err) {
-            (void) pthread_join(*thread, &status);
-            err = (long)status;
-        }
+//        if(!err) {
+//            (void) pthread_join(*thread, &status);
+//            err = (long)status;
+//        }
 
         return err;
     }
@@ -172,7 +172,7 @@ namespace geopm
         , m_global_policy(global_policy)
         , m_sampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE, comm)
     {
-        throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        //throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
 
         (void) geopm_time(&m_time_zero);
 
@@ -195,14 +195,14 @@ namespace geopm
         }
         std::reverse(fan_out.begin(), fan_out.end());
 
+        m_platform_factory = new PlatformFactory;
+        m_platform = m_platform_factory->platform();
+
         m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
         m_region.resize(m_tree_comm->num_level());
         m_region[0].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
                           new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                     GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
-
-        m_platform_factory = new PlatformFactory;
-        m_platform = m_platform_factory->platform();
 
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
             if (m_tree_comm->level_size(level) > m_max_fanout) {
@@ -229,6 +229,8 @@ namespace geopm
         int level;
         int err = 0;
         struct geopm_policy_message_s policy;
+
+        m_sampler.initialize();
 
         // Spin waiting for for first policy message
         level = m_tree_comm->num_level() - 1;

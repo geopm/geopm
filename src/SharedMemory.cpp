@@ -88,6 +88,11 @@ namespace geopm
     {
         return m_ptr;
     }
+    
+    std::string SharedMemory::key(void)
+    {
+        return m_shm_key;
+    }
 
     SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, size_t size)
         : SharedMemoryUser(shm_key, size, INT_MAX)
@@ -152,5 +157,10 @@ namespace geopm
     void *SharedMemoryUser::pointer(void)
     {
         return m_ptr;
+    }
+
+    std::string SharedMemoryUser::key(void)
+    {
+        return m_shm_key;
     }
 }

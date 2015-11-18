@@ -109,6 +109,7 @@ namespace geopm
             void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length);
             bool do_shutdown(void);
             void report(void);
+            void initialize(void);
         protected:
             void name_set(std::string &file_name, std::string &prof_name, std::set<std::string> &key_name);
             void print(const std::string file_name, const std::set<std::string> &key_name);
@@ -116,6 +117,7 @@ namespace geopm
             struct geopm_ctl_message_s *m_ctl_msg;
             std::forward_list<ProfileRankSampler> m_rank_sampler;
             MPI_Comm m_comm;
+            size_t m_table_size;
     };
 }
 

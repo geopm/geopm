@@ -32,6 +32,13 @@
 
 #include <stdlib.h>
 #include <mpi.h>
+#include <limits.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include "gtest/gtest.h"
 #include "geopm.h"
 #include "geopm_policy.h"
@@ -46,6 +53,7 @@ class MPIProfileTest: public :: testing :: Test
 
 MPIProfileTest::MPIProfileTest()
 {
+    shm_unlink("/geopm_runtime_test");
 }
 
 MPIProfileTest::~MPIProfileTest()

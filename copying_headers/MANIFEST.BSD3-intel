@@ -91,6 +91,7 @@ test/googletest.mk
 test/LockingHashTableTest.cpp
 test/Makefile.mk
 test/MPIControllerTest.cpp
+test/MPIProfileTest.cpp
 test/MPISharedMemoryTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/no_omp_cpu.c
