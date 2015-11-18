@@ -43,7 +43,7 @@ class LockingHashTableTest: public :: testing :: Test
     protected:
         size_t m_size;
         size_t m_small_size;
-        char m_ptr[2048];
+        char m_ptr[512];
         char m_small_ptr[512];
         geopm::LockingHashTable<double> *m_table;
         geopm::LockingHashTable<double> *m_table_small;
@@ -109,4 +109,65 @@ TEST_F(LockingHashTableTest, hello)
             EXPECT_TRUE(false);
         }
     }
+}
+
+TEST_F(LockingHashTableTest, name_set_fill_short)
+{
+    std::set<std::string> input_set = {"hello", "goodbye"};
+    std::set<std::string> output_set;
+    for (auto it = input_set.begin(); it != input_set.end(); ++it) {
+        m_table->key(*it);
+    }
+    bool is_in_done = m_table->name_fill(0);
+    bool is_out_done = m_table->name_set(0, output_set);
+    ASSERT_EQ(input_set, output_set);
+    ASSERT_EQ(is_in_done, is_out_done);
+}
+TEST_F(LockingHashTableTest, name_set_fill_long)
+{
+    std::set<std::string> input_set = {
+        "Global", "Energy", "Optimization", "Power", "Management", "GEOPM", "is", "an", "extensible", "power",
+        "management", "framework", "targeting", "high", "performance", "computing", "The", "library", "can", "be",
+        "extended", "to", "support", "new", "control", "algorithms", "and", "new", "hardware", "power", "management",
+        "features", "The", "GEOPM", "package", "provides", "built", "in", "features", "ranging", "from", "static",
+        "management", "of", "power", "policy", "for", "each", "individual", "compute", "node", "to", "dynamic",
+        "coordination", "of", "power", "policy", "and", "performance", "across", "all", "of", "the", "compute", "nodes",
+        "hosting", "one", "MPI", "job", "on", "a", "portion", "of", "a", "distributed", "computing", "system", "The",
+        "dynamic", "coordination", "is", "implemented", "as", "a", "hierarchical", "control", "system", "for",
+        "scalable", "communication", "and", "decentralized", "control", "The", "hierarchical", "control",
+        "system", "can", "optimize", "for", "various", "objective", "functions", "including", "maximizing",
+        "global", "application", "performance", "within", "a", "power", "bound", "The", "root", "of", "the", "control",
+        "hierarchy", "tree", "can", "communicate", "through", "shared", "memory", "with", "the", "system", "resource",
+        "management", "daemon", "to", "extend", "the", "hierarchy", "above", "the", "individual", "MPI", "job", "level",
+        "and", "enable", "management", "of", "system", "power", "resources", "for", "multiple", "MPI", "jobs", "and",
+        "multiple", "users", "by", "the", "system", "resource", "manager", "The", "geopm", "package", "provides", "the",
+        "libgeopm", "library", "the", "libgeopmpolicy", "library", "the", "geopmctl", "application", "and", "the",
+        "geopmpolicy", "application", "The", "libgeopm", "library", "can", "be", "called", "within", "MPI",
+        "applications", "to", "enable", "application", "feedback", "for", "informing", "the", "control",
+        "decisions", "If", "modification", "of", "the", "target", "application", "is", "not", "desired", "then", "the",
+        "geopmctl", "application", "can", "be", "run", "concurrently", "with", "the", "target", "application", "In",
+        "this", "case", "target", "application", "feedback", "is", "inferred", "by", "querying", "the", "hardware",
+        "through", "Model", "Specific", "Registers", "MSRs", "With", "either", "method", "libgeopm", "or",
+        "geopmctl", "the", "control", "hierarchy", "tree", "writes", "processor", "power", "policy", "through",
+        "MSRs", "to", "enact", "policy", "decisions", "The", "libgeopmpolicy", "library", "is", "used", "by", "a",
+        "resource", "manager", "to", "set", "energy", "policy", "control", "parameters", "for", "MPI", "jobs", "Some",
+        "features", "of", "libgeopmpolicy", "are", "availble", "through", "the", "geopmpolicy", "application",
+        "including", "support", "for", "static", "control"};
+    for (auto it = input_set.begin(); it != input_set.end(); ++it) {
+        m_table->key(*it);
+    }
+    std::set<std::string> output_set;
+    bool is_in_done = false;
+    bool is_out_done = false;
+    size_t header_offset = 16;
+    int count = 0;
+    while (!is_in_done) {
+        is_in_done = m_table->name_fill(header_offset);
+        is_out_done = m_table->name_set(header_offset, output_set);
+        header_offset = 0;
+        ASSERT_EQ(is_in_done, is_out_done);
+        ++count;
+    }
+    ASSERT_EQ(input_set, output_set);
+    ASSERT_LT(1, count);
 }

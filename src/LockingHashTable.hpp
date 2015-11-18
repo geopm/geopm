@@ -287,7 +287,7 @@ namespace geopm
     bool LockingHashTable<type>::name_fill(size_t header_offset)
     {
         bool result = false;
-        size_t buffer_remain = m_buffer_size - header_offset;
+        size_t buffer_remain = m_buffer_size - header_offset - 1;
         char *buffer_ptr = (char *)m_table + header_offset;
         while (m_key_map_last != m_key_map.end() &&
                buffer_remain > (*m_key_map_last).first.length()) {
@@ -296,15 +296,16 @@ namespace geopm
             buffer_ptr += (*m_key_map_last).first.length() + 1;
             ++m_key_map_last;
         }
+        memset(buffer_ptr, 0, buffer_remain);
         if (m_key_map_last == m_key_map.end() && buffer_remain) {
-            // We are done, pad with one null char
-            *buffer_ptr = '\0';
-            ++buffer_ptr;
-            --buffer_remain;
+            // We are done, set last character to -1
+            buffer_ptr[buffer_remain] = (char) 1;
             m_key_map_last = m_key_map.begin();
             result = true;
         }
-        memset(buffer_ptr, (unsigned char)(-1), buffer_remain);
+        else {
+            buffer_ptr[buffer_remain] = '\0';
+        }
         return result;
     }
 
@@ -313,24 +314,25 @@ namespace geopm
     {
         char tmp_name[NAME_MAX];
         bool result = false;
-        size_t buffer_remain = m_buffer_size - header_offset;
+        size_t buffer_remain = m_buffer_size - header_offset - 1;
         char *buffer_ptr = (char *)m_table + header_offset;
 
-        while(buffer_remain) {
+        while (buffer_remain) {
             tmp_name[NAME_MAX - 1] = '\0';
             strncpy(tmp_name, buffer_ptr, NAME_MAX);
+            if (tmp_name[NAME_MAX - 1] != '\0') {
+                throw Exception("LockingHashTable::name_set(): key string is too long", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
             if (strlen(tmp_name)) {
-                if (tmp_name[NAME_MAX -1] == '\0') {
-                    name.insert(std::string(tmp_name));
-                    buffer_remain -= strlen(tmp_name) + 1;
-                    buffer_ptr += strlen(tmp_name) + 1;
-                }
-                else {
-                    buffer_remain = 0;
-                }
+                name.insert(std::string(tmp_name));
+                buffer_remain -= strlen(tmp_name) + 1;
+                buffer_ptr += strlen(tmp_name) + 1;
             }
             else {
-                result = true;
+                if (buffer_ptr[buffer_remain] == (char) 1) {
+                    result = true;
+                }
+                buffer_remain = 0;
             }
         }
         return result;

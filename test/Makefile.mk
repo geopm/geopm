@@ -82,6 +82,8 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
               test/gtest_links/MPITreeCommunicatorTestShmem.hello \
               test/gtest_links/LockingHashTableTest.hello \
+              test/gtest_links/LockingHashTableTest.name_set_fill_short \
+              test/gtest_links/LockingHashTableTest.name_set_fill_long \
               test/gtest_links/DeciderFactoryTest.decider_register \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/MPISharedMemoryTest.hello \
