@@ -52,7 +52,6 @@
 #ifndef NAME_MAX
 #define NAME_MAX 1024
 #endif
-#define GEOPM_GLOBAL_POLICY_IDENTIFIER -1
 
 extern "C"
 {
@@ -61,7 +60,8 @@ extern "C"
         GEOPM_CTL_MAX_FAN_OUT = 16,
     };
 
-    static void *threaded_run(void *args) {
+    static void *geopm_threaded_run(void *args)
+    {
         long err = 0;
         struct geopm_ctl_c *ctl = (struct geopm_ctl_c *)args;
 
@@ -152,15 +152,16 @@ extern "C"
     }
     int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                           const pthread_attr_t *attr,
-                          pthread_t *thread) {
+                          pthread_t *thread)
+    {
         long err = 0;
-//        void *status;
-        err = pthread_create(thread, attr, threaded_run, (void *)ctl);
-//        if(!err) {
-//            (void) pthread_join(*thread, &status);
-//            err = (long)status;
-//        }
-
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+        try {
+            ctl_obj->pthread(attr, thread);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
         return err;
     }
 }
@@ -168,52 +169,65 @@ extern "C"
 namespace geopm
 {
     Controller::Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
-        : m_max_fanout(0)
+        : m_is_node_root(false)
+        , m_max_fanout(0)
+        , m_time_zero({{0,0}})
         , m_global_policy(global_policy)
-        , m_sampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE, comm)
+        , m_tree_comm(NULL)
+        , m_leaf_decider(NULL)
+        , m_decider_factory(NULL)
+        , m_platform_factory(NULL)
+        , m_platform(NULL)
+        , m_sampler(NULL)
     {
-        //throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-
+#ifndef GEOPM_DEBUG
+        throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+#endif
         (void) geopm_time(&m_time_zero);
 
+        MPI_Comm ppn1_comm;
+        int err = 0;
+        int node_rank;
         int num_nodes = 0;
-        int err = geopm_num_nodes(comm, &num_nodes);
+
+        err = geopm_comm_split_ppn1(comm, &ppn1_comm);
         if (err) {
-            throw geopm::Exception("geopm_num_nodes()", err, __FILE__, __LINE__);
+            throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
         }
-        int num_level = 1;
-        std::vector<int> fan_out(num_level);
-        fan_out[0] = num_nodes;
-        while (fan_out[0] > GEOPM_CTL_MAX_FAN_OUT && fan_out[num_level - 1] != 1) {
-            ++num_level;
-            fan_out.resize(num_level);
-            check_mpi(MPI_Dims_create(num_nodes, num_level, fan_out.data()));
-        }
-        if (num_level > 1 && fan_out[num_level - 1] == 1) {
-            --num_level;
-            fan_out.resize(num_level);
-        }
-        std::reverse(fan_out.begin(), fan_out.end());
+        if (ppn1_comm != MPI_COMM_NULL) {
+            m_is_node_root = true;
+            check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
+            m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE, comm);
 
-        m_platform_factory = new PlatformFactory;
-        m_platform = m_platform_factory->platform();
+            int num_level = 1;
+            std::vector<int> fan_out(num_level);
+            fan_out[0] = num_nodes;
 
-        m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
-        m_region.resize(m_tree_comm->num_level());
-        m_region[0].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                          new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                                    GEOPM_POLICY_HINT_UNKNOWN, m_platform->num_domain())));
-
-        for (int level = 0; level < m_tree_comm->num_level(); ++level) {
-            if (m_tree_comm->level_size(level) > m_max_fanout) {
-                m_max_fanout = m_tree_comm->level_size(level);
+            while (fan_out[0] > GEOPM_CTL_MAX_FAN_OUT && fan_out[num_level - 1] != 1) {
+                ++num_level;
+                fan_out.resize(num_level);
+                check_mpi(MPI_Dims_create(num_nodes, num_level, fan_out.data()));
             }
-            // default global region before application regions have been registered
-            // holds the global power policy
-            if(level) {
-                m_region[level].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                                      new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                                                GEOPM_POLICY_HINT_UNKNOWN, m_tree_comm->level_size(level - 1))));
+
+            if (num_level > 1 && fan_out[num_level - 1] == 1) {
+                --num_level;
+                fan_out.resize(num_level);
+            }
+            std::reverse(fan_out.begin(), fan_out.end());
+
+            m_tree_comm = new TreeCommunicator(fan_out, global_policy, comm);
+            m_region.resize(m_tree_comm->num_level());
+            Region *region = new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
+                                          GEOPM_POLICY_HINT_UNKNOWN, fan_out[num_level - 1]);
+            m_region[num_level - 1].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER, region));
+
+            m_platform_factory = new PlatformFactory;
+            m_platform = m_platform_factory->platform();
+
+            for (int level = 0; level < m_tree_comm->num_level(); ++level) {
+                if (m_tree_comm->level_size(level) > m_max_fanout) {
+                    m_max_fanout = m_tree_comm->level_size(level);
+                }
             }
         }
     }
@@ -222,6 +236,7 @@ namespace geopm
     {
         delete m_tree_comm;
         delete m_platform_factory;
+        delete m_sampler;
     }
 
     void Controller::run(void)
@@ -229,8 +244,6 @@ namespace geopm
         int level;
         int err = 0;
         struct geopm_policy_message_s policy;
-
-        m_sampler.initialize();
 
         // Spin waiting for for first policy message
         level = m_tree_comm->num_level() - 1;
@@ -269,6 +282,19 @@ namespace geopm
         }
     }
 
+    void Controller::pthread(const pthread_attr_t *attr, pthread_t *thread)
+    {
+        MPI_Comm ppn1_comm;
+        int err = 0;
+        int node_rank;
+
+        err = geopm_comm_split_ppn1(m_comm, &ppn1_comm);
+        MPI_Rank(ppn1_comm, &node_rank);
+        if (!m_is_node_root) {
+            err = pthread_create(thread, attr, geopm_threaded_run, (void *)this);
+        }
+        return err;
+    }
 
     int Controller::walk_down(void)
     {
@@ -291,6 +317,15 @@ namespace geopm
                 m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
+            auto it = m_region[level - 1].find(region_id);
+            if (it == m_region[level - 1].end()) {
+                m_region[level - 1].insert(std::pair<long, Region *>(policy_msg.region_id,
+                                           new Region("region_" + std::to_string(policy_msg.region_id),
+                                                      policy_msg.region_id,
+                                                      GEOPM_POLICY_HINT_UNKNOWN,
+                                                      m_tree_comm->level_size(level - 1))));
+            }
+
         }
         if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {
             do_shutdown = 1;
@@ -316,7 +351,7 @@ namespace geopm
         Policy policy;
         int region_id = -1;
 
-        region_sample.resize(m_sampler.capacity());
+        region_sample.resize(m_sampler->capacity());
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
@@ -339,7 +374,7 @@ namespace geopm
 //                m_platform->observe();
 //                m_leaf_decider->get_policy(m_platform, policy);
 //                m_platform->enforce_policy(policy);
-                m_sampler.sample(region_sample, sample_length);
+                m_sampler->sample(region_sample, sample_length);
             }
             if (level && m_tree_decider[level]->is_converged()) {
                 m_platform->sample(sample_msg);

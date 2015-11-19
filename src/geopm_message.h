@@ -42,6 +42,7 @@ extern "C" {
 #endif
 
 #define GEOPM_CONST_MAX_NUM_CPU 768
+#define GEOPM_GLOBAL_POLICY_IDENTIFIER 0
 
 enum geopm_policy_flags_e {
     GEOPM_FLAGS_SMALL_CPU_FREQ_100MHZ_1 = 1ULL << 0,

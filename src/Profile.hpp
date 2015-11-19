@@ -115,7 +115,7 @@ namespace geopm
             void print(const std::string file_name, const std::set<std::string> &key_name);
             SharedMemory m_ctl_shmem;
             struct geopm_ctl_message_s *m_ctl_msg;
-            std::forward_list<ProfileRankSampler> m_rank_sampler;
+            std::forward_list<ProfileRankSampler *> m_rank_sampler;
             MPI_Comm m_comm;
             size_t m_table_size;
     };

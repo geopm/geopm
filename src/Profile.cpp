@@ -292,7 +292,7 @@ namespace geopm
         MPI_Comm_rank(comm, &rank);
         MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &m_shm_comm);
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
-        m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 3.0);
+        m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 300.0);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
         init_cpu_list();
         for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
@@ -302,6 +302,7 @@ namespace geopm
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_INITIALIZED;
         }
+
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
         table_shm_key.assign(shm_key + "_" + std::to_string(m_shm_rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, table_size, 3.0);
@@ -311,6 +312,7 @@ namespace geopm
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_ACTIVE;
         }
+
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {}
     }
 
@@ -490,6 +492,13 @@ namespace geopm
 
     }
 
+    ProfileSampler::~ProfileSampler(void)
+    {
+        for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
+            delete (*it);
+        }
+    }
+
     void ProfileSampler::initialize(void)
     {
         std::string shm_key;
@@ -505,23 +514,18 @@ namespace geopm
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
             shm_key.assign(m_ctl_shmem.key() + "_" + std::to_string(*it));
-            m_rank_sampler.push_front(ProfileRankSampler(shm_key, m_table_size));
+            m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
         while (m_ctl_msg->app_status != GEOPM_STATUS_ACTIVE) {}
         m_ctl_msg->ctl_status = GEOPM_STATUS_ACTIVE;
     }
 
-    ProfileSampler::~ProfileSampler(void)
-    {
-
-    }
-
     size_t ProfileSampler::capacity(void)
     {
         size_t result = 0;
         for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
-            result += (*it).capacity();
+            result += (*it)->capacity();
         }
         return result;
     }
@@ -537,7 +541,7 @@ namespace geopm
                      rank_sampler_it != m_rank_sampler.end();
                      ++rank_sampler_it) {
                     size_t rank_length = 0;
-                    (*rank_sampler_it).rank_sample(content_it, rank_length);
+                    (*rank_sampler_it)->rank_sample(content_it, rank_length);
                     content_it += rank_length;
                     length += rank_length;
                 }
@@ -571,7 +575,7 @@ namespace geopm
             if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
                 is_all_done = true;
                 for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
-                    if (!(*it).name_fill()) {
+                    if (!(*it)->name_fill()) {
                         is_all_done = false;
                     }
                 }
@@ -585,7 +589,7 @@ namespace geopm
         }
 
         for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
-            (*it).report(file_stream);
+            (*it)->report(file_stream);
         }
 
         if (file_stream.is_open()) {

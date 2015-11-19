@@ -66,6 +66,7 @@ namespace geopm
         protected:
             int walk_down(void);
             int walk_up(void);
+            bool m_is_node_root;
             int m_max_fanout;
             struct geopm_time_s m_time_zero;
             std::vector<int> m_fan_out;
