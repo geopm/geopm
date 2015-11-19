@@ -36,14 +36,20 @@
 int main(int argc, char **argv)
 {
     int err = 0;
+    int mpi_thread_level = 0;
     testing::InitGoogleTest(&argc, argv);
-    MPI_Init(&argc, &argv);
-    try {
-        err = RUN_ALL_TESTS();
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpi_thread_level);
+    if (mpi_thread_level != MPI_THREAD_MULTIPLE) {
+	err = -1;
     }
-    catch (std::exception ex) {
-        err = err ? err : 1;
-        std::cerr << "Error: <geopm_mpi_test> "<< ex.what();
+    if (!err) {
+        try {
+            err = RUN_ALL_TESTS();
+        }
+        catch (std::exception ex) {
+            err = err ? err : 1;
+            std::cerr << "Error: <geopm_mpi_test> "<< ex.what();
+        }
     }
     if (err) {
         MPI_Abort(MPI_COMM_WORLD, err);
