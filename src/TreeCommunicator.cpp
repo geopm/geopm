@@ -100,6 +100,10 @@ extern "C"
             if (is_shm_root == 1) {
                 err = MPI_Comm_size(*ppn1_comm_ptr, num_nodes);
             }
+            else {
+                err = MPI_Comm_free(ppn1_comm_ptr);
+                ppn1_comm_ptr = MPI_COMM_NULL;
+            }
         }
         if (!err) {
             err = MPI_Bcast(num_nodes, 1, MPI_INT, 0, shm_comm);
@@ -107,7 +111,7 @@ extern "C"
         if (shm_comm != MPI_COMM_NULL) {
             MPI_Comm_free(&shm_comm);
         }
-        if (!ppn1_comm) {
+        if (!ppn1_comm && is_shm_root) {
             MPI_Comm_free(ppn1_comm_ptr);
         }
         return err;
