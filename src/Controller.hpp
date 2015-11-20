@@ -72,14 +72,14 @@ namespace geopm
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
             TreeCommunicator *m_tree_comm;
-            std::vector <TreeDecider *> m_tree_decider;
-            LeafDecider *m_leaf_decider;
+            std::vector<Decider *> m_tree_decider;
+            Decider *m_leaf_decider;
             DeciderFactory *m_decider_factory;
             PlatformFactory *m_platform_factory;
-            Platform * m_platform;
-            ProfileSampler m_sampler;
+            Platform *m_platform;
+            ProfileSampler *m_sampler;
             // Per level vector of maps from region identifier to region object
-            std::vector <std::map <long, Region *> > m_region;
+            std::vector<std::map <long, Region *> > m_region;
     };
 }
 

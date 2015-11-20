@@ -304,7 +304,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
-        table_shm_key.assign(shm_key + "_" + std::to_string(m_shm_rank));
+        table_shm_key.assign(shm_key + "_" + std::to_string(rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, table_size, 3.0);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_buffer);

@@ -102,7 +102,7 @@ extern "C"
             }
             else {
                 err = MPI_Comm_free(ppn1_comm_ptr);
-                ppn1_comm_ptr = MPI_COMM_NULL;
+                *ppn1_comm_ptr = MPI_COMM_NULL;
             }
         }
         if (!err) {
@@ -305,11 +305,12 @@ namespace geopm
 
     void TreeCommunicator::get_sample(int level, std::vector<struct geopm_sample_message_s> &sample)
     {
-        if (level < 0 || level >= num_level() || level == root_level()) {
+        if (level <= 0 || level >= num_level()) {
             throw Exception("TreeCommunicator::get_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
-        m_level[level]->get_sample(sample);
+        m_level[level - 1]->get_sample(sample);
     }
+
     void TreeCommunicator::get_policy(int level, struct geopm_policy_message_s &policy)
     {
         if (level < 0 || level >= num_level()) {

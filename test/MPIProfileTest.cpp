@@ -53,11 +53,17 @@ class MPIProfileTest: public :: testing :: Test
 
 MPIProfileTest::MPIProfileTest()
 {
+    geopm_policy_c *policy = NULL;
     shm_unlink("/geopm_runtime_test");
     for (int i = 0; i < 16; i++) {
         std::string cleanup("/geopm_runtime_test_" + std::to_string(i));
         shm_unlink(cleanup.c_str());
     }
+    EXPECT_EQ(0, geopm_policy_create("", "profile_runtime_policy", &policy));
+    EXPECT_EQ(0, geopm_policy_mode(policy, GEOPM_MODE_PERF_BALANCE_DYNAMIC));
+    EXPECT_EQ(0, geopm_policy_power(policy, 2000));
+    EXPECT_EQ(0, geopm_policy_write(policy));
+    EXPECT_EQ(0, geopm_policy_destroy(policy));
 }
 
 MPIProfileTest::~MPIProfileTest()
@@ -67,7 +73,7 @@ MPIProfileTest::~MPIProfileTest()
 
 TEST_F(MPIProfileTest, runtime)
 {
-    struct geopm_policy_c *policy;
+    struct geopm_policy_c *policy = NULL;
     struct geopm_prof_c *prof;
     struct geopm_ctl_c *ctl;
     pthread_t ctl_thread;
@@ -78,7 +84,9 @@ TEST_F(MPIProfileTest, runtime)
     
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_policy_create("", "profile_runtime_policy", &policy));
+    if (!rank) {
+    	ASSERT_EQ(0, geopm_policy_create("profile_runtime_policy", "", &policy));
+    }
     ASSERT_EQ(0, geopm_ctl_create(policy, "/geopm_runtime_test", MPI_COMM_WORLD, &ctl));
     ASSERT_EQ(0, geopm_ctl_pthread(ctl, NULL, &ctl_thread));
 

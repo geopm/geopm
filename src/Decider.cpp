@@ -53,7 +53,7 @@ namespace geopm
 
     bool Decider::is_converged(void)
     {
-        return m_is_converged;
+        return true;//m_is_converged;
     }
 
     LeafDecider::LeafDecider() {}
