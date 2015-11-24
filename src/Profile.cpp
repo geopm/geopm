@@ -31,6 +31,7 @@
  */
 
 #include <float.h>
+#include <unistd.h>
 #include <hwloc.h>
 
 #include "geopm.h"
@@ -286,17 +287,16 @@ namespace geopm
         , m_num_progress(0)
         , m_progress(0.0)
     {
-        int rank;
         std::string table_shm_key;
 
-        MPI_Comm_rank(comm, &rank);
-        MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &m_shm_comm);
+        MPI_Comm_rank(comm, &m_rank);
+        MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, m_rank, MPI_INFO_NULL, &m_shm_comm);
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 300.0);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
         init_cpu_list();
         for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
-            m_ctl_msg->cpu_rank[*it] = rank;
+            m_ctl_msg->cpu_rank[*it] = m_rank;
         }
         MPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
@@ -304,7 +304,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
-        table_shm_key.assign(shm_key + "_" + std::to_string(rank));
+        table_shm_key.assign(shm_key + "_" + std::to_string(m_rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, table_size, 3.0);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_buffer);
@@ -378,6 +378,7 @@ namespace geopm
     {
         if (region_id == m_curr_region_id) {
             struct geopm_prof_message_s sample;
+            sample.rank = m_rank;
             sample.region_id = region_id;
             (void) geopm_time(&(sample.timestamp));
             sample.progress = m_progress;
@@ -409,6 +410,7 @@ namespace geopm
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
         }
         geopm_time(&start);
+
         while (elapsed < TIMEOUT && m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {
             geopm_time(&curr);
             elapsed = geopm_time_diff(&start, &curr);
@@ -435,7 +437,9 @@ namespace geopm
             if (!m_shm_rank) {
                 m_ctl_msg->app_status = GEOPM_STATUS_READY;
             }
-            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {}
+
+            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {
+            }
             MPI_Barrier(m_shm_comm);
             if (!m_shm_rank && !is_all_done) {
                 m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
@@ -566,7 +570,7 @@ namespace geopm
     void ProfileSampler::report(void)
     {
         std::ofstream file_stream;
-        bool is_all_done = true;
+        bool is_all_done = false;
 
         while (!is_all_done && m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
             m_ctl_msg->ctl_status = GEOPM_STATUS_REPORT;
@@ -581,8 +585,10 @@ namespace geopm
                 }
             }
             m_ctl_msg->ctl_status = GEOPM_STATUS_READY;
+
             while (m_ctl_msg->app_status != GEOPM_STATUS_READY &&
                     m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
+
             if (!is_all_done && m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {
                 throw Exception("ProfileSampler::report(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -601,7 +607,6 @@ namespace geopm
         : m_table_shmem(SharedMemory(shm_key, table_size))
         , m_table(LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_shmem.pointer()))
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
-        , m_region_last(GEOPM_INVALID_PROF_MSG)
     {
 
     }
@@ -618,32 +623,37 @@ namespace geopm
 
     void ProfileRankSampler::rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
+        struct geopm_sample_message_s sample;
         m_table.dump(content_begin, length);
         auto content_end = content_begin + length;
         std::sort(content_begin, content_end, geopm_table_compare);
         for (auto it = content_begin; it != content_end; ++it) {
+            if ((*it).second.progress == 1.0) {
+		if ((*it).second.region_id == m_region_entry.region_id) {
+                    double runtime;
+                    auto agg_entry_it = m_agg_stats.find(m_region_entry.region_id);
+                    runtime = geopm_time_diff(&(m_region_entry.timestamp), &((*it).second.timestamp));
+                    if (agg_entry_it == m_agg_stats.end()) {
+                        sample.rank = (*it).second.rank;
+                        sample.region_id = (*it).second.region_id;
+                        sample.runtime = runtime;
+                        sample.energy = 0.0;
+                        sample.frequency = 0.0;
+                        m_agg_stats.insert(std::pair<uint64_t, struct geopm_sample_message_s>(m_region_entry.region_id, sample));
+                    }
+                    else {
+                        (*agg_entry_it).second.runtime += runtime;
+                    }
+                }
+            }
             if ((*it).first != m_region_entry.region_id) {
-                double runtime;
-                auto agg_entry_it = m_agg_stats.find(m_region_entry.region_id);
-                if (it == content_begin) {
-                    runtime = geopm_time_diff(&(m_region_entry.timestamp), &(m_region_last.timestamp));
-                }
-                else {
-                    runtime = geopm_time_diff(&(m_region_entry.timestamp), &((*(it - 1)).second.timestamp));
-                }
-                if (agg_entry_it == m_agg_stats.end()) {
-                    m_agg_stats.insert(std::pair<uint64_t, struct geopm_sample_message_s>(m_region_entry.region_id,
-                                       {m_region_entry.rank, m_region_entry.region_id, runtime, 0.0, 0.0}));
-                }
-                else {
-                    (*agg_entry_it).second.runtime += runtime;
-                }
                 m_region_entry.region_id = (*it).first;
                 m_region_entry.timestamp = (*it).second.timestamp;
+                //FIXME: should be able to set this once
+                m_region_entry.rank = (*it).second.rank;
                 m_region_entry.progress = 0.0;
             }
         }
-        m_region_last = (*(content_end - 1)).second;
     }
 
     bool ProfileRankSampler::name_fill(void)
@@ -666,8 +676,11 @@ namespace geopm
 
     void ProfileRankSampler::report(std::ofstream &file_stream)
     {
+        char hostname[NAME_MAX];
+
+	gethostname(hostname, NAME_MAX);
         if (!file_stream.is_open()) {
-            file_stream.open(m_report_name, std::ios_base::out);
+            file_stream.open(m_report_name + "_" + std::string(hostname), std::ios_base::out);
             file_stream << "Profile: " << m_prof_name << std::endl;
         }
 

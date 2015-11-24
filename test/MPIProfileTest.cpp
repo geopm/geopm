@@ -103,8 +103,8 @@ TEST_F(MPIProfileTest, runtime)
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
      
-    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[1]));
     ASSERT_EQ(0, geopm_prof_region(prof, "loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 2.0) {
         ASSERT_EQ(0, geopm_time(&curr));

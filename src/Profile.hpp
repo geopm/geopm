@@ -78,6 +78,7 @@ namespace geopm
             LockingHashTable<struct geopm_prof_message_s> *m_table;
             std::list<int> m_cpu_list;
             MPI_Comm m_shm_comm;
+            int m_rank;
             int m_shm_rank;
     };
 
@@ -94,7 +95,6 @@ namespace geopm
             LockingHashTable<struct geopm_prof_message_s> m_table;
             std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;
             struct geopm_prof_message_s m_region_entry;
-            struct geopm_prof_message_s m_region_last;
             std::string m_prof_name;
             std::string m_report_name;
             std::set<std::string> m_name_set;
