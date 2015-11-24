@@ -116,13 +116,13 @@ namespace geopm
         //record per cpu metrics
         for (int i = 0; i < m_num_cpu; i++) {
             m_curr_region->observation_insert((m_buffer_index.inst_retired_any_base + i),
-                                             (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]));
+                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]));
             m_curr_region->observation_insert((m_buffer_index.clk_unhalted_core_base + i),
-                                             (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]));
+                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]));
             m_curr_region->observation_insert((m_buffer_index.clk_unhalted_ref_base + i),
-                                             (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]));
+                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]));
             m_curr_region->observation_insert((m_buffer_index.llc_victims_base + i),
-                                             (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]));
+                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]));
         }
     }
 

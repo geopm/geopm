@@ -88,7 +88,7 @@ namespace geopm
     {
         return m_ptr;
     }
-    
+
     std::string SharedMemory::key(void)
     {
         return m_shm_key;

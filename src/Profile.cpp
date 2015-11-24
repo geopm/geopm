@@ -531,8 +531,7 @@ namespace geopm
     void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length)
     {
         switch (m_ctl_msg->app_status) {
-            case GEOPM_STATUS_ACTIVE:
-            {
+            case GEOPM_STATUS_ACTIVE: {
                 length = 0;
                 auto content_it = content.begin();
                 for (auto rank_sampler_it = m_rank_sampler.begin();
@@ -581,7 +580,7 @@ namespace geopm
             m_ctl_msg->ctl_status = GEOPM_STATUS_READY;
 
             while (m_ctl_msg->app_status != GEOPM_STATUS_READY &&
-                    m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
+                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
 
             if (!is_all_done && m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {
                 throw Exception("ProfileSampler::report(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -624,7 +623,7 @@ namespace geopm
         std::sort(content_begin, content_end, geopm_table_compare);
         for (auto it = content_begin; it != content_end; ++it) {
             if ((*it).second.progress == 1.0) {
-		if ((*it).second.region_id == m_region_entry.region_id) {
+                if ((*it).second.region_id == m_region_entry.region_id) {
                     double runtime;
                     auto agg_entry_it = m_agg_stats.find(m_region_entry.region_id);
                     runtime = geopm_time_diff(&(m_region_entry.timestamp), &((*it).second.timestamp));
@@ -672,7 +671,7 @@ namespace geopm
     {
         char hostname[NAME_MAX];
 
-	gethostname(hostname, NAME_MAX);
+        gethostname(hostname, NAME_MAX);
         if (!file_stream.is_open()) {
             file_stream.open(m_report_name + "_" + std::string(hostname), std::ios_base::out);
             file_stream << "Profile: " << m_prof_name << std::endl;

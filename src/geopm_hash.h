@@ -40,12 +40,12 @@
 extern "C"
 {
 #endif
-    static inline uint64_t geopm_crc32_u64(uint64_t begin, uint64_t key)
-    {
-        return _mm_crc32_u64(begin, key);
-    }
+static inline uint64_t geopm_crc32_u64(uint64_t begin, uint64_t key)
+{
+    return _mm_crc32_u64(begin, key);
+}
 
-    uint64_t geopm_crc32_str(uint64_t begin, const char *key);
+uint64_t geopm_crc32_str(uint64_t begin, const char *key);
 #ifdef __cplusplus
 }
 #endif

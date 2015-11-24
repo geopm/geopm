@@ -219,7 +219,7 @@ namespace geopm
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
             Region *region = new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
-                                          GEOPM_POLICY_HINT_UNKNOWN, fan_out[num_level - 1]);
+                                        GEOPM_POLICY_HINT_UNKNOWN, fan_out[num_level - 1]);
             m_region[num_level - 1].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER, region));
 
             m_platform_factory = new PlatformFactory;
@@ -250,7 +250,7 @@ namespace geopm
         int err = 0;
         struct geopm_policy_message_s policy;
 
-	m_sampler->initialize();
+        m_sampler->initialize();
 
         // Spin waiting for for first policy message
         level = m_tree_comm->num_level() - 1;
@@ -318,10 +318,10 @@ namespace geopm
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
             curr_region = m_region[level].find(region_id)->second;
             if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
-		// FIXME: temp code to get profiling working
+                // FIXME: temp code to get profiling working
                 //m_tree_decider[level]->split_policy(policy_msg, curr_region);
-		std::vector<geopm_policy_message_s> msgs(m_tree_comm->level_size(level - 1));
-		std::fill(msgs.begin(), msgs.end(), policy_msg);
+                std::vector<geopm_policy_message_s> msgs(m_tree_comm->level_size(level - 1));
+                std::fill(msgs.begin(), msgs.end(), policy_msg);
                 m_tree_comm->send_policy(level - 1, msgs);
                 //m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
             }
@@ -375,8 +375,8 @@ namespace geopm
                     break;
                 }
                 if (region_id != -1) {
- //                   m_tree_decider[level]->get_policy(m_platform, policy);
- //                   enforce_child_policy(region_id, level, policy);
+//                   m_tree_decider[level]->get_policy(m_platform, policy);
+//                   enforce_child_policy(region_id, level, policy);
                 }
             }
             else {
@@ -433,7 +433,7 @@ namespace geopm
             }
             curr_region->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
             curr_region->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
-            //curr_region->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
+//          curr_region->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
             curr_region->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
             curr_region->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
         }

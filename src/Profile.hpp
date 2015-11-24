@@ -82,7 +82,8 @@ namespace geopm
             int m_shm_rank;
     };
 
-    class ProfileRankSampler {
+    class ProfileRankSampler
+    {
         public:
             ProfileRankSampler(const std::string shm_key, size_t table_size);
             virtual ~ProfileRankSampler();

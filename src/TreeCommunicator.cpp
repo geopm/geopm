@@ -138,7 +138,7 @@ namespace geopm
 #ifdef ENABLE_MPICXX
             throw MPI::Exception(err);
 #else
-	    throw Exception("MPI::Exception (" + std::to_string(err) + ")", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("MPI::Exception (" + std::to_string(err) + ")", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
 #endif
         }
     }

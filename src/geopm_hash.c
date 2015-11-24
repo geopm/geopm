@@ -39,24 +39,24 @@ extern "C"
 {
 #endif
 
-    uint64_t geopm_crc32_str(uint64_t begin, const char *key)
-    {
-        uint64_t result = begin;
-        const uint64_t *ptr = (const uint64_t *)key;
-        size_t num_word = strlen(key) / 8;
-        for (size_t i = 0; i < num_word; ++i) {
-            result = geopm_crc32_u64(result, ptr[i]);
-        }
-        size_t extra = strlen(key) - 8 * num_word;
-        if (extra) {
-            uint64_t last_word = 0;
-            for (size_t i = 0; i < extra; ++i) {
-                ((char *)(&last_word))[i] = ((char *)(ptr + num_word))[i];
-            }
-            result = geopm_crc32_u64(result, last_word);
-        }
-        return result;
+uint64_t geopm_crc32_str(uint64_t begin, const char *key)
+{
+    uint64_t result = begin;
+    const uint64_t *ptr = (const uint64_t *)key;
+    size_t num_word = strlen(key) / 8;
+    for (size_t i = 0; i < num_word; ++i) {
+        result = geopm_crc32_u64(result, ptr[i]);
     }
+    size_t extra = strlen(key) - 8 * num_word;
+    if (extra) {
+        uint64_t last_word = 0;
+        for (size_t i = 0; i < extra; ++i) {
+            ((char *)(&last_word))[i] = ((char *)(ptr + num_word))[i];
+        }
+        result = geopm_crc32_u64(result, last_word);
+    }
+    return result;
+}
 
 #ifdef __cplusplus
 }
