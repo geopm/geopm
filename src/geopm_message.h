@@ -97,8 +97,8 @@ enum geopm_status_e {
     GEOPM_STATUS_INITIALIZED = 1,
     GEOPM_STATUS_ACTIVE = 2,
     GEOPM_STATUS_REPORT = 3,
-    GEOPM_STATUS_READY = 3,
-    GEOPM_STATUS_SHUTDOWN = 4,
+    GEOPM_STATUS_READY = 4,
+    GEOPM_STATUS_SHUTDOWN = 5,
 };
 
 struct geopm_policy_message_s {

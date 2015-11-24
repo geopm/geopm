@@ -384,6 +384,7 @@ namespace geopm
 //                m_leaf_decider->get_policy(m_platform, policy);
 //                m_platform->enforce_policy(policy);
                 m_sampler->sample(region_sample, sample_length);
+                do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level()) {
                 if ((level && m_tree_decider[level]->is_converged()) || (!level && m_leaf_decider->is_converged())) {

@@ -98,6 +98,7 @@ namespace geopm
             std::string m_prof_name;
             std::string m_report_name;
             std::set<std::string> m_name_set;
+            bool m_is_name_finished;
     };
 
     class ProfileSampler

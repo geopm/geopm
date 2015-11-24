@@ -294,6 +294,12 @@ namespace geopm
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 300.0);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
+        if (!m_shm_rank) {
+            for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; ++i) {
+                m_ctl_msg->cpu_rank[i] = -1;
+            }
+        }
+        MPI_Barrier(m_shm_comm);
         init_cpu_list();
         for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
             m_ctl_msg->cpu_rank[*it] = m_rank;
@@ -400,26 +406,14 @@ namespace geopm
     {
         int is_done = 0;
         int is_all_done = 0;
-        struct geopm_time_s start;
-        struct geopm_time_s curr;
-        const double TIMEOUT = 1.0;
-        double elapsed = 0;
 
         MPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
         }
-        geopm_time(&start);
 
-        while (elapsed < TIMEOUT && m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {
-            geopm_time(&curr);
-            elapsed = geopm_time_diff(&start, &curr);
-        }
-        if (elapsed > TIMEOUT) {
-            m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
-            return;
-        }
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {}
+
         size_t buffer_offset = 0;
         char *buffer_ptr = (char *)(m_table_shmem->pointer());
 
@@ -434,12 +428,12 @@ namespace geopm
         while (!is_all_done) {
             is_done = m_table->name_fill(buffer_offset);
             MPI_Reduce(&is_done, &is_all_done, 1, MPI_INT, MPI_LAND, 0, m_shm_comm);
+            MPI_Bcast(&is_all_done, 1, MPI_INT, 0, m_shm_comm);
             if (!m_shm_rank) {
                 m_ctl_msg->app_status = GEOPM_STATUS_READY;
             }
 
-            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {
-            }
+            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {}
             MPI_Barrier(m_shm_comm);
             if (!m_shm_rank && !is_all_done) {
                 m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
@@ -607,6 +601,7 @@ namespace geopm
         : m_table_shmem(SharedMemory(shm_key, table_size))
         , m_table(LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_shmem.pointer()))
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
+        , m_is_name_finished(false)
     {
 
     }
@@ -658,20 +653,19 @@ namespace geopm
 
     bool ProfileRankSampler::name_fill(void)
     {
-        static bool is_done = false;
         size_t header_offset = 0;
 
-        if (!is_done) {
+        if (!m_is_name_finished) {
             if (m_name_set.empty()) {
                 m_report_name.assign((char *)m_table_shmem.pointer());
                 header_offset += m_report_name.length() + 1;
                 m_prof_name.assign((char *)m_table_shmem.pointer() + header_offset);
                 header_offset += m_prof_name.length() + 1;
             }
-            is_done = m_table.name_set(header_offset, m_name_set);
+            m_is_name_finished = m_table.name_set(header_offset, m_name_set);
         }
 
-        return is_done;
+        return m_is_name_finished;
     }
 
     void ProfileRankSampler::report(std::ofstream &file_stream)
