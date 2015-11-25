@@ -237,7 +237,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
     for (int level = 0; level < num_level; ++level) {
         send_sample.region_id = m_tcomm->level_rank(level) * level;
         m_tcomm->send_sample(level, send_sample);
-        if (m_tcomm->level_rank(level) == 0) {
+        if (level && m_tcomm->level_rank(level) == 0) {
             sample.resize(m_tcomm->level_size(level));
             success = 0;
             while (!success) {
