@@ -33,7 +33,7 @@
 test_name=`basename $0`
 dir_name=`dirname $0`
 
-echo $test_name | grep '^MPI'
+echo $test_name | grep '^MPI' > /dev/null
 if [ $? -eq 0 ]; then
     mpiexec_default=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec
 
@@ -45,10 +45,10 @@ if [ $? -eq 0 ]; then
     if [ -z "$mpiexec" ] && [ -x $mpiexec_default ]; then
         mpiexec=$mpiexec_default
     fi
-    $mpiexec -n 16 $dir_name/../geopm_mpi_test --gtest_filter=$test_name
+    $mpiexec -n 16 $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
     err=$?
 else
-    $dir_name/../geopm_test --gtest_filter=$test_name
+    $dir_name/../geopm_test --gtest_filter=$test_name >& $dir_name/$test_name.log
     err=$?
 fi
 
