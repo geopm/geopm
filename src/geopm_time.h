@@ -44,8 +44,7 @@ static inline int geopm_time(struct geopm_time_s *time);
 static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end);
 static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
 
-//#ifdef __linux__ FIXME not sure why clock_gettime() is no longer defined
-#if 0
+#ifdef __linux__
 #include <time.h>
 
 struct geopm_time_s {

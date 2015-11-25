@@ -31,7 +31,7 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\"
+AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200112L
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
