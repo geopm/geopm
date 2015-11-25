@@ -194,6 +194,7 @@ namespace geopm
         if (err) {
             throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
         }
+        // Only the root rank on each node will have a fully initialized controller
         if (ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
@@ -228,6 +229,8 @@ namespace geopm
             m_decider_factory = new DeciderFactory;
             //FIXME: do not hardcode leaf decider string
             m_leaf_decider = m_decider_factory->decider("governing");
+            //TODO: need to create tree decider(s) here and we need
+            // to get the name strings from the GlobalPolicy object
 
             for (int level = 0; level < num_level; ++level) {
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
@@ -318,12 +321,15 @@ namespace geopm
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
             curr_region = m_region[level].find(region_id)->second;
             if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
+                //FIXME: commenting out code here as we have not yet implemented a tree decider
+#if 0
+                m_tree_decider[level]->split_policy(policy_msg, curr_region);
+                m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
+#endif
                 // FIXME: temp code to get profiling working
-                //m_tree_decider[level]->split_policy(policy_msg, curr_region);
                 std::vector<geopm_policy_message_s> msgs(m_tree_comm->level_size(level - 1));
                 std::fill(msgs.begin(), msgs.end(), policy_msg);
                 m_tree_comm->send_policy(level - 1, msgs);
-                //m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
             auto it = m_region[level - 1].find(region_id);
@@ -366,7 +372,10 @@ namespace geopm
                 try {
                     m_tree_comm->get_sample(level, child_sample);
                     region_id = child_sample[0].region_id;
-//                    process_samples(level, child_sample);
+                    //FIXME: process_samples has issues. ifdef out for now
+#if 0
+                    process_samples(level, child_sample);
+#endif
                 }
                 catch (geopm::Exception ex) {
                     if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
@@ -375,20 +384,27 @@ namespace geopm
                     break;
                 }
                 if (region_id != -1) {
-//                   m_tree_decider[level]->get_policy(m_platform, policy);
-//                   enforce_child_policy(region_id, level, policy);
+                    //TODO: We need to calculate the new per-child power budget for this region
+                    // and send the new policies down to them.
+#if 0
+                    m_tree_decider[level]->get_policy(m_platform, policy);
+                    enforce_child_policy(region_id, level, policy);
+#endif
                 }
             }
             else {
-//                m_platform->observe();
-//                m_leaf_decider->get_policy(m_platform, policy);
-//                m_platform->enforce_policy(policy);
+                //TODO:We need to sample from the application, sample from RAPL,
+                // sample from the MSRs and fuse all this data into a single sample
+                // using coherant time stamps to calculate elapsed values. We then pass
+                // this to the decider who will create a new per domain policy for the
+                // current region. Then we can enforce the policy by adjusting RAPL power
+                // domain limits.
                 m_sampler->sample(region_sample, sample_length);
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level()) {
                 if ((level && m_tree_decider[level]->is_converged()) || (!level && m_leaf_decider->is_converged())) {
-//                m_platform->sample(sample_msg);
+                    //FIXME: We should be getting fused samples from ???(TBD)
                     m_tree_comm->send_sample(level, sample_msg);
                 }
             }
@@ -433,7 +449,6 @@ namespace geopm
             }
             curr_region->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
             curr_region->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
-//          curr_region->observation_insert(GEOPM_INDEX_PROGRESS, sample_it->progress);
             curr_region->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
             curr_region->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
         }
