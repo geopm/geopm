@@ -32,7 +32,7 @@
 # 2.62 required for OpenMP macro and others
 AC_PREREQ([2.62])
 AC_INIT([geopm],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax serial-tests])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -250,7 +250,7 @@ AC_OUTPUT
 # ============================================================================
 # Print out the results of configuration.
 AC_MSG_RESULT([===============================================================================])
-AC_MSG_RESULT([ version    : ${VERSION}])
+AC_MSG_RESULT([version            : ${VERSION}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([CC                 : ${CC}])
 AC_MSG_RESULT([CPPFLAGS           : ${CPPFLAGS}])
