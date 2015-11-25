@@ -530,28 +530,23 @@ namespace geopm
 
     void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length)
     {
-        switch (m_ctl_msg->app_status) {
-            case GEOPM_STATUS_ACTIVE: {
-                length = 0;
-                auto content_it = content.begin();
-                for (auto rank_sampler_it = m_rank_sampler.begin();
-                     rank_sampler_it != m_rank_sampler.end();
-                     ++rank_sampler_it) {
-                    size_t rank_length = 0;
-                    (*rank_sampler_it)->rank_sample(content_it, rank_length);
-                    content_it += rank_length;
-                    length += rank_length;
-                }
-                break;
+        if (m_ctl_msg->app_status == GEOPM_STATUS_ACTIVE || m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
+            length = 0;
+            auto content_it = content.begin();
+            for (auto rank_sampler_it = m_rank_sampler.begin();
+                rank_sampler_it != m_rank_sampler.end();
+                ++rank_sampler_it) {
+                size_t rank_length = 0;
+                (*rank_sampler_it)->rank_sample(content_it, rank_length);
+                content_it += rank_length;
+                length += rank_length;
             }
-            case GEOPM_STATUS_REPORT:
+            if (m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
                 report();
-                break;
-            case GEOPM_STATUS_SHUTDOWN:
-                break;
-            default:
-                throw Exception("ProfileSampler: inavlid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                break;
+            }
+        }
+        else if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+            throw Exception("ProfileSampler: inavlid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -685,7 +680,7 @@ namespace geopm
 
             auto entry = m_agg_stats.find(region_id);
             if (entry == m_agg_stats.end()) {
-                throw Exception("ProfileRankSampler::report(): key not found", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("ProfileRankSampler::report(): key not found:" + (*it), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
             file_stream << "\truntime: " << (*entry).second.runtime << std::endl;
