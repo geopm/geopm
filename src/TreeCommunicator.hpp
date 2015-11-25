@@ -47,6 +47,9 @@ namespace geopm
     class TreeCommunicatorLevel;
     class GlobalPolicy;
 
+    /// Encapsulates the inter-node communication used by the
+    /// Controller to pass samples up and policies down the control
+    /// hierarchy.
     class TreeCommunicator
     {
         public:

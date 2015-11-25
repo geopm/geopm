@@ -47,6 +47,14 @@
 
 namespace geopm
 {
+    /// Encapsulates the state and provides the interface for
+    /// computational application profiling.
+    ///
+    /// The C++ implementation of the computational application side
+    /// interface to the GEOPM profiler.  The class methods support
+    /// the C interface defined for use with the geopm_prof_c
+    /// structure and are named accordingly.  The geopm_prof_c
+    /// structure is an opaque reference to the geopm::Profile class.
     class Profile
     {
         public:

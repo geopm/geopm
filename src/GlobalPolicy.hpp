@@ -39,16 +39,25 @@
 
 namespace geopm
 {
-   /// Encapsulates the power policy that is applied across the entire MPI job
-   /// allocation being managed by geopm.
+    /// Encapsulates the power policy that is applied across the
+    /// entire MPI job allocation being managed by geopm.
+    ///
+    /// The C++ implementation of the resource manager interface to
+    /// the GEOPM policy.  The class methods support the C interface
+    /// defined for use with the geopm_policy_c structure and are
+    /// named accordingly.  The geopm_policy_c structure is an opaque
+    /// reference to the geopm::GlobalPolicy class.
     class GlobalPolicy
     {
         public:
-            /// GlobalPolicy constructor. Only one of in_config or out_config can be non-empty.
-            /// @param in_config Name of a policy configuration file to be read in. The object state
-            /// will be initialized from the policy in the file.
-            /// @param out_config Name of a policy configuration file to be written. The contents of
-            /// the file will be obtained from the object's state.
+            /// GlobalPolicy constructor. Only one of in_config or
+            /// out_config can be non-empty.
+            /// @param in_config Name of a policy configuration file
+            ///        to be read in. The object state will be
+            ///        initialized from the policy in the file.
+            /// @param out_config Name of a policy configuration file
+            ///        to be written. The contents of the file will be
+            ///        obtained from the object's state.
             GlobalPolicy(const std::string in_config, const std::string out_config);
             // GlobalPolicy destructor
             virtual ~GlobalPolicy();
@@ -77,7 +86,9 @@ namespace geopm
             /// @return enum power goal
             int goal(void) const;
             /// Get the number of 'big' cores
-            /// @return number of cores where we will run unconstrained power.
+
+            /// @return number of cores where we will run
+            ///         unconstrained power.
             int num_max_perf(void) const;
             /// Get the policy flags
             /// @return 32-bit flags
@@ -110,7 +121,8 @@ namespace geopm
             /// @param geo_goal enum power goal
             void goal(int geo_goal);
             /// Set the number of 'big' cores
-            /// @param num_big_cores of cores where we will run unconstrained power.
+            /// @param num_big_cores of cores where we will run
+            ///        unconstrained power.
             void num_max_perf(int num_big_cores);
             /// Write out a policy file from the current state
             void write(void);
