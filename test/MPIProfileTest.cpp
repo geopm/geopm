@@ -127,9 +127,13 @@ TEST_F(MPIProfileTest, runtime)
     int rank;
     MPI_Comm ppn1_comm;
     int num_nodes = 0;
+    int mpi_thread_level = 0;
 
     (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
-    ASSERT_TRUE(num_nodes > 1);
+    ASSERT_LT(1, num_nodes);
+
+    (void) MPI_Query_thread(&mpi_thread_level);
+    ASSERT_LT(MPI_THREAD_MULTIPLE, mpi_thread_level);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 

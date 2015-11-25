@@ -66,7 +66,7 @@ extern "C"
 
     static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm)
     {
-        int err, comm_size, comm_rank, shm_rank, is_shm_root;
+        int err, comm_size, comm_rank, shm_rank, is_shm_root = 0;
         MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
         MPI_Comm *ppn1_comm_ptr;
 
