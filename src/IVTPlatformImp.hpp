@@ -57,7 +57,7 @@ namespace geopm
             // IVTPlatformImp dependent implementations //
             //////////////////////////////////////////////
             virtual bool model_supported(int platform_id);
-            virtual std::string get_platform_name();
+            virtual std::string platform_name();
             virtual void initialize_msrs();
             virtual void reset_msrs();
 

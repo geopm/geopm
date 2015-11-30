@@ -49,10 +49,10 @@ namespace geopm
 {
 
     PlatformImp::PlatformImp()
-        : m_hyperthreads(0)
-        , m_num_cpu(0)
-        , m_num_tile(0)
-        , m_num_package(0)
+        : m_logical_cpus(0)
+        , m_hw_cpus(0)
+        , m_tiles(0)
+        , m_packages(0)
     {
     }
 
@@ -64,24 +64,24 @@ namespace geopm
         initialize_msrs();
     }
 
-    uint32_t PlatformImp::get_num_package(void) const
+    int PlatformImp::package(void) const
     {
-        return m_num_package;
+        return m_packages;
     }
 
-    uint32_t PlatformImp::get_num_tile(void) const
+    int PlatformImp::tile(void) const
     {
-        return m_num_tile;
+        return m_tiles;
     }
 
-    uint32_t PlatformImp::get_num_cpu(void) const
+    int PlatformImp::hw_cpu(void) const
     {
-        return m_num_cpu;
+        return m_hw_cpus;
     }
 
-    uint32_t PlatformImp::get_num_hyperthreads(void) const
+    int PlatformImp::logical_cpu(void) const
     {
-        return m_hyperthreads;
+        return m_logical_cpus;
     }
 
     PlatformTopology PlatformImp::topology(void) const
@@ -98,9 +98,9 @@ namespace geopm
     void PlatformImp::write_msr(int device_type, int device_index, off_t msr_offset, uint64_t value)
     {
         if (device_type == GEOPM_DOMAIN_PACKAGE)
-            device_index = (m_num_cpu / m_num_package) * device_index;
+            device_index = (m_hw_cpus / m_packages) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
-            device_index = (m_num_cpu / m_num_tile) * device_index;
+            device_index = (m_hw_cpus / m_tiles) * device_index;
 
         if (m_cpu_file_descs.size() < (uint64_t)device_index) {
             throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
@@ -122,9 +122,9 @@ namespace geopm
         uint64_t value;
 
         if (device_type == GEOPM_DOMAIN_PACKAGE)
-            device_index = (m_num_cpu / m_num_package) * device_index;
+            device_index = (m_hw_cpus / m_packages) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
-            device_index = (m_num_cpu / m_num_tile) * device_index;
+            device_index = (m_hw_cpus / m_tiles) * device_index;
 
 
         if (m_cpu_file_descs.size() < (uint64_t)device_index) {
@@ -138,12 +138,12 @@ namespace geopm
         return value;
     }
 
-    off_t PlatformImp::get_msr_offset(std::string msr_name)
+    off_t PlatformImp::msr_offset(std::string msr_name)
     {
         return m_msr_offset_map.find(msr_name)->second.first;
     }
 
-    void PlatformImp::set_msr_path(int cpu_num)
+    void PlatformImp::msr_path(int cpu_num)
     {
         struct stat s;
         int err;
@@ -169,7 +169,7 @@ namespace geopm
     {
         int fd;
 
-        set_msr_path(cpu);
+        msr_path(cpu);
         fd = open(m_msr_path, O_RDWR);
 
         //report errors
@@ -217,9 +217,9 @@ namespace geopm
     {
         int num_core = 0;
 
-        m_num_cpu = m_topology.num_domain(GEOPM_DOMAIN_CPU);
-        m_num_package = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
+        m_hw_cpus = m_topology.num_domain(GEOPM_DOMAIN_CPU);
+        m_packages = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
         num_core = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE);
-        m_hyperthreads = num_core ? (m_num_cpu / num_core) : 1;
+        m_logical_cpus = num_core ? (m_hw_cpus / num_core) : 1;
     }
 }

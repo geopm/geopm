@@ -83,7 +83,7 @@ namespace geopm
         return (platform_id == ivb_id || platform_id == snb_id);
     }
 
-    std::string IVTPlatformImp::get_platform_name()
+    std::string IVTPlatformImp::platform_name()
     {
         if (m_platform_id == ivb_id) {
             return ivb_model_name;
@@ -95,7 +95,7 @@ namespace geopm
 
     void IVTPlatformImp::initialize_msrs()
     {
-        for (int i = 0; i < m_num_cpu; i++) {
+        for (int i = 0; i < m_hw_cpus; i++) {
             open_msr(i);
         }
         load_msr_offsets();
@@ -121,7 +121,7 @@ namespace geopm
         energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
         power_units = pow(2, (double)((tmp >> 0) & 0xF));
 
-        for (int i = 1; i < m_num_package; i++) {
+        for (int i = 1; i < m_packages; i++) {
             tmp = read_msr(GEOPM_DOMAIN_PACKAGE, i, "RAPL_POWER_UNIT");
             double energy = pow(0.5, (double)((tmp >> 8) & 0x1F));
             double power = pow(2, (double)((tmp >> 0) & 0xF));
@@ -139,7 +139,7 @@ namespace geopm
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / power_units;
         m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / power_units;
 
-        for (int i = 1; i < m_num_package; i++) {
+        for (int i = 1; i < m_packages; i++) {
             tmp = read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
             double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
             double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
@@ -161,8 +161,8 @@ namespace geopm
 
     void IVTPlatformImp::cbo_counters_init()
     {
-        int msr_num = m_num_cpu/m_num_package;
-        msr_num = msr_num/m_hyperthreads;
+        int msr_num = m_hw_cpus/m_packages;
+        msr_num = msr_num/m_logical_cpus;
         for (int i = 0; i < msr_num; i++) {
             std::string msr_name("_MSR_PMON_CTL1");
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
@@ -209,8 +209,8 @@ namespace geopm
 
     void IVTPlatformImp::fixed_counters_init()
     {
-        int msr_num = m_num_cpu/m_num_package;
-        msr_num = msr_num/m_hyperthreads;
+        int msr_num = m_hw_cpus/m_packages;
+        msr_num = msr_num/m_logical_cpus;
         for (int cpu = 0; cpu < msr_num; cpu++) {
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR_CTRL", 0x0333);
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x70000000F);
@@ -221,7 +221,7 @@ namespace geopm
     void IVTPlatformImp::rapl_reset()
     {
         //clear power limits
-        for (int i = 1; i < m_num_package; i++) {
+        for (int i = 1; i < m_packages; i++) {
             write_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", 0x0);
             write_msr(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT", 0x0);
             write_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
@@ -231,8 +231,8 @@ namespace geopm
 
     void IVTPlatformImp::cbo_counters_reset()
     {
-        int msr_num = m_num_cpu/m_num_package;
-        msr_num = msr_num/m_hyperthreads;
+        int msr_num = m_hw_cpus/m_packages;
+        msr_num = msr_num/m_logical_cpus;
         for (int i = 0; i < msr_num; i++) {
             std::string msr_name("_MSR_PMON_BOX_CTL");
             msr_name.insert(0, std::to_string(i));
@@ -246,8 +246,8 @@ namespace geopm
 
     void IVTPlatformImp::fixed_counters_reset()
     {
-        int msr_num = m_num_cpu/m_num_package;
-        msr_num = msr_num/m_hyperthreads;
+        int msr_num = m_hw_cpus/m_packages;
+        msr_num = msr_num/m_logical_cpus;
         for (int cpu = 0; cpu < msr_num; cpu++) {
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR0", 0x0);
             write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR1", 0x0);

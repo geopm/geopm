@@ -130,7 +130,7 @@ namespace geopm
         if (m_imp == NULL) {
             throw Exception("Platform implementation is missing", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        return m_imp->get_platform_name();
+        return m_imp->platform_name();
     }
 
     void Platform::buffer_index(hwloc_obj_t domain,
@@ -199,10 +199,10 @@ namespace geopm
         //Get the TDP for each socket and set it's power limit to match
         double tdp = 0.0;
         double power_units = pow(2, (double)((m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
-        int num_packages = m_imp->get_num_package();
+        int packages = m_imp->package();
         int64_t pkg_lim, pkg_magic;
 
-        for (int i = 0; i <  num_packages; i++) {
+        for (int i = 0; i <  packages; i++) {
             tdp = ((double)(m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
             tdp *= ((double)percentage * 0.01);
             pkg_lim = (int64_t)(tdp * tdp);
@@ -216,12 +216,12 @@ namespace geopm
         //Set the frequency for each cpu
         int64_t freq_perc;
         bool small = false;
-        int num_logical_cpus = m_imp->get_num_cpu();
-        int num_hyperthreads = m_imp->get_num_hyperthreads();
+        int num_logical_cpus = m_imp->hw_cpu();
+        int num_hyperthreads = m_imp->logical_cpu();
         int num_real_cpus = num_logical_cpus / num_hyperthreads;
-        int num_packages = m_imp->get_num_package();
-        int num_cpus_per_package = num_real_cpus / num_packages;
-        int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / num_packages);
+        int packages = m_imp->package();
+        int num_cpus_per_package = num_real_cpus / packages;
+        int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / packages);
 
         if (num_cpu_max_perf >= num_real_cpus) {
             throw Exception("requested number of max perf cpus is greater than controllable number of frequency domains on the platform",
@@ -254,7 +254,7 @@ namespace geopm
     void Platform::save_msr_state(const char *path) const
     {
         uint64_t msr_val;
-        int niter = m_imp->get_num_package();
+        int niter = m_imp->package();
         std::ofstream restore_file;
 
         restore_file.open(path);
@@ -262,25 +262,25 @@ namespace geopm
         //per package state
         for (int i = 0; i < niter; i++) {
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->get_msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
         }
 
-        niter = m_imp->get_num_cpu();
+        niter = m_imp->hw_cpu();
 
         //per cpu state
         for (int i = 0; i < niter; i++) {
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
             msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->get_msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
 
         }
 

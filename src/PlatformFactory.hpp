@@ -40,34 +40,55 @@
 
 namespace geopm
 {
-
+    /// Provides a factory abstraction for creating Platform/PlatformImp pairs
+    /// suitable for the specific hardware the runtime is operating on. The
+    /// factory also loads plugins at creation to provide extensibility to
+    /// other platforms.
     class PlatformFactory
     {
         public:
-            /// PlatformFactory constructor
+            /// PlatformFactory Default constructor
             PlatformFactory();
+            /// PlatformFactory Testing constructor. This constructor takes in
+            /// a specifc Platform/PlatformImp pair and does not load plugins.
+            /// It is intended to be used for testing.
+            /// @param platform The unique_ptr to a Platform object
+            ///        assures that the object cannot be destroyed before
+            ///        it is copied.
+            /// @param platform_imp The unique_ptr to a PlatformImp object
+            ///        assures that the object cannot be destroyed before
+            ///        it is copied.
             PlatformFactory(std::unique_ptr<Platform> platform,
                             std::unique_ptr<PlatformImp> platform_imp);
-            /// PlatformFactory destructor
+            /// PlatformFactory Default destructor.
             virtual ~PlatformFactory();
 
-            /// Returns an abstract Platform reference to a concrete platform.
-            /// The concrete Platform is specific to the underlying hardware
-            /// it is being run on.
-            /// throws a std::invalid_argument if no acceptable Platform is found.
+            /// Returns an abstract Platform pointer to a concrete platform.
+            /// The PlatformImp pointer held by the Platform is initialized to
+            /// the appropriate object dependent on the underlying hardware.
+            /// The concrete Platform is specific to the underlying class of
+            /// hardware it is being run on.
+            /// throws a std::invalid_argument if no acceptable
+            /// Platform/PlatformImp pair is found.
             Platform *platform();
             /// Concrete Platforms register with the factory through this API.
-            /// The unique_ptr assures that the object cannot be destroyed
-            /// before it is copied.
+            /// @param platform The unique_ptr to a Platform object
+            ///        assures that the object cannot be destroyed
+            ///        before it is copied.
             void register_platform(std::unique_ptr<Platform> platform);
+            /// Concrete PlatformImps register with the factory through this API.
+            /// @param platform_imp The unique_ptr to a PlatformImp object
+            ///        assures that the object cannot be destroyed
+            ///        before it is copied.
             void register_platform(std::unique_ptr<PlatformImp> platform_imp);
         private:
-            /// Uses the cpuid asm instruction to identify the hardware it
-            /// is being run on.
-            int read_cpuid();
+            /// Uses the cpuid asm instruction to identify the hardware
+            /// it is being run on.
+            virtual int read_cpuid();
 
-            // Holds all registered concrete Platform instances
+            // Holds all registered concrete Platform instances.
             std::vector<Platform *> platforms;
+            // Holds all registered concrete PlatformImp instances.
             std::vector<PlatformImp *> platform_imps;
     };
 

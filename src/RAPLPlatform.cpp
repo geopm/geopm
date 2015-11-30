@@ -65,8 +65,8 @@ namespace geopm
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE_UNCORE, power_model));
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
 
-        m_num_cpu = m_imp->get_num_cpu();
-        int hyper = m_imp->get_num_hyperthreads();
+        m_num_cpu = m_imp->hw_cpu();
+        int hyper = m_imp->logical_cpu();
 
         //Set up our indexes into the circular buffers for all the observables
         int cpu_offset = hyper ? (m_num_cpu / hyper) : m_num_cpu;
@@ -83,23 +83,23 @@ namespace geopm
         m_buffer_index.num_slot = m_buffer_index.llc_victims_base + cpu_offset;
 
         //Save off the msr offsets for the things we want to observe to avoid a map lookup
-        m_observe_msr_offsets.push_back(m_imp->get_msr_offset("PKG_ENERGY_STATUS"));
-        m_observe_msr_offsets.push_back(m_imp->get_msr_offset("PP0_ENERGY_STATUS"));
-        m_observe_msr_offsets.push_back(m_imp->get_msr_offset("DRAM_ENERGY_STATUS"));
-        m_observe_msr_offsets.push_back(m_imp->get_msr_offset("PERF_FIXED_CTR0"));
-        m_observe_msr_offsets.push_back(m_imp->get_msr_offset("PERF_FIXED_CTR1"));
-        m_observe_msr_offsets.push_back(m_imp->get_msr_offset("PERF_FIXED_CTR2"));
+        m_observe_msr_offsets.push_back(m_imp->msr_offset("PKG_ENERGY_STATUS"));
+        m_observe_msr_offsets.push_back(m_imp->msr_offset("PP0_ENERGY_STATUS"));
+        m_observe_msr_offsets.push_back(m_imp->msr_offset("DRAM_ENERGY_STATUS"));
+        m_observe_msr_offsets.push_back(m_imp->msr_offset("PERF_FIXED_CTR0"));
+        m_observe_msr_offsets.push_back(m_imp->msr_offset("PERF_FIXED_CTR1"));
+        m_observe_msr_offsets.push_back(m_imp->msr_offset("PERF_FIXED_CTR2"));
         for (int i = 0; i < m_num_cpu; i++) {
             std::string msr_name("_MSR_PMON_CTR1");
             msr_name.insert(0, std::to_string(i));
             msr_name.insert(0, "C");
-            m_observe_msr_offsets.push_back(m_imp->get_msr_offset(msr_name));
+            m_observe_msr_offsets.push_back(m_imp->msr_offset(msr_name));
         }
 
         //Save off the msr offsets for the things we want to enforce to avoid a map lookup
-        m_enforce_msr_offsets.push_back(m_imp->get_msr_offset("PKG_ENERGY_LIMIT"));
-        m_enforce_msr_offsets.push_back(m_imp->get_msr_offset("PKG_DRAM_LIMIT"));
-        m_enforce_msr_offsets.push_back(m_imp->get_msr_offset("PKG_PP0_LIMIT"));
+        m_enforce_msr_offsets.push_back(m_imp->msr_offset("PKG_ENERGY_LIMIT"));
+        m_enforce_msr_offsets.push_back(m_imp->msr_offset("PKG_DRAM_LIMIT"));
+        m_enforce_msr_offsets.push_back(m_imp->msr_offset("PKG_PP0_LIMIT"));
 
     }
 
