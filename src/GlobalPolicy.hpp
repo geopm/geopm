@@ -52,10 +52,10 @@ namespace geopm
         public:
             /// GlobalPolicy constructor. Only one of in_config or
             /// out_config can be non-empty.
-            /// @param in_config Name of a policy configuration file
+            /// @param [in] in_config Name of a policy configuration file
             ///        to be read in. The object state will be
             ///        initialized from the policy in the file.
-            /// @param out_config Name of a policy configuration file
+            /// @param [in] out_config Name of a policy configuration file
             ///        to be written. The contents of the file will be
             ///        obtained from the object's state.
             GlobalPolicy(const std::string in_config, const std::string out_config);
@@ -93,35 +93,35 @@ namespace geopm
             /// Get the policy flags
             /// @return 32-bit flags
             long int flags(void) const;
-            /// Get a policy message from th policy object
-            /// @param policy_message structure to be filled in
+            /// Get a policy message from the policy object
+            /// @param [out] policy_message structure to be filled in
             void policy_message(struct geopm_policy_message_s &policy_message) const;
             /// Set the policy power mode
-            /// @param mode geopm_policy_mode_e power mode
+            /// @param [in] mode geopm_policy_mode_e power mode
             void mode(int mode);
             /// Set the policy frequency
-            /// @param frequency frequency in MHz
+            /// @param [in] frequency frequency in MHz
             void frequency_mhz(int frequency);
             /// Set the policy tdp percentage
-            /// @param percentage tdp percentage between 0-100
+            /// @param [in] percentage tdp percentage between 0-100
             void tdp_percent(int percentage);
             /// Set the policy power budget
-            /// @param budget power budget in watts
+            /// @param [in] budget power budget in watts
             void budget_watts(int budget);
             /// Set the policy affinity. This is the cores that we
             /// will dynamically control. One of
             /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
             /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
-            /// @param cpu_affinity enum power affinity
+            /// @param [in] cpu_affinity enum power affinity
             void affinity(int cpu_affinity);
             /// Set the policy power goal. One of
             /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
             /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
             /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
-            /// @param geo_goal enum power goal
+            /// @param [in] geo_goal enum power goal
             void goal(int geo_goal);
             /// Set the number of 'big' cores
-            /// @param num_big_cores of cores where we will run
+            /// @param [in] num_big_cores of cores where we will run
             ///        unconstrained power.
             void num_max_perf(int num_big_cores);
             /// Write out a policy file from the current state
@@ -134,7 +134,9 @@ namespace geopm
             /// GEOPM_MODE_FREQ_HYBRID_STATIC
             void enforce_static_mode();
         protected:
-            /// Take in an affinity enum and print out its string representation
+            /// Take in an affinity enum and fill in its string representation.
+            /// @param [in] value the enum value of the affinity.
+            /// @param [out] name the string representation of the affinity.
             void affinity_string(int value, std::string &name);
             /// input file name
             std::string m_in_config;

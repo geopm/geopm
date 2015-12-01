@@ -227,10 +227,10 @@ namespace geopm
             m_platform = m_platform_factory->platform();
 
             m_decider_factory = new DeciderFactory;
-            //FIXME: do not hardcode leaf decider string
+            /// @bug Do not hardcode leaf decider string.
             m_leaf_decider = m_decider_factory->decider("governing");
-            //TODO: need to create tree decider(s) here and we need
-            // to get the name strings from the GlobalPolicy object
+            /// @todo Need to create tree decider(s) here and we need
+            /// to get the name strings from the GlobalPolicy object
 
             for (int level = 0; level < num_level; ++level) {
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
@@ -312,8 +312,8 @@ namespace geopm
         struct geopm_policy_message_s policy_msg;
         Region *curr_region;
 
-        // FIXME Do calls to geopm_is_policy_equal() below belong inside of the Decider?
-        // Should m_last_policy be a Decider member variable?
+        /// @bug Do calls to geopm_is_policy_equal() below belong inside of the Decider?
+        /// @bug Should m_last_policy be a Decider member variable?
 
         level = m_tree_comm->num_level() - 1;
         m_tree_comm->get_policy(level, policy_msg);
@@ -321,12 +321,12 @@ namespace geopm
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
             curr_region = m_region[level].find(region_id)->second;
             if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
-                //FIXME: commenting out code here as we have not yet implemented a tree decider
+                /// @todo Commenting out code here as we have not yet implemented a tree decider
 #if 0
                 m_tree_decider[level]->split_policy(policy_msg, curr_region);
                 m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
 #endif
-                // FIXME: temp code to get profiling working
+                // @bug Temp code to get profiling working.
                 std::vector<geopm_policy_message_s> msgs(m_tree_comm->level_size(level - 1));
                 std::fill(msgs.begin(), msgs.end(), policy_msg);
                 m_tree_comm->send_policy(level - 1, msgs);
@@ -372,7 +372,7 @@ namespace geopm
                 try {
                     m_tree_comm->get_sample(level, child_sample);
                     region_id = child_sample[0].region_id;
-                    //FIXME: process_samples has issues. ifdef out for now
+                    /// @bug Process_samples has issues. ifdef out for now
 #if 0
                     process_samples(level, child_sample);
 #endif
@@ -384,8 +384,8 @@ namespace geopm
                     break;
                 }
                 if (region_id != -1) {
-                    //TODO: We need to calculate the new per-child power budget for this region
-                    // and send the new policies down to them.
+                    /// @todo We need to calculate the new per-child power budget for this region
+                    /// and send the new policies down to them.
 #if 0
                     m_tree_decider[level]->get_policy(m_platform, policy);
                     enforce_child_policy(region_id, level, policy);
@@ -393,18 +393,18 @@ namespace geopm
                 }
             }
             else {
-                //TODO:We need to sample from the application, sample from RAPL,
-                // sample from the MSRs and fuse all this data into a single sample
-                // using coherant time stamps to calculate elapsed values. We then pass
-                // this to the decider who will create a new per domain policy for the
-                // current region. Then we can enforce the policy by adjusting RAPL power
-                // domain limits.
+                /// @todo We need to sample from the application, sample from RAPL,
+                /// sample from the MSRs and fuse all this data into a single sample
+                /// using coherant time stamps to calculate elapsed values. We then pass
+                /// this to the decider who will create a new per domain policy for the
+                /// current region. Then we can enforce the policy by adjusting RAPL power
+                /// domain limits.
                 m_sampler->sample(region_sample, sample_length);
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level()) {
                 if ((level && m_tree_decider[level]->is_converged()) || (!level && m_leaf_decider->is_converged())) {
-                    //FIXME: We should be getting fused samples from ???(TBD)
+                    /// @bug We should be getting fused samples from ???(TBD)
                     m_tree_comm->send_sample(level, sample_msg);
                 }
             }

@@ -55,11 +55,11 @@ namespace geopm
             /// Default destructor.
             virtual ~Platform();
             /// Set our member variable pointing to a PlatformImp object.
-            /// @param platform_imp A PlatformImp object that is compatable
+            /// @param [in] platform_imp A PlatformImp object that is compatable
             ///        with this platform and the underlying hardware.
             virtual void set_implementation(PlatformImp* platform_imp);
             /// Sets the current region to add telemerty to.
-            /// @param region A pointer to the current Region object.
+            /// @param [in] region A pointer to the current Region object.
             void region_begin(Region *region);
             /// Signal that the current region has ended.
             void region_end(void);
@@ -80,44 +80,44 @@ namespace geopm
             PowerModel *power_model(int domain_type) const;
             /// Set the power limit of the cpus to a percentage of
             /// Thermal Design Power (TDP).
-            /// @param percentage The percentage of TDP.
+            /// @param [in] percentage The percentage of TDP.
             void tdp_limit(int percentage) const;
             /// Set the frequency to a fixed value for cpus within an
             /// affinity set.
-            /// @param frequency Frequency in MHz to set the cpus to.
-            /// @param num_cpu_max_perf The number of cores to leave
+            /// @param [in] frequency Frequency in MHz to set the cpus to.
+            /// @param [in] num_cpu_max_perf The number of cores to leave
             ///        unconstrained.
-            /// @param affinity The affinity of the cores for which the
+            /// @param [in] affinity The affinity of the cores for which the
             ///        frequency will be set. 
             void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const;
             /// Write to a file the current state of RAPL, per-cpu counters,
             /// and free running counters.
-            /// @param path The path of the file to write.
+            /// @param [in] path The path of the file to write.
             void save_msr_state(const char *path) const;
             /// Read in MSR state for RAPL, per-cpu counters,
             /// and free running counters and set them to that
             /// state.
-            /// @param path The path of the file to read in.
+            /// @param [in] path The path of the file to read in.
             void restore_msr_state(const char *path) const;
             /// Output a MSR whitelist for use with the Linux MSR driver.
-            /// @param file_desc File descriptor for output.
+            /// @param [in] file_desc File descriptor for output.
             void write_msr_whitelist(FILE *file_desc) const;
             /// Record telemetry from counters and RAPL MSRs.
             virtual void observe(void) = 0;
             /// Does this Platform support a specific platform.
-            /// @param platform_id Platform identifier specific to the
+            /// @param [in] platform_id Platform identifier specific to the
             ///        underlying hradware. On x86 plaforms this can be obtained by
             ///        the cpuid instruction.
             /// @return true if this Platform supports platform_id,
             ///         else false.
             virtual bool model_supported(int platform_id) const = 0;
             /// Retrieve a telemetry sample.
-            /// @param sample Sample message in which to store the sample.
+            /// @param [out] sample Sample message in which to store the sample.
             virtual void sample(struct geopm_sample_message_s &sample) const = 0;
             /// Enforce a static power management mode including
             /// tdp_balance_static, freq_uniform_static, and 
             /// freq_hybrid_static.
-            /// @param policy A Policy object containing the policy information
+            /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.
             virtual void enforce_policy(const Policy &policy) const = 0;
             /// Retrieve the topology of the current platform.

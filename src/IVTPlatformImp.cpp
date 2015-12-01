@@ -196,7 +196,7 @@ namespace geopm
             write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
                       read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
                       | rst_ctrs);
-            //FIXME: is this needed???
+            /// @bug is this needed???
             write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
                       read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
                       & ~box_frz);

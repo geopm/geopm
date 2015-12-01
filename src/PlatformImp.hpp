@@ -100,55 +100,56 @@ namespace geopm
             //                     MSR read/write support                     //
             ////////////////////////////////////////////////////////////////////
             /// Write a value to a Model Specific Register.
-            /// @param device_type enum device type can be
+            /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
-            /// @param device_index Numbered index of the specified type.
-            /// @param msr_name String name of the requested MSR.
-            /// @param value Value to write to the specified MSR.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] msr_name String name of the requested MSR.
+            /// @param [in] value Value to write to the specified MSR.
             void write_msr(int device_type, int device_index, const std::string &msr_name, uint64_t value);
             /// Write a value to a Model Specific Register.
-            /// @param device_type enum device type can be
+            /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
-            /// @param device_index Numbered index of the specified type.
-            /// @param msr_offset Address offset of the requested MSR..
-            /// @param value Value to write to the specified MSR.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] msr_offset Address offset of the requested MSR.
+            /// @param [in] value Value to write to the specified MSR.
             void write_msr(int device_type, int device_index, off_t msr_offset, uint64_t value);
             /// Read a value from a Model Specific Register.
-            /// @param device_type enum device type can be
+            /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
-            /// @param device_index Numbered index of the specified type.
-            /// @param msr_name String name of the requested MSR.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] msr_name String name of the requested MSR.
             /// @return Value read from the specified MSR.
             uint64_t read_msr(int device_type, int device_index, const std::string &msr_name);
             /// Read a value from a Model Specific Register.
-            /// @param device_type enum device type can be
+            /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
-            /// @param device_index Numbered index of the specified type.
-            /// @param msr_offset Address offset of the requested MSR.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] msr_offset Address offset of the requested MSR.
             /// @return Value read from the specified MSR.
             uint64_t read_msr(int device_type, int device_index, off_t msr_offset);
             /// Retrieve the address offset of a Model Specific Register.
-            /// @param msr_name String name of the requested MSR.
+            /// @param [in] msr_name String name of the requested MSR.
             /// @return Address offset of the requested MSR.
             off_t msr_offset(std::string msr_name);
             /// Output a MSR whitelist for use with the Linux MSR driver.
-            /// @param file_desc File descriptor for output.
+            /// @param [in] file_desc File descriptor for output.
             void whitelist(FILE* file_desc);
             /// Initialize the topology and MSR file descriptors.
             virtual void initialize(void);
             /// Set the path to the MSR special file. In Linux this path
-            /// is /dev/msr.
+            /// is /dev/msr/cpu_num.
+            /// @param [in] cpu_num Logical cpu number to set the path for.
             virtual void msr_path(int cpu_num);
 
             ////////////////////////////////////////////////////////////////////
             //              Platform dependent implementations                //
             ////////////////////////////////////////////////////////////////////
             /// Does this PlatformImp support a specific platform.
-            /// @param platform_id Platform identifier specific to the
+            /// @param [in] platform_id Platform identifier specific to the
             ///        underlying hradware. On x86 plaforms this can be obtained by
             ///        the cpuid instruction.
             /// @return true if this PlatformImp supports platform_id,
@@ -162,10 +163,10 @@ namespace geopm
 
         protected:
             /// Open a MSR special file.
-            /// @param cpu Number of logical cpu to open.
+            /// @param [in] cpu Number of logical cpu to open.
             void open_msr(int cpu);
             /// Close a MSR special file.
-            /// @param cpu Number of logical cpu to close.
+            /// @param [in] cpu Number of logical cpu to close.
             void close_msr(int cpu);
             /// Lookup topology information to set member variables.
             virtual void parse_hw_topology(void);

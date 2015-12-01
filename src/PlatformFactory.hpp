@@ -52,12 +52,12 @@ namespace geopm
             /// PlatformFactory Testing constructor. This constructor takes in
             /// a specifc Platform/PlatformImp pair and does not load plugins.
             /// It is intended to be used for testing.
-            /// @param platform The unique_ptr to a Platform object
-            ///        assures that the object cannot be destroyed before
-            ///        it is copied.
-            /// @param platform_imp The unique_ptr to a PlatformImp object
-            ///        assures that the object cannot be destroyed before
-            ///        it is copied.
+            /// @param [in] platform The unique_ptr to a Platform object
+            ///             assures that the object cannot be destroyed before
+            ///             it is copied.
+            /// @param [in] platform_imp The unique_ptr to a PlatformImp object
+            ///             assures that the object cannot be destroyed before
+            ///             it is copied.
             PlatformFactory(std::unique_ptr<Platform> platform,
                             std::unique_ptr<PlatformImp> platform_imp);
             /// PlatformFactory Default destructor.
@@ -72,12 +72,12 @@ namespace geopm
             /// Platform/PlatformImp pair is found.
             Platform *platform();
             /// Concrete Platforms register with the factory through this API.
-            /// @param platform The unique_ptr to a Platform object
+            /// @param [in] platform The unique_ptr to a Platform object
             ///        assures that the object cannot be destroyed
             ///        before it is copied.
             void register_platform(std::unique_ptr<Platform> platform);
             /// Concrete PlatformImps register with the factory through this API.
-            /// @param platform_imp The unique_ptr to a PlatformImp object
+            /// @param [in] platform_imp The unique_ptr to a PlatformImp object
             ///        assures that the object cannot be destroyed
             ///        before it is copied.
             void register_platform(std::unique_ptr<PlatformImp> platform_imp);
