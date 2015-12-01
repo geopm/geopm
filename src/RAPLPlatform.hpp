@@ -53,10 +53,15 @@ namespace geopm
         int num_slot;
     };
 
+    /// This class provides an implementation of a concrete platform
+    /// supporting processors which use RAPL for power limiting. This
+    /// includes Sandy Bridge E, Ivy Bridge E, and Haswell E processors.
     class RAPLPlatform : public Platform
     {
         public:
+            /// Default constructor.
             RAPLPlatform();
+            /// Default destructor
             virtual ~RAPLPlatform();
             virtual void set_implementation(PlatformImp* platform_imp);
             virtual bool model_supported(int platform_id) const;
@@ -64,12 +69,17 @@ namespace geopm
             virtual void sample(struct geopm_sample_message_s &sample) const;
             virtual void enforce_policy(const Policy &policy) const;
         protected:
+            /// Structure of buffer indicies to store data into to
+            /// avoid map lookups.
             struct buffer_index_s m_buffer_index;
+            /// Vector of MSR offsets to record the values of.
             std::vector<off_t> m_observe_msr_offsets;
+            /// Vector of MSR offsets to write values to.
             std::vector<off_t> m_enforce_msr_offsets;
+            /// Number of cpus on the platform.
             int m_num_cpu;
+            /// Number of packages on the platform.
             int m_num_package;
-            Region* m_curr_region;
     };
 }
 
