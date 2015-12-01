@@ -35,30 +35,65 @@
 
 namespace geopm
 {
+    /// This class encapsulates the creation of inter-process shared memory.
     class SharedMemory
     {
         public:
+            /// Constructor takes a key and a size and creates a inter-process
+            /// shared memory region.
+            /// @param [in] shm_key Shared memory key to create the region.
+            /// @param [in] size Size of the region to create.
             SharedMemory(const std::string &shm_key, size_t size);
+            /// Destructor destroys and unlinks the shared memory region.
             virtual ~SharedMemory();
+            /// Retrieve a pointer to the shared memory region.
+            /// @return Void pointer to the shared memory region.
             void *pointer(void);
+            /// Retrieve the key to the shared memory region.
+            /// @return Key to the shared memory region.
             std::string key(void);
         protected:
+            /// Shared memory key for the region.
             std::string m_shm_key;
+            /// Size of the region.
             size_t m_size;
+            /// Pointer to the region.
             void *m_ptr;
     };
 
+    /// This class encapsulates attaching to inter-process shared memory.
     class SharedMemoryUser
     {
         public:
+            /// Constructor takes a key and a size and attempts to attach to a
+            /// inter-process shared memory region. This version of the
+            /// constructor tries to attach multiple times until a timeout
+            /// is reached.
+            /// @param [in] shm_key Shared memory key to attach to the region.
+            /// @param [in] size Size of the region to attach to.
+            /// @param [in] timeout Length in seconds to keep retrying the
+            ///             attachment process to a shared memory region.
             SharedMemoryUser(const std::string &shm_key, size_t size, unsigned int timeout);
+            /// Constructor takes a key and a size and attempts to attach to a
+            /// inter-process shared memory region. This version of the
+            /// constructor attempts to attach a single time.
+            /// @param [in] shm_key Shared memory key to attach to the region.
+            /// @param [in] size Size of the region to attach to.
             SharedMemoryUser(const std::string &shm_key, size_t size);
+            /// Destructor detaches from shared memory region.
             virtual ~SharedMemoryUser();
+            /// Retrieve a pointer to the shared memory region.
+            /// @return Void pointer to the shared memory region.
             void *pointer(void);
+            /// Retrieve the key to the shared memory region.
+            /// @return Key to the shared memory region.
             std::string key(void);
         protected:
+            /// Shared memory key for the region.
             std::string m_shm_key;
+            /// Size of the region.
             size_t m_size;
+            /// Pointer to the region.
             void *m_ptr;
     };
 }
