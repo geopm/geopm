@@ -47,7 +47,7 @@
 
 namespace geopm
 {
-    /// Encapsulates the state and provides the interface for
+    /// @brief Encapsulates the state and provides the interface for
     /// computational application profiling.
     ///
     /// The C++ implementation of the computational application side
@@ -58,8 +58,58 @@ namespace geopm
     class Profile
     {
         public:
+            /// @brief Profile constructor.
+            ///
+            /// The Profile object is used by the application to
+            /// instrument regions of code and post profile
+            /// information to a shared memory region to be read by
+            /// the Controller process.
+            ///
+            /// @param [in] prof_name Name associated with the
+            ///        profile.  This name will be printed in the
+            ///        header of the report.
+            ///
+            /// @param [in] table_size Size in bytes of shared memory
+            ///        region that will be used for posting updates.
+            ///        The Controller is responsible for creating the
+            ///        shared memory region that the Profile object
+            ///        attaches to.  The Controller is the consumer of
+            ///        the posted data that the Profile produces.
+            ///
+            /// @param [in] shm_key_base String that is the base for
+            ///        the POSIX shared memory keys that have been
+            ///        created by the Controller.  There is one key
+            ///        created for each MPI rank in the communicator
+            ///        provided (comm), and each key is constructed by
+            ///        appending an underscore followed by a string
+            ///        representation of the integer MPI rank.
+            ///
+            /// @param [in] comm The application's MPI communicator.
+            ///        Each rank of this communicator will report to a
+            ///        separate shared memory region.  One controller
+            ///        on each compute node will consume the output
+            ///        from each rank running on the compute node.
             Profile(const std::string prof_name, size_t table_size, const std::string shm_key_base, MPI_Comm comm);
+            /// @brief Profile destructor, virtual.
             virtual ~Profile();
+            /// @brief Register a region of code to be profiled.
+            ///
+            /// The statistics gathered for each region are aggregated
+            /// in the final report, and the power policy will be
+            /// determined distinctly for each region.  The
+            /// registration of a region is idempotent, and the first
+            /// call will have more overhead than subsequent
+            /// attempts to re-register the same region.
+            ///
+            /// @param [in] region_name Unique name that identifies
+            ///             the region being profiled.  This name will
+            ///             be printed next to the region statistics
+            ///             in the report.
+            ///
+            /// @param [in] policy_hint Value from the
+            ///             #geopm_policy_hint_e structure which is
+            ///             used to derive a starting policy before
+            ///             the application has been profiled.
             uint64_t region(const std::string region_name, long policy_hint);
             void enter(uint64_t region_id);
             void exit(uint64_t region_id);
