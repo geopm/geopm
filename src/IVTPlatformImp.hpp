@@ -47,10 +47,15 @@
 
 namespace geopm
 {
+    /// This class provides a concrete platform implementation of
+    /// Sandybridge E and IvyBridge E processors.
+    /// (cpuid 0x62D and 0x63E).
     class IVTPlatformImp : public PlatformImp
     {
         public:
+            /// Default constructor.
             IVTPlatformImp();
+            /// Defauly destructor.
             virtual ~IVTPlatformImp();
 
             //////////////////////////////////////////////
@@ -62,22 +67,38 @@ namespace geopm
             virtual void reset_msrs();
 
         protected:
+            /// Load SNB/IVB specific MSR offsets into MSR offset map.
             void load_msr_offsets();
+            /// Initialize Running Average Power Limiting (RAPL) controls.
             void rapl_init();
+            /// Initialize per-cpu counters.
             void cbo_counters_init();
+            /// Initialize free running counters.
             void fixed_counters_init();
+            /// Reset RAPL controls to default state.
             void rapl_reset();
+            /// Reset per-cpu counters to default state.
             void cbo_counters_reset();
+            /// Reset free running counters to default state.
             void fixed_counters_reset();
 
+            /// Store the units of energy read from RAPL.
             double m_energy_units;
+            /// Store the units of power read from RAPL.
             double m_power_units;
+            /// Minimum value for package (cpu) power read from RAPL.
             double m_min_pkg_watts;
+            /// Maximum value for package (cpu) power read from RAPL.
             double m_max_pkg_watts;
+            /// Minimum value for power plane 0 (pkg+dram) read from RAPL.
             double m_min_pp0_watts;
+            /// Maximum value for power plane 0 (pkg+dram) read from RAPL.
             double m_max_pp0_watts;
+            /// Minimum value for DRAM power read from RAPL.
             double m_min_dram_watts;
+            /// Maximum value for DRAM power read from RAPL.
             double m_max_dram_watts;
+            /// Stores the platform identifier.
             int m_platform_id;
     };
 }
