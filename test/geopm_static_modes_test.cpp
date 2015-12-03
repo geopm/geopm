@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
     plat->initialize();
 
-    cpus = plat->get_num_cpu();
+    cpus = plat->hw_cpu();
     ASSERT(cpus);
     ASSERT(geopm_no_omp_cpu(cpus, &no_omp) == 0);
 
