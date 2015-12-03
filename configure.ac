@@ -32,7 +32,15 @@
 # 2.62 required for OpenMP macro and others
 AC_PREREQ([2.62])
 AC_INIT([geopm],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax serial-tests])
+m4_define([serial_tests], [m4_esyscmd([
+    vv=$(automake --version | head -n1 | sed 's|[^0-9.]*\([0-9.]*\).*|\1|');
+    major=$(echo $vv | sed 's|\([0-9]*\).*|\1|');
+    minor=$(echo $vv | sed 's|[0-9]*\.\([0-9]*\).*|\1|');
+    if [ "$major" -gt 0 ] && [ "$minor" -gt 11 ]; then
+        echo serial-tests;
+    fi;
+])])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax] foreign serial_tests)
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
