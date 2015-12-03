@@ -34,10 +34,9 @@
 
 namespace geopm
 {
-    Region::Region(const std::string &name, long identifier, int hint, int size)
+    Region::Region(uint64_t identifier, int hint, int size)
         : m_policy(size)
         , m_last_policy(GEOPM_UNKNOWN_POLICY)
-        , m_name(name)
         , m_identifier(identifier)
         , m_hint(hint)
     {
@@ -52,14 +51,9 @@ namespace geopm
         m_obs.insert(index, value);
     }
 
-    long Region::identifier(void) const
+    uint64_t Region::identifier(void) const
     {
         return m_identifier;
-    }
-
-    void Region::name(std::string &name) const
-    {
-        name = m_name;
     }
 
     int Region::hint(void) const

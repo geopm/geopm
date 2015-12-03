@@ -219,7 +219,7 @@ namespace geopm
             m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
-            Region *region = new Region("global", GEOPM_GLOBAL_POLICY_IDENTIFIER,
+            Region *region = new Region(GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                         GEOPM_POLICY_HINT_UNKNOWN, fan_out[num_level - 1]);
             m_region[num_level - 1].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER, region));
 
@@ -335,8 +335,7 @@ namespace geopm
             auto it = m_region[level - 1].find(region_id);
             if (it == m_region[level - 1].end()) {
                 m_region[level - 1].insert(std::pair<long, Region *>(policy_msg.region_id,
-                                           new Region("region_" + std::to_string(policy_msg.region_id),
-                                                      policy_msg.region_id,
+                                           new Region(policy_msg.region_id,
                                                       GEOPM_POLICY_HINT_UNKNOWN,
                                                       m_tree_comm->level_size(level - 1))));
             }
@@ -430,7 +429,7 @@ namespace geopm
             else {
                 num_domains = m_platform->num_domain();
             }
-            curr_region = new Region("some_name", region_id, GEOPM_POLICY_HINT_UNKNOWN, num_domains);
+            curr_region = new Region(region_id, GEOPM_POLICY_HINT_UNKNOWN, num_domains);
             //set it's policy equal to the global policy for this level.
             *(curr_region->policy()) = *(m_region[level].find(GEOPM_GLOBAL_POLICY_IDENTIFIER)->second->policy());
             m_region[level].insert(std::pair<long, Region *>(region_id, curr_region));

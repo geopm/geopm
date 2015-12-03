@@ -42,35 +42,94 @@
 
 namespace geopm
 {
+    /// @brief This class encapsulates all state data for a specific
+    /// application execution region.
     class Region
     {
         public:
-            Region(const std::string &name, long identifier, int hint, int size);
+            /// @brief Default constructor.
+            /// @param [in] identifier Unique 64 bit region identifier.
+            /// @param [in] hint geopm_policy_hint_e describing the compute
+            ///             characteristics of this region
+            /// @param [in] size Number of control domains.
+            Region(uint64_t identifier, int hint, int size);
+            /// @brief Default destructor.
             virtual ~Region();
-            long identifier(void) const;
+            /// @brief Retrieve the unique region identifier.
+            /// @return 64 bit region identifier.
+            uint64_t identifier(void) const;
+            /// @brief Insert a single observation sample for this region.
+            /// @param [in] buffer_index Index of the buffer to insert into.
+            /// @param [in] value The sample value to insert.
             void observation_insert(int buffer_index, double value);
-            void name(std::string &name) const;
+            /// @brief Retrieve the compute characteristic hint for this region.
+            /// @return geopm_policy_hint_e describing the compute characteristics
+            /// of this region.
             int hint(void) const;
+            /// @brief Set the power policy for this region.
+            /// @param [in] policy Policy object for this region.
             void policy(Policy* policy);
+            /// @brief Retrieve the power policy for this region.
+            /// @return Policy object for this region.
             Policy* policy(void);
+            /// @brief Retrieve The last poicy message sent down for this region.
+            /// Used to compare with new incoming message to see if the policy
+            /// has changed.
+            /// @return Saved policy message from last time one was sent.
             struct geopm_policy_message_s* last_policy();
+            /// @brief Split this regions power policy budget and create new
+            /// policy messages for each child control domain.
+            /// @return Vector of policy messages for each child
+            /// control domain.
             std::vector <struct geopm_policy_message_s>* split_policy(void);
+            /// @brief Retrieve a set of sample message for each child
+            /// control domain.
+            /// @return Vector of sample messages from each child
+            /// control domain.
             std::vector <struct geopm_sample_message_s>* child_sample(void);
+            /// @brief Set our saved copy of the last updated policy message
+            /// for this region.
+            /// @param [in] policy Policy message to save as last update.
             void last_policy(const struct geopm_policy_message_s &policy);
+            /// @brief Retrieve the mean of all values in the
+            /// requested buffer.
+            /// @param [in] buffer_index Index of the requested buffer.
             double observation_mean(int buffer_index) const;
+            /// @brief Retrieve the mean of all values in the
+            /// requested buffer.
+            /// @param [in] buffer_index Index of the requested buffer.
             double observation_median(int buffer_index) const;
+            /// @brief Retrieve the standard deviation of all values in the
+            /// requested buffer.
+            /// @param [in] buffer_index Index of the requested buffer.
             double observation_stddev(int buffer_index) const;
+            /// @brief Retrieve the maximum value of all values in the
+            /// requested buffer.
+            /// @param [in] buffer_index Index of the requested buffer.
             double observation_max(int buffer_index) const;
+            /// @brief Retrieve the minimum value of all values in the
+            /// requested buffer.
+            /// @param [in] buffer_index Index of the requested buffer.
             double observation_min(int buffer_index) const;
+            /// @brief Retrieve the integrated time over all values in the
+            /// requested buffer.
+            /// @param [in] buffer_index Index of the requested buffer.
             double observation_integrate_time(int buffer_index) const;
         protected:
+            /// @brief Hold the Obervation object which contains samples
+            /// for this region.
             Observation m_obs;
+            /// @brief Hold the current power policy for this region.
             Policy m_policy;
+            /// @brief Hold a policy message for each child control domain.
             std::vector <struct geopm_policy_message_s> m_split_policy;
+            /// @brief Hold a sample message from each child control domain.
             std::vector <struct geopm_sample_message_s> m_child_sample;
+            /// @brief Hold Saved policy message from last time one was sent.
             struct geopm_policy_message_s m_last_policy;
-            std::string m_name;
-            long m_identifier;
+            /// @brief Hold unique 64 bit region identifier.
+            uint64_t m_identifier;
+            /// @brief Hold the compute characteristic hint for this region.
             int m_hint;
     };
 }
