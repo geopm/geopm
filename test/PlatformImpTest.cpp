@@ -50,20 +50,20 @@ class TestPlatformImp : public geopm::PlatformImp
         TestPlatformImp();
         virtual ~TestPlatformImp();
         virtual bool model_supported(int platform_id);
-        virtual std::string get_platform_name();
-        virtual void set_msr_path(int cpu);
+        virtual std::string platform_name();
+        virtual void msr_path(int cpu);
         virtual void initialize_msrs(void);
         virtual void reset_msrs(void);
 };
 
 TestPlatformImp::TestPlatformImp()
 {
-    m_hyperthreads = 1;
-    m_num_cpu = NUM_CPU;
-    m_num_tile = NUM_TILE;
-    m_num_package = NUM_PACKAGE;
+    m_logical_cpus = 1;
+    m_hw_cpus = NUM_CPU;
+    m_tiles = NUM_TILE;
+    m_packages = NUM_PACKAGE;
 
-    for(off_t i = 0; (int)i < m_num_cpu; i++) {
+    for(off_t i = 0; (int)i < m_hw_cpus; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         std::pair<off_t, unsigned long> msr_info(i*64, 0x0000000000000000);
@@ -76,7 +76,7 @@ TestPlatformImp::TestPlatformImp()
 
 TestPlatformImp::~TestPlatformImp()
 {
-    for(off_t i = 0; (int)i < m_num_cpu; i++) {
+    for(off_t i = 0; (int)i < m_hw_cpus; i++) {
         close_msr(i);
         snprintf(m_msr_path, 256, "/tmp/msrfile%d", (int)i);
         remove(m_msr_path);
@@ -88,7 +88,7 @@ bool TestPlatformImp::model_supported(int platform_id)
     return (platform_id == 0x999);
 }
 
-std::string TestPlatformImp::get_platform_name()
+std::string TestPlatformImp::platform_name()
 {
     std::string name = "test_platform";
     return name;
@@ -104,7 +104,7 @@ void TestPlatformImp::reset_msrs(void)
     return;
 }
 
-void TestPlatformImp::set_msr_path(int cpu)
+void TestPlatformImp::msr_path(int cpu)
 {
     uint32_t lval = 0x0;
     uint32_t hval = 0xFFFFFFFF;
@@ -153,13 +153,13 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             return;
         }
-        virtual std::string get_platform_name();
+        virtual std::string platform_name();
     protected:
         FRIEND_TEST(PlatformImpTest, negative_open_msr);
         FRIEND_TEST(PlatformImpTest, parse_topology);
 };
 
-std::string TestPlatformImp2::get_platform_name()
+std::string TestPlatformImp2::platform_name()
 {
     std::string name = "test_platform2";
     return name;
@@ -190,7 +190,7 @@ TEST_F(PlatformImpTest, platform_get_name)
     std::string pname = "test_platform";
     std::string ans;
 
-    ans = m_platform->get_platform_name();
+    ans = m_platform->platform_name();
     ASSERT_FALSE(ans.empty());
 
     EXPECT_FALSE(ans.compare(pname));
@@ -198,28 +198,28 @@ TEST_F(PlatformImpTest, platform_get_name)
 
 TEST_F(PlatformImpTest, platform_get_package)
 {
-    int num = m_platform->get_num_package();
+    int num = m_platform->package();
 
     EXPECT_TRUE(num == NUM_PACKAGE);
 }
 
 TEST_F(PlatformImpTest, platform_get_tile)
 {
-    int num = m_platform->get_num_tile();
+    int num = m_platform->tile();
 
     EXPECT_TRUE(num == NUM_TILE);
 }
 
 TEST_F(PlatformImpTest, platform_get_cpu)
 {
-    int num = m_platform->get_num_cpu();
+    int num = m_platform->hw_cpu();
 
     EXPECT_TRUE(num == NUM_CPU);
 }
 
 TEST_F(PlatformImpTest, platform_get_hyperthreaded)
 {
-    EXPECT_TRUE(m_platform->get_num_hyperthreads() == 1);
+    EXPECT_TRUE(m_platform->logical_cpu() == 1);
 }
 
 TEST_F(PlatformImpTest, platform_get_offsets)
@@ -227,7 +227,7 @@ TEST_F(PlatformImpTest, platform_get_offsets)
     for(int i = 0; i < 16; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        EXPECT_TRUE(m_platform->get_msr_offset(name) == (off_t)(i*64));
+        EXPECT_TRUE(m_platform->msr_offset(name) == (off_t)(i*64));
     }
 }
 
@@ -427,7 +427,7 @@ TEST_F(PlatformImpTest, parse_topology)
 
     EXPECT_TRUE((thrown==0));
 
-    EXPECT_TRUE((p.get_num_package() > 0));
-    EXPECT_TRUE((p.get_num_cpu() > 0));
+    EXPECT_TRUE((p.package() > 0));
+    EXPECT_TRUE((p.hw_cpu() > 0));
 }
 

@@ -46,7 +46,7 @@ class MockPlatformImp : public geopm::PlatformImp
 {
     public:
         MOCK_METHOD1(model_supported, bool(int platform_id));
-        MOCK_METHOD0(get_platform_name, std::string());
+        MOCK_METHOD0(platform_name, std::string());
         virtual void initialize(void);
         virtual void reset_msrs(void);
     protected:
@@ -104,7 +104,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     .Times(1)
     .WillOnce(Return(true));
 
-    EXPECT_CALL(*m_platform_imp, get_platform_name())
+    EXPECT_CALL(*m_platform_imp, platform_name())
     .Times(1)
     .WillOnce(Return(pname));
 
