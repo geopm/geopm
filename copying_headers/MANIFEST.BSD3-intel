@@ -1,8 +1,10 @@
 autogen.sh
 configure.ac
+examples/geopm_ctl_single.cpp
 examples/geopm_print_error.c
 examples/Makefile.mk
 examples/threaded_step_example.c
+examples/timed_region.cpp
 geopm.spec.mk
 Makefile.am
 man/geopm.3
