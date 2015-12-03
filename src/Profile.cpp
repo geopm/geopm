@@ -178,23 +178,6 @@ extern "C"
 
     }
 
-    int geopm_prof_enable(struct geopm_prof_c *prof, const char *feature_name)
-    {
-        int err = 0;
-        try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            prof_obj->enable(std::string(feature_name));
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-
-    }
-
     int geopm_prof_disable(struct geopm_prof_c *prof, const char *feature_name)
     {
         int err = 0;
@@ -390,11 +373,6 @@ namespace geopm
             sample.progress = m_progress;
             m_table->insert(region_id, sample);
         }
-    }
-
-    void Profile::enable(const std::string feature_name)
-    {
-        throw geopm::Exception("Profile::enable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void Profile::disable(const std::string feature_name)

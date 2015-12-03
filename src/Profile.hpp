@@ -50,11 +50,12 @@ namespace geopm
     /// @brief Encapsulates the state and provides the interface for
     /// computational application profiling.
     ///
-    /// The C++ implementation of the computational application side
-    /// interface to the GEOPM profiler.  The class methods support
-    /// the C interface defined for use with the geopm_prof_c
-    /// structure and are named accordingly.  The geopm_prof_c
-    /// structure is an opaque reference to the geopm::Profile class.
+    /// The Profile class is the C++ implementation of the
+    /// computational application side interface to the GEOPM
+    /// profiler.  The class methods support the C interface defined
+    /// for use with the geopm_prof_c structure and are named
+    /// accordingly.  The geopm_prof_c structure is an opaque
+    /// reference to the geopm::Profile class.
     class Profile
     {
         public:
@@ -102,22 +103,113 @@ namespace geopm
             /// attempts to re-register the same region.
             ///
             /// @param [in] region_name Unique name that identifies
-            ///             the region being profiled.  This name will
-            ///             be printed next to the region statistics
-            ///             in the report.
+            ///        the region being profiled.  This name will be
+            ///        printed next to the region statistics in the
+            ///        report.
             ///
             /// @param [in] policy_hint Value from the
-            ///             #geopm_policy_hint_e structure which is
-            ///             used to derive a starting policy before
-            ///             the application has been profiled.
+            ///        #geopm_policy_hint_e structure which is used to
+            ///        derive a starting policy before the application
+            ///        has been profiled.
+            ///
+            /// @return Returns the region_id which is a unique
+            ///         identifier derived from the region_name.  This
+            ///         value is passed to Profile::enter(),
+            ///         Profile::exit(), Profile::progress and
+            ///         Profile::sample() to associate these calls with
+            ///         the registered region.
             uint64_t region(const std::string region_name, long policy_hint);
+            /// @brief Mark a region entry point.
+            ///
+            /// Called to denote the beginning of region of code that
+            /// was assigned the region_id when it was registered.
+            /// Nesting of regions is not supported: calls to this
+            /// method from within a region previously entered but not
+            /// yet exited are silently ignored.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
             void enter(uint64_t region_id);
+            /// @brief Mark a region exit point.
+            ///
+            /// Called to denote the end of a region of code that was
+            /// assigned the region_id when it was registered.
+            /// Nesting of regions is not supported: calls to this
+            /// method that are not exiting from the oldest unclosed
+            /// entry point with the same region_id are silently
+            /// ignored.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
             void exit(uint64_t region_id);
+            /// @brief Signal fractional progress through a region.
+            ///
+            /// Signals the fractional amount of work completed within
+            /// the phase.  This normalized progress reporting is used
+            /// to identify processes that are closer or further away
+            /// from completion, and resources can be shifted to those
+            /// processes which are further behind.  Calls to this
+            /// method from within a nested region are ignored.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
+            ///
+            /// @param [in] fraction The fractional progress
+            ///        normalized to be between 0.0 and 1.0 (zero on
+            ///        entry one on completion).
             void progress(uint64_t region_id, double fraction);
+            /// @brief Signal entry to global barrier.
+            ///
+            /// Called just prior to the highest level global
+            /// synchronization point in an application. This occurs
+            /// in the application's outermost loop in an iterative
+            /// algorithm just prior to the last synchronizing MPI
+            /// call.  There should be just one place in an
+            /// application code where this call occurs, and it should
+            /// be called repeatedly inside of a loop.
             void outer_sync(void);
+            /// @brief Post profile sample.
+            ///
+            /// Called to derive a sample based on the profiling
+            /// information collected.  This sample is posted to the
+            /// controller through shared memory.  This call is
+            /// ignored when called within a nested region or passing
+            /// a region_id that does not match the current region.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
             void sample(uint64_t region_id);
-            void enable(const std::string feature_name);
+            /// @brief Disable a data collection feature.
+            ///
+            /// Called at application start up to disable a profiling
+            /// feature.  By default all profiling features available
+            /// on the system are enabled.  The set of all possible
+            /// values for feature_name are: "instr", "flop" and
+            /// "joules".
             void disable(const std::string feature_name);
+            /// @brief Print profile report to a file.
+            ///
+            /// Writes a profile report to a file with the given
+            /// file_name.  This should be called only after all
+            /// profile data has been collected, just prior to
+            /// application termination.  All profile information
+            /// above the specified depth in the control tree
+            /// hierarchy is contained in the report.  A depth of 0
+            /// gives only statistics aggregated over all MPI
+            /// processes.
+            ///
+            /// @param [in] file_name The base file name for the
+            ///        output report.  There may be suffixes appended
+            ///        to this name if multiple files are created.
+            ///
+            /// @param [in] depth Gives the depth in the control tree
+            ///        which is the finest granularity of the report.
+            ///        By default there are three levels in the
+            ///        higherarchy tree.
             void print(const std::string file_name, int depth);
         protected:
             void name_set(const std::string file_name);
