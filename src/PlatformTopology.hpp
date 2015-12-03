@@ -38,39 +38,55 @@
 
 namespace geopm
 {
+    /// @brief Platform resource types.
     enum domain_type_e {
-        // Group of MPI processes used for control
+        /// @brief Group of MPI processes used for control
         GEOPM_DOMAIN_PROCESS_GROUP = HWLOC_OBJ_SYSTEM,
-        // Coherent memory domain
+        /// @brief Coherent memory domain
         GEOPM_DOMAIN_BOARD = HWLOC_OBJ_MACHINE,
-        // Single processor package
+        /// @brief Single processor package
         GEOPM_DOMAIN_PACKAGE = HWLOC_OBJ_NODE,
-        // All CPU's within a package
+        /// @brief All CPU's within a package
         GEOPM_DOMAIN_PACKAGE_CORE = HWLOC_OBJ_CORE,
-        // Everything on package other than the cores
+        /// @brief Everything on package other than the cores
         GEOPM_DOMAIN_PACKAGE_UNCORE = HWLOC_OBJ_CACHE,
-        // Single processing unit
+        /// @brief Single processing unit
         GEOPM_DOMAIN_CPU = HWLOC_OBJ_PU,
-        // Standard off package DIMM (DRAM or NAND)
+        /// @brief Standard off package DIMM (DRAM or NAND)
         GEOPM_DOMAIN_BOARD_MEMORY = HWLOC_OBJ_GROUP,
-        // On package memory (MCDRAM)
+        /// @brief On package memory (MCDRAM)
         GEOPM_DOMAIN_PACKAGE_MEMORY = HWLOC_OBJ_TYPE_MAX,
-        // Network interface controller
+        /// @brief Network interface controller
         GEOPM_DOMAIN_NIC = HWLOC_OBJ_TYPE_MAX + 1,
-        // Software defined grouping of tiles
+        /// @brief Software defined grouping of tiles
         GEOPM_DOMAIN_TILE_GROUP = HWLOC_OBJ_TYPE_MAX + 2,
-        // Group of CPU's that share a cache
+        /// @brief Group of CPU's that share a cache
         GEOPM_DOMAIN_TILE = HWLOC_OBJ_TYPE_MAX + 3,
     };
 
+    /// @brief This class is a wrapper around hwloc. It holds the topology of
+    /// hardware resources of the platform.
     class PlatformTopology
     {
         public:
+            /// @brief Default constructor initializes and builds
+            /// the hwloc tree.
             PlatformTopology();
+            /// @brief Default destructor destoys the hwloc tree.
             ~PlatformTopology();
+            /// @brief Retreive the count of a specific hwloc resource type.
+            /// @param [in] domain_type Enum of type domain_type_e representing the
+            /// type of resource to query.
+            /// @return Count of the specified resource type.
             int num_domain(int domain_type) const;
+            /// @brief Retrieve all members of a specific hwloc resource type.
+            /// @param [in] type Enum of type domain_type_e representing the
+            /// type of resource to query.
+            /// @param [out] domain Vector containing all hwloc resources of the
+            /// requested type.
             void domain_by_type(int type, std::vector<hwloc_obj_t> &domain) const;
         private:
+            /// @brief Holds the hwloc topology tree.
             hwloc_topology_t m_topo;
     };
 }
