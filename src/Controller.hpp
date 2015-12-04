@@ -49,7 +49,7 @@
 
 namespace geopm
 {
-    /// @brief Class used to lauch or step the global energy
+    /// @brief Class used to launch or step the global energy
     ///        optimization power management algorithm.
     ///
     /// The Controller class enables several methods of control:
@@ -103,7 +103,7 @@ namespace geopm
             Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
-            /// @brief Run control algorighm.
+            /// @brief Run control algorithm.
             ///
             /// Steps the control algorithm continuously until the
             /// shutdown signal is received.  Since this is a blocking
@@ -123,14 +123,44 @@ namespace geopm
             /// process then the policy is enforced by writing MSR
             /// values.
             void step(void);
+            /// @brief Run control algorithm as a separate thread.
+            ///
+            /// Creates a POSIX thread running the control algorithm
+            /// continuously until the shutdown signal is received.
+            /// This is intended to be called by the application under
+            /// control.  With this method of launch the supporting
+            /// MPI implementation must be enabled for
+            /// MPI_THREAD_MULTIPLE using MPI_Init_thread().
+            ///
+            /// @param [in] attr The POSIX thread attributes applied
+            ///        when thread is created.
+            ///
+            /// @param [out] thread Pointer to the POSIX thread that
+            ///        is created.
             void pthread(const pthread_attr_t *attr, pthread_t *thread);
+            /// @brief Run control algorithm on a separate MPI
+            ///        communicator.
+            ///
+            /// Uses MPI_Comm_spawn() to spawn a new communicator with
+            /// one process per compute node.  The geopmctl
+            /// application will be spawned on this communicator which
+            /// will communicate with the primary compute application
+            /// through POSIX shared memory.
             void spawn(void);
+            /// @brief Number of levels in the control hierarchy.
+            ///
+            /// Returns the depth of the balanced tree used for
+            /// hierarchical control.  The tree always has a root and
+            /// at least one set of children, so the minimum number of
+            /// levels is two.
+            ///
+            ///  @return Number of hierarchy levels.
             int num_level(void) const;
+        protected:
             void leaf_decider(const LeafDecider *leaf_decider);
             void tree_decider(int level, const TreeDecider *tree_decider);
             void process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample);
             void enforce_child_policy(const int region_id, const int level, const Policy &policy);
-        protected:
             int walk_down(void);
             int walk_up(void);
             bool m_is_node_root;
