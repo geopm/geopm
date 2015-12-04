@@ -53,15 +53,58 @@
 
 namespace geopm
 {
+    /// @brief Templated container for multi-threaded or multi-process
+    ///        producer consumer data exchange.
+    ///
+    /// The LockingHashTable container uses a block of virtual address
+    /// space to support producer consumer data access.  The table is
+    /// intended to support references which are registered once and
+    /// used multiple times.  The registering a reference requires a
+    /// string name as input and provides a randomized hash of the
+    /// string to an unsigned 64 bit integer key.  The key is then
+    /// used for subsequent references to the templated type supported
+    /// by the container.  The LockingHashTable is optimized for many
+    /// writers and one reader who scans the entire table by calling
+    /// LockingHashTable::dump(), however it can support other use
+    /// cases as well.  The buffer that is used to store the data is
+    /// provided at creation time.  This buffer can have any number of
+    /// operating system memory policies applied including
+    /// inter-process shared memory.  See the geopm::SharedMemory
+    /// class for information on usage with POSIX inter-process shared
+    /// memory.
     template <class type>
     class LockingHashTable
     {
         public:
+            /// @brief Constructor for the LockingHashTable template.
+            ///
+            /// The memory that is used by the container is provided
+            /// at construction time.  There are other ancillary data
+            /// associated with the structure which are dynamic, but
+            /// the templated data container is of fixed size.
+            ///
+            /// @param size [in] The length of the buffer in bytes.
+            ///
+            /// @param buffer [in] Pointer to beginning of virtual
+            ///        address range used for storing the templated
+            ///        data.
             LockingHashTable(size_t size, void *buffer);
+            /// LockingHashTable destructor, virtual.
             virtual ~LockingHashTable();
+            /// @brief Hash the name string into a random 64 bit
+            ///        integer.
+            ///
+            /// Uses the geopm_crc32_str() function to hash the name
+            /// which will modify the lower 32 bits.  The remaining 32
+            /// bits may be used for other purposes in the future.
+            /// Subsequent calls to hash the same string will use a
+            /// string to integer std::map rather than re-hashing.
+            ///
+            /// @param [in] name String which is to be mapped to the
+            ///        key.
+            uint64_t key(const std::string &name);
             void insert(uint64_t key, const type &value);
             type find(uint64_t key);
-            uint64_t key(const std::string &name);
             size_t capacity(void) const;
             void dump(typename std::vector<std::pair<uint64_t, type> >::iterator content, size_t &length);
             bool name_fill(size_t header_offset);

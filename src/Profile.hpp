@@ -48,14 +48,14 @@
 namespace geopm
 {
     /// @brief Encapsulates the state and provides the interface for
-    /// computational application profiling.
+    ///        computational application profiling.
     ///
     /// The Profile class is the C++ implementation of the
     /// computational application side interface to the GEOPM
     /// profiler.  The class methods support the C interface defined
     /// for use with the geopm_prof_c structure and are named
     /// accordingly.  The geopm_prof_c structure is an opaque
-    /// reference to the geopm::Profile class.
+    /// reference to the Profile class.
     class Profile
     {
         public:
@@ -64,7 +64,7 @@ namespace geopm
             /// The Profile object is used by the application to
             /// instrument regions of code and post profile
             /// information to a shared memory region to be read by
-            /// the Controller process.
+            /// the geopm::Controller process.
             ///
             /// @param [in] prof_name Name associated with the
             ///        profile.  This name will be printed in the
@@ -72,24 +72,27 @@ namespace geopm
             ///
             /// @param [in] table_size Size in bytes of shared memory
             ///        region that will be used for posting updates.
-            ///        The Controller is responsible for creating the
-            ///        shared memory region that the Profile object
-            ///        attaches to.  The Controller is the consumer of
-            ///        the posted data that the Profile produces.
+            ///        The geopm::Controller is responsible for
+            ///        creating the shared memory region that the
+            ///        Profile object attaches to.  The
+            ///        geopm::Controller is the consumer of the posted
+            ///        data that the Profile produces.
             ///
             /// @param [in] shm_key_base String that is the base for
             ///        the POSIX shared memory keys that have been
-            ///        created by the Controller.  There is one key
-            ///        created for each MPI rank in the communicator
-            ///        provided (comm), and each key is constructed by
-            ///        appending an underscore followed by a string
-            ///        representation of the integer MPI rank.
+            ///        created by the geopm::Controller.  There is one
+            ///        key created for each MPI rank in the
+            ///        communicator provided (comm), and each key is
+            ///        constructed by appending an underscore followed
+            ///        by a string representation of the integer MPI
+            ///        rank.
             ///
             /// @param [in] comm The application's MPI communicator.
             ///        Each rank of this communicator will report to a
-            ///        separate shared memory region.  One controller
-            ///        on each compute node will consume the output
-            ///        from each rank running on the compute node.
+            ///        separate shared memory region.  One
+            ///        geopm::Controller on each compute node will
+            ///        consume the output from each rank running on
+            ///        the compute node.
             Profile(const std::string prof_name, size_t table_size, const std::string shm_key_base, MPI_Comm comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
@@ -175,7 +178,7 @@ namespace geopm
             ///
             /// Called to derive a sample based on the profiling
             /// information collected.  This sample is posted to the
-            /// controller through shared memory.  This call is
+            /// geopm::Controller through shared memory.  This call is
             /// ignored when called within a nested region or passing
             /// a region_id that does not match the current region.
             ///
