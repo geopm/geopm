@@ -198,7 +198,7 @@ namespace geopm
         if (ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
-            m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE, comm);
+            m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE);
 
             int num_fan_out = 1;
             std::vector<int> fan_out(num_fan_out);

@@ -241,63 +241,214 @@ namespace geopm
             ///        higherarchy tree.
             void print(const std::string file_name, int depth);
         protected:
-            void name_set(const std::string file_name);
-            void report(void);
-            void shutdown(void);
+            /// @brief Fill in rank affinity list.
+            ///
+            /// Uses hwloc to detemine the cpuset the current
+            /// process is bound to. This information is used to fill
+            /// in a set containg all cpus we can run on. This is used
+            /// to comunicate with th egeopm runtime the number of ranks
+            /// as well as their affinity masks.
             void init_cpu_list(void);
+            /// @brief holds the sring name of the profile.
             std::string m_prof_name;
+            /// @brief Holds the 64 bit unique region identifier
+            ///        for the curret region.
             uint64_t m_curr_region_id;
+            /// @brief Holds the number of ranks that enter a region in
+            ///        order to keep track of nested regions.
             int m_num_enter;
+            /// @brief Holds the count of progress reports in order to
+            ///        create a sample when the count reaches some sample limit.
             int m_num_progress;
+            /// @brief Holds the rank's current progress in the regon.
             double m_progress;
+            /// @brief Holds a pointer to the shared memory region
+            ///        used for passing sample data to the geopm runtime.
             void *m_table_buffer;
+            /// @brief Attaches to the shared memory region for
+            ///        control messages.
             SharedMemoryUser *m_ctl_shmem;
+            /// @brief Holds a pointer to the shared memory region
+            ///        used to pass control messages to and from the geopm
+            ///        runtime.
             struct geopm_ctl_message_s *m_ctl_msg;
+            /// @brief Attaches to the shared memory region for
+            ///        passing samples to the geopm runtime.
             SharedMemoryUser *m_table_shmem;
+            /// @brief Hash table for sample messages contained in
+            ///        shared memory.
             LockingHashTable<struct geopm_prof_message_s> *m_table;
+            /// @brief Holds a list of cpus that the rank process is
+            ///        bound to.
             std::list<int> m_cpu_list;
+            /// @brief Communicator consisting of the root rank on each
+            ///        compute node.
             MPI_Comm m_shm_comm;
+            /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
+            /// @brief The processes rank in m_shm_comm.
             int m_shm_rank;
     };
 
+    /// @brief Retrieves sample data from a single application rank through
+    ///        a shared memory interface.
+    ///
+    /// The ProfileRankSampler is the runtime side interface to the shared
+    /// memory region for a single rank of the application. It can retrieve
+    /// samples from the shared hash table for that rank.
     class ProfileRankSampler
     {
         public:
+            /// @brief ProfileRankSampler constructor.
+            ///
+            /// The ProfileRankSampler constructor takes in a unique shared
+            /// memory key for the rank as well as the size of the hash table
+            /// to be shared with the application rank. It creates the shared
+            /// memory region and the hash table that the application will
+            /// attach to.
+            ///
+            /// @param [in] shm_key Shared memory key unique to a
+            ///        specific rank.
+            ///
+            /// @param [in] table_size Size of the hash table to create in
+            ///        the shared memory region.
             ProfileRankSampler(const std::string shm_key, size_t table_size);
+            /// @brief ProfileRankSampler destructor.
+            ///
+            /// Cleans up the hash table and shared memory region.
             virtual ~ProfileRankSampler();
+            /// @brief Returns the samples present in the hash table.
+            ///
+            /// Fills in a portion of a vector specified by a vector iterator.
+            /// It is assumed the vector is already sized greater than or
+            /// equal to the maximum number of samples we can return. This value
+            /// can be queried with the capacity() method. Internally the samples
+            /// are aggregated for later reporting functionality.
+            ///
+            /// @param [in] content_begin Vector iterator at which to begin inserting
+            ///        sample messages.
+            ///
+            /// @param [out] length The number of samples that were inserted.
             void rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
+            /// @brief Retrieve the maximum capacity of the hash table.
+            ///
+            /// @return The maximum number of samples that can possibly
+            ///         be returned.
             size_t capacity(void);
+            /// @brief Print out a detailed post-runtime report.
+            ///
+            /// Handshakes with the application process to retrieve region
+            /// names and prints a report of per region statistics of the
+            /// runtime characteristics of that region.
+            ///
+            /// @param [in] file_desc File descriptor to write the report out to.
             void report(std::ofstream &file_desc);
+            /// @brief Retrieve region names from the application process.
+            ///
+            /// Coordinates with the application process to retrieve the
+            /// profile name, region names, and the file name to write
+            /// the report to.
+            ///
+            /// @return Returns true if finished retrieving names from the
+            ///         application, else returns false.
             bool name_fill(void);
         protected:
+            /// Holds the shared memory region used for sampling from the
+            /// application process.
             SharedMemory m_table_shmem;
+            /// The hash table which stores application process samples.
             LockingHashTable<struct geopm_prof_message_s> m_table;
+            /// Holds aggregated performance data for each region of the
+            /// application process. Used for post-process reporting.
             std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;
+            /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
+            /// Holds the profile name string.
             std::string m_prof_name;
+            /// Holds the file name for the post-process report.
             std::string m_report_name;
+            /// Holds the set of region string names.
             std::set<std::string> m_name_set;
+            /// Holds the status of the name_fill operation.
             bool m_is_name_finished;
     };
 
+    /// @brief Retrieves sample data from the set of application ranks on
+    ///        a single node.
+    ///
+    /// The ProfileSampler class is the geopm runtime side interface to
+    /// the GEOPM profiler. It retrieves samples from all application ranks
+    /// on a single compute node. It is also the interface to the shared
+    /// memory region used to coordinate between the geopm runtime and
+    /// the MPI application.
     class ProfileSampler
     {
         public:
-            ProfileSampler(const std::string shm_key_base, size_t table_size, MPI_Comm comm);
+            /// @brief ProfileSampler constructor.
+            ///
+            /// Constructs a shared memory region for coordination between
+            /// the geopm runtime and the MPI application.
+            ///
+            /// @param [in] shm_key_base The shared memory key that will be
+            ///        used to create the control shared memory region. This
+            ///        key will then be appended onto to create shared memory
+            ///        keys for each rank's sample shared memory region.
+            ///
+            /// @param [in] table_size The size of the hash table that will
+            ///        be created for each application rank.
+            ProfileSampler(const std::string shm_key_base, size_t table_size);
+            /// @brief ProfileSampler destructor.
             virtual ~ProfileSampler(void);
+            /// @brief Retrieve the maximum capacity of all the per-rank
+            ///        hash tables.
+            ///
+            /// @return The maximum number of samples that can possibly
+            ///         be returned.
             size_t capacity(void);
+            /// @brief Returns the samples present in all the per-rank
+            ///        hash tables.
+            ///
+            /// Fills in a portion of a vector which is assumed to be already
+            /// sized greater than or equal to the maximum number of samples
+            /// we can return. This value can be queried with the capacity()
+            /// method.
+            ///
+            /// @param [in] content Vector to be filled with per-node
+            ///        sample messages.
+            ///
+            /// @param [out] length The number of samples that were inserted.
             void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length);
+            /// @brief Check if the application is shutting down.
+            ///
+            /// Queries the control shared memory region to test if the
+            /// application status in shutdown.
+            ///
+            /// @return Return true if application is shutting down, else
+            ///         returns false.
             bool do_shutdown(void);
+            /// @brief Generate a post-run report for a single node.
+            ///
+            /// Generates a post-run report by telling each ProfileRankSampler
+            /// to dump its per-region statistics to a file descriptor.
             void report(void);
+            /// @brief Initialize shared memory regions.
+            ///
+            /// Coordinates with the application to initialize shared memory
+            /// and create ProfileRankSamplers for each MPI application rank
+            /// running on the local compute node.
             void initialize(void);
         protected:
-            void name_set(std::string &file_name, std::string &prof_name, std::set<std::string> &key_name);
-            void print(const std::string file_name, const std::set<std::string> &key_name);
+            /// Holds the shared memory region used for application coordination
+            /// and control.
             SharedMemory m_ctl_shmem;
+            /// Pointer to the control structure used for application coordination
+            /// and control.
             struct geopm_ctl_message_s *m_ctl_msg;
+            /// List of per-rank samplers for each MPI application rank running
+            /// on the local compute node.
             std::forward_list<ProfileRankSampler *> m_rank_sampler;
-            MPI_Comm m_comm;
+            /// Size of the hash tables to create for each MPI application rank
+            /// running on the local compute node..
             size_t m_table_size;
     };
 }

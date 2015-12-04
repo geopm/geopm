@@ -307,6 +307,9 @@ namespace geopm
 
     Profile::~Profile()
     {
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
+        }
         delete m_table;
         delete m_table_shmem;
     }
@@ -459,10 +462,9 @@ namespace geopm
 
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 
-    ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size, MPI_Comm comm)
+    ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
         : m_ctl_shmem(shm_key_base, table_size)
         , m_ctl_msg((struct geopm_ctl_message_s *)m_ctl_shmem.pointer())
-        , m_comm(comm)
         , m_table_size(table_size)
     {
 

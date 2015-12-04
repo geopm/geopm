@@ -59,7 +59,7 @@ namespace geopm
     /// The LockingHashTable container uses a block of virtual address
     /// space to support producer consumer data access.  The table is
     /// intended to support references which are registered once and
-    /// used multiple times.  The registering a reference requires a
+    /// used multiple times.  The registering of a reference requires a
     /// string name as input and provides a randomized hash of the
     /// string to an unsigned 64 bit integer key.  The key is then
     /// used for subsequent references to the templated type supported
