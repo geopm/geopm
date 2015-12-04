@@ -103,11 +103,110 @@ namespace geopm
             /// @param [in] name String which is to be mapped to the
             ///        key.
             uint64_t key(const std::string &name);
+            /// @brief Insert a value into the table.
+            ///
+            /// Once the name has been registered with a call to key()
+            /// the data associated with the name can be inserted into
+            /// the table by the producer using this function.  If
+            /// there is already a value associated with the key then
+            /// the value will be overwritten.  There is a fixed
+            /// number of collisions allowed, and if too many keys
+            /// hashed to the same entry in the table a
+            /// geopm::Exception will be thrown with error_value() of
+            /// GEOPM_ERROR_TOO_MANY_COLLISIONS.
+            ///
+            /// @param [in] key The value returned by key() when the
+            ///        name was registered.
+            ///
+            /// @param [in] value Entry that is to be inserted into
+            ///        the table.
+            ///
+            /// @return Returns the 64 bit hash used to reference the
+            ///         name in other LockingHashTable methods.
             void insert(uint64_t key, const type &value);
+            /// @brief Returns a copy of the data associated with the
+            ///        key.
+            ///
+            /// Used to access a specific element of data from the
+            /// table without deleting the entry.  If there is no data
+            /// associated with the key or the data has been deleted
+            /// by a call to dump() then a geopm::Exception is thrown
+            /// with an error_value() of GEOPM_ERROR_INVALID.
+            ///
+            /// @param [in] key The integer returned by key() when the
+            ///        name was registered.
+            ///
+            /// @param [in] value The entry that is to be copied into
+            ///        the table.
             type find(uint64_t key);
+            /// @brief Maximum number of entries the table can hold.
+            ///
+            /// Returns the upper bound on the number of values that
+            /// can be stored in the table.  This can be used to size
+            /// the content vector passed to the dump() method.  In
+            /// general there will be many fewer entries into the
+            /// table than the number returned by capacity() before a
+            /// geopm::Exception with error_value() of
+            /// GEOPM_TOO_MANY_COLLISIONS is thrown at time of
+            /// insertion.
+            ///
+            /// @return The maximum number of entries the table can
+            ///         hold.
             size_t capacity(void) const;
+            /// @brief Copy all table entries into a vector and delete
+            ///        all entries.
+            ///
+            /// This method is used by the data consumer to empty the
+            /// table of all posted contents into a vector.  When the
+            /// table is used in this way it serves as a temporary
+            /// scratch-pad for relaying messages from the producer to
+            /// the consumer.  Note that the content vector is not
+            /// re-sized and it should be sized according to the value
+            /// returned by capacity().  Only the first "length"
+            /// elements of the vector will be written to by dump().
+            ///
+            /// @param [out] content The vector of key value pairs
+            ///        copied out of the table.
+            ///
+            /// @param [out] length The number of entries copied into
+            ///        the content vector.
             void dump(typename std::vector<std::pair<uint64_t, type> >::iterator content, size_t &length);
+            /// @brief Called by the producer to pass names to the
+            ///        consumer.
+            ///
+            /// When this method is called the data producer will pass
+            /// the names that have been thus far been passed to key()
+            /// through the buffer to the consumer who will call
+            /// name_set() to receive the names.  There is an option
+            /// to avoid writing to the beginning of the buffer so
+            /// that it can be reserved for passing other information.
+            /// If the header_offset is zero then the entire buffer is
+            /// used.  This call will block until the consumer calls
+            /// name_set().
+            ///
+            /// NOTE: The LockingHashTable cannot be used again after
+            ///       a call to name_fill().
+            ///
+            /// @param [in] header_offset Offset in bytes to where the
+            ///        name values will start in the buffer.
             bool name_fill(size_t header_offset);
+            /// @brief Called by the consumer to receive the names
+            ///        that hash to the keys.
+            ///
+            /// Through calling dump() the consumer will receive a set
+            /// of integer keys.  This method enables the consumer to
+            /// learn the names that can be hashed to the keys it has
+            /// received.  There is an option to avoid writing to the
+            /// beginning of the buffer so that it can be reserved for
+            /// passing other information.  If the header_offset is
+            /// zero then the entire buffer is used.  This call will
+            /// block until the producer calls name_fill().
+            ///
+            /// NOTE: The LockingHashTable cannot be used again after
+            ///       a call to name_set().
+            ///
+            /// @param [in] header_offset Offset in bytes to where the
+            ///        name values will start in the buffer.
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
             struct table_entry_s {
@@ -201,7 +300,7 @@ namespace geopm
     void LockingHashTable<type>::insert(uint64_t key, const type &value)
     {
         if (key == 0) {
-            throw Exception("LockingHashTable::insert(): zero is not a valid key", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("LockingHashTable::insert(): zero is not a valid key", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         size_t table_idx = hash(key);
         int err = pthread_mutex_lock(&(m_table[table_idx].lock));
@@ -232,7 +331,7 @@ namespace geopm
     type LockingHashTable<type>::find(uint64_t key)
     {
         if (key == 0) {
-            throw Exception("LockingHashTable::find(): zero is not a valid key", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("LockingHashTable::find(): zero is not a valid key", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         size_t table_idx = hash(key);
         const type *result_ptr = NULL;
@@ -251,7 +350,7 @@ namespace geopm
             throw Exception("LockingHashTable::find(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
         }
         if (result_ptr == NULL) {
-            throw Exception("LockingHashTable::find(): key not found", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("LockingHashTable::find(): key not found", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return *result_ptr;
     }
