@@ -58,7 +58,9 @@ include_HEADERS = src/geopm.h \
 dist_man_MANS = man/geopm.3 \
                 man/geopmctl.3 \
                 man/geopm_ctl_c.3 \
+                man/geopm_error.3 \
                 man/geopmkey.3 \
+                man/geopm_omp.3 \
                 man/geopmpolicy.3 \
                 man/geopm_policy_c.3 \
                 man/geopm_prof_c.3 \
@@ -245,10 +247,12 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage
+clean-local: clean-local-coverage clean-local-man-html
 
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
+clean-local-man-html:
+	rm -rf man3
 
 # RPM TARGET
 geopm-$(VERSION).spec:
@@ -258,9 +262,25 @@ rpm: dist
 	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		-f geopm.spec.mk $@
 
-#DOXYGEN TARGET
+# DOXYGEN TARGET
 doxygen:
 	doxygen dox/Doxyfile
+
+# MAN_HTML TARGET
+man-html:
+	mkdir -p man3
+	for mm in $(dist_man_MANS); do \
+	    man2html -r $$mm > man3/$$(basename $$mm).html; \
+	done; \
+	sed -e '/NAME/,$$!d' \
+	    -e '/Index/,$$d' \
+	    -e 's/file:\/\/\/usr\/include\/geopm/https:\/\/github.com\/geopm\/geopm\/tree\/dev\/src\/geopm/g' \
+	    -e 's/\.\.\/man3\/CPU_SET.3.html/http:\/\/linux.die.net\/man\/7\/cpuset/g' \
+	    -e 's/\.\.\/man3\/pthread_attr_setaffinity_np.3.html/http:\/\/linux.die.net\/man\/3\/pthread_attr_setaffinity_np/g' \
+	    -e 's/\.\.\/man3\/pthread_setaffinity_np.3.html/http:\/\/linux.die.net\/man\/3\/pthread_setaffinity_np/g' \
+	    -e 's/\.\.\/man3\/errno.3.html/http:\/\/linux.die.net\/man\/3\/errno/g' \
+	    -e 's/\.\.\/man1\/git-describe.1.html/http:\/\/linux.die.net\/man\/1\/git-describe/g' \
+	    -i man3/*;
 
 # INCLUDES
 check_PROGRAMS =
@@ -270,3 +290,5 @@ BUILT_SOURCES =
 
 include test/Makefile.mk
 include examples/Makefile.mk
+
+.PHONY: clean-local clean-local-coverage clean-local-man-html rpm doxygen man_html
