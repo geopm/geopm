@@ -133,7 +133,7 @@ TEST_F(MPIProfileTest, runtime)
     ASSERT_LT(1, num_nodes);
 
     (void) MPI_Query_thread(&mpi_thread_level);
-    ASSERT_LT(MPI_THREAD_MULTIPLE, mpi_thread_level);
+    ASSERT_LE(MPI_THREAD_MULTIPLE, mpi_thread_level);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
