@@ -49,12 +49,79 @@
 
 namespace geopm
 {
+    /// @brief Class used to lauch or step the global energy
+    ///        optimization power management algorithm.
+    ///
+    /// The Controller class enables several methods of control:
+    /// explicit stepping of the control algorithm by the application
+    /// under control, running the control algorithm as a distinct
+    /// processes from the application under control, running the
+    /// control algorithm as a separate pthread owned by the
+    /// application process under control, or the application under
+    /// control can spawn a new MPI communicator that runs the control
+    /// algorithm in conjunction with its own distinct MPI_COMM_WORLD.
+    /// Each of these methods has different requirements and trade
+    /// offs.
+    ///
+    ///
+    /// The Controller is the central execution class for the geopm
+    /// runtime, and interacts with many other geopm classes and
+    /// coordinates their actions.  The controller gathers policy data
+    /// from the GlobalPolicy, application profile data from the
+    /// Profile (through shared memory), and hardware profile
+    /// information from the Platform.  It uses the TreeCommunicator
+    /// class to communicate policy and sample data between compute
+    /// nodes.
+    ///
+    /// The Controller class is the C++ implementation of the
+    /// geopm_ctl_c interface.  The class methods support the C
+    /// interface defined for use with the geopm_ctl_c structure and
+    /// are named accordingly.  The geopm_ctl_c structure is an
+    /// opaque reference to the Controller class.
+
     class Controller
     {
         public:
+            /// @brief Controller constructor.
+            ///
+            /// The Controller construction requires a reference to a
+            /// GlobalPolicy object, the shared memory key used to
+            /// communicate with the application, and the MPI
+            /// communicator that the controller is running on.
+            ///
+            /// @param [in] global_policy A reference to the
+            ///        GlobalPolicy object used to configure policy
+            ///        for the entire allocation.
+            ///
+            /// @param [in] shmem_base Shared memory key base string
+            ///        to which the rank ID is appended to denote the
+            ///        shared memory key that each computational
+            ///        application rank will write to.
+            ///
+            /// @param [in] comm The MPI communicator that supports
+            ///        the control messages.
             Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm);
+            /// @brief Controller destructor, virtual.
             virtual ~Controller();
+            /// @brief Run control algorighm.
+            ///
+            /// Steps the control algorithm continuously until the
+            /// shutdown signal is received.  Since this is a blocking
+            /// call that never returns, it is intended that profiling
+            /// information is provided through POSIX shared memory.
             void run(void);
+            /// @brief Execute one step in the hierarchical control
+            ///        algorithm.
+            ///
+            /// The call to step() is a blocking call for those
+            /// processes that are the lowest MPI rank on the compute
+            /// node (based on the communicator that was used to
+            /// construct the Controller) and a no-op for those that
+            /// are not.  A call to this method sends samples up the
+            /// tree, then policies down the tree, and finally if the
+            /// policy has been changed for the node of the calling
+            /// process then the policy is enforced by writing MSR
+            /// values.
             void step(void);
             void pthread(const pthread_attr_t *attr, pthread_t *thread);
             void spawn(void);

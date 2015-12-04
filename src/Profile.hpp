@@ -47,8 +47,34 @@
 
 namespace geopm
 {
-    /// @brief Encapsulates the state and provides the interface for
-    ///        computational application profiling.
+    /// @brief Enables application profiling and application feadback
+    ///        to the control algorithm.
+    ///
+    /// The information gathered by the Profile class identifies
+    /// regions of code, progress within regions, and global
+    /// synchronization points in the application.  Regions of code
+    /// define periods in the application during which control
+    /// parameters are tuned with the expectation that control
+    /// parameters for a region can be optimized independently of
+    /// other regions.  In this way a region is associated with a set
+    /// of control parameters which can be optimized, and future time
+    /// intervals associated with the same region will benefit from
+    /// the application of control parameters which were determined
+    /// from tuning within previous occurrences of the region.  There
+    /// are two competing motivations for defining a region within the
+    /// application.  The first is to identify a section of code that
+    /// has distinct compute, memory or network characteristics.  The
+    /// second is toavoid defining these regions such that they are
+    /// nested within each other, as nested regions are ignored, and
+    /// only the outer most region is used for tuning when nesting
+    /// occurs.  Identifying progress within a region can be used to
+    /// alleviate load imbalance in the application under the
+    /// assumption that the region is bulk synchronous.  Under the
+    /// assumption that the application employs an iterative algorithm
+    /// which synchronizes periodically the user can alleviate load
+    /// imbalance on larger time scales than the regions provide.
+    /// This is done by marking the end of the outer most loop, or the
+    /// "outer synchronization point."
     ///
     /// The Profile class is the C++ implementation of the
     /// computational application side interface to the GEOPM
