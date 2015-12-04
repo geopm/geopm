@@ -135,9 +135,6 @@ namespace geopm
             ///
             /// @param [in] key The integer returned by key() when the
             ///        name was registered.
-            ///
-            /// @param [in] value The entry that is to be copied into
-            ///        the table.
             type find(uint64_t key);
             /// @brief Maximum number of entries the table can hold.
             ///
@@ -207,6 +204,9 @@ namespace geopm
             ///
             /// @param [in] header_offset Offset in bytes to where the
             ///        name values will start in the buffer.
+            ///
+            /// @param [out] name Set of names read from output of the
+            ///        producer's call to name_fill().
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
             struct table_entry_s {
