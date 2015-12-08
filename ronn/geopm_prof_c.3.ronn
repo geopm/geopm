@@ -9,34 +9,36 @@ geopm_prof_c(3) -- geopm application profiling structure
 
   * `int geopm_prof_create(`:
     `const char *`_name_, <br>
-    `int` _sample_reduce_, <br>
+    `size_t` _table_size_, <br>
     `const char *`_sample_key_, <br>
+    `MPI_Comm` _comm_, <br>
     `struct geopm_prof_c **`_prof_);
 
   * `int geopm_prof_destroy(`:
     `struct geopm_prof_c *`_prof_);
 
-  * `int geopm_prof_register(`:
+  * `int geopm_prof_region(`:
     `struct geopm_prof_c *`_prof_, <br>
     `const char *`_region_name_, <br>
     `long` _policy_hint_, <br>
-    `int *`_region_id_);
+    `uint64_t *`_region_id_);
 
   * `int geopm_prof_enter(`:
     `struct geopm_prof_c *`_prof_, <br>
-    `int` _region_id_);
+    `uint64_t` _region_id_);
 
   * `int geopm_prof_exit(`:
     `struct geopm_prof_c *`_prof_, <br>
-    `int` _region_id" );
+    `uint64_t` _region_id_);
 
   * `int geopm_prof_progress(`:
     `struct geopm_prof_c *`_prof_, <br>
-    `int` _region_id_, <br>
+    `uint64_t` _region_id_, <br>
     `double` _fraction_);
 
   * `int geopm_prof_outer_sync(`:
-    `struct geopm_prof_c *`_prof_);
+    `struct geopm_prof_c *`_prof_, <br>
+    `uint64_t` _region_id_);
 
   * `int geopm_prof_sample(`:
     `struct geopm_prof_c *`_prof_);
@@ -47,12 +49,8 @@ geopm_prof_c(3) -- geopm application profiling structure
 
   * `int geopm_prof_print(`:
     `struct geopm_prof_c *`_prof_, <br>
+    `const char *`_file_name_, <br>
     `int` _depth_);
-
-  * `int geopm_prof_fprint(`:
-    `struct geopm_prof_c *`_prof_, <br>
-    `int` _depth_, <br>
-    `FILE *`_fid_);
 
 `HELPER FUNCTIONS:`
 
@@ -75,162 +73,180 @@ geopm_prof_c(3) -- geopm application profiling structure
     `double` _norm_);
 
 ## DESCRIPTION
-The geopm_prof_c structure enables application profiling for geopm.  The
-functions associated with he geopm_prof_c structure are described here.  These
-functions enable application feedback to the control algorithm for identifying
-regions of code, progress within regions, and global synchronization points in
-the application.  Regions of code define periods in the application during
-which control parameters are tuned with the expectation that control
-parameters for a region can be optimized independently of other regions.  In
-this way a region is associated with a set of control parameters which can be
-optimized, and future time intervals associated with the same region will
-benefit from the application of control parameters which were determined from
-tuning within previous occurrences of the region.  There are two competing
-motivations for defining a region within the application.  The first is to
-identify a section of code that has distinct compute, memory or network
-characteristics.  The second is to avoid defining these regions such that they
-are nested within each other, as nested regions are ignored, and only the
-outer most region is used for tuning when nesting occurs.  Identifying
-progress within a region can be used to alleviate load imbalance in the
-application under the assumption that the region is bulk synchronous.  Under
-the assumption that the application employs an iterative algorithm which
-synchronizes periodically the user can alleviate load imbalance on larger time
-scales than the regions provide.  This is done by marking the end of the outer
-most loop, or the "outer synchronization point."
+The geopm_prof_c structure enables application profiling for geopm.
+The functions associated with he geopm_prof_c structure are described
+here.  These functions enable application feedback to the control
+algorithm for identifying regions of code, progress within regions,
+and global synchronization points in the application.  Regions of code
+define periods in the application during which control parameters are
+tuned with the expectation that control parameters for a region can be
+optimized independently of other regions.  In this way a region is
+associated with a set of control parameters which can be optimized,
+and future time intervals associated with the same region will benefit
+from the application of control parameters which were determined from
+tuning within previous occurrences of the region.  There are two
+competing motivations for defining a region within the application.
+The first is to identify a section of code that has distinct compute,
+memory or network characteristics.  The second is to avoid defining
+these regions such that they are nested within each other, as nested
+regions are ignored, and only the outer most region is used for tuning
+when nesting occurs.  Identifying progress within a region can be used
+to alleviate load imbalance in the application under the assumption
+that the region is bulk synchronous.  Under the assumption that the
+application employs an iterative algorithm which synchronizes
+periodically the user can alleviate load imbalance on larger time
+scales than the regions provide.  This is done by marking the end of
+the outer most loop, or the "outer synchronization point."
 
   * `geopm_prof_create`():
-    creates a profile object _prof_. Requires a _name_ which is displayed when
-    the profile is printed.  The _sample_reduce_ parameter determines the level
-    of reduction that occurs when a sample is generated with the
-    `geopm_prof_sample`() API.  If _sample_reduce_ is 0, no reduction occurs 
-    when sampling and samples include thread specific information. If
-    _sample_reduce_ is 1 then thread specific data is aggregated to the MPI
-    rank level.  If _sample_reduce_ is 2 then data is aggregated to the compute
+
+    creates a profile object _prof_. Requires a _name_ which is
+    displayed when the profile is printed.  The _sample_reduce_
+    parameter determines the level of reduction that occurs when a
+    sample is generated with the `geopm_prof_sample`() API.  If
+    _sample_reduce_ is 0, no reduction occurs when sampling and
+    samples include thread specific information. If _sample_reduce_ is
+    1 then thread specific data is aggregated to the MPI rank level.
+    If _sample_reduce_ is 2 then data is aggregated to the compute
     node granularity over all MPI ranks on each compute node. If the
-    _sample_key_ is non-NULL then calls to `geopm_prof_sample`() will write the
-    sampled data to POSIX shared memory associated with the given key to be read
-    by an external control process running on the same compute node.
+    _sample_key_ is non-NULL then calls to `geopm_prof_sample`() will
+    write the sampled data to POSIX shared memory associated with the
+    given key to be read by an external control process running on the
+    same compute node.
 
   * `geopm_prof_destroy`():
     destroys all resources associated with the prof object.
 
   * `geopm_prof_register`():
-    registers an application region with the profile structure.
-    The _region_name_ and _hint_ are input parameters, and the _region_id_ is
-    returned.  If the region name has been previously registered, a call to this
-    function will set the _region_id_ but the state in the _prof_ structure
-    associated with the region is unmodified.  The _region_name_ is used to
-    determine the output _region_id_ and is also displayed in the profiling
-    report to identify the region.  The _hint_ is one of the values given by the
-    geopm_prof_hint_e enum defined in _geopm.h_ which determines the initial
-    control settings.
+    registers an application region with the profile structure.  The
+    _region_name_ and _hint_ are input parameters, and the _region_id_
+    is returned.  If the region name has been previously registered, a
+    call to this function will set the _region_id_ but the state in
+    the _prof_ structure associated with the region is unmodified.
+    The _region_name_ is used to determine the output _region_id_ and
+    is also displayed in the profiling report to identify the region.
+    The _hint_ is one of the values given by the geopm_prof_hint_e
+    enum defined in _geopm.h_ which determines the initial control
+    settings.
 
   * `geopm_prof_enter`():
-    is called by the compute application to mark the beginning of the profiled
-    compute region associated with the _region_id_. If this call is made after 
-    entering a different region, but before exiting that region, the call is
-    ignored and an error code is returned (i.e. nested regions are ignored).
+    is called by the compute application to mark the beginning of the
+    profiled compute region associated with the _region_id_. If this
+    call is made after entering a different region, but before exiting
+    that region, the call is ignored and an error code is returned
+    (i.e. nested regions are ignored).
 
   * `geopm_prof_exit`():
-    is called by compute application to mark the end of a compute region.  If
-    this region is nested then the call is ignored and an error code is returned.
+    is called by compute application to mark the end of a compute
+    region.  If this region is nested then the call is ignored and an
+    error code is returned.
 
   * `geopm_prof_progress`():
-    is called by compute application in single threaded context to signal the
-    fractional progress, _fraction_ through the work required to complete the
-    region where _fraction_ is between 0 and 1.  If the _region_id_ does not
-    match the _region_id_ of the last call to geopm_prof_prof_enter() which was
-    not nested, then this call is ignored and an error code is returned.
+    is called by compute application in single threaded context to
+    signal the fractional progress, _fraction_ through the work
+    required to complete the region where _fraction_ is between 0 and
+    1.  If the _region_id_ does not match the _region_id_ of the last
+    call to geopm_prof_prof_enter() which was not nested, then this
+    call is ignored and an error code is returned.
 
   * `geopm_prof_outer_sync`():
-    is called just prior to the highest level global synchronization point in an
-    application.  This occurs in the application's outermost loop in an
-    iterative algorithm just prior to the last synchronizing MPI call.  There
-    should be just one place in an application code where this call occurs, and
-    it should be called repeatedly inside of a loop.
+    is called just prior to the highest level global synchronization
+    point in an application.  This occurs in the application's
+    outermost loop in an iterative algorithm just prior to the last
+    synchronizing MPI call.  There should be just one place in an
+    application code where this call occurs, and it should be called
+    repeatedly inside of a loop.
 
   * `geopm_prof_sample`():
-    is called to derive a sample based on the profiling information collected.
-    This may aggregate data as specified by the _sample_reduce_ parameters passed
-    when the _prof_ structure was created.
+    is called to derive a sample based on the profiling information
+    collected.  This may aggregate data as specified by the
+    _sample_reduce_ parameters passed when the _prof_ structure was
+    created.
 
   * `geopm_prof_disable`():
-    is called at application start up to disable a profiling feature.  By default
-    all profiling features available on the system are enabled.  The set of all
-    possible values for _feature_name_ are: "instr", "flop", and "joules".
+    is called at application start up to disable a profiling feature.
+    By default all profiling features available on the system are
+    enabled.  The set of all possible values for _feature_name_ are:
+    "instr", "flop", and "joules".
 
   * `geopm_prof_print`():
-    writes a profile report to standard output based on the data collected so
-    far.  This is intended for use just prior to application termination.  All
-    profile information above the specified _depth_ in the control tree
-    hierarchy is contained in the report.  A depth of 0 gives only statistics
-    aggregated over all MPI processes.
+    writes a profile report to standard output based on the data
+    collected so far.  This is intended for use just prior to
+    application termination.  All profile information above the
+    specified _depth_ in the control tree hierarchy is contained in
+    the report.  A depth of 0 gives only statistics aggregated over
+    all MPI processes.
 
   * `geopm_prof_fprint`():
-    writes the profile report to the file descriptor _fid_ rather than standard
-    output and is otherwise the same as `geopm_prof_print`().
+    writes the profile report to the file descriptor _fid_ rather than
+    standard output and is otherwise the same as `geopm_prof_print`().
 
 `HELPER FUNCTIONS:`
 
   * `geopm_num_node`():
     sets _num_node_ to the number of compute nodes associated with the
-    communicator _comm_. A compute node is defined to be a shared memory
-    coherency domain.  The product of the elements of _fan_out_ passed to
-    `geopm_ctl_create`() must equal _num_node_.
+    communicator _comm_. A compute node is defined to be a shared
+    memory coherency domain.  The product of the elements of _fan_out_
+    passed to `geopm_ctl_create`() must equal _num_node_.
 
  * `geopm_no_omp_cpu`():
-    sets the _no_omp_ **CPU_SET(3)** allocated with _num_cpu_ bits to a mask
-    which can be used with **pthread_attr_setaffinity_np(3)** to bind the
-    pthread created by `geopm_ctl_pthread`() to CPUs that do not have an
-    OpenMP thread affinity.  The mask generated when OpenMP threads are not
-    statically affinitized is unreliable.  The _no_omp_ mask is zeroed and an
-    error code is returned when all online CPUs have an OpenMP thread affinity.
+    sets the _no_omp_ **CPU_SET(3)** allocated with _num_cpu_ bits to
+    a mask which can be used with **pthread_attr_setaffinity_np(3)**
+    to bind the pthread created by `geopm_ctl_pthread`() to CPUs that
+    do not have an OpenMP thread affinity.  The mask generated when
+    OpenMP threads are not statically affinitized is unreliable.  The
+    _no_omp_ mask is zeroed and an error code is returned when all
+    online CPUs have an OpenMP thread affinity.
 
   * `geopm_omp_sched_static_norm`():
-    calculates the _norm_ array of length _num_thread_ that can be used with
-    `geopm_ctl_prof_progress_threaded_min`() in the case where a for loop is
-    OpenMP parallel using the static scheduling algorithm with the specified
-    _chunk_size_.  The _num_iter_ parameter is the number of iterations
-    specified in the for loop, and the _num_thread_ parameter determines the
-    number of OpenMP threads that are used to parallelize the loop.
+    calculates the _norm_ array of length _num_thread_ that can be
+    used with `geopm_ctl_prof_progress_threaded_min`() in the case
+    where a for loop is OpenMP parallel using the static scheduling
+    algorithm with the specified _chunk_size_.  The _num_iter_
+    parameter is the number of iterations specified in the for loop,
+    and the _num_thread_ parameter determines the number of OpenMP
+    threads that are used to parallelize the loop.
 
   * `geopm_progress_threaded_min`():
-    is called by a compute application by one thread in a multi-threaded context
-    using _num_thread_ threads.  This function returns the fractional progress
-    through the work required to complete the region.  The fractional progress
-    is calculated as the minimum of the fractional progress of all of the
-    threads that are given work, i.e. the minimum over all _i_ of
-    _progress_[_stride_*_i_]_norm_[_i_]. <br>
-    Note that the progress array is assumed to be strided where the separation
-    in number of integers of valid progress is given by the parameter _stride_.
-    The _stride_ can be used to avoid performance loss due to false sharing
-    since multiple threads must write to the progress array simultaneously.  On
-    the x86 architecture it is recommended that a stride of 16 or greater is
-    used to have each thread writing to a different 64 byte cache line.  The
-    _norm_ array is used to normalize the integer _progress_ array such that
-    each element of _norm_ is the inverse of each strided value of the
-    _progress_ array upon completion of all work in the region.
+    is called by a compute application by one thread in a
+    multi-threaded context using _num_thread_ threads.  This function
+    returns the fractional progress through the work required to
+    complete the region.  The fractional progress is calculated as the
+    minimum of the fractional progress of all of the threads that are
+    given work, i.e. the minimum over all _i_ of
+    _progress_[_stride_*_i_]_norm_[_i_]. <br> Note that the progress
+    array is assumed to be strided where the separation in number of
+    integers of valid progress is given by the parameter _stride_.
+    The _stride_ can be used to avoid performance loss due to false
+    sharing since multiple threads must write to the progress array
+    simultaneously.  On the x86 architecture it is recommended that a
+    stride of 16 or greater is used to have each thread writing to a
+    different 64 byte cache line.  The _norm_ array is used to
+    normalize the integer _progress_ array such that each element of
+    _norm_ is the inverse of each strided value of the _progress_
+    array upon completion of all work in the region.
 
   * `geopm_progress_threaded_sum`():
-    is called by a compute application by one thread in a multi-threaded context
-    using _num_thread_ threads.  This function is very much like
-    `geopm_progress_threaded_min`() except that it sums the values in the
-    _progress_ array and multiplies the sum of the strided progress values by
-    _norm_ where _norm_ is the inverse of the sum of all progress values upon
-    completion of all work. The fractional progress is calculated as the sum of
-    the progress of all of the threads that are given work normalized by the
-    inverse of the amount of aggregate work assigned to all threads, _norm_.
-    This can be less accurate for determining load imbalance than using
-    `geopm_progress_threaded_min`() but is applicable in contexts where the
-    amount of work assigned to each thread is not known in advance, e.g. OpenMP
-    dynamic scheduling.  The progress array is assumed to be strided in the same
-    way and for the same reasons as described above for
-    `geopm_threaded_progress_min`().
+    is called by a compute application by one thread in a
+    multi-threaded context using _num_thread_ threads.  This function
+    is very much like `geopm_progress_threaded_min`() except that it
+    sums the values in the _progress_ array and multiplies the sum of
+    the strided progress values by _norm_ where _norm_ is the inverse
+    of the sum of all progress values upon completion of all work. The
+    fractional progress is calculated as the sum of the progress of
+    all of the threads that are given work normalized by the inverse
+    of the amount of aggregate work assigned to all threads, _norm_.
+    This can be less accurate for determining load imbalance than
+    using `geopm_progress_threaded_min`() but is applicable in
+    contexts where the amount of work assigned to each thread is not
+    known in advance, e.g. OpenMP dynamic scheduling.  The progress
+    array is assumed to be strided in the same way and for the same
+    reasons as described above for `geopm_threaded_progress_min`().
 
 ## ERRORS
 All functions described on this man page return an error code.  See
-**geopm_error(3)** for a full description of the error numbers and how to convert
-them to strings.
+**geopm_error(3)** for a full description of the error numbers and how
+to convert them to strings.
 
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.
