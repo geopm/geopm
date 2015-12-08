@@ -35,6 +35,7 @@
 #include <string>
 #include <memory>
 
+#include "config.h"
 #include "geopm_error.h"
 #include "geopm_plugin.h"
 #include "Exception.hpp"

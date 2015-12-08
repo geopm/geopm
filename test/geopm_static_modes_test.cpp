@@ -48,7 +48,7 @@
 static const int ivb_id = 0x63E;
 static const int snb_id = 0x62D;
 static const int hsx_id = 0x63F;
-static volatile int exit_signal = 0;
+static volatile int exit_signal_g = 0;
 int cpuid();
 
 struct work_s {
@@ -63,7 +63,7 @@ static inline void* do_something(void *work_struct)
     int i = 0;
 
     work->result = (double)work->input;
-    while (!exit_signal) {
+    while (!exit_signal_g) {
         work->result += i*work->result;
     }
     work->result = isinf(work->result) ? 100.0 : work->result;
@@ -140,7 +140,7 @@ int main(int argc, char **argv)
         }
     }
 
-    exit_signal = 1;
+    exit_signal_g = 1;
 
     for (int i = 0; i < cpus; i++) {
         ASSERT(pthread_join(threads[i], NULL) == 0);

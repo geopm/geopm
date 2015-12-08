@@ -38,6 +38,9 @@
 #include <mpi.h>
 #include <omp.h>
 #include <errno.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "geopm.h"
 #include "geopm_message.h"
@@ -73,8 +76,28 @@ static int run_something(void)
     uint32_t *progress_ptr = NULL;
     uint64_t region_id;
 
-    err = geopm_policy_create(NULL, NULL, &policy);
+    // In this example we will create the policy, but in general it
+    // should be created prior to application runtime.
+    err = geopm_policy_create("", "profile_policy", &policy);
     if (!err) {
+        err = geopm_policy_mode(policy, GEOPM_MODE_PERF_BALANCE_DYNAMIC);
+    }
+    if (!err) {
+        err = geopm_policy_power(policy, 2000);
+    }
+    if (!err) {
+        err = geopm_policy_write(policy);
+    }
+    if (!err) {
+        err = geopm_policy_destroy(policy);
+    }
+    // Now that we have a policy on disk, use it as a normal
+    // application would
+    if (!err) {
+        err = geopm_policy_create("profile_policy", "", &policy);
+    }
+    if (!err) {
+        (void)shm_unlink("/geopm_threaded_step");
         err = geopm_ctl_create(policy, "/geopm_threaded_step", MPI_COMM_WORLD, &ctl);
     }
     if (!err) {
