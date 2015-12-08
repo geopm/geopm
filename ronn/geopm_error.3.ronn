@@ -1,0 +1,103 @@
+geopm_error(3) -- geopm error handling
+======================================
+
+## SYNOPSIS
+
+**\#include [<geopm_error.h>](https://github.com/geopm/geopm/blob/dev/src/)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `void geopm_error_message(`:
+    `int` _err_, <br>
+    `char *`_msg_, <br>
+    `size_t` _size_);
+
+## DESCRIPTION
+All **geopm(3)** C APIs which can have an error condition occur during
+runtime return an error number.  This is the way **geopm(3)** handles
+errors, and almost all of the interfaces behave this way.  This man page
+describes how to interpret these returned error codes.  A returned error
+number of zero by a geopm API indicates success.  If the error number returned
+by a geopm API is positive then this indicates a generic system error, and if
+the error number is negative this indicates a **geopm(3)** specific error has
+occurred.  Any non-zero error number can be converted into a descriptive string
+with the **geopm_error_message()** function.  The GEOPM specific error numbers
+are enumerated in the _geopm_error.h_ header file and they are described below.
+The system error numbers are documented in the **errno(3)** man page.
+
+## ERRORS NUMBERS
+
+  * `GEOPM_ERROR_RUNTIME = -1`:
+    Runtime error
+
+  * `GEOPM_ERROR_LOGIC = -2`:
+    Logic error
+
+  * `GEOPM_ERROR_INVALID = -3`:
+    Invalid argument
+
+  * `GEOPM_ERROR_POLICY_NULL = -4`:
+    The `geopm_policy_c` pointer is NULL, use `geopm_policy_create`()
+
+  * `GEOPM_ERROR_FILE_PARSE = -5`:
+    Unable to parse input file
+
+  * `GEOPM_ERROR_LEVEL_RANGE = -6`:
+    Control hierarchy level is out of range
+
+  * `GEOPM_ERROR_CTL_COMM = -7`:
+    Communication error in control hierarchy
+
+  * `GEOPM_ERROR_SAMPLE_INCOMPLETE = -8`:
+    All children have not sent all samples
+
+  * `GEOPM_ERROR_POLICY_UNKNOWN = -9`:
+    No policy has been set
+
+  * `GEOPM_ERROR_NOT_IMPLEMENTED = -10`:
+    Feature not yet implemented
+
+  * `GEOPM_ERROR_NOT_TESTED = -11`:
+    Feature not yet tested
+
+  * `GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12`:
+    Current platform not supported or unrecognized
+
+  * `GEOPM_ERROR_MSR_OPEN = -13`:
+    Could not open MSR device
+
+  * `GEOPM_ERROR_MSR_READ = -14`:
+    Could not read from MSR device
+
+  * `GEOPM_ERROR_MSR_WRITE = -15`:
+    Could not write to MSR device
+
+  * `GEOPM_ERROR_OPENMP_UNSUPPORTED = -16`:
+    Not compiled with support for OpenMP
+
+  * `GEOPM_ERROR_PROF_NULL = -17`:
+    The `geopm_prof_c` pointer is NULL, use `geopm_prof_create`()
+
+  * `GEOPM_ERROR_DECIDER_UNSUPPORTED = -18`:
+    Specified decider not supported or unrecognized
+
+  * `GEOPM_ERROR_FACTORY_NULL = -19`:
+    The `geopm_factory_c` pointer is NULL, pass in a valid factory object
+
+  * `GEOPM_ERROR_SHUTDOWN = -20`:
+    Shutdown policy has been signaled
+
+## COPYRIGHT
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(3)**,
+**geopm_ctl_c(3)**,
+**geopmkey(3)**,
+**geopm_omp(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmctl(3)**,
+**geopmpolicy(3)**
+**errno(3)**

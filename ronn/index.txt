@@ -11,7 +11,7 @@ geopmctl(3)         https://geopm.github.io/geopm/man/geopmctl.3.html
 geopmpolicy(3)      https://geopm.github.io/geopm/man/geopmpolicy.3.html
 
 #external pages
-cpuset(7)                       http://linux.die.net/man/7/cpuset
+CPU_SET(3)                      http://linux.die.net/man/3/cpu_set
 pthread_attr_setaffinity_np(3)  http://linux.die.net/man/3/pthread_attr_setaffinity_np
 pthread_setaffinity_np(3)       http://linux.die.net/man/3/pthread_setaffinity_np
 errno(3)                        http://linux.die.net/man/3/errno

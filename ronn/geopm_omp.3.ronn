@@ -1,0 +1,42 @@
+geopm_omp.h(3) -- geopm interface for OpenMP
+============================================
+
+## SYNOPSIS
+**\#include [<geopm_omp.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_omp.h)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `int geopm_no_omp_cpu(`:
+    `int` _ num_cpu_, <br>
+    `cpu_set_t *`_no_omp_);
+
+## DESCRIPTION
+    The _geopm_omp.h_ header defines geopm interfaces for interacting with the
+    OpenMP runtime environment.  This set of interfaces will grow in the future.
+
+  * `geopm_no_omp_cpu`():
+    sets the **CPU_SET(3)** given by _no_omp_ such that it includes all CPUs not
+    used in an OpenMP parallel region.  This cpu mask can be used with
+    **pthread_attr_setaffinity_np(3)** to modify the attributes passed to
+    `geopm_ctl_pthread`() so that the pthread created is affinitized to CPUs
+    that do not have an OpenMP thread affinity.  The mask generated when OpenMP
+    threads are not statically affinitized is unreliable.  The _no_omp_ mask is
+    zeroed and an error code is returned when all online CPUs have an OpenMP
+    thread affinity.  The _num_cpu_ parameter specifies size of the CPU_SET in
+    terms of number of CPUs.
+
+## COPYRIGHT
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+
+**geopm(3)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopmkey(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmctl(3)**,
+**geopmpolicy(3)**,
+**CPU_SET(3)**,
+**pthread_setaffinity_np(3)**,
+**pthread_attr_setaffinity_np(3)**

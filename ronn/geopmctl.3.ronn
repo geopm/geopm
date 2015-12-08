@@ -1,0 +1,56 @@
+geopmctl(3) -- geopm runtime mpi application
+============================================
+
+## SYNOPSIS
+
+  * `geopmctl` [`--help`] [`--version`]:
+    (`-c` policy_config | `-k` policy_key) <br>
+    [`-s` sample_key] [`-r` report]
+
+## DESCRIPTION
+    The geopmctl application runs concurrently with a computational MPI
+    application to manage power settings on compute nodes allocated to the
+    computation MPI application.
+
+## OPTIONS
+
+  * `--help`:
+    <br>Print brief summary of the command line usage information, then exit.
+
+  * `--version`:
+    Print version of geopm to standard output, then exit.
+
+  * `-c` policy_config:
+    Policy configuration file which may be created with the
+    **geopm_policy_c(3)** interface or the **geopmpolicy(3)** application.
+    If `-c` is specified then `-k`  should not be specified.  If both are
+    specified `-k` is ignored and a warning is printed.
+
+  * `-k` control_key:
+    POSIX shared memory key which determines policy for geopmctl.  See
+    **geopm_policy_c(3)** for information on how to create and modify a shared
+    memory region for control.
+.TP
+  * `-s` sample_key:
+    POSIX shared memory key referencing memory written to by the compute
+    application to provide the geopmctl application with performance profile
+    information.  See
+    **geopm_ctl_c(3)** for information on how to create the sample shared
+    memory region for profile feedback.
+
+  * `-r` report:
+    Output text file that will hold the human readable report when program
+    terminates.
+
+## COPYRIGHT
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+
+**geopm(3)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_omp(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmkey(3)**,
+**geopmpolicy(3)**
