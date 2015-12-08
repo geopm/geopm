@@ -1,0 +1,18 @@
+#geopm pages
+geopm(3)            https://geopm.github.io/geopm/man/geopm.3.html
+geopmkey(3)         https://geopm.github.io/geopm/man/geopmkey.3.html
+geopm_ctl_c(3)      https://geopm.github.io/geopm/man/geopm_ctl_c.3.html
+geopm_error(3)      https://geopm.github.io/geopm/man/geopm_error.3.html
+geopm_omp(3)        https://geopm.github.io/geopm/man/geopm_omp.3.html
+geopm_policy_c(3)   https://geopm.github.io/geopm/man/geopm_policy_c.3.html
+geopm_prof_c(3)     https://geopm.github.io/geopm/man/geopm_prof_c.3.html
+geopm_version(3)    https://geopm.github.io/geopm/man/geopm_version.3.html
+geopmctl(3)         https://geopm.github.io/geopm/man/geopmctl.3.html
+geopmpolicy(3)      https://geopm.github.io/geopm/man/geopmpolicy.3.html
+
+#external pages
+cpuset(7)                       http://linux.die.net/man/7/cpuset
+pthread_attr_setaffinity_np(3)  http://linux.die.net/man/3/pthread_attr_setaffinity_np
+pthread_setaffinity_np(3)       http://linux.die.net/man/3/pthread_setaffinity_np
+errno(3)                        http://linux.die.net/man/3/errno
+git-describe(1)                 http://linux.die.net/man/1/git-describe

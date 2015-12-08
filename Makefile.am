@@ -247,12 +247,13 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage clean-local-man-html
+clean-local: clean-local-coverage clean-local-man
 
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
-clean-local-man-html:
-	rm -rf man3
+
+clean-local-man:
+	rm -rf man ronn/*.html ronn/*.3
 
 # RPM TARGET
 geopm-$(VERSION).spec:
@@ -266,21 +267,15 @@ rpm: dist
 doxygen:
 	doxygen dox/Doxyfile
 
-# MAN_HTML TARGET
-man-html:
-	mkdir -p man3
-	for mm in $(dist_man_MANS); do \
-	    man2html -r $$mm > man3/$$(basename $$mm).html; \
-	done; \
-	sed -e '/NAME/,$$!d' \
-	    -e '/Index/,$$d' \
-	    -e 's/file:\/\/\/usr\/include\/geopm/https:\/\/github.com\/geopm\/geopm\/tree\/dev\/src\/geopm/g' \
-	    -e 's/\.\.\/man3\/CPU_SET.3.html/http:\/\/linux.die.net\/man\/7\/cpuset/g' \
-	    -e 's/\.\.\/man3\/pthread_attr_setaffinity_np.3.html/http:\/\/linux.die.net\/man\/3\/pthread_attr_setaffinity_np/g' \
-	    -e 's/\.\.\/man3\/pthread_setaffinity_np.3.html/http:\/\/linux.die.net\/man\/3\/pthread_setaffinity_np/g' \
-	    -e 's/\.\.\/man3\/errno.3.html/http:\/\/linux.die.net\/man\/3\/errno/g' \
-	    -e 's/\.\.\/man1\/git-describe.1.html/http:\/\/linux.die.net\/man\/1\/git-describe/g' \
-	    -i man3/*;
+# MAN TARGET
+$(dist_man_MANS): man/%:
+	mkdir -p man;
+	pushd  ronn; \
+	ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn; \
+	popd;
+	cat ronn/header.txt ronn/`basename $@` | \
+	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' \
+	    > $@;
 
 # INCLUDES
 check_PROGRAMS =
@@ -291,4 +286,4 @@ BUILT_SOURCES =
 include test/Makefile.mk
 include examples/Makefile.mk
 
-.PHONY: clean-local clean-local-coverage clean-local-man-html rpm doxygen man_html
+.PHONY: clean-local clean-local-coverage clean-local-man rpm doxygen man

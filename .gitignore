@@ -53,6 +53,9 @@ examples/timed_region
 /Makefile.in
 /MANIFEST
 /missing
+/ronn/*.3
+/ronn/*.html
+/man/*
 /src/.deps/
 /src/.dirstamp
 /src/.libs/

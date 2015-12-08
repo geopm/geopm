@@ -1,0 +1,192 @@
+geopmpolicy(3) -- geopm configuration creator and static mode enforcer
+======================================================================
+
+## SYNOPSIS
+  * `CREATE CONFIGURATION:`:
+    `geopmpolicy` `-c` `-f` output `-m` mode `-d` key0:value0,key1:value1...
+
+  * `ENFORCE POLICY:`:
+    `geopmpolicy` `-e` (`-f` input | `-m` mode `-d` key0:value0,key1:value1...)
+
+  * `SAVE MSR:`:
+    `geopmpolicy` `-s` [`-f` output]
+
+  * `RESTORE MSR:`:
+    `geopmpolicy` `-r` [`-f` input]
+
+  * `CREATE MSR WHITELIST:`:
+    `geopmpolicy` `-w` [`-f` output]
+
+  * `PRINT VERSION OR HELP:`:
+    `geopmpolicy --version` | `--help`
+
+## DESCRIPTION
+The `geopmpolicy` application can be used for five purposes: to create a
+**geopm(3)** configuration file (`-c`), enforce a static power policy
+(`-e`), save to a file the state of all MSR values that **geopm(3)**
+may modify (`-s`), restore the MSR values from a saved state file
+(`-r`), or create a MSR whitelist for the Linux MSR driver (`-w`).
+The geopmpolicy application also respects the standard `--version`
+and `--help` options for printing the geopm version or a brief message
+about usage.  The output from using the `-c` option to create a
+configuration file can be used as the input for a subsequent call to
+`geopmpolicy` with the `-e` option, and this file can also be used to
+configure **geopmctl(3)** and the **geopm_ctl_c(3)**  interfaces.  Through
+this use of `geopmpolicy` a resource manager can configure **geopmctl(3)**
+through a plug-in without introducing a linking dependency between geopm and
+the resource manager (as is required with the **geopm_policy_c(3)**
+interface).  This enables a set of **geopmctl(3)** features which can be
+described through a "mode" selection flag and a "dictionary" flag for
+modifying the behavior of the mode by matching key strings to value strings.
+`geopmpolicy` can also be used to enforce static power modes described in the
+`MODES` sections below.
+
+## OPTIONS
+
+  * `--help`:
+    <br> Print brief summary of the command line usage information, then exit.
+
+  * `--version`:
+    Print version of **geopm(3)** to standard output, then exit.
+
+  * `-c`:
+    <br> Create a **geopm(3)** configuration file, `-f` must be specified when
+    using this option which gives the path to the output configuration file.
+
+  * `-e`:
+    <br> Enforce a static power mode, this mode can be specified with the `-m` and
+    `-d` options or the `-f` option.
+
+  * `-s`:
+    <br> Create an in MSR save state file for all MSR values that **geopm(3)**  may
+    modify.  The output file may be specified with the `-f` option.
+
+  * `-r`:
+    <br> Restore the MSR values that are recored in an existing MSR save state file.
+    The input file may be specified with the `-f` option.
+
+  * `-w`:
+    <br> Create a Linux MSR driver whitelist file for the current platform, if `-f`
+    is not specified when using this option, the whitelist will be printed to
+    stdout.  This whitelist is the minimum set of MSR register privileges required
+    to enable all geopm functionality.  Enabling user access to these registers
+    may have security implications on a multi-user system.  Each line of the
+    whitelist output ends with a name describing the register as derived from the
+    Intel (R) Software Developer's Manual.  Please cross-reference Intel (R)
+    Software Developer's Manual to get details about the security implications of
+    the whitelist before enabling user access.
+
+  * `-m` mode:
+    <br> Power management mode, must be one of those described in the `MODES` section
+    below.  The static modes do not require the geopm runtime to be running
+    concurrently with the primary computational application, where as dynamic
+    modes do have a runtime requirement on geopm.
+
+  * `-d` key0:value0,key1:value1:
+    Specifies a dictionary of key value pairs which modify the behavior of a
+    mode.  The key and value options for each mode are described in the `MODES`
+    sections below.
+
+  * `-f` file_path:
+    When used with `-c` or `-s` file_path is an output file.  When used with
+    `-e` or `-r` file_path is an input file.  This is a **geopm(3)** configuration
+    file when used with `-c` or `-e` and an MSR save state file when used with `-s`
+    or `-r`.
+
+## MODES
+
+  * `tdp_balance_static`:
+    Implements the GEOPM_MODE_TDP_BALANCE_STATIC mode described in the
+    **geopm_policy_c(3)** man page in the `STATIC MODES` section.  The
+    only key required to be passed to the `-d` flag is the "tdp_percent"
+    key which has a value that is the percent (0-100) of the Thermal
+    Design Power at which to run each processor under RAPL control.  All
+    other keys are ignored.
+
+  * `freq_uniform_static`:
+    Implements the GEOPM_MODE_FREQ_UNIFORM_STATIC mode described in the
+    **geopm_policy_c(3**) man page in the `STATIC MODES` section.  The
+    only key required to be passed to the `-d` flag is the "cpu_mhz" key
+    which has a value that is the CPU frequency in units of MHz.  All other
+    keys are ignored.
+
+  * `freq_hybrid_static`:
+    Implements the GEOPM_MODE_FREQ_HYBRID_STATIC mode described in the
+    **geopm_policy_c(3)** man page in the `STATIC MODES` section.  There
+    are three keys required to be passed to the `-d` flag for the freq_hybrid
+    mode: "cpu_mhz" giving operating frequency for constrained CPUs in units
+    of MHz, "num_cpu_max_perf" giving the number of CPUs per node running at
+    maximum performance, and "affinity" which can have a value of "compact"
+    or "scatter" describing the distribution of the constrained CPUs. In most
+    cases this will match the openmp environment. All other keys are ignored.
+
+  * `perf_balance_dynamic`:
+    Implements the GEOPM_MODE_PERF_BALANCE_DYNAMIC mode described in the
+    **geopm_policy_c(3)** man page in the `DYNAMIC MODES` section.  The
+    only key required to be passed to the `-d` flag is the "power_budget"
+    which is the power budget in units of Watts for all compute nodes
+    allocated to the job. All other keys are ignored.
+
+  * `freq_uniform_dynamic`:
+    Implements the GEOPM_MODE_FREQ_UNIFORM_DYNAMIC mode described in the
+    **geopm_policy_c(3)**  man page in the `DYNAMIC MODES` section.  The
+    only key required to be passed to the `-d` flag is the "power_budget"
+    which is the power budget in units of Watts for all compute nodes
+    allocated to the job. All other keys are ignored.
+
+  * `freq_hybrid_dynamic`:
+    Implements the GEOPM_MODE_FREQ_HYBRID_DYNAMIC mode described in the
+    **geopm_policy_c(3)** man page in the `DYNAMIC MODES` section.  There
+    are three keys required to be passed to the `-d` flag for the freq_hybrid
+    mode: "power_budget" which is the power budget in units of Watts for all
+    compute nodes allocated to the job , "num_cpu_max_perf" giving the number
+    of CPUs running at maximum performance, and "affinity" which can have a
+    value of "compact" or "scatter" describing the distribution of the non-maximum
+    performance CPUs. In most cases this will match the openmp environment. All
+    other keys are ignored.
+
+## EXAMPLES
+  * Create a configuration file which disables power management with RAPL::
+    $ geopmpolicy -c -f geopm.conf -m tdp_balance_static -d tdp_percent:100
+
+  * Create a configuration file for a fixed frequency of 1.5 GHz::
+    $ geopmpolicy -c -f geopm.conf -m freq_uniform_static -d cpu_freq:1500
+
+  * Create a configuration file for a hybrid frequency of 2.5 GHz where 4 cores are unconstrained and using scatter distribution::
+    $ geopmpolicy -c -f geopm.conf -m freq_hybrid_static \ <br>
+    -d cpu_freq:2500,num_cpu_max_perf:4,affinity:scatter
+
+  * Create a configuration file for all processors to run at 75% of the Thermal Design Power::
+    $ geopmpolicy -c -f geopm.conf -m tdp_balance_static -d tdp_percent:75
+
+  * Create a configuration file for global energy optimization with a power budget of 1 MWatt::
+    $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic -d power_budget:1000000
+
+  * Enforce a static policy defined in a preexisting configuration file::
+    $ geopmpolicy -e -f geopm.conf
+
+  * Enforce a static policy where all processors to run at 75% of the Thermal Design Power::
+    $ geopmpolicy -e -m tdp_balance_static -d tdp_percent:75
+
+  * Save off the current state of the system MSRs::
+    $ geopmpolicy -s -f geopm_restore.log
+
+  * Restore the system MSRs to their previous state::
+    $ geopmpolicy -r -f geopm_restore.log
+
+  * Output a MSR whitelist file for use with the Linux MSR driver::
+    $ geopmpolicy -w -f msr_whitelist.conf
+
+## COPYRIGHT
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(3)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_omp(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmctl(3)**,
+**geopmkey(3)**

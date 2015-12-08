@@ -1,0 +1,37 @@
+geopm(3) -- global energy optimization power management
+=======================================================
+
+## DESCRIPTION
+Global Energy Optimization Power Management is a hierarchical control system
+for optimizing power policy in a power-constrained MPI job to increase
+performance.  It is designed to coordinate power policy and performance across
+all of the compute nodes hosting one MPI job on a portion of a distributed
+computing system.  The root of the control hierarchy tree can communicate
+through shared memory with the system resource management daemon to extend the
+hierarchy above the individual MPI job level and enable management of system
+power resources for multiple MPI jobs and multiple users by the system
+resource manager.  The geopm package provides the libgeopm library the
+libgeopmpolicy library and the geopmctl application.  The libgeopm library can
+be called within MPI applications to enable application feedback for informing
+the control decisions.  If modification of the target application is not
+desired then the geopmctl application can be run concurrently with the target
+application.  In this case, target application feedback is inferred by
+querying the hardware through Model Specific Registers (MSRs).  With either
+method (libgeopm or geopmctl), the control hierarchy tree writes processor
+power policy through MSRs to enact policy decisions.  The libgeopmpolicy
+library is used by a resource manager to set energy policy control parameters
+for MPI jobs.
+
+## COPYRIGHT
+Copyright (C) 2015 Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopmkey(3)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_omp(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmctl(3)**,
+**geopmpolicy(3)**
