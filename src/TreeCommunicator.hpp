@@ -47,30 +47,87 @@ namespace geopm
     class TreeCommunicatorLevel;
     class GlobalPolicy;
 
-    /// Encapsulates the inter-node communication used by the
-    /// Controller to pass samples up and policies down the control
-    /// hierarchy.
+    /// @brief Class which enables inter-process communication for
+    ///        geopm.
+    ///
+    /// The TreeCommunicator is used by the Controller to facilitate
+    /// inter-node communication for passing samples up and policies
+    /// down the control hierarchy.  It leverages MPI to obtain
+    /// topology information to optimize communication pattern, and
+    /// for non-blocking communication calls.
     class TreeCommunicator
     {
         public:
-            /// TreeCommunicator constructor.
+            /// @brief TreeCommunicator constructor.
+            ///
+            /// User provides the geometry of the balanced tree, a
+            /// GlobalPolicy object and an MPI communicator.  The
+            /// geometry is specified by giving the fan out at each
+            /// level of the tree (the fan out is the same for all
+            /// nodes at each level).  This tree defines the
+            /// communication pattern used to send samples up and
+            /// policies down.  Note that the product of the fan out
+            /// values must equal the size of the MPI communicator
+            /// passed.  The GlobalPolicy provides the over all policy
+            /// constraints used to dictate the policy at the root of
+            /// the tree.  The MPI communicator encompasses all compute
+            /// nodes under geopm control and the communicators used
+            /// are derived from the given communicator.
+            ///
+            /// @param [in] fan_out Vector of fan out values for each
+            ///        level ordered from root to leaves.
+            ///
+            /// @param [in] global_policy Policy enforced at the root
+            ///        of the tree.
+            ///
+            /// @param [in] comm All ranks in MPI communicator
+            ///        participate in the tree.
             TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *global_policy, const MPI_Comm &comm);
-            /// TreeCommunicator destructor.
-            ~TreeCommunicator();
-            /// Returns the number of levels of which the calling process is a
-            /// member.
+            /// @brief TreeCommunicator destructor, virtual.
+            virtual ~TreeCommunicator();
+            /// @brief The number of levels for calling process.
+            ///
+            /// Each of the processes in the communicator passed at
+            /// construction participate in operations at the leaf
+            /// level.  Some processes have responsibilities at higher
+            /// levels of the control hierarchy.  This method returns
+            /// the number of levels (from leaf upward in the tree)
+            /// that the calling process participates in.
+            ///
+            /// @return The number of levels of which the calling
+            ///         process is a member.
             int num_level(void) const;
-            /// Returns the level of root (max level for any rank).
+            /// @brief The level of root (maximum level for any rank).
+            ///
+            /// At construction time the user provides a vector of fan
+            /// out values which define the geometry to the balanced
+            /// tree.  This method returns the length of that vector
+            /// plus one, which is number of levels of the tree
+            /// including the root.
+            ///
+            /// @return Number of levels in the balanced tree.
             int root_level(void) const;
-            /// Returns rank of the calling process in the level.
+            /// @brief The rank of the calling process among children
+            ///        with the same parent node.
+            ///
+            /// Siblings in the tree have a local rank which is
+            /// returned by this method.  The process with local level
+            /// rank zero participates in the next level up and acts
+            /// as the parent node.  All other siblings report to the
+            /// zero local level rank process and do not participate
+            /// in higher levels of the tree.
+            ///
+            /// @param [in] level The level of the tree to query.
+            ///
+            /// @return The local level rank for the calling process.
             int level_rank(int level) const;
             /// Number of ranks that participate in the level.
             int level_size(int level) const;
-            /// Send sample to root of the level.  If no recieve has been
+            /// Send sample to root of the level.  If no receive has been
             /// posted samples are not sent and no exception is thrown.
             void send_sample(int level, const struct geopm_sample_message_s &sample);
             /// Called only by root process of the level.  Send policy to each
-            /// member of the level.  If no recieve has been posted then the
+            /// member of the level.  If no receive has been posted then the
             /// policy is not sent and no exception is thrown.
             void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy);
             /// Called only by root process of the level.  Returns samples
@@ -79,10 +136,10 @@ namespace geopm
             /// not been received by all members of the level since last call.
             void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
             /// Record current policy for calling process rank on the level.
-            /// Will post another recieve for the next update if the root of
+            /// Will post another receive for the next update if the root of
             /// the level has sent an update since last call.  otherwise
             /// returns cached policy.  If no policy has been sent since
-            /// startup throws A geopm::Exception with err_value() of
+            /// start-up throws A geopm::Exception with err_value() of
             /// GEOPM_ERROR_POLICY_UNKNOWN.
             void get_policy(int level, struct geopm_policy_message_s &policy);
         protected:
