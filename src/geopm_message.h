@@ -44,6 +44,8 @@ extern "C" {
 #define GEOPM_CONST_MAX_NUM_CPU 768
 #define GEOPM_GLOBAL_POLICY_IDENTIFIER 0
 
+/// @brief Encapsulates power policy information as a
+/// 32-bit bitmask.
 enum geopm_policy_flags_e {
     GEOPM_FLAGS_SMALL_CPU_FREQ_100MHZ_1 = 1ULL << 0,
     GEOPM_FLAGS_SMALL_CPU_FREQ_100MHZ_2 = 1ULL << 1,
@@ -75,6 +77,7 @@ enum geopm_policy_flags_e {
     GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY = 1ULL << 27,
 };
 
+/// @brief Enum encompassing geopm power management modes.
 enum geopm_policy_mode_e {
     GEOPM_MODE_TDP_BALANCE_STATIC = 1,
     GEOPM_MODE_FREQ_UNIFORM_STATIC = 2,
@@ -85,6 +88,8 @@ enum geopm_policy_mode_e {
     GEOPM_MODE_SHUTDOWN = 255,
 };
 
+/// @brief Enum encompassing application region
+/// characteristic hints.
 enum geopm_policy_hint_e {
     GEOPM_POLICY_HINT_UNKNOWN = 0,
     GEOPM_POLICY_HINT_COMPUTE = 1,
@@ -92,6 +97,8 @@ enum geopm_policy_hint_e {
     GEOPM_POLICY_HINT_NETWORK = 3,
 };
 
+/// @brief Enum encompassing application and
+/// geopm runtime state.
 enum geopm_status_e {
     GEOPM_STATUS_UNDEFINED = 0,
     GEOPM_STATUS_INITIALIZED = 1,
@@ -101,50 +108,88 @@ enum geopm_status_e {
     GEOPM_STATUS_SHUTDOWN = 5,
 };
 
+/// @brief MPI message structure for sending
+/// power policies down the tree.
 struct geopm_policy_message_s {
-    int region_id;
+    /// @brief 64-bit unique application region identifier.
+    uint64_t region_id;
+    /// @brief Enum power managment mode.
     int mode;
+    /// @brief Power policy attribute bitmask
     unsigned long flags;
+    /// @brief Number of samples to collect before sending
+    /// a sample up the tree.
     int num_sample;
+    /// @brief Power budget in Watts.
     double power_budget;
 };
 
+/// @brief Structure intended to be shared between
+/// the resource manager and the geopm
+/// runtime in order to convey job wide
+/// power policy changes to the geopm runtime.
 struct geopm_policy_shmem_s {
+    /// @brief Enables the geopm runtime know when the 
+    /// resource manager has initialized the
+    /// power policy.
     int is_init;
+    /// @brief Lock to ensure read/write consistency
+    /// between thr resource manager and the
+    /// geopm runtime.
     pthread_mutex_t lock;
+    /// @brief Holds the job power policy as given
+    /// by the resource manager.
     struct geopm_policy_message_s policy;
 };
 
+/// @brief MPI message structure for sending
+/// sample telemetry data up the tree.
 struct geopm_sample_message_s {
+    /// @brief Rank identifier.
     int rank;
+    /// @brief 64-bit unique application region identifier.
     uint64_t region_id;
+    /// @brief Elapsed runtime of an application region.
     double runtime;
+    /// @brief Energy used during an application region.
     double energy;
+    /// @brief Average frequency during an application region.
     double frequency;
 };
 
+/// @brief Structure used to hold single profiling
+/// messages obtained from the application.
 struct geopm_prof_message_s {
+    /// @brief Rank identifier.
     int rank;
+    /// @brief 64-bit unique application region identifier.
     uint64_t region_id;
+    /// @brief Timestamp of when thi ssample was taken.
     struct geopm_time_s timestamp;
+    /// @brief Progress of the rank within the current region.
     double progress;
 };
 
+/// @brief Structure intended to be shared between
+/// the geopm runtime and the application in
+/// order to convey status and control information.
 struct geopm_ctl_message_s {
+    /// @brief Status of the geopm runtime.
     volatile uint32_t ctl_status;
+    /// @brief Status of the application.
     volatile uint32_t app_status;
+    /// @brief Holds affinities of all application ranks
+    /// on the local compute node.
     int cpu_rank[GEOPM_CONST_MAX_NUM_CPU];
 };
-
-struct geopm_sample_shmem_s {
-    int is_init;
-    pthread_mutex_t lock;
-    struct geopm_sample_message_s sample;
-}; // FIXME: Controller still uses this, but Profile uses LockingHashTable
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
 extern const struct geopm_sample_message_s GEOPM_INVALID_SAMPLE;
 
+/// @brief Check if two policy messages are equal.
+/// @param [in] a Pointer to a policy message.
+/// @param [in] a Pointer to a policy message.
+/// @return 1 if policies are equal, else 0
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b);
 
 #ifdef __cplusplus
