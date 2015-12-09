@@ -119,7 +119,7 @@ class Filter(object, FilterBorg):
     def __init__(self):
         FilterBorg.__init__(self)
         if self.__dict__ == {}:
-            base_filter = r'[ \t\f\v]*[!@#$*/%;.\\"]*[ \t\f\v]*'
+            base_filter = r'[ \t\f\v]*[\[\]!@#$*/%;.\\"\(\)]*[ \t\f\v]*'
             self._Aleft_filter = re.compile(r'\A' + base_filter)
             self._left_filter = re.compile(os.linesep + base_filter)
             self._right_filter = re.compile(base_filter + os.linesep)

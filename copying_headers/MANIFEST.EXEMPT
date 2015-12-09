@@ -14,6 +14,18 @@ examples/README
 MANIFEST
 README
 README.md
+ronn/geopm.3.ronn
+ronn/geopm_ctl_c.3.ronn
+ronn/geopm_error.3.ronn
+ronn/geopm_omp.3.ronn
+ronn/geopm_policy_c.3.ronn
+ronn/geopm_prof_c.3.ronn
+ronn/geopm_version.3.ronn
+ronn/geopmctl.3.ronn
+ronn/geopmkey.3.ronn
+ronn/geopmpolicy.3.ronn
+ronn/header.txt
+ronn/index.txt
 TODO
 
 

@@ -7,16 +7,6 @@ examples/threaded_step_example.c
 examples/timed_region.cpp
 geopm.spec.mk
 Makefile.am
-man/geopm.3
-man/geopmctl.3
-man/geopm_ctl_c.3
-man/geopm_error.3
-man/geopmkey.3
-man/geopm_omp.3
-man/geopmpolicy.3
-man/geopm_policy_c.3
-man/geopm_prof_c.3
-man/geopm_version.3
 src/CircularBuffer.cpp
 src/CircularBuffer.hpp
 src/Controller.cpp
