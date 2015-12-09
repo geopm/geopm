@@ -60,7 +60,7 @@ geopmctl(3) -- geopm runtime mpi application
     POSIX shared memory key which determines policy for geopmctl.  See
     **geopm_policy_c(3)** for information on how to create and modify a shared
     memory region for control.
-.TP
+
   * `-s` sample_key:
     POSIX shared memory key referencing memory written to by the compute
     application to provide the geopmctl application with performance profile

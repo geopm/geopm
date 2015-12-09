@@ -40,40 +40,40 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
 `Link with -lgeopmpolicy`
 
   * `int geopm_policy_create(`:
-    `const char *`_in_config_,
-    `const char *`_out_config_,
+    `const char *`_in_config_, <br>
+    `const char *`_out_config_, <br>
     `struct geopm_policy_c **`_policy_);
 
   * `int geopm_policy_destroy(`:
     `struct geopm_policy_c *`_policy_);
 
   * `int geopm_policy_power(`:
-    `struct geopm_policy_c *`_policy_,
+    `struct geopm_policy_c *`_policy_, <br>
     `double` _power_budget_);
 
   * `int geopm_policy_mode(`:
-    `struct geopm_policy_c *`_policy_,
+    `struct geopm_policy_c *`_policy_, <br>
     `int` _mode_);
 
   * `int geopm_policy_cpu_freq(`:
-    `struct geopm_policy_c *`_policy_,
-    `int` _cpu_mhz");
+    `struct geopm_policy_c *`_policy_, <br>
+    `int` _cpu_mhz);
 
   * `int geopm_policy_full_perf(`:
-    `struct geopm_policy_c *`_policy_,
-    `int` _num_cpu_full_perf");
+    `struct geopm_policy_c *`_policy_, <br>
+    `int` _num_cpu_full_perf);
 
   * `int geopm_policy_tdp_percent(`:
-    `struct geopm_policy_c *`_policy_,
-    `int` _tdp_percent");
+    `struct geopm_policy_c *`_policy_, <br>
+    `int` _tdp_percent);
 
   * `int geopm_policy_affinity(`:
-    `struct geopm_policy_c *`_policy_,
-    `int` _affinity");
+    `struct geopm_policy_c *`_policy_, <br>
+    `int` _affinity);
 
   * `int geopm_policy_goal(`:
-    `struct geopm_policy_c *`_policy_,
-    `int` _goal");
+    `struct geopm_policy_c *`_policy_, <br>
+    `int` _goal);
 
   * `int geopm_policy_write(`:
     `const struct geopm_policy_c *`_policy_);
@@ -127,7 +127,7 @@ success; see [ERRORS][] section below for details.
     destroys the policy controller referenced by _policy_ and releases all
     resources associated with it.
 
-  * geopm_policy_power`():
+  * `geopm_policy_power`():
     sets the _power_budget_, in units of Watts, for the _policy_. The power
     budget determines the upper limit on the aggregate power that can be drawn
     by all compute nodes within the entire MPI job allocation.
@@ -135,7 +135,8 @@ success; see [ERRORS][] section below for details.
   * `geopm_policy_mode`():
     selects the control _mode_ that will be used by the _policy_. The _mode_ can
     be selected from the enumeration defined in _geopm_message.h_ and these
-    options are described in the [MODE][] section below.
+    options are described in the [STATIC MODES][] and [DYNAMIC MODES][]
+    sections below.
 
   * `geopm_policy_cpu_freq`():
     sets the _cpu_mhz_ frequency in MHz to which the _policy_ will constrain
@@ -172,15 +173,15 @@ success; see [ERRORS][] section below for details.
     to the _policy_.
 
   * `geopm_platform_msr_save`():
-    Write the state of all MSR values that **geopm(3)** may modify to a file
+    writes the state of all MSR values that **geopm(3)** may modify to a file
     specified by _path_ so that they can be restored at a later time.
 
   * `geopm_platform_msr_restore`():
-    Read a set of MSR values from a file specified by _path_ and set the MSR
+    reads a set of MSR values from a file specified by _path_ and set the MSR
     values of the system to match those given in the file.
 
   * `geopm_platform_msr_whitelist`():
-    Write a MSR whitelist consisting of all MSR offsets and write masks needed
+    writes a MSR whitelist consisting of all MSR offsets and write masks needed
     for full operation of geopm power modes. It is intended to be used with the
     whitelisting feature of the Linux MSR driver. The whitelist is written out to
     _file_desc_ which should be a valid file descriptor.
@@ -229,7 +230,7 @@ frequency across nodes, depending on the mode.
   * `GEOPM_MODE_PERF_BALANCE_DYNAMIC`:
     In this mode, **geopm(3)** dynamically manages the job to an aggregate power
     bound while leveraging global application awareness to maximize application
-    performance. The geopm runtime tracks the application’s critical path and 
+    performance. The geopm runtime tracks the application's critical path and 
     continually redistributes power to steer power to the nodes on the critical
     path and enable them to run at higher performance (if possible); node
     frequencies and power allocation are strategically non-uniform.  By focusing
@@ -242,7 +243,7 @@ frequency across nodes, depending on the mode.
     frequencies are changed over time uniformly across the job allocation and
     the job is managed to an aggregate power bound. This mode applies
     non-uniform power bounds on the nodes as a means of throttling them to the
-    maximum common frequency that does not exceed the job’s aggregate power
+    maximum common frequency that does not exceed the job's aggregate power
     bound. Power is dynamically reallocated among nodes to use up all available
     power for the job (if possible) and equalize the frequency variation across
     processors that is exposed when running under a given power bound. This mode
@@ -253,7 +254,7 @@ frequency across nodes, depending on the mode.
     constrained "small CPU" frequencies are the only ones whose frequencies are
     changed over time. The "big CPUs" in each node run at maximum frequency. The
     "small CPUs" in each node are throttled to the maximum common frequency that
-    does not result in exceeding the job’s aggregate power bound. This mode is
+    does not result in exceeding the job's aggregate power bound. This mode is
     intended to address load imbalance due to manufacturing variation while
     mitigating application scaling challenges. This mode achieves higher
     performance than the `GEOPM_MODE_FREQ_HYBRID_STATIC` mode.

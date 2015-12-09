@@ -41,8 +41,8 @@ geopm_omp.h(3) -- geopm interface for OpenMP
     `cpu_set_t *`_no_omp_);
 
 ## DESCRIPTION
-    The _geopm_omp.h_ header defines geopm interfaces for interacting with the
-    OpenMP runtime environment.  This set of interfaces will grow in the future.
+The _geopm_omp.h_ header defines geopm interfaces for interacting with the
+OpenMP runtime environment.  This set of interfaces will grow in the future.
 
   * `geopm_no_omp_cpu`():
     sets the **CPU_SET(3)** given by _no_omp_ such that it includes all CPUs not

@@ -30,16 +30,16 @@
 #
 
 #geopm pages
-geopm(3)            https://geopm.github.io/geopm/man/geopm.3.html
-geopmkey(3)         https://geopm.github.io/geopm/man/geopmkey.3.html
-geopm_ctl_c(3)      https://geopm.github.io/geopm/man/geopm_ctl_c.3.html
-geopm_error(3)      https://geopm.github.io/geopm/man/geopm_error.3.html
-geopm_omp(3)        https://geopm.github.io/geopm/man/geopm_omp.3.html
-geopm_policy_c(3)   https://geopm.github.io/geopm/man/geopm_policy_c.3.html
-geopm_prof_c(3)     https://geopm.github.io/geopm/man/geopm_prof_c.3.html
-geopm_version(3)    https://geopm.github.io/geopm/man/geopm_version.3.html
-geopmctl(3)         https://geopm.github.io/geopm/man/geopmctl.3.html
-geopmpolicy(3)      https://geopm.github.io/geopm/man/geopmpolicy.3.html
+geopm(3)            geopm.3
+geopmkey(3)         geopmkey.3
+geopm_ctl_c(3)      geopm_ctl_c.3
+geopm_error(3)      geopm_error.3
+geopm_omp(3)        geopm_omp.3
+geopm_policy_c(3)   geopm_policy_c.3
+geopm_prof_c(3)     geopm_prof_c.3
+geopm_version(3)    geopm_version.3
+geopmctl(3)         geopmctl.3
+geopmpolicy(3)      geopmpolicy.3
 
 #external pages
 CPU_SET(3)                      http://linux.die.net/man/3/cpu_set

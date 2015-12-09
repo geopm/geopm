@@ -129,7 +129,6 @@ scales than the regions provide.  This is done by marking the end of
 the outer most loop, or the "outer synchronization point."
 
   * `geopm_prof_create`():
-
     creates a profile object _prof_. Requires a _name_ which is
     displayed when the profile is printed.  The _sample_reduce_
     parameter determines the level of reduction that occurs when a
@@ -174,8 +173,8 @@ the outer most loop, or the "outer synchronization point."
   * `geopm_prof_progress`():
     is called by compute application in single threaded context to
     signal the fractional progress, _fraction_ through the work
-    required to complete the region where _fraction_ is between 0 and
-    1.  If the _region_id_ does not match the _region_id_ of the last
+    required to complete the region where _fraction_ is between 0 and 1.
+    If the _region_id_ does not match the _region_id_ of the last
     call to geopm_prof_prof_enter() which was not nested, then this
     call is ignored and an error code is returned.
 
