@@ -277,6 +277,13 @@ $(dist_man_MANS): man/%:
 	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' \
 	    > $@;
 
+# GH_PAGES TARGET
+gh-pages: doxygen $(dist_man_MANS)
+	mkdir -p gh-pages/dox
+	mkdir -p gh-pages/man
+	cp -rf dox/html/* gh-pages/dox/.
+	cp ronn/*.html gh-pages/man/.
+
 # INCLUDES
 check_PROGRAMS =
 noinst_PROGRAMS =
@@ -286,4 +293,4 @@ BUILT_SOURCES =
 include test/Makefile.mk
 include examples/Makefile.mk
 
-.PHONY: clean-local clean-local-coverage clean-local-man rpm doxygen man
+.PHONY: clean-local clean-local-coverage clean-local-man rpm doxygen gh_pages
