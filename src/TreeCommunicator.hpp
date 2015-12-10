@@ -70,9 +70,10 @@ namespace geopm
             /// values must equal the size of the MPI communicator
             /// passed.  The GlobalPolicy provides the over all policy
             /// constraints used to dictate the policy at the root of
-            /// the tree.  The MPI communicator encompasses all compute
-            /// nodes under geopm control and the communicators used
-            /// are derived from the given communicator.
+            /// the tree.  The MPI communicator encompasses all
+            /// compute nodes under geopm control and the
+            /// communicators used are derived from the given
+            /// communicator.
             ///
             /// @param [in] fan_out Vector of fan out values for each
             ///        level ordered from root to leaves.
@@ -121,40 +122,98 @@ namespace geopm
             ///
             /// @return The local level rank for the calling process.
             int level_rank(int level) const;
-            /// Number of ranks that participate in the level.
+            /// @brief Number of siblings at a level.
+            ///
+            /// Returns the number of siblings that a process
+            /// participating in the responsibilities of the given
+            /// level has associated with it.  Note that if level is
+            /// zero than this is the number of leaf level processes
+            /// that report to a single aggregator at level one, and
+            /// if level is root_level() the result is one.  This is
+            /// essentially the reverse of the fan out vector provided
+            /// at construction with one appended to it.
+            ///
+            /// @param [in] level The level of the tree to query.
+            ///
+            /// @return The number of siblings.
             int level_size(int level) const;
-            /// Send sample to root of the level.  If no receive has been
-            /// posted samples are not sent and no exception is thrown.
+            /// @brief Send sample up one level.
+            ///
+            /// Send sample to root of the level.  If no receive has
+            /// been posted samples are not sent and no exception is
+            /// thrown.
+            ///
+            /// @param [in] level The level that is sending the sample.
+            ///
+            /// @param [in] sample The sample message sent from the
+            ///        local process.
             void send_sample(int level, const struct geopm_sample_message_s &sample);
-            /// Called only by root process of the level.  Send policy to each
-            /// member of the level.  If no receive has been posted then the
-            /// policy is not sent and no exception is thrown.
+            /// @brief Send policy down one level.
+            ///
+            /// Called only by a root process of the level.  Send
+            /// policy down to each member of the level.  If no
+            /// receive has been posted then the policy is not sent
+            /// and no exception is thrown.
+            ///
+            /// @param [in] level The level to where the policy is
+            ///        being sent down.
+            ///
+            /// @param [in] policy A vector of policies, one for each
+            ///        child node of the calling process to be sent.
             void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy);
-            /// Called only by root process of the level.  Returns samples
-            /// from each member of the level.  Throws geopm::Exception with
-            /// err_value() of GEOPM_ERROR_SAMPLE_INCOMPLETE if message has
-            /// not been received by all members of the level since last call.
+            /// @brief Get samples from children.
+            ///
+            /// Called only by root process of the level.  Output is a
+            /// vector of samples from each member of the level.
+            /// Throws geopm::Exception with err_value() of
+            /// GEOPM_ERROR_SAMPLE_INCOMPLETE if message has not been
+            /// received by all members of the level since last call.
+            ///
+            /// @param [in] level The level which is sending samples up.
+            ///
+            /// @param [out] sample A vector of sample messages
+            ///        collected from the level.
             void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
-            /// Record current policy for calling process rank on the level.
-            /// Will post another receive for the next update if the root of
-            /// the level has sent an update since last call.  otherwise
-            /// returns cached policy.  If no policy has been sent since
-            /// start-up throws A geopm::Exception with err_value() of
-            /// GEOPM_ERROR_POLICY_UNKNOWN.
+            /// @brief Get policy from parent.
+            ///
+            /// Record current policy for calling process on the
+            /// level.  Will post another receive for the next update
+            /// if the root of the level has sent an update since last
+            /// call.  otherwise returns cached policy.  If no policy
+            /// has been sent since start-up throws A geopm::Exception
+            /// with err_value() of GEOPM_ERROR_POLICY_UNKNOWN.
+            ///
+            /// @param [in] level The level where the policy is being
+            /// received.
+            ///
+            /// @param [out] policy The current policy message for the
+            ///        calling process at the given level.
             void get_policy(int level, struct geopm_policy_message_s &policy);
         protected:
+            /// @brief Constructor helper to instantiate MPI types.
             void mpi_type_create(void);
+            /// @brief Constructor helper to instantiate
+            ///        sub-communicators.
             void comm_create(const MPI_Comm &comm);
+            /// @brief Constructor helper to instantiate the level
+            ///        specific objects.
             void level_create(void);
+            /// @brief Destructor helper to free resources of level
+            ///        specific objects.
             void level_destroy(void);
+            /// @brief Destructor helper to free resources of
+            ///        sub-communicators.
             void comm_destroy(void);
+            /// @brief Destructor helper to free resources from MPI
+            ///        types.
             void mpi_type_destroy(void);
             /// Number of levels this rank participates in
             int m_num_level;
-            /// Tree fan out from root to leaf. Note levels go from leaf to root
+            /// Tree fan out from root to leaf. Note levels go from
+            /// leaf to root
             std::vector<int> m_fan_out;
-            /// Vector of communicators for each level (MPI_COMM_NULL for
-            /// levels this rank does not participate in).
+            /// Vector of communicators for each level (MPI_COMM_NULL
+            /// for levels this rank does not participate in).
             std::vector<MPI_Comm> m_comm;
             /// GlobalPolicy object defining the policy
             const GlobalPolicy *m_global_policy;
