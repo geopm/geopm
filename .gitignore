@@ -56,6 +56,7 @@ examples/timed_region
 /missing
 /ronn/*.3
 /ronn/*.html
+/ruby/
 /man/*
 /src/.deps/
 /src/.dirstamp

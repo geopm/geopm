@@ -253,7 +253,7 @@ clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
 clean-local-man:
-	rm -rf man ronn/*.html ronn/*.3
+	rm -rf ruby man ronn/*.html ronn/*.3
 
 # RPM TARGET
 geopm-$(VERSION).spec:
@@ -267,11 +267,18 @@ rpm: dist
 doxygen:
 	doxygen dox/Doxyfile
 
+# RONN TARGET
+ruby/bin/ronn:
+	mkdir -p ruby/bin
+	which ronn >& /dev/null && \
+	ln -s `which ronn` ruby/bin/ronn || \
+	gem install ronn -i ruby
+
 # MAN TARGET
-$(dist_man_MANS): man/%:
+$(dist_man_MANS): man/%: ruby/bin/ronn
 	mkdir -p man;
 	pushd  ronn; \
-	ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn; \
+	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn; \
 	popd;
 	cat ronn/header.txt ronn/`basename $@` | \
 	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' \
