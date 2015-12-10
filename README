@@ -147,31 +147,41 @@ gcovr for a recent build are below:
 **GCC Code Coverage Report**
 
 **Directory: src**
-File                                    |   Lines  |  Exec | Cover
-----------------------------------------|--------- | ----- | -----
-CircularBuffer.cpp                      |      38  |    38 |  100%
-CircularBuffer.hpp                      |       1  |     1 |  100%
-Controller.cpp                          |     100  |     1 |    1%
-Decider.cpp                             |      73  |     0 |    0%
-Exception.cpp                           |      76  |    68 |   89%
-Exception.hpp                           |       1  |     0 |    0%
-GlobalPolicy.cpp                        |     401  |   319 |   79%
-HSXPlatformImp.cpp                      |     127  |     2 |    1%
-IVTPlatformImp.cpp                      |     130  |     3 |    2%
-Observation.cpp                         |      87  |    75 |   86%
-Observation.hpp                         |       2  |     0 |    0%
-Platform.cpp                            |     152  |    22 |   14%
-PlatformFactory.cpp                     |      59  |    41 |   69%
-PlatformImp.cpp                         |      90  |    58 |   64%
-PlatformTopology.cpp                    |      22  |     7 |   31%
-Policy.cpp                              |      58  |     1 |    1%
-PowerModel.cpp                          |      12  |     3 |   25%
-Profile.cpp                             |      97  |     1 |    1%
-RAPLPlatform.cpp                        |      65  |     0 |    0%
-Region.cpp                              |      25  |     0 |    0%
-TreeCommunicator.cpp                    |     220  |   179 |   81%
-geopm_ctl_spawn.c                       |       2  |     0 |    0%
-geopm_policy_message.c                  |       9  |     9 |  100%
-geopm_version.c                         |       2  |     0 |    0%
-TOTAL                                   |    1849  |   828 |   44%
-
+File                     |   Lines  |     Exec   |     Cover
+-------------------------|----------|------------|----------
+CircularBuffer.cpp       |   38     |     38     |     100%
+CircularBuffer.hpp       |   1      |     1      |     100%
+Controller.cpp           |   202    |     116    |     57%
+Decider.cpp              |   33     |     14     |     42%
+DeciderFactory.cpp       |   24     |     21     |     87%
+Exception.cpp            |   96     |     86     |     89%
+Exception.hpp            |   1      |     0      |     0%
+GlobalPolicy.cpp         |   402    |     319    |     79%
+GoverningDecider.cpp     |   57     |     14     |     24%
+HSXPlatformImp.cpp       |   127    |     5      |     3%
+IVTPlatformImp.cpp       |   130    |     94     |     72%
+LockingHashTable.hpp     |   137    |     84     |     61%
+Observation.cpp          |   87     |     75     |     86%
+Observation.hpp          |   2      |     1      |     50%
+Platform.cpp             |   152    |     22     |     14%
+PlatformFactory.cpp      |   66     |     63     |     95%
+PlatformImp.cpp          |   90     |     79     |     87%
+PlatformTopology.cpp     |   22     |     11     |     50%
+Policy.cpp               |   75     |     7      |     9%
+Policy.hpp               |   1      |     0      |     0%
+PowerModel.cpp           |   14     |     5      |     35%
+Profile.cpp              |   355    |     133    |     37%
+RAPLPlatform.cpp         |   64     |     41     |     64%
+Region.cpp               |   39     |     10     |     25%
+SharedMemory.cpp         |   75     |     46     |     61%
+TreeCommunicator.cpp     |   221    |     212    |     95%
+geopm_ctl_spawn.c        |   2      |     0      |     0%
+geopm_hash.c             |   13     |     13     |     100%
+geopm_hash.h             |   2      |     2      |     100%
+geopm_omp.c              |   11     |     0      |     0%
+geopm_plugin.c           |   19     |     19     |     100%
+geopm_plugin.h           |   8      |     7      |     87%
+geopm_policy_message.c   |   9      |     9      |     100%
+geopm_time.h             |   10     |     5      |     50%
+geopm_version.c          |   2      |     0      |     0%
+TOTAL                    |   2587   |     1536   |     59%
