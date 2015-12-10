@@ -188,7 +188,7 @@ extern const struct geopm_sample_message_s GEOPM_INVALID_SAMPLE;
 
 /// @brief Check if two policy messages are equal.
 /// @param [in] a Pointer to a policy message.
-/// @param [in] a Pointer to a policy message.
+/// @param [in] b Pointer to a policy message.
 /// @return 1 if policies are equal, else 0
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b);
 
