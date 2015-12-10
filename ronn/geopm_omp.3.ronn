@@ -37,7 +37,7 @@ geopm_omp.h(3) -- geopm interface for OpenMP
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
   * `int geopm_no_omp_cpu(`:
-    `int` _ num_cpu_, <br>
+    `int` _num_cpu_, <br>
     `cpu_set_t *`_no_omp_);
 
 ## DESCRIPTION
