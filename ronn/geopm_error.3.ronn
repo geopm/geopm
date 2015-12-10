@@ -43,13 +43,13 @@ geopm_error(3) -- geopm error handling
     `size_t` _size_);
 
 ## DESCRIPTION
-All **geopm(3)** C APIs which can have an error condition occur during
-runtime return an error number.  This is the way **geopm(3)** handles
+All **geopm(7)** C APIs which can have an error condition occur during
+runtime return an error number.  This is the way **geopm(7)** handles
 errors, and almost all of the interfaces behave this way.  This man page
 describes how to interpret these returned error codes.  A returned error
 number of zero by a geopm API indicates success.  If the error number returned
 by a geopm API is positive then this indicates a generic system error, and if
-the error number is negative this indicates a **geopm(3)** specific error has
+the error number is negative this indicates a **geopm(7)** specific error has
 occurred.  Any non-zero error number can be converted into a descriptive string
 with the **geopm_error_message()** function.  The GEOPM specific error numbers
 are enumerated in the _geopm_error.h_ header file and they are described below.
@@ -121,13 +121,13 @@ The system error numbers are documented in the **errno(3)** man page.
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(3)**,
+**geopm(7)**,
 **geopm_ctl_c(3)**,
 **geopmkey(3)**,
 **geopm_omp(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(3)**,
-**geopmpolicy(3)**
+**geopmctl(1)**,
+**geopmpolicy(1)**
 **errno(3)**

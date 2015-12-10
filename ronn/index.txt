@@ -30,16 +30,16 @@
 #
 
 #geopm pages
-geopm(3)            geopm.3
-geopmkey(3)         geopmkey.3
+geopm(7)            geopm.7
+geopmkey(1)         geopmkey.1
 geopm_ctl_c(3)      geopm_ctl_c.3
 geopm_error(3)      geopm_error.3
 geopm_omp(3)        geopm_omp.3
 geopm_policy_c(3)   geopm_policy_c.3
 geopm_prof_c(3)     geopm_prof_c.3
 geopm_version(3)    geopm_version.3
-geopmctl(3)         geopmctl.3
-geopmpolicy(3)      geopmpolicy.3
+geopmctl(1)         geopmctl.1
+geopmpolicy(1)      geopmpolicy.1
 
 #external pages
 CPU_SET(3)                      http://linux.die.net/man/3/cpu_set

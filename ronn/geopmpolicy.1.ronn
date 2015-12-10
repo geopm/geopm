@@ -1,4 +1,4 @@
-geopmpolicy(3) -- geopm configuration creator and static mode enforcer
+geopmpolicy(1) -- geopm configuration creator and static mode enforcer
 ======================================================================
 
 [//]: # (Copyright (c) 2015, Intel Corporation)
@@ -52,8 +52,8 @@ geopmpolicy(3) -- geopm configuration creator and static mode enforcer
 
 ## DESCRIPTION
 The `geopmpolicy` application can be used for five purposes: to create a
-**geopm(3)** configuration file (`-c`), enforce a static power policy
-(`-e`), save to a file the state of all MSR values that **geopm(3)**
+**geopm(7)** configuration file (`-c`), enforce a static power policy
+(`-e`), save to a file the state of all MSR values that **geopm(7)**
 may modify (`-s`), restore the MSR values from a saved state file
 (`-r`), or create a MSR whitelist for the Linux MSR driver (`-w`).
 The geopmpolicy application also respects the standard `--version`
@@ -61,11 +61,11 @@ and `--help` options for printing the geopm version or a brief message
 about usage.  The output from using the `-c` option to create a
 configuration file can be used as the input for a subsequent call to
 `geopmpolicy` with the `-e` option, and this file can also be used to
-configure **geopmctl(3)** and the **geopm_ctl_c(3)**  interfaces.  Through
-this use of `geopmpolicy` a resource manager can configure **geopmctl(3)**
+configure **geopmctl(1)** and the **geopm_ctl_c(3)**  interfaces.  Through
+this use of `geopmpolicy` a resource manager can configure **geopmctl(1)**
 through a plug-in without introducing a linking dependency between geopm and
 the resource manager (as is required with the **geopm_policy_c(3)**
-interface).  This enables a set of **geopmctl(3)** features which can be
+interface).  This enables a set of **geopmctl(1)** features which can be
 described through a "mode" selection flag and a "dictionary" flag for
 modifying the behavior of the mode by matching key strings to value strings.
 `geopmpolicy` can also be used to enforce static power modes described in the
@@ -77,10 +77,10 @@ modifying the behavior of the mode by matching key strings to value strings.
     <br> Print brief summary of the command line usage information, then exit.
 
   * `--version`:
-    Print version of **geopm(3)** to standard output, then exit.
+    Print version of **geopm(7)** to standard output, then exit.
 
   * `-c`:
-    <br> Create a **geopm(3)** configuration file, `-f` must be specified when
+    <br> Create a **geopm(7)** configuration file, `-f` must be specified when
     using this option which gives the path to the output configuration file.
 
   * `-e`:
@@ -88,7 +88,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     `-d` options or the `-f` option.
 
   * `-s`:
-    <br> Create an MSR save state file for all MSR values that **geopm(3)**  may
+    <br> Create an MSR save state file for all MSR values that **geopm(7)**  may
     modify.  The output file may be specified with the `-f` option.
 
   * `-r`:
@@ -119,7 +119,7 @@ modifying the behavior of the mode by matching key strings to value strings.
 
   * `-f` file_path:
     When used with `-c` or `-s` file_path is an output file.  When used with
-    `-e` or `-r` file_path is an input file.  This is a **geopm(3)** configuration
+    `-e` or `-r` file_path is an input file.  This is a **geopm(7)** configuration
     file when used with `-c` or `-e` and an MSR save state file when used with `-s`
     or `-r`.
 
@@ -215,12 +215,12 @@ modifying the behavior of the mode by matching key strings to value strings.
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(3)**,
+**geopm(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(3)**,
-**geopmkey(3)**
+**geopmctl(1)**,
+**geopmkey(1)**

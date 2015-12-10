@@ -52,12 +52,12 @@ geopm_version(3) -- geopm library version
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
-**geopm(3)**,
+**geopm(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
-**geopmkey(3)**,
-**geopmctl(3)**,
-**geopmpolicy(3)**
+**geopmkey(1)**,
+**geopmctl(1)**,
+**geopmpolicy(1)**

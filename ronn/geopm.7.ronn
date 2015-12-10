@@ -1,5 +1,5 @@
-geopmctl(3) -- geopm runtime mpi application
-============================================
+geopm(7) -- global energy optimization power management
+=======================================================
 
 [//]: # (Copyright (c) 2015, Intel Corporation)
 [//]: # ()
@@ -31,56 +31,37 @@ geopmctl(3) -- geopm runtime mpi application
 [//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
-## SYNOPSIS
-
-  * `geopmctl` [`--help`] [`--version`]:
-    (`-c` policy_config | `-k` policy_key) <br>
-    [`-s` sample_key] [`-r` report]
-
 ## DESCRIPTION
-    The geopmctl application runs concurrently with a computational MPI
-    application to manage power settings on compute nodes allocated to the
-    computation MPI application.
-
-## OPTIONS
-
-  * `--help`:
-    <br>Print brief summary of the command line usage information, then exit.
-
-  * `--version`:
-    Print version of geopm to standard output, then exit.
-
-  * `-c` policy_config:
-    Policy configuration file which may be created with the
-    **geopm_policy_c(3)** interface or the **geopmpolicy(3)** application.
-    If `-c` is specified then `-k`  should not be specified.  If both are
-    specified `-k` is ignored and a warning is printed.
-
-  * `-k` control_key:
-    POSIX shared memory key which determines policy for geopmctl.  See
-    **geopm_policy_c(3)** for information on how to create and modify a shared
-    memory region for control.
-
-  * `-s` sample_key:
-    POSIX shared memory key referencing memory written to by the compute
-    application to provide the geopmctl application with performance profile
-    information.  See
-    **geopm_ctl_c(3)** for information on how to create the sample shared
-    memory region for profile feedback.
-
-  * `-r` report:
-    Output text file that will hold the human readable report when program
-    terminates.
+Global Energy Optimization Power Management is a hierarchical control system
+for optimizing power policy in a power-constrained MPI job to increase
+performance.  It is designed to coordinate power policy and performance across
+all of the compute nodes hosting one MPI job on a portion of a distributed
+computing system.  The root of the control hierarchy tree can communicate
+through shared memory with the system resource management daemon to extend the
+hierarchy above the individual MPI job level and enable management of system
+power resources for multiple MPI jobs and multiple users by the system
+resource manager.  The geopm package provides the libgeopm library the
+libgeopmpolicy library and the geopmctl application.  The libgeopm library can
+be called within MPI applications to enable application feedback for informing
+the control decisions.  If modification of the target application is not
+desired then the geopmctl application can be run concurrently with the target
+application.  In this case, target application feedback is inferred by
+querying the hardware through Model Specific Registers (MSRs).  With either
+method (libgeopm or geopmctl), the control hierarchy tree writes processor
+power policy through MSRs to enact policy decisions.  The libgeopmpolicy
+library is used by a resource manager to set energy policy control parameters
+for MPI jobs.
 
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
-**geopm(3)**,
+## SEE ALSO
+**geopmkey(1)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmkey(3)**,
-**geopmpolicy(3)**
+**geopmctl(1)**,
+**geopmpolicy(1)**

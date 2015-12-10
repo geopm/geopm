@@ -55,13 +55,13 @@ include_HEADERS = src/geopm.h \
                   src/geopm_plugin.h \
                   # end
 
-dist_man_MANS = man/geopm.3 \
-                man/geopmctl.3 \
+dist_man_MANS = man/geopm.7 \
+                man/geopmctl.1 \
                 man/geopm_ctl_c.3 \
                 man/geopm_error.3 \
-                man/geopmkey.3 \
+                man/geopmkey.1 \
                 man/geopm_omp.3 \
-                man/geopmpolicy.3 \
+                man/geopmpolicy.1 \
                 man/geopm_policy_c.3 \
                 man/geopm_prof_c.3 \
                 man/geopm_version.3 \
@@ -253,7 +253,7 @@ clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
 clean-local-man:
-	rm -rf ruby man ronn/*.html ronn/*.3
+	rm -rf ruby man ronn/*.html ronn/*.1 ronn/*.3 ronn/*.7
 
 # RPM TARGET
 geopm-$(VERSION).spec:

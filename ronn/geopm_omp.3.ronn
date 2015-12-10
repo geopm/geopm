@@ -58,15 +58,15 @@ OpenMP runtime environment.  This set of interfaces will grow in the future.
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
-**geopm(3)**,
+**geopm(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
-**geopmkey(3)**,
+**geopmkey(1)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(3)**,
-**geopmpolicy(3)**,
+**geopmctl(1)**,
+**geopmpolicy(1)**,
 **CPU_SET(3)**,
 **pthread_setaffinity_np(3)**,
 **pthread_attr_setaffinity_np(3)**

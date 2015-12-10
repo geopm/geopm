@@ -173,7 +173,7 @@ success; see [ERRORS][] section below for details.
     to the _policy_.
 
   * `geopm_platform_msr_save`():
-    writes the state of all MSR values that **geopm(3)** may modify to a file
+    writes the state of all MSR values that **geopm(7)** may modify to a file
     specified by _path_ so that they can be restored at a later time.
 
   * `geopm_platform_msr_restore`():
@@ -223,12 +223,12 @@ changes during application runtime.
 ## DYNAMIC MODES
 The modes listed in this section are used to dynamically adapt power policy
 during application runtime and have a run time requirement on geopm. In these
-advanced modes, **geopm(3)** dynamically manages the job to an aggregate power
+advanced modes, **geopm(7)** dynamically manages the job to an aggregate power
 bound while redistributing power among the nodes to equalize performance or
 frequency across nodes, depending on the mode.
 
   * `GEOPM_MODE_PERF_BALANCE_DYNAMIC`:
-    In this mode, **geopm(3)** dynamically manages the job to an aggregate power
+    In this mode, **geopm(7)** dynamically manages the job to an aggregate power
     bound while leveraging global application awareness to maximize application
     performance. The geopm runtime tracks the application's critical path and 
     continually redistributes power to steer power to the nodes on the critical
@@ -292,12 +292,12 @@ convert them to strings.
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(3)**,
+**geopm(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
-**geopmkey(3)**,
+**geopmkey(1)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(3)**,
-**geopmpolicy(3)**
+**geopmctl(1)**,
+**geopmpolicy(1)**

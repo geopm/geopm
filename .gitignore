@@ -54,7 +54,9 @@ examples/timed_region
 /Makefile.in
 /MANIFEST
 /missing
+/ronn/*.1
 /ronn/*.3
+/ronn/*.7
 /ronn/*.html
 /ruby/
 /man/*

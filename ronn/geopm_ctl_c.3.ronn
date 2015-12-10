@@ -155,12 +155,12 @@ how to convert them to strings.
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(3)**,
-**geopmkey(3)**,
+**geopm(7)**,
+**geopmkey(1)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(3)**,
-**geopmpolicy(3)**
+**geopmctl(1)**,
+**geopmpolicy(1)**

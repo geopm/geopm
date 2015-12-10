@@ -1,4 +1,4 @@
-geopmkey(3) -- generate shared memory keys for geopm
+geopmkey(1) -- generate shared memory keys for geopm
 ====================================================
 
 [//]: # (Copyright (c) 2015, Intel Corporation)
@@ -61,12 +61,12 @@ geopmkey(3) -- generate shared memory keys for geopm
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(3)**,
+**geopm(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(3)**,
-**geopmpolicy(3)**
+**geopmctl(1)**,
+**geopmpolicy(1)**
