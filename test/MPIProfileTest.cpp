@@ -51,7 +51,7 @@ class MPIProfileTest: public :: testing :: Test
     public:
         MPIProfileTest();
         virtual ~MPIProfileTest();
-        int parse_log(std::string logname);
+        int parse_log(std::string logname, bool single);
     protected:
 };
 
@@ -75,7 +75,7 @@ MPIProfileTest::~MPIProfileTest()
     remove("profile_runtime_policy");
 }
 
-int MPIProfileTest::parse_log(std::string logfile)
+int MPIProfileTest::parse_log(std::string logfile, bool single)
 {
     int passed = 0;
     size_t found = 0;
@@ -96,7 +96,12 @@ int MPIProfileTest::parse_log(std::string logfile)
         found = entry.find("loop");
         if (found != std::string::npos) {
             if (entry == "loop_one:") {
-                checkval = 1.0;
+                if (single) {
+                    checkval = 6.0;
+                }
+                else {
+                    checkval = 1.0;
+                }
             }
             else if (entry == "loop_two:") {
                 checkval = 2.0;
@@ -179,7 +184,7 @@ TEST_F(MPIProfileTest, runtime)
     ASSERT_EQ(0, geopm_prof_print(prof, "profile_runtime_test.log", 0));
 
     if (ppn1_comm != MPI_COMM_NULL) {
-        ASSERT_EQ(0, parse_log(std::string("profile_runtime_test.log")));
+        ASSERT_EQ(0, parse_log(std::string("profile_runtime_test.log"), false));
     }
 }
 
@@ -246,6 +251,149 @@ TEST_F(MPIProfileTest, progress)
     ASSERT_EQ(0, geopm_prof_print(prof, "profile_progress_test.log", 0));
 
     if (ppn1_comm != MPI_COMM_NULL) {
-        ASSERT_EQ(0, parse_log(std::string("profile_progress_test.log")));
+        ASSERT_EQ(0, parse_log(std::string("profile_progress_test.log"), false));
+    }
+}
+
+TEST_F(MPIProfileTest, multiple_entries)
+{
+    struct geopm_policy_c *policy = NULL;
+    struct geopm_prof_c *prof;
+    struct geopm_ctl_c *ctl;
+    pthread_t ctl_thread;
+    uint64_t region_id;
+    struct geopm_time_s start, curr;
+    double timeout = 0;
+    int rank;
+    MPI_Comm ppn1_comm;
+    int num_nodes = 0;
+
+    (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
+    ASSERT_TRUE(num_nodes > 1);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    ASSERT_EQ(0, geopm_comm_split_ppn1(MPI_COMM_WORLD, &ppn1_comm));
+
+    if (!rank) {
+        ASSERT_EQ(0, geopm_policy_create("profile_policy", "", &policy));
+    }
+    ASSERT_EQ(0, geopm_ctl_create(policy, "/geopm_profile_test", MPI_COMM_WORLD, &ctl));
+    ASSERT_EQ(0, geopm_ctl_pthread(ctl, NULL, &ctl_thread));
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    ASSERT_EQ(0, geopm_prof_create("progress_test", 4096, "/geopm_profile_test", MPI_COMM_WORLD, &prof));
+
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id));
+    ASSERT_EQ(0, geopm_time(&start));
+    while (timeout < 1.0) {
+        ASSERT_EQ(0, geopm_time(&curr));
+        timeout = geopm_time_diff(&start, &curr);
+        geopm_prof_progress(prof, region_id, timeout/1.0);
+    }
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id));
+
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id));
+    ASSERT_EQ(0, geopm_time(&start));
+    while (timeout < 2.0) {
+        ASSERT_EQ(0, geopm_time(&curr));
+        timeout = geopm_time_diff(&start, &curr);
+        geopm_prof_progress(prof, region_id, timeout/2.0);
+    }
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id));
+
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id));
+    ASSERT_EQ(0, geopm_time(&start));
+    while (timeout < 3.0) {
+        ASSERT_EQ(0, geopm_time(&curr));
+        timeout = geopm_time_diff(&start, &curr);
+        geopm_prof_progress(prof, region_id, timeout/3.0);
+    }
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id));
+
+    ASSERT_EQ(0, geopm_prof_print(prof, "profile_progress_test.log", 0));
+
+    if (ppn1_comm != MPI_COMM_NULL) {
+        ASSERT_EQ(0, parse_log(std::string("profile_progress_test.log"), true));
+    }
+}
+
+TEST_F(MPIProfileTest, nested_region)
+{
+    struct geopm_policy_c *policy = NULL;
+    struct geopm_prof_c *prof;
+    struct geopm_ctl_c *ctl;
+    pthread_t ctl_thread;
+    uint64_t region_id[2];
+    struct geopm_time_s start, curr;
+    double timeout = 0;
+    int rank;
+    MPI_Comm ppn1_comm;
+    int num_nodes = 0;
+
+    (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
+    ASSERT_TRUE(num_nodes > 1);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    ASSERT_EQ(0, geopm_comm_split_ppn1(MPI_COMM_WORLD, &ppn1_comm));
+
+    if (!rank) {
+        ASSERT_EQ(0, geopm_policy_create("profile_policy", "", &policy));
+    }
+    ASSERT_EQ(0, geopm_ctl_create(policy, "/geopm_profile_test", MPI_COMM_WORLD, &ctl));
+    ASSERT_EQ(0, geopm_ctl_pthread(ctl, NULL, &ctl_thread));
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    ASSERT_EQ(0, geopm_prof_create("progress_test", 4096, "/geopm_profile_test", MPI_COMM_WORLD, &prof));
+
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[1]));
+    ASSERT_EQ(0, geopm_time(&start));
+    while (timeout < 1.0) {
+        ASSERT_EQ(0, geopm_time(&curr));
+        timeout = geopm_time_diff(&start, &curr);
+        geopm_prof_progress(prof, region_id[1], timeout/1.0);
+    }
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
+
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[1]));
+    ASSERT_EQ(0, geopm_time(&start));
+    while (timeout < 2.0) {
+        ASSERT_EQ(0, geopm_time(&curr));
+        timeout = geopm_time_diff(&start, &curr);
+        geopm_prof_progress(prof, region_id[1], timeout/1.0);
+    }
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
+
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region(prof, "loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_enter(prof, region_id[1]));
+    ASSERT_EQ(0, geopm_time(&start));
+    while (timeout < 3.0) {
+        ASSERT_EQ(0, geopm_time(&curr));
+        timeout = geopm_time_diff(&start, &curr);
+        geopm_prof_progress(prof, region_id[1], timeout/1.0);
+    }
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
+    ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
+
+    ASSERT_EQ(0, geopm_prof_print(prof, "profile_progress_test.log", 0));
+
+    if (ppn1_comm != MPI_COMM_NULL) {
+        ASSERT_EQ(0, parse_log(std::string("profile_progress_test.log"), true));
     }
 }
