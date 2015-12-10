@@ -660,10 +660,11 @@ namespace geopm
 
             auto entry = m_agg_stats.find(region_id);
             if (entry == m_agg_stats.end()) {
-                throw Exception("ProfileRankSampler::report(): key not found:" + (*it), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                file_stream << "\truntime: " << 0.0 << std::endl;
             }
-
-            file_stream << "\truntime: " << (*entry).second.runtime << std::endl;
+            else {
+                file_stream << "\truntime: " << (*entry).second.runtime << std::endl;
+            }
         }
     }
 }
