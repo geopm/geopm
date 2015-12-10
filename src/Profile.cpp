@@ -614,6 +614,7 @@ namespace geopm
                         (*agg_entry_it).second.runtime += runtime;
                     }
                 }
+                m_region_entry = GEOPM_INVALID_PROF_MSG;
             }
             if ((*it).first != m_region_entry.region_id) {
                 m_region_entry.region_id = (*it).first;

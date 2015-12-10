@@ -104,7 +104,12 @@ int MPIProfileTest::parse_log(std::string logfile, bool single)
                 }
             }
             else if (entry == "loop_two:") {
-                checkval = 2.0;
+                if (single) {
+                    checkval = 0.0;
+                }
+                else {
+                    checkval = 2.0;
+                }
             }
             else if (entry == "loop_three:") {
                 checkval = 3.0;

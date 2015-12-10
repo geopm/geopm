@@ -208,7 +208,7 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
             while (!success) {
                 try {
                     m_tcomm->get_policy(level, policy);
-                    EXPECT_EQ(m_tcomm->root_level(), policy.region_id);
+                    EXPECT_EQ(m_tcomm->root_level(), (int)policy.region_id);
                     success = 1;
                 }
                 catch (geopm::Exception ex) {
