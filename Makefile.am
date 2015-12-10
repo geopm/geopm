@@ -157,13 +157,15 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
+                            src/geopm_message.h \
                             src/geopm_omp.c \
                             src/geopm_omp.h \
                             src/geopm_plugin.c \
                             src/geopm_plugin.h \
                             src/geopm_policy.h \
                             src/geopm_policy_message.c \
-                            src/geopm_message.h \
+                            src/geopm_time.h \
+                            src/geopm_sched.h \
                             src/geopm_version.c \
                             src/geopm_version.h \
                             # end
@@ -229,11 +231,13 @@ if ENABLE_MPI
                           src/geopm_hash.h \
                           src/geopm_omp.c \
                           src/geopm_omp.h \
+                          src/geopm_message.h \
                           src/geopm_mpi_pcontrol.h \
                           src/geopm_plugin.c \
                           src/geopm_plugin.h \
                           src/geopm_policy_message.c \
-                          src/geopm_message.h \
+                          src/geopm_time.h \
+                          src/geopm_sched.h \
                           src/geopm_version.c \
                           src/geopm_version.h \
                           # end

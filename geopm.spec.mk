@@ -61,6 +61,8 @@ BuildRequires: json-c-devel
 %endif
 BuildRequires: openmpi-devel
 BuildRequires: hwloc-devel
+BuildRequires: ruby-devel
+BuildRequires: rubygems
 Prefix: %{_prefix}
 
 %if %{defined suse_version}
@@ -144,6 +146,8 @@ rm -f %{buildroot}/%{_libdir}/libgeopm.a
 rm -f %{buildroot}/%{_libdir}/libgeopm.la
 rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.a
 rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
+rm -f %{buildroot}/%{_libdir}/geopm/libgoverning_decider.a
+rm -f %{buildroot}/%{_libdir}/geopm/libgoverning_decider.la
 
 %clean
 
@@ -157,6 +161,9 @@ rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
 
 %files
 %defattr(-,root,root,-)
+%{_libdir}/geopm/libgoverning_decider.so.0.0.0
+%{_libdir}/geopm/libgoverning_decider.so.0
+%{_libdir}/geopm/libgoverning_decider.so
 %{_libdir}/libgeopm.so.0.0.0
 %{_libdir}/libgeopm.so.0
 %{_libdir}/libgeopm.so
@@ -169,19 +176,24 @@ rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
 %doc %{docdir}/VERSION
-%doc %{_mandir}/man3/geopm.3.gz
-%doc %{_mandir}/man3/geopmctl.3.gz
+%dir %{_mandir}/man1
+%dir %{_mandir}/man3
+%dir %{_mandir}/man7
+%doc %{_mandir}/man1/geopmctl.1.gz
+%doc %{_mandir}/man1/geopmkey.1.gz
+%doc %{_mandir}/man1/geopmpolicy.1.gz
 %doc %{_mandir}/man3/geopm_ctl_c.3.gz
-%doc %{_mandir}/man3/geopmkey.3.gz
-%doc %{_mandir}/man3/geopmpolicy.3.gz
+%doc %{_mandir}/man3/geopm_error.3.gz
+%doc %{_mandir}/man3/geopm_omp.3.gz
 %doc %{_mandir}/man3/geopm_policy_c.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
 %doc %{_mandir}/man3/geopm_version.3.gz
-
+%doc %{_mandir}/man7/geopm.7.gz
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/geopm.h
 %{_includedir}/geopm_error.h
+%{_includedir}/geopm_plugin.h
 %{_includedir}/geopm_mpi_pcontrol.h
 %{_includedir}/geopm_policy.h
 %{_includedir}/geopm_message.h
