@@ -47,7 +47,7 @@
 
 namespace geopm
 {
-    /// @brief Enables application profiling and application feadback
+    /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///
     /// The information gathered by the Profile class identifies
@@ -64,7 +64,7 @@ namespace geopm
     /// are two competing motivations for defining a region within the
     /// application.  The first is to identify a section of code that
     /// has distinct compute, memory or network characteristics.  The
-    /// second is toavoid defining these regions such that they are
+    /// second is to avoid defining these regions such that they are
     /// nested within each other, as nested regions are ignored, and
     /// only the outer most region is used for tuning when nesting
     /// occurs.  Identifying progress within a region can be used to
@@ -238,21 +238,21 @@ namespace geopm
             /// @param [in] depth Gives the depth in the control tree
             ///        which is the finest granularity of the report.
             ///        By default there are three levels in the
-            ///        higherarchy tree.
+            ///        hierarchy tree.
             void print(const std::string file_name, int depth);
         protected:
             /// @brief Fill in rank affinity list.
             ///
-            /// Uses hwloc to detemine the cpuset the current
+            /// Uses hwloc to determine the cpuset the current
             /// process is bound to. This information is used to fill
-            /// in a set containg all cpus we can run on. This is used
-            /// to comunicate with th egeopm runtime the number of ranks
+            /// in a set containing all cpus we can run on. This is used
+            /// to communicate with the geopm runtime the number of ranks
             /// as well as their affinity masks.
             void init_cpu_list(void);
-            /// @brief holds the sring name of the profile.
+            /// @brief holds the string name of the profile.
             std::string m_prof_name;
             /// @brief Holds the 64 bit unique region identifier
-            ///        for the curret region.
+            ///        for the current region.
             uint64_t m_curr_region_id;
             /// @brief Holds the number of ranks that enter a region in
             ///        order to keep track of nested regions.
@@ -260,7 +260,7 @@ namespace geopm
             /// @brief Holds the count of progress reports in order to
             ///        create a sample when the count reaches some sample limit.
             int m_num_progress;
-            /// @brief Holds the rank's current progress in the regon.
+            /// @brief Holds the rank's current progress in the region.
             double m_progress;
             /// @brief Holds a pointer to the shared memory region
             ///        used for passing sample data to the geopm runtime.
@@ -286,7 +286,7 @@ namespace geopm
             MPI_Comm m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
-            /// @brief The processes rank in m_shm_comm.
+            /// @brief The process's rank in m_shm_comm.
             int m_shm_rank;
     };
 
