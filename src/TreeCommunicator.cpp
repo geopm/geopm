@@ -51,20 +51,20 @@
 
 extern "C"
 {
-    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm);
+    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_node, MPI_Comm *ppn1_comm);
 
-    int geopm_num_nodes(MPI_Comm comm, int *num_nodes)
+    int geopm_num_node(MPI_Comm comm, int *num_node)
     {
-        return geopm_comm_split_ppn1_imp(comm, num_nodes, NULL);
+        return geopm_comm_split_ppn1_imp(comm, num_node, NULL);
     }
 
     int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)
     {
-        int num_nodes;
-        return geopm_comm_split_ppn1_imp(comm, &num_nodes, ppn1_comm);
+        int num_node;
+        return geopm_comm_split_ppn1_imp(comm, &num_node, ppn1_comm);
     }
 
-    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_nodes, MPI_Comm *ppn1_comm)
+    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_node, MPI_Comm *ppn1_comm)
     {
         int err, comm_size, comm_rank, shm_rank, is_shm_root = 0;
         MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
@@ -98,7 +98,7 @@ extern "C"
         }
         if (!err) {
             if (is_shm_root == 1) {
-                err = MPI_Comm_size(*ppn1_comm_ptr, num_nodes);
+                err = MPI_Comm_size(*ppn1_comm_ptr, num_node);
             }
             else {
                 err = MPI_Comm_free(ppn1_comm_ptr);
@@ -106,7 +106,7 @@ extern "C"
             }
         }
         if (!err) {
-            err = MPI_Bcast(num_nodes, 1, MPI_INT, 0, shm_comm);
+            err = MPI_Bcast(num_node, 1, MPI_INT, 0, shm_comm);
         }
         if (shm_comm != MPI_COMM_NULL) {
             MPI_Comm_free(&shm_comm);

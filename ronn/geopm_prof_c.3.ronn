@@ -129,27 +129,29 @@ scales than the regions provide.  This is done by marking the end of
 the outer most loop, or the "outer synchronization point."
 
   * `geopm_prof_create`():
-    creates a profile object _prof_. Requires a _name_ which is
-    displayed when the profile is printed.  The _sample_reduce_
-    parameter determines the level of reduction that occurs when a
-    sample is generated with the `geopm_prof_sample`() API.  If
-    _sample_reduce_ is 0, no reduction occurs when sampling and
-    samples include thread specific information. If _sample_reduce_ is
-    1 then thread specific data is aggregated to the MPI rank level.
-    If _sample_reduce_ is 2 then data is aggregated to the compute
-    node granularity over all MPI ranks on each compute node. If the
-    _sample_key_ is non-NULL then calls to `geopm_prof_sample`() will
-    write the sampled data to POSIX shared memory associated with the
-    given key to be read by an external control process running on the
-    same compute node.
+
+    creates a profile object, _prof_, which can be used in conjuction
+    with all the other APIs described here.  The resources associated
+    with the _prof_ are released by passing it to
+    `geopm_prof_destroy`().  Construction requires a _name_ which is
+    displayed when the profile is printed.  The _table_size_ parameter
+    determines the size in bytes of the shared memory region used to
+    communicate between the calling process and the geopm control
+    process (4096 is recommended).  If the _sample_key_ is non-NULL
+    and non-empty then calls to `geopm_prof_sample`() will write the
+    sampled data to POSIX shared memory associated with the given key
+    to be read by an external control process running on the same
+    compute node. The _comm_ is an MPI communicator that the calling
+    MPI application is running on (probably MPI_COMM_WORLD).
 
   * `geopm_prof_destroy`():
-    destroys all resources associated with the prof object.
+    releases all resources associated with the prof object.
 
   * `geopm_prof_register`():
+
     registers an application region with the profile structure.  The
     _region_name_ and _hint_ are input parameters, and the _region_id_
-    is returned.  If the region name has been previously registered, a
+    is output.  If the region name has been previously registered, a
     call to this function will set the _region_id_ but the state in
     the _prof_ structure associated with the region is unmodified.
     The _region_name_ is used to determine the output _region_id_ and
@@ -166,7 +168,7 @@ the outer most loop, or the "outer synchronization point."
     (i.e. nested regions are ignored).
 
   * `geopm_prof_exit`():
-    is called by compute application to mark the end of a compute
+    is called by the compute application to mark the end of a compute
     region.  If this region is nested then the call is ignored and an
     error code is returned.
 
@@ -188,9 +190,7 @@ the outer most loop, or the "outer synchronization point."
 
   * `geopm_prof_sample`():
     is called to derive a sample based on the profiling information
-    collected.  This may aggregate data as specified by the
-    _sample_reduce_ parameters passed when the _prof_ structure was
-    created.
+    collected.  This may aggregate data.
 
   * `geopm_prof_disable`():
     is called at application start up to disable a profiling feature.
@@ -199,24 +199,21 @@ the outer most loop, or the "outer synchronization point."
     "instr", "flop", and "joules".
 
   * `geopm_prof_print`():
-    writes a profile report to standard output based on the data
-    collected so far.  This is intended for use just prior to
-    application termination.  All profile information above the
-    specified _depth_ in the control tree hierarchy is contained in
-    the report.  A depth of 0 gives only statistics aggregated over
+    writes a profile report to the file named _file_name_ based on the
+    data collected so far.  This is intended for use just prior to
+    application termination, and the _prof_ object is not valid after
+    calling `geopm_prof_print`(), though it should still be destoryed
+    by calling `geopm_prof_destroy`().  All profile information above
+    the specified _depth_ in the control tree hierarchy is contained
+    in the report.  A depth of 0 gives only statistics aggregated over
     all MPI processes.
-
-  * `geopm_prof_fprint`():
-    writes the profile report to the file descriptor _fid_ rather than
-    standard output and is otherwise the same as `geopm_prof_print`().
 
 `HELPER FUNCTIONS:`
 
   * `geopm_num_node`():
     sets _num_node_ to the number of compute nodes associated with the
     communicator _comm_. A compute node is defined to be a shared
-    memory coherency domain.  The product of the elements of _fan_out_
-    passed to `geopm_ctl_create`() must equal _num_node_.
+    memory coherency domain.
 
  * `geopm_no_omp_cpu`():
     sets the _no_omp_ **CPU_SET(3)** allocated with _num_cpu_ bits to

@@ -136,11 +136,11 @@ TEST_F(MPIProfileTest, runtime)
     double timeout = 0;
     int rank;
     MPI_Comm ppn1_comm;
-    int num_nodes = 0;
+    int num_node = 0;
     int mpi_thread_level = 0;
 
-    (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
-    ASSERT_LT(1, num_nodes);
+    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    ASSERT_LT(1, num_node);
 
     (void) MPI_Query_thread(&mpi_thread_level);
     ASSERT_LE(MPI_THREAD_MULTIPLE, mpi_thread_level);
@@ -204,10 +204,10 @@ TEST_F(MPIProfileTest, progress)
     double timeout = 0;
     int rank;
     MPI_Comm ppn1_comm;
-    int num_nodes = 0;
+    int num_node = 0;
 
-    (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
-    ASSERT_TRUE(num_nodes > 1);
+    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    ASSERT_TRUE(num_node > 1);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -271,10 +271,10 @@ TEST_F(MPIProfileTest, multiple_entries)
     double timeout = 0;
     int rank;
     MPI_Comm ppn1_comm;
-    int num_nodes = 0;
+    int num_node = 0;
 
-    (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
-    ASSERT_TRUE(num_nodes > 1);
+    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    ASSERT_TRUE(num_node > 1);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -338,10 +338,10 @@ TEST_F(MPIProfileTest, nested_region)
     double timeout = 0;
     int rank;
     MPI_Comm ppn1_comm;
-    int num_nodes = 0;
+    int num_node = 0;
 
-    (void) geopm_num_nodes(MPI_COMM_WORLD, &num_nodes);
-    ASSERT_TRUE(num_nodes > 1);
+    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    ASSERT_TRUE(num_node > 1);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 

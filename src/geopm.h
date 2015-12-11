@@ -117,9 +117,6 @@ int geopm_prof_outer_sync(struct geopm_prof_c *prof);
 int geopm_prof_sample(struct geopm_prof_c *prof,
                       uint64_t region_id);
 
-int geopm_prof_enable(struct geopm_prof_c *prof,
-                      const char *feature_name);
-
 int geopm_prof_disable(struct geopm_prof_c *prof,
                        const char *feature_name);
 
@@ -132,7 +129,7 @@ int geopm_prof_print(struct geopm_prof_c *prof,
 /***************/
 /* HELPER APIS */
 /***************/
-int geopm_num_nodes(MPI_Comm comm, int *num_nodes);
+int geopm_num_node(MPI_Comm comm, int *num_node);
 
 int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm);
 
