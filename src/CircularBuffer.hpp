@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <vector>
 
+#include "Exception.hpp"
+
 namespace geopm
 {
     /// @brief Templated container for a circular buffer implementation.
@@ -172,6 +174,9 @@ namespace geopm
     template <class type>
     void CircularBuffer<type>::insert(const type value)
     {
+        if (m_max_size < 1) {
+            throw Exception("CircularBuffer::insert(): Cannot insert into a bufffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         if (m_count < m_max_size) {
             m_buffer.push_back(value);
             m_count++;
@@ -185,6 +190,9 @@ namespace geopm
     template <class type>
     type CircularBuffer<type>::value(const unsigned int index) const
     {
+        if (index >= m_count) {
+            throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         return m_buffer[(m_head+index) % m_max_size];
     }
 }
