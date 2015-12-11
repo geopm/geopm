@@ -120,8 +120,7 @@ if ENABLE_MPI
 endif
 
 # SOURCE LISTS FOR EACH TARGET
-libgeopmpolicy_la_SOURCES = src/CircularBuffer.cpp \
-                            src/CircularBuffer.hpp \
+libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
                             src/DeciderFactory.cpp \
@@ -184,8 +183,7 @@ if ENABLE_MPI
                                      src/geopm_plugin.h \
                                      # end
 
-    libgeopm_la_SOURCES = src/CircularBuffer.cpp \
-                          src/CircularBuffer.hpp \
+    libgeopm_la_SOURCES = src/CircularBuffer.hpp \
                           src/Controller.cpp \
                           src/Controller.hpp \
                           src/Decider.cpp \

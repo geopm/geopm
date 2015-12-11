@@ -38,23 +38,155 @@
 
 namespace geopm
 {
+    /// @brief Templated container for a circular buffer implementation.
+    ///
+    /// The CircularBuffer container implements a fixed size buffer. Once
+    /// at capacity, any new insertions cause the oldest entry to be dropped.
+    template <class type>
     class CircularBuffer
     {
         public:
+            /// @brief Constructor ofr the CircularBuffer template.
+            ///
+            /// Creates an empty circular buffer with a set capacity.
+            ///
+            /// @param [in] size Requested capacity for the buffer.
             CircularBuffer(const unsigned int size);
-            ~CircularBuffer();
+            /// @brief CircularBuffer destructor, virtual
+            virtual ~CircularBuffer();
+            /// @brief Resize the circular buffer.
+            ///
+            /// Resets the capacity of the circular buffer without
+            /// modifying it's current contents.
+            ///
+            /// @param [in] size Requested capacity for the buffer.
             void set_capacity(const unsigned int size);
+            /// @brief Clears all entries fron the buffer.
             void clear(void);
+            /// @brief Size of the buffer contents.
+            ///
+            /// Returns the number of items in the buffer. This
+            /// value will be less than or equal to the current
+            /// capacity of the buffer.
+            //
+            /// @retrun Size of the buffer contents.
             int size(void) const;
+            /// @brief Capacity of the buffer.
+            ///
+            /// Returns the current size of the circular buffer at
+            /// the time of the call.
+            ///
+            /// @return Capacity of the buffer.
             int capacity(void) const;
-            void insert(const double value);
-            double value(const unsigned int index) const;
+            /// @brief Insert a value into the buffer.
+            ///
+            /// If the buffer is not full, the nae value is simply
+            /// added to the buffer. It the buffer is at capacity,
+            /// The head of the buffer is dropped and moved to the
+            /// next oldest entry and the new value is then inserted
+            /// at the end of the buffer.
+            ///
+            /// @param [in] value The value to be inserted.
+            void insert(const type value);
+            /// @brief Returns a value from the buffer.
+            ///
+            /// Accesses the contents of the circular buffer
+            /// at a particular index. Valid indicies range
+            /// from 0 to [size-1]. Where size is the number
+            /// of valid entries in the buffer. An attemp to
+            /// retrieve a value for an out of bound index a
+            /// geopm::Exception will be thrown with an
+            /// error_value() of GEOPM_ERROR_INVALID.
+            ///
+            /// @param [in] index Buffer index to retrieve.
+            ///
+            /// @return Value from the specified buffer index.
+            type value(const unsigned int index) const;
         protected:
-            std::vector<double> m_buffer;
+            /// @brief Vector holding the buffer data.
+            std::vector<type> m_buffer;
+            /// @brief Index of the current head of the buffer.
             unsigned long m_head;
+            /// @brief The number of valid enrties in the buffer.
             unsigned long m_count;
+            /// @brief Current capacity of the buffer.
             size_t m_max_size;
     };
+
+    template <class type>
+    CircularBuffer<type>::CircularBuffer(const unsigned int size)
+    {
+        m_max_size = size;
+        m_head = 0;
+        m_count = 0;
+    }
+
+    template <class type>
+    CircularBuffer<type>::~CircularBuffer()
+    {
+
+    }
+
+    template <class type>
+    int CircularBuffer<type>::size() const
+    {
+        return m_count;
+    }
+
+    template <class type>
+    int CircularBuffer<type>::capacity() const
+    {
+        return m_max_size;
+    }
+
+    template <class type>
+    void CircularBuffer<type>::clear()
+    {
+        m_buffer.clear();
+        m_head = 0;
+        m_count = 0;
+    }
+
+    template <class type>
+    void CircularBuffer<type>::set_capacity(const unsigned int size)
+    {
+        if (size < m_count) {
+            int size_diff = m_count - size;
+            std::vector<type> temp;
+            //Copy newest data into temporary vector
+            for (unsigned int i = m_head + size_diff; i < ((m_head + m_count) % m_max_size); i = ((i + 1) % m_max_size)) {
+                temp.push_back(m_buffer[i]);
+            }
+            //now resize and swap out with tmp vector data
+            m_buffer.resize(size);
+            m_buffer.swap(temp);
+            m_count = size;
+        }
+        else {
+            m_buffer.resize(size);
+        }
+        m_head = 0;
+        m_max_size = size;
+    }
+
+    template <class type>
+    void CircularBuffer<type>::insert(const type value)
+    {
+        if (m_count < m_max_size) {
+            m_buffer.push_back(value);
+            m_count++;
+        }
+        else {
+            m_buffer[m_head] = value;
+            m_head = ((m_head + 1) % m_max_size);
+        }
+    }
+
+    template <class type>
+    type CircularBuffer<type>::value(const unsigned int index) const
+    {
+        return m_buffer[(m_head+index) % m_max_size];
+    }
 }
 
 #endif

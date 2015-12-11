@@ -7,7 +7,6 @@ examples/threaded_step_example.c
 examples/timed_region.cpp
 geopm.spec.mk
 Makefile.am
-src/CircularBuffer.cpp
 src/CircularBuffer.hpp
 src/Controller.cpp
 src/Controller.hpp

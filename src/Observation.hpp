@@ -63,7 +63,7 @@ namespace geopm
             double integrate_time(int buffer_index) const;
         protected:
             // Buffer 0 always contains time stamps
-            std::vector<CircularBuffer> m_data;
+            std::vector<CircularBuffer<double> > m_data;
     };
 }
 

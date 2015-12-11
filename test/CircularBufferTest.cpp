@@ -40,12 +40,12 @@ class CircularBufferTest: public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
-        geopm::CircularBuffer* m_buffer;
+        geopm::CircularBuffer<double>* m_buffer;
 };
 
 void CircularBufferTest::SetUp()
 {
-    m_buffer = new geopm::CircularBuffer(5);
+    m_buffer = new geopm::CircularBuffer<double>(5);
     m_buffer->insert(1.0);
     m_buffer->insert(2.0);
     m_buffer->insert(3.0);

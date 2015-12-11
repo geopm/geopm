@@ -43,7 +43,7 @@ namespace geopm
 {
     void Observation::allocate_buffer(int &index, int window_size)
     {
-        CircularBuffer b(window_size);
+        CircularBuffer<double> b(window_size);
         index = m_data.size();
         m_data.push_back(b);
     }
