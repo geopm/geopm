@@ -49,7 +49,7 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
 
   * `int geopm_policy_power(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `double` _power_budget_);
+    `int` _power_budget_);
 
   * `int geopm_policy_mode(`:
     `struct geopm_policy_c *`_policy_, <br>
@@ -57,28 +57,25 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
 
   * `int geopm_policy_cpu_freq(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _cpu_mhz);
+    `int` _cpu_mhz_);
 
   * `int geopm_policy_full_perf(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _num_cpu_full_perf);
+    `int` _num_cpu_full_perf_);
 
   * `int geopm_policy_tdp_percent(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _tdp_percent);
+    `int` _percent_);
 
   * `int geopm_policy_affinity(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _affinity);
+    `int` _cpu_affinity_);
 
   * `int geopm_policy_goal(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _goal);
+    `int` _geo_goal_);
 
   * `int geopm_policy_write(`:
-    `const struct geopm_policy_c *`_policy_);
-
-  * `int geopm_policy_read(`:
     `const struct geopm_policy_c *`_policy_);
 
   * `int geopm_policy_enforce_static(`:
@@ -114,8 +111,8 @@ success; see [ERRORS][] section below for details.
     creates _policy_, an opaque pointer to a geopm_policy_c structure which can
     create a configuration file or a shared memory region to control the energy
     policy for an MPI job.  If _in_config_ is not NULL then a configuration
-    file or shared memory region can be read from when _policy_ is passed to
-    `geopm_policy_read()`. The string can contain either a config file path or
+    file or shared memory region will be read in to initialize the state of the
+    policy controller. The string can contain either a config file path or
     a POSIX shared memory key. If _out_config_ is not NULL then a configuration
     file or shared memory region will be created and when _policy_ is passed to
     `geopm_policy_write`() the current policy will be written to the region. The
@@ -149,28 +146,24 @@ success; see [ERRORS][] section below for details.
     "big CPUs".
 
  * `geopm_policy_tdp_percent`():
-    sets the percent of Thermal Design Power, _tdp_percent_ to give restricted
-    CPUs under control under the _policy_.
+    sets the percent of Thermal Design Power, _percent_ to give restricted
+    CPUs under control under the _policy_. This parameter is used by
+    `GEOPM_MODE_TDP_BALANCE_STATIC`.
 
   * `geopm_policy_affinity`():
-    sets the _affinity_ for the _policy_. The affinity is used to place the
+    sets the _cpu_affinity_ for the _policy_. The affinity is used to place the
     unrestricted CPUs ("big CPUs") under control in the
     `GEOPM_MODE_FREQ_HYBRID_STATIC` and `GEOPM_MODE_FREQ_HYBRID_DYNAMIC` modes.
     The affinity options are discussed in the [AFFINITY][] section below.
 
   * `geopm_policy_goal`():
-    sets the _goal_ for the _policy_.  The goal affects the behavior of the
+    sets the _geo_goal_ for the _policy_.  The goal affects the behavior of the
     policy when using dynamic power modes.  The goal options are discussed in
     the [GOALS][] section below.
 
   * `geopm_policy_write`():
     writes the state stored in the _policy_ to a configuration file or shared
     memory depending on the values passed to `geopm_policy_create`().
-
-  * `geopm_policy_read`():
-    reads the state stored in a configuration file or shared memory depending
-    on the values passed to `geopm_policy_create`() and records the read values
-    to the _policy_.
 
   * `geopm_platform_msr_save`():
     writes the state of all MSR values that **geopm(7)** may modify to a file
