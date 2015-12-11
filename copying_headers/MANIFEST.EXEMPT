@@ -5,9 +5,11 @@ CONTRIBUTING
 COPYING
 copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl
+copying_headers/header.GPL3-ac-exception
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.BSD3-intel
 copying_headers/MANIFEST.BSD3-llnl
+copying_headers/MANIFEST.GPL3-ac-exception
 copying_headers/test-license
 dox/Doxyfile
 examples/README
