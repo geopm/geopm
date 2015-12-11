@@ -1,3 +1,13 @@
+* Fri Dec 11 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.3
+- Several bug fixes.
+- Update to user man pages.
+- Switch to ronn for man page generation (roff + html).
+- Major update to developer documentation with Doxygen.
+- Implemented passing of profile data from application to controller.
+- Implemented output of a summary profile report.
+- Implemented infrastructure for plug-in extensions.
+- Templatized CircularBuffer.
+- Extended tests, including addition of integration tests.
 * Fri Oct 16 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.2
 - Initial release to <https://github.com/geopm/geopm>.
 - Updates to man pages.
