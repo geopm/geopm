@@ -88,7 +88,7 @@ namespace geopm
             /// @param [in] num_cpu_max_perf The number of cores to leave
             ///        unconstrained.
             /// @param [in] affinity The affinity of the cores for which the
-            ///        frequency will be set. 
+            ///        frequency will be set.
             void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const;
             /// @brief Write to a file the current state of RAPL, per-cpu counters,
             /// and free running counters.
@@ -115,7 +115,7 @@ namespace geopm
             /// @param [out] sample Sample message in which to store the sample.
             virtual void sample(struct geopm_sample_message_s &sample) const = 0;
             /// @brief Enforce a static power management mode including
-            /// tdp_balance_static, freq_uniform_static, and 
+            /// tdp_balance_static, freq_uniform_static, and
             /// freq_hybrid_static.
             /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.

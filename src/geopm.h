@@ -67,7 +67,7 @@ struct geopm_prof_c;
 /* OBJECT INSTANTIATION */
 /************************/
 int geopm_ctl_create(struct geopm_policy_c *policy,
-                     const char *shm_key,
+                     const char *sample_key,
                      MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 

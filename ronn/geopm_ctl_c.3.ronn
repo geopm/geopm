@@ -38,9 +38,8 @@ geopm_ctl_c(3) -- geopm power controller structure
 `Link with -lgeopm`
 
   * `int geopm_ctl_create(`:
-    `const char *`_policy_config_, <br>
-    `const char *`_policy_key_, <br>
-    `struct geopm_prof_c *`_sample_prof_, <br>
+    `struct geopm_policy_c *`_policy_, <br>
+    `const char *`_sample_key_, <br>
     `MPI_Comm` _comm_, <br>
     `struct geopm_ctl_c **`_ctl_);
 
@@ -63,93 +62,66 @@ geopm_ctl_c(3) -- geopm power controller structure
 
 ## DESCRIPTION
 The geopm_ctl_c structure is used to lauch or step the global energy
-optimization power management algorithm.  There are several ways to enable
-control: explicit stepping of the control algorithm by the application under
-control, running the control algorithm as a distinct processes from the
-application under control, running the control algorithm as a separate pthread
-owned by the application process under control, or the application under
-control can spawn a new MPI communicator that runs the control algorithm in
-conjunction with its own distinct MPI_COMM_WORLD.  Each of these methods has
-different requirements and trade offs.
+optimization power management algorithm.  There are several ways to
+enable control: explicit stepping of the control algorithm by the
+application under control, running the control algorithm as a distinct
+processes from the application under control, running the control
+algorithm as a separate pthread owned by the application process under
+control, or the application under control can spawn a new MPI
+communicator that runs the control algorithm in conjunction with its
+own distinct MPI_COMM_WORLD.  Each of these methods has different
+requirements and trade offs.
 
   * `geopm_ctl_create`():
-    creates a geopm_ctl_c object which is an opaque structure that holds the
-    state used for control.  An error will occur and an error code returned if
-    both _policy_config_ and _policy_key_ are specified or both are unspecified.
-    The number of levels of the hierarchy tree is determined by the _num_level_
-    parameter.  If zero is specified for the number of levels an optimal value
-    will be guessed based on the size of the MPI communicator passed by the _comm_
-    parameter.  The power management is implemented as a hierarchical control
-    system which is based on a balanced tree where the number of children that a
-    node in the tree has is a function of its depth in the tree.  The output of
-    `MPI_Dims_create`() will be used to help determine the structure of the tree.
-    The power   management policy is determined in one of two ways: statically
-    with a configuration file or dynamically controlled by the resource manager
-    through shared memory.  See the **geopm_policy_c(3)** man page for more details
-    about how to create the configuration file or shared memory region.  The
-    _policy_config_ input parameter is a path to a policy configuration file.  The
-    _policy_key_ parameter is the POSIX shared memory key referencing a shared
-    memory region on the root node of the communicator under control which is
-    passed as the _comm_.
-    Note that either _policy_config_ or _policy_key_ must be NULL, and the other
-    must be specified.  An error will occur and an error code returned if neither
-    or both of these parameters are passed as NULL.  The control algorithm relies
-    on feedback about the application profile.  If the control is being executed
-    in the application process then the _sample_prof_ parameter provides a handle
-    to obtain the profile information.  See **geopm_prof_c(3)** for information on
-    how to create this structure.  In this case the _sample_key_ should be passed
-    as NULL.  If the control process is distinct from the process providing profile
-    information then the _sample_key_  references a POSIX shared memory region that
-    the profiling process writes to. In this case the _sample_prof_ should be passed
-    as NULL.  Note that either _sample_prof_ or _sample_key_ must be NULL, and the
-    other must be specified.  An error will occur and an error code returned if
-    neither or both of these parameters are passed as NULL. The result of calling
-    this function is to produce the controller structure, _ctl_ which is used to
-    execute the control algorithm with one of the other functions described in this
-    man page.
+    creates a geopm_ctl_c object, _ctl_ which is an opaque structure
+    that holds the state used to execute the control algorithm with
+    one of the other functions described in this man page.  The user
+    must provide a geopm_policy_c pointer, see **geopm_policy_c(3)**
+    man page for details.  The control algorithm relies on feedback
+    about the application profile.  The _sample_key_ parameter is the
+    base string which is extended to create the POSIX shared memory
+    keys referencing shared memory regions used to pass profile data
+    from the application to the controller.  The user provides an MPI
+    communicator which must have at least one process running on every
+    compute node under control.
 
   * `geopm_ctl_destroy`():
-    destroys all resources associated with the _ctl_ structure which allocated by a
-    previous call to `geopm_ctl_create`().
+    destroys all resources associated with the _ctl_ structure which
+    allocated by a previous call to `geopm_ctl_create`().
 
   * `geopm_ctl_step`():
-    is called to execute one step in the hierarchical control algorithm by the
-    application process.  The call is a blocking call for those processes that are
-    the lowest MPI rank on the compute node and a no-op for those that are not.  A
-    call to this function sends samples up the tree, then policies down the
-    tree, and finally if the policy has been changed for the node of the calling
-    process then the policy is enforced by writing MSR values.  When this function
-    is being called by the application under control the profile feedback is
-    acquired directly.  In this case the _ctl_ structure must have been created
-    with the _sample_prof_ specified, otherwise an error occurs and an error
-    code is returned.
+    is called to execute one step in the hierarchical control
+    algorithm by the application process.  The call is a blocking call
+    for those processes that are the lowest MPI rank on the compute
+    node and a no-op for those that are not.  A call to this function
+    sends samples up the tree, then policies down the tree, and
+    finally if the policy has been changed for the node of the calling
+    process then the policy is enforced by writing MSR values.
 
   * `geopm_ctl_run`():
-    steps the control algorithm continuously until the kill signal is received.
-    Since this is a blocking call that never returns, it is intended that
-    profiling information is provided through POSIX shared memory.  When used in
-    this way the _ctl_ structure must have been created with the _sample_key_
-    specified.
+    steps the control algorithm continuously until the application
+    signals shutdown.  This is equivalent to calling
+    `geopm_ctl_step`() in a loop.
 
   * `geopm_ctl_pthread`():
-    creates a POSIX thread running the control algorithm continuously until the
-    thread is killed.  This is intended to be called by the application under
-    control and so the profile feedback is acquired directly.  In this case the
-    _ctl_ structure must have been created with _sample_prof_ specified.  With
-    this method of launch the supporting MPI implementation must be enabled for
+    creates a POSIX thread running the control algorithm continuously
+    until the application signals shutdown.  This is equivalent to
+    calling `geopm_ctl_step`() in a loop.  With this method of launch
+    the supporting MPI implementation must be enabled for
     `MPI_THREAD_MULTIPLE` using `MPI_Init_thread`().
 
   * `geopm_ctl_spawn`():
-    use `MPI_Comm_spawn`() to spawn a new communicator with one process per compute
-    node.  The geopmctl application will be spawned on this communicator which
-    will rely on profile information read from POSIX shared memory.  For this
-    reason the _ctl_ structure must have been created with the _sample_key_
-    specified, otherwise an error occurs and an error code is returned.
+    use `MPI_Comm_spawn`() to spawn a new communicator with one
+    process per compute node.  The geopmctl application will be
+    spawned on this communicator and will run until the application
+    signals shutdown.  This is equivalent to calling
+    `geopm_ctl_step`() in a loop.  Requires a system that supports
+    `MPI_Comm_Spawn`().
 
 ## ERRORS
 All functions described on this man page return an error code.  See
-**geopm_error(3)** for a full description of the error numbers and
-how to convert them to strings.
+**geopm_error(3)** for a full description of the error numbers and how
+to convert them to strings.
 
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.

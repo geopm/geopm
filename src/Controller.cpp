@@ -99,14 +99,16 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create(struct geopm_policy_c *policy, const char *shm_key, MPI_Comm comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create(struct geopm_policy_c *policy, const char *sample_key, MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
         try {
             geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
-            const std::string sample_key(shm_key);
-
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_key, comm));
+            if (sample_key == NULL) {
+               throw geopm::Exception("geopm_ctl_create: the sample key is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            const std::string sample_key_str(sample_key);
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_key_str, comm));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
