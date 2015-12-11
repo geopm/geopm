@@ -7,9 +7,10 @@ SEE COPYING FILE FOR LICENSE INFORMATION.
 
 LAST UPDATE
 -----------
-Christopher Cantalupo <christopher.m.cantalupo@intel.com>
-Steve Sylvester <steve.s.sylvester@intel.com>
 2015 December 11
+
+Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
+Steve Sylvester <steve.s.sylvester@intel.com>
 
 WEB PAGE
 --------
@@ -152,8 +153,9 @@ gcovr for a recent build are below:
 **GCC Code Coverage Report**
 
 **Directory: src**
+
 File                     |   Lines  |     Exec   |     Cover
--------------------------|----------|------------|----------
+------------------------ | -------- | ---------- | ---------
 CircularBuffer.cpp       |   38     |     38     |     100%
 CircularBuffer.hpp       |   1      |     1      |     100%
 Controller.cpp           |   202    |     116    |     57%
