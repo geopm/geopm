@@ -257,6 +257,10 @@ namespace geopm
         int niter = m_imp->package();
         std::ofstream restore_file;
 
+        if (path == NULL) {
+            throw Exception("Platform(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         restore_file.open(path);
 
         //per package state
@@ -294,6 +298,10 @@ namespace geopm
         std::vector<int64_t> vals;
         std::string item;
 
+        if (path == NULL) {
+            throw Exception("Platform(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         restore_file.open(path, std::ios_base::in);
 
         while (std::getline(restore_file,line)) {
@@ -315,6 +323,10 @@ namespace geopm
 
     void Platform::write_msr_whitelist(FILE *file_desc) const
     {
+        if (file_desc == NULL) {
+            throw Exception("Platform(): file descriptor is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         m_imp->whitelist(file_desc);
     }
 

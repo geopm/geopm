@@ -62,7 +62,9 @@ extern "C"
         *policy = NULL;
 
         try {
-            *policy = (struct geopm_policy_c *)(new geopm::GlobalPolicy(std::string(in_config), std::string(out_config)));
+            *policy = (struct geopm_policy_c *)
+                      (new geopm::GlobalPolicy(std::string(in_config ? in_config : ""),
+                                               std::string(out_config ? out_config : "")));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
