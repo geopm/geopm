@@ -72,7 +72,7 @@ namespace geopm
             /// @brief Retrieve the power policy for this region.
             /// @return Policy object for this region.
             Policy* policy(void);
-            /// @brief Retrieve The last poicy message sent down for this region.
+            /// @brief Retrieve The last policy message sent down for this region.
             /// Used to compare with new incoming message to see if the policy
             /// has changed.
             /// @return Saved policy message from last time one was sent.
@@ -116,7 +116,7 @@ namespace geopm
             /// @param [in] buffer_index Index of the requested buffer.
             double observation_integrate_time(int buffer_index) const;
         protected:
-            /// @brief Hold the Obervation object which contains samples
+            /// @brief Hold the Observation object which contains samples
             /// for this region.
             Observation m_obs;
             /// @brief Hold the current power policy for this region.

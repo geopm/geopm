@@ -55,7 +55,7 @@ namespace geopm
         public:
             /// @brief Default constructor.
             IVTPlatformImp();
-            /// @brief Defauly destructor.
+            /// @brief Default destructor.
             virtual ~IVTPlatformImp();
 
             //////////////////////////////////////////////
@@ -71,13 +71,13 @@ namespace geopm
             void load_msr_offsets();
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
             void rapl_init();
-            /// @brief Initialize per-cpu counters.
+            /// @brief Initialize per-CPU counters.
             void cbo_counters_init();
             /// @brief Initialize free running counters.
             void fixed_counters_init();
             /// @brief Reset RAPL controls to default state.
             void rapl_reset();
-            /// @brief Reset per-cpu counters to default state.
+            /// @brief Reset per-CPU counters to default state.
             void cbo_counters_reset();
             /// @brief Reset free running counters to default state.
             void fixed_counters_reset();
@@ -86,9 +86,9 @@ namespace geopm
             double m_energy_units;
             /// @brief Store the units of power read from RAPL.
             double m_power_units;
-            /// @brief Minimum value for package (cpu) power read from RAPL.
+            /// @brief Minimum value for package (CPU) power read from RAPL.
             double m_min_pkg_watts;
-            /// @brief Maximum value for package (cpu) power read from RAPL.
+            /// @brief Maximum value for package (CPU) power read from RAPL.
             double m_max_pkg_watts;
             /// @brief Minimum value for power plane 0 (pkg+dram) read from RAPL.
             double m_min_pp0_watts;

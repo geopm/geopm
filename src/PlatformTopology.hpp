@@ -72,9 +72,9 @@ namespace geopm
             /// @brief Default constructor initializes and builds
             /// the hwloc tree.
             PlatformTopology();
-            /// @brief Default destructor destoys the hwloc tree.
+            /// @brief Default destructor destroys the hwloc tree.
             ~PlatformTopology();
-            /// @brief Retreive the count of a specific hwloc resource type.
+            /// @brief Retrieve the count of a specific hwloc resource type.
             /// @param [in] domain_type Enum of type domain_type_e representing the
             /// type of resource to query.
             /// @return Count of the specified resource type.

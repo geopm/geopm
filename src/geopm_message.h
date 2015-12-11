@@ -113,7 +113,7 @@ enum geopm_status_e {
 struct geopm_policy_message_s {
     /// @brief 64-bit unique application region identifier.
     uint64_t region_id;
-    /// @brief Enum power managment mode.
+    /// @brief Enum power management mode.
     int mode;
     /// @brief Power policy attribute bitmask
     unsigned long flags;
@@ -134,7 +134,7 @@ struct geopm_policy_shmem_s {
     /// power policy.
     int is_init;
     /// @brief Lock to ensure read/write consistency
-    /// between thr resource manager and the
+    /// between the resource manager and the
     /// geopm runtime.
     pthread_mutex_t lock;
     /// @brief Holds the job power policy as given
@@ -164,7 +164,7 @@ struct geopm_prof_message_s {
     int rank;
     /// @brief 64-bit unique application region identifier.
     uint64_t region_id;
-    /// @brief Timestamp of when thi ssample was taken.
+    /// @brief Time stamp of when the sample was taken.
     struct geopm_time_s timestamp;
     /// @brief Progress of the rank within the current region.
     double progress;

@@ -55,10 +55,10 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~Platform();
             /// @brief Set our member variable pointing to a PlatformImp object.
-            /// @param [in] platform_imp A PlatformImp object that is compatable
+            /// @param [in] platform_imp A PlatformImp object that is compatible
             ///        with this platform and the underlying hardware.
             virtual void set_implementation(PlatformImp* platform_imp);
-            /// @brief Sets the current region to add telemerty to.
+            /// @brief Sets the current region to add telemetry to.
             /// @param [in] region A pointer to the current Region object.
             void region_begin(Region *region);
             /// @brief Signal that the current region has ended.
@@ -78,23 +78,23 @@ namespace geopm
             void observe(struct geopm_sample_message_s &sample) const;
             void observe(const std::vector <struct geopm_sample_message_s> &sample) const;
             PowerModel *power_model(int domain_type) const;
-            /// @brief Set the power limit of the cpus to a percentage of
+            /// @brief Set the power limit of the CPUs to a percentage of
             /// Thermal Design Power (TDP).
             /// @param [in] percentage The percentage of TDP.
             void tdp_limit(int percentage) const;
-            /// @brief Set the frequency to a fixed value for cpus within an
+            /// @brief Set the frequency to a fixed value for CPUs within an
             /// affinity set.
-            /// @param [in] frequency Frequency in MHz to set the cpus to.
+            /// @param [in] frequency Frequency in MHz to set the CPUs to.
             /// @param [in] num_cpu_max_perf The number of cores to leave
             ///        unconstrained.
             /// @param [in] affinity The affinity of the cores for which the
             ///        frequency will be set.
             void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const;
-            /// @brief Write to a file the current state of RAPL, per-cpu counters,
+            /// @brief Write to a file the current state of RAPL, per-CPU counters,
             /// and free running counters.
             /// @param [in] path The path of the file to write.
             void save_msr_state(const char *path) const;
-            /// @brief Read in MSR state for RAPL, per-cpu counters,
+            /// @brief Read in MSR state for RAPL, per-CPU counters,
             /// and free running counters and set them to that
             /// state.
             /// @param [in] path The path of the file to read in.
@@ -106,7 +106,7 @@ namespace geopm
             virtual void observe(void) = 0;
             /// @brief Does this Platform support a specific platform.
             /// @param [in] platform_id Platform identifier specific to the
-            ///        underlying hradware. On x86 plaforms this can be obtained by
+            ///        underlying hardware. On x86 platforms this can be obtained by
             ///        the cpuid instruction.
             /// @return true if this Platform supports platform_id,
             ///         else false.

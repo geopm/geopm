@@ -52,7 +52,7 @@ namespace geopm
             /// @brief PlatformFactory Testing constructor.
             ///
             /// This constructor takes in
-            /// a specifc Platform/PlatformImp pair and does not load plugins.
+            /// a specific Platform/PlatformImp pair and does not load plugins.
             /// It is intended to be used for testing.
             /// @param [in] platform The unique_ptr to a Platform object
             ///             assures that the object cannot be destroyed before

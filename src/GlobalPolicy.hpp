@@ -67,8 +67,8 @@ namespace geopm
             /// @brief Get the policy frequency
             /// @return frequency in MHz
             int frequency_mhz(void) const;
-            /// @brief Get the policy tdp percentage
-            /// @return tdp percentage between 0-100
+            /// @brief Get the policy TDP percentage
+            /// @return TDP (thermal design power) percentage between 0-100
             int tdp_percent(void) const;
             /// @brief Get the policy power budget
             /// @return power budget in watts
@@ -101,8 +101,8 @@ namespace geopm
             /// @brief Set the policy frequency
             /// @param [in] frequency frequency in MHz
             void frequency_mhz(int frequency);
-            /// @brief Set the policy tdp percentage
-            /// @param [in] percentage tdp percentage between 0-100
+            /// @brief Set the policy TDP percentage
+            /// @param [in] percentage TDP percentage between 0-100
             void tdp_percent(int percentage);
             /// @brief Set the policy power budget
             /// @param [in] budget power budget in watts
@@ -146,7 +146,7 @@ namespace geopm
             /// @brief power budget in watts
             int m_power_budget_watts;
             /// @brief flags encapsulates frequency, number of 'big'cpus,
-            /// 'small' core affinity, tdp percentage, and power goal
+            /// 'small' core affinity, TDP percentage, and power goal
             long int m_flags;
             /// @brief true if reading policy from shared memory, else false
             bool m_is_shm_in;

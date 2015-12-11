@@ -83,13 +83,13 @@ namespace geopm
             /// the platform.
             /// @return number of tiles.
             int tile(void) const;
-            /// @brief Retrieve the number of physical cpus present
+            /// @brief Retrieve the number of physical CPUs present
             /// on the platform.
-            /// @return number of physical cpus.
+            /// @return number of physical CPUs.
             int hw_cpu(void) const;
-            /// @brief Retrieve the number of logical cpus present
+            /// @brief Retrieve the number of logical CPUs present
             /// on the platform.
-            /// @return number of logical cpus.
+            /// @return number of logical CPUs.
             int logical_cpu(void) const;
             /// @brief Retrieve the topology tree for the platform.
             /// @return PlatformTopology object holding the
@@ -150,7 +150,7 @@ namespace geopm
             ////////////////////////////////////////////////////////////////////
             /// @brief Does this PlatformImp support a specific platform.
             /// @param [in] platform_id Platform identifier specific to the
-            ///        underlying hradware. On x86 plaforms this can be obtained by
+            ///        underlying hardware. On x86 platforms this can be obtained by
             ///        the cpuid instruction.
             /// @return true if this PlatformImp supports platform_id,
             ///         else false.
@@ -168,7 +168,7 @@ namespace geopm
             /// @brief Close a MSR special file.
             /// @param [in] cpu Number of logical cpu to close.
             void close_msr(int cpu);
-            /// @brief Lookup topology information to set member variables.
+            /// @brief Look up topology information to set member variables.
             virtual void parse_hw_topology(void);
             /// @brief Opens the per cpu special files, initializes the MSR offset
             /// map, initialize RAPL, CBO and fixed counter MSRs.
@@ -179,9 +179,9 @@ namespace geopm
             std::vector<int> m_cpu_file_descs;
             /// @brief Map of MSR string name to address offset.
             std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
-            /// @brief Number of logical cpus.
+            /// @brief Number of logical CPUs.
             int m_logical_cpus;
-            /// @brief Number of hardware cpus.
+            /// @brief Number of hardware CPUs.
             int m_hw_cpus;
             /// @brief Number of tiles.
             int m_tiles;

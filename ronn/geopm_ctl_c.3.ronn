@@ -61,7 +61,7 @@ geopm_ctl_c(3) -- geopm power controller structure
     `struct geopm_ctl_c *`_ctl_);
 
 ## DESCRIPTION
-The geopm_ctl_c structure is used to lauch or step the global energy
+The geopm_ctl_c structure is used to launch or step the global energy
 optimization power management algorithm.  There are several ways to
 enable control: explicit stepping of the control algorithm by the
 application under control, running the control algorithm as a distinct

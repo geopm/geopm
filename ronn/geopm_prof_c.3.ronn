@@ -130,7 +130,7 @@ the outer most loop, or the "outer synchronization point."
 
   * `geopm_prof_create`():
 
-    creates a profile object, _prof_, which can be used in conjuction
+    creates a profile object, _prof_, which can be used in conjunction
     with all the other APIs described here.  The resources associated
     with the _prof_ are released by passing it to
     `geopm_prof_destroy`().  Construction requires a _name_ which is
@@ -202,7 +202,7 @@ the outer most loop, or the "outer synchronization point."
     writes a profile report to the file named _file_name_ based on the
     data collected so far.  This is intended for use just prior to
     application termination, and the _prof_ object is not valid after
-    calling `geopm_prof_print`(), though it should still be destoryed
+    calling `geopm_prof_print`(), though it should still be destroyed
     by calling `geopm_prof_destroy`().  All profile information above
     the specified _depth_ in the control tree hierarchy is contained
     in the report.  A depth of 0 gives only statistics aggregated over

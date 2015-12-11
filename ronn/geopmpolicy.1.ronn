@@ -92,7 +92,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     modify.  The output file may be specified with the `-f` option.
 
   * `-r`:
-    <br> Restore the MSR values that are recored in an existing MSR save state file.
+    <br> Restore the MSR values that are recorded in an existing MSR save state file.
     The input file may be specified with the `-f` option.
 
   * `-w`:
@@ -148,7 +148,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     of MHz, _num_cpu_max_perf_ giving the number of CPUs per node running at
     maximum performance, and _affinity_ which can have a value of "compact"
     or "scatter" describing the distribution of the constrained CPUs. In most
-    cases this will match the openmp environment. All other keys are ignored.
+    cases this will match the OpenMP environment. All other keys are ignored.
 
   * `perf_balance_dynamic`:
     Implements the GEOPM_MODE_PERF_BALANCE_DYNAMIC mode described in the
@@ -172,7 +172,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     compute nodes allocated to the job, _num_cpu_max_perf_ giving the number
     of CPUs running at maximum performance, and _affinity_ which can have a
     value of "compact" or "scatter" describing the distribution of the non-maximum
-    performance CPUs. In most cases this will match the openmp environment. All
+    performance CPUs. In most cases this will match the OpenMP environment. All
     other keys are ignored.
 
 ## EXAMPLES

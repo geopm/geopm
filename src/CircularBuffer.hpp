@@ -48,7 +48,7 @@ namespace geopm
     class CircularBuffer
     {
         public:
-            /// @brief Constructor ofr the CircularBuffer template.
+            /// @brief Constructor for the CircularBuffer template.
             ///
             /// Creates an empty circular buffer with a set capacity.
             ///
@@ -56,14 +56,14 @@ namespace geopm
             CircularBuffer(const unsigned int size);
             /// @brief CircularBuffer destructor, virtual
             virtual ~CircularBuffer();
-            /// @brief Resize the circular buffer.
+            /// @brief Re-size the circular buffer.
             ///
             /// Resets the capacity of the circular buffer without
             /// modifying it's current contents.
             ///
             /// @param [in] size Requested capacity for the buffer.
             void set_capacity(const unsigned int size);
-            /// @brief Clears all entries fron the buffer.
+            /// @brief Clears all entries from the buffer.
             void clear(void);
             /// @brief Size of the buffer contents.
             ///
@@ -71,7 +71,7 @@ namespace geopm
             /// value will be less than or equal to the current
             /// capacity of the buffer.
             //
-            /// @retrun Size of the buffer contents.
+            /// @return Size of the buffer contents.
             int size(void) const;
             /// @brief Capacity of the buffer.
             ///
@@ -93,9 +93,9 @@ namespace geopm
             /// @brief Returns a value from the buffer.
             ///
             /// Accesses the contents of the circular buffer
-            /// at a particular index. Valid indicies range
+            /// at a particular index. Valid indices range
             /// from 0 to [size-1]. Where size is the number
-            /// of valid entries in the buffer. An attemp to
+            /// of valid entries in the buffer. An attempt to
             /// retrieve a value for an out of bound index a
             /// geopm::Exception will be thrown with an
             /// error_value() of GEOPM_ERROR_INVALID.
@@ -109,7 +109,7 @@ namespace geopm
             std::vector<type> m_buffer;
             /// @brief Index of the current head of the buffer.
             unsigned long m_head;
-            /// @brief The number of valid enrties in the buffer.
+            /// @brief The number of valid entries in the buffer.
             unsigned long m_count;
             /// @brief Current capacity of the buffer.
             size_t m_max_size;
@@ -159,7 +159,7 @@ namespace geopm
             for (unsigned int i = m_head + size_diff; i < ((m_head + m_count) % m_max_size); i = ((i + 1) % m_max_size)) {
                 temp.push_back(m_buffer[i]);
             }
-            //now resize and swap out with tmp vector data
+            //now re-size and swap out with tmp vector data
             m_buffer.resize(size);
             m_buffer.swap(temp);
             m_count = size;
@@ -175,7 +175,7 @@ namespace geopm
     void CircularBuffer<type>::insert(const type value)
     {
         if (m_max_size < 1) {
-            throw Exception("CircularBuffer::insert(): Cannot insert into a bufffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("CircularBuffer::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_count < m_max_size) {
             m_buffer.push_back(value);

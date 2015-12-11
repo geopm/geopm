@@ -100,7 +100,7 @@ dynamically over the compute application runtime.  This interface can output
 a MSR whitelist file for use with the Linux MSR driver. For static policy
 control, this interface can be used to create a configuration file that is
 parsed by the geopm setup or geopm runtime.  For dynamic control, a daemon
-can use this interface to create and modify an interprocess shared memory
+can use this interface to create and modify an inter-process shared memory
 region on the compute node hosting the root MPI process of the compute
 application.  The shared memory region is monitored by the geopm runtime to
 enforce policy across the entire MPI job allocation.  All functions
@@ -176,7 +176,7 @@ success; see [ERRORS][] section below for details.
   * `geopm_platform_msr_whitelist`():
     writes a MSR whitelist consisting of all MSR offsets and write masks needed
     for full operation of geopm power modes. It is intended to be used with the
-    whitelisting feature of the Linux MSR driver. The whitelist is written out to
+    white-listing feature of the Linux MSR driver. The whitelist is written out to
     _file_desc_ which should be a valid file descriptor.
 
   * `geopm_policy_enforce_static`():
@@ -270,11 +270,11 @@ frequency across nodes, depending on the mode.
 
   * `GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT`:
     The "small CPUs" are located nearby each other on the processor package.
-    This should match the openmp runtime environment.
+    This should match the OpenMP runtime environment.
 
   * `GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER`:
     The "small CPUs" are located as far from each other as possible across the
-    processor package.  This should match the openmp runtime environment.
+    processor package.  This should match the OpenMP runtime environment.
 
 ## ERRORS
 All functions described on this man page return an error code.  See

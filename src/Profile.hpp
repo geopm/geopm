@@ -245,7 +245,7 @@ namespace geopm
             ///
             /// Uses hwloc to determine the cpuset the current
             /// process is bound to. This information is used to fill
-            /// in a set containing all cpus we can run on. This is used
+            /// in a set containing all CPUs we can run on. This is used
             /// to communicate with the geopm runtime the number of ranks
             /// as well as their affinity masks.
             void init_cpu_list(void);

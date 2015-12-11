@@ -69,14 +69,14 @@ namespace geopm
             virtual void sample(struct geopm_sample_message_s &sample) const;
             virtual void enforce_policy(const Policy &policy) const;
         protected:
-            /// @brief Structure of buffer indicies to store data into to
-            /// avoid map lookups.
+            /// @brief Structure of buffer indices to store data into to
+            /// avoid map look-ups.
             struct buffer_index_s m_buffer_index;
             /// @brief Vector of MSR offsets to record the values of.
             std::vector<off_t> m_observe_msr_offsets;
             /// @brief Vector of MSR offsets to write values to.
             std::vector<off_t> m_enforce_msr_offsets;
-            /// @brief Number of cpus on the platform.
+            /// @brief Number of CPUs on the platform.
             int m_num_cpu;
             /// @brief Number of packages on the platform.
             int m_num_package;
