@@ -2,42 +2,133 @@ ISSUES
 ======
 
 issue-geopmpolicy-whitelist-root
-    - "geopmpolicy -w" requires root access, but output is only a function of
-      cpuid (2015-10-12).
+    - "geopmpolicy -w" requires root access, but output is only a
+      function of cpuid (2015-10-12).
 
 issue-geopmpolicy-extra-obj
-    - There are many objects compiled into libgeopmpolicy which are not
-      needed (2015-10-30).
+    - There are many objects compiled into libgeopmpolicy which are
+      not needed (2015-10-30).
 
 issue-out-of-place-testing
-    - Building out of place works correctly, but testing out of place does
-      not, gtest links are broken and the license header check does not work
-      (2015-10-30).
+    - Building out of place works correctly, but testing out of place
+      does not, gtest links are broken and the license header check
+      does not work (2015-10-30).
 
-issue-app-shutdown-signal-shmem
-    - Need a way for the application to signal to the geopm runtime that it is
-      shutting down (2015-11-04).
 
-Notes on Regions
-===============
+BACKLOG
+=======
 
-Application Constraints
------------------------
-Application must call into geopm APIs from per-rank serial code.
+IMPROVEMENTS
+------------
 
-Resolution of control is limited to sets of CPUs assigned to each MPI
-rank.
+extend-unit-tests
+    - Test coverage is too low.  Need to expand unit testing to
+      increase coverage. (2015-12-14)
 
-If a library linked by the application uses geopm mark up for regionss,
-it must have some mechanism for generating a unique region ID set
-(offset based?).
+create-examples
+    - Generate an example for all important use cases of geopm with
+      the focus on using these examples as our integration test
+      suite. (2015-12-14)
 
-Make mark up region_end() API calls into a MPI_Barrier over the ranks
-on the calling process' node?
+automated-ci
+    - Do some automated continuous integration testing, currently only
+      doing developer workstation testing. (2015-12-14)
 
-All ranks must call mark up in same exact sequence.
+improve-documentation
+    - Add detail to doxygen comments where @brief descriptions are all
+      that is provided.  Unify documentation style. (2015-12-14)
 
-All threads associated with an MPI rank must run within the same
-resolution of control (e.g. socket/tile).
+post-backlog-to-github
+    - Post this backlog to github issues. (2015-12-14)
 
+
+MINIMAL FUNCTIONALITY
+---------------------
+
+converge-recording-interfaces
+    - Need to solidify interfaces for recording, retrieving and
+      interpolating collected data. (2015-12-14)
+
+decider-interface-publish-subscribe
+    - Design publish/subscriber interface to enable decider plug-in
+      access to information used to make decisions. (2015-12-14)
+
+collect-msr-telemetry
+    - The Controller should use the Platform to sample MSRs and record
+      the results. (2015-12-14)
+
+record-meaningful-timestamps
+    - It is safe to compare time stamps generated on the same compute
+      node, use these for interpolating data within the node before
+      sending external to the node. (2015-12-14)
+
+define-power-model
+    - If the PowerModel class is to play a role in the interface
+      described in decider-interface-publish-subscribe, define what
+      that is. Is this a plugin? (2015-12-14)
+
+implement-power-model
+    - After define-power-model, implement this design. (2015-12-14)
+
+fix-platform-interfaces
+    - Platform interface currently has an observe method, this needs
+      to be redesigned.(2015-12-14)
+
+decider-plugin-selection
+    - Design implement and test an interface to select decider
+      plug-ins. (2015-12-14)
+
+interpolate-data
+    - Data is sampled at different times.  In particular hardware
+      counters sampled by the controller and application profile
+      feedback sampled by each compute application MPI rank are
+      asynchronous. (2015-12-14)
+
+send-samples-up-tree
+    - Construct a geopm_sample_message_s by combining a
+      geopm_prof_message_s and Platform data and send result up
+      tree. (2015-12-14)
+
+send-policy-down-tree
+    - Interface Controller and Decider in order to enact policy
+      decisions. (2015-12-14)
+
+
+EXTENDED FUNCTIONALITY
+----------------------
+
+generate-aggregated-report
+    - Currently one report file per compute node, aggregate data based
+      on depth parameter passed to the Profile::print()
+      method. (2015-12-14)
+
+gui-report-explorer
+    - Need some post-processing application to enable exploration of
+      generated report data. (2015-12-14)
+
+barrier-option-region-end
+    - Provide option where geopm_prof_exit() calls into a
+      MPI_Barrier() over the ranks on the calling process's
+      node. (2015-12-14)
+
+enable-geopm-profiling
+    - Enable performance profiling of the geopm code itself.
+      Determine the overhead the run-time requires and enable
+      reporting at different levels of granularity. (2015-12-14)
+
+enable-automatic-profiling
+    - Provide interface for algorithms attempting to do automatic
+      detection of application profile data. (2015-12-14)
+
+enable-trace-dumping
+    - Provide a mechanism for dumping application trace data to disk
+      for post processing analysis. (2015-12-14)
+
+investigate-powerapi-integration
+    - Look into how geopm might integrate with Sandia's
+      PowerAPI. (2015-12-14)
+
+collect-bmc-data
+    - Collect out of band data at a low sample rate and interpolate
+      results. (2015-12-14)
 
