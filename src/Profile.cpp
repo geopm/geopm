@@ -317,7 +317,7 @@ namespace geopm
     uint64_t Profile::region(const std::string region_name, long policy_hint)
     {
         return m_table->key(region_name);
-        // FIXME: not using policy_hint
+        /// @todo Record policy hint when registering a region.
     }
 
     void Profile::enter(uint64_t region_id)
@@ -408,8 +408,7 @@ namespace geopm
         buffer_offset += m_prof_name.length() + 1;
         while (!is_all_done) {
             is_done = m_table->name_fill(buffer_offset);
-            MPI_Reduce(&is_done, &is_all_done, 1, MPI_INT, MPI_LAND, 0, m_shm_comm);
-            MPI_Bcast(&is_all_done, 1, MPI_INT, 0, m_shm_comm);
+            MPI_Allreduce(&is_done, &is_all_done, 1, MPI_INT, MPI_LAND, m_shm_comm);
             if (!m_shm_rank) {
                 m_ctl_msg->app_status = GEOPM_STATUS_READY;
             }
