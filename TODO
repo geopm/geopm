@@ -1,25 +1,30 @@
-ISSUES
-======
+BACKLOG
+=======
 
-issue-geopmpolicy-whitelist-root
+
+BUGS
+----
+
+geopmpolicy-whitelist-root
     - "geopmpolicy -w" requires root access, but output is only a
       function of cpuid (2015-10-12).
 
-issue-geopmpolicy-extra-obj
+geopmpolicy-extra-obj
     - There are many objects compiled into libgeopmpolicy which are
       not needed (2015-10-30).
 
-issue-out-of-place-testing
+out-of-place-testing
     - Building out of place works correctly, but testing out of place
       does not, gtest links are broken and the license header check
       does not work (2015-10-30).
 
+redesign-platform-interfaces
+    - Platform interface currently has an observe method, this needs
+      to be redesigned.(2015-12-14)
 
-BACKLOG
-=======
 
-IMPROVEMENTS
-------------
+ONGOING ENHANCEMENTS
+--------------------
 
 extend-unit-tests
     - Test coverage is too low.  Need to expand unit testing to
@@ -30,59 +35,46 @@ create-examples
       the focus on using these examples as our integration test
       suite. (2015-12-14)
 
-automated-ci
-    - Do some automated continuous integration testing, currently only
-      doing developer workstation testing. (2015-12-14)
-
 improve-documentation
     - Add detail to doxygen comments where @brief descriptions are all
       that is provided.  Unify documentation style. (2015-12-14)
 
-post-backlog-to-github
-    - Post this backlog to github issues. (2015-12-14)
 
-
-MINIMAL FUNCTIONALITY
----------------------
+HIGH PRIORITY ENHANCEMENTS
+--------------------------
 
 converge-recording-interfaces
     - Need to solidify interfaces for recording, retrieving and
-      interpolating collected data. (2015-12-14)
-
-decider-interface-publish-subscribe
-    - Design publish/subscriber interface to enable decider plug-in
-      access to information used to make decisions. (2015-12-14)
+      interpolating collected data. Time series data is being
+      collected at different cadences and from different sources.  The
+      decider requires coherent samples. (2015-12-14)
 
 collect-msr-telemetry
-    - The Controller should use the Platform to sample MSRs and record
-      the results. (2015-12-14)
-
-record-meaningful-timestamps
-    - It is safe to compare time stamps generated on the same compute
-      node, use these for interpolating data within the node before
-      sending external to the node. (2015-12-14)
+    - The Platform should be used to sample RAPL and performance
+      counter results through the MSR interface.  Need to solidify
+      design of class interactions and responsibilities in the process
+      of access, recording, interpolating and retrieving this
+      data. (2015-12-14)
 
 define-power-model
-    - If the PowerModel class is to play a role in the interface
-      described in decider-interface-publish-subscribe, define what
-      that is. Is this a plugin? (2015-12-14)
+    - If the PowerModel class is to play a role in the
+      converge-recording-interfaces task, define this role.  Is this a
+      plugin? (2015-12-14)
 
 implement-power-model
     - After define-power-model, implement this design. (2015-12-14)
 
-fix-platform-interfaces
-    - Platform interface currently has an observe method, this needs
-      to be redesigned.(2015-12-14)
-
 decider-plugin-selection
-    - Design implement and test an interface to select decider
-      plug-ins. (2015-12-14)
+    - Design implement and test a user and administrator interface to
+      select decider plug-ins. (2015-12-14)
 
 interpolate-data
     - Data is sampled at different times.  In particular hardware
       counters sampled by the controller and application profile
       feedback sampled by each compute application MPI rank are
-      asynchronous. (2015-12-14)
+      asynchronous.  Need infrastructure to support basic
+      interpolation routines: nearest neighbor and linear to start.
+      (2015-12-14)
 
 send-samples-up-tree
     - Construct a geopm_sample_message_s by combining a
@@ -91,38 +83,17 @@ send-samples-up-tree
 
 send-policy-down-tree
     - Interface Controller and Decider in order to enact policy
-      decisions. (2015-12-14)
-
-
-EXTENDED FUNCTIONALITY
-----------------------
-
-generate-aggregated-report
-    - Currently one report file per compute node, aggregate data based
-      on depth parameter passed to the Profile::print()
-      method. (2015-12-14)
-
-gui-report-explorer
-    - Need some post-processing application to enable exploration of
-      generated report data. (2015-12-14)
+      decisions through the tree hierarchy. (2015-12-14)
 
 barrier-option-region-end
     - Provide option where geopm_prof_exit() calls into a
-      MPI_Barrier() over the ranks on the calling process's
-      node. (2015-12-14)
+      MPI_Barrier() over the ranks on the calling process's node. This
+      can be useful for debugging. (2015-12-14)
 
 enable-geopm-profiling
     - Enable performance profiling of the geopm code itself.
       Determine the overhead the run-time requires and enable
       reporting at different levels of granularity. (2015-12-14)
-
-enable-automatic-profiling
-    - Provide interface for algorithms attempting to do automatic
-      detection of application profile data. (2015-12-14)
-
-enable-trace-dumping
-    - Provide a mechanism for dumping application trace data to disk
-      for post processing analysis. (2015-12-14)
 
 investigate-powerapi-integration
     - Look into how geopm might integrate with Sandia's
@@ -130,5 +101,45 @@ investigate-powerapi-integration
 
 collect-bmc-data
     - Collect out of band data at a low sample rate and interpolate
-      results. (2015-12-14)
+      results. Find a way to get access to this data on the compute
+      cores, especially when CPU doesn't have access to out of band
+      network supporting BMC data. (2015-12-14)
 
+
+LOW PRIORITY ENHANCEMENTS
+-------------------------
+
+automated-ci
+    - Do some automated continuous integration testing, currently only
+      doing developer workstation testing. (2015-12-14)
+
+generate-aggregated-report
+    - Currently one report file per compute node, aggregate data based
+      on depth parameter passed to the Profile::print()
+      method. (2015-12-14)
+
+gui-report-explorer
+    - Write a post-processing application to enable exploration of
+      generated report data. This is a nice to have feature, and may
+      be especially useful for debug purposes, but is a low priority.
+      (2015-12-14)
+
+decider-interface-publish-subscribe
+    - Design publish/subscriber interface to enable decider plug-in
+      access to information used to make decisions. This pattern may
+      be too restrictive to enable required extension, but look into
+      possibility. (2015-12-14)
+
+enable-automatic-profiling
+    - Provide interface for algorithms attempting to do automatic
+      detection of application regions and progress through analysis
+      of hardware events. This is a stretch goal: although the data
+      required will be collected, designing the interface to provide
+      it to an outside agent may break designs for
+      encapsulation. (2015-12-14)
+
+enable-trace-dumping
+    - Provide a mechanism for dumping application trace data to disk
+      for post processing analysis.  This trace would include
+      telemetry data, application feedback data and decisions made by
+      the geopm run-time. (2015-12-14)
