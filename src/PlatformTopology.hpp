@@ -39,7 +39,7 @@
 namespace geopm
 {
     /// @brief Platform resource types.
-    enum domain_type_e {
+    enum geopm_domain_type_e {
         /// @brief Group of MPI processes used for control
         GEOPM_DOMAIN_PROCESS_GROUP = HWLOC_OBJ_SYSTEM,
         /// @brief Coherent memory domain
@@ -85,6 +85,7 @@ namespace geopm
             /// @param [out] domain Vector containing all hwloc resources of the
             /// requested type.
             void domain_by_type(int type, std::vector<hwloc_obj_t> &domain) const;
+            void children_by_type(int type, hwloc_obj_t &obj, std::vector<hwloc_obj_t> &children) const;
         private:
             /// @brief Holds the hwloc topology tree.
             hwloc_topology_t m_topo;

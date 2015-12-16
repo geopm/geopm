@@ -31,6 +31,9 @@
  */
 #ifndef GEOPM_TIME_H_INCLUDE
 #define GEOPM_TIME_H_INCLUDE
+
+#include <math.h>
+
 #ifndef __cplusplus
 #include <stdbool.h>
 #else
@@ -43,6 +46,7 @@ struct geopm_time_s;
 static inline int geopm_time(struct geopm_time_s *time);
 static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end);
 static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
+static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end);
 
 #ifdef __linux__
 #include <time.h>
@@ -71,6 +75,14 @@ static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct g
     return result;
 }
 
+static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end)
+{
+    *end = *begin;
+    end->t.tv_sec += elapsed;
+    elapsed -= floor(elapsed);
+    end->t.tv_nsec += 1E9 * elapsed;
+}
+
 #else
 #include <sys/time.h>
 
@@ -96,6 +108,14 @@ static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct g
         result = aa->t.tv_usec < bb->t.tv_usec;
     }
     return result;
+}
+
+static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end)
+{
+    *end = *begin;
+    end->t.tv_sec += elapsed;
+    elapsed -= floor(elapsed);
+    end->t.tv_usec += 1E6 * elapsed;
 }
 
 #endif

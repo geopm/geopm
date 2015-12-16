@@ -56,11 +56,6 @@
 
 extern "C"
 {
-
-    enum geopm_controller_cont_e {
-        GEOPM_CTL_MAX_FAN_OUT = 16,
-    };
-
     static void *geopm_threaded_run(void *args)
     {
         long err = 0;
@@ -182,6 +177,7 @@ namespace geopm
         , m_platform_factory(NULL)
         , m_platform(NULL)
         , m_sampler(NULL)
+        , m_sample_regulator(NULL)
     {
 #ifndef GEOPM_DEBUG
         throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -206,7 +202,7 @@ namespace geopm
             std::vector<int> fan_out(num_fan_out);
             fan_out[0] = num_nodes;
 
-            while (fan_out[0] > GEOPM_CTL_MAX_FAN_OUT && fan_out[num_fan_out - 1] != 1) {
+            while (fan_out[0] > M_MAX_FAN_OUT && fan_out[num_fan_out - 1] != 1) {
                 ++num_fan_out;
                 fan_out.resize(num_fan_out);
                 check_mpi(MPI_Dims_create(num_nodes, num_fan_out, fan_out.data()));
@@ -227,6 +223,8 @@ namespace geopm
 
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform();
+
+            m_msr_sample.resize(m_platform->capacity());
 
             m_decider_factory = new DeciderFactory;
             /// @bug Do not hardcode leaf decider string.
@@ -256,6 +254,11 @@ namespace geopm
         struct geopm_policy_message_s policy;
 
         m_sampler->initialize();
+        m_prof_sample.resize(m_sampler->capacity());
+        std::vector<int> cpu_rank;
+        m_sampler->cpu_rank(cpu_rank);
+        m_platform->init_transform(cpu_rank);
+        m_sample_regulator = new SampleRegulator(cpu_rank);
 
         // Spin waiting for for first policy message
         level = m_tree_comm->num_level() - 1;
@@ -362,12 +365,10 @@ namespace geopm
         struct geopm_policy_message_s policy_msg;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
-        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > region_sample;
-        size_t sample_length;
         Policy policy;
         int region_id = -1;
+        size_t length;
 
-        region_sample.resize(m_sampler->capacity());
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
@@ -394,13 +395,27 @@ namespace geopm
                 }
             }
             else {
-                /// @todo We need to sample from the application, sample from RAPL,
-                /// sample from the MSRs and fuse all this data into a single sample
-                /// using coherant time stamps to calculate elapsed values. We then pass
-                /// this to the decider who will create a new per domain policy for the
-                /// current region. Then we can enforce the policy by adjusting RAPL power
-                /// domain limits.
-                m_sampler->sample(region_sample, sample_length);
+                // Sample from the application, sample from RAPL,
+                // sample from the MSRs and fuse all this data into a
+                // single sample using coherant time stamps to
+                // calculate elapsed values. We then pass this to the
+                // decider who will create a new per domain policy for
+                // the current region. Then we can enforce the policy
+                // by adjusting RAPL power domain limits.
+                m_sampler->sample(m_prof_sample, length);
+                m_platform->sample(m_msr_sample);
+                std::vector<double> platform_sample(m_msr_sample.size());
+                auto output_it = platform_sample.begin();
+                for (auto input_it = m_msr_sample.begin(); input_it != m_msr_sample.end(); ++input_it) {
+                    *output_it = (*input_it).signal;
+                    ++output_it;
+                }
+                m_sample_regulator->sample(m_msr_sample[0].timestamp,
+                                           platform_sample.cbegin(), platform_sample.cend(),
+                                           m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
+                                           *(m_platform->signal_domain_transform()),
+                                           m_telemetry_sample);
+
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level()) {
@@ -414,45 +429,6 @@ namespace geopm
             do_shutdown = 1;
         }
         return do_shutdown;
-    }
-
-    void Controller::process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample)
-    {
-        uint64_t region_id = sample[0].region_id;
-        Region *curr_region;
-        auto iter = m_region[level].find(region_id);
-        int num_domains;
-
-        if (iter == m_region[level].end()) {
-            //Region not found. Create a new one.
-            if (level) {
-                num_domains =  m_tree_comm->level_size(level - 1);
-            }
-            else {
-                num_domains = m_platform->num_domain();
-            }
-            curr_region = new Region(region_id, GEOPM_POLICY_HINT_UNKNOWN, num_domains);
-            //set it's policy equal to the global policy for this level.
-            *(curr_region->policy()) = *(m_region[level].find(GEOPM_GLOBAL_POLICY_IDENTIFIER)->second->policy());
-            m_region[level].insert(std::pair<long, Region *>(region_id, curr_region));
-        }
-        else {
-            curr_region = iter->second;
-        }
-
-        struct geopm_time_s time;
-        geopm_time(&time);
-        double timestamp = geopm_time_diff(&m_time_zero, &time);
-
-        for (auto sample_it = sample.begin(); sample_it < sample.end(); ++sample_it) {
-            if (sample_it->region_id != region_id) {
-                throw geopm::Exception("class Controller", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
-            curr_region->observation_insert(GEOPM_INDEX_TIMESTAMP, timestamp);
-            curr_region->observation_insert(GEOPM_INDEX_RUNTIME, sample_it->runtime);
-            curr_region->observation_insert(GEOPM_INDEX_ENERGY, sample_it->energy);
-            curr_region->observation_insert(GEOPM_INDEX_FREQUENCY, sample_it->frequency);
-        }
     }
 
     void Controller::enforce_child_policy(const int region_id, const int level, const Policy &policy)

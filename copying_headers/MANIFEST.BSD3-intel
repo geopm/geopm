@@ -66,6 +66,8 @@ src/RAPLPlatform.cpp
 src/RAPLPlatform.hpp
 src/Region.cpp
 src/Region.hpp
+src/SampleRegulator.cpp
+src/SampleRegulator.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
 src/TreeCommunicator.cpp

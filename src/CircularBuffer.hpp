@@ -82,7 +82,7 @@ namespace geopm
             int capacity(void) const;
             /// @brief Insert a value into the buffer.
             ///
-            /// If the buffer is not full, the nae value is simply
+            /// If the buffer is not full, the new value is simply
             /// added to the buffer. It the buffer is at capacity,
             /// The head of the buffer is dropped and moved to the
             /// next oldest entry and the new value is then inserted
@@ -117,10 +117,12 @@ namespace geopm
 
     template <class type>
     CircularBuffer<type>::CircularBuffer(const unsigned int size)
+    : m_buffer(size)
+    , m_head(0)
+    , m_count(0)
+    , m_max_size(size)
     {
-        m_max_size = size;
-        m_head = 0;
-        m_count = 0;
+
     }
 
     template <class type>
@@ -178,7 +180,7 @@ namespace geopm
             throw Exception("CircularBuffer::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_count < m_max_size) {
-            m_buffer.push_back(value);
+            m_buffer[m_count] = value;
             m_count++;
         }
         else {

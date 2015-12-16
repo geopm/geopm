@@ -54,6 +54,7 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual void msr_path(int cpu);
         virtual void initialize_msrs(void);
         virtual void reset_msrs(void);
+        virtual int control_domain(void) const;
 };
 
 TestPlatformImp::TestPlatformImp()
@@ -104,6 +105,11 @@ void TestPlatformImp::reset_msrs(void)
     return;
 }
 
+int TestPlatformImp::control_domain(void) const
+{
+    return geopm::GEOPM_DOMAIN_PACKAGE;
+}
+
 void TestPlatformImp::msr_path(int cpu)
 {
     uint32_t lval = 0x0;
@@ -152,6 +158,10 @@ class TestPlatformImp2 : public geopm::PlatformImp
         virtual void reset_msrs(void)
         {
             return;
+        }
+        virtual int control_domain(void) const
+        {
+            return geopm::GEOPM_DOMAIN_PACKAGE;
         }
         virtual std::string platform_name();
     protected:

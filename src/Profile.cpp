@@ -485,14 +485,17 @@ namespace geopm
 
         err = hwloc_get_cpubind(topology, set, HWLOC_CPUBIND_PROCESS);
         if (err) {
-            throw Exception("Profile: unable to get process binding from hwloc", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            if (!getenv("GEOPM_ERROR_AFFINITY_IGNORE")) {
+                throw Exception("Profile: unable to get process binding from hwloc, set GEOPM_ERROR_AFFINITY_IGNORE to ignore error", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            m_cpu_list.push_front(0);
         }
-
-        hwloc_bitmap_foreach_begin(i, set) {
-            m_cpu_list.push_front(i);
+        else {
+            hwloc_bitmap_foreach_begin(i, set) {
+                m_cpu_list.push_front(i);
+            }
+            hwloc_bitmap_foreach_end();
         }
-        hwloc_bitmap_foreach_end();
-
         hwloc_bitmap_free(set);
         hwloc_topology_destroy(topology);
     }
@@ -572,7 +575,7 @@ namespace geopm
                  rank_sampler_it != m_rank_sampler.end();
                  ++rank_sampler_it) {
                 size_t rank_length = 0;
-                (*rank_sampler_it)->rank_sample(content_it, rank_length);
+                (*rank_sampler_it)->sample(content_it, rank_length);
                 content_it += rank_length;
                 length += rank_length;
             }
@@ -646,7 +649,7 @@ namespace geopm
         return m_table.capacity();
     }
 
-    void ProfileRankSampler::rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
+    void ProfileRankSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
         struct geopm_sample_message_s sample;
         m_table.dump(content_begin, length);

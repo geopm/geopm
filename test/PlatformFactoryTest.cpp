@@ -47,6 +47,7 @@ class MockPlatformImp : public geopm::PlatformImp
     public:
         MOCK_METHOD1(model_supported, bool(int platform_id));
         MOCK_METHOD0(platform_name, std::string());
+        virtual int control_domain(void) const;
         virtual void initialize(void);
         virtual void reset_msrs(void);
     protected:
@@ -65,13 +66,19 @@ void MockPlatformImp::reset_msrs(void)
 {
 }
 
+int MockPlatformImp::control_domain(void) const
+{
+    return geopm::GEOPM_DOMAIN_PACKAGE;
+}
+
 class MockPlatform : public geopm::Platform
 {
     public:
-        MOCK_METHOD0(observe, void(void));
+        MOCK_METHOD1(sample, void(std::vector<struct geopm_msr_message_s> &msr_values));
         MOCK_CONST_METHOD1(model_supported, bool(int platform_id));
         MOCK_CONST_METHOD1(sample, void(struct geopm_sample_message_s &sample));
         MOCK_CONST_METHOD1(enforce_policy, void(const geopm::Policy &policy));
+        MOCK_METHOD0(capacity, size_t(void));
 };
 
 
@@ -111,7 +118,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     p = m_platform_fact.platform();
     ASSERT_FALSE(p == NULL);
 
-    ans = p->name();
+    p->name(ans);
     ASSERT_FALSE(ans.empty());
 
     EXPECT_FALSE(ans.compare(pname));

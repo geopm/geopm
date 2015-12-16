@@ -160,6 +160,7 @@ namespace geopm
             virtual std::string platform_name(void) = 0;
             /// @brief Reset MSRs to a default state.
             virtual void reset_msrs(void) = 0;
+            virtual int control_domain(void) const = 0;
 
         protected:
             /// @brief Open a MSR special file.

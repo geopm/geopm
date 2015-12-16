@@ -329,7 +329,7 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void rank_sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
             /// @brief Retrieve the maximum capacity of the hash table.
             ///
             /// @return The maximum number of samples that can possibly

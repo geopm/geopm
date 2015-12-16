@@ -219,6 +219,8 @@ if ENABLE_MPI
                           src/RAPLPlatform.hpp \
                           src/Region.cpp \
                           src/Region.hpp \
+                          src/SampleRegulator.cpp \
+                          src/SampleRegulator.hpp \
                           src/SharedMemory.cpp \
                           src/SharedMemory.hpp \
                           src/TreeCommunicator.cpp \
@@ -278,13 +280,13 @@ ruby/bin/ronn:
 
 # MAN TARGET
 $(dist_man_MANS): man/%: ruby/bin/ronn
-	mkdir -p man;
-	export GEM_PATH=$$PWD/ruby:$$GEM_PATH; pushd  ronn; \
-	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn; \
-	popd;
+	mkdir -p man
+	export GEM_PATH=`readlink -f $(top_srcdir)/ruby`:$$GEM_PATH && \
+	cd ronn && \
+	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn
 	cat ronn/header.txt ronn/`basename $@` | \
 	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' \
-	    > $@;
+	    > $@
 
 # GH_PAGES TARGET
 gh-pages: doxygen $(dist_man_MANS)

@@ -34,12 +34,15 @@
 #include "Exception.hpp"
 #include "RAPLPlatform.hpp"
 #include "geopm_message.h"
+#include "geopm_time.h"
 
 namespace geopm
 {
     static const int hsx_id = 0x63F;
     static const int ivb_id = 0x63E;
     static const int snb_id = 0x62D;
+    static const int NUM_RAPL_DOMAIN = 3;
+    static const int NUM_COUNTER = 4;
 
     RAPLPlatform::RAPLPlatform()
     {
@@ -66,21 +69,11 @@ namespace geopm
         m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
 
         m_num_cpu = m_imp->hw_cpu();
-        int hyper = m_imp->logical_cpu();
+        m_num_package = m_imp->package();
+        m_num_domain = NUM_RAPL_DOMAIN;
+        m_num_counter = NUM_COUNTER;
 
-        //Set up our indexes into the circular buffers for all the observables
-        int cpu_offset = hyper ? (m_num_cpu / hyper) : m_num_cpu;
-        m_buffer_index.package0_pkg_energy = 0;
-        m_buffer_index.package1_pkg_energy = 1;
-        m_buffer_index.package0_pp0_energy = 2;
-        m_buffer_index.package1_pp0_energy = 3;
-        m_buffer_index.package0_dram_energy = 4;
-        m_buffer_index.package1_dram_energy = 5;
-        m_buffer_index.inst_retired_any_base  = 6;
-        m_buffer_index.clk_unhalted_core_base = m_buffer_index.inst_retired_any_base + cpu_offset;
-        m_buffer_index.clk_unhalted_ref_base = m_buffer_index.clk_unhalted_core_base + cpu_offset;
-        m_buffer_index.llc_victims_base = m_buffer_index.clk_unhalted_ref_base + cpu_offset;
-        m_buffer_index.num_slot = m_buffer_index.llc_victims_base + cpu_offset;
+        int cpu_offset_divisor = m_num_package * m_imp->logical_cpu();
 
         //Save off the msr offsets for the things we want to observe to avoid a map lookup
         m_observe_msr_offsets.push_back(m_imp->msr_offset("PKG_ENERGY_STATUS"));
@@ -91,7 +84,7 @@ namespace geopm
         m_observe_msr_offsets.push_back(m_imp->msr_offset("PERF_FIXED_CTR2"));
         for (int i = 0; i < m_num_cpu; i++) {
             std::string msr_name("_MSR_PMON_CTR1");
-            msr_name.insert(0, std::to_string(i));
+            msr_name.insert(0, std::to_string(i/cpu_offset_divisor));
             msr_name.insert(0, "C");
             m_observe_msr_offsets.push_back(m_imp->msr_offset(msr_name));
         }
@@ -103,35 +96,59 @@ namespace geopm
 
     }
 
-    void RAPLPlatform::observe(void)
+    size_t RAPLPlatform::capacity(void)
     {
+        return m_imp->package() * NUM_RAPL_DOMAIN + m_imp->hw_cpu() * NUM_COUNTER;
+    }
+
+    void RAPLPlatform::sample(std::vector<struct geopm_msr_message_s> &msr_values)
+    {
+        int count = 0;
+        struct geopm_time_s time;
+
+        geopm_time(&time);
         //record per package energy readings
-        m_curr_region->observation_insert(m_buffer_index.package0_pkg_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, m_observe_msr_offsets[0]));
-        m_curr_region->observation_insert(m_buffer_index.package0_pp0_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, m_observe_msr_offsets[1]));
-        m_curr_region->observation_insert(m_buffer_index.package0_dram_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, m_observe_msr_offsets[2]));
-        m_curr_region->observation_insert(m_buffer_index.package1_pkg_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 1, m_observe_msr_offsets[0]));
-        m_curr_region->observation_insert(m_buffer_index.package1_pp0_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 1, m_observe_msr_offsets[1]));
-        m_curr_region->observation_insert(m_buffer_index.package1_dram_energy, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 1, m_observe_msr_offsets[2]));
+        for (int i = 0; i < m_num_package; i++) {
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_PKG_ENERGY;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[0]);
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_PP0_ENERGY;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[1]);
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_DRAM_ENERGY;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[2]);
+        }
 
         //record per cpu metrics
         for (int i = 0; i < m_num_cpu; i++) {
-            m_curr_region->observation_insert((m_buffer_index.inst_retired_any_base + i),
-                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]));
-            m_curr_region->observation_insert((m_buffer_index.clk_unhalted_core_base + i),
-                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]));
-            m_curr_region->observation_insert((m_buffer_index.clk_unhalted_ref_base + i),
-                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]));
-            m_curr_region->observation_insert((m_buffer_index.llc_victims_base + i),
-                                              (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]));
+            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_INST_RETIRED;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]);
+            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]);
+            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_CLK_UNHALTED_REF;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]);
+            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_LLC_VICTIMS;
+            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]);
         }
-    }
-
-    void RAPLPlatform::sample(struct geopm_sample_message_s &sample) const
-    {
-        sample.region_id = m_curr_region->identifier();
-        sample.runtime = m_curr_region->observation_mean(0);
-        sample.energy = m_curr_region->observation_mean(0);
-        sample.frequency = m_curr_region->observation_mean(0);
     }
 
     void RAPLPlatform::enforce_policy(const Policy &policy) const

@@ -40,6 +40,7 @@
 
 namespace geopm
 {
+
     class Decider
     {
         public:

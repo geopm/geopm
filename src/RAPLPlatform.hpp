@@ -65,8 +65,8 @@ namespace geopm
             virtual ~RAPLPlatform();
             virtual void set_implementation(PlatformImp* platform_imp);
             virtual bool model_supported(int platform_id) const;
-            virtual void observe(void);
-            virtual void sample(struct geopm_sample_message_s &sample) const;
+            virtual size_t capacity(void);
+            virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values);
             virtual void enforce_policy(const Policy &policy) const;
         protected:
             /// @brief Structure of buffer indices to store data into to

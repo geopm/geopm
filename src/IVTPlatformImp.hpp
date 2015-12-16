@@ -65,6 +65,7 @@ namespace geopm
             virtual std::string platform_name();
             virtual void initialize_msrs();
             virtual void reset_msrs();
+            virtual int control_domain(void) const;
 
         protected:
             /// @brief Load SNB/IVB specific MSR offsets into MSR offset map.

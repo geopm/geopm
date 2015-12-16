@@ -65,6 +65,7 @@ namespace geopm
             virtual std::string platform_name();
             virtual void initialize_msrs();
             virtual void reset_msrs();
+            virtual int control_domain(void) const;
 
         protected:
             /// @brief Load HSX specific MSR offsets into MSR offset map.

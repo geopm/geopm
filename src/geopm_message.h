@@ -108,6 +108,20 @@ enum geopm_status_e {
     GEOPM_STATUS_SHUTDOWN = 5,
 };
 
+/// @brief Enum encompassing msr data types.
+enum geopm_signal_type_e {
+    GEOPM_SIGNAL_TYPE_PKG_ENERGY,
+    GEOPM_SIGNAL_TYPE_PP0_ENERGY,
+    GEOPM_SIGNAL_TYPE_DRAM_ENERGY,
+    GEOPM_SIGNAL_TYPE_INST_RETIRED,
+    GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE,
+    GEOPM_SIGNAL_TYPE_CLK_UNHALTED_REF,
+    GEOPM_SIGNAL_TYPE_LLC_VICTIMS,
+    GEOPM_SIGNAL_TYPE_PROGRESS,
+    GEOPM_SIGNAL_TYPE_RUNTIME,
+    GEOPM_NUM_SIGNAL_TYPE // Signal counter, must be last
+};
+
 /// @brief MPI message structure for sending
 /// power policies down the tree.
 struct geopm_policy_message_s {
@@ -181,6 +195,27 @@ struct geopm_ctl_message_s {
     /// @brief Holds affinities of all application ranks
     /// on the local compute node.
     int cpu_rank[GEOPM_CONST_MAX_NUM_CPU];
+};
+
+/// @brief Structure used to hold MSR telemetry data
+/// collected by the platform.
+struct geopm_msr_message_s {
+    /// @brief geopm_domain_type_e.
+    int domain_type;
+    /// @brief Index within this domain type.
+    int domain_index;
+    /// @brief Timestamp of when the sample was taken.
+    struct geopm_time_s timestamp;
+    /// @brief geopm_signal_type_e.
+    int signal_type;
+    /// @brief Value read from the MSR.
+    double signal;
+};
+
+struct geopm_telemetry_message_s {
+    uint64_t region_id;
+    struct geopm_time_s timestamp;
+    double signal[GEOPM_NUM_SIGNAL_TYPE]; // see geopm_signal_type_e for ordering. 
 };
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;

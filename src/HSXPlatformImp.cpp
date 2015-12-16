@@ -86,6 +86,11 @@ namespace geopm
         return hsx_model_name;
     }
 
+    int HSXPlatformImp::control_domain(void) const
+    {
+        return GEOPM_DOMAIN_PACKAGE;
+    }
+
     void HSXPlatformImp::initialize_msrs()
     {
         for (int i = 0; i < m_hw_cpus; i++) {

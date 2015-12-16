@@ -35,8 +35,10 @@
 
 #include <vector>
 #include <string>
+#include <stack>
 #include <mpi.h>
 
+#include "SampleRegulator.hpp"
 #include "TreeCommunicator.hpp"
 #include "PlatformFactory.hpp"
 #include "DeciderFactory.hpp"
@@ -157,9 +159,11 @@ namespace geopm
             ///  @return Number of hierarchy levels.
             int num_level(void) const;
         protected:
+            enum m_controller_const_e {
+                M_MAX_FAN_OUT = 16,
+            };
             void leaf_decider(const LeafDecider *leaf_decider);
             void tree_decider(int level, const TreeDecider *tree_decider);
-            void process_samples(const int level, const std::vector<struct geopm_sample_message_s> &sample);
             void enforce_child_policy(const int region_id, const int level, const Policy &policy);
             int walk_down(void);
             int walk_up(void);
@@ -175,6 +179,10 @@ namespace geopm
             PlatformFactory *m_platform_factory;
             Platform *m_platform;
             ProfileSampler *m_sampler;
+            SampleRegulator *m_sample_regulator;
+            std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
+            std::vector<struct geopm_msr_message_s> m_msr_sample;
+            std::stack<struct geopm_telemetry_message_s> m_telemetry_sample;
             // Per level vector of maps from region identifier to region object
             std::vector<std::map <long, Region *> > m_region;
     };

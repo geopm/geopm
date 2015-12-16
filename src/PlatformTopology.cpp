@@ -43,7 +43,7 @@ namespace geopm
 
     PlatformTopology::~PlatformTopology()
     {
-        hwloc_topology_destroy(m_topo);
+        hwloc_topology_destroy(m_topo); //FIXME: This was failing internally on Catalyst. Need to debug.
     }
 
     int PlatformTopology::num_domain(int domain_type) const
@@ -75,6 +75,20 @@ namespace geopm
         }
         else {
             throw Exception("Type index out of bounds.  PlatformTopology supports hwloc defined objects only.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+
+    void PlatformTopology::children_by_type(int type, hwloc_obj_t &obj, std::vector<hwloc_obj_t> &children) const
+    {
+        hwloc_obj_t cpu;
+        children.clear();
+        int depth = hwloc_get_type_depth(m_topo, HWLOC_OBJ_PU);
+        cpu = hwloc_get_obj_by_depth(m_topo, depth, 0);
+        while (cpu != NULL) {
+            if (hwloc_bitmap_isincluded(cpu->cpuset, obj->cpuset)) {
+                children.push_back(cpu);
+            }
+            cpu = cpu->next_cousin;
         }
     }
 }

@@ -71,12 +71,10 @@ namespace geopm
             int num_domain(void) const;
             void domain_index(int domain_type, std::vector <int> &domain_index) const;
             int level(void) const;
-            std::string name(void) const;
+            void name(std::string &plat_name) const;
             void buffer_index(hwloc_obj_t domain,
                               const std::vector <std::string> &signal_names,
                               std::vector <int> &buffer_index) const;
-            void observe(struct geopm_sample_message_s &sample) const;
-            void observe(const std::vector <struct geopm_sample_message_s> &sample) const;
             PowerModel *power_model(int domain_type) const;
             /// @brief Set the power limit of the CPUs to a percentage of
             /// Thermal Design Power (TDP).
@@ -102,8 +100,11 @@ namespace geopm
             /// @brief Output a MSR whitelist for use with the Linux MSR driver.
             /// @param [in] file_desc File descriptor for output.
             void write_msr_whitelist(FILE *file_desc) const;
+            /// @brief Number of MSR values returned from sample().
+            virtual size_t capacity(void) = 0;
             /// @brief Record telemetry from counters and RAPL MSRs.
-            virtual void observe(void) = 0;
+            /// @param [in] msr_values MSR structures in which to save values.
+            virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values) = 0;
             /// @brief Does this Platform support a specific platform.
             /// @param [in] platform_id Platform identifier specific to the
             ///        underlying hardware. On x86 platforms this can be obtained by
@@ -111,9 +112,6 @@ namespace geopm
             /// @return true if this Platform supports platform_id,
             ///         else false.
             virtual bool model_supported(int platform_id) const = 0;
-            /// @brief Retrieve a telemetry sample.
-            /// @param [out] sample Sample message in which to store the sample.
-            virtual void sample(struct geopm_sample_message_s &sample) const = 0;
             /// @brief Enforce a static power management mode including
             /// tdp_balance_static, freq_uniform_static, and
             /// freq_hybrid_static.
@@ -124,6 +122,23 @@ namespace geopm
             /// @return PlatformTopology object containing the current
             ///         topology information.
             const PlatformTopology topology() const;
+            ////////////////////////////////////////
+            /// signals are expected as follows: ///
+            /// per socket signals               ///
+            ///     PKG_ENERGY                   ///
+            ///     PP0_ENERGY                   ///
+            ///     DRAM_ENERGY                  ///
+            /// followed by per cpu signals      ///
+            ///     INST_RETIRED                 ///
+            ///     CLK_UNHALTED_CORE            ///
+            ///     CLK_UNHALTED_REF             ///
+            ///     LLC_VICTIMS                  ///
+            /// followed by per rank signals     ///
+            ///     PROGRESS                     ///
+            ///     RUNTIME???                   ///
+            ////////////////////////////////////////
+            void init_transform(const std::vector<int> &cpu_rank);
+            const std::vector<double> *signal_domain_transform() const;
         protected:
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.
@@ -135,9 +150,12 @@ namespace geopm
             /// PowerModel object.
             std::map <int, PowerModel *> m_power_model;
             /// @brief The number of power domains
-            int m_num_domains;
+            int m_num_domain;
+            int m_num_counter;
             int m_window_size;
             int m_level;
+            std::vector<int> m_cpu_rank;
+            std::vector<double> m_signal_domain_matrix;
     };
 }
 
