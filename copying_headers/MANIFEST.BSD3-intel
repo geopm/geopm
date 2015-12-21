@@ -3,6 +3,8 @@ configure.ac
 examples/geopm_ctl_single.cpp
 examples/geopm_print_error.c
 examples/Makefile.mk
+examples/synthetic_benchmark.cpp
+examples/synthetic_benchmark.hpp
 examples/threaded_step_example.c
 examples/timed_region.cpp
 geopm.spec.mk
