@@ -462,7 +462,7 @@ namespace geopm
             std::forward_list<ProfileRankSampler *> m_rank_sampler;
             /// Size of the hash tables to create for each MPI application rank
             /// running on the local compute node..
-            size_t m_table_size;
+            const size_t m_table_size;
     };
 }
 
