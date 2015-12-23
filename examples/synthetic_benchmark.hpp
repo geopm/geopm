@@ -59,173 +59,147 @@ struct MinMax {
 class SyntheticBenchmarkConfig
 {
     private:
-        std::string filenameStatic;
-        int         nIters,
-                    maxIters,
-                    minIters,
-                    capIters,
-                    *myIters;
-        double      loadFactorStatic,
-                    *rankRuntime,
-                    *norm,
-                    *waitLength,
-                    *g_rankRuntime;
-        bool        setcapIters,
-                    useRandomStatic,
-                    useReplayStatic,
-                    useStaticImbalance,
-                    enableRebalancing;
+        std::string m_filename_static;
+        int         m_num_iters,
+                    m_max_iters,
+                    m_min_iters,
+                    m_cap_iters,
+                    *m_rank_iters;
+        double      m_loadfactor_static,
+                    *m_rank_runtime,
+                    *m_rank_norm;
+        bool        m_setcapIters,
+                    m_useRandomStatic,
+                    m_useReplayStatic,
+                    m_useStaticImbalance,
+                    m_enableRebalancing;
     public:
         SyntheticBenchmarkConfig();
         ~SyntheticBenchmarkConfig();
 
-        std::string get_filenameStatic()
+        std::string filename_static(void) const
         {
-            return filenameStatic;
+            return m_filename_static;
         }
-        int get_nIters()
+        int num_iters(void) const
         {
-            return nIters;
+            return m_num_iters;
         }
-        int get_capIters()
+        int cap_iters(void) const
         {
-            return capIters;
+            return m_cap_iters;
         }
-        int get_maxIters()
+        int max_iters(void) const
         {
-            return maxIters;
+            return m_max_iters;
         }
-        int get_minIters()
+        int min_iters(void) const
         {
-            return minIters;
+            return m_min_iters;
         }
-        int getIdx_myIters(int i)
+        int rank_iters(int i)
         {
-            return myIters[i];
+            return m_rank_iters[i];
         }
-        int* get_myIters()
+        int* rank_iters(void) const
         {
-            return myIters;
+            return m_rank_iters;
         }
-        double get_loadFactorStatic()
+        double loadfactor_static(void) const
         {
-            return loadFactorStatic;
+            return m_loadfactor_static;
         }
-        double getIdx_waitLength(int i)
+        double rank_runtime(int i)
         {
-            return waitLength[i];
+            return m_rank_runtime[i];
         }
-        double getIdx_rankRuntime(int i)
+        double rank_norm(int i)
         {
-            return rankRuntime[i];
+            return m_rank_norm[i];
         }
-        double getIdx_g_rankRuntime(int i)
+        double* rank_runtime(void) const
         {
-            return g_rankRuntime[i];
+            return m_rank_runtime;
         }
-        double getIdx_norm(int i)
+        double* rank_norm(void) const
         {
-            return norm[i];
+            return m_rank_norm;
         }
-        double* get_rankRuntime()
+        bool setcapIters(void) const
         {
-            return rankRuntime;
+            return m_setcapIters;
         }
-        double* get_g_rankRuntime()
+        bool useRandomStatic(void) const
         {
-            return g_rankRuntime;
+            return m_useRandomStatic;
         }
-        double* get_norm()
+        bool useReplayStatic(void) const
         {
-            return norm;
+            return m_useReplayStatic;
         }
-        double* get_waitLength()
+        bool useStaticImbalance(void) const
         {
-            return waitLength;
+            return m_useStaticImbalance;
         }
-        bool get_setcapIters()
+        bool enableRebalancing(void) const
         {
-            return setcapIters;
-        }
-        bool get_useRandomStatic()
-        {
-            return useRandomStatic;
-        }
-        bool get_useReplayStatic()
-        {
-            return useReplayStatic;
-        }
-        bool get_useStaticImbalance()
-        {
-            return useStaticImbalance;
-        }
-        bool get_enableRebalancing()
-        {
-            return enableRebalancing;
+            return m_enableRebalancing;
         }
 
-        void set_filenameStatic(std::string s)
+        void filename_static(std::string s)
         {
-            filenameStatic = s;
+            m_filename_static = s;
         }
-        void set_nIters(int i)
+        void num_iters(int i)
         {
-            nIters = i;
+            m_num_iters = i;
         }
-        void set_capIters(int i)
+        void cap_iters(int i)
         {
-            capIters = i;
+            m_cap_iters = i;
         }
-        void set_loadFactorStatic(double val)
+        void loadfactor_static(double val)
         {
-            loadFactorStatic = val;
+            m_loadfactor_static = val;
         }
-        void set_setcapIters(bool b)
+        void setcapIters(bool b)
         {
-            setcapIters = b;
+            m_setcapIters = b;
         }
-        void set_useRandomStatic(bool b)
+        void useRandomStatic(bool b)
         {
-            useRandomStatic = b;
+            m_useRandomStatic = b;
         }
-        void set_useReplayStatic(bool b)
+        void useReplayStatic(bool b)
         {
-            useReplayStatic = b;
+            m_useReplayStatic = b;
         }
-        void set_useStaticImbalance(bool b)
+        void useStaticImbalance(bool b)
         {
-            useStaticImbalance = b;
+            m_useStaticImbalance = b;
         }
-        void set_enableRebalancing(bool b)
+        void enableRebalancing(bool b)
         {
-            enableRebalancing = b;
+            m_enableRebalancing = b;
         }
-        void set_maxIters(int i)
+        void max_iters(int i)
         {
-            maxIters = i;
+            m_max_iters = i;
         }
-        void set_minIters(int i)
+        void min_iters(int i)
         {
-            minIters = i;
+            m_min_iters = i;
         }
-        void setIdx_myIters(int i, int val)
+        void rank_iters(int i, int val)
         {
-            myIters[i] = val;
+            m_rank_iters[i] = val;
         }
-        void setIdx_norm(int i, double val)
+        void rank_norm(int i, double val)
         {
-            norm[i] = val;
-        }
-        void setIdx_rankRuntime(int i, double val)
-        {
-            rankRuntime[i] = val;
-        }
-        void setIdx_waitLength(int i, double val)
-        {
-            waitLength[i] = val;
+            m_rank_norm[i] = val;
         }
 
-        void init_config_arrays(int nranks);
+        void initialize(int nranks);
 };
 
 SyntheticBenchmarkConfig syntheticcfg;
@@ -238,16 +212,16 @@ void dumpRankAffinity(const char *omp_tid,
 void printUsage(void);
 void printError(const char *c);
 struct MinMax setRandStaticImbalance(int nranks,
-                                     int *myIters,
+                                     int *rank_iters,
                                      int min,
                                      int max);
 struct MinMax setReplayStaticImbalance(int nranks,
-                                       int *myIters,
+                                       int *rank_iters,
                                        string input);
 void dumpRankItersReplay(int nranks,
-                         int *myIters);
+                         int *rank_iters);
 void dumpRankIters(int nranks,
-                   int *myIters);
+                   int *rank_iters);
 void dumpRankRuntime(int nranks,
                      double *myRuntime);
 void injectStaticImbalance();

@@ -52,75 +52,69 @@
 
 SyntheticBenchmarkConfig::SyntheticBenchmarkConfig()
 {
-    filenameStatic = "";
-    nIters = -1,
-    maxIters = -1;
-    minIters = -1;
-    capIters = INT_MAX;
-    myIters = NULL;
-    loadFactorStatic = -1.0;
-    rankRuntime = NULL;
-    g_rankRuntime = NULL;
-    setcapIters = false,
-    useRandomStatic = false,
-    useReplayStatic = false,
-    useStaticImbalance = false,
-    enableRebalancing = false;
+    m_filename_static = "";
+    m_num_iters = -1,
+    m_max_iters = -1;
+    m_min_iters = -1;
+    m_cap_iters = INT_MAX;
+    m_rank_norm = NULL;
+    m_rank_iters = NULL;
+    m_loadfactor_static = -1.0;
+    m_rank_runtime = NULL;
+    m_setcapIters = false,
+    m_useRandomStatic = false,
+    m_useReplayStatic = false,
+    m_useStaticImbalance = false,
+    m_enableRebalancing = false;
 }
 
 SyntheticBenchmarkConfig::~SyntheticBenchmarkConfig()
 {
-    delete [] myIters;
-    delete [] rankRuntime;
-    delete [] norm;
-    delete [] waitLength;
-    delete [] g_rankRuntime;
+    delete [] m_rank_iters;
+    delete [] m_rank_runtime;
+    delete [] m_rank_norm;
 }
 
-void SyntheticBenchmarkConfig::init_config_arrays(int nranks)
+void SyntheticBenchmarkConfig::initialize(int nranks)
 {
-    myIters = new int[nranks+1];
-    rankRuntime = new double[nranks+1];
-    g_rankRuntime = new double[nranks+1];
-    waitLength = new double[nranks+1];
-    norm = new double[nranks+1];
+    m_rank_iters = new int[nranks];
+    m_rank_runtime = new double[nranks];
+    m_rank_norm = new double[nranks];
     for (int i = 0; i < nranks; i++) {
-        myIters[i] = 0;
-        rankRuntime[i] = 0.0;
-        g_rankRuntime[i] = 0.0;
-        waitLength[i] = -1.0;
-        norm[i] = -1.0;
+        m_rank_iters[i] = 0;
+        m_rank_runtime[i] = 0.0;
+        m_rank_norm[i] = -1.0;
     }
 }
 
 void dumpConfiguration(int nranks)
 {
     printf("---------- Configuration ----------\n");
-    printf("Rebalancing (0=off, 1=on): %d\n", syntheticcfg.get_enableRebalancing());
+    printf("Rebalancing (0=off, 1=on): %d\n", syntheticcfg.enableRebalancing());
     printf("MPI Ranks: %d\n", nranks);
-    if (syntheticcfg.get_setcapIters()) {
-        printf("Cap Iters/Rank: %d\n", syntheticcfg.get_capIters());
+    if (syntheticcfg.setcapIters()) {
+        printf("Cap Iters/Rank: %d\n", syntheticcfg.cap_iters());
     }
 }
 
 void dumpSummary(int nranks, double elapsedTime)
 {
     printf("\n---------- Summary ----------\n");
-    if (syntheticcfg.get_useRandomStatic()) {
-        printf("Static Load Imbalance: %.2f\n", syntheticcfg.get_loadFactorStatic());
+    if (syntheticcfg.useRandomStatic()) {
+        printf("Static Load Imbalance: %.2f\n", syntheticcfg.loadfactor_static());
     }
 
     printf("Program Runtime: %.6f\n", elapsedTime);
 
     printf("Runtime Per Rank: ");
     for (int j = 0; j < nranks; j++) {
-        printf("%.6f ", syntheticcfg.getIdx_g_rankRuntime(j));
+        printf("%.6f ", syntheticcfg.rank_runtime(j));
     }
     printf("\n");
 
     printf("Iterations per Rank: ");
     for (int j = 0; j < nranks; j++) {
-        printf("%d ", syntheticcfg.getIdx_myIters(j));
+        printf("%d ", syntheticcfg.rank_iters(j));
     }
     printf("\n");
 
@@ -155,31 +149,31 @@ void printError(const char *msg)
     fprintf(stderr, "ERROR: %s\n\n", msg);
 }
 
-struct MinMax setRandStaticImbalance(int nranks, int *myIters, int minI, int maxI)
+struct MinMax setRandStaticImbalance(int nranks, int *rank_iters, int minI, int maxI)
 {
     struct MinMax m = {100000, 0};
     for (int i = 0; i < nranks; i++) {
-        myIters[i] = (rand() % (maxI+1-minI))+minI;
-        if (myIters[i] > m.max) {
-            m.max = myIters[i];
+        rank_iters[i] = (rand() % (maxI+1-minI))+minI;
+        if (rank_iters[i] > m.max) {
+            m.max = rank_iters[i];
             m.maxIdx = i;
         }
-        if (myIters[i] < m.min) {
-            m.min = myIters[i];
+        if (rank_iters[i] < m.min) {
+            m.min = rank_iters[i];
             m.minIdx = i;
         }
     }
 
     // Set end bounds of iteration range.
-    myIters[m.minIdx] = syntheticcfg.get_minIters();
-    myIters[m.maxIdx] = syntheticcfg.get_maxIters();
-    m.min = myIters[m.minIdx];
-    m.max = myIters[m.maxIdx];
+    rank_iters[m.minIdx] = syntheticcfg.min_iters();
+    rank_iters[m.maxIdx] = syntheticcfg.max_iters();
+    m.min = rank_iters[m.minIdx];
+    m.max = rank_iters[m.maxIdx];
 
     return m;
 }
 
-struct MinMax setReplayStaticImbalance(int nranks, int *myIters, string infile)
+struct MinMax setReplayStaticImbalance(int nranks, int *rank_iters, string infile)
 {
     std::ifstream file;
     string line;
@@ -194,12 +188,12 @@ struct MinMax setReplayStaticImbalance(int nranks, int *myIters, string infile)
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        iss >> myIters[numLines];
-        if (myIters[numLines] > m.max) {
-            m.max = myIters[numLines];
+        iss >> rank_iters[numLines];
+        if (rank_iters[numLines] > m.max) {
+            m.max = rank_iters[numLines];
         }
-        if (myIters[numLines] < m.min) {
-            m.min = myIters[numLines];
+        if (rank_iters[numLines] < m.min) {
+            m.min = rank_iters[numLines];
         }
         ++numLines;
         if (numLines > nranks) {
@@ -237,12 +231,12 @@ void dumpRankIters(int nranks, int *rankIters)
     fclose(RankItersLogFile);
 }
 
-void dumpRankRuntime(int nranks, double *rankRuntime)
+void dumpRankRuntime(int nranks, double *rank_runtime)
 {
     FILE *RankRuntimeLogFile = fopen(RANK_RUNTIME_LOG, "w");
     fprintf(RankRuntimeLogFile, "omp_tid, runtime\n");
     for (int i = 0; i < nranks; i++) {
-        fprintf(RankRuntimeLogFile, "%d, %.4f\n", i, rankRuntime[i]);
+        fprintf(RankRuntimeLogFile, "%d, %.4f\n", i, rank_runtime[i]);
     }
     fclose(RankRuntimeLogFile);
 }
@@ -257,45 +251,43 @@ void initStaticImbalance(int nranks)
     struct MinMax m;
 
     // Generate random static imbalance.
-    if (syntheticcfg.get_useRandomStatic() && !(syntheticcfg.get_useReplayStatic())) {
+    if (syntheticcfg.useRandomStatic() && !(syntheticcfg.useReplayStatic())) {
         printf("Static Imbalance Generator: Random, %.2f\n",
-               syntheticcfg.get_loadFactorStatic());
+               syntheticcfg.loadfactor_static());
 
         // If load imbalance factor is 0, each rank will have an iteration
         // count equal to value specified on command line with -niter.
-        if (syntheticcfg.get_loadFactorStatic() == 0.0) {
-            printf("Iterations per Rank: %d\n", syntheticcfg.get_nIters());
+        if (syntheticcfg.loadfactor_static() == 0.0) {
+            printf("Iterations per Rank: %d\n", syntheticcfg.num_iters());
             for (int i = 0; i < nranks; i++) {
-                syntheticcfg.setIdx_myIters(i, syntheticcfg.get_nIters());
+                syntheticcfg.rank_iters(i, syntheticcfg.num_iters());
             }
-            m.min = syntheticcfg.get_nIters();
-            m.max = syntheticcfg.get_nIters();
+            m.min = syntheticcfg.num_iters();
+            m.max = syntheticcfg.num_iters();
         }
         // If load imbalance factor is greater than 0, each rank will have
         // an iteration count randomly generated between value specified on
         // command line with -niter and this value multiplied by 1 plus load
         // factor, inclusive.
         else {
-            syntheticcfg.set_maxIters(round_int(syntheticcfg.get_nIters()*(1+(syntheticcfg.get_loadFactorStatic()/2))));
-            syntheticcfg.set_minIters(round_int(syntheticcfg.get_nIters()*(1-(syntheticcfg.get_loadFactorStatic()/2))));
-            m = setRandStaticImbalance(nranks, syntheticcfg.get_myIters(),
-                                       syntheticcfg.get_minIters(), syntheticcfg.get_maxIters());
+            syntheticcfg.max_iters(round_int(syntheticcfg.num_iters()*(1+(syntheticcfg.loadfactor_static()/2))));
+            syntheticcfg.min_iters(round_int(syntheticcfg.num_iters()*(1-(syntheticcfg.loadfactor_static()/2))));
+            m = setRandStaticImbalance(nranks, syntheticcfg.rank_iters(), syntheticcfg.min_iters(), syntheticcfg.max_iters());
         }
 
         // Save iterations into config file for replay.
-        dumpRankItersReplay(nranks, syntheticcfg.get_myIters());
+        dumpRankItersReplay(nranks, syntheticcfg.rank_iters());
     }
     // Replay static imbalance from file.
-    else if (!(syntheticcfg.get_useRandomStatic()) && syntheticcfg.get_useReplayStatic()) {
+    else if (!(syntheticcfg.useRandomStatic()) && syntheticcfg.useReplayStatic()) {
         printf("Static Imbalance Generator: Replay, %s\n",
-               syntheticcfg.get_filenameStatic().c_str());
-        m = setReplayStaticImbalance(nranks, syntheticcfg.get_myIters(),
-                                     syntheticcfg.get_filenameStatic());
-        syntheticcfg.set_maxIters((int)m.max);
-        syntheticcfg.set_minIters((int)m.min);
+               syntheticcfg.filename_static().c_str());
+        m = setReplayStaticImbalance(nranks, syntheticcfg.rank_iters(), syntheticcfg.filename_static());
+        syntheticcfg.max_iters((int)m.max);
+        syntheticcfg.min_iters((int)m.min);
     }
 
-    if (syntheticcfg.get_loadFactorStatic() != 0.0) {
+    if (syntheticcfg.loadfactor_static() != 0.0) {
         printf("Iterations per Rank Range: %d-%d\n", (int)m.min, (int)m.max);
     }
 }
@@ -307,21 +299,23 @@ void synthetic_benchmark_main(int nranks, int rank)
     struct geopm_time_s start, curr;
     double x = 0.0;
     double tStart = 0.0, tEnd = 0.0, startProg = 0.0, endProg = 0.0;
+    double* sub_rank_runtime = NULL;
+    sub_rank_runtime = new double;
 
     GET_TIME(startProg);
 
-    syntheticcfg.init_config_arrays(nranks);
+    syntheticcfg.initialize(nranks);
 
     // Only 1 rank generates array of iterations
     if (rank == MASTER) {
         dumpConfiguration(nranks);
 
-        if (syntheticcfg.get_useStaticImbalance()) {
+        if (syntheticcfg.useStaticImbalance()) {
             initStaticImbalance(nranks);
             printf("\n");
-            dumpRankIters(nranks, syntheticcfg.get_myIters());
+            dumpRankIters(nranks, syntheticcfg.rank_iters());
             for (int i = 0; i < nranks; i++)
-                syntheticcfg.setIdx_norm(i, 1/(double)syntheticcfg.getIdx_myIters(i));
+                syntheticcfg.rank_norm(i, 1/(double)syntheticcfg.rank_iters(i));
         }
 
         FILE *RankAffinityLog = fopen(RANK_AFFINITY_LOG, "w");
@@ -329,9 +323,9 @@ void synthetic_benchmark_main(int nranks, int rank)
         fclose(RankAffinityLog);
     }
     // Broadcast iterations to every rank
-    MPI_Bcast(syntheticcfg.get_myIters(), nranks, MPI_INT, MASTER, MPI_COMM_WORLD);
+    MPI_Bcast(syntheticcfg.rank_iters(), nranks, MPI_INT, MASTER, MPI_COMM_WORLD);
     // Broadcast norm to every rank
-    MPI_Bcast(syntheticcfg.get_norm(), nranks, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
+    MPI_Bcast(syntheticcfg.rank_norm(), nranks, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
 
     pthread_t my_pid = pthread_self();
     char buf[256];
@@ -344,17 +338,16 @@ void synthetic_benchmark_main(int nranks, int rank)
     geopm_time(&start);
 
     GET_TIME(tStart);
-    for (int i = 0; i < syntheticcfg.getIdx_myIters(rank); i++) {
-        // Check if user wants to terminate rank early
-        // and not execute all assigned iterations.
-        if (syntheticcfg.get_setcapIters()) {
-            if (i == syntheticcfg.get_capIters()) {
+    for (int i = 0; i < syntheticcfg.rank_iters(rank); i++) {
+        // Check if user wants to terminate early and not run all iterations.
+        if (syntheticcfg.setcapIters()) {
+            if (i == syntheticcfg.cap_iters()) {
                 break;
             }
         }
 
         x += do_work(i);
-        geopm_prof_progress(prof, region_id[0], i*syntheticcfg.getIdx_norm(rank));
+        geopm_prof_progress(prof, region_id[0], i*syntheticcfg.rank_norm(rank));
     }
     GET_TIME(tEnd);
     fprintf(stderr, "%.2fs: Rank %d finished\n", tEnd-tStart, rank);
@@ -362,21 +355,15 @@ void synthetic_benchmark_main(int nranks, int rank)
     geopm_time(&curr);
     geopm_prof_exit(prof, region_id[0]);
 
-    syntheticcfg.setIdx_rankRuntime(rank, tEnd-tStart);
+    *sub_rank_runtime = tEnd-tStart;
 
-    //TODO: More efficient implementation is MPI_Allgather
-    MPI_Allreduce(syntheticcfg.get_rankRuntime(),
-                  syntheticcfg.get_g_rankRuntime(),
-                  nranks,
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  MPI_COMM_WORLD);
+    MPI_Allgather(sub_rank_runtime, 1, MPI_DOUBLE, syntheticcfg.rank_runtime(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
 
     GET_TIME(endProg);
 
     // Master rank does reporting
     if (rank == MASTER) {
-        dumpRankRuntime(nranks, syntheticcfg.get_g_rankRuntime());
+        dumpRankRuntime(nranks, syntheticcfg.rank_runtime());
         dumpSummary(nranks, endProg-startProg);
     }
 
@@ -424,25 +411,25 @@ int main(int argc, char **argv)
     while ((opt = getopt(argc, argv, "c:r:i:m:p")) != -1) {
         switch (opt) {
             case 'c':
-                syntheticcfg.set_useStaticImbalance(true);
-                syntheticcfg.set_useReplayStatic(true);
-                syntheticcfg.set_filenameStatic(optarg);
+                syntheticcfg.useStaticImbalance(true);
+                syntheticcfg.useReplayStatic(true);
+                syntheticcfg.filename_static(optarg);
                 break;
             case 'r':
-                syntheticcfg.set_useStaticImbalance(true);
-                syntheticcfg.set_useRandomStatic(true);
-                syntheticcfg.set_loadFactorStatic(atof(optarg));
+                syntheticcfg.useStaticImbalance(true);
+                syntheticcfg.useRandomStatic(true);
+                syntheticcfg.loadfactor_static(atof(optarg));
                 srand(time(NULL));
                 break;
             case 'i':
-                syntheticcfg.set_nIters(atoi(optarg));
+                syntheticcfg.num_iters(atoi(optarg));
                 break;
             case 'm':
-                syntheticcfg.set_capIters(atoi(optarg));
-                syntheticcfg.set_setcapIters(true);
+                syntheticcfg.cap_iters(atoi(optarg));
+                syntheticcfg.setcapIters(true);
                 break;
             case 'p':
-                syntheticcfg.set_enableRebalancing(true);
+                syntheticcfg.enableRebalancing(true);
                 break;
             default:
                 fprintf(stderr, "Error; unknown parameter \"%c\"\n", opt);
@@ -456,7 +443,7 @@ int main(int argc, char **argv)
     // either imbalance type, e.g., cannot inject static
     // imbalance via randomness AND file.
     //-----------------------------------------------------
-    if (syntheticcfg.get_useReplayStatic() && syntheticcfg.get_useRandomStatic()) {
+    if (syntheticcfg.useReplayStatic() && syntheticcfg.useRandomStatic()) {
         printError("Must set only one option for imbalance generator: -c OR -r");
         printf(usage, argv[0]);
         return -1;
@@ -467,7 +454,7 @@ int main(int argc, char **argv)
     // to replay dynamic imbalance, inject random dynamic
     // imbalance, or inject random static imbalance.
     //-----------------------------------------------------
-    if (syntheticcfg.get_useRandomStatic() && syntheticcfg.get_nIters() == -1) {
+    if (syntheticcfg.useRandomStatic() && syntheticcfg.num_iters() == -1) {
         printError("Must set number of iterations (-i) if injecting "
                    "random static imbalance.");
         printf(usage, argv[0]);
