@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef SHAREDMEMORY_HPP_INCLUDE
+#define SHAREDMEMORY_HPP_INCLUDE
+
 #include <string>
 #include <stdlib.h>
 
@@ -97,3 +100,5 @@ namespace geopm
             void *m_ptr;
     };
 }
+
+#endif
