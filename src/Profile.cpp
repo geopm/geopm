@@ -498,6 +498,16 @@ namespace geopm
         m_ctl_msg->ctl_status = GEOPM_STATUS_ACTIVE;
     }
 
+    void ProfileSampler::cpu_rank(std::vector<int> &cpu_rank)
+    {
+        int num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
+        cpu_rank.resize(num_cpu);
+        if (num_cpu > GEOPM_CONST_MAX_NUM_CPU) {
+            throw Exception("ProfileSampler::cpu_rank: Number of online CPUs is greater than GEOPM_CONST_MAX_NUM_CPU", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        std::copy(m_ctl_msg->cpu_rank, m_ctl_msg->cpu_rank + num_cpu, cpu_rank.begin());
+    }
+
     size_t ProfileSampler::capacity(void)
     {
         size_t result = 0;
@@ -513,8 +523,8 @@ namespace geopm
             length = 0;
             auto content_it = content.begin();
             for (auto rank_sampler_it = m_rank_sampler.begin();
-                rank_sampler_it != m_rank_sampler.end();
-                ++rank_sampler_it) {
+                 rank_sampler_it != m_rank_sampler.end();
+                 ++rank_sampler_it) {
                 size_t rank_length = 0;
                 (*rank_sampler_it)->rank_sample(content_it, rank_length);
                 content_it += rank_length;

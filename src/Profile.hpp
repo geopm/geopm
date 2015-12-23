@@ -437,6 +437,19 @@ namespace geopm
             /// and create ProfileRankSamplers for each MPI application rank
             /// running on the local compute node.
             void initialize(void);
+            /// @brief Retrieve a vector to the affinities of all
+            ///        application ranks.
+            ///
+            /// Resizes the input vector cpu_rank to number of Linux
+            /// online CPUs in the system.  Each element of the vector
+            /// is indexed by the Linux CPU ID, and the value assigned
+            /// is the MPI rank running on the CPU (or -1 if no rank
+            /// has been affinitized).
+            ///
+            /// @param [out] cpu_rank Vector to be filled with the MPI
+            ///        rank for each Linux CPU, set to -1 if no MPI
+            ///        rank is affinitized.
+            void cpu_rank(std::vector<int> &cpu_rank);
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
