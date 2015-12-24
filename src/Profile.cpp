@@ -271,24 +271,56 @@ namespace geopm
         , m_progress(0.0)
     {
         std::string table_shm_key;
+        int shm_num_rank = 0;
 
         MPI_Comm_rank(comm, &m_rank);
         MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, m_rank, MPI_INFO_NULL, &m_shm_comm);
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
-        m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 300.0);
+        MPI_Comm_size(m_shm_comm, &shm_num_rank);
+
+        m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 300); // 5 minute timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
+
+        init_cpu_list();
+
+        for (int i = 0 ; i < shm_num_rank; ++i) {
+            if (i == m_shm_rank) {
+                if (i == 0) {
+                    for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; ++i) {
+                        m_ctl_msg->cpu_rank[i] = -1;
+                    }
+                    for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
+                        m_ctl_msg->cpu_rank[*it] = m_rank;
+                    }
+                }
+                else {
+                    for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
+                        if (m_ctl_msg->cpu_rank[*it] != -1) {
+                            m_ctl_msg->cpu_rank[*it] = -2;
+                        }
+                        else {
+                            m_ctl_msg->cpu_rank[*it] = m_rank;
+                        }
+                    }
+                }
+            }
+            MPI_Barrier(m_shm_comm);
+        }
+
         if (!m_shm_rank) {
             for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; ++i) {
-                m_ctl_msg->cpu_rank[i] = -1;
+                if (m_ctl_msg->cpu_rank[i] == -2) {
+                    if (getenv("GEOPM_ERROR_AFFINITY_IGNORE")) {
+                        for (int j = 0; j < shm_num_rank; ++j) {
+                            m_ctl_msg->cpu_rank[j] = j;
+                        }
+                        break;
+                    }
+                    else {
+                        throw Exception("Profile: set GEOPM_ERROR_AFFINITY_IGNORE to ignore error", GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
+                    }
+                }
             }
-        }
-        MPI_Barrier(m_shm_comm);
-        init_cpu_list();
-        for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
-            m_ctl_msg->cpu_rank[*it] = m_rank;
-        }
-        MPI_Barrier(m_shm_comm);
-        if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_INITIALIZED;
         }
 
@@ -534,7 +566,7 @@ namespace geopm
                 report();
             }
         }
-        else if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+        else if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN && m_ctl_msg->app_status != GEOPM_STATUS_READY) {
             throw Exception("ProfileSampler: inavlid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
