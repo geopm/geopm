@@ -66,6 +66,7 @@ int main(int argc, char **argv)
         GEOPM_ERROR_FACTORY_NULL,
         GEOPM_ERROR_SHUTDOWN,
         GEOPM_ERROR_TOO_MANY_COLLISIONS,
+        GEOPM_ERROR_AFFINITY,
     };
 
     const char *error_names[] = {
@@ -90,11 +91,14 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_FACTORY_NULL",
         "GEOPM_ERROR_SHUTDOWN",
         "GEOPM_ERROR_TOO_MANY_COLLISIONS",
+        "GEOPM_ERROR_AFFINITY",
     };
 
     const int num_error = sizeof(error_codes) / sizeof(int);
     const char *format_human = "    %s = %i\n        %s\n";
     const char *format_roff = ".TP\n.B %s = %i\n%s\n";
+    const char *format_ronn = "  * `%s = %i`:\n    %s\n\n";
+
     const char *tag = "<geopm> ";
     const char **format_ptr = &format_human;
     const char *usage = "%s [--help] [--roff]\n";
@@ -103,6 +107,9 @@ int main(int argc, char **argv)
 
     if (argc == 2 && strncmp(argv[1], "--roff", strlen("--roff")) == 0 ) {
         format_ptr = &format_roff;
+    }
+    else if (argc == 2 && strncmp(argv[1], "--ronn", strlen("--ronn")) == 0 ) {
+        format_ptr = &format_ronn;
     }
     else if (argc == 2 && (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
                            strncmp(argv[1], "-h", strlen("-h")) == 0)) {
@@ -115,7 +122,7 @@ int main(int argc, char **argv)
         return EINVAL;
     }
 
-    if (*format_ptr != format_roff) {
+    if (*format_ptr == format_human) {
         printf("GEOPM ERROR CODES\n");
     }
     for (i = 0; !return_code && i < num_error; ++i) {

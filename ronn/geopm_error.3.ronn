@@ -120,6 +120,9 @@ The system error numbers are documented in the **errno(3)** man page.
   * `GEOPM_ERROR_TOO_MANY_COLLISIONS = -21`:
     Too many collisions when inserting into hash table
 
+  * `GEOPM_ERROR_AFFINITY = -22`:
+    MPI ranks are not affitinized to distinct CPUs
+
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 
