@@ -279,7 +279,7 @@ ruby/bin/ronn:
 # MAN TARGET
 $(dist_man_MANS): man/%: ruby/bin/ronn
 	mkdir -p man;
-	pushd  ronn; \
+	export GEM_PATH=$$PWD/ruby:$$GEM_PATH; pushd  ronn; \
 	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn; \
 	popd;
 	cat ronn/header.txt ronn/`basename $@` | \
