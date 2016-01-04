@@ -563,9 +563,10 @@ namespace geopm
 
     void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length)
     {
+        int app_status = m_ctl_msg->app_status;
         length = 0;
-        if (m_ctl_msg->app_status == GEOPM_STATUS_ACTIVE ||
-            m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
+        if (app_status == GEOPM_STATUS_ACTIVE ||
+            app_status == GEOPM_STATUS_REPORT) {
             auto content_it = content.begin();
             for (auto rank_sampler_it = m_rank_sampler.begin();
                  rank_sampler_it != m_rank_sampler.end();
@@ -579,8 +580,8 @@ namespace geopm
                 report();
             }
         }
-        else if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
-            throw Exception("ProfileSampler: invalid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        else if (app_status != GEOPM_STATUS_SHUTDOWN) {
+            throw Exception("ProfileSampler: invalid application status: " + std::to_string(app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
