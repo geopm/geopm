@@ -91,3 +91,4 @@ test/no_omp_cpu.c
 test/ObservationTest.cpp
 test/PlatformFactoryTest.cpp
 test/PlatformImpTest.cpp
+test/PlatformTopologyTest.cpp

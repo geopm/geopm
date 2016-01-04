@@ -30,51 +30,84 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+#include <unistd.h>
+#include <hwloc.h>
+
+#include <iostream>
+
+#include "gtest/gtest.h"
+#include "geopm_error.h"
 #include "Exception.hpp"
 #include "PlatformTopology.hpp"
 
-namespace geopm
+class PlatformTopologyTest: public :: testing :: Test
 {
-    PlatformTopology::PlatformTopology()
-    {
-        hwloc_topology_init(&m_topo);
-        hwloc_topology_load(m_topo);
+    protected:
+        geopm::PlatformTopology m_topo;
+};
+
+TEST_F(PlatformTopologyTest, cpu_count)
+{
+#ifdef _SC_NPROCESSORS_ONLN
+    int expect = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+    int expect = 1;
+    size_t len = sizeof(expect);
+    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &expect, &len, NULL, 0);
+#endif
+    int actual = m_topo.num_domain(geopm::GEOPM_DOMAIN_CPU);
+
+    EXPECT_EQ(expect, actual);
+}
+
+TEST_F(PlatformTopologyTest, get_cpus)
+{
+    std::vector<hwloc_obj_t> cpu;
+#ifdef _SC_NPROCESSORS_ONLN
+    unsigned int expect = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+    unsigned int expect = 1;
+    size_t len = sizeof(expect);
+    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &expect, &len, NULL, 0);
+#endif
+
+    m_topo.domain_by_type(geopm::GEOPM_DOMAIN_CPU, cpu);
+
+    EXPECT_EQ(expect, cpu.size());
+}
+
+TEST_F(PlatformTopologyTest, negative_num_domain)
+{
+    int thrown = 0;
+    int val = 0;
+
+    try {
+        val = m_topo.num_domain(HWLOC_OBJ_TYPE_MAX);
+    }
+    catch (geopm::Exception e) {
+        thrown = e.err_value();
     }
 
-    PlatformTopology::~PlatformTopology()
-    {
-        hwloc_topology_destroy(m_topo);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(thrown, GEOPM_ERROR_INVALID);
+}
+
+TEST_F(PlatformTopologyTest, negative_domain_by_type)
+{
+    std::vector<hwloc_obj_t> cpu;
+    int thrown = 0;
+
+    try {
+        m_topo.domain_by_type(HWLOC_OBJ_TYPE_MAX, cpu);
+    }
+    catch (geopm::Exception e) {
+        thrown = e.err_value();
     }
 
-    int PlatformTopology::num_domain(int domain_type) const
-    {
-        int result;
-        if (domain_type < HWLOC_OBJ_TYPE_MAX) {
-            result = hwloc_get_nbobjs_by_type(m_topo, (hwloc_obj_type_t)domain_type);
-        }
-        else {
-            throw Exception("Type index out of bounds.  PlatformTopology supports hwloc defined objects only.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return result;
-    }
-
-    void PlatformTopology::domain_by_type(int domain_type, std::vector<hwloc_obj_t> &domain) const
-    {
-        hwloc_obj_t dom;
-
-        if (!domain.empty()) {
-            domain.clear();
-        }
-
-        if (domain_type < HWLOC_OBJ_TYPE_MAX) {
-            dom = hwloc_get_next_obj_by_type(m_topo, (hwloc_obj_type_t)domain_type, NULL);
-            while (dom) {
-                domain.push_back(dom);
-                dom = hwloc_get_next_obj_by_type(m_topo, (hwloc_obj_type_t)domain_type, dom);
-            }
-        }
-        else {
-            throw Exception("Type index out of bounds.  PlatformTopology supports hwloc defined objects only.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-    }
+    EXPECT_EQ(thrown, GEOPM_ERROR_INVALID);
 }

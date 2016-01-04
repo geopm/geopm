@@ -30,6 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
 #include <float.h>
 #include <unistd.h>
 #include <hwloc.h>
@@ -532,7 +538,13 @@ namespace geopm
 
     void ProfileSampler::cpu_rank(std::vector<int> &cpu_rank)
     {
+#ifdef _SC_NPROCESSORS_ONLN
         int num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+        int num_cpu = 1;
+        size_t len = sizeof(num_cpu);
+        sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &num_cpu, &len, NULL, 0);
+#endif
         cpu_rank.resize(num_cpu);
         if (num_cpu > GEOPM_CONST_MAX_NUM_CPU) {
             throw Exception("ProfileSampler::cpu_rank: Number of online CPUs is greater than GEOPM_CONST_MAX_NUM_CPU", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);

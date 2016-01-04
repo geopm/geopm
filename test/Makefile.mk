@@ -59,6 +59,10 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/PlatformImpTest.negative_read_bad_desc \
               test/gtest_links/PlatformImpTest.negative_write_bad_desc \
               test/gtest_links/PlatformImpTest.negative_open_msr \
+              test/gtest_links/PlatformTopologyTest.cpu_count \
+              test/gtest_links/PlatformTopologyTest.get_cpus \
+              test/gtest_links/PlatformTopologyTest.negative_num_domain \
+              test/gtest_links/PlatformTopologyTest.negative_domain_by_type \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
               test/gtest_links/CircularBufferTest.buffer_capacity \
@@ -101,6 +105,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/ObservationTest.cpp \
                           test/PlatformFactoryTest.cpp \
                           test/PlatformImpTest.cpp \
+                          test/PlatformTopologyTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
                           test/ExceptionTest.cpp \
