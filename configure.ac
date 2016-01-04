@@ -140,6 +140,9 @@ if test "x$enable_mpi" = "x1"; then
          AC_MSG_ERROR([Failed to determine MPI C++ build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
 fi
 
+AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
+AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
+
 AC_SEARCH_LIBS([shm_open], [rt])
 AC_SEARCH_LIBS([shm_unlink], [rt])
 

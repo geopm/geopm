@@ -146,7 +146,7 @@ inline double do_work(int input)
 void dumpRankAffinity(const char *rankid, pthread_t pid, int cid, const char *id)
 {
     FILE *RankAffinityFile = fopen(RANK_AFFINITY_LOG, "a");
-    fprintf(RankAffinityFile, "%2s %ld %2d %s\n", rankid, pid, cid, id);
+    fprintf(RankAffinityFile, "%2s %ld %2d %s\n", rankid, (long)pid, cid, id);
     fclose(RankAffinityFile);
 }
 
