@@ -563,9 +563,9 @@ namespace geopm
 
     void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length)
     {
-        int status = m_ctl_msg->app_status;
-        if (status == GEOPM_STATUS_ACTIVE || status == GEOPM_STATUS_REPORT) {
-            length = 0;
+        length = 0;
+        if (m_ctl_msg->app_status == GEOPM_STATUS_ACTIVE ||
+            m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
             auto content_it = content.begin();
             for (auto rank_sampler_it = m_rank_sampler.begin();
                  rank_sampler_it != m_rank_sampler.end();
@@ -575,12 +575,12 @@ namespace geopm
                 content_it += rank_length;
                 length += rank_length;
             }
-            if (status == GEOPM_STATUS_REPORT) {
+            if (m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
                 report();
             }
         }
-        else if (status != GEOPM_STATUS_SHUTDOWN && status != GEOPM_STATUS_READY) {
-            throw Exception("ProfileSampler: inavlid application status: " + std::to_string(status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        else if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+            throw Exception("ProfileSampler: invalid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -596,8 +596,8 @@ namespace geopm
 
         while (!is_all_done && m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
             m_ctl_msg->ctl_status = GEOPM_STATUS_REPORT;
-            while (m_ctl_msg->app_status != GEOPM_STATUS_READY ||
-                   m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {}
+            while (m_ctl_msg->app_status != GEOPM_STATUS_READY &&
+                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
             if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
                 is_all_done = true;
                 for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
@@ -623,6 +623,7 @@ namespace geopm
         if (file_stream.is_open()) {
             file_stream.close();
         }
+        while (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
     }
 
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
