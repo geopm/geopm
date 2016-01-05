@@ -34,29 +34,36 @@ examples_geopm_print_error_SOURCES = examples/geopm_print_error.c
 examples_geopm_print_error_LDADD = libgeopmpolicy.la
 
 if ENABLE_MPI
-noinst_PROGRAMS += examples/geopm_ctl_single examples/timed_region
-examples_timed_region_SOURCES = examples/timed_region.cpp
-examples_timed_region_LDADD = libgeopm.la
-examples_timed_region_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-examples_timed_region_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-examples_timed_region_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-examples_timed_region_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-examples_geopm_ctl_single_SOURCES = examples/geopm_ctl_single.cpp
-examples_geopm_ctl_single_LDADD = libgeopm.la
-examples_geopm_ctl_single_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-examples_geopm_ctl_single_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-examples_geopm_ctl_single_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-examples_geopm_ctl_single_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-if ENABLE_SCHED
-noinst_PROGRAMS += examples/synthetic_benchmark
-examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
-examples_synthetic_benchmark_LDADD = libgeopm.la
-examples_synthetic_benchmark_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-examples_synthetic_benchmark_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-examples_synthetic_benchmark_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-examples_synthetic_benchmark_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    noinst_PROGRAMS += examples/geopm_ctl_single examples/timed_region
+    examples_timed_region_SOURCES = examples/timed_region.cpp
+    examples_timed_region_LDADD = libgeopm.la
+    examples_timed_region_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    examples_timed_region_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_timed_region_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+    examples_timed_region_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    examples_geopm_ctl_single_SOURCES = examples/geopm_ctl_single.cpp
+    examples_geopm_ctl_single_LDADD = libgeopm.la
+    examples_geopm_ctl_single_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    examples_geopm_ctl_single_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_geopm_ctl_single_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+    examples_geopm_ctl_single_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 endif
+
+if ENABLE_MPI
+if ENABLE_SCHED
+    noinst_PROGRAMS += examples/synthetic_benchmark
+    examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
+    examples_synthetic_benchmark_LDADD = libgeopm.la
+    examples_synthetic_benchmark_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    examples_synthetic_benchmark_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_synthetic_benchmark_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+    examples_synthetic_benchmark_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+endif
+endif
+
+if ENABLE_MPI
 if ENABLE_OPENMP
+if ENABLE_SCHED
     noinst_PROGRAMS += examples/threaded_step
     examples_threaded_step_SOURCES = examples/threaded_step_example.c
     examples_threaded_step_LDADD = libgeopm.la
@@ -66,6 +73,4 @@ if ENABLE_OPENMP
     examples_threaded_step_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 endif
 endif
-
-if ENABLE_MPI
 endif
