@@ -151,6 +151,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
                             src/Region.hpp \
+                            src/SampleRegulator.cpp \
+                            src/SampleRegulator.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
                             src/geopm_error.h \

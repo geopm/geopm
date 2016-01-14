@@ -60,10 +60,9 @@ namespace geopm
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end);
             void insert(std::vector<double>::const_iterator platform_sample_begin,
                         std::vector<double>::const_iterator platform_sample_end);
-            void align_prof(const struct geopm_time_s &timestamp);
-            void transform_signal(const struct geopm_time_s &timestamp,
-                                  const std::vector<double> &signal_domain_matrix,
-                                  std::stack<struct geopm_telemetry_message_s> &telemetry);
+            void align(const struct geopm_time_s &timestamp);
+            void transform(const std::vector<double> &signal_domain_matrix,
+                           std::stack<struct geopm_telemetry_message_s> &telemetry);
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
                 double progress;
@@ -81,8 +80,11 @@ namespace geopm
             std::set<int> m_rank_set;
             std::map<int, int> m_rank_idx_map;
             uint64_t m_region_id_prev;
-            std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_prev; // per rank record of last profile samples in m_region_id_prev
-            std::vector<double> m_aligned_signal; // vector to multiply with signal_domain_matrix to project into control domains
+            // per rank record of last profile samples in m_region_id_prev
+            std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_prev;
+            struct geopm_time_s m_aligned_time;
+            // vector to multiply with signal_domain_matrix to project into control domains
+            std::vector<double> m_aligned_signal;
             size_t m_num_platform_signal;
     };
 }

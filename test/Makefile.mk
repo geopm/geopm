@@ -92,7 +92,13 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/MPISharedMemoryTest.hello \
               test/gtest_links/MPIProfileTest.noctl \
+              test/gtest_links/SampleRegulatorTest.insert_platform \
+              test/gtest_links/SampleRegulatorTest.insert_profile_unsync \
+              test/gtest_links/SampleRegulatorTest.insert_profile \
+              test/gtest_links/SampleRegulatorTest.align_profile \
+              test/gtest_links/SampleRegulatorTest.transform \
               # end
+
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
          # end
@@ -112,6 +118,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/LockingHashTableTest.cpp \
                           src/LockingHashTable.hpp \
                           test/DeciderFactoryTest.cpp \
+                          test/SampleRegulatorTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

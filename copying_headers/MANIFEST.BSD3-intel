@@ -94,3 +94,4 @@ test/ObservationTest.cpp
 test/PlatformFactoryTest.cpp
 test/PlatformImpTest.cpp
 test/PlatformTopologyTest.cpp
+test/SampleRegulatorTest.cpp

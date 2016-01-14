@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
 #include "SampleRegulator.hpp"
 
 namespace geopm
@@ -72,10 +73,10 @@ namespace geopm
         insert(platform_sample_begin, platform_sample_end);
 
         // Extrapolate application profile data to time of platform telemetry sample
-        align_prof(platform_sample_time);
+        align(platform_sample_time);
 
         // Transform from signal domain to control domain
-        transform_signal(platform_sample_time, signal_domain_matrix, telemetry);
+        transform(signal_domain_matrix, telemetry);
     }
 
     void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
@@ -108,7 +109,10 @@ namespace geopm
                         rank_sample.progress = (*it).second.progress;
                         /// @todo: FIXME geopm_prof_message_s does not contain runtime
                         // rank_sample.runtime = (*it).second.runtime;
-                        size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second; // Will segfault with bad profile sample data
+                        rank_sample.runtime = 0.0;
+                        // Dereference of find result below will
+                        // segfault with bad profile sample data
+                        size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second;
                         m_rank_sample_prev[rank_idx].insert(rank_sample);
                     }
                 }
@@ -127,7 +131,7 @@ namespace geopm
         std::copy(platform_sample_begin, platform_sample_end, m_aligned_signal.begin());
     }
 
-    void SampleRegulator::align_prof(const struct geopm_time_s &timestamp)
+    void SampleRegulator::align(const struct geopm_time_s &timestamp)
     {
         int i = 0;
         double delta;
@@ -136,6 +140,7 @@ namespace geopm
         double progress;
         double runtime;
         geopm_time_s timestamp_prev[2];
+        m_aligned_time = timestamp;
         for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
             switch((*it).size()) {
                 case M_INTERP_TYPE_NONE:
@@ -155,6 +160,7 @@ namespace geopm
                     delta = geopm_time_diff(timestamp_prev + 1, &timestamp);
                     factor = 1.0 / geopm_time_diff(timestamp_prev, timestamp_prev + 1);
                     dsdt = ((*it).value(1).progress - (*it).value(0).progress) * factor;
+                    dsdt = dsdt >= 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
                     progress = (*it).value(1).progress + dsdt * delta;
                     progress = progress >= 0.0 ? progress : 0.0;
                     progress = progress <= 1.0 ? progress : 1.0;
@@ -171,25 +177,28 @@ namespace geopm
         }
     }
 
-    void SampleRegulator::transform_signal(const struct geopm_time_s &timestamp,
-                                           const std::vector<double> &signal_domain_matrix,
-                                           std::stack<struct geopm_telemetry_message_s> &telemetry)
+    void SampleRegulator::transform(const std::vector<double> &signal_domain_matrix,
+                                    std::stack<struct geopm_telemetry_message_s> &telemetry)
     {
-        struct geopm_telemetry_message_s tmp_telemetry = {m_region_id_prev, timestamp, {0}};
+        struct geopm_telemetry_message_s tmp_telemetry = {m_region_id_prev, m_aligned_time, {0}};
         size_t num_signal = m_aligned_signal.size();
-        size_t num_domain = signal_domain_matrix.size() / num_signal;
-        int k = GEOPM_NUM_SIGNAL_TYPE - 1;
-        for (unsigned i = num_domain -1; i != 0; --i) {
-            tmp_telemetry.signal[k] = 0.0;
+        size_t num_domain_signal = signal_domain_matrix.size() / num_signal;
+        size_t num_domain = num_domain_signal / GEOPM_NUM_SIGNAL_TYPE;
+        std::vector<double> result(num_domain_signal);
+
+        std::fill(result.begin(), result.end(), 0.0);
+        for (unsigned i = 0; i < num_domain_signal; ++i) {
             for (unsigned j = 0; j < num_signal; ++j) {
-                // signal_domain_matrix is stored in row major order
-                tmp_telemetry.signal[k] += signal_domain_matrix[i * num_signal + j] * m_aligned_signal[j];
+                result[i] += signal_domain_matrix[i * num_signal + j] * m_aligned_signal[j];
             }
-            --k;
-            if (k == -1) {
-                k += GEOPM_NUM_SIGNAL_TYPE;
-                telemetry.push(tmp_telemetry);
-            }
+        }
+
+        // Insert backwards so poping the stack moves forward
+        for (int i = num_domain - 1; i != -1; --i) {
+            memcpy(tmp_telemetry.signal,
+                   result.data() + i * GEOPM_NUM_SIGNAL_TYPE,
+                   GEOPM_NUM_SIGNAL_TYPE * sizeof(double));
+            telemetry.push(tmp_telemetry);
         }
     }
 }
