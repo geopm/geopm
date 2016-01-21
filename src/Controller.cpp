@@ -410,11 +410,11 @@ namespace geopm
                     *output_it = (*input_it).signal;
                     ++output_it;
                 }
-                m_sample_regulator->sample(m_msr_sample[0].timestamp,
-                                           platform_sample.cbegin(), platform_sample.cend(),
-                                           m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
-                                           *(m_platform->signal_domain_transform()),
-                                           m_telemetry_sample);
+                (*m_sample_regulator)(m_msr_sample[0].timestamp,
+                                      *(m_platform->signal_domain_transform()),
+                                      platform_sample.cbegin(), platform_sample.cend(),
+                                      m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
+                                      m_telemetry_sample);
 
                 do_shutdown = m_sampler->do_shutdown();
             }

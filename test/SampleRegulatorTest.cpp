@@ -41,6 +41,7 @@ class SampleRegulatorTest : public geopm::SampleRegulator, public testing::Test
     protected:
         struct geopm_time_s m_test_sample_time[2];
         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_test_prof;
+        std::vector<int> m_test_cpu_rank;
         std::vector<double> m_test_plat;
 };
 // In this test we simulate 2 sockets (domains of control).  Each
@@ -49,6 +50,7 @@ class SampleRegulatorTest : public geopm::SampleRegulator, public testing::Test
 // per cpu.
 SampleRegulatorTest::SampleRegulatorTest(void)
     : SampleRegulator({1, 1, 2, 2, 3, 3, 4, 4})
+    , m_test_cpu_rank({1, 1, 2, 2, 3, 3, 4, 4})
     , m_test_plat(24)
 {
     struct geopm_prof_message_s msg;
@@ -212,7 +214,7 @@ TEST_F(SampleRegulatorTest, align_profile)
 
 TEST_F(SampleRegulatorTest, transform)
 {
-    // Use new platform data for this test
+    // Use new platform data for this test we need 7 cpu signals
     unsigned num_cpu = 8;
     unsigned num_cpu_signal = 7;
     unsigned num_rank = 4;
@@ -275,25 +277,35 @@ TEST_F(SampleRegulatorTest, transform)
     // Call transform and test results
     std::stack<struct geopm_telemetry_message_s> telemetry;
     transform(signal_domain_matrix, telemetry);
-    EXPECT_EQ(2ULL, telemetry.size());
-    const struct geopm_telemetry_message_s *tmp_tel;
-    double signal_expect;
-    while (!telemetry.empty()) {
-        tmp_tel = &telemetry.top();
-        ASSERT_EQ(42ULL, tmp_tel->region_id);
-        ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&(tmp_tel->timestamp), &m_aligned_time));
-        for (unsigned i = 0; i < GEOPM_NUM_SIGNAL_TYPE; ++i) {
-            if (i < GEOPM_NUM_SIGNAL_TYPE - M_NUM_RANK_SIGNAL) {
-                signal_expect = (double) i;
+
+    for (unsigned check_loop = 0; check_loop != 2; ++check_loop) {
+        EXPECT_EQ(2ULL, telemetry.size());
+        const struct geopm_telemetry_message_s *tmp_tel;
+        double signal_expect;
+        while (!telemetry.empty()) {
+            tmp_tel = &telemetry.top();
+            ASSERT_EQ(42ULL, tmp_tel->region_id);
+            ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&(tmp_tel->timestamp), &m_aligned_time));
+            for (unsigned i = 0; i < GEOPM_NUM_SIGNAL_TYPE; ++i) {
+                if (i < GEOPM_NUM_SIGNAL_TYPE - M_NUM_RANK_SIGNAL) {
+                    signal_expect = (double) i;
+                }
+                else if (i % 2) { // progress
+                    signal_expect = 0.2;
+                }
+                else { // runtime
+                    signal_expect = 0.0;
+                }
+                ASSERT_DOUBLE_EQ(signal_expect, tmp_tel->signal[i]);
             }
-            else if (i % 2) {
-                signal_expect = 0.2;
-            }
-            else {
-                signal_expect = 0.0;
-            }
-            ASSERT_DOUBLE_EQ(signal_expect, tmp_tel->signal[i]);
+            telemetry.pop();
         }
-        telemetry.pop();
+        if (check_loop == 0) {
+            // call public operator ()
+            geopm::SampleRegulator sample_regulator(m_test_cpu_rank);
+            sample_regulator(m_test_sample_time[1], signal_domain_matrix,
+                             m_test_plat.begin(), m_test_plat.end(),
+                             m_test_prof.begin(), m_test_prof.end(), telemetry);
+        }
     }
 }

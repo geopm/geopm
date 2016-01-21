@@ -58,13 +58,13 @@ namespace geopm
 
     }
 
-    void SampleRegulator::sample(const struct geopm_time_s &platform_sample_time,
-                                 std::vector<double>::const_iterator platform_sample_begin,
-                                 std::vector<double>::const_iterator platform_sample_end,
-                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                                 const std::vector<double> &signal_domain_matrix,
-                                 std::stack<struct geopm_telemetry_message_s> &telemetry) // result list per domain of control
+    void SampleRegulator::operator () (const struct geopm_time_s &platform_sample_time,
+                                       const std::vector<double> &signal_domain_matrix,
+                                       std::vector<double>::const_iterator platform_sample_begin,
+                                       std::vector<double>::const_iterator platform_sample_end,
+                                       std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                                       std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
+                                       std::stack<struct geopm_telemetry_message_s> &telemetry) // result list per domain of control
     {
         // Insert new application profile data into buffers
         insert(prof_sample_begin, prof_sample_end);
