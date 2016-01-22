@@ -121,7 +121,7 @@ namespace geopm
             /// @brief Retrieve the topology of the current platform.
             /// @return PlatformTopology object containing the current
             ///         topology information.
-            const PlatformTopology topology() const;
+            const PlatformTopology *topology(void) const;
             ////////////////////////////////////////
             /// signals are expected as follows: ///
             /// per socket signals               ///
@@ -138,7 +138,7 @@ namespace geopm
             ///     RUNTIME???                   ///
             ////////////////////////////////////////
             void init_transform(const std::vector<int> &cpu_rank);
-            const std::vector<double> *signal_domain_transform() const;
+            const std::vector<double> *signal_domain_transform(void) const;
         protected:
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.

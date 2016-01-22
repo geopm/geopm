@@ -85,6 +85,9 @@ test/GlobalPolicyTest.cpp
 test/googletest.mk
 test/LockingHashTableTest.cpp
 test/Makefile.mk
+test/MockPlatform.hpp
+test/MockPlatformImp.hpp
+test/MockPlatformTopology.hpp
 test/MPIControllerTest.cpp
 test/MPIProfileTest.cpp
 test/MPISharedMemoryTest.cpp
@@ -92,6 +95,7 @@ test/MPITreeCommunicatorTest.cpp
 test/no_omp_cpu.c
 test/ObservationTest.cpp
 test/PlatformFactoryTest.cpp
+test/PlatformTest.cpp
 test/PlatformImpTest.cpp
 test/PlatformTopologyTest.cpp
 test/SampleRegulatorTest.cpp

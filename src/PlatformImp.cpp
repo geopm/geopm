@@ -84,9 +84,9 @@ namespace geopm
         return m_logical_cpus;
     }
 
-    PlatformTopology PlatformImp::topology(void) const
+    const PlatformTopology *PlatformImp::topology(void) const
     {
-        return m_topology;
+        return &m_topology;
     }
 
     void PlatformImp::write_msr(int device_type, int device_index, const std::string &msr_name, uint64_t value)

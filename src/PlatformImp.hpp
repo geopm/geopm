@@ -78,23 +78,23 @@ namespace geopm
             /// @brief Retrieve the number of packages present on
             /// the platform.
             /// @return number of packages.
-            int package(void) const;
+            virtual int package(void) const;
             /// @brief Retrieve the number of tiles present on
             /// the platform.
             /// @return number of tiles.
-            int tile(void) const;
+            virtual int tile(void) const;
             /// @brief Retrieve the number of physical CPUs present
             /// on the platform.
             /// @return number of physical CPUs.
-            int hw_cpu(void) const;
+            virtual int hw_cpu(void) const;
             /// @brief Retrieve the number of logical CPUs present
             /// on the platform.
             /// @return number of logical CPUs.
-            int logical_cpu(void) const;
+            virtual int logical_cpu(void) const;
             /// @brief Retrieve the topology tree for the platform.
             /// @return PlatformTopology object holding the
             ///         current platform topology.
-            PlatformTopology topology(void) const;
+            virtual const PlatformTopology *topology(void) const;
 
             ////////////////////////////////////////////////////////////////////
             //                     MSR read/write support                     //

@@ -73,19 +73,19 @@ namespace geopm
             /// the hwloc tree.
             PlatformTopology();
             /// @brief Default destructor destroys the hwloc tree.
-            ~PlatformTopology();
+            virtual ~PlatformTopology();
             /// @brief Retrieve the count of a specific hwloc resource type.
             /// @param [in] domain_type Enum of type domain_type_e representing the
             /// type of resource to query.
             /// @return Count of the specified resource type.
-            int num_domain(int domain_type) const;
+            virtual int num_domain(int domain_type) const;
             /// @brief Retrieve all members of a specific hwloc resource type.
             /// @param [in] type Enum of type domain_type_e representing the
             /// type of resource to query.
             /// @param [out] domain Vector containing all hwloc resources of the
             /// requested type.
-            void domain_by_type(int type, std::vector<hwloc_obj_t> &domain) const;
-            void children_by_type(int type, hwloc_obj_t &obj, std::vector<hwloc_obj_t> &children) const;
+            virtual void domain_by_type(int type, std::vector<hwloc_obj_t> &domain) const;
+            virtual void children_by_type(int type, hwloc_obj_t obj, std::vector<hwloc_obj_t> &children) const;
         private:
             /// @brief Holds the hwloc topology tree.
             hwloc_topology_t m_topo;

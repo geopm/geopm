@@ -44,6 +44,7 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/ObservationTest.negative_empty \
               test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformFactoryTest.no_supported_platform \
+              test/gtest_links/PlatformTest.transform_init \
               test/gtest_links/PlatformImpTest.platform_get_name \
               test/gtest_links/PlatformImpTest.platform_get_sockets \
               test/gtest_links/PlatformImpTest.platform_get_tiles \
@@ -111,6 +112,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/ObservationTest.cpp \
                           test/PlatformFactoryTest.cpp \
                           test/PlatformImpTest.cpp \
+                          test/PlatformTest.cpp \
                           test/PlatformTopologyTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
@@ -119,6 +121,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           src/LockingHashTable.hpp \
                           test/DeciderFactoryTest.cpp \
                           test/SampleRegulatorTest.cpp \
+                          test/MockPlatform.hpp \
+                          test/MockPlatformImp.hpp \
+                          test/MockPlatformTopology.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

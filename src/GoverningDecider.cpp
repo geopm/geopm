@@ -75,7 +75,7 @@ namespace geopm
 
     void GoverningDecider::get_policy(Platform const *platform, Policy &policy)
     {
-        const PlatformTopology topo = platform->topology();
+        const PlatformTopology *topo = platform->topology();
         const PowerModel *package_power_model = platform->power_model(GEOPM_DOMAIN_PACKAGE);
         const PowerModel *board_memory_power_model = platform->power_model(GEOPM_DOMAIN_BOARD_MEMORY);
         const Region *region = platform->cur_region();
@@ -88,8 +88,8 @@ namespace geopm
         std::vector <int> package_domain_index;
         std::vector <int> memory_domain_index;
 
-        topo.domain_by_type(GEOPM_DOMAIN_PACKAGE, package_domain);
-        topo.domain_by_type(GEOPM_DOMAIN_BOARD_MEMORY, memory_domain);
+        topo->domain_by_type(GEOPM_DOMAIN_PACKAGE, package_domain);
+        topo->domain_by_type(GEOPM_DOMAIN_BOARD_MEMORY, memory_domain);
 
         platform->domain_index(GEOPM_DOMAIN_PACKAGE, package_domain_index);
         platform->domain_index(GEOPM_DOMAIN_BOARD_MEMORY, memory_domain_index);

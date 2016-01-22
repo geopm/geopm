@@ -78,7 +78,7 @@ namespace geopm
         }
     }
 
-    void PlatformTopology::children_by_type(int type, hwloc_obj_t &obj, std::vector<hwloc_obj_t> &children) const
+    void PlatformTopology::children_by_type(int type, hwloc_obj_t obj, std::vector<hwloc_obj_t> &children) const
     {
         hwloc_obj_t cpu;
         children.clear();

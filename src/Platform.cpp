@@ -172,7 +172,7 @@ namespace geopm
         return m_curr_region;
     }
 
-    const PlatformTopology Platform::topology(void) const
+    const PlatformTopology *Platform::topology(void) const
     {
         return m_imp->topology();
     }
@@ -180,90 +180,99 @@ namespace geopm
     void Platform::init_transform(const std::vector<int> &cpu_rank)
     {
         const int NUM_RANK_SIGNAL = 2;
-        unsigned int i, j, k;
+        unsigned i, j, k;
         double dot = 0.0;
         m_cpu_rank = cpu_rank;
-        PlatformTopology platform_topo = topology();
+        const PlatformTopology *platform_topo = topology();
         std::set<int> ranks;
         for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
             ranks.insert(*it);
         }
         std::map<int, int> local_rank_map;
-        int count;
+        int count = 0;
         auto it = ranks.begin();
         for (; it != ranks.end(); ++it, ++count) {
             local_rank_map.insert(std::pair<int, int>(*it, count));
         }
         unsigned num_ranks = ranks.size();
         unsigned control_domain_type = m_imp->control_domain();
-        unsigned num_ctl_domain = platform_topo.num_domain(control_domain_type);
+        unsigned num_ctl_domain = platform_topo->num_domain(control_domain_type);
         unsigned num_signal = capacity() + num_ranks * NUM_RANK_SIGNAL;
         unsigned num_socket = m_imp->package();
-        unsigned num_cpu = m_imp->logical_cpu();
+        unsigned num_cpu = m_imp->hw_cpu();
         unsigned cpu_base = (num_socket * m_num_domain);
         unsigned rank_base = cpu_base + (num_cpu * m_num_counter);
         std::vector<hwloc_obj_t> sockets;
         double matrix_value;
-        int cpu_per_domain;
+        unsigned cpu_per_domain;
+        unsigned i_signal, j_signal;
 
-        m_signal_domain_matrix.resize(num_signal * num_ctl_domain);
+        m_signal_domain_matrix.resize(num_signal * num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE);
         std::vector<double> scatter_matrix(num_signal * (num_cpu * GEOPM_NUM_SIGNAL_TYPE));
         std::vector<double> gather_matrix(num_cpu  * GEOPM_NUM_SIGNAL_TYPE * num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE);
 
         // Scatter Matrix
-        platform_topo.domain_by_type(GEOPM_DOMAIN_PACKAGE, sockets);
+        platform_topo->domain_by_type(GEOPM_DOMAIN_PACKAGE, sockets);
         for (i = 0; i < num_cpu * GEOPM_NUM_SIGNAL_TYPE; ++i) {
             unsigned cpu = i / GEOPM_NUM_SIGNAL_TYPE;
+            i_signal = i % GEOPM_NUM_SIGNAL_TYPE;
             for (j = 0; j < num_signal; ++j) {
                 matrix_value = 0.0;
                 if (j < num_socket * m_num_domain) { // Signal is per socket
                     std::vector<hwloc_obj_t> children;
                     int socket = j / m_num_domain;
-                    platform_topo.children_by_type(GEOPM_DOMAIN_CPU, sockets[socket], children);
+                    j_signal = j % m_num_domain;
+                    platform_topo->children_by_type(GEOPM_DOMAIN_CPU, sockets[socket], children);
                     for (auto cpu_it = children.begin(); matrix_value == 0.0 && cpu_it != children.end(); ++cpu_it) {
-                        if ((*cpu_it)->logical_index == cpu) {
+                        if ((*cpu_it)->logical_index == cpu && i_signal == j_signal) {
                             matrix_value = 1.0 / children.size();
                         }
                     }
-                 }
-                 else if (j < rank_base) { // Signal is per cpu
-                     if ((j - cpu_base) / m_num_counter == cpu) {
-                         matrix_value = 1.0;
-                     }
-                 }
-                 else { // Signal is per rank
-                     int local_rank = (j - rank_base) / NUM_RANK_SIGNAL;
-                     if (local_rank == local_rank_map.find(cpu_rank[cpu])->second) {
-                         if (i % GEOPM_NUM_SIGNAL_TYPE == 0) { // Compute cpu_per_domain only once per domain
-                             cpu_per_domain = 0;
-                             for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
-                                 if (local_rank_map.find((*it))->second == local_rank) {
+                }
+                else if (j < rank_base) { // Signal is per cpu
+                    unsigned curr_cpu = (j - cpu_base) / m_num_counter;
+                    j_signal = (j - cpu_base) % m_num_counter + m_num_domain;
+                    if (curr_cpu == cpu && i_signal == j_signal) {
+                        matrix_value = 1.0;
+                    }
+                }
+                else { // Signal is per rank
+                    int local_rank = (j - rank_base) / NUM_RANK_SIGNAL;
+                    j_signal = (j - rank_base) % NUM_RANK_SIGNAL + (GEOPM_NUM_SIGNAL_TYPE - NUM_RANK_SIGNAL);
+                    if (local_rank == local_rank_map.find(cpu_rank[cpu])->second) {
+                        if (i % GEOPM_NUM_SIGNAL_TYPE == 0) { // Compute cpu_per_domain only once per domain
+                            cpu_per_domain = 0;
+                            for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
+                                if (local_rank_map.find((*it))->second == local_rank) {
                                     cpu_per_domain++;
-                                 }
-                             }
-                         }
-                         matrix_value = 1.0 / cpu_per_domain;
-                     }
-                 }
-                 scatter_matrix[i * num_signal + j] = matrix_value;
-             }
+                                }
+                            }
+                        }
+                        if (i_signal == j_signal)
+                            matrix_value = 1.0 / cpu_per_domain;
+                    }
+                }
+                scatter_matrix[i * num_signal + j] = matrix_value;
+            }
         }
 
         // Gather Matrix
         std::fill(gather_matrix.begin(), gather_matrix.end(), 0.0);
         std::vector<hwloc_obj_t> control_domain;
-        platform_topo.domain_by_type(control_domain_type, control_domain);
+        platform_topo->domain_by_type(control_domain_type, control_domain);
         std::vector<hwloc_obj_t> children;
         for(i = 0; i < num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE; ++i) {
             int domain_idx = i / GEOPM_NUM_SIGNAL_TYPE;
+            i_signal = i % GEOPM_NUM_SIGNAL_TYPE;
             for (j = 0; j < num_cpu * GEOPM_NUM_SIGNAL_TYPE; ++j) {
                 unsigned cpu_idx = j / GEOPM_NUM_SIGNAL_TYPE;
+                j_signal = j % GEOPM_NUM_SIGNAL_TYPE;
                 if (i % GEOPM_NUM_SIGNAL_TYPE == 0) { // Compute domain_children only once per domain
-                    platform_topo.children_by_type(GEOPM_DOMAIN_CPU, control_domain[domain_idx], children);
+                    platform_topo->children_by_type(GEOPM_DOMAIN_CPU, control_domain[domain_idx], children);
                 }
                 for (auto it = children.begin(); it != children.end(); ++it) {
-                    if (cpu_idx == (*it)->logical_index) {
-                        gather_matrix[i * num_cpu + j] = 1.0;
+                    if (cpu_idx == (*it)->logical_index && i_signal == j_signal) {
+                        gather_matrix[i * num_cpu * GEOPM_NUM_SIGNAL_TYPE + j] = 1.0;
                     }
                 }
             }
@@ -271,11 +280,11 @@ namespace geopm
 
         // Signal Transform Matrix
         for (i = 0; i < num_signal; ++i) {
-            for (j = 0; j < num_ctl_domain; ++j) {
+            for (j = 0; j < num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE; ++j) {
                 dot = 0.0;
-                for (k = 0; k < num_cpu; k++) {
-                    dot += scatter_matrix[i * num_cpu + k] *
-                           gather_matrix[k * num_ctl_domain + j];
+                for (k = 0; k < num_cpu * GEOPM_NUM_SIGNAL_TYPE; k++) {
+                    dot += gather_matrix[j * num_cpu * GEOPM_NUM_SIGNAL_TYPE + k] *
+                           scatter_matrix[k * num_signal + i];
                 }
                 // matrix is stored in row major order for fast matrix
                 // vector multiply
