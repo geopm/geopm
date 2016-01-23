@@ -179,80 +179,96 @@ namespace geopm
 
     void Platform::init_transform(const std::vector<int> &cpu_rank)
     {
-        const int NUM_RANK_SIGNAL = 2;
-        unsigned i, j, k;
-        double dot = 0.0;
-        m_cpu_rank = cpu_rank;
         const PlatformTopology *platform_topo = topology();
-        std::set<int> ranks;
-        for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
-            ranks.insert(*it);
-        }
         std::map<int, int> local_rank_map;
-        int count = 0;
-        auto it = ranks.begin();
-        for (; it != ranks.end(); ++it, ++count) {
-            local_rank_map.insert(std::pair<int, int>(*it, count));
+        {
+            // Create local_rank_map
+            std::set<int> rank_set;
+            for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
+                rank_set.insert(*it);
+            }
+            int count = 0;
+            for (auto it = rank_set.begin(); it != rank_set.end(); ++it, ++count) {
+                local_rank_map.insert(std::pair<int, int>(*it, count));
+            }
         }
-        unsigned num_ranks = ranks.size();
-        unsigned control_domain_type = m_imp->control_domain();
-        unsigned num_ctl_domain = platform_topo->num_domain(control_domain_type);
-        unsigned num_signal = capacity() + num_ranks * NUM_RANK_SIGNAL;
-        unsigned num_socket = m_imp->package();
-        unsigned num_cpu = m_imp->hw_cpu();
-        unsigned cpu_base = (num_socket * m_num_domain);
-        unsigned rank_base = cpu_base + (num_cpu * m_num_counter);
-        std::vector<hwloc_obj_t> sockets;
-        double matrix_value;
-        unsigned cpu_per_domain;
-        unsigned i_signal, j_signal;
+        const unsigned num_local_rank = local_rank_map.size();
+        std::vector<double> rank_scatter_factor(num_local_rank);
+        {
+            // Create rank_scatter_factor
+            std::fill(rank_scatter_factor.begin(), rank_scatter_factor.end(), 0.0);
+            for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
+                rank_scatter_factor[local_rank_map.find((*it))->second] += 1.0;
+            }
+            for (auto it = rank_scatter_factor.begin(); it != rank_scatter_factor.end(); ++it) {
+                *it = *it ? 1.0 / (*it) : *it;
+            }
+        }
+        const unsigned num_socket = m_imp->package();
+        std::vector<double> socket_scatter_factor(num_socket);
+        std::vector<std::set<unsigned> > socket_cpu_set(num_socket);
+        {
+            // Create socket_scatter_factor
+            std::vector<hwloc_obj_t> socket;
+            std::vector<hwloc_obj_t> children;
+            platform_topo->domain_by_type(GEOPM_DOMAIN_PACKAGE, socket);
+            for (unsigned socket_idx = 0; socket_idx < num_socket; ++socket_idx) {
+                platform_topo->children_by_type(GEOPM_DOMAIN_CPU, socket[socket_idx], children);
+                socket_scatter_factor[socket_idx] = 1.0 / children.size();
+                for (auto child_it = children.begin(); child_it != children.end(); ++child_it) {
+                    socket_cpu_set[socket_idx].insert((*child_it)->logical_index);
+                }
+            }
+        }
 
-        m_signal_domain_matrix.resize(num_signal * num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE);
-        std::vector<double> scatter_matrix(num_signal * (num_cpu * GEOPM_NUM_SIGNAL_TYPE));
-        std::vector<double> gather_matrix(num_cpu  * GEOPM_NUM_SIGNAL_TYPE * num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE);
+        const unsigned NUM_RANK_SIGNAL = 2;
+        const unsigned control_domain_type = m_imp->control_domain();
+        const unsigned num_out_signal = platform_topo->num_domain(control_domain_type) * GEOPM_NUM_SIGNAL_TYPE;
+        const unsigned num_in_signal = capacity() + num_local_rank * NUM_RANK_SIGNAL;
+        const unsigned num_cpu = m_imp->hw_cpu();
+        const unsigned num_cpu_signal = num_cpu * GEOPM_NUM_SIGNAL_TYPE;
+        const unsigned cpu_offset = num_socket * m_num_domain;
+        const unsigned rank_offset = cpu_offset + num_cpu * m_num_counter;
+
+        unsigned i, j, k;
+        unsigned i_signal;
+        unsigned j_signal;
+
+        m_signal_domain_matrix.resize(num_in_signal * num_out_signal);
+        std::vector<double> scatter_matrix(num_in_signal * num_cpu_signal);
+        std::vector<double> gather_matrix(num_cpu_signal * num_out_signal);
 
         // Scatter Matrix
-        platform_topo->domain_by_type(GEOPM_DOMAIN_PACKAGE, sockets);
-        for (i = 0; i < num_cpu * GEOPM_NUM_SIGNAL_TYPE; ++i) {
+        for (i = 0; i < num_cpu_signal; ++i) {
             unsigned cpu = i / GEOPM_NUM_SIGNAL_TYPE;
             i_signal = i % GEOPM_NUM_SIGNAL_TYPE;
-            for (j = 0; j < num_signal; ++j) {
-                matrix_value = 0.0;
+            for (j = 0; j < num_in_signal; ++j) {
+                double matrix_value = 0.0;
                 if (j < num_socket * m_num_domain) { // Signal is per socket
-                    std::vector<hwloc_obj_t> children;
-                    int socket = j / m_num_domain;
                     j_signal = j % m_num_domain;
-                    platform_topo->children_by_type(GEOPM_DOMAIN_CPU, sockets[socket], children);
-                    for (auto cpu_it = children.begin(); matrix_value == 0.0 && cpu_it != children.end(); ++cpu_it) {
-                        if ((*cpu_it)->logical_index == cpu && i_signal == j_signal) {
-                            matrix_value = 1.0 / children.size();
-                        }
+                    unsigned socket_idx = j / m_num_domain;
+                    if (i_signal == j_signal &&
+                        socket_cpu_set[socket_idx].find(cpu) != socket_cpu_set[socket_idx].end()) {
+                        matrix_value = socket_scatter_factor[socket_idx];
                     }
                 }
-                else if (j < rank_base) { // Signal is per cpu
-                    unsigned curr_cpu = (j - cpu_base) / m_num_counter;
-                    j_signal = (j - cpu_base) % m_num_counter + m_num_domain;
-                    if (curr_cpu == cpu && i_signal == j_signal) {
-                        matrix_value = 1.0;
+                else if (j < rank_offset) { // Signal is per cpu
+                    j_signal = (j - cpu_offset) % m_num_counter + m_num_domain;
+                    if (i_signal == j_signal) {
+                        unsigned curr_cpu = (j - cpu_offset) / m_num_counter;
+                        if (curr_cpu == cpu) {
+                            matrix_value = 1.0;
+                        }
                     }
                 }
                 else { // Signal is per rank
-                    int local_rank = (j - rank_base) / NUM_RANK_SIGNAL;
-                    j_signal = (j - rank_base) % NUM_RANK_SIGNAL + (GEOPM_NUM_SIGNAL_TYPE - NUM_RANK_SIGNAL);
-                    if (local_rank == local_rank_map.find(cpu_rank[cpu])->second) {
-                        if (i % GEOPM_NUM_SIGNAL_TYPE == 0) { // Compute cpu_per_domain only once per domain
-                            cpu_per_domain = 0;
-                            for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
-                                if (local_rank_map.find((*it))->second == local_rank) {
-                                    cpu_per_domain++;
-                                }
-                            }
-                        }
-                        if (i_signal == j_signal)
-                            matrix_value = 1.0 / cpu_per_domain;
+                    j_signal = (j - rank_offset) % NUM_RANK_SIGNAL + (GEOPM_NUM_SIGNAL_TYPE - NUM_RANK_SIGNAL);
+                    int local_rank = (j - rank_offset) / NUM_RANK_SIGNAL;
+                    if (i_signal == j_signal && local_rank == local_rank_map.find(cpu_rank[cpu])->second) {
+                        matrix_value = rank_scatter_factor[local_rank];
                     }
                 }
-                scatter_matrix[i * num_signal + j] = matrix_value;
+                scatter_matrix[i * num_in_signal + j] = matrix_value;
             }
         }
 
@@ -261,34 +277,37 @@ namespace geopm
         std::vector<hwloc_obj_t> control_domain;
         platform_topo->domain_by_type(control_domain_type, control_domain);
         std::vector<hwloc_obj_t> children;
-        for(i = 0; i < num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE; ++i) {
+        for(i = 0; i < num_out_signal; ++i) {
             int domain_idx = i / GEOPM_NUM_SIGNAL_TYPE;
             i_signal = i % GEOPM_NUM_SIGNAL_TYPE;
-            for (j = 0; j < num_cpu * GEOPM_NUM_SIGNAL_TYPE; ++j) {
-                unsigned cpu_idx = j / GEOPM_NUM_SIGNAL_TYPE;
+            if (i_signal == 0) { // Compute domain_children only once per domain
+                platform_topo->children_by_type(GEOPM_DOMAIN_CPU, control_domain[domain_idx], children);
+            }
+            for (j = 0; j < num_cpu_signal; ++j) {
                 j_signal = j % GEOPM_NUM_SIGNAL_TYPE;
-                if (i % GEOPM_NUM_SIGNAL_TYPE == 0) { // Compute domain_children only once per domain
-                    platform_topo->children_by_type(GEOPM_DOMAIN_CPU, control_domain[domain_idx], children);
-                }
-                for (auto it = children.begin(); it != children.end(); ++it) {
-                    if (cpu_idx == (*it)->logical_index && i_signal == j_signal) {
-                        gather_matrix[i * num_cpu * GEOPM_NUM_SIGNAL_TYPE + j] = 1.0;
+                if (i_signal == j_signal) {
+                    unsigned cpu_idx = j / GEOPM_NUM_SIGNAL_TYPE;
+                    for (auto it = children.begin(); it != children.end(); ++it) {
+                        if (cpu_idx == (*it)->logical_index) {
+                            gather_matrix[i * num_cpu_signal + j] = 1.0;
+                        }
                     }
                 }
             }
         }
 
         // Signal Transform Matrix
-        for (i = 0; i < num_signal; ++i) {
-            for (j = 0; j < num_ctl_domain * GEOPM_NUM_SIGNAL_TYPE; ++j) {
+        double dot;
+        for (i = 0; i < num_in_signal; ++i) {
+            for (j = 0; j < num_out_signal; ++j) {
                 dot = 0.0;
-                for (k = 0; k < num_cpu * GEOPM_NUM_SIGNAL_TYPE; k++) {
-                    dot += gather_matrix[j * num_cpu * GEOPM_NUM_SIGNAL_TYPE + k] *
-                           scatter_matrix[k * num_signal + i];
+                for (k = 0; k < num_cpu_signal; k++) {
+                    dot += gather_matrix[j * num_cpu_signal + k] *
+                           scatter_matrix[k * num_in_signal + i];
                 }
                 // matrix is stored in row major order for fast matrix
                 // vector multiply
-                m_signal_domain_matrix[j * num_signal + i] = dot;
+                m_signal_domain_matrix[j * num_in_signal + i] = dot;
             }
         }
     }
@@ -309,7 +328,7 @@ namespace geopm
 
     void Platform::tdp_limit(int percentage) const
     {
-        //Get the TDP for each socket and set it's power limit to match
+        //Get the TDP for each socket and set its power limit to match
         double tdp = 0.0;
         double power_units = pow(2, (double)((m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
         int packages = m_imp->package();

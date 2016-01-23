@@ -154,7 +154,6 @@ namespace geopm
             int m_num_counter;
             int m_window_size;
             int m_level;
-            std::vector<int> m_cpu_rank;
             std::vector<double> m_signal_domain_matrix;
     };
 }
