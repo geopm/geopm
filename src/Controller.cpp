@@ -416,6 +416,29 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       m_telemetry_sample);
 
+                auto it = m_region[0].find(m_telemetry_sample[0].region_id);
+                if (it != m_region[0].end()) {
+                    Region *curr_region = (*it).second;
+                    int domain_idx = 0;
+                    for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
+                        curr_region.insert_observation(domain_idx,
+                                                       (*it).signal, 
+                                                       (*it).signal + GEOPM_NUM_SIGNAL_TYPE);
+                    }
+                    if (m_leaf_decider->update_policy(curr_region) == true) {
+                        m_platform->enforce(curr_region->policy());
+                    }
+                    if (curr_region->converged == true) {
+                        struct sample_message_s sample;
+                        curr_region->sample_message(sample);
+                        m_comm->send_sample(0, sample);
+                    }
+                }
+                else {
+                   throw geopm::Exception("Controller::walk_up() Invalid region id.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                    
+
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level()) {

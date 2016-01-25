@@ -159,8 +159,6 @@ struct geopm_policy_shmem_s {
 /// @brief MPI message structure for sending
 /// sample telemetry data up the tree.
 struct geopm_sample_message_s {
-    /// @brief Rank identifier.
-    int rank;
     /// @brief 64-bit unique application region identifier.
     uint64_t region_id;
     /// @brief Elapsed runtime of an application region.

@@ -47,6 +47,25 @@ namespace geopm
     class Region
     {
         public:
+            /// @brief The enumeration of statistics that are computed
+            ///        by the stats() method.
+            enum m_stat_type_e {
+                /// The number of stored samples used in calculations.
+                M_STAT_TYPE_NSAMPLE,
+                /// The mean value of the stored samples.
+                M_STAT_TYPE_MEAN,
+                /// The median value of the stored samples.
+                M_STAT_TYPE_MEDIAN,
+                /// The standard deviation of the stored samples.
+                M_STAT_TYPE_STDDEV,
+                /// The minimum value among the stored samples.
+                M_STAT_TYPE_MIN,
+                /// The maximum value among the stored samples.
+                M_STAT_TYPE_MAX,
+                /// The number of statistics gathered by the stats()
+                /// method, and the length of the result array.
+                M_NUM_STAT_TYPE
+            };
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.
             /// @param [in] hint geopm_policy_hint_e describing the compute
@@ -55,13 +74,10 @@ namespace geopm
             Region(uint64_t identifier, int hint, int size);
             /// @brief Default destructor.
             virtual ~Region();
+            void insert(std::stack<struct geopm_telemetry_message_s> &telemetry_stack);
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.
             uint64_t identifier(void) const;
-            /// @brief Insert a single observation sample for this region.
-            /// @param [in] buffer_index Index of the buffer to insert into.
-            /// @param [in] value The sample value to insert.
-            void observation_insert(int buffer_index, double value);
             /// @brief Retrieve the compute characteristic hint for this region.
             /// @return geopm_policy_hint_e describing the compute characteristics
             /// of this region.
@@ -77,6 +93,11 @@ namespace geopm
             /// has changed.
             /// @return Saved policy message from last time one was sent.
             struct geopm_policy_message_s* last_policy();
+            /// @brief Return an aggregated sample to send up the tree.
+            /// Called once this region has converged to send a sample
+            /// up to the next level of the tree.
+            /// @param [out] Sample message structure to fill in.
+            void sample_message(struct sample_message_s &sample);
             /// @brief Split this regions power policy budget and create new
             /// policy messages for each child control domain.
             /// @return Vector of policy messages for each child
@@ -91,46 +112,59 @@ namespace geopm
             /// for this region.
             /// @param [in] policy Policy message to save as last update.
             void last_policy(const struct geopm_policy_message_s &policy);
-            /// @brief Retrieve the mean of all values in the
-            /// requested buffer.
-            /// @param [in] buffer_index Index of the requested buffer.
-            double observation_mean(int buffer_index) const;
-            /// @brief Retrieve the mean of all values in the
-            /// requested buffer.
-            /// @param [in] buffer_index Index of the requested buffer.
-            double observation_median(int buffer_index) const;
-            /// @brief Retrieve the standard deviation of all values in the
-            /// requested buffer.
-            /// @param [in] buffer_index Index of the requested buffer.
-            double observation_stddev(int buffer_index) const;
-            /// @brief Retrieve the maximum value of all values in the
-            /// requested buffer.
-            /// @param [in] buffer_index Index of the requested buffer.
-            double observation_max(int buffer_index) const;
-            /// @brief Retrieve the minimum value of all values in the
-            /// requested buffer.
-            /// @param [in] buffer_index Index of the requested buffer.
-            double observation_min(int buffer_index) const;
-            /// @brief Retrieve the integrated time over all values in the
-            /// requested buffer.
-            /// @param [in] buffer_index Index of the requested buffer.
-            double observation_integrate_time(int buffer_index) const;
+            /// @brief Set the convergence state.
+            /// Called by the decision algorithm when it has determined
+            /// whether or not the power policy enforcement has converged
+            /// to an acceptance state.
+            void is_converged(bool converged_state);
+            /// @brief Have we converged for this region.
+            /// Set by he decision algorithm when it has determined
+            /// that the power policy enforcement has converged to an
+            /// acceptance state.
+            /// @return true if converged else false.
+            bool is_converged(void) const;
+            /// @brief Retrieve the statistics for a domain of control.
+            ///
+            /// Get the statistics for a given domain of control and a
+            /// signal type for the buffered data associated with the
+            /// application region.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            /// 
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @param [out] result A double array of length
+            ///        M_NUM_STAT_TYPE which contains the computed
+            ///        statistics as enumerated in m_stat_type_e.
+            void stats(int domain_idx, int signal_type, double result[]) const;
+            /// @brief Integrate a signal over time.
+            ///
+            /// Computes the integral of the signal over the interval
+            /// of time spanned by the samples stored in the region
+            /// which where gathered since the applications most
+            /// recent entry into the region.
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            /// 
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+
+            double integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const;
         protected:
-            /// @brief Hold the Observation object which contains samples
-            /// for this region.
-            Observation m_obs;
-            /// @brief Hold the current power policy for this region.
-            Policy m_policy;
-            /// @brief Hold a policy message for each child control domain.
-            std::vector <struct geopm_policy_message_s> m_split_policy;
-            /// @brief Hold a sample message from each child control domain.
-            std::vector <struct geopm_sample_message_s> m_child_sample;
-            /// @brief Hold Saved policy message from last time one was sent.
-            struct geopm_policy_message_s m_last_policy;
-            /// @brief Hold unique 64 bit region identifier.
+            /// @brief Holds a unique 64 bit region identifier.
             uint64_t m_identifier;
-            /// @brief Hold the compute characteristic hint for this region.
+            /// @brief Holds the compute characteristic hint for this
+            ///        region.
             int m_hint;
+            /// @brief Have we converged for this region.
+            bool m_is_converged;
     };
 }
 

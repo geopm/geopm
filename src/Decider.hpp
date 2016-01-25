@@ -33,47 +33,24 @@
 #ifndef DECIDER_HPP_INCLUDE
 #define DECIDER_HPP_INCLUDE
 
-#include <vector>
-
-#include "Platform.hpp"
-#include "Policy.hpp"
+#include "geopm_message.h"
+#include "Region.hpp"
 
 namespace geopm
 {
-
     class Decider
     {
         public:
             Decider();
             virtual ~Decider();
-            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Region* curr_region);
-            virtual bool is_converged(void);
-            virtual void get_policy(Platform const *platform, Policy &policy) = 0;
+            /// @brief Updates the power split among power control domains when
+            /// recieving a new global budget.
+            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Region* curr_region) = 0;
+            /// @brief Calculate a new power policy for the region based on telemery data.
+            virtual void update_policy(Region* curr_region) = 0;
+            /// @brief Return true if th edescription string matches capabilities of decider.
             virtual bool decider_supported(const std::string &descripton) = 0;
-            virtual const std::string& name(void) const = 0;
-
-        protected:
-            int m_is_converged;
-            std::map <long, geopm_policy_message_s> m_region_policy_msg_map;
-    };
-
-    class LeafDecider : public Decider
-    {
-        public:
-            LeafDecider();
-            virtual ~LeafDecider();
-            virtual bool decider_supported(const std::string &descripton) = 0;
-            virtual const std::string& name(void) const = 0;
-    };
-
-    class TreeDecider : public Decider
-    {
-        public:
-            TreeDecider();
-            virtual ~TreeDecider();
-            virtual void get_policy(Platform const *platform, Policy &policy);
-            virtual void split_policy(const struct geopm_policy_message_s &policy, Region* curr_region);
-            virtual bool decider_supported(const std::string &descripton) = 0;
+            /// @brief Return the name of the decider.
             virtual const std::string& name(void) const = 0;
     };
 }

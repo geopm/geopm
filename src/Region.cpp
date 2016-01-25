@@ -71,6 +71,14 @@ namespace geopm
         return &m_last_policy;
     }
 
+    void Region::sample_message(struct sample_message_s &sample)
+    {
+        sample.region_id = m_identifier;
+        sample.runtime = ;
+        sample.energy = ;
+        sample.frequency = ;
+    }
+
     void Region::last_policy(const struct geopm_policy_message_s &policy)
     {
         m_last_policy = policy;

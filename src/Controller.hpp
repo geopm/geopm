@@ -184,7 +184,7 @@ namespace geopm
             std::vector<struct geopm_msr_message_s> m_msr_sample;
             std::stack<struct geopm_telemetry_message_s> m_telemetry_sample;
             // Per level vector of maps from region identifier to region object
-            std::vector<std::map <long, Region *> > m_region;
+            std::vector<std::map <uint64_t, Region *> > m_region;
     };
 }
 

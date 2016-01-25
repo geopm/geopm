@@ -64,8 +64,8 @@ namespace geopm
             double m_flags;
             int m_goal;
 
-            std::vector <double> m_target;
-            std::vector <bool> m_updated;
+            std::vector<double> m_target;
+            std::vector<bool> m_updated;
     };
 }
 
