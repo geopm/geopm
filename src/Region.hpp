@@ -35,6 +35,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <stack>
 
 #include "geopm_message.h"
 #include "Observation.hpp"
@@ -42,8 +43,8 @@
 
 namespace geopm
 {
-    /// @brief This class encapsulates all state data for a specific
-    /// application execution region.
+    /// @brief This class encapsulates all recorded data for a
+    ///        specific application execution region.
     class Region
     {
         public:
@@ -70,8 +71,8 @@ namespace geopm
             /// @param [in] identifier Unique 64 bit region identifier.
             /// @param [in] hint geopm_policy_hint_e describing the compute
             ///             characteristics of this region
-            /// @param [in] size Number of control domains.
-            Region(uint64_t identifier, int hint, int size);
+            /// @param [in] num_domain Number of control domains.
+            Region(uint64_t identifier, int hint, int num_domain);
             /// @brief Default destructor.
             virtual ~Region();
             void insert(std::stack<struct geopm_telemetry_message_s> &telemetry_stack);
@@ -122,21 +123,21 @@ namespace geopm
             ///
             double integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const;
         protected:
-            /// @brief Hold the current power policy for this region.
-            Policy m_policy;
-            /// @brief Hold a policy message for each child control domain.
-            std::vector <struct geopm_policy_message_s> m_split_policy;
-            /// @brief Hold a sample message from each child control domain.
-            std::vector <struct geopm_sample_message_s> m_child_sample;
-            /// @brief Hold Saved policy message from last time one was sent.
-            struct geopm_policy_message_s m_last_policy;
             /// @brief Holds a unique 64 bit region identifier.
             uint64_t m_identifier;
             /// @brief Holds the compute characteristic hint for this
             ///        region.
             int m_hint;
             /// @brief Have we converged for this region.
-            bool m_is_converged;
+            unsigned m_num_domain;
+            bool m_is_current;
+            /// @brief Aggregates results for the current region
+            struct geopm_sample_message_s m_curr_sample;
+            std::vector<double> m_telemetry_matrix;
+            /// @brief Circular buffer is over time, vector is indexed over both domains and signals
+            CircularBuffer<std::vector<double> > m_domain_buffer;
+            /// @brief time stamp for each entry in the m_domain_buffer
+            CircularBuffer<struct geopm_time_s> m_time_buffer;
     };
 }
 

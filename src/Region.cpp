@@ -34,21 +34,36 @@
 
 namespace geopm
 {
-    Region::Region(uint64_t identifier, int hint, int size)
-        : m_policy(size)
-        , m_last_policy(GEOPM_UNKNOWN_POLICY)
-        , m_identifier(identifier)
+    Region::Region(uint64_t identifier, int hint, int num_domain)
+        : m_identifier(identifier)
         , m_hint(hint)
+        , m_num_domain(num_domain)
+        , m_is_current(false)
+        , m_telemetry_matrix(m_num_domain * GEOPM_NUM_SIGNAL_TYPE)
+        , m_domain_buffer(m_num_domain)
+        , m_time_buffer(m_num_domain)
     {
-        m_split_policy.resize(size);
-        m_child_sample.resize(size);
+
     }
 
-    Region::~Region() {}
-
-    void Region::observation_insert(int index, double value)
+    Region::~Region()
     {
-        m_obs.insert(index, value);
+
+    }
+
+    void Region::insert(std::stack<struct geopm_telemetry_message_s> &telemetry_stack)
+    {
+        if (telemetry_stack.size()!= m_num_domain) {
+            throw Exception("Region::insert(): telemetry stack not properly sized", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        size_t offset = 0;
+        m_time_buffer.insert(telemetry_stack.top().timestamp);
+        while (!telemetry_stack.empty()) {
+            memcpy(m_telemetry_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_SIGNAL_TYPE * sizeof(double));
+            offset += GEOPM_NUM_SIGNAL_TYPE;
+            telemetry_stack.pop();
+        }
+        m_domain_buffer.insert(m_telemetry_matrix);
     }
 
     uint64_t Region::identifier(void) const

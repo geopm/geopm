@@ -145,8 +145,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/PlatformTopology.hpp \
                             src/Policy.cpp \
                             src/Policy.hpp \
-                            src/PowerModel.cpp \
-                            src/PowerModel.hpp \
                             src/RAPLPlatform.cpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
@@ -213,8 +211,6 @@ if ENABLE_MPI
                           src/PlatformTopology.hpp \
                           src/Policy.cpp \
                           src/Policy.hpp \
-                          src/PowerModel.cpp \
-                          src/PowerModel.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
                           src/RAPLPlatform.cpp \

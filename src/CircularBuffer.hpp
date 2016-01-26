@@ -53,7 +53,7 @@ namespace geopm
             /// Creates an empty circular buffer with a set capacity.
             ///
             /// @param [in] size Requested capacity for the buffer.
-            CircularBuffer(const unsigned int size);
+            CircularBuffer(unsigned int size);
             /// @brief CircularBuffer destructor, virtual
             virtual ~CircularBuffer();
             /// @brief Re-size the circular buffer.
@@ -116,7 +116,7 @@ namespace geopm
     };
 
     template <class type>
-    CircularBuffer<type>::CircularBuffer(const unsigned int size)
+    CircularBuffer<type>::CircularBuffer(unsigned int size)
     : m_buffer(size)
     , m_head(0)
     , m_count(0)
