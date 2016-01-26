@@ -45,27 +45,36 @@ namespace geopm
         public:
             Policy();
             Policy(int num_domain);
-            Policy(const std::vector <double> &target);
             virtual ~Policy();
-            bool operator==(const Policy& other) const;
-            void clear(void);
-            void update(int domain, double target);
-            void update(const std::vector <double> &target);
-            void updated_target(std::map <int, double> &target);
-            void target(std::vector <double> &target);
-            void target(int domain, double &target);
-            void policy_message(int regionid, std::vector<geopm_policy_message_s> message) const;
-            int num_domain(void) const;
-            void valid_target(std::map <int, double> &target) const;
+            void update(uint64_t region_id, int domain_idx, double target);
+            void update(uint64_t region_id, const std::vector <double> &target);
+            void updated_target(uint64_t region_id, std::map <int, double> &target); // map from domain index to updated target value
+            void target(uint64_t region_id, std::vector <double> &target);
+            void target(uint64_t region_id, int domain, double &target);
+            void policy_message(uint64_t region_id, std::vector<geopm_policy_message_s> message) const;
+            void valid_target(uint64_t region_id, std::map <int, double> &target) const;
+            /// @brief Set the convergence state.
+            /// Called by the decision algorithm when it has determined
+            /// whether or not the power policy enforcement has converged
+            /// to an acceptance state.
+            void is_converged(uint64_t region_id, bool converged_state);
+            /// @brief Have we converged for this region.
+            /// Set by he decision algorithm when it has determined
+            /// that the power policy enforcement has converged to an
+            /// acceptance state.
+            /// @return true if converged else false.
+            bool is_converged(uint64_t region_id) const;
+
         protected:
+            int m_num_domain;
             int m_mode;
             int m_num_sample;
-            double m_budget;
-            double m_flags;
+            unsigned long m_flags;
             int m_goal;
-
-            std::vector<double> m_target;
-            std::vector<bool> m_updated;
+            std::map<uint64_t, double> m_budget; // map from region id to total power budget over all domains
+            std::map<uint64_t, std::vector<double> > m_target; // map from region id to per domain target vector
+            std::map<uint64_t, std::vector<bool> > m_updated; // map from region id to per domain boolean value tracking if the target has been updated
+            std::map<uint64_t, bool > m_is_converged;
     };
 }
 

@@ -82,47 +82,11 @@ namespace geopm
             /// @return geopm_policy_hint_e describing the compute characteristics
             /// of this region.
             int hint(void) const;
-            /// @brief Set the power policy for this region.
-            /// @param [in] policy Policy object for this region.
-            void policy(Policy* policy);
-            /// @brief Retrieve the power policy for this region.
-            /// @return Policy object for this region.
-            Policy* policy(void);
-            /// @brief Retrieve The last policy message sent down for this region.
-            /// Used to compare with new incoming message to see if the policy
-            /// has changed.
-            /// @return Saved policy message from last time one was sent.
-            struct geopm_policy_message_s* last_policy();
             /// @brief Return an aggregated sample to send up the tree.
             /// Called once this region has converged to send a sample
             /// up to the next level of the tree.
             /// @param [out] Sample message structure to fill in.
             void sample_message(struct sample_message_s &sample);
-            /// @brief Split this regions power policy budget and create new
-            /// policy messages for each child control domain.
-            /// @return Vector of policy messages for each child
-            /// control domain.
-            std::vector <struct geopm_policy_message_s>* split_policy(void);
-            /// @brief Retrieve a set of sample message for each child
-            /// control domain.
-            /// @return Vector of sample messages from each child
-            /// control domain.
-            std::vector <struct geopm_sample_message_s>* child_sample(void);
-            /// @brief Set our saved copy of the last updated policy message
-            /// for this region.
-            /// @param [in] policy Policy message to save as last update.
-            void last_policy(const struct geopm_policy_message_s &policy);
-            /// @brief Set the convergence state.
-            /// Called by the decision algorithm when it has determined
-            /// whether or not the power policy enforcement has converged
-            /// to an acceptance state.
-            void is_converged(bool converged_state);
-            /// @brief Have we converged for this region.
-            /// Set by he decision algorithm when it has determined
-            /// that the power policy enforcement has converged to an
-            /// acceptance state.
-            /// @return true if converged else false.
-            bool is_converged(void) const;
             /// @brief Retrieve the statistics for a domain of control.
             ///
             /// Get the statistics for a given domain of control and a
@@ -132,7 +96,7 @@ namespace geopm
             /// @param [in] domain_idx The index to the domain of
             ///        control as ordered in the Platform and the
             ///        Policy.
-            /// 
+            ///
             /// @param [in] signal_type The signal type requested as
             ///        enumerated in geopm_signal_type_e in
             ///        geopm_message.h.
@@ -147,17 +111,25 @@ namespace geopm
             /// of time spanned by the samples stored in the region
             /// which where gathered since the applications most
             /// recent entry into the region.
+            ///
             /// @param [in] domain_idx The index to the domain of
             ///        control as ordered in the Platform and the
             ///        Policy.
-            /// 
+            ///
             /// @param [in] signal_type The signal type requested as
             ///        enumerated in geopm_signal_type_e in
             ///        geopm_message.h.
             ///
-
             double integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const;
         protected:
+            /// @brief Hold the current power policy for this region.
+            Policy m_policy;
+            /// @brief Hold a policy message for each child control domain.
+            std::vector <struct geopm_policy_message_s> m_split_policy;
+            /// @brief Hold a sample message from each child control domain.
+            std::vector <struct geopm_sample_message_s> m_child_sample;
+            /// @brief Hold Saved policy message from last time one was sent.
+            struct geopm_policy_message_s m_last_policy;
             /// @brief Holds a unique 64 bit region identifier.
             uint64_t m_identifier;
             /// @brief Holds the compute characteristic hint for this
