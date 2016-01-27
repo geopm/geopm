@@ -46,6 +46,7 @@ namespace geopm
             Policy();
             Policy(int num_domain);
             virtual ~Policy();
+            void insert_region(uint64_t region_id);
             void update(uint64_t region_id, int domain_idx, double target);
             void update(uint64_t region_id, const std::vector <double> &target);
             void updated_target(uint64_t region_id, std::map <int, double> &target); // map from domain index to updated target value

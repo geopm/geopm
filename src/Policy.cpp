@@ -45,22 +45,31 @@ namespace geopm
     Policy::Policy(int num_domain)
         :   m_num_domain(num_domain)
     {
-        std::vector<double> unknown_region_target(num_domain);
-        std::vector<bool> unknown_region_updated(num_domain);
-        std::fill(unknown_region_target.begin(), unknown_region_target.end(), GEOPM_POLICY_CONST_INVALID_TARGET);
-        std::fill(unknown_region_updated.begin(), unknown_region_updated.end(), true);
-        m_target.insert(std::pair<uint64_t, std::vector<double> >(0, unknown_region_target));
-        m_updated.insert(std::pair<uint64_t, std::vector<bool> >(0, unknown_region_updated));
+        insert_region(0); //Add the default unmarked region
     }
 
     Policy::~Policy() {}
+
+    void Policy::insert_region(uint64_t region_id)
+    {
+        std::vector<double> unknown_region_target(m_num_domain);
+        std::vector<bool> unknown_region_updated(m_num_domain);
+        std::fill(unknown_region_target.begin(), unknown_region_target.end(), GEOPM_POLICY_CONST_INVALID_TARGET);
+        std::fill(unknown_region_updated.begin(), unknown_region_updated.end(), true);
+        m_target.insert(std::pair<uint64_t, std::vector<double> >(region_id, unknown_region_target));
+        m_updated.insert(std::pair<uint64_t, std::vector<bool> >(region_id, unknown_region_updated));
+        m_is_converged.insert(std::pair<uint64_t, bool>(region_id, false));
+
+    }
 
     void Policy::update(uint64_t region_id, int domain, double target)
     {
         auto target_it = m_target.find(region_id);
         auto updated_it = m_updated.find(region_id);
         if (target_it == m_target.end() || updated_it == m_updated.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            insert_region(region_id);
+            target_it = m_target.find(region_id);
+            updated_it = m_updated.find(region_id);
         }
         std::vector<double> *region_target = &(*target_it).second;
         std::vector<bool> *region_updated = &(*updated_it).second;
@@ -84,7 +93,9 @@ namespace geopm
         auto target_it = m_target.find(region_id);
         auto updated_it = m_updated.find(region_id);
         if (target_it == m_target.end() || updated_it == m_updated.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            insert_region(region_id);
+            target_it = m_target.find(region_id);
+            updated_it = m_updated.find(region_id);
         }
         std::vector<double> *region_target = &(*target_it).second;
         std::vector<bool> *region_updated = &(*updated_it).second;
@@ -98,7 +109,7 @@ namespace geopm
         auto target_it = m_target.find(region_id);
         auto updated_it = m_updated.find(region_id);
         if (target_it == m_target.end() || updated_it == m_updated.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::updated_target() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::vector<double> *region_target = &(*target_it).second;
         std::vector<bool> *region_updated = &(*updated_it).second;
@@ -116,7 +127,7 @@ namespace geopm
         auto target_it = m_target.find(region_id);
         auto updated_it = m_updated.find(region_id);
         if (target_it == m_target.end() || updated_it == m_updated.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::target() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::vector<double> *region_target = &(*target_it).second;
         std::vector<bool> *region_updated = &(*updated_it).second;
@@ -129,12 +140,12 @@ namespace geopm
         auto target_it = m_target.find(region_id);
         auto updated_it = m_updated.find(region_id);
         if (target_it == m_target.end() || updated_it == m_updated.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::target() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::vector<double> *region_target = &(*target_it).second;
         std::vector<bool> *region_updated = &(*updated_it).second;
         if (domain >= (int)region_target->size()) {
-            throw Exception("Policy: domain index out of range", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::target() domain index out of range", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         target = (*region_target)[domain];
         (*region_updated)[domain] = false;
@@ -144,7 +155,7 @@ namespace geopm
     {
         auto target_it = m_target.find(region_id);
         if (target_it == m_target.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::valid_target() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         const std::vector<double> *region_target = &(*target_it).second;
         target.clear();
@@ -159,7 +170,7 @@ namespace geopm
     {
         auto target_it = m_target.find(region_id);
         if (target_it == m_target.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::policy_message() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         const std::vector<double> *region_target = &(*target_it).second;
         int i = 0;
@@ -180,7 +191,7 @@ namespace geopm
     {
         auto converged_it = m_is_converged.find(region_id);
         if (converged_it == m_is_converged.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::is_converged() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         (*converged_it).second = converged_state;
@@ -190,7 +201,7 @@ namespace geopm
     {
         auto converged_it = m_is_converged.find(region_id);
         if (converged_it == m_is_converged.end()) {
-            throw Exception("Policy::update() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Policy::is_converged() Invalid region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         return (*converged_it).second;
