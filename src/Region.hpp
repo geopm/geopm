@@ -67,6 +67,9 @@ namespace geopm
                 /// method, and the length of the result array.
                 M_NUM_STAT_TYPE
             };
+            enum m_const_e {
+                M_NUM_SAMPLE_HISTORY = 8,
+            };
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.
             /// @param [in] hint geopm_policy_hint_e describing the compute
@@ -87,7 +90,7 @@ namespace geopm
             /// Called once this region has converged to send a sample
             /// up to the next level of the tree.
             /// @param [out] Sample message structure to fill in.
-            void sample_message(struct sample_message_s &sample);
+            void sample_message(struct geopm_sample_message_s &sample);
             /// @brief Retrieve the statistics for a domain of control.
             ///
             /// Get the statistics for a given domain of control and a
@@ -105,7 +108,7 @@ namespace geopm
             /// @param [out] result A double array of length
             ///        M_NUM_STAT_TYPE which contains the computed
             ///        statistics as enumerated in m_stat_type_e.
-            void stats(int domain_idx, int signal_type, double result[]) const;
+            void statistics(int domain_idx, int signal_type, double result[]) const;
             /// @brief Integrate a signal over time.
             ///
             /// Computes the integral of the signal over the interval
@@ -129,11 +132,12 @@ namespace geopm
             ///        region.
             int m_hint;
             /// @brief Have we converged for this region.
-            unsigned m_num_domain;
-            bool m_is_current;
-            /// @brief Aggregates results for the current region
-            struct geopm_sample_message_s m_curr_sample;
+            const unsigned m_num_domain;
             std::vector<double> m_telemetry_matrix;
+            std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
+            std::vector<struct geopm_sample_message_s> m_domain_sample;
+            std::vector<bool> m_is_dirty_domain_sample;
+            struct geopm_sample_message_s m_curr_sample;
             /// @brief Circular buffer is over time, vector is indexed over both domains and signals
             CircularBuffer<std::vector<double> > m_domain_buffer;
             /// @brief time stamp for each entry in the m_domain_buffer

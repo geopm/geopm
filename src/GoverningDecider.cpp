@@ -58,10 +58,14 @@ namespace geopm
 {
     GoverningDecider::GoverningDecider()
         : m_guard_band(0.05)
-        ,  m_package_min_power(13)
-        ,  m_board_memory_min_power(7) {}
+    {
 
-    GoverningDecider::~GoverningDecider() {}
+    }
+
+    GoverningDecider::~GoverningDecider()
+    {
+
+    }
 
     bool GoverningDecider::decider_supported(const std::string &description)
     {
@@ -73,37 +77,11 @@ namespace geopm
         return gov_decider_desc;
     }
 
-    void GoverningDecider::get_policy(Platform const *platform, Policy &policy)
+    void GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
-        const PlatformTopology *topo = platform->topology();
-        const PowerModel *package_power_model = platform->power_model(GEOPM_DOMAIN_PACKAGE);
-        const PowerModel *board_memory_power_model = platform->power_model(GEOPM_DOMAIN_BOARD_MEMORY);
-        const Region *region = platform->cur_region();
-        const std::vector <std::string> signal_names({"energy"});
-        const double budget = m_region_policy_msg_map.find(region->identifier())->second.power_budget;
-
-        std::vector <hwloc_obj_t> package_domain;
-        std::vector <hwloc_obj_t> memory_domain;
-        std::vector <int> buffer_index;
-        std::vector <int> package_domain_index;
-        std::vector <int> memory_domain_index;
-
-        topo->domain_by_type(GEOPM_DOMAIN_PACKAGE, package_domain);
-        topo->domain_by_type(GEOPM_DOMAIN_BOARD_MEMORY, memory_domain);
-
-        platform->domain_index(GEOPM_DOMAIN_PACKAGE, package_domain_index);
-        platform->domain_index(GEOPM_DOMAIN_BOARD_MEMORY, memory_domain_index);
-
+#if 0
         double package_power = 0.0;
-        for (auto domain_it = package_domain.begin(); domain_it != package_domain.end(); ++domain_it) {
-            platform->buffer_index(*domain_it, signal_names, buffer_index);
-            package_power += package_power_model->power(region, buffer_index);
-        }
         double memory_power = 0.0;
-        for (auto domain_it = memory_domain.begin(); domain_it != memory_domain.end(); ++domain_it) {
-            platform->buffer_index(*domain_it, signal_names, buffer_index);
-            memory_power += board_memory_power_model->power(region, buffer_index);
-        }
         double total_power = package_power + memory_power;
 
         // Redistribute power if not within guard band of the budget
@@ -128,5 +106,6 @@ namespace geopm
                 }
             }
         }
+#endif
     }
 }

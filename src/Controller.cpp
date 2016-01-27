@@ -217,12 +217,14 @@ namespace geopm
             m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
+            m_policy.resize(num_level);
             Region *region = new Region(GEOPM_GLOBAL_POLICY_IDENTIFIER,
                                         GEOPM_POLICY_HINT_UNKNOWN, fan_out[num_level - 1]);
-            m_region[num_level - 1].insert(std::pair<long, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER, region));
+            m_region[num_level - 1].insert(std::pair<uint64_t, Region *>(GEOPM_GLOBAL_POLICY_IDENTIFIER, region));
 
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform();
+
 
             m_msr_sample.resize(m_platform->capacity());
 
@@ -231,8 +233,14 @@ namespace geopm
             m_leaf_decider = m_decider_factory->decider("governing");
             /// @todo Need to create tree decider(s) here and we need
             /// to get the name strings from the GlobalPolicy object
+            m_policy.push_back(new Policy(m_platform->num_control_domain()));
+            for (int level = 1; level < num_level; ++level) {
+                m_policy.push_back(new Policy(m_tree_comm->level_size(level - 1)));
+            }
 
             for (int level = 0; level < num_level; ++level) {
+                m_policy.push_back(new Policy(level ? m_tree_comm->level_size(level - 1)
+                                                    : m_platform->num_control_domain()));
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
                     m_max_fanout = m_tree_comm->level_size(level);
                 }
@@ -339,10 +347,7 @@ namespace geopm
             m_tree_comm->get_policy(level - 1, policy_msg);
             auto it = m_region[level - 1].find(region_id);
             if (it == m_region[level - 1].end()) {
-                m_region[level - 1].insert(std::pair<long, Region *>(policy_msg.region_id,
-                                           new Region(policy_msg.region_id,
-                                                      GEOPM_POLICY_HINT_UNKNOWN,
-                                                      m_tree_comm->level_size(level - 1))));
+                throw geopm::Exception("Controller::walk_down(): Invalid region id.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
         }
@@ -374,10 +379,20 @@ namespace geopm
                 try {
                     m_tree_comm->get_sample(level, child_sample);
                     region_id = child_sample[0].region_id;
+                    auto it = m_region[level].find(m_telemetry_sample[0].region_id);
+                    if (it != m_region[level].end()) {
                     /// @bug Process_samples has issues. ifdef out for now
 #if 0
                     process_samples(level, child_sample);
 #endif
+                    }
+                    else {
+                        m_region[level].insert(std::pair<uint64_t, Region *>(m_telemetry_sample[0].region_id,
+                                           new Region(m_telemetry_sample[0].region_id,
+                                                      GEOPM_POLICY_HINT_UNKNOWN,
+                                                      m_tree_comm->level_size(level - 1))));
+                        m_policy[level].insert_region(m_telemetry_sample[0].region_id);
+                    }
                 }
                 catch (geopm::Exception ex) {
                     if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
@@ -419,23 +434,28 @@ namespace geopm
                 auto it = m_region[0].find(m_telemetry_sample[0].region_id);
                 if (it != m_region[0].end()) {
                     Region *curr_region = (*it).second;
+                    Policy *curr_policy = m_policy[0];
                     int domain_idx = 0;
                     for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
                         curr_region.insert_observation(domain_idx,
                                                        (*it).signal,
                                                        (*it).signal + GEOPM_NUM_SIGNAL_TYPE);
                     }
-                    if (m_leaf_decider->update_policy(curr_region) == true) {
-                        m_platform->enforce(curr_region->policy());
+                    if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+                        m_platform->enforce(*curr_policy);
                     }
-                    if (curr_region->converged == true) {
+                    if (curr_policy->is_converged(m_telemetry_sample[0].region_id) == true) {
                         struct sample_message_s sample;
                         curr_region->sample_message(sample);
                         m_comm->send_sample(0, sample);
                     }
                 }
                 else {
-                   throw geopm::Exception("Controller::walk_up() Invalid region id.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    m_region[0].insert(std::pair<uint64_t, Region *>(m_telemetry_sample[0].region_id,
+                                       new Region(m_telemetry_sample[0].region_id,
+                                                  GEOPM_POLICY_HINT_UNKNOWN,
+                                                  m_platform->num_control_domain())));
+                    m_policy[0].insert_region(m_telemetry_sample[0].region_id);
                 }
 
 

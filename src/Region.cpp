@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
+
 #include "Region.hpp"
 
 namespace geopm
@@ -38,12 +40,15 @@ namespace geopm
         : m_identifier(identifier)
         , m_hint(hint)
         , m_num_domain(num_domain)
-        , m_is_current(false)
         , m_telemetry_matrix(m_num_domain * GEOPM_NUM_SIGNAL_TYPE)
-        , m_domain_buffer(m_num_domain)
-        , m_time_buffer(m_num_domain)
+        , m_entry_telemetry(m_num_domain)
+        , m_domain_sample(m_num_domain)
+        , m_is_dirty_domain_sample(m_num_domain)
+        , m_curr_sample({m_identifier, 0.0, 0.0, 0.0})
+        , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
+        , m_time_buffer(M_NUM_SAMPLE_HISTORY)
     {
-
+        std::fill(m_is_dirty_domain_sample.begin(), m_is_dirty_domain_sample.end(), true);
     }
 
     Region::~Region()
@@ -56,14 +61,43 @@ namespace geopm
         if (telemetry_stack.size()!= m_num_domain) {
             throw Exception("Region::insert(): telemetry stack not properly sized", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        size_t offset = 0;
         m_time_buffer.insert(telemetry_stack.top().timestamp);
-        while (!telemetry_stack.empty()) {
+        unsigned domain_idx;
+        size_t offset = 0;
+        for (domain_idx = 0; !telemetry_stack.empty(); ++domain_idx) {
+            if (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_PROGRESS] == 0.0) {
+                m_entry_telemetry[domain_idx] = telemetry_stack.top();
+            }
+            if (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_PROGRESS] == 1.0) {
+                m_is_dirty_domain_sample[domain_idx] = false;
+                m_domain_sample[domain_idx].runtime = geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry_stack.top().timestamp));
+                m_domain_sample[domain_idx].energy = (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_PKG_ENERGY] + 
+                                                      telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_DRAM_ENERGY]) -
+                                                     (m_entry_telemetry[domain_idx].signal[GEOPM_SIGNAL_TYPE_PKG_ENERGY] + 
+                                                      m_entry_telemetry[domain_idx].signal[GEOPM_SIGNAL_TYPE_DRAM_ENERGY]);
+                m_domain_sample[domain_idx].frequency = (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE] -
+                                                         m_entry_telemetry[domain_idx].signal[GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE]) /
+                                                        m_domain_sample[domain_idx].runtime;
+            }
             memcpy(m_telemetry_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_SIGNAL_TYPE * sizeof(double));
             offset += GEOPM_NUM_SIGNAL_TYPE;
             telemetry_stack.pop();
         }
         m_domain_buffer.insert(m_telemetry_matrix);
+        for (domain_idx = 0; !m_is_dirty_domain_sample[domain_idx] && domain_idx != m_num_domain; ++domain_idx);
+        if (domain_idx == m_num_domain) {
+            m_curr_sample.runtime = 0.0;
+            m_curr_sample.energy = 0.0;
+            m_curr_sample.frequency = 0.0;
+            for (domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
+                m_curr_sample.runtime = m_domain_sample[domain_idx].runtime > m_curr_sample.runtime ?
+                                        m_domain_sample[domain_idx].runtime : m_curr_sample.runtime;
+                m_curr_sample.energy += m_domain_sample[domain_idx].energy;
+                m_curr_sample.frequency += m_domain_sample[domain_idx].frequency;
+                m_is_dirty_domain_sample[domain_idx] = true;
+            }
+            m_curr_sample.frequency /= m_num_domain;
+        }
     }
 
     uint64_t Region::identifier(void) const
@@ -76,71 +110,19 @@ namespace geopm
         return m_hint;
     }
 
-    void Region::policy(Policy* policy)
+    void Region::sample_message(struct geopm_sample_message_s &sample)
     {
-        m_policy = *policy;
+        sample = m_curr_sample;
     }
 
-    struct geopm_policy_message_s* Region::last_policy(void)
+    void Region::statistics(int domain_idx, int signal_type, double result[]) const
     {
-        return &m_last_policy;
+        throw Exception("Region::statistics()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    void Region::sample_message(struct sample_message_s &sample)
+    double Region::integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const
     {
-        sample.region_id = m_identifier;
-        sample.runtime = ;
-        sample.energy = ;
-        sample.frequency = ;
-    }
-
-    void Region::last_policy(const struct geopm_policy_message_s &policy)
-    {
-        m_last_policy = policy;
-    }
-
-    Policy* Region::policy(void)
-    {
-        return &m_policy;
-    }
-
-    std::vector <struct geopm_policy_message_s>* Region::split_policy(void)
-    {
-        return &m_split_policy;
-    }
-
-    std::vector <struct geopm_sample_message_s>* Region::child_sample(void)
-    {
-        return &m_child_sample;
-    }
-
-    double Region::observation_mean(int buffer_index) const
-    {
-        return m_obs.mean(buffer_index);
-    }
-
-    double Region::observation_median(int buffer_index) const
-    {
-        return m_obs.median(buffer_index);
-    }
-
-    double Region::observation_stddev(int buffer_index) const
-    {
-        return m_obs.stddev(buffer_index);
-    }
-
-    double Region::observation_max(int buffer_index) const
-    {
-        return m_obs.max(buffer_index);
-    }
-
-    double Region::observation_min(int buffer_index) const
-    {
-        return m_obs.min(buffer_index);
-    }
-
-    double Region::observation_integrate_time(int buffer_index) const
-    {
-        return m_obs.integrate_time(buffer_index);
+        throw Exception("Region::integrate_time()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return 0.0;
     }
 }

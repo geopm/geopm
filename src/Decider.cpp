@@ -37,53 +37,18 @@
 
 namespace geopm
 {
-    static const std::string gov_decider_desc = "governing";
 
     Decider::Decider()
-        : m_is_converged(false) {}
-
-    Decider::~Decider() {}
-
-    void Decider::update_policy(const struct geopm_policy_message_s &policy, Region* curr_region)
     {
-        curr_region->last_policy(m_region_policy_msg_map.find(policy.region_id)->second);
-        m_region_policy_msg_map.erase(policy.region_id);
-        m_region_policy_msg_map.insert(std::pair <long, struct geopm_policy_message_s>(policy.region_id, policy));
+
     }
 
-    bool Decider::is_converged(void)
+    Decider::~Decider()
     {
-        return true;//m_is_converged;
+
     }
 
-    LeafDecider::LeafDecider() {}
-
-    LeafDecider::~LeafDecider() {}
-
-    TreeDecider::TreeDecider() {}
-
-    TreeDecider::~TreeDecider() {}
-
-    void TreeDecider::get_policy(Platform const *platform, Policy &policy)
+    void Decider::update_policy(const struct geopm_policy_message_s &policy, Policy &curr_policy)
     {
-        Region *cur_region = platform->cur_region();
-        struct geopm_policy_message_s policy_msg = m_region_policy_msg_map.find(cur_region->identifier())->second;
-        double target = policy_msg.power_budget / platform->num_domain();
-        std::vector <double> target_vec(platform->num_domain());
-        std::fill(target_vec.begin(), target_vec.end(), target);
-        policy.update(target_vec);
-    }
-
-
-    void TreeDecider::split_policy(const struct geopm_policy_message_s &policy, Region *region)
-    {
-        int num_child = region->child_sample()->size();
-        double norm = 1.0 / num_child;
-        std::vector<geopm_policy_message_s> *spolicy = region->split_policy();
-        spolicy->resize(num_child);
-        std::fill(spolicy->begin(), spolicy->end(), policy);
-        for (auto policy_it = spolicy->begin(); policy_it != spolicy->end(); ++policy_it) {
-            policy_it->power_budget *= norm;
-        }
     }
 }

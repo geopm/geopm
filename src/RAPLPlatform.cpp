@@ -105,7 +105,7 @@ namespace geopm
     {
         int count = 0;
         struct geopm_time_s time;
-
+        //FIXME: Need to deal with counter rollover and unit conversion for energy
         geopm_time(&time);
         //record per package energy readings
         for (int i = 0; i < m_num_package; i++) {
