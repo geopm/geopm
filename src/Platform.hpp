@@ -139,6 +139,7 @@ namespace geopm
             ////////////////////////////////////////
             void init_transform(const std::vector<int> &cpu_rank);
             const std::vector<double> *signal_domain_transform(void) const;
+            int num_control_domain(void) const;
         protected:
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.

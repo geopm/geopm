@@ -326,6 +326,11 @@ namespace geopm
         return model->second;
     }
 
+    int Platform::num_control_domain(void) const
+    {
+        return m_imp->control_domain();
+    }
+
     void Platform::tdp_limit(int percentage) const
     {
         //Get the TDP for each socket and set its power limit to match
