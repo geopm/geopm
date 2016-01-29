@@ -41,8 +41,19 @@
 extern "C" {
 #endif
 
-#define GEOPM_CONST_MAX_NUM_CPU 768
-#define GEOPM_GLOBAL_POLICY_IDENTIFIER 0
+enum geopm_control_e {
+    GEOPM_CONTROL_MAX_NUM_CPU = 768,
+};
+
+enum geopm_policy_id_e {
+    GEOPM_POLICY_ID_GLOBAL = 0,
+};
+
+enum geopm_region_id_e {
+    GEOPM_REGION_ID_INVALID = 0,
+    GEOPM_REGION_ID_OUTER = UINT64_MAX,
+};
+
 
 /// @brief Encapsulates power policy information as a
 /// 32-bit bitmask.
@@ -109,17 +120,25 @@ enum geopm_status_e {
 };
 
 /// @brief Enum encompassing msr data types.
-enum geopm_signal_type_e {
-    GEOPM_SIGNAL_TYPE_PKG_ENERGY,
-    GEOPM_SIGNAL_TYPE_PP0_ENERGY,
-    GEOPM_SIGNAL_TYPE_DRAM_ENERGY,
-    GEOPM_SIGNAL_TYPE_INST_RETIRED,
-    GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE,
-    GEOPM_SIGNAL_TYPE_CLK_UNHALTED_REF,
-    GEOPM_SIGNAL_TYPE_LLC_VICTIMS,
-    GEOPM_SIGNAL_TYPE_PROGRESS,
-    GEOPM_SIGNAL_TYPE_RUNTIME,
-    GEOPM_NUM_SIGNAL_TYPE // Signal counter, must be last
+enum geopm_telemetry_type_e {
+    GEOPM_TELEMETRY_TYPE_PKG_ENERGY,
+    GEOPM_TELEMETRY_TYPE_PP0_ENERGY,
+    GEOPM_TELEMETRY_TYPE_DRAM_ENERGY,
+    GEOPM_TELEMETRY_TYPE_INST_RETIRED,
+    GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE,
+    GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF,
+    GEOPM_TELEMETRY_TYPE_LLC_VICTIMS,
+    GEOPM_TELEMETRY_TYPE_PROGRESS,
+    GEOPM_TELEMETRY_TYPE_RUNTIME,
+    GEOPM_NUM_TELEMETRY_TYPE // Signal counter, must be last
+};
+
+
+enum geopm_sample_type_e {
+    GEOPM_SAMPLE_TYPE_RUNTIME,
+    GEOPM_SAMPLE_TYPE_ENERGY,
+    GEOPM_SAMPLE_TYPE_FREQUENCY,
+    GEOPM_NUM_SAMPLE_TYPE // Signal counter, must be last
 };
 
 /// @brief MPI message structure for sending
@@ -161,12 +180,7 @@ struct geopm_policy_shmem_s {
 struct geopm_sample_message_s {
     /// @brief 64-bit unique application region identifier.
     uint64_t region_id;
-    /// @brief Elapsed runtime of an application region.
-    double runtime;
-    /// @brief Energy used during an application region.
-    double energy;
-    /// @brief Average frequency during an application region.
-    double frequency;
+    double signal[GEOPM_NUM_SAMPLE_TYPE];
 };
 
 /// @brief Structure used to hold single profiling
@@ -192,7 +206,7 @@ struct geopm_ctl_message_s {
     volatile uint32_t app_status;
     /// @brief Holds affinities of all application ranks
     /// on the local compute node.
-    int cpu_rank[GEOPM_CONST_MAX_NUM_CPU];
+    int cpu_rank[GEOPM_CONTROL_MAX_NUM_CPU];
 };
 
 /// @brief Structure used to hold MSR telemetry data
@@ -213,7 +227,7 @@ struct geopm_msr_message_s {
 struct geopm_telemetry_message_s {
     uint64_t region_id;
     struct geopm_time_s timestamp;
-    double signal[GEOPM_NUM_SIGNAL_TYPE]; // see geopm_signal_type_e for ordering. 
+    double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_signal_type_e for ordering. 
 };
 
 extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;

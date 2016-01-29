@@ -411,7 +411,7 @@ namespace geopm
 
     void GlobalPolicy::policy_message(struct geopm_policy_message_s &policy_message) const
     {
-        policy_message.region_id = GEOPM_GLOBAL_POLICY_IDENTIFIER;
+        policy_message.region_id = GEOPM_POLICY_ID_GLOBAL;
         policy_message.mode = m_mode;
         policy_message.power_budget = m_power_budget_watts;
         policy_message.flags = m_flags;

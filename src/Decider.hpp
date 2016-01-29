@@ -45,7 +45,7 @@ namespace geopm
             virtual ~Decider();
             /// @brief Updates the power split among power control domains when
             /// recieving a new global budget.
-            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy) = 0;
+            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
             /// @brief Calculate a new power policy for the region based on telemery data.
             virtual void update_policy(Region &curr_region, Policy &curr_policy) = 0;
             /// @brief Return true if th edescription string matches capabilities of decider.
@@ -54,17 +54,6 @@ namespace geopm
             virtual const std::string& name(void) const = 0;
     };
 
-    class LeafDecider : public Decider
-    {
-        LeafDecider() {};
-        virtual ~LeafDecider();
-    };
-
-    class TreeDecider : public Decider
-    {
-        TreeDecider() {};
-        virtual ~TreeDecider();
-    };
 }
 
 #endif

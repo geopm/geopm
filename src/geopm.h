@@ -49,6 +49,7 @@ enum geopm_const_e {
     GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL = 3,
     GEOPM_CONST_PROF_SAMPLE_PERIOD = 64,
     GEOPM_CONST_SHMEM_REGION_SIZE = 4096,
+    GEOPM_CONST_MAX_NUM_CPU = 768,
 };
 
 enum geopm_sample_reduce_e {

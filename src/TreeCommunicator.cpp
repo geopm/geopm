@@ -208,9 +208,9 @@ namespace geopm
         MPI_Aint offset[4];
         MPI_Datatype result;
         offset[0] = offsetof(struct geopm_sample_message_s, region_id);
-        offset[1] = offsetof(struct geopm_sample_message_s, runtime);
-        offset[2] = offsetof(struct geopm_sample_message_s, energy);
-        offset[3] = offsetof(struct geopm_sample_message_s, frequency);
+        offset[1] = offsetof(struct geopm_sample_message_s, signal);
+        offset[2] = offset[1] + sizeof(double);
+        offset[3] = offset[2] + sizeof(double);
         check_mpi(MPI_Type_create_struct(4, blocklength, offset, mpi_type, &result));
         check_mpi(MPI_Type_commit(&result));
         return result;

@@ -47,6 +47,15 @@
 
 namespace geopm
 {
+
+    class ProfileTable : public LockingHashTable<struct geopm_prof_message_s>
+    {
+        public:
+            ProfileTable(size_t size, void *buffer);
+            virtual ~ProfileTable();
+            virtual bool sticky(const struct geopm_prof_message_s &value);
+    };
+
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///
@@ -277,7 +286,7 @@ namespace geopm
             SharedMemoryUser *m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            LockingHashTable<struct geopm_prof_message_s> *m_table;
+            ProfileTable *m_table;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;
@@ -288,6 +297,8 @@ namespace geopm
             int m_rank;
             /// @brief The process's rank in m_shm_comm.
             int m_shm_rank;
+            /// @brief Tracks the first call to outer_sync.
+            bool m_is_first_sync;
     };
 
     /// @brief Retrieves sample data from a single application rank through
@@ -357,7 +368,7 @@ namespace geopm
             /// application process.
             SharedMemory m_table_shmem;
             /// The hash table which stores application process samples.
-            LockingHashTable<struct geopm_prof_message_s> m_table;
+            ProfileTable m_table;
             /// Holds aggregated performance data for each region of the
             /// application process. Used for post-process reporting.
             std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;

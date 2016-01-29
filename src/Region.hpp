@@ -75,7 +75,7 @@ namespace geopm
             /// @param [in] hint geopm_policy_hint_e describing the compute
             ///             characteristics of this region
             /// @param [in] num_domain Number of control domains.
-            Region(uint64_t identifier, int hint, int num_domain);
+            Region(uint64_t identifier, int hint, int num_domain, int level);
             /// @brief Default destructor.
             virtual ~Region();
             void insert(std::stack<struct geopm_telemetry_message_s> &telemetry_stack);
@@ -127,12 +127,13 @@ namespace geopm
             double integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const;
         protected:
             /// @brief Holds a unique 64 bit region identifier.
-            uint64_t m_identifier;
+            const uint64_t m_identifier;
             /// @brief Holds the compute characteristic hint for this
             ///        region.
-            int m_hint;
+            const int m_hint;
             /// @brief Have we converged for this region.
             const unsigned m_num_domain;
+            const unsigned m_level;
             std::vector<double> m_telemetry_matrix;
             std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
             std::vector<struct geopm_sample_message_s> m_domain_sample;

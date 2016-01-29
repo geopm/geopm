@@ -286,8 +286,8 @@ TEST_F(SampleRegulatorTest, transform)
             tmp_tel = &telemetry.top();
             ASSERT_EQ(42ULL, tmp_tel->region_id);
             ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&(tmp_tel->timestamp), &m_aligned_time));
-            for (unsigned i = 0; i < GEOPM_NUM_SIGNAL_TYPE; ++i) {
-                if (i < GEOPM_NUM_SIGNAL_TYPE - M_NUM_RANK_SIGNAL) {
+            for (unsigned i = 0; i < GEOPM_NUM_TELEMETRY_TYPE; ++i) {
+                if (i < GEOPM_NUM_TELEMETRY_TYPE - M_NUM_RANK_SIGNAL) {
                     signal_expect = (double) i;
                 }
                 else if (i % 2) { // progress

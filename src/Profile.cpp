@@ -275,6 +275,7 @@ namespace geopm
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
+        , m_is_first_sync(true)
     {
         std::string table_shm_key;
         int shm_num_rank = 0;
@@ -334,7 +335,7 @@ namespace geopm
         table_shm_key.assign(shm_key + "_" + std::to_string(m_rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, table_size, 3.0);
         m_table_buffer = m_table_shmem->pointer();
-        m_table = new LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_buffer);
+        m_table = new ProfileTable(table_size, m_table_buffer);
         MPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_ACTIVE;
@@ -391,6 +392,8 @@ namespace geopm
     {
         if (m_num_enter == 1 && m_curr_region_id == region_id) {
             m_progress = fraction;
+            /// @todo this is not a very clever way of regulating the
+            ///       frequency of calls to sample().
             ++m_num_progress;
             if (m_num_progress == GEOPM_CONST_PROF_SAMPLE_PERIOD) {
                 sample(region_id);
@@ -401,7 +404,17 @@ namespace geopm
 
     void Profile::outer_sync(void)
     {
-        throw geopm::Exception("Profile::outer_sync()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        struct geopm_prof_message_s sample;
+        sample.rank = m_rank;
+        sample.region_id = GEOPM_REGION_ID_OUTER;
+        (void) geopm_time(&(sample.timestamp));
+        if (!m_is_first_sync) {
+            m_is_first_sync = false;
+            sample.progress = 1.0;
+            m_table->insert(sample.region_id, sample);
+        }
+        sample.progress = 0.0;
+        m_table->insert(sample.region_id, sample);
     }
 
     void Profile::sample(uint64_t region_id)
@@ -632,7 +645,7 @@ namespace geopm
 
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
         : m_table_shmem(SharedMemory(shm_key, table_size))
-        , m_table(LockingHashTable<struct geopm_prof_message_s>(table_size, m_table_shmem.pointer()))
+        , m_table(ProfileTable(table_size, m_table_shmem.pointer()))
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
@@ -662,15 +675,14 @@ namespace geopm
                     auto agg_entry_it = m_agg_stats.find(m_region_entry.region_id);
                     runtime = geopm_time_diff(&(m_region_entry.timestamp), &((*it).second.timestamp));
                     if (agg_entry_it == m_agg_stats.end()) {
-                        sample.rank = (*it).second.rank;
                         sample.region_id = (*it).second.region_id;
-                        sample.runtime = runtime;
-                        sample.energy = 0.0;
-                        sample.frequency = 0.0;
+                        sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = runtime;
+                        sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] = 0.0;
+                        sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = 0.0;
                         m_agg_stats.insert(std::pair<uint64_t, struct geopm_sample_message_s>(m_region_entry.region_id, sample));
                     }
                     else {
-                        (*agg_entry_it).second.runtime += runtime;
+                        (*agg_entry_it).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += runtime;
                     }
                 }
                 m_region_entry = GEOPM_INVALID_PROF_MSG;
@@ -712,7 +724,7 @@ namespace geopm
             file_stream << "Profile: " << m_prof_name << std::endl;
         }
 
-        file_stream << std::endl << "Rank " << (*m_agg_stats.begin()).second.rank << " Report:" << std::endl;
+        file_stream << std::endl << "Rank " << m_region_entry.rank << " Report:" << std::endl;
 
         for (auto it = m_name_set.begin(); it != m_name_set.end(); ++it) {
             uint64_t region_id = geopm_crc32_str(0, (*it).c_str());
@@ -723,8 +735,29 @@ namespace geopm
                 file_stream << "\truntime: " << 0.0 << std::endl;
             }
             else {
-                file_stream << "\truntime: " << (*entry).second.runtime << std::endl;
+                file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
             }
         }
+    }
+
+    ProfileTable::ProfileTable(size_t size, void *buffer)
+        : LockingHashTable(size, buffer)
+    {
+
+    }
+
+    ProfileTable::~ProfileTable()
+    {
+
+    }
+
+
+    bool ProfileTable::sticky(const struct geopm_prof_message_s &value)
+    {
+        bool result = false;
+        if (value.progress == 0.0 || value.progress == 1.0) {
+            result = true;
+        }
+        return result;
     }
 }

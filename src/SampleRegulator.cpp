@@ -183,7 +183,7 @@ namespace geopm
         struct geopm_telemetry_message_s tmp_telemetry = {m_region_id_prev, m_aligned_time, {0}};
         size_t num_signal = m_aligned_signal.size();
         size_t num_domain_signal = signal_domain_matrix.size() / num_signal;
-        size_t num_domain = num_domain_signal / GEOPM_NUM_SIGNAL_TYPE;
+        size_t num_domain = num_domain_signal / GEOPM_NUM_TELEMETRY_TYPE;
         std::vector<double> result(num_domain_signal);
 
         std::fill(result.begin(), result.end(), 0.0);
@@ -196,8 +196,8 @@ namespace geopm
         // Insert backwards so poping the stack moves forward
         for (int i = num_domain - 1; i != -1; --i) {
             memcpy(tmp_telemetry.signal,
-                   result.data() + i * GEOPM_NUM_SIGNAL_TYPE,
-                   GEOPM_NUM_SIGNAL_TYPE * sizeof(double));
+                   result.data() + i * GEOPM_NUM_TELEMETRY_TYPE,
+                   GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
             telemetry.push(tmp_telemetry);
         }
     }

@@ -40,7 +40,7 @@ extern "C" int geopm_decider_register(struct geopm_factory_c *factory);
 
 namespace geopm
 {
-    class GoverningDecider : public LeafDecider
+    class GoverningDecider : public Decider
     {
         public:
             GoverningDecider();

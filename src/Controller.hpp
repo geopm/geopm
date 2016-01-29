@@ -162,8 +162,6 @@ namespace geopm
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
             };
-            void leaf_decider(const LeafDecider *leaf_decider);
-            void tree_decider(int level, const TreeDecider *tree_decider);
             void enforce_child_policy(const int region_id, const int level, const Policy &policy);
             int walk_down(void);
             int walk_up(void);

@@ -61,12 +61,8 @@ namespace geopm
 
     void RAPLPlatform::set_implementation(PlatformImp* platform_imp)
     {
-        PowerModel *power_model = new PowerModel();
         m_imp = platform_imp;
         m_imp->initialize();
-        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE, power_model));
-        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE_UNCORE, power_model));
-        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
 
         m_num_cpu = m_imp->hw_cpu();
         m_num_package = m_imp->package();
@@ -112,17 +108,17 @@ namespace geopm
             msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_PKG_ENERGY;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_PKG_ENERGY;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[0]);
             msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_PP0_ENERGY;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_PP0_ENERGY;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[1]);
             msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_DRAM_ENERGY;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_DRAM_ENERGY;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[2]);
         }
 
@@ -131,22 +127,22 @@ namespace geopm
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_INST_RETIRED;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_INST_RETIRED;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]);
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]);
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_CLK_UNHALTED_REF;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]);
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_SIGNAL_TYPE_LLC_VICTIMS;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_LLC_VICTIMS;
             msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]);
         }
     }

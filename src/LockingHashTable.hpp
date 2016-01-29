@@ -209,6 +209,7 @@ namespace geopm
             ///        producer's call to name_fill().
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
+            virtual bool sticky(const type &value);
             struct table_entry_s {
                 pthread_mutex_t lock;
                 uint64_t key[GEOPM_HASH_TABLE_DEPTH_MAX];
@@ -308,14 +309,13 @@ namespace geopm
             throw Exception("LockingHashTable::insert(): pthread_mutex_lock()", err, __FILE__, __LINE__);
         }
         bool is_stored = false;
-        for (size_t i = 0; i < GEOPM_HASH_TABLE_DEPTH_MAX; ++i) {
-            if (m_table[table_idx].key[i] == 0 ) {
+        for (size_t i = 0; !is_stored && i != GEOPM_HASH_TABLE_DEPTH_MAX; ++i) {
+            if (m_table[table_idx].key[i] == 0 ||
+                (m_table[table_idx].key[i] == key &&
+                 !sticky(m_table[table_idx].value[i]))) {
                 m_table[table_idx].key[i] = key;
-            }
-            if (m_table[table_idx].key[i] == key) {
                 m_table[table_idx].value[i] = value;
                 is_stored = true;
-                break;
             }
         }
         err = pthread_mutex_unlock(&(m_table[table_idx].lock));
@@ -478,6 +478,12 @@ namespace geopm
             }
         }
         return result;
+    }
+
+    template <class type>
+    bool LockingHashTable<type>::sticky(const type &value)
+    {
+        return false;
     }
 }
 #endif

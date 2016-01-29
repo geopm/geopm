@@ -38,7 +38,6 @@
 #include "Region.hpp"
 #include "Policy.hpp"
 #include "PlatformImp.hpp"
-#include "PowerModel.hpp"
 #include "geopm_message.h"
 
 namespace geopm
@@ -75,7 +74,6 @@ namespace geopm
             void buffer_index(hwloc_obj_t domain,
                               const std::vector <std::string> &signal_names,
                               std::vector <int> &buffer_index) const;
-            PowerModel *power_model(int domain_type) const;
             /// @brief Set the power limit of the CPUs to a percentage of
             /// Thermal Design Power (TDP).
             /// @param [in] percentage The percentage of TDP.
@@ -147,9 +145,6 @@ namespace geopm
             /// @brief Pointer to the application region object that is
             /// currently executing.
             Region *m_curr_region;
-            /// @brief Map from a power domain type to its corresponding
-            /// PowerModel object.
-            std::map <int, PowerModel *> m_power_model;
             /// @brief The number of power domains
             int m_num_domain;
             int m_num_counter;

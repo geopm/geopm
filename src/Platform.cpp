@@ -106,23 +106,13 @@ namespace geopm
 
     Platform::~Platform()
     {
-        std::set <PowerModel *> power_model_set;
-        for (auto it = m_power_model.begin(); it != m_power_model.end(); ++it) {
-            power_model_set.insert(it->second);
-        }
-        for (auto it = power_model_set.begin(); it != power_model_set.end(); ++it) {
-            delete *it;
-        }
+
     }
 
     void Platform::set_implementation(PlatformImp* platform_imp)
     {
-        PowerModel *power_model = new PowerModel();
         m_imp = platform_imp;
         m_imp->initialize();
-        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE, power_model));
-        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_PACKAGE_UNCORE, power_model));
-        m_power_model.insert(std::pair <int, PowerModel*>(GEOPM_DOMAIN_BOARD_MEMORY, power_model));
     }
 
     void Platform::name(std::string &plat_name) const
@@ -223,10 +213,10 @@ namespace geopm
 
         const unsigned NUM_RANK_SIGNAL = 2;
         const unsigned control_domain_type = m_imp->control_domain();
-        const unsigned num_out_signal = platform_topo->num_domain(control_domain_type) * GEOPM_NUM_SIGNAL_TYPE;
+        const unsigned num_out_signal = platform_topo->num_domain(control_domain_type) * GEOPM_NUM_TELEMETRY_TYPE;
         const unsigned num_in_signal = capacity() + num_local_rank * NUM_RANK_SIGNAL;
         const unsigned num_cpu = m_imp->hw_cpu();
-        const unsigned num_cpu_signal = num_cpu * GEOPM_NUM_SIGNAL_TYPE;
+        const unsigned num_cpu_signal = num_cpu * GEOPM_NUM_TELEMETRY_TYPE;
         const unsigned cpu_offset = num_socket * m_num_domain;
         const unsigned rank_offset = cpu_offset + num_cpu * m_num_counter;
 
@@ -240,8 +230,8 @@ namespace geopm
 
         // Scatter Matrix
         for (i = 0; i < num_cpu_signal; ++i) {
-            unsigned cpu = i / GEOPM_NUM_SIGNAL_TYPE;
-            i_signal = i % GEOPM_NUM_SIGNAL_TYPE;
+            unsigned cpu = i / GEOPM_NUM_TELEMETRY_TYPE;
+            i_signal = i % GEOPM_NUM_TELEMETRY_TYPE;
             for (j = 0; j < num_in_signal; ++j) {
                 double matrix_value = 0.0;
                 if (j < num_socket * m_num_domain) { // Signal is per socket
@@ -262,7 +252,7 @@ namespace geopm
                     }
                 }
                 else { // Signal is per rank
-                    j_signal = (j - rank_offset) % NUM_RANK_SIGNAL + (GEOPM_NUM_SIGNAL_TYPE - NUM_RANK_SIGNAL);
+                    j_signal = (j - rank_offset) % NUM_RANK_SIGNAL + (GEOPM_NUM_TELEMETRY_TYPE - NUM_RANK_SIGNAL);
                     int local_rank = (j - rank_offset) / NUM_RANK_SIGNAL;
                     if (i_signal == j_signal && local_rank == local_rank_map.find(cpu_rank[cpu])->second) {
                         matrix_value = rank_scatter_factor[local_rank];
@@ -278,15 +268,15 @@ namespace geopm
         platform_topo->domain_by_type(control_domain_type, control_domain);
         std::vector<hwloc_obj_t> children;
         for(i = 0; i < num_out_signal; ++i) {
-            int domain_idx = i / GEOPM_NUM_SIGNAL_TYPE;
-            i_signal = i % GEOPM_NUM_SIGNAL_TYPE;
+            int domain_idx = i / GEOPM_NUM_TELEMETRY_TYPE;
+            i_signal = i % GEOPM_NUM_TELEMETRY_TYPE;
             if (i_signal == 0) { // Compute domain_children only once per domain
                 platform_topo->children_by_type(GEOPM_DOMAIN_CPU, control_domain[domain_idx], children);
             }
             for (j = 0; j < num_cpu_signal; ++j) {
-                j_signal = j % GEOPM_NUM_SIGNAL_TYPE;
+                j_signal = j % GEOPM_NUM_TELEMETRY_TYPE;
                 if (i_signal == j_signal) {
-                    unsigned cpu_idx = j / GEOPM_NUM_SIGNAL_TYPE;
+                    unsigned cpu_idx = j / GEOPM_NUM_TELEMETRY_TYPE;
                     for (auto it = children.begin(); it != children.end(); ++it) {
                         if (cpu_idx == (*it)->logical_index) {
                             gather_matrix[i * num_cpu_signal + j] = 1.0;
@@ -315,15 +305,6 @@ namespace geopm
     const std::vector<double> *Platform::signal_domain_transform() const
     {
         return &m_signal_domain_matrix;
-    }
-
-    PowerModel *Platform::power_model(int domain_type) const
-    {
-        auto model =  m_power_model.find(domain_type);
-        if (model == m_power_model.end()) {
-            throw Exception("No PowerModel found for given domain_type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return model->second;
     }
 
     int Platform::num_control_domain(void) const

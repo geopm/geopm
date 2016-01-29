@@ -36,11 +36,12 @@
 
 namespace geopm
 {
-    Region::Region(uint64_t identifier, int hint, int num_domain)
+    Region::Region(uint64_t identifier, int hint, int num_domain, int level)
         : m_identifier(identifier)
         , m_hint(hint)
         , m_num_domain(num_domain)
-        , m_telemetry_matrix(m_num_domain * GEOPM_NUM_SIGNAL_TYPE)
+        , m_level(level)
+        , m_telemetry_matrix(m_num_domain * (m_level == 0 ? (int)GEOPM_NUM_TELEMETRY_TYPE : (int)GEOPM_NUM_SAMPLE_TYPE))
         , m_entry_telemetry(m_num_domain)
         , m_domain_sample(m_num_domain)
         , m_is_dirty_domain_sample(m_num_domain)
@@ -65,38 +66,38 @@ namespace geopm
         unsigned domain_idx;
         size_t offset = 0;
         for (domain_idx = 0; !telemetry_stack.empty(); ++domain_idx) {
-            if (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_PROGRESS] == 0.0) {
+            if (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 0.0) {
                 m_entry_telemetry[domain_idx] = telemetry_stack.top();
             }
-            if (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_PROGRESS] == 1.0) {
+            if (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0) {
                 m_is_dirty_domain_sample[domain_idx] = false;
-                m_domain_sample[domain_idx].runtime = geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry_stack.top().timestamp));
-                m_domain_sample[domain_idx].energy = (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_PKG_ENERGY] + 
-                                                      telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_DRAM_ENERGY]) -
-                                                     (m_entry_telemetry[domain_idx].signal[GEOPM_SIGNAL_TYPE_PKG_ENERGY] + 
-                                                      m_entry_telemetry[domain_idx].signal[GEOPM_SIGNAL_TYPE_DRAM_ENERGY]);
-                m_domain_sample[domain_idx].frequency = (telemetry_stack.top().signal[GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE] -
-                                                         m_entry_telemetry[domain_idx].signal[GEOPM_SIGNAL_TYPE_CLK_UNHALTED_CORE]) /
-                                                        m_domain_sample[domain_idx].runtime;
+                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] = geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry_stack.top().timestamp));
+                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY] = (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] + 
+                                                      telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]) -
+                                                     (m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] + 
+                                                      m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]);
+                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
+                                                         m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
+                                                        m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
             }
-            memcpy(m_telemetry_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_SIGNAL_TYPE * sizeof(double));
-            offset += GEOPM_NUM_SIGNAL_TYPE;
+            memcpy(m_telemetry_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
+            offset += GEOPM_NUM_TELEMETRY_TYPE;
             telemetry_stack.pop();
         }
         m_domain_buffer.insert(m_telemetry_matrix);
         for (domain_idx = 0; !m_is_dirty_domain_sample[domain_idx] && domain_idx != m_num_domain; ++domain_idx);
         if (domain_idx == m_num_domain) {
-            m_curr_sample.runtime = 0.0;
-            m_curr_sample.energy = 0.0;
-            m_curr_sample.frequency = 0.0;
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = 0.0;
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] = 0.0;
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = 0.0;
             for (domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
-                m_curr_sample.runtime = m_domain_sample[domain_idx].runtime > m_curr_sample.runtime ?
-                                        m_domain_sample[domain_idx].runtime : m_curr_sample.runtime;
-                m_curr_sample.energy += m_domain_sample[domain_idx].energy;
-                m_curr_sample.frequency += m_domain_sample[domain_idx].frequency;
+                m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
+                                        m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY];
+                m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
                 m_is_dirty_domain_sample[domain_idx] = true;
             }
-            m_curr_sample.frequency /= m_num_domain;
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] /= m_num_domain;
         }
     }
 

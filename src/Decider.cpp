@@ -50,5 +50,6 @@ namespace geopm
 
     void Decider::update_policy(const struct geopm_policy_message_s &policy, Policy &curr_policy)
     {
+
     }
 }

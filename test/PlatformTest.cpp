@@ -125,7 +125,7 @@ MATCHER_P(Socket, x, "") {
 TEST_F(PlatformTest, transform_init)
 {
     std::vector<int> cpu_ranks({0, 0, 1, 1, 2, 2, 3, 3});
-    std::vector<double> result(2 * GEOPM_NUM_SIGNAL_TYPE);
+    std::vector<double> result(2 * GEOPM_NUM_TELEMETRY_TYPE);
     std::vector<double> expect({1, 1, 1, 4, 4, 4, 4, 2, 2, 1, 1, 1, 4, 4, 4, 4, 2, 2});
 
     EXPECT_CALL(*platformimp, topology())
@@ -150,14 +150,14 @@ TEST_F(PlatformTest, transform_init)
 
     const std::vector<double> *transform = platform->signal_domain_transform();
 
-    for (unsigned i = 0; i < 2 * GEOPM_NUM_SIGNAL_TYPE; ++i) {
+    for (unsigned i = 0; i < 2 * GEOPM_NUM_TELEMETRY_TYPE; ++i) {
         result[i] = 0.0;
         for (unsigned j = 0; j < (platform->capacity() + (4 * 2)); ++j) {
             result[i] += (*transform)[i * (platform->capacity() + (4 * 2)) +j];
         }
     }
 
-    for (unsigned i = 0; i < 2 * GEOPM_NUM_SIGNAL_TYPE; ++i) {
+    for (unsigned i = 0; i < 2 * GEOPM_NUM_TELEMETRY_TYPE; ++i) {
         EXPECT_DOUBLE_EQ(expect[i], result[i]);
     }
 }
