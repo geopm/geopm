@@ -43,47 +43,9 @@ improve-documentation
 HIGH PRIORITY ENHANCEMENTS
 --------------------------
 
-converge-recording-interfaces
-    - Need to solidify interfaces for recording, retrieving and
-      interpolating collected data. Time series data is being
-      collected at different cadences and from different sources.  The
-      decider requires coherent samples. (2015-12-14)
-
-collect-msr-telemetry
-    - The Platform should be used to sample RAPL and performance
-      counter results through the MSR interface.  Need to solidify
-      design of class interactions and responsibilities in the process
-      of access, recording, interpolating and retrieving this
-      data. (2015-12-14)
-
-define-power-model
-    - If the PowerModel class is to play a role in the
-      converge-recording-interfaces task, define this role.  Is this a
-      plugin? (2015-12-14)
-
-implement-power-model
-    - After define-power-model, implement this design. (2015-12-14)
-
 decider-plugin-selection
     - Design implement and test a user and administrator interface to
       select decider plug-ins. (2015-12-14)
-
-interpolate-data
-    - Data is sampled at different times.  In particular hardware
-      counters sampled by the controller and application profile
-      feedback sampled by each compute application MPI rank are
-      asynchronous.  Need infrastructure to support basic
-      interpolation routines: nearest neighbor and linear to start.
-      (2015-12-14)
-
-send-samples-up-tree
-    - Construct a geopm_sample_message_s by combining a
-      geopm_prof_message_s and Platform data and send result up
-      tree. (2015-12-14)
-
-send-policy-down-tree
-    - Interface Controller and Decider in order to enact policy
-      decisions through the tree hierarchy. (2015-12-14)
 
 barrier-option-region-end
     - Provide option where geopm_prof_exit() calls into a
