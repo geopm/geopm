@@ -172,6 +172,7 @@ namespace geopm
         , m_time_zero({{0,0}})
         , m_global_policy(global_policy)
         , m_tree_comm(NULL)
+        , m_tree_decider(NULL)
         , m_leaf_decider(NULL)
         , m_decider_factory(NULL)
         , m_platform_factory(NULL)
@@ -218,9 +219,8 @@ namespace geopm
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
             m_policy.resize(num_level);
-            Region *region = new Region(GEOPM_POLICY_ID_GLOBAL,
-                                        GEOPM_POLICY_HINT_UNKNOWN, fan_out[num_level - 1], num_level - 1);
-            m_region[num_level - 1].insert(std::pair<uint64_t, Region *>(GEOPM_POLICY_ID_GLOBAL, region));
+            m_last_policy_msg.resize(num_level);
+            std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
 
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform();
@@ -233,14 +233,21 @@ namespace geopm
             m_leaf_decider = m_decider_factory->decider("governing");
             /// @todo Need to create tree decider(s) here and we need
             /// to get the name strings from the GlobalPolicy object
-            m_policy.push_back(new Policy(m_platform->num_control_domain()));
-            for (int level = 1; level < num_level; ++level) {
-                m_policy.push_back(new Policy(m_tree_comm->level_size(level - 1)));
-            }
-
+            int num_domain;
             for (int level = 0; level < num_level; ++level) {
-                m_policy.push_back(new Policy(level ? m_tree_comm->level_size(level - 1)
-                                                    : m_platform->num_control_domain()));
+                if (level == 0) {
+                    num_domain = m_platform->num_control_domain();
+                }
+                else {
+                    num_domain = m_tree_comm->level_size(level - 1);
+                }
+                m_policy[level] = new Policy(num_domain);
+                m_region[level].insert(std::pair<uint64_t, Region *>
+                                       (GEOPM_REGION_ID_OUTER,
+                                        new Region(GEOPM_REGION_ID_OUTER,
+                                                   GEOPM_POLICY_HINT_UNKNOWN,
+                                                   num_domain,
+                                                   level)));
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
                     m_max_fanout = m_tree_comm->level_size(level);
                 }
@@ -319,91 +326,66 @@ namespace geopm
 
     int Controller::walk_down(void)
     {
-#if 0
         int level;
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
-        Region *curr_region;
-
-        /// @bug Do calls to geopm_is_policy_equal() below belong inside of the Decider?
-        /// @bug Should m_last_policy be a Decider member variable?
+        std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
 
         level = m_tree_comm->num_level() - 1;
         m_tree_comm->get_policy(level, policy_msg);
-        region_id = policy_msg.region_id;
-        for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level > 0; --level) {
-            curr_region = m_region[level].find(region_id)->second;
-            if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
-                /// @todo Commenting out code here as we have not yet implemented a tree decider
-                m_tree_decider[level]->split_policy(policy_msg, curr_region);
-                m_tree_comm->send_policy(level - 1, *(curr_region->split_policy()));
-                // @bug Temp code to get profiling working.
-                std::vector<geopm_policy_message_s> msgs(m_tree_comm->level_size(level - 1));
-                std::fill(msgs.begin(), msgs.end(), policy_msg);
-                m_tree_comm->send_policy(level - 1, msgs);
+        uint64_t region_id = policy_msg.region_id;
+        if (m_region[level - 1].find(region_id) == m_region[level - 1].end()) {
+            throw geopm::Exception("Controller::walk_down(): Invalid region id.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level != 0; --level) {
+            if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
+                m_tree_decider->update_policy(policy_msg, *(m_policy[level]));
+                m_policy[level]->policy_message(region_id, child_policy_msg);
+                m_tree_comm->send_policy(level - 1, child_policy_msg);
+                m_last_policy_msg[level] = policy_msg;
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
-            auto it = m_region[level - 1].find(region_id);
-            if (it == m_region[level - 1].end()) {
-                throw geopm::Exception("Controller::walk_down(): Invalid region id.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-
         }
         if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {
             do_shutdown = 1;
         }
         else {
-            curr_region = m_region[0].find(region_id)->second;
-            if (!geopm_is_policy_equal(&policy_msg, curr_region->last_policy())) {
-                m_leaf_decider->update_policy(policy_msg, curr_region);
+            // update the leaf level (0)
+            if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
+                m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
             }
         }
         return do_shutdown;
-#endif
-        return 0;
     }
 
     int Controller::walk_up(void)
     {
-#if 0
         int level;
         int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         Policy policy;
-        int region_id = -1;
+        int64_t region_id = GEOPM_REGION_ID_INVALID;
         size_t length;
 
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
+                region_id = GEOPM_REGION_ID_OUTER;
                 try {
                     m_tree_comm->get_sample(level, child_sample);
-                    region_id = child_sample[0].region_id;
-                    auto it = m_region[level].find(m_telemetry_sample[0].region_id);
-                    if (it != m_region[level].end()) {
-                        
-                    }
-                    else {
-                        m_region[level].insert(std::pair<uint64_t, Region *>(m_telemetry_sample[0].region_id,
-                                           new Region(m_telemetry_sample[0].region_id,
-                                                      GEOPM_POLICY_HINT_UNKNOWN,
-                                                      m_tree_comm->level_size(level - 1),
-                                                      level)));
-                        m_policy[level].insert_region(m_telemetry_sample[0].region_id);
-                    }
+                    // use .begin() because map has only one entry
+                    auto it = m_region[level].begin();
+                    (*it).second->insert(child_sample);
+                    m_tree_decider->update_policy(*((*it).second), *(m_policy[level]));
+                    (*it).second->sample_message(sample_msg);
                 }
                 catch (geopm::Exception ex) {
                     if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
                         throw ex;
                     }
                     break;
-                }
-                if (region_id != -1) {
-                    /// @todo We need to calculate the new per-child power budget for this region
-                    /// and send the new policies down to them.
-                    m_tree_decider[level]->get_policy(m_platform, policy);
-                    enforce_child_policy(region_id, level, policy);
                 }
             }
             else {
@@ -428,50 +410,46 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       m_telemetry_sample);
 
-                auto it = m_region[0].find(m_telemetry_sample[0].region_id);
-                if (it != m_region[0].end()) {
+                region_id = m_telemetry_sample.top().region_id;
+                auto it = m_region[level].find(region_id);
+                if (it != m_region[level].end()) {
                     Region *curr_region = (*it).second;
-                    Policy *curr_policy = m_policy[0];
-                    int domain_idx = 0;
-                    curr_region.insert(m_telemetry_sample);
+                    Policy *curr_policy = m_policy[level];
+                    curr_region->insert(m_telemetry_sample);
                     if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                        m_platform->enforce(*curr_policy);
+                        m_platform->enforce_policy(*curr_policy);
                     }
-                    if (curr_policy->is_converged(m_telemetry_sample[0].region_id) == true) {
-                        struct sample_message_s sample;
-                        curr_region->sample_message(sample);
-                        m_comm->send_sample(0, sample);
+                    auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
+                    if (outer_it != m_region[level].end()) {
+                        (*outer_it).second->sample_message(sample_msg);
                     }
                 }
                 else {
-                    m_region[0].insert(std::pair<uint64_t, Region *>(m_telemetry_sample[0].region_id,
-                                       new Region(m_telemetry_sample[0].region_id,
-                                                  GEOPM_POLICY_HINT_UNKNOWN,
-                                                  m_platform->num_control_domain(),
-                                                  0)));
-                    m_policy[0].insert_region(m_telemetry_sample[0].region_id);
+                    m_region[level].insert(std::pair<uint64_t, Region *>
+                                           (region_id,
+                                            new Region(region_id,
+                                                       GEOPM_POLICY_HINT_UNKNOWN,
+                                                       m_platform->num_control_domain(),
+                                                       level)));
+                    m_policy[level]->insert_region(region_id);
                 }
                 do_shutdown = m_sampler->do_shutdown();
             }
-            if (level != m_tree_comm->root_level()) {
-                if ((level && m_tree_decider[level]->is_converged()) || (!level && m_leaf_decider->is_converged())) {
-                    /// @bug We should be getting fused samples from ???(TBD)
-                    m_tree_comm->send_sample(level, sample_msg);
-                }
+            if (level != m_tree_comm->root_level() &&
+                m_policy[level]->is_converged(region_id)) {
+                m_tree_comm->send_sample(level, sample_msg);
             }
         }
         if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {
             do_shutdown = 1;
         }
         return do_shutdown;
-#endif
-        return 0;
     }
 
-    void Controller::enforce_child_policy(const int region_id, const int level, const Policy &policy)
+    void Controller::enforce_child_policy(int level, const Policy &policy)
     {
         std::vector<geopm_policy_message_s> message;
-        policy.policy_message(region_id, message);
+        policy.policy_message(GEOPM_REGION_ID_INVALID, message);
         m_tree_comm->send_policy(level, message);
     }
 }

@@ -77,7 +77,7 @@ namespace geopm
         return gov_decider_desc;
     }
 
-    void GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
+    bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
 #if 0
         double package_power = 0.0;
@@ -107,5 +107,6 @@ namespace geopm
             }
         }
 #endif
+        return false;
     }
 }

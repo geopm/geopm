@@ -162,7 +162,7 @@ namespace geopm
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
             };
-            void enforce_child_policy(const int region_id, const int level, const Policy &policy);
+            void enforce_child_policy(int level, const Policy &policy);
             int walk_down(void);
             int walk_up(void);
             bool m_is_node_root;
@@ -171,7 +171,7 @@ namespace geopm
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
             TreeCommunicator *m_tree_comm;
-            std::vector<Decider *> m_tree_decider;
+            Decider *m_tree_decider;
             Decider *m_leaf_decider;
             DeciderFactory *m_decider_factory;
             PlatformFactory *m_platform_factory;
@@ -184,6 +184,7 @@ namespace geopm
             // Per level vector of maps from region identifier to region object
             std::vector<std::map <uint64_t, Region *> > m_region;
             std::vector<Policy *> m_policy;
+            std::vector<struct geopm_policy_message_s> m_last_policy_msg;
     };
 }
 

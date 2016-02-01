@@ -230,8 +230,8 @@ struct geopm_telemetry_message_s {
     double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_signal_type_e for ordering. 
 };
 
-extern const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY;
-extern const struct geopm_sample_message_s GEOPM_INVALID_SAMPLE;
+extern const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN;
+extern const struct geopm_sample_message_s GEOPM_SAMPLE_INVALID;
 
 /// @brief Check if two policy messages are equal.
 /// @param [in] a Pointer to a policy message.

@@ -175,7 +175,7 @@ namespace geopm
             void send_sample(const struct geopm_sample_message_s &sample);
             /// Send policy via MPI_Irsend() to all children, skip if no
             /// recieve has been posted.
-            void send_policy(const std::vector<struct geopm_policy_message_s> &policy);
+            void send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length);
             /// Returns the level rank of the calling process.
             int level_rank(void);
         protected:
@@ -299,7 +299,7 @@ namespace geopm
             throw Exception("TreeCommunicator::send_policy()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
         else {
-            m_level[level]->send_policy(policy);
+            m_level[level]->send_policy(policy, level_size(level));
         }
     }
 
@@ -432,7 +432,7 @@ namespace geopm
         check_mpi(MPI_Comm_rank(comm, &m_rank));
         m_sample_mailbox.resize(m_size);
         m_sample_request.resize(m_size);
-        m_policy = GEOPM_UNKNOWN_POLICY;
+        m_policy = GEOPM_POLICY_UNKNOWN;
         open_recv();
     }
 
@@ -477,7 +477,7 @@ namespace geopm
             check_mpi(MPI_Irecv(&m_policy_mailbox, 1, m_policy_mpi_type, 0, GEOPM_POLICY_TAG, m_comm, &m_policy_request));
         }
         policy = m_policy;
-        if (geopm_is_policy_equal(&policy, &GEOPM_UNKNOWN_POLICY)) {
+        if (geopm_is_policy_equal(&policy, &GEOPM_POLICY_UNKNOWN)) {
             throw Exception("TreeCommunicatorLevel::get_policy", GEOPM_ERROR_POLICY_UNKNOWN, __FILE__, __LINE__);
         }
     }
@@ -490,16 +490,16 @@ namespace geopm
         (void) MPI_Irsend(const_cast<struct geopm_sample_message_s*>(&sample), 1, m_sample_mpi_type, 0, GEOPM_SAMPLE_TAG, m_comm, &request);
     }
 
-    void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy)
+    void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length)
     {
-        int dest;
+        size_t dest;
         MPI_Request request;
 
         if (m_rank != 0) {
             throw Exception("called send_policy() from rank not at root of level", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
         dest = 0;
-        for (auto policy_it = policy.begin(); policy_it < policy.end(); ++policy_it, ++dest) {
+        for (auto policy_it = policy.begin(); dest != length; ++policy_it, ++dest) {
             // Don't check return code or hold onto request, drop message if receiver not ready
             (void) MPI_Irsend(const_cast<struct geopm_policy_message_s*>(&(*policy_it)), 1, m_policy_mpi_type, dest, GEOPM_POLICY_TAG, m_comm, &request);
         }

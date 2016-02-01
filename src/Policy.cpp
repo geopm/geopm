@@ -43,9 +43,9 @@ namespace geopm
     Policy::Policy() {}
 
     Policy::Policy(int num_domain)
-        :   m_num_domain(num_domain)
+        : m_num_domain(num_domain)
     {
-        insert_region(0); //Add the default unmarked region
+        insert_region(GEOPM_REGION_ID_OUTER); //Add the default unmarked region
     }
 
     Policy::~Policy() {}
@@ -166,7 +166,7 @@ namespace geopm
         }
     }
 
-    void Policy::policy_message(uint64_t region_id, std::vector<geopm_policy_message_s> message) const
+    void Policy::policy_message(uint64_t region_id, std::vector<geopm_policy_message_s> &message) const
     {
         auto target_it = m_target.find(region_id);
         if (target_it == m_target.end()) {

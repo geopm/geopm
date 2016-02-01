@@ -91,9 +91,6 @@ EXTRA_DIST = .gitignore \
              Makefile.am \
              MANIFEST \
              README.md \
-             test/MPIControllerTest.cpp \
-             test/MPITreeCommunicatorTest.cpp \
-             test/no_omp_cpu.c \
              TODO \
              # end
 

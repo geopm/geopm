@@ -48,12 +48,12 @@ namespace geopm
             virtual ~Policy();
             void insert_region(uint64_t region_id);
             void update(uint64_t region_id, int domain_idx, double target);
-            void update(uint64_t region_id, const std::vector <double> &target);
-            void updated_target(uint64_t region_id, std::map <int, double> &target); // map from domain index to updated target value
-            void target(uint64_t region_id, std::vector <double> &target);
+            void update(uint64_t region_id, const std::vector<double> &target);
+            void updated_target(uint64_t region_id, std::map<int, double> &target); // map from domain index to updated target value
+            void target(uint64_t region_id, std::vector<double> &target);
             void target(uint64_t region_id, int domain, double &target);
-            void policy_message(uint64_t region_id, std::vector<geopm_policy_message_s> message) const;
-            void valid_target(uint64_t region_id, std::map <int, double> &target) const;
+            void policy_message(uint64_t region_id, std::vector<geopm_policy_message_s> &message) const;
+            void valid_target(uint64_t region_id, std::map<int, double> &target) const;
             /// @brief Set the convergence state.
             /// Called by the decision algorithm when it has determined
             /// whether or not the power policy enforcement has converged

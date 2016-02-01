@@ -41,11 +41,11 @@ namespace geopm
         , m_hint(hint)
         , m_num_domain(num_domain)
         , m_level(level)
-        , m_telemetry_matrix(m_num_domain * (m_level == 0 ? (int)GEOPM_NUM_TELEMETRY_TYPE : (int)GEOPM_NUM_SAMPLE_TYPE))
+        , m_signal_matrix(m_num_domain * (m_level == 0 ? (int)GEOPM_NUM_TELEMETRY_TYPE : (int)GEOPM_NUM_SAMPLE_TYPE))
         , m_entry_telemetry(m_num_domain)
         , m_domain_sample(m_num_domain)
         , m_is_dirty_domain_sample(m_num_domain)
-        , m_curr_sample({m_identifier, 0.0, 0.0, 0.0})
+        , m_curr_sample({m_identifier, {0.0, 0.0, 0.0}})
         , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
         , m_time_buffer(M_NUM_SAMPLE_HISTORY)
     {
@@ -80,16 +80,14 @@ namespace geopm
                                                          m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
                                                         m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
             }
-            memcpy(m_telemetry_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
+            memcpy(m_signal_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
             offset += GEOPM_NUM_TELEMETRY_TYPE;
             telemetry_stack.pop();
         }
-        m_domain_buffer.insert(m_telemetry_matrix);
+        m_domain_buffer.insert(m_signal_matrix);
         for (domain_idx = 0; !m_is_dirty_domain_sample[domain_idx] && domain_idx != m_num_domain; ++domain_idx);
         if (domain_idx == m_num_domain) {
-            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = 0.0;
-            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] = 0.0;
-            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = 0.0;
+            std::fill(m_curr_sample.signal, m_curr_sample.signal + GEOPM_NUM_SAMPLE_TYPE, 0.0);
             for (domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
                 m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
                                         m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
@@ -99,6 +97,23 @@ namespace geopm
             }
             m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] /= m_num_domain;
         }
+    }
+
+
+    void Region::insert(const std::vector<struct geopm_sample_message_s> &sample)
+    {
+        std::fill(m_curr_sample.signal, m_curr_sample.signal + GEOPM_NUM_SAMPLE_TYPE, 0.0);
+        size_t offset = 0;
+        for (auto it = sample.begin(); it != sample.end(); ++it) {
+            memcpy(m_signal_matrix.data() + offset, (*it).signal, GEOPM_NUM_SAMPLE_TYPE * sizeof(double));
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = (*it).signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
+                                                              (*it).signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] += (*it).signal[GEOPM_SAMPLE_TYPE_ENERGY];
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] += (*it).signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
+            offset += GEOPM_NUM_SAMPLE_TYPE;
+        }
+        m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] /= m_num_domain;
+        m_domain_buffer.insert(m_signal_matrix);
     }
 
     uint64_t Region::identifier(void) const

@@ -106,6 +106,9 @@ TESTS += $(GTEST_TESTS) \
 
 EXTRA_DIST += test/geopm_test.sh \
               test/geopm_prof_example_openmp_static.c \
+              test/MPITreeCommunicatorTest.cpp \
+              test/MPIControllerTest.cpp \
+              test/no_omp_cpu.c \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \

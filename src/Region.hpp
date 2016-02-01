@@ -79,6 +79,7 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~Region();
             void insert(std::stack<struct geopm_telemetry_message_s> &telemetry_stack);
+            void insert(const std::vector<struct geopm_sample_message_s> &sample);
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.
             uint64_t identifier(void) const;
@@ -134,7 +135,7 @@ namespace geopm
             /// @brief Have we converged for this region.
             const unsigned m_num_domain;
             const unsigned m_level;
-            std::vector<double> m_telemetry_matrix;
+            std::vector<double> m_signal_matrix;
             std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
             std::vector<struct geopm_sample_message_s> m_domain_sample;
             std::vector<bool> m_is_dirty_domain_sample;

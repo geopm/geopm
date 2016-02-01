@@ -45,9 +45,9 @@ namespace geopm
             virtual ~Decider();
             /// @brief Updates the power split among power control domains when
             /// recieving a new global budget.
-            virtual void update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
+            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
             /// @brief Calculate a new power policy for the region based on telemery data.
-            virtual void update_policy(Region &curr_region, Policy &curr_policy) = 0;
+            virtual bool update_policy(Region &curr_region, Policy &curr_policy) = 0;
             /// @brief Return true if th edescription string matches capabilities of decider.
             virtual bool decider_supported(const std::string &descripton) = 0;
             /// @brief Return the name of the decider.

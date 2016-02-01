@@ -32,7 +32,7 @@
 
 #include "geopm_message.h"
 
-const struct geopm_policy_message_s GEOPM_UNKNOWN_POLICY = {-1, -1, -1, -1, -1.0};
+const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1, -1.0};
 
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b)
 {
