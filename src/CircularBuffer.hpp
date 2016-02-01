@@ -117,10 +117,10 @@ namespace geopm
 
     template <class type>
     CircularBuffer<type>::CircularBuffer(unsigned int size)
-    : m_buffer(size)
-    , m_head(0)
-    , m_count(0)
-    , m_max_size(size)
+        : m_buffer(size)
+        , m_head(0)
+        , m_count(0)
+        , m_max_size(size)
     {
 
     }

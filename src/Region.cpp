@@ -71,14 +71,17 @@ namespace geopm
             }
             if (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0) {
                 m_is_dirty_domain_sample[domain_idx] = false;
-                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] = geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry_stack.top().timestamp));
-                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY] = (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] + 
-                                                      telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]) -
-                                                     (m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] + 
-                                                      m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]);
-                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
-                                                         m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
-                                                        m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
+                    geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry_stack.top().timestamp));
+                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY] =
+                    (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] +
+                     telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]) -
+                    (m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] +
+                     m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]);
+                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY] =
+                    (telemetry_stack.top().signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
+                     m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
+                    m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
             }
             memcpy(m_signal_matrix.data() + offset, telemetry_stack.top().signal, GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
             offset += GEOPM_NUM_TELEMETRY_TYPE;
@@ -89,8 +92,9 @@ namespace geopm
         if (domain_idx == m_num_domain) {
             std::fill(m_curr_sample.signal, m_curr_sample.signal + GEOPM_NUM_SAMPLE_TYPE, 0.0);
             for (domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
-                m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
-                                        m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
+                    m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
+                    m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                 m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY];
                 m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
                 m_is_dirty_domain_sample[domain_idx] = true;
@@ -106,8 +110,9 @@ namespace geopm
         size_t offset = 0;
         for (auto it = sample.begin(); it != sample.end(); ++it) {
             memcpy(m_signal_matrix.data() + offset, (*it).signal, GEOPM_NUM_SAMPLE_TYPE * sizeof(double));
-            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = (*it).signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
-                                                              (*it).signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
+                (*it).signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
+                (*it).signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
             m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] += (*it).signal[GEOPM_SAMPLE_TYPE_ENERGY];
             m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] += (*it).signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
             offset += GEOPM_NUM_SAMPLE_TYPE;

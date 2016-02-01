@@ -162,16 +162,14 @@ struct geopm_policy_message_s {
 /// runtime in order to convey job wide
 /// power policy changes to the geopm runtime.
 struct geopm_policy_shmem_s {
-    /// @brief Enables the geopm runtime know when the 
-    /// resource manager has initialized the
-    /// power policy.
+    /// @brief Enables the geopm runtime to know when the resource
+    ///        manager has initialized the power policy.
     int is_init;
-    /// @brief Lock to ensure read/write consistency
-    /// between the resource manager and the
-    /// geopm runtime.
+    /// @brief Lock to ensure read/write consistency between the
+    ///        resource manager and the geopm runtime.
     pthread_mutex_t lock;
-    /// @brief Holds the job power policy as given
-    /// by the resource manager.
+    /// @brief Holds the job power policy as given by the resource
+    ///        manager.
     struct geopm_policy_message_s policy;
 };
 
@@ -227,7 +225,7 @@ struct geopm_msr_message_s {
 struct geopm_telemetry_message_s {
     uint64_t region_id;
     struct geopm_time_s timestamp;
-    double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_signal_type_e for ordering. 
+    double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_signal_type_e for ordering.
 };
 
 extern const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN;
