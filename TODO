@@ -47,6 +47,25 @@ decider-plugin-selection
     - Design implement and test a user and administrator interface to
       select decider plug-ins. (2015-12-14)
 
+implement-governing-decider
+    - Write the default leaf decider: the GoverningDecider. (2015-2-1)
+
+implement-balancing-decider
+    - Write the default tree decier: the BalancingDecider. (2015-2-1)
+
+fix-hw-counter-overflow
+    - Need mechanism in Platform to deal with hardware counter
+      overflow. (2015-2-1)
+
+platform-enforce-policy
+    - Platform has an enforce_policy() method, but it is not correctly
+      implemented. (2015-2-1)
+
+cpu-frequency-platform
+    - To enable deciders that use CPU frequency for control need to
+      implement a Platform plugin with right granularity of
+      measurement and control. (2015-2-1)
+
 barrier-option-region-end
     - Provide option where geopm_prof_exit() calls into a
       MPI_Barrier() over the ranks on the calling process's node. This
