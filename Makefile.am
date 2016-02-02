@@ -37,7 +37,6 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\" -D_POSIX_C_SOURCE
 lib_LTLIBRARIES = libgeopmpolicy.la
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
-    pkglib_LTLIBRARIES = libgoverning_decider.la
 endif
 
 bin_PROGRAMS = geopmpolicy
@@ -174,12 +173,6 @@ geopmpolicy_SOURCES = src/geopmpolicy_main.c \
 
 
 if ENABLE_MPI
-    libgoverning_decider_la_SOURCES= src/Decider.hpp \
-                                     src/GoverningDecider.cpp \
-                                     src/GoverningDecider.hpp \
-                                     src/geopm_plugin.h \
-                                     # end
-
     libgeopm_la_SOURCES = src/CircularBuffer.hpp \
                           src/Controller.cpp \
                           src/Controller.hpp \
@@ -291,6 +284,7 @@ gh-pages: doxygen $(dist_man_MANS)
 	cp ronn/*.html gh-pages/man/.
 
 # INCLUDES
+pkglib_LTLIBRARIES =
 check_PROGRAMS =
 noinst_PROGRAMS =
 TESTS =
@@ -298,5 +292,6 @@ BUILT_SOURCES =
 
 include test/Makefile.mk
 include examples/Makefile.mk
+include plugin/Makefile.mk
 
 .PHONY: clean-local clean-local-coverage clean-local-man rpm doxygen gh_pages
