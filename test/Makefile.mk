@@ -163,7 +163,7 @@ if ENABLE_MPI
 endif
 
 # Target for building test programs.
-checkprogs: $(check_PROGRAMS) $(GTEST_TESTS)
+checkprogs: $(check_PROGRAMS) $(GTEST_TESTS) $(check_LTLIBRARIES)
 .PHONY: checkprogs
 
 $(GTEST_TESTS): test/gtest_links/%:
@@ -180,3 +180,4 @@ clean-local-script-links:
 	rm -f test/gtest_links/*
 
 include test/googletest.mk
+include test/plugin/Makefile.mk

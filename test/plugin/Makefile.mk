@@ -29,12 +29,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-pkglib_LTLIBRARIES += libgeopmpi_governing.la
-libgeopmpi_governing_la_SOURCES = src/Decider.hpp \
-                                  src/geopm_plugin.h \
-                                  plugin/GoverningDecider.cpp \
-                                  plugin/GoverningDecider.hpp \
-                                  # end
-
+check_LTLIBRARIES += libgeopmpi_test.la
+libgeopmpi_test_la_SOURCES = src/Decider.hpp \
+                             src/geopm_plugin.h \
+                             test/plugin/TestPlugin.cpp \
+                             test/plugin/TestPlugin.hpp \
+                             #end
 # "-module -rpath /nowhere" required to force .so generation of test plugin.
-libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) $(CXXLDFLAGS) -module -rpath /nowhere
+libgeopmpi_test_la_LDFLAGS = $(AM_LDFLAGS) $(CXXLDFLAGS) -module -rpath /nowhere

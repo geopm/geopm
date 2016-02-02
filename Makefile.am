@@ -286,6 +286,7 @@ gh-pages: doxygen $(dist_man_MANS)
 # INCLUDES
 pkglib_LTLIBRARIES =
 check_PROGRAMS =
+check_LTLIBRARIES =
 noinst_PROGRAMS =
 TESTS =
 BUILT_SOURCES =

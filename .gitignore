@@ -55,6 +55,8 @@
 /Makefile.in
 /MANIFEST
 /missing
+/plugin/*.lo
+/plugin/*.o
 /ronn/*.1
 /ronn/*.3
 /ronn/*.7
@@ -74,4 +76,6 @@
 /test/*.o
 /test-suite.log
 /test/*.trs
+/test/plugin/*.lo
+/test/plugin/*.o
 /VERSION

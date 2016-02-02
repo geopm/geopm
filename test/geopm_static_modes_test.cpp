@@ -115,7 +115,7 @@ int main(int argc, char **argv)
         CPU_SET(i, &cpu_mask);
         pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpu_mask);
         err = pthread_create(&threads[i], &attr, do_something, (void *)(&work[i]));
-        ASSERT (err == 0);
+        ASSERT(err == 0);
     }
 
     sleep(1);
