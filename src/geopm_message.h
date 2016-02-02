@@ -41,6 +41,10 @@
 extern "C" {
 #endif
 
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
+
 enum geopm_control_e {
     GEOPM_CONTROL_MAX_NUM_CPU = 768,
 };
@@ -155,6 +159,12 @@ struct geopm_policy_message_s {
     int num_sample;
     /// @brief Power budget in Watts.
     double power_budget;
+    /// @brief tree decider description
+    char tree_decider[NAME_MAX];
+    /// @brief leaf decider description
+    char leaf_decider[NAME_MAX];
+    /// @brief platform description
+    char platform[NAME_MAX];
 };
 
 /// @brief Structure intended to be shared between

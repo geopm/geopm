@@ -67,6 +67,12 @@ int geopm_policy_affinity(struct geopm_policy_c *policy,
 int geopm_policy_goal(struct geopm_policy_c *policy,
                       int goal);
 
+int geopm_policy_tree_decider(struct geopm_policy_c *policy, const char *description);
+
+int geopm_policy_leaf_decider(struct geopm_policy_c *policy, const char *description);
+
+int geopm_policy_platform(struct geopm_policy_c *policy, const char *description);
+
 int geopm_policy_write(const struct geopm_policy_c *policy);
 
 int geopm_policy_enforce_static(const struct geopm_policy_c *policy);

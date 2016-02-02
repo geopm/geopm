@@ -476,6 +476,15 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                 else if(strncmp(key, "power_budget", strlen("power_budget")) == 0) {
                     err = geopm_policy_power(policy, atoi(value));
                 }
+                else if(strncmp(key, "tree_decider", strlen("tree_decider")) == 0) {
+                    err = geopm_policy_tree_decider(policy, value);
+                }
+                else if(strncmp(key, "leaf_decider", strlen("leaf_decider")) == 0) {
+                    err = geopm_policy_tree_decider(policy, value);
+                }
+                else if(strncmp(key, "platform", strlen("platform")) == 0) {
+                    err = geopm_policy_tree_decider(policy, value);
+                }
                 else {
                     fprintf(stderr, "Error: invalid option: %s\n", key);
                     err = EINVAL;

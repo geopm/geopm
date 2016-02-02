@@ -216,6 +216,60 @@ extern "C"
         return err;
     }
 
+    int geopm_policy_tree_decider(struct geopm_policy_c *policy, const char *description)
+    {
+        int err = 0;
+
+        try {
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
+            }
+            policy_obj->tree_decider(std::string(description));
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+
+        return err;
+    }
+
+    int geopm_policy_leaf_decider(struct geopm_policy_c *policy, const char *description)
+    {
+        int err = 0;
+
+        try {
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
+            }
+            policy_obj->leaf_decider(std::string(description));
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+
+        return err;
+    }
+
+    int geopm_policy_platform(struct geopm_policy_c *policy, const char *description)
+    {
+        int err = 0;
+
+        try {
+            geopm::GlobalPolicy *policy_obj = (geopm::GlobalPolicy *)policy;
+            if (policy_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
+            }
+            policy_obj->platform(std::string(description));
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+
+        return err;
+    }
+
     int geopm_policy_write(const struct geopm_policy_c *policy)
     {
         int err = 0;
@@ -262,6 +316,9 @@ namespace geopm
         ,m_mode(-1)
         ,m_power_budget_watts(-1)
         ,m_flags(0)
+        ,m_tree_decider("balancer")
+        ,m_leaf_decider("governor")
+        ,m_platform("rapl")
         ,m_is_shm_in(false)
         ,m_is_shm_out(false)
         ,m_do_read(false)
@@ -409,6 +466,21 @@ namespace geopm
         return m_flags;
     }
 
+    const std::string &GlobalPolicy::tree_decider() const
+    {
+        return m_tree_decider;
+    }
+
+    const std::string &GlobalPolicy::leaf_decider() const
+    {
+        return m_leaf_decider;
+    }
+
+    const std::string &GlobalPolicy::platform() const
+    {
+        return m_platform;
+    }
+
     void GlobalPolicy::policy_message(struct geopm_policy_message_s &policy_message) const
     {
         policy_message.region_id = GEOPM_POLICY_ID_GLOBAL;
@@ -461,6 +533,21 @@ namespace geopm
         m_flags = m_flags | num_cpu;
     }
 
+    void GlobalPolicy::tree_decider(const std::string &description)
+    {
+        m_tree_decider = description;
+    }
+
+    void GlobalPolicy::leaf_decider(const std::string &description)
+    {
+        m_leaf_decider = description;
+    }
+
+    void GlobalPolicy::platform(const std::string &description)
+    {
+        m_platform = description;
+    }
+
     void GlobalPolicy::read()
     {
         if (!m_do_read) {
@@ -475,6 +562,9 @@ namespace geopm
             m_mode = m_policy_shmem_in->policy.mode;
             m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
             m_flags = m_policy_shmem_in->policy.flags;
+            m_tree_decider.assign(m_policy_shmem_in->policy.tree_decider);
+            m_leaf_decider.assign(m_policy_shmem_in->policy.leaf_decider);
+            m_platform.assign(m_policy_shmem_in->policy.platform);
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for root of tree", err, __FILE__, __LINE__);
@@ -590,6 +680,27 @@ namespace geopm
                     }
                     budget_watts(json_object_get_int(subval));
                 }
+                else if (!key_string.compare("tree_decider")) {
+                    if (json_object_get_type(subval) != json_type_string) {
+                        throw Exception("GlobalPolicy: tree_decider expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                    }
+                    value_string.assign(json_object_get_string(subval));
+                    tree_decider(value_string);
+                }
+                else if (!key_string.compare("leaf_decider")) {
+                    if (json_object_get_type(subval) != json_type_string) {
+                        throw Exception("GlobalPolicy: leaf_decider expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                    }
+                    value_string.assign(json_object_get_string(subval));
+                    leaf_decider(value_string);
+                }
+                else if (!key_string.compare("platform")) {
+                    if (json_object_get_type(subval) != json_type_string) {
+                        throw Exception("GlobalPolicy: platform expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                    }
+                    value_string.assign(json_object_get_string(subval));
+                    platform(value_string);
+                }
                 else {
                     err_string.assign("unknown option : ");
                     err_string.append(key_string);
@@ -659,6 +770,12 @@ namespace geopm
             m_policy_shmem_out->policy.mode = m_mode;
             m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
             m_policy_shmem_out->policy.flags = m_flags;
+            m_policy_shmem_out->policy.tree_decider[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->policy.tree_decider, m_tree_decider.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->policy.leaf_decider[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->policy.leaf_decider, m_leaf_decider.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->policy.platform[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->policy.platform, m_platform.c_str(), NAME_MAX - 1);
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for resource manager", errno, __FILE__, __LINE__);
@@ -693,17 +810,38 @@ namespace geopm
                     json_object_object_add(policy,"options",options);
                     break;
                 case GEOPM_MODE_PERF_BALANCE_DYNAMIC:
-                    json_object_object_add(policy,"mode",json_object_new_string("perf_balance_dynamic"));
+                    json_object_object_add(policy,"mode",
+                                           json_object_new_string("perf_balance_dynamic"));
+                    json_object_object_add(options,"tree_decider",
+                                           json_object_new_string(m_tree_decider.c_str()));
+                    json_object_object_add(options,"leaf_decider",
+                                           json_object_new_string(m_leaf_decider.c_str()));
+                    json_object_object_add(options,"platform",
+                                           json_object_new_string(m_platform.c_str()));
                     json_object_object_add(options,"power_budget",json_object_new_int(budget_watts()));
                     json_object_object_add(policy,"options",options);
                     break;
                 case GEOPM_MODE_FREQ_UNIFORM_DYNAMIC:
-                    json_object_object_add(policy,"mode",json_object_new_string("freq_uniform_dynamic"));
+                    json_object_object_add(policy,"mode",
+                                           json_object_new_string("freq_uniform_dynamic"));
+                    json_object_object_add(options,"tree_decider",
+                                           json_object_new_string(m_tree_decider.c_str()));
+                    json_object_object_add(options,"leaf_decider",
+                                           json_object_new_string(m_leaf_decider.c_str()));
+                    json_object_object_add(options,"platform",
+                                           json_object_new_string(m_platform.c_str()));
                     json_object_object_add(options,"power_budget",json_object_new_int(budget_watts()));
                     json_object_object_add(policy,"options",options);
                     break;
                 case GEOPM_MODE_FREQ_HYBRID_DYNAMIC:
-                    json_object_object_add(policy,"mode",json_object_new_string("freq_hybrid_dynamic"));
+                    json_object_object_add(policy,"mode",
+                                           json_object_new_string("freq_hybrid_dynamic"));
+                    json_object_object_add(options,"tree_decider",
+                                           json_object_new_string(m_tree_decider.c_str()));
+                    json_object_object_add(options,"leaf_decider",
+                                           json_object_new_string(m_leaf_decider.c_str()));
+                    json_object_object_add(options,"platform",
+                                           json_object_new_string(m_platform.c_str()));
                     json_object_object_add(options,"power_budget",json_object_new_int(budget_watts()));
                     json_object_object_add(options,"num_cpu_max_perf",json_object_new_int(num_max_perf()));
                     affinity_string(affinity(), affinity_name);

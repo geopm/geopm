@@ -92,6 +92,18 @@ namespace geopm
             /// @brief Get the policy flags
             /// @return 32-bit flags
             long int flags(void) const;
+            /// @brief Get the TreeDecider description
+            /// @return String reference containing the description
+            ///         of the requested tree decider
+            const std::string &tree_decider() const;
+            /// @brief Get the LeafDecider description
+            /// @return String reference containing the description
+            ///         of the requested leaf decider
+            const std::string &leaf_decider() const;
+            /// @brief Get the Platform description
+            /// @return String reference containing the description
+            ///         of the requested platform
+            const std::string &platform() const;
             /// @brief Get a policy message from the policy object
             /// @param [out] policy_message structure to be filled in
             void policy_message(struct geopm_policy_message_s &policy_message) const;
@@ -123,6 +135,18 @@ namespace geopm
             /// @param [in] num_big_cores of cores where we will run
             ///        unconstrained power.
             void num_max_perf(int num_big_cores);
+            /// @brief Set the requested TreeDecider
+            /// @param [in] Set the description string for the
+            ///             requested tree decider.
+            void tree_decider(const std::string &description);
+            /// @brief Set the requested LeafDecider
+            /// @param [in] Set the description string for the
+            ///             requested leaf decider.
+            void leaf_decider(const std::string &description);
+            /// @brief Set the requested Platform
+            /// @param [in] Set the description string for the
+            ///             requested platform.
+            void platform(const std::string &description);
             /// @brief Write out a policy file from the current state
             void write(void);
             /// @brief Read in a policy file and set our current state
@@ -148,6 +172,12 @@ namespace geopm
             /// @brief flags encapsulates frequency, number of 'big'cpus,
             /// 'small' core affinity, TDP percentage, and power goal
             long int m_flags;
+            /// @brief description string for selecting the tree decider
+            std::string m_tree_decider;
+            /// @brief description string for selecting the leaf decider
+            std::string m_leaf_decider;
+            /// @brief description string for selecting the platform
+            std::string m_platform;
             /// @brief true if reading policy from shared memory, else false
             bool m_is_shm_in;
             /// @brief true if outputting policy to shared memory, else false
