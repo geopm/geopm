@@ -73,12 +73,14 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/GlobalPolicyTest.mode_perf_balance_dynamic \
               test/gtest_links/GlobalPolicyTest.mode_freq_uniform_dynamic \
               test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_dynamic \
+              test/gtest_links/GlobalPolicyTest.plugin_strings \
               test/gtest_links/GlobalPolicyTestShmem.mode_tdp_balance_static \
               test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_static \
               test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_static \
               test/gtest_links/GlobalPolicyTestShmem.mode_perf_balance_dynamic \
               test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_dynamic \
               test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_dynamic \
+              test/gtest_links/GlobalPolicyTestShmem.plugin_strings \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \

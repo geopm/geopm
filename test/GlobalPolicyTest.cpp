@@ -53,6 +53,7 @@ class GlobalPolicyTestShmem: public :: testing :: Test
         void SetUp();
         void TearDown();
         geopm::GlobalPolicy *m_policy;
+        std::string m_path;
 };
 
 void GlobalPolicyTest::SetUp()
@@ -64,19 +65,20 @@ void GlobalPolicyTest::SetUp()
 void GlobalPolicyTest::TearDown()
 {
     delete m_policy;
-    unlink(m_path.c_str());
+    remove(m_path.c_str());
 }
 
 void GlobalPolicyTestShmem::SetUp()
 {
-    std::string key("/GlobalPolicyTestShmem-");
-    key.append(std::to_string(getpid()));
-    m_policy = new geopm::GlobalPolicy(key, key);
+    m_path.assign("/GlobalPolicyTestShmem-");
+    m_path.append(std::to_string(getpid()));
+    m_policy = new geopm::GlobalPolicy(m_path, m_path);
 }
 
 void GlobalPolicyTestShmem::TearDown()
 {
     delete m_policy;
+    unlink(m_path.c_str());
 }
 
 TEST_F(GlobalPolicyTest, mode_tdp_balance_static)
@@ -197,6 +199,31 @@ TEST_F(GlobalPolicyTest, mode_freq_hybrid_dynamic)
     EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
 }
 
+TEST_F(GlobalPolicyTest, plugin_strings)
+{
+    // write values to file
+    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
+    m_policy->budget_watts(9612);
+    m_policy->num_max_perf(24);
+    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    m_policy->tree_decider("test_tree_decider");
+    m_policy->leaf_decider("test_leaf_decider");
+    m_policy->platform("test_platform");
+    m_policy->write();
+    //overwrite local values
+    m_policy->tree_decider("new_tree_decider");
+    m_policy->leaf_decider("new_leaf_decider");
+    m_policy->platform("new_platform");
+    ASSERT_STREQ("new_tree_decider", m_policy->tree_decider().c_str());
+    ASSERT_STREQ("new_leaf_decider", m_policy->leaf_decider().c_str());
+    ASSERT_STREQ("new_platform", m_policy->platform().c_str());
+    //read saved values back
+    m_policy->read();
+    ASSERT_STREQ("test_tree_decider", m_policy->tree_decider().c_str());
+    ASSERT_STREQ("test_leaf_decider", m_policy->leaf_decider().c_str());
+    ASSERT_STREQ("test_platform", m_policy->platform().c_str());
+}
+
 TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
 {
     // write values to file
@@ -315,6 +342,31 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_dynamic)
     EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
 }
 
+TEST_F(GlobalPolicyTestShmem, plugin_strings)
+{
+    // write values to file
+    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
+    m_policy->budget_watts(9612);
+    m_policy->num_max_perf(24);
+    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    m_policy->tree_decider("test_tree_decider");
+    m_policy->leaf_decider("test_leaf_decider");
+    m_policy->platform("test_platform");
+    m_policy->write();
+    //overwrite local values
+    m_policy->tree_decider("new_tree_decider");
+    m_policy->leaf_decider("new_leaf_decider");
+    m_policy->platform("new_platform");
+    ASSERT_STREQ("new_tree_decider", m_policy->tree_decider().c_str());
+    ASSERT_STREQ("new_leaf_decider", m_policy->leaf_decider().c_str());
+    ASSERT_STREQ("new_platform", m_policy->platform().c_str());
+    //read saved values back
+    m_policy->read();
+    ASSERT_STREQ("test_tree_decider", m_policy->tree_decider().c_str());
+    ASSERT_STREQ("test_leaf_decider", m_policy->leaf_decider().c_str());
+    ASSERT_STREQ("test_platform", m_policy->platform().c_str());
+}
+
 TEST_F(GlobalPolicyTest, c_interface)
 {
     struct geopm_policy_c *policy;
@@ -328,6 +380,9 @@ TEST_F(GlobalPolicyTest, c_interface)
     EXPECT_EQ(0, geopm_policy_tdp_percent(policy, 60));
     EXPECT_EQ(0, geopm_policy_affinity(policy, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER));
     EXPECT_EQ(0, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
+    EXPECT_EQ(0, geopm_policy_tree_decider(policy, "test_tree_decider"));
+    EXPECT_EQ(0, geopm_policy_tree_decider(policy, "test_leaf_decider"));
+    EXPECT_EQ(0, geopm_policy_tree_decider(policy, "test_platform"));
     EXPECT_EQ(0, geopm_policy_write(policy));
     EXPECT_EQ(0, geopm_policy_destroy(policy));
     EXPECT_EQ(0, remove(path));
@@ -345,6 +400,9 @@ TEST_F(GlobalPolicyTest, negative_c_interface)
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_tdp_percent(policy, 60));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_affinity(policy, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_goal(policy, GEOPM_FLAGS_GOAL_CPU_EFFICIENCY));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_tree_decider(policy, "test_tree_decider"));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_tree_decider(policy, "test_leaf_decider"));
+    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_tree_decider(policy, "test_platform"));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_write(policy));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_destroy(policy));
 }
