@@ -155,14 +155,18 @@ modifying the behavior of the mode by matching key strings to value strings.
     **geopm_policy_c(3)** man page in the `DYNAMIC MODES` section.  The
     only key required to be passed to the `-d` flag is the _power_budget_
     which is the power budget in units of Watts for all compute nodes
-    allocated to the job. All other keys are ignored.
+    allocated to the job. Optional keys that can be set are the _tree_decider_,
+    _leaf_decider_, and the _platform_ keys which are used to select custom
+    plugins. All other keys are ignored.
 
   * `freq_uniform_dynamic`:
     Implements the GEOPM_MODE_FREQ_UNIFORM_DYNAMIC mode described in the
     **geopm_policy_c(3)**  man page in the `DYNAMIC MODES` section.  The
     only key required to be passed to the `-d` flag is the _power_budget_
     which is the power budget in units of Watts for all compute nodes
-    allocated to the job. All other keys are ignored.
+    allocated to the job. Optional keys that can be set are the _tree_decider_,
+    _leaf_decider_, and the _platform_ keys which are used to select custom
+    plugins. All other keys are ignored.
 
   * `freq_hybrid_dynamic`:
     Implements the GEOPM_MODE_FREQ_HYBRID_DYNAMIC mode described in the
@@ -172,8 +176,10 @@ modifying the behavior of the mode by matching key strings to value strings.
     compute nodes allocated to the job, _num_cpu_max_perf_ giving the number
     of CPUs running at maximum performance, and _affinity_ which can have a
     value of "compact" or "scatter" describing the distribution of the non-maximum
-    performance CPUs. In most cases this will match the OpenMP environment. All
-    other keys are ignored.
+    performance CPUs. In most cases this will match the OpenMP environment.
+    Optional keys that can be set are the _tree_decider_, _leaf_decider_, and the
+    _platform_ keys which are used to select custom plugins. All other keys are
+    ignored.
 
 ## EXAMPLES
   * Create a configuration file which disables power management with RAPL::
@@ -195,6 +201,14 @@ modifying the behavior of the mode by matching key strings to value strings.
   * Create a configuration file for global energy optimization with a power budget of 1 MWatt::
     $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
     -d power_budget:1000000
+
+  * Create a configuration file for global energy optimization with a power budget of 1 MWatt and use a custom platform plugin::
+    $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
+    -d power_budget:1000000,platform:broadwell_platform
+
+  * Create a configuration file for global energy optimization with a power budget of 1 MWatt and use custom decider plugins::
+    $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
+    -d power_budget:1000000,tree_decider:uniform_frequency,leaf_decider:max_efficiency
 
   * Enforce a static policy defined in a preexisting configuration file::
     $ geopmpolicy -e -f geopm.conf

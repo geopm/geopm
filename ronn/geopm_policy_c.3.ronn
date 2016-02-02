@@ -75,6 +75,18 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
     `struct geopm_policy_c *`_policy_, <br>
     `int` _geo_goal_);
 
+  * `int geopm_policy_tree_decider(`:
+    `struct geopm_policy_c *`_policy_, <br>
+    `const char *`_description_);
+
+  * `int geopm_policy_leaf_decider(`:
+    `struct geopm_policy_c *`_policy_, <br>
+    `const char *`_description_);
+
+  * `int geopm_policy_platform(`:
+    `struct geopm_policy_c *`_policy_, <br>
+    `const char *`_description_);
+
   * `int geopm_policy_write(`:
     `const struct geopm_policy_c *`_policy_);
 
@@ -141,7 +153,7 @@ success; see [ERRORS][] section below for details.
 
   * `geopm_policy_cpu_full_perf`():
     sets the number of CPUs, _num_cpu_full_perf_ which are run unconstrained at
-    full performance for the _policy_. This parameter is used by 
+    full performance for the _policy_. This parameter is used by
     `GEOPM_MODE_FREQ_HYBRID_STATIC` and `GEOPM_MODE_FREQ_HYBRID_DYNAMIC` for
     "big CPUs".
 
@@ -160,6 +172,24 @@ success; see [ERRORS][] section below for details.
     sets the _geo_goal_ for the _policy_.  The goal affects the behavior of the
     policy when using dynamic power modes.  The goal options are discussed in
     the [GOALS][] section below.
+
+  * `geopm_policy_tree_decider`():
+    sets the _tree_decider_ description string for the _policy_. The description
+    string affects which tree level decider plugin to use. It is the responsibility
+    of the tree decider to manage power budgets between multiple nodes in the system.
+    There must be a tree decider plugin on the system that takes the specified string.
+
+  * `geopm_policy_leaf_decider`():
+    sets the _leaf_decider_ description string for the _policy_. The description
+    string affects which leaf level decider plugin to use. It is the responsibility
+    of the leaf decider to manage power budgets within a single node in the system.
+    There must be a leaf decider plugin on the system that takes the specified string.
+
+  * `geopm_policy_platform`():
+    sets the _platform_ description string for the _policy_. The description
+    string affects which platform plugin to use. The platform is the abstaction interface
+    to the architectural platform specific to the node. There must be a platform plugin
+    on the system that takes the specified string.
 
   * `geopm_policy_write`():
     writes the state stored in the _policy_ to a configuration file or shared
@@ -223,7 +253,7 @@ frequency across nodes, depending on the mode.
   * `GEOPM_MODE_PERF_BALANCE_DYNAMIC`:
     In this mode, **geopm(7)** dynamically manages the job to an aggregate power
     bound while leveraging global application awareness to maximize application
-    performance. The geopm runtime tracks the application's critical path and 
+    performance. The geopm runtime tracks the application's critical path and
     continually redistributes power to steer power to the nodes on the critical
     path and enable them to run at higher performance (if possible); node
     frequencies and power allocation are strategically non-uniform.  By focusing
