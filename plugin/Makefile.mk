@@ -37,4 +37,4 @@ libgeopmpi_governing_la_SOURCES = src/Decider.hpp \
                                   # end
 
 # "-module -rpath /nowhere" required to force .so generation of test plugin.
-libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) $(CXXLDFLAGS) -module -rpath /nowhere
+libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) $(LDFLAGS) -module -rpath /nowhere
