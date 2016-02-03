@@ -33,24 +33,52 @@
 #ifndef TESTPLUGIN_HPP_INCLUDE
 #define TESTPLUGIN_HPP_INCLUDE
 
-#include "Decider.hpp"
 #include "geopm_plugin.h"
+#include "Decider.hpp"
+#include "Platform.hpp"
+#include "PlatformImp.hpp"
 
-extern "C" int geopm_decider_register(struct geopm_factory_c *factory);
+using namespace geopm;
 
-namespace geopm
+class DumbDecider : public Decider
 {
-    class DumbDecider : public Decider
-    {
-        public:
-            DumbDecider();
-            virtual ~DumbDecider();
-            virtual bool update_policy(Region &curr_region, Policy &curr_policy);
-            virtual bool decider_supported(const std::string &descripton);
-            virtual const std::string& name(void) const;
-        private:
-            const std::string m_name;
-    };
-}
+    public:
+        DumbDecider();
+        virtual ~DumbDecider();
+        virtual bool update_policy(Region &curr_region, Policy &curr_policy);
+        virtual bool decider_supported(const std::string &descripton);
+        virtual const std::string& name(void) const;
+    protected:
+        const std::string m_name;
+};
+
+class DumbPlatform : public Platform
+{
+    public:
+        DumbPlatform();
+        virtual ~DumbPlatform();
+        virtual size_t capacity(void);
+        virtual void sample(std::vector<struct geopm_msr_message_s> &msr_msg);
+        virtual bool model_supported(int platfrom_id, const std::string &description) const;
+        virtual void enforce_policy(const Policy &policy) const;
+    protected:
+        const std::string m_name;
+};
+
+class DumbPlatformImp : public PlatformImp
+{
+    public:
+        DumbPlatformImp();
+        virtual ~DumbPlatformImp();
+        virtual bool model_supported(int platform_id);
+        virtual std::string platform_name(void);
+        virtual void reset_msrs(void);
+        virtual int power_control_domain(void) const;
+        virtual int frequency_control_domain(void) const;
+        virtual int control_domain(void) const;
+    protected:
+        virtual void initialize_msrs(void);
+        const std::string m_name;
+};
 
 #endif

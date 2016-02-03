@@ -43,12 +43,11 @@
 
 #include "geopm_plugin.h"
 
-int geopm_plugins_load(const char *func_name,
-                       struct geopm_factory_c *factory)
+int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
 {
     int err = 0;
     void *plugin;
-    int (*register_func)(struct geopm_factory_c *factory);
+    int (*register_func)(int, struct geopm_factory_c *factory);
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
     FTS *p_fts;
     FTSENT *file;
@@ -66,9 +65,9 @@ int geopm_plugins_load(const char *func_name,
                  strstr(file->fts_name, ".dylib"))) {
                 plugin = dlopen(file->fts_path, RTLD_LAZY);
                 if (plugin != NULL) {
-                    register_func = (int (*)(struct geopm_factory_c *)) dlsym(plugin, (char *)func_name);
+                    register_func = (int (*)(int, struct geopm_factory_c *)) dlsym(plugin, "geopm_plugin_register");
                     if (register_func != NULL) {
-                        register_func(factory);
+                        register_func(plugin_type, factory);
                     }
                 }
             }

@@ -48,7 +48,7 @@ namespace geopm
     DeciderFactory::DeciderFactory()
     {
         // register all the deciders we know about
-        geopm_plugins_load("geopm_decider_register", (struct geopm_factory_c *)this);
+        geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
     }
 
     DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)

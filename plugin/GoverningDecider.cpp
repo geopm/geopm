@@ -37,13 +37,15 @@
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 
-int geopm_decider_register(struct geopm_factory_c *factory)
+int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
 {
     int err = 0;
 
     try {
-        geopm::Decider *gov_dec = new geopm::GoverningDecider;
-        geopm_decider_factory_register(factory, gov_dec);
+        if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
+            geopm::Decider *decider = new geopm::GoverningDecider;
+            geopm_factory_register(factory, decider);
+        }
     }
     catch(...) {
         err = geopm::exception_handler(std::current_exception());
@@ -52,12 +54,11 @@ int geopm_decider_register(struct geopm_factory_c *factory)
     return err;
 }
 
-static const std::string gov_decider_desc = "governing";
-
 namespace geopm
 {
     GoverningDecider::GoverningDecider()
-        : m_guard_band(0.05)
+        : m_name("governing")
+        , m_guard_band(0.05)
     {
 
     }
@@ -69,12 +70,12 @@ namespace geopm
 
     bool GoverningDecider::decider_supported(const std::string &description)
     {
-        return (description == gov_decider_desc);
+        return (description == m_name);
     }
 
     const std::string& GoverningDecider::name(void) const
     {
-        return gov_decider_desc;
+        return m_name;
     }
 
     bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)

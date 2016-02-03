@@ -36,8 +36,6 @@
 #include "Decider.hpp"
 #include "geopm_plugin.h"
 
-extern "C" int geopm_decider_register(struct geopm_factory_c *factory);
-
 namespace geopm
 {
     class GoverningDecider : public Decider
@@ -49,6 +47,7 @@ namespace geopm
             virtual bool decider_supported(const std::string &descripton);
             virtual const std::string& name(void) const;
         private:
+            const std::string m_name;
             double m_guard_band;
             double m_package_min_power;
             double m_board_memory_min_power;

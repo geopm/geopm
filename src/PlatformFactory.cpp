@@ -48,7 +48,8 @@ namespace geopm
     PlatformFactory::PlatformFactory()
     {
         // register all the platforms we know about
-        geopm_plugins_load("geopm_platform_register", (struct geopm_factory_c *)this);
+        geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM, (struct geopm_factory_c *)this);
+        geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM_IMP, (struct geopm_factory_c *)this);
         IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
         RAPLPlatform *ivb_plat = new RAPLPlatform();
         HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();

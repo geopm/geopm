@@ -35,46 +35,134 @@
 
 #include "TestPlugin.hpp"
 
-int geopm_decider_register(struct geopm_factory_c *factory)
+int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
 {
     int err = 0;
+    Decider *decider = NULL;
+    Platform *platform = NULL;
+    PlatformImp *platform_imp = NULL;
 
     try {
-        geopm::Decider *dec = new geopm::DumbDecider;
-        geopm_decider_factory_register(factory, dec);
+        switch (plugin_type) {
+            case GEOPM_PLUGIN_TYPE_DECIDER:
+                decider = new DumbDecider;
+                geopm_factory_register(factory, decider);
+                break;
+            case GEOPM_PLUGIN_TYPE_PLATFORM:
+                platform = new DumbPlatform;
+                geopm_factory_register(factory, platform);
+                break;
+            case GEOPM_PLUGIN_TYPE_PLATFORM_IMP:
+                platform_imp = new DumbPlatformImp;
+                geopm_factory_register(factory, platform_imp);
+                break;
+        }
     }
     catch(...) {
         err = geopm::exception_handler(std::current_exception());
     }
-
     return err;
 }
 
-namespace geopm
+DumbDecider::DumbDecider()
+    : m_name("dumb")
 {
-    DumbDecider::DumbDecider()
-        : m_name("dumb")
-    {
 
-    }
+}
 
-    DumbDecider::~DumbDecider()
-    {
+DumbDecider::~DumbDecider()
+{
 
-    }
+}
 
-    bool DumbDecider::decider_supported(const std::string &description)
-    {
-        return (description == m_name);
-    }
+bool DumbDecider::decider_supported(const std::string &description)
+{
+    return (description == m_name);
+}
 
-    const std::string& DumbDecider::name(void) const
-    {
-        return m_name;
-    }
+const std::string& DumbDecider::name(void) const
+{
+    return m_name;
+}
 
-    bool DumbDecider::update_policy(Region &curr_region, Policy &curr_policy)
-    {
-        return false;
-    }
+bool DumbDecider::update_policy(Region &curr_region, Policy &curr_policy)
+{
+    return false;
+}
+
+DumbPlatform::DumbPlatform()
+    : m_name("dumb")
+{
+
+}
+
+DumbPlatform::~DumbPlatform()
+{
+
+}
+
+size_t DumbPlatform::capacity(void)
+{
+    return 0;
+}
+
+void DumbPlatform::sample(std::vector<struct geopm_msr_message_s> &msr_msg)
+{
+
+}
+
+bool DumbPlatform::model_supported(int platform_id, const std::string &description) const
+{
+    return false;
+}
+
+void DumbPlatform::enforce_policy(const Policy &policy) const
+{
+
+}
+
+DumbPlatformImp::DumbPlatformImp()
+    : m_name("dumb")
+{
+
+}
+
+DumbPlatformImp::~DumbPlatformImp()
+{
+
+}
+
+bool DumbPlatformImp::model_supported(int platform_id)
+{
+    return false;
+}
+
+std::string DumbPlatformImp::platform_name(void)
+{
+    return m_name;
+}
+
+void DumbPlatformImp::reset_msrs(void)
+{
+
+}
+
+int DumbPlatformImp::power_control_domain(void) const
+{
+    return geopm::GEOPM_DOMAIN_PACKAGE;
+}
+
+int DumbPlatformImp::frequency_control_domain(void) const
+{
+    return geopm::GEOPM_DOMAIN_CPU;
+}
+
+int DumbPlatformImp::control_domain(void) const
+{
+    return 0;
+}
+
+void DumbPlatformImp::initialize_msrs(void)
+{
+
 }

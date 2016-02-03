@@ -40,16 +40,26 @@ extern "C" {
 /* opaque structure that is a handle for a specific Factory object. */
 struct geopm_factory_c;
 
-int geopm_plugins_load(const char *func_name,
-                       struct geopm_factory_c *factory);
+enum geopm_plugin_type_e {
+    GEOPM_PLUGIN_TYPE_DECIDER,
+    GEOPM_PLUGIN_TYPE_PLATFORM,
+    GEOPM_PLUGIN_TYPE_PLATFORM_IMP,
+    GEOPM_NUM_PLUGIN_TYPE
+};
+
+/* Declaration for function which must be defined by a plug in*/
+int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory);
+
+int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 
 #ifdef __cplusplus
 }
+
 #include "DeciderFactory.hpp"
 #include "PlatformFactory.hpp"
 #include "Exception.hpp"
 
-static inline void geopm_decider_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)
+static inline void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)
 {
     std::unique_ptr<geopm::Decider> p_dec;
     geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
@@ -60,7 +70,7 @@ static inline void geopm_decider_factory_register(struct geopm_factory_c *factor
     fact_obj->register_decider(move(p_dec));
 }
 
-static inline void geopm_platform_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
+static inline void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
 {
     std::unique_ptr<geopm::Platform> p_plat;
     geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
@@ -71,7 +81,7 @@ static inline void geopm_platform_factory_register(struct geopm_factory_c *facto
     fact_obj->register_platform(move(p_plat));
 }
 
-static inline void geopm_platform_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
+static inline void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
 {
     std::unique_ptr<geopm::PlatformImp> p_plat;
     geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
