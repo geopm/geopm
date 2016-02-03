@@ -117,6 +117,12 @@ namespace geopm
     {
         m_imp = platform_imp;
         m_imp->initialize();
+
+        // Resize vectors to the number of individual msrs we read
+        m_msr_value_last.resize(capacity());
+        m_msr_overflow_offset.resize(capacity());
+        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
+        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
     }
 
     void Platform::name(std::string &plat_name) const
@@ -452,6 +458,18 @@ namespace geopm
         }
 
         m_imp->whitelist(file_desc);
+    }
+
+    double Platform::msr_overflow(int signal_idx, uint32_t msr_size, double value)
+    {
+        // Deal with register overflow
+        if (value < m_msr_value_last[signal_idx]) {
+            m_msr_overflow_offset[signal_idx] += pow(2, msr_size);
+        }
+        m_msr_value_last[signal_idx] = value;
+        value += m_msr_overflow_offset[signal_idx];
+
+        return value;
     }
 
 }

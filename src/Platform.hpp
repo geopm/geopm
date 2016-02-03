@@ -141,6 +141,7 @@ namespace geopm
             const std::vector<double> *signal_domain_transform(void) const;
             int num_control_domain(void) const;
         protected:
+            double msr_overflow(int signal_idx, uint32_t msr_size, double value);
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.
             PlatformImp *m_imp;
@@ -153,6 +154,8 @@ namespace geopm
             int m_window_size;
             int m_level;
             int m_control_domain_type;
+            std::vector<double> m_msr_value_last;
+            std::vector<double> m_msr_overflow_offset;
             std::vector<double> m_signal_domain_matrix;
     };
 }

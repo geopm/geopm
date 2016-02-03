@@ -110,17 +110,22 @@ namespace geopm
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_PKG_ENERGY;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[0]);
+            msr_values[count].signal = msr_overflow(count, 32, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[0]));
+            count++;
+
             msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_PP0_ENERGY;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[1]);
+            msr_values[count].signal = msr_overflow(count, 32, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[1]));
+            count++;
+
             msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_DRAM_ENERGY;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[2]);
+            msr_values[count].signal = msr_overflow(count, 32, (double)m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, m_observe_msr_offsets[2]));
+            count++;
         }
 
         //record per cpu metrics
@@ -129,22 +134,29 @@ namespace geopm
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_INST_RETIRED;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]);
+            msr_values[count].signal = msr_overflow(count, 64, (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[3]));
+            count++;
+
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]);
+            msr_values[count].signal = msr_overflow(count, 64, (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[4]));
+            count++;
+
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]);
+            msr_values[count].signal = msr_overflow(count, 64, (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[5]));
+            count++;
+
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_LLC_VICTIMS;
-            msr_values[count++].signal = (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]);
+            msr_values[count].signal = msr_overflow(count, 44, (double)m_imp->read_msr(GEOPM_DOMAIN_CPU, i, m_observe_msr_offsets[6 + i]));
+            count++;
         }
     }
 
