@@ -30,9 +30,7 @@
 #
 
 pkglib_LTLIBRARIES += libgeopmpi_governing.la
-libgeopmpi_governing_la_SOURCES = src/Decider.hpp \
-                                  src/geopm_plugin.h \
-                                  plugin/GoverningDecider.cpp \
+libgeopmpi_governing_la_SOURCES = plugin/GoverningDecider.cpp \
                                   plugin/GoverningDecider.hpp \
                                   # end
 

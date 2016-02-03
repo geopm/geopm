@@ -42,6 +42,29 @@
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
 
+
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
+{
+    std::unique_ptr<geopm::Platform> p_plat;
+    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
+    if (fact_obj == NULL) {
+        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
+    }
+    p_plat = std::unique_ptr<geopm::Platform>(platform);
+    fact_obj->register_platform(move(p_plat));
+}
+
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
+{
+    std::unique_ptr<geopm::PlatformImp> p_plat;
+    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
+    if (fact_obj == NULL) {
+        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
+    }
+    p_plat = std::unique_ptr<geopm::PlatformImp>(platform);
+    fact_obj->register_platform(move(p_plat));
+}
+
 namespace geopm
 {
 

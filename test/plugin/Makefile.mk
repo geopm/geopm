@@ -30,9 +30,7 @@
 #
 
 check_LTLIBRARIES += libgeopmpi_test.la
-libgeopmpi_test_la_SOURCES = src/Decider.hpp \
-                             src/geopm_plugin.h \
-                             test/plugin/TestPlugin.cpp \
+libgeopmpi_test_la_SOURCES = test/plugin/TestPlugin.cpp \
                              test/plugin/TestPlugin.hpp \
                              #end
 # "-module -rpath /nowhere" required to force .so generation of test plugin.

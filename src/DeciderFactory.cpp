@@ -42,6 +42,18 @@
 #include "Decider.hpp"
 #include "DeciderFactory.hpp"
 
+
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)
+{
+    std::unique_ptr<geopm::Decider> p_dec;
+    geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
+    if (fact_obj == NULL) {
+        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
+    }
+    p_dec = std::unique_ptr<geopm::Decider>(decider);
+    fact_obj->register_decider(move(p_dec));
+}
+
 namespace geopm
 {
 

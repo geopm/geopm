@@ -37,9 +37,11 @@
 extern "C" {
 #endif
 
-/* opaque structure that is a handle for a specific Factory object. */
+/*! @brief Opaque C structure that is a handle for a specific Factory
+           object. */
 struct geopm_factory_c;
 
+/*! @brief Enum to select the factory type for C interface. */
 enum geopm_plugin_type_e {
     GEOPM_PLUGIN_TYPE_DECIDER,
     GEOPM_PLUGIN_TYPE_PLATFORM,
@@ -47,49 +49,28 @@ enum geopm_plugin_type_e {
     GEOPM_NUM_PLUGIN_TYPE
 };
 
-/* Declaration for function which must be defined by a plug in*/
+/*! @brief Declaration for function which must be defined by a plugin
+           implementor which will register the plugin for the type
+           specified. */
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory);
 
 int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
-
 #ifdef __cplusplus
 }
 
-#include "DeciderFactory.hpp"
-#include "PlatformFactory.hpp"
-#include "Exception.hpp"
+#include "Decider.hpp"
+#include "Platform.hpp"
+#include "PlatformImp.hpp"
 
-static inline void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)
-{
-    std::unique_ptr<geopm::Decider> p_dec;
-    geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    p_dec = std::unique_ptr<geopm::Decider>(decider);
-    fact_obj->register_decider(move(p_dec));
-}
+/// @brief Called within the implementation of geopm_plugin_register()
+///        once the Decider object has been created. */
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider);
+/// @brief Called within the implementation of geopm_plugin_register()
+///        once the Platform object has been created. */
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform);
+/// @brief Called within the implementation of geopm_plugin_register()
+///        once the PlatformImp object has been created. */
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform);
 
-static inline void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
-{
-    std::unique_ptr<geopm::Platform> p_plat;
-    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    p_plat = std::unique_ptr<geopm::Platform>(platform);
-    fact_obj->register_platform(move(p_plat));
-}
-
-static inline void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
-{
-    std::unique_ptr<geopm::PlatformImp> p_plat;
-    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    p_plat = std::unique_ptr<geopm::PlatformImp>(platform);
-    fact_obj->register_platform(move(p_plat));
-}
 #endif
 #endif
