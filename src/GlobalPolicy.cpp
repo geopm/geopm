@@ -316,8 +316,8 @@ namespace geopm
         ,m_mode(-1)
         ,m_power_budget_watts(-1)
         ,m_flags(0)
-        ,m_tree_decider("balancer")
-        ,m_leaf_decider("governor")
+        ,m_tree_decider("power_balancing")
+        ,m_leaf_decider("power_governing")
         ,m_platform("rapl")
         ,m_is_shm_in(false)
         ,m_is_shm_out(false)
@@ -874,7 +874,7 @@ namespace geopm
     void GlobalPolicy::enforce_static_mode()
     {
         PlatformFactory platform_factory;
-        Platform *platform = platform_factory.platform();
+        Platform *platform = platform_factory.platform(std::string("rapl"));
 
         if(m_do_read) {
             read();

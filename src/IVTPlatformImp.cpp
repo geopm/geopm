@@ -93,7 +93,12 @@ namespace geopm
         }
     }
 
-    int IVTPlatformImp::control_domain(void) const
+    int IVTPlatformImp::power_control_domain(void) const
+    {
+        return GEOPM_DOMAIN_PACKAGE;
+    }
+
+    int IVTPlatformImp::frequency_control_domain(void) const
     {
         return GEOPM_DOMAIN_PACKAGE;
     }

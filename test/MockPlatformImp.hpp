@@ -54,7 +54,9 @@ class MockPlatformImp : public geopm::PlatformImp {
             std::string(void));
         MOCK_METHOD0(reset_msrs,
             void(void));
-        MOCK_CONST_METHOD0(control_domain,
+        MOCK_CONST_METHOD0(power_control_domain,
+            int(void));
+        MOCK_CONST_METHOD0(frequency_control_domain,
             int(void));
         MOCK_METHOD0(parse_hw_topology,
             void(void));

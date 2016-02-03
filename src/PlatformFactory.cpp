@@ -48,7 +48,7 @@ namespace geopm
     PlatformFactory::PlatformFactory()
     {
         // register all the platforms we know about
-        geopm_plugins_load("_geopm_platform_register", (struct geopm_factory_c *)this);
+        geopm_plugins_load("geopm_platform_register", (struct geopm_factory_c *)this);
         IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
         RAPLPlatform *ivb_plat = new RAPLPlatform();
         HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();
@@ -77,14 +77,14 @@ namespace geopm
         }
     }
 
-    Platform* PlatformFactory::platform()
+    Platform* PlatformFactory::platform(const std::string &description)
     {
         int platform_id;
         bool is_found = false;
         Platform *result = NULL;
         platform_id = read_cpuid();
         for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-            if ((*it) != NULL && (*it)->model_supported(platform_id)) {
+            if ((*it) != NULL && (*it)->model_supported(platform_id, description)) {
                 result = (*it);
                 break;
             }

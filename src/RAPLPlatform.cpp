@@ -45,8 +45,9 @@ namespace geopm
     static const int NUM_COUNTER = 4;
 
     RAPLPlatform::RAPLPlatform()
+        : m_description("rapl")
     {
-
+        m_control_domain_type = GEOPM_CONTROL_DOMAIN_POWER;
     }
 
     RAPLPlatform::~RAPLPlatform()
@@ -54,9 +55,9 @@ namespace geopm
 
     }
 
-    bool RAPLPlatform::model_supported(int platform_id) const
+    bool RAPLPlatform::model_supported(int platform_id, const std::string &description) const
     {
-        return (platform_id == ivb_id || platform_id == snb_id || platform_id == hsx_id);
+        return ((platform_id == ivb_id || platform_id == snb_id || platform_id == hsx_id) && description == m_description);
     }
 
     void RAPLPlatform::set_implementation(PlatformImp* platform_imp)

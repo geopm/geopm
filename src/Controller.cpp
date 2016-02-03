@@ -223,16 +223,15 @@ namespace geopm
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
 
             m_platform_factory = new PlatformFactory;
-            m_platform = m_platform_factory->platform();
+            m_platform = m_platform_factory->platform(m_global_policy->platform());
 
 
             m_msr_sample.resize(m_platform->capacity());
 
             m_decider_factory = new DeciderFactory;
-            /// @bug Do not hardcode leaf decider string.
-            m_leaf_decider = m_decider_factory->decider("governing");
-            /// @todo Need to create tree decider(s) here and we need
-            /// to get the name strings from the GlobalPolicy object
+            m_leaf_decider = m_decider_factory->decider(m_global_policy->leaf_decider());
+            m_tree_decider = m_decider_factory->decider(m_global_policy->tree_decider());
+
             int num_domain;
             for (int level = 0; level < num_level; ++level) {
                 if (level == 0) {

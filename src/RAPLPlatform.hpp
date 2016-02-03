@@ -64,7 +64,7 @@ namespace geopm
             /// @brief Default destructor
             virtual ~RAPLPlatform();
             virtual void set_implementation(PlatformImp* platform_imp);
-            virtual bool model_supported(int platform_id) const;
+            virtual bool model_supported(int platform_id, const std::string &description) const;
             virtual size_t capacity(void);
             virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values);
             virtual void enforce_policy(const Policy &policy) const;
@@ -80,6 +80,8 @@ namespace geopm
             int m_num_cpu;
             /// @brief Number of packages on the platform.
             int m_num_package;
+            /// @brief platform capability description string.
+            const std::string m_description;
     };
 }
 

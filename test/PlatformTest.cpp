@@ -131,7 +131,7 @@ TEST_F(PlatformTest, transform_init)
     EXPECT_CALL(*platformimp, topology())
     .WillOnce(testing::Return(topo));
 
-    EXPECT_CALL(*platformimp, control_domain())
+    EXPECT_CALL(*platformimp, power_control_domain())
     .WillOnce(Return(geopm::GEOPM_DOMAIN_PACKAGE));
 
     EXPECT_CALL(*topo, num_domain(_))

@@ -107,9 +107,11 @@ namespace geopm
             /// @param [in] platform_id Platform identifier specific to the
             ///        underlying hardware. On x86 platforms this can be obtained by
             ///        the cpuid instruction.
+            /// @param [in] A description string that can be used to determine if the
+            ///        platform can fulfill the requirements of the request.
             /// @return true if this Platform supports platform_id,
             ///         else false.
-            virtual bool model_supported(int platform_id) const = 0;
+            virtual bool model_supported(int platform_id, const std::string &description) const = 0;
             /// @brief Enforce a static power management mode including
             /// tdp_balance_static, freq_uniform_static, and
             /// freq_hybrid_static.
@@ -150,6 +152,7 @@ namespace geopm
             int m_num_counter;
             int m_window_size;
             int m_level;
+            int m_control_domain_type;
             std::vector<double> m_signal_domain_matrix;
     };
 }

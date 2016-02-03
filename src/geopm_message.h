@@ -46,6 +46,8 @@ extern "C" {
 #endif
 
 enum geopm_control_e {
+    GEOPM_CONTROL_DOMAIN_POWER = 0,
+    GEOPM_CONTROL_DOMAIN_FREQUENCY = 1,
     GEOPM_CONTROL_MAX_NUM_CPU = 768,
 };
 

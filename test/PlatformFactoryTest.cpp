@@ -61,7 +61,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     geopm::Platform* p = NULL;
 
     EXPECT_CALL(*m_platform_imp, initialize());
-    EXPECT_CALL(*m_platform, model_supported(_))
+    EXPECT_CALL(*m_platform, model_supported(_,_))
     .Times(1)
     .WillOnce(Return(true));
 
@@ -73,7 +73,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     .Times(1)
     .WillOnce(Return(pname));
 
-    p = m_platform_fact.platform();
+    p = m_platform_fact.platform("rapl");
     ASSERT_FALSE(p == NULL);
 
     p->name(ans);
@@ -92,7 +92,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     geopm::Platform* p = NULL;
     int thrown = 0;
 
-    EXPECT_CALL(*m_platform, model_supported(_))
+    EXPECT_CALL(*m_platform, model_supported(_,_))
     .Times(1)
     .WillOnce(Return(false));
 
@@ -100,7 +100,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     m_platform_fact.register_platform(move(m_ap));
 
     try {
-        p = m_platform_fact.platform();
+        p = m_platform_fact.platform("rapl");
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();

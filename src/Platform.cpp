@@ -53,7 +53,7 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform();
+            geopm::Platform *platform = platform_factory.platform(std::string("rapl"));
             platform->save_msr_state(path);
         }
         catch (...) {
@@ -69,7 +69,7 @@ extern "C"
 
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform();
+            geopm::Platform *platform = platform_factory.platform(std::string("rapl"));
             platform->restore_msr_state(path);
         }
         catch (...) {
@@ -84,7 +84,7 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform();
+            geopm::Platform *platform = platform_factory.platform(std::string("rapl"));
 
             platform->write_msr_whitelist(file_desc);
         }
@@ -101,8 +101,12 @@ namespace geopm
     static const uint64_t PKG_POWER_LIMIT_MASK_MAGIC  = 0x0007800000078000ul;
 
     Platform::Platform()
-        : m_imp(NULL),
-          m_level(-1) {}
+        : m_imp(NULL)
+        , m_level(-1)
+        , m_control_domain_type(GEOPM_CONTROL_DOMAIN_POWER)
+    {
+
+    }
 
     Platform::~Platform()
     {
@@ -212,7 +216,9 @@ namespace geopm
         }
 
         const unsigned NUM_RANK_SIGNAL = 2;
-        const unsigned control_domain_type = m_imp->control_domain();
+        const unsigned control_domain_type = m_control_domain_type == GEOPM_CONTROL_DOMAIN_POWER ? 
+                                             m_imp->power_control_domain() :
+                                             m_imp->frequency_control_domain();
         const unsigned num_out_signal = platform_topo->num_domain(control_domain_type) * GEOPM_NUM_TELEMETRY_TYPE;
         const unsigned num_in_signal = capacity() + num_local_rank * NUM_RANK_SIGNAL;
         const unsigned num_cpu = m_imp->hw_cpu();
@@ -309,7 +315,7 @@ namespace geopm
 
     int Platform::num_control_domain(void) const
     {
-        return m_imp->control_domain();
+        return (topology()->num_domain(m_imp->power_control_domain()));
     }
 
     void Platform::tdp_limit(int percentage) const

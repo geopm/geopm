@@ -160,7 +160,10 @@ namespace geopm
             virtual std::string platform_name(void) = 0;
             /// @brief Reset MSRs to a default state.
             virtual void reset_msrs(void) = 0;
-            virtual int control_domain(void) const = 0;
+            /// @brief Retrieve the domain of control for power.
+            virtual int power_control_domain(void) const = 0;
+            /// @brief Retrieve the domain of control for frequency.
+            virtual int frequency_control_domain(void) const = 0;
 
         protected:
             /// @brief Open a MSR special file.
