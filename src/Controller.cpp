@@ -179,6 +179,7 @@ namespace geopm
         , m_platform(NULL)
         , m_sampler(NULL)
         , m_sample_regulator(NULL)
+        , m_region_id(GEOPM_REGION_ID_INVALID)
     {
 #ifndef GEOPM_DEBUG
         throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -332,15 +333,10 @@ namespace geopm
 
         level = m_tree_comm->num_level() - 1;
         m_tree_comm->get_policy(level, policy_msg);
-        uint64_t region_id = policy_msg.region_id;
-        if (m_region[level - 1].find(region_id) == m_region[level - 1].end()) {
-            throw geopm::Exception("Controller::walk_down(): Invalid region id.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level != 0; --level) {
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_tree_decider->update_policy(policy_msg, *(m_policy[level]));
-                m_policy[level]->policy_message(region_id, child_policy_msg);
+                m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER, policy_msg, child_policy_msg);
                 m_tree_comm->send_policy(level - 1, child_policy_msg);
                 m_last_policy_msg[level] = policy_msg;
             }
@@ -365,13 +361,10 @@ namespace geopm
         struct geopm_policy_message_s policy_msg;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
-        Policy policy;
-        int64_t region_id = GEOPM_REGION_ID_INVALID;
         size_t length;
 
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {
-                region_id = GEOPM_REGION_ID_OUTER;
                 try {
                     m_tree_comm->get_sample(level, child_sample);
                     // use .begin() because map has only one entry
@@ -409,8 +402,8 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       m_telemetry_sample);
 
-                region_id = m_telemetry_sample.top().region_id;
-                auto it = m_region[level].find(region_id);
+                m_region_id = m_telemetry_sample.top().region_id;
+                auto it = m_region[level].find(m_region_id);
                 if (it != m_region[level].end()) {
                     Region *curr_region = (*it).second;
                     Policy *curr_policy = m_policy[level];
@@ -425,17 +418,16 @@ namespace geopm
                 }
                 else {
                     m_region[level].insert(std::pair<uint64_t, Region *>
-                                           (region_id,
-                                            new Region(region_id,
+                                           (m_region_id,
+                                            new Region(m_region_id,
                                                        GEOPM_POLICY_HINT_UNKNOWN,
                                                        m_platform->num_control_domain(),
                                                        level)));
-                    m_policy[level]->insert_region(region_id);
                 }
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
-                m_policy[level]->is_converged(region_id)) {
+                m_policy[level]->is_converged(m_region_id)) {
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
@@ -447,8 +439,15 @@ namespace geopm
 
     void Controller::enforce_child_policy(int level, const Policy &policy)
     {
-        std::vector<geopm_policy_message_s> message;
-        policy.policy_message(GEOPM_REGION_ID_INVALID, message);
-        m_tree_comm->send_policy(level, message);
+        std::vector<geopm_policy_message_s> child_msg(m_policy[level]->num_domain());
+        if (level) {
+            m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER,
+                                            m_last_policy_msg[level],
+                                            child_msg);
+        }
+        else {
+            m_policy[level]->policy_message(m_region_id, m_last_policy_msg[level], child_msg);
+        }
+        m_tree_comm->send_policy(level, child_msg);
     }
 }

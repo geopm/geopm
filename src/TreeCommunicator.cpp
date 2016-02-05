@@ -219,22 +219,20 @@ namespace geopm
 
     static MPI_Datatype create_policy_mpi_type(void)
     {
-        int blocklength[5] = {1, 1, 1, 1, 1};
-        MPI_Datatype mpi_type[5] = {MPI_INT,
-                                    MPI_INT,
+        int blocklength[4] = {1, 1, 1, 1};
+        MPI_Datatype mpi_type[4] = {MPI_INT,
                                     MPI_UNSIGNED_LONG,
                                     MPI_INT,
                                     MPI_DOUBLE
                                    };
-        MPI_Aint offset[5];
+        MPI_Aint offset[4];
         MPI_Datatype result;
 
-        offset[0] = offsetof(struct geopm_policy_message_s, region_id);
-        offset[1] = offsetof(struct geopm_policy_message_s, mode);
-        offset[2] = offsetof(struct geopm_policy_message_s, flags);
-        offset[3] = offsetof(struct geopm_policy_message_s, num_sample);
-        offset[4] = offsetof(struct geopm_policy_message_s, power_budget);
-        check_mpi(MPI_Type_create_struct(5, blocklength, offset, mpi_type, &result));
+        offset[0] = offsetof(struct geopm_policy_message_s, mode);
+        offset[1] = offsetof(struct geopm_policy_message_s, flags);
+        offset[2] = offsetof(struct geopm_policy_message_s, num_sample);
+        offset[3] = offsetof(struct geopm_policy_message_s, power_budget);
+        check_mpi(MPI_Type_create_struct(4, blocklength, offset, mpi_type, &result));
         check_mpi(MPI_Type_commit(&result));
         return result;
     }

@@ -32,13 +32,12 @@
 
 #include "geopm_message.h"
 
-const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1, -1.0};
+const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1.0};
 
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b)
 {
     int result = 1;
-    if (a->region_id != b->region_id ||
-        a->mode != b->mode ||
+    if (a->mode != b->mode ||
         a->flags != b->flags ||
         a->num_sample != b->num_sample ||
         a->power_budget != b->power_budget) {

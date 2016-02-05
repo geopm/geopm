@@ -151,8 +151,6 @@ enum geopm_sample_type_e {
 /// @brief MPI message structure for sending
 /// power policies down the tree.
 struct geopm_policy_message_s {
-    /// @brief 64-bit unique application region identifier.
-    uint64_t region_id;
     /// @brief Enum power management mode.
     int mode;
     /// @brief Power policy attribute bitmask
