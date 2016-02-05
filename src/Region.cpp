@@ -151,7 +151,23 @@ namespace geopm
         throw Exception("Region::statistics()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    double Region::integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const
+    double Region::derivative(int domain_idx, int signal_type) const
+    {
+        double result = NAN;
+        if (m_domain_buffer.size() >= 2) {
+            const std::vector<double> &signal_matrix_0 = m_domain_buffer.value(m_domain_buffer.size() - 2);
+            const std::vector<double> &signal_matrix_1 = m_domain_buffer.value(m_domain_buffer.size() - 1);
+            double delta_signal = signal_matrix_1[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type] -
+                                  signal_matrix_0[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
+            const struct geopm_time_s &time_0 = m_time_buffer.value(m_time_buffer.size() - 2);
+            const struct geopm_time_s &time_1 = m_time_buffer.value(m_time_buffer.size() - 1);
+            double delta_time = geopm_time_diff(&time_0, &time_1);
+            result = delta_signal / delta_time;
+        }
+        return result;
+    }
+
+    double Region::integral(int domain_idx, int signal_type, double &delta_time, double &integral) const
     {
         throw Exception("Region::integrate_time()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         return 0.0;

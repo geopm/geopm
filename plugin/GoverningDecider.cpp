@@ -59,6 +59,8 @@ namespace geopm
     GoverningDecider::GoverningDecider()
         : m_name("governing")
         , m_guard_band(0.05)
+        , m_min_num_converged(5)
+        , m_last_power_budget(DBL_MIN)
     {
 
     }
@@ -78,36 +80,67 @@ namespace geopm
         return m_name;
     }
 
+    bool GoverningDecider::update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy)
+    {
+        bool result = false;
+        if (policy_msg.power_budget != m_last_power_budget) {
+            int num_domain = curr_policy.num_domain();
+            double split_budget = policy_msg.power_budget / num_domain;
+            std::vector<double> domain_budget(num_domain);
+            std::fill(domain_budget.begin(), domain_budget.end(), split_budget);
+            std::vector<uint64_t> region_id;
+            curr_policy.region_id(region_id);
+            for (auto it = region_id.begin(); it != region_id.end(); ++it) {
+                curr_policy.update(*it, domain_budget);
+            }
+            m_last_power_budget = policy_msg.power_budget;
+            result = true;
+        }
+        return result;
+    }
+
     bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
-#if 0
-        double package_power = 0.0;
-        double memory_power = 0.0;
-        double total_power = package_power + memory_power;
+        const int num_domain = curr_policy.num_domain();
+        const uint64_t region_id = curr_region.identifier();
+        bool is_updated = false;
 
-        // Redistribute power if not within guard band of the budget
-        if (total_power > budget * (1 + m_guard_band) ||
-            total_power < budget * (1 - m_guard_band)) {
-
-            double per_package_target = (budget - memory_power) / package_domain.size();
-            double per_memory_target = 0.0;
-            if (per_package_target < m_package_min_power) {
-                per_package_target = m_package_min_power;
-                per_memory_target = (budget - per_package_target * package_domain.size()) / memory_domain.size();
-                if (per_memory_target < m_board_memory_min_power) {
-                    per_memory_target = m_board_memory_min_power;
-                }
-            }
-            for (auto domain_it = package_domain_index.begin(); domain_it != package_domain_index.end(); ++domain_it) {
-                policy.update(*domain_it, per_package_target);
-            }
-            if (per_memory_target != 0.0) {
-                for (auto domain_it = memory_domain_index.begin(); domain_it != memory_domain_index.end(); ++domain_it) {
-                    policy.update(*domain_it, per_memory_target);
-                }
+        std::vector<double> target(num_domain);
+        curr_policy.target(region_id, target);
+        for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+            double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
+            double dram_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
+            double total_power = pkg_power + dram_power;
+            if (total_power > target[domain_idx] * (1 + m_guard_band) ||
+                total_power < target[domain_idx] * (1 - m_guard_band)) {
+                target[domain_idx] -= dram_power;
+                is_updated = true;
             }
         }
-#endif
-        return false;
+        if (is_updated) {
+            curr_policy.update(region_id, target);
+            auto it = m_num_converged.find(region_id);
+            if (it == m_num_converged.end()) {
+                it = m_num_converged.insert(m_num_converged.begin(), std::pair<uint64_t, unsigned>(region_id, 0));
+            }
+            else {
+                (*it).second = 0;
+            }
+            curr_policy.is_converged(region_id, false);
+
+        }
+        else {
+            auto it = m_num_converged.find(region_id);
+            if (it == m_num_converged.end()) {
+                it = m_num_converged.insert(m_num_converged.begin(), std::pair<uint64_t, unsigned>(region_id, 1));
+            }
+            else {
+                ++(*it).second;
+            }
+            if ((*it).second >= m_min_num_converged) {
+                curr_policy.is_converged(region_id, true);
+            }
+        }
+        return is_updated;
     }
 }

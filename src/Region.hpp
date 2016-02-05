@@ -112,6 +112,7 @@ namespace geopm
             ///        M_NUM_STAT_TYPE which contains the computed
             ///        statistics as enumerated in m_stat_type_e.
             void statistics(int domain_idx, int signal_type, double result[]) const;
+            double derivative(int domain_idx, int signal_type) const;
             /// @brief Integrate a signal over time.
             ///
             /// Computes the integral of the signal over the interval
@@ -127,7 +128,7 @@ namespace geopm
             ///        enumerated in geopm_signal_type_e in
             ///        geopm_message.h.
             ///
-            double integrate_time(int domain_idx, int signal_type, double &delta_time, double &integral) const;
+            double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
         protected:
             /// @brief Holds a unique 64 bit region identifier.
             const uint64_t m_identifier;

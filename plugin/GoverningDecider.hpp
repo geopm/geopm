@@ -43,14 +43,16 @@ namespace geopm
         public:
             GoverningDecider();
             virtual ~GoverningDecider();
+            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
             virtual bool update_policy(Region &curr_region, Policy &curr_policy);
             virtual bool decider_supported(const std::string &descripton);
             virtual const std::string& name(void) const;
         private:
             const std::string m_name;
-            double m_guard_band;
-            double m_package_min_power;
-            double m_board_memory_min_power;
+            const double m_guard_band;
+            const unsigned m_min_num_converged;
+            double m_last_power_budget;
+            std::map<uint64_t, unsigned> m_num_converged;
     };
 }
 
