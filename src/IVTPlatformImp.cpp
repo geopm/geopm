@@ -172,16 +172,34 @@ namespace geopm
 
         switch (signal_type) {
             case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                if (value < m_min_pkg_watts) {
+                    value = m_min_pkg_watts;
+                }
+                if (value > m_max_pkg_watts) {
+                    value = m_max_pkg_watts;
+                }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK_MAGIC;
                 msr_write(device_type, device_index, m_control_msr_offset[0], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
+                if (value < m_min_pp0_watts) {
+                    value = m_min_pp0_watts;
+                }
+                if (value > m_max_pp0_watts) {
+                    value = m_max_pp0_watts;
+                }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK_MAGIC;
                 msr_write(device_type, device_index, m_control_msr_offset[1], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                if (value < m_min_dram_watts) {
+                    value = m_min_dram_watts;
+                }
+                if (value > m_max_dram_watts) {
+                    value = m_max_dram_watts;
+                }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK_MAGIC;
                 msr_write(device_type, device_index, m_control_msr_offset[2], msr_val);
