@@ -109,7 +109,7 @@ namespace geopm
             /// freq_hybrid_static.
             /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.
-            virtual void enforce_policy(uint64_t region_id, const Policy &policy) const = 0;
+            virtual void enforce_policy(uint64_t region_id, Policy &policy) const = 0;
             /// @brief Retrieve the topology of the current platform.
             /// @return PlatformTopology object containing the current
             ///         topology information.
@@ -140,7 +140,7 @@ namespace geopm
             /// per-cpu, and per-rank signals into the domain of control.
             const std::vector<double> *signal_domain_transform(void) const;
             /// @brief Retrieve the number of control domains
-            /// @return The number of control domains on teh hw platform.
+            /// @return The number of control domains on the hw platform.
             int num_control_domain(void) const;
         protected:
             /// @brief Pointer to a PlatformImp object that supports the target
