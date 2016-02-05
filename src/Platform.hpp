@@ -51,6 +51,9 @@ namespace geopm
         public:
             /// @brief Default constructor.
             Platform();
+            /// @param [in] control_domain_type enum geopm_domain_type_e
+            ///        describing the finest grain domain of control.
+            Platform(int control_domain_type);
             /// @brief Default destructor.
             virtual ~Platform();
             /// @brief Set our member variable pointing to a PlatformImp object.
@@ -143,9 +146,6 @@ namespace geopm
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.
             PlatformImp *m_imp;
-            /// @brief Pointer to the application region object that is
-            /// currently executing.
-            Region *m_curr_region;
             /// @brief The number of power domains
             int m_num_domain;
             /// @brief The geopm_domain_type_e of the finest domain of control

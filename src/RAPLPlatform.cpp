@@ -39,12 +39,13 @@
 namespace geopm
 {
     RAPLPlatform::RAPLPlatform()
-        : m_description("rapl")
+        : Platform(GEOPM_CONTROL_DOMAIN_POWER)
+        , m_description("rapl")
         , M_HSX_ID(0x63F)
         , M_IVT_ID(0x63E)
         , M_SNB_ID(0x62D)
     {
-        m_control_domain_type = GEOPM_CONTROL_DOMAIN_POWER;
+
     }
 
     RAPLPlatform::~RAPLPlatform()

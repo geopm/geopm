@@ -40,7 +40,8 @@
 namespace geopm
 {
     HSXPlatformImp::HSXPlatformImp()
-        : m_energy_units(1.0)
+        : PlatformImp(3, 5)
+        , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)
@@ -63,8 +64,7 @@ namespace geopm
         , M_DRAM_POWER_LIMIT_MASK_MAGIC(0xfefffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
         , M_PP0_POWER_LIMIT_MASK_MAGIC(0xfffffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
     {
-        m_num_cpu_signal = 5;
-        m_num_package_signal = 3;
+
     }
 
     HSXPlatformImp::~HSXPlatformImp()

@@ -56,6 +56,19 @@ namespace geopm
         , m_num_tile_group(0)
         , m_num_package(0)
     {
+
+    }
+
+    PlatformImp::PlatformImp(int num_package_signal, int num_cpu_signal)
+        : m_num_logical_cpu(0)
+        , m_num_hw_cpu(0)
+        , m_num_tile(0)
+        , m_num_tile_group(0)
+        , m_num_package(0)
+        , m_num_package_signal(num_package_signal)
+        , m_num_cpu_signal(num_cpu_signal)
+    {
+
     }
 
     PlatformImp::~PlatformImp() {}

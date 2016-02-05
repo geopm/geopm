@@ -409,7 +409,7 @@ namespace geopm
                     Policy *curr_policy = m_policy[level];
                     curr_region->insert(m_telemetry_sample);
                     if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                        m_platform->enforce_policy(region_id, *curr_policy);
+                        m_platform->enforce_policy(m_region_id, *curr_policy);
                     }
                     auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                     if (outer_it != m_region[level].end()) {

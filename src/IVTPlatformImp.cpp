@@ -40,7 +40,8 @@
 namespace geopm
 {
     IVTPlatformImp::IVTPlatformImp()
-        : m_energy_units(1.0)
+        : PlatformImp(3, 5)
+        , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)

@@ -102,7 +102,16 @@ namespace geopm
 
     Platform::Platform()
         : m_imp(NULL)
+        , m_num_domain(0)
         , m_control_domain_type(GEOPM_CONTROL_DOMAIN_POWER)
+    {
+
+    }
+
+    Platform::Platform(int control_domain_type)
+        : m_imp(NULL)
+        , m_num_domain(0)
+        , m_control_domain_type(control_domain_type)
     {
 
     }

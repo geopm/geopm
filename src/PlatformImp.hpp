@@ -69,6 +69,7 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
+            PlatformImp(int num_package_signal, int num_cpu_signal);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
 
