@@ -34,13 +34,19 @@
 
 class MockPlatformImp : public geopm::PlatformImp {
     public:
-        MOCK_CONST_METHOD0(package,
+        MOCK_CONST_METHOD0(num_package,
             int(void));
-        MOCK_CONST_METHOD0(tile,
+        MOCK_CONST_METHOD0(num_tile,
             int(void));
-        MOCK_CONST_METHOD0(hw_cpu,
+        MOCK_CONST_METHOD0(num_tile_group,
             int(void));
-        MOCK_CONST_METHOD0(logical_cpu,
+        MOCK_CONST_METHOD0(num_hw_cpu,
+            int(void));
+        MOCK_CONST_METHOD0(num_logical_cpu,
+            int(void));
+        MOCK_CONST_METHOD0(num_package_signal,
+            int(void));
+        MOCK_CONST_METHOD0(num_cpu_signal,
             int(void));
         MOCK_CONST_METHOD0(topology,
             geopm::PlatformTopology*(void));
@@ -52,7 +58,7 @@ class MockPlatformImp : public geopm::PlatformImp {
             bool(int platform_id));
         MOCK_METHOD0(platform_name,
             std::string(void));
-        MOCK_METHOD0(reset_msrs,
+        MOCK_METHOD0(msr_reset,
             void(void));
         MOCK_CONST_METHOD0(power_control_domain,
             int(void));
@@ -60,6 +66,10 @@ class MockPlatformImp : public geopm::PlatformImp {
             int(void));
         MOCK_METHOD0(parse_hw_topology,
             void(void));
-        MOCK_METHOD0(initialize_msrs,
+        MOCK_METHOD0(msr_initialize,
             void());
+        MOCK_METHOD3(read_signal,
+            double(int device_type, int device_index, int signal_type));
+        MOCK_METHOD4(write_control,
+            void(int device_type, int device_index, int signal_type, double value));
 };

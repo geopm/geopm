@@ -52,34 +52,37 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual bool model_supported(int platform_id);
         virtual std::string platform_name();
         virtual void msr_path(int cpu);
-        virtual void initialize_msrs(void);
-        virtual void reset_msrs(void);
+        virtual void msr_initialize(void);
+        virtual void msr_reset(void);
         virtual int power_control_domain(void) const;
         virtual int frequency_control_domain(void) const;
+        virtual double read_signal(int device_type, int device_index, int signal_type);
+        virtual void write_control(int device_type, int device_index, int signal_type, double value);
 };
 
 TestPlatformImp::TestPlatformImp()
 {
-    m_logical_cpus = 1;
-    m_hw_cpus = NUM_CPU;
-    m_tiles = NUM_TILE;
-    m_packages = NUM_PACKAGE;
+    m_num_logical_cpu = NUM_CPU;
+    m_num_hw_cpu = NUM_CPU;
+    m_num_tile = NUM_TILE;
+    m_num_package = NUM_PACKAGE;
+    m_num_cpu_per_core = 1;
 
-    for(off_t i = 0; (int)i < m_hw_cpus; i++) {
+    for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         std::pair<off_t, unsigned long> msr_info(i*64, 0x0000000000000000);
         m_msr_offset_map.insert(std::pair<std::string, std::pair<off_t, unsigned long> >(name, msr_info));
-        open_msr(i);
+        msr_open(i);
     }
     //for negative tests
-    m_cpu_file_descs.push_back(675);
+    m_cpu_file_desc.push_back(675);
 }
 
 TestPlatformImp::~TestPlatformImp()
 {
-    for(off_t i = 0; (int)i < m_hw_cpus; i++) {
-        close_msr(i);
+    for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
+        msr_close(i);
         snprintf(m_msr_path, 256, "/tmp/msrfile%d", (int)i);
         remove(m_msr_path);
     }
@@ -96,12 +99,12 @@ std::string TestPlatformImp::platform_name()
     return name;
 }
 
-void TestPlatformImp::initialize_msrs(void)
+void TestPlatformImp::msr_initialize(void)
 {
     return;
 }
 
-void TestPlatformImp::reset_msrs(void)
+void TestPlatformImp::msr_reset(void)
 {
     return;
 }
@@ -142,6 +145,16 @@ void TestPlatformImp::msr_path(int cpu)
     return;
 }
 
+double TestPlatformImp::read_signal(int device_type, int device_index, int signal_type)
+{
+    return 1.0;
+}
+
+void TestPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
+{
+
+}
+
 class TestPlatformImp2 : public geopm::PlatformImp
 {
     public:
@@ -157,11 +170,11 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             return true;
         }
-        virtual void initialize_msrs(void)
+        virtual void msr_initialize(void)
         {
             return;
         }
-        virtual void reset_msrs(void)
+        virtual void msr_reset(void)
         {
             return;
         }
@@ -173,9 +186,17 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             return geopm::GEOPM_DOMAIN_CPU;
         }
+        virtual double read_signal(int device_type, int device_index, int signal_type)
+        {
+            return 1.0;
+        }
+        virtual void write_control(int device_type, int device_index, int signal_type, double value)
+        {
+            ;
+        }
         virtual std::string platform_name();
     protected:
-        FRIEND_TEST(PlatformImpTest, negative_open_msr);
+        FRIEND_TEST(PlatformImpTest, negative_msr_open);
         FRIEND_TEST(PlatformImpTest, parse_topology);
 };
 
@@ -218,28 +239,28 @@ TEST_F(PlatformImpTest, platform_get_name)
 
 TEST_F(PlatformImpTest, platform_get_package)
 {
-    int num = m_platform->package();
+    int num = m_platform->num_package();
 
     EXPECT_TRUE(num == NUM_PACKAGE);
 }
 
 TEST_F(PlatformImpTest, platform_get_tile)
 {
-    int num = m_platform->tile();
+    int num = m_platform->num_tile();
 
     EXPECT_TRUE(num == NUM_TILE);
 }
 
 TEST_F(PlatformImpTest, platform_get_cpu)
 {
-    int num = m_platform->hw_cpu();
+    int num = m_platform->num_hw_cpu();
 
     EXPECT_TRUE(num == NUM_CPU);
 }
 
 TEST_F(PlatformImpTest, platform_get_hyperthreaded)
 {
-    EXPECT_TRUE(m_platform->logical_cpu() == 1);
+    EXPECT_TRUE(m_platform->num_logical_cpu() == NUM_CPU);
 }
 
 TEST_F(PlatformImpTest, platform_get_offsets)
@@ -258,13 +279,13 @@ TEST_F(PlatformImpTest, cpu_msr_read_write)
     for(uint64_t i = 0; i < NUM_CPU; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        m_platform->write_msr(geopm::GEOPM_DOMAIN_CPU, i, name, i);
+        m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, i, name, i);
     }
 
     for(uint64_t i = 0; i < NUM_CPU; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        value = m_platform->read_msr(geopm::GEOPM_DOMAIN_CPU, i, name);
+        value = m_platform->msr_read(geopm::GEOPM_DOMAIN_CPU, i, name);
         EXPECT_TRUE((value == i));
     }
 }
@@ -276,13 +297,13 @@ TEST_F(PlatformImpTest, tile_msr_read_write)
     for(uint64_t i = 0; i < NUM_TILE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        m_platform->write_msr(geopm::GEOPM_DOMAIN_TILE, i, name, i*3);
+        m_platform->msr_write(geopm::GEOPM_DOMAIN_TILE, i, name, i*3);
     }
 
     for(uint64_t i = 0; i < NUM_TILE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        value = m_platform->read_msr(geopm::GEOPM_DOMAIN_TILE, i, name);
+        value = m_platform->msr_read(geopm::GEOPM_DOMAIN_TILE, i, name);
         EXPECT_TRUE((value == (i*3)));
     }
 }
@@ -294,18 +315,18 @@ TEST_F(PlatformImpTest, package_msr_read_write)
     for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        m_platform->write_msr(geopm::GEOPM_DOMAIN_PACKAGE, i, name, i*5);
+        m_platform->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, i, name, i*5);
     }
 
     for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        value = m_platform->read_msr(geopm::GEOPM_DOMAIN_PACKAGE, i, name);
+        value = m_platform->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, name);
         EXPECT_TRUE((value == (i*5)));
     }
 }
 
-TEST_F(PlatformImpTest, write_msr_whitelist)
+TEST_F(PlatformImpTest, msr_write_whitelist)
 {
     size_t size;
     std::ifstream val;
@@ -362,7 +383,7 @@ TEST_F(PlatformImpTest, negative_read_no_desc)
     std::string name = "MSR_TEST_0";
 
     try {
-        (void) m_platform->read_msr(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name);
+        (void) m_platform->msr_read(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name);
     }
     catch(geopm::Exception e) {
         thrown = e.err_value();
@@ -378,7 +399,7 @@ TEST_F(PlatformImpTest, negative_write_no_desc)
     std::string name = "MSR_TEST_0";
 
     try {
-        m_platform->write_msr(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name, value);
+        m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name, value);
     }
     catch(geopm::Exception e) {
         thrown = e.err_value();
@@ -393,7 +414,7 @@ TEST_F(PlatformImpTest, negative_read_bad_desc)
     std::string name = "MSR_TEST_0";
 
     try {
-        (void) m_platform->read_msr(geopm::GEOPM_DOMAIN_CPU, NUM_CPU, name);
+        (void) m_platform->msr_read(geopm::GEOPM_DOMAIN_CPU, NUM_CPU, name);
     }
     catch(std::runtime_error e) {
         thrown = 1;
@@ -409,7 +430,7 @@ TEST_F(PlatformImpTest, negative_write_bad_desc)
     std::string name = "MSR_TEST_0";
 
     try {
-        m_platform->write_msr(geopm::GEOPM_DOMAIN_CPU, NUM_CPU, name, value);
+        m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, NUM_CPU, name, value);
     }
     catch(std::runtime_error e) {
         thrown = 1;
@@ -418,13 +439,13 @@ TEST_F(PlatformImpTest, negative_write_bad_desc)
     EXPECT_TRUE((thrown==1));
 }
 
-TEST_F(PlatformImpTest, negative_open_msr)
+TEST_F(PlatformImpTest, negative_msr_open)
 {
     int thrown = 0;
     TestPlatformImp2 p;
 
     try {
-        p.open_msr(5000);
+        p.msr_open(5000);
     }
     catch(geopm::Exception e) {
         thrown = 1;
@@ -447,7 +468,7 @@ TEST_F(PlatformImpTest, parse_topology)
 
     EXPECT_TRUE((thrown==0));
 
-    EXPECT_TRUE((p.package() > 0));
-    EXPECT_TRUE((p.hw_cpu() > 0));
+    EXPECT_TRUE((p.num_package() > 0));
+    EXPECT_TRUE((p.num_hw_cpu() > 0));
 }
 

@@ -60,7 +60,7 @@ class DumbPlatform : public Platform
         virtual size_t capacity(void);
         virtual void sample(std::vector<struct geopm_msr_message_s> &msr_msg);
         virtual bool model_supported(int platfrom_id, const std::string &description) const;
-        virtual void enforce_policy(const Policy &policy) const;
+        virtual void enforce_policy(uint64_t region_id, const Policy &policy) const;
     protected:
         const std::string m_name;
 };
@@ -72,12 +72,14 @@ class DumbPlatformImp : public PlatformImp
         virtual ~DumbPlatformImp();
         virtual bool model_supported(int platform_id);
         virtual std::string platform_name(void);
-        virtual void reset_msrs(void);
+        virtual void msr_reset(void);
         virtual int power_control_domain(void) const;
         virtual int frequency_control_domain(void) const;
         virtual int control_domain(void) const;
+        virtual double read_signal(int device_type, int device_index, int signal_type);
+        virtual void write_control(int device_type, int device_index, int signal_type, double value);
     protected:
-        virtual void initialize_msrs(void);
+        virtual void msr_initialize(void);
         const std::string m_name;
 };
 

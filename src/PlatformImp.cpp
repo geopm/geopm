@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+#include <math.h>
 
 #include <fstream>
 #include <iomanip>
@@ -49,10 +50,11 @@ namespace geopm
 {
 
     PlatformImp::PlatformImp()
-        : m_logical_cpus(0)
-        , m_hw_cpus(0)
-        , m_tiles(0)
-        , m_packages(0)
+        : m_num_logical_cpu(0)
+        , m_num_hw_cpu(0)
+        , m_num_tile(0)
+        , m_num_tile_group(0)
+        , m_num_package(0)
     {
     }
 
@@ -61,27 +63,47 @@ namespace geopm
     void PlatformImp::initialize()
     {
         parse_hw_topology();
-        initialize_msrs();
+        msr_initialize();
+        int num_signal = m_num_package_signal * m_num_package + m_num_cpu_signal * m_num_hw_cpu;
+        m_msr_value_last.resize(num_signal);
+        m_msr_overflow_offset.resize(num_signal);
+        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
+        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
     }
 
-    int PlatformImp::package(void) const
+    int PlatformImp::num_package(void) const
     {
-        return m_packages;
+        return m_num_package;
     }
 
-    int PlatformImp::tile(void) const
+    int PlatformImp::num_tile(void) const
     {
-        return m_tiles;
+        return m_num_tile;
     }
 
-    int PlatformImp::hw_cpu(void) const
+    int PlatformImp::num_tile_group(void) const
     {
-        return m_hw_cpus;
+        return m_num_tile_group;
     }
 
-    int PlatformImp::logical_cpu(void) const
+    int PlatformImp::num_hw_cpu(void) const
     {
-        return m_logical_cpus;
+        return m_num_hw_cpu;
+    }
+
+    int PlatformImp::num_logical_cpu(void) const
+    {
+        return m_num_logical_cpu;
+    }
+
+    int PlatformImp::num_package_signal(void) const
+    {
+        return m_num_package_signal;
+    }
+
+    int PlatformImp::num_cpu_signal(void) const
+    {
+        return m_num_cpu_signal;
     }
 
     const PlatformTopology *PlatformImp::topology(void) const
@@ -89,48 +111,48 @@ namespace geopm
         return &m_topology;
     }
 
-    void PlatformImp::write_msr(int device_type, int device_index, const std::string &msr_name, uint64_t value)
+    void PlatformImp::msr_write(int device_type, int device_index, const std::string &msr_name, uint64_t value)
     {
         off_t offset = m_msr_offset_map.find(msr_name)->second.first;
-        write_msr(device_type, device_index, offset, value);
+        msr_write(device_type, device_index, offset, value);
     }
 
-    void PlatformImp::write_msr(int device_type, int device_index, off_t msr_offset, uint64_t value)
+    void PlatformImp::msr_write(int device_type, int device_index, off_t msr_offset, uint64_t value)
     {
         if (device_type == GEOPM_DOMAIN_PACKAGE)
-            device_index = (m_hw_cpus / m_packages) * device_index;
+            device_index = (m_num_logical_cpu / m_num_package) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
-            device_index = (m_hw_cpus / m_tiles) * device_index;
+            device_index = (m_num_logical_cpu / m_num_tile) * device_index;
 
-        if (m_cpu_file_descs.size() < (uint64_t)device_index) {
+        if (m_cpu_file_desc.size() < (uint64_t)device_index) {
             throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
-        int rv = pwrite(m_cpu_file_descs[device_index], &value, sizeof(value), msr_offset);
+        int rv = pwrite(m_cpu_file_desc[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
             throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
     }
 
-    uint64_t PlatformImp::read_msr(int device_type, int device_index, const std::string &msr_name)
+    uint64_t PlatformImp::msr_read(int device_type, int device_index, const std::string &msr_name)
     {
         off_t offset = m_msr_offset_map.find(msr_name)->second.first;
-        return read_msr(device_type, device_index, offset);
+        return msr_read(device_type, device_index, offset);
     }
 
-    uint64_t PlatformImp::read_msr(int device_type, int device_index, off_t msr_offset)
+    uint64_t PlatformImp::msr_read(int device_type, int device_index, off_t msr_offset)
     {
         uint64_t value;
 
         if (device_type == GEOPM_DOMAIN_PACKAGE)
-            device_index = (m_hw_cpus / m_packages) * device_index;
+            device_index = (m_num_logical_cpu / m_num_package) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
-            device_index = (m_hw_cpus / m_tiles) * device_index;
+            device_index = (m_num_logical_cpu / m_num_tile) * device_index;
 
 
-        if (m_cpu_file_descs.size() < (uint64_t)device_index) {
+        if (m_cpu_file_desc.size() < (uint64_t)device_index) {
             throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
-        int rv = pread(m_cpu_file_descs[device_index], &value, sizeof(value), msr_offset);
+        int rv = pread(m_cpu_file_desc[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
             throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
@@ -165,7 +187,7 @@ namespace geopm
         throw Exception("checked /dev/cpu/0/msr and /dev/cpu/0/msr_safe", GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
     }
 
-    void PlatformImp::open_msr(int cpu)
+    void PlatformImp::msr_open(int cpu)
     {
         int fd;
 
@@ -190,14 +212,14 @@ namespace geopm
         }
 
         //all is good, return handle
-        m_cpu_file_descs.push_back(fd);
+        m_cpu_file_desc.push_back(fd);
     }
 
-    void PlatformImp::close_msr(int cpu)
+    void PlatformImp::msr_close(int cpu)
     {
-        int rv = close(m_cpu_file_descs[cpu]);
+        int rv = close(m_cpu_file_desc[cpu]);
         //mark as invalid
-        m_cpu_file_descs[cpu] = -1;
+        m_cpu_file_desc[cpu] = -1;
 
         //check for errors
         if (rv < 0) {
@@ -215,11 +237,21 @@ namespace geopm
 
     void PlatformImp::parse_hw_topology(void)
     {
-        int num_core = 0;
+        m_num_logical_cpu = m_topology.num_domain(GEOPM_DOMAIN_CPU);
+        m_num_package = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
+        m_num_hw_cpu = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE);
+        m_num_cpu_per_core = m_num_logical_cpu / m_num_hw_cpu;
+    }
 
-        m_hw_cpus = m_topology.num_domain(GEOPM_DOMAIN_CPU);
-        m_packages = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
-        num_core = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE);
-        m_logical_cpus = num_core ? (m_hw_cpus / num_core) : 1;
+    double PlatformImp::msr_overflow(int signal_idx, uint32_t msr_size, double value)
+    {
+        // Deal with register overflow
+        if (value < m_msr_value_last[signal_idx]) {
+            m_msr_overflow_offset[signal_idx] += pow(2, msr_size);
+        }
+        m_msr_value_last[signal_idx] = value;
+        value += m_msr_overflow_offset[signal_idx];
+
+        return value;
     }
 }

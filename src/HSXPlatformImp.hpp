@@ -63,8 +63,10 @@ namespace geopm
             //////////////////////////////////////////////
             virtual bool model_supported(int platform_id);
             virtual std::string platform_name();
-            virtual void initialize_msrs();
-            virtual void reset_msrs();
+            virtual double read_signal(int device_type, int device_index, int signal_type);
+            virtual void write_control(int device_type, int device_index, int signal_type, double value);
+            virtual void msr_initialize();
+            virtual void msr_reset();
             virtual int power_control_domain(void) const;
             virtual int frequency_control_domain(void) const;
 
@@ -102,6 +104,25 @@ namespace geopm
             double m_max_dram_watts;
             /// @brief Stores the platform identifier.
             int m_platform_id;
+            /// @brief Vector of MSR offsets for reading.
+            std::vector<off_t> m_signal_msr_offset;
+            /// @brief Vector of MSR offsets to writing.
+            std::vector<off_t> m_control_msr_offset;
+
+            ///Constants
+            const std::string M_HSX_MODEL_NAME;
+            const unsigned int M_BOX_FRZ_EN;
+            const unsigned int M_BOX_FRZ;
+            const unsigned int M_CTR_EN;
+            const unsigned int M_RST_CTRS;
+            const unsigned int M_LLC_FILTER_MASK;
+            const unsigned int M_LLC_VICTIMS_EV_SEL;
+            const unsigned int M_LLC_VICTIMS_UMASK;
+            const unsigned int M_EVENT_SEL_0;
+            const unsigned int M_UMASK_0;
+            const uint64_t M_PKG_POWER_LIMIT_MASK_MAGIC;
+            const uint64_t M_DRAM_POWER_LIMIT_MASK_MAGIC;
+            const uint64_t M_PP0_POWER_LIMIT_MASK_MAGIC;
     };
 }
 

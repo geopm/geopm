@@ -216,9 +216,9 @@ TEST_F(SampleRegulatorTest, transform)
 {
     // Use new platform data for this test we need 7 cpu signals
     unsigned num_cpu = 8;
-    unsigned num_cpu_signal = 7;
+    unsigned num_cpu_signal = GEOPM_NUM_TELEMETRY_TYPE - M_NUM_RANK_SIGNAL;
     unsigned num_rank = 4;
-    unsigned num_rank_signal = 2;
+    unsigned num_rank_signal = M_NUM_RANK_SIGNAL;
     m_test_plat.resize(num_cpu * num_cpu_signal);
     for (unsigned cpu = 0; cpu != num_cpu; ++cpu) {
         for (unsigned cpu_sig = 0; cpu_sig != num_cpu_signal; ++cpu_sig) {
@@ -290,13 +290,13 @@ TEST_F(SampleRegulatorTest, transform)
                 if (i < GEOPM_NUM_TELEMETRY_TYPE - M_NUM_RANK_SIGNAL) {
                     signal_expect = (double) i;
                 }
-                else if (i % 2) { // progress
-                    signal_expect = 0.2;
-                }
-                else { // runtime
+                else if ((i - (GEOPM_NUM_TELEMETRY_TYPE - M_NUM_RANK_SIGNAL)) % 2) { // runtime
                     signal_expect = 0.0;
                 }
-                ASSERT_DOUBLE_EQ(signal_expect, tmp_tel->signal[i]);
+                else { // progress
+                    signal_expect = 0.2;
+                }
+                EXPECT_DOUBLE_EQ(signal_expect, tmp_tel->signal[i]);
             }
             telemetry.pop();
         }

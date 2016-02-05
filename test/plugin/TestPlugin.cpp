@@ -116,7 +116,7 @@ bool DumbPlatform::model_supported(int platform_id, const std::string &descripti
     return false;
 }
 
-void DumbPlatform::enforce_policy(const Policy &policy) const
+void DumbPlatform::enforce_policy(uint64_t region_id, const Policy &policy) const
 {
 
 }
@@ -142,7 +142,7 @@ std::string DumbPlatformImp::platform_name(void)
     return m_name;
 }
 
-void DumbPlatformImp::reset_msrs(void)
+void DumbPlatformImp::msr_reset(void)
 {
 
 }
@@ -162,7 +162,18 @@ int DumbPlatformImp::control_domain(void) const
     return 0;
 }
 
-void DumbPlatformImp::initialize_msrs(void)
+void DumbPlatformImp::msr_initialize(void)
 {
 
 }
+
+double DumbPlatformImp::read_signal(int device_type, int device_index, int signal_type)
+{
+    return 1.0;
+}
+
+void DumbPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
+{
+
+}
+

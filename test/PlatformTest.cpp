@@ -54,7 +54,6 @@ class PlatformTest: public :: testing :: Test
         MockPlatformImp *platformimp;
         MockPlatformTopology *topo;
         std::vector<hwloc_obj_t> package;
-//        std::vector<hwloc_obj_t> cpu;
         std::vector<hwloc_obj_t> package1_cpu;
         std::vector<hwloc_obj_t> package2_cpu;
 
@@ -69,14 +68,20 @@ void PlatformTest::SetUp()
 
     EXPECT_CALL(*platformimp, initialize());
 
-    EXPECT_CALL(*platformimp, hw_cpu())
+    EXPECT_CALL(*platformimp, num_logical_cpu())
     .WillRepeatedly(Return(8));
 
-    EXPECT_CALL(*platformimp, package())
+    EXPECT_CALL(*platformimp, num_package())
     .WillRepeatedly(testing::Return(2));
 
-    EXPECT_CALL(*platformimp, logical_cpu())
-    .WillRepeatedly(testing::Return(1));
+    EXPECT_CALL(*platformimp, num_hw_cpu())
+    .WillRepeatedly(testing::Return(8));
+
+    EXPECT_CALL(*platformimp, num_package_signal())
+    .WillRepeatedly(testing::Return(3));
+
+    EXPECT_CALL(*platformimp, num_cpu_signal())
+    .WillRepeatedly(testing::Return(5));
 
     platform->set_implementation((geopm::PlatformImp*)platformimp);
     hwloc_obj_t obj;
@@ -88,13 +93,6 @@ void PlatformTest::SetUp()
         obj->logical_index = i;
         package.push_back(obj);
     }
-/*    for (int i = 0; i < 8; i++) {
-        obj = (hwloc_obj_t)malloc(sizeof(struct hwloc_obj));
-        obj->type = (hwloc_obj_type_t)(geopm::GEOPM_DOMAIN_CPU);
-        obj->os_index = i;
-        obj->logical_index = i;
-        cpu.push_back(obj);
-    }*/
     for (int i = 0; i < 4; i++) {
         obj = (hwloc_obj_t)malloc(sizeof(struct hwloc_obj));
         obj->type = (hwloc_obj_type_t)(geopm::GEOPM_DOMAIN_CPU);
@@ -126,7 +124,9 @@ TEST_F(PlatformTest, transform_init)
 {
     std::vector<int> cpu_ranks({0, 0, 1, 1, 2, 2, 3, 3});
     std::vector<double> result(2 * GEOPM_NUM_TELEMETRY_TYPE);
-    std::vector<double> expect({1, 1, 1, 4, 4, 4, 4, 2, 2, 1, 1, 1, 4, 4, 4, 4, 2, 2});
+    std::vector<double> expect({1, 1, 1, 4, 4, 4, 4, 4, 2, 2, 1, 1, 1, 4, 4, 4, 4, 4, 2, 2});
+
+    EXPECT_EQ(expect.size(), result.size());
 
     EXPECT_CALL(*platformimp, topology())
     .WillOnce(testing::Return(topo));

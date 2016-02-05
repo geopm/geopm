@@ -57,23 +57,12 @@ namespace geopm
             /// @param [in] platform_imp A PlatformImp object that is compatible
             ///        with this platform and the underlying hardware.
             virtual void set_implementation(PlatformImp* platform_imp);
-            /// @brief Sets the current region to add telemetry to.
-            /// @param [in] region A pointer to the current Region object.
-            void region_begin(Region *region);
-            /// @brief Signal that the current region has ended.
-            void region_end(void);
-            /// @brief Retrieve the current region object.
-            /// @return A pointer to the current region object.
-            Region *cur_region(void) const;
             /// @brief Retrieve the number of power domains.
             /// @return Number of power domains.
             int num_domain(void) const;
-            void domain_index(int domain_type, std::vector <int> &domain_index) const;
-            int level(void) const;
+            /// @brief Retrieve the string name of the hw platform.
+            /// @return The hw platform name.
             void name(std::string &plat_name) const;
-            void buffer_index(hwloc_obj_t domain,
-                              const std::vector <std::string> &signal_names,
-                              std::vector <int> &buffer_index) const;
             /// @brief Set the power limit of the CPUs to a percentage of
             /// Thermal Design Power (TDP).
             /// @param [in] percentage The percentage of TDP.
@@ -117,7 +106,7 @@ namespace geopm
             /// freq_hybrid_static.
             /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.
-            virtual void enforce_policy(const Policy &policy) const = 0;
+            virtual void enforce_policy(uint64_t region_id, const Policy &policy) const = 0;
             /// @brief Retrieve the topology of the current platform.
             /// @return PlatformTopology object containing the current
             ///         topology information.
@@ -129,19 +118,28 @@ namespace geopm
             ///     PP0_ENERGY                   ///
             ///     DRAM_ENERGY                  ///
             /// followed by per cpu signals      ///
+            ///     FREQUENCY                    ///
             ///     INST_RETIRED                 ///
             ///     CLK_UNHALTED_CORE            ///
             ///     CLK_UNHALTED_REF             ///
             ///     LLC_VICTIMS                  ///
             /// followed by per rank signals     ///
             ///     PROGRESS                     ///
-            ///     RUNTIME???                   ///
+            ///     RUNTIME                      ///
             ////////////////////////////////////////
+            /// @brief initialize the signal transformation matrix.
+            /// Initialize the matrix that transforms the per package,
+            /// per-cpu, and per-rank signals into the domain of control.
+            /// @param [in] cpu_rank The mapping from cpu index to rank id.
             void init_transform(const std::vector<int> &cpu_rank);
+            /// @brief Retrieve the signal transformation matrix.
+            /// @return The matrix that transforms the per package,
+            /// per-cpu, and per-rank signals into the domain of control.
             const std::vector<double> *signal_domain_transform(void) const;
+            /// @brief Retrieve the number of control domains
+            /// @return The number of control domains on teh hw platform.
             int num_control_domain(void) const;
         protected:
-            double msr_overflow(int signal_idx, uint32_t msr_size, double value);
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.
             PlatformImp *m_imp;
@@ -150,12 +148,11 @@ namespace geopm
             Region *m_curr_region;
             /// @brief The number of power domains
             int m_num_domain;
-            int m_num_counter;
-            int m_window_size;
-            int m_level;
+            /// @brief The geopm_domain_type_e of the finest domain of control
+            /// on the hw platform.
             int m_control_domain_type;
-            std::vector<double> m_msr_value_last;
-            std::vector<double> m_msr_overflow_offset;
+            /// @brief The matrix that transforms the per package,
+            /// per-cpu, and per-rank signals into the domain of control.
             std::vector<double> m_signal_domain_matrix;
     };
 }

@@ -102,7 +102,6 @@ namespace geopm
 
     Platform::Platform()
         : m_imp(NULL)
-        , m_level(-1)
         , m_control_domain_type(GEOPM_CONTROL_DOMAIN_POWER)
     {
 
@@ -117,12 +116,6 @@ namespace geopm
     {
         m_imp = platform_imp;
         m_imp->initialize();
-
-        // Resize vectors to the number of individual msrs we read
-        m_msr_value_last.resize(capacity());
-        m_msr_overflow_offset.resize(capacity());
-        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
-        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
     }
 
     void Platform::name(std::string &plat_name) const
@@ -133,43 +126,9 @@ namespace geopm
         plat_name = m_imp->platform_name();
     }
 
-    void Platform::buffer_index(hwloc_obj_t domain,
-                                const std::vector <std::string> &signal_names,
-                                std::vector <int> &buffer_index) const
-    {
-        /* FIXME need to figure out how to implement this function */
-        throw Exception("Platform does not support buffer_index() method", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-    }
-
-    int Platform::level(void) const
-    {
-        return m_level;
-    }
-
-    void Platform::region_begin(Region *region)
-    {
-        m_curr_region = region;
-    }
-
-    void Platform::region_end(void)
-    {
-        m_curr_region = NULL;
-    }
-
     int Platform::num_domain(void) const
     {
-        return m_num_domain;
-    }
-
-    void Platform::domain_index(int domain_type, std::vector <int> &domain_index) const
-    {
-        // FIXME
-        throw Exception("Platform does not support domain_index() method", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-    }
-
-    Region *Platform::cur_region(void) const
-    {
-        return m_curr_region;
+        return m_imp->num_package_signal();
     }
 
     const PlatformTopology *Platform::topology(void) const
@@ -204,7 +163,7 @@ namespace geopm
                 *it = *it ? 1.0 / (*it) : *it;
             }
         }
-        const unsigned num_socket = m_imp->package();
+        const unsigned num_socket = m_imp->num_package();
         std::vector<double> socket_scatter_factor(num_socket);
         std::vector<std::set<unsigned> > socket_cpu_set(num_socket);
         {
@@ -222,15 +181,15 @@ namespace geopm
         }
 
         const unsigned NUM_RANK_SIGNAL = 2;
-        const unsigned control_domain_type = m_control_domain_type == GEOPM_CONTROL_DOMAIN_POWER ? 
+        const unsigned control_domain_type = m_control_domain_type == GEOPM_CONTROL_DOMAIN_POWER ?
                                              m_imp->power_control_domain() :
                                              m_imp->frequency_control_domain();
         const unsigned num_out_signal = platform_topo->num_domain(control_domain_type) * GEOPM_NUM_TELEMETRY_TYPE;
         const unsigned num_in_signal = capacity() + num_local_rank * NUM_RANK_SIGNAL;
-        const unsigned num_cpu = m_imp->hw_cpu();
+        const unsigned num_cpu = m_imp->num_logical_cpu();
         const unsigned num_cpu_signal = num_cpu * GEOPM_NUM_TELEMETRY_TYPE;
-        const unsigned cpu_offset = num_socket * m_num_domain;
-        const unsigned rank_offset = cpu_offset + num_cpu * m_num_counter;
+        const unsigned cpu_offset = num_socket * m_imp->num_package_signal();
+        const unsigned rank_offset = cpu_offset + num_cpu * m_imp->num_cpu_signal();
 
         unsigned i, j, k;
         unsigned i_signal;
@@ -246,18 +205,18 @@ namespace geopm
             i_signal = i % GEOPM_NUM_TELEMETRY_TYPE;
             for (j = 0; j < num_in_signal; ++j) {
                 double matrix_value = 0.0;
-                if (j < num_socket * m_num_domain) { // Signal is per socket
-                    j_signal = j % m_num_domain;
-                    unsigned socket_idx = j / m_num_domain;
+                if (j < num_socket * m_imp->num_package_signal()) { // Signal is per socket
+                    j_signal = j % m_imp->num_package_signal();
+                    unsigned socket_idx = j / m_imp->num_package_signal();
                     if (i_signal == j_signal &&
                         socket_cpu_set[socket_idx].find(cpu) != socket_cpu_set[socket_idx].end()) {
                         matrix_value = socket_scatter_factor[socket_idx];
                     }
                 }
                 else if (j < rank_offset) { // Signal is per cpu
-                    j_signal = (j - cpu_offset) % m_num_counter + m_num_domain;
+                    j_signal = (j - cpu_offset) % m_imp->num_cpu_signal() + m_imp->num_package_signal();
                     if (i_signal == j_signal) {
-                        unsigned curr_cpu = (j - cpu_offset) / m_num_counter;
+                        unsigned curr_cpu = (j - cpu_offset) / m_imp->num_cpu_signal();
                         if (curr_cpu == cpu) {
                             matrix_value = 1.0;
                         }
@@ -328,16 +287,16 @@ namespace geopm
     {
         //Get the TDP for each socket and set its power limit to match
         double tdp = 0.0;
-        double power_units = pow(2, (double)((m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
-        int packages = m_imp->package();
+        double power_units = pow(2, (double)((m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
+        int packages = m_imp->num_package();
         int64_t pkg_lim, pkg_magic;
 
         for (int i = 0; i <  packages; i++) {
-            tdp = ((double)(m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
+            tdp = ((double)(m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
             tdp *= ((double)percentage * 0.01);
             pkg_lim = (int64_t)(tdp * tdp);
             pkg_magic = pkg_lim | (pkg_lim << 32) | PKG_POWER_LIMIT_MASK_MAGIC;
-            m_imp->write_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", pkg_magic);
+            m_imp->msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", pkg_magic);
         }
     }
 
@@ -346,10 +305,9 @@ namespace geopm
         //Set the frequency for each cpu
         int64_t freq_perc;
         bool small = false;
-        int num_logical_cpus = m_imp->hw_cpu();
-        int num_hyperthreads = m_imp->logical_cpu();
-        int num_real_cpus = num_logical_cpus / num_hyperthreads;
-        int packages = m_imp->package();
+        int num_logical_cpus = m_imp->num_logical_cpu();
+        int num_real_cpus = m_imp->num_hw_cpu();
+        int packages = m_imp->num_package();
         int num_cpus_per_package = num_real_cpus / packages;
         int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / packages);
 
@@ -375,7 +333,7 @@ namespace geopm
             }
             if (small) {
                 freq_perc = ((int64_t)(frequency * 0.01) << 8) & 0xffff;
-                m_imp->write_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL", freq_perc & 0xffff);
+                m_imp->msr_write(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL", freq_perc & 0xffff);
             }
             small = false;
         }
@@ -384,7 +342,7 @@ namespace geopm
     void Platform::save_msr_state(const char *path) const
     {
         uint64_t msr_val;
-        int niter = m_imp->package();
+        int niter = m_imp->num_package();
         std::ofstream restore_file;
 
         if (path == NULL) {
@@ -395,25 +353,25 @@ namespace geopm
 
         //per package state
         for (int i = 0; i < niter; i++) {
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
             restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
             restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
             restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
         }
 
-        niter = m_imp->hw_cpu();
+        niter = m_imp->num_hw_cpu();
 
         //per cpu state
         for (int i = 0; i < niter; i++) {
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
             restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
             restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
             restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
-            msr_val = m_imp->read_msr(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
+            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
             restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
 
         }
@@ -440,7 +398,7 @@ namespace geopm
                 vals.push_back((int64_t)atol(item.c_str()));
             }
             if (vals.size() == 4) {
-                m_imp->write_msr(vals[0], vals[1], vals[2], vals[3]);
+                m_imp->msr_write(vals[0], vals[1], vals[2], vals[3]);
             }
             else {
                 throw Exception("error detected in restore file. Could not restore msr states", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -459,17 +417,4 @@ namespace geopm
 
         m_imp->whitelist(file_desc);
     }
-
-    double Platform::msr_overflow(int signal_idx, uint32_t msr_size, double value)
-    {
-        // Deal with register overflow
-        if (value < m_msr_value_last[signal_idx]) {
-            m_msr_overflow_offset[signal_idx] += pow(2, msr_size);
-        }
-        m_msr_value_last[signal_idx] = value;
-        value += m_msr_overflow_offset[signal_idx];
-
-        return value;
-    }
-
 }

@@ -33,29 +33,12 @@
 #include <math.h>
 #include <unistd.h>
 #include "geopm_error.h"
+#include "geopm_message.h"
 #include "Exception.hpp"
 #include "IVTPlatformImp.hpp"
 
 namespace geopm
 {
-    static const int ivb_id = 0x63E;
-    static const int snb_id = 0x62D;
-    static const std::string ivb_model_name = "Ivybridge E";
-    static const std::string snb_model_name = "Sandybridge E";
-
-    // common values
-    static const unsigned int box_frz_en = 0x1 << 16;
-    static const unsigned int box_frz    = 0x1 << 8;
-    static const unsigned int ctr_en     = 0x1 << 22;
-    static const unsigned int rst_ctrs   = 0x1 << 1;
-
-    static const unsigned int llc_filter_mask     = 0x1F << 18;
-    static const unsigned int llc_victims_ev_sel  = 0x37;
-    static const unsigned int llc_victims_umask   = 0x7 << 8;
-
-    static const unsigned int event_sel_0 = llc_victims_ev_sel;
-    static const unsigned int umask_0     = llc_victims_umask;
-
     IVTPlatformImp::IVTPlatformImp()
         : m_energy_units(1.0)
         , m_power_units(1.0)
@@ -65,32 +48,45 @@ namespace geopm
         , m_max_pp0_watts(100)
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
-        , m_platform_id(ivb_id)
+        , m_platform_id(0)
+        , M_SNB_PLATFORM_ID(0x62D)
+        , M_IVT_PLATFORM_ID(0x63E)
+        , M_SNB_MODEL_NAME("Sandybridge E")
+        , M_IVT_MODEL_NAME("Ivybridge E")
+        , M_BOX_FRZ_EN(0x1 << 16)
+        , M_BOX_FRZ(0x1 << 8)
+        , M_CTR_EN(0x1 << 22)
+        , M_RST_CTRS(0x1 << 1)
+        , M_LLC_FILTER_MASK(0x1F << 18)
+        , M_LLC_VICTIMS_EV_SEL(0x37)
+        , M_LLC_VICTIMS_UMASK(0x7 << 8)
+        , M_EVENT_SEL_0(M_LLC_VICTIMS_EV_SEL)
+        , M_UMASK_0(M_LLC_VICTIMS_UMASK)
+        , M_PKG_POWER_LIMIT_MASK_MAGIC(0x0007800000078000ul)
+        , M_DRAM_POWER_LIMIT_MASK_MAGIC(0xfefffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
+        , M_PP0_POWER_LIMIT_MASK_MAGIC(0xfffffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
     {
+        m_num_cpu_signal = 5;
+        m_num_package_signal = 3;
     }
 
     IVTPlatformImp::~IVTPlatformImp()
     {
-        while(m_cpu_file_descs.size()) {
-            close(m_cpu_file_descs.back());
-            m_cpu_file_descs.pop_back();
+        while(m_cpu_file_desc.size()) {
+            close(m_cpu_file_desc.back());
+            m_cpu_file_desc.pop_back();
         }
     }
 
     bool IVTPlatformImp::model_supported(int platform_id)
     {
         m_platform_id = platform_id;
-        return (platform_id == ivb_id || platform_id == snb_id);
+        return (M_IVT_PLATFORM_ID == platform_id || M_SNB_PLATFORM_ID == platform_id);
     }
 
     std::string IVTPlatformImp::platform_name()
     {
-        if (m_platform_id == ivb_id) {
-            return ivb_model_name;
-        }
-        else {
-            return snb_model_name;
-        }
+        return M_IVT_MODEL_NAME;
     }
 
     int IVTPlatformImp::power_control_domain(void) const
@@ -100,21 +96,139 @@ namespace geopm
 
     int IVTPlatformImp::frequency_control_domain(void) const
     {
-        return GEOPM_DOMAIN_PACKAGE;
+        return GEOPM_DOMAIN_CPU;
     }
 
-    void IVTPlatformImp::initialize_msrs()
+    double IVTPlatformImp::read_signal(int device_type, int device_index, int signal_type)
     {
-        for (int i = 0; i < m_hw_cpus; i++) {
-            open_msr(i);
+        double value = 0.0;
+        int offset_idx = 0;
+
+        switch (signal_type) {
+            case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                offset_idx = device_index * m_num_package_signal;
+                value = msr_overflow(offset_idx, 32,
+                                     (double)msr_read(device_type, device_index,
+                                                      m_signal_msr_offset[0]));
+                value *= m_energy_units;
+                break;
+            case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
+                offset_idx = device_index * m_num_package_signal + 1;
+                value = msr_overflow(offset_idx, 32,
+                                     (double)msr_read(device_type, device_index,
+                                                      m_signal_msr_offset[1]));
+                value *= m_energy_units;
+                break;
+            case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                offset_idx = device_index * m_num_package_signal + 2;
+                value = msr_overflow(offset_idx, 32,
+                                     (double)msr_read(device_type, device_index,
+                                                      m_signal_msr_offset[2]));
+                value *= m_energy_units;
+                break;
+            case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal;
+                value = (double)(msr_read(device_type, device_index / m_num_cpu_per_core,
+                                          m_signal_msr_offset[3]) >> 8);
+                //convert to MHZ
+                value *= 0.1;
+                break;
+            case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
+                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 1;
+                value = msr_overflow(offset_idx, 64,
+                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                                      m_signal_msr_offset[4]));
+                break;
+            case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
+                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 2;
+                value = msr_overflow(offset_idx, 64,
+                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                                      m_signal_msr_offset[5]));
+                break;
+            case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
+                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 3;
+                value = msr_overflow(offset_idx, 64,
+                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                                      m_signal_msr_offset[6]));
+                break;
+            case GEOPM_TELEMETRY_TYPE_LLC_VICTIMS:
+                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 4;
+                value = msr_overflow(offset_idx, 44,
+                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                                      m_signal_msr_offset[7 + device_index]));
+                break;
+            default:
+                throw geopm::Exception("IVTPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
+
+        return value;
+    }
+
+    void IVTPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
+    {
+        uint64_t msr_val = 0;
+
+        switch (signal_type) {
+            case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                msr_val = (uint64_t)(value * m_power_units);
+                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK_MAGIC;
+                msr_write(device_type, device_index, m_control_msr_offset[0], msr_val);
+                break;
+            case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
+                msr_val = (uint64_t)(value * m_power_units);
+                msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK_MAGIC;
+                msr_write(device_type, device_index, m_control_msr_offset[1], msr_val);
+                break;
+            case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                msr_val = (uint64_t)(value * m_power_units);
+                msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK_MAGIC;
+                msr_write(device_type, device_index, m_control_msr_offset[2], msr_val);
+                break;
+            case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+                msr_val = (uint64_t)(value * 10);
+                msr_val = msr_val << 8;
+                msr_write(device_type, device_index / m_num_cpu_per_core, m_control_msr_offset[3], msr_val);
+                break;
+            default:
+                throw geopm::Exception("IVTPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
+    }
+
+    void IVTPlatformImp::msr_initialize()
+    {
+        for (int i = 0; i < m_num_logical_cpu; i++) {
+            msr_open(i);
         }
         load_msr_offsets();
         rapl_init();
         cbo_counters_init();
         fixed_counters_init();
+
+        //Save off the msr offsets for the signals we want to read to avoid a map lookup
+        m_signal_msr_offset.push_back(msr_offset("PKG_ENERGY_STATUS"));
+        m_signal_msr_offset.push_back(msr_offset("PP0_ENERGY_STATUS"));
+        m_signal_msr_offset.push_back(msr_offset("DRAM_ENERGY_STATUS"));
+        m_signal_msr_offset.push_back(msr_offset("IA32_PERF_STATUS"));
+        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR0"));
+        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR1"));
+        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR2"));
+        for (int i = 0; i < m_num_hw_cpu; i++) {
+            std::string msr_name("_MSR_PMON_CTR1");
+            msr_name.insert(0, std::to_string(i));
+            msr_name.insert(0, "C");
+            m_signal_msr_offset.push_back(msr_offset(msr_name));
+        }
+
+        //Save off the msr offsets for the controls we want to write to avoid a map lookup
+        m_control_msr_offset.push_back(msr_offset("PKG_ENERGY_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PKG_DRAM_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PKG_PP0_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
     }
 
-    void IVTPlatformImp::reset_msrs()
+    void IVTPlatformImp::msr_reset()
     {
         rapl_reset();
         cbo_counters_reset();
@@ -127,12 +241,12 @@ namespace geopm
         double energy_units, power_units;
 
         //Make sure units are consistent between packages
-        tmp = read_msr(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
+        tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
         energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
         power_units = pow(2, (double)((tmp >> 0) & 0xF));
 
-        for (int i = 1; i < m_packages; i++) {
-            tmp = read_msr(GEOPM_DOMAIN_PACKAGE, i, "RAPL_POWER_UNIT");
+        for (int i = 1; i < m_num_package; i++) {
+            tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "RAPL_POWER_UNIT");
             double energy = pow(0.5, (double)((tmp >> 8) & 0x1F));
             double power = pow(2, (double)((tmp >> 0) & 0xF));
             if (energy != energy_units || power != power_units) {
@@ -141,22 +255,22 @@ namespace geopm
         }
 
         //Make sure bounds are consistent between packages
-        tmp = read_msr(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
+        tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
         m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / power_units;
         m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / power_units;
 
-        tmp = read_msr(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
+        tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / power_units;
         m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / power_units;
 
-        for (int i = 1; i < m_packages; i++) {
-            tmp = read_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
+        for (int i = 1; i < m_num_package; i++) {
+            tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
             double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
             double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
             if (pkg_min != m_min_pkg_watts || pkg_max != m_max_pkg_watts) {
                 throw Exception("detected inconsistent power pkg bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            tmp = read_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_INFO");
+            tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_INFO");
             double dram_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
             double dram_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
             if (dram_min != m_min_dram_watts || dram_max != m_max_dram_watts) {
@@ -171,9 +285,7 @@ namespace geopm
 
     void IVTPlatformImp::cbo_counters_init()
     {
-        int msr_num = m_hw_cpus/m_packages;
-        msr_num = msr_num/m_logical_cpus;
-        for (int i = 0; i < msr_num; i++) {
+        for (int i = 0; i < m_num_hw_cpu; i++) {
             std::string msr_name("_MSR_PMON_CTL1");
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
             std::string filter_msr_name("_MSR_PMON_BOX_FILTER");
@@ -185,83 +297,77 @@ namespace geopm
             filter_msr_name.insert(0, "C");
 
             // enable freeze
-            write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      | box_frz_en);
+            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+                      | M_BOX_FRZ_EN);
             // freeze box
-            write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      | box_frz);
-            write_msr(GEOPM_DOMAIN_CPU, i, msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, msr_name)
-                      | ctr_en);
-            write_msr(GEOPM_DOMAIN_CPU, i, filter_msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, filter_msr_name)
-                      | llc_filter_mask);
+            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+                      | M_BOX_FRZ);
+            msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, msr_name)
+                      | M_CTR_EN);
+            msr_write(GEOPM_DOMAIN_CPU, i, filter_msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, filter_msr_name)
+                      | M_LLC_FILTER_MASK);
             // llc victims
-            write_msr(GEOPM_DOMAIN_CPU, i, msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, msr_name)
-                      | event_sel_0 | umask_0);
+            msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, msr_name)
+                      | M_EVENT_SEL_0 | M_UMASK_0);
             // reset counters
-            write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      | rst_ctrs);
+            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+                      | M_RST_CTRS);
             /// @bug is this needed???
-            write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      & ~box_frz);
+            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+                      & ~M_BOX_FRZ);
             // unfreeze box
-            write_msr(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      & ~box_frz);
+            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+                      & ~M_BOX_FRZ);
         }
     }
 
     void IVTPlatformImp::fixed_counters_init()
     {
-        int msr_num = m_hw_cpus/m_packages;
-        msr_num = msr_num/m_logical_cpus;
-        for (int cpu = 0; cpu < msr_num; cpu++) {
-            write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR_CTRL", 0x0333);
-            write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x70000000F);
-            write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_OVF_CTRL", 0x0);
+        for (int cpu = 0; cpu < m_num_hw_cpu; cpu++) {
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR_CTRL", 0x0333);
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x70000000F);
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_OVF_CTRL", 0x0);
         }
     }
 
     void IVTPlatformImp::rapl_reset()
     {
         //clear power limits
-        for (int i = 1; i < m_packages; i++) {
-            write_msr(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", 0x0);
-            write_msr(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT", 0x0);
-            write_msr(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
+        for (int i = 1; i < m_num_package; i++) {
+            msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", 0x0);
+            msr_write(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT", 0x0);
+            msr_write(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
         }
 
     }
 
     void IVTPlatformImp::cbo_counters_reset()
     {
-        int msr_num = m_hw_cpus/m_packages;
-        msr_num = msr_num/m_logical_cpus;
-        for (int i = 0; i < msr_num; i++) {
+        for (int i = 0; i < m_num_hw_cpu; i++) {
             std::string msr_name("_MSR_PMON_BOX_CTL");
             msr_name.insert(0, std::to_string(i));
             msr_name.insert(0, "C");
             // reset counters
-            write_msr(GEOPM_DOMAIN_CPU, i, msr_name,
-                      read_msr(GEOPM_DOMAIN_CPU, i, msr_name)
-                      | rst_ctrs);
+            msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
+                      msr_read(GEOPM_DOMAIN_CPU, i, msr_name)
+                      | M_RST_CTRS);
         }
     }
 
     void IVTPlatformImp::fixed_counters_reset()
     {
-        int msr_num = m_hw_cpus/m_packages;
-        msr_num = msr_num/m_logical_cpus;
-        for (int cpu = 0; cpu < msr_num; cpu++) {
-            write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR0", 0x0);
-            write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR1", 0x0);
-            write_msr(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR2", 0x0);
+        for (int cpu = 0; cpu < m_num_hw_cpu; cpu++) {
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR0", 0x0);
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR1", 0x0);
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR2", 0x0);
         }
     }
 
@@ -392,8 +498,6 @@ namespace geopm
             {"C13_MSR_PMON_CTR1",       {0x0EB7, 0x0000000000000000}},
             {"C14_MSR_PMON_CTR1",       {0x0ED7, 0x0000000000000000}}
         };
-
         m_msr_offset_map = msr_map;
-
     }
 }

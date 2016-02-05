@@ -78,19 +78,29 @@ namespace geopm
             /// @brief Retrieve the number of packages present on
             /// the platform.
             /// @return number of packages.
-            virtual int package(void) const;
+            virtual int num_package(void) const;
             /// @brief Retrieve the number of tiles present on
             /// the platform.
             /// @return number of tiles.
-            virtual int tile(void) const;
+            virtual int num_tile(void) const;
+            /// @brief Retrieve the number of tile groups present on
+            /// the platform.
+            /// @return number of tile groups.
+            virtual int num_tile_group(void) const;
             /// @brief Retrieve the number of physical CPUs present
             /// on the platform.
             /// @return number of physical CPUs.
-            virtual int hw_cpu(void) const;
+            virtual int num_hw_cpu(void) const;
             /// @brief Retrieve the number of logical CPUs present
             /// on the platform.
             /// @return number of logical CPUs.
-            virtual int logical_cpu(void) const;
+            virtual int num_logical_cpu(void) const;
+            /// @brief Retrieve the number of per-package signals
+            /// @return number of per-package signals.
+            virtual int num_package_signal(void) const;
+            /// @brief Retrieve the number of per-cpu signals
+            /// @return number of per-cpu signals.
+            virtual int num_cpu_signal(void) const;
             /// @brief Retrieve the topology tree for the platform.
             /// @return PlatformTopology object holding the
             ///         current platform topology.
@@ -106,7 +116,7 @@ namespace geopm
             /// @param [in] device_index Numbered index of the specified type.
             /// @param [in] msr_name String name of the requested MSR.
             /// @param [in] value Value to write to the specified MSR.
-            void write_msr(int device_type, int device_index, const std::string &msr_name, uint64_t value);
+            void msr_write(int device_type, int device_index, const std::string &msr_name, uint64_t value);
             /// @brief Write a value to a Model Specific Register.
             /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
@@ -114,7 +124,7 @@ namespace geopm
             /// @param [in] device_index Numbered index of the specified type.
             /// @param [in] msr_offset Address offset of the requested MSR.
             /// @param [in] value Value to write to the specified MSR.
-            void write_msr(int device_type, int device_index, off_t msr_offset, uint64_t value);
+            void msr_write(int device_type, int device_index, off_t msr_offset, uint64_t value);
             /// @brief Read a value from a Model Specific Register.
             /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
@@ -122,7 +132,7 @@ namespace geopm
             /// @param [in] device_index Numbered index of the specified type.
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Value read from the specified MSR.
-            uint64_t read_msr(int device_type, int device_index, const std::string &msr_name);
+            uint64_t msr_read(int device_type, int device_index, const std::string &msr_name);
             /// @brief Read a value from a Model Specific Register.
             /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
@@ -130,7 +140,7 @@ namespace geopm
             /// @param [in] device_index Numbered index of the specified type.
             /// @param [in] msr_offset Address offset of the requested MSR.
             /// @return Value read from the specified MSR.
-            uint64_t read_msr(int device_type, int device_index, off_t msr_offset);
+            uint64_t msr_read(int device_type, int device_index, off_t msr_offset);
             /// @brief Retrieve the address offset of a Model Specific Register.
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Address offset of the requested MSR.
@@ -158,8 +168,31 @@ namespace geopm
             /// @brief Retrieve the string name of the underlying platform.
             /// @return Underlying platform name.
             virtual std::string platform_name(void) = 0;
+            /// @brief Read and transform a signal.
+            /// Read a signal value from the hw platform and do any transformation
+            /// needed to convert it to the expected output format and units.
+            /// @param [in] device_type enum device type can be
+            ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
+            ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] signal_type enum signal type of geopm_telemetry_type_e.
+            ///        The signal typr to return.
+            /// @return The read and transformed value.
+            virtual double read_signal(int device_type, int device_index, int signal_type) = 0;
+            /// @brief Transform and write a value to a hw platform control.
+            /// Transform a given a control value from the given format to the format
+            /// and units expected by the hw platform. Write the transformed value to
+            /// a controll on the hw platform.
+            /// @param [in] device_type enum device type can be
+            ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
+            ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] signal_type enum signal type of geopm_telemetry_type_e.
+            ///        The control type to write to.
+            /// @param [in] value The value to be transformed and written.
+            virtual void write_control(int device_type, int device_index, int signal_type, double value) = 0;
             /// @brief Reset MSRs to a default state.
-            virtual void reset_msrs(void) = 0;
+            virtual void msr_reset(void) = 0;
             /// @brief Retrieve the domain of control for power.
             virtual int power_control_domain(void) const = 0;
             /// @brief Retrieve the domain of control for frequency.
@@ -168,31 +201,50 @@ namespace geopm
         protected:
             /// @brief Open a MSR special file.
             /// @param [in] cpu Number of logical cpu to open.
-            void open_msr(int cpu);
+            void msr_open(int cpu);
             /// @brief Close a MSR special file.
             /// @param [in] cpu Number of logical cpu to close.
-            void close_msr(int cpu);
+            void msr_close(int cpu);
             /// @brief Look up topology information to set member variables.
             virtual void parse_hw_topology(void);
             /// @brief Opens the per cpu special files, initializes the MSR offset
             /// map, initialize RAPL, CBO and fixed counter MSRs.
-            virtual void initialize_msrs() = 0;
+            virtual void msr_initialize() = 0;
+            /// @brief Handles the overflow of fixed size counters.
+            /// @param [in] signal_idx The index into the overflow offset vector
+            ///        for this counter.
+            /// @param [in] The size of the counter.
+            /// @param [in] The value read from the counter.
+            /// @return The value corrected for overflow.
+            double msr_overflow(int signal_idx, uint32_t msr_size, double value);
             /// @brief Holds the underlying hardware topology.
             PlatformTopology m_topology;
             /// @brief Holds the file descriptors for the per-cpu special files.
-            std::vector<int> m_cpu_file_descs;
+            std::vector<int> m_cpu_file_desc;
             /// @brief Map of MSR string name to address offset.
             std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
             /// @brief Number of logical CPUs.
-            int m_logical_cpus;
+            int m_num_logical_cpu;
             /// @brief Number of hardware CPUs.
-            int m_hw_cpus;
+            int m_num_hw_cpu;
+            /// @brief Number of logical cpus per hardware core.
+            int m_num_cpu_per_core;
             /// @brief Number of tiles.
-            int m_tiles;
+            int m_num_tile;
+            /// @brief Number of tiles.
+            int m_num_tile_group;
             /// @brief Number of packages.
-            int m_packages;
+            int m_num_package;
             /// @brief File path to MSR special files.
             char m_msr_path[NAME_MAX];
+            /// @brief The number of signals per package.
+            int m_num_package_signal;
+            /// @brief The number of signals per CPU.
+            int m_num_cpu_signal;
+            /// @brief The last values read from all counters.
+            std::vector<double> m_msr_value_last;
+            /// @brief The current aggregated overflow for all the counters.
+            std::vector<double> m_msr_overflow_offset;
     };
 }
 
