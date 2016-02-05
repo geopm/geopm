@@ -136,6 +136,16 @@ namespace geopm
         sample = m_curr_sample;
     }
 
+    double Region::signal(int domain_idx, int signal_type)
+    {
+        double result = NAN;
+        if (m_domain_buffer.size()) {
+            const std::vector<double> &signal_matrix = m_domain_buffer.value(m_domain_buffer.size() - 1);
+            result = signal_matrix[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
+        }
+        return result;
+    }
+
     void Region::statistics(int domain_idx, int signal_type, double result[]) const
     {
         throw Exception("Region::statistics()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);

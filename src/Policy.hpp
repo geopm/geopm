@@ -35,25 +35,30 @@
 
 #include <vector>
 #include <map>
+#include <float.h>
 
 #include "geopm_message.h"
 
 namespace geopm
 {
+
+    class RegionPolicy;
     class Policy
     {
         public:
-            Policy();
             Policy(int num_domain);
             virtual ~Policy();
-            void insert_region(uint64_t region_id);
+            int num_domain(void);
+            void region_id(std::vector<uint64_t> &region_id);
             void update(uint64_t region_id, int domain_idx, double target);
             void update(uint64_t region_id, const std::vector<double> &target);
-            void updated_target(uint64_t region_id, std::map<int, double> &target); // map from domain index to updated target value
             void target(uint64_t region_id, std::vector<double> &target);
             void target(uint64_t region_id, int domain, double &target);
-            void policy_message(uint64_t region_id, std::vector<geopm_policy_message_s> &message) const;
-            void valid_target(uint64_t region_id, std::map<int, double> &target) const;
+            void target_updated(uint64_t region_id, std::map<int, double> &target); // map from domain index to updated target value
+            void target_valid(uint64_t region_id, std::map<int, double> &target);
+            void policy_message(uint64_t region_id,
+                                const struct geopm_policy_message_s &parent_msg,
+                                std::vector<struct geopm_policy_message_s> &child_msg);
             /// @brief Set the convergence state.
             /// Called by the decision algorithm when it has determined
             /// whether or not the power policy enforcement has converged
@@ -64,18 +69,15 @@ namespace geopm
             /// that the power policy enforcement has converged to an
             /// acceptance state.
             /// @return true if converged else false.
-            bool is_converged(uint64_t region_id) const;
-
+            bool is_converged(uint64_t region_id);
         protected:
+            RegionPolicy *region_policy(uint64_t region_id);
             int m_num_domain;
             int m_mode;
             int m_num_sample;
             unsigned long m_flags;
             int m_goal;
-            std::map<uint64_t, double> m_budget; // map from region id to total power budget over all domains
-            std::map<uint64_t, std::vector<double> > m_target; // map from region id to per domain target vector
-            std::map<uint64_t, std::vector<bool> > m_updated; // map from region id to per domain boolean value tracking if the target has been updated
-            std::map<uint64_t, bool > m_is_converged;
+            std::map<uint64_t, RegionPolicy *> m_region_policy;
     };
 }
 

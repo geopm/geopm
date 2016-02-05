@@ -92,6 +92,8 @@ namespace geopm
             /// up to the next level of the tree.
             /// @param [out] Sample message structure to fill in.
             void sample_message(struct geopm_sample_message_s &sample);
+            /// Returns the latest value
+            double signal(int domain_idx, int signal_type);
             /// @brief Retrieve the statistics for a domain of control.
             ///
             /// Get the statistics for a given domain of control and a

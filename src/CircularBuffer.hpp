@@ -90,7 +90,7 @@ namespace geopm
             ///
             /// @param [in] value The value to be inserted.
             void insert(const type value);
-            /// @brief Returns a value from the buffer.
+            /// @brief Returns a constant refernce to the value from the buffer.
             ///
             /// Accesses the contents of the circular buffer
             /// at a particular index. Valid indices range
@@ -103,7 +103,7 @@ namespace geopm
             /// @param [in] index Buffer index to retrieve.
             ///
             /// @return Value from the specified buffer index.
-            type value(const unsigned int index) const;
+            const type& value(const unsigned int index) const;
         protected:
             /// @brief Vector holding the buffer data.
             std::vector<type> m_buffer;
@@ -190,12 +190,12 @@ namespace geopm
     }
 
     template <class type>
-    type CircularBuffer<type>::value(const unsigned int index) const
+    const type& CircularBuffer<type>::value(const unsigned int index) const
     {
         if (index >= m_count) {
             throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_buffer[(m_head+index) % m_max_size];
+        return m_buffer[(m_head + index) % m_max_size];
     }
 }
 
