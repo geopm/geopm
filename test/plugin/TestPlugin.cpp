@@ -116,7 +116,7 @@ bool DumbPlatform::model_supported(int platform_id, const std::string &descripti
     return false;
 }
 
-void DumbPlatform::enforce_policy(uint64_t region_id, const Policy &policy) const
+void DumbPlatform::enforce_policy(uint64_t region_id, Policy &policy) const
 {
 
 }

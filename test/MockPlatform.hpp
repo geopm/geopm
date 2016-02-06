@@ -41,5 +41,5 @@ class MockPlatform : public geopm::Platform {
         MOCK_CONST_METHOD2(model_supported,
             bool(int platform_id, const std::string &description));
         MOCK_CONST_METHOD2(enforce_policy,
-            void(uint64_t region_id, const geopm::Policy &policy));
+            void(uint64_t region_id, geopm::Policy &policy));
 };
