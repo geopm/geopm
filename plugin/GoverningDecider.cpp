@@ -119,23 +119,22 @@ namespace geopm
         }
         if (is_updated) {
             curr_policy.update(region_id, target);
-            auto it = m_num_converged.find(region_id);
-            if (it == m_num_converged.end()) {
-                it = m_num_converged.insert(m_num_converged.begin(), std::pair<uint64_t, unsigned>(region_id, 0));
-            }
-            else {
+            auto it = m_num_converged.lower_bound(region_id);
+            if (it != m_num_converged.end() && (*it).first == region_id) {
                 (*it).second = 0;
             }
+            else {
+                it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
+            }
             curr_policy.is_converged(region_id, false);
-
         }
         else {
-            auto it = m_num_converged.find(region_id);
-            if (it == m_num_converged.end()) {
-                it = m_num_converged.insert(m_num_converged.begin(), std::pair<uint64_t, unsigned>(region_id, 1));
+            auto it = m_num_converged.lower_bound(region_id);
+            if (it != m_num_converged.end() && (*it).first == region_id) {
+                ++(*it).second;
             }
             else {
-                ++(*it).second;
+                it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
             }
             if ((*it).second >= m_min_num_converged) {
                 curr_policy.is_converged(region_id, true);
