@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
     plat->initialize();
 
-    cpus = plat->hw_cpu();
+    cpus = plat->num_hw_cpu();
     ASSERT(cpus);
     ASSERT(geopm_no_omp_cpu(cpus, &no_omp) == 0);
 
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 
     #pragma omp parallel
     {
-        freq = plat->read_msr(geopm::GEOPM_DOMAIN_CPU, sched_getcpu(), "IA32_PERF_STATUS");
+        freq = plat->msr_read(geopm::GEOPM_DOMAIN_CPU, sched_getcpu(), "IA32_PERF_STATUS");
         freq = freq >> 8;
         // make sure we are not over the set frequency limit
         if (freq <= MAX_FREQ) {
