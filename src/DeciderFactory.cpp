@@ -70,19 +70,20 @@ namespace geopm
 
     DeciderFactory::~DeciderFactory()
     {
-        for (auto it = deciders.rbegin(); it != deciders.rend(); ++it) {
+        for (auto it = decider_list.rbegin(); it != decider_list.rend(); ++it) {
             delete *it;
         }
-        deciders.clear();
+        decider_list.clear();
     }
 
     Decider* DeciderFactory::decider(const std::string &description)
     {
         Decider *result = NULL;
-        for (auto it = deciders.begin(); it != deciders.end(); ++it) {
+        for (auto it = decider_list.begin(); it != decider_list.end(); ++it) {
             if (*it != NULL &&
                 (*it)->decider_supported(description)) {
-                result =  *it;
+                result = (*it)->clone();
+                decider_list.push_back(result);
                 break;
             }
         }
@@ -96,6 +97,6 @@ namespace geopm
 
     void DeciderFactory::register_decider(std::unique_ptr<Decider> decider)
     {
-        deciders.push_back(decider.release());
+        decider_list.push_back(decider.release());
     }
 }

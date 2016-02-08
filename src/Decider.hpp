@@ -43,6 +43,7 @@ namespace geopm
         public:
             Decider();
             virtual ~Decider();
+            virtual Decider *clone() const = 0;
             /// @brief Updates the power split among power control domains when
             /// recieving a new global budget.
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);

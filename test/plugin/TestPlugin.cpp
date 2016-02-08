@@ -75,6 +75,11 @@ DumbDecider::~DumbDecider()
 
 }
 
+Decider *DumbDecider::clone() const
+{
+    return (Decider*)(new DumbDecider(*this));
+}
+
 bool DumbDecider::decider_supported(const std::string &description)
 {
     return (description == m_name);

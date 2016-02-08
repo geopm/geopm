@@ -45,6 +45,7 @@ class DumbDecider : public Decider
     public:
         DumbDecider();
         virtual ~DumbDecider();
+        virtual Decider *clone() const;
         virtual bool update_policy(Region &curr_region, Policy &curr_policy);
         virtual bool decider_supported(const std::string &descripton);
         virtual const std::string& name(void) const;

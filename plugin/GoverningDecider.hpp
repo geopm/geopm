@@ -43,6 +43,7 @@ namespace geopm
         public:
             GoverningDecider();
             virtual ~GoverningDecider();
+            virtual Decider *clone(void) const;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
             virtual bool update_policy(Region &curr_region, Policy &curr_policy);
             virtual bool decider_supported(const std::string &descripton);

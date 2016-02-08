@@ -70,6 +70,11 @@ namespace geopm
 
     }
 
+    Decider *GoverningDecider::clone(void) const
+    {
+        return (Decider*)(new GoverningDecider(*this));
+    }
+
     bool GoverningDecider::decider_supported(const std::string &description)
     {
         return (description == m_name);

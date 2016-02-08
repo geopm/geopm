@@ -33,7 +33,7 @@
 #ifndef DECIDERFACTORY_HPP_INCLUDE
 #define DECIDERFACTORY_HPP_INCLUDE
 
-#include <vector>
+#include <list>
 #include <memory>
 
 #include "Decider.hpp"
@@ -59,7 +59,7 @@ namespace geopm
             void register_decider(std::unique_ptr<Decider> decider);
         private:
             // Holds all registered concrete Decider instances
-            std::vector<Decider*> deciders;
+            std::list<Decider*> decider_list;
     };
 
 }
