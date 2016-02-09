@@ -428,14 +428,12 @@ namespace geopm
 
     int GlobalPolicy::frequency_mhz(void) const
     {
-        long int freq = m_flags & 0x00000000000000FFUL;
-        return (int)freq*100;
+        return m_flags.frequency_mhz();;
     }
 
     int GlobalPolicy::tdp_percent(void) const
     {
-        long int perc = (m_flags & 0x0000000001FC0000UL) >> 18;
-        return (int)perc;;
+        return m_flags.tdp_percent();
     }
 
     int GlobalPolicy::budget_watts(void) const
@@ -445,25 +443,17 @@ namespace geopm
 
     int GlobalPolicy::affinity(void) const
     {
-        long int affinity = (m_flags & 0x0000000000030000UL);
-        return (int)affinity;
+        return m_flags.affinity();;
     }
 
     int GlobalPolicy::goal(void) const
     {
-        long int goal = (m_flags & 0x000000000E000000UL);
-        return (int)goal;
+        return m_flags.goal();
     }
 
     int GlobalPolicy::num_max_perf(void) const
     {
-        long int max_num_perf = (m_flags & 0x000000000000FF00UL) >> 8;
-        return max_num_perf;
-    }
-
-    long int GlobalPolicy::flags(void) const
-    {
-        return m_flags;
+        return m_flags.num_max_perf();
     }
 
     const std::string &GlobalPolicy::tree_decider() const
@@ -485,7 +475,7 @@ namespace geopm
     {
         policy_message.mode = m_mode;
         policy_message.power_budget = m_power_budget_watts;
-        policy_message.flags = m_flags;
+        policy_message.flags = m_flags.flags();
     }
 
     void GlobalPolicy::mode(int mode)
@@ -495,17 +485,12 @@ namespace geopm
 
     void GlobalPolicy::frequency_mhz(int frequency)
     {
-        m_flags = m_flags & 0xFFFFFFFFFFFFFF00UL;
-        //Convert to 100s of MHZ
-        //Rounds frequency precisionto a 10th of a GHz
-        m_flags = m_flags | (frequency/100);
+        m_flags.frequency_mhz(frequency);
     }
 
     void GlobalPolicy::tdp_percent(int percentage)
     {
-        m_flags = m_flags & 0xFFFFFFFFFE03FFFFUL;
-        long int perc = percentage << 18;
-        m_flags = m_flags | perc;
+        m_flags.tdp_percent(percentage);
     }
 
     void GlobalPolicy::budget_watts(int budget)
@@ -515,21 +500,17 @@ namespace geopm
 
     void GlobalPolicy::affinity(int affinity)
     {
-        m_flags = m_flags & 0xFFFFFFFFFFFCFFFFUL;
-        m_flags = m_flags | (long int)affinity;
+        m_flags.affinity(affinity);;
     }
 
     void GlobalPolicy::goal(int geo_goal)
     {
-        m_flags = m_flags & 0xFFFFFFFFF1FFFFFFUL;
-        m_flags = m_flags | (long int)geo_goal;
+        m_flags.goal(geo_goal);
     }
 
     void GlobalPolicy::num_max_perf(int num_big_cores)
     {
-        m_flags = m_flags & 0xFFFFFFFFFFFF00FFUL;
-        long int num_cpu = num_big_cores << 8;
-        m_flags = m_flags | num_cpu;
+        m_flags.num_max_perf(num_big_cores);
     }
 
     void GlobalPolicy::tree_decider(const std::string &description)
@@ -560,10 +541,10 @@ namespace geopm
             }
             m_mode = m_policy_shmem_in->policy.mode;
             m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
-            m_flags = m_policy_shmem_in->policy.flags;
-            m_tree_decider.assign(m_policy_shmem_in->policy.tree_decider);
-            m_leaf_decider.assign(m_policy_shmem_in->policy.leaf_decider);
-            m_platform.assign(m_policy_shmem_in->policy.platform);
+            m_flags.flags(m_policy_shmem_in->policy.flags);
+            m_tree_decider.assign(m_policy_shmem_in->tree_decider);
+            m_leaf_decider.assign(m_policy_shmem_in->leaf_decider);
+            m_platform.assign(m_policy_shmem_in->platform);
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for root of tree", err, __FILE__, __LINE__);
@@ -768,13 +749,13 @@ namespace geopm
             }
             m_policy_shmem_out->policy.mode = m_mode;
             m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
-            m_policy_shmem_out->policy.flags = m_flags;
-            m_policy_shmem_out->policy.tree_decider[NAME_MAX - 1] = '\0';
-            strncpy(m_policy_shmem_out->policy.tree_decider, m_tree_decider.c_str(), NAME_MAX - 1);
-            m_policy_shmem_out->policy.leaf_decider[NAME_MAX - 1] = '\0';
-            strncpy(m_policy_shmem_out->policy.leaf_decider, m_leaf_decider.c_str(), NAME_MAX - 1);
-            m_policy_shmem_out->policy.platform[NAME_MAX - 1] = '\0';
-            strncpy(m_policy_shmem_out->policy.platform, m_platform.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->policy.flags = m_flags.flags();
+            m_policy_shmem_out->tree_decider[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->tree_decider, m_tree_decider.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->leaf_decider[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->leaf_decider, m_leaf_decider.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->platform[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->platform, m_platform.c_str(), NAME_MAX - 1);
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for resource manager", errno, __FILE__, __LINE__);

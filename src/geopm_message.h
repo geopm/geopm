@@ -160,12 +160,6 @@ struct geopm_policy_message_s {
     int num_sample;
     /// @brief Power budget in Watts.
     double power_budget;
-    /// @brief tree decider description
-    char tree_decider[NAME_MAX];
-    /// @brief leaf decider description
-    char leaf_decider[NAME_MAX];
-    /// @brief platform description
-    char platform[NAME_MAX];
 };
 
 /// @brief Structure intended to be shared between
@@ -182,6 +176,12 @@ struct geopm_policy_shmem_s {
     /// @brief Holds the job power policy as given by the resource
     ///        manager.
     struct geopm_policy_message_s policy;
+    /// @brief tree decider description
+    char tree_decider[NAME_MAX];
+    /// @brief leaf decider description
+    char leaf_decider[NAME_MAX];
+    /// @brief platform description
+    char platform[NAME_MAX];
 };
 
 /// @brief MPI message structure for sending

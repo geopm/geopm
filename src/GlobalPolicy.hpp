@@ -35,7 +35,9 @@
 
 #include <string>
 #include <fstream>
+
 #include "geopm_message.h"
+#include "PolicyFlags.hpp"
 
 namespace geopm
 {
@@ -89,9 +91,6 @@ namespace geopm
             /// @return number of cores where we will run
             ///         unconstrained power.
             int num_max_perf(void) const;
-            /// @brief Get the policy flags
-            /// @return 32-bit flags
-            long int flags(void) const;
             /// @brief Get the TreeDecider description
             /// @return String reference containing the description
             ///         of the requested tree decider
@@ -171,7 +170,7 @@ namespace geopm
             int m_power_budget_watts;
             /// @brief flags encapsulates frequency, number of 'big'cpus,
             /// 'small' core affinity, TDP percentage, and power goal
-            long int m_flags;
+            PolicyFlags m_flags;
             /// @brief description string for selecting the tree decider
             std::string m_tree_decider;
             /// @brief description string for selecting the leaf decider

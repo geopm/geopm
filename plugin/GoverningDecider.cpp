@@ -98,6 +98,10 @@ namespace geopm
             for (auto it = region_id.begin(); it != region_id.end(); ++it) {
                 curr_policy.update(*it, domain_budget);
             }
+            if (m_last_power_budget == DBL_MIN) {
+                curr_policy.mode(policy_msg.mode);
+                curr_policy.policy_flags(policy_msg.flags);
+            }
             m_last_power_budget = policy_msg.power_budget;
             result = true;
         }

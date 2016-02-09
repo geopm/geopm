@@ -72,7 +72,8 @@ namespace geopm
     };
 
     Policy::Policy(int num_domain)
-        : m_num_domain(num_domain)
+        : m_policy_flags(0)
+        , m_num_domain(num_domain)
     {
         //Add the default unmarked region
         (void) region_policy(GEOPM_REGION_ID_OUTER);
@@ -123,6 +124,16 @@ namespace geopm
         region_policy(region_id)->update(target);
     }
 
+    void Policy::mode(int mode)
+    {
+        m_mode = mode;
+    }
+
+    void Policy::policy_flags(long int flags)
+    {
+        m_policy_flags.flags(flags);
+    }
+
     void Policy::target_updated(uint64_t region_id, std::map <int, double> &target)
     {
         region_policy(region_id)->target_updated(target);
@@ -136,6 +147,36 @@ namespace geopm
     void Policy::target(uint64_t region_id, int domain_idx, double &target)
     {
         region_policy(region_id)->target(domain_idx, target);
+    }
+
+    int Policy::mode(void) const
+    {
+        return m_mode;
+    }
+
+    int Policy::frequency_mhz(void) const
+    {
+        return m_policy_flags.frequency_mhz();;
+    }
+
+    int Policy::tdp_percent(void) const
+    {
+        return m_policy_flags.tdp_percent();
+    }
+
+    int Policy::affinity(void) const
+    {
+        return m_policy_flags.affinity();;
+    }
+
+    int Policy::goal(void) const
+    {
+        return m_policy_flags.goal();
+    }
+
+    int Policy::num_max_perf(void) const
+    {
+        return m_policy_flags.num_max_perf();
     }
 
     void Policy::target_valid(uint64_t region_id, std::map<int, double> &target)
