@@ -197,6 +197,20 @@ namespace geopm
         // Only the root rank on each node will have a fully initialized controller
         if (ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
+
+            struct geopm_plugin_description_s plugin_desc;
+            int world_rank;
+            check_mpi(MPI_Comm_rank(MPI_COMM_WORLD, &world_rank));
+            if (!world_rank) { // We are the root of the tree
+                plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
+                plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
+                plugin_desc.platform[NAME_MAX - 1] = '\0';
+                strncpy(plugin_desc.tree_decider, m_global_policy->tree_decider().c_str(), NAME_MAX -1);
+                strncpy(plugin_desc.leaf_decider, m_global_policy->leaf_decider().c_str(), NAME_MAX -1);
+                strncpy(plugin_desc.platform, m_global_policy->platform().c_str(), NAME_MAX -1);
+            }
+            check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, MPI_COMM_WORLD));
+
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
             m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE);
 
@@ -224,14 +238,13 @@ namespace geopm
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
 
             m_platform_factory = new PlatformFactory;
-            m_platform = m_platform_factory->platform(m_global_policy->platform());
-
+            m_platform = m_platform_factory->platform(plugin_desc.platform);
 
             m_msr_sample.resize(m_platform->capacity());
 
             m_decider_factory = new DeciderFactory;
-            m_leaf_decider = m_decider_factory->decider(m_global_policy->leaf_decider());
-            m_tree_decider = m_decider_factory->decider(m_global_policy->tree_decider());
+            m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
+            m_tree_decider = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
 
             int num_domain;
             for (int level = 0; level < num_level; ++level) {

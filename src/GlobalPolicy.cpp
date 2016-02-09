@@ -542,9 +542,9 @@ namespace geopm
             m_mode = m_policy_shmem_in->policy.mode;
             m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
             m_flags.flags(m_policy_shmem_in->policy.flags);
-            m_tree_decider.assign(m_policy_shmem_in->tree_decider);
-            m_leaf_decider.assign(m_policy_shmem_in->leaf_decider);
-            m_platform.assign(m_policy_shmem_in->platform);
+            m_tree_decider.assign(m_policy_shmem_in->plugin.tree_decider);
+            m_leaf_decider.assign(m_policy_shmem_in->plugin.leaf_decider);
+            m_platform.assign(m_policy_shmem_in->plugin.platform);
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for root of tree", err, __FILE__, __LINE__);
@@ -750,12 +750,12 @@ namespace geopm
             m_policy_shmem_out->policy.mode = m_mode;
             m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
             m_policy_shmem_out->policy.flags = m_flags.flags();
-            m_policy_shmem_out->tree_decider[NAME_MAX - 1] = '\0';
-            strncpy(m_policy_shmem_out->tree_decider, m_tree_decider.c_str(), NAME_MAX - 1);
-            m_policy_shmem_out->leaf_decider[NAME_MAX - 1] = '\0';
-            strncpy(m_policy_shmem_out->leaf_decider, m_leaf_decider.c_str(), NAME_MAX - 1);
-            m_policy_shmem_out->platform[NAME_MAX - 1] = '\0';
-            strncpy(m_policy_shmem_out->platform, m_platform.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->plugin.tree_decider[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->plugin.tree_decider, m_tree_decider.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->plugin.leaf_decider[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->plugin.leaf_decider, m_leaf_decider.c_str(), NAME_MAX - 1);
+            m_policy_shmem_out->plugin.platform[NAME_MAX - 1] = '\0';
+            strncpy(m_policy_shmem_out->plugin.platform, m_platform.c_str(), NAME_MAX - 1);
             err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
             if (err) {
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for resource manager", errno, __FILE__, __LINE__);

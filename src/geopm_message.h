@@ -162,6 +162,16 @@ struct geopm_policy_message_s {
     double power_budget;
 };
 
+/// @brief Structure holding plugin selection strings.
+struct geopm_plugin_description_s {
+    // @brief tree decider description
+    char tree_decider[NAME_MAX];
+    /// @brief leaf decider description
+    char leaf_decider[NAME_MAX];
+    /// @brief platform description
+    char platform[NAME_MAX];
+};
+
 /// @brief Structure intended to be shared between
 /// the resource manager and the geopm
 /// runtime in order to convey job wide
@@ -176,12 +186,8 @@ struct geopm_policy_shmem_s {
     /// @brief Holds the job power policy as given by the resource
     ///        manager.
     struct geopm_policy_message_s policy;
-    /// @brief tree decider description
-    char tree_decider[NAME_MAX];
-    /// @brief leaf decider description
-    char leaf_decider[NAME_MAX];
-    /// @brief platform description
-    char platform[NAME_MAX];
+    /// @brief plugin selection strings
+    struct geopm_plugin_description_s plugin;
 };
 
 /// @brief MPI message structure for sending
