@@ -172,7 +172,6 @@ namespace geopm
         , m_time_zero({{0,0}})
         , m_global_policy(global_policy)
         , m_tree_comm(NULL)
-        , m_tree_decider(NULL)
         , m_leaf_decider(NULL)
         , m_decider_factory(NULL)
         , m_platform_factory(NULL)
@@ -234,6 +233,7 @@ namespace geopm
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
             m_policy.resize(num_level);
+            m_tree_decider.resize(num_level);
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
 
@@ -244,7 +244,6 @@ namespace geopm
 
             m_decider_factory = new DeciderFactory;
             m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
-            m_tree_decider = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
 
             int num_domain;
             for (int level = 0; level < num_level; ++level) {
@@ -255,6 +254,7 @@ namespace geopm
                     num_domain = m_tree_comm->level_size(level - 1);
                 }
                 m_policy[level] = new Policy(num_domain);
+                m_tree_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
                 m_region[level].insert(std::pair<uint64_t, Region *>
                                        (GEOPM_REGION_ID_OUTER,
                                         new Region(GEOPM_REGION_ID_OUTER,
@@ -348,7 +348,7 @@ namespace geopm
         m_tree_comm->get_policy(level, policy_msg);
         for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level != 0; --level) {
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
-                m_tree_decider->update_policy(policy_msg, *(m_policy[level]));
+                m_tree_decider[level]->update_policy(policy_msg, *(m_policy[level]));
                 m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER, policy_msg, child_policy_msg);
                 m_tree_comm->send_policy(level - 1, child_policy_msg);
                 m_last_policy_msg[level] = policy_msg;
@@ -383,7 +383,7 @@ namespace geopm
                     // use .begin() because map has only one entry
                     auto it = m_region[level].begin();
                     (*it).second->insert(child_sample);
-                    m_tree_decider->update_policy(*((*it).second), *(m_policy[level]));
+                    m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]));
                     (*it).second->sample_message(sample_msg);
                 }
                 catch (geopm::Exception ex) {
