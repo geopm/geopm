@@ -132,6 +132,8 @@ int geopm_prof_print(struct geopm_prof_c *prof,
 /***************/
 int geopm_num_node(MPI_Comm comm, int *num_node);
 
+int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm);
+
 int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm);
 
 int geopm_omp_sched_static_norm(int num_iter,

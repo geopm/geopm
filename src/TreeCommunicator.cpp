@@ -51,30 +51,45 @@
 
 extern "C"
 {
-    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_node, MPI_Comm *ppn1_comm);
+    static int geopm_comm_split_imp(MPI_Comm comm, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
 
     int geopm_num_node(MPI_Comm comm, int *num_node)
     {
-        return geopm_comm_split_ppn1_imp(comm, num_node, NULL);
+        int is_shm_root = 0;
+        return geopm_comm_split_imp(comm, num_node, NULL, &is_shm_root);
     }
 
     int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)
     {
-        int num_node;
-        return geopm_comm_split_ppn1_imp(comm, &num_node, ppn1_comm);
+        int num_node = 0;
+        int is_shm_root = 0;
+        int err = geopm_comm_split_imp(comm, &num_node, ppn1_comm, &is_shm_root);
+        if (!err && !is_shm_root) {
+            err = MPI_Comm_free(ppn1_comm);
+            *ppn1_comm = MPI_COMM_NULL;
+        }
+        return err;
     }
 
-    static int geopm_comm_split_ppn1_imp(MPI_Comm comm, int *num_node, MPI_Comm *ppn1_comm)
+    int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm)
     {
-        int err, comm_size, comm_rank, shm_rank, is_shm_root = 0;
-        MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
-        MPI_Comm *ppn1_comm_ptr;
+        int num_node = 0;
+        return geopm_comm_split_imp(comm, &num_node, split_comm, is_ctl_comm);
+    }
 
-        if (ppn1_comm) {
-            ppn1_comm_ptr = ppn1_comm;
+    static int geopm_comm_split_imp(MPI_Comm comm, int *num_node, MPI_Comm *split_comm, int *is_shm_root)
+    {
+        int err, comm_size, comm_rank, shm_rank;
+        MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
+        MPI_Comm *split_comm_ptr;
+
+        *is_shm_root = 0;
+
+        if (split_comm) {
+            split_comm_ptr = split_comm;
         }
         else {
-            ppn1_comm_ptr = &tmp_comm;
+            split_comm_ptr = &tmp_comm;
         }
 
         err = MPI_Comm_size(comm, &comm_size);
@@ -89,20 +104,16 @@ extern "C"
         }
         if (!err) {
             if (!shm_rank) {
-                is_shm_root = 1;
+                *is_shm_root = 1;
             }
             else {
-                is_shm_root = 0;
+                *is_shm_root = 0;
             }
-            err = MPI_Comm_split(comm, is_shm_root, comm_rank, ppn1_comm_ptr);
+            err = MPI_Comm_split(comm, *is_shm_root, comm_rank, split_comm_ptr);
         }
         if (!err) {
-            if (is_shm_root == 1) {
-                err = MPI_Comm_size(*ppn1_comm_ptr, num_node);
-            }
-            else {
-                err = MPI_Comm_free(ppn1_comm_ptr);
-                *ppn1_comm_ptr = MPI_COMM_NULL;
+            if (*is_shm_root == 1) {
+                err = MPI_Comm_size(*split_comm_ptr, num_node);
             }
         }
         if (!err) {
@@ -111,8 +122,8 @@ extern "C"
         if (shm_comm != MPI_COMM_NULL) {
             MPI_Comm_free(&shm_comm);
         }
-        if (!ppn1_comm && is_shm_root) {
-            MPI_Comm_free(ppn1_comm_ptr);
+        if (!split_comm) {
+            MPI_Comm_free(split_comm_ptr);
         }
         return err;
     }

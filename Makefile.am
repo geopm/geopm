@@ -35,15 +35,14 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\" -D_POSIX_C_SOURCE
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
+bin_PROGRAMS = geopmpolicy
+pkglib_LTLIBRARIES =
+
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
-endif
-
-bin_PROGRAMS = geopmpolicy
-if ENABLE_MPI
     bin_PROGRAMS += geopmctl
+    pkglib_LTLIBRARIES += libgeopmpmpi.la
 endif
-
 
 include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
@@ -99,6 +98,11 @@ if ENABLE_MPI
     libgeopm_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS= $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+
+    libgeopmpmpi_la_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    libgeopmpmpi_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version) -module
+    libgeopmpmpi_la_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+    libgeopmpmpi_la_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 
     geopmctl_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
     geopmctl_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
@@ -237,6 +241,7 @@ if ENABLE_MPI
     geopmctl_SOURCES = src/geopmctl_main.c \
                        src/geopm_version.h \
                        # end
+    libgeopmpmpi_la_SOURCES = src/geopm_pmpi.c
 endif
 
 # CLEAN TARGETS
@@ -288,7 +293,6 @@ gh-pages: doxygen $(dist_man_MANS)
 	cp ronn/*.html gh-pages/man/.
 
 # INCLUDES
-pkglib_LTLIBRARIES =
 check_PROGRAMS =
 check_LTLIBRARIES =
 noinst_PROGRAMS =
