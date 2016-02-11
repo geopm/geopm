@@ -75,10 +75,59 @@ namespace geopm
             void sample_message(struct geopm_sample_message_s &sample);
             /// Returns the latest value
             double signal(int domain_idx, int signal_type);
-            /// @brief Retrieve the statistics for a domain of control.
+            /// @brief Retrieve the number of valid samples for a domain of control.
             ///
-            /// Get the statistics for a given domain of control and a
-            /// signal type for the buffered data associated with the
+            /// Get the number of valid samples  for a given domain of control and
+            /// a signal type for the buffered data associated with the application
+            /// region. This is the number of samples used to calculate the other
+            /// statistics.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @return The number of valid samples.
+            int num_sample(int domain_idx, int signal_type) const;
+            /// @brief Retrieve the mean signal value for a domain of control.
+            ///
+            /// Get the mean signal value for a given domain of control and
+            /// a signal type for the buffered data associated with the application
+            /// region.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @return The mean signal value.
+            double mean(int domain_idx, int signal_type) const;
+            /// @brief Retrieve the median signal value for a domain of control.
+            ///
+            /// Get the median signal value for a given domain of control and
+            /// a signal type for the buffered data associated with the application
+            /// region.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @return The median signal value.
+            double median(int domain_idx, int signal_type) const;
+            /// @brief Retrieve the standard deviation of the signal values for a domain of control.
+            ///
+            /// Get the standard deviation of the signal values for a given domain of
+            /// control and a signal type for the buffered data associated with the
             /// application region.
             ///
             /// @param [in] domain_idx The index to the domain of
@@ -89,11 +138,56 @@ namespace geopm
             ///        enumerated in geopm_signal_type_e in
             ///        geopm_message.h.
             ///
-            /// @param [out] result A vector of double of length
-            ///        GEOPM_NUM_STAT_TYPE which contains the computed
-            ///        statistics as enumerated in geopm_stat_type_e.
-            ///        It is assumed the vector has been properly sized.
-            void statistics(int domain_idx, int signal_type, std::vector<double> &stats) const;
+            /// @return The standard deviation of the signal values.
+            double std_deviation(int domain_idx, int signal_type) const;
+            /// @brief Retrieve the min signal value for a domain of control.
+            ///
+            /// Get the min signal value for a given domain of control and
+            /// a signal type for the buffered data associated with the application
+            /// region.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @return The min signal value.
+            double min(int domain_idx, int signal_type) const;
+            /// @brief Retrieve the max signal value for a domain of control.
+            ///
+            /// Get the max signal value for a given domain of control and
+            /// a signal type for the buffered data associated with the application
+            /// region.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @return The max signal value.
+            double max(int domain_idx, int signal_type) const;
+            /// @brief Retrieve the derivative of the signal values for a domain of control.
+            ///
+            /// Get the derivative of the signal values for a given domain of control and
+            /// a signal type for the buffered data associated with the application
+            /// region. There must be at least 2 valid samples recorded.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @return If there are 2 valid samples then return he derivative of the
+            /// signal values, else return NAN.
             double derivative(int domain_idx, int signal_type) const;
             /// @brief Integrate a signal over time.
             ///

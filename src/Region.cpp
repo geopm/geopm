@@ -289,16 +289,20 @@ namespace geopm
         return result;
     }
 
-    void Region::statistics(int domain_idx, int signal_type, std::vector<double> &stats) const
+    int Region::num_sample(int domain_idx, int signal_type) const
     {
-        stats[GEOPM_STAT_TYPE_NSAMPLE] = m_valid_entries[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
-        stats[GEOPM_STAT_TYPE_MEAN] = m_sum[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type] /
-                                      stats[GEOPM_STAT_TYPE_NSAMPLE];
-        stats[GEOPM_STAT_TYPE_STD_DEV] = m_sum_squares[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type] /
-                                         stats[GEOPM_STAT_TYPE_NSAMPLE];
-        stats[GEOPM_STAT_TYPE_MIN] = m_min[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
-        stats[GEOPM_STAT_TYPE_MAX] = m_max[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
-        std::vector<double> median(stats[GEOPM_STAT_TYPE_NSAMPLE]);
+        return m_valid_entries[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
+    }
+
+    double Region::mean(int domain_idx, int signal_type) const
+    {
+        return  m_sum[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type] /
+                num_sample(domain_idx, signal_type);
+    }
+
+    double Region::median(int domain_idx, int signal_type) const
+    {
+        std::vector<double> median(num_sample(domain_idx, signal_type));
         int idx = 0;
         bool is_hw_telem = signal_type != GEOPM_TELEMETRY_TYPE_PROGRESS || signal_type != GEOPM_TELEMETRY_TYPE_RUNTIME;
         for (int i = 0; i < m_domain_buffer.size(); ++i) {
@@ -307,8 +311,24 @@ namespace geopm
                     median[idx++] = m_domain_buffer.value(i)[GEOPM_NUM_TELEMETRY_TYPE * domain_idx + signal_type];
             }
         }
-        std::sort(median.begin(), median.begin() + stats[GEOPM_STAT_TYPE_NSAMPLE]);
-        stats[GEOPM_STAT_TYPE_MEDIAN] = median[stats[GEOPM_STAT_TYPE_NSAMPLE] / 2];
+        std::sort(median.begin(), median.begin() + num_sample(domain_idx, signal_type));
+        return median[num_sample(domain_idx, signal_type) / 2];
+    }
+
+    double Region::std_deviation(int domain_idx, int signal_type) const
+    {
+        return m_sum_squares[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type] /
+               num_sample(domain_idx, signal_type);
+    }
+
+    double Region::min(int domain_idx, int signal_type) const
+    {
+        return m_min[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
+    }
+
+    double Region::max(int domain_idx, int signal_type) const
+    {
+        return m_max[domain_idx * GEOPM_NUM_TELEMETRY_TYPE + signal_type];
     }
 
     double Region::derivative(int domain_idx, int signal_type) const

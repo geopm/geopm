@@ -148,7 +148,7 @@ TEST_F(SampleRegulatorTest, align_profile)
     insert(m_test_plat.begin(), m_test_plat.end());
     align(m_test_sample_time[1]);
     for (unsigned i = 24; i < m_aligned_signal.size(); ++i) {
-        if (i % 2 == 0) {
+        if ((i - (GEOPM_NUM_TELEMETRY_TYPE - M_NUM_RANK_SIGNAL)) % 2 == 0) {
             ASSERT_DOUBLE_EQ(0.0, m_aligned_signal[i]);
         }
         else {
