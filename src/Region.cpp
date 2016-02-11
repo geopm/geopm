@@ -31,6 +31,7 @@
  */
 
 #include <string.h>
+#include <algorithm>
 
 #include "Region.hpp"
 
@@ -367,7 +368,7 @@ namespace geopm
 
     void Region::check_bounds(int domain_idx, int signal_type, const char *file, int line) const
     {
-        if (domain_idx < 0 || domain_idx > m_num_domain) {
+        if (domain_idx < 0 || domain_idx > (int)m_num_domain) {
             throw geopm::Exception("Region::check_bounds(): the requested domain index is out of bounds. called from geopm/"
                                    + std::string(file) + ":" + std::to_string(line),
                                    GEOPM_ERROR_INVALID);
