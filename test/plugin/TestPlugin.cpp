@@ -32,6 +32,8 @@
 
 #include "geopm_plugin.h"
 #include "Exception.hpp"
+#include "SharedMemory.hpp"
+#include "LockingHashTable.hpp"
 
 #include "TestPlugin.hpp"
 
@@ -53,13 +55,13 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
                 geopm_factory_register(factory, platform);
                 break;
             case GEOPM_PLUGIN_TYPE_PLATFORM_IMP:
-                platform_imp = new DumbPlatformImp;
+                platform_imp = new ShmemFreqPlatformImp;
                 geopm_factory_register(factory, platform_imp);
                 break;
         }
     }
     catch(...) {
-        err = geopm::exception_handler(std::current_exception());
+        err = exception_handler(std::current_exception());
     }
     return err;
 }
@@ -126,59 +128,102 @@ void DumbPlatform::enforce_policy(uint64_t region_id, Policy &policy) const
 
 }
 
-DumbPlatformImp::DumbPlatformImp()
-    : m_name("dumb")
+ShmemFreqPlatformImp::ShmemFreqPlatformImp()
+    : m_name("shmem_freq")
+    , m_cpu_freq_shmem_key("/geopm_test_platform_shmem_freq")
+    , m_cpu_freq_table_size(4096)
+    , m_num_cpu(8)
+    , m_cpu_freq_max(4000.0)
+    , m_pkg_power_max(100.0)
+    , m_dram_power_max(25.0)
+    , m_pp0_power_max(m_pkg_power_max + m_dram_power_max)
+    , m_inst_ratio(2.0)
+    , m_llc_ratio(0.25)
+    , m_cpu_freq_start(2500.0)
+    , m_cpu_freq_shmem(m_cpu_freq_shmem_key, m_cpu_freq_table_size)
+    , m_cpu_freq_table(m_cpu_freq_table_size, m_cpu_freq_shmem.pointer())
+    , m_clock_count(m_num_cpu)
+    , m_telemetry(m_num_cpu)
+{
+    geopm_time(&m_time_zero);
+    m_time_last = m_time_zero;
+    for (int i = 0; i < m_num_cpu; ++i) {
+        m_cpu_freq_table.insert(i, m_cpu_freq_start);
+    }
+}
+
+ShmemFreqPlatformImp::~ShmemFreqPlatformImp()
 {
 
 }
 
-DumbPlatformImp::~DumbPlatformImp()
+bool ShmemFreqPlatformImp::model_supported(int platform_id)
 {
-
+    return true;
 }
 
-bool DumbPlatformImp::model_supported(int platform_id)
-{
-    return false;
-}
-
-std::string DumbPlatformImp::platform_name(void)
+std::string ShmemFreqPlatformImp::platform_name(void)
 {
     return m_name;
 }
 
-void DumbPlatformImp::msr_reset(void)
+void ShmemFreqPlatformImp::msr_reset(void)
 {
 
 }
 
-int DumbPlatformImp::power_control_domain(void) const
+int ShmemFreqPlatformImp::power_control_domain(void) const
 {
-    return geopm::GEOPM_DOMAIN_PACKAGE;
+    return GEOPM_DOMAIN_PACKAGE;
 }
 
-int DumbPlatformImp::frequency_control_domain(void) const
+int ShmemFreqPlatformImp::frequency_control_domain(void) const
 {
-    return geopm::GEOPM_DOMAIN_CPU;
+    return GEOPM_DOMAIN_CPU;
 }
 
-int DumbPlatformImp::control_domain(void) const
-{
-    return 0;
-}
-
-void DumbPlatformImp::msr_initialize(void)
+void ShmemFreqPlatformImp::msr_initialize(void)
 {
 
 }
 
-double DumbPlatformImp::read_signal(int device_type, int device_index, int signal_type)
+double ShmemFreqPlatformImp::read_signal(int device_type, int device_idx, int signal_type)
 {
-    return 1.0;
+    struct geopm_time_s time_curr;
+    std::vector<double> cpu_freq_curr(m_num_cpu);
+    uint64_t clock_tick_delta;
+    geopm_time(&time_curr);
+    double time_delta = geopm_time_diff(&m_time_last, &time_curr);
+
+    if (device_type != GEOPM_DOMAIN_CPU) {
+        throw Exception("ShmemFreqPlatformImp::read_signal() can only be used to read CPU signals",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+
+    for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+        // Grab the clock frequencies from shared memory
+        cpu_freq_curr[cpu_idx] = cpu_freq(cpu_idx);
+    }
+    for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+        clock_tick_delta = time_delta * cpu_freq_curr[cpu_idx];
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] += clock_tick_delta * m_pkg_power_max * cpu_freq_curr[cpu_idx] / m_cpu_freq_max;
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_PP0_ENERGY] += clock_tick_delta * m_pp0_power_max * cpu_freq_curr[cpu_idx] / m_cpu_freq_max;
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY] += clock_tick_delta * m_dram_power_max * cpu_freq_curr[cpu_idx] / m_cpu_freq_max;
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] = cpu_freq_curr[device_idx];
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_INST_RETIRED] = clock_tick_delta * m_inst_ratio * cpu_freq_curr[cpu_idx];
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] += clock_tick_delta;
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF] += clock_tick_delta;
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_LLC_VICTIMS] += clock_tick_delta * m_llc_ratio;
+    }
+    m_time_last = time_curr;
+    return m_telemetry[device_idx].signal[signal_type];
 }
 
-void DumbPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
+void ShmemFreqPlatformImp::write_control(int device_type, int device_idx, int signal_type, double value)
 {
-
+    if (device_type != GEOPM_DOMAIN_CPU ||
+        signal_type != GEOPM_TELEMETRY_TYPE_FREQUENCY) {
+        throw Exception("ShmemFreqPlatformImp::write_control() can only be used to control CPU frequency", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    cpu_freq(device_idx, value);
 }
-

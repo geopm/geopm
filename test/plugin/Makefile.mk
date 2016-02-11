@@ -33,5 +33,6 @@ check_LTLIBRARIES += libgeopmpi_test.la
 libgeopmpi_test_la_SOURCES = test/plugin/TestPlugin.cpp \
                              test/plugin/TestPlugin.hpp \
                              #end
+
 # "-module -rpath /nowhere" required to force .so generation of test plugin.
-libgeopmpi_test_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -version-info $(geopm_abi_version) -module
+libgeopmpi_test_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -module

@@ -100,7 +100,7 @@ if ENABLE_MPI
     libgeopm_la_CXXFLAGS= $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 
     libgeopmpmpi_la_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    libgeopmpmpi_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version) -module
+    libgeopmpmpi_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -module
     libgeopmpmpi_la_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopmpmpi_la_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 

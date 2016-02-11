@@ -66,22 +66,39 @@ class DumbPlatform : public Platform
         const std::string m_name;
 };
 
-class DumbPlatformImp : public PlatformImp
+class ShmemFreqPlatformImp : public PlatformImp
 {
     public:
-        DumbPlatformImp();
-        virtual ~DumbPlatformImp();
+        ShmemFreqPlatformImp();
+        virtual ~ShmemFreqPlatformImp();
         virtual bool model_supported(int platform_id);
         virtual std::string platform_name(void);
         virtual void msr_reset(void);
         virtual int power_control_domain(void) const;
         virtual int frequency_control_domain(void) const;
-        virtual int control_domain(void) const;
-        virtual double read_signal(int device_type, int device_index, int signal_type);
-        virtual void write_control(int device_type, int device_index, int signal_type, double value);
+        virtual double read_signal(int device_type, int device_idx, int signal_type);
+        virtual void write_control(int device_type, int device_idx, int signal_type, double value);
     protected:
         virtual void msr_initialize(void);
+        virtual double cpu_freq(int cpu_idx);
+        virtual void cpu_freq(int cpu_idx, double freq);
         const std::string m_name;
+        const std::string m_cpu_freq_shmem_key;
+        const size_t m_cpu_freq_table_size;
+        const int m_num_cpu;
+        const double m_cpu_freq_max;
+        const double m_pkg_power_max;
+        const double m_dram_power_max;
+        const double m_pp0_power_max;
+        const double m_inst_ratio;
+        const double m_llc_ratio;
+        const double m_cpu_freq_start;
+        SharedMemory m_cpu_freq_shmem;
+        LockingHashTable<double> m_cpu_freq_table;
+        std::vector<uint64_t> m_clock_count;
+        std::vector<struct geopm_telemetry_message_s> m_telemetry;
+        struct geopm_time_s m_time_zero;
+        struct geopm_time_s m_time_last;
 };
 
 #endif

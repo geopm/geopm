@@ -243,7 +243,7 @@ struct geopm_msr_message_s {
     int domain_index;
     /// @brief Timestamp of when the sample was taken.
     struct geopm_time_s timestamp;
-    /// @brief geopm_signal_type_e.
+    /// @brief geopm_telemetry_type_e.
     int signal_type;
     /// @brief Value read from the MSR.
     double signal;
