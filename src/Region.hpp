@@ -48,25 +48,6 @@ namespace geopm
     class Region
     {
         public:
-            /// @brief The enumeration of statistics that are computed
-            ///        by the stats() method.
-            enum m_stat_type_e {
-                /// The number of stored samples used in calculations.
-                M_STAT_TYPE_NSAMPLE,
-                /// The mean value of the stored samples.
-                M_STAT_TYPE_MEAN,
-                /// The median value of the stored samples.
-                M_STAT_TYPE_MEDIAN,
-                /// The standard deviation of the stored samples.
-                M_STAT_TYPE_STDDEV,
-                /// The minimum value among the stored samples.
-                M_STAT_TYPE_MIN,
-                /// The maximum value among the stored samples.
-                M_STAT_TYPE_MAX,
-                /// The number of statistics gathered by the stats()
-                /// method, and the length of the result array.
-                M_NUM_STAT_TYPE
-            };
             enum m_const_e {
                 M_NUM_SAMPLE_HISTORY = 8,
             };
@@ -108,10 +89,11 @@ namespace geopm
             ///        enumerated in geopm_signal_type_e in
             ///        geopm_message.h.
             ///
-            /// @param [out] result A double array of length
-            ///        M_NUM_STAT_TYPE which contains the computed
-            ///        statistics as enumerated in m_stat_type_e.
-            void statistics(int domain_idx, int signal_type, double result[]) const;
+            /// @param [out] result A vector of double of length
+            ///        GEOPM_NUM_STAT_TYPE which contains the computed
+            ///        statistics as enumerated in geopm_stat_type_e.
+            ///        It is assumed the vector has been properly sized.
+            void statistics(int domain_idx, int signal_type, std::vector<double> &stats) const;
             double derivative(int domain_idx, int signal_type) const;
             /// @brief Integrate a signal over time.
             ///
@@ -147,6 +129,12 @@ namespace geopm
             CircularBuffer<std::vector<double> > m_domain_buffer;
             /// @brief time stamp for each entry in the m_domain_buffer
             CircularBuffer<struct geopm_time_s> m_time_buffer;
+            /// statistics
+            std::vector<int> m_valid_entries;
+            std::vector<double> m_min;
+            std::vector<double> m_max;
+            std::vector<double> m_sum;
+            std::vector<double> m_sum_squares;
     };
 }
 

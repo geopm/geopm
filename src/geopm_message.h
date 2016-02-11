@@ -145,7 +145,17 @@ enum geopm_sample_type_e {
     GEOPM_SAMPLE_TYPE_RUNTIME,
     GEOPM_SAMPLE_TYPE_ENERGY,
     GEOPM_SAMPLE_TYPE_FREQUENCY,
-    GEOPM_NUM_SAMPLE_TYPE // Signal counter, must be last
+    GEOPM_NUM_SAMPLE_TYPE // Sample counter, must be last
+};
+
+enum geopm_stat_type_e {
+    GEOPM_STAT_TYPE_NSAMPLE,
+    GEOPM_STAT_TYPE_MEAN,
+    GEOPM_STAT_TYPE_MEDIAN,
+    GEOPM_STAT_TYPE_STD_DEV,
+    GEOPM_STAT_TYPE_MIN,
+    GEOPM_STAT_TYPE_MAX,
+    GEOPM_NUM_STAT_TYPE // Stat counter, must be last
 };
 
 /// @brief MPI message structure for sending

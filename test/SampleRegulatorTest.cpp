@@ -148,7 +148,12 @@ TEST_F(SampleRegulatorTest, align_profile)
     insert(m_test_plat.begin(), m_test_plat.end());
     align(m_test_sample_time[1]);
     for (unsigned i = 24; i < m_aligned_signal.size(); ++i) {
-        ASSERT_DOUBLE_EQ(0.0, m_aligned_signal[i]);
+        if (i % 2 == 0) {
+            ASSERT_DOUBLE_EQ(0.0, m_aligned_signal[i]);
+        }
+        else {
+            ASSERT_DOUBLE_EQ(-1.0, m_aligned_signal[i]);
+        }
     }
 
     // insert two profile samples and use last profile sample time

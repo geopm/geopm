@@ -144,9 +144,9 @@ namespace geopm
         for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
             switch((*it).size()) {
                 case M_INTERP_TYPE_NONE:
-                    // if there is no data, just fill with zeros
+                    // if there is no data, set progress to zero and mark invalid by setting runtime to -1
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = 0.0;
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = 0.0;
+                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = -1.0;
                     break;
                 case M_INTERP_TYPE_NEAREST:
                     // if there is only one sample insert it directly
