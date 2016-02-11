@@ -206,28 +206,60 @@ namespace geopm
             ///
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
         protected:
+            /// @brief Bound testing of input parameters.
+            ///
+            /// Checks the requested domain index and signal type to make sure thay are within
+            /// bounds of our internal data structures. If they are not an exception is thrown.
+            ///
+            /// @param [in] domain_idx The index to the domain of
+            ///        control as ordered in the Platform and the
+            ///        Policy.
+            ///
+            /// @param [in] signal_type The signal type requested as
+            ///        enumerated in geopm_signal_type_e in
+            ///        geopm_message.h.
+            ///
+            /// @param [in] file Name of source file where exception
+            ///        was thrown, e.g. preprocessor __FILE__.
+            ///
+            /// @param [in] line Line number in source file where
+            ///        exception was thrown, e.g. preprocessor
+            ///        __LINE__.
+            ///
+            void check_bounds(int domain_idx, int signal_type, const char *file, int line) const;
             /// @brief Holds a unique 64 bit region identifier.
             const uint64_t m_identifier;
-            /// @brief Holds the compute characteristic hint for this
-            ///        region.
+            /// @brief Holds the compute characteristic hint for this region.
             const int m_hint;
             /// @brief Have we converged for this region.
             const unsigned m_num_domain;
+            /// @brief The level of the tree where the region resides
             const unsigned m_level;
+            /// @brief The number of distinct signal in a single domain.
+            int m_num_signal;
+            /// @brief Temporary signal matrix storeage used before insertion.
             std::vector<double> m_signal_matrix;
+            /// @brief Holder for telemerty state on region entry.
             std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
+            /// @brief Holder for sample data calculated after a domain exits a region.
             std::vector<struct geopm_sample_message_s> m_domain_sample;
+            /// @brief Mark regions dirty until they have completed the region.
             std::vector<bool> m_is_dirty_domain_sample;
+            /// @brief the current sample message to be sent up the tree.
             struct geopm_sample_message_s m_curr_sample;
-            /// @brief Circular buffer is over time, vector is indexed over both domains and signals
+            /// @brief Circular buffer is over time, vector is indexed over both domains and signals.
             CircularBuffer<std::vector<double> > m_domain_buffer;
-            /// @brief time stamp for each entry in the m_domain_buffer
+            /// @brief time stamp for each entry in the m_domain_buffer.
             CircularBuffer<struct geopm_time_s> m_time_buffer;
-            /// statistics
+            /// @brief the number of valid samples per domain and signal type.
             std::vector<int> m_valid_entries;
+            /// @brief the current minimum signal value per domain and signal type.
             std::vector<double> m_min;
+            /// @brief the current maximum signal value per domain and signal type.
             std::vector<double> m_max;
+            /// @brief the current sum of signal values per domain and signal type.
             std::vector<double> m_sum;
+            /// @brief the current sum of squares of signal values per domain and signal type.
             std::vector<double> m_sum_squares;
     };
 }
