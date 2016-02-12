@@ -50,6 +50,7 @@ namespace geopm
         , m_curr_sample({m_identifier, {0.0, 0.0, 0.0}})
         , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
         , m_time_buffer(M_NUM_SAMPLE_HISTORY)
+        , m_valid_entries(m_num_signal * m_num_domain)
         , m_min(m_num_signal * m_num_domain)
         , m_max(m_num_signal * m_num_domain)
         , m_sum(m_num_signal * m_num_domain)
@@ -100,23 +101,30 @@ namespace geopm
             }
             memcpy(m_signal_matrix.data() + offset, (*it).signal, m_num_signal * sizeof(double));
 
-            std::vector<double> entry_oldest = m_domain_buffer.value(m_domain_buffer.size() - 1);
-            if (entry_oldest[offset + GEOPM_TELEMETRY_TYPE_RUNTIME] == 0.0 ||
-                m_domain_buffer.size() < m_domain_buffer.capacity()) {
-                if ((*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != 0.0) {
-                    ++m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_PROGRESS];
-                    ++m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_RUNTIME];
+            std::vector<double> entry_oldest;
+            if (m_domain_buffer.size()) {
+                entry_oldest = m_domain_buffer.value(m_domain_buffer.size() - 1);
+                if (entry_oldest[offset + GEOPM_TELEMETRY_TYPE_RUNTIME] == 0.0 ||
+                    m_domain_buffer.size() < m_domain_buffer.capacity()) {
+                    if ((*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != 0.0) {
+                        ++m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_PROGRESS];
+                        ++m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_RUNTIME];
+                    }
+                }
+                else {
+                    if ((*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] == 0.0) {
+                        --m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_PROGRESS];
+                        --m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_RUNTIME];
+                    }
                 }
             }
             else {
-                if ((*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] == 0.0) {
-                    --m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_PROGRESS];
-                    --m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_RUNTIME];
-                }
+                ++m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_PROGRESS];
+                ++m_valid_entries[offset + GEOPM_TELEMETRY_TYPE_RUNTIME];
             }
 
             int num_entries = fmin(m_domain_buffer.size() + 1, m_domain_buffer.capacity());
-            std::fill(m_valid_entries.begin() + offset, m_valid_entries.end() + offset + GEOPM_TELEMETRY_TYPE_LLC_VICTIMS, num_entries);
+            std::fill(m_valid_entries.begin() + offset, m_valid_entries.begin() + offset + GEOPM_TELEMETRY_TYPE_LLC_VICTIMS, num_entries);
 
             // Update Min
             for (int i = 0; i < m_num_signal; ++i) {
@@ -128,7 +136,7 @@ namespace geopm
                     if ((*it).signal[i] < m_min[offset + i]) {
                         m_min[offset + i] = (*it).signal[i];
                     }
-                    else if (m_domain_buffer.size() < m_domain_buffer.capacity() && m_min[offset + i] == entry_oldest[offset + i]) {
+                    else if (m_domain_buffer.size() == m_domain_buffer.capacity() && m_min[offset + i] == entry_oldest[offset + i]) {
                         //We are about to throw out the current min
                         //Find the new one
                         m_min[offset +i] = (*it).signal[i];
@@ -145,7 +153,7 @@ namespace geopm
                     if ((*it).signal[i] > m_max[offset + i]) {
                         m_max[offset + i] = (*it).signal[i];
                     }
-                    else if (m_domain_buffer.size() < m_domain_buffer.capacity() && m_max[offset + i] == entry_oldest[offset + i]) {
+                    else if (m_domain_buffer.size() == m_domain_buffer.capacity() && m_max[offset + i] == entry_oldest[offset + i]) {
                         //We are about to throw out the current max
                         //Find the new one
                         m_max[offset +i] = (*it).signal[i];
@@ -212,50 +220,67 @@ namespace geopm
             int num_entries = fmin(m_domain_buffer.size() + 1, m_domain_buffer.capacity());
             std::fill(m_valid_entries.begin(), m_valid_entries.end(), num_entries);
 
-            std::vector<double> entry_oldest = m_domain_buffer.value(m_domain_buffer.size() - 1);
             for (int i = 0; i < m_num_signal; ++i) {
-                // calculate the min
-                if ((*it).signal[i] < m_min[offset + i]) {
-                    m_min[offset + i] = (*it).signal[i];
-                }
-                else if (m_domain_buffer.size() == m_domain_buffer.capacity() &&
-                         m_min[offset + i] == entry_oldest[offset + i]) {
-                    //We are about to throw out the current min
-                    //Find the new one
-                    m_min[offset +i] = (*it).signal[i];
-                    for (int entry = 0; entry < m_domain_buffer.size(); ++entry) {
-                        if (m_domain_buffer.value(entry)[offset + i] < m_min[offset + i]) {
-                            m_min[offset +i] = m_domain_buffer.value(entry)[offset + i];
+                std::vector<double> entry_oldest;
+                if (m_domain_buffer.size()) {
+                    entry_oldest = m_domain_buffer.value(m_domain_buffer.size() - 1);
+                    // calculate the min
+                    if ((*it).signal[i] < m_min[offset + i]) {
+                        m_min[offset + i] = (*it).signal[i];
+                    }
+                    else if (m_domain_buffer.size() == m_domain_buffer.capacity() &&
+                             m_min[offset + i] == entry_oldest[offset + i]) {
+                        //We are about to throw out the current min
+                        //Find the new one
+                        m_min[offset +i] = (*it).signal[i];
+                        for (int entry = 0; entry < m_domain_buffer.size(); ++entry) {
+                            if (m_domain_buffer.value(entry)[offset + i] < m_min[offset + i]) {
+                                m_min[offset +i] = m_domain_buffer.value(entry)[offset + i];
+                            }
                         }
                     }
-                }
-                // calculate the max
-                if ((*it).signal[i] > m_max[offset + i]) {
-                    m_max[offset + i] = (*it).signal[i];
-                }
-                else if (m_domain_buffer.size() == m_domain_buffer.capacity() &&
-                         m_max[offset + i] == entry_oldest[offset + i]) {
-                    //We are about to throw out the current max
-                    //Find the new one
-                    m_max[offset +i] = (*it).signal[i];
-                    for (int entry = 0; entry < m_domain_buffer.size(); ++entry) {
-                        if (m_domain_buffer.value(entry)[offset + i] > m_max[offset + i]) {
-                            m_max[offset +i] = m_domain_buffer.value(entry)[offset + i];
+                    // calculate the max
+                    if ((*it).signal[i] > m_max[offset + i]) {
+                        m_max[offset + i] = (*it).signal[i];
+                    }
+                    else if (m_domain_buffer.size() == m_domain_buffer.capacity() &&
+                             m_max[offset + i] == entry_oldest[offset + i]) {
+                        //We are about to throw out the current max
+                        //Find the new one
+                        m_max[offset +i] = (*it).signal[i];
+                        for (int entry = 0; entry < m_domain_buffer.size(); ++entry) {
+                            if (m_domain_buffer.value(entry)[offset + i] > m_max[offset + i]) {
+                                m_max[offset +i] = m_domain_buffer.value(entry)[offset + i];
+                            }
                         }
                     }
+                    if (m_domain_buffer.size() < m_domain_buffer.capacity()) {
+                        // sum the values
+                        m_sum[offset + i] += (*it).signal[i];
+                        // sum the square of the values
+                        m_sum_squares[offset + i] += pow((*it).signal[i], 2);
+                    }
+                    else {
+                        // We need to throw away the value of the signal we are removing
+                        // sum the values
+                        m_sum[offset + i] += ((*it).signal[i] - entry_oldest[offset + i]);
+                        // sum the square of the values
+                        m_sum_squares[offset + i] += (pow((*it).signal[i], 2) - pow(entry_oldest[offset + i], 2));
+                    }
                 }
-                if (m_domain_buffer.size() < m_domain_buffer.capacity()) {
+                else {
+                    // calculate the min
+                    if ((*it).signal[i] < m_min[offset + i]) {
+                        m_min[offset + i] = (*it).signal[i];
+                    }
+                    // calculate the max
+                    if ((*it).signal[i] > m_max[offset + i]) {
+                        m_max[offset + i] = (*it).signal[i];
+                    }
                     // sum the values
                     m_sum[offset + i] += (*it).signal[i];
                     // sum the square of the values
                     m_sum_squares[offset + i] += pow((*it).signal[i], 2);
-                }
-                else {
-                    // We need to throw away the value of the signal we are removing
-                    // sum the values
-                    m_sum[offset + i] += ((*it).signal[i] - entry_oldest[offset + i]);
-                    // sum the square of the values
-                    m_sum_squares[offset + i] += (pow((*it).signal[i], 2) - pow(entry_oldest[offset + i], 2));
                 }
             }
             offset += m_num_signal;
@@ -326,8 +351,9 @@ namespace geopm
     double Region::std_deviation(int domain_idx, int signal_type) const
     {
         check_bounds(domain_idx, signal_type, __FILE__, __LINE__);
-        return m_sum_squares[domain_idx * m_num_signal + signal_type] /
-               num_sample(domain_idx, signal_type);
+        return sqrt((m_sum_squares[domain_idx * m_num_signal + signal_type] /
+                num_sample(domain_idx, signal_type)) -
+                pow(mean(domain_idx, signal_type), 2));
     }
 
     double Region::min(int domain_idx, int signal_type) const

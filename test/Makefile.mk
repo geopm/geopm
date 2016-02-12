@@ -95,6 +95,11 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/MPISharedMemoryTest.hello \
               test/gtest_links/MPIProfileTest.noctl \
+              test/gtest_links/RegionTest.signal_mean \
+              test/gtest_links/RegionTest.signal_median \
+              test/gtest_links/RegionTest.signal_stddev \
+              test/gtest_links/RegionTest.signal_max \
+              test/gtest_links/RegionTest.signal_min \
               test/gtest_links/SampleRegulatorTest.insert_platform \
               test/gtest_links/SampleRegulatorTest.insert_profile_unsync \
               test/gtest_links/SampleRegulatorTest.insert_profile \
@@ -126,6 +131,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           src/LockingHashTable.hpp \
                           test/DeciderFactoryTest.cpp \
                           test/SampleRegulatorTest.cpp \
+                          test/RegionTest.cpp \
                           test/MockPlatform.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
