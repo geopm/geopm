@@ -5,6 +5,19 @@
 
 static MPI_Comm GEOPM_SPLIT_MPI_COMM;
 
+#ifndef GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE
+// Since MPI_COMM_WORLD should not be accessed or modified in this use
+// case, a simple == comparison will do and will be much more
+// performant than MPI_Comm_compare().
+static inline MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
+{
+    return comm != MPI_COMM_WORLD ?
+           comm : GEOPM_SPLIT_MPI_COMM;
+}
+#else
+// The code below is more portable, but less performant.  Define
+// GEOPM_ENABLE_PORTABLE_MPI_COMM_COMPARE if there are issues with
+// the direct comparison code above.
 static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 {
     int is_comm_world = 0;
@@ -14,6 +27,7 @@ static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
     }
     return comm;
 }
+#endif
 
 int MPI_Init(int *argc, char **argv[])
 {
