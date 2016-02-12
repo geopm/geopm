@@ -64,7 +64,7 @@ namespace geopm
                                        std::vector<double>::const_iterator platform_sample_end,
                                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                                       std::stack<struct geopm_telemetry_message_s> &telemetry) // result list per domain of control
+                                       std::vector<struct geopm_telemetry_message_s> &telemetry) // result list per domain of control
     {
         // Insert new application profile data into buffers
         insert(prof_sample_begin, prof_sample_end);
@@ -178,9 +178,8 @@ namespace geopm
     }
 
     void SampleRegulator::transform(const std::vector<double> &signal_domain_matrix,
-                                    std::stack<struct geopm_telemetry_message_s> &telemetry)
+                                    std::vector<struct geopm_telemetry_message_s> &telemetry)
     {
-        struct geopm_telemetry_message_s tmp_telemetry = {m_region_id_prev, m_aligned_time, {0}};
         size_t num_signal = m_aligned_signal.size();
         size_t num_domain_signal = signal_domain_matrix.size() / num_signal;
         size_t num_domain = num_domain_signal / GEOPM_NUM_TELEMETRY_TYPE;
@@ -193,12 +192,12 @@ namespace geopm
             }
         }
 
-        // Insert backwards so poping the stack moves forward
-        for (int i = num_domain - 1; i != -1; --i) {
-            memcpy(tmp_telemetry.signal,
+        for (int i = 0; i < num_domain; ++i) {
+            telemetry[i].region_id = m_region_id_prev;
+            telemetry[i].timestamp = m_aligned_time;
+            memcpy(telemetry[i].signal,
                    result.data() + i * GEOPM_NUM_TELEMETRY_TYPE,
                    GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
-            telemetry.push(tmp_telemetry);
         }
     }
 }

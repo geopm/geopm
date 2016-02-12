@@ -59,7 +59,20 @@ namespace geopm
             Region(uint64_t identifier, int hint, int num_domain, int level);
             /// @brief Default destructor.
             virtual ~Region();
-            void insert(std::stack<struct geopm_telemetry_message_s> &telemetry_stack);
+            /// @brief Insert signal data into internal buffers
+            ///
+            /// Inserts hw telemetry and per-domain application data into the
+            /// internal buffers for the region. This API is used by leaf
+            /// level objects.
+            ///
+            /// @param [in] A vector of telemetry samples to be inserted.
+            void insert(std::vector<struct geopm_telemetry_message_s> &telemetry);
+            /// @brief Insert signal data into internal buffers
+            ///
+            /// Inserts aggregated sample message and data into the internal buffers
+            /// for the region. This API is used by tree level objects.
+            ///
+            /// @param [in] A vector of sample messages to be inserted.
             void insert(const std::vector<struct geopm_sample_message_s> &sample);
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.

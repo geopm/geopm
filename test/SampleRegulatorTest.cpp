@@ -280,17 +280,15 @@ TEST_F(SampleRegulatorTest, transform)
     }
 
     // Call transform and test results
-    std::stack<struct geopm_telemetry_message_s> telemetry;
+    std::vector<struct geopm_telemetry_message_s> telemetry(num_domain);
     transform(signal_domain_matrix, telemetry);
 
     for (unsigned check_loop = 0; check_loop != 2; ++check_loop) {
         EXPECT_EQ(2ULL, telemetry.size());
-        const struct geopm_telemetry_message_s *tmp_tel;
         double signal_expect;
-        while (!telemetry.empty()) {
-            tmp_tel = &telemetry.top();
-            ASSERT_EQ(42ULL, tmp_tel->region_id);
-            ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&(tmp_tel->timestamp), &m_aligned_time));
+        for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
+            ASSERT_EQ(42ULL, (*it).region_id);
+            ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&((*it).timestamp), &m_aligned_time));
             for (unsigned i = 0; i < GEOPM_NUM_TELEMETRY_TYPE; ++i) {
                 if (i < GEOPM_NUM_TELEMETRY_TYPE - M_NUM_RANK_SIGNAL) {
                     signal_expect = (double) i;
@@ -301,9 +299,8 @@ TEST_F(SampleRegulatorTest, transform)
                 else { // progress
                     signal_expect = 0.2;
                 }
-                EXPECT_DOUBLE_EQ(signal_expect, tmp_tel->signal[i]);
+                EXPECT_DOUBLE_EQ(signal_expect, (*it).signal[i]);
             }
-            telemetry.pop();
         }
         if (check_loop == 0) {
             // call public operator ()

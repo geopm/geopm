@@ -249,6 +249,7 @@ namespace geopm
             for (int level = 0; level < num_level; ++level) {
                 if (level == 0) {
                     num_domain = m_platform->num_control_domain();
+                    m_telemetry_sample.resize(num_domain);
                 }
                 else {
                     num_domain = m_tree_comm->level_size(level - 1);
@@ -415,7 +416,7 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       m_telemetry_sample);
 
-                m_region_id = m_telemetry_sample.top().region_id;
+                m_region_id = m_telemetry_sample[0].region_id;
                 auto it = m_region[level].find(m_region_id);
                 if (it != m_region[level].end()) {
                     Region *curr_region = (*it).second;

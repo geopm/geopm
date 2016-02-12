@@ -34,7 +34,6 @@
 #define SAMPLEREGULATOR_HPP_INCLUDE
 
 #include <vector>
-#include <stack>
 #include <set>
 #include <map>
 
@@ -122,8 +121,8 @@ namespace geopm
             /// @param [in] prof_sample_end A vector iterator
             /// referencing the end of the ProfileSampler sample data.
             ///
-            /// @param [out] telemetry A stack of
-            /// geopm_telemetry_message_s structures which pop() in
+            /// @param [out] telemetry A vector of
+            /// geopm_telemetry_message_s structures which are in
             /// the order of the domains of control defined in a
             /// Policy object.
             void operator () (const struct geopm_time_s &platform_sample_time,
@@ -132,7 +131,7 @@ namespace geopm
                               std::vector<double>::const_iterator platform_sample_end,
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                              std::stack<struct geopm_telemetry_message_s> &telemetry); // result stack per domain of control
+                              std::vector<struct geopm_telemetry_message_s> &telemetry); // result stack per domain of control
         protected:
             /// @brief Insert ProfileSampler data.
             void insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
@@ -147,7 +146,7 @@ namespace geopm
             /// control and pack the output into a stack of
             /// geopm_telemetry_message_s structures.
             void transform(const std::vector<double> &signal_domain_matrix,
-                           std::stack<struct geopm_telemetry_message_s> &telemetry);
+                           std::vector<struct geopm_telemetry_message_s> &telemetry);
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
                 double progress;
