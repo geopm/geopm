@@ -34,5 +34,16 @@ libgeopmpi_test_la_SOURCES = test/plugin/TestPlugin.cpp \
                              test/plugin/TestPlugin.hpp \
                              #end
 
-# "-module -rpath /nowhere" required to force .so generation of test plugin.
+# -module required to force .so generation of test plugin.
 libgeopmpi_test_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -module
+
+if ENABLE_MPI
+    check_PROGRAMS += test_plugin_app
+    test_plugin_app_SOURCES = test/plugin/TestPluginApp.cpp
+    test_plugin_app_LDADD = libgeopm.la
+    test_plugin_app_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    test_plugin_app_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    test_plugin_app_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+    test_plugin_app_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+
+endif

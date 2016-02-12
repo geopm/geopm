@@ -67,6 +67,7 @@
 /src/*.o
 /stamp-h1
 /test-driver
+/test_plugin_app
 /test/geopm_mpi_test
 /test/geopm_print_error
 /test/geopm_static_modes_test
