@@ -33,6 +33,7 @@ src/geopm_omp.c
 src/geopm_omp.h
 src/geopm_plugin.c
 src/geopm_plugin.h
+src/geopm_pmpi.c
 src/geopm_policy.h
 src/geopmpolicy_main.c
 src/geopm_policy_message.c
@@ -100,4 +101,5 @@ test/PlatformTopologyTest.cpp
 test/plugin/Makefile.mk
 test/plugin/TestPlugin.cpp
 test/plugin/TestPlugin.hpp
+test/plugin/TestPluginApp.cpp
 test/SampleRegulatorTest.cpp

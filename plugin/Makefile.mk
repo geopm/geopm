@@ -34,5 +34,5 @@ libgeopmpi_governing_la_SOURCES = plugin/GoverningDecider.cpp \
                                   plugin/GoverningDecider.hpp \
                                   # end
 
-# "-module -rpath /nowhere" required to force .so generation of test plugin.
+# -module required to force .so generation of test plugin.
 libgeopmpi_governing_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -module
