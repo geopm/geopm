@@ -95,11 +95,23 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/MPISharedMemoryTest.hello \
               test/gtest_links/MPIProfileTest.noctl \
+              test/gtest_links/RegionTest.identifier \
+              test/gtest_links/RegionTest.hint \
+              test/gtest_links/RegionTest.sample_message \
+              test/gtest_links/RegionTest.signal_last \
+              test/gtest_links/RegionTest.signal_num \
+              test/gtest_links/RegionTest.derivative \
               test/gtest_links/RegionTest.signal_mean \
               test/gtest_links/RegionTest.signal_median \
               test/gtest_links/RegionTest.signal_stddev \
               test/gtest_links/RegionTest.signal_max \
               test/gtest_links/RegionTest.signal_min \
+              test/gtest_links/RegionTest.signal_capacity_leaf \
+              test/gtest_links/RegionTest.signal_capacity_tree \
+              test/gtest_links/RegionTest.signal_invalid_entry \
+              test/gtest_links/RegionTest.negative_region_invalid \
+              test/gtest_links/RegionTest.negative_signal_invalid \
+              test/gtest_links/RegionTest.negative_signal_derivative_tree \
               test/gtest_links/SampleRegulatorTest.insert_platform \
               test/gtest_links/SampleRegulatorTest.insert_profile_unsync \
               test/gtest_links/SampleRegulatorTest.insert_profile \

@@ -105,3 +105,4 @@ test/plugin/TestPlugin.cpp
 test/plugin/TestPlugin.hpp
 test/plugin/TestPluginApp.cpp
 test/SampleRegulatorTest.cpp
+test/RegionTest.cpp
