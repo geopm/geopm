@@ -45,7 +45,7 @@ namespace geopm
 
     }
 
-    long int PolicyFlags::flags(void) const
+    unsigned long PolicyFlags::flags(void) const
     {
         return m_flags;
     }
@@ -80,7 +80,7 @@ namespace geopm
         return max_num_perf;
     }
 
-    void PolicyFlags::flags(long int flags)
+    void PolicyFlags::flags(unsigned long flags)
     {
         m_flags = flags;
     }

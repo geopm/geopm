@@ -104,7 +104,7 @@ TEST_F(PolicyTest, region_id)
 
     m_policy->region_id(id);
     // Need to take into account the OUTER_SYNC region
-    EXPECT_EQ(4, id.size());
+    EXPECT_EQ((size_t)4, id.size());
     EXPECT_EQ((uint64_t)13, id[0]);
     EXPECT_EQ((uint64_t)21, id[1]);
     EXPECT_EQ((uint64_t)42, id[2]);
@@ -174,7 +174,7 @@ TEST_F(PolicyTest, target_updated)
     // It should not be returned
     m_policy->target(42, 7, value);
     m_policy->target_updated(42, tgt);
-    EXPECT_EQ(m_num_domain - 2, tgt.size());
+    EXPECT_EQ((size_t)(m_num_domain - 2), tgt.size());
     EXPECT_DOUBLE_EQ(42.0, (*tgt.find(0)).second);
     EXPECT_DOUBLE_EQ(42.0, (*tgt.find(1)).second);
     EXPECT_DOUBLE_EQ(42.0, (*tgt.find(2)).second);
@@ -193,7 +193,7 @@ TEST_F(PolicyTest, target_valid)
     // It should still get returned in this case
     m_policy->target(42, 7, value);
     m_policy->target_valid(42, tgt);
-    EXPECT_EQ(m_num_domain - 1, tgt.size());
+    EXPECT_EQ((size_t)(m_num_domain - 1), tgt.size());
     EXPECT_DOUBLE_EQ(42.0, (*tgt.find(0)).second);
     EXPECT_DOUBLE_EQ(42.0, (*tgt.find(1)).second);
     EXPECT_DOUBLE_EQ(42.0, (*tgt.find(2)).second);

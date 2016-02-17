@@ -45,7 +45,7 @@ namespace geopm
             virtual ~PolicyFlags();
             /// @brief Get the encoded flags
             /// @return Integer representation of flags
-            long int flags(void) const;
+            unsigned long flags(void) const;
             /// @brief Get the policy frequency
             /// @return frequency in MHz
             int frequency_mhz(void) const;
@@ -70,7 +70,7 @@ namespace geopm
             int num_max_perf(void) const;
             /// @brief Set the encodoed flags
             /// @param [in] flags Integer representation of flags
-            void flags(long int flags);
+            void flags(unsigned long flags);
             /// @brief Set the policy frequency
             /// @param [in] frequency frequency in MHz
             void frequency_mhz(int frequency);
@@ -94,7 +94,7 @@ namespace geopm
             ///        unconstrained power.
             void num_max_perf(int num_big_cores);
         protected:
-            long int m_flags;
+            unsigned long m_flags;
     };
 
 }

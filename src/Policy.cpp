@@ -129,7 +129,7 @@ namespace geopm
         m_mode = mode;
     }
 
-    void Policy::policy_flags(long int flags)
+    void Policy::policy_flags(unsigned long flags)
     {
         m_policy_flags.flags(flags);
     }

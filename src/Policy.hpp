@@ -55,7 +55,7 @@ namespace geopm
             void update(uint64_t region_id, int domain_idx, double target);
             void update(uint64_t region_id, const std::vector<double> &target);
             void mode(int new_mode);
-            void policy_flags(long int new_flags);
+            void policy_flags(unsigned long new_flags);
             void target(uint64_t region_id, std::vector<double> &target);
             void target(uint64_t region_id, int domain, double &target);
             /// @brief Get the policy power mode
