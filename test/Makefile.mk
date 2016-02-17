@@ -117,6 +117,21 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/SampleRegulatorTest.insert_profile \
               test/gtest_links/SampleRegulatorTest.align_profile \
               test/gtest_links/SampleRegulatorTest.transform \
+              test/gtest_links/PolicyTest.num_domain \
+              test/gtest_links/PolicyTest.region_id \
+              test/gtest_links/PolicyTest.mode \
+              test/gtest_links/PolicyTest.frequency \
+              test/gtest_links/PolicyTest.tdp_percent \
+              test/gtest_links/PolicyTest.affinity \
+              test/gtest_links/PolicyTest.goal \
+              test/gtest_links/PolicyTest.num_max_perf \
+              test/gtest_links/PolicyTest.target \
+              test/gtest_links/PolicyTest.target_updated \
+              test/gtest_links/PolicyTest.target_valid \
+              test/gtest_links/PolicyTest.policy_message \
+              test/gtest_links/PolicyTest.converged \
+              test/gtest_links/PolicyTest.negative_unsized_vector \
+              test/gtest_links/PolicyTest.negative_index_oob \
               # end
 
 TESTS += $(GTEST_TESTS) \
@@ -144,6 +159,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/DeciderFactoryTest.cpp \
                           test/SampleRegulatorTest.cpp \
                           test/RegionTest.cpp \
+                          test/PolicyTest.cpp \
                           test/MockPlatform.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \

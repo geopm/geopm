@@ -231,7 +231,7 @@ namespace geopm
     void RegionPolicy::update(const std::vector <double> &target)
     {
         if ((int)target.size() == m_num_domain) {
-            std::copy(target.begin(), target.end(), m_target.begin());
+            m_target = target;
             std::fill(m_updated.begin(), m_updated.end(), true);
         }
         else {
@@ -242,7 +242,7 @@ namespace geopm
     void RegionPolicy::target(std::vector<double> &target)
     {
         if ((int)target.size() == m_num_domain) {
-            std::copy(target.begin(), target.end(), m_target.begin());
+            target = m_target;
             std::fill(m_updated.begin(), m_updated.end(), false);
         }
         else {

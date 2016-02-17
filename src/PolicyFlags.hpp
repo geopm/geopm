@@ -79,7 +79,7 @@ namespace geopm
             void tdp_percent(int percentage);
             /// @brief Set the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
+            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER or
             /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
             /// @param [in] cpu_affinity enum power affinity
             void affinity(int cpu_affinity);
