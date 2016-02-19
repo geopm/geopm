@@ -132,6 +132,11 @@ GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
               test/gtest_links/PolicyTest.converged \
               test/gtest_links/PolicyTest.negative_unsized_vector \
               test/gtest_links/PolicyTest.negative_index_oob \
+              test/gtest_links/BalancingDeciderTest.name \
+              test/gtest_links/BalancingDeciderTest.clone \
+              test/gtest_links/BalancingDeciderTest.supported \
+              test/gtest_links/BalancingDeciderTest.new_policy_message \
+              test/gtest_links/BalancingDeciderTest.update_policy \
               # end
 
 TESTS += $(GTEST_TESTS) \
@@ -160,6 +165,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/SampleRegulatorTest.cpp \
                           test/RegionTest.cpp \
                           test/PolicyTest.cpp \
+                          plugin/BalancingDecider.cpp \
+                          plugin/BalancingDecider.hpp \
+                          test/BalancingDeciderTest.cpp \
                           test/MockPlatform.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
@@ -170,6 +178,7 @@ test_geopm_test_LDADD = libgtest.a \
                         libgeopmpolicy.la \
                         # end
 
+test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
 if ENABLE_OPENMP
     test_geopm_static_modes_test_SOURCES = test/geopm_static_modes_test.cpp
     test_geopm_static_modes_test_LDADD = libgeopmpolicy.la

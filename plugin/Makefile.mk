@@ -34,5 +34,11 @@ libgeopmpi_governing_la_SOURCES = plugin/GoverningDecider.cpp \
                                   plugin/GoverningDecider.hpp \
                                   # end
 
+pkglib_LTLIBRARIES += libgeopmpi_balancing.la
+libgeopmpi_balancing_la_SOURCES = plugin/BalancingDecider.cpp \
+                                  plugin/BalancingDecider.hpp \
+                                  # end
+
 # -module required to force .so generation of test plugin.
 libgeopmpi_governing_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -module
+libgeopmpi_balancing_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -module

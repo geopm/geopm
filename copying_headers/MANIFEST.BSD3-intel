@@ -9,6 +9,8 @@ examples/threaded_step_example.c
 examples/timed_region.cpp
 geopm.spec.mk
 Makefile.am
+plugin/BalancingDecider.cpp
+plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
@@ -107,3 +109,4 @@ test/plugin/TestPluginApp.cpp
 test/SampleRegulatorTest.cpp
 test/RegionTest.cpp
 test/PolicyTest.cpp
+test/BalancingDeciderTest.cpp
