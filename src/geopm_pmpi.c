@@ -241,10 +241,13 @@ int MPI_Comm_accept(const char *port_name, MPI_Info info, int root, MPI_Comm com
     return PMPI_Comm_accept(port_name, info, root, geopm_swap_comm_world(comm), newcomm);
 }
 
+// In mvapich this is defined as a macro.
+#ifdef OMPI_MPI_H
 MPI_Fint MPI_Comm_c2f(MPI_Comm comm)
 {
     return PMPI_Comm_c2f(geopm_swap_comm_world(comm));
 }
+#endif
 
 int MPI_Comm_call_errhandler(MPI_Comm comm, int errorcode)
 {
@@ -291,10 +294,13 @@ int MPI_Comm_dup_with_info(MPI_Comm comm, MPI_Info info, MPI_Comm *newcomm)
     return PMPI_Comm_dup_with_info(geopm_swap_comm_world(comm), info, newcomm);
 }
 
+// In mvapich this is defined as a macro.
+#ifdef OMPI_MPI_H
 MPI_Comm MPI_Comm_f2c(MPI_Fint comm)
 {
     return geopm_swap_comm_world(PMPI_Comm_f2c(comm));
 }
+#endif
 
 int MPI_Comm_get_attr(MPI_Comm comm, int comm_keyval, void *attribute_val, int *flag)
 {

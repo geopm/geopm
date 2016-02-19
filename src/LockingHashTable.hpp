@@ -37,6 +37,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <vector>
 #include <algorithm>
