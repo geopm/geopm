@@ -52,7 +52,7 @@ void DeciderFactoryTest::SetUp()
 TEST_F(DeciderFactoryTest, decider_register)
 {
     geopm::DeciderFactory m_decider_fact;
-    const std::string dname = "governing";
+    const std::string dname = "power_governing";
     std::string ans;
     geopm::Decider* d = NULL;
 

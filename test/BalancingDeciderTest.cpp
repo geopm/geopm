@@ -95,19 +95,19 @@ void BalancingDeciderTest::TearDown()
 
 TEST_F(BalancingDeciderTest, name)
 {
-    EXPECT_TRUE(std::string("balancing") == m_balancer->name());
+    EXPECT_TRUE(std::string("power_balancing") == m_balancer->name());
 }
 
 TEST_F(BalancingDeciderTest, clone)
 {
     geopm::Decider *cloned = m_balancer->clone();
-    EXPECT_TRUE(std::string("balancing") == cloned->name());
+    EXPECT_TRUE(std::string("power_balancing") == cloned->name());
     delete cloned;
 }
 
 TEST_F(BalancingDeciderTest, supported)
 {
-    EXPECT_TRUE(m_balancer->decider_supported(std::string("balancing")));
+    EXPECT_TRUE(m_balancer->decider_supported(std::string("power_balancing")));
 }
 
 TEST_F(BalancingDeciderTest, new_policy_message)

@@ -57,7 +57,7 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
 namespace geopm
 {
     BalancingDecider::BalancingDecider()
-        : m_name("balancing")
+        : m_name("power_balancing")
         , m_convergence_target(0.05)
         , m_min_num_converged(5)
         , m_num_converged(0)

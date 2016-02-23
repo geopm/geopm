@@ -57,7 +57,7 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
 namespace geopm
 {
     GoverningDecider::GoverningDecider()
-        : m_name("governing")
+        : m_name("power_governing")
         , m_guard_band(0.05)
         , m_min_num_converged(5)
         , m_last_power_budget(DBL_MIN)
