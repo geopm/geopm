@@ -152,43 +152,46 @@ gcovr for a recent build are below:
 
 **GCC Code Coverage Report**
 
-**Directory: src**
+**Directories: src, plugin**
 
 File                     |   Lines  |     Exec   |     Cover
 ------------------------ | -------- | ---------- | ---------
-CircularBuffer.cpp       |   38     |     38     |     100%
-CircularBuffer.hpp       |   1      |     1      |     100%
-Controller.cpp           |   202    |     116    |     57%
-Decider.cpp              |   33     |     14     |     42%
-DeciderFactory.cpp       |   24     |     21     |     87%
-Exception.cpp            |   96     |     86     |     89%
-Exception.hpp            |   1      |     0      |     0%
-GlobalPolicy.cpp         |   402    |     319    |     79%
-GoverningDecider.cpp     |   57     |     14     |     24%
-HSXPlatformImp.cpp       |   127    |     5      |     3%
-IVTPlatformImp.cpp       |   130    |     94     |     72%
-LockingHashTable.hpp     |   137    |     84     |     61%
+CircularBuffer.hpp       |   41     |     39     |     95%
+Controller.cpp           |   238    |     156    |     66%
+Decider.cpp              |   6      |     4      |     67%
+Decider.hpp              |   1      |     1      |     100%
+DeciderFactory.cpp       |   33     |     29     |     88%
+Exception.cpp            |   98     |     68     |     70%
+Exception.hpp            |   1      |     1      |     100%
+GlobalPolicy.cpp         |   462    |     358    |     78%
+HSXPlatformImp.cpp       |   208    |     149    |     72%
+IVTPlatformImp.cpp       |   211    |     149    |     71%
+LockingHashTable.hpp     |   157    |     138    |     88%
 Observation.cpp          |   87     |     75     |     86%
-Observation.hpp          |   2      |     1      |     50%
-Platform.cpp             |   152    |     22     |     14%
-PlatformFactory.cpp      |   66     |     63     |     95%
-PlatformImp.cpp          |   90     |     79     |     87%
-PlatformTopology.cpp     |   22     |     11     |     50%
-Policy.cpp               |   75     |     7      |     9%
-Policy.hpp               |   1      |     0      |     0%
-PowerModel.cpp           |   14     |     5      |     35%
-Profile.cpp              |   355    |     133    |     37%
-RAPLPlatform.cpp         |   64     |     41     |     64%
-Region.cpp               |   39     |     10     |     25%
-SharedMemory.cpp         |   75     |     46     |     61%
-TreeCommunicator.cpp     |   221    |     212    |     95%
+Observation.hpp          |   2      |     2      |     100%
+Platform.cpp             |   223    |     112    |     50%
+PlatformFactory.cpp      |   83     |     64     |     77%
+PlatformImp.cpp          |   109    |     87     |     80%
+PlatformTopology.cpp     |   31     |     30     |     97%
+Policy.cpp               |   125    |     125    |     100%
+PolicyFlags.cpp          |   47     |     47     |     100%
+Profile.cpp              |   397    |     294    |     74%
+RAPLPlatform.cpp         |   87     |     80     |     92%
+Region.cpp               |   233    |     221    |     95%
+SampleRegulator.cpp      |   98     |     97     |     99%
+SharedMemory.cpp         |   75     |     51     |     68%
+TreeCommunicator.cpp     |   228    |     188    |     83%
 geopm_ctl_spawn.c        |   2      |     0      |     0%
 geopm_hash.c             |   13     |     13     |     100%
 geopm_hash.h             |   2      |     2      |     100%
 geopm_omp.c              |   11     |     0      |     0%
 geopm_plugin.c           |   19     |     19     |     100%
-geopm_plugin.h           |   8      |     7      |     87%
-geopm_policy_message.c   |   9      |     9      |     100%
-geopm_time.h             |   10     |     5      |     50%
+geopm_pmpi.c             |   127    |     0      |     0%
+geopm_policy_message.c   |   8      |     8      |     100%
+geopm_time.h             |   16     |     16     |     100%
 geopm_version.c          |   2      |     0      |     0%
-TOTAL                    |   2587   |     1536   |     59%
+BalancingDecider.cpp     |   66     |     61     |     92%
+BalancingDecider.hpp     |   1      |     1      |     100%
+GoverningDecider.cpp     |   64     |     60     |     94%
+GoverningDecider.hpp     |   1      |     1      |     100%
+TOTAL                    |   3613   |     2746   |     76%
