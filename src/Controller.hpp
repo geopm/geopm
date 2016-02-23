@@ -186,6 +186,8 @@ namespace geopm
             std::vector<Policy *> m_policy;
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
             uint64_t m_region_id;
+            int m_ctl_status;
+            bool m_teardown;
     };
 }
 

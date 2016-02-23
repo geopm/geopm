@@ -179,6 +179,8 @@ namespace geopm
         , m_sampler(NULL)
         , m_sample_regulator(NULL)
         , m_region_id(GEOPM_REGION_ID_INVALID)
+        , m_ctl_status(GEOPM_STATUS_UNDEFINED)
+        , m_teardown(false)
     {
 #ifndef GEOPM_DEBUG
         throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -266,13 +268,19 @@ namespace geopm
                     m_max_fanout = m_tree_comm->level_size(level);
                 }
             }
+            m_ctl_status = GEOPM_STATUS_INITIALIZED;
         }
     }
 
     Controller::~Controller()
     {
+        if (m_is_node_root) {
+            m_teardown = true;
+            while (m_ctl_status != GEOPM_STATUS_SHUTDOWN) {}
+        }
         delete m_tree_comm;
         delete m_platform_factory;
+        delete m_decider_factory;
         delete m_sampler;
     }
 
@@ -288,6 +296,7 @@ namespace geopm
         m_sampler->cpu_rank(cpu_rank);
         m_platform->init_transform(cpu_rank);
         m_sample_regulator = new SampleRegulator(cpu_rank);
+        m_ctl_status = GEOPM_STATUS_ACTIVE;
 
         // Spin waiting for for first policy message
         level = m_tree_comm->num_level() - 1;
@@ -356,7 +365,8 @@ namespace geopm
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
         }
-        if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {
+        if (policy_msg.mode == GEOPM_MODE_SHUTDOWN || m_teardown == true) {
+            m_ctl_status = GEOPM_STATUS_SHUTDOWN;
             do_shutdown = 1;
         }
         else {
@@ -445,8 +455,11 @@ namespace geopm
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
-        if (policy_msg.mode == GEOPM_MODE_SHUTDOWN) {
+        if (policy_msg.mode == GEOPM_MODE_SHUTDOWN || m_teardown == true) {
             do_shutdown = 1;
+        }
+        if (do_shutdown) {
+            m_ctl_status = GEOPM_STATUS_SHUTDOWN;
         }
         return do_shutdown;
     }
