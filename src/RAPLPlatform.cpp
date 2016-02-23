@@ -145,7 +145,7 @@ namespace geopm
     void RAPLPlatform::enforce_policy(uint64_t region_id, Policy &policy) const
     {
         int control_type;
-        std::vector<double> target;
+        std::vector<double> target(m_imp->power_control_domain());
         policy.target(region_id, target);
 
         if((m_control_domain_type != GEOPM_CONTROL_DOMAIN_POWER) &&

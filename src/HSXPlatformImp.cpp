@@ -228,9 +228,10 @@ namespace geopm
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR0"));
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR1"));
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR2"));
+        int cpu_per_socket = m_num_hw_cpu / m_num_package;
         for (int i = 0; i < m_num_hw_cpu; i++) {
             std::string msr_name("_MSR_PMON_CTR1");
-            msr_name.insert(0, std::to_string(i));
+            msr_name.insert(0, std::to_string(i % cpu_per_socket));
             msr_name.insert(0, "C");
             m_signal_msr_offset.push_back(msr_offset(msr_name));
         }
@@ -299,15 +300,16 @@ namespace geopm
 
     void HSXPlatformImp::cbo_counters_init()
     {
+        int cpu_per_socket = m_num_hw_cpu / m_num_package;
         for (int i = 0; i < m_num_hw_cpu; i++) {
             std::string msr_name("_MSR_PMON_CTL1");
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
             std::string filter_msr_name("_MSR_PMON_BOX_FILTER");
-            box_msr_name.insert(0, std::to_string(i));
+            box_msr_name.insert(0, std::to_string(i % cpu_per_socket));
             box_msr_name.insert(0, "C");
-            msr_name.insert(0, std::to_string(i));
+            msr_name.insert(0, std::to_string(i % cpu_per_socket));
             msr_name.insert(0, "C");
-            filter_msr_name.insert(0, std::to_string(i));
+            filter_msr_name.insert(0, std::to_string(i % cpu_per_socket));
             filter_msr_name.insert(0, "C");
 
             // enable freeze
@@ -365,9 +367,10 @@ namespace geopm
 
     void HSXPlatformImp::cbo_counters_reset()
     {
+        int cpu_per_socket = m_num_hw_cpu / m_num_package;
         for (int i = 0; i < m_num_hw_cpu; i++) {
             std::string msr_name("_MSR_PMON_BOX_CTL");
-            msr_name.insert(0, std::to_string(i));
+            msr_name.insert(0, std::to_string(i % cpu_per_socket));
             msr_name.insert(0, "C");
             // reset counters
             msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
