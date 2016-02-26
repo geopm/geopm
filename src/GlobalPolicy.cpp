@@ -335,7 +335,8 @@ namespace geopm
             m_do_write = true;
             if (m_out_config[0] == '/' && m_out_config.find_last_of('/') == 0) {
                 m_is_shm_out = true;
-                shm_id = shm_open(m_out_config.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRWXU | S_IRWXG);
+                mode_t old_mask = umask(0);
+                shm_id = shm_open(m_out_config.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IROTH| S_IWOTH);
                 if (shm_id < 0) {
                     throw Exception("GlobalPolicy: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
@@ -344,6 +345,7 @@ namespace geopm
                 if (err) {
                     (void) shm_unlink(m_out_config.c_str());
                     (void) close(shm_id);
+                    (void) umask(old_mask);
                     throw Exception("GlobalPolicy: Could not extend shared memory region with ftruncate for policy control", errno, __FILE__, __LINE__);
                 }
 
@@ -351,17 +353,21 @@ namespace geopm
                                      PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
                 if (m_policy_shmem_out == MAP_FAILED) {
                     (void) close(shm_id);
+                    (void) umask(old_mask);
                     throw Exception("GlobalPolicy: Could not map shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
                 err = close(shm_id);
                 if (err) {
                     munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
+                    (void) umask(old_mask);
                     throw Exception("GlobalPolicy: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
                 }
                 if (pthread_mutex_init(&(m_policy_shmem_out->lock), NULL) != 0) {
                     munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
+                    (void) umask(old_mask);
                     throw Exception("GlobalPolicy: Could not initialize pthread mutex for shared memory region", errno, __FILE__, __LINE__);
                 }
+                umask(old_mask);
             }
             else {
                 m_config_file_out.open(m_out_config.c_str(), std::ifstream::out);
@@ -371,7 +377,7 @@ namespace geopm
             m_do_read = true;
             if (m_in_config[0] == '/' && m_in_config.find_last_of('/') == 0) {
                 m_is_shm_in = true;
-                shm_id = shm_open(m_in_config.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
+                shm_id = shm_open(m_in_config.c_str(), O_RDWR, 0);
 
                 if (shm_id < 0) {
                     throw Exception("GlobalPolicy: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);

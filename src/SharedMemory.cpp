@@ -50,7 +50,8 @@ namespace geopm
         if (size == 0) {
             throw Exception("SharedMemory: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        int shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRWXU | S_IRWXG);
+        mode_t old_mask = umask(0);
+        int shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IROTH| S_IWOTH);
         if (shm_id < 0) {
             throw Exception("SharedMemory: Could not open shared memory with key " + m_shm_key, errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -58,18 +59,22 @@ namespace geopm
         if (err) {
             (void) close(shm_id);
             (void) shm_unlink(m_shm_key.c_str());
+            (void) umask(old_mask);
             throw Exception("SharedMemory: Could not extend shared memory to size " + std::to_string(size), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
         if (m_ptr == MAP_FAILED) {
             (void) close(shm_id);
             (void) shm_unlink(m_shm_key.c_str());
+            (void) umask(old_mask);
             throw Exception("SharedMemory: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         err = close(shm_id);
         if (err) {
+            (void) umask(old_mask);
             throw Exception("SharedMemory: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        umask(old_mask);
     }
 
     SharedMemory::~SharedMemory()
@@ -116,7 +121,7 @@ namespace geopm
             geopm_time(&begin_time);
             curr_time = begin_time;
             while (shm_id < 0 && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
-                shm_id = shm_open(shm_key.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
+                shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
                 geopm_time(&curr_time);
             }
             while (region_size < size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
@@ -130,7 +135,7 @@ namespace geopm
             }
         }
         else {
-            shm_id = shm_open(shm_key.c_str(), O_RDWR, S_IRWXU | S_IRWXG);
+            shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
         }
         if (shm_id < 0) {
             throw Exception("SharedMemoryUser: Could not open shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
