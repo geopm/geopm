@@ -269,6 +269,8 @@ extern "C"
 namespace geopm
 {
 
+    static const std::string geopm_default_shmem_key("geopm_default");
+
     Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key, MPI_Comm comm)
         : m_prof_name(prof_name)
         , m_curr_region_id(0)
@@ -285,7 +287,14 @@ namespace geopm
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         MPI_Comm_size(m_shm_comm, &shm_num_rank);
 
-        m_ctl_shmem = new SharedMemoryUser(shm_key, table_size, 300); // 5 minute timeout
+        std::string key(shm_key);
+        if (key.size() == 0) {
+            key.assign(getenv("GEOPM_SHMKEY"));
+        }
+        if (key.size() == 0) {
+            key = geopm_default_shmem_key;
+        }
+        m_ctl_shmem = new SharedMemoryUser(key, table_size, 300); // 5 minute timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
         init_cpu_list();
@@ -351,6 +360,7 @@ namespace geopm
         }
         delete m_table;
         delete m_table_shmem;
+        delete m_ctl_shmem;
     }
 
     uint64_t Profile::region(const std::string region_name, long policy_hint)
@@ -516,11 +526,17 @@ namespace geopm
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 
     ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
-        : m_ctl_shmem(shm_key_base, table_size)
-        , m_ctl_msg((struct geopm_ctl_message_s *)m_ctl_shmem.pointer())
-        , m_table_size(table_size)
+        : m_table_size(table_size)
     {
-
+        std::string key(shm_key_base);
+        if (key.size() == 0) {
+            key.assign(getenv("GEOPM_SHMKEY"));
+        }
+        if (key.size() == 0) {
+            key = geopm_default_shmem_key;
+        }
+        m_ctl_shmem = new SharedMemory(key, table_size);
+        m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
     }
 
     ProfileSampler::~ProfileSampler(void)
@@ -528,6 +544,7 @@ namespace geopm
         for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
             delete (*it);
         }
+        delete m_ctl_shmem;
     }
 
     void ProfileSampler::initialize(void)
@@ -544,7 +561,7 @@ namespace geopm
         }
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
-            shm_key.assign(m_ctl_shmem.key() + "_" + std::to_string(*it));
+            shm_key.assign(m_ctl_shmem->key() + "_" + std::to_string(*it));
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;

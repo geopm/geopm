@@ -464,7 +464,7 @@ namespace geopm
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
-            SharedMemory m_ctl_shmem;
+            SharedMemory *m_ctl_shmem;
             /// Pointer to the control structure used for application coordination
             /// and control.
             struct geopm_ctl_message_s *m_ctl_msg;
