@@ -57,6 +57,7 @@ enum geopm_policy_id_e {
 
 enum geopm_region_id_e {
     GEOPM_REGION_ID_INVALID = 0,
+    GEOPM_REGION_ID_MPI = UINT64_MAX - 1,
     GEOPM_REGION_ID_OUTER = UINT64_MAX,
 };
 

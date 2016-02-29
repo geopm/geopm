@@ -41,7 +41,6 @@ pkglib_LTLIBRARIES =
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
     bin_PROGRAMS += geopmctl
-    pkglib_LTLIBRARIES += libgeopmpmpi.la
 endif
 
 include_HEADERS = src/geopm.h \
@@ -98,11 +97,6 @@ if ENABLE_MPI
     libgeopm_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS= $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-
-    libgeopmpmpi_la_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    libgeopmpmpi_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -module
-    libgeopmpmpi_la_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopmpmpi_la_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 
     geopmctl_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
     geopmctl_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
@@ -231,6 +225,7 @@ if ENABLE_MPI
                           src/geopm_mpi_pcontrol.h \
                           src/geopm_plugin.c \
                           src/geopm_plugin.h \
+						  src/geopm_pmpi.c \
                           src/geopm_policy_message.c \
                           src/geopm_time.h \
                           src/geopm_sched.h \
@@ -241,7 +236,6 @@ if ENABLE_MPI
     geopmctl_SOURCES = src/geopmctl_main.c \
                        src/geopm_version.h \
                        # end
-    libgeopmpmpi_la_SOURCES = src/geopm_pmpi.c
 endif
 
 # CLEAN TARGETS

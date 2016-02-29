@@ -48,6 +48,8 @@
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
 
+struct geopm_prof_c *geopm_mpi_prof = NULL;
+
 static bool geopm_table_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
     return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
@@ -60,6 +62,7 @@ extern "C"
         int err = 0;
         try {
             *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key ? shm_key : ""), comm));
+            geopm_mpi_prof = *prof;
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
