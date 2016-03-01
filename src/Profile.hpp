@@ -374,6 +374,8 @@ namespace geopm
             std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
+            /// Holds the initial state of the last region entered.
+            struct geopm_prof_message_s m_outer_sync_entry;
             /// Holds the profile name string.
             std::string m_prof_name;
             /// Holds the file name for the post-process report.

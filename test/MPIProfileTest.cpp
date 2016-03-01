@@ -68,7 +68,7 @@ class MPIProfileTest: public :: testing :: Test
 };
 
 MPIProfileTest::MPIProfileTest()
-    : m_table_size(4096)
+    : m_table_size(GEOPM_CONST_SHMEM_REGION_SIZE)
     , m_shm_key("/geopm_profile_test")
     , m_env_orig(getenv("GEOPM_ERROR_AFFINITY_IGNORE"))
     , m_epsilon(1E-2)
@@ -175,6 +175,7 @@ int MPIProfileTest::parse_log_loop(void)
     std::string line;
     double checkval = 0.0;
     double value = 0.0;
+    double mpi_value = 0.0;
     std::ifstream log(m_log_file_node, std::ios_base::in);
 
     while(err == 0 && std::getline(log, line)) {
@@ -188,8 +189,14 @@ int MPIProfileTest::parse_log_loop(void)
         else if (line.find("Region loop_three:") == 0) {
             checkval = 9.0;
         }
+        else if (line.find("Region mpi-sync:") == 0) {
+            err = !std::getline(log, line);
+            if (!err) {
+                sscanf(line.c_str(), "        runtime: %lf", &mpi_value);
+            }
+        }
         else if (line.find("Region outer-sync:") == 0) {
-            checkval = 18.0;
+            checkval = 18.0 + mpi_value;
         }
         if (checkval != -1.0) {
             err = !std::getline(log, line);
@@ -611,6 +618,7 @@ TEST_F(MPIProfileTest, outer_sync)
 
         MPI_Barrier(MPI_COMM_WORLD);
     }
+        ASSERT_EQ(0, geopm_prof_outer_sync(prof));
 
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 

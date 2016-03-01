@@ -442,12 +442,15 @@ namespace geopm
         sample.region_id = GEOPM_REGION_ID_OUTER;
         (void) geopm_time(&(sample.timestamp));
         if (!m_is_first_sync) {
-            m_is_first_sync = false;
             sample.progress = 1.0;
             m_table->insert(sample.region_id, sample);
+            struct geopm_time_s time;
+            geopm_time_add(&(sample.timestamp), 1E-6, &time);
+            sample.timestamp = time;
         }
         sample.progress = 0.0;
         m_table->insert(sample.region_id, sample);
+        m_is_first_sync = false;
     }
 
     void Profile::sample(uint64_t region_id)
@@ -687,6 +690,7 @@ namespace geopm
         : m_table_shmem(SharedMemory(shm_key, table_size))
         , m_table(ProfileTable(table_size, m_table_shmem.pointer()))
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
+        , m_outer_sync_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
 
@@ -709,30 +713,32 @@ namespace geopm
         auto content_end = content_begin + length;
         std::sort(content_begin, content_end, geopm_table_compare);
         for (auto it = content_begin; it != content_end; ++it) {
+            bool in_outer_sync = (*it).first == GEOPM_REGION_ID_OUTER;
+            struct geopm_prof_message_s *entry_data = in_outer_sync ? &m_outer_sync_entry : &m_region_entry;
             if ((*it).second.progress == 1.0) {
-                if ((*it).second.region_id == m_region_entry.region_id) {
+                if ((*it).first == entry_data->region_id) {
                     double runtime;
-                    auto agg_entry_it = m_agg_stats.find(m_region_entry.region_id);
-                    runtime = geopm_time_diff(&(m_region_entry.timestamp), &((*it).second.timestamp));
+                    auto agg_entry_it = m_agg_stats.find(entry_data->region_id);
+                    runtime = geopm_time_diff(&(entry_data->timestamp), &((*it).second.timestamp));
                     if (agg_entry_it == m_agg_stats.end()) {
-                        sample.region_id = (*it).second.region_id;
+                        sample.region_id = (*it).first;
                         sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = runtime;
                         sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] = 0.0;
                         sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = 0.0;
-                        m_agg_stats.insert(std::pair<uint64_t, struct geopm_sample_message_s>(m_region_entry.region_id, sample));
+                        m_agg_stats.insert(std::pair<uint64_t, struct geopm_sample_message_s>(entry_data->region_id, sample));
                     }
                     else {
                         (*agg_entry_it).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += runtime;
                     }
                 }
-                m_region_entry = GEOPM_INVALID_PROF_MSG;
+                (*entry_data) = GEOPM_INVALID_PROF_MSG;
             }
             if ((*it).first != m_region_entry.region_id) {
-                m_region_entry.region_id = (*it).first;
-                m_region_entry.timestamp = (*it).second.timestamp;
+                entry_data->region_id = (*it).first;
+                entry_data->timestamp = (*it).second.timestamp;
                 //FIXME: should be able to set this once
-                m_region_entry.rank = (*it).second.rank;
-                m_region_entry.progress = 0.0;
+                entry_data->rank = (*it).second.rank;
+                entry_data->progress = 0.0;
             }
         }
     }
@@ -778,16 +784,16 @@ namespace geopm
                 file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
             }
         }
-        // Report outer loop
-        auto entry = m_agg_stats.find(GEOPM_REGION_ID_OUTER);
+        // Report mpi
+        auto entry = m_agg_stats.find(GEOPM_REGION_ID_MPI);
         if (entry != m_agg_stats.end()) {
-            file_stream << "Region outer-sync:" << std::endl;
+            file_stream << "Region mpi-sync:" << std::endl;
             file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         }
-        // Report mpi
-        entry = m_agg_stats.find(GEOPM_REGION_ID_MPI);
+        // Report outer loop
+        entry = m_agg_stats.find(GEOPM_REGION_ID_OUTER);
         if (entry != m_agg_stats.end()) {
-            file_stream << "Region mpi_sync:" << std::endl;
+            file_stream << "Region outer-sync:" << std::endl;
             file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         }
     }

@@ -438,6 +438,15 @@ namespace geopm
                     auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                     if (outer_it != m_region[level].end()) {
                         (*outer_it).second->sample_message(sample_msg);
+                        // Subtract mpi syncronization time from outer-sync
+                        if (!level) {
+                            auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
+                            if (mpi_it != m_region[level].end()) {
+                                struct geopm_sample_message_s mpi_sample;
+                                (*outer_it).second->sample_message(mpi_sample);
+                                sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                            }
+                        }
                     }
                 }
                 else {
