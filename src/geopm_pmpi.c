@@ -37,7 +37,6 @@
 #include "geopm_message.h"
 
 extern struct geopm_prof_c *geopm_mpi_prof;
-static const char mpi_region[] = {"geopm_mpi_region"};
 
 static inline void geopm_mpi_region_enter()
 {

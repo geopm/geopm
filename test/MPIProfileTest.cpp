@@ -54,7 +54,7 @@ class MPIProfileTest: public :: testing :: Test
         MPIProfileTest();
         virtual ~MPIProfileTest();
         int parse_log(bool single);
-        int parse_log_loop(bool single);
+        int parse_log_loop();
         void sleep_exact(double duration);
     protected:
         size_t m_table_size;
@@ -169,7 +169,7 @@ int MPIProfileTest::parse_log(bool single)
     return err;
 }
 
-int MPIProfileTest::parse_log_loop(bool single)
+int MPIProfileTest::parse_log_loop(void)
 {
     int err = 0;
     std::string line;
@@ -180,23 +180,16 @@ int MPIProfileTest::parse_log_loop(bool single)
     while(err == 0 && std::getline(log, line)) {
         checkval = -1.0;
         if (line.find("Region loop_one:") == 0) {
-            if (single) {
-                checkval = 18.0;
-            }
-            else {
-                checkval = 3.0;
-            }
+            checkval = 3.0;
         }
         else if (line.find("Region loop_two:") == 0) {
-            if (single) {
-                checkval = 0.0;
-            }
-            else {
-                checkval = 6.0;
-            }
+            checkval = 6.0;
         }
         else if (line.find("Region loop_three:") == 0) {
             checkval = 9.0;
+        }
+        else if (line.find("Region outer-sync:") == 0) {
+            checkval = 18.0;
         }
         if (checkval != -1.0) {
             err = !std::getline(log, line);
@@ -573,8 +566,6 @@ TEST_F(MPIProfileTest, outer_sync)
     struct geopm_ctl_c *ctl;
     pthread_t ctl_thread;
     uint64_t region_id[3];
-    struct geopm_time_s start, curr;
-    double timeout = 0;
     int rank;
     MPI_Comm ppn1_comm;
     int num_node = 0;
@@ -605,29 +596,17 @@ TEST_F(MPIProfileTest, outer_sync)
 
         ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
         ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
-        ASSERT_EQ(0, geopm_time(&start));
-        while (timeout < 1.0) {
-            ASSERT_EQ(0, geopm_time(&curr));
-            timeout = geopm_time_diff(&start, &curr);
-        }
+        sleep_exact(1.0);
         ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
 
         ASSERT_EQ(0, geopm_prof_region(prof, "loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
         ASSERT_EQ(0, geopm_prof_enter(prof, region_id[1]));
-        ASSERT_EQ(0, geopm_time(&start));
-        while (timeout < 2.0) {
-            ASSERT_EQ(0, geopm_time(&curr));
-            timeout = geopm_time_diff(&start, &curr);
-        }
+        sleep_exact(2.0);
         ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
 
         ASSERT_EQ(0, geopm_prof_region(prof, "loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]));
         ASSERT_EQ(0, geopm_prof_enter(prof, region_id[2]));
-        ASSERT_EQ(0, geopm_time(&start));
-        while (timeout < 3.0) {
-            ASSERT_EQ(0, geopm_time(&curr));
-            timeout = geopm_time_diff(&start, &curr);
-        }
+        sleep_exact(3.0);
         ASSERT_EQ(0, geopm_prof_exit(prof, region_id[2]));
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -636,7 +615,7 @@ TEST_F(MPIProfileTest, outer_sync)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (ppn1_comm != MPI_COMM_NULL) {
-        ASSERT_EQ(0, parse_log_loop(false));
+        ASSERT_EQ(0, parse_log_loop());
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));

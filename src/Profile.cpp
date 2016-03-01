@@ -381,6 +381,16 @@ namespace geopm
             m_progress = 0.0;
             sample(region_id);
         }
+        // Allow nesting of MPI region
+        else if (region_id == GEOPM_REGION_ID_MPI) {
+            uint64_t saved_region = m_curr_region_id;
+            double saved_progress = m_progress;
+            m_curr_region_id = region_id;
+            m_progress = 0.0;
+            sample(region_id);
+            m_curr_region_id = saved_region;
+            m_progress = saved_progress;
+        }
         // keep track of number of entries to account for nesting
         if (m_curr_region_id == region_id) {
             ++m_num_enter;
@@ -392,6 +402,16 @@ namespace geopm
         // keep track of number of exits to account for nesting
         if (m_curr_region_id == region_id) {
             --m_num_enter;
+        }
+        // Allow nesting of MPI region
+        else if (region_id == GEOPM_REGION_ID_MPI) {
+            uint64_t saved_region = m_curr_region_id;
+            double saved_progress = m_progress;
+            m_curr_region_id = region_id;
+            m_progress = 1.0;
+            sample(region_id);
+            m_curr_region_id = saved_region;
+            m_progress = saved_progress;
         }
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
@@ -757,6 +777,18 @@ namespace geopm
             else {
                 file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
             }
+        }
+        // Report outer loop
+        auto entry = m_agg_stats.find(GEOPM_REGION_ID_OUTER);
+        if (entry != m_agg_stats.end()) {
+            file_stream << "Region outer-sync:" << std::endl;
+            file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
+        }
+        // Report mpi
+        entry = m_agg_stats.find(GEOPM_REGION_ID_MPI);
+        if (entry != m_agg_stats.end()) {
+            file_stream << "Region mpi_sync:" << std::endl;
+            file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         }
     }
 
