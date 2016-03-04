@@ -488,6 +488,7 @@ namespace geopm
         if (GEOPM_CONST_SHMEM_REGION_SIZE < file_name.length() + 1 + m_prof_name.length() + 1) {
             throw Exception("Profile:print() profile file name and profile name are too long to fit in a table buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+
         strcpy(buffer_ptr, file_name.c_str());
         buffer_ptr += file_name.length() + 1;
         buffer_offset += file_name.length() + 1;
@@ -553,6 +554,7 @@ namespace geopm
 
     ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
         : m_table_size(table_size)
+        , m_report(false)
     {
         std::string key(shm_key_base);
         if (key.size() == 0) {
@@ -636,7 +638,7 @@ namespace geopm
                 length += rank_length;
             }
             if (m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
-                report();
+                region_names();
             }
         }
         else if (app_status != GEOPM_STATUS_SHUTDOWN) {
@@ -649,9 +651,13 @@ namespace geopm
         return (m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN);
     }
 
-    void ProfileSampler::report(void)
+    bool ProfileSampler::do_report(void)
     {
-        std::ofstream file_stream;
+        return m_report;
+    }
+
+    void ProfileSampler::region_names(void)
+    {
         bool is_all_done = false;
 
         while (!is_all_done && m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
@@ -661,7 +667,7 @@ namespace geopm
             if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
                 is_all_done = true;
                 for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
-                    if (!(*it)->name_fill()) {
+                    if (!(*it)->name_fill(m_name_set)) {
                         is_all_done = false;
                     }
                 }
@@ -675,15 +681,26 @@ namespace geopm
                 throw Exception("ProfileSampler::report(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
+        m_rank_sampler.front()->report_name(m_report_name);
+        m_rank_sampler.front()->profile_name(m_profile_name);
+        m_report = true;
 
-        for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
-            (*it)->report(file_stream);
-        }
-
-        if (file_stream.is_open()) {
-            file_stream.close();
-        }
         while (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
+    }
+
+    void ProfileSampler::name_set(std::set<std::string> &region_name)
+    {
+        region_name = m_name_set;
+    }
+
+    void ProfileSampler::report_name(std::string &report_str)
+    {
+        report_str = m_report_name;
+    }
+
+    void ProfileSampler::profile_name(std::string &prof_str)
+    {
+        prof_str = m_profile_name;
     }
 
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
@@ -743,18 +760,18 @@ namespace geopm
         }
     }
 
-    bool ProfileRankSampler::name_fill(void)
+    bool ProfileRankSampler::name_fill(std::set<std::string> &name_set)
     {
         size_t header_offset = 0;
 
         if (!m_is_name_finished) {
-            if (m_name_set.empty()) {
+            if (name_set.empty()) {
                 m_report_name.assign((char *)m_table_shmem.pointer());
                 header_offset += m_report_name.length() + 1;
                 m_prof_name.assign((char *)m_table_shmem.pointer() + header_offset);
                 header_offset += m_prof_name.length() + 1;
             }
-            m_is_name_finished = m_table.name_set(header_offset, m_name_set);
+            m_is_name_finished = m_table.name_set(header_offset, name_set);
         }
 
         return m_is_name_finished;
@@ -796,6 +813,16 @@ namespace geopm
             file_stream << "Region outer-sync:" << std::endl;
             file_stream << "\truntime: " << (*entry).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         }
+    }
+
+    void ProfileRankSampler::report_name(std::string &report_str)
+    {
+        report_str = m_report_name;
+    }
+
+    void ProfileRankSampler::profile_name(std::string &prof_str)
+    {
+        prof_str = m_prof_name;
     }
 
     ProfileTable::ProfileTable(size_t size, void *buffer)

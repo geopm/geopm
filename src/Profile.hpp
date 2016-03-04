@@ -362,7 +362,9 @@ namespace geopm
             ///
             /// @return Returns true if finished retrieving names from the
             ///         application, else returns false.
-            bool name_fill(void);
+            bool name_fill(std::set<std::string> &name_set);
+            void report_name(std::string &report_str);
+            void profile_name(std::string &prof_str);
         protected:
             /// Holds the shared memory region used for sampling from the
             /// application process.
@@ -439,11 +441,12 @@ namespace geopm
             /// @return Return true if application is shutting down, else
             ///         returns false.
             bool do_shutdown(void);
+            bool do_report(void);
             /// @brief Generate a post-run report for a single node.
             ///
             /// Generates a post-run report by telling each ProfileRankSampler
             /// to dump its per-region statistics to a file descriptor.
-            void report(void);
+            void region_names(void);
             /// @brief Initialize shared memory regions.
             ///
             /// Coordinates with the application to initialize shared memory
@@ -463,6 +466,9 @@ namespace geopm
             ///        rank for each Linux CPU, set to -1 if no MPI
             ///        rank is affinitized.
             void cpu_rank(std::vector<int> &cpu_rank);
+            void name_set(std::set<std::string> &region_name);
+            void report_name(std::string &report_str);
+            void profile_name(std::string &prof_str);
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
@@ -476,6 +482,10 @@ namespace geopm
             /// Size of the hash tables to create for each MPI application rank
             /// running on the local compute node..
             const size_t m_table_size;
+            std::set<std::string> m_name_set;
+            std::string m_report_name;
+            std::string m_profile_name;
+            bool m_report;
     };
 }
 

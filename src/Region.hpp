@@ -218,6 +218,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
+            void report(std::ofstream &file_stream, const std::string &name) const;
         protected:
             /// @brief Bound testing of input parameters.
             ///
@@ -274,6 +275,7 @@ namespace geopm
             std::vector<double> m_sum;
             /// @brief the current sum of squares of signal values per domain and signal type.
             std::vector<double> m_sum_squares;
+            struct geopm_sample_message_s m_agg_stats;
     };
 }
 

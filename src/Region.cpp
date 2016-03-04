@@ -32,6 +32,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <fstream>
 
 #include "Region.hpp"
 
@@ -55,6 +56,7 @@ namespace geopm
         , m_max(m_num_signal * m_num_domain)
         , m_sum(m_num_signal * m_num_domain)
         , m_sum_squares(m_num_signal * m_num_domain)
+        , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
 
     {
         std::fill(m_is_dirty_domain_sample.begin(), m_is_dirty_domain_sample.end(), true);
@@ -98,6 +100,8 @@ namespace geopm
                     ((*it).signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
                      m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
                     m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY];
             }
             memcpy(m_signal_matrix.data() + offset, (*it).signal, m_num_signal * sizeof(double));
 
@@ -427,5 +431,11 @@ namespace geopm
                                    + std::string(file) + ":" + std::to_string(line),
                                    GEOPM_ERROR_INVALID);
         }
+    }
+
+    void Region::report(std::ofstream &file_stream, const std::string &name) const
+    {
+        file_stream << "Region " + name + ":" << std::endl;
+        file_stream << "\truntime: " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
     }
 }

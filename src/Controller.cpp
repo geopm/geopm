@@ -468,6 +468,9 @@ namespace geopm
             do_shutdown = 1;
         }
         if (do_shutdown) {
+            if (m_sampler->do_report()) {
+                generate_report();
+            }
             m_ctl_status = GEOPM_STATUS_SHUTDOWN;
         }
         return do_shutdown;
@@ -485,5 +488,56 @@ namespace geopm
             m_policy[level]->policy_message(m_region_id, m_last_policy_msg[level], child_msg);
         }
         m_tree_comm->send_policy(level, child_msg);
+    }
+
+    void Controller::generate_report(void)
+    {
+        std::string report_name;
+        std::string profile_name;
+        std::set<std::string> region_name;
+        std::map<uint64_t, std::string> region;
+        std::ofstream report;
+        char hostname[NAME_MAX];
+
+        m_sampler->report_name(report_name);
+        m_sampler->profile_name(profile_name);
+        m_sampler->name_set(region_name);
+
+        if (report_name.empty() || profile_name.empty() || region_name.empty()) {
+            throw Exception("Controller::generate_report(): Invalid report data", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        // create a map from region_id to name
+        for (auto it = region_name.begin(); it != region_name.end(); ++it) {
+            uint64_t region_id = geopm_crc32_str(0, (*it).c_str());
+            region.insert(std::pair<uint64_t, std::string>(region_id, (*it)));
+        }
+
+        gethostname(hostname, NAME_MAX);
+        report.open(report_name + "_" + std::string(hostname), std::ios_base::out);
+        report << "Profile: " << profile_name << std::endl;
+        for (auto it = m_region[0].begin(); it != m_region[0].end(); ++it) {
+            uint64_t region_id = (*it).first;
+            std::string name;
+            if (region_id == GEOPM_REGION_ID_MPI) {
+                name.assign("mpi-sync");
+            }
+            else if (region_id == GEOPM_REGION_ID_OUTER) {
+                name.assign("outer-sync");
+            }
+            else if (region_id == 0) {
+                name.assign("unmarked region");
+            }
+            else {
+                auto region_it = region.find(region_id);
+                if (region_it != region.end()) {
+                    name = (*region_it).second;
+                }
+                else {
+                    throw Exception("Controller::generate_report(): Invalid region", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+            }
+            (*it).second->report(report, name);
+        }
     }
 }

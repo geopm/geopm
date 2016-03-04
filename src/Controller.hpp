@@ -158,6 +158,7 @@ namespace geopm
             ///
             ///  @return Number of hierarchy levels.
             int num_level(void) const;
+            void generate_report(void);
         protected:
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
