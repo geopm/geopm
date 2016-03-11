@@ -33,6 +33,7 @@
 #include "gtest/gtest.h"
 #include "mpi.h"
 
+__attribute__((no_sanitize_address))
 int main(int argc, char **argv)
 {
     int err = 0;

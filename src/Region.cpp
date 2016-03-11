@@ -32,6 +32,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <iostream>
 #include <fstream>
 
 #include "Region.hpp"
@@ -100,7 +101,12 @@ namespace geopm
                     ((*it).signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
                      m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
                     m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
-                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                    m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = m_domain_sample[0].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                for (domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
+                    if (m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME]) {
+                        m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                    }
+                }
                 m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY];
             }
             memcpy(m_signal_matrix.data() + offset, (*it).signal, m_num_signal * sizeof(double));
@@ -208,7 +214,7 @@ namespace geopm
         // Make sure every domain has completed the region
         for (domain_idx = 0; !m_is_dirty_domain_sample[domain_idx] && domain_idx != m_num_domain; ++domain_idx);
         if (domain_idx == m_num_domain) {
-            std::fill(m_curr_sample.signal, m_curr_sample.signal + m_num_signal, 0.0);
+            std::fill(m_curr_sample.signal, m_curr_sample.signal + GEOPM_NUM_SAMPLE_TYPE, 0.0);
             for (domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
                 m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                     m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?

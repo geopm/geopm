@@ -112,6 +112,7 @@ namespace geopm
         : m_imp(NULL)
         , m_num_domain(0)
         , m_control_domain_type(control_domain_type)
+        , m_num_rank(0)
     {
 
     }
@@ -145,8 +146,73 @@ namespace geopm
         return m_imp->topology();
     }
 
+    void Platform::transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time, const std::vector<double> &aligned_data, std::vector<struct geopm_telemetry_message_s> &telemetry)
+    {
+        const int NUM_RANK_SIGNAL = 2;
+        int num_package = m_imp->num_package();
+        int num_cpu = m_imp->num_logical_cpu();
+        int num_platform_signal = m_imp->num_package_signal() + m_imp->num_cpu_signal();
+        std::vector<double> runtime(num_package);
+        std::vector<double> progress(num_package);
+
+        std::fill(runtime.begin(), runtime.end(), 0.0);
+        std::fill(progress.begin(), progress.end(), 1.0);
+
+        int num_cpu_per_package = num_cpu / num_package;
+        if (m_imp->power_control_domain() == GEOPM_DOMAIN_PACKAGE) {
+            int rank_offset = num_package * num_platform_signal;
+            int rank_id = 0;
+            for (size_t i = rank_offset;  i < aligned_data.size(); i += NUM_RANK_SIGNAL)  {
+                for (auto it = m_rank_cpu[rank_id].begin(); it != m_rank_cpu[rank_id].end(); ++it) {
+                    // Find minimum progress for any rank on the package
+                    if (aligned_data[i] < progress[(*it) / num_cpu_per_package] && aligned_data[i + 1] != -1.0) {
+                        progress[(*it) / num_cpu_per_package] = aligned_data[i];
+                    }
+                    // Find maximum runtime for any rank on the package
+                    if (aligned_data[i + 1] >  runtime[(*it) / num_cpu_per_package] && aligned_data[i + 1] != -1.0) {
+                        runtime[(*it) / num_cpu_per_package] = aligned_data[i + 1];
+                    }
+                }
+                ++rank_id;
+            }
+            // Add platform signals
+            for (int i = 0; i < rank_offset; ++i) {
+                int domain = i / num_platform_signal;
+                int signal = i % num_platform_signal;
+                telemetry[domain].signal[signal] = aligned_data[domain * num_platform_signal + signal];
+            }
+            // Add application signals
+            for (int i = 0; i < num_package * NUM_RANK_SIGNAL; i += NUM_RANK_SIGNAL) {;
+                int domain = i / NUM_RANK_SIGNAL;
+                telemetry[domain].signal[num_platform_signal] = progress[domain];
+                telemetry[domain].signal[num_platform_signal + 1] = runtime[domain];
+            }
+            // Add region and timestamp
+            for (int i = 0; i < num_package; ++i) {
+                telemetry[i].region_id = region_id;
+                telemetry[i].timestamp = aligned_time;
+            }
+        }
+    }
+
     void Platform::init_transform(const std::vector<int> &cpu_rank)
     {
+        std::set<int> rank_set;
+        for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
+            rank_set.insert(*it);
+        }
+        m_num_rank = rank_set.size();
+        int i = 0;
+        std::map<int, int> rank_map;
+        for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
+            rank_map.insert(std::pair<int, int>(*it, i));
+            ++i;
+        }
+        m_rank_cpu.resize(m_num_rank);
+        for (i = 0; i < (int)cpu_rank.size(); ++i) {
+            m_rank_cpu[rank_map.find(cpu_rank[i])->second].push_back(i);
+        }
+/*
         const PlatformTopology *platform_topo = topology();
         std::map<int, int> local_rank_map;
         {
@@ -279,7 +345,7 @@ namespace geopm
                 // vector multiply
                 m_signal_domain_matrix[j * num_in_signal + i] = dot;
             }
-        }
+        }*/
     }
 
     const std::vector<double> *Platform::signal_domain_transform() const

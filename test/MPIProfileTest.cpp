@@ -105,7 +105,7 @@ MPIProfileTest::~MPIProfileTest()
         unsetenv("GEOPM_ERROR_AFFINITY_IGNORE");
     }
     remove(m_policy_file.c_str());
-    remove(m_log_file_node.c_str());
+//    remove(m_log_file_node.c_str());
 }
 
 void MPIProfileTest::sleep_exact(double duration)
@@ -322,7 +322,7 @@ TEST_F(MPIProfileTest, progress)
     while (timeout < 1.0) {
         ASSERT_EQ(0, geopm_time(&curr));
         timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(prof, region_id[2], timeout/1.0);
+        geopm_prof_progress(prof, region_id[0], timeout/1.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
 
@@ -332,7 +332,7 @@ TEST_F(MPIProfileTest, progress)
     while (timeout < 2.0) {
         ASSERT_EQ(0, geopm_time(&curr));
         timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(prof, region_id[2], timeout/2.0);
+        geopm_prof_progress(prof, region_id[1], timeout/2.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
 

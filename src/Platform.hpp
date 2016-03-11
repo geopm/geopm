@@ -142,6 +142,9 @@ namespace geopm
             /// @brief Retrieve the number of control domains
             /// @return The number of control domains on the hw platform.
             int num_control_domain(void) const;
+            void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
+                                    const std::vector<double> &aligned_data,
+                                    std::vector<struct geopm_telemetry_message_s> &telemetry);
         protected:
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.
@@ -154,6 +157,8 @@ namespace geopm
             /// @brief The matrix that transforms the per package,
             /// per-cpu, and per-rank signals into the domain of control.
             std::vector<double> m_signal_domain_matrix;
+            std::vector<std::vector<int> > m_rank_cpu;
+            int m_num_rank;
     };
 }
 

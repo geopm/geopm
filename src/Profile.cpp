@@ -52,7 +52,16 @@ struct geopm_prof_c *geopm_mpi_prof = NULL;
 
 static bool geopm_table_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
-    return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
+    bool less_than;
+
+    if (aa.second.region_id != bb.second.region_id) {
+        less_than = aa.second.region_id < bb.second.region_id;
+    }
+    else {
+        less_than = geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
+    }
+
+    return less_than;
 }
 
 extern "C"
@@ -637,6 +646,7 @@ namespace geopm
                 content_it += rank_length;
                 length += rank_length;
             }
+            std::sort(content.begin(), content.begin() + length, geopm_table_compare);
             if (m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
                 region_names();
             }
@@ -725,11 +735,11 @@ namespace geopm
 
     void ProfileRankSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
-        struct geopm_sample_message_s sample;
+//        struct geopm_sample_message_s sample;
         m_table.dump(content_begin, length);
-        auto content_end = content_begin + length;
-        std::sort(content_begin, content_end, geopm_table_compare);
-        for (auto it = content_begin; it != content_end; ++it) {
+//        auto content_end = content_begin + length;
+//        std::sort(content_begin, content_end, geopm_table_compare);
+/*        for (auto it = content_begin; it != content_end; ++it) {
             bool in_outer_sync = (*it).first == GEOPM_REGION_ID_OUTER;
             struct geopm_prof_message_s *entry_data = in_outer_sync ? &m_outer_sync_entry : &m_region_entry;
             if ((*it).second.progress == 1.0) {
@@ -757,7 +767,7 @@ namespace geopm
                 entry_data->rank = (*it).second.rank;
                 entry_data->progress = 0.0;
             }
-        }
+        }*/
     }
 
     bool ProfileRankSampler::name_fill(std::set<std::string> &name_set)

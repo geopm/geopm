@@ -253,6 +253,8 @@ AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 CFLAGS="${CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
 CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
+#CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2 -fsanitize=address -fno-omit-frame-pointer"
+#LDFLAGS="${LDFLAGS} ${OPENMP_CXXFLAGS} -lhwloc -ljson-c -fsanitize=address"
 LDFLAGS="${LDFLAGS} ${OPENMP_CXXFLAGS} -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])

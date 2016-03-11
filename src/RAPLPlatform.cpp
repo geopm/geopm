@@ -69,13 +69,20 @@ namespace geopm
 
     size_t RAPLPlatform::capacity(void)
     {
-        return m_imp->num_package() * m_imp->num_package_signal() +
-               m_imp->num_logical_cpu() * m_imp->num_cpu_signal();
+        return m_imp->num_package() * (m_imp->num_package_signal() + m_imp->num_cpu_signal());
+/*        return m_imp->num_package() * m_imp->num_package_signal() +
+               m_imp->num_logical_cpu() * m_imp->num_cpu_signal(); */
     }
 
     void RAPLPlatform::sample(std::vector<struct geopm_msr_message_s> &msr_values)
     {
         int count = 0;
+        double accum_freq;
+        double accum_inst;
+        double accum_clk_core;
+        double accum_clk_ref;
+        double accum_llc;
+        int cpu_per_package = m_num_cpu / m_num_package;
         struct geopm_time_s time;
         //FIXME: Need to deal with counter rollover and unit conversion for energy
         geopm_time(&time);
@@ -101,8 +108,56 @@ namespace geopm
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_DRAM_ENERGY;
             msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_PACKAGE, i, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
             count++;
-        }
 
+            accum_freq = 0.0;
+            accum_inst = 0.0;
+            accum_clk_core = 0.0;
+            accum_clk_ref = 0.0;
+            accum_llc = 0.0;
+            for (int j = i * cpu_per_package; j < i + cpu_per_package; ++j) {
+                accum_freq += m_imp->read_signal(GEOPM_DOMAIN_CPU, j, GEOPM_TELEMETRY_TYPE_FREQUENCY);
+                accum_inst += m_imp->read_signal(GEOPM_DOMAIN_CPU, j, GEOPM_TELEMETRY_TYPE_INST_RETIRED);
+                accum_clk_core += m_imp->read_signal(GEOPM_DOMAIN_CPU, j, GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE);
+                accum_clk_ref += m_imp->read_signal(GEOPM_DOMAIN_CPU, j, GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF);
+                accum_llc += m_imp->read_signal(GEOPM_DOMAIN_CPU, j, GEOPM_TELEMETRY_TYPE_LLC_VICTIMS);
+            }
+
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_FREQUENCY;
+            msr_values[count].signal = accum_freq / cpu_per_package;
+            count++;
+
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_INST_RETIRED;
+            msr_values[count].signal = accum_inst;
+            count++;
+
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE;
+            msr_values[count].signal = accum_clk_core;
+            count++;
+
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF;
+            msr_values[count].signal = accum_clk_ref;
+            count++;
+
+            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_LLC_VICTIMS;
+            msr_values[count].signal = accum_llc;;
+            count++;
+        }
+/*
         //record per cpu metrics
         for (int i = 0; i < m_num_cpu; i++) {
             msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
@@ -139,7 +194,7 @@ namespace geopm
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_LLC_VICTIMS;
             msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_CPU, i, GEOPM_TELEMETRY_TYPE_LLC_VICTIMS);
             count++;
-        }
+        }*/
     }
 
     void RAPLPlatform::enforce_policy(uint64_t region_id, Policy &policy) const

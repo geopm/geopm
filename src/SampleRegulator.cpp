@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include <iostream>
 #include <string.h>
 #include "SampleRegulator.hpp"
 
@@ -59,12 +59,11 @@ namespace geopm
     }
 
     void SampleRegulator::operator () (const struct geopm_time_s &platform_sample_time,
-                                       const std::vector<double> &signal_domain_matrix,
                                        std::vector<double>::const_iterator platform_sample_begin,
                                        std::vector<double>::const_iterator platform_sample_end,
                                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                                       std::vector<struct geopm_telemetry_message_s> &telemetry) // result list per domain of control
+                                       std::vector<double> &aligned_signal) // result list per domain of control
     {
         // Insert new application profile data into buffers
         insert(prof_sample_begin, prof_sample_end);
@@ -75,8 +74,11 @@ namespace geopm
         // Extrapolate application profile data to time of platform telemetry sample
         align(platform_sample_time);
 
+        aligned_signal.resize(m_aligned_signal.size());
+        aligned_signal = m_aligned_signal;
+
         // Transform from signal domain to control domain
-        transform(signal_domain_matrix, telemetry);
+//        transform(signal_domain_matrix, telemetry);
     }
 
     void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,

@@ -216,7 +216,7 @@ TEST_F(SampleRegulatorTest, align_profile)
         }
     }
 }
-
+/*
 TEST_F(SampleRegulatorTest, transform)
 {
     // Use new platform data for this test we need 7 cpu signals
@@ -310,4 +310,4 @@ TEST_F(SampleRegulatorTest, transform)
                              m_test_prof.begin(), m_test_prof.end(), telemetry);
         }
     }
-}
+}*/

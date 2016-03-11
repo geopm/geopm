@@ -420,42 +420,63 @@ namespace geopm
                     *output_it = (*input_it).signal;
                     ++output_it;
                 }
-                (*m_sample_regulator)(m_msr_sample[0].timestamp,
-                                      *(m_platform->signal_domain_transform()),
-                                      platform_sample.cbegin(), platform_sample.cend(),
-                                      m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
-                                      m_telemetry_sample);
-
-                m_region_id = m_telemetry_sample[0].region_id;
-                auto it = m_region[level].find(m_region_id);
-                if (it != m_region[level].end()) {
-                    Region *curr_region = (*it).second;
-                    Policy *curr_policy = m_policy[level];
-                    curr_region->insert(m_telemetry_sample);
-                    if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                        m_platform->enforce_policy(m_region_id, *curr_policy);
+                auto prof_begin = m_prof_sample.cbegin();
+                auto prof_end = m_prof_sample.cbegin();
+                uint64_t region = (*prof_end).first;
+                while (prof_end != (m_prof_sample.cbegin() + length)) {
+                    while (prof_end != (m_prof_sample.cbegin() + length) && (*(prof_end)).first == region) {
+                        ++prof_end;
                     }
-                    auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
-                    if (outer_it != m_region[level].end()) {
-                        (*outer_it).second->sample_message(sample_msg);
-                        // Subtract mpi syncronization time from outer-sync
-                        if (!level) {
-                            auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
-                            if (mpi_it != m_region[level].end()) {
-                                struct geopm_sample_message_s mpi_sample;
-                                (*outer_it).second->sample_message(mpi_sample);
-                                sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
-                            }
+                    std::vector<double> aligned_signal;
+                    (*m_sample_regulator)(m_msr_sample[0].timestamp,
+                                          platform_sample.cbegin(), platform_sample.cend(),
+                                          prof_begin, prof_end,
+                                          aligned_signal);
+
+                    m_platform->transform_rank_data((*prof_begin).first, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
+
+                    m_region_id = m_telemetry_sample[0].region_id;
+                    auto it = m_region[level].find(m_region_id);
+                    if (it != m_region[level].end()) {
+                        Region *curr_region = (*it).second;
+                        Policy *curr_policy = m_policy[level];
+                        curr_region->insert(m_telemetry_sample);
+                        if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+                            m_platform->enforce_policy(m_region_id, *curr_policy);
                         }
                     }
+                    else {
+                        m_region[level].insert(std::pair<uint64_t, Region *>
+                                               (m_region_id,
+                                                new Region(m_region_id,
+                                                           GEOPM_POLICY_HINT_UNKNOWN,
+                                                           m_platform->num_control_domain(),
+                                                           level)));
+                        auto it = m_region[level].find(m_region_id);
+                        Region *curr_region = (*it).second;
+                        Policy *curr_policy = m_policy[level];
+                        curr_region->insert(m_telemetry_sample);
+                        if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+                            m_platform->enforce_policy(m_region_id, *curr_policy);
+                        }
+                    }
+                    if (prof_end != (m_prof_sample.cbegin() + length)) {
+                        region = (*prof_end).first;
+                        prof_begin = prof_end;
+                    }
                 }
-                else {
-                    m_region[level].insert(std::pair<uint64_t, Region *>
-                                           (m_region_id,
-                                            new Region(m_region_id,
-                                                       GEOPM_POLICY_HINT_UNKNOWN,
-                                                       m_platform->num_control_domain(),
-                                                       level)));
+                auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
+                if (outer_it != m_region[level].end()) {
+                    (*outer_it).second->sample_message(sample_msg);
+                    // Subtract mpi syncronization time from outer-sync
+                    if (!level) {
+                        auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
+                        if (mpi_it != m_region[level].end()) {
+                            struct geopm_sample_message_s mpi_sample;
+                            (*outer_it).second->sample_message(mpi_sample);
+                            sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                        }
+                    }
                 }
                 do_shutdown = m_sampler->do_shutdown();
             }

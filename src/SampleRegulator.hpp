@@ -126,12 +126,11 @@ namespace geopm
             /// the order of the domains of control defined in a
             /// Policy object.
             void operator () (const struct geopm_time_s &platform_sample_time,
-                              const std::vector<double> &signal_domain_matrix,
                               std::vector<double>::const_iterator platform_sample_begin,
                               std::vector<double>::const_iterator platform_sample_end,
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                              std::vector<struct geopm_telemetry_message_s> &telemetry); // result stack per domain of control
+                              std::vector<double> &aligned_signal); // result stack per domain of control
         protected:
             /// @brief Insert ProfileSampler data.
             void insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
