@@ -290,6 +290,9 @@ namespace geopm
         , m_num_progress(0)
         , m_progress(0.0)
         , m_is_first_sync(true)
+        , m_parent_region(0)
+        , m_parent_progress(0.0)
+        , m_parent_num_enter(0)
     {
         std::string table_shm_key;
         int shm_num_rank = 0;
@@ -384,21 +387,25 @@ namespace geopm
     void Profile::enter(uint64_t region_id)
     {
         // if we are not currently in a region
-        if (!m_curr_region_id) {
+        if (!m_curr_region_id && region_id != GEOPM_REGION_ID_MPI) {
             m_curr_region_id = region_id;
             m_num_enter = 0;
             m_progress = 0.0;
             sample(region_id);
         }
         // Allow nesting of MPI region
-        else if (region_id == GEOPM_REGION_ID_MPI) {
-            uint64_t saved_region = m_curr_region_id;
-            double saved_progress = m_progress;
-            m_curr_region_id = region_id;
-            m_progress = 0.0;
-            sample(region_id);
-            m_curr_region_id = saved_region;
-            m_progress = saved_progress;
+        else if (m_curr_region_id && region_id == GEOPM_REGION_ID_MPI) {
+            if (region_id != m_curr_region_id) {
+                m_parent_num_enter = m_num_enter;
+                m_num_enter = 0;
+            }
+            if (!m_num_enter) {
+                m_parent_region = m_curr_region_id;
+                m_parent_progress = m_progress;
+                m_curr_region_id = region_id;
+                m_progress = 0.0;
+                sample(region_id);
+            }
         }
         // keep track of number of entries to account for nesting
         if (m_curr_region_id == region_id) {
@@ -412,21 +419,16 @@ namespace geopm
         if (m_curr_region_id == region_id) {
             --m_num_enter;
         }
-        // Allow nesting of MPI region
-        else if (region_id == GEOPM_REGION_ID_MPI) {
-            uint64_t saved_region = m_curr_region_id;
-            double saved_progress = m_progress;
-            m_curr_region_id = region_id;
-            m_progress = 1.0;
-            sample(region_id);
-            m_curr_region_id = saved_region;
-            m_progress = saved_progress;
-        }
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
             m_progress = 1.0;
             sample(region_id);
             m_curr_region_id = 0;
+            if (region_id == GEOPM_REGION_ID_MPI) {
+                m_curr_region_id = m_parent_region;
+                m_progress = m_parent_progress;
+                m_num_enter = m_parent_num_enter;
+            }
         }
     }
 

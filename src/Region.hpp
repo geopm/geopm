@@ -241,6 +241,14 @@ namespace geopm
             ///        __LINE__.
             ///
             void check_bounds(int domain_idx, int signal_type, const char *file, int line) const;
+            double domain_buffer_value(int buffer_idx, int domain_idx, int signal_type);
+            bool is_telemetry_entry(const struct geopm_telemetry_message_s &telemetry, int domain_idx);
+            bool is_telemetry_exit(const struct geopm_telemetry_message_s &telemetry, int domain_idx);
+            void update_domain_sample(const struct geopm_telemetry_message_s &telemetry, int domain_idx);
+            void update_signal_matrix(const double *signal, int domain_idx);
+            void update_valid_entries(const struct geopm_telemetry_message_s &telemetry, int domain_idx);
+            void update_stats(const double *signal, int domain_idx);
+            void update_curr_sample(void);
             /// @brief Holds a unique 64 bit region identifier.
             const uint64_t m_identifier;
             /// @brief Holds the compute characteristic hint for this region.

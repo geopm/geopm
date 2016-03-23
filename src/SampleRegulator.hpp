@@ -141,11 +141,6 @@ namespace geopm
             /// @brief Align ProfileSampler data to the time the
             /// Platform data was collected.
             void align(const struct geopm_time_s &timestamp);
-            /// @brief Transform the signals into the the domains of
-            /// control and pack the output into a stack of
-            /// geopm_telemetry_message_s structures.
-            void transform(const std::vector<double> &signal_domain_matrix,
-                           std::vector<struct geopm_telemetry_message_s> &telemetry);
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
                 double progress;

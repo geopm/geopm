@@ -74,52 +74,36 @@ namespace geopm
         // Extrapolate application profile data to time of platform telemetry sample
         align(platform_sample_time);
 
-        aligned_signal.resize(m_aligned_signal.size());
         aligned_signal = m_aligned_signal;
-
-        // Transform from signal domain to control domain
-//        transform(signal_domain_matrix, telemetry);
     }
 
     void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         if (prof_sample_begin != prof_sample_end) {
-            bool is_sync = true;
-            uint64_t region_id = (*(prof_sample_end - 1)).second.region_id;
-            int rank_curr = (*(prof_sample_end - 1)).second.rank;
-            for (auto it = prof_sample_end - 1; is_sync && it != prof_sample_begin - 1; --it) {
-                if ((*it).second.rank != rank_curr) {
-                    if ((*it).second.region_id != region_id ||
-                        (*it).second.progress == 1.0) {
-                        is_sync = false;
-                    }
-                    rank_curr = (*it).second.rank;
-                }
-            }
-            if (!is_sync || region_id != m_region_id_prev) {
+            uint64_t region_id = (*prof_sample_begin).second.region_id;
+            if (region_id != m_region_id_prev) {
                 for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
                     (*it).clear();
                 }
                 m_region_id_prev = 0;
             }
-            if (is_sync) {
-                struct m_rank_sample_s rank_sample;
-                for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
-                    if ((*it).second.region_id == region_id) {
-                        rank_sample.timestamp = (*it).second.timestamp;
-                        rank_sample.progress = (*it).second.progress;
-                        /// @todo: FIXME geopm_prof_message_s does not contain runtime
-                        // rank_sample.runtime = (*it).second.runtime;
-                        rank_sample.runtime = 0.0;
-                        // Dereference of find result below will
-                        // segfault with bad profile sample data
-                        size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second;
-                        m_rank_sample_prev[rank_idx].insert(rank_sample);
-                    }
+            struct m_rank_sample_s rank_sample;
+            for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
+                if ((*it).second.region_id != region_id) {
+                    throw Exception("SampleRegulator::insert() regions do not match!!!", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
-                m_region_id_prev = region_id;
+                rank_sample.timestamp = (*it).second.timestamp;
+                rank_sample.progress = (*it).second.progress;
+                /// @todo: FIXME geopm_prof_message_s does not contain runtime
+                // rank_sample.runtime = (*it).second.runtime;
+                rank_sample.runtime = 0.0;
+                // Dereference of find result below will
+                // segfault with bad profile sample data
+                size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second;
+                m_rank_sample_prev[rank_idx].insert(rank_sample);
             }
+            m_region_id_prev = region_id;
         }
     }
 
@@ -163,9 +147,17 @@ namespace geopm
                     factor = 1.0 / geopm_time_diff(timestamp_prev, timestamp_prev + 1);
                     dsdt = ((*it).value(1).progress - (*it).value(0).progress) * factor;
                     dsdt = dsdt >= 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
-                    progress = (*it).value(1).progress + dsdt * delta;
-                    progress = progress >= 0.0 ? progress : 0.0;
-                    progress = progress <= 1.0 ? progress : 1.0;
+                    if ((*it).value(0).progress == 0.0) {
+                        progress = 0.0;
+                    }
+                    else if ((*it).value(1).progress == 1.0) {
+                        progress = 1.0;
+                    }
+                    else {
+                        progress = (*it).value(1).progress + dsdt * delta;
+                        progress = progress >= 0.0 ? progress : 0.0;
+                        progress = progress <= 1.0 ? progress : 1.0;
+                    }
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
                     dsdt = ((*it).value(1).runtime - (*it).value(0).runtime) * factor;
                     runtime = (*it).value(1).runtime + dsdt * delta;
@@ -179,27 +171,4 @@ namespace geopm
         }
     }
 
-    void SampleRegulator::transform(const std::vector<double> &signal_domain_matrix,
-                                    std::vector<struct geopm_telemetry_message_s> &telemetry)
-    {
-        size_t num_signal = m_aligned_signal.size();
-        size_t num_domain_signal = signal_domain_matrix.size() / num_signal;
-        size_t num_domain = num_domain_signal / GEOPM_NUM_TELEMETRY_TYPE;
-        std::vector<double> result(num_domain_signal);
-
-        std::fill(result.begin(), result.end(), 0.0);
-        for (unsigned i = 0; i < num_domain_signal; ++i) {
-            for (unsigned j = 0; j < num_signal; ++j) {
-                result[i] += signal_domain_matrix[i * num_signal + j] * m_aligned_signal[j];
-            }
-        }
-
-        for (size_t i = 0; i < num_domain; ++i) {
-            telemetry[i].region_id = m_region_id_prev;
-            telemetry[i].timestamp = m_aligned_time;
-            memcpy(telemetry[i].signal,
-                   result.data() + i * GEOPM_NUM_TELEMETRY_TYPE,
-                   GEOPM_NUM_TELEMETRY_TYPE * sizeof(double));
-        }
-    }
 }

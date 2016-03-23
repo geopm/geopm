@@ -299,6 +299,9 @@ namespace geopm
             int m_shm_rank;
             /// @brief Tracks the first call to outer_sync.
             bool m_is_first_sync;
+            uint64_t m_parent_region;
+            double m_parent_progress;
+            int m_parent_num_enter;
     };
 
     /// @brief Retrieves sample data from a single application rank through
