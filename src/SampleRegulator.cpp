@@ -146,7 +146,7 @@ namespace geopm
                     delta = geopm_time_diff(timestamp_prev + 1, &timestamp);
                     factor = 1.0 / geopm_time_diff(timestamp_prev, timestamp_prev + 1);
                     dsdt = ((*it).value(1).progress - (*it).value(0).progress) * factor;
-                    dsdt = dsdt >= 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
+                    dsdt = dsdt > 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
                     if ((*it).value(0).progress == 0.0) {
                         progress = 0.0;
                     }
@@ -155,8 +155,8 @@ namespace geopm
                     }
                     else {
                         progress = (*it).value(1).progress + dsdt * delta;
-                        progress = progress >= 0.0 ? progress : 0.0001;
-                        progress = progress <= 1.0 ? progress : 0.999;
+                        progress = progress >= 0.0 ? progress : 1e-9;
+                        progress = progress <= 1.0 ? progress : 1 - 1e-9;
                     }
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
                     dsdt = ((*it).value(1).runtime - (*it).value(0).runtime) * factor;

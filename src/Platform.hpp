@@ -135,10 +135,6 @@ namespace geopm
             /// per-cpu, and per-rank signals into the domain of control.
             /// @param [in] cpu_rank The mapping from cpu index to rank id.
             void init_transform(const std::vector<int> &cpu_rank);
-            /// @brief Retrieve the signal transformation matrix.
-            /// @return The matrix that transforms the per package,
-            /// per-cpu, and per-rank signals into the domain of control.
-            const std::vector<double> *signal_domain_transform(void) const;
             /// @brief Retrieve the number of control domains
             /// @return The number of control domains on the hw platform.
             int num_control_domain(void) const;
@@ -156,7 +152,6 @@ namespace geopm
             int m_control_domain_type;
             /// @brief The matrix that transforms the per package,
             /// per-cpu, and per-rank signals into the domain of control.
-            std::vector<double> m_signal_domain_matrix;
             std::vector<std::vector<int> > m_rank_cpu;
             int m_num_rank;
     };
