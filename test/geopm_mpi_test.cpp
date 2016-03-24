@@ -39,11 +39,13 @@ int main(int argc, char **argv)
     int err = 0;
     int mpi_thread_level = 0;
     int rank = 0;
+    int stdout_fileno_dup;
 
-    testing::InitGoogleTest(&argc, argv);
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpi_thread_level);
+    testing::InitGoogleTest(&argc, argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank) {
+        stdout_fileno_dup = dup(STDOUT_FILENO);
         freopen("/dev/null", "w", stdout);
     }
     try {
@@ -53,9 +55,13 @@ int main(int argc, char **argv)
         err = err ? err : 1;
         std::cerr << "Error: <geopm_mpi_test> "<< ex.what();
     }
+    if (rank) {
+        dup2(stdout_fileno_dup, STDOUT_FILENO);
+    }
     if (err) {
         MPI_Abort(MPI_COMM_WORLD, err);
     }
+
     MPI_Finalize();
-    return err;
+    _exit(err);
 }

@@ -253,7 +253,7 @@ struct geopm_msr_message_s {
 struct geopm_telemetry_message_s {
     uint64_t region_id;
     struct geopm_time_s timestamp;
-    double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_signal_type_e for ordering.
+    double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_telemetry_type_e for ordering.
 };
 
 extern const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN;

@@ -183,25 +183,25 @@ namespace geopm
                 }
                 ++rank_id;
             }
-            // Add platform signals
+            // Insert platform signals
             for (int i = 0; i < rank_offset; ++i) {
-                int domain = i / num_platform_signal;
-                int signal = i % num_platform_signal;
-                telemetry[domain].signal[signal] = aligned_data[domain * num_platform_signal + signal];
+                int domain_idx = i / num_platform_signal;
+                int signal_idx = i % num_platform_signal;
+                telemetry[domain_idx].signal[signal_idx] = aligned_data[domain_idx * num_platform_signal + signal_idx];
             }
-            // Add application signals
+            // Insert application signals
             for (int i = 0; i < num_package * NUM_RANK_SIGNAL; i += NUM_RANK_SIGNAL) {;
-                int domain = i / NUM_RANK_SIGNAL;
+                int domain_idx = i / NUM_RANK_SIGNAL;
                 // Do not drop a region exit
-                if (max_progress[domain] == 1.0) {
-                    telemetry[domain].signal[num_platform_signal] = 1.0;
+                if (max_progress[domain_idx] == 1.0) {
+                    telemetry[domain_idx].signal[num_platform_signal] = 1.0;
                 }
                 else {
-                    telemetry[domain].signal[num_platform_signal] = min_progress[domain] == DBL_MAX ? -1.0 : min_progress[domain];
+                    telemetry[domain_idx].signal[num_platform_signal] = min_progress[domain_idx] == DBL_MAX ? -1.0 : min_progress[domain_idx];
                 }
-                telemetry[domain].signal[num_platform_signal + 1] = runtime[domain] == DBL_MIN ? 0.0 : runtime[domain];
+                telemetry[domain_idx].signal[num_platform_signal + 1] = runtime[domain_idx] == DBL_MIN ? 0.0 : runtime[domain_idx];
             }
-            // Add region and timestamp
+            // Insert region and timestamp
             for (int i = 0; i < num_package; ++i) {
                 telemetry[i].region_id = region_id;
                 telemetry[i].timestamp = aligned_time;

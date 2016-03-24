@@ -66,6 +66,8 @@ namespace geopm
         std::fill(m_sum.begin(), m_sum.end(), 0.0);
         std::fill(m_sum_squares.begin(), m_sum_squares.end(), 0.0);
         std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
+        struct geopm_telemetry_message_s invalid_telemetry = {0, {0, 0}, {0}};
+        std::fill(m_entry_telemetry.begin(), m_entry_telemetry.end(), invalid_telemetry);
     }
 
     Region::~Region()
@@ -287,10 +289,8 @@ namespace geopm
         if (is_telemetry_entry(telemetry, domain_idx) ) {
             m_entry_telemetry[domain_idx] = telemetry;
         }
-        else if (is_telemetry_exit(telemetry, domain_idx)) {
-            if (!m_entry_telemetry[domain_idx].region_id) {
-                throw Exception("Region::update_domain_sample() entry telemetry is invalid", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
+        else if (m_entry_telemetry[domain_idx].region_id == m_identifier &&
+                 is_telemetry_exit(telemetry, domain_idx)) {
             m_is_dirty_domain_sample[domain_idx] = false;
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                 geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry.timestamp));
@@ -319,7 +319,7 @@ namespace geopm
         int num_entries = m_domain_buffer.size() + 1 < m_domain_buffer.capacity() ?
                           m_domain_buffer.size() + 1 : m_domain_buffer.capacity();
         // Fill in the number of valid entries for other signals which are always valid
-        std::fill(m_valid_entries.begin() + offset, m_valid_entries.begin() + offset + GEOPM_TELEMETRY_TYPE_LLC_VICTIMS, num_entries);
+        std::fill(m_valid_entries.begin() + offset, m_valid_entries.begin() + offset + GEOPM_TELEMETRY_TYPE_PROGRESS, num_entries);
 
         // Account for invalid progress or runtime being inserted or dropped off the end of the buffer
         bool is_oldest_valid = m_domain_buffer.size() &&

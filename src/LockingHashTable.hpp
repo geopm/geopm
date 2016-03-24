@@ -49,7 +49,7 @@
 #include "Exception.hpp"
 
 #ifndef GEOPM_HASH_TABLE_DEPTH_MAX
-#define GEOPM_HASH_TABLE_DEPTH_MAX 16
+#define GEOPM_HASH_TABLE_DEPTH_MAX 4
 #endif
 
 namespace geopm
@@ -151,6 +151,7 @@ namespace geopm
             /// @return The maximum number of entries the table can
             ///         hold.
             size_t capacity(void) const;
+            size_t size(void) const;
             /// @brief Copy all table entries into a vector and delete
             ///        all entries.
             ///
@@ -400,6 +401,27 @@ namespace geopm
     size_t LockingHashTable<type>::capacity(void) const
     {
         return m_table_length * GEOPM_HASH_TABLE_DEPTH_MAX;
+    }
+
+    template <class type>
+    size_t LockingHashTable<type>::size(void) const
+    {
+        int err;
+        size_t result = 0;
+        for (size_t table_idx = 0; table_idx < m_table_length; ++table_idx) {
+            err = pthread_mutex_lock(&(m_table[table_idx].lock));
+            if (err) {
+                throw Exception("LockingHashTable::size(): pthread_mutex_lock()", err, __FILE__, __LINE__);
+            }
+            for (int depth = 0; depth < GEOPM_HASH_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
+                ++result;
+            }
+            err = pthread_mutex_unlock(&(m_table[table_idx].lock));
+            if (err) {
+                throw Exception("LockingHashTable::size(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
+            }
+        }
+        return result;
     }
 
     template <class type>

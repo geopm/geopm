@@ -127,16 +127,13 @@ TEST_F(SampleRegulatorTest, insert_profile_unsync)
 {
     // One rank reports a different region_id:
     m_test_prof[5].second.region_id++;
-    insert(m_test_prof.begin(), m_test_prof.end());
-    for (int i = 0; i != 4; ++i) {
-        // When ranks are not synchronized, progress data is not stored.
-        ASSERT_EQ(m_rank_sample_prev[i].size(), 0);
-    }
+    ASSERT_THROW(insert(m_test_prof.begin(), m_test_prof.end()), geopm::Exception);
+
     // synchronize the regions and reinsert
     m_test_prof[5].second.region_id--;
     insert(m_test_prof.begin(), m_test_prof.end());
     for (int i = 0; i != 4; ++i) {
-        // When ranks are not synchronized, progress data is not stored.
+        // When ranks are synchronized, progress data is tored.
         ASSERT_EQ(m_rank_sample_prev[i].size(), 2);
     }
 }
@@ -187,7 +184,7 @@ TEST_F(SampleRegulatorTest, align_profile)
             ASSERT_DOUBLE_EQ(0.0, m_aligned_signal[i]);
         }
         else { // progress signal
-            ASSERT_DOUBLE_EQ(1.0, m_aligned_signal[i]);
+            ASSERT_NEAR(1.0, m_aligned_signal[i], 1E-9);
         }
     }
     // Give negative derivative

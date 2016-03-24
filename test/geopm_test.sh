@@ -38,7 +38,11 @@ if [ $? -eq 0 ]; then
     mpiexec_default=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec
 
     if [ -z "$MPIEXEC" ]; then
-        mpiexec=`which mpiexec 2> /dev/null`
+        if which srun >& /dev/null; then
+            mpiexec='libtool --mode=execute srun -N1 -n16'
+        else
+            mpiexec=`which mpiexec 2> /dev/null`
+        fi
     else
         mpiexec=$MPIEXEC
     fi

@@ -50,18 +50,9 @@
 
 struct geopm_prof_c *geopm_mpi_prof = NULL;
 
-static bool geopm_table_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
+static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
-    bool less_than;
-
-    if (aa.second.region_id != bb.second.region_id) {
-        less_than = aa.second.region_id < bb.second.region_id;
-    }
-    else {
-        less_than = geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
-    }
-
-    return less_than;
+    return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
 }
 
 extern "C"
@@ -88,6 +79,7 @@ extern "C"
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
             delete prof_obj;
+            geopm_mpi_prof = NULL;
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -387,7 +379,7 @@ namespace geopm
     void Profile::enter(uint64_t region_id)
     {
         // if we are not currently in a region
-        if (!m_curr_region_id && region_id != GEOPM_REGION_ID_MPI) {
+        if (!m_curr_region_id && region_id) {
             m_curr_region_id = region_id;
             m_num_enter = 0;
             m_progress = 0.0;
@@ -428,6 +420,9 @@ namespace geopm
                 m_curr_region_id = m_parent_region;
                 m_progress = m_parent_progress;
                 m_num_enter = m_parent_num_enter;
+                m_parent_region = 0;
+                m_parent_progress = 0.0;
+                m_parent_num_enter = 0;
             }
         }
     }
@@ -459,6 +454,7 @@ namespace geopm
             geopm_time_add(&(sample.timestamp), 1E-6, &time);
             sample.timestamp = time;
         }
+        while (m_table->size()) {}
         sample.progress = 0.0;
         m_table->insert(sample.region_id, sample);
         m_is_first_sync = false;
@@ -648,7 +644,6 @@ namespace geopm
                 content_it += rank_length;
                 length += rank_length;
             }
-            std::sort(content.begin(), content.begin() + length, geopm_table_compare);
             if (m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
                 region_names();
             }
@@ -737,39 +732,9 @@ namespace geopm
 
     void ProfileRankSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
-//        struct geopm_sample_message_s sample;
         m_table.dump(content_begin, length);
-//        auto content_end = content_begin + length;
-//        std::sort(content_begin, content_end, geopm_table_compare);
-/*        for (auto it = content_begin; it != content_end; ++it) {
-            bool in_outer_sync = (*it).first == GEOPM_REGION_ID_OUTER;
-            struct geopm_prof_message_s *entry_data = in_outer_sync ? &m_outer_sync_entry : &m_region_entry;
-            if ((*it).second.progress == 1.0) {
-                if ((*it).first == entry_data->region_id) {
-                    double runtime;
-                    auto agg_entry_it = m_agg_stats.find(entry_data->region_id);
-                    runtime = geopm_time_diff(&(entry_data->timestamp), &((*it).second.timestamp));
-                    if (agg_entry_it == m_agg_stats.end()) {
-                        sample.region_id = (*it).first;
-                        sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] = runtime;
-                        sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] = 0.0;
-                        sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = 0.0;
-                        m_agg_stats.insert(std::pair<uint64_t, struct geopm_sample_message_s>(entry_data->region_id, sample));
-                    }
-                    else {
-                        (*agg_entry_it).second.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += runtime;
-                    }
-                }
-                (*entry_data) = GEOPM_INVALID_PROF_MSG;
-            }
-            if ((*it).first != m_region_entry.region_id) {
-                entry_data->region_id = (*it).first;
-                entry_data->timestamp = (*it).second.timestamp;
-                //FIXME: should be able to set this once
-                entry_data->rank = (*it).second.rank;
-                entry_data->progress = 0.0;
-            }
-        }*/
+        std::sort(content_begin, content_begin + length, geopm_prof_compare);
+
     }
 
     bool ProfileRankSampler::name_fill(std::set<std::string> &name_set)

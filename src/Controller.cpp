@@ -201,7 +201,7 @@ namespace geopm
 
             struct geopm_plugin_description_s plugin_desc;
             int world_rank;
-            check_mpi(MPI_Comm_rank(MPI_COMM_WORLD, &world_rank));
+            check_mpi(MPI_Comm_rank(ppn1_comm, &world_rank));
             if (!world_rank) { // We are the root of the tree
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
@@ -210,7 +210,7 @@ namespace geopm
                 strncpy(plugin_desc.leaf_decider, m_global_policy->leaf_decider().c_str(), NAME_MAX -1);
                 strncpy(plugin_desc.platform, m_global_policy->platform().c_str(), NAME_MAX -1);
             }
-            check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, MPI_COMM_WORLD));
+            check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, ppn1_comm));
 
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
             m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE);
@@ -560,5 +560,6 @@ namespace geopm
             }
             (*it).second->report(report, name);
         }
+        report.close();
     }
 }

@@ -253,7 +253,7 @@ namespace geopm
             const uint64_t m_identifier;
             /// @brief Holds the compute characteristic hint for this region.
             const int m_hint;
-            /// @brief Have we converged for this region.
+            /// @brief Numnber of domains reporting to the region.
             const unsigned m_num_domain;
             /// @brief The level of the tree where the region resides
             const unsigned m_level;
