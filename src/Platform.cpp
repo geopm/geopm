@@ -155,8 +155,8 @@ namespace geopm
         std::vector<double> runtime(num_package);
         std::vector<double> progress(num_package);
 
-        std::fill(runtime.begin(), runtime.end(), 0.0);
-        std::fill(progress.begin(), progress.end(), 1.0);
+        std::fill(runtime.begin(), runtime.end(), DBL_MIN);
+        std::fill(progress.begin(), progress.end(), DBL_MAX);
 
         int num_cpu_per_package = num_cpu / num_package;
         if (m_imp->power_control_domain() == GEOPM_DOMAIN_PACKAGE) {
@@ -184,8 +184,8 @@ namespace geopm
             // Add application signals
             for (int i = 0; i < num_package * NUM_RANK_SIGNAL; i += NUM_RANK_SIGNAL) {;
                 int domain = i / NUM_RANK_SIGNAL;
-                telemetry[domain].signal[num_platform_signal] = progress[domain];
-                telemetry[domain].signal[num_platform_signal + 1] = runtime[domain];
+                telemetry[domain].signal[num_platform_signal] = progress[domain] == DBL_MAX ? -1.0 : progress[domain];
+                telemetry[domain].signal[num_platform_signal + 1] = runtime[domain] == DBL_MIN ? 0.0 : runtime[domain];
             }
             // Add region and timestamp
             for (int i = 0; i < num_package; ++i) {

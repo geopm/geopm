@@ -155,8 +155,8 @@ namespace geopm
                     }
                     else {
                         progress = (*it).value(1).progress + dsdt * delta;
-                        progress = progress >= 0.0 ? progress : 0.0;
-                        progress = progress <= 1.0 ? progress : 1.0;
+                        progress = progress >= 0.0 ? progress : 0.0001;
+                        progress = progress <= 1.0 ? progress : 0.999;
                     }
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
                     dsdt = ((*it).value(1).runtime - (*it).value(0).runtime) * factor;
