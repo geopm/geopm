@@ -67,6 +67,7 @@ int main(int argc, char **argv)
         GEOPM_ERROR_SHUTDOWN,
         GEOPM_ERROR_TOO_MANY_COLLISIONS,
         GEOPM_ERROR_AFFINITY,
+        GEOPM_ERROR_ENVIRONMENT,
     };
 
     const char *error_names[] = {
@@ -92,6 +93,7 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_SHUTDOWN",
         "GEOPM_ERROR_TOO_MANY_COLLISIONS",
         "GEOPM_ERROR_AFFINITY",
+        "GEOPM_ERROR_ENVIRONMENT",
     };
 
     const int num_error = sizeof(error_codes) / sizeof(int);

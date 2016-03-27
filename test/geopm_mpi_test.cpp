@@ -33,35 +33,86 @@
 #include "gtest/gtest.h"
 #include "mpi.h"
 
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
+
 __attribute__((no_sanitize_address))
 int main(int argc, char **argv)
 {
     int err = 0;
-    int mpi_thread_level = 0;
     int rank = 0;
-    int stdout_fileno_dup;
+    int comm_size = 0;
 
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpi_thread_level);
+    MPI_Init(&argc, &argv);
     testing::InitGoogleTest(&argc, argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    if (rank) {
-        stdout_fileno_dup = dup(STDOUT_FILENO);
-        freopen("/dev/null", "w", stdout);
-    }
+    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
+    char per_rank_log_name[NAME_MAX];
+    char per_rank_err_name[NAME_MAX];
+    snprintf(per_rank_log_name, NAME_MAX, ".geopm_mpi_test.%.3d.log", rank);
+    snprintf(per_rank_err_name, NAME_MAX, ".geopm_mpi_test.%.3d.err", rank);
+    int stdout_fileno_dup;
+    int stderr_fileno_dup;
+
+    stdout_fileno_dup = dup(STDOUT_FILENO);
+    stderr_fileno_dup = dup(STDERR_FILENO);
+
+    freopen(per_rank_log_name, "w", stdout);
+    freopen(per_rank_err_name, "w", stderr);
     try {
         err = RUN_ALL_TESTS();
     }
     catch (std::exception ex) {
         err = err ? err : 1;
-        std::cerr << "Error: <geopm_mpi_test> "<< ex.what();
+        std::cerr << "Error: <geopm_mpi_test> [" << rank << "] " << ex.what() << std::endl;
     }
-    if (rank) {
-        dup2(stdout_fileno_dup, STDOUT_FILENO);
-    }
-    if (err) {
-        MPI_Abort(MPI_COMM_WORLD, err);
-    }
+    fflush(stdout);
+    dup2(stdout_fileno_dup, STDOUT_FILENO);
+    dup2(stderr_fileno_dup, STDERR_FILENO);
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (!rank) {
+        FILE *fid_in = NULL;
+        FILE *fid_out = NULL;
+        int nread;
+        char buffer[NAME_MAX];
+        for (int i = 0; i < comm_size; ++i) {
+            snprintf(per_rank_log_name, NAME_MAX, ".geopm_mpi_test.%.3d.log", i);
+            snprintf(per_rank_err_name, NAME_MAX, ".geopm_mpi_test.%.3d.err", i);
+            for (int j = 0; j < 2; ++j) {
+                switch (j) {
+                    case 0:
+                        fid_in = fopen(per_rank_log_name, "r");
+                        fid_out = stdout;
+                        break;
+                    case 1:
+                        fid_in = fopen(per_rank_err_name, "r");
+                        fid_out = stdout; // Pipe to standard output since standard error reopening doesn't work
+                        break;
+                }
+                if (fid_in && !feof(fid_in)) {
+                    if (!j) {
+                        fprintf(fid_out, "**********       Log: <geopm_mpi_test> [%.3d]      **********\n", i);
+                    }
+                    else {
+                        fprintf(fid_out, "**********      Error: <geopm_mpi_test> [%.3d]     **********\n", i);
+                    }
+                    do {
+                        nread = fread(buffer, 1, NAME_MAX, fid_in);
+                        fwrite(buffer, 1, nread, fid_out);
+                    } while (nread);
+                    fprintf(fid_out,     "************************************************************\n");
+                }
+                fclose(fid_in);
+            }
+            unlink(per_rank_log_name);
+            unlink(per_rank_err_name);
+        }
+        fflush(stdout);
+    }
+    int all_err;
+    MPI_Reduce(&err, &all_err, 1, MPI_INT, MPI_LOR, 0, MPI_COMM_WORLD);
     MPI_Finalize();
-    _exit(err);
+    _exit(all_err);
 }

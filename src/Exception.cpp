@@ -114,6 +114,9 @@ extern "C"
             case GEOPM_ERROR_AFFINITY:
                 strncpy(msg, "<geopm> MPI ranks are not affitinized to distinct CPUs", size);
                 break;
+            case GEOPM_ERROR_ENVIRONMENT:
+                strncpy(msg, "<geopm> Unset or invalid environement variable", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);

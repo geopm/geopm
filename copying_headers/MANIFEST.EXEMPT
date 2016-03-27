@@ -28,6 +28,7 @@ ronn/geopmkey.1.ronn
 ronn/geopmpolicy.1.ronn
 ronn/header.txt
 ronn/index.txt
+test/default_policy.json
 TODO
 
 

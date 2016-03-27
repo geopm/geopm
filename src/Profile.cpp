@@ -48,7 +48,7 @@
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
 
-struct geopm_prof_c *geopm_mpi_prof = NULL;
+struct geopm_prof_c *g_geopm_mpi_prof = NULL;
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
@@ -62,7 +62,9 @@ extern "C"
         int err = 0;
         try {
             *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key ? shm_key : ""), comm));
-            geopm_mpi_prof = *prof;
+            if (g_geopm_mpi_prof == NULL) {
+                g_geopm_mpi_prof = *prof;
+            }
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -79,7 +81,7 @@ extern "C"
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
             delete prof_obj;
-            geopm_mpi_prof = NULL;
+            g_geopm_mpi_prof = NULL;
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -301,7 +303,7 @@ namespace geopm
         if (key.size() == 0) {
             key = geopm_default_shmem_key;
         }
-        m_ctl_shmem = new SharedMemoryUser(key, table_size, 300); // 5 minute timeout
+        m_ctl_shmem = new SharedMemoryUser(key, table_size, 60); // 60 second timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
         init_cpu_list();

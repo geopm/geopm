@@ -198,11 +198,10 @@ namespace geopm
         // Only the root rank on each node will have a fully initialized controller
         if (ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
-
             struct geopm_plugin_description_s plugin_desc;
-            int world_rank;
-            check_mpi(MPI_Comm_rank(ppn1_comm, &world_rank));
-            if (!world_rank) { // We are the root of the tree
+            int rank;
+            check_mpi(MPI_Comm_rank(ppn1_comm, &rank));
+            if (!rank) { // We are the root of the tree
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.platform[NAME_MAX - 1] = '\0';
@@ -213,6 +212,7 @@ namespace geopm
             check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, ppn1_comm));
 
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
+
             m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE);
 
             int num_fan_out = 1;
