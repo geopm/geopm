@@ -44,11 +44,12 @@
 #include "geopm_sched.h"
 #include "geopm_message.h"
 #include "geopm_time.h"
+#include "geopm_error.h"
 #include "Profile.hpp"
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
 
-struct geopm_prof_c *g_geopm_mpi_prof = NULL;
+static struct geopm_prof_c *g_geopm_prof_default = NULL;
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
@@ -62,8 +63,9 @@ extern "C"
         int err = 0;
         try {
             *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key ? shm_key : ""), comm));
-            if (g_geopm_mpi_prof == NULL) {
-                g_geopm_mpi_prof = *prof;
+            /*! @todo Code below is not thread safe, do we need a lock? */
+            if (g_geopm_prof_default == NULL) {
+                g_geopm_prof_default = *prof;
             }
         }
         catch (...) {
@@ -76,15 +78,30 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
             delete prof_obj;
-            g_geopm_mpi_prof = NULL;
+            if (prof == g_geopm_prof_default) {
+                g_geopm_prof_default = NULL;
+            }
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+
+    int geopm_prof_default(struct geopm_prof_c *prof)
+    {
+        int err = 0;
+        if (prof) {
+            /*! @todo Code below is not thread safe, do we need a lock? */
+            g_geopm_prof_default = prof;
+        }
+        else {
+            err = g_geopm_prof_default ? 0 : GEOPM_ERROR_LOGIC;
         }
         return err;
     }
@@ -93,7 +110,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -109,7 +126,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -126,7 +143,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -143,7 +160,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -160,7 +177,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -177,7 +194,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -194,7 +211,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -211,7 +228,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)prof;
+            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
             if (prof_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
@@ -275,7 +292,7 @@ extern "C"
 namespace geopm
 {
 
-    static const std::string geopm_default_shmem_key("geopm_default");
+    static const std::string geopm_default_shmem_key("/geopm_default");
 
     Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key, MPI_Comm comm)
         : m_prof_name(prof_name)

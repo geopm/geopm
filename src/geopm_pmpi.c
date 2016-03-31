@@ -38,8 +38,6 @@
 #include "geopm_error.h"
 #include "geopm_message.h"
 
-extern struct geopm_prof_c *g_geopm_mpi_prof;
-
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
 
@@ -69,15 +67,15 @@ static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 
 static inline void geopm_mpi_region_enter()
 {
-    if (g_geopm_mpi_prof) {
-        geopm_prof_enter(g_geopm_mpi_prof, GEOPM_REGION_ID_MPI);
+    if (geopm_prof_default(NULL) == 0) {
+        geopm_prof_enter(NULL, GEOPM_REGION_ID_MPI);
     }
 }
 
 static inline void geopm_mpi_region_exit(void)
 {
-    if (g_geopm_mpi_prof) {
-        geopm_prof_exit(g_geopm_mpi_prof, GEOPM_REGION_ID_MPI);
+    if (geopm_prof_default(NULL) == 0) {
+        geopm_prof_exit(NULL, GEOPM_REGION_ID_MPI);
     }
 }
 
@@ -173,7 +171,7 @@ int MPI_Finalize(void)
     return PMPI_Finalize() || err;
 }
 
-/* Replace MPI_COMM_WORLD in all wrappers, but in the following blocking calls also profile with g_geopm_mpi_prof */
+/* Replace MPI_COMM_WORLD in all wrappers, but in the following blocking calls also profile with default profile */
 
 int MPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
 {
