@@ -74,39 +74,40 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     if (!rank) {
         FILE *fid_in = NULL;
-        FILE *fid_out = NULL;
         int nread;
         char buffer[NAME_MAX];
         for (int i = 0; i < comm_size; ++i) {
             snprintf(per_rank_log_name, NAME_MAX, ".geopm_mpi_test.%.3d.log", i);
-            snprintf(per_rank_err_name, NAME_MAX, ".geopm_mpi_test.%.3d.err", i);
-            for (int j = 0; j < 2; ++j) {
-                switch (j) {
-                    case 0:
-                        fid_in = fopen(per_rank_log_name, "r");
-                        fid_out = stdout;
-                        break;
-                    case 1:
-                        fid_in = fopen(per_rank_err_name, "r");
-                        fid_out = stdout; // Pipe to standard output since standard error reopening doesn't work
-                        break;
-                }
-                if (fid_in && !feof(fid_in)) {
-                    if (!j) {
-                        fprintf(fid_out, "**********       Log: <geopm_mpi_test> [%.3d]      **********\n", i);
-                    }
-                    else {
-                        fprintf(fid_out, "**********      Error: <geopm_mpi_test> [%.3d]     **********\n", i);
-                    }
-                    do {
-                        nread = fread(buffer, 1, NAME_MAX, fid_in);
-                        fwrite(buffer, 1, nread, fid_out);
-                    } while (nread);
-                    fprintf(fid_out,     "************************************************************\n");
-                }
-                fclose(fid_in);
+            fid_in = fopen(per_rank_log_name, "r");
+            fprintf(stdout, "**********       Log: <geopm_mpi_test> [%.3d]      **********\n", i);
+            nread = -1;
+            while (fid_in && nread) {
+                nread = fread(buffer, 1, NAME_MAX, fid_in);
+                fwrite(buffer, 1, nread, stdout);
             }
+            fprintf(stdout,     "************************************************************\n");
+            fclose(fid_in);
             unlink(per_rank_log_name);
+
+            snprintf(per_rank_err_name, NAME_MAX, ".geopm_mpi_test.%.3d.err", i);
+            fid_in = fopen(per_rank_err_name, "r");
+            nread = -1;
+
+            bool is_first_print = true;
+            bool is_err_empty = true;
+            while (fid_in && nread) {
+                nread = fread(buffer, 1, NAME_MAX, fid_in);
+                if (nread && is_first_print) {
+                    fprintf(stdout, "**********      Error: <geopm_mpi_test> [%.3d]     **********\n", i);
+                    is_err_empty = false;
+                }
+                fwrite(buffer, 1, nread, stdout);
+                is_first_print = false;
+            }
+            if (!is_err_empty) {
+                fprintf(stdout,     "************************************************************\n");
+            }
+            fclose(fid_in);
             unlink(per_rank_err_name);
         }
         fflush(stdout);
