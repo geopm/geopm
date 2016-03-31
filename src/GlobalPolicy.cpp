@@ -397,6 +397,7 @@ namespace geopm
             else {
                 m_config_file_in.open(m_in_config.c_str(), std::ifstream::in);
             }
+            read();
         }
     }
 
@@ -862,9 +863,6 @@ namespace geopm
         PlatformFactory platform_factory;
         Platform *platform = platform_factory.platform(std::string("rapl"));
 
-        if(m_do_read) {
-            read();
-        }
         switch (m_mode) {
             case GEOPM_MODE_TDP_BALANCE_STATIC:
                 platform->tdp_limit(tdp_percent());
