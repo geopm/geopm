@@ -259,41 +259,40 @@ namespace geopm
     void IVTPlatformImp::rapl_init()
     {
         uint64_t tmp;
-        double energy_units, power_units;
 
         //Make sure units are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
-        energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
-        power_units = pow(2, (double)((tmp >> 0) & 0xF));
+        m_energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
+        m_power_units = pow(2, (double)((tmp >> 0) & 0xF));
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "RAPL_POWER_UNIT");
             double energy = pow(0.5, (double)((tmp >> 8) & 0x1F));
             double power = pow(2, (double)((tmp >> 0) & 0xF));
-            if (energy != energy_units || power != power_units) {
+            if (energy != m_energy_units || power != m_power_units) {
                 throw Exception("detected inconsistent power units among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
 
         //Make sure bounds are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
-        m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / power_units;
-        m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / power_units;
+        m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
+        m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
 
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
-        m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / power_units;
-        m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / power_units;
+        m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
+        m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
-            double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
-            double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
+            double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
+            double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
             if (pkg_min != m_min_pkg_watts || pkg_max != m_max_pkg_watts) {
                 throw Exception("detected inconsistent power pkg bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_INFO");
-            double dram_min = ((double)((tmp >> 16) & 0x7fff)) / power_units;
-            double dram_max = ((double)((tmp >> 32) & 0x7fff)) / power_units;
+            double dram_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
+            double dram_max = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
             if (dram_min != m_min_dram_watts || dram_max != m_max_dram_watts) {
                 throw Exception("detected inconsistent power dram bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }

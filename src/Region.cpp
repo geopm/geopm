@@ -235,7 +235,9 @@ namespace geopm
     void Region::report(std::ofstream &file_stream, const std::string &name) const
     {
         file_stream << "Region " + name + ":" << std::endl;
-        file_stream << "\truntime: " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
+        file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
+        file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
+        file_stream << "\tfrequency (%): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] << std::endl;
     }
 
     // Protected function definitions
@@ -302,7 +304,8 @@ namespace geopm
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY] =
                 (telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
                  m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
-                m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                (telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF] -
+                 m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF]);
             m_entry_telemetry[domain_idx].region_id = 0;
         }
     }

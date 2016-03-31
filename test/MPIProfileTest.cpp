@@ -67,27 +67,6 @@ class MPIProfileTest: public :: testing :: Test
         std::string m_log_file_node;
 };
 
-#if 0
-class MPINoCtlProfileTest : public :: testing :: Test, public MPIProfileTest
-{
-    public:
-        MPINoCtlProfileTest();
-        virtual ~MPINoCtlProfileTest();
-};
-
-
-MPINoCtlProfileTest::MPINoCtlProfileTest()
-    : MPIProfileTest()
-{
-
-}
-
-MPINoCtlProfileTest::~MPINoCtlProfileTest()
-{
-
-}
-#endif
-
 MPIProfileTest::MPIProfileTest()
     : m_table_size(GEOPM_CONST_SHMEM_REGION_SIZE)
     , m_shm_key(getenv("GEOPM_SHMKEY"))
@@ -128,7 +107,7 @@ MPIProfileTest::~MPIProfileTest()
     else {
         unsetenv("GEOPM_SHMKEY");
     }
-    remove(m_log_file_node.c_str());
+//    remove(m_log_file_node.c_str());
     shm_unlink(m_shm_key);
     for (int i = 0; i < 16; i++) {
         std::string cleanup(std::string(m_shm_key) + "_" + std::to_string(i));
@@ -199,7 +178,7 @@ int MPIProfileTest::parse_log(bool single)
         if (checkval != -1.0) {
             err = !std::getline(log, line);
             if (!err) {
-                err = !sscanf(line.c_str(), "        runtime: %lf", &value);
+                err = !sscanf(line.c_str(), "        runtime (sec): %lf", &value);
             }
             if (!err) {
                 err = fabs(checkval - value) > m_epsilon;
@@ -241,7 +220,7 @@ int MPIProfileTest::parse_log_loop(void)
         else if (line.find("Region mpi-sync:") == 0) {
             err = !std::getline(log, line);
             if (!err) {
-                sscanf(line.c_str(), "        runtime: %lf", &mpi_value);
+                sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value);
             }
         }
         else if (line.find("Region outer-sync:") == 0) {
@@ -250,7 +229,7 @@ int MPIProfileTest::parse_log_loop(void)
         if (checkval != -1.0) {
             err = !std::getline(log, line);
             if (!err) {
-                err = !sscanf(line.c_str(), "        runtime: %lf", &value);
+                err = !sscanf(line.c_str(), "        runtime (sec): %lf", &value);
             }
             if (!err) {
                 err = fabs(checkval - value) > m_epsilon;

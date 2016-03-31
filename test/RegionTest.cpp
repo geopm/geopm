@@ -126,7 +126,7 @@ TEST_F(RegionTest, sample_message)
     EXPECT_EQ((uint64_t)42, sample.region_id);
     EXPECT_DOUBLE_EQ(14.0, sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME]);
     EXPECT_DOUBLE_EQ(28.0, sample.signal[GEOPM_SAMPLE_TYPE_ENERGY]);
-    EXPECT_DOUBLE_EQ(0.5, sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY]);
+    EXPECT_DOUBLE_EQ(1.0, sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY]);
 
     m_tree_region->sample_message(sample);
     EXPECT_EQ((uint64_t)42, sample.region_id);
