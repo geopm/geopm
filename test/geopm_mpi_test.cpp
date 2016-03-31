@@ -67,11 +67,13 @@ int main(int argc, char **argv)
         err = err ? err : 1;
         std::cerr << "Error: <geopm_mpi_test> [" << rank << "] " << ex.what() << std::endl;
     }
+
     fflush(stdout);
     dup2(stdout_fileno_dup, STDOUT_FILENO);
     dup2(stderr_fileno_dup, STDERR_FILENO);
 
     MPI_Barrier(MPI_COMM_WORLD);
+
     if (!rank) {
         FILE *fid_in = NULL;
         int nread;
@@ -112,8 +114,18 @@ int main(int argc, char **argv)
         }
         fflush(stdout);
     }
+
     int all_err;
-    MPI_Reduce(&err, &all_err, 1, MPI_INT, MPI_LOR, 0, MPI_COMM_WORLD);
+    MPI_Allreduce(&err, &all_err, 1, MPI_INT, MPI_LOR, MPI_COMM_WORLD);
+    if (all_err) {
+        all_err = -255;
+    }
     MPI_Finalize();
-    _exit(all_err);
+
+    if (!err) {
+        _exit(err);
+    }
+    else {
+        _exit(all_err);
+    }
 }
