@@ -104,11 +104,6 @@ MPIProfileTest::MPIProfileTest()
     m_log_file_node.append("_");
     m_log_file_node.append(hostname);
 
-    shm_unlink(m_shm_key);
-    for (int i = 0; i < 16; i++) {
-        std::string cleanup(std::string(m_shm_key) + "_" + std::to_string(i));
-        shm_unlink(cleanup.c_str());
-    }
     setenv("GEOPM_ERROR_AFFINITY_IGNORE", "true", 1);
     setenv("GEOPM_POLICY", "test/default_policy.json", 1);
 }
@@ -163,6 +158,9 @@ void MPIProfileTest::sleep_exact(double duration)
 int MPIProfileTest::parse_log(bool single)
 {
     int err = 0;
+
+    sleep(1); // Wait for controller to finish writing the log
+
     std::string line;
     double checkval = 0.0;
     double value = 0.0;
@@ -215,6 +213,9 @@ int MPIProfileTest::parse_log(bool single)
 int MPIProfileTest::parse_log_loop(void)
 {
     int err = 0;
+
+    sleep(1); // Wait for controller to finish writing the log
+
     std::string line;
     double checkval = 0.0;
     double value = 0.0;
