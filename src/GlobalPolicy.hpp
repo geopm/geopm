@@ -105,7 +105,7 @@ namespace geopm
             const std::string &platform() const;
             /// @brief Get a policy message from the policy object
             /// @param [out] policy_message structure to be filled in
-            void policy_message(struct geopm_policy_message_s &policy_message) const;
+            void policy_message(struct geopm_policy_message_s &policy_message);
             /// @brief Set the policy power mode
             /// @param [in] mode geopm_policy_mode_e power mode
             void mode(int mode);
@@ -189,10 +189,6 @@ namespace geopm
             struct geopm_policy_shmem_s *m_policy_shmem_in;
             /// @brief structure to use if writing out to shared memory
             struct geopm_policy_shmem_s *m_policy_shmem_out;
-            /// @brief file stream for input file
-            std::ifstream m_config_file_in;
-            /// @brief file stream for output file
-            std::ofstream m_config_file_out;
     };
 
 }

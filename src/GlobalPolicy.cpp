@@ -369,10 +369,11 @@ namespace geopm
                 }
                 umask(old_mask);
             }
-            else {
-                m_config_file_out.open(m_out_config.c_str(), std::ifstream::out);
+            else if (m_in_config == m_out_config) {
+                    throw Exception("GlobalPolicy::GlobalPolicy(): input config file and output config file cannot be the same", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
+
         if (!m_in_config.empty()) {
             m_do_read = true;
             if (m_in_config[0] == '/' && m_in_config.find_last_of('/') == 0) {
@@ -394,9 +395,6 @@ namespace geopm
                     throw Exception("GlobalPolicy: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
                 }
             }
-            else {
-                m_config_file_in.open(m_in_config.c_str(), std::ifstream::in);
-            }
             read();
         }
     }
@@ -409,9 +407,6 @@ namespace geopm
                     throw Exception("GlobalPolicy: Could not unmap root policy shared memory region", errno, __FILE__, __LINE__);
                 }
             }
-            else {
-                m_config_file_in.close();
-            }
         }
         if (m_do_write) {
             if(m_is_shm_out) {
@@ -421,9 +416,6 @@ namespace geopm
                 if (shm_unlink(m_out_config.c_str())) {
                     throw Exception("GlobalPolicy: Could not unlink shared memory region on GlobalPolicy destruction", errno, __FILE__, __LINE__);
                 }
-            }
-            else {
-                m_config_file_out.close();
             }
         }
     }
@@ -478,8 +470,11 @@ namespace geopm
         return m_platform;
     }
 
-    void GlobalPolicy::policy_message(struct geopm_policy_message_s &policy_message) const
+    void GlobalPolicy::policy_message(struct geopm_policy_message_s &policy_message)
     {
+        if (m_is_shm_in) {
+            read();
+        }
         policy_message.mode = m_mode;
         policy_message.power_budget = m_power_budget_watts;
         policy_message.flags = m_flags.flags();
@@ -535,11 +530,8 @@ namespace geopm
         m_platform = description;
     }
 
-    void GlobalPolicy::read()
+    void GlobalPolicy::read(void)
     {
-        if (!m_do_read) {
-            throw Exception("GlobalPolicy: Invalid operation, in_config not specified in constructor", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         if (m_is_shm_in) {
             int err;
             err = pthread_mutex_lock(&(m_policy_shmem_in->lock));
@@ -557,7 +549,7 @@ namespace geopm
                 throw Exception("GlobalPolicy: Could not unlock shared memory region for root of tree", err, __FILE__, __LINE__);
             }
         }
-        else {
+        else if (m_do_read) {
             std::string policy_string;
             std::string value_string;
             std::string key_string;
@@ -566,12 +558,18 @@ namespace geopm
             json_object *options_obj = NULL;
             json_object *mode_obj = NULL;
             enum json_type type;
+            std::ifstream config_file_in;
 
-            m_config_file_in.seekg(0, std::ios::end);
-            policy_string.reserve(m_config_file_in.tellg());
-            m_config_file_in.seekg(0, std::ios::beg);
+            config_file_in.open(m_in_config.c_str(), std::ifstream::in);
+            config_file_in.seekg(0, std::ios::end);
+            size_t file_size = config_file_in.tellg();
+            if (file_size <= 0) {
+                throw Exception("GlobalPolicy: input configuration file invalid", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            policy_string.reserve(file_size);
+            config_file_in.seekg(0, std::ios::beg);
 
-            policy_string.assign((std::istreambuf_iterator<char>(m_config_file_in)),
+            policy_string.assign((std::istreambuf_iterator<char>(config_file_in)),
                                  std::istreambuf_iterator<char>());
 
             object = json_tokener_parse(policy_string.c_str());
@@ -739,6 +737,7 @@ namespace geopm
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
+            config_file_in.close();
         }
     }
 
@@ -838,8 +837,10 @@ namespace geopm
                 default:
                     throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
-            m_config_file_out << json_object_to_json_string(policy);
-            m_config_file_out.flush();
+            std::ofstream config_file_out;
+            config_file_out.open(m_out_config.c_str(), std::ifstream::out);
+            config_file_out << json_object_to_json_string(policy);
+            config_file_out.close();
         }
     }
 

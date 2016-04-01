@@ -43,7 +43,6 @@ class GlobalPolicyTest: public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
-        geopm::GlobalPolicy *m_policy;
         std::string m_path;
 };
 
@@ -52,19 +51,16 @@ class GlobalPolicyTestShmem: public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
-        geopm::GlobalPolicy *m_policy;
         std::string m_path;
 };
 
 void GlobalPolicyTest::SetUp()
 {
-    m_path = "./policy.conf";
-    m_policy = new geopm::GlobalPolicy(m_path, m_path);
+    m_path.assign("./policy.conf");
 }
 
 void GlobalPolicyTest::TearDown()
 {
-    delete m_policy;
     remove(m_path.c_str());
 }
 
@@ -72,299 +68,347 @@ void GlobalPolicyTestShmem::SetUp()
 {
     m_path.assign("/GlobalPolicyTestShmem-");
     m_path.append(std::to_string(getpid()));
-    m_policy = new geopm::GlobalPolicy(m_path, m_path);
 }
 
 void GlobalPolicyTestShmem::TearDown()
 {
-    delete m_policy;
     unlink(m_path.c_str());
 }
 
 TEST_F(GlobalPolicyTest, mode_tdp_balance_static)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_TDP_BALANCE_STATIC);
-    m_policy->tdp_percent(75);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_TDP_BALANCE_STATIC);
+    policy->tdp_percent(75);
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->tdp_percent(34);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(34, m_policy->tdp_percent());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->tdp_percent(34);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(34, policy->tdp_percent());
+
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75, m_policy->tdp_percent());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, policy->mode());
+    EXPECT_DOUBLE_EQ(75, policy->tdp_percent());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_uniform_static)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->frequency_mhz(1800);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->frequency_mhz(1800);
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
-    m_policy->frequency_mhz(3400);
-    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_EQ(3400, m_policy->frequency_mhz());
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
+    policy->frequency_mhz(3400);
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, policy->mode());
+    EXPECT_EQ(3400, policy->frequency_mhz());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(1800, m_policy->frequency_mhz());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_DOUBLE_EQ(1800, policy->frequency_mhz());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_hybrid_static)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
-    m_policy->frequency_mhz(1800);
-    m_policy->num_max_perf(16);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
+    policy->frequency_mhz(1800);
+    policy->num_max_perf(16);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->frequency_mhz(3600);
-    m_policy->num_max_perf(42);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(3600, m_policy->frequency_mhz());
-    EXPECT_EQ(42, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->frequency_mhz(3600);
+    policy->num_max_perf(42);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(3600, policy->frequency_mhz());
+    EXPECT_EQ(42, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, policy->affinity());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_EQ(1800, m_policy->frequency_mhz());
-    EXPECT_EQ(16, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, policy->mode());
+    EXPECT_EQ(1800, policy->frequency_mhz());
+    EXPECT_EQ(16, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, policy->affinity());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, mode_perf_balance_dynamic)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
-    m_policy->budget_watts(75500);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
+    policy->budget_watts(75500);
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->budget_watts(850);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(850, m_policy->budget_watts());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->budget_watts(850);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(850, policy->budget_watts());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75500, m_policy->budget_watts());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, policy->mode());
+    EXPECT_DOUBLE_EQ(75500, policy->budget_watts());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_uniform_dynamic)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC);
-    m_policy->budget_watts(1025);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC);
+    policy->budget_watts(1025);
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->budget_watts(625);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(625, m_policy->budget_watts());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->budget_watts(625);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(625, policy->budget_watts());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(1025, m_policy->budget_watts());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, policy->mode());
+    EXPECT_DOUBLE_EQ(1025, policy->budget_watts());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, mode_freq_hybrid_dynamic)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
-    m_policy->budget_watts(9612);
-    m_policy->num_max_perf(24);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
+    policy->budget_watts(9612);
+    policy->num_max_perf(24);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->budget_watts(4242);
-    m_policy->num_max_perf(86);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(4242, m_policy->budget_watts());
-    EXPECT_EQ(86, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->budget_watts(4242);
+    policy->num_max_perf(86);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(4242, policy->budget_watts());
+    EXPECT_EQ(86, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, policy->affinity());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_DYNAMIC, m_policy->mode());
-    EXPECT_EQ(9612, m_policy->budget_watts());
-    EXPECT_EQ(24, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_DYNAMIC, policy->mode());
+    EXPECT_EQ(9612, policy->budget_watts());
+    EXPECT_EQ(24, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, policy->affinity());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, plugin_strings)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
-    m_policy->budget_watts(9612);
-    m_policy->num_max_perf(24);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    m_policy->tree_decider("test_tree_decider");
-    m_policy->leaf_decider("test_leaf_decider");
-    m_policy->platform("test_platform");
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
+    policy->budget_watts(9612);
+    policy->num_max_perf(24);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    policy->tree_decider("test_tree_decider");
+    policy->leaf_decider("test_leaf_decider");
+    policy->platform("test_platform");
+    policy->write();
+    delete policy;
+
+    policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    m_policy->tree_decider("new_tree_decider");
-    m_policy->leaf_decider("new_leaf_decider");
-    m_policy->platform("new_platform");
-    ASSERT_STREQ("new_tree_decider", m_policy->tree_decider().c_str());
-    ASSERT_STREQ("new_leaf_decider", m_policy->leaf_decider().c_str());
-    ASSERT_STREQ("new_platform", m_policy->platform().c_str());
+    policy->tree_decider("new_tree_decider");
+    policy->leaf_decider("new_leaf_decider");
+    policy->platform("new_platform");
+    ASSERT_STREQ("new_tree_decider", policy->tree_decider().c_str());
+    ASSERT_STREQ("new_leaf_decider", policy->leaf_decider().c_str());
+    ASSERT_STREQ("new_platform", policy->platform().c_str());
     //read saved values back
-    m_policy->read();
-    ASSERT_STREQ("test_tree_decider", m_policy->tree_decider().c_str());
-    ASSERT_STREQ("test_leaf_decider", m_policy->leaf_decider().c_str());
-    ASSERT_STREQ("test_platform", m_policy->platform().c_str());
+    policy->read();
+    ASSERT_STREQ("test_tree_decider", policy->tree_decider().c_str());
+    ASSERT_STREQ("test_leaf_decider", policy->leaf_decider().c_str());
+    ASSERT_STREQ("test_platform", policy->platform().c_str());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_TDP_BALANCE_STATIC);
-    m_policy->tdp_percent(75);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_TDP_BALANCE_STATIC);
+    policy->tdp_percent(75);
+    policy->write();
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->tdp_percent(34);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(34, m_policy->tdp_percent());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->tdp_percent(34);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(34, policy->tdp_percent());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75, m_policy->tdp_percent());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_TDP_BALANCE_STATIC, policy->mode());
+    EXPECT_DOUBLE_EQ(75, policy->tdp_percent());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_static)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->frequency_mhz(1800);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->frequency_mhz(1800);
+    policy->write();
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
-    m_policy->frequency_mhz(3400);
-    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_EQ(3400, m_policy->frequency_mhz());
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
+    policy->frequency_mhz(3400);
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, policy->mode());
+    EXPECT_EQ(3400, policy->frequency_mhz());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(1800, m_policy->frequency_mhz());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_DOUBLE_EQ(1800, policy->frequency_mhz());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_static)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
-    m_policy->frequency_mhz(1800);
-    m_policy->num_max_perf(16);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_STATIC);
+    policy->frequency_mhz(1800);
+    policy->num_max_perf(16);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+    policy->write();
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->frequency_mhz(3600);
-    m_policy->num_max_perf(42);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(3600, m_policy->frequency_mhz());
-    EXPECT_EQ(42, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->frequency_mhz(3600);
+    policy->num_max_perf(42);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(3600, policy->frequency_mhz());
+    EXPECT_EQ(42, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, policy->affinity());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, m_policy->mode());
-    EXPECT_EQ(1800, m_policy->frequency_mhz());
-    EXPECT_EQ(16, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_STATIC, policy->mode());
+    EXPECT_EQ(1800, policy->frequency_mhz());
+    EXPECT_EQ(16, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, policy->affinity());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_perf_balance_dynamic)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
-    m_policy->budget_watts(75500);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
+    policy->budget_watts(75500);
+    policy->write();
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->budget_watts(850);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(850, m_policy->budget_watts());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->budget_watts(850);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(850, policy->budget_watts());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(75500, m_policy->budget_watts());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, policy->mode());
+    EXPECT_DOUBLE_EQ(75500, policy->budget_watts());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_dynamic)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC);
-    m_policy->budget_watts(1025);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC);
+    policy->budget_watts(1025);
+    policy->write();
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->budget_watts(625);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(625, m_policy->budget_watts());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->budget_watts(625);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(625, policy->budget_watts());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, m_policy->mode());
-    EXPECT_DOUBLE_EQ(1025, m_policy->budget_watts());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_DYNAMIC, policy->mode());
+    EXPECT_DOUBLE_EQ(1025, policy->budget_watts());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_dynamic)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
-    m_policy->budget_watts(9612);
-    m_policy->num_max_perf(24);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
+    policy->budget_watts(9612);
+    policy->num_max_perf(24);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    policy->write();
     //overwrite local values
-    m_policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
-    m_policy->budget_watts(4242);
-    m_policy->num_max_perf(86);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
-    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, m_policy->mode());
-    EXPECT_EQ(4242, m_policy->budget_watts());
-    EXPECT_EQ(86, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, m_policy->affinity());
+    policy->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+    policy->budget_watts(4242);
+    policy->num_max_perf(86);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+    EXPECT_EQ(GEOPM_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(4242, policy->budget_watts());
+    EXPECT_EQ(86, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER, policy->affinity());
     //read saved values back
-    m_policy->read();
-    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_DYNAMIC, m_policy->mode());
-    EXPECT_EQ(9612, m_policy->budget_watts());
-    EXPECT_EQ(24, m_policy->num_max_perf());
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    policy->read();
+    EXPECT_EQ(GEOPM_MODE_FREQ_HYBRID_DYNAMIC, policy->mode());
+    EXPECT_EQ(9612, policy->budget_watts());
+    EXPECT_EQ(24, policy->num_max_perf());
+    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, policy->affinity());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTestShmem, plugin_strings)
 {
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    m_policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
-    m_policy->budget_watts(9612);
-    m_policy->num_max_perf(24);
-    m_policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    m_policy->tree_decider("test_tree_decider");
-    m_policy->leaf_decider("test_leaf_decider");
-    m_policy->platform("test_platform");
-    m_policy->write();
+    policy->mode(GEOPM_MODE_FREQ_HYBRID_DYNAMIC);
+    policy->budget_watts(9612);
+    policy->num_max_perf(24);
+    policy->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+    policy->tree_decider("test_tree_decider");
+    policy->leaf_decider("test_leaf_decider");
+    policy->platform("test_platform");
+    policy->write();
     //overwrite local values
-    m_policy->tree_decider("new_tree_decider");
-    m_policy->leaf_decider("new_leaf_decider");
-    m_policy->platform("new_platform");
-    ASSERT_STREQ("new_tree_decider", m_policy->tree_decider().c_str());
-    ASSERT_STREQ("new_leaf_decider", m_policy->leaf_decider().c_str());
-    ASSERT_STREQ("new_platform", m_policy->platform().c_str());
+    policy->tree_decider("new_tree_decider");
+    policy->leaf_decider("new_leaf_decider");
+    policy->platform("new_platform");
+    ASSERT_STREQ("new_tree_decider", policy->tree_decider().c_str());
+    ASSERT_STREQ("new_leaf_decider", policy->leaf_decider().c_str());
+    ASSERT_STREQ("new_platform", policy->platform().c_str());
     //read saved values back
-    m_policy->read();
-    ASSERT_STREQ("test_tree_decider", m_policy->tree_decider().c_str());
-    ASSERT_STREQ("test_leaf_decider", m_policy->leaf_decider().c_str());
-    ASSERT_STREQ("test_platform", m_policy->platform().c_str());
+    policy->read();
+    ASSERT_STREQ("test_tree_decider", policy->tree_decider().c_str());
+    ASSERT_STREQ("test_leaf_decider", policy->leaf_decider().c_str());
+    ASSERT_STREQ("test_platform", policy->platform().c_str());
+    delete policy;
 }
 
 TEST_F(GlobalPolicyTest, c_interface)

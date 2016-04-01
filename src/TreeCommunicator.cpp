@@ -252,7 +252,7 @@ namespace geopm
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, const GlobalPolicy *global_policy, const MPI_Comm &comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, GlobalPolicy *global_policy, const MPI_Comm &comm)
         : m_fan_out(fan_out)
         , m_comm(fan_out.size())
         , m_global_policy(global_policy)

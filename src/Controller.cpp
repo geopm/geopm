@@ -166,7 +166,7 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
+    Controller::Controller(GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
         , m_time_zero({{0,0}})

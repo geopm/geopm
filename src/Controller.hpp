@@ -102,7 +102,7 @@ namespace geopm
             ///
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
-            Controller(const GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm);
+            Controller(GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
             /// @brief Run control algorithm.
