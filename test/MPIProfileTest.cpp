@@ -107,7 +107,7 @@ MPIProfileTest::~MPIProfileTest()
     else {
         unsetenv("GEOPM_SHMKEY");
     }
-//    remove(m_log_file_node.c_str());
+    remove(m_log_file_node.c_str());
     shm_unlink(m_shm_key);
     for (int i = 0; i < 16; i++) {
         std::string cleanup(std::string(m_shm_key) + "_" + std::to_string(i));
