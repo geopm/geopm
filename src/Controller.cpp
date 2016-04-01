@@ -182,9 +182,6 @@ namespace geopm
         , m_ctl_status(GEOPM_STATUS_UNDEFINED)
         , m_teardown(false)
     {
-#ifndef GEOPM_DEBUG
-        throw geopm::Exception("class Controller", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-#endif
         (void) geopm_time(&m_time_zero);
 
         MPI_Comm ppn1_comm;
