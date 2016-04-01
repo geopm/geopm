@@ -248,7 +248,7 @@ int round_int(double d)
 
 void initStaticImbalance(int nranks)
 {
-    struct MinMax m;
+    struct MinMax m = {100000, 0};
 
     // Generate random static imbalance.
     if (syntheticcfg.useRandomStatic() && !(syntheticcfg.useReplayStatic())) {
