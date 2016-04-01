@@ -66,7 +66,7 @@ namespace geopm
         std::fill(m_sum.begin(), m_sum.end(), 0.0);
         std::fill(m_sum_squares.begin(), m_sum_squares.end(), 0.0);
         std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
-        struct geopm_telemetry_message_s invalid_telemetry = {0, {0, 0}, {0}};
+        struct geopm_telemetry_message_s invalid_telemetry = {0, {{0, 0}}, {0}};
         std::fill(m_entry_telemetry.begin(), m_entry_telemetry.end(), invalid_telemetry);
     }
 

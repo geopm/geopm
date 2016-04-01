@@ -478,7 +478,7 @@ int MPI_Wait(MPI_Request *request, MPI_Status *status)
     int err = 0;
 
     geopm_mpi_region_enter();
-    err = MPI_Wait(request, status);
+    err = PMPI_Wait(request, status);
     geopm_mpi_region_exit();
 
     return err;
