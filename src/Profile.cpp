@@ -499,7 +499,7 @@ namespace geopm
         int is_done = 0;
         int is_all_done = 0;
 
-        MPI_Barrier(m_shm_comm);
+        PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
         }
@@ -520,13 +520,13 @@ namespace geopm
         buffer_offset += m_prof_name.length() + 1;
         while (!is_all_done) {
             is_done = m_table->name_fill(buffer_offset);
-            MPI_Allreduce(&is_done, &is_all_done, 1, MPI_INT, MPI_LAND, m_shm_comm);
+            PMPI_Allreduce(&is_done, &is_all_done, 1, MPI_INT, MPI_LAND, m_shm_comm);
             if (!m_shm_rank) {
                 m_ctl_msg->app_status = GEOPM_STATUS_READY;
             }
 
             while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {}
-            MPI_Barrier(m_shm_comm);
+            PMPI_Barrier(m_shm_comm);
             if (!m_shm_rank && !is_all_done) {
                 m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
             }
