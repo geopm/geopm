@@ -404,19 +404,17 @@ namespace geopm
             m_progress = 0.0;
             sample(region_id);
         }
-        // Allow nesting of MPI region
-        else if (m_curr_region_id && region_id == GEOPM_REGION_ID_MPI) {
-            if (region_id != m_curr_region_id) {
-                m_parent_num_enter = m_num_enter;
-                m_num_enter = 0;
-            }
-            if (!m_num_enter) {
-                m_parent_region = m_curr_region_id;
-                m_parent_progress = m_progress;
-                m_curr_region_id = region_id;
-                m_progress = 0.0;
-                sample(region_id);
-            }
+        // Allow nesting of one MPI region within a non-mpi region
+        else if (m_curr_region_id &&
+                 m_curr_region_id != GEOPM_REGION_ID_MPI &&
+                 region_id == GEOPM_REGION_ID_MPI) {
+            m_parent_num_enter = m_num_enter;
+            m_num_enter = 0;
+            m_parent_region = m_curr_region_id;
+            m_parent_progress = m_progress;
+            m_curr_region_id = region_id;
+            m_progress = 0.0;
+            sample(region_id);
         }
         // keep track of number of entries to account for nesting
         if (m_curr_region_id == region_id) {
