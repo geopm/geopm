@@ -65,6 +65,7 @@ class MPIProfileTest: public :: testing :: Test
         bool m_use_std_sleep;
         std::string m_log_file;
         std::string m_log_file_node;
+        bool m_is_node_root;
 };
 
 MPIProfileTest::MPIProfileTest()
@@ -77,14 +78,19 @@ MPIProfileTest::MPIProfileTest()
     , m_use_std_sleep(false)
     , m_log_file("MPIProfileTest_log")
     , m_log_file_node(m_log_file)
+    , m_is_node_root(false)
 {
     char hostname[NAME_MAX];
+    MPI_Comm ppn1_comm;
     gethostname(hostname, NAME_MAX);
     m_log_file_node.append("_");
     m_log_file_node.append(hostname);
 
     setenv("GEOPM_ERROR_AFFINITY_IGNORE", "true", 1);
     setenv("GEOPM_POLICY", "test/default_policy.json", 1);
+
+    geopm_comm_split_ppn1(MPI_COMM_WORLD, &ppn1_comm);
+    m_is_node_root = ppn1_comm != MPI_COMM_NULL;
 }
 
 MPIProfileTest::~MPIProfileTest()
@@ -107,11 +113,13 @@ MPIProfileTest::~MPIProfileTest()
     else {
         unsetenv("GEOPM_SHMKEY");
     }
-    remove(m_log_file_node.c_str());
     shm_unlink(m_shm_key);
     for (int i = 0; i < 16; i++) {
         std::string cleanup(std::string(m_shm_key) + "_" + std::to_string(i));
         shm_unlink(cleanup.c_str());
+    }
+    if (m_is_node_root) {
+        remove(m_log_file_node.c_str());
     }
 
 }
@@ -287,10 +295,9 @@ TEST_F(MPIProfileTest, runtime)
         timeout = geopm_time_diff(&start, &curr);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[2]));
-
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
-    if (!rank) {
+    if (m_is_node_root) {
         ASSERT_EQ(0, parse_log(false));
     }
 
@@ -347,7 +354,7 @@ TEST_F(MPIProfileTest, progress)
 
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
-    if (!rank) {
+    if (m_is_node_root) {
         ASSERT_EQ(0, parse_log(false));
     }
 
@@ -437,7 +444,7 @@ TEST_F(MPIProfileTest, multiple_entries)
 
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
-    if (!rank) {
+    if (m_is_node_root) {
         ASSERT_EQ(0, parse_log(true));
     }
 
@@ -503,7 +510,7 @@ TEST_F(MPIProfileTest, nested_region)
 
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
-    if (!rank) {
+    if (m_is_node_root) {
         ASSERT_EQ(0, parse_log(true));
     }
 
@@ -548,7 +555,7 @@ TEST_F(MPIProfileTest, outer_sync)
 
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
-    if (!rank) {
+    if (m_is_node_root) {
         ASSERT_EQ(0, parse_log_loop());
     }
 
