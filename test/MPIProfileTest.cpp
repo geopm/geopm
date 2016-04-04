@@ -95,6 +95,7 @@ MPIProfileTest::MPIProfileTest()
 
 MPIProfileTest::~MPIProfileTest()
 {
+    MPI_Barrier(MPI_COMM_WORLD);
     if (m_ignore_env_orig) {
         setenv("GEOPM_ERROR_AFFINITY_IGNORE", m_ignore_env_orig, 1);
     }
