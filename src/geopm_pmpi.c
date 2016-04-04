@@ -128,7 +128,8 @@ static int geopm_pmpi_init(int argc, char **argv)
             if (!err) {
                 err = geopm_ctl_run(ctl);
             }
-            err = PMPI_Finalize() || err;
+            int err_final = PMPI_Finalize();
+            err = err ? err : err_final;
             exit(err);
         }
     }
@@ -168,7 +169,8 @@ int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 int MPI_Finalize(void)
 {
     int err = geopm_pmpi_finalize();
-    return PMPI_Finalize() || err;
+    int err_final = PMPI_Finalize();
+    return err ? err : err_final;
 }
 
 /* Replace MPI_COMM_WORLD in all wrappers, but in the following blocking calls also profile with default profile */
