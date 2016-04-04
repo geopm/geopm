@@ -73,9 +73,6 @@ geopm_prof_c(3) -- geopm application profiling structure
     `struct geopm_prof_c *`_prof_, <br>
     `uint64_t` _region_id_);
 
-  * `int geopm_prof_sample(`:
-    `struct geopm_prof_c *`_prof_);
-
   * `int geopm_prof_disable(`:
     `struct geopm_prof_c *`_prof_, <br>
     `const char *`_feature_name_);
@@ -136,21 +133,23 @@ the outer most loop, or the "outer synchronization point."
     creates a profile object, _prof_, which can be used in conjunction
     with all the other APIs described here.  The resources associated
     with the _prof_ are released by passing it to
-    `geopm_prof_destroy`().  The first profile object is stored as the
-    default, and if a NULL pointer is subsequently passed as the
-    profile argument to any of the `geopm_prof_*`() APIs, this default
-    object will be used.  See `geopm_prof_default`() for more
-    information about the default profile.  Construction requires a
-    _name_ which is displayed when the profile is printed.  The
-    _table_size_ parameter determines the size in bytes of the shared
-    memory region used to communicate between the calling process and
-    the geopm control process (4096 is recommended).  If the
-    _sample_key_ is non-NULL and non-empty then calls to
-    `geopm_prof_sample`() will write the sampled data to POSIX shared
-    memory associated with the given key to be read by an external
-    control process running on the same compute node. The _comm_ is an
-    MPI communicator that the calling MPI application is running on
-    (probably MPI_COMM_WORLD).
+    `geopm_prof_destroy`().  The first profile object to be created is
+    stored as the default, and if a NULL pointer is subsequently
+    passed as the profile argument to any of the `geopm_prof_*`()
+    APIs, this default object will be used.  See
+    `geopm_prof_default`() for more information about the default
+    profile.  Construction requires a _name_ which is displayed when
+    the profile is printed.  The _table_size_ parameter determines the
+    size in bytes of the shared memory region used to communicate
+    between the calling process and the geopm control process (4096 is
+    recommended).  If the _sample_key_ specifies the POSIX shared
+    memory key that is used to comminicate with the control process on
+    the node.  It must start with the '/' character and have no other
+    occurances of the '/'.  If no key is provided (NULL or empty
+    string), then the environment is queried for GEOPM_SHMKEY and if
+    set this value is used, otherwise the default key '/geopm_default'
+    is used.  The _comm_ is an MPI communicator that the calling MPI
+    application is running on (probably MPI_COMM_WORLD).
 
   * `geopm_prof_destroy`():
     releases all resources associated with the prof object.
@@ -203,10 +202,6 @@ the outer most loop, or the "outer synchronization point."
     synchronizing MPI call.  There should be just one place in an
     application code where this call occurs, and it should be called
     repeatedly inside of a loop.
-
-  * `geopm_prof_sample`():
-    is called to derive a sample based on the profiling information
-    collected.  This may aggregate data.
 
   * `geopm_prof_disable`():
     is called at application start up to disable a profiling feature.

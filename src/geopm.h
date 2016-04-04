@@ -117,9 +117,6 @@ int geopm_prof_progress(struct geopm_prof_c *prof,
 
 int geopm_prof_outer_sync(struct geopm_prof_c *prof);
 
-int geopm_prof_sample(struct geopm_prof_c *prof,
-                      uint64_t region_id);
-
 int geopm_prof_disable(struct geopm_prof_c *prof,
                        const char *feature_name);
 

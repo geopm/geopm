@@ -209,18 +209,6 @@ namespace geopm
             /// application code where this call occurs, and it should
             /// be called repeatedly inside of a loop.
             void outer_sync(void);
-            /// @brief Post profile sample.
-            ///
-            /// Called to derive a sample based on the profiling
-            /// information collected.  This sample is posted to the
-            /// geopm::Controller through shared memory.  This call is
-            /// ignored when called within a nested region or passing
-            /// a region_id that does not match the current region.
-            ///
-            /// @param [in] region_id The identifier returned by
-            ///        Profile::region() when the region was
-            ///        registered.
-            void sample(uint64_t region_id);
             /// @brief Disable a data collection feature.
             ///
             /// Called at application start up to disable a profiling
@@ -258,6 +246,18 @@ namespace geopm
             /// to communicate with the geopm runtime the number of ranks
             /// as well as their affinity masks.
             void init_cpu_list(void);
+            /// @brief Post profile sample.
+            ///
+            /// Called to derive a sample based on the profiling
+            /// information collected.  This sample is posted to the
+            /// geopm::Controller through shared memory.  This call is
+            /// ignored when called within a nested region or passing
+            /// a region_id that does not match the current region.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
+            void sample(uint64_t region_id);
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
             /// @brief Holds the 64 bit unique region identifier

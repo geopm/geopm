@@ -190,23 +190,6 @@ extern "C"
 
     }
 
-    int geopm_prof_sample(struct geopm_prof_c *prof, uint64_t region_id)
-    {
-        int err = 0;
-        try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            prof_obj->sample(region_id);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-
-    }
-
     int geopm_prof_disable(struct geopm_prof_c *prof, const char *feature_name)
     {
         int err = 0;
