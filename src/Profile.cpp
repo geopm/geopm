@@ -58,6 +58,8 @@ static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_messa
 
 extern "C"
 {
+    void geopm_pmpi_prof_mpi(int do_profile);
+
     int geopm_prof_create(const char *name, size_t table_size, const char *shm_key, MPI_Comm comm, struct geopm_prof_c **prof)
     {
         int err = 0;
@@ -483,11 +485,13 @@ namespace geopm
         int is_all_done = 0;
 
         PMPI_Barrier(m_shm_comm);
+
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {}
+        geopm_pmpi_prof_mpi(0);
 
         size_t buffer_offset = 0;
         char *buffer_ptr = (char *)(m_table_shmem->pointer());
@@ -644,7 +648,7 @@ namespace geopm
                 content_it += rank_length;
                 length += rank_length;
             }
-            if (m_ctl_msg->app_status == GEOPM_STATUS_REPORT) {
+            if (app_status == GEOPM_STATUS_REPORT) {
                 region_names();
             }
         }

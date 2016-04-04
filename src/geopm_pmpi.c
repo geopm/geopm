@@ -38,7 +38,10 @@
 #include "geopm_error.h"
 #include "geopm_message.h"
 
+void geopm_pmpi_prof_mpi(int do_profile);
+
 static int g_is_geopm_pmpi_ctl_enabled = 0;
+static int g_is_geopm_pmpi_prof_enabled = 0;
 static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
 
 #ifndef GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE
@@ -67,14 +70,14 @@ static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 
 static inline void geopm_mpi_region_enter()
 {
-    if (geopm_prof_default(NULL) == 0) {
+    if (g_is_geopm_pmpi_prof_enabled && geopm_prof_default(NULL) == 0) {
         geopm_prof_enter(NULL, GEOPM_REGION_ID_MPI);
     }
 }
 
 static inline void geopm_mpi_region_exit(void)
 {
-    if (geopm_prof_default(NULL) == 0) {
+    if (g_is_geopm_pmpi_prof_enabled && geopm_prof_default(NULL) == 0) {
         geopm_prof_exit(NULL, GEOPM_REGION_ID_MPI);
     }
 }
@@ -133,6 +136,7 @@ static int geopm_pmpi_init(int argc, char **argv)
             exit(err);
         }
     }
+    geopm_pmpi_prof_mpi(1);
     return err;
 }
 
@@ -143,6 +147,11 @@ static int geopm_pmpi_finalize(void)
         err = PMPI_Comm_free(&G_GEOPM_COMM_WORLD_SWAP);
     }
     return err;
+}
+
+void geopm_pmpi_prof_mpi(int do_profile)
+{
+    g_is_geopm_pmpi_prof_enabled = do_profile;
 }
 
 /* Below are the GEOPM PMPI wrappers */
