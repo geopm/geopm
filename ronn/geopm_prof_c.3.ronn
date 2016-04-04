@@ -138,7 +138,7 @@ the outer most loop, or the "outer synchronization point."
     with the _prof_ are released by passing it to
     `geopm_prof_destroy`().  The first profile object is stored as the
     default, and if a NULL pointer is subsequently passed as the
-    profile argument to any of the geopm_prof_* APIs, this default
+    profile argument to any of the `geopm_prof_*`() APIs, this default
     object will be used.  See `geopm_prof_default`() for more
     information about the default profile.  Construction requires a
     _name_ which is displayed when the profile is printed.  The
