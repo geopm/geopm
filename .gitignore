@@ -30,6 +30,7 @@
 *.gcno
 /geopmctl
 /geopmpolicy
+/geopm_mod.mod
 /geopm-*.spec
 /geopm-*.tar.gz
 /gh-pages/

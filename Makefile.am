@@ -39,7 +39,9 @@ bin_PROGRAMS = geopmpolicy
 pkglib_LTLIBRARIES =
 
 if ENABLE_MPI
-    lib_LTLIBRARIES += libgeopm.la
+    lib_LTLIBRARIES += libgeopm.la \
+                       libgeopmfort.la \
+                       # end
     bin_PROGRAMS += geopmctl
 endif
 
@@ -51,6 +53,10 @@ include_HEADERS = src/geopm.h \
                   src/geopm_version.h \
                   src/geopm_plugin.h \
                   # end
+
+if ENABLE_MPI
+    include_HEADERS += geopm_mod.mod
+endif
 
 dist_man_MANS = man/geopm.7 \
                 man/geopmctl.1 \
@@ -110,6 +116,7 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
+    libgeopmfort_la_LIBADD = libgeopm.la
     geopmctl_LDADD = libgeopm.la
 endif
 
@@ -233,9 +240,12 @@ if ENABLE_MPI
                           src/geopm_version.h \
                           # end
 
+    libgeopmfort_la_SOURCES = src/geopm_mod.f90
+
     geopmctl_SOURCES = src/geopmctl_main.c \
                        src/geopm_version.h \
                        # end
+
 endif
 
 # CLEAN TARGETS
