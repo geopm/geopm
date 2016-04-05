@@ -124,17 +124,20 @@ static int geopm_pmpi_init(int argc, char **argv)
             G_GEOPM_COMM_WORLD_SWAP = tmp_comm;
         }
         if (!err && is_ctl) {
-            char log_name[NAME_MAX];
             int ctl_rank;
             PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
-            snprintf(log_name, NAME_MAX, "geopm_pmpi_%.3d.log", ctl_rank);
-            freopen(log_name, "w", stdout);
-            freopen(log_name, "w", stderr);
+            char *ctllog_env = getenv("GEOPM_CTLLOG");
+            if (ctllog_env) {
+                char log_name[NAME_MAX];
+                snprintf(log_name, NAME_MAX, "%s-%.3d.log", ctllog_env, ctl_rank);
+                (void)freopen(log_name, "w", stdout);
+                (void)freopen(log_name, "w", stderr);
+            }
             struct geopm_policy_c *policy = NULL;
             struct geopm_ctl_c *ctl;
             char *policy_env = getenv("GEOPM_POLICY");
             char *shmkey_env = getenv("GEOPM_SHMKEY");
-            if (!policy_env || !shmkey_env) {
+            if (!policy_env) {
                 err = GEOPM_ERROR_ENVIRONMENT;
             }
             if (!err && !ctl_rank)
