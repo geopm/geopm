@@ -58,7 +58,8 @@ static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_messa
 
 extern "C"
 {
-    void geopm_pmpi_prof_mpi(int do_profile);
+    // defined in geopm_pmpi.c and used only here
+    void geopm_pmpi_prof_enable(int do_profile);
 
     int geopm_prof_create(const char *name, size_t table_size, const char *shm_key, MPI_Comm comm, struct geopm_prof_c **prof)
     {
@@ -362,6 +363,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {}
+        geopm_pmpi_prof_enable(1);
     }
 
     Profile::~Profile()
@@ -491,7 +493,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {}
-        geopm_pmpi_prof_mpi(0);
+        geopm_pmpi_prof_enable(0);
 
         size_t buffer_offset = 0;
         char *buffer_ptr = (char *)(m_table_shmem->pointer());

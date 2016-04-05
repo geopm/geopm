@@ -44,19 +44,29 @@ static int g_is_geopm_pmpi_ctl_enabled = 0;
 static int g_is_geopm_pmpi_prof_enabled = 0;
 static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
 
+/* To be used only in Profile.cpp */
+void geopm_pmpi_prof_enable(int do_profile)
+{
+    g_is_geopm_pmpi_prof_enabled = do_profile;
+}
+
 #ifndef GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE
-// Since MPI_COMM_WORLD should not be accessed or modified in this use
-// case, a simple == comparison will do and will be much more
-// performant than MPI_Comm_compare().
+/*
+ * Since MPI_COMM_WORLD should not be accessed or modified in this use
+ * case, a simple == comparison will do and will be much more
+ * performant than MPI_Comm_compare().
+ */
 static inline MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 {
     return comm != MPI_COMM_WORLD ?
            comm : G_GEOPM_COMM_WORLD_SWAP;
 }
 #else
-// The code below is more portable, but less performant.  Define
-// GEOPM_ENABLE_PORTABLE_MPI_COMM_COMPARE if there are issues with
-// the direct comparison code above.
+/*
+ * The code below is more portable, but slower.  Define
+ * GEOPM_ENABLE_PORTABLE_MPI_COMM_COMPARE if there are issues with the
+ * direct comparison code above.
+ */
 static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 {
     int is_comm_world = 0;
@@ -136,7 +146,6 @@ static int geopm_pmpi_init(int argc, char **argv)
             exit(err);
         }
     }
-    geopm_pmpi_prof_mpi(1);
     return err;
 }
 
@@ -147,11 +156,6 @@ static int geopm_pmpi_finalize(void)
         err = PMPI_Comm_free(&G_GEOPM_COMM_WORLD_SWAP);
     }
     return err;
-}
-
-void geopm_pmpi_prof_mpi(int do_profile)
-{
-    g_is_geopm_pmpi_prof_enabled = do_profile;
 }
 
 /* Below are the GEOPM PMPI wrappers */
