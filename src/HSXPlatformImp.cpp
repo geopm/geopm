@@ -50,8 +50,11 @@ namespace geopm
         , m_max_pp0_watts(100)
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
-        , m_platform_id(0x63F)
+        , m_platform_id(0)
+        , M_HSX_PLATFORM_ID(0x63F)
+        , M_BDX_PLATFORM_ID(0x64F)
         , M_HSX_MODEL_NAME("Haswell E")
+        , M_BDX_MODEL_NAME("Broadwell E")
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
         , M_CTR_EN(0x1 << 22)
@@ -78,12 +81,16 @@ namespace geopm
 
     bool HSXPlatformImp::model_supported(int platform_id)
     {
-        return (platform_id == m_platform_id);
+        m_platform_id = platform_id;
+        return (M_HSX_PLATFORM_ID == platform_id || M_BDX_PLATFORM_ID == platform_id);
     }
 
     std::string HSXPlatformImp::platform_name()
     {
-        return M_HSX_MODEL_NAME;
+        if (m_platform_id == M_HSX_PLATFORM_ID) {
+            return M_HSX_MODEL_NAME;
+        }
+        return M_BDX_MODEL_NAME;
     }
 
     int HSXPlatformImp::power_control_domain(void) const

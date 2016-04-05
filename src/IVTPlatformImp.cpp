@@ -88,7 +88,10 @@ namespace geopm
 
     std::string IVTPlatformImp::platform_name()
     {
-        return M_IVT_MODEL_NAME;
+        if (m_platform_id == M_IVT_PLATFORM_ID) {
+            return M_IVT_MODEL_NAME;
+        }
+        return M_SNB_MODEL_NAME;
     }
 
     int IVTPlatformImp::power_control_domain(void) const

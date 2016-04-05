@@ -112,7 +112,10 @@ namespace geopm
             std::vector<off_t> m_control_msr_offset;
 
             ///Constants
+            const int M_HSX_PLATFORM_ID;
+            const int M_BDX_PLATFORM_ID;
             const std::string M_HSX_MODEL_NAME;
+            const std::string M_BDX_MODEL_NAME;
             const unsigned int M_BOX_FRZ_EN;
             const unsigned int M_BOX_FRZ;
             const unsigned int M_CTR_EN;
