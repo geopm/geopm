@@ -552,7 +552,6 @@ TEST_F(MPIProfileTest, outer_sync)
 
         MPI_Barrier(MPI_COMM_WORLD);
     }
-    ASSERT_EQ(0, geopm_prof_outer_sync(prof));
 
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 

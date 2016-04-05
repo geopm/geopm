@@ -483,6 +483,15 @@ namespace geopm
 
     void Profile::print(const std::string file_name, int depth)
     {
+        if (!m_is_first_sync) {
+            struct geopm_prof_message_s sample;
+            sample.rank = m_rank;
+            sample.region_id = GEOPM_REGION_ID_OUTER;
+            (void) geopm_time(&(sample.timestamp));
+            sample.progress = 1.0;
+            m_table->insert(sample.region_id, sample);
+        }
+
         int is_done = 0;
         int is_all_done = 0;
 
