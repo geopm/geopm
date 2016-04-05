@@ -147,11 +147,11 @@ namespace geopm
                     factor = 1.0 / geopm_time_diff(timestamp_prev, timestamp_prev + 1);
                     dsdt = ((*it).value(1).progress - (*it).value(0).progress) * factor;
                     dsdt = dsdt > 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
-                    if ((*it).value(0).progress == 0.0) {
-                        progress = 0.0;
-                    }
-                    else if ((*it).value(1).progress == 1.0) {
+                    if ((*it).value(1).progress == 1.0) {
                         progress = 1.0;
+                    }
+                    else if ((*it).value(0).progress == 0.0) {
+                        progress = 0.0;
                     }
                     else {
                         progress = (*it).value(1).progress + dsdt * delta;
