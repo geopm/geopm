@@ -46,7 +46,7 @@
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
 #include "geopm_time.h"
-#include "geopm_message.h"
+#include "geopm_plugin.h"
 
 
 namespace geopm
@@ -162,6 +162,7 @@ namespace geopm
         protected:
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
+                M_SHMEM_REGION_SIZE = 4096,
             };
             void enforce_child_policy(int level, const Policy &policy);
             int walk_down(void);

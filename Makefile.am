@@ -55,7 +55,7 @@ include_HEADERS = src/geopm.h \
                   # end
 
 if ENABLE_MPI
-    include_HEADERS += geopm_mod.mod
+    include_HEADERS += geopm.mod
 endif
 
 dist_man_MANS = man/geopm.7 \
@@ -240,7 +240,7 @@ if ENABLE_MPI
                           src/geopm_version.h \
                           # end
 
-    libgeopmfort_la_SOURCES = src/geopm_mod.f90
+    libgeopmfort_la_SOURCES = src/geopm.f90
 
     geopmctl_SOURCES = src/geopmctl_main.c \
                        src/geopm_version.h \

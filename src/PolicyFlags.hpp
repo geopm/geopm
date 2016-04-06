@@ -33,7 +33,7 @@
 #ifndef POLICYFLAGS_HPP_INCLUDE
 #define POLICYFLAGS_HPP_INCLUDE
 
-#include "geopm_message.h"
+#include "geopm_policy.h"
 
 namespace geopm
 {
@@ -54,14 +54,14 @@ namespace geopm
             int tdp_percent(void) const;
             /// @brief Get the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
+            /// GEOPM_AFFINITY_SCATTER or
+            /// GEOPM_AFFINITY_COMPACT.
             /// @return enum power affinity
             int affinity(void) const;
             /// @brief Get the policy power goal, One of
-            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
-            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
-            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
+            /// GEOPM_GOAL_CPU_EFFICIENCY,
+            /// GEOPM_GOAL_NETWORK_EFFICIENCY, or
+            /// GEOPM_GOAL_MEMORY_EFFICIENCY
             /// @return enum power goal
             int goal(void) const;
             /// @brief Get the number of 'big' cores
@@ -79,14 +79,14 @@ namespace geopm
             void tdp_percent(int percentage);
             /// @brief Set the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER or
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
+            /// GEOPM_AFFINITY_SCATTER or
+            /// GEOPM_AFFINITY_COMPACT.
             /// @param [in] cpu_affinity enum power affinity
             void affinity(int cpu_affinity);
             /// @brief Set the policy power goal. One of
-            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
-            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
-            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
+            /// GEOPM_GOAL_CPU_EFFICIENCY,
+            /// GEOPM_GOAL_NETWORK_EFFICIENCY, or
+            /// GEOPM_GOAL_MEMORY_EFFICIENCY
             /// @param [in] geo_goal enum power goal
             void goal(int geo_goal);
             /// @brief Set the number of 'big' cores
@@ -94,6 +94,38 @@ namespace geopm
             ///        unconstrained power.
             void num_max_perf(int num_big_cores);
         protected:
+            /// @brief Encapsulates power policy information as a
+            /// 32-bit bitmask.
+            enum m_policy_flags_e {
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_1 = 1ULL << 0,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_2 = 1ULL << 1,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_4 = 1ULL << 2,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_8 = 1ULL << 3,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_16 = 1ULL << 4,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_32 = 1ULL << 5,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_64 = 1ULL << 6,
+                M_FLAGS_SMALL_CPU_FREQ_100MHZ_128 = 1ULL << 7,
+                M_FLAGS_BIG_CPU_NUM_1 = 1ULL << 8,
+                M_FLAGS_BIG_CPU_NUM_2 = 1ULL << 9,
+                M_FLAGS_BIG_CPU_NUM_4 = 1ULL << 10,
+                M_FLAGS_BIG_CPU_NUM_8 = 1ULL << 11,
+                M_FLAGS_BIG_CPU_NUM_16 = 1ULL << 12,
+                M_FLAGS_BIG_CPU_NUM_32 = 1ULL << 13,
+                M_FLAGS_BIG_CPU_NUM_64 = 1ULL << 14,
+                M_FLAGS_BIG_CPU_NUM_128 = 1ULL << 15,
+                M_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT = 1ULL << 16,
+                M_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER = 1ULL << 17,
+                M_FLAGS_TDP_PERCENT_1 = 1ULL << 18,
+                M_FLAGS_TDP_PERCENT_2 = 1ULL << 19,
+                M_FLAGS_TDP_PERCENT_4 = 1ULL << 20,
+                M_FLAGS_TDP_PERCENT_8 = 1ULL << 21,
+                M_FLAGS_TDP_PERCENT_16 = 1ULL << 22,
+                M_FLAGS_TDP_PERCENT_32 = 1ULL << 23,
+                M_FLAGS_TDP_PERCENT_64 = 1ULL << 24,
+                M_FLAGS_GOAL_CPU_EFFICIENCY = 1ULL << 25,
+                M_FLAGS_GOAL_NETWORK_EFFICIENCY = 1ULL << 26,
+                M_FLAGS_GOAL_MEMORY_EFFICIENCY = 1ULL << 27,
+            };
             unsigned long m_flags;
     };
 

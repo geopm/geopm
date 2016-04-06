@@ -42,7 +42,6 @@
 #include <sys/types.h>
 
 #include "geopm_policy.h"
-#include "geopm_message.h"
 #include "geopm_version.h"
 #include "geopm_error.h"
 
@@ -405,22 +404,22 @@ static int _geopm_policy_mode_parse(struct geopm_policy_c *policy, const char *m
     int mode = -1;
 
     if (strncmp(mode_str, "tdp_balance_static", strlen("tdp_balance_static")) == 0) {
-        mode = GEOPM_MODE_TDP_BALANCE_STATIC;
+        mode = GEOPM_POLICY_MODE_TDP_BALANCE_STATIC;
     }
     else if (strncmp(mode_str, "freq_uniform_static", strlen("freq_uniform_static")) == 0) {
-        mode = GEOPM_MODE_FREQ_UNIFORM_STATIC;
+        mode = GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC;
     }
     else if (strncmp(mode_str, "freq_hybrid_static", strlen("freq_hybrid_static")) == 0) {
-        mode = GEOPM_MODE_FREQ_HYBRID_STATIC;
+        mode = GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC;
     }
     else if (strncmp(mode_str, "perf_balance_dynamic", strlen("perf_balance_dynamic")) == 0) {
-        mode = GEOPM_MODE_PERF_BALANCE_DYNAMIC;
+        mode = GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC;
     }
     else if (strncmp(mode_str, "freq_uniform_dynamic", strlen("freq_uniform_dynamic")) == 0) {
-        mode = GEOPM_MODE_FREQ_UNIFORM_DYNAMIC;
+        mode = GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC;
     }
     else if (strncmp(mode_str, "freq_hybrid_dynamic", strlen("freq_hybrid_dynamic")) == 0) {
-        mode = GEOPM_MODE_FREQ_HYBRID_DYNAMIC;
+        mode = GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC;
     }
     else {
         fprintf(stderr, "Error: Invalid power mode: %s\n", mode_str);
@@ -463,10 +462,10 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                 }
                 else if(strncmp(key, "affinity", strlen("affinity")) == 0) {
                     if (strncmp(value, "compact", strlen("compact")) == 0) {
-                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+                        err = geopm_policy_affinity(policy, GEOPM_POLICY_AFFINITY_COMPACT);
                     }
                     else if (strncmp(value, "scatter", strlen("scatter")) == 0) {
-                        err = geopm_policy_affinity(policy, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+                        err = geopm_policy_affinity(policy, GEOPM_POLICY_AFFINITY_SCATTER);
                     }
                     else {
                         fprintf(stderr, "Error: invalid affinity value: %s\n", value);

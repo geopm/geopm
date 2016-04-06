@@ -37,7 +37,6 @@
 #include <string>
 #include <stack>
 
-#include "geopm_message.h"
 #include "Observation.hpp"
 #include "Policy.hpp"
 

@@ -59,13 +59,13 @@ void BalancingDeciderTest::SetUp()
 
     m_flags->frequency_mhz(1200);
     m_flags->tdp_percent(90);
-    m_flags->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    m_flags->goal(GEOPM_FLAGS_GOAL_CPU_EFFICIENCY);
+    m_flags->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
+    m_flags->goal(GEOPM_POLICY_GOAL_CPU_EFFICIENCY);
     m_flags->num_max_perf(4);
-    m_policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
+    m_policy->mode(GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC);
     m_policy->policy_flags(m_flags->flags());
 
-    m_policy_message.mode = GEOPM_MODE_PERF_BALANCE_DYNAMIC;
+    m_policy_message.mode = GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC;
     m_policy_message.flags = m_flags->flags();
     m_policy_message.num_sample = 8;
     m_policy_message.power_budget = 104;

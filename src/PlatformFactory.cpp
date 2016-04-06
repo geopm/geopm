@@ -34,7 +34,6 @@
 #include <inttypes.h>
 #include <cpuid.h>
 
-#include "geopm_error.h"
 #include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "PlatformFactory.hpp"

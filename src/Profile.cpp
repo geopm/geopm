@@ -44,7 +44,6 @@
 #include "geopm_sched.h"
 #include "geopm_message.h"
 #include "geopm_time.h"
-#include "geopm_error.h"
 #include "Profile.hpp"
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
@@ -61,11 +60,11 @@ extern "C"
     // defined in geopm_pmpi.c and used only here
     void geopm_pmpi_prof_enable(int do_profile);
 
-    int geopm_prof_create(const char *name, size_t table_size, const char *shm_key, MPI_Comm comm, struct geopm_prof_c **prof)
+    int geopm_prof_create(const char *name, const char *shm_key, MPI_Comm comm, struct geopm_prof_c **prof)
     {
         int err = 0;
         try {
-            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), table_size, std::string(shm_key ? shm_key : ""), comm));
+            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), std::string(shm_key ? shm_key : ""), comm));
             /*! @todo Code below is not thread safe, do we need a lock? */
             if (g_geopm_prof_default == NULL) {
                 g_geopm_prof_default = *prof;
@@ -280,7 +279,7 @@ namespace geopm
 
     static const std::string geopm_default_shmem_key("/geopm_default");
 
-    Profile::Profile(const std::string prof_name, size_t table_size, const std::string shm_key, MPI_Comm comm)
+    Profile::Profile(const std::string prof_name, const std::string shm_key, MPI_Comm comm)
         : m_prof_name(prof_name)
         , m_curr_region_id(0)
         , m_num_enter(0)
@@ -306,7 +305,7 @@ namespace geopm
         if (key.size() == 0) {
             key = geopm_default_shmem_key;
         }
-        m_ctl_shmem = new SharedMemoryUser(key, table_size, 60); // 60 second timeout
+        m_ctl_shmem = new SharedMemoryUser(key, 60); // 60 second timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
         init_cpu_list();
@@ -314,7 +313,7 @@ namespace geopm
         for (int i = 0 ; i < shm_num_rank; ++i) {
             if (i == m_shm_rank) {
                 if (i == 0) {
-                    for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; ++i) {
+                    for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
                         m_ctl_msg->cpu_rank[i] = -1;
                     }
                     for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
@@ -336,7 +335,7 @@ namespace geopm
         }
 
         if (!m_shm_rank) {
-            for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; ++i) {
+            for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
                 if (m_ctl_msg->cpu_rank[i] == -2) {
                     if (getenv("GEOPM_ERROR_AFFINITY_IGNORE")) {
                         for (int j = 0; j < shm_num_rank; ++j) {
@@ -354,9 +353,9 @@ namespace geopm
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
         table_shm_key.assign(shm_key + "_" + std::to_string(m_rank));
-        m_table_shmem = new SharedMemoryUser(table_shm_key, table_size, 3.0);
+        m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
         m_table_buffer = m_table_shmem->pointer();
-        m_table = new ProfileTable(table_size, m_table_buffer);
+        m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
         MPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_ACTIVE;
@@ -438,7 +437,7 @@ namespace geopm
             /// @todo this is not a very clever way of regulating the
             ///       frequency of calls to sample().
             ++m_num_progress;
-            if (m_num_progress == GEOPM_CONST_PROF_SAMPLE_PERIOD) {
+            if (m_num_progress == M_PROF_SAMPLE_PERIOD) {
                 sample(region_id);
                 m_num_progress = 0;
             }
@@ -507,7 +506,7 @@ namespace geopm
         size_t buffer_offset = 0;
         char *buffer_ptr = (char *)(m_table_shmem->pointer());
 
-        if (GEOPM_CONST_SHMEM_REGION_SIZE < file_name.length() + 1 + m_prof_name.length() + 1) {
+        if (m_table_shmem->size() < file_name.length() + 1 + m_prof_name.length() + 1) {
             throw Exception("Profile:print() profile file name and profile name are too long to fit in a table buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
@@ -576,7 +575,7 @@ namespace geopm
 
     ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
         : m_table_size(table_size)
-        , m_report(false)
+        , m_do_report(false)
     {
         std::string key(shm_key_base);
         if (key.size() == 0) {
@@ -604,7 +603,7 @@ namespace geopm
         while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {}
 
         std::set<int> rank_set;
-        for (int i = 0; i < GEOPM_CONST_MAX_NUM_CPU; i++) {
+        for (int i = 0; i < GEOPM_MAX_NUM_CPU; i++) {
             if (m_ctl_msg->cpu_rank[i] >= 0) {
                 (void) rank_set.insert(m_ctl_msg->cpu_rank[i]);
             }
@@ -629,8 +628,8 @@ namespace geopm
         sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &num_cpu, &len, NULL, 0);
 #endif
         cpu_rank.resize(num_cpu);
-        if (num_cpu > GEOPM_CONST_MAX_NUM_CPU) {
-            throw Exception("ProfileSampler::cpu_rank: Number of online CPUs is greater than GEOPM_CONST_MAX_NUM_CPU", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        if (num_cpu > GEOPM_MAX_NUM_CPU) {
+            throw Exception("ProfileSampler::cpu_rank: Number of online CPUs is greater than GEOPM_MAX_NUM_CPU", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         std::copy(m_ctl_msg->cpu_rank, m_ctl_msg->cpu_rank + num_cpu, cpu_rank.begin());
     }
@@ -675,7 +674,7 @@ namespace geopm
 
     bool ProfileSampler::do_report(void)
     {
-        return m_report;
+        return m_do_report;
     }
 
     void ProfileSampler::region_names(void)
@@ -705,7 +704,7 @@ namespace geopm
         }
         m_rank_sampler.front()->report_name(m_report_name);
         m_rank_sampler.front()->profile_name(m_profile_name);
-        m_report = true;
+        m_do_report = true;
 
         while (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
     }
@@ -727,7 +726,7 @@ namespace geopm
 
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
         : m_table_shmem(SharedMemory(shm_key, table_size))
-        , m_table(ProfileTable(table_size, m_table_shmem.pointer()))
+        , m_table(ProfileTable(m_table_shmem.size(), m_table_shmem.pointer()))
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
         , m_outer_sync_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)

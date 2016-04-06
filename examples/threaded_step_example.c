@@ -43,7 +43,7 @@
 #include <fcntl.h>
 
 #include "geopm.h"
-#include "geopm_message.h"
+#include "geopm_policy.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 512
@@ -80,7 +80,7 @@ static int run_something(void)
     // should be created prior to application runtime.
     err = geopm_policy_create("", "profile_policy", &policy);
     if (!err) {
-        err = geopm_policy_mode(policy, GEOPM_MODE_PERF_BALANCE_DYNAMIC);
+        err = geopm_policy_mode(policy, GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC);
     }
     if (!err) {
         err = geopm_policy_power(policy, 2000);
@@ -101,7 +101,7 @@ static int run_something(void)
         err = geopm_ctl_create(policy, "/geopm_threaded_step", MPI_COMM_WORLD, &ctl);
     }
     if (!err) {
-        err = geopm_prof_create("threaded_step", 4096, "/geopm_threaded_step", MPI_COMM_WORLD, &prof);
+        err = geopm_prof_create("threaded_step", "/geopm_threaded_step", MPI_COMM_WORLD, &prof);
     }
     if (!err) {
         err = geopm_ctl_step(ctl);

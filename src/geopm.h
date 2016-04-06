@@ -39,24 +39,10 @@
 #include <pthread.h>
 
 #include "geopm_policy.h"
-#include "geopm_message.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-enum geopm_const_e {
-    GEOPM_CONST_DEFAULT_CTL_NUM_LEVEL = 3,
-    GEOPM_CONST_PROF_SAMPLE_PERIOD = 64,
-    GEOPM_CONST_SHMEM_REGION_SIZE = 32768,
-    GEOPM_CONST_MAX_NUM_CPU = 768,
-};
-
-enum geopm_sample_reduce_e {
-    GEOPM_SAMPLE_REDUCE_THREAD = 1,
-    GEOPM_SAMPLE_REDUCE_PROC = 2,
-    GEOPM_SAMPLE_REDUCE_NODE = 3,
-};
 
 /* Opaque structure which is a handle for a geopm::Controller object. */
 struct geopm_ctl_c;
@@ -91,7 +77,6 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 /* APPLICATION PROFILING */
 /*************************/
 int geopm_prof_create(const char *name,
-                      size_t table_size,
                       const char *shm_key,
                       MPI_Comm comm,
                       struct geopm_prof_c **prof);

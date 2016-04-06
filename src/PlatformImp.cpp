@@ -42,7 +42,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include "geopm_error.h"
 #include "Exception.hpp"
 #include "PlatformImp.hpp"
 

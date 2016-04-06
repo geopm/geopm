@@ -62,10 +62,10 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
     local_rank = comm_rank % rank_per_node;
 
-    geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 4096, 5.0);
-    geopm::LockingHashTable<double> table(4096, shmem.pointer());
+    geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 5.0);
+    geopm::LockingHashTable<double> table(shmem.size(), shmem.pointer());
 
-    geopm_prof_create("TestPluginApp", 4096, prof_key, MPI_COMM_WORLD, &prof);
+    geopm_prof_create("TestPluginApp", prof_key, MPI_COMM_WORLD, &prof);
     geopm_prof_region(prof, "main_loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
 
     // imbalance is proportional to rank and ranges from 0 to 10%

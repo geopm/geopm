@@ -35,7 +35,6 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "geopm_error.h"
 #include "Exception.hpp"
 #include "Observation.hpp"
 

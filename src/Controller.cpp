@@ -207,7 +207,7 @@ namespace geopm
 
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
 
-            m_sampler = new ProfileSampler(shmem_base, GEOPM_CONST_SHMEM_REGION_SIZE);
+            m_sampler = new ProfileSampler(shmem_base, M_SHMEM_REGION_SIZE);
 
             int num_fan_out = 1;
             std::vector<int> fan_out(num_fan_out);
@@ -350,7 +350,7 @@ namespace geopm
 
         level = m_tree_comm->num_level() - 1;
         m_tree_comm->get_policy(level, policy_msg);
-        for (; policy_msg.mode != GEOPM_MODE_SHUTDOWN && level != 0; --level) {
+        for (; policy_msg.mode != GEOPM_POLICY_MODE_SHUTDOWN && level != 0; --level) {
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_tree_decider[level]->update_policy(policy_msg, *(m_policy[level]));
                 m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER, policy_msg, child_policy_msg);
@@ -359,7 +359,7 @@ namespace geopm
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
         }
-        if (policy_msg.mode == GEOPM_MODE_SHUTDOWN || m_teardown == true) {
+        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN || m_teardown == true) {
             m_ctl_status = GEOPM_STATUS_SHUTDOWN;
             do_shutdown = 1;
         }
@@ -479,7 +479,7 @@ namespace geopm
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
-        if (policy_msg.mode == GEOPM_MODE_SHUTDOWN || m_teardown == true) {
+        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN || m_teardown == true) {
             do_shutdown = 1;
         }
         if (do_shutdown) {

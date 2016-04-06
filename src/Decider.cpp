@@ -32,7 +32,6 @@
 
 #include <hwloc.h>
 
-#include "geopm_message.h"
 #include "Decider.hpp"
 
 namespace geopm

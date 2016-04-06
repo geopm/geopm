@@ -43,7 +43,6 @@
 #include <fstream>
 #include <system_error>
 
-#include "geopm_error.h"
 #include "Exception.hpp"
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"

@@ -43,9 +43,6 @@
 #include <system_error>
 #include <unistd.h>
 
-
-
-#include "geopm_message.h"
 #include "geopm_policy.h"
 #include "Exception.hpp"
 #include "GlobalPolicy.hpp"
@@ -341,7 +338,7 @@ namespace geopm
                     throw Exception("GlobalPolicy: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
 
-                err = ftruncate(shm_id, sizeof(struct geopm_policy_shmem_s));
+                err = ftruncate(shm_id, sizeof(struct m_policy_shmem_s));
                 if (err) {
                     (void) shm_unlink(m_out_config.c_str());
                     (void) close(shm_id);
@@ -349,7 +346,7 @@ namespace geopm
                     throw Exception("GlobalPolicy: Could not extend shared memory region with ftruncate for policy control", errno, __FILE__, __LINE__);
                 }
 
-                m_policy_shmem_out = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
+                m_policy_shmem_out = (struct m_policy_shmem_s *) mmap(NULL, sizeof(struct m_policy_shmem_s),
                                      PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
                 if (m_policy_shmem_out == MAP_FAILED) {
                     (void) close(shm_id);
@@ -358,12 +355,12 @@ namespace geopm
                 }
                 err = close(shm_id);
                 if (err) {
-                    munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
+                    munmap(m_policy_shmem_out, sizeof(struct m_policy_shmem_s));
                     (void) umask(old_mask);
                     throw Exception("GlobalPolicy: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
                 }
                 if (pthread_mutex_init(&(m_policy_shmem_out->lock), NULL) != 0) {
-                    munmap(m_policy_shmem_out, sizeof(struct geopm_policy_shmem_s));
+                    munmap(m_policy_shmem_out, sizeof(struct m_policy_shmem_s));
                     (void) umask(old_mask);
                     throw Exception("GlobalPolicy: Could not initialize pthread mutex for shared memory region", errno, __FILE__, __LINE__);
                 }
@@ -383,7 +380,7 @@ namespace geopm
                 if (shm_id < 0) {
                     throw Exception("GlobalPolicy: Could not open shared memory region for root policy", errno, __FILE__, __LINE__);
                 }
-                m_policy_shmem_in = (struct geopm_policy_shmem_s *) mmap(NULL, sizeof(struct geopm_policy_shmem_s),
+                m_policy_shmem_in = (struct m_policy_shmem_s *) mmap(NULL, sizeof(struct m_policy_shmem_s),
                                     PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
                 if (m_policy_shmem_in == MAP_FAILED) {
                     (void) close(shm_id);
@@ -391,7 +388,7 @@ namespace geopm
                 }
                 err = close(shm_id);
                 if (err) {
-                    munmap(m_policy_shmem_in, sizeof(struct geopm_policy_shmem_s));
+                    munmap(m_policy_shmem_in, sizeof(struct m_policy_shmem_s));
                     throw Exception("GlobalPolicy: Could not close file descriptor for root policy shared memory region", errno, __FILE__, __LINE__);
                 }
             }
@@ -604,22 +601,22 @@ namespace geopm
 
             value_string.assign(json_object_get_string(mode_obj));
             if (!value_string.compare("tdp_balance_static")) {
-                m_mode = GEOPM_MODE_TDP_BALANCE_STATIC;
+                m_mode = GEOPM_POLICY_MODE_TDP_BALANCE_STATIC;
             }
             else if (!value_string.compare("freq_uniform_static")) {
-                m_mode = GEOPM_MODE_FREQ_UNIFORM_STATIC;
+                m_mode = GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC;
             }
             else if (!value_string.compare("freq_hybrid_static")) {
-                m_mode = GEOPM_MODE_FREQ_HYBRID_STATIC;
+                m_mode = GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC;
             }
             else if (!value_string.compare("perf_balance_dynamic")) {
-                m_mode = GEOPM_MODE_PERF_BALANCE_DYNAMIC;
+                m_mode = GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC;
             }
             else if (!value_string.compare("freq_uniform_dynamic")) {
-                m_mode = GEOPM_MODE_FREQ_UNIFORM_DYNAMIC;
+                m_mode = GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC;
             }
             else if (!value_string.compare("freq_hybrid_dynamic")) {
-                m_mode = GEOPM_MODE_FREQ_HYBRID_DYNAMIC;
+                m_mode = GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC;
             }
 
             json_object_object_foreach(options_obj, subkey, subval) {
@@ -648,10 +645,10 @@ namespace geopm
                     }
                     value_string.assign(json_object_get_string(subval));
                     if (!value_string.compare("compact")) {
-                        affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
+                        affinity(GEOPM_POLICY_AFFINITY_COMPACT);
                     }
                     else if (!value_string.compare("scatter")) {
-                        affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+                        affinity(GEOPM_POLICY_AFFINITY_SCATTER);
                     }
                     else {
                         err_string.assign("unsupported affinity type : ");
@@ -693,47 +690,47 @@ namespace geopm
                 }
             }
 
-            if (m_mode == GEOPM_MODE_TDP_BALANCE_STATIC) {
+            if (m_mode == GEOPM_POLICY_MODE_TDP_BALANCE_STATIC) {
                 if (tdp_percent() < 0 || tdp_percent() > 100) {
                     throw Exception("GlobalPolicy: percent tdp must be between 0 and 100", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
-            if (m_mode == GEOPM_MODE_FREQ_UNIFORM_STATIC) {
+            if (m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC) {
                 if (frequency_mhz() < 0) {
                     throw Exception("GlobalPolicy: frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
-            if (m_mode == GEOPM_MODE_FREQ_HYBRID_STATIC) {
+            if (m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC) {
                 if (frequency_mhz() < 0) {
                     throw Exception("GlobalPolicy: frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 if (num_max_perf() < 0) {
                     throw Exception("GlobalPolicy: number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                if (affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT &&
-                    affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER) {
+                if (affinity() != GEOPM_POLICY_AFFINITY_COMPACT &&
+                    affinity() != GEOPM_POLICY_AFFINITY_SCATTER) {
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
-            if (m_mode == GEOPM_MODE_PERF_BALANCE_DYNAMIC) {
+            if (m_mode == GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC) {
                 if (budget_watts() < 0) {
                     throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
-            if (m_mode == GEOPM_MODE_FREQ_UNIFORM_DYNAMIC) {
+            if (m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC) {
                 if (budget_watts() < 0) {
                     throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
-            if (m_mode == GEOPM_MODE_FREQ_HYBRID_DYNAMIC) {
+            if (m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC) {
                 if (budget_watts() < 0) {
                     throw Exception("GlobalPolicy: power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 if (num_max_perf() < 0) {
                     throw Exception("GlobalPolicy: number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                if (affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT &&
-                    affinity() != GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER) {
+                if (affinity() != GEOPM_POLICY_AFFINITY_COMPACT &&
+                    affinity() != GEOPM_POLICY_AFFINITY_SCATTER) {
                     throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
@@ -775,19 +772,19 @@ namespace geopm
             options = json_object_new_object();
 
             switch (m_mode) {
-                case GEOPM_MODE_SHUTDOWN:
+                case GEOPM_POLICY_MODE_SHUTDOWN:
                     break;
-                case GEOPM_MODE_TDP_BALANCE_STATIC:
+                case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
                     json_object_object_add(policy,"mode",json_object_new_string("tdp_balance_static"));
                     json_object_object_add(options,"tdp_percent",json_object_new_int(tdp_percent()));
                     json_object_object_add(policy,"options",options);
                     break;
-                case GEOPM_MODE_FREQ_UNIFORM_STATIC:
+                case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
                     json_object_object_add(policy,"mode",json_object_new_string("freq_uniform_static"));
                     json_object_object_add(options,"cpu_mhz",json_object_new_int(frequency_mhz()));
                     json_object_object_add(policy,"options",options);
                     break;
-                case GEOPM_MODE_FREQ_HYBRID_STATIC:
+                case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
                     json_object_object_add(policy,"mode",json_object_new_string("freq_hybrid_static"));
                     json_object_object_add(options,"cpu_mhz",json_object_new_int(frequency_mhz()));
                     json_object_object_add(options,"num_cpu_max_perf",json_object_new_int(num_max_perf()));
@@ -795,7 +792,7 @@ namespace geopm
                     json_object_object_add(options,"affinity",json_object_new_string(affinity_name.c_str()));
                     json_object_object_add(policy,"options",options);
                     break;
-                case GEOPM_MODE_PERF_BALANCE_DYNAMIC:
+                case GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC:
                     json_object_object_add(policy,"mode",
                                            json_object_new_string("perf_balance_dynamic"));
                     json_object_object_add(options,"tree_decider",
@@ -807,7 +804,7 @@ namespace geopm
                     json_object_object_add(options,"power_budget",json_object_new_int(budget_watts()));
                     json_object_object_add(policy,"options",options);
                     break;
-                case GEOPM_MODE_FREQ_UNIFORM_DYNAMIC:
+                case GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC:
                     json_object_object_add(policy,"mode",
                                            json_object_new_string("freq_uniform_dynamic"));
                     json_object_object_add(options,"tree_decider",
@@ -819,7 +816,7 @@ namespace geopm
                     json_object_object_add(options,"power_budget",json_object_new_int(budget_watts()));
                     json_object_object_add(policy,"options",options);
                     break;
-                case GEOPM_MODE_FREQ_HYBRID_DYNAMIC:
+                case GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC:
                     json_object_object_add(policy,"mode",
                                            json_object_new_string("freq_hybrid_dynamic"));
                     json_object_object_add(options,"tree_decider",
@@ -847,10 +844,10 @@ namespace geopm
     void GlobalPolicy::affinity_string(int value, std::string &name)
     {
         switch (value) {
-            case GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT:
+            case GEOPM_POLICY_AFFINITY_COMPACT:
                 name.assign("compact");
                 break;
-            case GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER:
+            case GEOPM_POLICY_AFFINITY_SCATTER:
                 name.assign("scatter");
                 break;
             default:
@@ -865,13 +862,13 @@ namespace geopm
         Platform *platform = platform_factory.platform(std::string("rapl"));
 
         switch (m_mode) {
-            case GEOPM_MODE_TDP_BALANCE_STATIC:
+            case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
                 platform->tdp_limit(tdp_percent());
                 break;
-            case GEOPM_MODE_FREQ_UNIFORM_STATIC:
-                platform->manual_frequency(frequency_mhz(), 0, GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER);
+            case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
+                platform->manual_frequency(frequency_mhz(), 0, GEOPM_POLICY_AFFINITY_SCATTER);
                 break;
-            case GEOPM_MODE_FREQ_HYBRID_STATIC:
+            case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
                 platform->manual_frequency(frequency_mhz(), num_max_perf(), affinity());
                 break;
             default:

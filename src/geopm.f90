@@ -30,7 +30,7 @@
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
-module geopm_mod
+module geopm
     use, intrinsic :: ISO_C_BINDING
     implicit none
 
@@ -224,4 +224,4 @@ module geopm_mod
         end function geopm_progress_threaded_sum
 
     end interface
-end module geopm_mod
+end module geopm

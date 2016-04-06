@@ -36,7 +36,7 @@
 #include <string>
 #include <fstream>
 
-#include "geopm_message.h"
+#include "geopm_plugin.h"
 #include "PolicyFlags.hpp"
 
 namespace geopm
@@ -156,6 +156,23 @@ namespace geopm
             /// GEOPM_MODE_FREQ_HYBRID_STATIC
             void enforce_static_mode();
         protected:
+            /// @brief Structure intended to be shared between
+            /// the resource manager and the geopm
+            /// runtime in order to convey job wide
+            /// power policy changes to the geopm runtime.
+            struct m_policy_shmem_s {
+                /// @brief Enables the geopm runtime to know when the resource
+                ///        manager has initialized the power policy.
+                int is_init;
+                /// @brief Lock to ensure read/write consistency between the
+                ///        resource manager and the geopm runtime.
+                pthread_mutex_t lock;
+                /// @brief Holds the job power policy as given by the resource
+                ///        manager.
+                struct geopm_policy_message_s policy;
+                /// @brief plugin selection strings
+                struct geopm_plugin_description_s plugin;
+            };
             /// @brief Take in an affinity enum and fill in its string representation.
             /// @param [in] value the enum value of the affinity.
             /// @param [out] name the string representation of the affinity.
@@ -186,9 +203,9 @@ namespace geopm
             /// @brief true if the output file is valid, else false
             bool m_do_write;
             /// @brief structure to use if reading in from shared memory
-            struct geopm_policy_shmem_s *m_policy_shmem_in;
+            struct m_policy_shmem_s *m_policy_shmem_in;
             /// @brief structure to use if writing out to shared memory
-            struct geopm_policy_shmem_s *m_policy_shmem_out;
+            struct m_policy_shmem_s *m_policy_shmem_out;
     };
 
 }

@@ -69,7 +69,7 @@ class MPIProfileTest: public :: testing :: Test
 };
 
 MPIProfileTest::MPIProfileTest()
-    : m_table_size(GEOPM_CONST_SHMEM_REGION_SIZE)
+    : m_table_size(4096)
     , m_shm_key(getenv("GEOPM_SHMKEY"))
     , m_ignore_env_orig(getenv("GEOPM_ERROR_AFFINITY_IGNORE"))
     , m_policy_env_orig(getenv("GEOPM_POLICY"))
@@ -266,7 +266,7 @@ TEST_F(MPIProfileTest, runtime)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_create("runtime_test", m_table_size, m_shm_key, MPI_COMM_WORLD, &prof));
+    ASSERT_EQ(0, geopm_prof_create("runtime_test", m_shm_key, MPI_COMM_WORLD, &prof));
 
     ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
@@ -319,7 +319,7 @@ TEST_F(MPIProfileTest, progress)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_create("progress_test", m_table_size, m_shm_key, MPI_COMM_WORLD, &prof));
+    ASSERT_EQ(0, geopm_prof_create("progress_test", m_shm_key, MPI_COMM_WORLD, &prof));
 
     ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
@@ -376,7 +376,7 @@ TEST_F(MPIProfileTest, multiple_entries)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_create("mulitple_entries_test", m_table_size, m_shm_key, MPI_COMM_WORLD, &prof));
+    ASSERT_EQ(0, geopm_prof_create("mulitple_entries_test", m_shm_key, MPI_COMM_WORLD, &prof));
 
     ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
@@ -466,7 +466,7 @@ TEST_F(MPIProfileTest, nested_region)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_create("nested_region_test", m_table_size, m_shm_key, MPI_COMM_WORLD, &prof));
+    ASSERT_EQ(0, geopm_prof_create("nested_region_test", m_shm_key, MPI_COMM_WORLD, &prof));
 
     ASSERT_EQ(0, geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(prof, region_id[0]));
@@ -530,7 +530,7 @@ TEST_F(MPIProfileTest, outer_sync)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_create("outer_sync_test", m_table_size, m_shm_key, MPI_COMM_WORLD, &prof));
+    ASSERT_EQ(0, geopm_prof_create("outer_sync_test", m_shm_key, MPI_COMM_WORLD, &prof));
 
     for (int i = 0; i < 3; i++) {
         ASSERT_EQ(0, geopm_prof_outer_sync(prof));

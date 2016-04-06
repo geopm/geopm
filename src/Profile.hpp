@@ -45,6 +45,34 @@
 #include "SharedMemory.hpp"
 #include "LockingHashTable.hpp"
 
+/// @brief Enum encompassing application and
+/// geopm runtime state.
+enum geopm_status_e {
+    GEOPM_STATUS_UNDEFINED = 0,
+    GEOPM_STATUS_INITIALIZED = 1,
+    GEOPM_STATUS_ACTIVE = 2,
+    GEOPM_STATUS_REPORT = 3,
+    GEOPM_STATUS_READY = 4,
+    GEOPM_STATUS_SHUTDOWN = 5,
+};
+
+enum geopm_profile_e {
+    GEOPM_MAX_NUM_CPU = 768
+};
+
+/// @brief Structure intended to be shared between
+/// the geopm runtime and the application in
+/// order to convey status and control information.
+struct geopm_ctl_message_s {
+    /// @brief Status of the geopm runtime.
+    volatile uint32_t ctl_status;
+    /// @brief Status of the application.
+    volatile uint32_t app_status;
+    /// @brief Holds affinities of all application ranks
+    /// on the local compute node.
+    int cpu_rank[GEOPM_MAX_NUM_CPU];
+};
+
 namespace geopm
 {
 
@@ -128,7 +156,7 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, size_t table_size, const std::string shm_key_base, MPI_Comm comm);
+            Profile(const std::string prof_name, const std::string shm_key_base, MPI_Comm comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             /// @brief Register a region of code to be profiled.
@@ -238,6 +266,9 @@ namespace geopm
             ///        hierarchy tree.
             void print(const std::string file_name, int depth);
         protected:
+            enum m_profile_const_e {
+                M_PROF_SAMPLE_PERIOD = 1,
+            };
             /// @brief Fill in rank affinity list.
             ///
             /// Uses hwloc to determine the cpuset the current
@@ -488,7 +519,7 @@ namespace geopm
             std::set<std::string> m_name_set;
             std::string m_report_name;
             std::string m_profile_name;
-            bool m_report;
+            bool m_do_report;
     };
 }
 

@@ -32,7 +32,6 @@
 
 #include <float.h>
 
-#include "geopm_error.h"
 #include "Exception.hpp"
 #include "Policy.hpp"
 

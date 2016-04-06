@@ -33,12 +33,45 @@
 #ifndef GEOPM_POLICY_H_INCLUDE
 #define GEOPM_POLICY_H_INCLUDE
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* opaque structure that is a handle for a geopm::Policy object. */
 struct geopm_policy_c;
+
+/// @brief Enum encompassing application region
+/// characteristic hints.
+enum geopm_policy_hint_e {
+    GEOPM_POLICY_HINT_UNKNOWN = 0,
+    GEOPM_POLICY_HINT_COMPUTE = 1,
+    GEOPM_POLICY_HINT_MEMORY = 2,
+    GEOPM_POLICY_HINT_NETWORK = 3,
+};
+
+/// @brief Enum encompassing geopm power management modes.
+enum geopm_policy_mode_e {
+    GEOPM_POLICY_MODE_TDP_BALANCE_STATIC = 1,
+    GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC = 2,
+    GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC = 3,
+    GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC = 4,
+    GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC = 5,
+    GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC = 6,
+    GEOPM_POLICY_MODE_SHUTDOWN = 255,
+};
+
+enum geopm_policy_affinity_e {
+    GEOPM_POLICY_AFFINITY_COMPACT,
+    GEOPM_POLICY_AFFINITY_SCATTER,
+};
+
+enum geopm_policy_goal_e {
+    GEOPM_POLICY_GOAL_CPU_EFFICIENCY ,
+    GEOPM_POLICY_GOAL_NETWORK_EFFICIENCY,
+    GEOPM_POLICY_GOAL_MEMORY_EFFICIENCY,
+};
 
 int geopm_policy_create(const char *in_config,
                         const char *out_config,

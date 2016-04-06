@@ -68,13 +68,13 @@ void PolicyTest::SetUp()
     }
     m_flags->frequency_mhz(1200);
     m_flags->tdp_percent(90);
-    m_flags->affinity(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT);
-    m_flags->goal(GEOPM_FLAGS_GOAL_CPU_EFFICIENCY);
+    m_flags->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
+    m_flags->goal(GEOPM_POLICY_GOAL_CPU_EFFICIENCY);
     m_flags->num_max_perf(4);
-    m_policy->mode(GEOPM_MODE_PERF_BALANCE_DYNAMIC);
+    m_policy->mode(GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC);
     m_policy->policy_flags(m_flags->flags());
 
-    m_policy_message.mode = GEOPM_MODE_PERF_BALANCE_DYNAMIC;
+    m_policy_message.mode = GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC;
     m_policy_message.flags = m_flags->flags();
     m_policy_message.num_sample = 8;
     m_policy_message.power_budget = 104;
@@ -113,7 +113,7 @@ TEST_F(PolicyTest, region_id)
 
 TEST_F(PolicyTest, mode)
 {
-    EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
+    EXPECT_EQ(GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC, m_policy->mode());
 }
 
 TEST_F(PolicyTest, frequency)
@@ -128,12 +128,12 @@ TEST_F(PolicyTest, tdp_percent)
 
 TEST_F(PolicyTest, affinity)
 {
-    EXPECT_EQ(GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT, m_policy->affinity());
+    EXPECT_EQ(GEOPM_POLICY_AFFINITY_COMPACT, m_policy->affinity());
 }
 
 TEST_F(PolicyTest, goal)
 {
-    EXPECT_EQ(GEOPM_FLAGS_GOAL_CPU_EFFICIENCY, m_policy->goal());
+    EXPECT_EQ(GEOPM_POLICY_GOAL_CPU_EFFICIENCY, m_policy->goal());
 }
 
 TEST_F(PolicyTest, num_max_perf)
@@ -210,7 +210,7 @@ TEST_F(PolicyTest, policy_message)
 
     m_policy->policy_message(13, m_policy_message, child_msg);
     for (int i = 0; i < m_num_domain; ++i) {
-        EXPECT_EQ(GEOPM_MODE_PERF_BALANCE_DYNAMIC, child_msg[i].mode);
+        EXPECT_EQ(GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC, child_msg[i].mode);
         EXPECT_EQ(m_flags->flags(),  child_msg[i].flags);
         EXPECT_EQ(8, child_msg[i].num_sample);
         EXPECT_DOUBLE_EQ(13.0, child_msg[i].power_budget);

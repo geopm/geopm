@@ -86,7 +86,7 @@ MPITreeCommunicatorTest::MPITreeCommunicatorTest()
     if (!rank) {
         control = "/tmp/MPIControllerTest.hello.control";
         m_polctl = new geopm::GlobalPolicy("", control);
-        m_polctl->mode(GEOPM_MODE_FREQ_UNIFORM_STATIC);
+        m_polctl->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
         m_polctl->frequency_mhz(1200);
         m_polctl->write();
     }

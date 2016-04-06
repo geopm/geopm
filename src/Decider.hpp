@@ -33,7 +33,6 @@
 #ifndef DECIDER_HPP_INCLUDE
 #define DECIDER_HPP_INCLUDE
 
-#include "geopm_message.h"
 #include "Region.hpp"
 
 namespace geopm

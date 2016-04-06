@@ -55,6 +55,7 @@ namespace geopm
             /// Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
             std::string key(void);
+            size_t size(void);
         protected:
             /// Shared memory key for the region.
             std::string m_shm_key;
@@ -76,13 +77,13 @@ namespace geopm
             /// @param [in] size Size of the region to attach to.
             /// @param [in] timeout Length in seconds to keep retrying the
             ///             attachment process to a shared memory region.
-            SharedMemoryUser(const std::string &shm_key, size_t size, unsigned int timeout);
+            SharedMemoryUser(const std::string &shm_key, unsigned int timeout);
             /// Constructor takes a key and a size and attempts to attach to a
             /// inter-process shared memory region. This version of the
             /// constructor attempts to attach a single time.
             /// @param [in] shm_key Shared memory key to attach to the region.
             /// @param [in] size Size of the region to attach to.
-            SharedMemoryUser(const std::string &shm_key, size_t size);
+            SharedMemoryUser(const std::string &shm_key);
             /// Destructor detaches from shared memory region.
             virtual ~SharedMemoryUser();
             /// Retrieve a pointer to the shared memory region.
@@ -91,6 +92,7 @@ namespace geopm
             /// Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
             std::string key(void);
+            size_t size(void);
         protected:
             /// Shared memory key for the region.
             std::string m_shm_key;

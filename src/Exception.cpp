@@ -35,7 +35,6 @@
 #include <iostream>
 #include <errno.h>
 
-#include "geopm_error.h"
 #include "Exception.hpp"
 #include "config.h"
 

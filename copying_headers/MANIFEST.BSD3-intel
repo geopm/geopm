@@ -29,7 +29,7 @@ src/geopm_ctl_spawn.c
 src/geopm_error.h
 src/geopm_hash.c
 src/geopm_hash.h
-src/geopm_mod.f90
+src/geopm.f90
 src/geopm.h
 src/geopm_mpi_pcontrol.h
 src/geopm_omp.c

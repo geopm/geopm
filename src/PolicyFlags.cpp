@@ -31,6 +31,7 @@
  */
 
 #include "PolicyFlags.hpp"
+#include "Exception.hpp"
 
 namespace geopm
 {
@@ -64,14 +65,42 @@ namespace geopm
 
     int PolicyFlags::affinity(void) const
     {
-        long int affinity = (m_flags & 0x0000000000030000UL);
-        return (int)affinity;
+        int result = 0;
+        long int affinity_flag = (m_flags & 0x0000000000030000UL);
+        switch (affinity_flag) {
+            case M_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT:
+                result = GEOPM_POLICY_AFFINITY_COMPACT;
+                break;
+            case M_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER:
+                result = GEOPM_POLICY_AFFINITY_SCATTER;
+                break;
+            default:
+                throw Exception("PolicyFlags::affinity(): flags not match any geopm_policy_affinity_e values.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
+
+        return result;
     }
 
     int PolicyFlags::goal(void) const
     {
-        long int goal = (m_flags & 0x000000000E000000UL);
-        return (int)goal;
+        int result = 0;
+        long int goal_flag = (m_flags & 0x000000000E000000UL);
+        switch (goal_flag) {
+            case M_FLAGS_GOAL_CPU_EFFICIENCY:
+                result = GEOPM_POLICY_GOAL_CPU_EFFICIENCY;
+                break;
+            case M_FLAGS_GOAL_NETWORK_EFFICIENCY:
+                result = GEOPM_POLICY_GOAL_NETWORK_EFFICIENCY;
+                break;
+            case M_FLAGS_GOAL_MEMORY_EFFICIENCY:
+                result = GEOPM_POLICY_GOAL_MEMORY_EFFICIENCY;
+            default:
+                throw Exception("PolicyFlags::goal(): input does not match any geopm_policy_goal_e values.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
+
+        return result;
     }
 
     int PolicyFlags::num_max_perf(void) const
@@ -102,14 +131,40 @@ namespace geopm
 
     void PolicyFlags::affinity(int affinity)
     {
+        long int affinity_flag = 0;
+        switch (affinity) {
+            case GEOPM_POLICY_AFFINITY_COMPACT:
+                affinity_flag = M_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT;
+                break;
+            case GEOPM_POLICY_AFFINITY_SCATTER:
+                affinity_flag = M_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER;
+                break;
+            default:
+                throw Exception("PolicyFlags::affinity(): input does not match any geopm_policy_affinity_e values.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
         m_flags = m_flags & 0xFFFFFFFFFFFCFFFFUL;
-        m_flags = m_flags | (long int)affinity;
+        m_flags = m_flags | affinity_flag;
     }
 
     void PolicyFlags::goal(int geo_goal)
     {
+        long int goal_flag = 0;
+        switch (geo_goal) {
+            case GEOPM_POLICY_GOAL_CPU_EFFICIENCY:
+                goal_flag = M_FLAGS_GOAL_CPU_EFFICIENCY;
+                break;
+            case GEOPM_POLICY_GOAL_NETWORK_EFFICIENCY:
+                goal_flag = M_FLAGS_GOAL_NETWORK_EFFICIENCY;
+                break;
+            case GEOPM_POLICY_GOAL_MEMORY_EFFICIENCY:
+                goal_flag = M_FLAGS_GOAL_MEMORY_EFFICIENCY;
+            default:
+                throw Exception("PolicyFlags::goal(): input does not match any geopm_policy_goal_e values.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
         m_flags = m_flags & 0xFFFFFFFFF1FFFFFFUL;
-        m_flags = m_flags | (long int)geo_goal;
+        m_flags = m_flags | goal_flag;
     }
 
     void PolicyFlags::num_max_perf(int num_big_cores)

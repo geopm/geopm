@@ -74,9 +74,9 @@ namespace geopm
             /// @return enum power affinity
             int affinity(void) const;
             /// @brief Get the policy power goal, One of
-            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
-            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
-            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
+            /// GEOPM_POLICY_GOAL_CPU_EFFICIENCY,
+            /// GEOPM_POLICY_GOAL_NETWORK_EFFICIENCY, or
+            /// GEOPM_POLICY_GOAL_MEMORY_EFFICIENCY
             /// @return enum power goal
             int goal(void) const;
             /// @brief Get the number of 'big' cores

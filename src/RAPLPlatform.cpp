@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_error.h"
 #include "Exception.hpp"
 #include "RAPLPlatform.hpp"
 #include "geopm_message.h"

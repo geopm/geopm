@@ -33,6 +33,10 @@
 #ifndef GEOPM_PLUGIN_H_INCLUDE
 #define GEOPM_PLUGIN_H_INCLUDE
 
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -48,6 +52,17 @@ enum geopm_plugin_type_e {
     GEOPM_PLUGIN_TYPE_PLATFORM_IMP,
     GEOPM_NUM_PLUGIN_TYPE
 };
+
+/// @brief Structure holding plugin selection strings.
+struct geopm_plugin_description_s {
+    // @brief tree decider description
+    char tree_decider[NAME_MAX];
+    /// @brief leaf decider description
+    char leaf_decider[NAME_MAX];
+    /// @brief platform description
+    char platform[NAME_MAX];
+};
+
 
 /*! @brief Declaration for function which must be defined by a plugin
            implementor which will register the plugin for the type

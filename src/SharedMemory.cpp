@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015, 2016, Intel Corporation
  *
@@ -36,6 +37,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
 
 #include "geopm_time.h"
 #include "SharedMemory.hpp"
@@ -47,7 +49,7 @@ namespace geopm
         : m_shm_key(shm_key)
         , m_size(size)
     {
-        if (size == 0) {
+        if (!size) {
             throw Exception("SharedMemory: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         mode_t old_mask = umask(0);
@@ -99,53 +101,76 @@ namespace geopm
         return m_shm_key;
     }
 
-    SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, size_t size)
-        : SharedMemoryUser(shm_key, size, INT_MAX)
+    size_t SharedMemory::size(void)
+    {
+        return m_size;
+    }
+
+    SharedMemoryUser::SharedMemoryUser(const std::string &shm_key)
+        : SharedMemoryUser(shm_key, INT_MAX)
     {
 
     }
 
-    SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, size_t size, unsigned int timeout)
+    SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, unsigned int timeout)
         : m_shm_key(shm_key)
-        , m_size(size)
+        , m_size(0)
     {
-        if (size == 0) {
-            throw Exception("SharedMemoryUser: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         int shm_id = -1;
-        if (timeout) {
+        struct stat stat_struct;
+        int err = 0;
+
+        if (!timeout) {
+            shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
+            if (shm_id < 0) {
+                throw Exception("SharedMemoryUser: Could not open shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = fstat(shm_id, &stat_struct);
+            if (err) {
+                throw Exception("SharedMemoryUser: fstat() error on shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            m_size = stat_struct.st_size;
+
+            m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
+            if (m_ptr == MAP_FAILED) {
+                (void) close(shm_id);
+                throw Exception("SharedMemoryUser: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+        else {
             struct geopm_time_s begin_time;
             struct geopm_time_s curr_time;
-            size_t region_size = 0;
-            struct stat stat_struct;
+
             geopm_time(&begin_time);
             curr_time = begin_time;
             while (shm_id < 0 && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
                 shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
                 geopm_time(&curr_time);
             }
-            while (region_size < size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
-                (void) fstat(shm_id, &stat_struct);
-                region_size = stat_struct.st_size;
+            if (shm_id < 0) {
+                throw Exception("SharedMemoryUser: Could not open shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+
+            while (!m_size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
+                err = fstat(shm_id, &stat_struct);
+                if (!err) {
+                    m_size = stat_struct.st_size;
+                }
                 geopm_time(&curr_time);
             }
-            if (region_size < size) {
+            if (!m_size) {
                 (void) close(shm_id);
-                shm_id = -1;
+                throw Exception("SharedMemoryUser: Opened shared memory region, but it is zero length", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+
+            m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
+            if (m_ptr == MAP_FAILED) {
+                (void) close(shm_id);
+                throw Exception("SharedMemoryUser: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
-        else {
-            shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
-        }
-        if (shm_id < 0) {
-            throw Exception("SharedMemoryUser: Could not open shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        m_ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
-        if (m_ptr == MAP_FAILED) {
-            (void) close(shm_id);
-            throw Exception("SharedMemoryUser: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        int err = close(shm_id);
+
+        err = close(shm_id);
         if (err) {
             throw Exception("SharedMemoryUser: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -167,5 +192,10 @@ namespace geopm
     std::string SharedMemoryUser::key(void)
     {
         return m_shm_key;
+    }
+
+    size_t SharedMemoryUser::size(void)
+    {
+        return m_size;
     }
 }
