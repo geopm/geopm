@@ -69,20 +69,18 @@ namespace geopm
     class SharedMemoryUser
     {
         public:
-            /// Constructor takes a key and a size and attempts to attach to a
+            /// Constructor takes a key and attempts to attach to a
             /// inter-process shared memory region. This version of the
             /// constructor tries to attach multiple times until a timeout
             /// is reached.
             /// @param [in] shm_key Shared memory key to attach to the region.
-            /// @param [in] size Size of the region to attach to.
             /// @param [in] timeout Length in seconds to keep retrying the
             ///             attachment process to a shared memory region.
             SharedMemoryUser(const std::string &shm_key, unsigned int timeout);
-            /// Constructor takes a key and a size and attempts to attach to a
+            /// Constructor takes a key and attempts to attach to a
             /// inter-process shared memory region. This version of the
             /// constructor attempts to attach a single time.
             /// @param [in] shm_key Shared memory key to attach to the region.
-            /// @param [in] size Size of the region to attach to.
             SharedMemoryUser(const std::string &shm_key);
             /// Destructor detaches from shared memory region.
             virtual ~SharedMemoryUser();

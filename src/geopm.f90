@@ -96,11 +96,10 @@ module geopm
         !! APPLICATION PROFILING !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        integer(kind=c_int) function geopm_prof_create(name, table_size, shm_key, comm, prof) bind(C)
+        integer(kind=c_int) function geopm_prof_create(name, shm_key, comm, prof) bind(C)
             import
             implicit none
             character(kind=c_char), intent(in) :: name(*)
-            integer(kind=c_size_t), intent(in) :: table_size
             character(kind=c_char), intent(in) :: shm_key(*)
             integer(kind=c_int), intent(in) :: comm
             type(c_ptr) :: prof
