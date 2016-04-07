@@ -274,7 +274,7 @@ clean-local-fortran:
 # FORTRAN MODULE TARGET
 if ENABLE_FORTRAN
 geopm.mod: src/geopm.f90
-	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(FCFLAGS_f90) $<
+	$(FC) $(AM_FCFLAGS) $(FCFLAGS) -c $(FCFLAGS_f90) $<
 endif
 
 # RPM TARGET
