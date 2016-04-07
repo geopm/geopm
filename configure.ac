@@ -125,6 +125,19 @@ fi
 AC_SUBST([enable_mpi])
 AM_CONDITIONAL([ENABLE_MPI], [test "x$enable_mpi" = "x1"])
 
+AC_ARG_ENABLE([fortran],
+  [AS_HELP_STRING([--disable-fortan], [Do not build fortran interface])],
+[if test "x$enable_fortran" = "xno" ; then
+  enable_fortran="0"
+else
+  enable_fortran="1"
+fi
+],
+[enable_fortran="1"]
+)
+AC_SUBST([enable_fortran])
+AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
+
 m4_include([m4/ax_openmp.m4])
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
@@ -150,7 +163,9 @@ AC_SEARCH_LIBS([shm_unlink], [rt])
 AC_PROG_AWK
 AC_PROG_CXX
 AC_PROG_CC
+if test "x$enable_fortran" = "x1"; then
 AC_PROG_FC
+fi
 AC_PROG_MAKE_SET
 AC_LANG_PUSH([C++])
 AX_OPENMP()
@@ -254,8 +269,6 @@ AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 CFLAGS="${CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
 CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
-#CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2 -fsanitize=address -fno-omit-frame-pointer"
-#LDFLAGS="${LDFLAGS} ${OPENMP_CXXFLAGS} -lhwloc -ljson-c -fsanitize=address"
 LDFLAGS="${LDFLAGS} ${OPENMP_CXXFLAGS} -lhwloc -ljson-c"
 
 AC_CONFIG_FILES([Makefile])
@@ -273,6 +286,9 @@ AC_MSG_RESULT([CXXFLAGS           : ${CXXFLAGS}])
 AC_MSG_RESULT([LDFLAGS            : ${LDFLAGS}])
 AC_MSG_RESULT([LD_LIBRARY_PATH    : ${LD_LIBRARY_PATH}])
 AC_MSG_RESULT([LIBS               : ${LIBS}])
+AC_MSG_RESULT([FC                 : ${FC}])
+AC_MSG_RESULT([FCFLAGS            : ${FCFLAGS}])
+AC_MSG_RESULT([FCFLAGS_f90        : ${FCFLAGS_f90}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([prefix             : ${prefix}])
 AC_MSG_RESULT([exec_prefix        : ${exec_prefix}])
@@ -287,4 +303,5 @@ AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
+AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([===============================================================================])

@@ -39,10 +39,12 @@ bin_PROGRAMS = geopmpolicy
 pkglib_LTLIBRARIES =
 
 if ENABLE_MPI
-    lib_LTLIBRARIES += libgeopm.la \
-                       libgeopmfort.la \
-                       # end
+    lib_LTLIBRARIES += libgeopm.la
     bin_PROGRAMS += geopmctl
+
+if ENABLE_FORTRAN
+    lib_LTLIBRARIES += libgeopmfort.la
+endif
 endif
 
 include_HEADERS = src/geopm.h \
@@ -55,7 +57,9 @@ include_HEADERS = src/geopm.h \
                   # end
 
 if ENABLE_MPI
+if ENABLE_FORTRAN
     include_HEADERS += geopm.mod
+endif
 endif
 
 dist_man_MANS = man/geopm.7 \
@@ -116,8 +120,10 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
-    libgeopmfort_la_LIBADD = libgeopm.la
     geopmctl_LDADD = libgeopm.la
+if ENABLE_FORTRAN
+    libgeopmfort_la_LIBADD = libgeopm.la
+endif
 endif
 
 # SOURCE LISTS FOR EACH TARGET
@@ -240,7 +246,9 @@ if ENABLE_MPI
                           src/geopm_version.h \
                           # end
 
+if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90
+endif
 
     geopmctl_SOURCES = src/geopmctl_main.c \
                        src/geopm_version.h \
@@ -252,13 +260,22 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage clean-local-man
+clean-local: clean-local-coverage clean-local-man clean-local-fortran
 
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
 clean-local-man:
 	rm -rf ruby man ronn/*.html ronn/*.1 ronn/*.3 ronn/*.7
+
+clean-local-fortran:
+	rm -rf geopm.mod
+
+# FORTRAN MODULE TARGET
+if ENABLE_FORTRAN
+geopm.mod: src/geopm.f90
+	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(FCFLAGS_f90) $<
+endif
 
 # RPM TARGET
 geopm-$(VERSION).spec:
