@@ -52,7 +52,7 @@ module geopm
             type(c_ptr), intent(in) :: policy
             character(kind=c_char), intent(in) :: sample_key(*)
             integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: ctl
+            type(c_ptr) :: ctl(*)
         end function geopm_ctl_create
 
         integer(kind=c_int) function geopm_ctl_destroy(ctl) bind(C)
@@ -102,7 +102,7 @@ module geopm
             character(kind=c_char), intent(in) :: name(*)
             character(kind=c_char), intent(in) :: shm_key(*)
             integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: prof
+            type(c_ptr) :: prof(*)
         end function geopm_prof_create
 
         integer(kind=c_int) function geopm_prof_destroy(prof) bind(C)
@@ -121,9 +121,9 @@ module geopm
             import
             implicit none
             type(c_ptr), intent(in) :: prof
-            character(kind=c_char), intent(in) :: region_name
+            character(kind=c_char), intent(in) :: region_name(*)
             integer(kind=c_int), intent(in) :: policy_hint
-            integer(kind=c_int64_t) :: region_id
+            type(c_ptr) :: region_id
         end function geopm_prof_region
 
         integer(kind=c_int) function geopm_prof_enter(prof, region_id) bind(C)

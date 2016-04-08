@@ -93,19 +93,8 @@ static inline void geopm_mpi_region_exit(void)
 }
 
 
-static int geopm_pmpi_init(int argc, char **argv)
+static int geopm_pmpi_init(void)
 {
-    int err = 0;
-    const char *geopm_pmpi_ctl_enable_flag = "--geopm-pmpi-ctl";
-    const int ncmp = strlen(geopm_pmpi_ctl_enable_flag) + 1;
-    int arg_idx;
-    for (arg_idx = 1; arg_idx < argc; ++arg_idx) {
-        if (!strncmp(argv[arg_idx], geopm_pmpi_ctl_enable_flag, ncmp)) {
-            g_is_geopm_pmpi_ctl_enabled = 1;
-            break;
-        }
-    }
-
     int rank;
     int mpi_version;
     int mpi_subversion;
@@ -116,7 +105,11 @@ static int geopm_pmpi_init(int argc, char **argv)
                         "          applciation compiled using version %i.%i.\n\n", mpi_version, mpi_subversion);
     }
 
-    if (g_is_geopm_pmpi_ctl_enabled) {
+    int err = 0;
+    char *pmpi_ctl_env = getenv("GEOPM_PMPI_CTL");
+    if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "0", 2)) {
+        g_is_geopm_pmpi_ctl_enabled = 1;
+
         int is_ctl;
         MPI_Comm tmp_comm;
         err = geopm_comm_split(MPI_COMM_WORLD, &tmp_comm, &is_ctl);
@@ -171,7 +164,7 @@ int MPI_Init(int *argc, char **argv[])
 {
     int err = PMPI_Init(argc, argv);
     if (!err) {
-        err = geopm_pmpi_init(*argc, *argv);
+        err = geopm_pmpi_init();
     }
     return err;
 }
@@ -180,7 +173,7 @@ int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
     int err = PMPI_Init_thread(argc, argv, required, provided);
     if (!err) {
-        err = geopm_pmpi_init(*argc, *argv);
+        err = geopm_pmpi_init();
     }
     return err;
 
