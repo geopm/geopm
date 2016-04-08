@@ -108,7 +108,7 @@ static int run_something(void)
     }
     if (!err) {
         max_threads = omp_get_max_threads();
-        err = posix_memalign((void **)&progress, cache_line_size, cache_line_size * max_threads);
+        err = posix_memalign((void **)&progress, cache_line_size, cache_line_size * max_threads * sizeof(int32_t));
     }
     if (!err) {
         norm = (double *)malloc(sizeof(double) * max_threads);

@@ -53,6 +53,7 @@ namespace geopm
             void update(const struct geopm_policy_message_s &policy);
         protected:
             bool m_is_trace_enabled;
+            bool m_do_header;
             std::ofstream m_stream;
             struct geopm_time_s m_time_zero;
             struct geopm_policy_message_s m_policy;

@@ -30,19 +30,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
 #include <mpi.h>
+#include <omp.h>
+
 #include "geopm.h"
+
 
 int main(int argc, char **argv)
 {
+    int chunk_size = 0;
     int ierr = 0;
     int index = 0;
     int rank = 0;
+    int num_iter = 100000000;
     double sum = 0.0;
     struct geopm_prof_c *prof = NULL;
+    int num_thread = 0;
+    int thread_idx = 0 ;
+    int cache_line_size = 64;
+    int stride = cache_line_size / sizeof(int32_t);
     uint64_t region_id = 0;
+    uint32_t *progress = NULL;
+    double *norm = NULL;
+    double min_progress = 0.0;
 
     ierr = MPI_Init(&argc, &argv);
+    if (!ierr) {
+        num_thread = omp_get_max_threads();
+        ierr = posix_memalign((void **)&progress, cache_line_size, cache_line_size * num_thread * sizeof(int32_t));
+    }
+    if (!ierr) {
+        memset(progress, 0, cache_line_size * num_thread * sizeof(int32_t));
+        norm = malloc(num_thread * sizeof(double));
+        if (!norm) {
+            ierr = ENOMEM;
+        }
+    }
+    if (!ierr) {
+        chunk_size = num_iter / num_thread;
+        ierr = geopm_omp_sched_static_norm(num_iter, chunk_size, num_thread, norm);
+    }
     if (!ierr) {
         ierr = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
     }
@@ -53,9 +84,20 @@ int main(int argc, char **argv)
         ierr = geopm_prof_enter(NULL, region_id);
     }
     if (!ierr) {
-        for (index = 0; index < 100000000; ++index) {
+#pragma omp parallel default(shared) private(thread_idx, index)
+{
+        thread_idx = omp_get_thread_num();
+#pragma omp for reduction(+:sum) schedule(static, chunk_size)
+        for (index = 0; index < num_iter; ++index) {
             sum += (double)index;
+            progress[stride * thread_idx]++;
+            if (!thread_idx) {
+                min_progress = geopm_progress_threaded_min(num_thread, stride, progress, norm);
+                (void) geopm_prof_progress(NULL, region_id, min_progress);
+            }
+#pragma omp barrier
         }
+}
         ierr = geopm_prof_exit(NULL, region_id);
     }
     if (!ierr) {

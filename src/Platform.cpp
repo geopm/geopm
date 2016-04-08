@@ -189,8 +189,8 @@ namespace geopm
                 telemetry[domain_idx].signal[signal_idx] = aligned_data[domain_idx * num_platform_signal + signal_idx];
             }
             // Insert application signals
+            int domain_idx = 0;
             for (int i = 0; i < num_package * NUM_RANK_SIGNAL; i += NUM_RANK_SIGNAL) {;
-                int domain_idx = i / NUM_RANK_SIGNAL;
                 // Do not drop a region exit
                 if (max_progress[domain_idx] == 1.0) {
                     telemetry[domain_idx].signal[num_platform_signal] = 1.0;
@@ -199,6 +199,7 @@ namespace geopm
                     telemetry[domain_idx].signal[num_platform_signal] = min_progress[domain_idx] == DBL_MAX ? -1.0 : min_progress[domain_idx];
                 }
                 telemetry[domain_idx].signal[num_platform_signal + 1] = runtime[domain_idx] == DBL_MIN ? 0.0 : runtime[domain_idx];
+                ++domain_idx;
             }
             // Insert region and timestamp
             for (int i = 0; i < num_package; ++i) {

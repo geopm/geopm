@@ -31,6 +31,7 @@
  */
 
 #include <unistd.h>
+#include <iomanip>
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
@@ -43,6 +44,7 @@ namespace geopm
 {
     Tracer::Tracer()
         : m_is_trace_enabled(false)
+        , m_do_header(true)
         , m_time_zero({{0,0}})
         , m_policy({0, 0, 0, 0.0})
     {
@@ -56,6 +58,7 @@ namespace geopm
             }
             std::string output_path(std::string(trace_env)  + "-" + std::string(hostname) + ".log");
             m_stream.open(output_path);
+            m_stream << std::setprecision(16);
             m_is_trace_enabled = true;
         }
     }
@@ -69,11 +72,19 @@ namespace geopm
 
     void Tracer::update(const std::vector <struct geopm_telemetry_message_s> &telemetry)
     {
-        if (m_is_trace_enabled)
+        if (m_is_trace_enabled && telemetry.size())
         {
+            if (m_do_header) {
+                m_stream << "region_id | seconds | ";
+                for (size_t i = 0; i < telemetry.size(); ++i) {
+                    m_stream << "pkg_energy | pp0_energy | dram_energy | frequency | inst_retired | clk_unhalted_core | clk_unhalted_ref | llc_victims | progress | runtime | ";
+                }
+                m_stream << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
+                m_do_header = false;
+            }
+            m_stream << telemetry[0].region_id << " | "
+                     << geopm_time_diff(&m_time_zero, &(telemetry[0].timestamp)) << " | ";
             for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
-                m_stream << (*it).region_id << " | "
-                         << geopm_time_diff(&m_time_zero, &((*it).timestamp)) << " | ";
                 for (int i = 0; i != GEOPM_NUM_TELEMETRY_TYPE; ++i) {
                     m_stream << (*it).signal[i] << " | ";
                 }

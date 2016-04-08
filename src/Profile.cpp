@@ -441,15 +441,10 @@ namespace geopm
 
     void Profile::progress(uint64_t region_id, double fraction)
     {
-        if (m_num_enter == 1 && m_curr_region_id == region_id) {
+        if (m_num_enter == 1 && m_curr_region_id == region_id &&
+            fraction > 0.0 && fraction < 1.0 ) {
             m_progress = fraction;
-            /// @todo this is not a very clever way of regulating the
-            ///       frequency of calls to sample().
-            ++m_num_progress;
-            if (m_num_progress == M_PROF_SAMPLE_PERIOD) {
-                sample(region_id);
-                m_num_progress = 0;
-            }
+            sample(region_id);
         }
     }
 
