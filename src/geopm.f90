@@ -102,7 +102,7 @@ module geopm
             character(kind=c_char), intent(in) :: name(*)
             character(kind=c_char), intent(in) :: shm_key(*)
             integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: prof(*)
+            type(c_ptr) :: prof
         end function geopm_prof_create
 
         integer(kind=c_int) function geopm_prof_destroy(prof) bind(C)
@@ -177,22 +177,22 @@ module geopm
             import
             implicit none
             integer(kind=c_int), intent(in) :: comm
-            integer(kind=c_int) :: num_node(*)
+            type(c_ptr) :: num_node
         end function geopm_num_node
 
         integer(kind=c_int) function geopm_comm_split(comm, split_comm, is_ctl_comm) bind(C)
             import
             implicit none
             integer(kind=c_int), intent(in) :: comm
-            integer(kind=c_int) :: split_comm(*)
-            integer(kind=c_int) :: is_ctl_comm(*)
+            type(c_ptr) :: split_comm
+            type(c_ptr) :: is_ctl_comm
         end function geopm_comm_split
 
         integer(kind=c_int) function geopm_comm_split_ppn1(comm, ppn1_comm) bind(C)
             import
             implicit none
             integer(kind=c_int), intent(in) :: comm
-            integer(kind=c_int) :: ppn1_comm(*)
+            type(c_ptr) :: ppn1_comm
         end function geopm_comm_split_ppn1
 
         integer(kind=c_int) function geopm_omp_sched_static_norm(num_iter, chunk_size, num_thread, norm) bind(C)
@@ -201,7 +201,7 @@ module geopm
             integer(kind=c_int), intent(in) :: num_iter
             integer(kind=c_int), intent(in) :: chunk_size
             integer(kind=c_int), intent(in) :: num_thread
-            integer(kind=c_int) :: norm(*)
+            type(c_ptr) :: norm
         end function geopm_omp_sched_static_norm
 
         integer(kind=c_int) function geopm_progress_threaded_min(num_iter, chunk_size, num_thread, min) bind(C)
@@ -210,7 +210,7 @@ module geopm
             integer(kind=c_int), intent(in) :: num_iter
             integer(kind=c_int), intent(in) :: chunk_size
             integer(kind=c_int), intent(in) :: num_thread
-            integer(kind=c_int) :: min(*)
+            type(c_ptr) :: min
         end function geopm_progress_threaded_min
 
         integer(kind=c_int) function geopm_progress_threaded_sum(num_iter, chunk_size, num_thread, sum) bind(C)
@@ -219,7 +219,7 @@ module geopm
             integer(kind=c_int), intent(in) :: num_iter
             integer(kind=c_int), intent(in) :: chunk_size
             integer(kind=c_int), intent(in) :: num_thread
-            integer(kind=c_int) :: sum(*)
+            type(c_ptr) :: sum
         end function geopm_progress_threaded_sum
 
     end interface
