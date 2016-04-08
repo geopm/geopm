@@ -37,7 +37,6 @@
 #define NAME_MAX 1024
 #endif
 
-__attribute__((no_sanitize_address))
 int main(int argc, char **argv)
 {
     int err = 0;

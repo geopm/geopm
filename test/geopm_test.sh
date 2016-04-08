@@ -51,10 +51,10 @@ if [ $? -eq 0 ]; then
     fi
     echo $test_name | grep '^MPIProfile' > /dev/null
     if [ $? -eq 0 ]; then
-       geopm_pmpi_flag='--geopm-pmpi-ctl'
+       export GEOPM_PMPI_CTL=process
        export GEOPM_POLICY=test/default_policy.json
     fi
-    $mpiexec -n 16 $dir_name/../geopm_mpi_test --gtest_filter=$test_name $geopm_pmpi_flag >& $dir_name/$test_name.log
+    $mpiexec -n 16 $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
     err=$?
 else
     $dir_name/../geopm_test --gtest_filter=$test_name >& $dir_name/$test_name.log
