@@ -372,9 +372,7 @@ namespace geopm
             // update the leaf level (0)
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
-                if (m_tracer) {
-                    m_tracer->update(policy_msg);
-                }
+                m_tracer->update(policy_msg);
             }
         }
         return do_shutdown;
@@ -435,9 +433,7 @@ namespace geopm
                                           aligned_signal);
 
                     m_platform->transform_rank_data((*prof_begin).first, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
-                    if (m_tracer) {
-                        m_tracer->update(m_telemetry_sample);
-                    }
+                    m_tracer->update(m_telemetry_sample);
 
                     m_region_id = m_telemetry_sample[0].region_id;
                     auto it = m_region[level].find(m_region_id);
