@@ -165,12 +165,12 @@ namespace geopm
                 M_MAX_FAN_OUT = 16,
                 M_SHMEM_REGION_SIZE = 4096,
             };
+            void connect(void);
             void enforce_child_policy(int level, const Policy &policy);
             int walk_down(void);
             int walk_up(void);
             bool m_is_node_root;
             int m_max_fanout;
-            struct geopm_time_s m_time_zero;
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
             TreeCommunicator *m_tree_comm;
@@ -191,7 +191,8 @@ namespace geopm
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
             uint64_t m_region_id;
             int m_ctl_status;
-            bool m_teardown;
+            bool m_do_teardown;
+            bool m_is_connected;
     };
 }
 

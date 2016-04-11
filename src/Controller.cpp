@@ -166,7 +166,6 @@ namespace geopm
     Controller::Controller(GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
-        , m_time_zero({{0,0}})
         , m_global_policy(global_policy)
         , m_tree_comm(NULL)
         , m_leaf_decider(NULL)
@@ -178,10 +177,9 @@ namespace geopm
         , m_tracer(NULL)
         , m_region_id(GEOPM_REGION_ID_INVALID)
         , m_ctl_status(GEOPM_STATUS_UNDEFINED)
-        , m_teardown(false)
+        , m_do_teardown(false)
+        , m_is_connected(false)
     {
-        (void) geopm_time(&m_time_zero);
-
         MPI_Comm ppn1_comm;
         int err = 0;
         int num_nodes = 0;
@@ -273,29 +271,56 @@ namespace geopm
 
     Controller::~Controller()
     {
-        if (m_is_node_root) {
-            m_teardown = true;
-            while (m_ctl_status != GEOPM_STATUS_SHUTDOWN) {}
+        if (~m_is_node_root) {
+            return;
         }
-        delete m_tree_comm;
-        delete m_platform_factory;
+
+        m_do_teardown = true;
+        while (m_ctl_status != GEOPM_STATUS_SHUTDOWN) {}
+
+        delete m_tracer;
+        for (int level = 0; level < m_tree_comm->num_level(); ++level) {
+            for (auto it = m_region[level].begin(); it != m_region[level].end(); ++it) {
+                delete (*it).second;
+            }
+            delete m_policy[level];
+        }
         delete m_decider_factory;
+        delete m_platform_factory;
+        delete m_tree_comm;
         delete m_sampler;
+        delete m_sample_regulator;
+    }
+
+    void Controller::connect(void)
+    {
+        if (~m_is_node_root) {
+            return;
+        }
+
+        if (!m_is_connected) {
+            m_sampler->initialize();
+            m_prof_sample.resize(m_sampler->capacity());
+            std::vector<int> cpu_rank;
+            m_sampler->cpu_rank(cpu_rank);
+            m_platform->init_transform(cpu_rank);
+            m_sample_regulator = new SampleRegulator(cpu_rank);
+            m_ctl_status = GEOPM_STATUS_ACTIVE;
+            m_is_connected = true;
+        }
     }
 
     void Controller::run(void)
     {
+        if (~m_is_node_root) {
+            return;
+        }
+
+        connect();
+
         int level;
         int err = 0;
         struct geopm_policy_message_s policy;
-
-        m_sampler->initialize();
-        m_prof_sample.resize(m_sampler->capacity());
-        std::vector<int> cpu_rank;
-        m_sampler->cpu_rank(cpu_rank);
-        m_platform->init_transform(cpu_rank);
-        m_sample_regulator = new SampleRegulator(cpu_rank);
-        m_ctl_status = GEOPM_STATUS_ACTIVE;
 
         // Spin waiting for for first policy message
         level = m_tree_comm->num_level() - 1;
@@ -325,6 +350,12 @@ namespace geopm
 
     void Controller::step(void)
     {
+        if (~m_is_node_root) {
+            return;
+        }
+
+        connect();
+
         int err = walk_down();
         if (!err) {
             err = walk_up();
@@ -336,11 +367,11 @@ namespace geopm
 
     void Controller::pthread(const pthread_attr_t *attr, pthread_t *thread)
     {
-        int err = 0;
-
-        if (m_is_node_root) {
-            err = pthread_create(thread, attr, geopm_threaded_run, (void *)this);
+        if (~m_is_node_root) {
+            return;
         }
+
+        int err = pthread_create(thread, attr, geopm_threaded_run, (void *)this);
         if (err) {
             throw Exception("Controller::pthread(): pthread_create() failed", err, __FILE__, __LINE__);
         }
@@ -364,7 +395,7 @@ namespace geopm
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
         }
-        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN || m_teardown == true) {
+        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN || m_do_teardown == true) {
             m_ctl_status = GEOPM_STATUS_SHUTDOWN;
             do_shutdown = 1;
         }
@@ -485,7 +516,7 @@ namespace geopm
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
-        if (m_teardown == true) {
+        if (m_do_teardown == true) {
             do_shutdown = 1;
         }
         if (do_shutdown) {
@@ -499,6 +530,10 @@ namespace geopm
 
     void Controller::enforce_child_policy(int level, const Policy &policy)
     {
+        if (~m_is_node_root) {
+            return;
+        }
+
         std::vector<geopm_policy_message_s> child_msg(m_policy[level]->num_domain());
         if (level) {
             m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER,
@@ -513,6 +548,10 @@ namespace geopm
 
     void Controller::generate_report(void)
     {
+        if (~m_is_node_root || ~m_is_connected) {
+            return;
+        }
+
         std::string report_name;
         std::string profile_name;
         std::set<std::string> region_name;
