@@ -277,7 +277,7 @@ extern "C"
 namespace geopm
 {
 
-    static const std::string geopm_default_shmem_key("/geopm_default");
+    static const std::string g_default_shmem_key("/geopm_default");
 
     Profile::Profile(const std::string prof_name, const std::string shm_key, MPI_Comm comm)
         : m_prof_name(prof_name)
@@ -303,7 +303,7 @@ namespace geopm
             key.assign(getenv("GEOPM_SHMKEY"));
         }
         if (key.size() == 0) {
-            key = geopm_default_shmem_key;
+            key = g_default_shmem_key;
         }
         m_ctl_shmem = new SharedMemoryUser(key, 60); // 60 second timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
@@ -579,10 +579,13 @@ namespace geopm
     {
         std::string key(shm_key_base);
         if (key.size() == 0) {
-            key.assign(getenv("GEOPM_SHMKEY"));
-        }
-        if (key.size() == 0) {
-            key = geopm_default_shmem_key;
+            char *shmkey_env = getenv("GEOPM_SHMKEY");
+            if (shmkey_env) {
+                key = shmkey_env;
+            }
+            else {
+                key = g_default_shmem_key;
+            }
         }
         m_ctl_shmem = new SharedMemory(key, table_size);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
