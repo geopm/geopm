@@ -175,6 +175,7 @@ namespace geopm
         , m_platform(NULL)
         , m_sampler(NULL)
         , m_sample_regulator(NULL)
+        , m_tracer(NULL)
         , m_region_id(GEOPM_REGION_ID_INVALID)
         , m_ctl_status(GEOPM_STATUS_UNDEFINED)
         , m_teardown(false)
@@ -263,6 +264,10 @@ namespace geopm
                 }
             }
             m_ctl_status = GEOPM_STATUS_INITIALIZED;
+
+            // Synchronize the ranks so time zero is uniform.
+            MPI_Barrier(ppn1_comm);
+            m_tracer = new Tracer();
         }
     }
 
@@ -367,6 +372,9 @@ namespace geopm
             // update the leaf level (0)
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
+                if (m_tracer) {
+                    m_tracer->update(policy_msg);
+                }
             }
         }
         return do_shutdown;
@@ -376,7 +384,6 @@ namespace geopm
     {
         int level;
         int do_shutdown = 0;
-        struct geopm_policy_message_s policy_msg;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         size_t length;
@@ -428,6 +435,9 @@ namespace geopm
                                           aligned_signal);
 
                     m_platform->transform_rank_data((*prof_begin).first, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
+                    if (m_tracer) {
+                        m_tracer->update(m_telemetry_sample);
+                    }
 
                     m_region_id = m_telemetry_sample[0].region_id;
                     auto it = m_region[level].find(m_region_id);
@@ -479,7 +489,7 @@ namespace geopm
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
-        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN || m_teardown == true) {
+        if (m_teardown == true) {
             do_shutdown = 1;
         }
         if (do_shutdown) {

@@ -45,6 +45,7 @@
 #include "Region.hpp"
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
+#include "Tracer.hpp"
 #include "geopm_time.h"
 #include "geopm_plugin.h"
 
@@ -180,6 +181,7 @@ namespace geopm
             Platform *m_platform;
             ProfileSampler *m_sampler;
             SampleRegulator *m_sample_regulator;
+            Tracer *m_tracer;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             std::vector<struct geopm_msr_message_s> m_msr_sample;
             std::vector<struct geopm_telemetry_message_s> m_telemetry_sample;

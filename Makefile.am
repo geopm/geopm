@@ -162,6 +162,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/SampleRegulator.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
+                            src/Tracer.cpp \
+                            src/Tracer.hpp \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
@@ -226,6 +228,8 @@ if ENABLE_MPI
                           src/SampleRegulator.hpp \
                           src/SharedMemory.cpp \
                           src/SharedMemory.hpp \
+                          src/Tracer.cpp \
+                          src/Tracer.hpp \
                           src/TreeCommunicator.cpp \
                           src/TreeCommunicator.hpp \
                           src/geopm_ctl_spawn.c \
