@@ -43,8 +43,8 @@ namespace geopm
 {
     Tracer::Tracer()
         : m_is_trace_enabled(false)
-        , m_do_pad(false)
         , m_time_zero({{0,0}})
+        , m_policy({0, 0, 0, 0.0})
     {
         geopm_time(&m_time_zero);
         char *trace_env = getenv("GEOPM_TRACE");
@@ -62,10 +62,6 @@ namespace geopm
 
     Tracer::~Tracer()
     {
-        if (m_do_pad) {
-            struct geopm_policy_message_s zero_policy {0, 0, 0, 0.0};
-            update(zero_policy);
-        }
         if (m_is_trace_enabled) {
             m_stream.close();
         }
@@ -75,10 +71,6 @@ namespace geopm
     {
         if (m_is_trace_enabled)
         {
-            if (m_do_pad) {
-                struct geopm_policy_message_s zero_policy {0, 0, 0, 0.0};
-                update(zero_policy);
-            }
             for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
                 m_stream << (*it).region_id << " | "
                          << geopm_time_diff(&m_time_zero, &((*it).timestamp)) << " | ";
@@ -86,7 +78,11 @@ namespace geopm
                     m_stream << (*it).signal[i] << " | ";
                 }
             }
-            m_do_pad = true;
+            m_stream << m_policy.mode << " | "
+                     << m_policy.flags << " | "
+                     << m_policy.num_sample << " | "
+                     << m_policy.power_budget << std::endl;
+
         }
     }
 
@@ -94,11 +90,7 @@ namespace geopm
     {
         if (m_is_trace_enabled)
         {
-            m_stream << policy.mode << " | "
-                     << policy.flags << " | "
-                     << policy.num_sample << " | "
-                     << policy.power_budget << std::endl;
-            m_do_pad = false;
+            m_policy = policy;
         }
     }
 }

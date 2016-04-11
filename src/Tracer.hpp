@@ -54,8 +54,8 @@ namespace geopm
         protected:
             bool m_is_trace_enabled;
             std::ofstream m_stream;
-            bool m_do_pad;
             struct geopm_time_s m_time_zero;
+            struct geopm_policy_message_s m_policy;
     };
 }
 
