@@ -300,10 +300,13 @@ namespace geopm
 
         std::string key(shm_key);
         if (key.size() == 0) {
-            key.assign(getenv("GEOPM_SHMKEY"));
-        }
-        if (key.size() == 0) {
-            key = g_default_shmem_key;
+            char *shmkey_env = getenv("GEOPM_SHMKEY")
+            if (shmkey_env) {
+                key = shmkey_env;
+            }
+            else {
+                key = g_default_shmem_key;
+            }
         }
         m_ctl_shmem = new SharedMemoryUser(key, 60); // 60 second timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
@@ -352,7 +355,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
-        table_shm_key.assign(shm_key + "_" + std::to_string(m_rank));
+        table_shm_key = shm_key + "_" + std::to_string(m_rank);
         m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
@@ -573,11 +576,11 @@ namespace geopm
 
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 
-    ProfileSampler::ProfileSampler(const std::string shm_key_base, size_t table_size)
+    ProfileSampler::ProfileSampler(const std::string shm_key, size_t table_size)
         : m_table_size(table_size)
         , m_do_report(false)
     {
-        std::string key(shm_key_base);
+        std::string key(shm_key);
         if (key.size() == 0) {
             char *shmkey_env = getenv("GEOPM_SHMKEY");
             if (shmkey_env) {
@@ -613,7 +616,7 @@ namespace geopm
         }
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
-            shm_key.assign(m_ctl_shmem->key() + "_" + std::to_string(*it));
+            shm_key = m_ctl_shmem->key() + "_" + std::to_string(*it);
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
@@ -760,9 +763,9 @@ namespace geopm
 
         if (!m_is_name_finished) {
             if (name_set.empty()) {
-                m_report_name.assign((char *)m_table_shmem.pointer());
+                m_report_name = (char *)m_table_shmem.pointer();
                 header_offset += m_report_name.length() + 1;
-                m_prof_name.assign((char *)m_table_shmem.pointer() + header_offset);
+                m_prof_name = (char *)m_table_shmem.pointer() + header_offset;
                 header_offset += m_prof_name.length() + 1;
             }
             m_is_name_finished = m_table.name_set(header_offset, name_set);

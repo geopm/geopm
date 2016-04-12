@@ -580,13 +580,13 @@ namespace geopm
             uint64_t region_id = (*it).first;
             std::string name;
             if (region_id == GEOPM_REGION_ID_MPI) {
-                name.assign("mpi-sync");
+                name = "mpi-sync";
             }
             else if (region_id == GEOPM_REGION_ID_OUTER) {
-                name.assign("outer-sync");
+                name = "outer-sync";
             }
             else if (region_id == 0) {
-                name.assign("unmarked region");
+                name = "unmarked region";
             }
             else {
                 auto region_it = region.find(region_id);
