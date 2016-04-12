@@ -122,13 +122,7 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
         if (!err && is_ctl) {
             int ctl_rank;
             PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
-            char *ctllog_env = getenv("GEOPM_CTLLOG");
-            if (ctllog_env) {
-                char log_name[NAME_MAX];
-                snprintf(log_name, NAME_MAX, "%s-%.3d.log", ctllog_env, ctl_rank);
-                (void)freopen(log_name, "w", stdout);
-                (void)freopen(log_name, "w", stderr);
-            }
+
             if (!policy_env) {
                 err = GEOPM_ERROR_ENVIRONMENT;
             }
