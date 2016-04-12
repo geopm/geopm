@@ -271,7 +271,7 @@ namespace geopm
 
     Controller::~Controller()
     {
-        if (~m_is_node_root) {
+        if (!m_is_node_root) {
             return;
         }
 
@@ -294,7 +294,7 @@ namespace geopm
 
     void Controller::connect(void)
     {
-        if (~m_is_node_root) {
+        if (!m_is_node_root) {
             return;
         }
 
@@ -312,7 +312,7 @@ namespace geopm
 
     void Controller::run(void)
     {
-        if (~m_is_node_root) {
+        if (!m_is_node_root) {
             return;
         }
 
@@ -350,7 +350,7 @@ namespace geopm
 
     void Controller::step(void)
     {
-        if (~m_is_node_root) {
+        if (!m_is_node_root) {
             return;
         }
 
@@ -367,7 +367,7 @@ namespace geopm
 
     void Controller::pthread(const pthread_attr_t *attr, pthread_t *thread)
     {
-        if (~m_is_node_root) {
+        if (!m_is_node_root) {
             return;
         }
 
@@ -530,7 +530,7 @@ namespace geopm
 
     void Controller::enforce_child_policy(int level, const Policy &policy)
     {
-        if (~m_is_node_root) {
+        if (!m_is_node_root) {
             return;
         }
 
@@ -548,7 +548,7 @@ namespace geopm
 
     void Controller::generate_report(void)
     {
-        if (~m_is_node_root || ~m_is_connected) {
+        if (!m_is_node_root || !m_is_connected) {
             return;
         }
 

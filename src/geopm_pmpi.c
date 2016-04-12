@@ -141,10 +141,11 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
         }
     }
     else if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "pthread", strlen("pthread") + 1) == 0) {
+        g_is_geopm_pmpi_ctl_enabled = 1;
+
         int mpi_thread_level;
         pthread_t ctl_thread;
 
-        g_is_geopm_pmpi_ctl_enabled = 1;
         if (!policy_env) {
             err = GEOPM_ERROR_ENVIRONMENT;
         }
