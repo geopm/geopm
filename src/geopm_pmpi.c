@@ -94,7 +94,7 @@ static inline void geopm_mpi_region_exit(void)
 }
 
 
-static int geopm_pmpi_init(void)
+static int geopm_pmpi_init(const char* pmpi_ctl_env)
 {
     int rank;
     int mpi_version;
@@ -107,11 +107,9 @@ static int geopm_pmpi_init(void)
     }
 
     int err = 0;
-    char *pmpi_ctl_env = getenv("GEOPM_PMPI_CTL");
     char *policy_env = getenv("GEOPM_POLICY");
     struct geopm_policy_c *policy = NULL;
     struct geopm_ctl_c *ctl = NULL;
-
     if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "process", strlen("process") + 1) == 0) {
         g_is_geopm_pmpi_ctl_enabled = 1;
 
@@ -134,8 +132,9 @@ static int geopm_pmpi_init(void)
             if (!policy_env) {
                 err = GEOPM_ERROR_ENVIRONMENT;
             }
-            if (!err && !ctl_rank)
+            if (!err && !ctl_rank) {
                 err = geopm_policy_create(policy_env, NULL, &policy);
+            }
             if (!err) {
                 err = geopm_ctl_create(policy, NULL, G_GEOPM_COMM_WORLD_SWAP, &ctl);
             }
@@ -197,18 +196,32 @@ static int geopm_pmpi_finalize(void)
 
 int MPI_Init(int *argc, char **argv[])
 {
-    int err = PMPI_Init(argc, argv);
+    int err;
+    char *pmpi_ctl_env = getenv("GEOPM_PMPI_CTL");
+
+    if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "pthread", strlen("pthread") + 1) == 0) {
+        int required = MPI_THREAD_MULTIPLE;
+        int mpi_thread_level;
+        err = PMPI_Init_thread(argc, argv, required, &mpi_thread_level);
+        if (!err && mpi_thread_level < MPI_THREAD_MULTIPLE) {
+            err = GEOPM_ERROR_LOGIC;
+        }
+    }
+    else {
+        err = PMPI_Init(argc, argv);
+    }
     if (!err) {
-        err = geopm_pmpi_init();
+        err = geopm_pmpi_init(pmpi_ctl_env);
     }
     return err;
 }
 
 int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
+    char *pmpi_ctl_env = getenv("GEOPM_PMPI_CTL");
     int err = PMPI_Init_thread(argc, argv, required, provided);
     if (!err) {
-        err = geopm_pmpi_init();
+        err = geopm_pmpi_init(pmpi_ctl_env);
     }
     return err;
 
