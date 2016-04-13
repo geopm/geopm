@@ -290,7 +290,6 @@ namespace geopm
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
     {
-        std::string table_shm_key;
         int shm_num_rank = 0;
 
         MPI_Comm_rank(comm, &m_rank);
@@ -355,7 +354,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
-        table_shm_key = shm_key + "_" + std::to_string(m_rank);
+        std::string table_shm_key(shm_key + "_" + std::to_string(m_rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
