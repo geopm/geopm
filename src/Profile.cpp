@@ -76,6 +76,12 @@ extern "C"
         return err;
     }
 
+    int geopm_prof_create_f(const char *name, const char *shm_key, int comm, struct geopm_prof_c **prof)
+    {
+        return geopm_prof_create(name, shm_key, MPI_Comm_f2c(comm), prof);
+    }
+
+
     int geopm_prof_destroy(struct geopm_prof_c *prof)
     {
         int err = 0;
@@ -299,7 +305,7 @@ namespace geopm
 
         std::string key(shm_key);
         if (key.size() == 0) {
-            char *shmkey_env = getenv("GEOPM_SHMKEY")
+            char *shmkey_env = getenv("GEOPM_SHMKEY");
             if (shmkey_env) {
                 key = shmkey_env;
             }

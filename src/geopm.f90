@@ -46,19 +46,19 @@ module geopm
         !! OBJECT INSTANTIATION !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        integer(kind=c_int) function geopm_ctl_create(policy, sample_key, comm, ctl) bind(C)
+        integer(kind=c_int) function geopm_ctl_create(policy, sample_key, comm, ctl) bind(C, name="geopm_ctl_create_f")
             import
             implicit none
-            type(c_ptr), intent(in) :: policy
+            type(c_ptr), value, intent(in) :: policy
             character(kind=c_char), intent(in) :: sample_key(*)
-            integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: ctl(*)
+            integer(kind=c_int), value, intent(in) :: comm
+            type(c_ptr), intent(out) :: ctl
         end function geopm_ctl_create
 
         integer(kind=c_int) function geopm_ctl_destroy(ctl) bind(C)
             import
             implicit none
-            type(c_ptr) :: ctl
+            type(c_ptr), value, intent(in) :: ctl
         end function geopm_ctl_destroy
 
         !!!!!!!!!!!!!!!!!!!!!!
@@ -68,13 +68,13 @@ module geopm
         integer(kind=c_int) function geopm_ctl_step(ctl) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: ctl
+            type(c_ptr), value, intent(in) :: ctl
         end function geopm_ctl_step
 
         integer(kind=c_int) function geopm_ctl_run(ctl) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: ctl
+            type(c_ptr), value, intent(in) :: ctl
         end function geopm_ctl_run
 
 !        integer(kind=c_int) function geopm_ctl_pthread(ctl, attr, thread) bind(C)
@@ -89,137 +89,137 @@ module geopm
         integer(kind=c_int) function geopm_ctl_spawn(ctl) bind(C)
             import
             implicit none
-            type(c_ptr) :: ctl
+            type(c_ptr), value, intent(in) :: ctl
         end function geopm_ctl_spawn
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
         !! APPLICATION PROFILING !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        integer(kind=c_int) function geopm_prof_create(name, shm_key, comm, prof) bind(C)
+        integer(kind=c_int) function geopm_prof_create(prof_name, shm_key, comm, prof) bind(C, name="geopm_prof_create_f")
             import
             implicit none
-            character(kind=c_char), intent(in) :: name(*)
+            character(kind=c_char), intent(in) :: prof_name(*)
             character(kind=c_char), intent(in) :: shm_key(*)
-            integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: prof
+            integer(kind=c_int), value, intent(in) :: comm
+            type(c_ptr), intent(out) :: prof
         end function geopm_prof_create
 
         integer(kind=c_int) function geopm_prof_destroy(prof) bind(C)
             import
             implicit none
-            type(c_ptr) :: prof
+            type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_destroy
 
         integer(kind=c_int) function geopm_prof_default(prof) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
+            type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_default
 
         integer(kind=c_int) function geopm_prof_region(prof, region_name, policy_hint, region_id) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
+            type(c_ptr), value, intent(in) :: prof
             character(kind=c_char), intent(in) :: region_name(*)
-            integer(kind=c_int), intent(in) :: policy_hint
-            type(c_ptr) :: region_id
+            integer(kind=c_int), value, intent(in) :: policy_hint
+            integer(kind=c_int64_t), intent(out)  :: region_id
         end function geopm_prof_region
 
         integer(kind=c_int) function geopm_prof_enter(prof, region_id) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
-            integer(kind=c_int64_t), intent(in) :: region_id
+            type(c_ptr), value, intent(in) :: prof
+            integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_enter
 
         integer(kind=c_int) function geopm_prof_exit(prof, region_id) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
-            integer(kind=c_int64_t), intent(in) :: region_id
+            type(c_ptr), value, intent(in) :: prof
+            integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_exit
 
         integer(kind=c_int) function geopm_prof_progress(prof, region_id, fraction) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
-            integer(kind=c_int64_t), intent(in) :: region_id
-            real(kind=c_double) :: fraction
+            type(c_ptr), value, intent(in) :: prof
+            integer(kind=c_int64_t), value, intent(in) :: region_id
+            real(kind=c_double), value, intent(in) :: fraction
         end function geopm_prof_progress
 
         integer(kind=c_int) function geopm_prof_outer_sync(prof) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
+            type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_outer_sync
 
         integer(kind=c_int) function geopm_prof_disable(prof, feature_name) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
+            type(c_ptr), value, intent(in) :: prof
             character(kind=c_char), intent(in) :: feature_name(*)
         end function geopm_prof_disable
 
         integer(kind=c_int) function geopm_prof_print(prof, file_name, depth) bind(C)
             import
             implicit none
-            type(c_ptr), intent(in) :: prof
+            type(c_ptr), value, intent(in) :: prof
             character(kind=c_char), intent(in) :: file_name(*)
-            integer(kind=c_int), intent(in) :: depth
+            integer(kind=c_int), value, intent(in) :: depth
         end function geopm_prof_print
 
         !!!!!!!!!!!!!!!!!
         !! HELPER APIS !!
         !!!!!!!!!!!!!!!!!
 
-        integer(kind=c_int) function geopm_num_node(comm, num_node)  bind(C)
+        integer(kind=c_int) function geopm_num_node(comm, num_node)  bind(C, name="geopm_num_node_f")
             import
             implicit none
-            integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: num_node
+            integer(kind=c_int), value, intent(in) :: comm
+            integer(kind=c_int), intent(out) :: num_node
         end function geopm_num_node
 
-        integer(kind=c_int) function geopm_comm_split(comm, split_comm, is_ctl_comm) bind(C)
+        integer(kind=c_int) function geopm_comm_split(comm, split_comm, is_ctl_comm) bind(C, name="geopm_comm_split_f")
             import
             implicit none
-            integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: split_comm
-            type(c_ptr) :: is_ctl_comm
+            integer(kind=c_int), value, intent(in) :: comm
+            integer(kind=c_int), intent(out) :: split_comm
+            integer(kind=c_int), intent(out) :: is_ctl_comm
         end function geopm_comm_split
 
-        integer(kind=c_int) function geopm_comm_split_ppn1(comm, ppn1_comm) bind(C)
+        integer(kind=c_int) function geopm_comm_split_ppn1(comm, ppn1_comm) bind(C, name="geopm_comm_split_ppn1_f")
             import
             implicit none
-            integer(kind=c_int), intent(in) :: comm
-            type(c_ptr) :: ppn1_comm
+            integer(kind=c_int), value, intent(in) :: comm
+            integer(kind=c_int), intent(out) :: ppn1_comm
         end function geopm_comm_split_ppn1
 
         integer(kind=c_int) function geopm_omp_sched_static_norm(num_iter, chunk_size, num_thread, norm) bind(C)
             import
             implicit none
-            integer(kind=c_int), intent(in) :: num_iter
-            integer(kind=c_int), intent(in) :: chunk_size
-            integer(kind=c_int), intent(in) :: num_thread
-            type(c_ptr) :: norm
+            integer(kind=c_int), value, intent(in) :: num_iter
+            integer(kind=c_int), value, intent(in) :: chunk_size
+            integer(kind=c_int), value, intent(in) :: num_thread
+            real(kind=c_double), intent(out):: norm(*)
         end function geopm_omp_sched_static_norm
 
-        integer(kind=c_int) function geopm_progress_threaded_min(num_iter, chunk_size, num_thread, min) bind(C)
+        real(kind=c_double) function geopm_progress_threaded_min(num_thread, stride, progress, norm) bind(C)
             import
             implicit none
-            integer(kind=c_int), intent(in) :: num_iter
-            integer(kind=c_int), intent(in) :: chunk_size
-            integer(kind=c_int), intent(in) :: num_thread
-            type(c_ptr) :: min
+            integer(kind=c_int), value, intent(in) :: num_thread
+            integer(kind=c_size_t), value, intent(in) :: stride
+            integer(kind=c_int), intent(in) :: progress(*)
+            real(kind=c_double), intent(in) :: norm(*)
         end function geopm_progress_threaded_min
 
-        integer(kind=c_int) function geopm_progress_threaded_sum(num_iter, chunk_size, num_thread, sum) bind(C)
+        real(kind=c_double) function geopm_progress_threaded_sum(num_thread, stride, progress, norm) bind(C)
             import
             implicit none
-            integer(kind=c_int), intent(in) :: num_iter
-            integer(kind=c_int), intent(in) :: chunk_size
-            integer(kind=c_int), intent(in) :: num_thread
-            type(c_ptr) :: sum
+            integer(kind=c_int), value, intent(in) :: num_thread
+            integer(kind=c_size_t), value, intent(in) :: stride
+            type(c_ptr) :: progress
+            type(c_ptr) :: norm
         end function geopm_progress_threaded_sum
 
     end interface

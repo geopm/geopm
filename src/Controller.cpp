@@ -108,6 +108,11 @@ extern "C"
         return err;
     }
 
+    int geopm_ctl_create_f(struct geopm_policy_c *policy, const char *sample_key, int comm, struct geopm_ctl_c **ctl)
+    {
+        return geopm_ctl_create(policy, sample_key, MPI_Comm_f2c(comm), ctl);
+    }
+
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
     {
         int err = 0;

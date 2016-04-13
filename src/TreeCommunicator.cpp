@@ -58,6 +58,11 @@ extern "C"
         return geopm_comm_split_imp(comm, num_node, NULL, &is_shm_root);
     }
 
+    int geopm_num_node_f(int comm, int *num_node)
+    {
+        return geopm_num_node(MPI_Comm_f2c(comm), num_node);
+    }
+
     int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)
     {
         int num_node = 0;
@@ -70,10 +75,27 @@ extern "C"
         return err;
     }
 
+    int geopm_comm_split_ppn1_f(int comm, int *ppn1_comm)
+    {
+        MPI_Comm ppn1_comm_c;
+        int err = geopm_comm_split_ppn1(MPI_Comm_f2c(comm), &ppn1_comm_c);
+        *ppn1_comm = MPI_Comm_c2f(ppn1_comm_c);
+        return err;
+    }
+
+
     int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm)
     {
         int num_node = 0;
         return geopm_comm_split_imp(comm, &num_node, split_comm, is_ctl_comm);
+    }
+
+    int geopm_comm_split_f(int comm, int *split_comm, int *is_ctl_comm)
+    {
+        MPI_Comm split_comm_c;
+        int err = geopm_comm_split(MPI_Comm_f2c(comm), &split_comm_c, is_ctl_comm);
+        *split_comm = MPI_Comm_c2f(split_comm_c);
+        return err;
     }
 
     static int geopm_comm_split_imp(MPI_Comm comm, int *num_node, MPI_Comm *split_comm, int *is_shm_root)
