@@ -209,7 +209,7 @@ module geopm
             implicit none
             integer(kind=c_int), value, intent(in) :: num_thread
             integer(kind=c_size_t), value, intent(in) :: stride
-            integer(kind=c_int), intent(in) :: progress(*)
+            integer(kind=c_int32_t), intent(in) :: progress(*)
             real(kind=c_double), intent(in) :: norm(*)
         end function geopm_progress_threaded_min
 
@@ -218,8 +218,8 @@ module geopm
             implicit none
             integer(kind=c_int), value, intent(in) :: num_thread
             integer(kind=c_size_t), value, intent(in) :: stride
-            type(c_ptr) :: progress
-            type(c_ptr) :: norm
+            integer(kind=c_int32_t), intent(in) :: progress(*)
+            real(kind=c_double), value, intent(in) :: norm
         end function geopm_progress_threaded_sum
 
     end interface
