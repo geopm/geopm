@@ -558,6 +558,9 @@ namespace geopm
             std::ifstream config_file_in;
 
             config_file_in.open(m_in_config.c_str(), std::ifstream::in);
+            if (!config_file_in.is_open()) {
+                throw Exception("GlobalPolicy: input configuration file \"" + m_in_config + "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             config_file_in.seekg(0, std::ios::end);
             size_t file_size = config_file_in.tellg();
             if (file_size <= 0) {
