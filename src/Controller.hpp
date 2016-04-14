@@ -163,7 +163,7 @@ namespace geopm
         protected:
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
-                M_SHMEM_REGION_SIZE = 4096,
+                M_SHMEM_REGION_SIZE = 524288,
             };
             void connect(void);
             void enforce_child_policy(int level, const Policy &policy);

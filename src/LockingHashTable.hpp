@@ -49,7 +49,7 @@
 #include "Exception.hpp"
 
 #ifndef GEOPM_HASH_TABLE_DEPTH_MAX
-#define GEOPM_HASH_TABLE_DEPTH_MAX 4
+#define GEOPM_HASH_TABLE_DEPTH_MAX 32
 #endif
 
 namespace geopm
