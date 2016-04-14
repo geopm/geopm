@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 
     ierr = MPI_Init(&argc, &argv);
     if (!ierr) {
-        ierr = geopm_prof_create("timed_loop", "/geopm_shm_key", MPI_COMM_WORLD, &prof);
+        ierr = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
     }
     if (!ierr) {
         ierr = geopm_prof_region(NULL, "loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);

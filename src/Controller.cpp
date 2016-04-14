@@ -67,7 +67,7 @@ extern "C"
     }
 
 
-    int geopmctl_main(const char *policy_config, const char *policy_key, const char *sample_key, const char *report)
+    int geopmctl_main(const char *policy_config, const char *sample_key, const char *report)
     {
         int err = 0;
         char profile_name[NAME_MAX] = {0};
@@ -78,12 +78,10 @@ extern "C"
         if (!err) {
             try {
                 std::string policy_config_str(policy_config);
-                std::string policy_key_str(policy_key);
                 std::string sample_key_str(sample_key);
                 std::string report_str(report);
                 std::string profile_name_str(basename(profile_name));
                 geopm::GlobalPolicy policy(policy_config_str, "");
-
                 geopm::Controller ctl(&policy, sample_key_str, MPI_COMM_WORLD);
                 ctl.run();
             }

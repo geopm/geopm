@@ -313,6 +313,7 @@ namespace geopm
                 key = g_default_shmem_key;
             }
         }
+        key = key + "-sample";
         m_ctl_shmem = new SharedMemoryUser(key, 60); // 60 second timeout
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
@@ -360,7 +361,7 @@ namespace geopm
         }
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
-        std::string table_shm_key(shm_key + "_" + std::to_string(m_rank));
+        std::string table_shm_key(key + "-" + std::to_string(m_rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
@@ -595,6 +596,7 @@ namespace geopm
                 key = g_default_shmem_key;
             }
         }
+        key = key + "-sample";
         m_ctl_shmem = new SharedMemory(key, table_size);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
     }
@@ -621,7 +623,7 @@ namespace geopm
         }
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
-            shm_key = m_ctl_shmem->key() + "_" + std::to_string(*it);
+            shm_key = m_ctl_shmem->key() + "-" + std::to_string(*it);
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
@@ -785,7 +787,7 @@ namespace geopm
 
         gethostname(hostname, NAME_MAX);
         if (!file_stream.is_open()) {
-            file_stream.open(m_report_name + "_" + std::string(hostname), std::ios_base::out);
+            file_stream.open(m_report_name + "-" + std::string(hostname), std::ios_base::out);
             file_stream << "Profile: " << m_prof_name << std::endl;
         }
 

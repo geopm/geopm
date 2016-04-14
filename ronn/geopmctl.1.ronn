@@ -34,7 +34,7 @@ geopmctl(1) -- geopm runtime mpi application
 ## SYNOPSIS
 
   * `geopmctl` [`--help`] [`--version`]:
-    (`-c` policy_config | `-k` policy_key) <br>
+    `-c` policy_config <br>
     [`-s` sample_key] [`-r` report]
 
 ## DESCRIPTION
@@ -51,15 +51,9 @@ geopmctl(1) -- geopm runtime mpi application
     Print version of geopm to standard output, then exit.
 
   * `-c` policy_config:
-    Policy configuration file which may be created with the
-    **geopm_policy_c(3)** interface or the **geopmpolicy(3)** application.
-    If `-c` is specified then `-k`  should not be specified.  If both are
-    specified `-k` is ignored and a warning is printed.
-
-  * `-k` control_key:
-    POSIX shared memory key which determines policy for geopmctl.  See
-    **geopm_policy_c(3)** for information on how to create and modify a shared
-    memory region for control.
+    Policy configuration file or POSIX shared memory key which may be
+    created with the **geopm_policy_c(3)** interface or the
+    **geopmpolicy(3)** application.
 
   * `-s` sample_key:
     POSIX shared memory key referencing memory written to by the compute
