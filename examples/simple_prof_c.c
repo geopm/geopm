@@ -95,7 +95,6 @@ int main(int argc, char **argv)
                 min_progress = geopm_progress_threaded_min(num_thread, stride, progress, norm);
                 (void) geopm_prof_progress(NULL, region_id, min_progress);
             }
-#pragma omp barrier
         }
 }
         ierr = geopm_prof_exit(NULL, region_id);

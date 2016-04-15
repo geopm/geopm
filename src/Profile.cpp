@@ -291,6 +291,7 @@ namespace geopm
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
+        , m_scheduler(0.01)
         , m_is_first_sync(true)
         , m_parent_region(0)
         , m_parent_progress(0.0)
@@ -428,6 +429,7 @@ namespace geopm
             m_progress = 1.0;
             sample(region_id);
             m_curr_region_id = 0;
+            m_scheduler.clear();
             if (region_id == GEOPM_REGION_ID_MPI) {
                 m_curr_region_id = m_parent_region;
                 m_progress = m_parent_progress;
@@ -442,9 +444,11 @@ namespace geopm
     void Profile::progress(uint64_t region_id, double fraction)
     {
         if (m_num_enter == 1 && m_curr_region_id == region_id &&
-            fraction > 0.0 && fraction < 1.0 ) {
+            fraction > 0.0 && fraction < 1.0 &&
+            m_scheduler.do_sample()) {
             m_progress = fraction;
             sample(region_id);
+            m_scheduler.record_exit();
         }
     }
 

@@ -44,6 +44,7 @@
 #include "geopm_message.h"
 #include "SharedMemory.hpp"
 #include "LockingHashTable.hpp"
+#include "SampleScheduler.hpp"
 
 /// @brief Enum encompassing application and
 /// geopm runtime state.
@@ -318,6 +319,7 @@ namespace geopm
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
             ProfileTable *m_table;
+            SampleScheduler m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;

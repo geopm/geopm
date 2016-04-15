@@ -160,6 +160,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Region.hpp \
                             src/SampleRegulator.cpp \
                             src/SampleRegulator.hpp \
+                            src/SampleScheduler.cpp \
+                            src/SampleScheduler.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
                             src/Tracer.cpp \
@@ -226,6 +228,8 @@ if ENABLE_MPI
                           src/Region.hpp \
                           src/SampleRegulator.cpp \
                           src/SampleRegulator.hpp \
+                          src/SampleScheduler.cpp \
+                          src/SampleScheduler.hpp \
                           src/SharedMemory.cpp \
                           src/SharedMemory.hpp \
                           src/Tracer.cpp \
