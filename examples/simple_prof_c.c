@@ -60,7 +60,10 @@ int main(int argc, char **argv)
 
     ierr = MPI_Init(&argc, &argv);
     if (!ierr) {
-        num_thread = omp_get_max_threads();
+#pragma omp parallel
+        {
+            num_thread = omp_get_num_threads();
+        }
         ierr = posix_memalign((void **)&progress, cache_line_size, cache_line_size * num_thread * sizeof(int32_t));
     }
     if (!ierr) {
@@ -80,6 +83,7 @@ int main(int argc, char **argv)
     if (!ierr) {
         ierr = geopm_prof_region(NULL, "loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
     }
+    MPI_Barrier(MPI_COMM_WORLD);
     if (!ierr) {
         ierr = geopm_prof_enter(NULL, region_id);
     }

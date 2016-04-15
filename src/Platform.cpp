@@ -196,9 +196,9 @@ namespace geopm
                     telemetry[domain_idx].signal[num_platform_signal] = 1.0;
                 }
                 else {
-                    telemetry[domain_idx].signal[num_platform_signal] = min_progress[domain_idx] == DBL_MAX ? -1.0 : min_progress[domain_idx];
+                    telemetry[domain_idx].signal[num_platform_signal] = min_progress[domain_idx] == DBL_MAX ? 0.0 : min_progress[domain_idx];
                 }
-                telemetry[domain_idx].signal[num_platform_signal + 1] = runtime[domain_idx] == DBL_MIN ? 0.0 : runtime[domain_idx];
+                telemetry[domain_idx].signal[num_platform_signal + 1] = runtime[domain_idx] == DBL_MIN ? -1.0 : runtime[domain_idx];
                 ++domain_idx;
             }
             // Insert region and timestamp
