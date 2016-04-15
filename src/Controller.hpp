@@ -193,6 +193,8 @@ namespace geopm
             int m_ctl_status;
             bool m_do_teardown;
             bool m_is_connected;
+            double m_rate_limit;
+            struct geopm_time_s m_loop_t0;
     };
 }
 

@@ -182,6 +182,7 @@ namespace geopm
         , m_ctl_status(GEOPM_STATUS_UNDEFINED)
         , m_do_teardown(false)
         , m_is_connected(false)
+        , m_rate_limit(0.0)
     {
         MPI_Comm ppn1_comm;
         int err = 0;
@@ -237,6 +238,9 @@ namespace geopm
 
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform);
+            // convert rate limit from ms to seconds
+            m_rate_limit = m_platform->control_latency_ms() * 1E-3;
+            geopm_time(&m_loop_t0);
 
             m_msr_sample.resize(m_platform->capacity());
 
@@ -419,6 +423,13 @@ namespace geopm
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         size_t length;
+        struct geopm_time_s loop_t1;
+
+        do {
+            geopm_time(&loop_t1);
+        }
+        while (geopm_time_diff(&m_loop_t0, &loop_t1) < m_rate_limit);
+        m_loop_t0 = loop_t1;
 
         for (level = 0; level < m_tree_comm->num_level(); ++level) {
             if (level) {

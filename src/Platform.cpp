@@ -367,4 +367,9 @@ namespace geopm
 
         m_imp->whitelist(file_desc);
     }
+
+    double Platform::control_latency_ms(void) const
+    {
+        return m_imp->control_latency_ms();
+    }
 }

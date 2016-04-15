@@ -138,6 +138,7 @@ namespace geopm
             /// @brief Retrieve the number of control domains
             /// @return The number of control domains on the hw platform.
             int num_control_domain(void) const;
+            double control_latency_ms(void) const;
             void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
                                     const std::vector<double> &aligned_data,
                                     std::vector<struct geopm_telemetry_message_s> &telemetry);

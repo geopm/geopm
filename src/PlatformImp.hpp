@@ -69,7 +69,7 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
-            PlatformImp(int num_package_signal, int num_cpu_signal);
+            PlatformImp(int num_package_signal, int num_cpu_signal, double control_latency);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
 
@@ -102,6 +102,7 @@ namespace geopm
             /// @brief Retrieve the number of per-cpu signals
             /// @return number of per-cpu signals.
             virtual int num_cpu_signal(void) const;
+            virtual double control_latency_ms(void) const;
             /// @brief Retrieve the topology tree for the platform.
             /// @return PlatformTopology object holding the
             ///         current platform topology.
@@ -242,6 +243,7 @@ namespace geopm
             int m_num_package_signal;
             /// @brief The number of signals per CPU.
             int m_num_cpu_signal;
+            double m_control_latency_ms;
             /// @brief The last values read from all counters.
             std::vector<double> m_msr_value_last;
             /// @brief The current aggregated overflow for all the counters.

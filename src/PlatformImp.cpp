@@ -54,11 +54,12 @@ namespace geopm
         , m_num_tile(0)
         , m_num_tile_group(0)
         , m_num_package(0)
+        , m_control_latency_ms(10.0)
     {
 
     }
 
-    PlatformImp::PlatformImp(int num_package_signal, int num_cpu_signal)
+    PlatformImp::PlatformImp(int num_package_signal, int num_cpu_signal, double control_latency)
         : m_num_logical_cpu(0)
         , m_num_hw_cpu(0)
         , m_num_tile(0)
@@ -66,6 +67,7 @@ namespace geopm
         , m_num_package(0)
         , m_num_package_signal(num_package_signal)
         , m_num_cpu_signal(num_cpu_signal)
+        , m_control_latency_ms(control_latency)
     {
 
     }
@@ -116,6 +118,11 @@ namespace geopm
     int PlatformImp::num_cpu_signal(void) const
     {
         return m_num_cpu_signal;
+    }
+
+    double PlatformImp::control_latency_ms(void) const
+    {
+        return m_control_latency_ms;
     }
 
     const PlatformTopology *PlatformImp::topology(void) const
