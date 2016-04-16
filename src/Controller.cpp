@@ -178,7 +178,7 @@ namespace geopm
         , m_sampler(NULL)
         , m_sample_regulator(NULL)
         , m_tracer(NULL)
-        , m_region_id(GEOPM_REGION_ID_INVALID)
+        , m_region_id_all(0)
         , m_ctl_status(GEOPM_STATUS_UNDEFINED)
         , m_do_teardown(false)
         , m_is_connected(false)
@@ -458,58 +458,69 @@ namespace geopm
                 // by adjusting RAPL power domain limits.
                 m_sampler->sample(m_prof_sample, length);
                 m_platform->sample(m_msr_sample);
+                // Insert MSR data into platform sample
                 std::vector<double> platform_sample(m_msr_sample.size());
                 auto output_it = platform_sample.begin();
                 for (auto input_it = m_msr_sample.begin(); input_it != m_msr_sample.end(); ++input_it) {
                     *output_it = (*input_it).signal;
                     ++output_it;
                 }
-                auto prof_begin = m_prof_sample.cbegin();
-                auto prof_end = m_prof_sample.cbegin();
-                uint64_t region = (*prof_end).first;
-                while (prof_end != (m_prof_sample.cbegin() + length)) {
-                    while (prof_end != (m_prof_sample.cbegin() + length) && (*(prof_end)).first == region) {
-                        ++prof_end;
-                    }
-                    std::vector<double> aligned_signal;
-                    (*m_sample_regulator)(m_msr_sample[0].timestamp,
-                                          platform_sample.cbegin(), platform_sample.cend(),
-                                          prof_begin, prof_end,
-                                          aligned_signal);
+                // Align profile data
+                std::vector<double> aligned_signal;
+                (*m_sample_regulator)(m_msr_sample[0].timestamp,
+                                      platform_sample.cbegin(), platform_sample.cend(),
+                                      m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
+                                      aligned_signal,
+                                      m_region_id);
 
-                    m_platform->transform_rank_data((*prof_begin).first, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
-                    m_tracer->update(m_telemetry_sample);
-
-                    m_region_id = m_telemetry_sample[0].region_id;
-                    auto it = m_region[level].find(m_region_id);
-                    if (it != m_region[level].end()) {
-                        Region *curr_region = (*it).second;
-                        Policy *curr_policy = m_policy[level];
-                        curr_region->insert(m_telemetry_sample);
-                        if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                            m_platform->enforce_policy(m_region_id, *curr_policy);
-                        }
-                    }
-                    else {
-                        m_region[level].insert(std::pair<uint64_t, Region *>
-                                               (m_region_id,
-                                                new Region(m_region_id,
-                                                           GEOPM_POLICY_HINT_UNKNOWN,
-                                                           m_platform->num_control_domain(),
-                                                           level)));
-                        auto it = m_region[level].find(m_region_id);
-                        Region *curr_region = (*it).second;
-                        Policy *curr_policy = m_policy[level];
-                        curr_region->insert(m_telemetry_sample);
-                        if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                            m_platform->enforce_policy(m_region_id, *curr_policy);
-                        }
-                    }
-                    if (prof_end != (m_prof_sample.cbegin() + length)) {
-                        region = (*prof_end).first;
-                        prof_begin = prof_end;
+                uint64_t region_id_all = m_region_id[0];
+                for (auto it = m_region_id.begin(); it != m_region_id.end(); ++it) {
+                    if (region_id_all != (*it)) {
+                        region_id_all = 0;
+                        break;
                     }
                 }
+                m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
+                if (m_region_id_all && m_region_id_all != region_id_all) {
+                    override_telemetry(m_region_id_all, 1.0);
+                    m_region_id_all = 0;
+                }
+                else if (!m_region_id_all && region_id_all) {
+                    override_telemetry(region_id_all, 0.0);
+                    m_region_id_all = region_id_all;
+                }
+                else if (m_region_id_all && region_id_all) {
+                    override_telemetry(m_region_id_all, 1.0);
+                    m_tracer->update(m_telemetry_sample);
+		    auto it = m_region[level].find(m_region_id_all);
+                    if (it == m_region[level].end()) {
+                        throw Exception("Controller::walk_up(): exiting a region that hasn't been entered", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    }
+                    (*it).second->insert(m_telemetry_sample);
+                    m_region_id_all = region_id_all;
+                    override_telemetry(region_id_all, 0.0);
+                }
+                m_tracer->update(m_telemetry_sample);
+
+                if (m_region_id_all) {
+                    auto it = m_region[level].find(m_region_id_all);
+                    if (it == m_region[level].end()) {
+                        auto tmp_it = m_region[level].insert(
+                                      std::pair<uint64_t, Region *> (m_region_id_all,
+                                                                     new Region(m_region_id_all,
+                                                                                GEOPM_POLICY_HINT_UNKNOWN,
+                                                                                m_platform->num_control_domain(),
+                                                                                level)));
+                        it = tmp_it.first;
+                    }
+                    Region *curr_region = (*it).second;
+                    Policy *curr_policy = m_policy[level];
+                    curr_region->insert(m_telemetry_sample);
+                    if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+                        m_platform->enforce_policy(m_region_id_all, *curr_policy);
+                    }
+                }
+
                 auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                 if (outer_it != m_region[level].end()) {
                     (*outer_it).second->sample_message(sample_msg);
@@ -526,7 +537,7 @@ namespace geopm
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
-                m_policy[level]->is_converged(m_region_id)) {
+                m_policy[level]->is_converged(m_region_id_all)) {
                 m_tree_comm->send_sample(level, sample_msg);
             }
         }
@@ -542,6 +553,14 @@ namespace geopm
         return do_shutdown;
     }
 
+    void Controller::override_telemetry(uint64_t region_id, double progress)
+    {
+        for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
+            (*it).region_id = region_id;
+            (*it).signal[GEOPM_TELEMETRY_TYPE_PROGRESS] = progress;
+        }
+    }
+
     void Controller::enforce_child_policy(int level, const Policy &policy)
     {
         if (!m_is_node_root) {
@@ -555,7 +574,7 @@ namespace geopm
                                             child_msg);
         }
         else {
-            m_policy[level]->policy_message(m_region_id, m_last_policy_msg[level], child_msg);
+            m_policy[level]->policy_message(m_region_id_all, m_last_policy_msg[level], child_msg);
         }
         m_tree_comm->send_policy(level, child_msg);
     }

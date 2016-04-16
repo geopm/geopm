@@ -169,6 +169,7 @@ namespace geopm
             void enforce_child_policy(int level, const Policy &policy);
             int walk_down(void);
             int walk_up(void);
+            void override_telemetry(uint64_t region_id, double progress);
             bool m_is_node_root;
             int m_max_fanout;
             std::vector<int> m_fan_out;
@@ -189,7 +190,8 @@ namespace geopm
             std::vector<std::map <uint64_t, Region *> > m_region;
             std::vector<Policy *> m_policy;
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
-            uint64_t m_region_id;
+            std::vector<uint64_t> m_region_id;
+            uint64_t m_region_id_all;
             int m_ctl_status;
             bool m_do_teardown;
             bool m_is_connected;

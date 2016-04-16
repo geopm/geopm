@@ -130,7 +130,8 @@ namespace geopm
                               std::vector<double>::const_iterator platform_sample_end,
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                              std::vector<double> &aligned_signal); // result stack per domain of control
+                              std::vector<double> &aligned_signal,
+                              std::vector<uint64_t> &region_id);
         protected:
             /// @brief Insert ProfileSampler data.
             void insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
@@ -161,7 +162,7 @@ namespace geopm
             std::map<int, int> m_rank_idx_map;
             /// @brief The region_id of the stored ProfileSampler data
             /// used for interpolation.
-            uint64_t m_region_id_prev;
+            std::vector<uint64_t> m_region_id;
             /// @brief Per rank record of last profile samples in
             /// m_region_id_prev
             std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_prev;

@@ -36,7 +36,6 @@
 namespace geopm
 {
     SampleRegulator::SampleRegulator(const std::vector<int> &cpu_rank)
-        : m_region_id_prev(0)
     {
         std::set<int> rank_set;
         for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
@@ -51,6 +50,7 @@ namespace geopm
         for (int i = 0; i < m_num_rank; ++i) {
             m_rank_sample_prev.emplace_back(M_INTERP_TYPE_LINEAR); // two samples are required for linear interpolation
         }
+        m_region_id.resize(m_num_rank);
     }
 
     SampleRegulator::~SampleRegulator()
@@ -63,7 +63,8 @@ namespace geopm
                                        std::vector<double>::const_iterator platform_sample_end,
                                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                                       std::vector<double> &aligned_signal) // result list per domain of control
+                                       std::vector<double> &aligned_signal,
+                                       std::vector<uint64_t> &region_id)
     {
         // Insert new application profile data into buffers
         insert(prof_sample_begin, prof_sample_end);
@@ -75,24 +76,15 @@ namespace geopm
         align(platform_sample_time);
 
         aligned_signal = m_aligned_signal;
+        region_id = m_region_id;
     }
 
     void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         if (prof_sample_begin != prof_sample_end) {
-            uint64_t region_id = (*prof_sample_begin).second.region_id;
-            if (region_id != m_region_id_prev) {
-                for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
-                    (*it).clear();
-                }
-                m_region_id_prev = 0;
-            }
             struct m_rank_sample_s rank_sample;
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
-                if ((*it).second.region_id != region_id) {
-                    throw Exception("SampleRegulator::insert() regions do not match!!!", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
                 rank_sample.timestamp = (*it).second.timestamp;
                 rank_sample.progress = (*it).second.progress;
                 /// @todo: FIXME geopm_prof_message_s does not contain runtime
@@ -101,9 +93,12 @@ namespace geopm
                 // Dereference of find result below will
                 // segfault with bad profile sample data
                 size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second;
+                if ((*it).second.region_id != m_region_id[rank_idx]) {
+                    m_rank_sample_prev[rank_idx].clear();
+                }
+                m_region_id[rank_idx] = (*it).second.region_id;
                 m_rank_sample_prev[rank_idx].insert(rank_sample);
             }
-            m_region_id_prev = region_id;
         }
     }
 
