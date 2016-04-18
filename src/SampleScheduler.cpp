@@ -30,8 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
 #include "Exception.hpp"
 #include "SampleScheduler.hpp"
 
@@ -67,7 +65,6 @@ namespace geopm
                 m_work_time = geopm_time_diff(&m_entry_time, &now);
                 m_sample_stride = (size_t)(m_sample_time/(m_overhead_frac * m_work_time)) + 1;
                 m_sample_count = 0;
-std::cerr << "m_sample_time=" << m_sample_time << "m_work_time=" << m_work_time << " m_sample_stride=" << m_sample_stride << std::endl;
                 m_status = M_STATUS_READY;
                 break;
             case M_STATUS_READY:
