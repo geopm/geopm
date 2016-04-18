@@ -190,7 +190,7 @@ namespace geopm
             }
             // Insert application signals
             int domain_idx = 0;
-            for (int i = 0; i < num_package * NUM_RANK_SIGNAL; i += NUM_RANK_SIGNAL) {;
+            for (int i = 0; i < num_package * NUM_RANK_SIGNAL; i += NUM_RANK_SIGNAL) {
                 // Do not drop a region exit
                 if (max_progress[domain_idx] == 1.0) {
                     telemetry[domain_idx].signal[num_platform_signal] = 1.0;

@@ -492,7 +492,7 @@ namespace geopm
                 else if (m_region_id_all && region_id_all) {
                     override_telemetry(m_region_id_all, 1.0);
                     m_tracer->update(m_telemetry_sample);
-		    auto it = m_region[level].find(m_region_id_all);
+                    auto it = m_region[level].find(m_region_id_all);
                     if (it == m_region[level].end()) {
                         throw Exception("Controller::walk_up(): exiting a region that hasn't been entered", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                     }
@@ -506,11 +506,11 @@ namespace geopm
                     auto it = m_region[level].find(m_region_id_all);
                     if (it == m_region[level].end()) {
                         auto tmp_it = m_region[level].insert(
-                                      std::pair<uint64_t, Region *> (m_region_id_all,
-                                                                     new Region(m_region_id_all,
-                                                                                GEOPM_POLICY_HINT_UNKNOWN,
-                                                                                m_platform->num_control_domain(),
-                                                                                level)));
+                                          std::pair<uint64_t, Region *> (m_region_id_all,
+                                                  new Region(m_region_id_all,
+                                                             GEOPM_POLICY_HINT_UNKNOWN,
+                                                             m_platform->num_control_domain(),
+                                                             level)));
                         it = tmp_it.first;
                     }
                     Region *curr_region = (*it).second;

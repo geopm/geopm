@@ -69,8 +69,6 @@ namespace geopm
     size_t RAPLPlatform::capacity(void)
     {
         return m_imp->num_package() * (m_imp->num_package_signal() + m_imp->num_cpu_signal());
-/*        return m_imp->num_package() * m_imp->num_package_signal() +
-               m_imp->num_logical_cpu() * m_imp->num_cpu_signal(); */
     }
 
     void RAPLPlatform::sample(std::vector<struct geopm_msr_message_s> &msr_values)
@@ -156,44 +154,6 @@ namespace geopm
             msr_values[count].signal = accum_llc;;
             count++;
         }
-/*
-        //record per cpu metrics
-        for (int i = 0; i < m_num_cpu; i++) {
-            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_FREQUENCY;
-            msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_CPU, i, GEOPM_TELEMETRY_TYPE_FREQUENCY);
-            count++;
-
-            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_INST_RETIRED;
-            msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_CPU, i, GEOPM_TELEMETRY_TYPE_INST_RETIRED);
-            count++;
-
-            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE;
-            msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_CPU, i, GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE);
-            count++;
-
-            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF;
-            msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_CPU, i, GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF);
-            count++;
-
-            msr_values[count].domain_type = GEOPM_DOMAIN_CPU;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_LLC_VICTIMS;
-            msr_values[count].signal = m_imp->read_signal(GEOPM_DOMAIN_CPU, i, GEOPM_TELEMETRY_TYPE_LLC_VICTIMS);
-            count++;
-        }*/
     }
 
     void RAPLPlatform::enforce_policy(uint64_t region_id, Policy &policy) const

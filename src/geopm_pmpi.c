@@ -103,7 +103,7 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
     PMPI_Get_version(&mpi_version, &mpi_subversion);
     if (mpi_version != 3 && mpi_subversion != 0 && !rank) {
         fprintf(stderr, "WARNING:  GEOPM PMPI wrappers designed for MPI verison 3.0\n"
-                        "          applciation compiled using version %i.%i.\n\n", mpi_version, mpi_subversion);
+                "          applciation compiled using version %i.%i.\n\n", mpi_version, mpi_subversion);
     }
 
     int err = 0;

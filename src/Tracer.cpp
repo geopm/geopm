@@ -45,7 +45,7 @@ namespace geopm
     Tracer::Tracer()
         : m_is_trace_enabled(false)
         , m_do_header(true)
-        , m_time_zero({{0,0}})
+        , m_time_zero({{0, 0}})
         , m_policy({0, 0, 0, 0.0})
     {
         geopm_time(&m_time_zero);
@@ -72,8 +72,7 @@ namespace geopm
 
     void Tracer::update(const std::vector <struct geopm_telemetry_message_s> &telemetry)
     {
-        if (m_is_trace_enabled && telemetry.size())
-        {
+        if (m_is_trace_enabled && telemetry.size()) {
             if (m_do_header) {
                 m_stream << "region_id | seconds | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
@@ -99,8 +98,7 @@ namespace geopm
 
     void Tracer::update(const struct geopm_policy_message_s &policy)
     {
-        if (m_is_trace_enabled)
-        {
+        if (m_is_trace_enabled) {
             m_policy = policy;
         }
     }

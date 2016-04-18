@@ -58,7 +58,6 @@ namespace geopm
         , m_sum(m_num_signal * m_num_domain)
         , m_sum_squares(m_num_signal * m_num_domain)
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
-
     {
         std::fill(m_is_dirty_domain_sample.begin(), m_is_dirty_domain_sample.end(), true);
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
@@ -178,7 +177,7 @@ namespace geopm
         for (int i = 0; i < m_domain_buffer.size(); ++i) {
             if (is_known_valid ||
                 m_domain_buffer.value(i)[m_num_signal * domain_idx + GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0) {
-                    median_sort[idx++] = m_domain_buffer.value(i)[m_num_signal * domain_idx + signal_type];
+                median_sort[idx++] = m_domain_buffer.value(i)[m_num_signal * domain_idx + signal_type];
             }
         }
         std::sort(median_sort.begin(), median_sort.begin() + num_sample(domain_idx, signal_type));
@@ -189,8 +188,8 @@ namespace geopm
     {
         check_bounds(domain_idx, signal_type, __FILE__, __LINE__);
         return sqrt((m_sum_squares[domain_idx * m_num_signal + signal_type] /
-                num_sample(domain_idx, signal_type)) -
-                pow(mean(domain_idx, signal_type), 2));
+                     num_sample(domain_idx, signal_type)) -
+                    pow(mean(domain_idx, signal_type), 2));
     }
 
     double Region::min(int domain_idx, int signal_type) const
@@ -264,7 +263,7 @@ namespace geopm
 #endif
         // If buffer index is negative then wrap around
         if (buffer_idx < 0) {
-           buffer_idx += m_domain_buffer.size();
+            buffer_idx += m_domain_buffer.size();
         }
         if (buffer_idx >= 0 && buffer_idx < m_domain_buffer.size()) {
             result = m_domain_buffer.value(buffer_idx)[domain_idx * m_num_signal + signal_type];

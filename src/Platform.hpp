@@ -140,8 +140,8 @@ namespace geopm
             int num_control_domain(void) const;
             double control_latency_ms(void) const;
             void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
-                                    const std::vector<double> &aligned_data,
-                                    std::vector<struct geopm_telemetry_message_s> &telemetry);
+                                     const std::vector<double> &aligned_data,
+                                     std::vector<struct geopm_telemetry_message_s> &telemetry);
         protected:
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.

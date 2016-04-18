@@ -367,7 +367,7 @@ namespace geopm
                 umask(old_mask);
             }
             else if (m_in_config == m_out_config) {
-                    throw Exception("GlobalPolicy::GlobalPolicy(): input config file and output config file cannot be the same", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::GlobalPolicy(): input config file and output config file cannot be the same", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
 
