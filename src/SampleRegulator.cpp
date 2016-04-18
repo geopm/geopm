@@ -39,7 +39,9 @@ namespace geopm
     {
         std::set<int> rank_set;
         for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
-            rank_set.insert(*it);
+            if ((*it) != -1) {
+                rank_set.insert(*it);
+            }
         }
         m_num_rank = rank_set.size();
         int i = 0;

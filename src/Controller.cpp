@@ -497,8 +497,8 @@ namespace geopm
                         throw Exception("Controller::walk_up(): exiting a region that hasn't been entered", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                     }
                     (*it).second->insert(m_telemetry_sample);
-                    m_region_id_all = region_id_all;
                     override_telemetry(region_id_all, 0.0);
+                    m_region_id_all = region_id_all;
                 }
                 m_tracer->update(m_telemetry_sample);
 
