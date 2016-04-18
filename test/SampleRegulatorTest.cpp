@@ -123,21 +123,6 @@ TEST_F(SampleRegulatorTest, insert_profile)
     }
 }
 
-TEST_F(SampleRegulatorTest, insert_profile_unsync)
-{
-    // One rank reports a different region_id:
-    m_test_prof[5].second.region_id++;
-    ASSERT_THROW(insert(m_test_prof.begin(), m_test_prof.end()), geopm::Exception);
-
-    // synchronize the regions and reinsert
-    m_test_prof[5].second.region_id--;
-    insert(m_test_prof.begin(), m_test_prof.end());
-    for (int i = 0; i != 4; ++i) {
-        // When ranks are synchronized, progress data is tored.
-        ASSERT_EQ(m_rank_sample_prev[i].size(), 2);
-    }
-}
-
 TEST_F(SampleRegulatorTest, align_profile)
 {
     // test when no profile data has been entered
