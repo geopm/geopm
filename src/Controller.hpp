@@ -169,7 +169,8 @@ namespace geopm
             void enforce_child_policy(int level, const Policy &policy);
             int walk_down(void);
             int walk_up(void);
-            void override_telemetry(uint64_t region_id, double progress);
+            void override_telemetry(double progress);
+            void update_region(void);
             bool m_is_node_root;
             int m_max_fanout;
             std::vector<int> m_fan_out;

@@ -473,6 +473,7 @@ namespace geopm
                                       aligned_signal,
                                       m_region_id);
 
+                // Determine if all ranks were last sampled from the same region
                 uint64_t region_id_all = m_region_id[0];
                 for (auto it = m_region_id.begin(); it != m_region_id.end(); ++it) {
                     if (region_id_all != (*it)) {
@@ -481,45 +482,33 @@ namespace geopm
                     }
                 }
                 m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
-                if (m_region_id_all && m_region_id_all != region_id_all) {
-                    override_telemetry(m_region_id_all, 1.0);
+
+                if (m_region_id_all && !region_id_all) {
+                    override_telemetry(1.0);
+                    update_region();
+                    m_tracer->update(m_telemetry_sample);
                     m_region_id_all = 0;
                 }
                 else if (!m_region_id_all && region_id_all) {
-                    override_telemetry(region_id_all, 0.0);
                     m_region_id_all = region_id_all;
+                    override_telemetry(0.0);
+                    update_region();
+                    m_tracer->update(m_telemetry_sample);
                 }
                 else if (m_region_id_all && region_id_all &&
-                         m_region_id_all != m_region_id_all) {
-                    override_telemetry(m_region_id_all, 1.0);
+                         m_region_id_all != region_id_all) {
+                    override_telemetry(1.0);
+                    update_region();
                     m_tracer->update(m_telemetry_sample);
-                    auto it = m_region[level].find(m_region_id_all);
-                    if (it == m_region[level].end()) {
-                        throw Exception("Controller::walk_up(): exiting a region that hasn't been entered", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                    }
-                    (*it).second->insert(m_telemetry_sample);
-                    override_telemetry(region_id_all, 0.0);
-                    m_region_id_all = region_id_all;
-                }
-                m_tracer->update(m_telemetry_sample);
 
-                if (m_region_id_all) {
-                    auto it = m_region[level].find(m_region_id_all);
-                    if (it == m_region[level].end()) {
-                        auto tmp_it = m_region[level].insert(
-                                          std::pair<uint64_t, Region *> (m_region_id_all,
-                                                  new Region(m_region_id_all,
-                                                             GEOPM_POLICY_HINT_UNKNOWN,
-                                                             m_platform->num_control_domain(),
-                                                             level)));
-                        it = tmp_it.first;
-                    }
-                    Region *curr_region = (*it).second;
-                    Policy *curr_policy = m_policy[level];
-                    curr_region->insert(m_telemetry_sample);
-                    if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                        m_platform->enforce_policy(m_region_id_all, *curr_policy);
-                    }
+                    m_region_id_all = region_id_all;
+                    override_telemetry(0.0);
+                    update_region();
+                    m_tracer->update(m_telemetry_sample);
+                }
+                else { // No entries or exits
+                    update_region();
+                    m_tracer->update(m_telemetry_sample);
                 }
 
                 auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
@@ -554,11 +543,34 @@ namespace geopm
         return do_shutdown;
     }
 
-    void Controller::override_telemetry(uint64_t region_id, double progress)
+    void Controller::override_telemetry(double progress)
     {
         for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
-            (*it).region_id = region_id;
+            (*it).region_id = m_region_id_all;
             (*it).signal[GEOPM_TELEMETRY_TYPE_PROGRESS] = progress;
+        }
+    }
+
+    void Controller::update_region(void)
+    {
+        if (m_region_id_all) {
+            int level = 0; // Called only at the leaf
+            auto it = m_region[level].find(m_region_id_all);
+            if (it == m_region[level].end()) {
+                auto tmp_it = m_region[level].insert(
+                                  std::pair<uint64_t, Region *> (m_region_id_all,
+                                          new Region(m_region_id_all,
+                                                     GEOPM_POLICY_HINT_UNKNOWN,
+                                                     m_platform->num_control_domain(),
+                                                     level)));
+                it = tmp_it.first;
+            }
+            Region *curr_region = (*it).second;
+            Policy *curr_policy = m_policy[level];
+            curr_region->insert(m_telemetry_sample);
+            if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+                m_platform->enforce_policy(m_region_id_all, *curr_policy);
+            }
         }
     }
 
