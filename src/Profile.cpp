@@ -455,20 +455,13 @@ namespace geopm
     void Profile::outer_sync(void)
     {
         struct geopm_prof_message_s sample;
-        sample.rank = m_rank;
-        sample.region_id = GEOPM_REGION_ID_OUTER;
-        (void) geopm_time(&(sample.timestamp));
-        if (!m_is_first_sync) {
-            sample.progress = 1.0;
+        if (!m_shm_rank) {
+            sample.rank = m_rank;
+            sample.region_id = GEOPM_REGION_ID_OUTER;
+            (void) geopm_time(&(sample.timestamp));
+            sample.progress = 0.0;
             m_table->insert(sample.region_id, sample);
-            struct geopm_time_s time;
-            geopm_time_add(&(sample.timestamp), 1E-6, &time);
-            sample.timestamp = time;
-        }
-        while (m_table->size()) {}
-        sample.progress = 0.0;
-        m_table->insert(sample.region_id, sample);
-        m_is_first_sync = false;
+	}
     }
 
     void Profile::sample(uint64_t region_id)
@@ -490,19 +483,8 @@ namespace geopm
 
     void Profile::print(const std::string file_name, int depth)
     {
-        if (!m_is_first_sync) {
-            struct geopm_prof_message_s sample;
-            sample.rank = m_rank;
-            sample.region_id = GEOPM_REGION_ID_OUTER;
-            (void) geopm_time(&(sample.timestamp));
-            sample.progress = 1.0;
-            m_table->insert(sample.region_id, sample);
-        }
-
         int is_done = 0;
         int is_all_done = 0;
-
-        PMPI_Barrier(m_shm_comm);
 
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
@@ -740,7 +722,6 @@ namespace geopm
         : m_table_shmem(SharedMemory(shm_key, table_size))
         , m_table(ProfileTable(m_table_shmem.size(), m_table_shmem.pointer()))
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
-        , m_outer_sync_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
 

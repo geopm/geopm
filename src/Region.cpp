@@ -85,6 +85,9 @@ namespace geopm
             if (geopm_time_diff(&((*it).timestamp), &(telemetry[0].timestamp)) != 0.0) {
                 throw Exception("Region::insert(): input telemetry vector has non-uniform timestamp values", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+            if (*it.region_id != m_identifier) {
+                throw Exception("Region::insert(): input telemetry vector wrong region id", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
 #endif
             update_domain_sample(*it, domain_idx);
             update_signal_matrix((*it).signal, domain_idx);

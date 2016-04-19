@@ -183,6 +183,7 @@ namespace geopm
         , m_do_teardown(false)
         , m_is_connected(false)
         , m_rate_limit(0.0)
+        , m_is_in_outer(false)
     {
         MPI_Comm ppn1_comm;
         int err = 0;
@@ -251,7 +252,7 @@ namespace geopm
             for (int level = 0; level < num_level; ++level) {
                 if (level == 0) {
                     num_domain = m_platform->num_control_domain();
-                    m_telemetry_sample.resize(num_domain);
+                    m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
                     m_region[level].insert(std::pair<uint64_t, Region *>
                                            (GEOPM_REGION_ID_MPI,
                                             new Region(GEOPM_REGION_ID_MPI,
@@ -472,6 +473,26 @@ namespace geopm
                     *output_it = (*input_it).signal;
                     ++output_it;
                 }
+
+                // Catch outer sync regions
+                for (auto it = m_prof_sample.cbegin(); it != m_prof_sample.cbegin() + length; ++it) {
+                    if ((*it).second.region_id == GEOPM_REGION_ID_OUTER) {
+                        uint64_t region_id_all_tmp = m_region_id_all;
+                        m_region_id_all = GEOPM_REGION_ID_OUTER;
+                        if (m_is_in_outer) {
+                            override_telemetry(1.0, m_msr_sample[0].timestamp);
+                            update_region();
+                            m_tracer->update(m_telemetry_sample);
+                        }
+                        m_is_in_outer = true;
+                        override_telemetry(0.0, m_msr_sample[0].timestamp);
+                        update_region();
+                        m_tracer->update(m_telemetry_sample);
+                        m_region_id_all = region_id_all_tmp;
+                        break;
+                    }
+                }
+
                 // Align profile data
                 std::vector<double> aligned_signal;
                 (*m_sample_regulator)(m_msr_sample[0].timestamp,
@@ -557,6 +578,14 @@ namespace geopm
         }
     }
 
+    void Controller::override_telemetry(double progress, const struct geopm_time_s &timestamp)
+    {
+        override_telemetry(progress);
+        for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
+            (*it).timestamp = timestamp;
+        }
+    }
+
     void Controller::update_region(void)
     {
         if (m_region_id_all) {
@@ -602,6 +631,13 @@ namespace geopm
     {
         if (!m_is_node_root || !m_is_connected) {
             return;
+        }
+
+        if (m_is_in_outer) {
+            m_region_id_all = GEOPM_REGION_ID_OUTER;
+            override_telemetry(1.0);
+            update_region();
+            m_tracer->update(m_telemetry_sample);
         }
 
         std::string report_name;
