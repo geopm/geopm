@@ -512,18 +512,15 @@ namespace geopm
                 }
 
                 auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
-                if (outer_it != m_region[level].end()) {
-                    (*outer_it).second->sample_message(sample_msg);
-                    // Subtract mpi syncronization time from outer-sync
-                    if (!level) {
-                        auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
-                        if (mpi_it != m_region[level].end()) {
-                            struct geopm_sample_message_s mpi_sample;
-                            (*outer_it).second->sample_message(mpi_sample);
-                            sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
-                        }
-                    }
-                }
+                // GEOPM_REGION_ID_OUTER is inserted at construction
+                (*outer_it).second->sample_message(sample_msg);
+                // Subtract mpi syncronization time from outer-sync
+                auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
+                // GEOPM_REGION_ID_MPI is inserted at construction
+                struct geopm_sample_message_s mpi_sample;
+                (*outer_it).second->sample_message(mpi_sample);
+                sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
