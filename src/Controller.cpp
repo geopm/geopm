@@ -489,7 +489,8 @@ namespace geopm
                     override_telemetry(region_id_all, 0.0);
                     m_region_id_all = region_id_all;
                 }
-                else if (m_region_id_all && region_id_all) {
+                else if (m_region_id_all && region_id_all &&
+                         m_region_id_all != m_region_id_all) {
                     override_telemetry(m_region_id_all, 1.0);
                     m_tracer->update(m_telemetry_sample);
                     auto it = m_region[level].find(m_region_id_all);
