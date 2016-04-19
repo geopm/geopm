@@ -264,8 +264,6 @@ namespace geopm
             std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
             /// @brief Holder for sample data calculated after a domain exits a region.
             std::vector<struct geopm_sample_message_s> m_domain_sample;
-            /// @brief Mark regions dirty until they have completed the region.
-            std::vector<bool> m_is_dirty_domain_sample;
             /// @brief the current sample message to be sent up the tree.
             struct geopm_sample_message_s m_curr_sample;
             /// @brief Circular buffer is over time, vector is indexed over both domains and signals.

@@ -48,7 +48,6 @@ namespace geopm
         , m_signal_matrix(m_num_signal * m_num_domain)
         , m_entry_telemetry(m_num_domain)
         , m_domain_sample(m_num_domain)
-        , m_is_dirty_domain_sample(m_num_domain)
         , m_curr_sample({m_identifier, {0.0, 0.0, 0.0}})
         , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
         , m_time_buffer(M_NUM_SAMPLE_HISTORY)
@@ -59,7 +58,6 @@ namespace geopm
         , m_sum_squares(m_num_signal * m_num_domain)
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
     {
-        std::fill(m_is_dirty_domain_sample.begin(), m_is_dirty_domain_sample.end(), true);
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
         std::fill(m_max.begin(), m_max.end(), DBL_MIN);
         std::fill(m_sum.begin(), m_sum.end(), 0.0);
@@ -83,9 +81,11 @@ namespace geopm
         m_time_buffer.insert(telemetry[0].timestamp);
         unsigned domain_idx = 0;
         for (auto it = telemetry.begin(); it != telemetry.end(); ++it, ++domain_idx) {
+#ifdef GEOPM_DEBUG
             if (geopm_time_diff(&((*it).timestamp), &(telemetry[0].timestamp)) != 0.0) {
                 throw Exception("Region::insert(): input telemetry vector has non-uniform timestamp values", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+#endif
             update_domain_sample(*it, domain_idx);
             update_signal_matrix((*it).signal, domain_idx);
             update_valid_entries(*it, domain_idx);
@@ -93,7 +93,10 @@ namespace geopm
         }
         m_domain_buffer.insert(m_signal_matrix);
         // Make sure every domain has completed the region
-        for (domain_idx = 0; !m_is_dirty_domain_sample[domain_idx] && domain_idx != m_num_domain; ++domain_idx);
+        for (domain_idx = 0;
+             domain_idx != m_num_domain &&
+             telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0;
+             ++domain_idx);
         if (domain_idx == m_num_domain) {
             // All domains have completed so do update
             update_curr_sample();
@@ -292,7 +295,6 @@ namespace geopm
         }
         else if (m_entry_telemetry[domain_idx].region_id == m_identifier &&
                  is_telemetry_exit(telemetry, domain_idx)) {
-            m_is_dirty_domain_sample[domain_idx] = false;
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                 geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry.timestamp));
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY] =
@@ -408,7 +410,6 @@ namespace geopm
                 m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
             m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY];
             m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
-            m_is_dirty_domain_sample[domain_idx] = true;
         }
         m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] /= m_num_domain;
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
