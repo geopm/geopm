@@ -201,7 +201,7 @@ namespace geopm
     }
 
     RegionPolicy::RegionPolicy(int num_domain)
-        : m_invalid_target(DBL_MIN)
+        : m_invalid_target(-DBL_MAX)
         , m_num_domain(num_domain)
         , m_target(m_num_domain)
         , m_updated(m_num_domain)

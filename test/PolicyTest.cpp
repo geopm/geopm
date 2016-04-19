@@ -60,7 +60,7 @@ void PolicyTest::SetUp()
     m_policy->update((uint64_t)21, target); 
     for (int i = 0; i < m_num_domain; i++) {
         if (i == m_num_domain / 2) {
-            m_policy->update((uint64_t)42, i, DBL_MIN);
+            m_policy->update((uint64_t)42, i, -DBL_MAX);
         }
         else {
             m_policy->update((uint64_t)42, i, 42.0);
@@ -158,7 +158,7 @@ TEST_F(PolicyTest, target)
     for (int i = 0; i < m_num_domain; ++i) {
         m_policy->target(42, i, actual);
         if (i == m_num_domain / 2) {
-            EXPECT_DOUBLE_EQ(DBL_MIN, actual);
+            EXPECT_DOUBLE_EQ(-DBL_MAX, actual);
         }
         else {
             EXPECT_DOUBLE_EQ(42.0, actual);

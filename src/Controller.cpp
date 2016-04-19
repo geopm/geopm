@@ -252,6 +252,13 @@ namespace geopm
                 if (level == 0) {
                     num_domain = m_platform->num_control_domain();
                     m_telemetry_sample.resize(num_domain);
+                    m_region[level].insert(std::pair<uint64_t, Region *>
+                                           (GEOPM_REGION_ID_MPI,
+                                            new Region(GEOPM_REGION_ID_MPI,
+                                                       GEOPM_POLICY_HINT_UNKNOWN,
+                                                       num_domain,
+                                                       level)));
+
                 }
                 else {
                     num_domain = m_tree_comm->level_size(level - 1);
@@ -488,6 +495,7 @@ namespace geopm
                     update_region();
                     m_tracer->update(m_telemetry_sample);
                     m_region_id_all = 0;
+                    std::fill(m_region_id.begin(), m_region_id.end(), 0);
                 }
                 else if (!m_region_id_all && region_id_all) {
                     m_region_id_all = region_id_all;
@@ -503,6 +511,7 @@ namespace geopm
 
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
+                    std::fill(m_region_id.begin(), m_region_id.end(), m_region_id_all);
                     update_region();
                     m_tracer->update(m_telemetry_sample);
                 }
@@ -511,14 +520,14 @@ namespace geopm
                     m_tracer->update(m_telemetry_sample);
                 }
 
-                auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                 // GEOPM_REGION_ID_OUTER is inserted at construction
+                auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                 (*outer_it).second->sample_message(sample_msg);
                 // Subtract mpi syncronization time from outer-sync
                 auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
                 // GEOPM_REGION_ID_MPI is inserted at construction
                 struct geopm_sample_message_s mpi_sample;
-                (*outer_it).second->sample_message(mpi_sample);
+                (*mpi_it).second->sample_message(mpi_sample);
                 sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
 
                 do_shutdown = m_sampler->do_shutdown();

@@ -59,7 +59,7 @@ namespace geopm
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
     {
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
-        std::fill(m_max.begin(), m_max.end(), DBL_MIN);
+        std::fill(m_max.begin(), m_max.end(), -DBL_MAX);
         std::fill(m_sum.begin(), m_sum.end(), 0.0);
         std::fill(m_sum_squares.begin(), m_sum_squares.end(), 0.0);
         std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
@@ -92,10 +92,11 @@ namespace geopm
             update_stats((*it).signal, domain_idx);
         }
         m_domain_buffer.insert(m_signal_matrix);
-        // Make sure every domain has completed the region
+        // If all ranks have exited the region update current sample
         for (domain_idx = 0;
              domain_idx != m_num_domain &&
-             telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0;
+             telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0 &&
+             telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0;
              ++domain_idx);
         if (domain_idx == m_num_domain) {
             // All domains have completed so do update
@@ -293,7 +294,7 @@ namespace geopm
         if (is_telemetry_entry(telemetry, domain_idx) ) {
             m_entry_telemetry[domain_idx] = telemetry;
         }
-        else if (m_entry_telemetry[domain_idx].region_id == m_identifier &&
+        else if (m_entry_telemetry[domain_idx].region_id == m_identifier && /// @todo is this check required?
                  is_telemetry_exit(telemetry, domain_idx)) {
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                 geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry.timestamp));
@@ -373,7 +374,7 @@ namespace geopm
             else if (is_full && m_max[offset + i] == m_domain_buffer.value(0)[offset + i]) {
                 // We are about to throw out the current max
                 // Find the new one
-                m_max[offset + i] = is_signal_valid ? signal[i] : DBL_MIN;
+                m_max[offset + i] = is_signal_valid ? signal[i] : -DBL_MAX;
                 for (int entry = 1; entry < m_domain_buffer.size(); ++entry) {
                     bool is_old_value_valid = m_level ? true : m_domain_buffer.value(entry)[offset + GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0;
                     if (is_old_value_valid &&

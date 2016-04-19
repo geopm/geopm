@@ -151,13 +151,14 @@ namespace geopm
         int num_package = m_imp->num_package();
         int num_cpu = m_imp->num_logical_cpu();
         int num_platform_signal = m_imp->num_package_signal() + m_imp->num_cpu_signal();
+        /// @todo assumes domain of control is the package
         std::vector<double> runtime(num_package);
         std::vector<double> min_progress(num_package);
         std::vector<double> max_progress(num_package);
 
-        std::fill(runtime.begin(), runtime.end(), DBL_MIN);
+        std::fill(runtime.begin(), runtime.end(), -DBL_MAX);
         std::fill(min_progress.begin(), min_progress.end(), DBL_MAX);
-        std::fill(max_progress.begin(), max_progress.end(), DBL_MIN);
+        std::fill(max_progress.begin(), max_progress.end(), -DBL_MAX);
 
         int num_cpu_per_package = num_cpu / num_package;
         if (m_imp->power_control_domain() == GEOPM_DOMAIN_PACKAGE) {
@@ -175,7 +176,7 @@ namespace geopm
                             max_progress[(*it) / num_cpu_per_package] = aligned_data[i];
                         }
                         // Find maximum runtime for any rank on the package
-                        if (aligned_data[i + 1] >  runtime[(*it) / num_cpu_per_package]) {
+                        if (aligned_data[i + 1] > runtime[(*it) / num_cpu_per_package]) {
                             runtime[(*it) / num_cpu_per_package] = aligned_data[i + 1];
                         }
                     }
@@ -198,7 +199,7 @@ namespace geopm
                 else {
                     telemetry[domain_idx].signal[num_platform_signal] = min_progress[domain_idx] == DBL_MAX ? 0.0 : min_progress[domain_idx];
                 }
-                telemetry[domain_idx].signal[num_platform_signal + 1] = runtime[domain_idx] == DBL_MIN ? -1.0 : runtime[domain_idx];
+                telemetry[domain_idx].signal[num_platform_signal + 1] = runtime[domain_idx] == -DBL_MAX ? -1.0 : runtime[domain_idx];
                 ++domain_idx;
             }
             // Insert region and timestamp

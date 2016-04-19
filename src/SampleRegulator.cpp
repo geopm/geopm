@@ -99,6 +99,9 @@ namespace geopm
                     m_rank_sample_prev[rank_idx].clear();
                 }
                 m_region_id[rank_idx] = (*it).second.region_id;
+                if (rank_sample.progress == 1.0) {
+                    m_region_id[rank_idx] = 0;
+                }
                 m_rank_sample_prev[rank_idx].insert(rank_sample);
             }
         }
