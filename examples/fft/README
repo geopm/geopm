@@ -1,0 +1,20 @@
+See geopm/examples/fft/COPYING-NAS for license information for the NAS
+Parallel Benchmarks.  This license applies only to the files within
+the geopm/example/fft sub-directory.  The NAS Parallel Benchmarks
+download site refers to this generic license, but no text is given
+with the blanks filled in for the particular use by NAS Parallel
+Benchmarks.
+
+A variation on NPB FT hybrid version that uses dynamic memory allocation and creates a single binary that can used with multiple numbers of MPI ranks.  The original version builds specific binaries (ft.C.2, ft.C.4, etc.) for different MPI runs.
+
+There is a few percent performance degradation compared to the orginal version with static mammory allocation.
+
+To build and run:
+
+make class=C
+OMP_NUM_THREADS=4 mpirun -n 1 ./ft.C
+OMP_NUM_THREADS=4 mpirun -n 2 ./ft.C
+OMP_NUM_THREADS=4 mpirun -n 4 ./ft.C
+OMP_NUM_THREADS=4 mpirun -n 2 ./ft.C
+
+etc.

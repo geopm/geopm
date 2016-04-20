@@ -10,9 +10,13 @@ copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.BSD3-intel
 copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.GPL3-ac-exception
+copying_headers/MANIFEST.NAS
+copying_headers/header.NAS
 copying_headers/test-license
 dox/Doxyfile
 examples/README
+examples/fft/README
+examples/fft/COPYING-NAS
 MANIFEST
 README
 README.md
@@ -30,7 +34,3 @@ ronn/header.txt
 ronn/index.txt
 test/default_policy.json
 TODO
-
-
-
-
