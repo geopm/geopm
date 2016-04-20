@@ -474,18 +474,26 @@ namespace geopm
                     ++output_it;
                 }
 
+                std::vector<double> aligned_signal;
+
                 // Catch outer sync regions
                 for (auto it = m_prof_sample.cbegin(); it != m_prof_sample.cbegin() + length; ++it) {
                     if ((*it).second.region_id == GEOPM_REGION_ID_OUTER) {
                         uint64_t region_id_all_tmp = m_region_id_all;
                         m_region_id_all = GEOPM_REGION_ID_OUTER;
+                        (*m_sample_regulator)(m_msr_sample[0].timestamp,
+                                              platform_sample.cbegin(), platform_sample.cend(),
+                                              m_prof_sample.cbegin(), m_prof_sample.cbegin(),
+                                              aligned_signal,
+                                              m_region_id);
+                        m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
                         if (m_is_in_outer) {
-                            override_telemetry(1.0, m_msr_sample[0].timestamp);
+                            override_telemetry(1.0);
                             update_region();
                             m_tracer->update(m_telemetry_sample);
                         }
                         m_is_in_outer = true;
-                        override_telemetry(0.0, m_msr_sample[0].timestamp);
+                        override_telemetry(0.0);
                         update_region();
                         m_tracer->update(m_telemetry_sample);
                         m_region_id_all = region_id_all_tmp;
@@ -494,7 +502,6 @@ namespace geopm
                 }
 
                 // Align profile data
-                std::vector<double> aligned_signal;
                 (*m_sample_regulator)(m_msr_sample[0].timestamp,
                                       platform_sample.cbegin(), platform_sample.cend(),
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
@@ -575,14 +582,7 @@ namespace geopm
         for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
             (*it).region_id = m_region_id_all;
             (*it).signal[GEOPM_TELEMETRY_TYPE_PROGRESS] = progress;
-        }
-    }
-
-    void Controller::override_telemetry(double progress, const struct geopm_time_s &timestamp)
-    {
-        override_telemetry(progress);
-        for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
-            (*it).timestamp = timestamp;
+            (*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = 0.0;
         }
     }
 

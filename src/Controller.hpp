@@ -170,7 +170,6 @@ namespace geopm
             int walk_down(void);
             int walk_up(void);
             void override_telemetry(double progress);
-            void override_telemetry(double progress, const struct geopm_time_s &timestamp);
             void update_region(void);
             bool m_is_node_root;
             int m_max_fanout;
