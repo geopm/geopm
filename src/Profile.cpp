@@ -251,6 +251,12 @@ extern "C"
 
     int geopm_omp_sched_static_norm(int num_iter, int chunk_size, int num_thread, double *norm)
     {
+        if (num_iter <= 0 ||
+            chunk_size <= 0 ||
+            num_thread <= 0) {
+            return GEOPM_ERROR_INVALID;
+        }
+
         int remain = num_iter;
         int i = 0;
 
