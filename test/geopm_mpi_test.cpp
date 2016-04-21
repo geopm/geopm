@@ -122,9 +122,10 @@ int main(int argc, char **argv)
     MPI_Finalize();
 
     if (!err) {
+        err = all_err;
+    }
+    if (!rank) {
         _exit(err);
     }
-    else {
-        _exit(all_err);
-    }
+    return err;
 }
