@@ -31,7 +31,9 @@
  */
 #include <iostream>
 #include <string.h>
+
 #include "SampleRegulator.hpp"
+#include "config.h"
 
 namespace geopm
 {

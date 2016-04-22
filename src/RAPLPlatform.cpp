@@ -34,6 +34,7 @@
 #include "RAPLPlatform.hpp"
 #include "geopm_message.h"
 #include "geopm_time.h"
+#include "config.h"
 
 namespace geopm
 {

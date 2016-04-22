@@ -32,9 +32,11 @@
 
 #include <math.h>
 #include <unistd.h>
+
 #include "geopm_message.h"
 #include "Exception.hpp"
 #include "IVTPlatformImp.hpp"
+#include "config.h"
 
 namespace geopm
 {

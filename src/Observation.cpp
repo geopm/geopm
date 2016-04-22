@@ -37,6 +37,7 @@
 
 #include "Exception.hpp"
 #include "Observation.hpp"
+#include "config.h"
 
 namespace geopm
 {

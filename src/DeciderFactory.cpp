@@ -35,11 +35,11 @@
 #include <string>
 #include <memory>
 
-#include "config.h"
 #include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "Decider.hpp"
 #include "DeciderFactory.hpp"
+#include "config.h"
 
 
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)

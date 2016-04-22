@@ -35,6 +35,7 @@
 
 #include "geopm.h"
 #include "geopm_policy.h"
+#include "config.h"
 
 int geopm_ctl_spawn(struct geopm_ctl_c *ctl)
 {

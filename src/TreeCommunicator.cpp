@@ -47,6 +47,7 @@
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
 #include "geopm_message.h"
+#include "config.h"
 
 extern "C"
 {

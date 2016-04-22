@@ -35,6 +35,7 @@
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024

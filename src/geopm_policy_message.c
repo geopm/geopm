@@ -31,6 +31,7 @@
  */
 
 #include "geopm_message.h"
+#include "config.h"
 
 const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1.0};
 

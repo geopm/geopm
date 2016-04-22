@@ -31,6 +31,7 @@
  */
 #include "geopm_omp.h"
 #include "geopm_error.h"
+#include "config.h"
 
 #ifdef _OPENMP
 #include <omp.h>

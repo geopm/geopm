@@ -32,6 +32,7 @@
 
 #include "Exception.hpp"
 #include "PlatformTopology.hpp"
+#include "config.h"
 
 namespace geopm
 {

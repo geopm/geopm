@@ -40,6 +40,7 @@
 
 #include "geopm_version.h"
 #include "geopm_error.h"
+#include "config.h"
 
 enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,

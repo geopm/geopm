@@ -33,6 +33,7 @@
 #include <hwloc.h>
 
 #include "Decider.hpp"
+#include "config.h"
 
 namespace geopm
 {

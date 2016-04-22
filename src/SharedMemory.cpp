@@ -42,6 +42,7 @@
 #include "geopm_time.h"
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {

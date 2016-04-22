@@ -44,6 +44,7 @@
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
 #include "geopm_message.h"
+#include "config.h"
 
 extern "C"
 {

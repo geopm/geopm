@@ -40,6 +40,7 @@
 #include "RAPLPlatform.hpp"
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
+#include "config.h"
 
 
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)

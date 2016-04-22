@@ -32,6 +32,7 @@
 
 #include "Exception.hpp"
 #include "SampleScheduler.hpp"
+#include "config.h"
 
 namespace geopm
 {

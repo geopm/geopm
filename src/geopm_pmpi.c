@@ -37,6 +37,7 @@
 #include "geopm.h"
 #include "geopm_error.h"
 #include "geopm_message.h"
+#include "config.h"
 
 void geopm_pmpi_prof_mpi(int do_profile);
 

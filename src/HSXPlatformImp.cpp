@@ -35,6 +35,7 @@
 #include "geopm_message.h"
 #include "Exception.hpp"
 #include "HSXPlatformImp.hpp"
+#include "config.h"
 
 namespace geopm
 {

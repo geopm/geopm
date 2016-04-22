@@ -47,6 +47,7 @@
 #include "Profile.hpp"
 #include "Exception.hpp"
 #include "LockingHashTable.hpp"
+#include "config.h"
 
 static struct geopm_prof_c *g_geopm_prof_default = NULL;
 

@@ -44,6 +44,7 @@
 
 #include "Exception.hpp"
 #include "PlatformImp.hpp"
+#include "config.h"
 
 namespace geopm
 {

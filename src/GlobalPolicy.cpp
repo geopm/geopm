@@ -48,6 +48,7 @@
 #include "GlobalPolicy.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
+#include "config.h"
 
 extern "C"
 {

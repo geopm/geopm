@@ -44,6 +44,7 @@
 #include "geopm_policy.h"
 #include "geopm_version.h"
 #include "geopm_error.h"
+#include "config.h"
 
 enum geopmpolicy_const {
     GEOPMPOLICY_EXEC_MODE_CREATE = 0,

@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "geopm_hash.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C"

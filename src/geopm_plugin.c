@@ -42,6 +42,7 @@
 #include <fts.h>
 
 #include "geopm_plugin.h"
+#include "config.h"
 
 int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
 {

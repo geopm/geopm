@@ -45,10 +45,10 @@
 #include <system_error>
 #include <unistd.h>
 
-#include "config.h"
 #include "geopm.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
