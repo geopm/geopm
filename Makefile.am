@@ -222,6 +222,8 @@ if ENABLE_MPI
                           src/PolicyFlags.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
+                          src/ProfileThread.cpp \
+                          src/ProfileThread.hpp \
                           src/RAPLPlatform.cpp \
                           src/RAPLPlatform.hpp \
                           src/Region.cpp \

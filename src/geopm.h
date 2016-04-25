@@ -50,6 +50,8 @@ struct geopm_ctl_c;
 /* Opaque structure which is a handle for a geopm::Profile object. */
 struct geopm_prof_c;
 
+struct geopm_tprof_c;
+
 /************************/
 /* OBJECT INSTANTIATION */
 /************************/
@@ -109,7 +111,17 @@ int geopm_prof_print(struct geopm_prof_c *prof,
                      const char *file_name,
                      int depth);
 
+int geopm_tprof_create(int num_thread,
+                       size_t num_iter,
+                       size_t chunk_size,
+                       struct geopm_tprof_c **tprof);
 
+int geopm_tprof_destroy(struct geopm_tprof_c *tprof);
+
+int geopm_tprof_increment(struct geopm_tprof_c *tprof,
+                          struct geopm_prof_c *prof,
+                          uint64_t region_id,
+                          int thread_idx);
 
 /***************/
 /* HELPER APIS */

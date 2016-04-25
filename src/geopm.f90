@@ -169,6 +169,30 @@ module geopm
             integer(kind=c_int), value, intent(in) :: depth
         end function geopm_prof_print
 
+        integer(kind=c_int) function geopm_tprof_create(num_thread, num_iter, chunk_size, tprof) bind(C)
+            import
+            implicit none
+            integer(kind=c_int), value, intent(in) :: num_thread
+            integer(kind=c_size_t), value, intent(in) :: num_iter
+            integer(kind=c_size_t), value, intent(in) :: chunk_size
+            type(c_ptr), intent(out) :: tprof
+        end function geopm_tprof_create
+
+        integer(kind=c_int) function geopm_tprof_destroy(tprof) bind(C)
+            import
+            implicit none
+            type(c_ptr), value, intent(in) :: tprof
+        end function geopm_tprof_destroy
+
+        integer(kind=c_int) function geopm_tprof_increment(tprof, prof, region_id, thread_idx) bind(C)
+            import
+            implicit none
+            type(c_ptr), value, intent(in) :: tprof
+            type(c_ptr), value, intent(in) :: prof
+            integer(kind=c_int64_t), value, intent(in) :: region_id
+            integer(kind=c_int), value, intent(in) :: thread_idx
+        end function geopm_tprof_increment
+
         !!!!!!!!!!!!!!!!!
         !! HELPER APIS !!
         !!!!!!!!!!!!!!!!!
@@ -194,33 +218,6 @@ module geopm
             integer(kind=c_int), value, intent(in) :: comm
             integer(kind=c_int), intent(out) :: ppn1_comm
         end function geopm_comm_split_ppn1
-
-        integer(kind=c_int) function geopm_omp_sched_static_norm(num_iter, chunk_size, num_thread, norm) bind(C)
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: num_iter
-            integer(kind=c_int), value, intent(in) :: chunk_size
-            integer(kind=c_int), value, intent(in) :: num_thread
-            real(kind=c_double), intent(out):: norm(*)
-        end function geopm_omp_sched_static_norm
-
-        real(kind=c_double) function geopm_progress_threaded_min(num_thread, stride, progress, norm) bind(C)
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: num_thread
-            integer(kind=c_size_t), value, intent(in) :: stride
-            integer(kind=c_int32_t), intent(in) :: progress(*)
-            real(kind=c_double), intent(in) :: norm(*)
-        end function geopm_progress_threaded_min
-
-        real(kind=c_double) function geopm_progress_threaded_sum(num_thread, stride, progress, norm) bind(C)
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: num_thread
-            integer(kind=c_size_t), value, intent(in) :: stride
-            integer(kind=c_int32_t), intent(in) :: progress(*)
-            real(kind=c_double), value, intent(in) :: norm
-        end function geopm_progress_threaded_sum
 
     end interface
 end module geopm

@@ -61,21 +61,20 @@ static inline double do_something(int input)
 
 static int run_something(void)
 {
-    const size_t cache_line_size = 64;
     int err = 0;
     struct geopm_ctl_c *ctl;
     struct geopm_policy_c *policy;
     struct geopm_prof_c *prof;
+    struct geopm_tprof_c *tprof;
     double x = 0;
-    double thread_progress;
-    int stride = cache_line_size / sizeof(int);
-    int max_threads, i, num_iter = 1000000, iter_per_step = 100, chunk_size = 128;
+    int num_thread, thread_idx, i, num_iter = 1000000, iter_per_step = 100, chunk_size = 128;
     int step_counter = 0;
-    double *norm = NULL;
-    uint32_t *progress = NULL;
-    uint32_t *progress_ptr = NULL;
     uint64_t region_id;
 
+    #pragma omp parallel
+    {
+        num_thread = omp_get_num_threads();
+    }
     // In this example we will create the policy, but in general it
     // should be created prior to application runtime.
     err = geopm_policy_create("", "profile_policy", &policy);
@@ -104,34 +103,23 @@ static int run_something(void)
         err = geopm_prof_create("threaded_step", "/geopm_threaded_step", MPI_COMM_WORLD, &prof);
     }
     if (!err) {
+        err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof); 
+    }
+    if (!err) {
         err = geopm_ctl_step(ctl);
-    }
-    if (!err) {
-        max_threads = omp_get_max_threads();
-        err = posix_memalign((void **)&progress, cache_line_size, cache_line_size * max_threads * sizeof(int32_t));
-    }
-    if (!err) {
-        norm = (double *)malloc(sizeof(double) * max_threads);
-        if (!norm) {
-            err = ENOMEM;
-        }
     }
     if (!err) {
         err = geopm_prof_region(prof, "main-loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
     }
     if (!err) {
-        memset(progress, 0, cache_line_size * max_threads);
-        (void) geopm_omp_sched_static_norm(num_iter, chunk_size, max_threads, norm);
-        #pragma omp parallel default(shared) private(i, progress_ptr)
+        #pragma omp parallel default(shared) private(i)
         {
-            progress_ptr = progress + stride * omp_get_thread_num();
+            thread_idx = omp_get_thread_num();
             #pragma omp for schedule(static, chunk_size)
             for (i = 0; i < num_iter; ++i) {
                 x += do_something(i);
-                (*progress_ptr)++;
-                if (omp_get_thread_num() == 0) {
-                    thread_progress = geopm_progress_threaded_min(omp_get_num_threads(), stride, progress, norm);
-                    (void) geopm_prof_progress(prof, region_id, thread_progress);
+                geopm_tprof_increment(tprof, prof, region_id, thread_idx);
+                if (!thread_idx) {
                     step_counter++;
                     if (step_counter == iter_per_step) {
                         geopm_ctl_step(ctl);
@@ -140,12 +128,6 @@ static int run_something(void)
                 }
             }
         }
-    }
-    if (norm) {
-        free(norm);
-    }
-    if (progress) {
-        free(progress);
     }
     return err;
 }

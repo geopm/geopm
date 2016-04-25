@@ -49,14 +49,10 @@ int main(int argc, char **argv)
     int num_iter = 100000000;
     double sum = 0.0;
     struct geopm_prof_c *prof = NULL;
+    struct geopm_tprof_c *tprof = NULL;
     int num_thread = 0;
     int thread_idx = 0 ;
-    int cache_line_size = 64;
-    int stride = cache_line_size / sizeof(int32_t);
     uint64_t region_id = 0;
-    uint32_t *progress = NULL;
-    double *norm = NULL;
-    double min_progress = 0.0;
 
     ierr = MPI_Init(&argc, &argv);
     if (!ierr) {
@@ -64,18 +60,11 @@ int main(int argc, char **argv)
         {
             num_thread = omp_get_num_threads();
         }
-        ierr = posix_memalign((void **)&progress, cache_line_size, cache_line_size * num_thread * sizeof(int32_t));
-    }
-    if (!ierr) {
-        memset(progress, 0, cache_line_size * num_thread * sizeof(int32_t));
-        norm = malloc(num_thread * sizeof(double));
-        if (!norm) {
-            ierr = ENOMEM;
-        }
-    }
-    if (!ierr) {
         chunk_size = num_iter / num_thread;
-        ierr = geopm_omp_sched_static_norm(num_iter, chunk_size, num_thread, norm);
+        if (num_iter % num_thread) {
+            ++chunk_size;
+        }
+        ierr = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
     }
     if (!ierr) {
         ierr = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
@@ -94,11 +83,7 @@ int main(int argc, char **argv)
 #pragma omp for reduction(+:sum) schedule(static, chunk_size)
         for (index = 0; index < num_iter; ++index) {
             sum += (double)index;
-            progress[stride * thread_idx]++;
-            if (!thread_idx) {
-                min_progress = geopm_progress_threaded_min(num_thread, stride, progress, norm);
-                (void) geopm_prof_progress(NULL, region_id, min_progress);
-            }
+            geopm_tprof_increment(tprof, prof, region_id, thread_idx);
         }
 }
         ierr = geopm_prof_exit(NULL, region_id);
