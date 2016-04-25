@@ -135,6 +135,8 @@ double geopm_progress_threaded_sum(int num_thread,
                                    const uint32_t *progress,
                                    double norm);
 
+int geopm_comm_split_shared(MPI_Comm comm, MPI_Comm *split_comm);
+
 #ifdef __cplusplus
 }
 #endif

@@ -307,7 +307,7 @@ namespace geopm
         int shm_num_rank = 0;
 
         MPI_Comm_rank(comm, &m_rank);
-        MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, m_rank, MPI_INFO_NULL, &m_shm_comm);
+        geopm_comm_split_shared(comm, &m_shm_comm);
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         MPI_Comm_size(m_shm_comm, &shm_num_rank);
 

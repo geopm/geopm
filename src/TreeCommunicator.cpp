@@ -46,6 +46,7 @@
 #include "Exception.hpp"
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
+#include "SharedMemory.hpp"
 #include "geopm_message.h"
 #include "config.h"
 
@@ -84,6 +85,45 @@ extern "C"
         return err;
     }
 
+    int geopm_comm_split_shared(MPI_Comm comm, MPI_Comm *split_comm)
+    {
+        int err = 0;
+        try {
+            const char *shmem_key = "/geopm_comm_split_shared_tmp";
+            geopm::SharedMemory *shmem = NULL;
+            geopm::SharedMemoryUser *shmem_user = NULL;
+            int rank, color;
+
+            MPI_Comm_rank(comm, &rank);
+            MPI_Barrier(comm);
+            try {
+                shmem = new geopm::SharedMemory(shmem_key, sizeof(int));
+            }
+            catch (geopm::Exception ex) {
+                if (ex.err_value() != EEXIST) {
+                   throw ex;
+                }
+            }
+            if (!shmem) {
+                shmem_user = new geopm::SharedMemoryUser(shmem_key, 1);
+            }
+            else {
+                color = rank;
+                *((int*)(shmem->pointer())) = color;
+            }
+            MPI_Barrier(comm);
+            if (shmem_user) {
+                color = *((int*)(shmem_user->pointer()));
+            }
+            delete shmem;
+            delete shmem_user;
+            err = MPI_Comm_split(comm, color, rank, split_comm);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
 
     int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm)
     {
@@ -119,7 +159,7 @@ extern "C"
             err = MPI_Comm_rank(comm, &comm_rank);
         }
         if (!err) {
-            err = MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, comm_rank, MPI_INFO_NULL, &shm_comm);
+            err = geopm_comm_split_shared(comm, &shm_comm);
         }
         if (!err) {
             err = MPI_Comm_rank(shm_comm, &shm_rank);
