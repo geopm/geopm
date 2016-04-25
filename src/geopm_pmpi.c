@@ -177,7 +177,7 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
     if (err) {
         char err_msg[NAME_MAX];
         geopm_error_message(err, err_msg, NAME_MAX);
-        fprintf(stderr, err_msg);
+        fprintf(stderr, "%s", err_msg);
     }
 #endif
     return err;
