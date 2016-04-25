@@ -37,54 +37,6 @@
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
 
-extern "C"
-{
-    int geopm_tprof_create(int num_thread, size_t num_iter, size_t chunk_size, struct geopm_tprof_c **tprof)
-    {
-        int err = 0;
-        try {
-            *tprof = (struct geopm_tprof_c *)(new geopm::ProfileThread(num_thread, num_iter, chunk_size));
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_tprof_destroy(struct geopm_tprof_c *tprof)
-    {
-        int err = 0;
-        try {
-            geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
-            if (tprof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            delete tprof_obj;
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_tprof_increment(struct geopm_tprof_c *tprof, struct geopm_prof_c *prof, uint64_t region_id, int thread_idx)
-    {
-        int err = 0;
-        try {
-            geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof);
-            if (tprof_obj == NULL || prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            tprof_obj->increment(*prof_obj, region_id, thread_idx);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-}
-
 namespace geopm
 {
     ProfileThread::ProfileThread(int num_thread, size_t num_iter, size_t chunk_size)
