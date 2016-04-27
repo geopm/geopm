@@ -98,6 +98,10 @@ namespace geopm
         if (result_it == m_region_policy.end()) {
             result = new RegionPolicy(m_num_domain);
             m_region_policy.insert(std::pair<uint64_t, RegionPolicy *>(region_id, result));
+            // Give the new region the global power targets
+            std::vector<double> budget(m_num_domain);
+            target(GEOPM_REGION_ID_OUTER, budget);
+            update(region_id, budget);
         }
         else {
             result = (*result_it).second;
