@@ -296,6 +296,7 @@ namespace geopm
         , m_parent_region(0)
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
+        , m_do_shm_barrier(false)
     {
         int shm_num_rank = 0;
 
@@ -303,6 +304,11 @@ namespace geopm
         geopm_comm_split_shared(comm, &m_shm_comm);
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         MPI_Comm_size(m_shm_comm, &shm_num_rank);
+
+        char* shm_barrier_env = getenv("GEOPM_SHM_BARRIER");
+        if (shm_barrier_env && !strcmp(shm_barrier_env, "true")) {
+            m_do_shm_barrier = true;
+        }
 
         std::string key(shm_key);
         if (key.size() == 0) {
@@ -395,6 +401,9 @@ namespace geopm
     {
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
+            if (m_do_shm_barrier) {
+                PMPI_Barrier(m_shm_comm);
+            }
             m_curr_region_id = region_id;
             m_num_enter = 0;
             m_progress = 0.0;
@@ -426,6 +435,9 @@ namespace geopm
         }
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
+            if (region_id != GEOPM_REGION_ID_MPI && m_do_shm_barrier) {
+                PMPI_Barrier(m_shm_comm);
+            }
             m_progress = 1.0;
             sample(region_id);
             m_curr_region_id = 0;
@@ -455,13 +467,14 @@ namespace geopm
     void Profile::outer_sync(void)
     {
         struct geopm_prof_message_s sample;
+        PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             sample.rank = m_rank;
             sample.region_id = GEOPM_REGION_ID_OUTER;
             (void) geopm_time(&(sample.timestamp));
             sample.progress = 0.0;
             m_table->insert(sample.region_id, sample);
-	}
+	    }
     }
 
     void Profile::sample(uint64_t region_id)
