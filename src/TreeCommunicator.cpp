@@ -92,7 +92,7 @@ extern "C"
             const char *shmem_key = "/geopm_comm_split_shared_tmp";
             geopm::SharedMemory *shmem = NULL;
             geopm::SharedMemoryUser *shmem_user = NULL;
-            int rank, color;
+            int rank, color = -1;
 
             MPI_Comm_rank(comm, &rank);
             MPI_Barrier(comm);
