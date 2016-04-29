@@ -582,10 +582,10 @@ namespace geopm
             }
 
             json_object_object_foreach(object, key, val) {
-                if (!strcmp(key, "mode")) {
+                if (!strncmp(key, "mode", strlen("mode") + 1)) {
                     mode_obj = val;
                 }
-                else if (!strcmp(key, "options")) {
+                else if (!strncmp(key, "options", strlen("options") + 1)) {
                     options_obj = val;
                 }
                 else {

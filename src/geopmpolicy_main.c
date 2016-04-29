@@ -138,12 +138,12 @@ int main(int argc, char** argv)
         fprintf(stderr, usage, argv[0]);
         return EINVAL;
     }
-    if (strncmp(argv[1], "--version", strlen("--version")) == 0) {
+    if (strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n",geopm_version());
         printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
-    if (strncmp(argv[1], "--help", strlen("--help")) == 0) {
+    if (strncmp(argv[1], "--help", strlen("--help") + 1) == 0) {
         printf("%s\n",usage);
         return 0;
     }
@@ -404,22 +404,22 @@ static int _geopm_policy_mode_parse(struct geopm_policy_c *policy, const char *m
     int err = 0;
     int mode = -1;
 
-    if (strncmp(mode_str, "tdp_balance_static", strlen("tdp_balance_static")) == 0) {
+    if (strncmp(mode_str, "tdp_balance_static", strlen("tdp_balance_static") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_TDP_BALANCE_STATIC;
     }
-    else if (strncmp(mode_str, "freq_uniform_static", strlen("freq_uniform_static")) == 0) {
+    else if (strncmp(mode_str, "freq_uniform_static", strlen("freq_uniform_static") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC;
     }
-    else if (strncmp(mode_str, "freq_hybrid_static", strlen("freq_hybrid_static")) == 0) {
+    else if (strncmp(mode_str, "freq_hybrid_static", strlen("freq_hybrid_static") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC;
     }
-    else if (strncmp(mode_str, "perf_balance_dynamic", strlen("perf_balance_dynamic")) == 0) {
+    else if (strncmp(mode_str, "perf_balance_dynamic", strlen("perf_balance_dynamic") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC;
     }
-    else if (strncmp(mode_str, "freq_uniform_dynamic", strlen("freq_uniform_dynamic")) == 0) {
+    else if (strncmp(mode_str, "freq_uniform_dynamic", strlen("freq_uniform_dynamic") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC;
     }
-    else if (strncmp(mode_str, "freq_hybrid_dynamic", strlen("freq_hybrid_dynamic")) == 0) {
+    else if (strncmp(mode_str, "freq_hybrid_dynamic", strlen("freq_hybrid_dynamic") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC;
     }
     else {
@@ -452,20 +452,20 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                 err = EINVAL;
             }
             if (!err) {
-                if(strncmp(key, "tdp_percent", strlen("tdp_percent")) == 0) {
+                if(strncmp(key, "tdp_percent", strlen("tdp_percent") + 1) == 0) {
                     err = geopm_policy_tdp_percent(policy, atoi(value));
                 }
-                else if(strncmp(key, "cpu_mhz", strlen("cpu_mhz")) == 0) {
+                else if(strncmp(key, "cpu_mhz", strlen("cpu_mhz") + 1) == 0) {
                     err = geopm_policy_cpu_freq(policy, atoi(value));
                 }
-                else if(strncmp(key, "num_cpu_max_perf", strlen("num_cpu_max_perf")) == 0) {
+                else if(strncmp(key, "num_cpu_max_perf", strlen("num_cpu_max_perf") + 1) == 0) {
                     err = geopm_policy_full_perf(policy, atoi(value));
                 }
-                else if(strncmp(key, "affinity", strlen("affinity")) == 0) {
-                    if (strncmp(value, "compact", strlen("compact")) == 0) {
+                else if(strncmp(key, "affinity", strlen("affinity") + 1) == 0) {
+                    if (strncmp(value, "compact", strlen("compact") + 1) == 0) {
                         err = geopm_policy_affinity(policy, GEOPM_POLICY_AFFINITY_COMPACT);
                     }
-                    else if (strncmp(value, "scatter", strlen("scatter")) == 0) {
+                    else if (strncmp(value, "scatter", strlen("scatter") + 1) == 0) {
                         err = geopm_policy_affinity(policy, GEOPM_POLICY_AFFINITY_SCATTER);
                     }
                     else {
@@ -473,16 +473,16 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                         err = EINVAL;
                     }
                 }
-                else if(strncmp(key, "power_budget", strlen("power_budget")) == 0) {
+                else if(strncmp(key, "power_budget", strlen("power_budget") + 1) == 0) {
                     err = geopm_policy_power(policy, atoi(value));
                 }
-                else if(strncmp(key, "tree_decider", strlen("tree_decider")) == 0) {
+                else if(strncmp(key, "tree_decider", strlen("tree_decider") + 1) == 0) {
                     err = geopm_policy_tree_decider(policy, value);
                 }
-                else if(strncmp(key, "leaf_decider", strlen("leaf_decider")) == 0) {
+                else if(strncmp(key, "leaf_decider", strlen("leaf_decider") + 1) == 0) {
                     err = geopm_policy_tree_decider(policy, value);
                 }
-                else if(strncmp(key, "platform", strlen("platform")) == 0) {
+                else if(strncmp(key, "platform", strlen("platform") + 1) == 0) {
                     err = geopm_policy_tree_decider(policy, value);
                 }
                 else {

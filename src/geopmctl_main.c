@@ -98,14 +98,14 @@ int main(int argc, char **argv)
                         "    Copyright (C) 2015, 2016 Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
-        strncmp(argv[1], "--version", strlen("--version")) == 0) {
+        strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n", geopm_version());
         printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (argc > 1 && (
-            strncmp(argv[1], "--help", strlen("--help")) == 0 ||
-            strncmp(argv[1], "-h", strlen("-h")) == 0)) {
+            strncmp(argv[1], "--help", strlen("--help") + 1) == 0 ||
+            strncmp(argv[1], "-h", strlen("-h") + 1) == 0)) {
         printf(usage, argv[0]);
         return 0;
     }
