@@ -300,7 +300,7 @@ namespace geopm
         , m_parent_region(0)
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
-        , m_do_shm_barrier(false)
+        , m_do_region_barrier(false)
     {
         int shm_num_rank = 0;
 
@@ -309,9 +309,9 @@ namespace geopm
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         MPI_Comm_size(m_shm_comm, &shm_num_rank);
 
-        char* shm_barrier_env = getenv("GEOPM_SHM_BARRIER");
-        if (shm_barrier_env && !strcmp(shm_barrier_env, "true")) {
-            m_do_shm_barrier = true;
+        char* region_barrier_env = getenv("GEOPM_REGION_BARRIER");
+        if (region_barrier_env && !strncmp(region_barrier_env, "true", strlen("true") + 1)) {
+            m_do_region_barrier = true;
         }
 
         std::string key(shm_key);
@@ -405,7 +405,7 @@ namespace geopm
     {
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
-            if (m_do_shm_barrier) {
+            if (m_do_region_barrier) {
                 PMPI_Barrier(m_shm_comm);
             }
             m_curr_region_id = region_id;
@@ -439,7 +439,7 @@ namespace geopm
         }
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
-            if (region_id != GEOPM_REGION_ID_MPI && m_do_shm_barrier) {
+            if (region_id != GEOPM_REGION_ID_MPI && m_do_region_barrier) {
                 PMPI_Barrier(m_shm_comm);
             }
             m_progress = 1.0;
