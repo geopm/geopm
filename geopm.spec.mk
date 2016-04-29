@@ -138,12 +138,14 @@ test -f configure || ./autogen.sh
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin
+            --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
+            --disable-fortran --disable-pmpi
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-mpi-bin=%{_libdir}/openmpi/bin
+            --with-mpi-bin=%{_libdir}/openmpi/bin \
+            --disable-fortran --disable-pmpi
 %endif
 
 %{__make}
@@ -154,8 +156,10 @@ rm -f %{buildroot}/%{_libdir}/libgeopm.a
 rm -f %{buildroot}/%{_libdir}/libgeopm.la
 rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.a
 rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
-rm -f %{buildroot}/%{_libdir}/geopm/libgoverning_decider.a
-rm -f %{buildroot}/%{_libdir}/geopm/libgoverning_decider.la
+rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.a
+rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.la
+rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.a
+rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 
 %clean
 
@@ -169,17 +173,22 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgoverning_decider.la
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/geopm/libgoverning_decider.so.0.0.0
-%{_libdir}/geopm/libgoverning_decider.so.0
-%{_libdir}/geopm/libgoverning_decider.so
-%{_libdir}/libgeopm.so.0.0.0
-%{_libdir}/libgeopm.so.0
-%{_libdir}/libgeopm.so
 %{_libdir}/libgeopmpolicy.so.0.0.0
 %{_libdir}/libgeopmpolicy.so.0
 %{_libdir}/libgeopmpolicy.so
-%{_bindir}/geopmctl
+%{_libdir}/libgeopm.so.0.0.0
+%{_libdir}/libgeopm.so.0
+%{_libdir}/libgeopm.so
+%dir %{_libdir}/geopm
+%{_libdir}/geopm/libgeopmpi_governing.so.0.0.0
+%{_libdir}/geopm/libgeopmpi_governing.so.0
+%{_libdir}/geopm/libgeopmpi_governing.so
+%{_libdir}/geopm/libgeopmpi_balancing.so.0.0.0
+%{_libdir}/geopm/libgeopmpi_balancing.so.0
+%{_libdir}/geopm/libgeopmpi_balancing.so
+
 %{_bindir}/geopmpolicy
+%{_bindir}/geopmctl
 %dir %{docdir}
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
@@ -197,15 +206,16 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgoverning_decider.la
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
 %doc %{_mandir}/man3/geopm_version.3.gz
 %doc %{_mandir}/man7/geopm.7.gz
+
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/geopm.h
 %{_includedir}/geopm_error.h
-%{_includedir}/geopm_plugin.h
 %{_includedir}/geopm_mpi_pcontrol.h
 %{_includedir}/geopm_policy.h
 %{_includedir}/geopm_message.h
 %{_includedir}/geopm_version.h
+%{_includedir}/geopm_plugin.h
 
 %changelog
 endef
