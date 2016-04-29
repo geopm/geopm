@@ -474,7 +474,7 @@ namespace geopm
             (void) geopm_time(&(sample.timestamp));
             sample.progress = 0.0;
             m_table->insert(sample.region_id, sample);
-	    }
+        }
     }
 
     void Profile::sample(uint64_t region_id)
