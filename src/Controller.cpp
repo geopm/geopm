@@ -603,7 +603,8 @@ namespace geopm
             Region *curr_region = (*it).second;
             Policy *curr_policy = m_policy[level];
             curr_region->insert(m_telemetry_sample);
-            if (m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+            if (m_region_id_all != GEOPM_REGION_ID_OUTER &&
+                m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
                 m_platform->enforce_policy(m_region_id_all, *curr_policy);
             }
         }

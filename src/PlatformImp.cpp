@@ -182,7 +182,11 @@ namespace geopm
 
     off_t PlatformImp::msr_offset(std::string msr_name)
     {
-        return m_msr_offset_map.find(msr_name)->second.first;
+        auto it = m_msr_offset_map.find(msr_name);
+        if (it == m_msr_offset_map.end()) {
+            throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return (*it).second.first;
     }
 
     void PlatformImp::msr_path(int cpu_num)

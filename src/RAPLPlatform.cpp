@@ -163,9 +163,9 @@ namespace geopm
         std::vector<double> target(m_imp->power_control_domain());
         policy.target(region_id, target);
 
-        if((m_control_domain_type != GEOPM_CONTROL_DOMAIN_POWER) &&
+        if((m_control_domain_type == GEOPM_CONTROL_DOMAIN_POWER) &&
            (m_imp->power_control_domain() == GEOPM_DOMAIN_PACKAGE) &&
-           (m_num_package != (int)target.size())) {
+           (m_num_package == (int)target.size())) {
             control_type = GEOPM_TELEMETRY_TYPE_PKG_ENERGY;
             for (int i = 0; i < m_num_package; ++i) {
                 m_imp->write_control(m_imp->power_control_domain(), i, control_type, target[i]);

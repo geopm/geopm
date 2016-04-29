@@ -96,7 +96,7 @@ namespace geopm
             std::vector<uint64_t> region_id;
             curr_policy.region_id(region_id);
             for (auto it = region_id.begin(); it != region_id.end(); ++it) {
-                curr_policy.update(*it, domain_budget);
+                curr_policy.update((*it), domain_budget);
             }
             if (m_last_power_budget == DBL_MIN) {
                 curr_policy.mode(policy_msg.mode);
@@ -114,15 +114,17 @@ namespace geopm
         const uint64_t region_id = curr_region.identifier();
         bool is_updated = false;
 
+        std::vector<double> limit(num_domain);
         std::vector<double> target(num_domain);
+        curr_policy.target(GEOPM_REGION_ID_OUTER, limit);
         curr_policy.target(region_id, target);
         for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
             double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
             double dram_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
             double total_power = pkg_power + dram_power;
-            if (total_power > target[domain_idx] * (1 + m_guard_band) ||
-                total_power < target[domain_idx] * (1 - m_guard_band)) {
-                target[domain_idx] -= dram_power;
+            if (total_power > limit[domain_idx] * (1 + m_guard_band) ||
+                total_power < limit[domain_idx] * (1 - m_guard_band)) {
+                target[domain_idx] = limit[domain_idx] - dram_power;
                 is_updated = true;
             }
         }

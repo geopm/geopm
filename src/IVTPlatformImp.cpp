@@ -244,9 +244,9 @@ namespace geopm
         }
 
         //Save off the msr offsets for the controls we want to write to avoid a map lookup
-        m_control_msr_offset.push_back(msr_offset("PKG_ENERGY_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PKG_DRAM_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PKG_PP0_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PKG_POWER_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("DRAM_POWER_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PP0_POWER_LIMIT"));
         m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
     }
 

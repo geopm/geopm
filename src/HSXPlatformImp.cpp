@@ -43,6 +43,7 @@ namespace geopm
         : PlatformImp(3, 5, 8.0)
         , m_energy_units(1.0)
         , m_power_units(1.0)
+        , m_dram_energy_units(1.0)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)
         , m_min_pp0_watts(1)
@@ -120,7 +121,7 @@ namespace geopm
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[2]));
-                value *= m_energy_units;
+                value *= m_dram_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal;
@@ -237,9 +238,9 @@ namespace geopm
         }
 
         //Save off the msr offsets for the controls we want to write to avoid a map lookup
-        m_control_msr_offset.push_back(msr_offset("PKG_ENERGY_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PKG_DRAM_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PKG_PP0_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PKG_POWER_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("DRAM_POWER_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PP0_POWER_LIMIT"));
         m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
     }
 
@@ -257,6 +258,7 @@ namespace geopm
         //Make sure units are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
         m_energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
+        m_dram_energy_units = pow(0.5, (double)(0x10 & 0x1F));
         m_power_units = pow(2, (double)((tmp >> 0) & 0xF));
 
         for (int i = 1; i < m_num_package; i++) {
@@ -276,6 +278,7 @@ namespace geopm
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
+
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
