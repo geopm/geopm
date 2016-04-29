@@ -61,6 +61,10 @@ extern "C"
 {
     // defined in geopm_pmpi.c and used only here
     void geopm_pmpi_prof_enable(int do_profile);
+#ifndef GEOPM_PMPI
+    void geopm_pmpi_prof_enable(int do_profile) {}
+#endif
+
 
     int geopm_prof_create(const char *name, const char *shm_key, MPI_Comm comm, struct geopm_prof_c **prof)
     {

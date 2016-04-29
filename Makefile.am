@@ -248,13 +248,15 @@ if ENABLE_MPI
                           src/geopm_mpi_pcontrol.h \
                           src/geopm_plugin.c \
                           src/geopm_plugin.h \
-                          src/geopm_pmpi.c \
                           src/geopm_policy_message.c \
                           src/geopm_time.h \
                           src/geopm_sched.h \
                           src/geopm_version.c \
                           src/geopm_version.h \
                           # end
+if ENABLE_PMPI
+    libgeopm_la_SOURCES += src/geopm_pmpi.c
+endif
 
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90
