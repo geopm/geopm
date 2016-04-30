@@ -23,11 +23,13 @@ src/Decider.cpp
 src/Decider.hpp
 src/DeciderFactory.cpp
 src/DeciderFactory.hpp
+src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
 src/geopmctl_main.c
 src/geopm_sched.h
 src/geopm_ctl_spawn.c
+src/geopm_env.h
 src/geopm_error.h
 src/geopm_hash.c
 src/geopm_hash.h

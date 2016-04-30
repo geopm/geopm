@@ -37,6 +37,7 @@
 #include "geopm.h"
 #include "geopm_error.h"
 #include "geopm_message.h"
+#include "geopm_env.h"
 #include "config.h"
 
 void geopm_pmpi_prof_mpi(int do_profile);
@@ -95,7 +96,7 @@ static inline void geopm_mpi_region_exit(void)
 }
 
 
-static int geopm_pmpi_init(const char* pmpi_ctl_env)
+static int geopm_pmpi_init(void)
 {
     int rank;
     int mpi_version;
@@ -108,10 +109,9 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
     }
 
     int err = 0;
-    char *policy_env = getenv("GEOPM_POLICY");
     struct geopm_policy_c *policy = NULL;
     struct geopm_ctl_c *ctl = NULL;
-    if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "process", strlen("process") + 1) == 0) {
+    if (geopm_env_do_pmpi_ctl() == GEOPM_PMPI_CTL_PROCESS) {
         g_is_geopm_pmpi_ctl_enabled = 1;
 
         int is_ctl;
@@ -124,11 +124,11 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
             int ctl_rank;
             PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
 
-            if (!policy_env) {
+            if (!strlen(geopm_env_policy())) {
                 err = GEOPM_ERROR_ENVIRONMENT;
             }
             if (!err && !ctl_rank) {
-                err = geopm_policy_create(policy_env, NULL, &policy);
+                err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
             }
             if (!err) {
                 err = geopm_ctl_create(policy, NULL, G_GEOPM_COMM_WORLD_SWAP, &ctl);
@@ -141,13 +141,13 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
             exit(err);
         }
     }
-    else if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "pthread", strlen("pthread") + 1) == 0) {
+    else if (geopm_env_do_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
         g_is_geopm_pmpi_ctl_enabled = 1;
 
         int mpi_thread_level;
         pthread_t ctl_thread;
 
-        if (!policy_env) {
+        if (!strlen(geopm_env_policy())) {
             err = GEOPM_ERROR_ENVIRONMENT;
         }
         if (!err) {
@@ -163,7 +163,7 @@ static int geopm_pmpi_init(const char* pmpi_ctl_env)
             int ppn1_rank;
             err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
             if (!err && !ppn1_rank) {
-                err = geopm_policy_create(policy_env, NULL, &policy);
+                err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
             }
             if (!err) {
                 err = geopm_ctl_create(policy, NULL, g_ppn1_comm, &ctl);
@@ -200,9 +200,8 @@ static int geopm_pmpi_finalize(void)
 int MPI_Init(int *argc, char **argv[])
 {
     int err;
-    char *pmpi_ctl_env = getenv("GEOPM_PMPI_CTL");
 
-    if (pmpi_ctl_env && strncmp(pmpi_ctl_env, "pthread", strlen("pthread") + 1) == 0) {
+    if (geopm_env_do_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
         int required = MPI_THREAD_MULTIPLE;
         int mpi_thread_level;
         err = PMPI_Init_thread(argc, argv, required, &mpi_thread_level);
@@ -214,17 +213,16 @@ int MPI_Init(int *argc, char **argv[])
         err = PMPI_Init(argc, argv);
     }
     if (!err) {
-        err = geopm_pmpi_init(pmpi_ctl_env);
+        err = geopm_pmpi_init();
     }
     return err;
 }
 
 int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
-    char *pmpi_ctl_env = getenv("GEOPM_PMPI_CTL");
     int err = PMPI_Init_thread(argc, argv, required, provided);
     if (!err) {
-        err = geopm_pmpi_init(pmpi_ctl_env);
+        err = geopm_pmpi_init();
     }
     return err;
 

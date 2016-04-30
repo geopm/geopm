@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Intel Corporation
+ * Copyright (c) 2015, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,54 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
-#include "gtest/gtest.h"
-#include "geopm_error.h"
-#include "Exception.hpp"
-#include "DeciderFactory.hpp"
-
-
-class DeciderFactoryTest: public :: testing :: Test
+#ifndef GEOPM_ENV_H_INCLUDE
+#define GEOPM_ENV_H_INCLUDE
+#ifdef __cplusplus
+extern "C"
 {
-    protected:
-        void SetUp();
-};
+#endif
 
-void DeciderFactoryTest::SetUp()
-{
-    setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
+    enum geopm_pmpi_ctl_e {
+        GEOPM_PMPI_CTL_NONE,
+        GEOPM_PMPI_CTL_PROCESS,
+        GEOPM_PMPI_CTL_PTHREAD,
+    };
+
+    const char *geopm_env_policy(void);
+    const char *geopm_env_shmkey(void);
+    const char *geopm_env_trace(void);
+    const char *geopm_env_plugin_path(void);
+    int geopm_env_do_pmpi_ctl(void);
+    int geopm_env_do_region_barrier(void);
+    int geopm_env_do_trace(void);
+    int geopm_env_do_ignore_affinity(void);
+
+#ifdef __cplusplus
 }
-
-TEST_F(DeciderFactoryTest, decider_register)
-{
-    geopm::DeciderFactory m_decider_fact;
-    const std::string dname = "power_governing";
-    std::string ans;
-    geopm::Decider* d = NULL;
-
-    d = m_decider_fact.decider(dname);
-    ASSERT_FALSE(d == NULL);
-
-    ans = d->name();
-    ASSERT_FALSE(ans.empty());
-
-    EXPECT_FALSE(ans.compare(dname));
-}
-
-TEST_F(DeciderFactoryTest, no_supported_decider)
-{
-    geopm::DeciderFactory m_decider_fact;
-    geopm::Decider* d = NULL;
-    const std::string dname = "doesntexist";
-    int thrown = 0;
-
-    try {
-        d = m_decider_fact.decider(dname);
-    }
-    catch (geopm::Exception e) {
-        thrown = e.err_value();
-    }
-    ASSERT_TRUE(d == NULL);
-    EXPECT_TRUE(thrown == GEOPM_ERROR_DECIDER_UNSUPPORTED);
-}
+#endif
+#endif

@@ -335,7 +335,6 @@ namespace geopm
             uint64_t m_parent_region;
             double m_parent_progress;
             int m_parent_num_enter;
-            bool m_do_region_barrier;
     };
 
     /// @brief Retrieves sample data from a single application rank through

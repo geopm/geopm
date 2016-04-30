@@ -60,6 +60,22 @@ resource manager to set energy policy control parameters for MPI jobs.  Some
 features of libgeopmpolicy are available through the geopmpolicy application
 including support for static control.
 
+## ENVIRONMENT
+  * `GEOPM_TRACE`:
+    pass
+  * `GEOPM_SHMKEY`:
+    pass
+  * `GEOPM_POLICY`:
+    pass
+  * `GEOPM_PMPI_CTL`:
+    pass
+  * `GEOPM_PLUGIN_DIR`:
+    pass
+  * `GEOPM_REGION_BARRIER`:
+    pass
+  * `GEOPM_ERROR_AFFINITY_IGNORE`:
+    pass
+
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.
 

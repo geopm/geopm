@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dlfcn.h>
@@ -42,7 +43,12 @@
 #include <fts.h>
 
 #include "geopm_plugin.h"
+#include "geopm_env.h"
 #include "config.h"
+
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
 
 int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
 {
@@ -52,28 +58,48 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
     FTS *p_fts;
     FTSENT *file;
-    char *plugin_dir = PLUGINDIR;
-    char *paths[3];
+    int num_path = 1;
+    char **paths = NULL;
+    char *default_path = GEOPM_PLUGIN_PATH;
+    char path_env[NAME_MAX] = {0};
+    if (strlen(geopm_env_plugin_path())) {
+        ++num_path;
+        strncpy(path_env, geopm_env_plugin_path(), NAME_MAX - 1);
+        char *path_ptr = path_env;
+        while ((path_ptr = strchr(path_ptr, ':'))) {
+            *path_ptr = '\0';
+            ++num_path;
+        }
+    }
+    paths = calloc(num_path + 1, sizeof(char *));
+    if (!paths) {
+        err = ENOMEM;
+    }
+    if (!err) {
+        paths[0] = default_path;
+        char *path_ptr = path_env;
+        for (int i = 1; i < num_path; ++i) {
+            paths[i] = path_ptr;
+            path_ptr += strlen(path_ptr) + 1;
+        }
 
-    paths[0] = plugin_dir;
-    paths[1] = getenv("GEOPM_PLUGIN_DIR");
-    paths[2] = NULL;
-
-    if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
-        while ((file = fts_read(p_fts)) != NULL) {
-            if (file->fts_info == FTS_F &&
-                (strstr(file->fts_name, ".so") ||
-                 strstr(file->fts_name, ".dylib"))) {
-                plugin = dlopen(file->fts_path, RTLD_LAZY);
-                if (plugin != NULL) {
-                    register_func = (int (*)(int, struct geopm_factory_c *)) dlsym(plugin, "geopm_plugin_register");
-                    if (register_func != NULL) {
-                        register_func(plugin_type, factory);
+        if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
+            while ((file = fts_read(p_fts)) != NULL) {
+                if (file->fts_info == FTS_F &&
+                    (strstr(file->fts_name, ".so") ||
+                     strstr(file->fts_name, ".dylib"))) {
+                    plugin = dlopen(file->fts_path, RTLD_LAZY);
+                    if (plugin != NULL) {
+                        register_func = (int (*)(int, struct geopm_factory_c *)) dlsym(plugin, "geopm_plugin_register");
+                        if (register_func != NULL) {
+                            register_func(plugin_type, factory);
+                        }
                     }
                 }
             }
+            fts_close(p_fts);
         }
-        fts_close(p_fts);
+        free(paths);
     }
 
     return err;

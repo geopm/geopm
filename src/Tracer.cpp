@@ -35,6 +35,7 @@
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
+#include "geopm_env.h"
 #include "config.h"
 
 #ifndef NAME_MAX
@@ -50,14 +51,14 @@ namespace geopm
         , m_policy({0, 0, 0, 0.0})
     {
         geopm_time(&m_time_zero);
-        char *trace_env = getenv("GEOPM_TRACE");
-        if (trace_env) {
+        if (geopm_env_do_trace()) {
             char hostname[NAME_MAX];
             int err = gethostname(hostname, NAME_MAX);
             if (err) {
                 throw Exception("Tracer::Tracer() gethostname() failed", err, __FILE__, __LINE__);
             }
-            std::string output_path(std::string(trace_env)  + "-" + std::string(hostname) + ".log");
+            std::string output_path(geopm_env_trace());
+            output_path += "-" + std::string(hostname) + ".log";
             m_stream.open(output_path);
             m_stream << std::setprecision(16);
             m_is_trace_enabled = true;

@@ -31,7 +31,7 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = -I$(top_srcdir)/src -DPLUGINDIR=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200112L
+AM_CPPFLAGS = -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200112L
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
@@ -132,6 +132,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Decider.hpp \
                             src/DeciderFactory.cpp \
                             src/DeciderFactory.hpp \
+                            src/Environment.cpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \
@@ -166,6 +167,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/SharedMemory.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
+                            src/geopm_env.h \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
@@ -197,6 +199,7 @@ if ENABLE_MPI
                           src/Decider.hpp \
                           src/DeciderFactory.cpp \
                           src/DeciderFactory.hpp \
+                          src/Environment.cpp \
                           src/Exception.cpp \
                           src/Exception.hpp \
                           src/GlobalPolicy.cpp \
@@ -236,6 +239,7 @@ if ENABLE_MPI
                           src/SharedMemory.hpp \
                           src/Tracer.cpp \
                           src/Tracer.hpp \
+                          src/geopm_env.h \
                           src/TreeCommunicator.cpp \
                           src/TreeCommunicator.hpp \
                           src/geopm_ctl_spawn.c \
