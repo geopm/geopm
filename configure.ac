@@ -155,7 +155,6 @@ fi
 AC_SUBST([enable_pmpi])
 AM_CONDITIONAL([ENABLE_PMPI], [test "x$enable_pmpi" = "x1"])
 
-m4_include([m4/ax_openmp.m4])
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
 AC_LANG_PUSH([C++])
@@ -185,7 +184,7 @@ AC_PROG_FC
 fi
 AC_PROG_MAKE_SET
 AC_LANG_PUSH([C++])
-AX_OPENMP()
+AC_OPENMP()
 AC_LANG_POP([C++])
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
@@ -281,7 +280,7 @@ if test "x$enable_coverage" = "x1" ; then
 fi
 AC_SUBST([enable_coverage])
 
-AC_SUBST([enable_opnemp])
+AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 CFLAGS="${CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
