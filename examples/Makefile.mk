@@ -36,7 +36,6 @@ examples_geopm_print_error_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     noinst_PROGRAMS += examples/geopm_ctl_single \
                        examples/timed_region \
-                       examples/simple_prof_c \
                        # end
     examples_geopm_ctl_single_SOURCES = examples/geopm_ctl_single.cpp
     examples_geopm_ctl_single_LDADD = libgeopm.la
@@ -50,20 +49,6 @@ if ENABLE_MPI
     examples_timed_region_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
     examples_timed_region_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
     examples_timed_region_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-    examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
-    examples_simple_prof_c_LDADD = libgeopm.la
-    examples_simple_prof_c_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    examples_simple_prof_c_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    examples_simple_prof_c_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-    examples_simple_prof_c_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-if ENABLE_FORTRAN
-    noinst_PROGRAMS += examples/simple_prof_f
-    examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
-    examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la
-    examples_simple_prof_f_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    examples_simple_prof_f_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -lmpifort
-    examples_simple_prof_f_FCFLAGS = $(FCFLAGS) $(AM_FCFLAGS) $(MPI_CFLAGS)
-endif
 endif
 
 if ENABLE_MPI
@@ -81,7 +66,23 @@ endif
 if ENABLE_MPI
 if ENABLE_OPENMP
 if ENABLE_SCHED
-    noinst_PROGRAMS += examples/threaded_step
+    noinst_PROGRAMS += examples/threaded_step \
+                       examples/simple_prof_c \
+                       #end
+    examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
+    examples_simple_prof_c_LDADD = libgeopm.la
+    examples_simple_prof_c_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    examples_simple_prof_c_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_simple_prof_c_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
+    examples_simple_prof_c_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+if ENABLE_FORTRAN
+    noinst_PROGRAMS += examples/simple_prof_f
+    examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
+    examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la
+    examples_simple_prof_f_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
+    examples_simple_prof_f_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -lmpifort
+    examples_simple_prof_f_FCFLAGS = $(FCFLAGS) $(AM_FCFLAGS) $(MPI_CFLAGS)
+endif
     examples_threaded_step_SOURCES = examples/threaded_step_example.c
     examples_threaded_step_LDADD = libgeopm.la
     examples_threaded_step_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
