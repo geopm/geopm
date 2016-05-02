@@ -58,10 +58,11 @@ namespace geopm
 {
     BalancingDecider::BalancingDecider()
         : m_name("power_balancing")
-        , m_convergence_target(0.05)
-        , m_min_num_converged(5)
+        , m_convergence_target(0.01)
+        , m_min_num_converged(10)
         , m_num_converged(0)
         , m_last_power_budget(DBL_MIN)
+        , m_num_sample(3)
     {
 
     }
@@ -119,7 +120,7 @@ namespace geopm
         bool is_updated = false;
 
         // Don't do anything if we have already converged.
-        if (!curr_policy.is_converged(curr_region.identifier())) {
+        if (!curr_policy.is_converged(curr_region.identifier()) && (curr_region.num_sample(0, GEOPM_SAMPLE_TYPE_RUNTIME) > m_num_sample)) {
             int num_domain = curr_policy.num_domain();
             std::vector<double> runtime(num_domain);
             double sum = 0.0;
@@ -138,9 +139,11 @@ namespace geopm
                 // Calculate new percentages
                 for (int i = 0; i < num_domain; ++i) {
                     double curr_target;
+                    double median = 0.0;
                     curr_policy.target(GEOPM_REGION_ID_OUTER, i, curr_target);
                     double last_percentage = curr_target / m_last_power_budget;
-                    percentage[i] = (curr_region.median(i, GEOPM_SAMPLE_TYPE_RUNTIME) * last_percentage) / sum;
+                    median = curr_region.median(i, GEOPM_SAMPLE_TYPE_RUNTIME);
+                    percentage[i] = (median * last_percentage) / sum;
                     total += percentage[i];
                 }
                 for (int i = 0; i < num_domain; ++i) {
@@ -148,6 +151,8 @@ namespace geopm
                     double target = (percentage[i] / total) * m_last_power_budget;
                     curr_policy.update(GEOPM_REGION_ID_OUTER, i, target);
                 }
+                // clear out stale sample data
+                curr_region.clear();
                 is_updated = true;
             }
             // We are within bounds.

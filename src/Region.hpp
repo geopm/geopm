@@ -73,6 +73,10 @@ namespace geopm
             ///
             /// @param [in] A vector of sample messages to be inserted.
             void insert(const std::vector<struct geopm_sample_message_s> &sample);
+            /// @brief Clear data from internal buffers
+            ///
+            /// Clears aggregated data from the internal buffers.
+            void clear(void);
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.
             uint64_t identifier(void) const;

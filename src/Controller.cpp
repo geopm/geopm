@@ -237,6 +237,9 @@ namespace geopm
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
 
+            m_last_sample_msg.resize(num_level);
+            std::fill(m_last_sample_msg.begin(), m_last_sample_msg.end(), GEOPM_SAMPLE_INVALID);
+
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform);
             // convert rate limit from ms to seconds
@@ -556,13 +559,18 @@ namespace geopm
                 // GEOPM_REGION_ID_MPI is inserted at construction
                 struct geopm_sample_message_s mpi_sample;
                 (*mpi_it).second->sample_message(mpi_sample);
-                sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                if (sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != 0.0) {
+                    sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                }
 
                 do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
-                m_policy[level]->is_converged(m_region_id_all)) {
+                m_policy[level]->is_converged(m_region_id_all) &&
+                (sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] > 0.0) &&
+                !geopm_is_sample_equal(&m_last_sample_msg[level], &sample_msg)) {
                 m_tree_comm->send_sample(level, sample_msg);
+                m_last_sample_msg[level] = sample_msg;
             }
         }
         if (m_do_teardown == true) {

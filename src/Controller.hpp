@@ -191,6 +191,7 @@ namespace geopm
             std::vector<std::map <uint64_t, Region *> > m_region;
             std::vector<Policy *> m_policy;
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
+            std::vector<struct geopm_sample_message_s> m_last_sample_msg;
             std::vector<uint64_t> m_region_id;
             uint64_t m_region_id_all;
             int m_ctl_status;

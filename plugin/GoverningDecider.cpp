@@ -95,8 +95,16 @@ namespace geopm
             std::fill(domain_budget.begin(), domain_budget.end(), split_budget);
             std::vector<uint64_t> region_id;
             curr_policy.region_id(region_id);
-            for (auto it = region_id.begin(); it != region_id.end(); ++it) {
-                curr_policy.update((*it), domain_budget);
+            for (auto region = region_id.begin(); region != region_id.end(); ++region) {
+                curr_policy.update((*region), domain_budget);
+                auto it = m_num_converged.lower_bound((*region));
+                if (it != m_num_converged.end() && (*it).first == (*region)) {
+                    (*it).second = 0;
+                }
+                else {
+                    it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>((*region), 0));
+                }
+                curr_policy.is_converged((*region), false);
             }
             if (m_last_power_budget == DBL_MIN) {
                 curr_policy.mode(policy_msg.mode);
@@ -113,6 +121,8 @@ namespace geopm
         const int num_domain = curr_policy.num_domain();
         const uint64_t region_id = curr_region.identifier();
         bool is_updated = false;
+        bool is_greater = false;
+        bool is_less = false;
 
         std::vector<double> limit(num_domain);
         std::vector<double> target(num_domain);
@@ -122,22 +132,25 @@ namespace geopm
             double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
             double dram_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
             double total_power = pkg_power + dram_power;
-            if (total_power > limit[domain_idx] * (1 + m_guard_band) ||
-                total_power < limit[domain_idx] * (1 - m_guard_band)) {
+            is_greater = total_power > limit[domain_idx] * (1 + m_guard_band);
+            is_less = total_power < limit[domain_idx] * (1 - m_guard_band);
+            if (is_greater || is_less) {
                 target[domain_idx] = limit[domain_idx] - dram_power;
                 is_updated = true;
             }
         }
         if (is_updated) {
             curr_policy.update(region_id, target);
-            auto it = m_num_converged.lower_bound(region_id);
-            if (it != m_num_converged.end() && (*it).first == region_id) {
-                (*it).second = 0;
+            if (is_greater) {
+                auto it = m_num_converged.lower_bound(region_id);
+                if (it != m_num_converged.end() && (*it).first == region_id) {
+                    (*it).second = 0;
+                }
+                else {
+                    it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
+                }
+                curr_policy.is_converged(region_id, false);
             }
-            else {
-                it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
-            }
-            curr_policy.is_converged(region_id, false);
         }
         else {
             auto it = m_num_converged.lower_bound(region_id);

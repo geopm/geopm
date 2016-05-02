@@ -126,6 +126,12 @@ namespace geopm
         m_domain_buffer.insert(m_signal_matrix);
     }
 
+    void Region::clear(void)
+    {
+        m_time_buffer.clear();
+        m_domain_buffer.clear();
+    }
+
     uint64_t Region::identifier(void) const
     {
         return m_identifier;

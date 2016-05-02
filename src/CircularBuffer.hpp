@@ -146,7 +146,6 @@ namespace geopm
     template <class type>
     void CircularBuffer<type>::clear()
     {
-        m_buffer.clear();
         m_head = 0;
         m_count = 0;
     }
