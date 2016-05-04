@@ -130,7 +130,7 @@ int main(int argc, char** argv)
                         "       geopm(3) configuration file when used with -c or -e and an\n"
                         "       MSR save state file when used with -s or -r.\n"
                         "\n"
-                        "     Copyright (C) 2015 Intel Corporation. All rights reserved.\n"
+                        "     Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n"
                         "\n";
 
     if (argc < 2) {
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
     }
     if (strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n",geopm_version());
-        printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
+        printf("\n\nCopyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (strncmp(argv[1], "--help", strlen("--help") + 1) == 0) {

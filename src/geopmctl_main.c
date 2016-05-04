@@ -95,12 +95,12 @@ int main(int argc, char **argv)
                         "              Output text file that will hold the human readable  report  when\n"
                         "              program terminates.\n"
                         "\n"
-                        "    Copyright (C) 2015, 2016 Intel Corporation. All rights reserved.\n"
+                        "    Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
         strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n", geopm_version());
-        printf("\n\nCopyright (C) 2015 Intel Corporation. All rights reserved.\n\n");
+        printf("\n\nCopyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (argc > 1 && (
