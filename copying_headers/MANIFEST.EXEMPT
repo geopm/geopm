@@ -19,6 +19,7 @@ MANIFEST
 README
 README.md
 ronn/geopm.7.ronn
+ronn/geopm_comm.3.ronn
 ronn/geopm_ctl_c.3.ronn
 ronn/geopm_error.3.ronn
 ronn/geopm_omp.3.ronn

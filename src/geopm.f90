@@ -193,16 +193,16 @@ module geopm
             integer(kind=c_int), value, intent(in) :: thread_idx
         end function geopm_tprof_increment
 
-        !!!!!!!!!!!!!!!!!
-        !! HELPER APIS !!
-        !!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!
+        !! MPI COMM APIS !!
+        !!!!!!!!!!!!!!!!!!!
 
-        integer(kind=c_int) function geopm_num_node(comm, num_node)  bind(C, name="geopm_num_node_f")
+        integer(kind=c_int) function geopm_comm_num_node(comm, num_node)  bind(C, name="geopm_comm_num_node_f")
             import
             implicit none
             integer(kind=c_int), value, intent(in) :: comm
             integer(kind=c_int), intent(out) :: num_node
-        end function geopm_num_node
+        end function geopm_comm_num_node
 
         integer(kind=c_int) function geopm_comm_split(comm, split_comm, is_ctl_comm) bind(C, name="geopm_comm_split_f")
             import

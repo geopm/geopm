@@ -1,7 +1,7 @@
 geopmctl(1) -- geopm runtime mpi application
 ============================================
 
-[//]: # (Copyright (c) 2015, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -67,9 +67,10 @@ geopmctl(1) -- geopm runtime mpi application
     terminates.
 
 ## COPYRIGHT
-Copyright (C) 2015 Intel Corporation. All rights reserved.
+Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 
 **geopm(7)**,
+**geopm_comm(3)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,

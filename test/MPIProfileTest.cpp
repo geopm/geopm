@@ -261,7 +261,7 @@ TEST_F(MPIProfileTest, runtime)
     int rank;
     int num_node = 0;
 
-    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    (void) geopm_comm_num_node(MPI_COMM_WORLD, &num_node);
     ASSERT_LT(1, num_node);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -314,7 +314,7 @@ TEST_F(MPIProfileTest, progress)
     int rank;
     int num_node = 0;
 
-    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    (void) geopm_comm_num_node(MPI_COMM_WORLD, &num_node);
     ASSERT_TRUE(num_node > 1);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -371,7 +371,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     int rank;
     int num_node = 0;
 
-    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    (void) geopm_comm_num_node(MPI_COMM_WORLD, &num_node);
     ASSERT_TRUE(num_node > 1);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -461,7 +461,7 @@ TEST_F(MPIProfileTest, nested_region)
     int rank;
     int num_node = 0;
 
-    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    (void) geopm_comm_num_node(MPI_COMM_WORLD, &num_node);
     ASSERT_TRUE(num_node > 1);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -525,7 +525,7 @@ TEST_F(MPIProfileTest, outer_sync)
     int rank;
     int num_node = 0;
 
-    (void) geopm_num_node(MPI_COMM_WORLD, &num_node);
+    (void) geopm_comm_num_node(MPI_COMM_WORLD, &num_node);
     ASSERT_LT(1, num_node);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

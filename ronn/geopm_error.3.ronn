@@ -1,7 +1,7 @@
 geopm_error(3) -- geopm error handling
 ======================================
 
-[//]: # (Copyright (c) 2015, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -127,10 +127,11 @@ The system error numbers are documented in the **errno(3)** man page.
     Unset or invalid environement variable
 
 ## COPYRIGHT
-Copyright (C) 2015 Intel Corporation. All rights reserved.
+Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
+**geopm_comm(3)**,
 **geopm_ctl_c(3)**,
 **geopmkey(3)**,
 **geopm_omp(3)**,

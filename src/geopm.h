@@ -123,10 +123,10 @@ int geopm_tprof_increment(struct geopm_tprof_c *tprof,
                           uint64_t region_id,
                           int thread_idx);
 
-/***************/
-/* HELPER APIS */
-/***************/
-int geopm_num_node(MPI_Comm comm, int *num_node);
+/*****************/
+/* MPI COMM APIS */
+/*****************/
+int geopm_comm_num_node(MPI_Comm comm, int *num_node);
 
 int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm);
 

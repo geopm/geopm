@@ -51,7 +51,7 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl)
     if (!geopmctl_path) {
         geopmctl_path = geopmctl_path_default;
     }
-    err = geopm_num_nodes(app_comm, &ctl_size);
+    err = geopm_comm_num_node(app_comm, &ctl_size);
     if (!err) {
         ctl_err = (int *)calloc(ctl_size, sizeof(int));
         if (ctl_err == NULL) {

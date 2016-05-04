@@ -54,15 +54,15 @@ extern "C"
 {
     static int geopm_comm_split_imp(MPI_Comm comm, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
 
-    int geopm_num_node(MPI_Comm comm, int *num_node)
+    int geopm_comm_num_node(MPI_Comm comm, int *num_node)
     {
         int is_shm_root = 0;
         return geopm_comm_split_imp(comm, num_node, NULL, &is_shm_root);
     }
 
-    int geopm_num_node_f(int comm, int *num_node)
+    int geopm_comm_num_node_f(int comm, int *num_node)
     {
-        return geopm_num_node(MPI_Comm_f2c(comm), num_node);
+        return geopm_comm_num_node(MPI_Comm_f2c(comm), num_node);
     }
 
     int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)

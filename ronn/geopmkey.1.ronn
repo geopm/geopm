@@ -1,7 +1,7 @@
 geopmkey(1) -- generate shared memory keys for geopm
 ====================================================
 
-[//]: # (Copyright (c) 2015, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -58,10 +58,11 @@ geopmkey(1) -- generate shared memory keys for geopm
                -s $(grep sample $keyfile)
 
 ## COPYRIGHT
-Copyright (C) 2015 Intel Corporation. All rights reserved.
+Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
+**geopm_comm(3)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_omp(3)**,
