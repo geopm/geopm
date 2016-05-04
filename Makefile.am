@@ -37,6 +37,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_
 lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmpolicy
 pkglib_LTLIBRARIES =
+nodist_include_HEADERS =
 
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
@@ -58,7 +59,13 @@ include_HEADERS = src/geopm.h \
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
-    include_HEADERS += geopm.mod
+
+all-local: geopm.mod
+
+install-exec-hook:
+	$(INSTALL) -d  $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
+	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
+
 endif
 endif
 
