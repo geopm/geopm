@@ -62,19 +62,72 @@ including support for static control.
 
 ## ENVIRONMENT
   * `GEOPM_TRACE`:
-    pass
+    Enables geopm tracing capability.  Setting this variable enables
+    the creation of a trace output file and the value of the variable
+    is used as the base of the output trace file path.  Currently one
+    trace file is generated per compute node.  The file names of each
+    trace are constructed by appending the node's hostname to base
+    name given by the environment variable (separated by a '-').
+
   * `GEOPM_SHMKEY`:
-    pass
+    Override the default shared memory key base.  The shared memory
+    key base prefixes all shared memory keys used by geopm.  The
+    default key base is '/geopm-default', this can be overridden by
+    the environment variable, and the environment can be overridden by
+    specifying a non-null and matching shm_key parameter to
+    `geopm_ctl_create`() and `geopm_prof_create`().  The base key is
+    extended for each shared memory region used by the runtime.  A
+    simple command to clean up after an aborted job:
+
+    `$ test -n "$GEOPM_SHMKEY" && rm -f /dev/shm${GEOPM_SHMKEY}* || rm -f /dev/shm/geopm-default*`
+
   * `GEOPM_POLICY`:
-    pass
+    Defines the default policy, either shared memory key or json file
+    path.  This environment variable must be set when launching the
+    geopm controller through the PMPI interface (see GEOPM_PMPI_CTL
+    environment variable below).  A shared memory key must begin with
+    the '/' character and have no other occurrence of the '/'
+    character.  All other values are assumed to refer to a json file
+    path.
+
   * `GEOPM_PMPI_CTL`:
-    pass
-  * `GEOPM_PLUGIN_DIR`:
-    pass
+    When set to 'process' or 'pthread' this environment variable
+    enables the launch of the geopm controller through the PMPI
+    wrappers: in particular the wrappers for MPI_Init() or
+    MPI_Init_thread().  In the case of specifying 'pthread' the lowest
+    rank on each node will launch a pthread running the controller.
+    In the case of specifying 'process' the controller will run as
+    separate processes on a split off communicator comprised of the
+    lowest rank on each node.  Additionally through interception with
+    the PMPI wrappers, the application MPI_COMM_WORLD appears to have
+    one fewer rank per node than was allocated to the job.
+
+  * `GEOPM_PLUGIN_PATH`:
+    The search path for geopm plugins.  It is a colon-separated list
+    of directories used by geopm to search for shared objects which
+    contain geopm plugins.  A zero-length directory name indicates the
+    current working directory.  A zero-length directory is inferred by
+    a leading or trailing colon or two adjacent colons.  The default
+    search location is always searched and is determined at library
+    configuration time and by way of the 'pkglib' variable (typically
+    /usr/lib64/geopm/).
+
   * `GEOPM_REGION_BARRIER`:
-    pass
+    Enables a node local MPI_Barrier() at time of calling
+    `geopm_region_enter`() or `geopm_region_exit`() for all
+    application ranks that share a node.  Since the geopm controller
+    only considers a region to be entered when all ranks on a node
+    have entered the region, enabling this feature forces control
+    throughout all of the time every rank spends in a region.
+    WARNING: If all regions marked in the application are not entered
+    synchronously by all ranks on a node then enabling this feature
+    will cause a deadlock and the application will hang.
+
   * `GEOPM_ERROR_AFFINITY_IGNORE`:
-    pass
+    If set, errors of the type GEOPM_ERROR_AFFINITY are ignored by
+    geopm.  This is useful for testing on systems where CPU affinity
+    requirements cannot be met (e.g. Mac OS X). See `geopm_error`(3)
+    for more information on this error condition.
 
 ## COPYRIGHT
 Copyright (C) 2015 Intel Corporation. All rights reserved.

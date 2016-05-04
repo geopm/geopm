@@ -671,7 +671,7 @@ namespace geopm
         }
 
         gethostname(hostname, NAME_MAX);
-        report.open(report_name + "_" + std::string(hostname), std::ios_base::out);
+        report.open(report_name + "-" + std::string(hostname), std::ios_base::out);
         report << "Profile: " << profile_name << std::endl;
         for (auto it = m_region[0].begin(); it != m_region[0].end(); ++it) {
             uint64_t region_id = (*it).first;

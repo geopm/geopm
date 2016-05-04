@@ -39,7 +39,7 @@ geopm_ctl_c(3) -- geopm power controller structure
 
   * `int geopm_ctl_create(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `const char *`_sample_key_, <br>
+    `const char *`_shm_key_, <br>
     `MPI_Comm` _comm_, <br>
     `struct geopm_ctl_c **`_ctl_);
 
@@ -78,7 +78,7 @@ requirements and trade offs.
     one of the other functions described in this man page.  The user
     must provide a geopm_policy_c pointer, see **geopm_policy_c(3)**
     man page for details.  The control algorithm relies on feedback
-    about the application profile.  The _sample_key_ parameter is the
+    about the application profile.  The _shm_key_ parameter is the
     base string which is extended to create the POSIX shared memory
     keys referencing shared memory regions used to pass profile data
     from the application to the controller.  The user provides an MPI
