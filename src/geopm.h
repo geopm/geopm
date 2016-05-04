@@ -132,21 +132,6 @@ int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm);
 
 int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm);
 
-int geopm_omp_sched_static_norm(int num_iter,
-                                int chunk_size,
-                                int num_thread,
-                                double *norm);
-
-double geopm_progress_threaded_min(int num_thread,
-                                   size_t stride,
-                                   const uint32_t *progress,
-                                   const double *norm);
-
-double geopm_progress_threaded_sum(int num_thread,
-                                   size_t stride,
-                                   const uint32_t *progress,
-                                   double norm);
-
 int geopm_comm_split_shared(MPI_Comm comm, MPI_Comm *split_comm);
 
 #ifdef __cplusplus
