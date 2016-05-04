@@ -104,203 +104,225 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
 
 ## DESCRIPTION
 The _geopmpolicy_ library is linked by a system resource manager or
-parallel job scheduler to control the global energy policy for each MPI job
-allocation.  The geopm_policy_c structure holds the control state for an MPI
-job and must be created prior to launching the job.  The interface provided
-by the policy interface enables job policy to be enforced statically or
-dynamically over the compute application runtime.  This interface can output
-a MSR whitelist file for use with the Linux MSR driver. For static policy
-control, this interface can be used to create a configuration file that is
-parsed by the geopm setup or geopm runtime.  For dynamic control, a daemon
-can use this interface to create and modify an inter-process shared memory
-region on the compute node hosting the root MPI process of the compute
-application.  The shared memory region is monitored by the geopm runtime to
-enforce policy across the entire MPI job allocation.  All functions
-described in this man page return an error code on failure and zero upon
-success; see [ERRORS][] section below for details.
+parallel job scheduler to control the global energy policy for each
+MPI job allocation.  The geopm_policy_c structure holds the control
+state for an MPI job and must be created prior to launching the job.
+The interface provided by the policy interface enables job policy to
+be enforced statically or dynamically over the compute application
+runtime.  This interface can output a MSR whitelist file for use with
+the Linux MSR driver. For static policy control, this interface can be
+used to create a configuration file that is parsed by the geopm setup
+or geopm runtime.  For dynamic control, a daemon can use this
+interface to create and modify an inter-process shared memory region
+on the compute node hosting the root MPI process of the compute
+application.  The shared memory region is monitored by the geopm
+runtime to enforce policy across the entire MPI job allocation.  All
+functions described in this man page return an error code on failure
+and zero upon success; see [ERRORS][] section below for details.
 
   * `geopm_policy_create`():
-    creates _policy_, an opaque pointer to a geopm_policy_c structure which can
-    create a configuration file or a shared memory region to control the energy
-    policy for an MPI job.  If _in_config_ is not NULL then a configuration
-    file or shared memory region will be read in to initialize the state of the
-    policy controller. The string can contain either a config file path or
-    a POSIX shared memory key. If _out_config_ is not NULL then a configuration
-    file or shared memory region will be created and when _policy_ is passed to
-    `geopm_policy_write`() the current policy will be written to the region. The
-    string can contain either a config file path or a POSIX shared memory key.
-    If both _in_config_ and _out_config_ are NULL the creation will fail and an
-    error code is returned.
+    creates _policy_, an opaque pointer to a geopm_policy_c structure
+    which can create a configuration file or a shared memory region to
+    control the energy policy for an MPI job.  If _in_config_ is not
+    NULL then a configuration file or shared memory region will be
+    read in to initialize the state of the policy controller. The
+    string can contain either a config file path or a POSIX shared
+    memory key. If _out_config_ is not NULL then a configuration file
+    or shared memory region will be created and when _policy_ is
+    passed to `geopm_policy_write`() the current policy will be
+    written to the region. The string can contain either a config file
+    path or a POSIX shared memory key.  If both _in_config_ and
+    _out_config_ are NULL the creation will fail and an error code is
+    returned.
 
   * `geopm_policy_destroy`():
-    destroys the policy controller referenced by _policy_ and releases all
-    resources associated with it.
+    destroys the policy controller referenced by _policy_ and releases
+    all resources associated with it.
 
   * `geopm_policy_power`():
-    sets the _power_budget_, in units of Watts, for the _policy_. The power
-    budget determines the upper limit on the aggregate power that can be drawn
-    by all compute nodes within the entire MPI job allocation.
+    sets the _power_budget_, in units of Watts, for the _policy_. The
+    power budget determines the upper limit on the aggregate power
+    that can be drawn by all compute nodes within the entire MPI job
+    allocation.
 
   * `geopm_policy_mode`():
-    selects the control _mode_ that will be used by the _policy_. The _mode_ can
-    be selected from the enumeration defined in _geopm_message.h_ and these
-    options are described in the [STATIC MODES][] and [DYNAMIC MODES][]
-    sections below.
+
+    selects the control _mode_ that will be used by the _policy_. The
+    _mode_ can be selected from the enumeration defined in
+    _geopm_message.h_ and these options are described in the 
+    [STATIC MODES][] and [DYNAMIC MODES][] sections below.
 
   * `geopm_policy_cpu_freq`():
-    sets the _cpu_mhz_ frequency in MHz to which the _policy_ will constrain
-    the restricted CPUs.
+    sets the _cpu_mhz_ frequency in MHz to which the _policy_ will
+    constrain the restricted CPUs.
 
   * `geopm_policy_cpu_full_perf`():
-    sets the number of CPUs, _num_cpu_full_perf_ which are run unconstrained at
-    full performance for the _policy_. This parameter is used by
-    `GEOPM_MODE_FREQ_HYBRID_STATIC` and `GEOPM_MODE_FREQ_HYBRID_DYNAMIC` for
-    "big CPUs".
+    sets the number of CPUs, _num_cpu_full_perf_ which are run
+    unconstrained at full performance for the _policy_. This parameter
+    is used by `GEOPM_MODE_FREQ_HYBRID_STATIC` and
+    `GEOPM_MODE_FREQ_HYBRID_DYNAMIC` for "big CPUs".
 
  * `geopm_policy_tdp_percent`():
-    sets the percent of Thermal Design Power, _percent_ to give restricted
-    CPUs under control under the _policy_. This parameter is used by
-    `GEOPM_MODE_TDP_BALANCE_STATIC`.
+    sets the percent of Thermal Design Power, _percent_ to give
+    restricted CPUs under control under the _policy_. This parameter
+    is used by `GEOPM_MODE_TDP_BALANCE_STATIC`.
 
   * `geopm_policy_affinity`():
-    sets the _cpu_affinity_ for the _policy_. The affinity is used to place the
-    unrestricted CPUs ("big CPUs") under control in the
-    `GEOPM_MODE_FREQ_HYBRID_STATIC` and `GEOPM_MODE_FREQ_HYBRID_DYNAMIC` modes.
-    The affinity options are discussed in the [AFFINITY][] section below.
+    sets the _cpu_affinity_ for the _policy_. The affinity is used to
+    place the unrestricted CPUs ("big CPUs") under control in the
+    `GEOPM_MODE_FREQ_HYBRID_STATIC` and
+    `GEOPM_MODE_FREQ_HYBRID_DYNAMIC` modes.  The affinity options are
+    discussed in the [AFFINITY][] section below.
 
   * `geopm_policy_goal`():
-    sets the _geo_goal_ for the _policy_.  The goal affects the behavior of the
-    policy when using dynamic power modes.  The goal options are discussed in
-    the [GOALS][] section below.
+    sets the _geo_goal_ for the _policy_.  The goal affects the
+    behavior of the policy when using dynamic power modes.  The goal
+    options are discussed in the [GOALS][] section below.
 
   * `geopm_policy_tree_decider`():
-    sets the _tree_decider_ description string for the _policy_. The description
-    string affects which tree level decider plugin to use. It is the responsibility
-    of the tree decider to manage power budgets between multiple nodes in the system.
-    There must be a tree decider plugin on the system that takes the specified string.
+    sets the _tree_decider_ description string for the _policy_. The
+    description string affects which tree level decider plugin to
+    use. It is the responsibility of the tree decider to manage power
+    budgets between multiple nodes in the system.  There must be a
+    tree decider plugin on the system that takes the specified string.
 
   * `geopm_policy_leaf_decider`():
-    sets the _leaf_decider_ description string for the _policy_. The description
-    string affects which leaf level decider plugin to use. It is the responsibility
-    of the leaf decider to manage power budgets within a single node in the system.
-    There must be a leaf decider plugin on the system that takes the specified string.
+    sets the _leaf_decider_ description string for the _policy_. The
+    description string affects which leaf level decider plugin to
+    use. It is the responsibility of the leaf decider to manage power
+    budgets within a single node in the system.  There must be a leaf
+    decider plugin on the system that takes the specified string.
 
   * `geopm_policy_platform`():
-    sets the _platform_ description string for the _policy_. The description
-    string affects which platform plugin to use. The platform is the abstaction interface
-    to the architectural platform specific to the node. There must be a platform plugin
-    on the system that takes the specified string.
+    sets the _platform_ description string for the _policy_. The
+    description string affects which platform plugin to use. The
+    platform is the abstaction interface to the architectural platform
+    specific to the node. There must be a platform plugin on the
+    system that takes the specified string.
 
   * `geopm_policy_write`():
-    writes the state stored in the _policy_ to a configuration file or shared
-    memory depending on the values passed to `geopm_policy_create`().
+    writes the state stored in the _policy_ to a configuration file or
+    shared memory depending on the values passed to
+    `geopm_policy_create`().
 
   * `geopm_platform_msr_save`():
-    writes the state of all MSR values that **geopm(7)** may modify to a file
-    specified by _path_ so that they can be restored at a later time.
+    writes the state of all MSR values that **geopm(7)** may modify to
+    a file specified by _path_ so that they can be restored at a later
+    time.
 
   * `geopm_platform_msr_restore`():
-    reads a set of MSR values from a file specified by _path_ and set the MSR
-    values of the system to match those given in the file.
+    reads a set of MSR values from a file specified by _path_ and set
+    the MSR values of the system to match those given in the file.
 
   * `geopm_platform_msr_whitelist`():
-    writes a MSR whitelist consisting of all MSR offsets and write masks needed
-    for full operation of geopm power modes. It is intended to be used with the
-    white-listing feature of the Linux MSR driver. The whitelist is written out to
-    _file_desc_ which should be a valid file descriptor.
+    writes a MSR whitelist consisting of all MSR offsets and write
+    masks needed for full operation of geopm power modes. It is
+    intended to be used with the white-listing feature of the Linux
+    MSR driver. The whitelist is written out to _file_desc_ which
+    should be a valid file descriptor.
 
   * `geopm_policy_enforce_static`():
-    enforces the static policy described by the _policy_ through modifying the
-    system configuration (e.g. setting MSR values).
+    enforces the static policy described by the _policy_ through
+    modifying the system configuration (e.g. setting MSR values).
 
 ## STATIC MODES
-The modes listed in this section do not have a run time requirement on geopm.
-They are used to enact a power policy that does not require power setting
-changes during application runtime.
+The modes listed in this section do not have a run time requirement on
+geopm.  They are used to enact a power policy that does not require
+power setting changes during application runtime.
 
   * `GEOPM_MODE_TDP_BALANCE_STATIC`:
-    The job is statically managed to an aggregate power bound by assigning each
-    node in the job a static power bound.  Each node is assigned a different
-    power bound based on the Thermal Design Power of its processor(s). This mode
-    employs non-uniform power allocation as a means of mitigating load imbalance
-    due to manufacturing variation and achieves higher average frequencies than
-    GEOPM_MODE_FREQ_UNIFORM_STATIC or GEOPM_MODE_FREQ_HYBRID_STATIC by
-    leveraging the RAPL frequency-management technology in Intel processors.
+    The job is statically managed to an aggregate power bound by
+    assigning each node in the job a static power bound.  Each node is
+    assigned a different power bound based on the Thermal Design Power
+    of its processor(s). This mode employs non-uniform power
+    allocation as a means of mitigating load imbalance due to
+    manufacturing variation and achieves higher average frequencies
+    than GEOPM_MODE_FREQ_UNIFORM_STATIC or
+    GEOPM_MODE_FREQ_HYBRID_STATIC by leveraging the RAPL
+    frequency-management technology in Intel processors.
 
   * `GEOPM_MODE_FREQ_UNIFORM_STATIC`:
-    All nodes in the job run at a uniform static frequency. The job is not
-    managed to an aggregate power bound. This mode is intended to address static
-    load imbalance due to manufacturing variation among processors in the system
-    and does so by letting the nodes consume whatever power they need to in
-    order to achieve the designated frequency.
+    All nodes in the job run at a uniform static frequency. The job is
+    not managed to an aggregate power bound. This mode is intended to
+    address static load imbalance due to manufacturing variation among
+    processors in the system and does so by letting the nodes consume
+    whatever power they need to in order to achieve the designated
+    frequency.
 
   * `GEOPM_MODE_FREQ_HYBRID_STATIC`:
     Similar to the GEOPM_MODE_FREQ_UNIFORM_STATIC mode except that it
-    accelerates any "big CPUs" designated to run the serial portion of the
-    application.  This mode is intended to address static load imbalance due to
-    manufacturing variation while mitigating application scaling challenges.
-    Serial CPUs always run at max frequency while the parallel "small CPUs" run
-    at the specified uniform static frequency. The job is not managed to an
-    aggregate power bound.
+    accelerates any "big CPUs" designated to run the serial portion of
+    the application.  This mode is intended to address static load
+    imbalance due to manufacturing variation while mitigating
+    application scaling challenges.  Serial CPUs always run at max
+    frequency while the parallel "small CPUs" run at the specified
+    uniform static frequency. The job is not managed to an aggregate
+    power bound.
 
 ## DYNAMIC MODES
-The modes listed in this section are used to dynamically adapt power policy
-during application runtime and have a run time requirement on geopm. In these
-advanced modes, **geopm(7)** dynamically manages the job to an aggregate power
-bound while redistributing power among the nodes to equalize performance or
-frequency across nodes, depending on the mode.
+The modes listed in this section are used to dynamically adapt power
+policy during application runtime and have a run time requirement on
+geopm. In these advanced modes, **geopm(7)** dynamically manages the
+job to an aggregate power bound while redistributing power among the
+nodes to equalize performance or frequency across nodes, depending on
+the mode.
 
   * `GEOPM_MODE_PERF_BALANCE_DYNAMIC`:
-    In this mode, **geopm(7)** dynamically manages the job to an aggregate power
-    bound while leveraging global application awareness to maximize application
-    performance. The geopm runtime tracks the application's critical path and
-    continually redistributes power to steer power to the nodes on the critical
-    path and enable them to run at higher performance (if possible); node
-    frequencies and power allocation are strategically non-uniform.  By focusing
-    on the critical path, this mode addresses multiple forms of load imbalance
-    and is agnostic to the source of the load imbalance. This mode achieves the
-    highest performance of all of the power modes.
+    In this mode, **geopm(7)** dynamically manages the job to an
+    aggregate power bound while leveraging global application
+    awareness to maximize application performance. The geopm runtime
+    tracks the application's critical path and continually
+    redistributes power to steer power to the nodes on the critical
+    path and enable them to run at higher performance (if possible);
+    node frequencies and power allocation are strategically
+    non-uniform.  By focusing on the critical path, this mode
+    addresses multiple forms of load imbalance and is agnostic to the
+    source of the load imbalance. This mode achieves the highest
+    performance of all of the power modes.
 
   * `GEOPM_MODE_FREQ_UNIFORM_DYNAMIC`:
-    Similar to the `GEOPM_MODE_FREQ_UNIFORM_STATIC` mode except that node
-    frequencies are changed over time uniformly across the job allocation and
-    the job is managed to an aggregate power bound. This mode applies
-    non-uniform power bounds on the nodes as a means of throttling them to the
-    maximum common frequency that does not exceed the job's aggregate power
-    bound. Power is dynamically reallocated among nodes to use up all available
-    power for the job (if possible) and equalize the frequency variation across
-    processors that is exposed when running under a given power bound. This mode
-    achieves higher performance than the `GEOPM_MODE_FREQ_UNIFORM_STATIC` mode.
+    Similar to the `GEOPM_MODE_FREQ_UNIFORM_STATIC` mode except that
+    node frequencies are changed over time uniformly across the job
+    allocation and the job is managed to an aggregate power
+    bound. This mode applies non-uniform power bounds on the nodes as
+    a means of throttling them to the maximum common frequency that
+    does not exceed the job's aggregate power bound. Power is
+    dynamically reallocated among nodes to use up all available power
+    for the job (if possible) and equalize the frequency variation
+    across processors that is exposed when running under a given power
+    bound. This mode achieves higher performance than the
+    `GEOPM_MODE_FREQ_UNIFORM_STATIC` mode.
 
   * `GEOPM_MODE_FREQ_HYBRID_DYNAMIC`:
-    Similar to the `GEOPM_MODE_FREQ_HYBRID_STATIC` mode except that the
-    constrained "small CPU" frequencies are the only ones whose frequencies are
-    changed over time. The "big CPUs" in each node run at maximum frequency. The
-    "small CPUs" in each node are throttled to the maximum common frequency that
-    does not result in exceeding the job's aggregate power bound. This mode is
-    intended to address load imbalance due to manufacturing variation while
-    mitigating application scaling challenges. This mode achieves higher
+    Similar to the `GEOPM_MODE_FREQ_HYBRID_STATIC` mode except that
+    the constrained "small CPU" frequencies are the only ones whose
+    frequencies are changed over time. The "big CPUs" in each node run
+    at maximum frequency. The "small CPUs" in each node are throttled
+    to the maximum common frequency that does not result in exceeding
+    the job's aggregate power bound. This mode is intended to address
+    load imbalance due to manufacturing variation while mitigating
+    application scaling challenges. This mode achieves higher
     performance than the `GEOPM_MODE_FREQ_HYBRID_STATIC` mode.
 
 ## GOALS
 
   * `GEOPM_FLAGS_GOAL_CPU_EFFICIENCY`:
-    Set energy policy to maximize CPU efficiency, not performance (not yet
-    implemented).
+    Set energy policy to maximize CPU efficiency, not performance (not
+    yet implemented).
 
   * `GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY`:
-    Set energy policy to maximize network efficiency, not performance (not yet
-    implemented).
+    Set energy policy to maximize network efficiency, not performance
+    (not yet implemented).
 
   * `GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY`:
-    Set energy policy to maximize memory efficiency, not performance (not yet
-    implemented).
+    Set energy policy to maximize memory efficiency, not performance
+    (not yet implemented).
 
 ## AFFINITY
 
   * `GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT`:
-    The "small CPUs" are located nearby each other on the processor package.
-    This should match the OpenMP runtime environment.
+    The "small CPUs" are located nearby each other on the processor
+    package.  This should match the OpenMP runtime environment.
 
   * `GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_SCATTER`:
     The "small CPUs" are located as far from each other as possible across the
@@ -308,8 +330,8 @@ frequency across nodes, depending on the mode.
 
 ## ERRORS
 All functions described on this man page return an error code.  See
-**geopm_error(3)** for a full description of the error numbers and how to
-convert them to strings.
+**geopm_error(3)** for a full description of the error numbers and how
+to convert them to strings.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
