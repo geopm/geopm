@@ -18,10 +18,6 @@ out-of-place-testing
       does not, gtest links are broken and the license header check
       does not work (2015-10-30).
 
-redesign-platform-interfaces
-    - Platform interface currently has an observe method, this needs
-      to be redesigned.(2015-12-14)
-
 
 ONGOING ENHANCEMENTS
 --------------------
@@ -47,29 +43,10 @@ decider-plugin-selection
     - Design implement and test a user and administrator interface to
       select decider plug-ins. (2015-12-14)
 
-implement-governing-decider
-    - Write the default leaf decider: the GoverningDecider. (2015-2-1)
-
-implement-balancing-decider
-    - Write the default tree decier: the BalancingDecider. (2015-2-1)
-
-fix-hw-counter-overflow
-    - Need mechanism in Platform to deal with hardware counter
-      overflow. (2015-2-1)
-
-platform-enforce-policy
-    - Platform has an enforce_policy() method, but it is not correctly
-      implemented. (2015-2-1)
-
 cpu-frequency-platform
     - To enable deciders that use CPU frequency for control need to
       implement a Platform plugin with right granularity of
       measurement and control. (2015-2-1)
-
-barrier-option-region-end
-    - Provide option where geopm_prof_exit() calls into a
-      MPI_Barrier() over the ranks on the calling process's node. This
-      can be useful for debugging. (2015-12-14)
 
 enable-geopm-profiling
     - Enable performance profiling of the geopm code itself.
@@ -105,12 +82,6 @@ gui-report-explorer
       be especially useful for debug purposes, but is a low priority.
       (2015-12-14)
 
-decider-interface-publish-subscribe
-    - Design publish/subscriber interface to enable decider plug-in
-      access to information used to make decisions. This pattern may
-      be too restrictive to enable required extension, but look into
-      possibility. (2015-12-14)
-
 enable-automatic-profiling
     - Provide interface for algorithms attempting to do automatic
       detection of application regions and progress through analysis
@@ -119,8 +90,3 @@ enable-automatic-profiling
       it to an outside agent may break designs for
       encapsulation. (2015-12-14)
 
-enable-trace-dumping
-    - Provide a mechanism for dumping application trace data to disk
-      for post processing analysis.  This trace would include
-      telemetry data, application feedback data and decisions made by
-      the geopm run-time. (2015-12-14)
