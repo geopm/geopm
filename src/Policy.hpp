@@ -45,11 +45,17 @@ namespace geopm
 
     class RegionPolicy;
 
+    /// @brief Class defines the per-domain power settings and policy state.
     class Policy
     {
         public:
+            /// @brief Policy constructor.
+            /// @param [in] num_domain number of control domains the policy regulates.
             Policy(int num_domain);
+            /// @brief Policy destructor, virtual
             virtual ~Policy();
+            /// @brief Get number of control domains for the policy.
+            /// @returns number of domains under control.
             int num_domain(void);
             void region_id(std::vector<uint64_t> &region_id);
             void update(uint64_t region_id, int domain_idx, double target);
