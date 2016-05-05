@@ -46,6 +46,7 @@ module geopm
         !! OBJECT INSTANTIATION !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!
 
+        !> @brief Fortran interface to geopm_ctl_create c function
         integer(kind=c_int) function geopm_ctl_create(policy, sample_key, comm, ctl) bind(C, name="geopm_ctl_create_f")
             import
             implicit none
@@ -55,6 +56,7 @@ module geopm
             type(c_ptr), intent(out) :: ctl
         end function geopm_ctl_create
 
+        !> @brief Fortran interface to geopm_ctl_destroy c function
         integer(kind=c_int) function geopm_ctl_destroy(ctl) bind(C)
             import
             implicit none
@@ -65,12 +67,14 @@ module geopm
         !! POWER MANAGEMENT !!
         !!!!!!!!!!!!!!!!!!!!!!
 
+        !> @brief Fortran interface to geopm_ctl_step c function
         integer(kind=c_int) function geopm_ctl_step(ctl) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: ctl
         end function geopm_ctl_step
 
+        !> @brief Fortran interface to geopm_ctl_run c function
         integer(kind=c_int) function geopm_ctl_run(ctl) bind(C)
             import
             implicit none
@@ -86,6 +90,7 @@ module geopm
 !        end function geopm_ctl_pthread
 
 
+        !> @brief Fortran interface to geopm_ctl_spawn c function
         integer(kind=c_int) function geopm_ctl_spawn(ctl) bind(C)
             import
             implicit none
@@ -96,6 +101,7 @@ module geopm
         !! APPLICATION PROFILING !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+        !> @brief Fortran interface to geopm_prof_create c function
         integer(kind=c_int) function geopm_prof_create(prof_name, shm_key, comm, prof) bind(C, name="geopm_prof_create_f")
             import
             implicit none
@@ -105,18 +111,21 @@ module geopm
             type(c_ptr), intent(out) :: prof
         end function geopm_prof_create
 
+        !> @brief Fortran interface to geopm_prof_destroy c function
         integer(kind=c_int) function geopm_prof_destroy(prof) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_destroy
 
+        !> @brief Fortran interface to geopm_prof_default c function
         integer(kind=c_int) function geopm_prof_default(prof) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_default
 
+        !> @brief Fortran interface to geopm_prof_region c function
         integer(kind=c_int) function geopm_prof_region(prof, region_name, policy_hint, region_id) bind(C)
             import
             implicit none
@@ -126,6 +135,7 @@ module geopm
             integer(kind=c_int64_t), intent(out)  :: region_id
         end function geopm_prof_region
 
+        !> @brief Fortran interface to geopm_prof_enter c function
         integer(kind=c_int) function geopm_prof_enter(prof, region_id) bind(C)
             import
             implicit none
@@ -133,6 +143,7 @@ module geopm
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_enter
 
+        !> @brief Fortran interface to geopm_prof_exit c function
         integer(kind=c_int) function geopm_prof_exit(prof, region_id) bind(C)
             import
             implicit none
@@ -140,6 +151,7 @@ module geopm
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_exit
 
+        !> @brief Fortran interface to geopm_prof_progress c function
         integer(kind=c_int) function geopm_prof_progress(prof, region_id, fraction) bind(C)
             import
             implicit none
@@ -148,12 +160,14 @@ module geopm
             real(kind=c_double), value, intent(in) :: fraction
         end function geopm_prof_progress
 
+        !> @brief Fortran interface to geopm_prof_outer_sync c function
         integer(kind=c_int) function geopm_prof_outer_sync(prof) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_outer_sync
 
+        !> @brief Fortran interface to geopm_prof_disable c function
         integer(kind=c_int) function geopm_prof_disable(prof, feature_name) bind(C)
             import
             implicit none
@@ -161,6 +175,7 @@ module geopm
             character(kind=c_char), intent(in) :: feature_name(*)
         end function geopm_prof_disable
 
+        !> @brief Fortran interface to geopm_prof_print c function
         integer(kind=c_int) function geopm_prof_print(prof, file_name, depth) bind(C)
             import
             implicit none
@@ -169,6 +184,7 @@ module geopm
             integer(kind=c_int), value, intent(in) :: depth
         end function geopm_prof_print
 
+        !> @brief Fortran interface to geopm_tprof_create c function
         integer(kind=c_int) function geopm_tprof_create(num_thread, num_iter, chunk_size, tprof) bind(C)
             import
             implicit none
@@ -178,12 +194,14 @@ module geopm
             type(c_ptr), intent(out) :: tprof
         end function geopm_tprof_create
 
+        !> @brief Fortran interface to geopm_tprof_destroy c function
         integer(kind=c_int) function geopm_tprof_destroy(tprof) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: tprof
         end function geopm_tprof_destroy
 
+        !> @brief Fortran interface to geopm_tprof_increment c function
         integer(kind=c_int) function geopm_tprof_increment(tprof, prof, region_id, thread_idx) bind(C)
             import
             implicit none
@@ -197,6 +215,7 @@ module geopm
         !! MPI COMM APIS !!
         !!!!!!!!!!!!!!!!!!!
 
+        !> @brief Fortran interface to geopm_comm_num_node c function
         integer(kind=c_int) function geopm_comm_num_node(comm, num_node)  bind(C, name="geopm_comm_num_node_f")
             import
             implicit none
@@ -204,6 +223,7 @@ module geopm
             integer(kind=c_int), intent(out) :: num_node
         end function geopm_comm_num_node
 
+        !> @brief Fortran interface to geopm_comm_split c function
         integer(kind=c_int) function geopm_comm_split(comm, split_comm, is_ctl_comm) bind(C, name="geopm_comm_split_f")
             import
             implicit none
@@ -212,6 +232,7 @@ module geopm
             integer(kind=c_int), intent(out) :: is_ctl_comm
         end function geopm_comm_split
 
+        !> @brief Fortran interface to geopm_comm_split_ppn1 c function
         integer(kind=c_int) function geopm_comm_split_ppn1(comm, ppn1_comm) bind(C, name="geopm_comm_split_ppn1_f")
             import
             implicit none

@@ -39,6 +39,7 @@
 
 namespace geopm
 {
+    /// @brief structure to hold buffer indicies for platform signals.
     struct buffer_index_s {
         int package0_pkg_energy;
         int package1_pkg_energy;

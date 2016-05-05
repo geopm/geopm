@@ -40,25 +40,48 @@
 
 namespace geopm
 {
-
+    /// @brief Factory object managing decider objects.
+    ///
+    /// The DeciderFactory manages all instances of Decider objects. During
+    /// construction the factory creates instances of all built in Decider classes
+    /// as well as any Decider plugins present on the system. All Deciders then register
+    /// themselves with the factory. The factory returns an appropriate Decider object
+    /// when queried with a description string. The factory deletes all Decider objects
+    /// on destruction.
     class DeciderFactory
     {
         public:
-            /// DeciderFactory constructors
+            /// @brief DeciderFactory default constructor.
             DeciderFactory();
+            /// @brief DeciderFactory Testing constructor.
+            ///
+            /// This constructor takes in
+            /// a specific Decider object  and does not load plugins.
+            /// It is intended to be used for testing.
+            /// @param [in] decider The unique_ptr to a Decider object
+            ///             assures that the object cannot be destroyed before
+            ///             it is copied.
             DeciderFactory(std::unique_ptr<Decider> decider);
-            /// DeciderFactory destructor
+            /// @brief DeciderFactory destructor, virtual.
             virtual ~DeciderFactory();
-
-            /// Returns an abstract Decider reference to a concrete decider.
-            /// throws a std::invalid_argument if no acceptable Decider is found.
+            /// @brief Returns an abstract Decider pointer to a concrete decider.
+            ///
+            /// The concrete Decider is specific to the description string
+            /// passed in to select it.
+            /// throws a std::invalid_argument if no acceptable
+            /// Decider is found.
+            ///
+            /// @param [in] description The descrition string corresponding
+            /// to the desired Decider.
             Decider *decider(const std::string &description);
-            /// Concrete Deciders register with the factory through this API.
-            /// The unique_ptr assures that the object cannot be destroyed
-            /// before it is copied.
+            /// @brief Concrete Deciders register with the factory through this API.
+            ///
+            /// @param [in] decider The unique_ptr to a Decider object
+            /// assures that the object cannot be destroyed before it
+            /// is copied.
             void register_decider(std::unique_ptr<Decider> decider);
         private:
-            // Holds all registered concrete Decider instances
+            // @brief Holds all registered concrete Decider instances
             std::list<Decider*> decider_list;
     };
 

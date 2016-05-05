@@ -37,8 +37,8 @@
 #include <string>
 #include <stack>
 
-#include "Observation.hpp"
 #include "Policy.hpp"
+#include "CircularBuffer.hpp"
 
 namespace geopm
 {

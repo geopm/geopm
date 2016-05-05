@@ -149,8 +149,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/HSXPlatformImp.hpp \
                             src/IVTPlatformImp.cpp \
                             src/IVTPlatformImp.hpp \
-                            src/Observation.cpp \
-                            src/Observation.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
                             src/Platform.cpp \
@@ -216,8 +214,6 @@ if ENABLE_MPI
                           src/HSXPlatformImp.hpp \
                           src/IVTPlatformImp.cpp \
                           src/IVTPlatformImp.hpp \
-                          src/Observation.cpp \
-                          src/Observation.hpp \
                           src/LockingHashTable.hpp \
                           src/Platform.cpp \
                           src/PlatformFactory.cpp \

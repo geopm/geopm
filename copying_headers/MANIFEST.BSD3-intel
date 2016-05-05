@@ -55,8 +55,6 @@ src/HSXPlatformImp.hpp
 src/IVTPlatformImp.cpp
 src/IVTPlatformImp.hpp
 src/LockingHashTable.hpp
-src/Observation.cpp
-src/Observation.hpp
 src/Platform.cpp
 src/PlatformFactory.cpp
 src/PlatformFactory.hpp
@@ -107,7 +105,6 @@ test/MPIProfileTest.cpp
 test/MPISharedMemoryTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/no_omp_cpu.c
-test/ObservationTest.cpp
 test/PlatformFactoryTest.cpp
 test/PlatformTest.cpp
 test/PlatformImpTest.cpp

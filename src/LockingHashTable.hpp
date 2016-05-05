@@ -212,6 +212,7 @@ namespace geopm
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
             virtual bool sticky(const type &value);
+            /// @brief structure to hold state for a single table entry.
             struct table_entry_s {
                 pthread_mutex_t lock;
                 uint64_t key[GEOPM_HASH_TABLE_DEPTH_MAX];

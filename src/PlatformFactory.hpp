@@ -73,13 +73,18 @@ namespace geopm
             /// hardware it is being run on.
             /// throws a std::invalid_argument if no acceptable
             /// Platform/PlatformImp pair is found.
+            ///
+            /// @param [in] description The descrition string corresponding
+            /// to the desired Platform.
             Platform *platform(const std::string &description);
             /// @brief Concrete Platforms register with the factory through this API.
+            ///
             /// @param [in] platform The unique_ptr to a Platform object
             ///        assures that the object cannot be destroyed
             ///        before it is copied.
             void register_platform(std::unique_ptr<Platform> platform);
             /// @brief Concrete PlatformImps register with the factory through this API.
+            ///
             /// @param [in] platform_imp The unique_ptr to a PlatformImp object
             ///        assures that the object cannot be destroyed
             ///        before it is copied.

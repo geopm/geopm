@@ -35,14 +35,7 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test
 endif
 
-GTEST_TESTS = test/gtest_links/ObservationTest.hello_mean \
-              test/gtest_links/ObservationTest.hello_median \
-              test/gtest_links/ObservationTest.hello_stddev \
-              test/gtest_links/ObservationTest.hello_max \
-              test/gtest_links/ObservationTest.hello_min \
-              test/gtest_links/ObservationTest.negative_not_allocated \
-              test/gtest_links/ObservationTest.negative_empty \
-              test/gtest_links/PlatformFactoryTest.platform_register \
+GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformFactoryTest.no_supported_platform \
               test/gtest_links/PlatformImpTest.platform_get_name \
               test/gtest_links/PlatformImpTest.platform_get_sockets \
@@ -146,7 +139,6 @@ EXTRA_DIST += test/geopm_test.sh \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \
-                          test/ObservationTest.cpp \
                           test/PlatformFactoryTest.cpp \
                           test/PlatformImpTest.cpp \
                           test/PlatformTest.cpp \

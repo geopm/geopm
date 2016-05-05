@@ -38,10 +38,20 @@
 
 namespace geopm
 {
+
+    /// @brief Simple implementation of a power balancing tree decider.
+    ///
+    /// The balancing decider uses the runtimes of each child node to calculate
+    /// ratios of power to give to each node. Nodes that are slower will be given
+    /// more power than nodes that are ahead. The sum of the individual node budgets
+    /// will sum to the budget allocated to the level of the heirarchy the decider
+    /// instance is running at.
     class BalancingDecider : public Decider
     {
         public:
+            /// @ brief BalancingDecider default constructor.
             BalancingDecider();
+            /// @brief BalancinDecider destructor, virtual.
             virtual ~BalancingDecider();
             virtual Decider *clone(void) const;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);

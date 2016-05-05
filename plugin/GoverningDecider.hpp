@@ -38,10 +38,18 @@
 
 namespace geopm
 {
+    /// @brief Simple implementation of a power governing leaf decider.
+    ///
+    /// The governing decider uses the RAPL energy readings for each RAPL domain
+    /// of control to distribute the given per-node power budget while staying under
+    /// a given power cap. Each domain (ex: socket) subtracts the used DRAM power
+    /// from the total power budget and gives the remainder to the package (cores).
     class GoverningDecider : public Decider
     {
         public:
+            /// @ brief GoverningDecider default constructor.
             GoverningDecider();
+            /// @ brief GoverningDecider destructor, virtual.
             virtual ~GoverningDecider();
             virtual Decider *clone(void) const;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
