@@ -202,6 +202,7 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %doc %{_mandir}/man3/geopm_comm.3.gz
 %doc %{_mandir}/man3/geopm_ctl_c.3.gz
 %doc %{_mandir}/man3/geopm_error.3.gz
+%doc %{_mandir}/man3/geopm_fortran.3.gz
 %doc %{_mandir}/man3/geopm_omp.3.gz
 %doc %{_mandir}/man3/geopm_policy_c.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz

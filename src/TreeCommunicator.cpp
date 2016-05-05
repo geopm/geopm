@@ -125,6 +125,14 @@ extern "C"
         return err;
     }
 
+    int geopm_comm_split_shared_f(int comm, int *split_comm)
+    {
+        MPI_Comm split_comm_c;
+        int err = geopm_comm_split_shared(MPI_Comm_f2c(comm), &split_comm_c);
+        *split_comm = MPI_Comm_c2f(split_comm_c);
+        return err;
+    }
+
     int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm)
     {
         int num_node = 0;

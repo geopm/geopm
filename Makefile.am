@@ -74,6 +74,7 @@ dist_man_MANS = man/geopm.7 \
                 man/geopm_comm.3 \
                 man/geopm_ctl_c.3 \
                 man/geopm_error.3 \
+                man/geopm_fortran.3 \
                 man/geopmkey.1 \
                 man/geopm_omp.3 \
                 man/geopmpolicy.1 \
