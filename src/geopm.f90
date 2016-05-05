@@ -51,7 +51,7 @@ module geopm
             import
             implicit none
             type(c_ptr), value, intent(in) :: policy
-            character(kind=c_char), intent(in) :: sample_key(*)
+            character(kind=c_char), intent(in) :: shm_key(*)
             integer(kind=c_int), value, intent(in) :: comm
             type(c_ptr), intent(out) :: ctl
         end function geopm_ctl_create
