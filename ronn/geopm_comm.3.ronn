@@ -63,13 +63,22 @@ Interfaces for MPI communicator use by geopm.
     memory coherency domain.
 
   * `geopm_comm_split`():
-    pass
+    splits the input communicator _comm_ into two: one which is
+    comprised of the the lowest rank on each compute node (the
+    controller communicator), and the other comprised of the rest (the
+    application communicator).  The _split_comm_ will is the former if
+    _is_ctl_comm_ is non-zero and the the latter otherwise.
 
   * `geopm_comm_split_ppn1`():
-    pass
+    is the same as `geopm_comm_split`() except that the output split
+    communicator _ppn1_comm_ is set to MPI_COMM_NULL unless the
+    calling process is the lowest rank on the node then it will be set
+    to the controller communicator.
 
   * `geopm_comm_split_shared`():
-    pass
+    creates a new communicator _split_comm_ which is comprised of all
+    of the ranks that share the same compute node as the calling
+    process and are a member of the input communicator _comm_.
 
 ## ERRORS
 All functions described on this man page return an error code.  See
@@ -91,5 +100,3 @@ Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 **geopm_version(3)**,
 **geopmctl(1)**,
 **geopmpolicy(1)**
-
-
