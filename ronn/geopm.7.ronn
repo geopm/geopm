@@ -60,14 +60,62 @@ resource manager to set energy policy control parameters for MPI jobs.  Some
 features of libgeopmpolicy are available through the geopmpolicy application
 including support for static control.
 
+## INTEGRATION WITH PMPI
+Linking to libgeopm will define symbols that intercept the MPI
+interface through PMPI.  This can be disabled with the configure time
+option `--disable-pmpi`, but is enabled by default.  When using the
+geopm PMPI interposition other profilers which use the same method
+will be in conflict.  The geopm runtime can create a application
+performance profile report and a trace of the application runtime.  As
+such, geopm serves the role of an application profiler in addition to
+management of power resources.  The report is generated with the
+`geopm_prof_print`() interface described in `geopm_prof_c`(3).  To
+enable the generation of the application trace see the `GEOPM_TRACE`
+environment variable below.
+
 ## LAUNCHING THE RUNTIME
-pass
+There are many ways to launch the geopm runtime programatically (see
+`geopm_ctl_c`(3)), or by command line (see
+`geopmctl`(1)). Alternatively the PMPI interposition by geopm enables
+the geopm runtime to be launched implicitly by the MPI runtime.  This
+launch method is enabled by the `GEOPM_PMPI_CTL` environment variable
+documented below.  The PMPI method for launching the geopm runtime is
+a simple way to get started using geopm and is recommended for first
+time users.
 
 ## INTERPRETING THE REPORT
-pass
+If the application calls the `geopm_prof_print`() documented in the
+`geopm_prof_c`(3) man page then a report will be generated.  In the
+current implementation there is a separate report file for each
+compute node.  These report files give information about runtime and
+energy use for each region marked in the code.  Additionally time
+spent in calls to MPI is reported.  In the future the report will be
+aggregated to a single file and may contain more data describing the
+application.
+
+It is important to note that per-region accounting in the report
+includes only time spent in the region by all MPI ranks concurrently
+on each compute node.  During the time when two ranks on a compute
+node are not in the same marked region, the data collected is
+attributed to code not marked to be within a region.  See the
+`GEOPM_REGION_BARRIER` environment variable for more information about
+debugging issues related region synchronicity.  In the future the
+scope of this requirement may change from all ranks on a node to all
+ranks running within the same domain of control.
 
 ## INTERPRETING THE TRACE
-pass
+If the `GEOPM_TRACE` environment variable is set (see below) then a
+trace file with time ordered information about the application runtime
+is generated.  A separate trace file is generated for each compute
+node and each file is a pipe (the `|` character) delimited ASCII
+table. The first row of the file gives a description of each field.  A
+simple method for selecting fields from the trace file is with the
+`awk` command:
+
+    $ awk -F| '{print $1, $2, $12}' < geopm_trace-host0
+
+will print a subset of the fields in the trace file called
+"geopm_trace-host0".
 
 ## ENVIRONMENT
   * `GEOPM_TRACE`:
