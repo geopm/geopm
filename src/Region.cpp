@@ -304,7 +304,8 @@ namespace geopm
         if (is_telemetry_entry(telemetry, domain_idx) ) {
             m_entry_telemetry[domain_idx] = telemetry;
         }
-        else if (m_entry_telemetry[domain_idx].region_id == m_identifier && /// @todo is this check required?
+        /// @todo why does the Region get telemetry data for a different region id?
+        else if (m_entry_telemetry[domain_idx].region_id == m_identifier &&
                  is_telemetry_exit(telemetry, domain_idx)) {
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                 geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry.timestamp));
@@ -425,7 +426,6 @@ namespace geopm
         m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] /= m_num_domain;
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY];
-        /// @todo This is only capturing the last frequency sample. TODO
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
     }
 

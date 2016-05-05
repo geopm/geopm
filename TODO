@@ -18,6 +18,24 @@ out-of-place-testing
       does not, gtest links are broken and the license header check
       does not work (2015-10-30).
 
+platform-domain-brittle
+    - Platform assumes that the RAPL domain of control is the socket
+      scope, and cannot handle a platform where this is not the case.
+
+policy-hint-ignored
+    - Policy hint is being entirely ignored.  Should be stored in the
+      state of the region and inform the decider (2016-05-06).
+
+no-app-runtime
+    - The SampleRegulator attempts to interpolate runtime from the
+      data returned by the application.  The application does not
+      provide runtime information, and the runtime is only needed
+      after the region has completed (2016-05-06).
+
+default-prof-singleton
+    - Need to use singleton pattern (as is done in the Environment
+      class) to create the default profile.  Current implementation is
+      not thread safe (2016-05-06).
 
 ONGOING ENHANCEMENTS
 --------------------
@@ -39,14 +57,25 @@ improve-documentation
 HIGH PRIORITY ENHANCEMENTS
 --------------------------
 
-decider-plugin-selection
-    - Design implement and test a user and administrator interface to
-      select decider plug-ins. (2015-12-14)
+resource-manager-integration
+    - Look into integration with SLURM, PBS-pro, Torque and COBALT
+      (2016-05-06).
 
 cpu-frequency-platform
     - To enable deciders that use CPU frequency for control need to
       implement a Platform plugin with right granularity of
-      measurement and control. (2015-2-1)
+      measurement and control (2015-2-1).
+
+enable-telemetry-extension
+    - Currently collecting a limited set of hardware telemetry.  Some
+      decision algorithms will want to sample other signals, and we
+      need to make signal inclusion more easily extensible
+      (2016-05-06).
+
+change-scheduler-scope
+    - Change the use of the SampleScheduler to account for the overhead
+      introduced by ProfileThread interface (tprof), not just the
+      overhead from the Profile interface (2016-05-06).
 
 enable-geopm-profiling
     - Enable performance profiling of the geopm code itself.
@@ -62,6 +91,17 @@ collect-bmc-data
       results. Find a way to get access to this data on the compute
       cores, especially when CPU doesn't have access to out of band
       network supporting BMC data. (2015-12-14)
+
+expand-platform-support
+    - Add support for KNL, Broadwell, and Skylake servers in the
+      Platform and PlatformImp classes (2016-05-06).
+
+enable-cpu-granularity
+    - Investigate enabling the decider to set policies per-CPU and the
+      platform to give the decider data at per-CPU resolution.  The
+      platform would provide an abstraction that maps the hardware
+      domains of control and observation granularity to appear to be
+      per-CPU (2016-05-06).
 
 
 LOW PRIORITY ENHANCEMENTS
