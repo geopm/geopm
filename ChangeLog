@@ -1,3 +1,29 @@
+* Mon May 09 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.1.0
+- First geopm release with code complete runtime component.
+- Includes a wide range of bug fixes.
+- Introduced Fortran interface for application APIs.
+- Introduced globally scoped default profile object for geopm_prof_c interface.
+- Introduced application tracing capability.
+- Added NAS Fourier transform benchmark as an example.
+- Fixes for build system.
+- Fixes in the documentation.
+- Remove thread profiling "helper APIs" and replace with geopm_tprof_c interface.
+- Improvements in shutdown logic.
+- Shared memory key has default value and can be obtained from environment.
+- Explicit accounting for time spent in MPI calls through PMPI interface.
+- Enable nesting of MPI regions within user defined regions.
+- Remove geopm_prof_sample() interface.
+- Add some helper APIs for splitting MPI communicators.
+- Integrate with PMPI profiling interface to MPI.
+- Merges irregular application feedback with periodic hardware telemetry.
+- Moves some functionality between classes for better encapsulation.
+- Region information is no longer communicated between compute nodes.
+- Implemented plug-in selection through the Policy interface.
+- Handling of MSR counter overflow.
+- Implemented a basic decider for the leaf and the tree.
+- Refactor of Platform/PlatformImp implementation.
+- Updates to test infrastructure.
+- Added a synthetic benchmark with static imbalance injection.
 * Fri Dec 11 2015 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.0.3
 - Several bug fixes.
 - Update to user man pages.
