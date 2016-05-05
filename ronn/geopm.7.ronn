@@ -63,9 +63,6 @@ including support for static control.
 ## LAUNCHING THE RUNTIME
 pass
 
-## SELECTING DECISION ALGORITHMS
-pass
-
 ## INTERPRETING THE REPORT
 pass
 

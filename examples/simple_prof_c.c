@@ -43,7 +43,7 @@
 int main(int argc, char **argv)
 {
     int chunk_size = 0;
-    int ierr = 0;
+    int err = 0;
     int index = 0;
     int rank = 0;
     int num_iter = 100000000;
@@ -54,29 +54,29 @@ int main(int argc, char **argv)
     int thread_idx = 0 ;
     uint64_t region_id = 0;
 
-    ierr = MPI_Init(&argc, &argv);
-    if (!ierr) {
+    err = MPI_Init(&argc, &argv);
+    if (!err) {
 #pragma omp parallel
-        {
-            num_thread = omp_get_num_threads();
-        }
+{
+        num_thread = omp_get_num_threads();
+}
         chunk_size = num_iter / num_thread;
         if (num_iter % num_thread) {
             ++chunk_size;
         }
-        ierr = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
+        err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
     }
-    if (!ierr) {
-        ierr = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
+    if (!err) {
+        err = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
     }
-    if (!ierr) {
-        ierr = geopm_prof_region(NULL, "loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+    if (!err) {
+        err = geopm_prof_region(NULL, "loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
     }
     MPI_Barrier(MPI_COMM_WORLD);
-    if (!ierr) {
-        ierr = geopm_prof_enter(NULL, region_id);
+    if (!err) {
+        err = geopm_prof_enter(NULL, region_id);
     }
-    if (!ierr) {
+    if (!err) {
 #pragma omp parallel default(shared) private(thread_idx, index)
 {
         thread_idx = omp_get_thread_num();
@@ -86,22 +86,22 @@ int main(int argc, char **argv)
             geopm_tprof_increment(tprof, prof, region_id, thread_idx);
         }
 }
-        ierr = geopm_prof_exit(NULL, region_id);
+        err = geopm_prof_exit(NULL, region_id);
     }
-    if (!ierr) {
-        ierr = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (!err) {
+        err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     }
-    if (!ierr && !rank) {
+    if (!err && !rank) {
         printf("sum = %e\n\n", sum);
     }
-    if (!ierr) {
-        ierr = geopm_prof_print(prof, "timed_loop", 0);
+    if (!err) {
+        err = geopm_prof_print(prof, "timed_loop", 0);
     }
-    if (!ierr) {
-        ierr = geopm_prof_destroy(prof);
+    if (!err) {
+        err = geopm_prof_destroy(prof);
     }
 
     int tmp_err = MPI_Finalize();
 
-    return ierr ? ierr : tmp_err;
+    return err ? err : tmp_err;
 }

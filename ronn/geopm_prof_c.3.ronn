@@ -220,13 +220,116 @@ the outer most loop, or the "outer synchronization point."
     node.
 
   * `geopm_tprof_create`():
-    pass
+    creates a thread profiling object, _tprof_, which extends the
+    functionality of a `geopm_prof_c` object to report progess within
+    threaded regions.  The interface assumes a fixed number of
+    threads, _num_thread_, which are performing work sharing on a list
+    of tasks _num_iter_ long (e.g. an omp parallel for loop with
+    _num_iter_ loops).  In the specific case of an OpenMP for loop
+    statically scheduled with a chunk size then the _chunk_size_
+    arguement can be specified to be non-zero and the work
+    distribution amung threads is explicitly calculated while the
+    minimum progress of any thread is reported.  In all other
+    threading models _chunk_size_ should be specified to be zero and
+    progress is aggregated and the mean progress is reported.
 
   * `geopm_tprof_destroy`():
-    pass
+    releases all resources associated witht the _tprof_ object.  The
+    _tprof_ object should be created and destroyed for each process
+    entry into a thread parallel region: the _tprof_ object cannot be
+    reused.
 
   * `geopm_tprof_increment`():
-    pass
+    is called after a thread has completed each work unit to report
+    progress.  The _tprof_ thread profiling object and _prof_ general
+    profiling object are passed as the first two arguments. Passing
+    NULL for _prof_ inferrs the default profile object.  The region
+    identifier returned by `geopm_prof_region`() is passed as the
+    third argument, _region_id_.  The last argument is the thread
+    index which is in the range of [0, 1, ..., _num_thread_ - 1] where
+    _num_thread_ is the parameter passed when the _tprof_ was created.
+    This index uniquely identifies the thread that is reporting
+    progress.  When using the `geopm_tprof_increment`()
+    interface to report progress, it is incorrect to also call the
+    `geopm_prof_progress`() interface.
+
+## EXAMPLE
+
+    #include <stdlib.h>
+    #include <string.h>
+    #include <errno.h>
+    #include <stdint.h>
+    #include <mpi.h>
+    #include <omp.h>
+
+    #include "geopm.h"
+
+
+    int main(int argc, char **argv)
+    {
+        int chunk_size = 0;
+        int err = 0;
+        int index = 0;
+        int rank = 0;
+        int num_iter = 100000000;
+        double sum = 0.0;
+        struct geopm_prof_c *prof = NULL;
+        struct geopm_tprof_c *tprof = NULL;
+        int num_thread = 0;
+        int thread_idx = 0 ;
+        uint64_t region_id = 0;
+
+        err = MPI_Init(&argc, &argv);
+        if (!err) {
+    #pragma omp parallel
+    {
+            num_thread = omp_get_num_threads();
+    }
+            chunk_size = num_iter / num_thread;
+            if (num_iter % num_thread) {
+                ++chunk_size;
+            }
+            err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
+        }
+        if (!err) {
+            err = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
+        }
+        if (!err) {
+            err = geopm_prof_region(NULL, "loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (!err) {
+            err = geopm_prof_enter(NULL, region_id);
+        }
+        if (!err) {
+    #pragma omp parallel default(shared) private(thread_idx, index)
+    {
+            thread_idx = omp_get_thread_num();
+    #pragma omp for reduction(+:sum) schedule(static, chunk_size)
+            for (index = 0; index < num_iter; ++index) {
+                sum += (double)index;
+                geopm_tprof_increment(tprof, prof, region_id, thread_idx);
+            }
+    }
+            err = geopm_prof_exit(NULL, region_id);
+        }
+        if (!err) {
+            err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        }
+        if (!err && !rank) {
+            printf("sum = %e\n\n", sum);
+        }
+        if (!err) {
+            err = geopm_prof_print(prof, "timed_loop", 0);
+        }
+        if (!err) {
+            err = geopm_prof_destroy(prof);
+        }
+
+        int tmp_err = MPI_Finalize();
+
+        return err ? err : tmp_err;
+    }
 
 ## ERRORS
 All functions described on this man page return an error code.  See
