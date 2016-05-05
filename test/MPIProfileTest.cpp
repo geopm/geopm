@@ -83,7 +83,7 @@ MPIProfileTest::MPIProfileTest()
     char hostname[NAME_MAX];
     MPI_Comm ppn1_comm;
     gethostname(hostname, NAME_MAX);
-    m_log_file_node.append("_");
+    m_log_file_node.append("-");
     m_log_file_node.append(hostname);
 
     setenv("GEOPM_ERROR_AFFINITY_IGNORE", "true", 1);
