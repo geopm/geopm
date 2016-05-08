@@ -31,6 +31,7 @@
  */
 
 #ifndef __linux__
+/// @brief cpuset definition for non-linux platforms.
 typedef struct cpu_set_t {
     long int x[512];
 } cpu_set_t;

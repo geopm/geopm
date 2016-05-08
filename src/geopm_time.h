@@ -51,6 +51,7 @@ static inline void geopm_time_add(const struct geopm_time_s *begin, double elaps
 #ifdef __linux__
 #include <time.h>
 
+/// @brief structure to abstract the difference between a timespec on linux or a timeval on OSX.
 struct geopm_time_s {
     struct timespec t;
 };
@@ -86,6 +87,7 @@ static inline void geopm_time_add(const struct geopm_time_s *begin, double elaps
 #else
 #include <sys/time.h>
 
+/// @brief structure to abstract the difference between a timespec on linux or a timeval on OSX.
 struct geopm_time_s {
     struct timeval t;
 };

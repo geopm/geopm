@@ -42,6 +42,8 @@
 
 namespace geopm
 {
+    /// @brief ProfileThread class encapsulates helper functions to report
+    /// per rank profile data within threaded loops.
     class ProfileThread
     {
         public:

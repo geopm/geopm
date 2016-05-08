@@ -129,6 +129,8 @@ struct geopm_msr_message_s {
     double signal;
 };
 
+/// @brief Structure used to hold aligned telemetry data from
+/// application profiling and msr data.
 struct geopm_telemetry_message_s {
     uint64_t region_id;
     struct geopm_time_s timestamp;

@@ -38,6 +38,8 @@
 
 namespace geopm
 {
+    /// @brief SampleSchecduler class encapsulates functionality to schedule and
+    /// regulate the frequency of application profile samples.
     class SampleScheduler
     {
         public:

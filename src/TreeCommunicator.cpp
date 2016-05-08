@@ -227,6 +227,8 @@ namespace geopm
     // Internal class declarations //
     /////////////////////////////////
 
+    /// @brief TreeCommunicatorLevel class encapsulates communication functionality on
+    /// a per-level basis.
     class TreeCommunicatorLevel
     {
         public:

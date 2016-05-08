@@ -142,6 +142,7 @@ namespace geopm
             /// @brief Align ProfileSampler data to the time the
             /// Platform data was collected.
             void align(const struct geopm_time_s &timestamp);
+            /// @brief Structure to hold a single rank sample.
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
                 double progress;

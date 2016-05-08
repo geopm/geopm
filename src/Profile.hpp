@@ -76,7 +76,8 @@ struct geopm_ctl_message_s {
 
 namespace geopm
 {
-
+    /// @brief ProfileTable class is a specific instantiation of the LockingHashTable class
+    /// for dealing with application profile data.
     class ProfileTable : public LockingHashTable<struct geopm_prof_message_s>
     {
         public:

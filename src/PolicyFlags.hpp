@@ -37,6 +37,8 @@
 
 namespace geopm
 {
+    /// @brief PolicyFlags class encapsulated functioality around packing and unpacking
+    /// policy settings into/from a 64 bit integer.
     class PolicyFlags
     {
         public:

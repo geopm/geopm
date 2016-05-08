@@ -38,6 +38,8 @@
 
 namespace geopm
 {
+    /// @brief Environment class encapuslaes all functionality related to
+    /// dealing with runtime environment variables.
     class Environment
     {
         public:

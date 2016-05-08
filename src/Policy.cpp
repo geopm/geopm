@@ -38,6 +38,8 @@
 
 namespace geopm
 {
+    /// @brief RegionPolicy class encapsulated functionality for policy accounting
+    /// at the per-rank level.
     class RegionPolicy
     {
         public:
