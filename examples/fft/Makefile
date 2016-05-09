@@ -48,7 +48,7 @@ FC = mpifort
 #FCFLAGS = -g -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic -I/home/cmcantal/build/geopm/lib/ifort/geopm-x86_64
 # Options for gcc
 CC = gcc
-FCFLAGS = -g -O3 -fopenmp -fpic -I${HOME}/build/geopm/lib/gfortran/geopm-x86_64
+FCFLAGS = -g -O3 -fopenmp -fpic -I${HOME}/build/geopm/lib/gfortran/modules/geopm-x86_64
 OBJS = randi8.o print_results.o timers.o
 PROGRAM = ft.${CLASS}
 
