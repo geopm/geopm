@@ -84,3 +84,8 @@
 /test/plugin/*.lo
 /test/plugin/*.o
 /VERSION
+/doc/*.aux
+/doc/*.bbl
+doc/*.blg
+doc/*.log
+doc/geopm-plugin-guide.pdf

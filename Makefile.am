@@ -281,7 +281,7 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage clean-local-man clean-local-fortran
+clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc
 
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
@@ -344,5 +344,6 @@ BUILT_SOURCES =
 include test/Makefile.mk
 include examples/Makefile.mk
 include plugin/Makefile.mk
+include doc/Makefile.mk
 
 .PHONY: clean-local clean-local-coverage clean-local-man rpm doxygen gh_pages
