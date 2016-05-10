@@ -33,7 +33,6 @@ plugin_guide_pdf_sources = doc/geopm-plugin-guide.tex \
                            # end
 
 EXTRA_DIST += $(plugin_guide_pdf_sources) \
-              doc/geopm-plugin-guide.pdf \
               # end
 
 doc/geopm-plugin-guide.pdf: $(plugin_guide_pdf_sources)
