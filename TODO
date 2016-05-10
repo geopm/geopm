@@ -37,6 +37,11 @@ default-prof-singleton
       class) to create the default profile.  Current implementation is
       not thread safe (2016-05-06).
 
+policy-mode-plugin-interactions
+    - The policy mode and flags must be compatable with the plug-in
+      selected.  There are currently checks when the policy is
+      created, but not when it is used (2016-05-10).
+
 ONGOING ENHANCEMENTS
 --------------------
 
@@ -65,6 +70,17 @@ cpu-frequency-platform
     - To enable deciders that use CPU frequency for control need to
       implement a Platform plugin with right granularity of
       measurement and control (2015-2-1).
+
+pass-through-decider
+    - Enable geopm to be used as a profiler only where the control
+      features have been disabled (2016-05-10).
+
+run-geopm-app-no-ctl
+    - If an application uses the geopm profile interface the geopm
+      runtime component is required.  Relax this condition so that
+      marked-up applications can be used without the runtime.  If the
+      controller isn't found, print a warning and turn off geopm
+      features in the application (2016-05-10).
 
 enable-telemetry-extension
     - Currently collecting a limited set of hardware telemetry.  Some
@@ -129,4 +145,3 @@ enable-automatic-profiling
       required will be collected, designing the interface to provide
       it to an outside agent may break designs for
       encapsulation. (2015-12-14)
-
