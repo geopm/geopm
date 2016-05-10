@@ -1,5 +1,6 @@
 autogen.sh
 configure.ac
+doc/Makefile.mk
 examples/geopm_ctl_single.cpp
 examples/geopm_print_error.c
 examples/Makefile.mk
