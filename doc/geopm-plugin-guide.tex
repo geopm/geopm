@@ -1,5 +1,8 @@
 %%  Copyright (c) 2015, 2016, Intel Corporation
 %%  All rights reserved
+%%  No license (express or implied, by estoppel or otherwise) to any
+%%  intellectual property rights is granted by this document.
+%%
 \documentclass[11pt]{article}
 \usepackage[pdftex]{graphicx}
 \usepackage{float}
@@ -36,7 +39,6 @@ as new hardware platforms or new power management features.
 \end{abstract}
 
 \section{Implementing new control algorithms}
-\noindent
 GEOPM supports two levels of control algorithms; A leaf control
 algorithm that manages power within a single node, and a tree control
 algorithm that manages power between nodes. Internally these are known
@@ -271,6 +273,7 @@ modified for any domain of control and false if no policies are
 modified. The budget in the \verb#geopm_policy_message_s# structure is
 the total budget for all domains of control. It should be saved off as
 state for use in the pure virtual version of \verb#update_policy#.
+
 \section{Implementing new platform plugins}
 The geopm package can be extended to run on new hardware platforms or
 support new power management features by creating \verb#Platform# and
@@ -292,6 +295,7 @@ the other perspective a \verb#FreqPlatform# plugin could be created
 that modifies frequencies instead of RAPL power. It could use the same
 \verb#PlatformImp# objects as the \verb#RAPLPlatform# class without
 modifying them.
+
 \section{Plugin Registration}
 The plugin registration for a \verb#Platform# or \verb#PlatformImp# is
 similar to the \verb#Decider# version. In fact you can implement
@@ -326,6 +330,7 @@ function:
         return err;
     }
 \end{verbatim}
+
 \section{Extending geopm::Platform base class}
 To extend the \verb#geopm::Platform# class, you must override the
 following pure virtual functions:
@@ -608,6 +613,7 @@ the value to set. In general there should be a case handler for each
                break;
     . . .
 \end{verbatim}
+
 \section{Plugin installation}
 Plugins need only to be put into the geopm plugin directory. This is
 typically in your systems library directory inside a geopm
@@ -617,6 +623,14 @@ write to that directory, you may place them in another location
 pointed to by the \verb#GEOPM_PLUGIN_PATH# environment variable.  Note
 that plugins are processed before built in classes making it easy to
 override defaults with a custom plugin.
+
+\section{Copyright and disclaimer}
+Copyright (c) 2015, 2016, Intel Corporation.
+\\
+All rights reserved.
+\\
+No license (express or implied, by estoppel or otherwise) to any
+intellectual property rights is granted by this document.
 
 %\bibliographystyle{unsrt}
 %\begin{spacing}{0.9}
