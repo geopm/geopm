@@ -713,7 +713,7 @@ namespace geopm
                 }
                 if (affinity() != GEOPM_POLICY_AFFINITY_COMPACT &&
                     affinity() != GEOPM_POLICY_AFFINITY_SCATTER) {
-                    throw Exception("GlobalPolicy: affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                    throw Exception("GlobalPolicy: affinity must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
             if (m_mode == GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC) {
