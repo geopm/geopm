@@ -39,6 +39,7 @@
 #include "Exception.hpp"
 #include "Decider.hpp"
 #include "DeciderFactory.hpp"
+#include "StaticPolicyDecider.hpp"
 #include "config.h"
 
 
@@ -60,6 +61,9 @@ namespace geopm
     {
         // register all the deciders we know about
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
+        StaticPolicyDecider *static_policy_decider = new StaticPolicyDecider();
+        std::unique_ptr<Decider> pdecider = std::unique_ptr<Decider>(static_policy_decider);
+        register_decider(move(pdecider));
     }
 
     DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)

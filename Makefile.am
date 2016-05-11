@@ -186,6 +186,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/SampleScheduler.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
+                            src/StaticPolicyDecider.cpp \
+                            src/StaticPolicyDecider.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/geopm_env.h \
@@ -256,6 +258,8 @@ if ENABLE_MPI
                           src/SampleScheduler.hpp \
                           src/SharedMemory.cpp \
                           src/SharedMemory.hpp \
+                          src/StaticPolicyDecider.cpp \
+                          src/StaticPolicyDecider.hpp \
                           src/Tracer.cpp \
                           src/Tracer.hpp \
                           src/geopm_env.h \

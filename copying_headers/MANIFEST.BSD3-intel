@@ -82,6 +82,8 @@ src/SampleScheduler.cpp
 src/SampleScheduler.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
+src/StaticPolicyDecider.cpp
+src/StaticPolicyDecider.hpp
 src/Tracer.cpp
 src/Tracer.hpp
 src/TreeCommunicator.cpp
