@@ -137,7 +137,7 @@ the outer most loop, or the "outer synchronization point."
     control process on the node.  It must start with the '/' character
     and have no other occurances of the '/'.  If no key is provided
     (NULL or empty string), then the environment is queried for
-    GEOPM_SHMKEY (see `geopm`(7) for description of environment
+    GEOPM_SHMKEY (see **geopm(7)** for description of environment
     variables) and if set this value is used, otherwise the default
     key '/geopm-default' is used.  The _comm_ is an MPI communicator
     that the calling MPI application is running on (probably

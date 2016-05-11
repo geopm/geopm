@@ -69,14 +69,14 @@ will be in conflict.  The geopm runtime can create a application
 performance profile report and a trace of the application runtime.  As
 such, geopm serves the role of an application profiler in addition to
 management of power resources.  The report is generated with the
-`geopm_prof_print`() interface described in `geopm_prof_c`(3).  To
+`geopm_prof_print`() interface described in **geopm_prof_c(3)**.  To
 enable the generation of the application trace see the `GEOPM_TRACE`
 environment variable below.
 
 ## LAUNCHING THE RUNTIME
 There are many ways to launch the geopm runtime programatically (see
-`geopm_ctl_c`(3)), or by command line (see
-`geopmctl`(1)). Alternatively the PMPI interposition by geopm enables
+**geopm_ctl_c(3)**), or by command line (see
+**geopmctl(1)**). Alternatively the PMPI interposition by geopm enables
 the geopm runtime to be launched implicitly by the MPI runtime.  This
 launch method is enabled by the `GEOPM_PMPI_CTL` environment variable
 documented below.  The PMPI method for launching the geopm runtime is
@@ -85,7 +85,7 @@ time users.
 
 ## INTERPRETING THE REPORT
 If the application calls the `geopm_prof_print`() documented in the
-`geopm_prof_c`(3) man page then a report will be generated.  In the
+**geopm_prof_c(3)** man page then a report will be generated.  In the
 current implementation there is a separate report file for each
 compute node.  These report files give information about runtime and
 energy use for each region marked in the code.  Additionally time
@@ -189,7 +189,7 @@ will print a subset of the fields in the trace file called
   * `GEOPM_ERROR_AFFINITY_IGNORE`:
     If set, errors of the type GEOPM_ERROR_AFFINITY are ignored by
     geopm.  This is useful for testing on systems where CPU affinity
-    requirements cannot be met (e.g. Mac OS X). See `geopm_error`(3)
+    requirements cannot be met (e.g. Mac OS X). See **geopm_error(3)**
     for more information on this error condition.
 
 ## COPYRIGHT
