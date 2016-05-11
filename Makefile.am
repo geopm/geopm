@@ -107,6 +107,20 @@ EXTRA_DIST = .gitignore \
              Makefile.am \
              MANIFEST \
              README.md \
+             ronn/geopm.7.ronn \
+             ronn/geopmctl.1.ronn \
+             ronn/geopm_comm.3.ronn \
+             ronn/geopm_ctl_c.3.ronn \
+             ronn/geopm_error.3.ronn \
+             ronn/geopm_fortran.3.ronn \
+             ronn/geopmkey.1.ronn \
+             ronn/geopm_omp.3.ronn \
+             ronn/geopmpolicy.1.ronn \
+             ronn/geopm_policy_c.3.ronn \
+             ronn/geopm_prof_c.3.ronn \
+             ronn/geopm_version.3.ronn \
+             ronn/header.txt \
+             ronn/index.txt \
              TODO \
              # end
 
@@ -310,15 +324,14 @@ rpm: dist
 doxygen:
 	doxygen dox/Doxyfile
 
-# RONN TARGET
-ruby/bin/ronn:
-	mkdir -p ruby/bin
-	which ronn >& /dev/null && \
-	ln -s `which ronn` ruby/bin/ronn || \
-	gem install ronn -i ruby
-
 # MAN TARGET
-$(dist_man_MANS): man/%: ruby/bin/ronn
+$(dist_man_MANS): man/%: ronn/%.ronn ronn/index.txt ronn/header.txt
+	if [ ! -e ruby/bin/ronn ]; then \
+	    mkdir -p ruby/bin; \
+	    which ronn >& /dev/null && \
+	    ln -s `which ronn` ruby/bin/ronn || \
+	    gem install ronn -i ruby; \
+	fi
 	mkdir -p man
 	export GEM_PATH=`readlink -f $(top_srcdir)/ruby`:$$GEM_PATH && \
 	cd ronn && \
