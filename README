@@ -142,13 +142,15 @@ processes.
 
 STATUS
 ------
-This software is pre-alpha quality and largely incomplete.  The software is
-being provided for collaborative purposes.  The static modes are supported by
-geopmpolicy and libgeopmpolicy.  The MPI runtime support of the geopmctl and
-libgeopm is incomplete.
+This software is pre-alpha quality and is provided for collaborative
+purposes.  We are very interested in feedback from the community.  The
+static modes are supported by geopmpolicy and libgeopmpolicy.  The MPI
+runtime support of geopmctl and libgeopm is complete.  Basic profiling
+features like creating reports and traces are complete.  See TODO file
+for more information on forthcoming work.
 
-Test coverage is limited.  The line coverage results from gcov as reported by
-gcovr for a recent build are below:
+Test coverage is incomplete.  The line coverage results from gcov as
+reported by gcovr for a recent build are below:
 
 **GCC Code Coverage Report**
 
