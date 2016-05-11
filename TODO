@@ -71,10 +71,6 @@ cpu-frequency-platform
       implement a Platform plugin with right granularity of
       measurement and control (2015-2-1).
 
-pass-through-decider
-    - Enable geopm to be used as a profiler only where the control
-      features have been disabled (2016-05-10).
-
 run-geopm-app-no-ctl
     - If an application uses the geopm profile interface the geopm
       runtime component is required.  Relax this condition so that
@@ -92,6 +88,13 @@ change-scheduler-scope
     - Change the use of the SampleScheduler to account for the overhead
       introduced by ProfileThread interface (tprof), not just the
       overhead from the Profile interface (2016-05-06).
+
+profile-wo-runtime
+    - Add feature to geopmpolicy so that it can create a report when
+      run before and after an application completes.  This can be
+      implemented by differencing performance counter values read at
+      application completion and comparison with values stored to disk
+      prior to application start up.
 
 enable-geopm-profiling
     - Enable performance profiling of the geopm code itself.
