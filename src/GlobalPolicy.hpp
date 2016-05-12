@@ -35,6 +35,7 @@
 
 #include <string>
 #include <fstream>
+#include <json-c/json.h>
 
 #include "geopm_plugin.h"
 #include "PolicyFlags.hpp"
@@ -177,6 +178,13 @@ namespace geopm
             /// @param [in] value the enum value of the affinity.
             /// @param [out] name the string representation of the affinity.
             void affinity_string(int value, std::string &name);
+            void read_shm(void);
+            void read_json(void);
+            void read_json_mode(json_object *mode_obj);
+            void read_json_options(json_object *option_obj);
+            void write_shm(void);
+            void write_json(void);
+            void check_valid(void);
             /// @brief input file name
             std::string m_in_config;
             /// @brief output file name

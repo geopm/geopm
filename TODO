@@ -42,6 +42,12 @@ policy-mode-plugin-interactions
       selected.  There are currently checks when the policy is
       created, but not when it is used (2016-05-10).
 
+runtime-decider-change
+    - The Policy object enables the deciders to be chaged during
+      runtime, but the Controller does not switch the deciders during
+      runtime if the Policy changes.  The code should at least throw
+      an error if the Policy's decider is changed during runtime.
+
 ONGOING ENHANCEMENTS
 --------------------
 

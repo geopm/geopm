@@ -154,6 +154,8 @@ TEST_F(GlobalPolicyTest, mode_perf_balance_dynamic)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC);
     policy->budget_watts(75500);
     policy->write();
@@ -161,9 +163,9 @@ TEST_F(GlobalPolicyTest, mode_perf_balance_dynamic)
 
     policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
-    policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
+    policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC);
     policy->budget_watts(850);
-    EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC, policy->mode());
     EXPECT_EQ(850, policy->budget_watts());
     //read saved values back
     policy->read();
@@ -176,6 +178,8 @@ TEST_F(GlobalPolicyTest, mode_freq_uniform_dynamic)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC);
     policy->budget_watts(1025);
     policy->write();
@@ -183,6 +187,8 @@ TEST_F(GlobalPolicyTest, mode_freq_uniform_dynamic)
 
     policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
     policy->budget_watts(625);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
@@ -198,6 +204,8 @@ TEST_F(GlobalPolicyTest, mode_freq_hybrid_dynamic)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC);
     policy->budget_watts(9612);
     policy->num_max_perf(24);
@@ -207,6 +215,8 @@ TEST_F(GlobalPolicyTest, mode_freq_hybrid_dynamic)
 
     policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
     policy->budget_watts(4242);
     policy->num_max_perf(86);
@@ -228,7 +238,7 @@ TEST_F(GlobalPolicyTest, plugin_strings)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
-    policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC);
+    policy->mode(GEOPM_POLICY_MODE_DYNAMIC);
     policy->budget_watts(9612);
     policy->num_max_perf(24);
     policy->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
@@ -258,6 +268,8 @@ TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_TDP_BALANCE_STATIC);
     policy->tdp_percent(75);
     policy->write();
@@ -277,6 +289,8 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_static)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
     policy->frequency_mhz(1800);
     policy->write();
@@ -296,6 +310,8 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_static)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC);
     policy->frequency_mhz(1800);
     policy->num_max_perf(16);
@@ -323,13 +339,15 @@ TEST_F(GlobalPolicyTestShmem, mode_perf_balance_dynamic)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC);
     policy->budget_watts(75500);
     policy->write();
     //overwrite local values
-    policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
+    policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC);
     policy->budget_watts(850);
-    EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
+    EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC, policy->mode());
     EXPECT_EQ(850, policy->budget_watts());
     //read saved values back
     policy->read();
@@ -342,10 +360,14 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_dynamic)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC);
     policy->budget_watts(1025);
     policy->write();
     //overwrite local values
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
     policy->budget_watts(625);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
@@ -361,12 +383,16 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_dynamic)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC);
     policy->budget_watts(9612);
     policy->num_max_perf(24);
     policy->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
     policy->write();
     //overwrite local values
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
     policy->budget_watts(4242);
     policy->num_max_perf(86);
@@ -388,7 +414,7 @@ TEST_F(GlobalPolicyTestShmem, plugin_strings)
 {
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy(m_path, m_path);
     // write values to file
-    policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC);
+    policy->mode(GEOPM_POLICY_MODE_DYNAMIC);
     policy->budget_watts(9612);
     policy->num_max_perf(24);
     policy->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
@@ -418,7 +444,7 @@ TEST_F(GlobalPolicyTest, c_interface)
 
     EXPECT_EQ(0, geopm_policy_create("", path, &policy));
     EXPECT_EQ(0, geopm_policy_power(policy, 2500));
-    EXPECT_EQ(0, geopm_policy_mode(policy, GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC));
+    EXPECT_EQ(0, geopm_policy_mode(policy, GEOPM_POLICY_MODE_DYNAMIC));
     EXPECT_EQ(0, geopm_policy_cpu_freq(policy, 2200));
     EXPECT_EQ(0, geopm_policy_full_perf(policy, 8));
     EXPECT_EQ(0, geopm_policy_tdp_percent(policy, 60));
