@@ -37,11 +37,6 @@ default-prof-singleton
       class) to create the default profile.  Current implementation is
       not thread safe (2016-05-06).
 
-policy-mode-plugin-interactions
-    - The policy mode and flags must be compatable with the plug-in
-      selected.  There are currently checks when the policy is
-      created, but not when it is used (2016-05-10).
-
 runtime-decider-change
     - The Policy object enables the deciders to be chaged during
       runtime, but the Controller does not switch the deciders during
