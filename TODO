@@ -123,6 +123,13 @@ enable-cpu-granularity
       domains of control and observation granularity to appear to be
       per-CPU (2016-05-06).
 
+enable-rm-signal-abnormal
+   - In an emergency power situation where the resource manager has
+     interfered with power limits by a mechanism other than geopm,
+     enable the resource manager to signal this to the geopm runtime.
+     This signal can be used to ignore measurements made while other
+     power management systems are interfering.
+
 
 LOW PRIORITY ENHANCEMENTS
 -------------------------
