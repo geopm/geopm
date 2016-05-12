@@ -437,6 +437,32 @@ TEST_F(GlobalPolicyTestShmem, plugin_strings)
     delete policy;
 }
 
+TEST_F(GlobalPolicyTest, invalid_policy)
+{
+    geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
+    policy->tree_decider("power_balancing");
+    policy->leaf_decider("power_governing");
+    policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
+    policy->frequency_mhz(1800);
+    EXPECT_THROW(policy->write(), geopm::Exception);
+    policy->tree_decider("static_policy");
+    policy->leaf_decider("static_policy");
+    policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC);
+    policy->budget_watts(850);
+    EXPECT_THROW(policy->write(), geopm::Exception);
+    delete policy;
+    EXPECT_THROW(
+    try {
+        policy = new geopm::GlobalPolicy("test/invalid_policy.json", m_path);
+    }
+    catch (geopm::Exception ex)
+    {
+        EXPECT_EQ(GEOPM_ERROR_INVALID, ex.err_value());
+        throw ex;
+    }
+    , geopm::Exception);
+}
+
 TEST_F(GlobalPolicyTest, c_interface)
 {
     struct geopm_policy_c *policy;

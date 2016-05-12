@@ -73,6 +73,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_dynamic \
               test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_dynamic \
               test/gtest_links/GlobalPolicyTestShmem.plugin_strings \
+              test/gtest_links/GlobalPolicyTest.invalid_policy \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
@@ -136,6 +137,8 @@ EXTRA_DIST += test/geopm_test.sh \
               test/MPITreeCommunicatorTest.cpp \
               test/MPIControllerTest.cpp \
               test/no_omp_cpu.c \
+              test/default_policy.json \
+              test/invalid_policy.json \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \
