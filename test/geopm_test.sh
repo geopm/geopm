@@ -50,7 +50,10 @@ if [ $? -eq 0 ]; then
         mpiexec=$mpiexec_default
     fi
     echo $test_name | grep '^MPIProfile' > /dev/null
-    if [ $? -eq 0 ]; then
+    is_profile=$?
+    echo $test_name | grep 'noctl' > /dev/null
+    is_noctl=$?
+    if [ $is_profile -eq 0 ] && [ $is_noctl -ne 0 ]; then
        export GEOPM_PMPI_CTL=process
        export GEOPM_POLICY=test/default_policy.json
     fi

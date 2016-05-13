@@ -76,13 +76,6 @@ cpu-frequency-platform
       implement a Platform plugin with right granularity of
       measurement and control (2015-2-1).
 
-run-geopm-app-no-ctl
-    - If an application uses the geopm profile interface the geopm
-      runtime component is required.  Relax this condition so that
-      marked-up applications can be used without the runtime.  If the
-      controller isn't found, print a warning and turn off geopm
-      features in the application (2016-05-10).
-
 enable-telemetry-extension
     - Currently collecting a limited set of hardware telemetry.  Some
       decision algorithms will want to sample other signals, and we

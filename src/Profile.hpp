@@ -291,6 +291,7 @@ namespace geopm
             ///        Profile::region() when the region was
             ///        registered.
             void sample(uint64_t region_id);
+            bool m_is_enabled;
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
             /// @brief Holds the 64 bit unique region identifier

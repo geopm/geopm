@@ -39,6 +39,7 @@
 #include <float.h>
 #include <unistd.h>
 #include <hwloc.h>
+#include <iostream>
 
 #include "geopm.h"
 #include "geopm_sched.h"
@@ -291,12 +292,21 @@ namespace geopm
     static const std::string g_default_shmem_key("/geopm_default");
 
     Profile::Profile(const std::string prof_name, const std::string shm_key, MPI_Comm comm)
-        : m_prof_name(prof_name)
+        : m_is_enabled(true)
+        , m_prof_name(prof_name)
         , m_curr_region_id(0)
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
+        , m_table_buffer(NULL)
+        , m_ctl_shmem(NULL)
+        , m_ctl_msg(NULL)
+        , m_table_shmem(NULL)
+        , m_table(NULL)
         , m_scheduler(0.01)
+        , m_shm_comm(MPI_COMM_NULL)
+        , m_rank(0)
+        , m_shm_rank(0)
         , m_is_first_sync(true)
         , m_parent_region(0)
         , m_parent_progress(0.0)
@@ -317,7 +327,22 @@ namespace geopm
             key = g_default_shmem_key;
         }
         key = key + "-sample";
-        m_ctl_shmem = new SharedMemoryUser(key, 60); // 60 second timeout
+        try {
+            m_ctl_shmem = new SharedMemoryUser(key, 5); // 5 second timeout
+        }
+        catch (Exception ex) {
+            if (ex.err_value() != ENOENT) {
+                throw ex;
+            }
+#ifdef GEOPM_DEBUG
+            if (!m_rank) {
+                std::cerr << "Warning: <geopm> Controller not found, running without geopm." << std::endl;
+            }
+#endif
+            m_is_enabled = false;
+            return;
+        }
+
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
         init_cpu_list();
@@ -379,7 +404,7 @@ namespace geopm
 
     Profile::~Profile()
     {
-        if (!m_shm_rank) {
+        if (m_is_enabled && !m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
         }
         delete m_table;
@@ -389,12 +414,18 @@ namespace geopm
 
     uint64_t Profile::region(const std::string region_name, long policy_hint)
     {
+        if (!m_is_enabled) {
+            return 0;
+        }
         return m_table->key(region_name);
         /// @todo Record policy hint when registering a region.
     }
 
     void Profile::enter(uint64_t region_id)
     {
+        if (!m_is_enabled) {
+           return;
+        }
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
             if (geopm_env_do_region_barrier()) {
@@ -425,6 +456,10 @@ namespace geopm
 
     void Profile::exit(uint64_t region_id)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         // keep track of number of exits to account for nesting
         if (m_curr_region_id == region_id) {
             --m_num_enter;
@@ -451,6 +486,10 @@ namespace geopm
 
     void Profile::progress(uint64_t region_id, double fraction)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         if (m_num_enter == 1 && m_curr_region_id == region_id &&
             fraction > 0.0 && fraction < 1.0 &&
             m_scheduler.do_sample()) {
@@ -462,6 +501,10 @@ namespace geopm
 
     void Profile::outer_sync(void)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         struct geopm_prof_message_s sample;
         PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
@@ -475,6 +518,10 @@ namespace geopm
 
     void Profile::sample(uint64_t region_id)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         if (region_id == m_curr_region_id) {
             struct geopm_prof_message_s sample;
             sample.rank = m_rank;
@@ -487,11 +534,19 @@ namespace geopm
 
     void Profile::disable(const std::string feature_name)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         throw geopm::Exception("Profile::disable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void Profile::print(const std::string file_name, int depth)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         int is_done = 0;
         int is_all_done = 0;
 
@@ -535,6 +590,10 @@ namespace geopm
 
     void Profile::init_cpu_list(void)
     {
+        if (!m_is_enabled) {
+           return;
+        }
+
         int err = 0;
         unsigned int i = 0;
 
