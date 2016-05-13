@@ -41,6 +41,7 @@
 #include "geopm_version.h"
 #include "geopm_error.h"
 #include "config.h"
+#include "geopm_env.h"
 
 enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
@@ -162,12 +163,6 @@ int main(int argc, char **argv)
         err0 = err_mpi;
     }
 
-    if (!err0 &&
-        strlen(policy_config) == 0 &&
-        strlen(policy_key) == 0) {
-        err0 = EINVAL;
-        fprintf(stderr, "Error: %s either -c or -k must be specified\n", argv[0]);
-    }
 
     if (!err0 &&
         strlen(policy_config) != 0 &&
@@ -196,10 +191,20 @@ int main(int argc, char **argv)
         if (strlen(policy_config)) {
             policy_ptr = policy_config;
         }
-        else {
+        else if (strlen(policy_key)) {
             policy_ptr = policy_key;
         }
-        err0 = geopmctl_main(policy_ptr, sample_key, report);
+        else {
+            /* reusing the policy_config buffer to pass environment variables */
+            strncpy(policy_config, geopm_env_policy(),GEOPMCTL_STRING_LENGTH-1);
+            policy_ptr = policy_config;
+        }
+        if(!my_rank) {
+            err0 = geopmctl_main(policy_ptr, sample_key, report);
+        }
+        else {
+            err0 = geopmctl_main(NULL, sample_key, report);
+        }
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
             fprintf(stderr, "Error: %s\n", error_str);

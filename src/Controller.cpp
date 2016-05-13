@@ -70,24 +70,23 @@ extern "C"
     int geopmctl_main(const char *policy_config, const char *sample_key, const char *report)
     {
         int err = 0;
-        char profile_name[NAME_MAX] = {0};
-        strncpy(profile_name, report, NAME_MAX);
-        if (profile_name[NAME_MAX-1] != '\0') {
-            err = EINVAL;
-        }
-        if (!err) {
-            try {
+        try {
+            std::string sample_key_str(sample_key);
+            if (policy_config) {
                 std::string policy_config_str(policy_config);
-                std::string sample_key_str(sample_key);
-                std::string report_str(report);
-                std::string profile_name_str(basename(profile_name));
                 geopm::GlobalPolicy policy(policy_config_str, "");
                 geopm::Controller ctl(&policy, sample_key_str, MPI_COMM_WORLD);
                 ctl.run();
             }
-            catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+            //The null case is for all nodes except rank 0.
+            //These controllers should assume their policy from the master.
+            else {
+                geopm::Controller ctl(NULL, sample_key_str, MPI_COMM_WORLD);
+                ctl.run();
             }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }
