@@ -43,6 +43,10 @@ runtime-decider-change
       runtime if the Policy changes.  The code should at least throw
       an error if the Policy's decider is changed during runtime.
 
+fortran-mpi-linking
+    - Linking to mpi from fortran is not portable.  Hardcoded to
+      libmpifort.so.
+
 ONGOING ENHANCEMENTS
 --------------------
 
