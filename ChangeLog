@@ -1,3 +1,14 @@
+* Mon May 23 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.1.1
+- Fixed race condition in geopm_comm_split_shared().
+- Fixed geopmctl so that it works properly (error introduced with policy environment).
+- Fixed man page links and Makefile target.
+- Fixed automatic detection of Fortran MPI flags for compile and other build fixes.
+- Enable application marked with geopm_prof interface to run without controller.
+- Better consistency checking in global policy.
+- Enabled profile only use of geopm i.e. no power management (now the default).
+- Updated STATUS section in README.
+- Updated TODO list.
+- Converted plugin developers guide to LaTeX and included it in repository.
 * Mon May 09 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.1.0
 - First geopm release with code complete runtime component.
 - Includes a wide range of bug fixes.
