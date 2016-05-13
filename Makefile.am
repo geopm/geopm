@@ -327,20 +327,23 @@ doxygen:
 	doxygen dox/Doxyfile
 
 # MAN TARGET
-$(dist_man_MANS): man/%: ronn/%.ronn ronn/index.txt ronn/header.txt
-	if [ ! -e ruby/bin/ronn ]; then \
-	    mkdir -p ruby/bin; \
-	    which ronn >& /dev/null && \
-	    ln -s `which ronn` ruby/bin/ronn || \
-	    gem install ronn -i ruby; \
-	fi
+BUILT_SOURCES = ruby/bin/ronn
+
+ruby/bin/ronn:
+	mkdir -p ruby/bin; \
+	which ronn >& /dev/null && \
+	ln -s `which ronn` ruby/bin/ronn || \
+	gem install ronn -i ruby
+
+$(dist_man_MANS): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	mkdir -p man
 	export GEM_PATH=`readlink -f $(top_srcdir)/ruby`:$$GEM_PATH && \
 	cd ronn && \
-	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` --organization="Intel Corporation" `basename $@`.ronn
+	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` \
+	                 --organization="Intel Corporation" \
+	                 `basename $@`.ronn
 	cat ronn/header.txt ronn/`basename $@` | \
-	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' \
-	    > $@
+	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
 
 # GH_PAGES TARGET
 gh-pages: doxygen $(dist_man_MANS)
@@ -354,7 +357,6 @@ check_PROGRAMS =
 check_LTLIBRARIES =
 noinst_PROGRAMS =
 TESTS =
-BUILT_SOURCES =
 
 include test/Makefile.mk
 include examples/Makefile.mk
