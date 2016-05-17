@@ -128,11 +128,21 @@ enable-cpu-granularity
       per-CPU (2016-05-06).
 
 enable-rm-signal-abnormal
-   - In an emergency power situation where the resource manager has
-     interfered with power limits by a mechanism other than geopm,
-     enable the resource manager to signal this to the geopm runtime.
-     This signal can be used to ignore measurements made while other
-     power management systems are interfering.
+    - In an emergency power situation where the resource manager has
+      interfered with power limits by a mechanism other than geopm,
+      enable the resource manager to signal this to the geopm runtime.
+      This signal can be used to ignore measurements made while other
+      power management systems are interfering. (2016-05-13)
+
+enable-batch-msr-access
+    - Use the batch read/write feature of the msr-safe driver to
+      speed up our MSR accesses by making fewer calls into the
+      driver. (2016-05-17)
+
+add-high-level-catch
+    - Add a catch in Controller.cpp that catches all throws, cleans
+      up /dev/shm (and possibly other cleanup) , and then re-throws
+      the error. (2016-05-17)
 
 
 LOW PRIORITY ENHANCEMENTS
