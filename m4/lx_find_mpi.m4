@@ -42,19 +42,23 @@
 # AC_SUBST variables:
 #     MPICC            Name of MPI compiler
 #     MPI_CFLAGS       Includes and defines for MPI C compilation
-#     MPI_CLDFLAGS     Libraries and library paths for linking MPI C programs
+#     MPI_CLDFLAGS     Library paths for linking MPI C programs
+#     MPI_CLIBS        Libraries for linking MPI C programs
 #
 #     MPICXX           Name of MPI C++ compiler
 #     MPI_CXXFLAGS     Includes and defines for MPI C++ compilation
-#     MPI_CXXLDFLAGS   Libraries and library paths for linking MPI C++ programs
+#     MPI_CXXLDFLAGS   Library paths for linking MPI C++ programs
+#     MPI_CXXLIBS      Libraries for linking MPI C++ programs
 #
 #     MPIF77           Name of MPI Fortran 77 compiler
 #     MPI_F77FLAGS     Includes and defines for MPI Fortran 77 compilation
-#     MPI_F77LDFLAGS   Libraries and library paths for linking MPI Fortran 77 programs
+#     MPI_F77LDFLAGS   Library paths for linking MPI Fortran 77 programs
+#     MPI_F77LIBS      Libraries for linking MPI Fortran 77 programs
 #
 #     MPIFC            Name of MPI Fortran compiler
 #     MPI_FFLAGS       Includes and defines for MPI Fortran compilation
-#     MPI_FLDFLAGS     Libraries and library paths for linking MPI Fortran programs
+#     MPI_FLDFLAGS     Library paths for linking MPI Fortran programs
+#     MPI_FLIBS        Libraries for linking MPI Fortran programs
 #
 # Shell variables output by this macro:
 #     have_C_mpi       'yes' if we found MPI for C, 'no' otherwise
@@ -81,12 +85,12 @@ AC_DEFUN([LX_FIND_MPI],
              LX_QUERY_MPI_COMPILER(MPICXX, [mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC], CXX)
          fi
      ],
-     [F77], [
+     [Fortran 77], [
          AC_REQUIRE([AC_PROG_F77])
          if [[ ! -z "$MPIF77" ]]; then
              LX_QUERY_MPI_COMPILER(MPIF77, [$MPIF77], F77)
          else
-             LX_QUERY_MPI_COMPILER(MPIF77, [mpif77 mpiifort mpixlf77 mpixlf77_r], F77)
+             LX_QUERY_MPI_COMPILER(MPIF77, [mpif77 mpiifort mpifort mpixlf77 mpixlf77_r], F77)
          fi
      ],
      [Fortran], [
@@ -95,7 +99,7 @@ AC_DEFUN([LX_FIND_MPI],
              LX_QUERY_MPI_COMPILER(MPIFC, [$MPIFC], F)
          else
              mpi_default_fc="mpif95 mpif90 mpigfortran mpif2003"
-             mpi_intel_fc="mpiifort"
+             mpi_intel_fc="mpiifort mpifort"
              mpi_xl_fc="mpixlf95 mpixlf95_r mpixlf90 mpixlf90_r mpixlf2003 mpixlf2003_r"
              mpi_pg_fc="mpipgf95 mpipgf90"
              LX_QUERY_MPI_COMPILER(MPIFC, [$mpi_default_fc $mpi_intel_fc $mpi_xl_fc $mpi_pg_fc], F)
@@ -109,7 +113,8 @@ AC_DEFUN([LX_FIND_MPI],
 #  ------------------------------------------------------------------------
 # AC_SUBST variables:
 #     MPI_<prefix>FLAGS       Includes and defines for MPI compilation
-#     MPI_<prefix>LDFLAGS     Libraries and library paths for linking MPI C programs
+#     MPI_<prefix>LDFLAGS     Library paths for linking MPI programs
+#     MPI_<prefix>LIBS        Libraries for linking MPI programs
 #
 # Shell variables output by this macro:
 #     found_mpi_flags         'yes' if we were able to get flags, 'no' otherwise
@@ -154,7 +159,11 @@ AC_DEFUN([LX_QUERY_MPI_COMPILER],
      fi
 
      if [[ ! -z "$lx_mpi_compile_line" -a ! -z "$lx_mpi_link_line" ]]; then
-         lx_mpi_command_line="$lx_mpi_compile_line $lx_mpi_link_line"
+         if [[ "$lx_mpi_compile_line" != "$lx_mpi_link_line" ]]; then
+             lx_mpi_command_line="$lx_mpi_compile_line $lx_mpi_link_line"
+         else
+             lx_mpi_command_line="$lx_mpi_compile_line"
+        fi
      fi
 
      if [[ ! -z "$lx_mpi_command_line" ]]; then
@@ -168,34 +177,116 @@ AC_DEFUN([LX_QUERY_MPI_COMPILER],
 
          # Create variables and clean up newlines and multiple spaces
          MPI_$3FLAGS="$lx_mpi_defines $lx_mpi_includes"
-         MPI_$3LDFLAGS="$lx_mpi_link_paths $lx_mpi_libs $lx_mpi_link_args"
+         MPI_$3LDFLAGS="$lx_mpi_link_paths $lx_mpi_link_args"
+         MPI_$3LIBS="$lx_mpi_libs"
          MPI_$3FLAGS=`  echo "$MPI_$3FLAGS"   | tr '\n' ' ' | sed 's/^[[ \t]]*//;s/[[ \t]]*$//' | sed 's/  +/ /g'`
          MPI_$3LDFLAGS=`echo "$MPI_$3LDFLAGS" | tr '\n' ' ' | sed 's/^[[ \t]]*//;s/[[ \t]]*$//' | sed 's/  +/ /g'`
+         MPI_$3LIBS=`echo "$MPI_$3LIBS" | tr '\n' ' ' | sed 's/^[[ \t]]*//;s/[[ \t]]*$//' | sed 's/  +/ /g'`
+         echo "mpi libs: $MPI_$3LIBS"
 
          OLD_CPPFLAGS=$CPPFLAGS
+         OLD_FFLAGS=$FFLAGS
+         OLD_FCFLAGS=$FCFLAGS
          OLD_LIBS=$LIBS
          CPPFLAGS=$MPI_$3FLAGS
-         LIBS=$MPI_$3LDFLAGS
+         FFLAGS=$MPI_$3FLAGS
+         FCFLAGS=$MPI_$3FLAGS
+         LIBS="$MPI_$3LDFLAGS $MPI_$3LIBS"
 
-         AC_TRY_LINK([#include <mpi.h>],
+        AC_LANG_CASE(
+        [C], [
+            AC_MSG_CHECKING([that we can build MPI programs with C])
+            AC_LINK_IFELSE([
+                AC_LANG_PROGRAM([#include <mpi.h>],
                      [int rank, size;
                       MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-                      MPI_Comm_size(MPI_COMM_WORLD, &size);],
-                     [# Add a define for testing at compile time.
-                      AC_DEFINE([HAVE_MPI], [1], [Define to 1 if you have MPI libs and headers.])
-                      have_$3_mpi='yes'],
-                     [# zero out mpi flags so we don't link against the faulty library.
-                      MPI_$3FLAGS=""
-                      MPI_$3LDFLAGS=""
-                      have_$3_mpi='no'])
+                      MPI_Comm_size(MPI_COMM_WORLD, &size);])
+            ],[
+                AC_DEFINE([HAVE_MPI], [1], [Define to 1 if you have MPI libs and headers.])
+                AC_MSG_RESULT(yes)
+                have_$3_mpi='yes'
+            ],[
+                AC_MSG_RESULT(no)
+                MPI_$3FLAGS=""
+                MPI_$3LDFLAGS=""
+                MPI_$3LIBS=""
+                have_$3_mpi='no'
+            ])
+        ],
+        [C++], [
+            AC_MSG_CHECKING([that we can build MPI programs with C++])
+            AC_LINK_IFELSE([
+                AC_LANG_PROGRAM([#include <mpi.h>],
+                     [int rank, size;
+                      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                      MPI_Comm_size(MPI_COMM_WORLD, &size);])
+            ],[
+                AC_DEFINE([HAVE_MPI], [1], [Define to 1 if you have MPI libs and headers.])
+                AC_MSG_RESULT(yes)
+                have_$3_mpi='yes'
+            ],[
+                AC_MSG_RESULT(no)
+                MPI_$3FLAGS=""
+                MPI_$3LDFLAGS=""
+                MPI_$3LIBS=""
+                have_$3_mpi='no'
+            ])
+        ],
+        [Fortran 77], [
+            AC_MSG_CHECKING([that we can build MPI programs with Fortran 77])
+            AC_LINK_IFELSE([
+                AC_LANG_SOURCE([
+                    program main
+                    include 'mpif.h'
+                    integer err
+                    call mpi_init(err)
+                    call mpi_finalize(err)
+                    end])
+            ],[
+                AC_MSG_RESULT(yes)
+                AC_DEFINE([HAVE_MPI], [1], [Define to 1 if you have MPI libs and headers.])
+                have_$3_mpi='yes'
+            ],[
+                AC_MSG_RESULT(no)
+                MPI_$3FLAGS=""
+                MPI_$3LDFLAGS=""
+                MPI_$3LIBS=""
+                have_$3_mpi='no'
+            ])
+        ],
+        [Fortran], [
+            AC_MSG_CHECKING([that we can build MPI programs with Fortran])
+            AC_LINK_IFELSE([
+                AC_LANG_SOURCE([
+                    program main
+                    include 'mpif.h'
+                    integer err
+                    call mpi_init(err)
+                    call mpi_finalize(err)
+                    end])
+            ],[
+                AC_MSG_RESULT(yes)
+                AC_DEFINE([HAVE_MPI], [1], [Define to 1 if you have MPI libs and headers.])
+                have_$3_mpi='yes'
+            ],[
+                AC_MSG_RESULT(no)
+                MPI_$3FLAGS=""
+                MPI_$3LDFLAGS=""
+                MPI_$3LIBS=""
+                have_$3_mpi='no'
+            ])
+        ])
 
          # AC_SUBST everything.
          AC_SUBST($1)
          AC_SUBST(MPI_$3FLAGS)
          AC_SUBST(MPI_$3LDFLAGS)
+         AC_SUBST(MPI_$3LIBS)
 
          LIBS=$OLD_LIBS
          CPPFLAGS=$OLD_CPPFLAGS
+         FFLAGS=$OLD_FFLAGS
+         FCFLAGS=$OLD_FCFLAGS
      else
          echo Unable to find suitable MPI Compiler. Try setting $1.
          have_$3_mpi='no'

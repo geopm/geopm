@@ -53,44 +53,48 @@ AC_ARG_VAR([MPICC],
            [MPICC the MPI C compiler wrapper used to determine flags required for inclusion of MPI for C.])
 AC_ARG_VAR([MPICXX],
            [MPICXX the MPI C++ compiler wrapper used to determine flags required for inclusion of MPI for C++.])
+AC_ARG_VAR([MPIFC],
+           [MPIFC the MPI Fortran compiler wrapper used to determine flags required for inclusion of MPI for Fortran.])
+AC_ARG_VAR([MPIF77],
+           [MPIF77 the MPI Fortran 77 compiler wrapper used to determine flags required for inclusion of MPI for Fortran 77.])
 
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
             [specify directory for installed hwloc package.])])
 if test "x$with_hwloc" != x; then
-  CPPFLAGS="$CPPFLAGS -I$with_hwloc/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
   LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$LDFLAGS -L$with_hwloc/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
 fi
 AC_ARG_WITH([hwloc-include], [AS_HELP_STRING([--with-hwloc-include=PATH],
             [specify directory for the installed hwloc include files.])])
 if test "x$with_hwloc_include" != x; then
-  CPPFLAGS="$CPPFLAGS -I$with_hwloc_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
 fi
 AC_ARG_WITH([hwloc-lib], [AS_HELP_STRING([--with-hwloc-lib=PATH],
             [specify directory for installed hwloc library])])
 if test "x$with_hwloc_lib" != x; then
   LD_LIBRARY_PATH="$with_hwloc_lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$LDFLAGS -L$with_hwloc_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
 fi
 
 AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
             [specify directory for installed json-c package.])])
 
 if test "x$with_json" != x; then
-  CPPFLAGS="$CPPFLAGS -I$with_json/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
   LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$LDFLAGS -L$with_json/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
 fi
 AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
             [specify directory for the installed json-c include files.])])
 if test "x$with_json_include" != x; then
-  CPPFLAGS="$CPPFLAGS -I$with_json_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
 fi
 AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
             [specify directory for installed json-c library])])
 if test "x$with_json_lib" != x; then
   LD_LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$LDFLAGS -L$with_json_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_json_lib"
 fi
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
@@ -109,7 +113,19 @@ fi
 AC_ARG_WITH([mpicxx], [AS_HELP_STRING([--with-mpicxx=PATH],
             [specify path to mpi C++ compiler wrapper])])
 if test "x$with_mpicxx" != x; then
-  MPICC=$with_mpicxx
+  MPICXX=$with_mpicxx
+fi
+
+AC_ARG_WITH([mpifc], [AS_HELP_STRING([--with-mpifc=PATH],
+            [specify path to mpi Fortran compiler wrapper])])
+if test "x$with_mpifc" != x; then
+  MPIFC=$with_mpifc
+fi
+
+AC_ARG_WITH([mpif77], [AS_HELP_STRING([--with-mpif77=PATH],
+            [specify path to mpi Fortran 77 compiler wrapper])])
+if test "x$with_mpif77" != x; then
+  MPIF77=$with_mpif77
 fi
 
 AC_ARG_ENABLE([mpi],
@@ -160,6 +176,12 @@ LX_FIND_MPI()
 AC_LANG_PUSH([C++])
 LX_FIND_MPI()
 AC_LANG_POP([C++])
+AC_LANG_PUSH([Fortran])
+LX_FIND_MPI()
+AC_LANG_POP([Fortran])
+AC_LANG_PUSH([Fortran 77])
+LX_FIND_MPI()
+AC_LANG_POP([Fortran 77])
 if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_C_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI C support]),
@@ -167,6 +189,12 @@ if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_CXX_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI C++ support]),
          AC_MSG_ERROR([Failed to determine MPI C++ build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
+  AS_IF([test "x$have_F_mpi" == "xyes"],
+         AC_MSG_NOTICE([Building with MPI Fortran support]),
+         AC_MSG_ERROR([Failed to determine MPI Fortran build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
+  AS_IF([test "x$have_F77_mpi" == "xyes"],
+         AC_MSG_NOTICE([Building with MPI Fortran 77 support]),
+         AC_MSG_ERROR([Failed to determine MPI Fortran 77  build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
 fi
 
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
@@ -181,6 +209,7 @@ AC_PROG_CXX
 AC_PROG_CC
 if test "x$enable_fortran" = "x1"; then
 AC_PROG_FC
+AC_PROG_F77
 fi
 AC_PROG_MAKE_SET
 AC_LANG_PUSH([C++])
@@ -266,26 +295,52 @@ fi
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
+  AM_CFLAGS="$AM_CFLAGS -O0 -g"
+  AM_CXXFLAGS="$AM_CXXFLAGS -O0 -g"
 fi
 AC_SUBST([enable_debug])
 
 
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  CFLAGS="$CFLAGS --coverage"
-  CXXFLAGS="$CXXFLAGS --coverage"
-  LDFLAGS="$LDFLAGS --coverage -lgcov"
+  AM_CFLAGS="$AM_CFLAGS --coverage"
+  AM_CXXFLAGS="$AM_CXXFLAGS --coverage"
+  AM_LDFLAGS="$AM_LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
 
 AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
-CFLAGS="${CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
-CXXFLAGS="${CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
-LDFLAGS="${LDFLAGS} ${OPENMP_CXXFLAGS} -lhwloc -ljson-c"
+AM_CONDITIONAL([HAVE_IFORT], [test "x$FC" = "xifort"])
+AM_CONDITIONAL([HAVE_ICC], [test "x$CC" = "xicc"])
+AM_CONDITIONAL([HAVE_ICPC], [test "x$CXX" = "xicc"])
+
+AM_CFLAGS="${AM_CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
+AM_CXXFLAGS="${AM_CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
+AM_FFLAGS="${AM_FFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -msse4.2"
+AM_FCFLAGS="${AM_FCFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -msse4.2"
+AM_LDFLAGS="${AM_LDFLAGS} ${OPENMP_CXXFLAGS}"
+
+AC_SUBST([AM_CFLAGS])
+AC_SUBST([AM_CXXFLAGS])
+AC_SUBST([AM_FFLAGS])
+AC_SUBST([AM_FCFLAGS])
+AC_SUBST([AM_LDFLAGS])
+
+MPI_FCFLAGS=$MPI_FFLAGS
+MPI_FFLAGS=$MPI_F77FLAGS
+MPI_LDFLAGS=$MPI_CLDFLAGS
+MPI_LIBS=$MPI_CLIBS
+MPI_FCLIBS=$MPI_FLIBS
+MPI_FLIBS=$MPI_F77LIBS
+
+AC_SUBST([MPI_FCFLAGS])
+AC_SUBST([MPI_FFLAGS])
+AC_SUBST([MPI_LDFLAGS])
+AC_SUBST([MPI_LIBS])
+AC_SUBST([MPI_FCLIBS])
+AC_SUBST([MPI_FLIBS])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
@@ -295,17 +350,35 @@ AC_OUTPUT
 AC_MSG_RESULT([===============================================================================])
 AC_MSG_RESULT([version            : ${VERSION}])
 AC_MSG_RESULT([])
-AC_MSG_RESULT([CC                 : ${CC}])
 AC_MSG_RESULT([CPPFLAGS           : ${CPPFLAGS}])
+AC_MSG_RESULT([AM_CPPFLAGS        : ${AM_CPPFLAGS}])
+AC_MSG_RESULT([CC                 : ${CC}])
 AC_MSG_RESULT([CFLAGS             : ${CFLAGS}])
+AC_MSG_RESULT([AM_CFLAGS          : ${AM_CFLAGS}])
+AC_MSG_RESULT([MPI_CFLAGS         : ${MPI_CFLAGS}])
 AC_MSG_RESULT([CXX                : ${CXX}])
 AC_MSG_RESULT([CXXFLAGS           : ${CXXFLAGS}])
-AC_MSG_RESULT([LDFLAGS            : ${LDFLAGS}])
-AC_MSG_RESULT([LD_LIBRARY_PATH    : ${LD_LIBRARY_PATH}])
-AC_MSG_RESULT([LIBS               : ${LIBS}])
+AC_MSG_RESULT([AM_CXXFLAGS        : ${AM_CXXFLAGS}])
+AC_MSG_RESULT([MPI_CXXFLAGS       : ${MPI_CXXFLAGS}])
+AC_MSG_RESULT([F77                : ${F77}])
+AC_MSG_RESULT([FFLAGS             : ${FFLAGS}])
+AC_MSG_RESULT([AM_FFLAGS          : ${AM_FFLAGS}])
+AC_MSG_RESULT([MPI_FFLAGS         : ${MPI_FFLAGS}])
 AC_MSG_RESULT([FC                 : ${FC}])
 AC_MSG_RESULT([FCFLAGS            : ${FCFLAGS}])
-AC_MSG_RESULT([FCFLAGS_f90        : ${FCFLAGS_f90}])
+AC_MSG_RESULT([AM_FCFLAGS         : ${AM_FCFLAGS}])
+AC_MSG_RESULT([MPI_FCFLAGS        : ${MPI_FCFLAGS}])
+AC_MSG_RESULT([LDFLAGS            : ${LDFLAGS}])
+AC_MSG_RESULT([AM_LDFLAGS         : ${AM_LDFLAGS}])
+AC_MSG_RESULT([LD_LIBRARY_PATH    : ${LD_LIBRARY_PATH}])
+AC_MSG_RESULT([LIBS               : ${LIBS}])
+AC_MSG_RESULT([FLIBS              : ${FLIBS}])
+AC_MSG_RESULT([FCLIBS             : ${FCLIBS}])
+AC_MSG_RESULT([MPI_LDFLAGS        : ${MPI_LDFLAGS}])
+AC_MSG_RESULT([MPI_LIBS           : ${MPI_LIBS}])
+AC_MSG_RESULT([MPI_CXXLIBS        : ${MPI_CXXLIBS}])
+AC_MSG_RESULT([MPI_FLIBS          : ${MPI_FLIBS}])
+AC_MSG_RESULT([MPI_FCLIBS         : ${MPI_FCLIBS}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([prefix             : ${prefix}])
 AC_MSG_RESULT([exec_prefix        : ${exec_prefix}])

@@ -126,15 +126,13 @@ EXTRA_DIST = .gitignore \
 
 # EXTEND FLAGS FOR MPI TARGETS
 if ENABLE_MPI
-    libgeopm_la_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    libgeopm_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version)
-    libgeopm_la_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopm_la_CXXFLAGS= $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version)
+    libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 
-    geopmctl_CPPFLAGS = $(CPPFLAGS) $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    geopmctl_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    geopmctl_CFLAGS = $(CFLAGS) $(AM_CFLAGS) $(MPI_CFLAGS)
-    geopmctl_CXXFLAGS = $(CXXFLAGS) $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS)
+    geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 endif
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
@@ -321,7 +319,7 @@ geopm-$(VERSION).spec:
 	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
 
 rpm: dist
-	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS) LIBS=$(LIBS)" \
 		-f geopm.spec.mk $@
 
 # DOXYGEN TARGET

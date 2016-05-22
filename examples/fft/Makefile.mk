@@ -29,20 +29,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-check_LTLIBRARIES += libgeopmpi_test.la
-libgeopmpi_test_la_SOURCES = test/plugin/TestPlugin.cpp \
-                             test/plugin/TestPlugin.hpp \
-                             #end
-
-# -module required to force .so generation of test plugin.
-libgeopmpi_test_la_LDFLAGS = $(LDFLAGS) $(AM_LDFLAGS) -module
-
-if ENABLE_MPI
-    check_PROGRAMS += test_plugin_app
-    test_plugin_app_SOURCES = test/plugin/TestPluginApp.cpp
-    test_plugin_app_LDADD = libgeopm.la
-    test_plugin_app_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    test_plugin_app_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS)
-    test_plugin_app_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    test_plugin_app_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+noinst_PROGRAMS += examples/fft/nas_ft
+examples_fft_nas_ft_SOURCES = examples/fft/ft.f90 \
+						  examples/fft/print_results.f \
+						  examples/fft/randi8.f \
+						  examples/fft/timers.f \
+						  examples/fft/global.fi \
+						  examples/fft/npbparams.fi \
+						  examples/fft/mpinpb.fi
+examples_fft_nas_ft_LDADD = libgeopm.la libgeopmfort.la
+examples_fft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MPI_FCLIBS)
+examples_fft_nas_ft_FCFLAGS = -fopenmp -msse4.2 $(MPI_FCFLAGS)
+examples_fft_nas_ft_FFLAGS =  -fopenmp -msse4.2 $(MPI_FFLAGS)
+if HAVE_IFORT
+    examples_fft_nas_ft_FCFLAGS += -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic
+    examples_fft_nas_ft_FFLAGS +=  -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic
+else
+    examples_fft_nas_ft_FCFLAGS += -03 -fopenmp
+    examples_fft_nas_ft_FFLAGS +=  -03 -fopenmp
 endif

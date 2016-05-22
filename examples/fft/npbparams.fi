@@ -1,0 +1,68 @@
+!-------------------------------------------------------------------------!
+!                                                                         !
+!        N  A  S     P A R A L L E L     B E N C H M A R K S  3.3         !
+!                                                                         !
+!                                   F T                                   !
+!                                                                         !
+!-------------------------------------------------------------------------!
+!                                                                         !
+!    This benchmark is part of the NAS Parallel Benchmark 3.3 suite.      !
+!    It is described in NAS Technical Reports 95-020 and 02-007           !
+!                                                                         !
+!    Permission to use, copy, distribute and modify this software         !
+!    for any purpose with or without fee is hereby granted.  We           !
+!    request, however, that all derived work reference the NAS            !
+!    Parallel Benchmarks 3.3. This software is provided "as is"           !
+!    without express or implied warranty.                                 !
+!                                                                         !
+!    Information on NPB 3.3, including the technical report, the          !
+!    original specifications, source code, results and information        !
+!    on how to submit new results, is available at:                       !
+!                                                                         !
+!           http://www.nas.nasa.gov/Software/NPB/                         !
+!                                                                         !
+!    Send comments or suggestions to  npb@nas.nasa.gov                    !
+!                                                                         !
+!          NAS Parallel Benchmarks Group                                  !
+!          NASA Ames Research Center                                      !
+!          Mail Stop: T27A-1                                              !
+!          Moffett Field, CA   94035-1000                                 !
+!                                                                         !
+!          E-mail:  npb@nas.nasa.gov                                      !
+!          Fax:     (650) 604-3957                                        !
+!                                                                         !
+!-------------------------------------------------------------------------!
+!
+!
+! NPROCS = 1 CLASS = C
+!  This file is generated automatically by the setparams utility.
+!  It sets the number of processors and the class of the NPB
+!  in this directory. Do not modify it by hand.
+!
+        integer nx, ny, nz, maxdim, niter_default, ntdivnp, np_min
+        parameter (nx=512, ny=512, nz=512, maxdim=512)
+        parameter (niter_default=500)
+        parameter (np_min = 1)
+        parameter (ntdivnp=((nx*ny)/np_min)*nz)
+        double precision ntotal_f
+        parameter (ntotal_f=1.d0*nx*ny*nz)
+        logical  convertdouble
+        parameter (convertdouble = .false.)
+        character*11 compiletime
+        parameter (compiletime='17 May 2016')
+        character*5 npbversion
+        parameter (npbversion='3.3.1')
+        character*8 cs1
+        parameter (cs1='mpiifort')
+        character*9 cs2
+        parameter (cs2='$(MPIF77)')
+        character*22 cs3
+        parameter (cs3='-L/usr/local/lib -lmpi')
+        character*20 cs4
+        parameter (cs4='-I/usr/local/include')
+        character*46 cs5
+        parameter (cs5='-O3 -xAVX -shared-intel -mcmodel=medium -fp...')
+        character*46 cs6
+        parameter (cs6='-O3 -xAVX -shared-intel -mcmodel=medium -fp...')
+        character*6 cs7
+        parameter (cs7='randi8')

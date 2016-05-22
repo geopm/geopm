@@ -88,7 +88,7 @@
       implicit none
 
       include 'mpif.h'
-      include 'global.f90'
+      include 'global.fi'
       integer i, ierr
       type(c_ptr), target ::  geopm_prof
 
@@ -298,7 +298,7 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       include 'mpif.h'
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer d1, d2, d3
@@ -358,7 +358,7 @@
 ! random number generator
 !---------------------------------------------------------------------
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer d1, d2, d3
       double complex u0(d1, d2, d3)
       integer k
@@ -464,8 +464,8 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'mpinpb.h'
-      include 'global.f90'
+      include 'mpinpb.fi'
+      include 'global.fi'
 
       integer ierr, i, j, fstatus
 
@@ -790,8 +790,8 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'mpinpb.h'
-      include 'global.f90'
+      include 'mpinpb.fi'
+      include 'global.fi'
       integer d1, d2, d3, ierr
       integer i, j, k, ii, ii2, jj, ij2, kk, tid
       double precision ap, twiddle(d1, d2, d3)
@@ -929,8 +929,8 @@
 
       implicit none
       integer i, ierr
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       character*25 tstrings(T_max+2)
       double precision t1(T_max+2), tsum(T_max+2), &
                       tming(T_max+2), tmaxg(T_max+2)
@@ -990,7 +990,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer dir
       integer ntdivnp_i
       double complex x1(ntdivnp_i), x2(ntdivnp_i)
@@ -1086,7 +1086,7 @@
       use, intrinsic :: ISO_C_BINDING
       implicit none
 
-      include 'global.f90'
+      include 'global.fi'
       include 'mpif.h'
       integer is, d1, d2, d3, logd1
       double complex x(d1,d2,d3)
@@ -1169,7 +1169,7 @@
       use, intrinsic :: ISO_C_BINDING
       implicit none
 
-      include 'global.f90'
+      include 'global.fi'
       include 'mpif.h'
       integer is, d1, d2, d3, logd2, ierr
       double complex x(d1,d2,d3)
@@ -1247,7 +1247,7 @@
       use, intrinsic :: ISO_C_BINDING
       implicit none
 
-      include 'global.f90'
+      include 'global.fi'
       include 'mpif.h'
       integer is, d1, d2, d3, logd3
       double complex x(d1,d2,d3)
@@ -1325,7 +1325,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
 
       integer m,n,nu,ku,i,j,ln
       double precision t, ti
@@ -1373,7 +1373,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
 
       integer is,m,n,i,j,l,mx
       double complex x, y
@@ -1509,7 +1509,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer l1, l2
       integer ntdivnp_i
       double complex xin(ntdivnp_i), xout(ntdivnp_i)
@@ -1535,7 +1535,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer l1, l2
       integer ntdivnp_i
       double complex xin(ntdivnp_i), xout(ntdivnp_i)
@@ -1560,7 +1560,7 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       include 'mpif.h'
       integer n1, n2, ierr
       double complex xin(n1, n2), xout(n2, n1)
@@ -1659,8 +1659,8 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       integer ntdivnp_i
       double complex xin(ntdivnp_i)
       double complex xout(ntdivnp_i)
@@ -1696,7 +1696,7 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       include 'mpif.h'
       integer n1, n2, ioff
       double complex xin(n2, n1/np2, 0:np2-1), xout(n2*np2, n1/np2)
@@ -1753,7 +1753,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer l1, l2
       integer ntdivnp_i
       double complex xin(ntdivnp_i), xout(ntdivnp_i)
@@ -1777,7 +1777,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer d1, d2, d3
       double complex xin(d1,d2,d3)
       double complex xout(d3,d2,d1)
@@ -1854,8 +1854,8 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       integer d1, d2, d3
       double complex xin(d3,d2,d1)
       double complex xout(d3,d2,d1) ! not real layout, but right size
@@ -1890,7 +1890,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer d1, d2, d3
       double complex xin(d1/np2, d2, d3, 0:np2-1)
       double complex xout(d1,d2,d3)
@@ -1935,7 +1935,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer l1, l2
       integer ntdivnp_i
       double complex xin(ntdivnp_i), xout(ntdivnp_i)
@@ -1970,7 +1970,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer d1, d2, d3
       double complex xin(d1, d2, d3)
       double complex xout(d2, d3, d1)
@@ -2000,8 +2000,8 @@
       use geopm
       use, intrinsic :: ISO_C_BINDING
       implicit none
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       integer d1, d2, d3
 !---------------------------------------------------------------------
 ! array is in form (ny/np1, nz/np2, nx)
@@ -2039,7 +2039,7 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
+      include 'global.fi'
       integer d1, d2, d3
       double complex xin(d1/np1, d3, d2, 0:np1-1)
       double complex xout(d1,d2,d3)
@@ -2085,8 +2085,8 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       integer i, d1, d2, d3
       double complex u1(d1, d2, d3)
       integer j, q,r,s, ierr
@@ -2133,8 +2133,8 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       integer ierr
       call timer_start(T_synch)
       call mpi_barrier(MPI_COMM_WORLD, ierr)
@@ -2152,8 +2152,8 @@
 !---------------------------------------------------------------------
 
       implicit none
-      include 'global.f90'
-      include 'mpinpb.h'
+      include 'global.fi'
+      include 'mpinpb.fi'
       integer d1, d2, d3, nt
       character class
       logical verified

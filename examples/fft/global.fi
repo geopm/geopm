@@ -33,7 +33,7 @@
 !                                                                         !
 !-------------------------------------------------------------------------!
 
-      include 'npbparams.h'
+      include 'npbparams.fi'
 
 ! 2D processor array -> 2D grid decomposition (by pencils)
 ! If processor array is 1xN or -> 1D grid decomposition (by planes)
@@ -172,20 +172,3 @@
       integer niter, pswitch
       common /iter/ niter, pswitch
 
-! geopm profile (c_ptr)
-!       character*17 :: prof_name='NAS_FFT_PROFILER'//c_null_char
-!       character*15 :: prof_report='nas_fft_geopm'//c_null_char
-! geopm region identification strings
-!       character*19 :: phase1='AT_PHASE_MPI_ATA_1'//c_null_char
-!       character*19 :: phase2='AT_PHASE_MPI_ATA_2'//c_null_char
-!       character*19 :: phase3='AT_PHASE_MPI_ATA_3'//c_null_char
-!       character*16 :: phase4='AT_PHASE_EVOLVE'//c_null_char
-!       character*20 :: phase5='AT_PHASE_INDEXMAP_1'//c_null_char
-!       character*20 :: phase6='AT_PHASE_INDEXMAP_2'//c_null_char
-!       character*20 :: phase7='AT_PHASE_INDEXMAP_3'//c_null_char
-!       character*15 :: phase8='AT_PHASE_FFT_1'//c_null_char
-!       character*15 :: phase9='AT_PHASE_FFT_2'//c_null_char
-!       character*15 :: phase10='AT_PHASE_FFT_3'//c_null_char
-!       character*17 :: phase11='AT_PHASE_TRANS_1'//c_null_char
-!       character*17 :: phase12='AT_PHASE_TRANS_2'//c_null_char
-!       character*17 :: phase13='AT_PHASE_FFT_1_2'//c_null_char

@@ -188,11 +188,9 @@ if ENABLE_MPI
                                 libgeopm.la \
                                 # end
 
-    test_geopm_mpi_test_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CFLAGS)
-    test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS)
     test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-
 endif
 
 # Target for building test programs.

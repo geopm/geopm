@@ -51,7 +51,6 @@ integer(4) :: num_thread
 integer(8) :: num_iter
 integer(8) :: chunk_size
 integer(4) :: thread_idx
-real(kind=c_double) :: progress
 
 num_iter = 100000000
 chunk_size = 1000
@@ -61,19 +60,20 @@ ierr = geopm_prof_create(c_char_'timed_loop'//c_null_char, c_char_''//c_null_cha
 ierr = geopm_prof_region(c_null_ptr, c_char_'loop_0'//c_null_char, GEOPM_POLICY_HINT_UNKNOWN, region_id)
 ierr = geopm_prof_enter(c_null_ptr, region_id)
 sum = 0
-!$ omp parallel
-num_thread = omp_get_num_threads()
-!$ end omp parallel
-ierr = geopm_tprof_create(num_thread, num_iter, chunk_size, tprof)
-!$ omp parallel default(shared) private(thread_idx)
-thread_idx = omp_get_thread_num()
-!$ omp do schedule(static, chunk_size)
-do index = 1, num_iter
-    sum = sum + index
-    ierr = geopm_tprof_increment(tprof, prof, region_id, thread_idx)
-end do
-!$ end omp do
-!$ end omp parallel
+!$omp parallel
+    num_thread = omp_get_num_threads()
+!$omp end parallel
+    ierr = geopm_tprof_create(num_thread, num_iter, chunk_size, tprof)
+!$omp parallel default(shared) private(thread_idx)
+    thread_idx = omp_get_thread_num()
+!$omp do schedule(static, chunk_size)
+    do index = 1, int(num_iter)
+        sum = sum + index
+        ierr = geopm_tprof_increment(tprof, prof, region_id, thread_idx)
+    end do
+!$omp end do
+!$omp end parallel
+
 call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
 if (rank == 0) then
     print *,'sum=', sum
