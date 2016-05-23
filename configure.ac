@@ -316,9 +316,9 @@ AC_SUBST([enable_coverage])
 AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
-AM_CONDITIONAL([HAVE_IFORT], [test "x$FC" = "xifort"])
-AM_CONDITIONAL([HAVE_ICC], [test "x$CC" = "xicc"])
-AM_CONDITIONAL([HAVE_ICPC], [test "x$CXX" = "xicc"])
+AM_CONDITIONAL([HAVE_IFORT], [$FC --version | grep ifort > /dev/null])
+AM_CONDITIONAL([HAVE_ICC], [$CC --version | grep icc > /dev/null])
+AM_CONDITIONAL([HAVE_ICPC], [$CXX --version | grep icpc > /dev/null])
 
 AM_CFLAGS="${AM_CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
 AM_CXXFLAGS="${AM_CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
