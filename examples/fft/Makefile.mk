@@ -45,6 +45,6 @@ if HAVE_IFORT
     examples_fft_nas_ft_FCFLAGS += -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic
     examples_fft_nas_ft_FFLAGS +=  -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic
 else
-    examples_fft_nas_ft_FCFLAGS += -03 -fopenmp
-    examples_fft_nas_ft_FFLAGS +=  -03 -fopenmp
+    examples_fft_nas_ft_FCFLAGS += -O3 -fopenmp
+    examples_fft_nas_ft_FFLAGS +=  -O3 -fopenmp
 endif
