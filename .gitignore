@@ -28,6 +28,8 @@
 /examples/synthetic_benchmark
 /examples/timed_region
 /examples/*.o
+/examples/fft/nas_ft
+/examples/fft/*.o
 *.gcda
 *.gcno
 /geopmctl
