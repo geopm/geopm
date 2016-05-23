@@ -61,39 +61,39 @@ AC_ARG_VAR([MPIF77],
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
             [specify directory for installed hwloc package.])])
 if test "x$with_hwloc" != x; then
-  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
+  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
   LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
-  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
+  LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
 fi
 AC_ARG_WITH([hwloc-include], [AS_HELP_STRING([--with-hwloc-include=PATH],
             [specify directory for the installed hwloc include files.])])
 if test "x$with_hwloc_include" != x; then
-  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
+  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
 fi
 AC_ARG_WITH([hwloc-lib], [AS_HELP_STRING([--with-hwloc-lib=PATH],
             [specify directory for installed hwloc library])])
 if test "x$with_hwloc_lib" != x; then
   LD_LIBRARY_PATH="$with_hwloc_lib:$LD_LIBRARY_PATH"
-  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
+  LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
 fi
 
 AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
             [specify directory for installed json-c package.])])
 
 if test "x$with_json" != x; then
-  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
+  CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
   LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
-  AM_LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
+  LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
 fi
 AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
             [specify directory for the installed json-c include files.])])
 if test "x$with_json_include" != x; then
-  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
+  CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
 fi
 AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
             [specify directory for installed json-c library])])
 if test "x$with_json_lib" != x; then
-  LD_LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
+  LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
   AM_LDFLAGS="$AM_LDFLAGS -L$with_json_lib"
 fi
 
@@ -176,12 +176,14 @@ LX_FIND_MPI()
 AC_LANG_PUSH([C++])
 LX_FIND_MPI()
 AC_LANG_POP([C++])
+if test "x$enable_fortran" = "x1"; then
 AC_LANG_PUSH([Fortran])
 LX_FIND_MPI()
 AC_LANG_POP([Fortran])
 AC_LANG_PUSH([Fortran 77])
 LX_FIND_MPI()
 AC_LANG_POP([Fortran 77])
+fi
 if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_C_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI C support]),
@@ -189,12 +191,14 @@ if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_CXX_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI C++ support]),
          AC_MSG_ERROR([Failed to determine MPI C++ build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
+if test "x$enable_fortran" = "x1"; then
   AS_IF([test "x$have_F_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI Fortran support]),
          AC_MSG_ERROR([Failed to determine MPI Fortran build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
   AS_IF([test "x$have_F77_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI Fortran 77 support]),
          AC_MSG_ERROR([Failed to determine MPI Fortran 77  build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
+fi
 fi
 
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
