@@ -68,23 +68,25 @@ if ENABLE_SCHED
                        #end
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
     examples_simple_prof_c_LDADD = libgeopm.la
-    examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS)
-    examples_simple_prof_c_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    examples_simple_prof_c_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    examples_simple_prof_c_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
+    examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS) $(OPENMP_CFLAGS)
+    examples_simple_prof_c_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
+    examples_simple_prof_c_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS) $(OPENMP_CFLAGS)
 if ENABLE_FORTRAN
     noinst_PROGRAMS += examples/simple_prof_f
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
+    examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
     examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la
-    examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MPI_FCLIBS)
-    examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS)
+    examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MPI_FCLIBS) $(OPENMP_CFLAGS)
+    examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS) $(OPENMP_CFLAGS)
 endif
     examples_threaded_step_SOURCES = examples/threaded_step_example.c
+    examples_threaded_step_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
     examples_threaded_step_LDADD = libgeopm.la
-    examples_threaded_step_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CLIBS)
-    examples_threaded_step_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    examples_threaded_step_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-include examples/fft/Makefile.mk
+    examples_threaded_step_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS) $(OPENMP_CFLAGS)
+    examples_threaded_step_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
 endif
 endif
 endif
 
+include examples/fft/Makefile.mk

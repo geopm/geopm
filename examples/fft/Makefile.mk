@@ -29,22 +29,26 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-noinst_PROGRAMS += examples/fft/nas_ft
-examples_fft_nas_ft_SOURCES = examples/fft/ft.f90 \
-						  examples/fft/print_results.f \
-						  examples/fft/randi8.f \
-						  examples/fft/timers.f \
-						  examples/fft/global.fi \
-						  examples/fft/npbparams.fi \
-						  examples/fft/mpinpb.fi
-examples_fft_nas_ft_LDADD = libgeopm.la libgeopmfort.la
-examples_fft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MPI_FCLIBS)
-examples_fft_nas_ft_FCFLAGS = -fopenmp -msse4.2 $(MPI_FCFLAGS)
-examples_fft_nas_ft_FFLAGS =  -fopenmp -msse4.2 $(MPI_FFLAGS)
+if ENABLE_FORTRAN
+if ENABLE_MPI
+if ENABLE_OPENMP
+
+    noinst_PROGRAMS += examples/fft/nas_ft
+    examples_fft_nas_ft_SOURCES = examples/fft/ft.f90 \
+                                  examples/fft/print_results.f \
+                                  examples/fft/randi8.f \
+                                  examples/fft/timers.f \
+                                  examples/fft/global.fi \
+                                  examples/fft/npbparams.fi \
+                                  examples/fft/mpinpb.fi
+    examples_fft_nas_ft_LDADD = libgeopm.la libgeopmfort.la
+    examples_fft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MPI_FCLIBS) $(OPENMP_CFLAGS)
+    examples_fft_nas_ft_FCFLAGS = -fopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
+    examples_fft_nas_ft_FFLAGS =  -fopenmp -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3
 if HAVE_IFORT
-    examples_fft_nas_ft_FCFLAGS += -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic
-    examples_fft_nas_ft_FFLAGS +=  -O3 -openmp -xAVX -shared-intel -mcmodel=medium -fpic
-else
-    examples_fft_nas_ft_FCFLAGS += -O3 -fopenmp
-    examples_fft_nas_ft_FFLAGS +=  -O3 -fopenmp
+    examples_fft_nas_ft_FCFLAGS += -xAVX -shared-intel -mcmodel=medium -fpic
+    examples_fft_nas_ft_FFLAGS += -xAVX -shared-intel -mcmodel=medium -fpic
+endif
+endif
+endif
 endif
