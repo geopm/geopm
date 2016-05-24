@@ -334,11 +334,9 @@ namespace geopm
             if (ex.err_value() != ENOENT) {
                 throw ex;
             }
-#ifdef GEOPM_DEBUG
             if (!m_rank) {
                 std::cerr << "Warning: <geopm> Controller not found, running without geopm." << std::endl;
             }
-#endif
             m_is_enabled = false;
             return;
         }
