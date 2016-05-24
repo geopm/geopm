@@ -49,3 +49,4 @@ pthread_attr_setaffinity_np(3)  http://linux.die.net/man/3/pthread_attr_setaffin
 pthread_setaffinity_np(3)       http://linux.die.net/man/3/pthread_setaffinity_np
 errno(3)                        http://linux.die.net/man/3/errno
 git-describe(1)                 http://linux.die.net/man/1/git-describe
+ld.so(8)                        http://linux.die.net/man/8/ld.so

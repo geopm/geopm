@@ -35,6 +35,7 @@ dir_name=`dirname $0`
 
 echo $test_name | grep '^MPI' > /dev/null
 if [ $? -eq 0 ]; then
+    export LD_DYNAMIC_WEAK
     mpiexec_default=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec
 
     if [ -z "$MPIEXEC" ]; then
