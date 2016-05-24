@@ -299,17 +299,17 @@ fi
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  AM_CFLAGS="$AM_CFLAGS -O0 -g"
-  AM_CXXFLAGS="$AM_CXXFLAGS -O0 -g"
+  CFLAGS="$CFLAGS -O0 -g"
+  CXXFLAGS="$CXXFLAGS -O0 -g"
 fi
 AC_SUBST([enable_debug])
 
 
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  AM_CFLAGS="$AM_CFLAGS --coverage"
-  AM_CXXFLAGS="$AM_CXXFLAGS --coverage"
-  AM_LDFLAGS="$AM_LDFLAGS --coverage -lgcov"
+  CFLAGS="$CFLAGS --coverage"
+  CXXFLAGS="$CXXFLAGS --coverage"
+  LDFLAGS="$LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
 
