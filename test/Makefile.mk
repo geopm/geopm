@@ -186,9 +186,10 @@ if ENABLE_MPI
     test_geopm_mpi_test_LDADD = libgtest.a \
                                 libgmock.a \
                                 libgeopm.la \
+                                $(MPI_CXXLIBS) \
                                 # end
 
-    test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS)
+    test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
     test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 endif
