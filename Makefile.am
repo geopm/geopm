@@ -299,14 +299,19 @@ DISTCLEANFILES = VERSION MANIFEST
 
 clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc
 
+distclean-local: distclean-local-ruby
+
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
 clean-local-man:
-	rm -rf ruby man ronn/*.html ronn/*.1 ronn/*.3 ronn/*.7
+	rm -rf man ronn/*.html ronn/*.1 ronn/*.3 ronn/*.7
 
 clean-local-fortran:
 	rm -rf geopm.mod
+
+distclean-local-ruby:
+	rm -rf ruby
 
 # FORTRAN MODULE TARGET
 if ENABLE_FORTRAN
@@ -363,4 +368,4 @@ include examples/Makefile.mk
 include plugin/Makefile.mk
 include doc/Makefile.mk
 
-.PHONY: clean-local clean-local-coverage clean-local-man rpm doxygen gh_pages
+.PHONY: clean-local clean-local-coverage clean-local-man distclean-local rpm doxygen gh_pages
