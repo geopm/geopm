@@ -49,9 +49,18 @@ namespace geopm
 
     int PlatformTopology::num_domain(int domain_type) const
     {
-        int result;
-        if (domain_type < HWLOC_OBJ_TYPE_MAX) {
+        int result = 0;
+        int max_val = HWLOC_OBJ_TYPE_MAX;
+        int depth_type;
+        if (domain_type < max_val) {
             result = hwloc_get_nbobjs_by_type(m_topo, (hwloc_obj_type_t)domain_type);
+        }
+        else if (domain_type == GEOPM_DOMAIN_TILE) {
+            int depth = hwloc_get_type_depth(m_topo, HWLOC_OBJ_PACKAGE);
+            depth_type = hwloc_get_depth_type(m_topo, depth+1);
+            if (depth_type == HWLOC_OBJ_CACHE) {
+                result = hwloc_get_nbobjs_by_depth(m_topo, depth+1);
+            }
         }
         else {
             throw Exception("Type index out of bounds.  PlatformTopology supports hwloc defined objects only.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);

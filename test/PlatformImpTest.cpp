@@ -56,6 +56,7 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual void msr_reset(void);
         virtual int power_control_domain(void) const;
         virtual int frequency_control_domain(void) const;
+        virtual int performance_counter_domain(void) const;
         virtual double read_signal(int device_type, int device_index, int signal_type);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
 };
@@ -115,6 +116,11 @@ int TestPlatformImp::power_control_domain(void) const
 }
 
 int TestPlatformImp::frequency_control_domain(void) const
+{
+    return geopm::GEOPM_DOMAIN_CPU;
+}
+
+int TestPlatformImp::performance_counter_domain(void) const
 {
     return geopm::GEOPM_DOMAIN_CPU;
 }
@@ -183,6 +189,10 @@ class TestPlatformImp2 : public geopm::PlatformImp
             return geopm::GEOPM_DOMAIN_PACKAGE;
         }
         virtual int frequency_control_domain(void) const
+        {
+            return geopm::GEOPM_DOMAIN_CPU;
+        }
+        virtual int performance_counter_domain(void) const
         {
             return geopm::GEOPM_DOMAIN_CPU;
         }

@@ -69,7 +69,7 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
-            PlatformImp(int num_package_signal, int num_cpu_signal, double control_latency);
+            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
 
@@ -98,10 +98,11 @@ namespace geopm
             virtual int num_logical_cpu(void) const;
             /// @brief Retrieve the number of per-package signals
             /// @return number of per-package signals.
-            virtual int num_package_signal(void) const;
+            virtual int num_energy_signal(void) const;
             /// @brief Retrieve the number of per-cpu signals
             /// @return number of per-cpu signals.
-            virtual int num_cpu_signal(void) const;
+            virtual int num_counter_signal(void) const;
+            virtual int num_domain(int domain_type);
             virtual double control_latency_ms(void) const;
             /// @brief Retrieve the topology tree for the platform.
             /// @return PlatformTopology object holding the
@@ -199,6 +200,8 @@ namespace geopm
             virtual int power_control_domain(void) const = 0;
             /// @brief Retrieve the domain of control for frequency.
             virtual int frequency_control_domain(void) const = 0;
+            /// @brief Retrieve the domain for performance counter collection.
+            virtual int performance_counter_domain(void) const = 0;
 
         protected:
             /// @brief Open a MSR special file.
@@ -240,9 +243,9 @@ namespace geopm
             /// @brief File path to MSR special files.
             char m_msr_path[NAME_MAX];
             /// @brief The number of signals per package.
-            int m_num_package_signal;
+            int m_num_energy_signal;
             /// @brief The number of signals per CPU.
-            int m_num_cpu_signal;
+            int m_num_counter_signal;
             double m_control_latency_ms;
             /// @brief The last values read from all counters.
             std::vector<double> m_msr_value_last;

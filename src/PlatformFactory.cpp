@@ -41,6 +41,7 @@
 #include "IVTPlatformImp.hpp"
 #include "HSXPlatformImp.hpp"
 #include "config.h"
+#include "KNLPlatformImp.hpp"
 
 
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
@@ -73,14 +74,17 @@ namespace geopm
         // register all the platforms we know about
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM, (struct geopm_factory_c *)this);
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM_IMP, (struct geopm_factory_c *)this);
+        RAPLPlatform *rapl_plat = new RAPLPlatform();
         IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
-        RAPLPlatform *ivb_plat = new RAPLPlatform();
         HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();
-        std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(ivb_plat);
+        KNLPlatformImp *knl_plat_imp = new KNLPlatformImp();
+        std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(rapl_plat);
         std::unique_ptr<PlatformImp> pplat_imp = std::unique_ptr<PlatformImp>(ivb_plat_imp);
         register_platform(move(pplat));
         register_platform(move(pplat_imp));
         pplat_imp = std::unique_ptr<PlatformImp>(hsx_plat_imp);
+        register_platform(move(pplat_imp));
+        pplat_imp = std::unique_ptr<PlatformImp>(knl_plat_imp);
         register_platform(move(pplat_imp));
     }
 

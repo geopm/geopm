@@ -151,6 +151,8 @@ namespace geopm
             /// @brief The geopm_domain_type_e of the finest domain of control
             /// on the hw platform.
             int m_control_domain_type;
+            int m_num_energy_domain;
+            int m_num_counter_domain;
             /// @brief The matrix that transforms the per package,
             /// per-cpu, and per-rank signals into the domain of control.
             std::vector<std::vector<int> > m_rank_cpu;

@@ -81,11 +81,15 @@ namespace geopm
             int m_num_cpu;
             /// @brief Number of packages on the platform.
             int m_num_package;
+            /// @brief Number of tiles on the platform.
+            int m_num_tile;
             /// @brief platform capability description string.
             const std::string m_description;
             const int M_HSX_ID;
             const int M_IVT_ID;
             const int M_SNB_ID;
+            const int M_BDX_ID;
+            const int M_KNL_ID;
     };
 }
 

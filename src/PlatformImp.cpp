@@ -60,14 +60,14 @@ namespace geopm
 
     }
 
-    PlatformImp::PlatformImp(int num_package_signal, int num_cpu_signal, double control_latency)
+    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency)
         : m_num_logical_cpu(0)
         , m_num_hw_cpu(0)
         , m_num_tile(0)
         , m_num_tile_group(0)
         , m_num_package(0)
-        , m_num_package_signal(num_package_signal)
-        , m_num_cpu_signal(num_cpu_signal)
+        , m_num_energy_signal(num_energy_signal)
+        , m_num_counter_signal(num_counter_signal)
         , m_control_latency_ms(control_latency)
     {
 
@@ -79,7 +79,7 @@ namespace geopm
     {
         parse_hw_topology();
         msr_initialize();
-        int num_signal = m_num_package_signal * m_num_package + m_num_cpu_signal * m_num_hw_cpu;
+        int num_signal = m_num_energy_signal * m_num_package + m_num_counter_signal * m_num_hw_cpu;
         m_msr_value_last.resize(num_signal);
         m_msr_overflow_offset.resize(num_signal);
         std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
@@ -111,14 +111,37 @@ namespace geopm
         return m_num_logical_cpu;
     }
 
-    int PlatformImp::num_package_signal(void) const
+    int PlatformImp::num_energy_signal(void) const
     {
-        return m_num_package_signal;
+        return m_num_energy_signal;
     }
 
-    int PlatformImp::num_cpu_signal(void) const
+    int PlatformImp::num_counter_signal(void) const
     {
-        return m_num_cpu_signal;
+        return m_num_counter_signal;
+    }
+
+    int PlatformImp::num_domain(int domain_type)
+    {
+        int count;
+        switch (domain_type) {
+            case GEOPM_DOMAIN_PACKAGE:
+                count = m_num_package;
+                break;
+            case GEOPM_DOMAIN_CPU:
+                count = m_num_logical_cpu;
+                break;
+            case GEOPM_DOMAIN_TILE:
+                count = m_num_tile;
+                break;
+            case GEOPM_DOMAIN_TILE_GROUP:
+                count = m_num_tile_group;
+                break;
+            default:
+                count = 0;
+                break;
+        }
+        return count;
     }
 
     double PlatformImp::control_latency_ms(void) const
@@ -265,6 +288,7 @@ namespace geopm
         m_num_package = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE);
         m_num_hw_cpu = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE);
         m_num_cpu_per_core = m_num_logical_cpu / m_num_hw_cpu;
+        m_num_tile = m_topology.num_domain(GEOPM_DOMAIN_TILE);
     }
 
     double PlatformImp::msr_overflow(int signal_idx, uint32_t msr_size, double value)

@@ -104,6 +104,8 @@ namespace geopm
         : m_imp(NULL)
         , m_num_domain(0)
         , m_control_domain_type(GEOPM_CONTROL_DOMAIN_POWER)
+        , m_num_energy_domain(0)
+        , m_num_counter_domain(0)
     {
 
     }
@@ -138,7 +140,7 @@ namespace geopm
 
     int Platform::num_domain(void) const
     {
-        return m_imp->num_package_signal();
+        return m_imp->num_energy_signal();
     }
 
     const PlatformTopology *Platform::topology(void) const
@@ -151,7 +153,7 @@ namespace geopm
         const int NUM_RANK_SIGNAL = 2;
         int num_package = m_imp->num_package();
         int num_cpu = m_imp->num_logical_cpu();
-        int num_platform_signal = m_imp->num_package_signal() + m_imp->num_cpu_signal();
+        int num_platform_signal = m_imp->num_energy_signal() + m_imp->num_counter_signal();
         /// @todo assumes domain of control is the package
         std::vector<double> runtime(num_package);
         std::vector<double> min_progress(num_package);

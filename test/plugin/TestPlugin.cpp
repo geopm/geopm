@@ -182,6 +182,11 @@ int ShmemFreqPlatformImp::frequency_control_domain(void) const
     return GEOPM_DOMAIN_CPU;
 }
 
+int ShmemFreqPlatformImp::performance_counter_domain(void) const
+{
+    return GEOPM_DOMAIN_CPU;
+}
+
 void ShmemFreqPlatformImp::msr_initialize(void)
 {
 

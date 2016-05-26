@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
 #include <math.h>
 #include <unistd.h>
 #include "geopm_error.h"
@@ -40,7 +41,7 @@
 namespace geopm
 {
     KNLPlatformImp::KNLPlatformImp()
-        : PlatformImp(3, 5)
+        : PlatformImp(3, 5, 8.0)
         , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_min_pkg_watts(1)
@@ -55,9 +56,9 @@ namespace geopm
         , M_BOX_FRZ(0x1 << 8)
         , M_CTR_EN(0x1 << 22)
         , M_RST_CTRS(0x1 << 1)
-        , M_LLC_FILTER_MASK(0x1F << 18)
-        , M_LLC_VICTIMS_EV_SEL(0x37)
-        , M_LLC_VICTIMS_UMASK(0x7 << 8)
+        , M_LLC_FILTER_MASK(0x7 << 18)
+        , M_LLC_VICTIMS_EV_SEL(0x2e)
+        , M_LLC_VICTIMS_UMASK(0x4f << 8)
         , M_EVENT_SEL_0(M_LLC_VICTIMS_EV_SEL)
         , M_UMASK_0(M_LLC_VICTIMS_UMASK)
         , M_PKG_POWER_LIMIT_MASK_MAGIC(0x0007800000078000ul)
@@ -95,6 +96,11 @@ namespace geopm
         return GEOPM_DOMAIN_PACKAGE;
     }
 
+    int KNLPlatformImp::performance_counter_domain(void) const
+    {
+        return GEOPM_DOMAIN_TILE;
+    }
+
     double KNLPlatformImp::read_signal(int device_type, int device_index, int signal_type)
     {
         double value = 0.0;
@@ -102,53 +108,53 @@ namespace geopm
 
         switch (signal_type) {
             case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                offset_idx = device_index * m_num_package_signal;
+                offset_idx = device_index * m_num_energy_signal;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[0]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
-                offset_idx = device_index * m_num_package_signal + 1;
+                offset_idx = device_index * m_num_energy_signal + 1;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[1]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                offset_idx = device_index * m_num_package_signal + 2;
+                offset_idx = device_index * m_num_energy_signal + 2;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[2]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal;
                 value = (double)(msr_read(device_type, device_index / m_num_cpu_per_core,
                                           m_signal_msr_offset[3]) >> 8);
                 //convert to MHZ
                 value *= 0.1;
                 break;
             case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 1;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 1;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[4]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 2;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 2;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[5]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 3;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 3;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[6]));
                 break;
             case GEOPM_TELEMETRY_TYPE_LLC_VICTIMS:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 4;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 4;
                 value = msr_overflow(offset_idx, 44,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[7 + device_index]));
@@ -228,18 +234,17 @@ namespace geopm
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR0"));
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR1"));
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR2"));
-        int cpu_per_socket = m_num_hw_cpu / m_num_package;
-        for (int i = 0; i < m_num_hw_cpu; i++) {
+        for (int i = 0; i < m_num_tile; i++) {
             std::string msr_name("_MSR_PMON_CTR1");
-            msr_name.insert(0, std::to_string(i % cpu_per_socket));
+            msr_name.insert(0, std::to_string(i));
             msr_name.insert(0, "C");
             m_signal_msr_offset.push_back(msr_offset(msr_name));
         }
 
         //Save off the msr offsets for the controls we want to write to avoid a map lookup
-        m_control_msr_offset.push_back(msr_offset("PKG_ENERGY_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PKG_DRAM_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PKG_PP0_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PKG_POWER_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("DRAM_POWER_LIMIT"));
+        m_control_msr_offset.push_back(msr_offset("PP0_POWER_LIMIT"));
         m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
     }
 
@@ -256,12 +261,12 @@ namespace geopm
 
         //Make sure units are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
-        m_energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
-        m_power_units = pow(2, (double)((tmp >> 0) & 0xF));
+        m_energy_units = pow(0.5, (double)((tmp >> 8)  & 0x1F));
+        m_power_units = pow(2, (double)(tmp & 0xF));
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "RAPL_POWER_UNIT");
-            double energy = pow(0.5, (double)((tmp >> 8) & 0x1F));
+            double energy = pow(0.5, (double)((tmp >> 8) & 0x1F00));
             double power = pow(2, (double)((tmp >> 0) & 0xF));
             if (energy != m_energy_units || power != m_power_units) {
                 throw Exception("detected inconsistent power units among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -272,6 +277,7 @@ namespace geopm
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
         m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
+        m_max_pkg_watts = 325;
 
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
@@ -299,57 +305,52 @@ namespace geopm
 
     void KNLPlatformImp::cbo_counters_init()
     {
-        int cpu_per_socket = m_num_hw_cpu / m_num_package;
-        for (int i = 0; i < m_num_hw_cpu; i++) {
+        for (int i = 0; i < m_num_tile; i++) {
             std::string msr_name("_MSR_PMON_CTL1");
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
             std::string filter_msr_name("_MSR_PMON_BOX_FILTER");
-            box_msr_name.insert(0, std::to_string(i % cpu_per_socket));
+            box_msr_name.insert(0, std::to_string(i));
             box_msr_name.insert(0, "C");
-            msr_name.insert(0, std::to_string(i % cpu_per_socket));
+            msr_name.insert(0, std::to_string(i));
             msr_name.insert(0, "C");
-            filter_msr_name.insert(0, std::to_string(i % cpu_per_socket));
+            filter_msr_name.insert(0, std::to_string(i));
             filter_msr_name.insert(0, "C");
 
             // enable freeze
-            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
                       | M_BOX_FRZ_EN);
             // freeze box
-            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
                       | M_BOX_FRZ);
-            msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, msr_name)
                       | M_CTR_EN);
-            msr_write(GEOPM_DOMAIN_CPU, i, filter_msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, filter_msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, filter_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, filter_msr_name)
                       | M_LLC_FILTER_MASK);
             // llc victims
-            msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, msr_name)
                       | M_EVENT_SEL_0 | M_UMASK_0);
             // reset counters
-            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
                       | M_RST_CTRS);
-            /// @bug is this needed???
-            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      & ~M_BOX_FRZ);
             // unfreeze box
-            msr_write(GEOPM_DOMAIN_CPU, i, box_msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, box_msr_name)
-                      & ~M_BOX_FRZ);
+            msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
+                      & ~M_BOX_FRZ_EN);
         }
     }
 
     void KNLPlatformImp::fixed_counters_init()
     {
-        for (int cpu = 0; cpu < m_num_hw_cpu; cpu++) {
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR_CTRL", 0x0333);
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x70000000F);
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_OVF_CTRL", 0x0);
+        for (int tile = 0; tile < m_num_tile; tile++) {
+            msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_FIXED_CTR_CTRL", 0x0333);
+            msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_GLOBAL_CTRL", 0x700000003);
+            msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_GLOBAL_OVF_CTRL", 0x0);
         }
     }
 
@@ -366,24 +367,23 @@ namespace geopm
 
     void KNLPlatformImp::cbo_counters_reset()
     {
-        int cpu_per_socket = m_num_hw_cpu / m_num_package;
-        for (int i = 0; i < m_num_hw_cpu; i++) {
+        for (int i = 0; i < m_num_tile; i++) {
             std::string msr_name("_MSR_PMON_BOX_CTL");
-            msr_name.insert(0, std::to_string(i % cpu_per_socket));
+            msr_name.insert(0, std::to_string(i));
             msr_name.insert(0, "C");
             // reset counters
-            msr_write(GEOPM_DOMAIN_CPU, i, msr_name,
-                      msr_read(GEOPM_DOMAIN_CPU, i, msr_name)
+            msr_write(GEOPM_DOMAIN_TILE, i, msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, msr_name)
                       | M_RST_CTRS);
         }
     }
 
     void KNLPlatformImp::fixed_counters_reset()
     {
-        for (int cpu = 0; cpu < m_num_hw_cpu; cpu++) {
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR0", 0x0);
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR1", 0x0);
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR2", 0x0);
+        for (int tile = 0; tile < m_num_tile; tile++) {
+            msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_FIXED_CTR0", 0x0);
+            msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_FIXED_CTR1", 0x0);
+            msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_FIXED_CTR2", 0x0);
         }
     }
 
@@ -653,26 +653,26 @@ namespace geopm
             {"C14_MSR_PMON_CTR1",       {0x0EB1, 0x0000000000000000}},
             {"C15_MSR_PMON_CTR1",       {0x0EBD, 0x0000000000000000}},
             {"C16_MSR_PMON_CTR1",       {0x0EC9, 0x0000000000000000}},
-            {"C17_MSR_PMON_CTR1",       {0x0ED5, 0x0000000000000000}}
-            {"C17_MSR_PMON_CTR1",       {0x0EE1, 0x0000000000000000}}
-            {"C18_MSR_PMON_CTR1",       {0x0EED, 0x0000000000000000}}
-            {"C19_MSR_PMON_CTR1",       {0x0EF9, 0x0000000000000000}}
-            {"C20_MSR_PMON_CTR1",       {0x0F05, 0x0000000000000000}}
-            {"C21_MSR_PMON_CTR1",       {0x0F11, 0x0000000000000000}}
-            {"C22_MSR_PMON_CTR1",       {0x0F1D, 0x0000000000000000}}
-            {"C23_MSR_PMON_CTR1",       {0x0F29, 0x0000000000000000}}
-            {"C24_MSR_PMON_CTR1",       {0x0F35, 0x0000000000000000}}
-            {"C25_MSR_PMON_CTR1",       {0x0F41, 0x0000000000000000}}
-            {"C26_MSR_PMON_CTR1",       {0x0F4D, 0x0000000000000000}}
-            {"C27_MSR_PMON_CTR1",       {0x0F59, 0x0000000000000000}}
-            {"C28_MSR_PMON_CTR1",       {0x0F65, 0x0000000000000000}}
-            {"C29_MSR_PMON_CTR1",       {0x0F71, 0x0000000000000000}}
-            {"C30_MSR_PMON_CTR1",       {0x0F7D, 0x0000000000000000}}
-            {"C31_MSR_PMON_CTR1",       {0x0F89, 0x0000000000000000}}
-            {"C32_MSR_PMON_CTR1",       {0x0F95, 0x0000000000000000}}
-            {"C33_MSR_PMON_CTR1",       {0x0FA1, 0x0000000000000000}}
-            {"C34_MSR_PMON_CTR1",       {0x0FAD, 0x0000000000000000}}
-            {"C35_MSR_PMON_CTR1",       {0x0FB9, 0x0000000000000000}}
+            {"C17_MSR_PMON_CTR1",       {0x0ED5, 0x0000000000000000}},
+            {"C17_MSR_PMON_CTR1",       {0x0EE1, 0x0000000000000000}},
+            {"C18_MSR_PMON_CTR1",       {0x0EED, 0x0000000000000000}},
+            {"C19_MSR_PMON_CTR1",       {0x0EF9, 0x0000000000000000}},
+            {"C20_MSR_PMON_CTR1",       {0x0F05, 0x0000000000000000}},
+            {"C21_MSR_PMON_CTR1",       {0x0F11, 0x0000000000000000}},
+            {"C22_MSR_PMON_CTR1",       {0x0F1D, 0x0000000000000000}},
+            {"C23_MSR_PMON_CTR1",       {0x0F29, 0x0000000000000000}},
+            {"C24_MSR_PMON_CTR1",       {0x0F35, 0x0000000000000000}},
+            {"C25_MSR_PMON_CTR1",       {0x0F41, 0x0000000000000000}},
+            {"C26_MSR_PMON_CTR1",       {0x0F4D, 0x0000000000000000}},
+            {"C27_MSR_PMON_CTR1",       {0x0F59, 0x0000000000000000}},
+            {"C28_MSR_PMON_CTR1",       {0x0F65, 0x0000000000000000}},
+            {"C29_MSR_PMON_CTR1",       {0x0F71, 0x0000000000000000}},
+            {"C30_MSR_PMON_CTR1",       {0x0F7D, 0x0000000000000000}},
+            {"C31_MSR_PMON_CTR1",       {0x0F89, 0x0000000000000000}},
+            {"C32_MSR_PMON_CTR1",       {0x0F95, 0x0000000000000000}},
+            {"C33_MSR_PMON_CTR1",       {0x0FA1, 0x0000000000000000}},
+            {"C34_MSR_PMON_CTR1",       {0x0FAD, 0x0000000000000000}},
+            {"C35_MSR_PMON_CTR1",       {0x0FB9, 0x0000000000000000}},
             {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000}}
         };
 

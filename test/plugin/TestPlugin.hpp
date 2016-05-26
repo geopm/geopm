@@ -76,6 +76,7 @@ class ShmemFreqPlatformImp : public PlatformImp
         virtual void msr_reset(void);
         virtual int power_control_domain(void) const;
         virtual int frequency_control_domain(void) const;
+        virtual int performance_counter_domain(void) const;
         virtual double read_signal(int device_type, int device_idx, int signal_type);
         virtual void write_control(int device_type, int device_idx, int signal_type, double value);
     protected:

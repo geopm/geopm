@@ -69,6 +69,7 @@ namespace geopm
             virtual void msr_reset();
             virtual int power_control_domain(void) const;
             virtual int frequency_control_domain(void) const;
+            virtual int performance_counter_domain(void) const;
 
         protected:
             /// @brief Load HSX specific MSR offsets into MSR offset map.

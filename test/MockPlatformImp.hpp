@@ -64,6 +64,8 @@ class MockPlatformImp : public geopm::PlatformImp {
             int(void));
         MOCK_CONST_METHOD0(frequency_control_domain,
             int(void));
+        MOCK_CONST_METHOD0(performance_counter_domain,
+            int(void));
         MOCK_METHOD0(parse_hw_topology,
             void(void));
         MOCK_METHOD0(msr_initialize,

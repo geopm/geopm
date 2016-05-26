@@ -68,8 +68,8 @@ namespace geopm
         , M_DRAM_POWER_LIMIT_MASK_MAGIC(0xfefffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
         , M_PP0_POWER_LIMIT_MASK_MAGIC(0xfffffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
     {
-        m_num_cpu_signal = 5;
-        m_num_package_signal = 3;
+        m_num_counter_signal = 5;
+        m_num_energy_signal = 3;
     }
 
     IVTPlatformImp::~IVTPlatformImp()
@@ -104,6 +104,11 @@ namespace geopm
         return GEOPM_DOMAIN_CPU;
     }
 
+    int IVTPlatformImp::performance_counter_domain(void) const
+    {
+        return GEOPM_DOMAIN_CPU;
+    }
+
     double IVTPlatformImp::read_signal(int device_type, int device_index, int signal_type)
     {
         double value = 0.0;
@@ -111,53 +116,53 @@ namespace geopm
 
         switch (signal_type) {
             case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                offset_idx = device_index * m_num_package_signal;
+                offset_idx = device_index * m_num_energy_signal;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[0]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
-                offset_idx = device_index * m_num_package_signal + 1;
+                offset_idx = device_index * m_num_energy_signal + 1;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[1]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                offset_idx = device_index * m_num_package_signal + 2;
+                offset_idx = device_index * m_num_energy_signal + 2;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[2]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal;
                 value = (double)(msr_read(device_type, device_index / m_num_cpu_per_core,
                                           m_signal_msr_offset[3]) >> 8);
                 //convert to MHZ
                 value *= 0.1;
                 break;
             case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 1;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 1;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[4]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 2;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 2;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[5]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 3;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 3;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[6]));
                 break;
             case GEOPM_TELEMETRY_TYPE_LLC_VICTIMS:
-                offset_idx = m_num_package * m_num_package_signal + device_index * m_num_cpu_signal + 4;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 4;
                 value = msr_overflow(offset_idx, 44,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[7 + device_index]));
@@ -358,7 +363,7 @@ namespace geopm
     {
         for (int cpu = 0; cpu < m_num_hw_cpu; cpu++) {
             msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_FIXED_CTR_CTRL", 0x0333);
-            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x70000000F);
+            msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_CTRL", 0x700000003);
             msr_write(GEOPM_DOMAIN_CPU, cpu, "PERF_GLOBAL_OVF_CTRL", 0x0);
         }
     }
