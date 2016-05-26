@@ -409,9 +409,6 @@ namespace geopm
             SharedMemory m_table_shmem;
             /// The hash table which stores application process samples.
             ProfileTable m_table;
-            /// Holds aggregated performance data for each region of the
-            /// application process. Used for post-process reporting.
-            std::map<uint64_t, struct geopm_sample_message_s> m_agg_stats;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
@@ -479,11 +476,11 @@ namespace geopm
             /// @return Return true if application is shutting down, else
             ///         returns false.
             bool do_shutdown(void);
-            bool do_report(void);
             /// @brief Generate a post-run report for a single node.
             ///
             /// Generates a post-run report by telling each ProfileRankSampler
             /// to dump its per-region statistics to a file descriptor.
+            bool do_report(void);
             void region_names(void);
             /// @brief Initialize shared memory regions.
             ///
