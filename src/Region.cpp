@@ -58,6 +58,7 @@ namespace geopm
         , m_sum(m_num_signal * m_num_domain)
         , m_sum_squares(m_num_signal * m_num_domain)
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
+        , m_num_entry(0)
     {
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
         std::fill(m_max.begin(), m_max.end(), -DBL_MAX);
@@ -104,6 +105,7 @@ namespace geopm
              ++domain_idx);
         if (domain_idx == m_num_domain) {
             // All domains have completed so do update
+            ++m_num_entry;
             update_curr_sample();
         }
     }
@@ -250,7 +252,8 @@ namespace geopm
         file_stream << "Region " + name + ":" << std::endl;
         file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
-        file_stream << "\tfrequency (%): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] << std::endl;
+        file_stream << "\tfrequency (%): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] * 100 << std::endl;
+        file_stream << "\tcount: " << m_num_entry << std::endl;
     }
 
     // Protected function definitions

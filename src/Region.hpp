@@ -285,6 +285,7 @@ namespace geopm
             /// @brief the current sum of squares of signal values per domain and signal type.
             std::vector<double> m_sum_squares;
             struct geopm_sample_message_s m_agg_stats;
+            uint64_t m_num_entry;
     };
 }
 
