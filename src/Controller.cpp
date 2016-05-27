@@ -46,6 +46,7 @@
 #include <unistd.h>
 
 #include "geopm.h"
+#include "geopm_version.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "config.h"
@@ -671,6 +672,7 @@ namespace geopm
 
         gethostname(hostname, NAME_MAX);
         report.open(report_name + "-" + std::string(hostname), std::ios_base::out);
+        report << "##### geopm " << geopm_version() << " #####" << std::endl << std::endl;
         report << "Profile: " << profile_name << std::endl;
         for (auto it = m_region[0].begin(); it != m_region[0].end(); ++it) {
             uint64_t region_id = (*it).first;
