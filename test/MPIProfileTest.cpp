@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fstream>
+#include <numeric>
 
 #include "gtest/gtest.h"
 #include "geopm.h"
@@ -52,8 +53,7 @@ class MPIProfileTest: public :: testing :: Test
     public:
         MPIProfileTest();
         virtual ~MPIProfileTest();
-        int parse_log(bool single);
-        int parse_log_loop();
+        void parse_log(const std::vector<double> &check_val);
         void sleep_exact(double duration);
     protected:
         size_t m_table_size;
@@ -66,6 +66,9 @@ class MPIProfileTest: public :: testing :: Test
         std::string m_log_file;
         std::string m_log_file_node;
         bool m_is_node_root;
+        std::vector<double> m_check_val_default;
+        std::vector<double> m_check_val_single;
+        std::vector<double> m_check_val_multi;
 };
 
 MPIProfileTest::MPIProfileTest()
@@ -79,6 +82,9 @@ MPIProfileTest::MPIProfileTest()
     , m_log_file("MPIProfileTest_log")
     , m_log_file_node(m_log_file)
     , m_is_node_root(false)
+    , m_check_val_default({3.0, 6.0, 9.0})
+    , m_check_val_single({6.0, 0.0, 9.0})
+    , m_check_val_multi({1.0, 2.0, 3.0})
 {
     char hostname[NAME_MAX];
     MPI_Comm ppn1_comm;
@@ -143,113 +149,54 @@ void MPIProfileTest::sleep_exact(double duration)
     }
 }
 
-int MPIProfileTest::parse_log(bool single)
+void MPIProfileTest::parse_log(const std::vector<double> &check_val)
 {
-    int err = 0;
+    ASSERT_EQ(3ULL, check_val.size());
 
     sleep(1); // Wait for controller to finish writing the log
 
     std::string line;
-    double checkval = 0.0;
+    double curr_value = -1.0;
     double value = 0.0;
-    std::ifstream log(m_log_file_node, std::ios_base::in);
-
-    if (!log.is_open()) {
-        err = 1;
-    }
-
-    while(err == 0 && std::getline(log, line)) {
-        checkval = -1.0;
-        if (line.find("Region loop_one:") == 0) {
-            if (single) {
-                checkval = 6.0;
-            }
-            else {
-                checkval = 1.0;
-            }
-        }
-        else if (line.find("Region loop_two:") == 0) {
-            if (single) {
-                checkval = 0.0;
-            }
-            else {
-                checkval = 2.0;
-            }
-        }
-        else if (line.find("Region loop_three:") == 0) {
-            if (single) {
-                checkval = 9.0;
-            }
-            else {
-                checkval = 3.0;
-            }
-        }
-        if (checkval != -1.0) {
-            err = !std::getline(log, line);
-            if (!err) {
-                err = !sscanf(line.c_str(), "        runtime (sec): %lf", &value);
-            }
-            if (!err) {
-                err = fabs(checkval - value) > m_epsilon;
-            }
-        }
-    }
-    log.close();
-    return err;
-}
-
-int MPIProfileTest::parse_log_loop(void)
-{
-    int err = 0;
-
-    sleep(1); // Wait for controller to finish writing the log
-
-    std::string line;
-    double checkval = 0.0;
-    double value = 0.0;
+    double outer_sync_value = 0.0;
     double mpi_value = 0.0;
 
     std::ifstream log(m_log_file_node, std::ios_base::in);
 
-    if (!log.is_open()) {
-        err = 1;
-    }
+    ASSERT_TRUE(log.is_open());
 
-    while(err == 0 && std::getline(log, line)) {
-        checkval = -1.0;
+    while(std::getline(log, line)) {
+        curr_value = -1.0;
         if (line.find("Region loop_one:") == 0) {
-            checkval = 3.0;
+            curr_value = check_val[0];
         }
         else if (line.find("Region loop_two:") == 0) {
-            checkval = 6.0;
+            curr_value = check_val[1];
         }
         else if (line.find("Region loop_three:") == 0) {
-            checkval = 9.0;
-        }
-        else if (line.find("Region mpi-sync:") == 0) {
-            err = !std::getline(log, line);
-            if (!err) {
-                sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value);
-            }
+            curr_value = check_val[2];
         }
         else if (line.find("Region outer-sync:") == 0) {
-            checkval = 18.0 + mpi_value;
+            std::getline(log, line);
+            ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &outer_sync_value));
         }
-        if (checkval != -1.0) {
-            err = !std::getline(log, line);
-            if (!err) {
-                err = !sscanf(line.c_str(), "        runtime (sec): %lf", &value);
-            }
-            if (!err) {
-                err = fabs(checkval - value) > m_epsilon;
-                if (err) {
-                    std::cerr << "checkval = " << checkval << " value = " << value << " m_epsilon = " << m_epsilon << std::endl;
-                }
-            }
+        else if (line.find("Region mpi-sync:") == 0) {
+            std::getline(log, line);
+            ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value));
+        }
+        if (curr_value != -1.0) {
+            std::getline(log, line);
+            ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &value));
+            ASSERT_GT(m_epsilon, fabs(curr_value - value));
         }
     }
+
+    if (outer_sync_value != 0.0 && mpi_value != 0.0) {
+        double outer_sync_target = std::accumulate(check_val.begin(), check_val.end(), mpi_value);
+        ASSERT_GT(m_epsilon, fabs(outer_sync_target - outer_sync_value));
+    }
+
     log.close();
-    return err;
 }
 
 TEST_F(MPIProfileTest, runtime)
@@ -299,7 +246,7 @@ TEST_F(MPIProfileTest, runtime)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (m_is_node_root) {
-        ASSERT_EQ(0, parse_log(false));
+        parse_log(m_check_val_multi);
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));
@@ -356,7 +303,7 @@ TEST_F(MPIProfileTest, progress)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (m_is_node_root) {
-        ASSERT_EQ(0, parse_log(false));
+        parse_log(m_check_val_multi);
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));
@@ -446,7 +393,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (m_is_node_root) {
-        ASSERT_EQ(0, parse_log(true));
+        parse_log(m_check_val_single);
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));
@@ -512,7 +459,7 @@ TEST_F(MPIProfileTest, nested_region)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (m_is_node_root) {
-        ASSERT_EQ(0, parse_log(true));
+        parse_log(m_check_val_single);
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));
@@ -556,7 +503,7 @@ TEST_F(MPIProfileTest, outer_sync)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (m_is_node_root) {
-        ASSERT_EQ(0, parse_log_loop());
+        parse_log(m_check_val_default);
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));
@@ -609,7 +556,7 @@ TEST_F(MPIProfileTest, noctl)
     ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
 
     if (m_is_node_root) {
-        ASSERT_NE(0, parse_log(false));
+        parse_log(m_check_val_multi);
     }
 
     ASSERT_EQ(0, geopm_prof_destroy(prof));
