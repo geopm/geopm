@@ -130,8 +130,8 @@ namespace geopm
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal;
-                value = (double)(msr_read(device_type, device_index / m_num_cpu_per_core,
-                                          m_signal_msr_offset[3]) >> 8);
+                value = (double)((msr_read(device_type, device_index / m_num_cpu_per_core,
+                                          m_signal_msr_offset[3]) >> 8) & 0x0FF);
                 //convert to MHZ
                 value *= 0.1;
                 break;
