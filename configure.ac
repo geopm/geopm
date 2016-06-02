@@ -316,6 +316,20 @@ AC_SUBST([enable_coverage])
 AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
+AC_MSG_CHECKING([that hwloc supports HWLOC_OBJ_TYPE_PACKAGE])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[#include <hwloc.h>]],
+            [[hwloc_topology_t m_topo;
+            hwloc_topology_init(&m_topo);
+            hwloc_topology_load(m_topo);
+            int depth = hwloc_get_type_depth(m_topo, HWLOC_OBJ_PACKAGE);]])
+],[
+    AC_MSG_RESULT(yes)
+],[
+    AC_MSG_RESULT(no)
+    AC_DEFINE([HWLOC_OBJ_PACKAGE], [HWLOC_OBJ_SOCKET], [Define HWLOC_OBJ_PACKAGE to HWLOC_OBJ_SOCKET if you have an older version of hwloc.])
+])
+
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
 AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
