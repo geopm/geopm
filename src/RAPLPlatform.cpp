@@ -89,7 +89,7 @@ namespace geopm
         double accum_inst;
         double accum_clk_core;
         double accum_clk_ref;
-        double accum_llc;
+        double accum_read_bw;
         int counter_domain_per_energy_domain = m_num_counter_domain / m_num_energy_domain;
         int energy_domain = m_imp->power_control_domain();
         int counter_domain = m_imp->performance_counter_domain();
@@ -123,13 +123,13 @@ namespace geopm
             accum_inst = 0.0;
             accum_clk_core = 0.0;
             accum_clk_ref = 0.0;
-            accum_llc = 0.0;
+            accum_read_bw = 0.0;
             for (int j = i * counter_domain_per_energy_domain; j < i + counter_domain_per_energy_domain; ++j) {
                 accum_freq += m_imp->read_signal(counter_domain, j, GEOPM_TELEMETRY_TYPE_FREQUENCY);
                 accum_inst += m_imp->read_signal(counter_domain, j, GEOPM_TELEMETRY_TYPE_INST_RETIRED);
                 accum_clk_core += m_imp->read_signal(counter_domain, j, GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE);
                 accum_clk_ref += m_imp->read_signal(counter_domain, j, GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF);
-                accum_llc += m_imp->read_signal(counter_domain, j, GEOPM_TELEMETRY_TYPE_LLC_VICTIMS);
+                accum_read_bw += m_imp->read_signal(counter_domain, j, GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH);
             }
 
             msr_values[count].domain_type = energy_domain;
@@ -163,8 +163,8 @@ namespace geopm
             msr_values[count].domain_type = energy_domain;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_LLC_VICTIMS;
-            msr_values[count].signal = accum_llc;;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH;
+            msr_values[count].signal = accum_read_bw;
             count++;
         }
     }

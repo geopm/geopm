@@ -116,14 +116,19 @@ namespace geopm
             const unsigned int M_BOX_FRZ;
             const unsigned int M_CTR_EN;
             const unsigned int M_RST_CTRS;
-            const unsigned int M_LLC_FILTER_MASK;
-            const unsigned int M_LLC_VICTIMS_EV_SEL;
-            const unsigned int M_LLC_VICTIMS_UMASK;
+            const unsigned int M_L2_FILTER_MASK;
+            const unsigned int M_L2_REQ_MISS_EV_SEL;
+            const unsigned int M_L2_REQ_MISS_UMASK;
+            const unsigned int M_L2_PREFETCH_EV_SEL;
+            const unsigned int M_L2_PREFETCH_UMASK;
             const unsigned int M_EVENT_SEL_0;
             const unsigned int M_UMASK_0;
-            const uint64_t M_PKG_POWER_LIMIT_MASK_MAGIC;
-            const uint64_t M_DRAM_POWER_LIMIT_MASK_MAGIC;
-            const uint64_t M_PP0_POWER_LIMIT_MASK_MAGIC;
+            const unsigned int M_EVENT_SEL_1;
+            const unsigned int M_UMASK_1;
+            const uint64_t M_PKG_POWER_LIMIT_MASK;
+            const uint64_t M_DRAM_POWER_LIMIT_MASK;
+            const uint64_t M_PP0_POWER_LIMIT_MASK;
+            const unsigned int M_EXTRA_SIGNAL;
     };
 }
 

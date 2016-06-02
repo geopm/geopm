@@ -79,11 +79,6 @@ namespace geopm
     {
         parse_hw_topology();
         msr_initialize();
-        int num_signal = m_num_energy_signal * m_num_package + m_num_counter_signal * m_num_hw_cpu;
-        m_msr_value_last.resize(num_signal);
-        m_msr_overflow_offset.resize(num_signal);
-        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
-        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
     }
 
     int PlatformImp::num_package(void) const

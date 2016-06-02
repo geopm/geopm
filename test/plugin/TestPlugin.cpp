@@ -218,7 +218,7 @@ double ShmemFreqPlatformImp::read_signal(int device_type, int device_idx, int si
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_INST_RETIRED] = clock_tick_delta * m_inst_ratio * cpu_freq_curr[cpu_idx];
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] += clock_tick_delta;
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF] += clock_tick_delta;
-        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_LLC_VICTIMS] += clock_tick_delta * m_llc_ratio;
+        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH] += clock_tick_delta * m_llc_ratio;
     }
     m_time_last = time_curr;
     return m_telemetry[device_idx].signal[signal_type];

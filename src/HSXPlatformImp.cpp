@@ -64,9 +64,9 @@ namespace geopm
         , M_LLC_VICTIMS_UMASK(0x7 << 8)
         , M_EVENT_SEL_0(M_LLC_VICTIMS_EV_SEL)
         , M_UMASK_0(M_LLC_VICTIMS_UMASK)
-        , M_PKG_POWER_LIMIT_MASK_MAGIC(0x0007800000078000ul)
-        , M_DRAM_POWER_LIMIT_MASK_MAGIC(0xfefffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
-        , M_PP0_POWER_LIMIT_MASK_MAGIC(0xfffffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
+        , M_PKG_POWER_LIMIT_MASK(0x0007800000078000ul)
+        , M_DRAM_POWER_LIMIT_MASK(0xfefffful & M_PKG_POWER_LIMIT_MASK)
+        , M_PP0_POWER_LIMIT_MASK(0xfffffful & M_PKG_POWER_LIMIT_MASK)
     {
 
     }
@@ -160,7 +160,7 @@ namespace geopm
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[6]));
                 break;
-            case GEOPM_TELEMETRY_TYPE_LLC_VICTIMS:
+            case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 4;
                 value = msr_overflow(offset_idx, 44,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
@@ -187,7 +187,7 @@ namespace geopm
                     value = m_max_pkg_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK_MAGIC;
+                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_offset[0], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
@@ -198,7 +198,7 @@ namespace geopm
                     value = m_max_pp0_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK_MAGIC;
+                msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_offset[1], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
@@ -209,7 +209,7 @@ namespace geopm
                     value = m_max_dram_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK_MAGIC;
+                msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_offset[2], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
@@ -232,6 +232,12 @@ namespace geopm
         rapl_init();
         cbo_counters_init();
         fixed_counters_init();
+
+        int num_signal = m_num_energy_signal * m_num_package + m_num_counter_signal * m_num_hw_cpu;
+        m_msr_value_last.resize(num_signal);
+        m_msr_overflow_offset.resize(num_signal);
+        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
+        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
 
         //Save off the msr offsets for the signals we want to read to avoid a map lookup
         m_signal_msr_offset.push_back(msr_offset("PKG_ENERGY_STATUS"));

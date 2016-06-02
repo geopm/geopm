@@ -56,14 +56,19 @@ namespace geopm
         , M_BOX_FRZ(0x1 << 8)
         , M_CTR_EN(0x1 << 22)
         , M_RST_CTRS(0x1 << 1)
-        , M_LLC_FILTER_MASK(0x7 << 18)
-        , M_LLC_VICTIMS_EV_SEL(0x2e)
-        , M_LLC_VICTIMS_UMASK(0x4f << 8)
-        , M_EVENT_SEL_0(M_LLC_VICTIMS_EV_SEL)
-        , M_UMASK_0(M_LLC_VICTIMS_UMASK)
-        , M_PKG_POWER_LIMIT_MASK_MAGIC(0x0007800000078000ul)
-        , M_DRAM_POWER_LIMIT_MASK_MAGIC(0xfefffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
-        , M_PP0_POWER_LIMIT_MASK_MAGIC(0xfffffful & M_PKG_POWER_LIMIT_MASK_MAGIC)
+        , M_L2_FILTER_MASK(0x7 << 18)
+        , M_L2_REQ_MISS_EV_SEL(0x2e)
+        , M_L2_REQ_MISS_UMASK(0x41 << 8)
+        , M_L2_PREFETCH_EV_SEL(0x3e)
+        , M_L2_PREFETCH_UMASK(0x04 << 8)
+        , M_EVENT_SEL_0(M_L2_REQ_MISS_EV_SEL)
+        , M_UMASK_0(M_L2_REQ_MISS_UMASK)
+        , M_EVENT_SEL_1(M_L2_PREFETCH_EV_SEL)
+        , M_UMASK_1(M_L2_PREFETCH_UMASK)
+        , M_PKG_POWER_LIMIT_MASK(0x0007800000078000ul)
+        , M_DRAM_POWER_LIMIT_MASK(0xfefffful & M_PKG_POWER_LIMIT_MASK)
+        , M_PP0_POWER_LIMIT_MASK(0xfffffful & M_PKG_POWER_LIMIT_MASK)
+        , M_EXTRA_SIGNAL(1)
     {
 
     }
@@ -153,11 +158,14 @@ namespace geopm
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[6]));
                 break;
-            case GEOPM_TELEMETRY_TYPE_LLC_VICTIMS:
+            case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 4;
-                value = msr_overflow(offset_idx, 44,
+                value = msr_overflow(offset_idx, 48,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
                                                       m_signal_msr_offset[7 + device_index]));
+                value += msr_overflow(offset_idx + 1, 48,
+                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                                      m_signal_msr_offset[8 + device_index]));
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -180,7 +188,7 @@ namespace geopm
                     value = m_max_pkg_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK_MAGIC;
+                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_offset[0], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
@@ -191,7 +199,7 @@ namespace geopm
                     value = m_max_pp0_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK_MAGIC;
+                msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_offset[1], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
@@ -202,7 +210,7 @@ namespace geopm
                     value = m_max_dram_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK_MAGIC;
+                msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_offset[2], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
@@ -226,6 +234,13 @@ namespace geopm
         cbo_counters_init();
         fixed_counters_init();
 
+        // Add en extra counter signal since we use two counters to calculate read bandwidth
+        int num_signal = m_num_energy_signal * m_num_package + (m_num_counter_signal + M_EXTRA_SIGNAL)  * m_num_tile;
+        m_msr_value_last.resize(num_signal);
+        m_msr_overflow_offset.resize(num_signal);
+        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
+        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
+
         //Save off the msr offsets for the signals we want to read to avoid a map lookup
         m_signal_msr_offset.push_back(msr_offset("PKG_ENERGY_STATUS"));
         m_signal_msr_offset.push_back(msr_offset("PP0_ENERGY_STATUS"));
@@ -235,7 +250,11 @@ namespace geopm
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR1"));
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR2"));
         for (int i = 0; i < m_num_tile; i++) {
-            std::string msr_name("_MSR_PMON_CTR1");
+            std::string msr_name("_MSR_PMON_CTR0");
+            msr_name.insert(0, std::to_string(i));
+            msr_name.insert(0, "C");
+            m_signal_msr_offset.push_back(msr_offset(msr_name));
+            msr_name = "_MSR_PMON_CTR1";
             msr_name.insert(0, std::to_string(i));
             msr_name.insert(0, "C");
             m_signal_msr_offset.push_back(msr_offset(msr_name));
@@ -277,7 +296,6 @@ namespace geopm
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
         m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
-        m_max_pkg_watts = 325;
 
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
@@ -306,13 +324,16 @@ namespace geopm
     void KNLPlatformImp::cbo_counters_init()
     {
         for (int i = 0; i < m_num_tile; i++) {
-            std::string msr_name("_MSR_PMON_CTL1");
+            std::string ctl1_msr_name("_MSR_PMON_CTL0");
+            std::string ctl2_msr_name("_MSR_PMON_CTL1");
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
             std::string filter_msr_name("_MSR_PMON_BOX_FILTER");
             box_msr_name.insert(0, std::to_string(i));
             box_msr_name.insert(0, "C");
-            msr_name.insert(0, std::to_string(i));
-            msr_name.insert(0, "C");
+            ctl1_msr_name.insert(0, std::to_string(i));
+            ctl1_msr_name.insert(0, "C");
+            ctl2_msr_name.insert(0, std::to_string(i));
+            ctl2_msr_name.insert(0, "C");
             filter_msr_name.insert(0, std::to_string(i));
             filter_msr_name.insert(0, "C");
 
@@ -324,20 +345,30 @@ namespace geopm
             msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
                       msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
                       | M_BOX_FRZ);
-            msr_write(GEOPM_DOMAIN_TILE, i, msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, msr_name)
+            // enable counter 0
+            msr_write(GEOPM_DOMAIN_TILE, i, ctl1_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, ctl1_msr_name)
                       | M_CTR_EN);
-            msr_write(GEOPM_DOMAIN_TILE, i, filter_msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, filter_msr_name)
-                      | M_LLC_FILTER_MASK);
-            // llc victims
-            msr_write(GEOPM_DOMAIN_TILE, i, msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, msr_name)
+            // enable counter 1
+            msr_write(GEOPM_DOMAIN_TILE, i, ctl2_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, ctl2_msr_name)
+                      | M_CTR_EN);
+            // l2 misses
+            msr_write(GEOPM_DOMAIN_TILE, i, ctl1_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, ctl1_msr_name)
                       | M_EVENT_SEL_0 | M_UMASK_0);
+            // l2 prefetches
+            msr_write(GEOPM_DOMAIN_TILE, i, ctl2_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, ctl2_msr_name)
+                      | M_EVENT_SEL_1 | M_UMASK_1);
             // reset counters
             msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
                       msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
                       | M_RST_CTRS);
+            // disable freeze
+            msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
+                      | M_BOX_FRZ);
             // unfreeze box
             msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
                       msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)

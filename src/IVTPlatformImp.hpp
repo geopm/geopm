@@ -124,9 +124,9 @@ namespace geopm
             const unsigned int M_LLC_VICTIMS_UMASK;
             const unsigned int M_EVENT_SEL_0;
             const unsigned int M_UMASK_0;
-            const uint64_t M_PKG_POWER_LIMIT_MASK_MAGIC;
-            const uint64_t M_DRAM_POWER_LIMIT_MASK_MAGIC;
-            const uint64_t M_PP0_POWER_LIMIT_MASK_MAGIC;
+            const uint64_t M_PKG_POWER_LIMIT_MASK;
+            const uint64_t M_DRAM_POWER_LIMIT_MASK;
+            const uint64_t M_PP0_POWER_LIMIT_MASK;
     };
 }
 
