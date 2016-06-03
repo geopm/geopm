@@ -115,7 +115,7 @@ table. The first row of the file gives a description of each field.  A
 simple method for selecting fields from the trace file is with the
 `awk` command:
 
-    $ awk -F| '{print $1, $2, $12}' < geopm_trace-host0
+    $ awk -F\| '{print $1, $2, $11}' < geopm_trace-host0
 
 will print a subset of the fields in the trace file called
 "geopm_trace-host0".
@@ -207,7 +207,10 @@ will print a subset of the fields in the trace file called
     If set, errors of the type GEOPM_ERROR_AFFINITY are ignored by
     geopm.  This is useful for testing on systems where CPU affinity
     requirements cannot be met (e.g. Mac OS X). See **geopm_error(3)**
-    for more information on this error condition.
+    for more information on this error condition.  Note that this is
+    only useful for testing some parts of the GEOPM runtime.  The full
+    geopm runtime will not function at all in a multi-node setting
+    with this environment variable set.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
