@@ -44,6 +44,7 @@ namespace geopm
         : PlatformImp(3, 5, 8.0)
         , m_energy_units(1.0)
         , m_power_units(1.0)
+        , m_dram_energy_units(1.5258789063E-5)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)
         , m_min_pp0_watts(1)
@@ -131,7 +132,7 @@ namespace geopm
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[2]));
-                value *= m_energy_units;
+                value *= m_dram_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal;

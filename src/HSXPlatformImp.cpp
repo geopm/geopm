@@ -43,7 +43,7 @@ namespace geopm
         : PlatformImp(3, 5, 8.0)
         , m_energy_units(1.0)
         , m_power_units(1.0)
-        , m_dram_energy_units(1.0)
+        , m_dram_energy_units(1.5258789063E-5)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)
         , m_min_pp0_watts(1)
@@ -276,7 +276,6 @@ namespace geopm
         //Make sure units are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
         m_energy_units = pow(0.5, (double)((tmp >> 8) & 0x1F));
-        m_dram_energy_units = pow(0.5, (double)(0x10 & 0x1F));
         m_power_units = pow(2, (double)((tmp >> 0) & 0xF));
 
         for (int i = 1; i < m_num_package; i++) {

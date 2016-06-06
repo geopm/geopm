@@ -91,6 +91,8 @@ namespace geopm
             double m_energy_units;
             /// @brief Store the units of power read from RAPL.
             double m_power_units;
+            /// @brief Store the units of DRAM energy read from RAPL.
+            double m_dram_energy_units;
             /// @brief Minimum value for package (CPU) power read from RAPL.
             double m_min_pkg_watts;
             /// @brief Maximum value for package (CPU) power read from RAPL.
