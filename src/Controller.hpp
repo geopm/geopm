@@ -96,14 +96,9 @@ namespace geopm
             ///        GlobalPolicy object used to configure policy
             ///        for the entire allocation.
             ///
-            /// @param [in] shmem_base Shared memory key base string
-            ///        to which the rank ID is appended to denote the
-            ///        shared memory key that each computational
-            ///        application rank will write to.
-            ///
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
-            Controller(GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm);
+            Controller(GlobalPolicy *global_policy, MPI_Comm comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
             /// @brief Run control algorithm.
@@ -165,6 +160,8 @@ namespace geopm
                 M_MAX_FAN_OUT = 16,
                 M_SHMEM_REGION_SIZE = 524288,
             };
+            void signal_handler(void);
+            void check_signal(void);
             void connect(void);
             void enforce_child_policy(int level, const Policy &policy);
             int walk_down(void);

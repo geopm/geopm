@@ -44,7 +44,7 @@ int main(int argc, char**argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    geopm_prof_create("geopm_timed_region", "/geopm_ctl_single", MPI_COMM_WORLD, &prof);
+    geopm_prof_create("geopm_timed_region", MPI_COMM_WORLD, &prof);
 
     geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]);
     geopm_prof_enter(prof, region_id[0]);

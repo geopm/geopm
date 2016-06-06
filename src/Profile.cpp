@@ -68,11 +68,11 @@ extern "C"
 #endif
 
 
-    int geopm_prof_create(const char *name, const char *shm_key, MPI_Comm comm, struct geopm_prof_c **prof)
+    int geopm_prof_create(const char *name, MPI_Comm comm, struct geopm_prof_c **prof)
     {
         int err = 0;
         try {
-            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), std::string(shm_key ? shm_key : ""), comm));
+            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), comm));
             /*! @todo Code below is not thread safe, do we need a lock? */
             if (g_geopm_prof_default == NULL) {
                 g_geopm_prof_default = *prof;
@@ -84,9 +84,9 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_create_f(const char *name, const char *shm_key, int comm, struct geopm_prof_c **prof)
+    int geopm_prof_create_f(const char *name, int comm, struct geopm_prof_c **prof)
     {
-        return geopm_prof_create(name, shm_key, MPI_Comm_f2c(comm), prof);
+        return geopm_prof_create(name, MPI_Comm_f2c(comm), prof);
     }
 
 
@@ -289,9 +289,7 @@ extern "C"
 namespace geopm
 {
 
-    static const std::string g_default_shmem_key("/geopm_default");
-
-    Profile::Profile(const std::string prof_name, const std::string shm_key, MPI_Comm comm)
+    Profile::Profile(const std::string prof_name, MPI_Comm comm)
         : m_is_enabled(true)
         , m_prof_name(prof_name)
         , m_curr_region_id(0)
@@ -319,12 +317,9 @@ namespace geopm
         MPI_Comm_rank(m_shm_comm, &m_shm_rank);
         MPI_Comm_size(m_shm_comm, &shm_num_rank);
 
-        std::string key(shm_key);
+        std::string key(geopm_env_shmkey());
         if (!key.size()) {
             key = geopm_env_shmkey();
-        }
-        if (!key.size()) {
-            key = g_default_shmem_key;
         }
         key = key + "-sample";
         try {
@@ -629,18 +624,12 @@ namespace geopm
 
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 
-    ProfileSampler::ProfileSampler(const std::string shm_key, size_t table_size)
+    ProfileSampler::ProfileSampler(size_t table_size)
         : m_table_size(table_size)
         , m_do_report(false)
     {
-        std::string key(shm_key);
-        if (!key.size()) {
-            key = geopm_env_shmkey();
-        }
-        if (!key.size()) {
-            key = g_default_shmem_key;
-        }
-        key = key + "-sample";
+        std::string key(geopm_env_shmkey());
+        key += "-sample";
         m_ctl_shmem = new SharedMemory(key, table_size);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
     }

@@ -41,7 +41,6 @@
 
 int main(int argc, char **argv)
 {
-    const char *prof_key = "/geopm_test_plugin_prof";
     const char *policy_name = "geopm_test_plugin_policy";
     const double imbalance = 0.10;
     const int rank_per_node = 8;
@@ -54,7 +53,6 @@ int main(int argc, char **argv)
     struct geopm_time_s curr_time;
     struct geopm_prof_c *prof;
 
-    setenv("GEOPM_SHMKEY", prof_key, 1);
     setenv("GEOPM_POLICY", policy_name, 1);
 
     MPI_Init(&argc, &argv);
@@ -65,7 +63,7 @@ int main(int argc, char **argv)
     geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 5.0);
     geopm::LockingHashTable<double> table(shmem.size(), shmem.pointer());
 
-    geopm_prof_create("TestPluginApp", prof_key, MPI_COMM_WORLD, &prof);
+    geopm_prof_create("TestPluginApp", MPI_COMM_WORLD, &prof);
     geopm_prof_region(prof, "main_loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
 
     // imbalance is proportional to rank and ranges from 0 to 10%

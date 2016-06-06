@@ -47,11 +47,10 @@ module geopm
         !!!!!!!!!!!!!!!!!!!!!!!!!!
 
         !> @brief Fortran interface to geopm_ctl_create C function.
-        integer(kind=c_int) function geopm_ctl_create(policy, shm_key, comm, ctl) bind(C, name="geopm_ctl_create_f")
+        integer(kind=c_int) function geopm_ctl_create(policy, comm, ctl) bind(C, name="geopm_ctl_create_f")
             import
             implicit none
             type(c_ptr), value, intent(in) :: policy
-            character(kind=c_char), intent(in) :: shm_key(*)
             integer(kind=c_int), value, intent(in) :: comm
             type(c_ptr), intent(out) :: ctl
         end function geopm_ctl_create
@@ -102,11 +101,10 @@ module geopm
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         !> @brief Fortran interface to geopm_prof_create C function.
-        integer(kind=c_int) function geopm_prof_create(prof_name, shm_key, comm, prof) bind(C, name="geopm_prof_create_f")
+        integer(kind=c_int) function geopm_prof_create(prof_name, comm, prof) bind(C, name="geopm_prof_create_f")
             import
             implicit none
             character(kind=c_char), intent(in) :: prof_name(*)
-            character(kind=c_char), intent(in) :: shm_key(*)
             integer(kind=c_int), value, intent(in) :: comm
             type(c_ptr), intent(out) :: prof
         end function geopm_prof_create

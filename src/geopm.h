@@ -56,7 +56,6 @@ struct geopm_tprof_c;
 /* OBJECT INSTANTIATION */
 /************************/
 int geopm_ctl_create(struct geopm_policy_c *policy,
-                     const char *shm_key,
                      MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 
@@ -79,7 +78,6 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 /* APPLICATION PROFILING */
 /*************************/
 int geopm_prof_create(const char *name,
-                      const char *shm_key,
                       MPI_Comm comm,
                       struct geopm_prof_c **prof);
 

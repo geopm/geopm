@@ -143,22 +143,13 @@ namespace geopm
             ///        geopm::Controller is the consumer of the posted
             ///        data that the Profile produces.
             ///
-            /// @param [in] shm_key_base String that is the base for
-            ///        the POSIX shared memory keys that have been
-            ///        created by the geopm::Controller.  There is one
-            ///        key created for each MPI rank in the
-            ///        communicator provided (comm), and each key is
-            ///        constructed by appending an underscore followed
-            ///        by a string representation of the integer MPI
-            ///        rank.
-            ///
             /// @param [in] comm The application's MPI communicator.
             ///        Each rank of this communicator will report to a
             ///        separate shared memory region.  One
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, const std::string shm_key_base, MPI_Comm comm);
+            Profile(const std::string prof_name, MPI_Comm comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             /// @brief Register a region of code to be profiled.
@@ -439,14 +430,9 @@ namespace geopm
             /// Constructs a shared memory region for coordination between
             /// the geopm runtime and the MPI application.
             ///
-            /// @param [in] shm_key_base The shared memory key that will be
-            ///        used to create the control shared memory region. This
-            ///        key will then be appended onto to create shared memory
-            ///        keys for each rank's sample shared memory region.
-            ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSampler(const std::string shm_key_base, size_t table_size);
+            ProfileSampler(size_t table_size);
             /// @brief ProfileSampler destructor.
             virtual ~ProfileSampler(void);
             /// @brief Retrieve the maximum capacity of all the per-rank

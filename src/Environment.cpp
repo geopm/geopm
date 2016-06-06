@@ -72,12 +72,12 @@ namespace geopm
 
     Environment::Environment()
         : m_policy_env(getenv("GEOPM_POLICY") ? getenv("GEOPM_POLICY") : "")
-        , m_shmkey_env(getenv("GEOPM_SHMKEY") ? getenv("GEOPM_SHMKEY") : "")
+        , m_shmkey_env(getenv("GEOPM_SHMKEY") ? getenv("GEOPM_SHMKEY") : "/geopm_default")
         , m_trace_env(getenv("GEOPM_TRACE") ? getenv("GEOPM_TRACE") : "")
         , m_plugin_path_env(getenv("GEOPM_PLUGIN_PATH") ? getenv("GEOPM_PLUGIN_PATH") : "")
-        , m_do_region_barrier(getenv("GEOPM_REGION_BARRIER") != NULL ? true : false)
-        , m_do_trace(m_trace_env.size() != 0 ? true : false)
-        , m_do_ignore_affinity(getenv("GEOPM_ERROR_AFFINITY_IGNORE") != NULL ? true : false)
+        , m_do_region_barrier(getenv("GEOPM_REGION_BARRIER") != NULL)
+        , m_do_trace(getenv("GEOPM_TRACE") != NULL)
+        , m_do_ignore_affinity(getenv("GEOPM_ERROR_AFFINITY_IGNORE") != NULL)
     {
         char *pmpi_ctl_env  = getenv("GEOPM_PMPI_CTL");
         if (pmpi_ctl_env && !strncmp(pmpi_ctl_env, "process", strlen("process") + 1))  {

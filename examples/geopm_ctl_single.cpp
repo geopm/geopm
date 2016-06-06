@@ -98,7 +98,7 @@ int main(int argc, char** argv)
             throw geopm::Exception("cpuid: " + std::to_string(cpu_id), GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
         plat->initialize();
-        sampler = new geopm::ProfileSampler("/geopm_ctl_single", 4096);
+        sampler = new geopm::ProfileSampler(4096);
         sampler->initialize();
         sample.resize(sampler->capacity());
 

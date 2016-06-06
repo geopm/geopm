@@ -34,8 +34,12 @@
 #include <stdio.h>
 #include <iostream>
 #include <errno.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/mman.h>
 
 #include "Exception.hpp"
+#include "geopm_env.h"
 #include "config.h"
 
 #ifndef NAME_MAX
@@ -131,6 +135,28 @@ extern "C"
             msg[size-1] = '\0';
         }
     }
+
+    static void geopm_destroy_shmem(void)
+    {
+        DIR *did = opendir("/dev/shm");
+        if (did &&
+            strlen(geopm_env_shmkey()) &&
+            *(geopm_env_shmkey()) == '/' &&
+            strchr(geopm_env_shmkey(), ' ') == NULL &&
+            strchr(geopm_env_shmkey() + 1, '/') == NULL) {
+
+            struct dirent *entry;
+            char shm_key[NAME_MAX];
+            shm_key[0] = '/';
+            shm_key[NAME_MAX - 1] = '\0';
+            while ((entry = readdir(did))) {
+                if (strstr(entry->d_name, geopm_env_shmkey() + 1) == entry->d_name) {
+                   strncpy(shm_key + 1, entry->d_name, NAME_MAX - 2);
+                   shm_unlink(shm_key);
+                }
+            }
+        }
+    }
 }
 
 namespace geopm
@@ -176,6 +202,9 @@ namespace geopm
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
         }
+
+        geopm_destroy_shmem();
+
         return err;
     }
 
@@ -220,6 +249,17 @@ namespace geopm
     int Exception::err_value(void) const
     {
         return m_err;
+    }
+
+    SignalException::SignalException(int signum)
+        : Exception("Signal " + std::to_string(signum) + " raised", errno)
+    {
+
+    }
+
+    SignalException::~SignalException()
+    {
+
     }
 
     static std::string error_message(int err)

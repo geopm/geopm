@@ -157,6 +157,14 @@ namespace geopm
             /// The error code associated with the exception.
             int m_err;
     };
+
+    class SignalException: public Exception
+    {
+        public:
+            SignalException(int signum);
+            virtual ~SignalException();
+    };
+
 }
 
 #endif

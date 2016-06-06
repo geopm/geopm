@@ -131,7 +131,7 @@ static int geopm_pmpi_init(void)
                 err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
             }
             if (!err) {
-                err = geopm_ctl_create(policy, NULL, G_GEOPM_COMM_WORLD_SWAP, &ctl);
+                err = geopm_ctl_create(policy, G_GEOPM_COMM_WORLD_SWAP, &ctl);
             }
             if (!err) {
                 err = geopm_ctl_run(ctl);
@@ -166,7 +166,7 @@ static int geopm_pmpi_init(void)
                 err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
             }
             if (!err) {
-                err = geopm_ctl_create(policy, NULL, g_ppn1_comm, &ctl);
+                err = geopm_ctl_create(policy, g_ppn1_comm, &ctl);
             }
             if (!err) {
                 err = geopm_ctl_pthread(ctl, NULL, &ctl_thread);

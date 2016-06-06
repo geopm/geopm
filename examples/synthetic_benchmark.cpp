@@ -333,7 +333,7 @@ void synthetic_benchmark_main(int nranks, int rank)
     sprintf(buf, "%d", rank);
     dumpRankAffinity(buf, my_pid, sched_getcpu(), "Workload");
 
-    geopm_prof_create("geopm_synthetic_benchmark", "/geopm_ctl_single", MPI_COMM_WORLD, &prof);
+    geopm_prof_create("geopm_synthetic_benchmark", MPI_COMM_WORLD, &prof);
     geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]);
     geopm_prof_enter(prof, region_id[0]);
     geopm_time(&start);

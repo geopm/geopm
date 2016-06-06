@@ -44,6 +44,7 @@
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
+#include <signal.h>
 
 #include "geopm.h"
 #include "geopm_version.h"
@@ -55,8 +56,16 @@
 #define NAME_MAX 1024
 #endif
 
+static volatile sig_atomic_t g_signal_teardown = -1;
+static struct sigaction g_signal_action;
 extern "C"
 {
+
+    static void geopm_signal_handler(int signum)
+    {
+        g_signal_teardown = signum;
+    }
+
     static void *geopm_threaded_run(void *args)
     {
         long err = 0;
@@ -68,21 +77,20 @@ extern "C"
     }
 
 
-    int geopmctl_main(const char *policy_config, const char *sample_key, const char *report)
+    int geopmctl_main(const char *policy_config, const char *report)
     {
         int err = 0;
         try {
-            std::string sample_key_str(sample_key);
             if (policy_config) {
                 std::string policy_config_str(policy_config);
                 geopm::GlobalPolicy policy(policy_config_str, "");
-                geopm::Controller ctl(&policy, sample_key_str, MPI_COMM_WORLD);
+                geopm::Controller ctl(&policy, MPI_COMM_WORLD);
                 ctl.run();
             }
             //The null case is for all nodes except rank 0.
             //These controllers should assume their policy from the master.
             else {
-                geopm::Controller ctl(NULL, sample_key_str, MPI_COMM_WORLD);
+                geopm::Controller ctl(NULL, MPI_COMM_WORLD);
                 ctl.run();
             }
         }
@@ -92,13 +100,12 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create(struct geopm_policy_c *policy, const char *sample_key, MPI_Comm comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
         try {
             geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
-            const std::string sample_key_str(sample_key ? sample_key : "");
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, sample_key_str, comm));
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -106,9 +113,9 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create_f(struct geopm_policy_c *policy, const char *sample_key, int comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
     {
-        return geopm_ctl_create(policy, sample_key, MPI_Comm_f2c(comm), ctl);
+        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
     }
 
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
@@ -166,7 +173,7 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(GlobalPolicy *global_policy, const std::string &shmem_base, MPI_Comm comm)
+    Controller::Controller(GlobalPolicy *global_policy, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
         , m_global_policy(global_policy)
@@ -211,7 +218,7 @@ namespace geopm
 
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
 
-            m_sampler = new ProfileSampler(shmem_base, M_SHMEM_REGION_SIZE);
+            m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
 
             int num_fan_out = 1;
             std::vector<int> fan_out(num_fan_out);
@@ -310,6 +317,36 @@ namespace geopm
         delete m_sample_regulator;
     }
 
+    void Controller::signal_handler(void)
+    {
+        // Register signal handler
+        if (g_signal_teardown == -1) {
+            g_signal_teardown = 0; /// @todo do we need a mutex here?
+            struct sigaction old_action;
+            g_signal_action.sa_handler = geopm_signal_handler;
+            sigemptyset(&g_signal_action.sa_mask);
+            g_signal_action.sa_flags = 0;
+            // All signals that terminate the process
+            std::vector<int> signals({SIGHUP, SIGINT, SIGQUIT, SIGILL,
+                                      SIGABRT, SIGFPE, SIGILL, SIGSEGV,
+                                      SIGPIPE, SIGALRM, SIGTERM, SIGUSR1,
+                                      SIGUSR2});
+            for (auto it = signals.begin(); it != signals.end(); ++it) {
+                sigaction(*it, NULL, &old_action);
+                if (old_action.sa_handler != SIG_IGN) {
+                    sigaction(*it, &g_signal_action, NULL);
+                }
+            }
+        }
+    }
+
+    void Controller::check_signal(void)
+    {
+        if (g_signal_teardown > 0) {
+            throw SignalException(g_signal_teardown);
+        }
+    }
+
     void Controller::connect(void)
     {
         if (!m_is_node_root) {
@@ -334,7 +371,11 @@ namespace geopm
             return;
         }
 
+        signal_handler();
+
         connect();
+
+        check_signal();
 
         int level;
         int err = 0;
@@ -347,23 +388,27 @@ namespace geopm
                 m_tree_comm->get_policy(level, policy);
                 err = 0;
             }
-            catch (geopm::Exception ex) {
+            catch (Exception ex) {
                 if (ex.err_value() != GEOPM_ERROR_POLICY_UNKNOWN) {
                     throw ex;
                 }
                 err = 1;
             }
+            check_signal();
         }
         while (err);
 
         while (1) {
+            check_signal();
             if (walk_down()) {
                 break;
             }
+            check_signal();
             if (walk_up()) {
                 break;
             }
         }
+        check_signal();
     }
 
     void Controller::step(void)

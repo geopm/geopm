@@ -96,11 +96,10 @@ static int run_something(void)
         err = geopm_policy_create("profile_policy", "", &policy);
     }
     if (!err) {
-        (void)shm_unlink("/geopm_threaded_step");
-        err = geopm_ctl_create(policy, "/geopm_threaded_step", MPI_COMM_WORLD, &ctl);
+        err = geopm_ctl_create(policy, MPI_COMM_WORLD, &ctl);
     }
     if (!err) {
-        err = geopm_prof_create("threaded_step", "/geopm_threaded_step", MPI_COMM_WORLD, &prof);
+        err = geopm_prof_create("threaded_step", MPI_COMM_WORLD, &prof);
     }
     if (!err) {
         err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof); 
