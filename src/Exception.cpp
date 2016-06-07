@@ -252,7 +252,7 @@ namespace geopm
     }
 
     SignalException::SignalException(int signum)
-        : Exception("Signal " + std::to_string(signum) + " raised", errno)
+        : Exception("Signal " + std::to_string(signum) + " raised", errno ? errno : GEOPM_ERROR_RUNTIME)
     {
 
     }
