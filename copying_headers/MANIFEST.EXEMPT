@@ -18,6 +18,7 @@ dox/Doxyfile
 examples/README
 examples/fft/README
 examples/fft/COPYING-NAS
+examples/example_policy.json
 MANIFEST
 README
 README.md
