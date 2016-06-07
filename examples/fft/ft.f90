@@ -134,7 +134,6 @@
       pswitch = 0
 
       ierr = geopm_prof_create(c_char_'NAS_FFT_PROFILER'//c_null_char, &
-                               c_null_char, &
                                MPI_COMM_WORLD, geopm_prof)
 !---------------------------------------------------------------------
 ! Run the entire problem once to make sure all data is touched.

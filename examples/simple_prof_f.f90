@@ -56,7 +56,7 @@ num_iter = 100000000
 chunk_size = 1000
 
 call MPI_Init(ierr)
-ierr = geopm_prof_create(c_char_'timed_loop'//c_null_char, c_char_''//c_null_char, MPI_COMM_WORLD, prof)
+ierr = geopm_prof_create(c_char_'timed_loop'//c_null_char, MPI_COMM_WORLD, prof)
 ierr = geopm_prof_region(c_null_ptr, c_char_'loop_0'//c_null_char, GEOPM_POLICY_HINT_UNKNOWN, region_id)
 ierr = geopm_prof_enter(c_null_ptr, region_id)
 sum = 0
