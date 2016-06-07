@@ -72,7 +72,7 @@ namespace geopm
 
     Environment::Environment()
         : m_policy_env(getenv("GEOPM_POLICY") ? getenv("GEOPM_POLICY") : "")
-        , m_shmkey_env(getenv("GEOPM_SHMKEY") ? getenv("GEOPM_SHMKEY") : "/geopm_default")
+        , m_shmkey_env(getenv("GEOPM_SHMKEY") ? getenv("GEOPM_SHMKEY") : "/geopm-shm")
         , m_trace_env(getenv("GEOPM_TRACE") ? getenv("GEOPM_TRACE") : "")
         , m_plugin_path_env(getenv("GEOPM_PLUGIN_PATH") ? getenv("GEOPM_PLUGIN_PATH") : "")
         , m_do_region_barrier(getenv("GEOPM_REGION_BARRIER") != NULL)
