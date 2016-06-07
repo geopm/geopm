@@ -57,10 +57,8 @@ class MPIProfileTest: public :: testing :: Test
         void sleep_exact(double duration);
     protected:
         size_t m_table_size;
-        const char *m_shm_key;
         char *m_ignore_env_orig;
         char *m_policy_env_orig;
-        char *m_shmkey_env_orig;
         double m_epsilon;
         bool m_use_std_sleep;
         std::string m_log_file;
@@ -73,10 +71,8 @@ class MPIProfileTest: public :: testing :: Test
 
 MPIProfileTest::MPIProfileTest()
     : m_table_size(4096)
-    , m_shm_key(getenv("GEOPM_SHMKEY"))
     , m_ignore_env_orig(getenv("GEOPM_ERROR_AFFINITY_IGNORE"))
     , m_policy_env_orig(getenv("GEOPM_POLICY"))
-    , m_shmkey_env_orig(getenv("GEOPM_SHMKEY"))
     , m_epsilon(0.5)
     , m_use_std_sleep(false)
     , m_log_file("MPIProfileTest_log")
@@ -113,17 +109,6 @@ MPIProfileTest::~MPIProfileTest()
     }
     else {
         unsetenv("GEOPM_POLICY");
-    }
-    if (m_shmkey_env_orig) {
-        setenv("GEOPM_SHMKEY", m_shmkey_env_orig, 1);
-    }
-    else {
-        unsetenv("GEOPM_SHMKEY");
-    }
-    shm_unlink(m_shm_key);
-    for (int i = 0; i < 16; i++) {
-        std::string cleanup(std::string(m_shm_key) + "_" + std::to_string(i));
-        shm_unlink(cleanup.c_str());
     }
     if (m_is_node_root) {
         remove(m_log_file_node.c_str());
