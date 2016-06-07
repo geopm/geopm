@@ -39,7 +39,6 @@ geopm_prof_c(3) -- geopm application profiling structure
 
   * `int geopm_prof_create(`:
     `const char *`_name_, <br>
-    `const char *`_shm_key_, <br>
     `MPI_Comm` _comm_, <br>
     `struct geopm_prof_c **`_prof_);
 
@@ -132,15 +131,8 @@ the outer most loop, or the "outer synchronization point."
     APIs, this default object will be used.  See
     `geopm_prof_default`() for more information about the default
     profile.  Construction requires a _name_ which is displayed when
-    the profile is printed.  The _shm_key_ specifies the base of the
-    POSIX shared memory key that is used to comminicate with the
-    control process on the node.  It must start with the '/' character
-    and have no other occurances of the '/'.  If no key is provided
-    (NULL or empty string), then the environment is queried for
-    GEOPM_SHMKEY (see **geopm(7)** for description of environment
-    variables) and if set this value is used, otherwise the default
-    key '/geopm-default' is used.  The _comm_ is an MPI communicator
-    that the calling MPI application is running on (probably
+    the profile is printed.  The _comm_ is an MPI communicator that
+    the calling MPI application is running on (probably
     MPI_COMM_WORLD).
 
   * `geopm_prof_destroy`():
