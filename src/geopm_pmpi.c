@@ -136,6 +136,9 @@ static int geopm_pmpi_init(void)
             if (!err) {
                 err = geopm_ctl_run(ctl);
             }
+            if (!err) {
+                err = geopm_ctl_destroy(ctl);
+            }
             int err_final = PMPI_Finalize();
             err = err ? err : err_final;
             exit(err);
@@ -170,6 +173,9 @@ static int geopm_pmpi_init(void)
             }
             if (!err) {
                 err = geopm_ctl_pthread(ctl, NULL, &ctl_thread);
+            }
+            if (!err) {
+                err = geopm_ctl_destroy(ctl);
             }
         }
     }
