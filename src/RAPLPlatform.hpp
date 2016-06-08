@@ -39,21 +39,6 @@
 
 namespace geopm
 {
-    /// @brief structure to hold buffer indicies for platform signals.
-    struct buffer_index_s {
-        int package0_pkg_energy;
-        int package1_pkg_energy;
-        int package0_pp0_energy;
-        int package1_pp0_energy;
-        int package0_dram_energy;
-        int package1_dram_energy;
-        int inst_retired_any_base;
-        int clk_unhalted_core_base;
-        int clk_unhalted_ref_base;
-        int llc_victims_base;
-        int num_slot;
-    };
-
     /// @brief This class provides an implementation of a concrete platform
     /// supporting processors which use RAPL for power limiting. This
     /// includes Sandy Bridge E, Ivy Bridge E, and Haswell E processors.
@@ -70,9 +55,23 @@ namespace geopm
             virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values);
             virtual void enforce_policy(uint64_t region_id, Policy &policy) const;
         protected:
+            /// @brief structure to hold buffer indicies for platform signals.
+            struct m_buffer_index_s {
+                int package0_pkg_energy;
+                int package1_pkg_energy;
+                int package0_pp0_energy;
+                int package1_pp0_energy;
+                int package0_dram_energy;
+                int package1_dram_energy;
+                int inst_retired_any_base;
+                int clk_unhalted_core_base;
+                int clk_unhalted_ref_base;
+                int llc_victims_base;
+                int num_slot;
+            };
             /// @brief Structure of buffer indices to store data into to
             /// avoid map look-ups.
-            struct buffer_index_s m_buffer_index;
+            struct m_buffer_index_s m_buffer_index;
             /// @brief Vector of MSR offsets to record the values of.
             std::vector<off_t> m_observe_msr_offsets;
             /// @brief Vector of MSR offsets to write values to.
