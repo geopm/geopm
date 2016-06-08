@@ -335,6 +335,10 @@ namespace geopm
             m_is_enabled = false;
             return;
         }
+        MPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_shmem->unlink();
+        }
 
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
@@ -388,6 +392,7 @@ namespace geopm
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
         MPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
+            m_table_shmem->unlink();
             m_ctl_msg->app_status = GEOPM_STATUS_ACTIVE;
         }
 

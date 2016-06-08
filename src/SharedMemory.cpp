@@ -86,10 +86,7 @@ namespace geopm
         if (err) {
             throw Exception("SharedMemory: Could not unmap pointer", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        err = shm_unlink(m_shm_key.c_str());
-        if (err) {
-            throw Exception("SharedMemory: Could not unlink shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+        (void) shm_unlink(m_shm_key.c_str());
     }
 
     void *SharedMemory::pointer(void)
@@ -116,6 +113,7 @@ namespace geopm
     SharedMemoryUser::SharedMemoryUser(const std::string &shm_key, unsigned int timeout)
         : m_shm_key(shm_key)
         , m_size(0)
+        , m_is_linked(false)
     {
         int shm_id = -1;
         struct stat stat_struct;
@@ -175,6 +173,7 @@ namespace geopm
         if (err) {
             throw Exception("SharedMemoryUser: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        m_is_linked = true;
     }
 
     SharedMemoryUser::~SharedMemoryUser()
@@ -198,5 +197,17 @@ namespace geopm
     size_t SharedMemoryUser::size(void)
     {
         return m_size;
+    }
+
+    void SharedMemoryUser::unlink(void)
+    {
+        if (m_is_linked) {
+            int err = shm_unlink(m_shm_key.c_str());
+            if (err) {
+                throw Exception("SharedMemoryUser::unlink() Call to shm_unlink(" + m_shm_key + ") failed",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            m_is_linked = false;
+        }
     }
 }

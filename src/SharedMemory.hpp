@@ -91,6 +91,7 @@ namespace geopm
             /// @return Key to the shared memory region.
             std::string key(void);
             size_t size(void);
+            void unlink(void);
         protected:
             /// Shared memory key for the region.
             std::string m_shm_key;
@@ -98,6 +99,7 @@ namespace geopm
             size_t m_size;
             /// Pointer to the region.
             void *m_ptr;
+            bool m_is_linked;
     };
 }
 
