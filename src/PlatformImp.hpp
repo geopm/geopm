@@ -240,6 +240,7 @@ namespace geopm
             int m_num_tile_group;
             /// @brief Number of packages.
             int m_num_package;
+            int m_num_core_per_tile;
             /// @brief File path to MSR special files.
             char m_msr_path[NAME_MAX];
             /// @brief The number of signals per package.

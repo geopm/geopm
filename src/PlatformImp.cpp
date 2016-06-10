@@ -55,6 +55,7 @@ namespace geopm
         , m_num_tile(0)
         , m_num_tile_group(0)
         , m_num_package(0)
+        , m_num_core_per_tile(0)
         , m_control_latency_ms(10.0)
     {
 
@@ -66,6 +67,7 @@ namespace geopm
         , m_num_tile(0)
         , m_num_tile_group(0)
         , m_num_package(0)
+        , m_num_core_per_tile(0)
         , m_num_energy_signal(num_energy_signal)
         , m_num_counter_signal(num_counter_signal)
         , m_control_latency_ms(control_latency)
@@ -78,6 +80,7 @@ namespace geopm
     void PlatformImp::initialize()
     {
         parse_hw_topology();
+        m_num_core_per_tile = m_num_hw_cpu / m_num_tile;
         msr_initialize();
     }
 

@@ -151,7 +151,7 @@ namespace geopm
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 2;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
-                                                      m_signal_msr_offset[5]));
+                                                      m_signal_msr_offset[5])) / m_num_core_per_tile;
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 3;
