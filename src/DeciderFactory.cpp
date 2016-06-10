@@ -51,7 +51,7 @@ void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *dec
         throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
     }
     p_dec = std::unique_ptr<geopm::Decider>(decider);
-    fact_obj->register_decider(move(p_dec));
+    fact_obj->register_decider(std::move(p_dec));
 }
 
 namespace geopm
@@ -63,12 +63,12 @@ namespace geopm
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
         StaticPolicyDecider *static_policy_decider = new StaticPolicyDecider();
         std::unique_ptr<Decider> pdecider = std::unique_ptr<Decider>(static_policy_decider);
-        register_decider(move(pdecider));
+        register_decider(std::move(pdecider));
     }
 
     DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)
     {
-        register_decider(move(decider));
+        register_decider(std::move(decider));
     }
 
     DeciderFactory::~DeciderFactory()

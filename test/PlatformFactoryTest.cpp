@@ -55,7 +55,7 @@ TEST_F(PlatformFactoryTest, platform_register)
     MockPlatformImp *m_platform_imp = new MockPlatformImp();
     std::unique_ptr<geopm::Platform> m_ap = std::unique_ptr<geopm::Platform>(m_platform);
     std::unique_ptr<geopm::PlatformImp> m_ap_imp = std::unique_ptr<geopm::PlatformImp>(m_platform_imp);
-    geopm::PlatformFactory m_platform_fact(move(m_ap), move(m_ap_imp));
+    geopm::PlatformFactory m_platform_fact(std::move(m_ap), std::move(m_ap_imp));
     std::string pname = "Haswell";
     std::string ans;
     geopm::Platform* p = NULL;
@@ -88,7 +88,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     MockPlatformImp *m_platform_imp = new MockPlatformImp();
     std::unique_ptr<geopm::Platform> m_ap = std::unique_ptr<geopm::Platform>(m_platform);
     std::unique_ptr<geopm::PlatformImp> m_ap_imp = std::unique_ptr<geopm::PlatformImp>(m_platform_imp);
-    geopm::PlatformFactory m_platform_fact(move(m_ap), move(m_ap_imp));
+    geopm::PlatformFactory m_platform_fact(std::move(m_ap), std::move(m_ap_imp));
     geopm::Platform* p = NULL;
     int thrown = 0;
 
@@ -96,8 +96,8 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     .Times(1)
     .WillOnce(Return(false));
 
-    m_platform_fact.register_platform(move(m_ap_imp));
-    m_platform_fact.register_platform(move(m_ap));
+    m_platform_fact.register_platform(std::move(m_ap_imp));
+    m_platform_fact.register_platform(std::move(m_ap));
 
     try {
         p = m_platform_fact.platform("rapl");

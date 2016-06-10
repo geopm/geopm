@@ -52,7 +52,7 @@ void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *pl
         throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
     }
     p_plat = std::unique_ptr<geopm::Platform>(platform);
-    fact_obj->register_platform(move(p_plat));
+    fact_obj->register_platform(std::move(p_plat));
 }
 
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
@@ -63,7 +63,7 @@ void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp 
         throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
     }
     p_plat = std::unique_ptr<geopm::PlatformImp>(platform);
-    fact_obj->register_platform(move(p_plat));
+    fact_obj->register_platform(std::move(p_plat));
 }
 
 namespace geopm
@@ -80,19 +80,19 @@ namespace geopm
         KNLPlatformImp *knl_plat_imp = new KNLPlatformImp();
         std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(rapl_plat);
         std::unique_ptr<PlatformImp> pplat_imp = std::unique_ptr<PlatformImp>(ivb_plat_imp);
-        register_platform(move(pplat));
-        register_platform(move(pplat_imp));
+        register_platform(std::move(pplat));
+        register_platform(std::move(pplat_imp));
         pplat_imp = std::unique_ptr<PlatformImp>(hsx_plat_imp);
-        register_platform(move(pplat_imp));
+        register_platform(std::move(pplat_imp));
         pplat_imp = std::unique_ptr<PlatformImp>(knl_plat_imp);
-        register_platform(move(pplat_imp));
+        register_platform(std::move(pplat_imp));
     }
 
     PlatformFactory::PlatformFactory(std::unique_ptr<Platform> platform,
                                      std::unique_ptr<PlatformImp> platform_imp)
     {
-        register_platform(move(platform));
-        register_platform(move(platform_imp));
+        register_platform(std::move(platform));
+        register_platform(std::move(platform_imp));
     }
 
     PlatformFactory::~PlatformFactory()
