@@ -230,7 +230,7 @@ The modes listed in this section do not have a run time requirement on
 geopm.  They are used to enact a power policy that does not require
 power setting changes during application runtime.
 
-  * `GEOPM_MODE_TDP_BALANCE_STATIC`:
+  * `GEOPM_POLICY_MODE_TDP_BALANCE_STATIC`:
     The job is statically managed to an aggregate power bound by
     assigning each node in the job a static power bound.  Each node is
     assigned a different power bound based on the Thermal Design Power
@@ -241,7 +241,7 @@ power setting changes during application runtime.
     GEOPM_MODE_FREQ_HYBRID_STATIC by leveraging the RAPL
     frequency-management technology in Intel processors.
 
-  * `GEOPM_MODE_FREQ_UNIFORM_STATIC`:
+  * `GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC`:
     All nodes in the job run at a uniform static frequency. The job is
     not managed to an aggregate power bound. This mode is intended to
     address static load imbalance due to manufacturing variation among
@@ -249,7 +249,7 @@ power setting changes during application runtime.
     whatever power they need to in order to achieve the designated
     frequency.
 
-  * `GEOPM_MODE_FREQ_HYBRID_STATIC`:
+  * `GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC`:
     Similar to the GEOPM_MODE_FREQ_UNIFORM_STATIC mode except that it
     accelerates any "big CPUs" designated to run the serial portion of
     the application.  This mode is intended to address static load
@@ -267,7 +267,7 @@ job to an aggregate power bound while redistributing power among the
 nodes to equalize performance or frequency across nodes, depending on
 the mode.
 
-  * `GEOPM_MODE_PERF_BALANCE_DYNAMIC`:
+  * `GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC`:
     In this mode, **geopm(7)** dynamically manages the job to an
     aggregate power bound while leveraging global application
     awareness to maximize application performance. The geopm runtime
@@ -280,10 +280,10 @@ the mode.
     source of the load imbalance. This mode achieves the highest
     performance of all of the power modes.
 
-  * `GEOPM_MODE_FREQ_UNIFORM_DYNAMIC`:
-    Similar to the `GEOPM_MODE_FREQ_UNIFORM_STATIC` mode except that
-    node frequencies are changed over time uniformly across the job
-    allocation and the job is managed to an aggregate power
+  * `GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC`:
+    Similar to the `GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC` mode except
+    that node frequencies are changed over time uniformly across the
+    job allocation and the job is managed to an aggregate power
     bound. This mode applies non-uniform power bounds on the nodes as
     a means of throttling them to the maximum common frequency that
     does not exceed the job's aggregate power bound. Power is
@@ -291,18 +291,19 @@ the mode.
     for the job (if possible) and equalize the frequency variation
     across processors that is exposed when running under a given power
     bound. This mode achieves higher performance than the
-    `GEOPM_MODE_FREQ_UNIFORM_STATIC` mode.
+    `GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC` mode.
 
-  * `GEOPM_MODE_FREQ_HYBRID_DYNAMIC`:
-    Similar to the `GEOPM_MODE_FREQ_HYBRID_STATIC` mode except that
-    the constrained "small CPU" frequencies are the only ones whose
-    frequencies are changed over time. The "big CPUs" in each node run
-    at maximum frequency. The "small CPUs" in each node are throttled
-    to the maximum common frequency that does not result in exceeding
-    the job's aggregate power bound. This mode is intended to address
-    load imbalance due to manufacturing variation while mitigating
-    application scaling challenges. This mode achieves higher
-    performance than the `GEOPM_MODE_FREQ_HYBRID_STATIC` mode.
+  * `GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC`:
+    Similar to the `GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC` mode except
+    that the constrained "small CPU" frequencies are the only ones
+    whose frequencies are changed over time. The "big CPUs" in each
+    node run at maximum frequency. The "small CPUs" in each node are
+    throttled to the maximum common frequency that does not result in
+    exceeding the job's aggregate power bound. This mode is intended
+    to address load imbalance due to manufacturing variation while
+    mitigating application scaling challenges. This mode achieves
+    higher performance than the `GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC`
+    mode.
 
 ## GOALS
 
