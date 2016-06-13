@@ -49,6 +49,17 @@
 namespace geopm
 {
 
+#ifndef X86_IOC_MSR_BATCH
+    #define  X86_IOC_MSR_BATCH _IOWR('c', 0xA2, m_msr_batch_array)
+#endif
+
+    struct geopm_signal_descriptor {
+        int device_type;
+        int device_index;
+        int signal_type;
+        double value;
+    };
+
     /* Platform IDs
     ((family << 8) + model)
     0x62A - Sandy Bridge
@@ -120,14 +131,6 @@ namespace geopm
             /// @param [in] msr_name String name of the requested MSR.
             /// @param [in] value Value to write to the specified MSR.
             void msr_write(int device_type, int device_index, const std::string &msr_name, uint64_t value);
-            /// @brief Write a value to a Model Specific Register.
-            /// @param [in] device_type enum device type can be
-            ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
-            ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
-            /// @param [in] device_index Numbered index of the specified type.
-            /// @param [in] msr_offset Address offset of the requested MSR.
-            /// @param [in] value Value to write to the specified MSR.
-            void msr_write(int device_type, int device_index, off_t msr_offset, uint64_t value);
             /// @brief Read a value from a Model Specific Register.
             /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
@@ -136,27 +139,20 @@ namespace geopm
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Value read from the specified MSR.
             uint64_t msr_read(int device_type, int device_index, const std::string &msr_name);
-            /// @brief Read a value from a Model Specific Register.
-            /// @param [in] device_type enum device type can be
-            ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
-            ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
-            /// @param [in] device_index Numbered index of the specified type.
-            /// @param [in] msr_offset Address offset of the requested MSR.
-            /// @return Value read from the specified MSR.
-            uint64_t msr_read(int device_type, int device_index, off_t msr_offset);
-            /// @brief Retrieve the address offset of a Model Specific Register.
-            /// @param [in] msr_name String name of the requested MSR.
-            /// @return Address offset of the requested MSR.
-            off_t msr_offset(std::string msr_name);
             /// @brief Output a MSR whitelist for use with the Linux MSR driver.
             /// @param [in] file_desc File descriptor for output.
             void whitelist(FILE* file_desc);
-            /// @brief Initialize the topology and MSR file descriptors.
+            /// @brief Initialize the topology and hardware counters.
             virtual void initialize(void);
-            /// @brief Set the path to the MSR special file. In Linux this path
-            /// is /dev/msr/cpu_num.
-            /// @param [in] cpu_num Logical cpu number to set the path for.
-            virtual void msr_path(int cpu_num);
+            /// @brief Write to a file the current state of RAPL, per-CPU counters,
+            /// and free running counters.
+            /// @param [in] path The path of the file to write.
+            void save_msr_state(const char *path);
+            /// @brief Read in MSR state for RAPL, per-CPU counters,
+            /// and free running counters and set them to that
+            /// state.
+            /// @param [in] path The path of the file to read in.
+            void restore_msr_state(const char *path);
 
             ////////////////////////////////////////////////////////////////////
             //              Platform dependent implementations                //
@@ -182,6 +178,13 @@ namespace geopm
             ///        The signal typr to return.
             /// @return The read and transformed value.
             virtual double read_signal(int device_type, int device_index, int signal_type) = 0;
+            /// @brief Batch read multiple signal values.
+            /// @param [in/out] signal_desc A vector of descriptors for each read operation.
+            /// @param [in] is_changed Has the data in the signal_desc changed since the last call?
+            ///             This enables the method to reuse the already created data structures
+            ///             if the same data is being requested repeatedly. This must be set to
+            ///             false the first time this method is called.
+            virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed) = 0;
             /// @brief Transform and write a value to a hw platform control.
             /// Transform a given a control value from the given format to the format
             /// and units expected by the hw platform. Write the transformed value to
@@ -204,6 +207,36 @@ namespace geopm
             virtual int performance_counter_domain(void) const = 0;
 
         protected:
+
+            ////////////////////////////////////////////////////////////////////
+            //                     MSR read/write support                     //
+            ////////////////////////////////////////////////////////////////////
+            /// @brief Write a value to a Model Specific Register.
+            /// @param [in] device_type enum device type can be
+            ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
+            ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] msr_offset Address offset of the requested MSR.
+            /// @param [in] value Value to write to the specified MSR.
+            void msr_write(int device_type, int device_index, off_t msr_offset, uint64_t value);
+            /// @brief Read a value from a Model Specific Register.
+            /// @param [in] device_type enum device type can be
+            ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
+            ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
+            /// @param [in] device_index Numbered index of the specified type.
+            /// @param [in] msr_offset Address offset of the requested MSR.
+            /// @return Value read from the specified MSR.
+            uint64_t msr_read(int device_type, int device_index, off_t msr_offset);
+            /// @brief Batch read values from multiple Model Specific Registers.
+            void batch_msr_read(void);
+            /// @brief Retrieve the address offset of a Model Specific Register.
+            /// @param [in] msr_name String name of the requested MSR.
+            /// @return Address offset of the requested MSR.
+            off_t msr_offset(std::string msr_name);
+            /// @brief Set the path to the MSR special file. In Linux this path
+            /// is /dev/msr/cpu_num.
+            /// @param [in] cpu_num Logical cpu number to set the path for.
+            virtual void msr_path(int cpu_num);
             /// @brief Open a MSR special file.
             /// @param [in] cpu Number of logical cpu to open.
             void msr_open(int cpu);
@@ -252,6 +285,22 @@ namespace geopm
             std::vector<double> m_msr_value_last;
             /// @brief The current aggregated overflow for all the counters.
             std::vector<double> m_msr_overflow_offset;
+            int m_msr_batch_desc;
+            bool m_is_batch_enabled;
+            struct m_msr_batch_op {
+                uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
+                uint16_t isrdmsr;  /// @brief In: 0=wrmsr, non-zero=rdmsr
+                int32_t err;
+                uint32_t msr;      /// @brief In: MSR Address to perform op
+                uint64_t msrdata;  /// @brief In/Out: Input/Result to/from operation
+                uint64_t wmask;    /// @brief Out: Write mask applied to wrmsr
+            };
+
+            struct m_msr_batch_array {
+                uint32_t numops;            /// @brief In: # of operations in ops array
+                struct m_msr_batch_op *ops;   /// @brief In: Array[numops] of operations
+            };
+            struct m_msr_batch_array m_batch;
     };
 }
 

@@ -58,6 +58,7 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual int frequency_control_domain(void) const;
         virtual int performance_counter_domain(void) const;
         virtual double read_signal(int device_type, int device_index, int signal_type);
+        virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
 };
 
@@ -156,6 +157,11 @@ double TestPlatformImp::read_signal(int device_type, int device_index, int signa
     return 1.0;
 }
 
+void TestPlatformImp::batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed)
+{
+
+}
+
 void TestPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
 {
 
@@ -199,6 +205,10 @@ class TestPlatformImp2 : public geopm::PlatformImp
         virtual double read_signal(int device_type, int device_index, int signal_type)
         {
             return 1.0;
+        }
+        virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed)
+        {
+            ;
         }
         virtual void write_control(int device_type, int device_index, int signal_type, double value)
         {
@@ -271,15 +281,6 @@ TEST_F(PlatformImpTest, platform_get_cpu)
 TEST_F(PlatformImpTest, platform_get_hyperthreaded)
 {
     EXPECT_TRUE(m_platform->num_logical_cpu() == NUM_CPU);
-}
-
-TEST_F(PlatformImpTest, platform_get_offsets)
-{
-    for(int i = 0; i < 16; i++) {
-        std::string name = "MSR_TEST_";
-        name.append(std::to_string(i));
-        EXPECT_TRUE(m_platform->msr_offset(name) == (off_t)(i*64));
-    }
 }
 
 TEST_F(PlatformImpTest, cpu_msr_read_write)

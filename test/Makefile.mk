@@ -42,7 +42,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformImpTest.platform_get_tiles \
               test/gtest_links/PlatformImpTest.platform_get_cpus \
               test/gtest_links/PlatformImpTest.platform_get_hyperthreaded \
-              test/gtest_links/PlatformImpTest.platform_get_offsets \
               test/gtest_links/PlatformImpTest.cpu_msr_read_write \
               test/gtest_links/PlatformImpTest.tile_msr_read_write \
               test/gtest_links/PlatformImpTest.socket_msr_read_write \

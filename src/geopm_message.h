@@ -67,7 +67,6 @@ enum geopm_sample_type_e {
 /// @brief Enum encompassing msr data types.
 enum geopm_telemetry_type_e {
     GEOPM_TELEMETRY_TYPE_PKG_ENERGY,
-    GEOPM_TELEMETRY_TYPE_PP0_ENERGY,
     GEOPM_TELEMETRY_TYPE_DRAM_ENERGY,
     GEOPM_TELEMETRY_TYPE_FREQUENCY,
     GEOPM_TELEMETRY_TYPE_INST_RETIRED,

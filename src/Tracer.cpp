@@ -78,7 +78,7 @@ namespace geopm
             if (m_do_header) {
                 m_stream << "region_id | seconds | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
-                    m_stream << "pkg_energy | pp0_energy | dram_energy | frequency | inst_retired | clk_unhalted_core | clk_unhalted_ref | read_bandwidth | progress | runtime | ";
+                    m_stream << "pkg_energy | dram_energy | frequency | inst_retired | clk_unhalted_core | clk_unhalted_ref | read_bandwidth | progress | runtime | ";
                 }
                 m_stream << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
                 m_do_header = false;

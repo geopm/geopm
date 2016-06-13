@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <math.h>
 #include <unistd.h>
 #include "geopm_error.h"
@@ -41,7 +40,7 @@
 namespace geopm
 {
     KNLPlatformImp::KNLPlatformImp()
-        : PlatformImp(3, 5, 8.0)
+        : PlatformImp(3, 4, 8.0)
         , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_dram_energy_units(1.5258789063E-5)
@@ -66,9 +65,8 @@ namespace geopm
         , M_UMASK_0(M_L2_REQ_MISS_UMASK)
         , M_EVENT_SEL_1(M_L2_PREFETCH_EV_SEL)
         , M_UMASK_1(M_L2_PREFETCH_UMASK)
-        , M_PKG_POWER_LIMIT_MASK(0x0007800000078000ul)
-        , M_DRAM_POWER_LIMIT_MASK(0xfefffful & M_PKG_POWER_LIMIT_MASK)
-        , M_PP0_POWER_LIMIT_MASK(0xfffffful & M_PKG_POWER_LIMIT_MASK)
+        , M_PKG_POWER_LIMIT_MASK(0x1800000018000ul)
+        , M_DRAM_POWER_LIMIT_MASK(0x18000)
         , M_EXTRA_SIGNAL(1)
     {
 
@@ -114,59 +112,53 @@ namespace geopm
 
         switch (signal_type) {
             case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                offset_idx = device_index * m_num_energy_signal;
+                offset_idx = device_index * m_num_energy_signal + M_PKG_STATUS_OVERFLOW;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[0]));
-                value *= m_energy_units;
-                break;
-            case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
-                offset_idx = device_index * m_num_energy_signal + 1;
-                value = msr_overflow(offset_idx, 32,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[1]));
+                                                      m_signal_msr_offset[M_RAPL_PKG_STATUS]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                offset_idx = device_index * m_num_energy_signal + 2;
+                offset_idx = device_index * m_num_energy_signal + M_DRAM_STATUS_OVERFLOW;
                 value = msr_overflow(offset_idx, 32,
                                      (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[2]));
+                                                      m_signal_msr_offset[M_RAPL_DRAM_STATUS]));
                 value *= m_dram_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal;
+                offset_idx = device_index * m_num_energy_signal + M_PERF_STATUS_OVERFLOW;
                 value = (double)((msr_read(device_type, device_index / m_num_cpu_per_core,
-                                          m_signal_msr_offset[3]) >> 8) & 0x0FF);
+                                          m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
                 //convert to MHZ
                 value *= 0.1;
                 break;
             case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 1;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
-                                                      m_signal_msr_offset[4]));
+                                                      m_signal_msr_offset[M_INST_RETIRED]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 2;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
-                                                      m_signal_msr_offset[5])) / m_num_core_per_tile;
+                                                      m_signal_msr_offset[M_CLK_UNHALTED_CORE])) / m_num_core_per_tile;
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 3;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
                 value = msr_overflow(offset_idx, 64,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
-                                                      m_signal_msr_offset[6]));
+                                                      m_signal_msr_offset[M_CLK_UNHALTED_REF]));
                 break;
             case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + 4;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
                 value = msr_overflow(offset_idx, 48,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
-                                                      m_signal_msr_offset[7 + device_index]));
+                                                      m_signal_msr_offset[M_L2_MISSES + device_index]));
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
                 value += msr_overflow(offset_idx + 1, 48,
                                      (double)msr_read(device_type, device_index / m_num_cpu_per_core,
-                                                      m_signal_msr_offset[8 + device_index]));
+                                                      m_signal_msr_offset[M_HW_L2_PREFETCH + device_index]));
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -174,6 +166,149 @@ namespace geopm
         }
 
         return value;
+    }
+
+    void KNLPlatformImp::batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed)
+    {
+        if (m_is_batch_enabled) {
+            int index = 0;
+            int signal_index = 0;
+            int num_signal = 0;
+            int cpu_per_tile = m_num_core_per_tile * m_num_cpu_per_core;
+            if (is_changed) {
+                for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
+                    switch ((*it).signal_type) {
+                        case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                        case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                        case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+                        case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
+                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
+                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
+                            num_signal++;
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
+                            num_signal+=2;
+                            break;
+                        default:
+                            throw geopm::Exception("KNLPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            break;
+                    }
+                }
+                if (num_signal > m_batch.numops) {
+                    m_batch.numops = num_signal;
+                    m_batch.ops = (struct m_msr_batch_op*)realloc(m_batch.ops, m_batch.numops * sizeof(struct m_msr_batch_op));
+                }
+
+                for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
+                    m_batch.ops[index].isrdmsr = 1;
+                    m_batch.ops[index].err = 0;
+                    m_batch.ops[index].msrdata = 0;
+                    m_batch.ops[index].wmask = 0x0;
+                    switch ((*it).device_type) {
+                        case GEOPM_DOMAIN_PACKAGE:
+                            m_batch.ops[index].cpu = (m_num_logical_cpu / m_num_package) * (*it).device_index;
+                            break;
+                        case GEOPM_DOMAIN_TILE:
+                            m_batch.ops[index].cpu = (m_num_logical_cpu / m_num_tile) * (*it).device_index;
+                            break;
+                        case GEOPM_DOMAIN_CPU:
+                            m_batch.ops[index].cpu = (*it).device_index;
+                            break;
+                        default:
+                            throw Exception("PlatformImp::batch_msr_read(): Invalid device type", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
+                            break;
+                    }
+                    switch ((*it).signal_type) {
+                        case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_RAPL_PKG_STATUS];
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_RAPL_DRAM_STATUS];
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_IA32_PERF_STATUS];
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_INST_RETIRED];
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_CLK_UNHALTED_CORE];
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_CLK_UNHALTED_REF];
+                            break;
+                        case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_L2_MISSES + (m_batch.ops[index].cpu / cpu_per_tile)];
+                            ++index;
+                            m_batch.ops[index] = m_batch.ops[index - 1];
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_HW_L2_PREFETCH + (m_batch.ops[index].cpu / cpu_per_tile)];
+                            break;
+                        default:
+                            throw geopm::Exception("KNLPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        break;
+                    }
+                    ++index;
+                }
+            }
+
+            batch_msr_read();
+
+            signal_index = 0;
+            int offset_idx;
+            for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
+                switch ((*it).signal_type) {
+                    case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                        offset_idx = (*it).device_index * m_num_energy_signal + M_PKG_STATUS_OVERFLOW;
+                        (*it).value = msr_overflow(offset_idx, 32,
+                                                   (double)(m_batch.ops[signal_index++].msrdata));
+                        (*it).value *= m_energy_units;
+                        break;
+                    case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                        offset_idx = (*it).device_index * m_num_energy_signal + M_DRAM_STATUS_OVERFLOW;
+                        (*it).value = msr_overflow(offset_idx, 32,
+                                             (double)(m_batch.ops[signal_index++].msrdata));
+                        (*it).value *= m_dram_energy_units;
+                        break;
+                    case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+                        offset_idx = (*it).device_index * m_num_energy_signal + M_PERF_STATUS_OVERFLOW;
+                        (*it).value = (double)((m_batch.ops[signal_index++].msrdata >> 8) & 0x0FF);
+                        //convert to MHZ
+                        (*it).value *= 0.1;
+                        break;
+                    case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
+                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
+                        (*it).value = msr_overflow(offset_idx, 64,
+                                             (double)(m_batch.ops[signal_index++].msrdata));
+                        break;
+                    case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
+                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
+                        (*it).value = msr_overflow(offset_idx, 64,
+                                             (double)(m_batch.ops[signal_index++].msrdata));
+                        break;
+                    case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
+                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
+                        (*it).value = msr_overflow(offset_idx, 64,
+                                             (double)(m_batch.ops[signal_index++].msrdata));
+                        break;
+                    case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
+                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
+                        (*it).value = msr_overflow(offset_idx, 44,
+                                             (double)(m_batch.ops[signal_index++].msrdata));
+                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
+                        (*it).value += msr_overflow(offset_idx, 44,
+                                             (double)(m_batch.ops[signal_index++].msrdata));
+                        break;
+                    default:
+                        throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        break;
+                }
+            }
+        }
+        else { // batching is not enabled, just call serial code path
+            for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
+                (*it).value = read_signal((*it).device_type, (*it).device_index, (*it).signal_type);
+            }
+        }
     }
 
     void KNLPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
@@ -190,18 +325,7 @@ namespace geopm
                 }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK;
-                msr_write(device_type, device_index, m_control_msr_offset[0], msr_val);
-                break;
-            case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
-                if (value < m_min_pp0_watts) {
-                    value = m_min_pp0_watts;
-                }
-                if (value > m_max_pp0_watts) {
-                    value = m_max_pp0_watts;
-                }
-                msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PP0_POWER_LIMIT_MASK;
-                msr_write(device_type, device_index, m_control_msr_offset[1], msr_val);
+                msr_write(device_type, device_index, m_control_msr_offset[M_RAPL_PKG_LIMIT], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
                 if (value < m_min_dram_watts) {
@@ -212,12 +336,12 @@ namespace geopm
                 }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
-                msr_write(device_type, device_index, m_control_msr_offset[2], msr_val);
+                msr_write(device_type, device_index, m_control_msr_offset[M_RAPL_DRAM_LIMIT], msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 msr_val = (uint64_t)(value * 10);
                 msr_val = msr_val << 8;
-                msr_write(device_type, device_index / m_num_cpu_per_core, m_control_msr_offset[3], msr_val);
+                msr_write(device_type, device_index / m_num_cpu_per_core, m_control_msr_offset[M_IA32_PERF_CTL], msr_val);
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -244,7 +368,6 @@ namespace geopm
 
         //Save off the msr offsets for the signals we want to read to avoid a map lookup
         m_signal_msr_offset.push_back(msr_offset("PKG_ENERGY_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("PP0_ENERGY_STATUS"));
         m_signal_msr_offset.push_back(msr_offset("DRAM_ENERGY_STATUS"));
         m_signal_msr_offset.push_back(msr_offset("IA32_PERF_STATUS"));
         m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR0"));
@@ -264,7 +387,6 @@ namespace geopm
         //Save off the msr offsets for the controls we want to write to avoid a map lookup
         m_control_msr_offset.push_back(msr_offset("PKG_POWER_LIMIT"));
         m_control_msr_offset.push_back(msr_offset("DRAM_POWER_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("PP0_POWER_LIMIT"));
         m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
     }
 

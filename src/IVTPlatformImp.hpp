@@ -64,6 +64,7 @@ namespace geopm
             virtual bool model_supported(int platform_id);
             virtual std::string platform_name();
             virtual double read_signal(int device_type, int device_index, int signal_type);
+            virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed);
             virtual void write_control(int device_type, int device_index, int signal_type, double value);
             virtual void msr_initialize();
             virtual void msr_reset();
@@ -126,7 +127,31 @@ namespace geopm
             const unsigned int M_UMASK_0;
             const uint64_t M_PKG_POWER_LIMIT_MASK;
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
-            const uint64_t M_PP0_POWER_LIMIT_MASK;
+            enum {
+                M_RAPL_PKG_STATUS,
+                M_RAPL_DRAM_STATUS,
+                M_IA32_PERF_STATUS,
+                M_INST_RETIRED,
+                M_CLK_UNHALTED_CORE,
+                M_CLK_UNHALTED_REF,
+                M_L2_VICTIMS
+            } m_signal_offset_e;
+            enum {
+                M_RAPL_PKG_LIMIT,
+                M_RAPL_DRAM_LIMIT,
+                M_IA32_PERF_CTL
+            } m_control_offset_e;
+            enum {
+                M_PKG_STATUS_OVERFLOW,
+                M_DRAM_STATUS_OVERFLOW,
+                M_PERF_STATUS_OVERFLOW
+            } m_package_overflow_offset_e;
+            enum {
+                M_INST_RETIRED_OVERFLOW,
+                M_CLK_UNHALTED_CORE_OVERFLOW,
+                M_CLK_UNHALTED_REF_OVERFLOW,
+                M_L2_VICTIMS_OVERFLOW
+            } m_signal_overflow_offset_e;
     };
 }
 

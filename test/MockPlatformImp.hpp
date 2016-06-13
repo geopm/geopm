@@ -72,6 +72,8 @@ class MockPlatformImp : public geopm::PlatformImp {
             void());
         MOCK_METHOD3(read_signal,
             double(int device_type, int device_index, int signal_type));
+        MOCK_METHOD2(batch_read_signal,
+            void(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed));
         MOCK_METHOD4(write_control,
             void(int device_type, int device_index, int signal_type, double value));
 };

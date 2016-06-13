@@ -72,10 +72,8 @@ namespace geopm
             /// @brief Structure of buffer indices to store data into to
             /// avoid map look-ups.
             struct m_buffer_index_s m_buffer_index;
-            /// @brief Vector of MSR offsets to record the values of.
-            std::vector<off_t> m_observe_msr_offsets;
-            /// @brief Vector of MSR offsets to write values to.
-            std::vector<off_t> m_enforce_msr_offsets;
+            /// @brief Vector of signal read operations.
+            std::vector<struct geopm_signal_descriptor> m_batch_desc;
             /// @brief Number of CPUs on the platform.
             int m_num_cpu;
             /// @brief Number of packages on the platform.

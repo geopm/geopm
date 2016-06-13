@@ -31,6 +31,7 @@
  */
 
 // c includes for system programming
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -38,6 +39,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
+#include <sstream>
 
 #include <fstream>
 #include <iomanip>
@@ -57,6 +59,9 @@ namespace geopm
         , m_num_package(0)
         , m_num_core_per_tile(0)
         , m_control_latency_ms(10.0)
+        , m_msr_batch_desc(-1)
+        , m_batch({0, NULL})
+        , m_is_batch_enabled(false)
     {
 
     }
@@ -71,16 +76,23 @@ namespace geopm
         , m_num_energy_signal(num_energy_signal)
         , m_num_counter_signal(num_counter_signal)
         , m_control_latency_ms(control_latency)
+        , m_msr_batch_desc(-1)
+        , m_batch({0, NULL})
+        , m_is_batch_enabled(false)
     {
 
     }
 
-    PlatformImp::~PlatformImp() {}
+    PlatformImp::~PlatformImp()
+    {
+        if (m_batch.numops) {
+            free(m_batch.ops);
+        }
+    }
 
     void PlatformImp::initialize()
     {
         parse_hw_topology();
-        m_num_core_per_tile = m_num_hw_cpu / m_num_tile;
         msr_initialize();
     }
 
@@ -183,22 +195,31 @@ namespace geopm
     uint64_t PlatformImp::msr_read(int device_type, int device_index, off_t msr_offset)
     {
         uint64_t value;
+        int index = device_index;
 
         if (device_type == GEOPM_DOMAIN_PACKAGE)
-            device_index = (m_num_logical_cpu / m_num_package) * device_index;
+            index = (m_num_logical_cpu / m_num_package) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
-            device_index = (m_num_logical_cpu / m_num_tile) * device_index;
+            index = (m_num_logical_cpu / m_num_tile) * device_index;
 
-
-        if (m_cpu_file_desc.size() < (uint64_t)device_index) {
+        if (m_cpu_file_desc.size() < (uint64_t)index) {
             throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
-        int rv = pread(m_cpu_file_desc[device_index], &value, sizeof(value), msr_offset);
+        int rv = pread(m_cpu_file_desc[index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
             throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
 
         return value;
+    }
+
+    void PlatformImp::batch_msr_read(void)
+    {
+        int rv = ioctl(m_msr_batch_desc, X86_IOC_MSR_BATCH, &m_batch);
+
+        if (rv) {
+            throw Exception("read from /dev/cpu/msr_batch failed", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
+        }
     }
 
     off_t PlatformImp::msr_offset(std::string msr_name)
@@ -219,6 +240,11 @@ namespace geopm
         err = stat("/dev/cpu/0/msr_safe", &s);
         if (err == 0) {
             snprintf(m_msr_path, NAME_MAX, "/dev/cpu/%d/msr_safe", cpu_num);
+            //check for batch support
+            m_msr_batch_desc = open("/dev/cpu/msr_batch", O_RDWR);
+            if (m_msr_batch_desc != -1) {
+                m_is_batch_enabled = true;
+            }
             return;
         }
 
@@ -238,7 +264,6 @@ namespace geopm
 
         msr_path(cpu);
         fd = open(m_msr_path, O_RDWR);
-
         //report errors
         if (fd < 0) {
             char error_string[NAME_MAX];
@@ -255,8 +280,7 @@ namespace geopm
 
             return;
         }
-
-        //all is good, return handle
+        //all is good, save handle
         m_cpu_file_desc.push_back(fd);
     }
 
@@ -287,6 +311,7 @@ namespace geopm
         m_num_hw_cpu = m_topology.num_domain(GEOPM_DOMAIN_PACKAGE_CORE);
         m_num_cpu_per_core = m_num_logical_cpu / m_num_hw_cpu;
         m_num_tile = m_topology.num_domain(GEOPM_DOMAIN_TILE);
+        m_num_core_per_tile = m_num_hw_cpu / m_num_tile;
     }
 
     double PlatformImp::msr_overflow(int signal_idx, uint32_t msr_size, double value)
@@ -299,5 +324,75 @@ namespace geopm
         value += m_msr_overflow_offset[signal_idx];
 
         return value;
+    }
+
+    void PlatformImp::save_msr_state(const char *path)
+    {
+        uint64_t msr_val;
+        int niter = m_num_package;
+        std::ofstream restore_file;
+
+        if (path == NULL) {
+            throw Exception("PlatformImp(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        restore_file.open(path);
+
+        //per package state
+        for (int i = 0; i < niter; i++) {
+            msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
+            msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
+            msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
+            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
+        }
+
+        niter = m_num_hw_cpu;
+
+        //per cpu state
+        for (int i = 0; i < niter; i++) {
+            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
+            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
+            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
+            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
+            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
+
+        }
+
+        restore_file.close();
+    }
+
+    void PlatformImp::restore_msr_state(const char *path)
+    {
+        std::ifstream restore_file;
+        std::string line;
+        std::vector<int64_t> vals;
+        std::string item;
+
+        if (path == NULL) {
+            throw Exception("PlatformImp(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        restore_file.open(path, std::ios_base::in);
+
+        while (std::getline(restore_file,line)) {
+            std::stringstream ss(line);
+            while (std::getline(ss, item, ':')) {
+                vals.push_back((int64_t)atol(item.c_str()));
+            }
+            if (vals.size() == 4) {
+                msr_write(vals[0], vals[1], vals[2], vals[3]);
+            }
+            else {
+                throw Exception("error detected in restore file. Could not restore msr states", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            vals.clear();
+        }
+        restore_file.close();
+        remove(path);
     }
 }

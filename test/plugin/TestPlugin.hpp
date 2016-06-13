@@ -78,6 +78,7 @@ class ShmemFreqPlatformImp : public PlatformImp
         virtual int frequency_control_domain(void) const;
         virtual int performance_counter_domain(void) const;
         virtual double read_signal(int device_type, int device_idx, int signal_type);
+        virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed); 
         virtual void write_control(int device_type, int device_idx, int signal_type, double value);
     protected:
         virtual void msr_initialize(void);

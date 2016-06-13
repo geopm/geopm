@@ -212,7 +212,6 @@ double ShmemFreqPlatformImp::read_signal(int device_type, int device_idx, int si
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
         clock_tick_delta = time_delta * cpu_freq_curr[cpu_idx];
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] += clock_tick_delta * m_pkg_power_max * cpu_freq_curr[cpu_idx] / m_cpu_freq_max;
-        m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_PP0_ENERGY] += clock_tick_delta * m_pp0_power_max * cpu_freq_curr[cpu_idx] / m_cpu_freq_max;
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY] += clock_tick_delta * m_dram_power_max * cpu_freq_curr[cpu_idx] / m_cpu_freq_max;
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] = cpu_freq_curr[device_idx];
         m_telemetry[cpu_idx].signal[GEOPM_TELEMETRY_TYPE_INST_RETIRED] = clock_tick_delta * m_inst_ratio * cpu_freq_curr[cpu_idx];
@@ -222,6 +221,11 @@ double ShmemFreqPlatformImp::read_signal(int device_type, int device_idx, int si
     }
     m_time_last = time_curr;
     return m_telemetry[device_idx].signal[signal_type];
+}
+
+void ShmemFreqPlatformImp::batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed)
+{
+
 }
 
 void ShmemFreqPlatformImp::write_control(int device_type, int device_idx, int signal_type, double value)

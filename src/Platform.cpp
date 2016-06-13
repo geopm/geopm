@@ -38,7 +38,6 @@
 #include <fstream>
 #include <math.h>
 #include <stdexcept>
-#include <sstream>
 
 #include "Exception.hpp"
 #include "Platform.hpp"
@@ -295,72 +294,12 @@ namespace geopm
 
     void Platform::save_msr_state(const char *path) const
     {
-        uint64_t msr_val;
-        int niter = m_imp->num_package();
-        std::ofstream restore_file;
-
-        if (path == NULL) {
-            throw Exception("Platform(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        restore_file.open(path);
-
-        //per package state
-        for (int i = 0; i < niter; i++) {
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << m_imp->msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
-        }
-
-        niter = m_imp->num_hw_cpu();
-
-        //per cpu state
-        for (int i = 0; i < niter; i++) {
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
-            msr_val = m_imp->msr_read(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << m_imp->msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
-
-        }
-
-        restore_file.close();
+        m_imp->save_msr_state(path);
     }
 
     void Platform::restore_msr_state(const char *path) const
     {
-        std::ifstream restore_file;
-        std::string line;
-        std::vector<int64_t> vals;
-        std::string item;
-
-        if (path == NULL) {
-            throw Exception("Platform(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        restore_file.open(path, std::ios_base::in);
-
-        while (std::getline(restore_file,line)) {
-            std::stringstream ss(line);
-            while (std::getline(ss, item, ':')) {
-                vals.push_back((int64_t)atol(item.c_str()));
-            }
-            if (vals.size() == 4) {
-                m_imp->msr_write(vals[0], vals[1], vals[2], vals[3]);
-            }
-            else {
-                throw Exception("error detected in restore file. Could not restore msr states", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            vals.clear();
-        }
-        restore_file.close();
-        remove(path);
+        m_imp->restore_msr_state(path);
     }
 
     void Platform::write_msr_whitelist(FILE *file_desc) const
