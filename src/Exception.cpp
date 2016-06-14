@@ -37,9 +37,12 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/mman.h>
+#include <signal.h>
+
 
 #include "Exception.hpp"
 #include "geopm_env.h"
+#include "geopm_signal_handler.h"
 #include "config.h"
 
 #ifndef NAME_MAX
@@ -136,7 +139,7 @@ extern "C"
         }
     }
 
-    static void geopm_destroy_shmem(void)
+    void geopm_error_destroy_shmem(void)
     {
         DIR *did = opendir("/dev/shm");
         if (did &&
@@ -173,10 +176,19 @@ namespace geopm
             }
         }
         catch (const std::exception &ex) {
+            const geopm::SignalException *ex_geopm_signal = dynamic_cast<const geopm::SignalException *>(&ex);
             const geopm::Exception *ex_geopm = dynamic_cast<const geopm::Exception *>(&ex);
             const std::system_error *ex_sys = dynamic_cast<const std::system_error *>(&ex);
             const std::runtime_error *ex_rt = dynamic_cast<const std::runtime_error *>(&ex);
 
+            if (ex_geopm_signal) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Error: " << ex_geopm_signal->what() << std::endl;
+#endif
+                err = ex_geopm_signal->err_value();
+                geopm_signal_handler_revert();
+                raise(err);
+            }
             if (ex_geopm) {
 #ifdef GEOPM_DEBUG
                 std::cerr << "Error: " << ex_geopm->what() << std::endl;
@@ -202,8 +214,6 @@ namespace geopm
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
         }
-
-        geopm_destroy_shmem();
 
         return err;
     }

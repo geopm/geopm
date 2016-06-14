@@ -47,6 +47,7 @@ src/geopm_policy.h
 src/geopmpolicy_main.c
 src/geopm_message.c
 src/geopm_message.h
+src/geopm_signal_handler.h
 src/geopm_time.h
 src/geopm_version.c
 src/geopm_version.h
@@ -85,6 +86,7 @@ src/SampleScheduler.cpp
 src/SampleScheduler.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
+src/SignalHandler.cpp
 src/StaticPolicyDecider.cpp
 src/StaticPolicyDecider.hpp
 src/Tracer.cpp

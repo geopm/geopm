@@ -44,10 +44,10 @@
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
-#include <signal.h>
 
 #include "geopm.h"
 #include "geopm_version.h"
+#include "geopm_signal_handler.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "config.h"
@@ -56,16 +56,8 @@
 #define NAME_MAX 1024
 #endif
 
-static volatile sig_atomic_t g_signal_teardown = -1;
-static struct sigaction g_signal_action;
 extern "C"
 {
-
-    static void geopm_signal_handler(int signum)
-    {
-        g_signal_teardown = signum;
-    }
-
     static void *geopm_threaded_run(void *args)
     {
         long err = 0;
@@ -85,13 +77,13 @@ extern "C"
                 std::string policy_config_str(policy_config);
                 geopm::GlobalPolicy policy(policy_config_str, "");
                 geopm::Controller ctl(&policy, MPI_COMM_WORLD);
-                ctl.run();
+                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
             }
             //The null case is for all nodes except rank 0.
             //These controllers should assume their policy from the master.
             else {
                 geopm::Controller ctl(NULL, MPI_COMM_WORLD);
-                ctl.run();
+                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
             }
         }
         catch (...) {
@@ -139,6 +131,7 @@ extern "C"
             ctl_obj->run();
         }
         catch (...) {
+            geopm_error_destroy_shmem();
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
@@ -317,35 +310,6 @@ namespace geopm
         delete m_sample_regulator;
     }
 
-    void Controller::signal_handler(void)
-    {
-        // Register signal handler
-        if (g_signal_teardown == -1) {
-            g_signal_teardown = 0; /// @todo do we need a mutex here?
-            struct sigaction old_action;
-            g_signal_action.sa_handler = geopm_signal_handler;
-            sigemptyset(&g_signal_action.sa_mask);
-            g_signal_action.sa_flags = 0;
-            // All signals that terminate the process
-            std::vector<int> signals({SIGHUP, SIGINT, SIGQUIT, SIGILL,
-                                      SIGABRT, SIGFPE, SIGILL, SIGSEGV,
-                                      SIGPIPE, SIGALRM, SIGTERM, SIGUSR1,
-                                      SIGUSR2});
-            for (auto it = signals.begin(); it != signals.end(); ++it) {
-                sigaction(*it, NULL, &old_action);
-                if (old_action.sa_handler != SIG_IGN) {
-                    sigaction(*it, &g_signal_action, NULL);
-                }
-            }
-        }
-    }
-
-    void Controller::check_signal(void)
-    {
-        if (g_signal_teardown > 0) {
-            throw SignalException(g_signal_teardown);
-        }
-    }
 
     void Controller::connect(void)
     {
@@ -371,11 +335,11 @@ namespace geopm
             return;
         }
 
-        signal_handler();
+        geopm_signal_handler_register();
 
         connect();
 
-        check_signal();
+        geopm_signal_handler_check();
 
         int level;
         int err = 0;
@@ -394,21 +358,21 @@ namespace geopm
                 }
                 err = 1;
             }
-            check_signal();
+            geopm_signal_handler_check();
         }
         while (err);
 
         while (1) {
-            check_signal();
+            geopm_signal_handler_check();
             if (walk_down()) {
                 break;
             }
-            check_signal();
+            geopm_signal_handler_check();
             if (walk_up()) {
                 break;
             }
         }
-        check_signal();
+        geopm_signal_handler_check();
     }
 
     void Controller::step(void)

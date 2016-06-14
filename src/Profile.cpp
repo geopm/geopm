@@ -45,6 +45,7 @@
 #include "geopm_sched.h"
 #include "geopm_message.h"
 #include "geopm_time.h"
+#include "geopm_signal_handler.h"
 #include "Profile.hpp"
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
@@ -651,7 +652,9 @@ namespace geopm
     {
         std::string shm_key;
 
-        while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {}
+        while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {
+           geopm_signal_handler_check();
+        }
 
         std::set<int> rank_set;
         for (int i = 0; i < GEOPM_MAX_NUM_CPU; i++) {
@@ -665,7 +668,9 @@ namespace geopm
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
         }
         m_ctl_msg->ctl_status = GEOPM_STATUS_INITIALIZED;
-        while (m_ctl_msg->app_status != GEOPM_STATUS_ACTIVE) {}
+        while (m_ctl_msg->app_status != GEOPM_STATUS_ACTIVE) {
+            geopm_signal_handler_check();
+        }
         m_ctl_msg->ctl_status = GEOPM_STATUS_ACTIVE;
     }
 
