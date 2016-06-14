@@ -76,7 +76,7 @@ if ENABLE_FORTRAN
     noinst_PROGRAMS += examples/simple_prof_f
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
     examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
-    examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS)
+    examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
     examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
     examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS) $(OPENMP_CFLAGS)
 endif
