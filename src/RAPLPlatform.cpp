@@ -94,13 +94,13 @@ namespace geopm
             m_batch_desc[count].value = 0;
             ++count;
 
-            m_batch_desc[count].device_type = energy_domain;
-            m_batch_desc[count].device_index = i;
-            m_batch_desc[count].signal_type = GEOPM_TELEMETRY_TYPE_FREQUENCY;
-            m_batch_desc[count].value = 0;
-            ++count;
-
             for (int j = i * counter_domain_per_energy_domain; j < i * counter_domain_per_energy_domain + counter_domain_per_energy_domain; ++j) {
+                m_batch_desc[count].device_type = counter_domain;
+                m_batch_desc[count].device_index = j;
+                m_batch_desc[count].signal_type = GEOPM_TELEMETRY_TYPE_FREQUENCY;
+                m_batch_desc[count].value = 0;
+                ++count;
+
                 m_batch_desc[count].device_type = counter_domain;
                 m_batch_desc[count].device_index = j;
                 m_batch_desc[count].signal_type = GEOPM_TELEMETRY_TYPE_INST_RETIRED;
@@ -138,6 +138,7 @@ namespace geopm
     {
         int count = 0;
         int signal_index = 0;
+        double accum_freq;
         double accum_inst;
         double accum_clk_core;
         double accum_clk_ref;
@@ -165,24 +166,26 @@ namespace geopm
             msr_values[count].signal = m_batch_desc[signal_index++].value;
             count++;
 
-            msr_values[count].domain_type = energy_domain;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_FREQUENCY;
-            msr_values[count].signal = m_batch_desc[signal_index++].value;
-            count++;
-
             accum_inst = 0.0;
             accum_clk_core = 0.0;
             accum_clk_ref = 0.0;
             accum_read_bw = 0.0;
+            accum_freq = 0.0;
 
             for (int j = i * counter_domain_per_energy_domain; j < i * counter_domain_per_energy_domain + counter_domain_per_energy_domain; ++j) {
+                accum_freq += m_batch_desc[signal_index++].value;
                 accum_inst += m_batch_desc[signal_index++].value;
                 accum_clk_core += m_batch_desc[signal_index++].value;
                 accum_clk_ref += m_batch_desc[signal_index++].value;
                 accum_read_bw += m_batch_desc[signal_index++].value;
             }
+
+            msr_values[count].domain_type = energy_domain;
+            msr_values[count].domain_index = i;
+            msr_values[count].timestamp = time;
+            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_FREQUENCY;
+            msr_values[count].signal = accum_freq / counter_domain_per_energy_domain;
+            count++;
 
             msr_values[count].domain_type = energy_domain;
             msr_values[count].domain_index = i;

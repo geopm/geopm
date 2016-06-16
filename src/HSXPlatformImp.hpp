@@ -145,10 +145,10 @@ namespace geopm
             } m_control_offset_e;
             enum {
                 M_PKG_STATUS_OVERFLOW,
-                M_DRAM_STATUS_OVERFLOW,
-                M_PERF_STATUS_OVERFLOW
+                M_DRAM_STATUS_OVERFLOW
             } m_package_overflow_offset_e;
             enum {
+                M_PERF_STATUS_OVERFLOW,
                 M_INST_RETIRED_OVERFLOW,
                 M_CLK_UNHALTED_CORE_OVERFLOW,
                 M_CLK_UNHALTED_REF_OVERFLOW,

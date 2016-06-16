@@ -40,7 +40,7 @@
 namespace geopm
 {
     HSXPlatformImp::HSXPlatformImp()
-        : PlatformImp(3, 4, 8.0)
+        : PlatformImp(2, 5, 8.0)
         , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_dram_energy_units(1.5258789063E-5)
@@ -128,7 +128,6 @@ namespace geopm
                 value *= m_dram_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                offset_idx = m_num_package * m_num_energy_signal + M_PERF_STATUS_OVERFLOW;
                 value = (double)((msr_read(device_type, device_index / m_num_cpu_per_core,
                                           m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
                 //convert to MHZ
@@ -263,7 +262,6 @@ namespace geopm
                         (*it).value *= m_dram_energy_units;
                         break;
                     case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                        offset_idx = (*it).device_index * m_num_energy_signal + M_PERF_STATUS_OVERFLOW;
                         (*it).value = (double)((m_batch.ops[signal_index++].msrdata >> 8) & 0x0FF);
                         //convert to MHZ
                         (*it).value *= 0.1;
