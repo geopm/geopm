@@ -62,10 +62,6 @@ geopmctl(1) -- geopm runtime mpi application
     **geopm_ctl_c(3)** for information on how to create the sample shared
     memory region for profile feedback.
 
-  * `-r` report:
-    Output text file that will hold the human readable report when program
-    terminates.
-
 ## COPYRIGHT
 Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 

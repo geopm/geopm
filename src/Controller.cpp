@@ -69,7 +69,7 @@ extern "C"
     }
 
 
-    int geopmctl_main(const char *policy_config, const char *report)
+    int geopmctl_main(const char *policy_config)
     {
         int err = 0;
         try {

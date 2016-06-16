@@ -47,7 +47,7 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(const char *policy_path, const char *sample_key, const char *report);
+int geopmctl_main(const char *policy_path, const char *sample_key);
 
 int main(int argc, char **argv)
 {
@@ -60,12 +60,11 @@ int main(int argc, char **argv)
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *policy_ptr = NULL;
     char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
-    char report[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
     const char *usage = "    %s [--help] [--version]\n"
                         "              -c policy_config\n"
-                        "              [-s sample_key] [-r report]\n"
+                        "              [-s sample_key]\n"
                         "\n"
                         "DESCRIPTION\n"
                         "       The geopmctl application runs concurrently with a computational MPI\n"
@@ -92,10 +91,6 @@ int main(int argc, char **argv)
                         "              tion  on  how to create the sample shared memory region for pro‐\n"
                         "              file feedback.\n"
                         "\n"
-                        "       -r report\n"
-                        "              Output text file that will hold the human readable  report  when\n"
-                        "              program terminates.\n"
-                        "\n"
                         "    Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
@@ -111,7 +106,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    while (!err0 && (opt = getopt(argc, argv, "c:k:s:r:")) != -1) {
+    while (!err0 && (opt = getopt(argc, argv, "c:k:s:")) != -1) {
         arg_ptr = NULL;
         switch (opt) {
             case 'c':
@@ -122,9 +117,6 @@ int main(int argc, char **argv)
                 break;
             case 's':
                 arg_ptr = sample_key;
-                break;
-            case 'r':
-                arg_ptr = report;
                 break;
             default:
                 fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
@@ -181,9 +173,6 @@ int main(int argc, char **argv)
         if (sample_key[0]) {
             printf("    Sample key:    %s\n", sample_key);
         }
-        if (report[0]) {
-            printf("    Report file:   %s\n", report);
-        }
         printf("\n");
     }
 
@@ -200,10 +189,10 @@ int main(int argc, char **argv)
             policy_ptr = policy_config;
         }
         if(!my_rank) {
-            err0 = geopmctl_main(policy_ptr, sample_key, report);
+            err0 = geopmctl_main(policy_ptr, sample_key);
         }
         else {
-            err0 = geopmctl_main(NULL, sample_key, report);
+            err0 = geopmctl_main(NULL, sample_key);
         }
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
