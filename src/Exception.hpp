@@ -174,6 +174,9 @@ namespace geopm
         public:
             SignalException(int signum);
             virtual ~SignalException();
+            int sig_value(void) const;
+        private:
+            int m_sig;
     };
 
 }

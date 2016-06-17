@@ -294,7 +294,9 @@ namespace geopm
         }
 
         m_do_teardown = true;
-        while (m_ctl_status != GEOPM_STATUS_SHUTDOWN) {}
+        while (m_ctl_status != GEOPM_STATUS_SHUTDOWN) {
+            geopm_signal_handler_check();
+        }
 
         delete m_tracer;
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {

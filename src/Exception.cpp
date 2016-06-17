@@ -185,11 +185,10 @@ namespace geopm
 #ifdef GEOPM_DEBUG
                 std::cerr << "Error: " << ex_geopm_signal->what() << std::endl;
 #endif
-                err = ex_geopm_signal->err_value();
-                geopm_signal_handler_revert();
-                raise(err);
+                err = ex_geopm->err_value();
+                raise(ex_geopm_signal->sig_value());
             }
-            if (ex_geopm) {
+            else if (ex_geopm) {
 #ifdef GEOPM_DEBUG
                 std::cerr << "Error: " << ex_geopm->what() << std::endl;
 #endif
@@ -263,6 +262,7 @@ namespace geopm
 
     SignalException::SignalException(int signum)
         : Exception("Signal " + std::to_string(signum) + " raised", errno ? errno : GEOPM_ERROR_RUNTIME)
+        , m_sig(signum)
     {
 
     }
@@ -270,6 +270,11 @@ namespace geopm
     SignalException::~SignalException()
     {
 
+    }
+
+    int SignalException::sig_value(void) const
+    {
+        return m_sig;
     }
 
     static std::string error_message(int err)

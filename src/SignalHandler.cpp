@@ -69,17 +69,22 @@ namespace geopm
 
     SignalHandler::SignalHandler()
         : m_signals({SIGHUP, SIGINT, SIGQUIT, SIGILL,
-                     SIGABRT, SIGFPE, SIGILL, SIGSEGV,
-                     SIGPIPE, SIGALRM, SIGTERM, SIGUSR1,
-                     SIGUSR2})
+                     SIGTRAP, SIGABRT, SIGFPE, SIGUSR1,
+                     SIGSEGV, SIGUSR2, SIGPIPE, SIGALRM,
+                     SIGTERM, SIGCHLD, SIGCONT, SIGTSTP,
+                     SIGTTIN, SIGTTOU})
         , m_old_action(m_signals.size())
     {
+        int err;
         g_signal_action.sa_handler = geopm_signal_handler;
         sigemptyset(&g_signal_action.sa_mask);
         g_signal_action.sa_flags = 0;
         auto act_it = m_old_action.begin();
         for (auto sig_it = m_signals.begin(); sig_it != m_signals.end(); ++sig_it, ++act_it) {
-            sigaction(*sig_it, NULL, &(*act_it));
+            err = sigaction(*sig_it, NULL, &(*act_it));
+            if (err) {
+                throw Exception("SignalHandler: Could not retrieve original handler", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
         init();
     }
@@ -92,13 +97,20 @@ namespace geopm
 
     void SignalHandler::init(void) const
     {
+        int err;
         if (g_signal_number == -1) {
             g_signal_number = 0;
             struct sigaction old_action;
             for (auto sig_it = m_signals.begin(); sig_it != m_signals.end(); ++sig_it) {
-                sigaction(*sig_it, NULL, &old_action);
+                err = sigaction(*sig_it, NULL, &old_action);
+                if (err) {
+                    throw Exception("SignalHandler: Could not retrieve original handler", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
                 if (old_action.sa_handler != SIG_IGN) {
-                    sigaction(*sig_it, &g_signal_action, NULL);
+                    err = sigaction(*sig_it, &g_signal_action, NULL);
+                    if (err) {
+                        throw Exception("SignalHandler: Could not replace original handler", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
                 }
             }
         }
@@ -106,11 +118,15 @@ namespace geopm
 
     void SignalHandler::revert(void) const
     {
-        if (g_signal_number == 0) {
+        int err;
+        if (g_signal_number > 0) {
             g_signal_number = -1;
             auto act_it = m_old_action.begin();
             for (auto sig_it = m_signals.begin(); sig_it != m_signals.end(); ++sig_it, ++act_it) {
-                sigaction(*sig_it, &(*act_it), NULL);
+                err = sigaction(*sig_it, &(*act_it), NULL);
+                if (err) {
+                    throw Exception("SignalHandler: Could not restore original handler", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
             }
         }
     }
@@ -118,7 +134,9 @@ namespace geopm
     void SignalHandler::check(void) const
     {
         if (g_signal_number > 0) {
-            throw SignalException(g_signal_number);
+            int old_signal = g_signal_number;
+            geopm_signal_handler_revert();
+            throw SignalException(old_signal);
         }
     }
 
