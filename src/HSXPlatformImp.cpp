@@ -51,6 +51,8 @@ namespace geopm
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
         , m_platform_id(0)
+        , m_signal_msr_offset(M_LLC_VICTIMS + m_num_hw_cpu)
+        , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
         , M_HSX_PLATFORM_ID(0x63F)
         , M_BDX_PLATFORM_ID(0x64F)
         , M_HSX_MODEL_NAME("Haswell E")
@@ -129,7 +131,7 @@ namespace geopm
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 value = (double)((msr_read(device_type, device_index,
-                                          m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
+                                           m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
                 //convert to MHZ
                 value *= 0.1;
                 break;
@@ -152,10 +154,10 @@ namespace geopm
                                                       m_signal_msr_offset[M_CLK_UNHALTED_REF]));
                 break;
             case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_L2_VICTIMS_OVERFLOW;
+                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_LLC_VICTIMS_OVERFLOW;
                 value = msr_overflow(offset_idx, 44,
                                      (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_L2_VICTIMS + device_index]));
+                                                      m_signal_msr_offset[M_LLC_VICTIMS + device_index]));
                 break;
             default:
                 throw geopm::Exception("HSXPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -170,7 +172,7 @@ namespace geopm
         if (m_is_batch_enabled) {
             int index = 0;
             int signal_index = 0;
-            int num_signal = 0;
+            size_t num_signal = 0;
             if (is_changed) {
                 for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
                     switch ((*it).signal_type) {
@@ -185,7 +187,7 @@ namespace geopm
                             break;
                         default:
                             throw geopm::Exception("HSXPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                        break;
+                            break;
                     }
                 }
                 if (num_signal > m_batch.numops) {
@@ -232,11 +234,11 @@ namespace geopm
                             m_batch.ops[index].msr = m_signal_msr_offset[M_CLK_UNHALTED_REF];
                             break;
                         case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_L2_VICTIMS + m_batch.ops[index].cpu];
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_LLC_VICTIMS + m_batch.ops[index].cpu];
                             break;
                         default:
                             throw geopm::Exception("HSXPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                        break;
+                            break;
                     }
                     ++index;
                 }
@@ -282,7 +284,7 @@ namespace geopm
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         break;
                     case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_L2_VICTIMS_OVERFLOW;
+                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_LLC_VICTIMS_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 44,
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         break;
@@ -347,31 +349,49 @@ namespace geopm
         cbo_counters_init();
         fixed_counters_init();
 
-        int num_signal = m_num_energy_signal * m_num_package + m_num_counter_signal * m_num_hw_cpu;
+        size_t num_signal = m_num_energy_signal * m_num_package + m_num_counter_signal * m_num_hw_cpu;
         m_msr_value_last.resize(num_signal);
         m_msr_overflow_offset.resize(num_signal);
         std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
         std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
 
         //Save off the msr offsets for the signals we want to read to avoid a map lookup
-        m_signal_msr_offset.push_back(msr_offset("PKG_ENERGY_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("DRAM_ENERGY_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("IA32_PERF_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR0"));
-        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR1"));
-        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR2"));
+        for (int i = 0; i < M_LLC_VICTIMS; ++i) {
+            switch (i) {
+                case M_RAPL_PKG_STATUS:
+                    m_signal_msr_offset[i] = msr_offset("PKG_ENERGY_STATUS");
+                    break;
+                case M_RAPL_DRAM_STATUS:
+                    m_signal_msr_offset[i] = msr_offset("DRAM_ENERGY_STATUS");
+                    break;
+                case M_IA32_PERF_STATUS:
+                    m_signal_msr_offset[i] = msr_offset("IA32_PERF_STATUS");
+                    break;
+                case M_INST_RETIRED:
+                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR0");
+                    break;
+                case M_CLK_UNHALTED_CORE:
+                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR1");
+                    break;
+                case M_CLK_UNHALTED_REF:
+                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR2");
+                    break;
+                default:
+                    throw Exception("HSXPlatformImp: Index not enumerated",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    break;
+            }
+        }
         int cpu_per_socket = m_num_hw_cpu / m_num_package;
         for (int i = 0; i < m_num_hw_cpu; i++) {
-            std::string msr_name("_MSR_PMON_CTR1");
-            msr_name.insert(0, std::to_string(i % cpu_per_socket));
-            msr_name.insert(0, "C");
-            m_signal_msr_offset.push_back(msr_offset(msr_name));
+            std::string msr_name("C" + std::to_string(i % cpu_per_socket) + "_MSR_PMON_CTR1");
+            m_signal_msr_offset[M_LLC_VICTIMS + i] = msr_offset(msr_name);
         }
 
         //Save off the msr offsets for the controls we want to write to avoid a map lookup
-        m_control_msr_offset.push_back(msr_offset("PKG_POWER_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("DRAM_POWER_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
+        m_control_msr_offset[M_RAPL_PKG_LIMIT] = msr_offset("PKG_POWER_LIMIT");
+        m_control_msr_offset[M_RAPL_DRAM_LIMIT] = msr_offset("DRAM_POWER_LIMIT");
+        m_control_msr_offset[M_IA32_PERF_CTL] = msr_offset("IA32_PERF_CTL");
     }
 
     void HSXPlatformImp::msr_reset()

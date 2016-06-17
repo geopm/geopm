@@ -139,16 +139,18 @@ namespace geopm
                 M_CLK_UNHALTED_CORE,
                 M_CLK_UNHALTED_REF,
                 M_L2_MISSES,
-                M_HW_L2_PREFETCH
+                M_HW_L2_PREFETCH,
             } m_signal_offset_e;
             enum {
                 M_RAPL_PKG_LIMIT,
                 M_RAPL_DRAM_LIMIT,
-                M_IA32_PERF_CTL
+                M_IA32_PERF_CTL,
+                M_NUM_CONTROL_OFFSET
             } m_control_offset_e;
             enum {
                 M_PKG_STATUS_OVERFLOW,
-                M_DRAM_STATUS_OVERFLOW
+                M_DRAM_STATUS_OVERFLOW,
+                M_NUM_PACKAGE_OVERFLOW_OFFSET
             } m_package_overflow_offset_e;
             enum {
                 M_PERF_STATUS_OVERFLOW,
@@ -156,7 +158,8 @@ namespace geopm
                 M_CLK_UNHALTED_CORE_OVERFLOW,
                 M_CLK_UNHALTED_REF_OVERFLOW,
                 M_L2_MISSES_OVERFLOW,
-                M_HW_L2_PREFETCH_OVERFLOW
+                M_HW_L2_PREFETCH_OVERFLOW,
+                M_NUM_SIGNAL_OVERFLOW_OFFSET
             } m_signal_overflow_offset_e;
     };
 }

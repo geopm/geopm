@@ -60,8 +60,8 @@ namespace geopm
         , m_num_core_per_tile(0)
         , m_control_latency_ms(10.0)
         , m_msr_batch_desc(-1)
-        , m_batch({0, NULL})
         , m_is_batch_enabled(false)
+        , m_batch({0, NULL})
     {
 
     }
@@ -77,8 +77,8 @@ namespace geopm
         , m_num_counter_signal(num_counter_signal)
         , m_control_latency_ms(control_latency)
         , m_msr_batch_desc(-1)
-        , m_batch({0, NULL})
         , m_is_batch_enabled(false)
+        , m_batch({0, NULL})
     {
 
     }

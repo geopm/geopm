@@ -255,6 +255,21 @@ namespace geopm
             /// @param [in] The value read from the counter.
             /// @return The value corrected for overflow.
             double msr_overflow(int signal_idx, uint32_t msr_size, double value);
+
+            struct m_msr_batch_op {
+                uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
+                uint16_t isrdmsr;  /// @brief In: 0=wrmsr, non-zero=rdmsr
+                int32_t err;
+                uint32_t msr;      /// @brief In: MSR Address to perform op
+                uint64_t msrdata;  /// @brief In/Out: Input/Result to/from operation
+                uint64_t wmask;    /// @brief Out: Write mask applied to wrmsr
+            };
+
+            struct m_msr_batch_array {
+                uint32_t numops;            /// @brief In: # of operations in ops array
+                struct m_msr_batch_op *ops;   /// @brief In: Array[numops] of operations
+            };
+
             /// @brief Holds the underlying hardware topology.
             PlatformTopology m_topology;
             /// @brief Holds the file descriptors for the per-cpu special files.
@@ -287,19 +302,6 @@ namespace geopm
             std::vector<double> m_msr_overflow_offset;
             int m_msr_batch_desc;
             bool m_is_batch_enabled;
-            struct m_msr_batch_op {
-                uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
-                uint16_t isrdmsr;  /// @brief In: 0=wrmsr, non-zero=rdmsr
-                int32_t err;
-                uint32_t msr;      /// @brief In: MSR Address to perform op
-                uint64_t msrdata;  /// @brief In/Out: Input/Result to/from operation
-                uint64_t wmask;    /// @brief Out: Write mask applied to wrmsr
-            };
-
-            struct m_msr_batch_array {
-                uint32_t numops;            /// @brief In: # of operations in ops array
-                struct m_msr_batch_op *ops;   /// @brief In: Array[numops] of operations
-            };
             struct m_msr_batch_array m_batch;
     };
 }

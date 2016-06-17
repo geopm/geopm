@@ -51,6 +51,8 @@ namespace geopm
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
         , m_platform_id(0x657)
+        , m_signal_msr_offset(M_L2_MISSES + 2 * m_num_tile)
+        , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
         , M_KNL_MODEL_NAME("Knights Landing")
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
@@ -153,11 +155,11 @@ namespace geopm
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
                 value = msr_overflow(offset_idx, 48,
                                      (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_L2_MISSES + device_index]));
+                                                      m_signal_msr_offset[M_L2_MISSES + 2 * device_index]));
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
-                value += msr_overflow(offset_idx + 1, 48,
+                value += msr_overflow(offset_idx, 48,
                                      (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_HW_L2_PREFETCH + device_index]));
+                                                      m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * device_index]));
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -172,7 +174,7 @@ namespace geopm
         if (m_is_batch_enabled) {
             int index = 0;
             int signal_index = 0;
-            int num_signal = 0;
+            size_t num_signal = 0;
             int cpu_per_tile = m_num_core_per_tile * m_num_cpu_per_core;
             if (is_changed) {
                 for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
@@ -237,10 +239,10 @@ namespace geopm
                             m_batch.ops[index].msr = m_signal_msr_offset[M_CLK_UNHALTED_REF];
                             break;
                         case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_L2_MISSES + (m_batch.ops[index].cpu / cpu_per_tile)];
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_L2_MISSES + 2 * (m_batch.ops[index].cpu / cpu_per_tile)];
                             ++index;
                             m_batch.ops[index] = m_batch.ops[index - 1];
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_HW_L2_PREFETCH + (m_batch.ops[index].cpu / cpu_per_tile)];
+                            m_batch.ops[index].msr = m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * (m_batch.ops[index].cpu / cpu_per_tile)];
                             break;
                         default:
                             throw geopm::Exception("KNLPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -358,34 +360,50 @@ namespace geopm
         fixed_counters_init();
 
         // Add en extra counter signal since we use two counters to calculate read bandwidth
-        int num_signal = m_num_energy_signal * m_num_package + (m_num_counter_signal + M_EXTRA_SIGNAL)  * m_num_tile;
+        size_t num_signal = m_num_energy_signal * m_num_package + (m_num_counter_signal + M_EXTRA_SIGNAL)  * m_num_tile;
         m_msr_value_last.resize(num_signal);
         m_msr_overflow_offset.resize(num_signal);
         std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
         std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
 
         //Save off the msr offsets for the signals we want to read to avoid a map lookup
-        m_signal_msr_offset.push_back(msr_offset("PKG_ENERGY_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("DRAM_ENERGY_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("IA32_PERF_STATUS"));
-        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR0"));
-        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR1"));
-        m_signal_msr_offset.push_back(msr_offset("PERF_FIXED_CTR2"));
+        for (int i = 0; i < M_L2_MISSES; ++i) {
+            switch (i) {
+                case M_RAPL_PKG_STATUS:
+                    m_signal_msr_offset[i] = msr_offset("PKG_ENERGY_STATUS");
+                    break;
+                case M_RAPL_DRAM_STATUS:
+                    m_signal_msr_offset[i] = msr_offset("DRAM_ENERGY_STATUS");
+                    break;
+                case M_IA32_PERF_STATUS:
+                    m_signal_msr_offset[i] = msr_offset("IA32_PERF_STATUS");
+                    break;
+                case M_INST_RETIRED:
+                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR0");
+                    break;
+                case M_CLK_UNHALTED_CORE:
+                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR1");
+                    break;
+                case M_CLK_UNHALTED_REF:
+                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR2");
+                    break;
+                default:
+                    throw Exception("KNLPlatformImp: Index not enumerated",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    break;
+            }
+        }
         for (int i = 0; i < m_num_tile; i++) {
-            std::string msr_name("_MSR_PMON_CTR0");
-            msr_name.insert(0, std::to_string(i));
-            msr_name.insert(0, "C");
-            m_signal_msr_offset.push_back(msr_offset(msr_name));
-            msr_name = "_MSR_PMON_CTR1";
-            msr_name.insert(0, std::to_string(i));
-            msr_name.insert(0, "C");
-            m_signal_msr_offset.push_back(msr_offset(msr_name));
+            std::string msr_name("C" + std::to_string(i) + "_MSR_PMON_CTR0");
+            m_signal_msr_offset[M_L2_MISSES + 2 * i] = msr_offset(msr_name);
+            msr_name = "C" + std::to_string(i) + "_MSR_PMON_CTR1";
+            m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * i] = msr_offset(msr_name);
         }
 
         //Save off the msr offsets for the controls we want to write to avoid a map lookup
-        m_control_msr_offset.push_back(msr_offset("PKG_POWER_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("DRAM_POWER_LIMIT"));
-        m_control_msr_offset.push_back(msr_offset("IA32_PERF_CTL"));
+        m_control_msr_offset[M_RAPL_PKG_LIMIT] = msr_offset("PKG_POWER_LIMIT");
+        m_control_msr_offset[M_RAPL_DRAM_LIMIT] = msr_offset("DRAM_POWER_LIMIT");
+        m_control_msr_offset[M_IA32_PERF_CTL] = msr_offset("IA32_PERF_CTL");
     }
 
     void KNLPlatformImp::msr_reset()

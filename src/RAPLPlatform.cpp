@@ -145,7 +145,6 @@ namespace geopm
         double accum_read_bw;
         int counter_domain_per_energy_domain = m_num_counter_domain / m_num_energy_domain;
         int energy_domain = m_imp->power_control_domain();
-        int counter_domain = m_imp->performance_counter_domain();
         struct geopm_time_s time;
 
         m_imp->batch_read_signal(m_batch_desc, false);
