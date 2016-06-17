@@ -126,7 +126,7 @@ namespace geopm
                 value *= m_dram_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                value = (double)((msr_read(device_type, device_index / m_num_cpu_per_core,
+                value = (double)((msr_read(device_type, device_index,
                                           m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
                 //convert to MHZ
                 value *= 0.1;
@@ -134,29 +134,29 @@ namespace geopm
             case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
                 value = msr_overflow(offset_idx, 64,
-                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                     (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_INST_RETIRED]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
                 value = msr_overflow(offset_idx, 64,
-                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                     (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_CLK_UNHALTED_CORE])) / m_num_core_per_tile;
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
                 value = msr_overflow(offset_idx, 64,
-                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                     (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_CLK_UNHALTED_REF]));
                 break;
             case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
                 value = msr_overflow(offset_idx, 48,
-                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                     (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_L2_MISSES + device_index]));
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
                 value += msr_overflow(offset_idx + 1, 48,
-                                     (double)msr_read(device_type, device_index / m_num_cpu_per_core,
+                                     (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_HW_L2_PREFETCH + device_index]));
                 break;
             default:
@@ -339,7 +339,7 @@ namespace geopm
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 msr_val = (uint64_t)(value * 10);
                 msr_val = msr_val << 8;
-                msr_write(device_type, device_index / m_num_cpu_per_core, m_control_msr_offset[M_IA32_PERF_CTL], msr_val);
+                msr_write(device_type, device_index, m_control_msr_offset[M_IA32_PERF_CTL], msr_val);
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
