@@ -76,15 +76,11 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
-              test/gtest_links/MPITreeCommunicatorTest.hello \
-              test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
-              test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
               test/gtest_links/LockingHashTableTest.hello \
               test/gtest_links/LockingHashTableTest.name_set_fill_short \
               test/gtest_links/LockingHashTableTest.name_set_fill_long \
               test/gtest_links/DeciderFactoryTest.decider_register \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
-              test/gtest_links/MPISharedMemoryTest.hello \
               test/gtest_links/RegionTest.identifier \
               test/gtest_links/RegionTest.hint \
               test/gtest_links/RegionTest.sample_message \
@@ -127,6 +123,14 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/BalancingDeciderTest.new_policy_message \
               test/gtest_links/BalancingDeciderTest.update_policy \
               # end
+
+if ENABLE_MPI
+GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
+               test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
+               test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
+               test/gtest_links/MPISharedMemoryTest.hello \
+               # end
+endif
 
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
