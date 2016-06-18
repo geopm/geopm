@@ -44,6 +44,10 @@
 #define NUM_TILE 4
 #define NUM_PACKAGE 2
 
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
+
 class TestPlatformImp : public geopm::PlatformImp
 {
     public:
@@ -85,7 +89,7 @@ TestPlatformImp::~TestPlatformImp()
 {
     for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
         msr_close(i);
-        snprintf(m_msr_path, 256, "/tmp/msrfile%d", (int)i);
+        snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", (int)i);
         remove(m_msr_path);
     }
 }
@@ -133,7 +137,7 @@ void TestPlatformImp::msr_path(int cpu)
     int err;
     std::ofstream msrfile;
 
-    err = snprintf(m_msr_path, 256, "/tmp/msrfile%d", cpu);
+    err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", cpu);
     ASSERT_TRUE(err >= 0);
 
     msrfile.open(m_msr_path, std::ios::out|std::ios::binary);
