@@ -171,6 +171,21 @@ fi
 AC_SUBST([enable_pmpi])
 AM_CONDITIONAL([ENABLE_PMPI], [test "x$enable_pmpi" = "x1"])
 
+AC_ARG_ENABLE([doc],
+  [AS_HELP_STRING([--disable-doc], [Do not create man pages with ronn])],
+[if test "x$enable_doc" = "xno" ; then
+  enable_doc="0"
+else
+  enable_doc="1"
+fi
+],
+[enable_doc="1"]
+)
+
+AC_SUBST([enable_doc])
+AM_CONDITIONAL([ENABLE_DOC], [test "x$enable_doc" = "x1"])
+
+
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
 AC_LANG_PUSH([C++])
@@ -413,4 +428,5 @@ AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([pmpi               : ${enable_pmpi}])
+AC_MSG_RESULT([doc                : ${enable_doc}])
 AC_MSG_RESULT([===============================================================================])

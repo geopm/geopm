@@ -69,6 +69,7 @@ install-exec-hook:
 endif
 endif
 
+if ENABLE_DOC
 dist_man_MANS = man/geopm.7 \
                 man/geopmctl.1 \
                 man/geopm_comm.3 \
@@ -82,6 +83,7 @@ dist_man_MANS = man/geopm.7 \
                 man/geopm_prof_c.3 \
                 man/geopm_version.3 \
                 # end
+endif
 
 dist_doc_DATA = README \
                 COPYING \
@@ -335,6 +337,8 @@ rpm: dist
 	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS) LIBS=$(LIBS)" \
 		-f geopm.spec.mk $@
 
+if ENABLE_DOC
+
 # DOXYGEN TARGET
 doxygen:
 	doxygen dox/Doxyfile
@@ -364,6 +368,10 @@ gh-pages: doxygen $(dist_man_MANS)
 	mkdir -p gh-pages/man
 	cp -rf dox/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
+
+else
+BUILT_SOURCES =
+endif
 
 # INCLUDES
 check_PROGRAMS =
