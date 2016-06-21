@@ -59,6 +59,7 @@ class MPIProfileTest: public :: testing :: Test
         size_t m_table_size;
         char *m_ignore_env_orig;
         char *m_policy_env_orig;
+        char *m_report_env_orig;
         double m_epsilon;
         bool m_use_std_sleep;
         std::string m_log_file;
@@ -73,6 +74,7 @@ MPIProfileTest::MPIProfileTest()
     : m_table_size(4096)
     , m_ignore_env_orig(getenv("GEOPM_ERROR_AFFINITY_IGNORE"))
     , m_policy_env_orig(getenv("GEOPM_POLICY"))
+    , m_report_env_orig(getenv("GEOPM_REPORT"))
     , m_epsilon(0.5)
     , m_use_std_sleep(false)
     , m_log_file("MPIProfileTest_log")
@@ -90,6 +92,7 @@ MPIProfileTest::MPIProfileTest()
 
     setenv("GEOPM_ERROR_AFFINITY_IGNORE", "true", 1);
     setenv("GEOPM_POLICY", "test/default_policy.json", 1);
+    setenv("GEOPM_REPORT", m_log_file.c_str(), 1);
 
     geopm_comm_split_ppn1(MPI_COMM_WORLD, &ppn1_comm);
     m_is_node_root = ppn1_comm != MPI_COMM_NULL;
@@ -109,6 +112,12 @@ MPIProfileTest::~MPIProfileTest()
     }
     else {
         unsetenv("GEOPM_POLICY");
+    }
+    if (m_report_env_orig) {
+        setenv("GEOPM_REPORT", m_report_env_orig, 1);
+    }
+    else {
+        unsetenv("GEOPM_REPORT");
     }
     if (m_is_node_root) {
         remove(m_log_file_node.c_str());
@@ -228,13 +237,12 @@ TEST_F(MPIProfileTest, runtime)
         timeout = geopm_time_diff(&start, &curr);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[2]));
-    ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
+    ASSERT_EQ(0, geopm_prof_destroy(prof));
 
     if (m_is_node_root) {
         parse_log(m_check_val_multi);
     }
 
-    ASSERT_EQ(0, geopm_prof_destroy(prof));
 }
 
 TEST_F(MPIProfileTest, progress)
@@ -284,14 +292,12 @@ TEST_F(MPIProfileTest, progress)
         geopm_prof_progress(prof, region_id[2], timeout/3.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[2]));
-
-    ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
+    ASSERT_EQ(0, geopm_prof_destroy(prof));
 
     if (m_is_node_root) {
         parse_log(m_check_val_multi);
     }
 
-    ASSERT_EQ(0, geopm_prof_destroy(prof));
 }
 
 TEST_F(MPIProfileTest, multiple_entries)
@@ -374,14 +380,11 @@ TEST_F(MPIProfileTest, multiple_entries)
         geopm_prof_progress(prof, region_id[1], timeout/3.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
-
-    ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
+    ASSERT_EQ(0, geopm_prof_destroy(prof));
 
     if (m_is_node_root) {
         parse_log(m_check_val_single);
     }
-
-    ASSERT_EQ(0, geopm_prof_destroy(prof));
 }
 
 TEST_F(MPIProfileTest, nested_region)
@@ -440,14 +443,11 @@ TEST_F(MPIProfileTest, nested_region)
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[1]));
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[0]));
-
-    ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
+    ASSERT_EQ(0, geopm_prof_destroy(prof));
 
     if (m_is_node_root) {
         parse_log(m_check_val_single);
     }
-
-    ASSERT_EQ(0, geopm_prof_destroy(prof));
 }
 
 TEST_F(MPIProfileTest, outer_sync)
@@ -485,13 +485,11 @@ TEST_F(MPIProfileTest, outer_sync)
         MPI_Barrier(MPI_COMM_WORLD);
     }
 
-    ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
+    ASSERT_EQ(0, geopm_prof_destroy(prof));
 
     if (m_is_node_root) {
         parse_log(m_check_val_default);
     }
-
-    ASSERT_EQ(0, geopm_prof_destroy(prof));
 }
 
 TEST_F(MPIProfileTest, noctl)
@@ -538,11 +536,9 @@ TEST_F(MPIProfileTest, noctl)
         timeout = geopm_time_diff(&start, &curr);
     }
     ASSERT_EQ(0, geopm_prof_exit(prof, region_id[2]));
-    ASSERT_EQ(0, geopm_prof_print(prof, m_log_file.c_str(), 0));
+    ASSERT_EQ(0, geopm_prof_destroy(prof));
 
     if (m_is_node_root) {
         parse_log(m_check_val_multi);
     }
-
-    ASSERT_EQ(0, geopm_prof_destroy(prof));
 }

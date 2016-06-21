@@ -224,23 +224,6 @@ extern "C"
 
     }
 
-    int geopm_prof_print(struct geopm_prof_c *prof, const char *file_name, int depth)
-    {
-        int err = 0;
-        try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            prof_obj->print(std::string(file_name), depth);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-
-    }
-
     int geopm_tprof_create(int num_thread, size_t num_iter, size_t chunk_size, struct geopm_tprof_c **tprof)
     {
         int err = 0;
@@ -405,6 +388,9 @@ namespace geopm
     {
         if (m_is_enabled && !m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
+        }
+        if (geopm_env_report_verbosity()) {
+            print(geopm_env_report(), geopm_env_report_verbosity());
         }
         delete m_table;
         delete m_table_shmem;

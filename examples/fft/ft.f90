@@ -277,7 +277,6 @@
           npbversion, compiletime, cs1, cs2, cs3, cs4, cs5, cs6, cs7)
       endif
       if (timers_enabled) call print_timers()
-      ierr = geopm_prof_print(geopm_prof, c_char_'nas_fft_geopm'//c_null_char, 0)
       ierr = geopm_prof_destroy(geopm_prof)
       call MPI_Finalize(ierr)
       end

@@ -173,15 +173,6 @@ module geopm
             character(kind=c_char), intent(in) :: feature_name(*)
         end function geopm_prof_disable
 
-        !> @brief Fortran interface to geopm_prof_print C function.
-        integer(kind=c_int) function geopm_prof_print(prof, file_name, depth) bind(C)
-            import
-            implicit none
-            type(c_ptr), value, intent(in) :: prof
-            character(kind=c_char), intent(in) :: file_name(*)
-            integer(kind=c_int), value, intent(in) :: depth
-        end function geopm_prof_print
-
         !> @brief Fortran interface to geopm_tprof_create C function.
         integer(kind=c_int) function geopm_tprof_create(num_thread, num_iter, chunk_size, tprof) bind(C)
             import

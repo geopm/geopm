@@ -238,26 +238,6 @@ namespace geopm
             /// values for feature_name are: "instr", "flop" and
             /// "joules".
             void disable(const std::string feature_name);
-            /// @brief Print profile report to a file.
-            ///
-            /// Writes a profile report to a file with the given
-            /// file_name.  This should be called only after all
-            /// profile data has been collected, just prior to
-            /// application termination.  All profile information
-            /// above the specified depth in the control tree
-            /// hierarchy is contained in the report.  A depth of 0
-            /// gives only statistics aggregated over all MPI
-            /// processes.
-            ///
-            /// @param [in] file_name The base file name for the
-            ///        output report.  There may be suffixes appended
-            ///        to this name if multiple files are created.
-            ///
-            /// @param [in] depth Gives the depth in the control tree
-            ///        which is the finest granularity of the report.
-            ///        By default there are three levels in the
-            ///        hierarchy tree.
-            void print(const std::string file_name, int depth);
         protected:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
@@ -282,6 +262,24 @@ namespace geopm
             ///        Profile::region() when the region was
             ///        registered.
             void sample(uint64_t region_id);
+            /// @brief Print profile report to a file.
+            ///
+            /// Writes a profile report to a file with the given
+            /// file_name.  This should be called only after all
+            /// profile data has been collected, just prior to
+            /// application termination.
+            ///
+            /// @param [in] file_name The base file name for the
+            ///        output report.  There may be suffixes appended
+            ///        to this name if multiple files are created.
+            ///
+            /// @param [in] verbosity Gives the verbosity level for
+            ///        the report. If zero is given, no report is
+            ///        generated.  In the future reports with higher
+            ///        verbosity level will include more details about
+            ///        the run.  Currently there is just one type of
+            ///        report created.
+            void print(const std::string file_name, int verbosity);
             bool m_is_enabled;
             /// @brief holds the string name of the profile.
             std::string m_prof_name;

@@ -368,7 +368,6 @@ void synthetic_benchmark_main(int nranks, int rank)
         dumpSummary(nranks, endProg-startProg);
     }
 
-    geopm_prof_print(prof, "geopm_synthetic_benchmark.log", 0);
     geopm_prof_destroy(prof);
 }
 

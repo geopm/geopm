@@ -47,7 +47,9 @@ extern "C"
     const char *geopm_env_shmkey(void);
     const char *geopm_env_trace(void);
     const char *geopm_env_plugin_path(void);
-    int geopm_env_do_pmpi_ctl(void);
+    const char *geopm_env_report(void);
+    int geopm_env_report_verbosity(void);
+    int geopm_env_pmpi_ctl(void);
     int geopm_env_do_region_barrier(void);
     int geopm_env_do_trace(void);
     int geopm_env_do_ignore_affinity(void);

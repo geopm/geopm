@@ -95,9 +95,6 @@ int main(int argc, char **argv)
         printf("sum = %e\n\n", sum);
     }
     if (!err) {
-        err = geopm_prof_print(prof, "timed_loop", 0);
-    }
-    if (!err) {
         err = geopm_prof_destroy(prof);
     }
 

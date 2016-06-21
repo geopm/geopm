@@ -45,19 +45,23 @@ namespace geopm
         public:
             Environment();
             virtual ~Environment();
+            const char *report(void) const;
             const char *policy(void) const;
             const char *shmkey(void) const;
             const char *trace(void) const;
             const char *plugin_path(void) const;
-            int do_pmpi_ctl(void) const;
+            int report_verbosity(void) const;
+            int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
             int do_trace(void) const;
             int do_ignore_affinity() const;
         private:
+            const std::string m_report_env;
             const std::string m_policy_env;
             const std::string m_shmkey_env;
             const std::string m_trace_env;
             const std::string m_plugin_path_env;
+            const int m_report_verbosity;
             int m_pmpi_ctl;
             const bool m_do_region_barrier;
             const bool m_do_trace;
@@ -71,10 +75,13 @@ namespace geopm
     }
 
     Environment::Environment()
-        : m_policy_env(getenv("GEOPM_POLICY") ? getenv("GEOPM_POLICY") : "")
+        : m_report_env(getenv("GEOPM_REPORT") ? getenv("GEOPM_REPORT") : "")
+        , m_policy_env(getenv("GEOPM_POLICY") ? getenv("GEOPM_POLICY") : "")
         , m_shmkey_env(getenv("GEOPM_SHMKEY") ? getenv("GEOPM_SHMKEY") : "/geopm-shm")
         , m_trace_env(getenv("GEOPM_TRACE") ? getenv("GEOPM_TRACE") : "")
         , m_plugin_path_env(getenv("GEOPM_PLUGIN_PATH") ? getenv("GEOPM_PLUGIN_PATH") : "")
+        , m_report_verbosity(getenv("GEOPM_REPORT_VERBOSITY") ? stol(std::string(getenv("GEOPM_REPORT_VERBOSITY"))) :
+                             (m_report_env.size() ? 1 : 0))
         , m_do_region_barrier(getenv("GEOPM_REGION_BARRIER") != NULL)
         , m_do_trace(getenv("GEOPM_TRACE") != NULL)
         , m_do_ignore_affinity(getenv("GEOPM_ERROR_AFFINITY_IGNORE") != NULL)
@@ -94,6 +101,11 @@ namespace geopm
     Environment::~Environment()
     {
 
+    }
+
+    const char *Environment::report(void) const
+    {
+        return m_report_env.c_str();
     }
 
     const char *Environment::policy(void) const
@@ -116,7 +128,12 @@ namespace geopm
         return m_plugin_path_env.c_str();
     }
 
-    int Environment::do_pmpi_ctl(void) const
+    int Environment::report_verbosity(void) const
+    {
+        return m_report_verbosity;
+    }
+
+    int Environment::pmpi_ctl(void) const
     {
         return m_pmpi_ctl;
     }
@@ -159,9 +176,19 @@ extern "C"
         return geopm::environment().plugin_path();
     }
 
-    int geopm_env_do_pmpi_ctl(void)
+    const char *geopm_env_report(void)
     {
-        return geopm::environment().do_pmpi_ctl();
+        return geopm::environment().report();
+    }
+
+    int geopm_env_report_verbosity(void)
+    {
+        return geopm::environment().report_verbosity();
+    }
+
+    int geopm_env_pmpi_ctl(void)
+    {
+        return geopm::environment().pmpi_ctl();
     }
 
     int geopm_env_do_region_barrier(void)

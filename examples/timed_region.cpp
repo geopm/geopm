@@ -76,8 +76,6 @@ int main(int argc, char**argv)
     }
     geopm_prof_exit(prof, region_id[2]);
 
-    geopm_prof_print(prof, "geopm_timed_region.log", 0);
-
     geopm_prof_destroy(prof);
 
     MPI_Finalize();

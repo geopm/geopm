@@ -79,7 +79,6 @@ if (rank == 0) then
     print *,'sum=', sum
 end if
 ierr = geopm_prof_exit(c_null_ptr, region_id)
-ierr = geopm_prof_print(prof, c_char_'timed_loop'//c_null_char, 0)
 ierr = geopm_prof_destroy(prof)
 call MPI_Finalize(ierr)
 

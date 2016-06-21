@@ -105,10 +105,6 @@ int geopm_prof_outer_sync(struct geopm_prof_c *prof);
 int geopm_prof_disable(struct geopm_prof_c *prof,
                        const char *feature_name);
 
-int geopm_prof_print(struct geopm_prof_c *prof,
-                     const char *file_name,
-                     int depth);
-
 int geopm_tprof_create(int num_thread,
                        size_t num_iter,
                        size_t chunk_size,

@@ -42,6 +42,8 @@
 int main(int argc, char **argv)
 {
     const char *policy_name = "geopm_test_plugin_policy";
+    const char *report_name = "TestPluginApp-prof.txt";
+
     const double imbalance = 0.10;
     const int rank_per_node = 8;
     const size_t clock_req_base = 100000000000;
@@ -54,6 +56,7 @@ int main(int argc, char **argv)
     struct geopm_prof_c *prof;
 
     setenv("GEOPM_POLICY", policy_name, 1);
+    setenv("GEOPM_REPORT", report_name, 1);
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
@@ -83,7 +86,6 @@ int main(int argc, char **argv)
         last_time = curr_time;
     }
     geopm_prof_exit(prof, region_id);
-    geopm_prof_print(prof, "TestPluginApp-prof.txt", 0);
     geopm_prof_destroy(prof);
     MPI_Finalize();
     return 0;
