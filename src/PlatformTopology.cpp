@@ -38,8 +38,16 @@ namespace geopm
 {
     PlatformTopology::PlatformTopology()
     {
-        hwloc_topology_init(&m_topo);
-        hwloc_topology_load(m_topo);
+        int err = hwloc_topology_init(&m_topo);
+        if (err) {
+            throw Exception("PlatformTopology: error returned by hwloc_topology_init()",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = hwloc_topology_load(m_topo);
+        if (err) {
+            throw Exception("PlatformTopology: error returned by hwloc_topology_load()",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
     }
 
     PlatformTopology::~PlatformTopology()
