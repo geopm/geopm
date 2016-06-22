@@ -142,7 +142,7 @@ AC_SUBST([enable_mpi])
 AM_CONDITIONAL([ENABLE_MPI], [test "x$enable_mpi" = "x1"])
 
 AC_ARG_ENABLE([fortran],
-  [AS_HELP_STRING([--disable-fortan], [Do not build fortran interface])],
+  [AS_HELP_STRING([--disable-fortran], [Do not build fortran interface])],
 [if test "x$enable_fortran" = "xno" ; then
   enable_fortran="0"
 else
