@@ -172,7 +172,7 @@ namespace geopm
             int m_max_fanout;
             std::vector<int> m_fan_out;
             const GlobalPolicy *m_global_policy;
-            TreeCommunicator *m_tree_comm;
+            TreeCommunicatorBase *m_tree_comm;
             std::vector<Decider *> m_tree_decider;
             Decider *m_leaf_decider;
             DeciderFactory *m_decider_factory;

@@ -213,23 +213,29 @@ namespace geopm
 
             m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
 
-            int num_fan_out = 1;
-            std::vector<int> fan_out(num_fan_out);
-            fan_out[0] = num_nodes;
+            if (num_nodes > 1) {
+                int num_fan_out = 1;
+                std::vector<int> fan_out(num_fan_out);
+                fan_out[0] = num_nodes;
 
-            while (fan_out[0] > M_MAX_FAN_OUT && fan_out[num_fan_out - 1] != 1) {
-                ++num_fan_out;
-                fan_out.resize(num_fan_out);
-                check_mpi(MPI_Dims_create(num_nodes, num_fan_out, fan_out.data()));
+                while (fan_out[0] > M_MAX_FAN_OUT && fan_out[num_fan_out - 1] != 1) {
+                    ++num_fan_out;
+                    fan_out.resize(num_fan_out);
+                    check_mpi(MPI_Dims_create(num_nodes, num_fan_out, fan_out.data()));
+                }
+
+                if (num_fan_out > 1 && fan_out[num_fan_out - 1] == 1) {
+                    --num_fan_out;
+                    fan_out.resize(num_fan_out);
+                }
+                std::reverse(fan_out.begin(), fan_out.end());
+
+                m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
+            }
+            else {
+                m_tree_comm = new SingleTreeCommunicator(global_policy);
             }
 
-            if (num_fan_out > 1 && fan_out[num_fan_out - 1] == 1) {
-                --num_fan_out;
-                fan_out.resize(num_fan_out);
-            }
-            std::reverse(fan_out.begin(), fan_out.end());
-
-            m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
             m_policy.resize(num_level);
@@ -629,7 +635,7 @@ namespace geopm
         }
     }
 
-    void Controller::enforce_child_policy(int level, const Policy &policy)
+    void Controller::enforce_child_policy(int level, const Policy &policy) /// @todo this method is *never* called
     {
         if (!m_is_node_root) {
             return;

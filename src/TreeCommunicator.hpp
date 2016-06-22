@@ -38,6 +38,7 @@
 #include <pthread.h>
 
 #include "geopm_message.h"
+#include "GlobalPolicy.hpp"
 
 namespace geopm
 {
@@ -55,7 +56,24 @@ namespace geopm
     /// down the control hierarchy.  It leverages MPI to obtain
     /// topology information to optimize communication pattern, and
     /// for non-blocking communication calls.
-    class TreeCommunicator
+
+    class TreeCommunicatorBase
+    {
+        public:
+            TreeCommunicatorBase() {}
+            /// @brief TreeCommunicator destructor, virtual.
+            virtual ~TreeCommunicatorBase() {}
+            virtual int num_level(void) const = 0;
+            virtual int root_level(void) const = 0;
+            virtual int level_rank(int level) const = 0;
+            virtual int level_size(int level) const = 0;
+            virtual void send_sample(int level, const struct geopm_sample_message_s &sample) = 0;
+            virtual void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy) = 0;
+            virtual void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample) = 0;
+            virtual void get_policy(int level, struct geopm_policy_message_s &policy) = 0;
+    };
+
+    class TreeCommunicator : public TreeCommunicatorBase
     {
         public:
             /// @brief TreeCommunicator constructor.
@@ -223,6 +241,31 @@ namespace geopm
             MPI_Datatype m_sample_mpi_type;
             /// MPI data type for policy message
             MPI_Datatype m_policy_mpi_type;
+    };
+
+    class SingleTreeCommunicator : public TreeCommunicatorBase
+    {
+        public:
+            /// @brief SingleTreeCommunicator constructor.
+            ///
+            /// Supports the TreeCommunicator interface when
+            /// allocation is running on one node only.
+            ///
+            /// @param [in] global_policy Determines the policy for
+            ///        the run.
+            SingleTreeCommunicator(GlobalPolicy *global_policy);
+            virtual ~SingleTreeCommunicator();
+            int num_level(void) const;
+            int root_level(void) const;
+            int level_rank(int level) const;
+            int level_size(int level) const;
+            void send_sample(int level, const struct geopm_sample_message_s &sample);
+            void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy);
+            void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
+            void get_policy(int level, struct geopm_policy_message_s &policy);
+        protected:
+            GlobalPolicy *m_policy;
+            struct geopm_sample_message_s m_sample;
     };
 
 }

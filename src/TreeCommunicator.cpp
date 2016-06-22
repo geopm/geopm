@@ -614,4 +614,57 @@ namespace geopm
             }
         }
     }
+
+    SingleTreeCommunicator::SingleTreeCommunicator(GlobalPolicy *global_policy)
+        : m_policy(global_policy)
+        , m_sample(GEOPM_SAMPLE_INVALID)
+    {
+
+    }
+
+    SingleTreeCommunicator::~SingleTreeCommunicator()
+    {
+
+    }
+
+    int SingleTreeCommunicator::num_level(void) const
+    {
+        return 1;
+    }
+
+    int SingleTreeCommunicator::root_level(void) const
+    {
+        return 0;
+    }
+
+    int SingleTreeCommunicator::level_rank(int level) const
+    {
+        return 0;
+    }
+
+    int SingleTreeCommunicator::level_size(int level) const
+    {
+        return 1;
+    }
+
+    void SingleTreeCommunicator::send_sample(int level, const struct geopm_sample_message_s &sample)
+    {
+        m_sample = sample;
+    }
+
+    void SingleTreeCommunicator::send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy)
+    {
+
+    }
+
+    void SingleTreeCommunicator::get_sample(int level, std::vector<struct geopm_sample_message_s> &sample)
+    {
+        sample[0] = m_sample;
+    }
+
+    void SingleTreeCommunicator::get_policy(int level, struct geopm_policy_message_s &policy)
+    {
+        m_policy->policy_message(policy);
+    }
+
 }
