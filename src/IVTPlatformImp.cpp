@@ -51,7 +51,7 @@ namespace geopm
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
         , m_platform_id(0)
-        , m_signal_msr_offset(M_LLC_VICTIMS + m_num_hw_cpu)
+        , m_signal_msr_offset(M_LLC_VICTIMS)
         , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
         , M_SNB_PLATFORM_ID(0x62D)
         , M_IVT_PLATFORM_ID(0x63E)
@@ -347,6 +347,8 @@ namespace geopm
         rapl_init();
         cbo_counters_init();
         fixed_counters_init();
+
+        m_signal_msr_offset.resize(M_LLC_VICTIMS + m_num_hw_cpu);
 
         size_t num_signal = m_num_energy_signal * m_num_package + m_num_counter_signal * m_num_hw_cpu;
         m_msr_value_last.resize(num_signal);

@@ -51,7 +51,7 @@ namespace geopm
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
         , m_platform_id(0x657)
-        , m_signal_msr_offset(M_L2_MISSES + 2 * m_num_tile)
+        , m_signal_msr_offset(M_L2_MISSES)
         , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
         , M_KNL_MODEL_NAME("Knights Landing")
         , M_BOX_FRZ_EN(0x1 << 16)
@@ -358,6 +358,8 @@ namespace geopm
         rapl_init();
         cbo_counters_init();
         fixed_counters_init();
+
+        m_signal_msr_offset.resize(M_L2_MISSES + 2 * m_num_tile);
 
         // Add en extra counter signal since we use two counters to calculate read bandwidth
         size_t num_signal = m_num_energy_signal * m_num_package + (m_num_counter_signal + M_EXTRA_SIGNAL)  * m_num_tile;
