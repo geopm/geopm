@@ -334,8 +334,7 @@ geopm-$(VERSION).spec:
 	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
 
 rpm: dist
-	$(MAKE) version="$(VERSION)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS) LIBS=$(LIBS)" \
-		-f geopm.spec.mk $@
+	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
 
 if ENABLE_DOC
 
