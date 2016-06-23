@@ -74,11 +74,6 @@ geopm_prof_c(3) -- geopm application profiling structure
     `struct geopm_prof_c *`_prof_, <br>
     `const char *`_feature_name_);
 
-  * `int geopm_prof_print(`:
-    `struct geopm_prof_c *`_prof_, <br>
-    `const char *`_file_name_, <br>
-    `int` _depth_);
-
   * `int geopm_tprof_create(`:
     `int` _num_thread_, <br>
     `size_t` _num_iter_, <br>
@@ -199,21 +194,9 @@ the outer most loop, or the "outer synchronization point."
     "instr", "flop", and "joules".  This API is not currently
     implemented.
 
-  * `geopm_prof_print`():
-    writes a profile report to the file named _file_name_ based on the
-    data collected so far.  This is intended for use just prior to
-    application termination, and the _prof_ object is not valid after
-    calling `geopm_prof_print`(), though it should still be destroyed
-    by calling `geopm_prof_destroy`().  All profile information above
-    the specified _depth_ in the control tree hierarchy is contained
-    in the report.  A depth of 0 gives only statistics aggregated over
-    all MPI processes.  The _depth_ parameter is not currently used
-    and the current implementation creates one report file per compute
-    node.
-
   * `geopm_tprof_create`():
     creates a thread profiling object, _tprof_, which extends the
-    functionality of a `geopm_prof_c` object to report progess within
+    functionality of a `geopm_prof_c` object to report progress within
     threaded regions.  The interface assumes a fixed number of
     threads, _num_thread_, which are performing work sharing on a list
     of tasks _num_iter_ long (e.g. an omp parallel for loop with
@@ -226,7 +209,7 @@ the outer most loop, or the "outer synchronization point."
     progress is aggregated and the mean progress is reported.
 
   * `geopm_tprof_destroy`():
-    releases all resources associated witht the _tprof_ object.  The
+    releases all resources associated with the _tprof_ object.  The
     _tprof_ object should be created and destroyed for each process
     entry into a thread parallel region: the _tprof_ object cannot be
     reused.
