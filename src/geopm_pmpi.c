@@ -33,6 +33,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
+#include <unistd.h>
+#include <stdio.h>
 
 #include "geopm.h"
 #include "geopm_error.h"
@@ -107,6 +109,23 @@ static int geopm_pmpi_init(void)
         fprintf(stderr, "WARNING:  GEOPM PMPI wrappers designed for MPI verison 3.0\n"
                 "          applciation compiled using version %i.%i.\n\n", mpi_version, mpi_subversion);
     }
+
+#ifdef GEOPM_DEBUG
+    char *attach_str = getenv("GEOPM_DEBUG_ATTACH");
+    if (attach_str) {
+        char *end_ptr;
+        int attach_rank = strtol(attach_str, &end_ptr, 10);
+        if (end_ptr == attach_str ||
+            attach_rank == rank) {
+            char hostname[NAME_MAX];
+            gethostname(hostname, sizeof(hostname));
+            printf("PID %d on %s ready for attach\n", getpid(), hostname);
+            fflush(stdout);
+            volatile int cont = 0;
+            while (!cont) {}
+        }
+    }
+#endif
 
     int err = 0;
     struct geopm_policy_c *policy = NULL;
