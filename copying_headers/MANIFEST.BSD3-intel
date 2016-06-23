@@ -1,4 +1,5 @@
 .travis.yml
+.travis_obs.sh
 autogen.sh
 configure.ac
 doc/Makefile.mk

@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 #  Copyright (c) 2015, 2016, Intel Corporation
 #
@@ -30,42 +31,27 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-sudo: false
+if [ -f VERSION ]; then
+    version=$(cat VERSION)
+fi
 
-language: cpp
+if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
+   [ $OBS_BRANCH ] && \
+   [ $OSC_CREDENTIALS ] && \
+   [ $OBS_REPO ] && \
+   [ "$TRAVIS_BRANCH" == "$OBS_BRANCH" ] && \
+   [ $version ] && \
+   [ $version != "0.0.0" ]; then
+    spec_file=geopm-${version}.spec
+    source_file=geopm-${version}.tar.gz
+    curl -X PUT -T $spec_file -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.spec
+    curl -X PUT -T $source_file -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.tar.gz
+else
+    echo TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST
+    echo TRAVIS_BRANCH: $TRAVIS_BRANCH
+    echo OBS_BRANCH: $OBS_BRANCH
+    echo OBS_REPO: $OBS_REPO
+    echo version: $version
+    echo "Did not trigger open suse build"
+fi
 
-before_install:
-    - wget https://github.com/json-c/json-c/archive/json-c-0.11-20130402.tar.gz
-    - tar xvf json-c-0.11-20130402.tar.gz
-    - cd json-c-json-c-0.11-20130402 && ./configure --prefix=$HOME/build/json && make && make install && cd -
-    - ./autogen.sh
-
-install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran --disable-mpi --disable-doc
-
-script:
-    - make
-    - make check
-
-env:
-    global:
-        - OBS_REPO=home:cmcantalupo
-        - OBS_BRANCH=cmcantal-obs-integration
-        # OSC_CREDENTIALS encrypted below
-        - secure: "i7+m1SqcoDLD0FAodAk1XOEi+2O1mjoo/C+cIv03yoWUwasJ8qaGuI8wEba8ViuZ4xBbT5aVH8/xUqwjeUWEk+NCQy47OP86mKBm6BAeLfONaZeHXu8K+IJg4lzKL0VzRjd3Svf4cjRgzD3yWGoiuDMGRWFEdtALdglE8jCoq94mViD4K+0lxpyFU7K2ACIfguuhtFeEq3YzdUWIDxkDock7HcpMWrHHa0Rpf05v6zWPxzvmBR36czcnouweNo4Dtirss0elsXyePyOJLYxEzmj1f2Mlhet7iIw/ZyajlNXn80KJMUEnU8wd8PLXtxBpr97p4B8meL+54nv/eeJcB4bzyL7RFOqV0kJMUkNqV9uU/qFPqVzipQVaZbUr2l8Nhy/Lmu24BQA5PNVq2i9ayhN6N2dLSdLu1A1EdMZHcB91PlbG4zbBXYM5RDrJ1ATDhD+NXYiCxGei2Sct2RCK2nbI8XbXiGo91OC8D/wtEYHpz8WIEQXyIpEBC6OVrMEUtDxBbvIJfn/zpyyTPcSCojP5NYtMTie8At832Aa8L5/7w5hDGFafYYqZDoyTS9supIXD4pwcVg4JNRWViQEuU/csNV+/WXwTKFkxD4UA+77B2Pv6vsA0t1AqONa9Ydg6GzkPj7q5u9fPQ3oFh63AbGB5Unjotjst5Z346OoEDyU="
-
-after_success:
-    - make dist
-    - ./.travis_obs.sh
-
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-4.8
-    - g++-4.8
-    - libhwloc-common
-    - libhwloc-dev
-    - openmpi-bin
-    - libopenmpi-dev
