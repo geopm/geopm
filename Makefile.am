@@ -89,19 +89,24 @@ dist_doc_DATA = README \
                 # end
 
 EXTRA_DIST = .gitignore \
+             .travis.yml \
+             .travis_obs.sh \
              autogen.sh \
              ChangeLog \
              configure.ac \
              CONTRIBUTING \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
+             copying_headers/header.NAS \
              copying_headers/MANIFEST.BSD3-llnl \
-             copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.BSD3-intel \
+             copying_headers/MANIFEST.EXEMPT \
+             copying_headers/MANIFEST.NAS \
              copying_headers/test-license \
              dox/Doxyfile \
              examples/README \
              examples/threaded_step_example.c \
+             examples/fft/make.def \
              geopm.spec.mk \
              geopm-$(VERSION).spec \
              Makefile.am \
@@ -121,6 +126,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_version.3.ronn \
              ronn/header.txt \
              ronn/index.txt \
+             test/geopm_static_modes_test.sh \
              TODO \
              # end
 
