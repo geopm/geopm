@@ -55,13 +55,14 @@ Source0: geopm.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc-c++
 BuildRequires: python
+BuildRequires: openmpi-devel
+BuildRequires: hwloc-devel
+BuildRequires: unzip
 %if %{defined suse_version}
 BuildRequires: libjson-c-devel
 %else
 BuildRequires: json-c-devel
 %endif
-BuildRequires: openmpi-devel
-BuildRequires: hwloc-devel
 Prefix: %{_prefix}
 
 %if %{defined suse_version}
