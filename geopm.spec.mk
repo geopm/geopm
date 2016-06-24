@@ -51,9 +51,10 @@ License: See COPYING
 Group: System Environment/Libraries
 Vendor: Intel Corporation
 URL: http://geopm.github.io/geopm
-Source0: geopm-%{version}.tar.gz
+Source0: geopm.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc-c++
+BuildRequires: python
 %if %{defined suse_version}
 BuildRequires: libjson-c-devel
 %else
@@ -61,8 +62,6 @@ BuildRequires: json-c-devel
 %endif
 BuildRequires: openmpi-devel
 BuildRequires: hwloc-devel
-BuildRequires: ruby-devel
-BuildRequires: rubygems
 Prefix: %{_prefix}
 
 %if %{defined suse_version}
@@ -139,16 +138,18 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
-            --disable-fortran --disable-pmpi
+            --disable-fortran --disable-pmpi --disable-doc
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
-            --disable-fortran --disable-pmpi
+            --disable-fortran --disable-pmpi --disable-doc
 %endif
 
 %{__make}
+
+MPIEXEC=/usr/lib64/openmpi/bin/mpiexec %{__make} check
 
 %install
 %{__make} DESTDIR=%{buildroot} install

@@ -69,7 +69,6 @@ install-exec-hook:
 endif
 endif
 
-if ENABLE_DOC
 dist_man_MANS = man/geopm.7 \
                 man/geopmctl.1 \
                 man/geopm_comm.3 \
@@ -83,7 +82,6 @@ dist_man_MANS = man/geopm.7 \
                 man/geopm_prof_c.3 \
                 man/geopm_version.3 \
                 # end
-endif
 
 dist_doc_DATA = README \
                 COPYING \
@@ -369,7 +367,12 @@ gh-pages: doxygen $(dist_man_MANS)
 	cp ronn/*.html gh-pages/man/.
 
 else
+
 BUILT_SOURCES =
+
+$(dist_man_MANS): man/%:
+	touch $@
+
 endif
 
 # INCLUDES

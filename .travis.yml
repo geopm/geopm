@@ -35,13 +35,14 @@ sudo: false
 language: cpp
 
 before_install:
+    - rvm install 2.0.0
     - wget https://github.com/json-c/json-c/archive/json-c-0.11-20130402.tar.gz
     - tar xvf json-c-0.11-20130402.tar.gz
     - cd json-c-json-c-0.11-20130402 && ./configure --prefix=$HOME/build/json && make && make install && cd -
     - ./autogen.sh
 
 install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran --disable-mpi --disable-doc
+    - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran --disable-mpi
 
 script:
     - make

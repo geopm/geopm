@@ -44,6 +44,8 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
    [ $version != "0.0.0" ]; then
     spec_file=geopm-${version}.spec
     source_file=geopm-${version}.tar.gz
+    curl -X DELETE -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.spec
+    curl -X DELETE -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.tar.gz
     curl -X PUT -T $spec_file -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.spec
     curl -X PUT -T $source_file -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.tar.gz
 else
