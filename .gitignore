@@ -91,3 +91,4 @@
 doc/*.blg
 doc/*.log
 doc/geopm-plugin-guide.pdf
+*.swp
