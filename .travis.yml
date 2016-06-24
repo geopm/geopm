@@ -40,8 +40,8 @@ before_install:
 install:
     - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran --disable-mpi --disable-doc
 script:
-        - make
-        - make check
+    - make
+    - make check
 addons:
   apt:
     sources:
