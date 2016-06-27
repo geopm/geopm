@@ -34,6 +34,7 @@ version ?= 0.0.0
 release ?= 1
 
 rpm: geopm-$(version).tar.gz
+	cp geopm-$(version).tar.gz geopm.tar.gz
 	rpmbuild $(rpmbuild_flags) $^ -ta
 
 geopm-$(version).spec:
