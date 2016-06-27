@@ -31,29 +31,51 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+do_obs=false
+
 if [ -f VERSION ]; then
     version=$(cat VERSION)
 fi
 
+spec_file=geopm-${version}.spec
+source_file=geopm-${version}.tar.gz
+
 if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
-   [ $OBS_BRANCH ] && \
    [ $OSC_CREDENTIALS ] && \
-   [ $OBS_REPO ] && \
-   [ "$TRAVIS_BRANCH" == "$OBS_BRANCH" ] && \
    [ $version ] && \
    [ $version != "0.0.0" ]; then
-    spec_file=geopm-${version}.spec
-    source_file=geopm-${version}.tar.gz
-    curl -X DELETE -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.spec
-    curl -X DELETE -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.tar.gz
-    curl -X PUT -T $spec_file -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.spec
-    curl -X PUT -T $source_file -u ${OSC_CREDENTIALS} https://api.opensuse.org/source/${OBS_REPO}/geopm/geopm.tar.gz
+
+    if [ "$TRAVIS_REPO_SLUG" == "geopm/geopm" ] && \
+       [ "$TRAVIS_BRANCH" == "master" ] && \
+       git describe --exact-match >& /dev/null; then
+        obs_repo=https://api.opensuse.org/source/home:cmcantalupo:geopm/geopm
+        do_obs=true
+    elif [ "$TRAVIS_REPO_SLUG" == "geopm/geopm" ] && \
+         [ "$TRAVIS_BRANCH" == "dev" ]; then
+        obs_url=https://api.opensuse.org/source/home:cmcantalupo:geopm-dev/geopm-dev
+        do_obs=true
+    elif [ "$TRAVIS_REPO_SLUG" == "cmcantalupo/geopm" ]; then
+        obs_url=https://api.opensuse.org/source/home:cmcantalupo/geopm
+        do_obs=true
+    fi
+
+fi
+
+if [ "$do_obs" == "true" ]; then
+    curl -X DELETE -u ${OSC_CREDENTIALS} ${obs_url}/geopm.spec
+    curl -X DELETE -u ${OSC_CREDENTIALS} ${obs_url}/geopm.tar.gz
+    curl -X PUT -T $spec_file -u ${OSC_CREDENTIALS} ${obs_url}/geopm.spec
+    curl -X PUT -T $source_file -u ${OSC_CREDENTIALS} ${obs_url}/geopm.tar.gz
+    echo "Pushed to OpenSuSE builds."
 else
     echo TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST
+    echo TRAVIS_REPO_SLUG: $TRAVIS_REPO_SLUG
     echo TRAVIS_BRANCH: $TRAVIS_BRANCH
-    echo OBS_BRANCH: $OBS_BRANCH
-    echo OBS_REPO: $OBS_REPO
     echo version: $version
-    echo "Did not trigger open suse build"
+    if [ ! $OSC_CREDENTIALS ]; then
+        echo OSC_CREDENTIALS UNDEFINED
+    fi
+    echo "Did not push to OpenSuSE builds."
 fi
+
 
