@@ -164,10 +164,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \
                             src/GlobalPolicy.hpp \
-                            src/HSXPlatformImp.cpp \
-                            src/HSXPlatformImp.hpp \
-                            src/IVTPlatformImp.cpp \
-                            src/IVTPlatformImp.hpp \
                             src/KNLPlatformImp.cpp \
                             src/KNLPlatformImp.hpp \
                             src/PlatformImp.cpp \
@@ -197,6 +193,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/StaticPolicyDecider.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
+                            src/XeonPlatformImp.cpp \
+                            src/XeonPlatformImp.hpp \
                             src/geopm_env.h \
                             src/geopm_error.h \
                             src/geopm_hash.c \
@@ -235,10 +233,6 @@ if ENABLE_MPI
                           src/Exception.hpp \
                           src/GlobalPolicy.cpp \
                           src/GlobalPolicy.hpp \
-                          src/HSXPlatformImp.cpp \
-                          src/HSXPlatformImp.hpp \
-                          src/IVTPlatformImp.cpp \
-                          src/IVTPlatformImp.hpp \
                           src/KNLPlatformImp.cpp \
                           src/KNLPlatformImp.hpp \
                           src/LockingHashTable.hpp \
@@ -276,6 +270,8 @@ if ENABLE_MPI
                           src/geopm_env.h \
                           src/TreeCommunicator.cpp \
                           src/TreeCommunicator.hpp \
+                          src/XeonPlatformImp.cpp \
+                          src/XeonPlatformImp.hpp \
                           src/geopm_ctl_spawn.c \
                           src/geopm_error.h \
                           src/geopm_hash.c \

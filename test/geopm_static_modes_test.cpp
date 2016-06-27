@@ -40,8 +40,7 @@
 
 #include "geopm_omp.h"
 
-#include "IVTPlatformImp.hpp"
-#include "HSXPlatformImp.hpp"
+#include "XeonPlatformImp.hpp"
 
 #define ASSERT(x) if (!(x)) { fprintf(stderr, "Error: Test failure in %s:%d\n", __FILE__, __LINE__); exit(-1); }
 

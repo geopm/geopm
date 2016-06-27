@@ -73,8 +73,6 @@ namespace geopm
             virtual int performance_counter_domain(void) const;
 
         protected:
-            /// @brief Load KNL specific MSR offsets into MSR offset map.
-            void load_msr_offsets();
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
             void rapl_init();
             /// @brief Initialize per-CPU counters.

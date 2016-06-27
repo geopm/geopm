@@ -39,8 +39,8 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
-#include <sstream>
 
+#include <sstream>
 #include <fstream>
 #include <iomanip>
 
@@ -66,8 +66,9 @@ namespace geopm
 
     }
 
-    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency)
-        : m_num_logical_cpu(0)
+    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_offset_map)
+        : m_msr_offset_map(msr_offset_map)
+        , m_num_logical_cpu(0)
         , m_num_hw_cpu(0)
         , m_num_tile(0)
         , m_num_tile_group(0)

@@ -33,8 +33,7 @@
 #include <cpuid.h>
 
 #include "geopm.h"
-#include "HSXPlatformImp.hpp"
-#include "IVTPlatformImp.hpp"
+#include "XeonPlatformImp.hpp"
 #include "Profile.hpp"
 
 void decide(geopm::PlatformImp *plat, std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &sample, size_t sample_length);

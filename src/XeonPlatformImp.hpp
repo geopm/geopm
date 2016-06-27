@@ -30,12 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef IVTPLATFORMIMP_HPP_INCLUDE
-#define IVTPLATFORMIMP_HPP_INCLUDE
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
+#ifndef XEONPLATFORMIMP_HPP_INCLUDE
+#define XEONPLATFORMIMP_HPP_INCLUDE
 
 #include <sys/types.h>
 #include <stdint.h>
@@ -45,52 +41,50 @@
 
 #include "PlatformImp.hpp"
 
+#ifndef NAME_MAX
+#define NAME_MAX 1024
+#endif
+
 namespace geopm
 {
-    /// @brief This class provides a concrete platform implementation of
-    /// Sandybridge E and IvyBridge E processors.
-    /// (cpuid 0x62D and 0x63E).
-    class IVTPlatformImp : public PlatformImp
+    /// @brief This class provides a base class for the Xeon processor line.
+    class XeonPlatformImp : public PlatformImp
     {
         public:
             /// @brief Default constructor.
-            IVTPlatformImp();
+            XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_offset_map);
             /// @brief Default destructor.
-            virtual ~IVTPlatformImp();
-
-            //////////////////////////////////////////////
-            // IVTPlatformImp dependent implementations //
-            //////////////////////////////////////////////
+            virtual ~XeonPlatformImp();
             virtual bool model_supported(int platform_id);
-            virtual std::string platform_name();
+            virtual std::string platform_name(void);
             virtual double read_signal(int device_type, int device_index, int signal_type);
             virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed);
             virtual void write_control(int device_type, int device_index, int signal_type, double value);
-            virtual void msr_initialize();
-            virtual void msr_reset();
+            virtual void msr_initialize(void);
+            virtual void msr_reset(void);
             virtual int power_control_domain(void) const;
             virtual int frequency_control_domain(void) const;
             virtual int performance_counter_domain(void) const;
 
         protected:
-            /// @brief Load IVT specific MSR offsets into MSR offset map.
-            void load_msr_offsets();
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
-            void rapl_init();
+            virtual void rapl_init(void);
             /// @brief Initialize per-CPU counters.
-            void cbo_counters_init();
+            virtual void cbo_counters_init(void);
             /// @brief Initialize free running counters.
-            void fixed_counters_init();
+            virtual void fixed_counters_init(void);
             /// @brief Reset RAPL controls to default state.
-            void rapl_reset();
+            virtual void rapl_reset(void);
             /// @brief Reset per-CPU counters to default state.
-            void cbo_counters_reset();
+            virtual void cbo_counters_reset(void);
             /// @brief Reset free running counters to default state.
-            void fixed_counters_reset();
+            virtual void fixed_counters_reset(void);
 
             /// @brief Store the units of energy read from RAPL.
             double m_energy_units;
-            /// @brief Store the units of power read from RAPL.
+            /// @brief Store the units of energy read from RAPL for dram.
+            double m_dram_energy_units;
+           /// @brief Store the units of power read from RAPL.
             double m_power_units;
             /// @brief Minimum value for package (CPU) power read from RAPL.
             double m_min_pkg_watts;
@@ -112,10 +106,6 @@ namespace geopm
             std::vector<off_t> m_control_msr_offset;
 
             ///Constants
-            const int M_SNB_PLATFORM_ID;
-            const int M_IVT_PLATFORM_ID;
-            const std::string M_SNB_MODEL_NAME;
-            const std::string M_IVT_MODEL_NAME;
             const unsigned int M_BOX_FRZ_EN;
             const unsigned int M_BOX_FRZ;
             const unsigned int M_CTR_EN;
@@ -127,6 +117,9 @@ namespace geopm
             const unsigned int M_UMASK_0;
             const uint64_t M_PKG_POWER_LIMIT_MASK;
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
+            const int M_PLATFORM_ID;
+            const std::string M_MODEL_NAME;
+
             enum {
                 M_RAPL_PKG_STATUS,
                 M_RAPL_DRAM_STATUS,
@@ -156,6 +149,53 @@ namespace geopm
                 M_NUM_SIGNAL_OVERFLOW_OFFSET
             } m_signal_overflow_offset_e;
     };
+
+
+    /// @brief This class provides a concrete platform implementation of
+    /// Sandybridge E processors: cpuid=0x62D.
+    class SNBPlatformImp : public XeonPlatformImp
+    {
+        public:
+            /// @brief Default constructor.
+            SNBPlatformImp();
+            /// @brief Default destructor.
+            virtual ~SNBPlatformImp();
+            virtual int frequency_control_domain(void) const;
+    };
+
+    /// @brief This class provides a concrete platform implementation of
+    /// IvyBridge E processors: cpuid=0x63E.
+    class IVTPlatformImp : public XeonPlatformImp
+    {
+        public:
+            /// @brief Default constructor.
+            IVTPlatformImp();
+            /// @brief Default destructor.
+            virtual ~IVTPlatformImp();
+            virtual int frequency_control_domain(void) const;
+    };
+
+
+    /// @brief This class provides a concrete platform implementation of
+    /// Haswell E processors: cpuid=0x63F.
+    class HSXPlatformImp : public XeonPlatformImp
+    {
+        public:
+            /// @brief Default constructor.
+            HSXPlatformImp();
+            /// @brief Default destructor.
+            virtual ~HSXPlatformImp();
+    };
+
+    class BDXPlatformImp : public XeonPlatformImp
+    {
+        public:
+            /// @brief Default constructor.
+            BDXPlatformImp();
+            /// @brief Default destructor.
+            virtual ~BDXPlatformImp();
+    };
+
 }
 
 #endif

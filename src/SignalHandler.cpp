@@ -38,6 +38,7 @@
 #include "geopm_signal_handler.h"
 #include "geopm_env.h"
 #include "Exception.hpp"
+#include "config.h"
 
 static volatile sig_atomic_t g_signal_number = -1;
 static struct sigaction g_signal_action;

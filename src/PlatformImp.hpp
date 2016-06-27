@@ -80,7 +80,7 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
-            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency);
+            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_offset_map);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
 

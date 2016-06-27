@@ -36,8 +36,8 @@
 /geopmpolicy
 /geopm.o
 /geopm.mod
-/geopm-*.spec
-/geopm-*.tar.gz
+/geopm*.spec
+/geopm*.tar.gz
 /gh-pages/
 /gmock-1.7.0/
 /gmock-1.7.0.zip

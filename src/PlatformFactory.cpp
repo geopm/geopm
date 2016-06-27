@@ -38,10 +38,9 @@
 #include "Exception.hpp"
 #include "PlatformFactory.hpp"
 #include "RAPLPlatform.hpp"
-#include "IVTPlatformImp.hpp"
-#include "HSXPlatformImp.hpp"
-#include "config.h"
+#include "XeonPlatformImp.hpp"
 #include "KNLPlatformImp.hpp"
+#include "config.h"
 
 
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
@@ -74,18 +73,12 @@ namespace geopm
         // register all the platforms we know about
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM, (struct geopm_factory_c *)this);
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM_IMP, (struct geopm_factory_c *)this);
-        RAPLPlatform *rapl_plat = new RAPLPlatform();
-        IVTPlatformImp *ivb_plat_imp = new IVTPlatformImp();
-        HSXPlatformImp *hsx_plat_imp = new HSXPlatformImp();
-        KNLPlatformImp *knl_plat_imp = new KNLPlatformImp();
-        std::unique_ptr<Platform> pplat = std::unique_ptr<Platform>(rapl_plat);
-        std::unique_ptr<PlatformImp> pplat_imp = std::unique_ptr<PlatformImp>(ivb_plat_imp);
-        register_platform(std::move(pplat));
-        register_platform(std::move(pplat_imp));
-        pplat_imp = std::unique_ptr<PlatformImp>(hsx_plat_imp);
-        register_platform(std::move(pplat_imp));
-        pplat_imp = std::unique_ptr<PlatformImp>(knl_plat_imp);
-        register_platform(std::move(pplat_imp));
+        register_platform(std::move(std::unique_ptr<Platform>(new RAPLPlatform())));
+        register_platform(std::move(std::unique_ptr<PlatformImp>(new SNBPlatformImp())));
+        register_platform(std::move(std::unique_ptr<PlatformImp>(new IVTPlatformImp())));
+        register_platform(std::move(std::unique_ptr<PlatformImp>(new HSXPlatformImp())));
+        register_platform(std::move(std::unique_ptr<PlatformImp>(new BDXPlatformImp())));
+        register_platform(std::move(std::unique_ptr<PlatformImp>(new KNLPlatformImp())));
     }
 
     PlatformFactory::PlatformFactory(std::unique_ptr<Platform> platform,

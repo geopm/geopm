@@ -55,10 +55,6 @@ src/geopm_version.c
 src/geopm_version.h
 src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
-src/HSXPlatformImp.cpp
-src/HSXPlatformImp.hpp
-src/IVTPlatformImp.cpp
-src/IVTPlatformImp.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
 src/LockingHashTable.hpp
@@ -95,6 +91,8 @@ src/Tracer.cpp
 src/Tracer.hpp
 src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
+src/XeonPlatformImp.cpp
+src/XeonPlatformImp.hpp
 test/CircularBufferTest.cpp
 test/DeciderFactoryTest.cpp
 test/ExceptionTest.cpp
