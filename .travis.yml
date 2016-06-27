@@ -42,6 +42,8 @@ before_install:
     - wget https://github.com/json-c/json-c/archive/json-c-0.11-20130402.tar.gz
     - tar xvf json-c-0.11-20130402.tar.gz
     - cd json-c-json-c-0.11-20130402 && ./configure --prefix=$HOME/build/json && make && make install && cd -
+    - git fetch origin --tags
+    - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
 
 install:
