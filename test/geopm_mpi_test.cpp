@@ -43,7 +43,12 @@ int main(int argc, char **argv)
     int rank = 0;
     int comm_size = 0;
 
-    MPI_Init(&argc, &argv);
+    err = MPI_Init(&argc, &argv);
+    if (err) {
+        std::cerr << "Error: <geopm_mpi_test>, MPI_Init failed: " << err << std::endl;
+        return err;
+    }
+
     testing::InitGoogleTest(&argc, argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
