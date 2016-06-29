@@ -129,6 +129,12 @@ GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
                test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
                test/gtest_links/MPISharedMemoryTest.hello \
+               test/gtest_links/MPIProfileTest.runtime \
+               test/gtest_links/MPIProfileTest.progress \
+               test/gtest_links/MPIProfileTest.multiple_entries \
+               test/gtest_links/MPIProfileTest.nested_region \
+               test/gtest_links/MPIProfileTest.outer_sync \
+               test/gtest_links/MPIProfileTest.noctl \
                # end
 endif
 

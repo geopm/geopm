@@ -33,36 +33,69 @@
 test_name=`basename $0`
 dir_name=`dirname $0`
 
-echo $test_name | grep '^MPI' > /dev/null
-if [ $? -eq 0 ]; then
-    export LD_DYNAMIC_WEAK
-    mpiexec_default=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec
-
-    if [ -z "$MPIEXEC" ]; then
-        if which srun >& /dev/null; then
-            mpiexec='libtool --mode=execute srun -N1 -n16'
-        else
-            mpiexec=`which mpiexec 2> /dev/null`
-        fi
-    else
-        mpiexec=$MPIEXEC
-    fi
-    if [ -z "$mpiexec" ] && [ -x $mpiexec_default ]; then
-        mpiexec=$mpiexec_default
-    fi
-    echo $test_name | grep '^MPIProfile' > /dev/null
-    is_profile=$?
-    echo $test_name | grep 'noctl' > /dev/null
-    is_noctl=$?
-    if [ $is_profile -eq 0 ] && [ $is_noctl -ne 0 ]; then
-       export GEOPM_PMPI_CTL=process
-       export GEOPM_POLICY=test/default_policy.json
-    fi
-    $mpiexec -n 16 $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
-    err=$?
-else
+if echo $test_name | grep -v '^MPI' > /dev/null; then
+    # This is not an MPI test, run geopm_test
     $dir_name/../geopm_test --gtest_filter=$test_name >& $dir_name/$test_name.log
     err=$?
+else
+    # This is an MPI test set up environment discover execution
+    # wrappwer and call geopm_mpi_test
+
+    # Dynamic weak symbols are required for PMPI integration
+    export LD_DYNAMIC_WEAK
+
+    err=0
+    run_test=true
+    num_proc=16
+    num_node=1
+
+    # Determine the wrapper for running MPI jobs
+    if [ "$MPIEXEC" ]; then
+        # Use MPIEXEC environment variable if it is set
+        mpiexec="$MPIEXEC"
+    elif which srun >& /dev/null && \
+        srun -N 4 true; then
+        # use slurm srun if in path
+        mpiexec="srun -N 4"
+        num_node=4
+    elif which srun >& /dev/null && \
+        srun -N 1 true; then
+        # use slurm srun if in path
+        mpiexec="srun -N 1"
+    elif which mpiexec >& /dev/null; then
+        # use mpiexec if in path
+        mpiexec="mpiexec"
+    elif [ -x /usr/lib64/mpi/gcc/openmpi/bin/mpiexec ]; then
+        # Stock OpenMPI version of mpiexec on SLES
+        mpiexec=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec
+    elif [ -x /usr/lib64/openmpi/bin/mpiexec]; then
+        # Stock OpenMPI version of mpiexec on RHEL
+        mpiexec=/usr/lib64/openmpi/bin/mpiexec
+    else
+        echo "Error: MPIEXEC unset, and no alternative found." 2>&1
+        exit -1
+    fi
+
+    # Enable GEOPM runtime variables for MPIProfile tests
+    if echo $test_name | grep '^MPIProfile' > /dev/null && \
+       echo $test_name | grep -v 'noctl' > /dev/null; then
+       export GEOPM_POLICY=test/default_policy.json
+       export GEOPM_PMPI_CTL=process
+       export GEOPM_REPORT=geopm_report
+       # Add a process for controller on each node
+       num_proc=$(($num_proc + $num_node))
+       num_cpu=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
+       if [ "$num_cpu" -lt "$num_proc" ]; then
+          run_test=false
+       fi
+    fi
+
+    if [ "$run_test" == true ]; then
+        libtool --mode=execute $mpiexec -n $num_proc $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
+        err=$?
+    else
+        echo "SKIP: $test_name"
+    fi
 fi
 
 exit $err
