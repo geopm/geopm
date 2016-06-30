@@ -7,7 +7,7 @@ SEE COPYING FILE FOR LICENSE INFORMATION.
 
 LAST UPDATE
 -----------
-2016 May 05
+2016 July 1
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 Steve Sylvester <steve.s.sylvester@intel.com>
@@ -46,8 +46,73 @@ resource manager to set energy policy control parameters for MPI jobs.  Some
 features of libgeopmpolicy are available through the geopmpolicy application
 including support for static control.
 
+TRAVIS CI
+---------
+[![Build Status](https://travis-ci.org/geopm/geopm.svg)](https://travis-ci.org/geopm/geopm)
+
+The geopm public github project has been integrated with Travis
+continuous integration.
+
+http://travis-ci.org/geopm/geopm
+
+All pull requests will be built and tested automatically by Travis.
+Additionally, pushes to the public dev and master branches which pass
+testing in Travis will trigger build and test in the OpenSuSE build
+system for a variety of Linux distributions.  These provide yum and
+zypper repositories which can be used to install the geopm software.
+
+INSTALL
+-------
+The products of OBS triggered by Travis CI can be installed directly
+on a number of Linux distributions through yum or zypper.  Build and
+test are currently passing on RHEL 7, SLES 12, SLES 12-1, Fedora 21,
+Fedora 22 and Fedora 23.  Release 0.3.0 is the first to include
+distribution on OBS.  Pushes to the github public master branch are
+done only after a release has been tagged, and these tagged releases
+are published in yum and zypper repositories at the link below:
+
+http://download.opensuse.org/repositories/home:/cmcantalupo:/geopm
+
+The tagged releases should be more stable and more accurately
+documented than the tip of the public dev branch which is updated
+frequently.  These frequent pushes to the public development branch
+can also be used as yum and zypper repositories.  These are published
+at the link below:
+
+http://download.opensuse.org/repositories/home:/cmcantalupo:/geopm-dev
+
+Use of these repositories should be helpful for developers of geopm
+who are willing to update the installed version frequently.
+
+### Red Hat
+To install the yum repository follow the commands below.  Select the
+DISTRO appropriate for you system.  Select the BRANCH as "geopm" or
+"geopm-dev" to follow either the "master" or "dev" branches of
+repository hosted at <http://github.com/geopm/geopm>.
+
+    $ DISTRO=# Select from: "CentOS_7" "RHEL7" "Fedora_21" "Fedora_22" "Fedora_23"
+    $ BRANCH=# Select from: "geopm" or "geopm-dev"
+    $ REPO=home:/cmcantalupo:
+    $ wget http://download.opensuse.org/repositories/${REPO}/${BRANCH}/${DISTRO}/${REPO}${BRANCH}.repo
+    $ sudo install --mode 644 ${REPO}${BRANCH}.repo /etc/yum.repos.d/${BRANCH}.repo
+    $ unset DISTRO BRANCH REPO
+
+After the yum repository has been added, you can simply install geopm
+with yum:
+
+    $ sudo yum install geopm geopm-devel
+
+To bring the system up to date with the tip of the public master or
+dev branch on github (depending on which "BRANCH" was selected when
+the yum repository was added:
+
+    $ sudo yum update geopm geopm-devel
+
 BUILD REQUIREMENTS
 ------------------
+In order to build the geopm package from source, the below
+requirements must be met.
+
 The geopm package requires a compiler that supports the MPI 2.2 and C++11
 standards.  These requirements can be met by using GCC version 4.7 or greater
 and installing the openmpi-devel package version 1.7 or greater on RHEL or
@@ -78,6 +143,10 @@ options.
 
 BUILD INSTRUCTIONS
 ------------------
+The source code can be rebuilt from the source RPMs available from the
+links in the INSTALL section using rpmbuild.  To build from the git
+repository follow the instructions below.
+
 To build all targets and install it in a "build/geopm" subdirectory of your
 home directory run the following commands:
 
