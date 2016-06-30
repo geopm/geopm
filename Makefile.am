@@ -372,9 +372,9 @@ else
 
 BUILT_SOURCES =
 
-$(dist_man_MANS): man/%:
-	touch $@
-
+$(dist_man_MANS): man/%: ronn/%.ronn
+	mkdir -p man
+	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 endif
 
 # INCLUDES
