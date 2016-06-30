@@ -67,7 +67,7 @@ The system error numbers are documented in the **errno(3)** man page.
     Invalid argument
 
   * `GEOPM_ERROR_POLICY_NULL = -4`:
-    The `geopm_policy_c` pointer is NULL, use `geopm_policy_create`()
+    The geopm_policy_c pointer is NULL, use geopm_policy_create()
 
   * `GEOPM_ERROR_FILE_PARSE = -5`:
     Unable to parse input file
@@ -106,13 +106,13 @@ The system error numbers are documented in the **errno(3)** man page.
     Not compiled with support for OpenMP
 
   * `GEOPM_ERROR_PROF_NULL = -17`:
-    The `geopm_prof_c` pointer is NULL, use `geopm_prof_create`()
+    The geopm_prof_c pointer is NULL, use geopm_prof_create()
 
   * `GEOPM_ERROR_DECIDER_UNSUPPORTED = -18`:
-    Specified decider not supported or unrecognized
+    Specified Decider not supported or unrecognized
 
   * `GEOPM_ERROR_FACTORY_NULL = -19`:
-    The `geopm_factory_c` pointer is NULL, pass in a valid factory object
+    The geopm_factory_c pointer is NULL, pass in a valid factory object
 
   * `GEOPM_ERROR_SHUTDOWN = -20`:
     Shutdown policy has been signaled
