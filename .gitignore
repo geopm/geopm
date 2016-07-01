@@ -30,6 +30,7 @@
 /examples/*.o
 /examples/fft/nas_ft
 /examples/fft/*.o
+/examples/geopm_platform_supported
 *.gcda
 *.gcno
 /geopmctl

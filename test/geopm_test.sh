@@ -32,11 +32,23 @@
 
 test_name=`basename $0`
 dir_name=`dirname $0`
+run_test=true
+err=0
 
 if echo $test_name | grep -v '^MPI' > /dev/null; then
-    # This is not an MPI test, run geopm_test
-    $dir_name/../geopm_test --gtest_filter=$test_name >& $dir_name/$test_name.log
-    err=$?
+    # Check for crc32 intrinsic support before running LockingHashTable tests
+    if echo $test_name | grep '^LockingHashTable' > /dev/null; then
+        if  ! ./examples/geopm_platform_supported crc32; then
+            echo "Warning: _mm_crc32_u64 intrisic not supported."
+            run_test=false
+        fi
+    fi
+
+    if [ "$run_test" == "true" ]; then
+        # This is not an MPI test, run geopm_test
+        $dir_name/../geopm_test --gtest_filter=$test_name >& $dir_name/$test_name.log
+        err=$?
+    fi
 else
     # This is an MPI test set up environment discover execution
     # wrappwer and call geopm_mpi_test
@@ -44,8 +56,6 @@ else
     # Dynamic weak symbols are required for PMPI integration
     export LD_DYNAMIC_WEAK
 
-    err=0
-    run_test=true
     num_proc=16
     num_node=1
 
@@ -54,12 +64,12 @@ else
         # Use MPIEXEC environment variable if it is set
         mpiexec="$MPIEXEC"
     elif which srun >& /dev/null && \
-        srun -N 4 true; then
+        srun -N 4 true >& /dev/null; then
         # use slurm srun if in path
         mpiexec="srun -N 4"
         num_node=4
     elif which srun >& /dev/null && \
-        srun -N 1 true; then
+        srun -N 1 true >& /dev/null; then
         # use slurm srun if in path
         mpiexec="srun -N 1"
     elif which mpiexec >& /dev/null; then
@@ -85,17 +95,20 @@ else
        # Add a process for controller on each node
        num_proc=$(($num_proc + $num_node))
        num_cpu=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
-       if [ "$num_cpu" -lt "$num_proc" ]; then
+       if ! ./examples/geopm_platform_supported; then
           run_test=false
        fi
     fi
 
-    if [ "$run_test" == true ]; then
+    if [ "$run_test" == "true" ]; then
         libtool --mode=execute $mpiexec -n $num_proc $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
         err=$?
-    else
-        echo "SKIP: $test_name"
     fi
 fi
+
+if [ "$run_test" != "true" ]; then
+    echo "SKIP: $test_name"
+fi
+
 
 exit $err
