@@ -65,22 +65,6 @@ TEST_F(PlatformTopologyTest, cpu_count)
     EXPECT_EQ(expect, actual);
 }
 
-TEST_F(PlatformTopologyTest, get_cpus)
-{
-    std::vector<hwloc_obj_t> cpu;
-#ifdef _SC_NPROCESSORS_ONLN
-    unsigned int expect = sysconf(_SC_NPROCESSORS_ONLN);
-#else
-    unsigned int expect = 1;
-    size_t len = sizeof(expect);
-    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &expect, &len, NULL, 0);
-#endif
-
-    m_topo.domain_by_type(geopm::GEOPM_DOMAIN_CPU, cpu);
-
-    EXPECT_EQ(expect, cpu.size());
-}
-
 TEST_F(PlatformTopologyTest, negative_num_domain)
 {
     int thrown = 0;
@@ -97,17 +81,3 @@ TEST_F(PlatformTopologyTest, negative_num_domain)
     EXPECT_EQ(thrown, GEOPM_ERROR_INVALID);
 }
 
-TEST_F(PlatformTopologyTest, negative_domain_by_type)
-{
-    std::vector<hwloc_obj_t> cpu;
-    int thrown = 0;
-
-    try {
-        m_topo.domain_by_type(HWLOC_OBJ_TYPE_MAX, cpu);
-    }
-    catch (geopm::Exception e) {
-        thrown = e.err_value();
-    }
-
-    EXPECT_EQ(thrown, GEOPM_ERROR_INVALID);
-}

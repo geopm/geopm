@@ -36,6 +36,22 @@
 
 namespace geopm
 {
+    const std::map<int, hwloc_obj_type_t> PlatformTopology::m_domain_hwloc_map = {
+#ifdef GEOPM_HWLOC_HAS_SOCKET
+        {GEOPM_DOMAIN_PACKAGE, HWLOC_OBJ_SOCKET},
+#else
+        {GEOPM_DOMAIN_PACKAGE, HWLOC_OBJ_PACKAGE},
+#endif
+#ifdef GEOPM_HWLOC_HAS_L2CACHE
+        {GEOPM_DOMAIN_TILE, HWLOC_OBJ_L2CACHE},
+#endif
+        {GEOPM_DOMAIN_PROCESS_GROUP, HWLOC_OBJ_SYSTEM},
+        {GEOPM_DOMAIN_BOARD, HWLOC_OBJ_MACHINE},
+        {GEOPM_DOMAIN_PACKAGE_CORE, HWLOC_OBJ_CORE},
+        {GEOPM_DOMAIN_CPU, HWLOC_OBJ_PU},
+        {GEOPM_DOMAIN_BOARD_MEMORY, HWLOC_OBJ_GROUP}
+    };
+
     PlatformTopology::PlatformTopology()
     {
         int err = hwloc_topology_init(&m_topo);
@@ -52,61 +68,46 @@ namespace geopm
 
     PlatformTopology::~PlatformTopology()
     {
-        hwloc_topology_destroy(m_topo); //FIXME: This was failing internally on Catalyst. Need to debug.
+        hwloc_topology_destroy(m_topo); /// @todo: This was failing internally on Catalyst. Need to debug.
+                                        /// Thre is a ptr=malloc(0); free(ptr); in hwloc which alarmed ElectricFence
     }
 
     int PlatformTopology::num_domain(int domain_type) const
     {
         int result = 0;
-        int max_val = HWLOC_OBJ_TYPE_MAX;
-        int depth_type;
-        if (domain_type < max_val) {
-            result = hwloc_get_nbobjs_by_type(m_topo, (hwloc_obj_type_t)domain_type);
+
+        try {
+            result = hwloc_get_nbobjs_by_type(m_topo, hwloc_domain(domain_type));
         }
-        else if (domain_type == GEOPM_DOMAIN_TILE) {
-            int depth = hwloc_get_type_depth(m_topo, HWLOC_OBJ_PACKAGE);
-            depth_type = hwloc_get_depth_type(m_topo, depth+1);
-            if (depth_type == HWLOC_OBJ_CACHE) {
-                result = hwloc_get_nbobjs_by_depth(m_topo, depth+1);
+        catch (Exception ex) {
+            if (ex.err_value() != GEOPM_ERROR_INVALID) {
+                throw ex;
             }
-        }
-        else {
-            throw Exception("Type index out of bounds.  PlatformTopology supports hwloc defined objects only.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (domain_type == GEOPM_DOMAIN_TILE) {
+                /// @todo: This assumes that tiles are just below
+                ///        package in hwloc hierarchy.  If tiles are
+                ///        at L2 cache, but processor has an L3 cache,
+                ///        this may not be correct.
+                int depth = hwloc_get_type_depth(m_topo, hwloc_domain(GEOPM_DOMAIN_PACKAGE)) + 1;
+                result = hwloc_get_nbobjs_by_depth(m_topo, depth);
+            }
+            else {
+                throw ex;
+            }
+            if (result == 0) {
+                throw ex;
+            }
         }
         return result;
     }
 
-    void PlatformTopology::domain_by_type(int domain_type, std::vector<hwloc_obj_t> &domain) const
+    hwloc_obj_type_t PlatformTopology::hwloc_domain(int domain_type) const
     {
-        hwloc_obj_t dom;
-
-        if (!domain.empty()) {
-            domain.clear();
+        auto it = m_domain_hwloc_map.find(domain_type);
+        if (it == m_domain_hwloc_map.end()) {
+            throw Exception("PlatformTopology::num_domain: Domain type unknown: " + std::to_string(domain_type),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        if (domain_type < HWLOC_OBJ_TYPE_MAX) {
-            dom = hwloc_get_next_obj_by_type(m_topo, (hwloc_obj_type_t)domain_type, NULL);
-            while (dom) {
-                domain.push_back(dom);
-                dom = hwloc_get_next_obj_by_type(m_topo, (hwloc_obj_type_t)domain_type, dom);
-            }
-        }
-        else {
-            throw Exception("Type index out of bounds.  PlatformTopology supports hwloc defined objects only.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-    }
-
-    void PlatformTopology::children_by_type(int type, hwloc_obj_t obj, std::vector<hwloc_obj_t> &children) const
-    {
-        hwloc_obj_t cpu;
-        children.clear();
-        int depth = hwloc_get_type_depth(m_topo, HWLOC_OBJ_PU);
-        cpu = hwloc_get_obj_by_depth(m_topo, depth, 0);
-        while (cpu != NULL) {
-            if (hwloc_bitmap_isincluded(cpu->cpuset, obj->cpuset)) {
-                children.push_back(cpu);
-            }
-            cpu = cpu->next_cousin;
-        }
+        return (*it).second;
     }
 }
