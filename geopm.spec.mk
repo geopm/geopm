@@ -59,6 +59,7 @@ BuildRequires: python
 BuildRequires: openmpi-devel
 BuildRequires: hwloc-devel
 BuildRequires: unzip
+BuildRequires: libtool
 %if %{defined suse_version}
 BuildRequires: libjson-c-devel
 %else
@@ -140,18 +141,32 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
-            --disable-fortran --disable-pmpi --disable-doc
+            --disable-fortran --disable-doc
+%else
+%if 0%{?rhel} == 7
+./configure --prefix=%{_prefix} --libdir=%{_libdir} \
+            --includedir=%{_includedir} --sbindir=%{_sbindir} \
+            --mandir=%{_mandir} --docdir=%{docdir} \
+            --with-mpi-bin=%{_libdir}/openmpi/bin \
+            --disable-fortran --disable-doc --disable-pmpi
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
-            --disable-fortran --disable-pmpi --disable-doc
+            --disable-fortran --disable-doc
+%endif
 %endif
 
 %{__make}
 
-MPIEXEC=/usr/lib64/openmpi/bin/mpiexec %{__make} check
+%if %{defined suse_version}
+MPIEXEC=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec %{__make} check || \
+( cat test/gtest_links/*.log && false )
+%else
+MPIEXEC=/usr/lib64/openmpi/bin/mpiexec %{__make} check || \
+( cat test/gtest_links/*.log && false )
+%endif
 
 %install
 %{__make} DESTDIR=%{buildroot} install

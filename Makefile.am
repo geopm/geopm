@@ -136,7 +136,7 @@ if ENABLE_MPI
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 
-    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(MPI_CXXLIBS)
+    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 endif
@@ -147,7 +147,7 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
-    geopmctl_LDADD = libgeopm.la
+    geopmctl_LDADD = libgeopm.la $(MPI_CXXLIBS)
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la
 endif
