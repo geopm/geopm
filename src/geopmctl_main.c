@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     int world_size = 1, my_rank = 0, i;
     int err0 = 0;
     int err_mpi = 0;
-    char error_str[GEOPMCTL_STRING_LENGTH] = {0};
+    char error_str[MPI_MAX_ERROR_STRING] = {0};
     char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *policy_ptr = NULL;
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
         }
     }
     if (err_mpi) {
-        i = GEOPMCTL_STRING_LENGTH;
+        i = MPI_MAX_ERROR_STRING;
         MPI_Error_string(err_mpi, error_str, &i);
         fprintf(stderr, "Error: %s\n", error_str);
         err0 = err_mpi;

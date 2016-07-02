@@ -216,11 +216,10 @@ namespace geopm
     void check_mpi(int err)
     {
         if (err) {
-#ifdef ENABLE_MPICXX
-            throw MPI::Exception(err);
-#else
-            throw Exception("MPI::Exception (" + std::to_string(err) + ")", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-#endif
+            char error_str[MPI_MAX_ERROR_STRING];
+            int name_max = MPI_MAX_ERROR_STRING;
+            MPI_Error_string(err, error_str, &name_max);
+            throw Exception("MPI Error: " + std::string(error_str), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
