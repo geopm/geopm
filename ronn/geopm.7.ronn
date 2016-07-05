@@ -64,6 +64,7 @@ features of libgeopmpolicy are available through the geopmpolicy
 application including support for static control.
 
 ## INTEGRATION WITH PMPI
+
 Linking to libgeopm will define symbols that intercept the MPI
 interface through PMPI.  This can be disabled with the configure time
 option `--disable-pmpi`, but is enabled by default.  See
@@ -73,10 +74,9 @@ interposition other profilers which use the same method will be in
 conflict.  The geopm runtime can create a application performance
 profile report and a trace of the application runtime.  As such, geopm
 serves the role of an application profiler in addition to management
-of power resources.  The report is generated with the
-`geopm_prof_print`() interface described in **geopm_prof_c(3)**.  To
-enable the generation of the application trace see the `GEOPM_TRACE`
-environment variable below.
+of power resources.  The report and trace generation are controlled by
+the environment variables `GEOPM_REPORT` and `GEOPM_TRACE`, see
+description below.
 
 ## LAUNCHING THE RUNTIME
 There are many ways to launch the geopm runtime programatically (see
@@ -89,14 +89,13 @@ the geopm runtime is a simple way to get started using geopm and is
 recommended for first time users.
 
 ## INTERPRETING THE REPORT
-If the application calls the `geopm_prof_print`() documented in the
-**geopm_prof_c(3)** man page then a report will be generated.  In the
-current implementation there is a separate report file for each
-compute node.  These report files give information about runtime and
-energy use for each region marked in the code.  Additionally time
-spent in calls to MPI is reported.  In the future the report will be
-aggregated to a single file and may contain more data describing the
-application.
+If the `GEOPM_REPORT` environment variable is set then a report will
+be generated.  In the current implementation there is a separate
+report file for each compute node.  These report files give
+information about runtime and energy use for each region marked in the
+code.  Additionally time spent in calls to MPI is reported.  In the
+future the report will be aggregated to a single file and may contain
+more data describing the application.
 
 It is important to note that per-region accounting in the report
 includes only time spent in the region by all MPI ranks concurrently

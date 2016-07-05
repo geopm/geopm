@@ -93,11 +93,6 @@ geopm_fortran(3) -- geopm fortran interface
    `type(c_ptr), value, intent(in) ::` _prof_ <br>
    `character(kind=c_char), intent(in) ::` _feature_name_`(*)`
 
- * `integer(kind=c_int) function geopm_prof_print(`_prof_`,` _file_name_`,` _depth_`)`:
-   `type(c_ptr), value, intent(in) ::` _prof_ <br>
-   `character(kind=c_char), intent(in) ::` _file_name_`(*)` <br>
-   `integer(kind=c_int), value, intent(in) ::` _depth_
-
  * `integer(kind=c_int) function geopm_tprof_create(`_num_thread_`,` _num_iter_`,` _chunk_size_`,` _tprof_`)`:
    `integer(kind=c_int), value, intent(in) ::` _num_thread_ <br>
    `integer(kind=c_size_t), value, intent(in) ::` _num_iter_ <br>
