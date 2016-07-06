@@ -94,7 +94,7 @@ else
        export GEOPM_REPORT=geopm_report
        # Add a process for controller on each node
        num_proc=$(($num_proc + $num_node))
-       num_cpu=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
+       num_cpu=$(nproc)
        if ! ./examples/geopm_platform_supported; then
           run_test=false
        fi
