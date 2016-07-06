@@ -158,14 +158,17 @@ namespace geopm
         public:
             /// @brief Default constructor.
             SNBPlatformImp();
+            SNBPlatformImp(int platform_id, const std::string &model_name);
             /// @brief Default destructor.
             virtual ~SNBPlatformImp();
             virtual int frequency_control_domain(void) const;
+        protected:
+            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
     };
 
     /// @brief This class provides a concrete platform implementation of
     /// IvyBridge E processors: cpuid=0x63E.
-    class IVTPlatformImp : public XeonPlatformImp
+    class IVTPlatformImp : public SNBPlatformImp
     {
         public:
             /// @brief Default constructor.
@@ -183,11 +186,14 @@ namespace geopm
         public:
             /// @brief Default constructor.
             HSXPlatformImp();
+            HSXPlatformImp(int platform_id, const std::string &model_name);
             /// @brief Default destructor.
             virtual ~HSXPlatformImp();
+        protected:
+            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
     };
 
-    class BDXPlatformImp : public XeonPlatformImp
+    class BDXPlatformImp : public HSXPlatformImp
     {
         public:
             /// @brief Default constructor.
