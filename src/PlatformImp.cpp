@@ -140,7 +140,7 @@ namespace geopm
                 count = m_num_package;
                 break;
             case GEOPM_DOMAIN_CPU:
-                count = m_num_logical_cpu;
+                count = m_num_hw_cpu;
                 break;
             case GEOPM_DOMAIN_TILE:
                 count = m_num_tile;
