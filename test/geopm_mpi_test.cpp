@@ -32,6 +32,7 @@
 
 #include "gtest/gtest.h"
 #include "mpi.h"
+#include <stdlib.h>
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
@@ -124,7 +125,11 @@ int main(int argc, char **argv)
     if (all_err) {
         all_err = -255;
     }
-    MPI_Finalize();
+
+    // If death testing, bypass controller since it's dead.
+    char* is_death_test = getenv("GEOPM_DEATH_TESTING");
+    if (!(is_death_test != NULL && strncmp(is_death_test, "1", NAME_MAX) == 0))
+        MPI_Finalize();
 
     if (!err) {
         err = all_err;

@@ -87,13 +87,24 @@ else
     fi
 
     # Enable GEOPM runtime variables for MPIProfile tests
-    if echo $test_name | grep '^MPIProfile' > /dev/null && \
+    if ( echo $test_name | grep '^MPIProfile' > /dev/null || \
+       echo $test_name | grep '^MPIController' > /dev/null ) && \
        echo $test_name | grep -v 'noctl' > /dev/null; then
        export GEOPM_POLICY=test/default_policy.json
        export GEOPM_PMPI_CTL=process
        export GEOPM_REPORT=geopm_report
-       # Add a process for controller on each node
-       num_proc=$(($num_proc + $num_node))
+
+       if [[ $test_name =~ Death ]]; then
+           export GEOPM_DEATH_TESTING=1
+           if [[ "$mpiexec" =~ ^srun ]]; then
+               mpiexec="srun -N 1"
+           fi
+           num_proc=2
+       else
+           # Add a process for controller on each node
+           num_proc=$(($num_proc + $num_node))
+       fi
+
        num_cpu=$(nproc)
        if ! ./examples/geopm_platform_supported; then
           run_test=false

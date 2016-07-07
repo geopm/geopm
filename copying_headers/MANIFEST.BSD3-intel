@@ -110,6 +110,7 @@ test/MockPlatform.hpp
 test/MockPlatformImp.hpp
 test/MockPlatformTopology.hpp
 test/MPIControllerTest.cpp
+test/MPIControllerDeathTest.cpp
 test/MPIProfileTest.cpp
 test/MPISharedMemoryTest.cpp
 test/MPITreeCommunicatorTest.cpp

@@ -135,6 +135,7 @@ GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPIProfileTest.nested_region \
                test/gtest_links/MPIProfileTest.outer_sync \
                test/gtest_links/MPIProfileTest.noctl \
+               test/gtest_links/MPIControllerDeathTest.shm_clean_up \
                # end
 endif
 
@@ -190,6 +191,7 @@ if ENABLE_MPI
                                   test/MPITreeCommunicatorTest.cpp \
                                   test/MPISharedMemoryTest.cpp \
                                   test/MPIProfileTest.cpp \
+                                  test/MPIControllerDeathTest.cpp \
                                   # end
 
     test_geopm_mpi_test_LDADD = libgtest.a \
