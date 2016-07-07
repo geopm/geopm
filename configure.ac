@@ -382,6 +382,36 @@ MPI_LIBS=$MPI_CLIBS
 MPI_FCLIBS=$MPI_FLIBS
 MPI_FLIBS=$MPI_F77LIBS
 
+# WORK AROUND FOR SLES-12.
+#
+# The version of openmpi installed on SLES-12 has an mpicc wrapper
+# which emits the include flag for the version of hwloc compiled into
+# the mpi library.  This forces the geopm objects which use MPI to be
+# derived from source files that include the openmpi version of the
+# hwloc header.  The geopm objects which do not require MPI will
+# derived from source files that include the system version in
+# /usr/include which is always searched after all non-system -I
+# options have been exhausted.
+#
+# https://gcc.gnu.org/onlinedocs/cpp/System-Headers.html#System-Headers
+#
+# The hwloc interface is based on enums that change frequently with
+# version number (not a great feature) and we would like to use
+# configure to cononicalize the hwloc interface with the
+# GEOPM_HWLOC_HAS_* defines above.  This forces us to use one version
+# of hwloc for MPI and non-MPI objects.  To enable this to be the
+# system version we remove the include path for the openmpi version of
+# hwloc compiled into the mpi library from the MPI_CLFAGS and
+# MPI_CXXFLAGS.
+#
+# I would recommend that in the future SLES either not package hwloc
+# or not allow the mpicc compiler wrapper to emit the include path for
+# the openmpi versioned hwloc.  Alternatively the openmpi hwloc header
+# should be versioned i.e. hwloc.h -> hwloc172.h.
+#
+MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc172/hwloc/include||'`
+MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc172/hwloc/include||'`
+
 AC_SUBST([MPI_FCFLAGS])
 AC_SUBST([MPI_FFLAGS])
 AC_SUBST([MPI_LDFLAGS])
