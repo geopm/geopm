@@ -114,6 +114,10 @@ else
     if [ "$run_test" == "true" ]; then
         libtool --mode=execute $mpiexec -n $num_proc $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
         err=$?
+
+        if [[ $test_name =~ Death ]] && [ $err -eq 1 ]; then
+            err=0
+        fi
     fi
 fi
 
