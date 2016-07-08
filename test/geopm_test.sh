@@ -35,9 +35,9 @@ dir_name=`dirname $0`
 run_test=true
 err=0
 
-if echo $test_name | grep -v '^MPI' > /dev/null; then
+if [[ ! $test_name =~ ^MPI ]]; then
     # Check for crc32 intrinsic support before running LockingHashTable tests
-    if echo $test_name | grep '^LockingHashTable' > /dev/null; then
+    if [[ $test_name =~ ^LockingHashTable ]]; then
         if  ! ./examples/geopm_platform_supported crc32; then
             echo "Warning: _mm_crc32_u64 intrisic not supported."
             run_test=false
@@ -63,16 +63,16 @@ else
     if [ "$MPIEXEC" ]; then
         # Use MPIEXEC environment variable if it is set
         mpiexec="$MPIEXEC"
-    elif which srun >& /dev/null && \
+    elif command -v srun >& /dev/null && \
         srun -N 4 true >& /dev/null; then
         # use slurm srun if in path
         mpiexec="srun -N 4"
         num_node=4
-    elif which srun >& /dev/null && \
+    elif command -v srun >& /dev/null && \
         srun -N 1 true >& /dev/null; then
         # use slurm srun if in path
         mpiexec="srun -N 1"
-    elif which mpiexec >& /dev/null; then
+    elif command -v mpiexec >& /dev/null; then
         # use mpiexec if in path
         mpiexec="mpiexec"
     elif [ -x /usr/lib64/mpi/gcc/openmpi/bin/mpiexec ]; then
@@ -87,9 +87,9 @@ else
     fi
 
     # Enable GEOPM runtime variables for MPIProfile tests
-    if ( echo $test_name | grep '^MPIProfile' > /dev/null || \
-       echo $test_name | grep '^MPIController' > /dev/null ) && \
-       echo $test_name | grep -v 'noctl' > /dev/null; then
+    if [[ $test_name =~ ^MPIProfile ||
+        $test_name =~ ^MPIController ]] &&
+        [[ ! $test_name =~ noctl ]]; then
        export GEOPM_POLICY=test/default_policy.json
        export GEOPM_PMPI_CTL=process
        export GEOPM_REPORT=geopm_report
