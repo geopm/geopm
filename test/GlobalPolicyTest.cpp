@@ -488,7 +488,6 @@ TEST_F(GlobalPolicyTest, negative_c_interface)
 {
     struct geopm_policy_c *policy = NULL;
 
-    EXPECT_EQ(GEOPM_ERROR_INVALID, geopm_policy_create("", "", &policy));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_power(policy, 2500));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_mode(policy, GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC));
     EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, geopm_policy_cpu_freq(policy, 2200));

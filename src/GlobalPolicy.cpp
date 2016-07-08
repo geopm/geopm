@@ -324,10 +324,6 @@ namespace geopm
         int shm_id;
         int err = 0;
 
-        if (m_in_config.empty() && m_out_config.empty()) {
-            throw Exception("GlobalPolicy: at least one of in_config or out_config must be set", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         if (!m_out_config.empty()) {
             m_do_write = true;
             if (m_out_config[0] == '/' && m_out_config.find_last_of('/') == 0) {
