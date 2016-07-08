@@ -115,8 +115,17 @@ else
         libtool --mode=execute $mpiexec -n $num_proc $dir_name/../geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
         err=$?
 
+        # SLURM does not always handle death testing properly. Sometimes
+        # killing an MPI rank will cause srun to return non-zero status,
+        # but not all the time.  When death testing and we get a
+        # non-zero status, check the test log to verify the status.
+        # If the log does not contain the failed message, then it is a
+        # false failure.
         if [[ $test_name =~ Death ]] && [ $err -eq 1 ]; then
-            err=0
+            if ! grep -Fq "[  FAILED  ]" $dir_name/$test_name.log; then
+                echo "Overriding SLURM's status based on successful test log."
+                err=0
+            fi
         fi
     fi
 fi
