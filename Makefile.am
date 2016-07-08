@@ -126,6 +126,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_version.3.ronn \
              ronn/header.txt \
              ronn/index.txt \
+             src/Comm.hpp \
              test/geopm_static_modes_test.sh \
              TODO \
              # end

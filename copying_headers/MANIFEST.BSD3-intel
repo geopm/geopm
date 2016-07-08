@@ -22,6 +22,7 @@ plugin/GoverningDecider.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
 src/CircularBuffer.hpp
+src/Comm.hpp
 src/Controller.cpp
 src/Controller.hpp
 src/Decider.cpp
