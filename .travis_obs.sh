@@ -69,7 +69,7 @@ if [ "$do_obs" == "true" ]; then
     curl -X DELETE -u ${OSC_CREDENTIALS} ${obs_url}/geopm.tar.gz
     curl -X PUT -T $spec_file -u ${OSC_CREDENTIALS} ${obs_url}/geopm.spec
     curl -X PUT -T $source_file -u ${OSC_CREDENTIALS} ${obs_url}/geopm.tar.gz
-    echo "Pushed to OpenSuSE builds."
+    echo "Pushed to OpenSUSE builds."
 else
     echo TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST
     echo TRAVIS_REPO_SLUG: $TRAVIS_REPO_SLUG
@@ -78,7 +78,7 @@ else
     if [ ! $OSC_CREDENTIALS ]; then
         echo OSC_CREDENTIALS UNDEFINED
     fi
-    echo "Did not push to OpenSuSE builds."
+    echo "Did not push to OpenSUSE builds."
 fi
 
 

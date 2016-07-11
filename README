@@ -57,7 +57,7 @@ http://travis-ci.org/geopm/geopm
 
 All pull requests will be built and tested automatically by Travis.
 Additionally, pushes to the public dev and master branches which pass
-testing in Travis will trigger build and test in the OpenSuSE build
+testing in Travis will trigger build and test in the OpenSUSE build
 system for a variety of Linux distributions.  These provide yum and
 zypper repositories which can be used to install the geopm software.
 
@@ -108,7 +108,7 @@ the yum repository was added:
 
     sudo yum update geopm # For headers update geopm-devel
 
-### SuSE
+### SUSE
 To install the zypper repository follow the commands below.  Select the
 DISTRO appropriate for you system.  Select the BRANCH as "geopm" or
 "geopm-dev" to follow either the "master" or "dev" branches of
@@ -148,7 +148,7 @@ RHEL:
 
     yum install openmpi-devel json-c-devel hwloc-devel ruby-devel rubygems
 
-SuSE:
+SUSE:
 
     zypper install openmpi-devel libjson-c-devel hwloc-devel ruby-devel rubygems
 
@@ -179,7 +179,7 @@ home directory run the following commands:
     make
     make install
 
-An RPM can be created on a RHEL or SuSE system with the
+An RPM can be created on a RHEL or SUSE system with the
 
     make rpm
 
