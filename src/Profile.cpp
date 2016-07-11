@@ -53,7 +53,7 @@
 #include "LockingHashTable.hpp"
 #include "config.h"
 
-static struct geopm_prof_c *g_geopm_prof_default = NULL;
+static geopm::Profile *g_default_prof = NULL;
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
@@ -64,19 +64,19 @@ extern "C"
 {
     // defined in geopm_pmpi.c and used only here
     void geopm_pmpi_prof_enable(int do_profile);
-#ifndef GEOPM_PMPI
-    void geopm_pmpi_prof_enable(int do_profile) {}
-#endif
 
-
-    int geopm_prof_create(const char *name, MPI_Comm comm, struct geopm_prof_c **prof)
+    // Called only in geopm_pmpi.c in wrapper for MPI_Init()
+    int geopm_prof_create(const char *name, MPI_Comm comm)
     {
         int err = 0;
         try {
-            *prof = (struct geopm_prof_c *)(new geopm::Profile(std::string(name), comm));
-            /*! @todo Code below is not thread safe, do we need a lock? */
-            if (g_geopm_prof_default == NULL) {
-                g_geopm_prof_default = *prof;
+            /*! @todo Code below is not thread safe, we need a singleton! */
+            if (g_default_prof == NULL) {
+                g_default_prof = new geopm::Profile(std::string(name), comm);
+            }
+            else {
+                throw geopm::Exception("geopm_prof_create(): can be called only once",
+                                       GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
         }
         catch (...) {
@@ -85,23 +85,29 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_create_f(const char *name, int comm, struct geopm_prof_c **prof)
-    {
-        return geopm_prof_create(name, MPI_Comm_f2c(comm), prof);
-    }
-
-
-    int geopm_prof_destroy(struct geopm_prof_c *prof)
+    // Called only in geopm_pmpi.c in wrapper for MPI_Finalize()
+    int geopm_prof_destroy(void)
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
+            if (g_default_prof == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
-            delete prof_obj;
-            if (prof == g_geopm_prof_default) {
-                g_geopm_prof_default = NULL;
+            delete g_default_prof;
+            g_default_prof = NULL;
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+
+    int geopm_prof_region(const char *region_name, long policy_hint, uint64_t *region_id)
+    {
+        int err = 0;
+        try {
+            if (g_default_prof) {
+                *region_id = g_default_prof->region(std::string(region_name), policy_hint);
             }
         }
         catch (...) {
@@ -110,44 +116,13 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_default(struct geopm_prof_c *prof)
-    {
-        int err = 0;
-        if (prof) {
-            /*! @todo Code below is not thread safe, do we need a lock? */
-            g_geopm_prof_default = prof;
-        }
-        else {
-            err = g_geopm_prof_default ? 0 : GEOPM_ERROR_LOGIC;
-        }
-        return err;
-    }
-
-    int geopm_prof_region(struct geopm_prof_c *prof, const char *region_name, long policy_hint, uint64_t *region_id)
+    int geopm_prof_enter(uint64_t region_id)
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
+            if (g_default_prof) {
+                g_default_prof->enter(region_id);
             }
-            *region_id = prof_obj->region(std::string(region_name), policy_hint);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_enter(struct geopm_prof_c *prof, uint64_t region_id)
-    {
-        int err = 0;
-        try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            prof_obj->enter(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -156,15 +131,13 @@ extern "C"
 
     }
 
-    int geopm_prof_exit(struct geopm_prof_c *prof, uint64_t region_id)
+    int geopm_prof_exit(uint64_t region_id)
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
+            if (g_default_prof) {
+                g_default_prof->exit(region_id);
             }
-            prof_obj->exit(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -173,15 +146,13 @@ extern "C"
 
     }
 
-    int geopm_prof_progress(struct geopm_prof_c *prof, uint64_t region_id, double fraction)
+    int geopm_prof_progress(uint64_t region_id, double fraction)
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
+            if (g_default_prof) {
+                g_default_prof->progress(region_id, fraction);
             }
-            prof_obj->progress(region_id, fraction);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -190,15 +161,13 @@ extern "C"
 
     }
 
-    int geopm_prof_outer_sync(struct geopm_prof_c *prof)
+    int geopm_prof_outer_sync(void)
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
+            if (g_default_prof) {
+                g_default_prof->outer_sync();
             }
-            prof_obj->outer_sync();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -207,15 +176,14 @@ extern "C"
 
     }
 
-    int geopm_prof_disable(struct geopm_prof_c *prof, const char *feature_name)
+    int geopm_prof_disable(const char *feature_name)
     {
         int err = 0;
         try {
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (prof_obj == NULL) {
+            if (!g_default_prof) {
                 throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
-            prof_obj->disable(std::string(feature_name));
+            g_default_prof->disable(std::string(feature_name));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -252,16 +220,17 @@ extern "C"
         return err;
     }
 
-    int geopm_tprof_increment(struct geopm_tprof_c *tprof, struct geopm_prof_c *prof, uint64_t region_id, int thread_idx)
+    int geopm_tprof_increment(struct geopm_tprof_c *tprof, uint64_t region_id, int thread_idx)
     {
         int err = 0;
         try {
-            geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
-            geopm::Profile *prof_obj = (geopm::Profile *)(prof ? prof : g_geopm_prof_default);
-            if (tprof_obj == NULL || prof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
+            if (g_default_prof) {
+                geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
+                if (tprof_obj == NULL) {
+                    throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
+                }
+                tprof_obj->increment(*g_default_prof, region_id, thread_idx);
             }
-            tprof_obj->increment(*prof_obj, region_id, thread_idx);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -382,6 +351,7 @@ namespace geopm
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {}
         geopm_pmpi_prof_enable(1);
+        outer_sync();
     }
 
     Profile::~Profile()

@@ -679,7 +679,7 @@ namespace geopm
         m_sampler->profile_name(profile_name);
         m_sampler->name_set(region_name);
 
-        if (report_name.empty() || profile_name.empty() || region_name.empty()) {
+        if (report_name.empty() || profile_name.empty()) {
             throw Exception("Controller::generate_report(): Invalid report data", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 

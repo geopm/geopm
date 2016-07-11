@@ -43,7 +43,6 @@ integer, external :: omp_get_thread_num, omp_get_num_threads
 integer :: ierr
 integer :: index
 real(kind=c_double) :: sum
-type(c_ptr) :: prof
 type(c_ptr) :: tprof
 integer(8) :: region_id
 integer :: rank
@@ -56,9 +55,8 @@ num_iter = 100000000
 chunk_size = 1000
 
 call MPI_Init(ierr)
-ierr = geopm_prof_create(c_char_'timed_loop'//c_null_char, MPI_COMM_WORLD, prof)
-ierr = geopm_prof_region(c_null_ptr, c_char_'loop_0'//c_null_char, GEOPM_POLICY_HINT_UNKNOWN, region_id)
-ierr = geopm_prof_enter(c_null_ptr, region_id)
+ierr = geopm_prof_region(c_char_'loop_0'//c_null_char, GEOPM_POLICY_HINT_UNKNOWN, region_id)
+ierr = geopm_prof_enter(region_id)
 sum = 0
 !$omp parallel
     num_thread = omp_get_num_threads()
@@ -78,8 +76,7 @@ call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
 if (rank == 0) then
     print *,'sum=', sum
 end if
-ierr = geopm_prof_exit(c_null_ptr, region_id)
-ierr = geopm_prof_destroy(prof)
+ierr = geopm_prof_exit(region_id)
 call MPI_Finalize(ierr)
 
 end program timed_loop

@@ -143,19 +143,11 @@ test -f configure || ./autogen.sh
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
             --disable-fortran --disable-doc
 %else
-%if 0%{?rhel} == 7
-./configure --prefix=%{_prefix} --libdir=%{_libdir} \
-            --includedir=%{_includedir} --sbindir=%{_sbindir} \
-            --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-mpi-bin=%{_libdir}/openmpi/bin \
-            --disable-fortran --disable-doc --disable-pmpi
-%else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
             --disable-fortran --disable-doc
-%endif
 %endif
 
 %{__make}

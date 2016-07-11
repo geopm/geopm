@@ -100,76 +100,47 @@ module geopm
         !! APPLICATION PROFILING !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        !> @brief Fortran interface to geopm_prof_create C function.
-        integer(kind=c_int) function geopm_prof_create(prof_name, comm, prof) bind(C, name="geopm_prof_create_f")
-            import
-            implicit none
-            character(kind=c_char), intent(in) :: prof_name(*)
-            integer(kind=c_int), value, intent(in) :: comm
-            type(c_ptr), intent(out) :: prof
-        end function geopm_prof_create
-
-        !> @brief Fortran interface to geopm_prof_destroy C function.
-        integer(kind=c_int) function geopm_prof_destroy(prof) bind(C)
-            import
-            implicit none
-            type(c_ptr), value, intent(in) :: prof
-        end function geopm_prof_destroy
-
-        !> @brief Fortran interface to geopm_prof_default C function.
-        integer(kind=c_int) function geopm_prof_default(prof) bind(C)
-            import
-            implicit none
-            type(c_ptr), value, intent(in) :: prof
-        end function geopm_prof_default
-
         !> @brief Fortran interface to geopm_prof_region C function.
-        integer(kind=c_int) function geopm_prof_region(prof, region_name, policy_hint, region_id) bind(C)
+        integer(kind=c_int) function geopm_prof_region(region_name, policy_hint, region_id) bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: prof
             character(kind=c_char), intent(in) :: region_name(*)
             integer(kind=c_int), value, intent(in) :: policy_hint
             integer(kind=c_int64_t), intent(out) :: region_id
         end function geopm_prof_region
 
         !> @brief Fortran interface to geopm_prof_enter C function.
-        integer(kind=c_int) function geopm_prof_enter(prof, region_id) bind(C)
+        integer(kind=c_int) function geopm_prof_enter(region_id) bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: prof
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_enter
 
         !> @brief Fortran interface to geopm_prof_exit C function.
-        integer(kind=c_int) function geopm_prof_exit(prof, region_id) bind(C)
+        integer(kind=c_int) function geopm_prof_exit(region_id) bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: prof
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_exit
 
         !> @brief Fortran interface to geopm_prof_progress C function.
-        integer(kind=c_int) function geopm_prof_progress(prof, region_id, fraction) bind(C)
+        integer(kind=c_int) function geopm_prof_progress(region_id, fraction) bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: prof
             integer(kind=c_int64_t), value, intent(in) :: region_id
             real(kind=c_double), value, intent(in) :: fraction
         end function geopm_prof_progress
 
         !> @brief Fortran interface to geopm_prof_outer_sync C function.
-        integer(kind=c_int) function geopm_prof_outer_sync(prof) bind(C)
+        integer(kind=c_int) function geopm_prof_outer_sync() bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: prof
         end function geopm_prof_outer_sync
 
         !> @brief Fortran interface to geopm_prof_disable C function.
-        integer(kind=c_int) function geopm_prof_disable(prof, feature_name) bind(C)
+        integer(kind=c_int) function geopm_prof_disable(feature_name) bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: prof
             character(kind=c_char), intent(in) :: feature_name(*)
         end function geopm_prof_disable
 
@@ -191,11 +162,10 @@ module geopm
         end function geopm_tprof_destroy
 
         !> @brief Fortran interface to geopm_tprof_increment C function.
-        integer(kind=c_int) function geopm_tprof_increment(tprof, prof, region_id, thread_idx) bind(C)
+        integer(kind=c_int) function geopm_tprof_increment(tprof, region_id, thread_idx) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: tprof
-            type(c_ptr), value, intent(in) :: prof
             integer(kind=c_int64_t), value, intent(in) :: region_id
             integer(kind=c_int), value, intent(in) :: thread_idx
         end function geopm_tprof_increment

@@ -154,23 +154,6 @@ fi
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
-AC_ARG_ENABLE([pmpi],
-  [AS_HELP_STRING([--disable-pmpi], [Do not compile PMPI wrappers into libgeopm.so])],
-[if test "x$enable_pmpi" = "xno" ; then
-  enable_pmpi="0"
-else
-  enable_pmpi="1"
-fi
-],
-[enable_pmpi="1"]
-)
-if test "x$enable_pmpi" = "x1" ; then
-  AC_DEFINE([GEOPM_PMPI], [ ], [Enables use of geopm's  PMPI wrappers])
-fi
-
-AC_SUBST([enable_pmpi])
-AM_CONDITIONAL([ENABLE_PMPI], [test "x$enable_pmpi" = "x1"])
-
 AC_ARG_ENABLE([doc],
   [AS_HELP_STRING([--disable-doc], [Do not create man pages with ronn])],
 [if test "x$enable_doc" = "xno" ; then
@@ -471,6 +454,5 @@ AC_MSG_RESULT([coverage           : ${enable_coverage}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
-AC_MSG_RESULT([pmpi               : ${enable_pmpi}])
 AC_MSG_RESULT([doc                : ${enable_doc}])
 AC_MSG_RESULT([===============================================================================])

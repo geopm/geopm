@@ -295,7 +295,6 @@ void initStaticImbalance(int nranks)
 
 void synthetic_benchmark_main(int nranks, int rank)
 {
-    struct geopm_prof_c *prof;
     uint64_t region_id[2];
     struct geopm_time_s start, curr;
     double x = 0.0;
@@ -333,9 +332,8 @@ void synthetic_benchmark_main(int nranks, int rank)
     sprintf(buf, "%d", rank);
     dumpRankAffinity(buf, my_pid, sched_getcpu(), "Workload");
 
-    geopm_prof_create("geopm_synthetic_benchmark", MPI_COMM_WORLD, &prof);
-    geopm_prof_region(prof, "loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]);
-    geopm_prof_enter(prof, region_id[0]);
+    geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]);
+    geopm_prof_enter(region_id[0]);
     geopm_time(&start);
 
     GET_TIME(tStart);
@@ -348,13 +346,13 @@ void synthetic_benchmark_main(int nranks, int rank)
         }
 
         x += do_work(i);
-        geopm_prof_progress(prof, region_id[0], i*syntheticcfg.rank_norm(rank));
+        geopm_prof_progress(region_id[0], i*syntheticcfg.rank_norm(rank));
     }
     GET_TIME(tEnd);
     fprintf(stderr, "%.2fs: Rank %d finished\n", tEnd-tStart, rank);
 
     geopm_time(&curr);
-    geopm_prof_exit(prof, region_id[0]);
+    geopm_prof_exit(region_id[0]);
 
     *sub_rank_runtime = tEnd-tStart;
 
@@ -368,7 +366,6 @@ void synthetic_benchmark_main(int nranks, int rank)
         dumpSummary(nranks, endProg-startProg);
     }
 
-    geopm_prof_destroy(prof);
 }
 
 int main(int argc, char **argv)

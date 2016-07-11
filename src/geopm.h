@@ -47,9 +47,7 @@ extern "C" {
 /* Opaque structure which is a handle for a geopm::Controller object. */
 struct geopm_ctl_c;
 
-/* Opaque structure which is a handle for a geopm::Profile object. */
-struct geopm_prof_c;
-
+/* Opaque structure which is a handle for a geopm::ProfileThread object. */
 struct geopm_tprof_c;
 
 /************************/
@@ -77,33 +75,20 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 /*************************/
 /* APPLICATION PROFILING */
 /*************************/
-int geopm_prof_create(const char *name,
-                      MPI_Comm comm,
-                      struct geopm_prof_c **prof);
-
-int geopm_prof_destroy(struct geopm_prof_c *prof);
-
-int geopm_prof_default(struct geopm_prof_c *prof);
-
-int geopm_prof_region(struct geopm_prof_c *prof,
-                      const char *region_name,
+int geopm_prof_region(const char *region_name,
                       long policy_hint,
                       uint64_t *region_id);
 
-int geopm_prof_enter(struct geopm_prof_c *prof,
-                     uint64_t region_id);
+int geopm_prof_enter(uint64_t region_id);
 
-int geopm_prof_exit(struct geopm_prof_c *prof,
-                    uint64_t region_id);
+int geopm_prof_exit(uint64_t region_id);
 
-int geopm_prof_progress(struct geopm_prof_c *prof,
-                        uint64_t region_id,
+int geopm_prof_progress(uint64_t region_id,
                         double fraction);
 
-int geopm_prof_outer_sync(struct geopm_prof_c *prof);
+int geopm_prof_outer_sync(void);
 
-int geopm_prof_disable(struct geopm_prof_c *prof,
-                       const char *feature_name);
+int geopm_prof_disable(const char *feature_name);
 
 int geopm_tprof_create(int num_thread,
                        size_t num_iter,
@@ -113,7 +98,6 @@ int geopm_tprof_create(int num_thread,
 int geopm_tprof_destroy(struct geopm_tprof_c *tprof);
 
 int geopm_tprof_increment(struct geopm_tprof_c *tprof,
-                          struct geopm_prof_c *prof,
                           uint64_t region_id,
                           int thread_idx);
 

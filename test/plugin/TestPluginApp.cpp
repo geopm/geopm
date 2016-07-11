@@ -53,7 +53,6 @@ int main(int argc, char **argv)
     double progress, time_delta, clock_freq;
     struct geopm_time_s last_time;
     struct geopm_time_s curr_time;
-    struct geopm_prof_c *prof;
 
     setenv("GEOPM_POLICY", policy_name, 1);
     setenv("GEOPM_REPORT", report_name, 1);
@@ -66,13 +65,12 @@ int main(int argc, char **argv)
     geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 5.0);
     geopm::LockingHashTable<double> table(shmem.size(), shmem.pointer());
 
-    geopm_prof_create("TestPluginApp", MPI_COMM_WORLD, &prof);
-    geopm_prof_region(prof, "main_loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+    geopm_prof_region("main_loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
 
     // imbalance is proportional to rank and ranges from 0 to 10%
     clock_req = clock_req_base * (1.0 + (comm_rank * imbalance) / comm_size);
 
-    geopm_prof_enter(prof, region_id);
+    geopm_prof_enter(region_id);
     geopm_time(&last_time);
     num_clock = 0;
     while (num_clock < clock_req) {
@@ -82,11 +80,10 @@ int main(int argc, char **argv)
         num_clock += time_delta * clock_freq;
         progress = (double)num_clock / (double)clock_req;
         progress = progress <= 1.0 ? progress : 1.0;
-        geopm_prof_progress(prof, region_id, progress);
+        geopm_prof_progress(region_id, progress);
         last_time = curr_time;
     }
-    geopm_prof_exit(prof, region_id);
-    geopm_prof_destroy(prof);
+    geopm_prof_exit(region_id);
     MPI_Finalize();
     return 0;
 }

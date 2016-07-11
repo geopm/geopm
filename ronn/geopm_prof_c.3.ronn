@@ -37,41 +37,25 @@ geopm_prof_c(3) -- geopm application profiling structure
 
 `Link with -lgeopm`
 
-  * `int geopm_prof_create(`:
-    `const char *`_name_, <br>
-    `MPI_Comm` _comm_, <br>
-    `struct geopm_prof_c **`_prof_);
-
-  * `int geopm_prof_destroy(`:
-    `struct geopm_prof_c *`_prof_);
-
-  * `int geopm_prof_default(`:
-    `struct geopm_prof_c *`_prof_);
-
   * `int geopm_prof_region(`:
-    `struct geopm_prof_c *`_prof_, <br>
     `const char *`_region_name_, <br>
     `long` _policy_hint_, <br>
     `uint64_t *`_region_id_);
 
   * `int geopm_prof_enter(`:
-    `struct geopm_prof_c *`_prof_, <br>
     `uint64_t` _region_id_);
 
   * `int geopm_prof_exit(`:
-    `struct geopm_prof_c *`_prof_, <br>
     `uint64_t` _region_id_);
 
   * `int geopm_prof_progress(`:
-    `struct geopm_prof_c *`_prof_, <br>
     `uint64_t` _region_id_, <br>
     `double` _fraction_);
 
   * `int geopm_prof_outer_sync(`:
-    `struct geopm_prof_c *`_prof_);
+    `void);
 
   * `int geopm_prof_disable(`:
-    `struct geopm_prof_c *`_prof_, <br>
     `const char *`_feature_name_);
 
   * `int geopm_tprof_create(`:
@@ -85,71 +69,41 @@ geopm_prof_c(3) -- geopm application profiling structure
 
   * `int geopm_tprof_increment(`:
     `struct geopm_tprof_c *`_tprof_, <br>
-    `struct geopm_prof_c *`_prof_, <br>
     `uint64_t` _region_id_, <br>
     `int` _thread_idx_);
 
 ## DESCRIPTION
-The geopm_prof_c and geopm_tprof_c structures enable application
-profiling for geopm.  The functions associated with he geopm_prof_c
-and geopm_tprof_c structures are described here.  These functions
-enable application feedback to the control algorithm for identifying
-regions of code, progress within regions, and global synchronization
-points in the application.  Regions of code define periods in the
-application during which control parameters are tuned with the
-expectation that control parameters for a region can be optimized
-independently of other regions.  In this way a region is associated
-with a set of control parameters which can be optimized, and future
-time intervals associated with the same region will benefit from the
-application of control parameters which were determined from tuning
-within previous occurrences of the region.  There are two competing
-motivations for defining a region within the application.  The first
-is to identify a section of code that has distinct compute, memory or
-network characteristics.  The second is to avoid defining these
-regions such that they are nested within each other, as nested regions
-are ignored, and only the outer most region is used for tuning when
-nesting occurs.  Identifying progress within a region can be used to
-alleviate load imbalance in the application under the assumption that
-the region is bulk synchronous.  Under the assumption that the
-application employs an iterative algorithm which synchronizes
-periodically the user can alleviate load imbalance on larger time
-scales than the regions provide.  This is done by marking the end of
-the outer most loop, or the "outer synchronization point."
-
-  * `geopm_prof_create`():
-    creates a profile object, _prof_, which can be used in conjunction
-    with all the other `geopm_prof_*`() APIs described here.  The
-    resources associated with the _prof_ are released by passing it to
-    `geopm_prof_destroy`().  The first profile object to be created is
-    stored as the default, and if a NULL pointer is subsequently
-    passed as the profile argument to any of the `geopm_prof_*`()
-    APIs, this default object will be used.  See
-    `geopm_prof_default`() for more information about the default
-    profile.  Construction requires a _name_ which is displayed when
-    the profile is printed.  The _comm_ is an MPI communicator that
-    the calling MPI application is running on (probably
-    MPI_COMM_WORLD).
-
-  * `geopm_prof_destroy`():
-    releases all resources associated with the _prof_ object.
-
-  * `geopm_prof_default`():
-    sets the default profile object to _prof_.  If NULL is passed for
-    _prof_ then the return code indicates if there is currently a
-    default profile object: returns zero if a default profile object
-    has been set and GEOPM_ERROR_LOGIC if it has not been set.  The
-    default profile object will be used if NULL is passed for _prof_
-    for any of the `geopm_prof_*`() APIs.
+The functions described here enable application feedback to the
+control algorithm for identifying regions of code, progress within
+regions, and global synchronization points in the application.
+Regions of code define periods in the application during which control
+parameters are tuned with the expectation that control parameters for
+a region can be optimized independently of other regions.  In this way
+a region is associated with a set of control parameters which can be
+optimized, and future time intervals associated with the same region
+will benefit from the application of control parameters which were
+determined from tuning within previous occurrences of the region.
+There are two competing motivations for defining a region within the
+application.  The first is to identify a section of code that has
+distinct compute, memory or network characteristics.  The second is to
+avoid defining these regions such that they are nested within each
+other, as nested regions are ignored, and only the outer most region
+is used for tuning when nesting occurs.  Identifying progress within a
+region can be used to alleviate load imbalance in the application
+under the assumption that the region is bulk synchronous.  Under the
+assumption that the application employs an iterative algorithm which
+synchronizes periodically the user can alleviate load imbalance on
+larger time scales than the regions provide.  This is done by marking
+the end of the outer most loop, or the "outer synchronization point."
 
   * `geopm_prof_region`():
-    registers an application region with the profile object _prof_.
-    The _region_name_ and _policy_hint_ are input parameters, and the
-    _region_id_ is output.  The _region_id_ can be used with
-    `geopm_prof_enter`(), `geopm_prof_exit`(),
-    `geopm_prof_progress`(), and `geopm_tprof_progress`() to
-    referrence the region.  If the region name has been previously
-    registered, a call to this function will set the _region_id_ but
-    the state in the _prof_ structure associated with the region is
+    registers an application region.  The _region_name_ and
+    _policy_hint_ are input parameters, and the _region_id_ is output.
+    The _region_id_ can be used with `geopm_prof_enter`(),
+    `geopm_prof_exit`(), `geopm_prof_progress`(), and
+    `geopm_tprof_progress`() to referrence the region.  If the region
+    name has been previously registered, a call to this function will
+    set the _region_id_ but the state associated with the region is
     unmodified.  The _region_name_ is used to determine the output
     _region_id_ and is also displayed in the profiling report to
     identify the region.  The _policy_hint_ is one of the values given
@@ -196,7 +150,7 @@ the outer most loop, or the "outer synchronization point."
 
   * `geopm_tprof_create`():
     creates a thread profiling object, _tprof_, which extends the
-    functionality of a `geopm_prof_c` object to report progress within
+    functionality of the profiling interface to report progress within
     threaded regions.  The interface assumes a fixed number of
     threads, _num_thread_, which are performing work sharing on a list
     of tasks _num_iter_ long (e.g. an omp parallel for loop with
@@ -216,17 +170,16 @@ the outer most loop, or the "outer synchronization point."
 
   * `geopm_tprof_increment`():
     is called after a thread has completed each work unit to report
-    progress.  The _tprof_ thread profiling object and _prof_ general
-    profiling object are passed as the first two arguments. Passing
-    NULL for _prof_ inferrs the default profile object.  The region
-    identifier returned by `geopm_prof_region`() is passed as the
-    third argument, _region_id_.  The last argument is the thread
-    index which is in the range of [0, 1, ..., _num_thread_ - 1] where
-    _num_thread_ is the parameter passed when the _tprof_ was created.
-    This index uniquely identifies the thread that is reporting
-    progress.  When using the `geopm_tprof_increment`()
-    interface to report progress, it is incorrect to also call the
-    `geopm_prof_progress`() interface.
+    progress.  The _tprof_ thread profiling object is passed as the
+    first argument. The region identifier returned by
+    `geopm_prof_region`() is passed as the second argument,
+    _region_id_.  The last argument is the thread index which is in
+    the range of [0, 1, ..., _num_thread_ - 1] where _num_thread_ is
+    the parameter passed when the _tprof_ was created.  This index
+    uniquely identifies the thread that is reporting progress.  When
+    using the `geopm_tprof_increment`() interface to report progress,
+    it is incorrect to also call the `geopm_prof_progress`()
+    interface for the same region.
 
 ## EXAMPLE
 
@@ -248,7 +201,6 @@ the outer most loop, or the "outer synchronization point."
         int rank = 0;
         int num_iter = 100000000;
         double sum = 0.0;
-        struct geopm_prof_c *prof = NULL;
         struct geopm_tprof_c *tprof = NULL;
         int num_thread = 0;
         int thread_idx = 0 ;
@@ -267,14 +219,11 @@ the outer most loop, or the "outer synchronization point."
             err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
         }
         if (!err) {
-            err = geopm_prof_create("timed_loop", NULL, MPI_COMM_WORLD, &prof);
-        }
-        if (!err) {
-            err = geopm_prof_region(NULL, "loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+            err = geopm_prof_region("loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
         }
         MPI_Barrier(MPI_COMM_WORLD);
         if (!err) {
-            err = geopm_prof_enter(NULL, region_id);
+            err = geopm_prof_enter(region_id);
         }
         if (!err) {
     #pragma omp parallel default(shared) private(thread_idx, index)
@@ -283,19 +232,16 @@ the outer most loop, or the "outer synchronization point."
     #pragma omp for reduction(+:sum) schedule(static, chunk_size)
             for (index = 0; index < num_iter; ++index) {
                 sum += (double)index;
-                geopm_tprof_increment(tprof, prof, region_id, thread_idx);
+                geopm_tprof_increment(tprof, region_id, thread_idx);
             }
     }
-            err = geopm_prof_exit(NULL, region_id);
+            err = geopm_prof_exit(region_id);
         }
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         }
         if (!err && !rank) {
             printf("sum = %e\n\n", sum);
-        }
-        if (!err) {
-            err = geopm_prof_destroy(prof);
         }
 
         int tmp_err = MPI_Finalize();

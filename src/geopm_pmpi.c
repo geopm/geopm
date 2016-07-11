@@ -43,6 +43,8 @@
 #include "config.h"
 
 void geopm_pmpi_prof_mpi(int do_profile);
+int geopm_prof_create(const char *name, MPI_Comm comm);
+int geopm_prof_destroy(void);
 
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static int g_is_geopm_pmpi_prof_enabled = 0;
@@ -50,6 +52,7 @@ static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
 static struct geopm_ctl_c *g_ctl = NULL;
 static pthread_t g_ctl_thread;
+static struct geopm_prof_c *g_prof = NULL;
 
 /* To be used only in Profile.cpp */
 void geopm_pmpi_prof_enable(int do_profile)
@@ -87,20 +90,20 @@ static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 
 static inline void geopm_mpi_region_enter()
 {
-    if (g_is_geopm_pmpi_prof_enabled && geopm_prof_default(NULL) == 0) {
-        geopm_prof_enter(NULL, GEOPM_REGION_ID_MPI);
+    if (g_is_geopm_pmpi_prof_enabled) {
+        geopm_prof_enter(GEOPM_REGION_ID_MPI);
     }
 }
 
 static inline void geopm_mpi_region_exit(void)
 {
-    if (g_is_geopm_pmpi_prof_enabled && geopm_prof_default(NULL) == 0) {
-        geopm_prof_exit(NULL, GEOPM_REGION_ID_MPI);
+    if (g_is_geopm_pmpi_prof_enabled) {
+        geopm_prof_exit(GEOPM_REGION_ID_MPI);
     }
 }
 
 
-static int geopm_pmpi_init(void)
+static int geopm_pmpi_init(const char *exec_name)
 {
     int rank;
     int mpi_version;
@@ -193,6 +196,9 @@ static int geopm_pmpi_init(void)
             }
         }
     }
+    if (!err) {
+        err = geopm_prof_create(exec_name, MPI_COMM_WORLD);
+    }
 #ifdef GEOPM_DEBUG
     if (err) {
         char err_msg[NAME_MAX];
@@ -207,6 +213,7 @@ static int geopm_pmpi_finalize(void)
 {
     int err = 0;
     int tmp_err = 0;
+
     if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
         void *return_val;
         err = pthread_join(g_ctl_thread, &return_val);
@@ -243,7 +250,12 @@ int MPI_Init(int *argc, char **argv[])
         err = PMPI_Init(argc, argv);
     }
     if (!err) {
-        err = geopm_pmpi_init();
+        if (argv && *argv && **argv && strlen(**argv)) {
+            err = geopm_pmpi_init(**argv);
+        }
+        else {
+            err = geopm_pmpi_init("Fortran");
+        }
     }
     return err;
 }
@@ -252,10 +264,14 @@ int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
     int err = PMPI_Init_thread(argc, argv, required, provided);
     if (!err) {
-        err = geopm_pmpi_init();
+        if (argv && *argv && **argv && strlen(**argv)) {
+            err = geopm_pmpi_init(**argv);
+        }
+        else {
+            err = geopm_pmpi_init("Fortran");
+        }
     }
     return err;
-
 }
 
 int MPI_Finalize(void)
