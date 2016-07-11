@@ -331,22 +331,22 @@ namespace geopm
     {
         uint64_t msr_val;
         int niter = m_num_package;
-        std::ofstream restore_file;
+        std::ofstream save_file;
 
         if (path == NULL) {
             throw Exception("PlatformImp(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        restore_file.open(path);
+        save_file.open(path);
 
         //per package state
         for (int i = 0; i < niter; i++) {
             msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
             msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
             msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
-            restore_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
         }
 
         niter = m_num_hw_cpu;
@@ -354,17 +354,17 @@ namespace geopm
         //per cpu state
         for (int i = 0; i < niter; i++) {
             msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
             msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
             msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
             msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
-            restore_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
+            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
 
         }
 
-        restore_file.close();
+        save_file.close();
     }
 
     void PlatformImp::restore_msr_state(const char *path)
