@@ -31,7 +31,7 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200112L
+AM_CPPFLAGS = -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200112L -DOMPI_SKIP_MPICXX
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
@@ -133,13 +133,13 @@ EXTRA_DIST = .gitignore \
 
 # EXTEND FLAGS FOR MPI TARGETS
 if ENABLE_MPI
-    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) -version-info $(geopm_abi_version)
+    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
-    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 endif
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
@@ -148,7 +148,7 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
-    geopmctl_LDADD = libgeopm.la $(MPI_CXXLIBS)
+    geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la
 endif
