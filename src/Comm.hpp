@@ -41,9 +41,9 @@ namespace geopm
         public:
             /// @brief Constructor for global communicator
             Comm();
-            /// @brief Constructor for splitting a communictor into a cartisian grid
+            /// @brief Constructor for splitting a communictor into a Cartesian grid
             Comm(const Comm *in_comm, std::vector<int> dimension, std::vector<bool> is_periodic, bool is_reorder);
-            /// @brief Constructor for splitting a cartisian grid into a sub-grid
+            /// @brief Constructor for splitting a Cartesian grid into a sub-grid
             Comm(const Comm *in_comm, std::vector<bool> is_remain);
             /// @brief Split a communicator based on color, order ranks based on key
             Comm(const Comm *in_comm, int color, int key);
@@ -61,12 +61,12 @@ namespace geopm
             virtual int rank(void) = 0;
             /// @brief Number of ranks in the communicator
             virtual int num_rank(void) = 0;
-            /// @brief Dimension of cartisian grid (returns 1 for non-cartisian communicators
+            /// @brief Dimension of Cartesian grid (returns 1 for non-Cartesian communicators
             virtual int num_dimension(void) = 0;
             /// @brief Populate vector of optimal dimensions given the number of ranks the communicator
             virtual void dimension_create(std::vector<int> &dimension) = 0;
-            /// @brief Coordinates in cartisian grid for specified rank
-            virtual void coordinates(int rank, std::vector<int> &coords) = 0;
+            /// @brief Coordinate in Cartesian grid for specified rank
+            virtual void coordinate(int rank, std::vector<int> &coord) = 0;
 
             // Point to point communication
             /// @brief Blocking message send
@@ -74,7 +74,7 @@ namespace geopm
             /// @brief Non-blocking message send
             virtual void send(void *buffer, int count, int buffer_type, int dest, int tag, Request *request) = 0;
             /// @brief Non-blocking message send for ready reciever
-            virtual void ready_send(void *buffer, int count, int buffer_type, int dest, int tag, Request *request) = 0;
+            virtual void send(void *buffer, int count, int buffer_type, int dest, int tag, Request *request, bool is_ready) = 0;
             /// @brief Blocking message recieve
             virtual void recieve(void *buffer, int count, int buffer_type, int source, int tag) = 0;
             /// @brief Non-blocking message recieve
