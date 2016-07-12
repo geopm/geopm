@@ -58,7 +58,7 @@ namespace geopm
                 throw Exception("Tracer::Tracer() gethostname() failed", err, __FILE__, __LINE__);
             }
             std::string output_path(geopm_env_trace());
-            output_path += "-" + std::string(hostname) + ".log";
+            output_path += "-" + std::string(hostname);
             m_stream.open(output_path);
             m_stream << std::setprecision(16);
             m_is_trace_enabled = true;
