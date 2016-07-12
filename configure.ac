@@ -409,8 +409,8 @@ MPI_FLIBS=$MPI_F77LIBS
 # the openmpi versioned hwloc.  Alternatively the openmpi hwloc header
 # should be versioned i.e. hwloc.h -> hwloc172.h.
 #
-MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc172/hwloc/include||'`
-MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc172/hwloc/include||'`
+[MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
+[MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
 
 AC_SUBST([MPI_FCFLAGS])
 AC_SUBST([MPI_FFLAGS])
