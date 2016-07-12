@@ -337,7 +337,6 @@ namespace geopm
         , m_max_pp0_watts(100)
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
-        , m_platform_id(0x657)
         , m_signal_msr_offset(M_L2_MISSES)
         , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
         , M_KNL_MODEL_NAME("Knights Landing")
@@ -357,21 +356,19 @@ namespace geopm
         , M_PKG_POWER_LIMIT_MASK(0x1800000018000ul)
         , M_DRAM_POWER_LIMIT_MASK(0x18000)
         , M_EXTRA_SIGNAL(1)
+        , M_PLATFORM_ID(0x657)
     {
 
     }
 
     KNLPlatformImp::~KNLPlatformImp()
     {
-        while(m_cpu_file_desc.size()) {
-            close(m_cpu_file_desc.back());
-            m_cpu_file_desc.pop_back();
-        }
+
     }
 
     bool KNLPlatformImp::model_supported(int platform_id)
     {
-        return (platform_id == m_platform_id);
+        return (platform_id == M_PLATFORM_ID);
     }
 
     std::string KNLPlatformImp::platform_name()
@@ -638,9 +635,6 @@ namespace geopm
 
     void KNLPlatformImp::msr_initialize()
     {
-        for (int i = 0; i < m_num_logical_cpu; i++) {
-            msr_open(i);
-        }
         rapl_init();
         cbo_counters_init();
         fixed_counters_init();

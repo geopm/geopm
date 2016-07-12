@@ -98,8 +98,6 @@ namespace geopm
             double m_min_dram_watts;
             /// @brief Maximum value for DRAM power read from RAPL.
             double m_max_dram_watts;
-            /// @brief Stores the platform identifier.
-            int m_platform_id;
             /// @brief Vector of MSR offsets for reading.
             std::vector<off_t> m_signal_msr_offset;
             /// @brief Vector of MSR offsets to writing.

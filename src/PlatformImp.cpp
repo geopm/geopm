@@ -89,11 +89,25 @@ namespace geopm
         if (m_batch.numops) {
             free(m_batch.ops);
         }
+
+        while(m_cpu_file_desc.size()) {
+            close(m_cpu_file_desc.back());
+            m_cpu_file_desc.pop_back();
+        }
+
+        if (m_msr_batch_desc != -1) {
+            close(m_msr_batch_desc);
+        }
     }
 
     void PlatformImp::initialize()
     {
         parse_hw_topology();
+
+        for (int i = 0; i < m_num_logical_cpu; i++) {
+            msr_open(i);
+        }
+
         msr_initialize();
     }
 

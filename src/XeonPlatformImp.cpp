@@ -51,7 +51,6 @@ namespace geopm
         , m_max_pp0_watts(100)
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
-        , m_platform_id(0)
         , m_signal_msr_offset(M_LLC_VICTIMS)
         , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
         , M_BOX_FRZ_EN(0x1 << 16)
@@ -73,11 +72,7 @@ namespace geopm
 
     XeonPlatformImp::~XeonPlatformImp()
     {
-        /// @fixme what about batch file descriptor?
-        while(m_cpu_file_desc.size()) {
-            close(m_cpu_file_desc.back());
-            m_cpu_file_desc.pop_back();
-        }
+
     }
 
     SNBPlatformImp::SNBPlatformImp()
@@ -139,8 +134,7 @@ namespace geopm
 
     bool XeonPlatformImp::model_supported(int platform_id)
     {
-        m_platform_id = platform_id;
-        return(M_PLATFORM_ID == platform_id);
+        return (platform_id == M_PLATFORM_ID);
     }
 
     std::string XeonPlatformImp::platform_name()
@@ -405,9 +399,6 @@ namespace geopm
 
     void XeonPlatformImp::msr_initialize()
     {
-        for (int i = 0; i < m_num_logical_cpu; i++) {
-            msr_open(i);
-        }
         rapl_init();
         cbo_counters_init();
         fixed_counters_init();
