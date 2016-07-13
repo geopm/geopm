@@ -122,7 +122,8 @@ else
         # If the log does not contain the failed message, then it is a
         # false failure.
         if [[ $test_name =~ Death ]] && [ $err -eq 1 ]; then
-            if ! grep -Fq "[  FAILED  ]" $dir_name/$test_name.log; then
+            if (! grep -Fq "[  FAILED  ]" $dir_name/$test_name.log) &&
+               (grep -Fq "[  PASSED  ] 1 test." $dir_name/$test_name.log); then
                 echo "Overriding SLURM's status based on successful test log."
                 err=0
             fi
