@@ -394,21 +394,26 @@ namespace geopm
 
     GlobalPolicy::~GlobalPolicy()
     {
-        if (m_do_read) {
-            if(m_is_shm_in) {
-                if (munmap(m_policy_shmem_in, sizeof(struct geopm_policy_message_s))) {
-                    throw Exception("GlobalPolicy: Could not unmap root policy shared memory region", errno, __FILE__, __LINE__);
-                }
+        if (m_do_read && m_is_shm_in) {
+            if (munmap(m_policy_shmem_in, sizeof(struct geopm_policy_message_s))) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unmap root policy shared memory region",
+                                                  errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+#endif
             }
         }
-        if (m_do_write) {
-            if(m_is_shm_out) {
-                if (munmap(m_policy_shmem_out, sizeof(struct geopm_policy_message_s))) {
-                    throw Exception("GlobalPolicy: Could not unmap root policy shared memory region", errno, __FILE__, __LINE__);
-                }
-                if (shm_unlink(m_out_config.c_str())) {
-                    throw Exception("GlobalPolicy: Could not unlink shared memory region on GlobalPolicy destruction", errno, __FILE__, __LINE__);
-                }
+        if (m_do_write && m_is_shm_out) {
+            if (munmap(m_policy_shmem_out, sizeof(struct geopm_policy_message_s))) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unmap root policy shared memory region",
+                                                      errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+#endif
+            }
+            if (shm_unlink(m_out_config.c_str())) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unlink shared memory region on GlobalPolicy destruction",
+                                                          errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+#endif
             }
         }
     }

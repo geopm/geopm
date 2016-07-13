@@ -38,6 +38,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <string.h>
+#include <iostream>
 
 #include "geopm_time.h"
 #include "SharedMemory.hpp"
@@ -82,9 +83,11 @@ namespace geopm
 
     SharedMemory::~SharedMemory()
     {
-        int err = munmap(m_ptr, m_size);
-        if (err) {
-            throw Exception("SharedMemory: Could not unmap pointer", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        if (munmap(m_ptr, m_size)) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: " << Exception("SharedMemory: Could not unmap pointer",
+                                                  errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+#endif
         }
         (void) shm_unlink(m_shm_key.c_str());
     }
@@ -178,9 +181,11 @@ namespace geopm
 
     SharedMemoryUser::~SharedMemoryUser()
     {
-        int err = munmap(m_ptr, m_size);
-        if (err) {
-            throw Exception("SharedMemory: Could not unmap pointer", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        if (munmap(m_ptr, m_size)) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: " << Exception("SharedMemory: Could not unmap pointer",
+                                                  errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+#endif
         }
     }
 
