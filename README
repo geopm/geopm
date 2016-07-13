@@ -57,19 +57,21 @@ http://travis-ci.org/geopm/geopm
 
 All pull requests will be built and tested automatically by Travis.
 Additionally, pushes to the public dev and master branches which pass
-testing in Travis will trigger build and test in the OpenSUSE build
-system for a variety of Linux distributions.  These provide yum and
-zypper repositories which can be used to install the geopm software.
+testing in Travis will trigger build and test in the OpenSUSE Build
+System (OBS) for a variety of Linux distributions.  These provide yum
+and zypper repositories which can be used to install the geopm
+software.
 
 INSTALL
 -------
 The products of OBS triggered by Travis CI can be installed directly
 on a number of Linux distributions through yum or zypper.  Build and
-test are currently passing on RHEL 7, SLES 12, SLES 12-1, Fedora 21,
-Fedora 22 and Fedora 23.  Release 0.3.0 is the first to include
-distribution on OBS.  Pushes to the github public master branch are
-done only after a release has been tagged, and these tagged releases
-are published in yum and zypper repositories at the link below:
+test are currently passing on CentOS 7, RHEL 7, SLES 12, SLES 12-1,
+Fedora 21, Fedora 22 and Fedora 23.  Release 0.2.0 is the first to
+include distribution on OBS.  Pushes to the github public master
+branch are done only after a release has been tagged, and these tagged
+releases are published in yum and zypper repositories at the link
+below:
 
 http://download.opensuse.org/repositories/home:/cmcantalupo:/geopm
 
