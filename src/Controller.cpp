@@ -211,8 +211,6 @@ namespace geopm
 
             check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
 
-            m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
-
             if (num_nodes > 1) {
                 int num_fan_out = 1;
                 std::vector<int> fan_out(num_fan_out);
@@ -290,6 +288,7 @@ namespace geopm
             // Synchronize the ranks so time zero is uniform.
             MPI_Barrier(ppn1_comm);
             m_tracer = new Tracer();
+            m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
         }
     }
 

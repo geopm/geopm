@@ -129,6 +129,11 @@ EXTRA_DIST = .gitignore \
              src/Comm.hpp \
              test/geopm_static_modes_test.sh \
              TODO \
+             tutorial/Makefile \
+             tutorial/README.md \
+             tutorial/tutorial-0.c \
+             tutorial/tutorial-0.sh \
+             tutorial/tutorial-env.sh \
              # end
 
 # EXTEND FLAGS FOR MPI TARGETS
@@ -148,6 +153,7 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
+    libgeopm_la_LIBADD = $(MPI_CLIBS)
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la

@@ -128,3 +128,7 @@ test/SampleRegulatorTest.cpp
 test/RegionTest.cpp
 test/PolicyTest.cpp
 test/BalancingDeciderTest.cpp
+tutorial/Makefile
+tutorial/tutorial-0.c
+tutorial/tutorial-0.sh
+tutorial/tutorial-env.sh
