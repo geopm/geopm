@@ -65,7 +65,7 @@ static inline void* do_something(void *work_struct)
     while (!exit_signal_g) {
         work->result += i*work->result;
     }
-    work->result = isinf(work->result) ? 100.0 : work->result;
+    work->result = std::isinf(work->result) ? 100.0 : work->result;
     work->result = std::max(work->result, 100.0);
 
     return NULL;
