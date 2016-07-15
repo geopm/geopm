@@ -39,7 +39,7 @@
 
 namespace geopm
 {
-    static const std::map<std::string, std::pair<off_t, unsigned long> > G_KNL_MSR_OFFSET_MAP({
+    static const std::map<std::string, std::pair<off_t, unsigned long> > G_KNL_MSR_MAP({
             {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000}},
             {"IA32_PERF_CTL",           {0x0199, 0x000000010000ffff}},
             {"RAPL_POWER_UNIT",         {0x0606, 0x0000000000000000}},
@@ -327,7 +327,7 @@ namespace geopm
 
 
     KNLPlatformImp::KNLPlatformImp()
-        : PlatformImp(2, 5, 8.0, G_KNL_MSR_OFFSET_MAP)
+        : PlatformImp(2, 5, 8.0, G_KNL_MSR_MAP)
         , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_dram_energy_units(1.5258789063E-5)
@@ -338,7 +338,8 @@ namespace geopm
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
         , m_signal_msr_offset(M_L2_MISSES)
-        , m_control_msr_offset(M_NUM_CONTROL_OFFSET)
+        , m_control_msr_offset(M_NUM_CONTROL)
+        , m_control_msr_mask(M_NUM_CONTROL)
         , M_KNL_MODEL_NAME("Knights Landing")
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
@@ -609,7 +610,8 @@ namespace geopm
                 }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK;
-                msr_write(device_type, device_index, m_control_msr_offset[M_RAPL_PKG_LIMIT], msr_val);
+                msr_write(device_type, device_index, m_control_msr_offset[M_RAPL_PKG_LIMIT],
+                    m_control_msr_mask[M_RAPL_PKG_LIMIT],  msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
                 if (value < m_min_dram_watts) {
@@ -620,12 +622,14 @@ namespace geopm
                 }
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
-                msr_write(device_type, device_index, m_control_msr_offset[M_RAPL_DRAM_LIMIT], msr_val);
+                msr_write(device_type, device_index, m_control_msr_offset[M_RAPL_DRAM_LIMIT],
+                    m_control_msr_mask[M_RAPL_DRAM_LIMIT],  msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 msr_val = (uint64_t)(value * 10);
                 msr_val = msr_val << 8;
-                msr_write(device_type, device_index, m_control_msr_offset[M_IA32_PERF_CTL], msr_val);
+                msr_write(device_type, device_index, m_control_msr_offset[M_IA32_PERF_CTL],
+                    m_control_msr_mask[M_IA32_PERF_CTL],  msr_val);
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -682,10 +686,15 @@ namespace geopm
             m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * i] = msr_offset(msr_name);
         }
 
-        //Save off the msr offsets for the controls we want to write to avoid a map lookup
+        //Save off the msr offsets and masks for the controls we want to write to avoid a map lookup
         m_control_msr_offset[M_RAPL_PKG_LIMIT] = msr_offset("PKG_POWER_LIMIT");
+        m_control_msr_mask[M_RAPL_PKG_LIMIT] = msr_mask("PKG_POWER_LIMIT");
+
         m_control_msr_offset[M_RAPL_DRAM_LIMIT] = msr_offset("DRAM_POWER_LIMIT");
+        m_control_msr_mask[M_RAPL_DRAM_LIMIT] = msr_mask("DRAM_POWER_LIMIT");
+
         m_control_msr_offset[M_IA32_PERF_CTL] = msr_offset("IA32_PERF_CTL");
+        m_control_msr_mask[M_IA32_PERF_CTL] = msr_mask("IA32_PERF_CTL");
     }
 
     void KNLPlatformImp::msr_reset()

@@ -108,6 +108,8 @@ namespace geopm
             std::vector<off_t> m_signal_msr_offset;
             /// @brief Vector of MSR offsets to writing.
             std::vector<off_t> m_control_msr_offset;
+            /// @brief Vector of MSR masks to writing.
+            std::vector<unsigned int> m_control_msr_mask;
 
             ///Constants
             const std::string M_KNL_MODEL_NAME;
@@ -143,8 +145,8 @@ namespace geopm
                 M_RAPL_PKG_LIMIT,
                 M_RAPL_DRAM_LIMIT,
                 M_IA32_PERF_CTL,
-                M_NUM_CONTROL_OFFSET
-            } m_control_offset_e;
+                M_NUM_CONTROL
+            } m_control_e;
             enum {
                 M_PKG_STATUS_OVERFLOW,
                 M_DRAM_STATUS_OVERFLOW,

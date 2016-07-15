@@ -77,8 +77,8 @@ TestPlatformImp::TestPlatformImp()
     for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
-        std::pair<off_t, unsigned long> msr_info(i*64, 0x0000000000000000);
-        m_msr_offset_map.insert(std::pair<std::string, std::pair<off_t, unsigned long> >(name, msr_info));
+        std::pair<off_t, unsigned long> msr_info(i*64, 0x0FFFFFFFFFFFFFFF);
+        m_msr_map.insert(std::pair<std::string, std::pair<off_t, unsigned long> >(name, msr_info));
         msr_open(i);
     }
     //for negative tests
@@ -467,6 +467,13 @@ TEST_F(PlatformImpTest, negative_msr_open)
     }
 
     EXPECT_TRUE((thrown==1));
+}
+
+TEST_F(PlatformImpTest, negative_msr_write_bad_value)
+{
+    // The write mask specified in the constructor is 0 from bits 63:60 and 1 from bits 59:0.
+    EXPECT_THROW(m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, 0, "MSR_TEST_0", 0xF000000000000000),
+        geopm::Exception);
 }
 
 TEST_F(PlatformImpTest, parse_topology)

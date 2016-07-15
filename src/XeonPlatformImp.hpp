@@ -102,6 +102,8 @@ namespace geopm
             std::vector<off_t> m_signal_msr_offset;
             /// @brief Vector of MSR offsets to writing.
             std::vector<off_t> m_control_msr_offset;
+            /// @brief Vector of MSR masks to writing.
+            std::vector<unsigned long> m_control_msr_mask;
 
             ///Constants
             const unsigned int M_BOX_FRZ_EN;
@@ -131,7 +133,7 @@ namespace geopm
                 M_RAPL_PKG_LIMIT,
                 M_RAPL_DRAM_LIMIT,
                 M_IA32_PERF_CTL,
-                M_NUM_CONTROL_OFFSET
+                M_NUM_CONTROL
             } m_control_offset_e;
             enum {
                 M_PKG_STATUS_OVERFLOW,
@@ -161,7 +163,7 @@ namespace geopm
             virtual ~SNBPlatformImp();
             virtual int frequency_control_domain(void) const;
         protected:
-            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
+            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
     };
 
     /// @brief This class provides a concrete platform implementation of
@@ -188,7 +190,7 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~HSXPlatformImp();
         protected:
-            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
+            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
     };
 
     class BDXPlatformImp : public HSXPlatformImp

@@ -51,6 +51,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformImpTest.negative_read_bad_desc \
               test/gtest_links/PlatformImpTest.negative_write_bad_desc \
               test/gtest_links/PlatformImpTest.negative_open_msr \
+              test/gtest_links/PlatformImpTest.negative_msr_write_bad_value \
               test/gtest_links/PlatformTopologyTest.cpu_count \
               test/gtest_links/PlatformTopologyTest.get_cpus \
               test/gtest_links/PlatformTopologyTest.negative_num_domain \

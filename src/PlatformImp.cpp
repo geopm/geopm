@@ -66,8 +66,8 @@ namespace geopm
 
     }
 
-    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_offset_map)
-        : m_msr_offset_map(msr_offset_map)
+    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_map)
+        : m_msr_map(msr_map)
         , m_num_logical_cpu(0)
         , m_num_hw_cpu(0)
         , m_num_tile(0)
@@ -181,12 +181,15 @@ namespace geopm
 
     void PlatformImp::msr_write(int device_type, int device_index, const std::string &msr_name, uint64_t value)
     {
-        off_t offset = m_msr_offset_map.find(msr_name)->second.first;
-        msr_write(device_type, device_index, offset, value);
+        off_t offset = m_msr_map.find(msr_name)->second.first;
+        unsigned long mask = m_msr_map.find(msr_name)->second.second;
+        msr_write(device_type, device_index, offset, mask, value);
     }
 
-    void PlatformImp::msr_write(int device_type, int device_index, off_t msr_offset, uint64_t value)
+    void PlatformImp::msr_write(int device_type, int device_index, off_t msr_offset, unsigned long msr_mask, uint64_t value)
     {
+        uint64_t old_value;
+
         if (device_type == GEOPM_DOMAIN_PACKAGE)
             device_index = (m_num_logical_cpu / m_num_package) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
@@ -195,6 +198,16 @@ namespace geopm
         if (m_cpu_file_desc.size() < (uint64_t)device_index) {
             throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
+
+        old_value = value;
+        value &= msr_mask;
+        if (value != old_value) {
+            std::ostringstream message;
+            message << "MSR value to be written was modified by the mask! Desired = 0x" << std::hex << old_value
+                << " After mask = 0x" << std::hex << value;
+            throw Exception(message.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+        }
+
         int rv = pwrite(m_cpu_file_desc[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
             throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
@@ -203,7 +216,7 @@ namespace geopm
 
     uint64_t PlatformImp::msr_read(int device_type, int device_index, const std::string &msr_name)
     {
-        off_t offset = m_msr_offset_map.find(msr_name)->second.first;
+        off_t offset = m_msr_map.find(msr_name)->second.first;
         return msr_read(device_type, device_index, offset);
     }
 
@@ -239,11 +252,20 @@ namespace geopm
 
     off_t PlatformImp::msr_offset(std::string msr_name)
     {
-        auto it = m_msr_offset_map.find(msr_name);
-        if (it == m_msr_offset_map.end()) {
+        auto it = m_msr_map.find(msr_name);
+        if (it == m_msr_map.end()) {
             throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return (*it).second.first;
+    }
+
+    unsigned long PlatformImp::msr_mask(std::string msr_name)
+    {
+        auto it = m_msr_map.find(msr_name);
+        if (it == m_msr_map.end()) {
+            throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return (*it).second.second;
     }
 
     void PlatformImp::msr_path(int cpu_num)
@@ -314,7 +336,7 @@ namespace geopm
     void PlatformImp::whitelist(FILE *file_desc)
     {
         fprintf(file_desc, "# MSR      Write Mask         # Comment\n");
-        for (auto it : m_msr_offset_map) {
+        for (auto it : m_msr_map) {
             fprintf(file_desc, "0x%.8llx 0x%.16lx # %s\n", (long long)it.second.first, it.second.second, it.first.c_str());
         }
     }
@@ -343,7 +365,6 @@ namespace geopm
 
     void PlatformImp::save_msr_state(const char *path)
     {
-        uint64_t msr_val;
         int niter = m_num_package;
         std::ofstream save_file;
 
@@ -353,32 +374,34 @@ namespace geopm
 
         save_file.open(path);
 
+        if (!save_file.good()) {
+            throw Exception("PlatformImp(): save_file stream is bad", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         //per package state
         for (int i = 0; i < niter; i++) {
-            msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
-            save_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PKG_POWER_LIMIT") << ":" << msr_val << "\n";
-            msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
-            save_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("PP0_POWER_LIMIT") << ":" << msr_val << "\n";
-            msr_val = msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
-            save_file << GEOPM_DOMAIN_PACKAGE << ":" << i << ":" << msr_offset("DRAM_POWER_LIMIT") << ":" << msr_val << "\n";
+            build_msr_save_string(save_file, GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
+            build_msr_save_string(save_file, GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
+            build_msr_save_string(save_file, GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
         }
 
         niter = m_num_hw_cpu;
 
         //per cpu state
         for (int i = 0; i < niter; i++) {
-            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
-            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_FIXED_CTR_CTRL") << ":" << msr_val << "\n";
-            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
-            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_CTRL") << ":" << msr_val << "\n";
-            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
-            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("PERF_GLOBAL_OVF_CTRL") << ":" << msr_val << "\n";
-            msr_val = msr_read(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
-            save_file << GEOPM_DOMAIN_CPU << ":" << i << ":" << msr_offset("IA32_PERF_CTL") << ":" << msr_val << "\n";
-
+            build_msr_save_string(save_file, GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
+            build_msr_save_string(save_file, GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
+            build_msr_save_string(save_file, GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
+            build_msr_save_string(save_file, GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
         }
 
         save_file.close();
+    }
+
+    void PlatformImp::build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name)
+    {
+        uint64_t msr_val = msr_read(device_type, device_index, name);
+        save_file << device_type << ":" << device_index << ":" << msr_offset(name) << ":" << msr_mask(name) << ":" << msr_val << std::endl;
     }
 
     void PlatformImp::restore_msr_state(const char *path)
@@ -399,8 +422,8 @@ namespace geopm
             while (std::getline(ss, item, ':')) {
                 vals.push_back((int64_t)atol(item.c_str()));
             }
-            if (vals.size() == 4) {
-                msr_write(vals[0], vals[1], vals[2], vals[3]);
+            if (vals.size() == 5) {
+                msr_write(vals[0], vals[1], vals[2], vals[3], vals[4]);
             }
             else {
                 throw Exception("error detected in restore file. Could not restore msr states", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);

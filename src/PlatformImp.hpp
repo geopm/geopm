@@ -80,7 +80,7 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
-            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_offset_map);
+            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_map);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
 
@@ -217,8 +217,9 @@ namespace geopm
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
             /// @param [in] device_index Numbered index of the specified type.
             /// @param [in] msr_offset Address offset of the requested MSR.
+            /// @param [in] msr_mask Write mask of the specified MSR.
             /// @param [in] value Value to write to the specified MSR.
-            void msr_write(int device_type, int device_index, off_t msr_offset, uint64_t value);
+            void msr_write(int device_type, int device_index, off_t msr_offset, unsigned long msr_mask, uint64_t value);
             /// @brief Read a value from a Model Specific Register.
             /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
@@ -233,6 +234,10 @@ namespace geopm
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Address offset of the requested MSR.
             off_t msr_offset(std::string msr_name);
+            /// @brief Retrieve the write mask of a Model Specific Register.
+            /// @param [in] msr_name String name of the requested MSR.
+            /// @return Write mask of the requested MSR.
+            unsigned long msr_mask(std::string msr_name);
             /// @brief Set the path to the MSR special file. In Linux this path
             /// is /dev/msr/cpu_num.
             /// @param [in] cpu_num Logical cpu number to set the path for.
@@ -274,8 +279,10 @@ namespace geopm
             PlatformTopology m_topology;
             /// @brief Holds the file descriptors for the per-cpu special files.
             std::vector<int> m_cpu_file_desc;
-            /// @brief Map of MSR string name to address offset.
-            std::map<std::string, std::pair<off_t, unsigned long> > m_msr_offset_map;
+            /// @brief Map of MSR string name to address offset and write mask.
+            /// This is a map is keyed by a string of the MSR's name and maps a pair
+            /// which contain the MSR's offset (first) and write mask (second).
+            std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
             /// @brief Number of logical CPUs.
             int m_num_logical_cpu;
             /// @brief Number of hardware CPUs.
@@ -303,6 +310,9 @@ namespace geopm
             int m_msr_batch_desc;
             bool m_is_batch_enabled;
             struct m_msr_batch_array m_batch;
+
+        private:
+            void build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name);
     };
 }
 
