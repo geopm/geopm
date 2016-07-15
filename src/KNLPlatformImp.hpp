@@ -106,10 +106,8 @@ namespace geopm
             double m_max_dram_watts;
             /// @brief Vector of MSR offsets for reading.
             std::vector<off_t> m_signal_msr_offset;
-            /// @brief Vector of MSR offsets to writing.
-            std::vector<off_t> m_control_msr_offset;
-            /// @brief Vector of MSR masks to writing.
-            std::vector<unsigned int> m_control_msr_mask;
+            ///@brief Vector of MSR data containing pairs of offsets and write masks.
+            std::vector<std::pair<off_t, unsigned long> > m_control_msr_pair;
 
             ///Constants
             const std::string M_KNL_MODEL_NAME;
