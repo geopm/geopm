@@ -188,11 +188,11 @@ modifying the behavior of the mode by matching key strings to value strings.
 
   * Create a configuration file for a fixed frequency of 1.5 GHz::
     $ geopmpolicy -c -f geopm.conf -m freq_uniform_static \ <br>
-    -d cpu_freq:1500
+    -d cpu_mhz:1500
 
   * Create a configuration file for a hybrid frequency of 2.5 GHz where 4 cores are unconstrained and using scatter distribution::
     $ geopmpolicy -c -f geopm.conf -m freq_hybrid_static \ <br>
-    -d cpu_freq:2500,num_cpu_max_perf:4,affinity:scatter
+    -d cpu_mhz:2500,num_cpu_max_perf:4,affinity:scatter
 
   * Create a configuration file for all processors to run at 75% of the Thermal Design Power::
     $ geopmpolicy -c -f geopm.conf -m tdp_balance_static \ <br>
