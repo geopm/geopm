@@ -52,7 +52,6 @@ static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
 static struct geopm_ctl_c *g_ctl = NULL;
 static pthread_t g_ctl_thread;
-static struct geopm_prof_c *g_prof = NULL;
 
 /* To be used only in Profile.cpp */
 void geopm_pmpi_prof_enable(int do_profile)
@@ -157,10 +156,7 @@ static int geopm_pmpi_init(const char *exec_name)
             if (!err) {
                 err = geopm_ctl_run(g_ctl);
             }
-            if (!err) {
-                err = geopm_ctl_destroy(g_ctl);
-            }
-            int err_final = PMPI_Finalize();
+            int err_final = MPI_Finalize();
             err = err ? err : err_final;
             exit(err);
         }
@@ -214,13 +210,21 @@ static int geopm_pmpi_finalize(void)
     int err = 0;
     int tmp_err = 0;
 
-    if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+    if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
         void *return_val;
         err = pthread_join(g_ctl_thread, &return_val);
         err = err ? err : *((int *)return_val);
-        tmp_err = geopm_ctl_destroy(g_ctl);
-        err = err ? err : tmp_err;
     }
+
+    if (!err && g_ctl) {
+        err = geopm_ctl_destroy(g_ctl);
+    }
+    if (!err && !g_ctl) {
+        geopm_prof_destroy();
+    }
+
+    PMPI_Barrier(MPI_COMM_WORLD);
+
     if (G_GEOPM_COMM_WORLD_SWAP != MPI_COMM_WORLD) {
         tmp_err = PMPI_Comm_free(&G_GEOPM_COMM_WORLD_SWAP);
         err = err ? err : tmp_err;

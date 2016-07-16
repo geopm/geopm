@@ -119,8 +119,7 @@ void MPIProfileTest::sleep_exact(double duration)
 void MPIProfileTest::parse_log(const std::vector<double> &check_val)
 {
     ASSERT_EQ(3ULL, check_val.size());
-
-    sleep(1); // Wait for controller to finish writing the log
+    MPI_Finalize();
 
     std::string line;
     double curr_value = -1.0;
