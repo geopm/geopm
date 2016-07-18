@@ -67,7 +67,7 @@ sum = 0
 !$omp do schedule(static, chunk_size)
     do index = 1, int(num_iter)
         sum = sum + index
-        ierr = geopm_tprof_increment(tprof, prof, region_id, thread_idx)
+        ierr = geopm_tprof_increment(tprof, region_id, thread_idx)
     end do
 !$omp end do
 !$omp end parallel
