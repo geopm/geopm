@@ -402,6 +402,23 @@ AC_SUBST([MPI_LIBS])
 AC_SUBST([MPI_FCLIBS])
 AC_SUBST([MPI_FLIBS])
 
+[CFLAGS_SAVE="$CFLAGS"]
+[CFLAGS="$CFLAGS $MPI_CFLAGS"]
+AC_MSG_CHECKING([for support for MPI-3 standard])
+AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE(
+        [[#include <mpi.h>
+          int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm) {return 0;}]])
+],[
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([GEOPM_MPI_CONST], [const], [MPI interfaces use const qualifier.])
+    AC_DEFINE([GEOPM_ENABLE_MPI3], [], [MPI-3 support enabled.])
+],[
+    AC_MSG_RESULT(no)
+    AC_DEFINE([GEOPM_MPI_CONST], [], [MPI interfaces do not use const qualifier.])
+])
+[CFLAGS="$CFLAGS_SAVE"]
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
