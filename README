@@ -123,14 +123,14 @@ repository hosted at <http://github.com/geopm/geopm>.
     sudo zypper refresh
     unset DISTRO BRANCH REPO
 
-After the yum repository has been added, you can simply install geopm
-with zypper:
+After the zypper repository has been added, you can simply install
+geopm with zypper:
 
     sudo zypper install geopm # For headers install geopm-devel
 
 To bring the system up to date with the tip of the public master or
 dev branch on github (depending on which "BRANCH" was selected when
-the yum repository was added:
+the zypper repository was added:
 
     sudo zypper update geopm # For headers update geopm-devel
 

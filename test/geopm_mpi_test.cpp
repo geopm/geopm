@@ -128,8 +128,10 @@ int main(int argc, char **argv)
 
     // If death testing, bypass controller since it's dead.
     char* is_death_test = getenv("GEOPM_DEATH_TESTING");
-    if (!(is_death_test != NULL && strncmp(is_death_test, "1", NAME_MAX) == 0))
+    if (!(is_death_test != NULL &&
+          strncmp(is_death_test, "1", NAME_MAX) == 0)) {
         MPI_Finalize();
+    }
 
     if (!err) {
         err = all_err;
