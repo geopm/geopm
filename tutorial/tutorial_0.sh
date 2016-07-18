@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 #  Copyright (c) 2015, 2016, Intel Corporation
 #
@@ -30,25 +31,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-GEOPM_PREFIX = $(HOME)/build/geopm
-GEOPM_LIBDIR = $(GEOPM_PREFIX)/lib
-GEOPM_INCLUDEDIR = $(GEOPM_PREFIX)/include
-GEOPM_CFLAGS = -I$(GEOPM_INCLUDEDIR) -L$(GEOPM_LIBDIR)
-MPICC = mpicc
-TUTORIAL_BIN = tutorial_0 tutorial_1
+source tutorial_env.sh
 
-all: $(TUTORIAL_BIN)
 
-tutorial_0: tutorial_0.c
-	$(MPICC) $(CFLAGS) $(LDFLAGS) $^ -o $@
-
-tutorial_1: tutorial_1.c tutorial_region.o
-	$(MPICC) $(CFLALGS) $(LDFLAGS) $^ -o $@
-
-tutorial_region.o: tutorial_region.c tutorial_region.h
-	$(MPICC) $(CFLAGS) -c tutorial_region.c -o $@
-
-clean:
-	rm -f $(TUTORIAL_BIN) tutorial_region.o
-
-.PHONY: all clean
+LD_DYNAMIC_WEAK=true \
+LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so \
+GEOPM_PMPI_CTL=process \
+GEOPM_REPORT=geopm-report \
+GEOPM_TRACE=geopm-trace \
+./tutorial_0

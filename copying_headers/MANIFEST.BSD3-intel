@@ -129,6 +129,12 @@ test/RegionTest.cpp
 test/PolicyTest.cpp
 test/BalancingDeciderTest.cpp
 tutorial/Makefile
-tutorial/tutorial-0.c
-tutorial/tutorial-0.sh
-tutorial/tutorial-env.sh
+tutorial/tutorial_0.c
+tutorial/tutorial_0.sh
+tutorial/tutorial_env.sh
+tutorial/tutorial_1.c
+tutorial/tutorial_1.sh
+tutorial/tutorial_region.c
+tutorial/tutorial_region.h
+
+
