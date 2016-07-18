@@ -116,55 +116,6 @@ void MPIProfileTest::sleep_exact(double duration)
     }
 }
 
-void MPIProfileTest::parse_log(const std::vector<double> &check_val)
-{
-    ASSERT_EQ(3ULL, check_val.size());
-    MPI_Finalize();
-
-    std::string line;
-    double curr_value = -1.0;
-    double value = 0.0;
-    double outer_sync_value = 0.0;
-    double mpi_value = 0.0;
-
-    std::ifstream log(m_log_file_node, std::ios_base::in);
-
-    ASSERT_TRUE(log.is_open());
-
-    while(std::getline(log, line)) {
-        curr_value = -1.0;
-        if (line.find("Region loop_one:") == 0) {
-            curr_value = check_val[0];
-        }
-        else if (line.find("Region loop_two:") == 0) {
-            curr_value = check_val[1];
-        }
-        else if (line.find("Region loop_three:") == 0) {
-            curr_value = check_val[2];
-        }
-        else if (line.find("Region outer-sync:") == 0) {
-            std::getline(log, line);
-            ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &outer_sync_value));
-        }
-        else if (line.find("Region mpi-sync:") == 0) {
-            std::getline(log, line);
-            ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value));
-        }
-        if (curr_value != -1.0) {
-            std::getline(log, line);
-            ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &value));
-            ASSERT_GT(m_epsilon, fabs(curr_value - value));
-        }
-    }
-
-    if (outer_sync_value != 0.0 && mpi_value != 0.0) {
-        double outer_sync_target = std::accumulate(check_val.begin(), check_val.end(), mpi_value);
-        ASSERT_GT(m_epsilon, fabs(outer_sync_target - outer_sync_value));
-    }
-
-    log.close();
-}
-
 TEST_F(MPIProfileTest, runtime)
 {
     uint64_t region_id[3];
@@ -202,10 +153,6 @@ TEST_F(MPIProfileTest, runtime)
         timeout = geopm_time_diff(&start, &curr);
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
-
-    if (m_is_node_root) {
-        parse_log(m_check_val_multi);
-    }
 
 }
 
@@ -249,11 +196,6 @@ TEST_F(MPIProfileTest, progress)
         geopm_prof_progress(region_id[2], timeout/3.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
-
-    if (m_is_node_root) {
-        parse_log(m_check_val_multi);
-    }
-
 }
 
 TEST_F(MPIProfileTest, multiple_entries)
@@ -329,10 +271,6 @@ TEST_F(MPIProfileTest, multiple_entries)
         geopm_prof_progress(region_id[1], timeout/3.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
-
-    if (m_is_node_root) {
-        parse_log(m_check_val_single);
-    }
 }
 
 TEST_F(MPIProfileTest, nested_region)
@@ -384,10 +322,6 @@ TEST_F(MPIProfileTest, nested_region)
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
-
-    if (m_is_node_root) {
-        parse_log(m_check_val_single);
-    }
 }
 
 TEST_F(MPIProfileTest, outer_sync)
@@ -416,10 +350,6 @@ TEST_F(MPIProfileTest, outer_sync)
         ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
 
         MPI_Barrier(MPI_COMM_WORLD);
-    }
-
-    if (m_is_node_root) {
-        parse_log(m_check_val_default);
     }
 }
 
