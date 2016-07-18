@@ -203,9 +203,32 @@ namespace geopm
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.platform[NAME_MAX - 1] = '\0';
-                strncpy(plugin_desc.tree_decider, m_global_policy->tree_decider().c_str(), NAME_MAX -1);
-                strncpy(plugin_desc.leaf_decider, m_global_policy->leaf_decider().c_str(), NAME_MAX -1);
-                strncpy(plugin_desc.platform, m_global_policy->platform().c_str(), NAME_MAX -1);
+                switch (m_global_policy->mode()) {
+                    case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
+                    case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
+                    case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
+                    case GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC:
+                    case GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC:
+                        throw geopm::Exception("Controller::Controller()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                        break;
+                    case GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC:
+                        snprintf(plugin_desc.tree_decider, NAME_MAX, "power_balancing");
+                        snprintf(plugin_desc.leaf_decider, NAME_MAX, "power_governing");
+                        snprintf(plugin_desc.platform, NAME_MAX, "rapl");
+                        break;
+                    case GEOPM_POLICY_MODE_STATIC:
+                        snprintf(plugin_desc.tree_decider, NAME_MAX, "static_policy");
+                        snprintf(plugin_desc.leaf_decider, NAME_MAX, "static_policy");
+                        snprintf(plugin_desc.platform, NAME_MAX, "rapl");
+                        break;
+                    case GEOPM_POLICY_MODE_DYNAMIC:
+                        strncpy(plugin_desc.tree_decider, m_global_policy->tree_decider().c_str(), NAME_MAX -1);
+                        strncpy(plugin_desc.leaf_decider, m_global_policy->leaf_decider().c_str(), NAME_MAX -1);
+                        strncpy(plugin_desc.platform, m_global_policy->platform().c_str(), NAME_MAX -1);
+                        break;
+                    default:
+                        throw Exception("Controller::Controller(): Invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
             }
             check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, ppn1_comm));
 
