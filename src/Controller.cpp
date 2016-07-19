@@ -261,6 +261,7 @@ namespace geopm
             m_region.resize(num_level);
             m_policy.resize(num_level);
             m_tree_decider.resize(num_level);
+            std::fill(m_tree_decider.begin(), m_tree_decider.end(), (Decider *)NULL);
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
 
@@ -333,6 +334,10 @@ namespace geopm
             }
             delete m_policy[level];
         }
+        for (auto it = m_tree_decider.begin(); it != m_tree_decider.end(); ++it) {
+           delete (*it);
+        }
+        delete m_leaf_decider;
         delete m_decider_factory;
         delete m_platform_factory;
         delete m_tree_comm;

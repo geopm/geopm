@@ -63,6 +63,8 @@ TEST_F(DeciderFactoryTest, decider_register)
     ASSERT_FALSE(ans.empty());
 
     EXPECT_FALSE(ans.compare(dname));
+
+    delete d;
 }
 
 TEST_F(DeciderFactoryTest, no_supported_decider)

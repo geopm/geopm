@@ -61,7 +61,7 @@ namespace geopm
             /// @param [in] decider The unique_ptr to a Decider object
             ///             assures that the object cannot be destroyed before
             ///             it is copied.
-            DeciderFactory(std::unique_ptr<Decider> decider);
+            DeciderFactory(Decider *decider);
             /// @brief DeciderFactory destructor, virtual.
             virtual ~DeciderFactory();
             /// @brief Returns an abstract Decider pointer to a concrete decider.
@@ -79,7 +79,7 @@ namespace geopm
             /// @param [in] decider The unique_ptr to a Decider object
             /// assures that the object cannot be destroyed before it
             /// is copied.
-            void register_decider(std::unique_ptr<Decider> decider);
+            void register_decider(Decider *decider);
         private:
             // @brief Holds all registered concrete Decider instances
             std::list<Decider*> decider_list;

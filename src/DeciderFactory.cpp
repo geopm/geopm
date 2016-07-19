@@ -49,7 +49,7 @@ void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *dec
     if (fact_obj == NULL) {
         throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
     }
-    fact_obj->register_decider(std::unique_ptr<geopm::Decider>(decider));
+    fact_obj->register_decider(decider);
 }
 
 namespace geopm
@@ -59,12 +59,12 @@ namespace geopm
     {
         // register all the deciders we know about
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
-        register_decider(std::unique_ptr<Decider>(new StaticPolicyDecider()));
+        register_decider(new StaticPolicyDecider());
     }
 
-    DeciderFactory::DeciderFactory(std::unique_ptr<Decider> decider)
+    DeciderFactory::DeciderFactory(Decider *decider)
     {
-        register_decider(std::move(decider));
+        register_decider(decider);
     }
 
     DeciderFactory::~DeciderFactory()
@@ -82,7 +82,6 @@ namespace geopm
             if (*it != NULL &&
                 (*it)->decider_supported(description)) {
                 result = (*it)->clone();
-                decider_list.push_back(result);
                 break;
             }
         }
@@ -94,8 +93,8 @@ namespace geopm
         return result;
     }
 
-    void DeciderFactory::register_decider(std::unique_ptr<Decider> decider)
+    void DeciderFactory::register_decider(Decider *decider)
     {
-        decider_list.push_back(decider.release());
+        decider_list.push_back(decider);
     }
 }

@@ -78,7 +78,7 @@ else
     elif [ -x /usr/lib64/mpi/gcc/openmpi/bin/mpiexec ]; then
         # Stock OpenMPI version of mpiexec on SLES
         mpiexec=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec
-    elif [ -x /usr/lib64/openmpi/bin/mpiexec]; then
+    elif [ -x /usr/lib64/openmpi/bin/mpiexec ]; then
         # Stock OpenMPI version of mpiexec on RHEL
         mpiexec=/usr/lib64/openmpi/bin/mpiexec
     else
