@@ -33,7 +33,6 @@
 #include <inttypes.h>
 #include <cpuid.h>
 #include <string>
-#include <memory>
 
 #include "geopm_plugin.h"
 #include "Exception.hpp"

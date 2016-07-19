@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdlib.h>
 #include <iostream>
 
 #include "gtest/gtest.h"
@@ -51,35 +52,29 @@ void DeciderFactoryTest::SetUp()
 
 TEST_F(DeciderFactoryTest, decider_register)
 {
-    geopm::DeciderFactory m_decider_fact;
-    const std::string dname = "power_governing";
-    std::string ans;
-    geopm::Decider* d = NULL;
-
-    d = m_decider_fact.decider(dname);
+    geopm::DeciderFactory factory;
+    std::string dname("power_governing");
+    geopm::Decider *d = factory.decider(dname);
     ASSERT_FALSE(d == NULL);
 
-    ans = d->name();
+    std::string ans = d->name();
     ASSERT_FALSE(ans.empty());
-
-    EXPECT_FALSE(ans.compare(dname));
+    EXPECT_EQ(0, ans.compare(dname));
 
     delete d;
 }
 
 TEST_F(DeciderFactoryTest, no_supported_decider)
 {
-    geopm::DeciderFactory m_decider_fact;
+    geopm::DeciderFactory factory;
     geopm::Decider* d = NULL;
-    const std::string dname = "doesntexist";
     int thrown = 0;
-
     try {
-        d = m_decider_fact.decider(dname);
+        d = factory.decider("doesntexist");
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();
     }
-    ASSERT_TRUE(d == NULL);
-    EXPECT_TRUE(thrown == GEOPM_ERROR_DECIDER_UNSUPPORTED);
+    ASSERT_EQ(NULL, d);
+    EXPECT_EQ(GEOPM_ERROR_DECIDER_UNSUPPORTED, thrown);
 }
