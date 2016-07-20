@@ -81,7 +81,6 @@ namespace geopm
             /// @return Count of the specified resource type.
             virtual int num_domain(int domain_type) const;
         private:
-            static const std::map<int, hwloc_obj_type_t> m_domain_hwloc_map;
             /// @brief Holds the hwloc topology tree.
             hwloc_topology_t m_topo;
 

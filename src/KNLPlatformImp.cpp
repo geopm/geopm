@@ -39,8 +39,10 @@
 
 namespace geopm
 {
+    static const std::map<std::string, std::pair<off_t, unsigned long> > &knl_msr_map(void);
+
     KNLPlatformImp::KNLPlatformImp()
-        : PlatformImp(2, 5, 8.0, &m_msr_map)
+        : PlatformImp(2, 5, 8.0, &(knl_msr_map()))
         , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_dram_energy_units(1.5258789063E-5)
@@ -555,7 +557,9 @@ namespace geopm
         }
     }
 
-    const std::map<std::string, std::pair<off_t, unsigned long> > KNLPlatformImp::m_msr_map = {
+    static const std::map<std::string, std::pair<off_t, unsigned long> > &knl_msr_map(void)
+    {
+        static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
             {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000}},
             {"IA32_PERF_CTL",           {0x0199, 0x000000010000ffff}},
             {"RAPL_POWER_UNIT",         {0x0606, 0x0000000000000000}},
@@ -839,5 +843,7 @@ namespace geopm
             {"C33_MSR_PMON_CTR1",       {0x0FA1, 0x0000000000000000}},
             {"C34_MSR_PMON_CTR1",       {0x0FAD, 0x0000000000000000}},
             {"C35_MSR_PMON_CTR1",       {0x0FB9, 0x0000000000000000}},
-            {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000}}};
+            {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000}}});
+        return msr_map;
+    }
 }

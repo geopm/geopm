@@ -48,6 +48,8 @@
 #define NAME_MAX 1024
 #endif
 
+static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map(void);
+
 class TestPlatformImp : public geopm::PlatformImp
 {
     public:
@@ -64,12 +66,10 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual double read_signal(int device_type, int device_index, int signal_type);
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
-    protected:
-        static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
 };
 
 TestPlatformImp::TestPlatformImp()
-    : PlatformImp(2, 5, 8.0, &m_msr_map)
+    : PlatformImp(2, 5, 8.0, &(test_msr_map()))
 {
     m_num_logical_cpu = NUM_CPU;
     m_num_hw_cpu = NUM_CPU;
@@ -229,23 +229,27 @@ std::string TestPlatformImp2::platform_name()
     return name;
 }
 
-const std::map<std::string, std::pair<off_t, unsigned long> > TestPlatformImp::m_msr_map = {
-    {"MSR_TEST_0", {0, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_1", {64, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_2", {128, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_3", {192, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_4", {256, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_5", {320, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_6", {384, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_7", {448, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_8", {512, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_9", {576, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_10", {640, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_11", {704, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_12", {768, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_13", {832, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_14", {896, 0x0FFFFFFFFFFFFFFF}},
-    {"MSR_TEST_15", {960, 0x0FFFFFFFFFFFFFFF}}};
+static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map(void)
+{
+    static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
+        {"MSR_TEST_0", {0, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_1", {64, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_2", {128, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_3", {192, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_4", {256, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_5", {320, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_6", {384, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_7", {448, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_8", {512, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_9", {576, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_10", {640, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_11", {704, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_12", {768, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_13", {832, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_14", {896, 0x0FFFFFFFFFFFFFFF}},
+        {"MSR_TEST_15", {960, 0x0FFFFFFFFFFFFFFF}}});
+    return msr_map;
+}
 
 ////////////////////////////////////////////////////////////////////
 

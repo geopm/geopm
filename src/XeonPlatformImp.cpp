@@ -40,6 +40,9 @@
 
 namespace geopm
 {
+    static const std::map<std::string, std::pair<off_t, unsigned long> > &snb_msr_map(void);
+    static const std::map<std::string, std::pair<off_t, unsigned long> > &hsx_msr_map(void);
+
     XeonPlatformImp::XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map)
         : PlatformImp(2, 5, 8.0, msr_map)
         , m_energy_units(0.0)
@@ -76,13 +79,13 @@ namespace geopm
     }
 
     SNBPlatformImp::SNBPlatformImp()
-        : XeonPlatformImp(0x62D, "Sandybridge E", &m_msr_map)
+        : XeonPlatformImp(0x62D, "Sandybridge E", &(snb_msr_map()))
     {
 
     }
 
     SNBPlatformImp::SNBPlatformImp(int platform_id, const std::string &model_name)
-        : XeonPlatformImp(platform_id, model_name, &m_msr_map)
+        : XeonPlatformImp(platform_id, model_name, &(snb_msr_map()))
     {
 
     }
@@ -105,13 +108,13 @@ namespace geopm
 
 
     HSXPlatformImp::HSXPlatformImp()
-        : XeonPlatformImp(0x63F, "Haswell E", &m_msr_map)
+        : XeonPlatformImp(0x63F, "Haswell E", &(hsx_msr_map()))
     {
         XeonPlatformImp::m_dram_energy_units = 1.5258789063E-5;
     }
 
     HSXPlatformImp::HSXPlatformImp(int platform_id, const std::string &model_name)
-        : XeonPlatformImp(platform_id, model_name, &m_msr_map)
+        : XeonPlatformImp(platform_id, model_name, &(hsx_msr_map()))
     {
 
     }
@@ -600,7 +603,9 @@ namespace geopm
         }
     }
 
-    const std::map<std::string, std::pair<off_t, unsigned long> > SNBPlatformImp::m_msr_map = {
+    static const std::map<std::string, std::pair<off_t, unsigned long> > &snb_msr_map(void)
+    {
+        static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
             {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000}},
             {"IA32_PERF_CTL",           {0x0199, 0x000000010000ffff}},
             {"RAPL_POWER_UNIT",         {0x0606, 0x0000000000000000}},
@@ -723,9 +728,13 @@ namespace geopm
             {"C11_MSR_PMON_CTR1",       {0x0E77, 0x0000000000000000}},
             {"C12_MSR_PMON_CTR1",       {0x0E97, 0x0000000000000000}},
             {"C13_MSR_PMON_CTR1",       {0x0EB7, 0x0000000000000000}},
-            {"C14_MSR_PMON_CTR1",       {0x0ED7, 0x0000000000000000}}};
+            {"C14_MSR_PMON_CTR1",       {0x0ED7, 0x0000000000000000}}});
+        return msr_map;
+    }
 
-    const std::map<std::string, std::pair<off_t, unsigned long> > HSXPlatformImp::m_msr_map = {
+    static const std::map<std::string, std::pair<off_t, unsigned long> > &hsx_msr_map(void)
+    {
+        static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
             {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000}},
             {"IA32_PERF_CTL",           {0x0199, 0x000000010000ffff}},
             {"RAPL_POWER_UNIT",         {0x0606, 0x0000000000000000}},
@@ -869,5 +878,7 @@ namespace geopm
             {"C14_MSR_PMON_CTR1",       {0x0EE9, 0x0000000000000000}},
             {"C15_MSR_PMON_CTR1",       {0x0EF9, 0x0000000000000000}},
             {"C16_MSR_PMON_CTR1",       {0x0F09, 0x0000000000000000}},
-            {"C17_MSR_PMON_CTR1",       {0x0F19, 0x0000000000000000}}};
+            {"C17_MSR_PMON_CTR1",       {0x0F19, 0x0000000000000000}}});
+        return msr_map;
+    }
 }

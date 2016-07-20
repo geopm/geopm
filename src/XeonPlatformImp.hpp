@@ -160,8 +160,6 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~SNBPlatformImp();
             virtual int frequency_control_domain(void) const;
-        protected:
-            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
     };
 
     /// @brief This class provides a concrete platform implementation of
@@ -187,8 +185,6 @@ namespace geopm
             HSXPlatformImp(int platform_id, const std::string &model_name);
             /// @brief Default destructor.
             virtual ~HSXPlatformImp();
-        protected:
-            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
     };
 
     class BDXPlatformImp : public HSXPlatformImp

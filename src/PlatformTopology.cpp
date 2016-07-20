@@ -36,21 +36,25 @@
 
 namespace geopm
 {
-    const std::map<int, hwloc_obj_type_t> PlatformTopology::m_domain_hwloc_map = {
+    static const std::map<int, hwloc_obj_type_t> &domain_hwloc_map(void)
+    {
+        static const std::map<int, hwloc_obj_type_t> hwloc_map = {
 #ifdef GEOPM_HWLOC_HAS_SOCKET
-        {GEOPM_DOMAIN_PACKAGE, HWLOC_OBJ_SOCKET},
+            {GEOPM_DOMAIN_PACKAGE, HWLOC_OBJ_SOCKET},
 #else
-        {GEOPM_DOMAIN_PACKAGE, HWLOC_OBJ_PACKAGE},
+            {GEOPM_DOMAIN_PACKAGE, HWLOC_OBJ_PACKAGE},
 #endif
 #ifdef GEOPM_HWLOC_HAS_L2CACHE
-        {GEOPM_DOMAIN_TILE, HWLOC_OBJ_L2CACHE},
+            {GEOPM_DOMAIN_TILE, HWLOC_OBJ_L2CACHE},
 #endif
-        {GEOPM_DOMAIN_PROCESS_GROUP, HWLOC_OBJ_SYSTEM},
-        {GEOPM_DOMAIN_BOARD, HWLOC_OBJ_MACHINE},
-        {GEOPM_DOMAIN_PACKAGE_CORE, HWLOC_OBJ_CORE},
-        {GEOPM_DOMAIN_CPU, HWLOC_OBJ_PU},
-        {GEOPM_DOMAIN_BOARD_MEMORY, HWLOC_OBJ_GROUP}
-    };
+            {GEOPM_DOMAIN_PROCESS_GROUP, HWLOC_OBJ_SYSTEM},
+            {GEOPM_DOMAIN_BOARD, HWLOC_OBJ_MACHINE},
+            {GEOPM_DOMAIN_PACKAGE_CORE, HWLOC_OBJ_CORE},
+            {GEOPM_DOMAIN_CPU, HWLOC_OBJ_PU},
+            {GEOPM_DOMAIN_BOARD_MEMORY, HWLOC_OBJ_GROUP}
+        };
+        return hwloc_map;
+    }
 
     PlatformTopology::PlatformTopology()
     {
@@ -103,8 +107,8 @@ namespace geopm
 
     hwloc_obj_type_t PlatformTopology::hwloc_domain(int domain_type) const
     {
-        auto it = m_domain_hwloc_map.find(domain_type);
-        if (it == m_domain_hwloc_map.end()) {
+        auto it = domain_hwloc_map().find(domain_type);
+        if (it == domain_hwloc_map().end()) {
             throw Exception("PlatformTopology::num_domain: Domain type unknown: " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
