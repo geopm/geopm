@@ -105,14 +105,7 @@ static inline void geopm_mpi_region_exit(void)
 static int geopm_pmpi_init(const char *exec_name)
 {
     int rank;
-    int mpi_version;
-    int mpi_subversion;
     PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    PMPI_Get_version(&mpi_version, &mpi_subversion);
-    if (mpi_version != 3 && mpi_subversion != 0 && !rank) {
-        fprintf(stderr, "WARNING:  GEOPM PMPI wrappers designed for MPI verison 3.0\n"
-                "          applciation compiled using version %i.%i.\n\n", mpi_version, mpi_subversion);
-    }
 
 #ifdef GEOPM_DEBUG
     /// @todo use geopm_env_* interface
