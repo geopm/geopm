@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (!rank) {
         printf("MPI_COMM_WORLD size: %d\n", size);
-        printf("Sleeping for five seconds\n", size);
+        printf("Sleeping for five seconds\n");
         fflush(stdout);
     }
     clock_nanosleep(CLOCK_REALTIME, 0, &interval, NULL);

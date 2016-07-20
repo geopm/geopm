@@ -310,7 +310,7 @@ namespace geopm
     GlobalPolicy::GlobalPolicy(std::string in_config, std::string out_config)
         :m_in_config(in_config)
         ,m_out_config(out_config)
-        ,m_mode(-1)
+        ,m_mode(GEOPM_POLICY_MODE_STATIC)
         ,m_power_budget_watts(-1)
         ,m_flags(0)
         ,m_tree_decider("static_policy")
