@@ -52,7 +52,7 @@ namespace geopm
     {
         public:
             /// @brief Default constructor.
-            XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_offset_map);
+            XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map);
             /// @brief Default destructor.
             virtual ~XeonPlatformImp();
             virtual bool model_supported(int platform_id);

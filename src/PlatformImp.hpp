@@ -80,7 +80,7 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
-            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_map);
+            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
 
@@ -282,7 +282,7 @@ namespace geopm
             /// @brief Map of MSR string name to address offset and write mask.
             /// This is a map is keyed by a string of the MSR's name and maps a pair
             /// which contain the MSR's offset (first) and write mask (second).
-            std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
+            const std::map<std::string, std::pair<off_t, unsigned long> > *m_msr_map_ptr;
             /// @brief Number of logical CPUs.
             int m_num_logical_cpu;
             /// @brief Number of hardware CPUs.

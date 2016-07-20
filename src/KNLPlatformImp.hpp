@@ -73,6 +73,7 @@ namespace geopm
             virtual int performance_counter_domain(void) const;
 
         protected:
+            static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
             void rapl_init();
             /// @brief Initialize per-CPU counters.

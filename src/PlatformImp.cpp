@@ -66,8 +66,8 @@ namespace geopm
 
     }
 
-    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > &msr_map)
-        : m_msr_map(msr_map)
+    PlatformImp::PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map_ptr)
+        : m_msr_map_ptr(msr_map_ptr)
         , m_num_logical_cpu(0)
         , m_num_hw_cpu(0)
         , m_num_tile(0)
@@ -181,8 +181,8 @@ namespace geopm
 
     void PlatformImp::msr_write(int device_type, int device_index, const std::string &msr_name, uint64_t value)
     {
-        off_t offset = m_msr_map.find(msr_name)->second.first;
-        unsigned long mask = m_msr_map.find(msr_name)->second.second;
+        off_t offset = msr_offset(msr_name);
+        unsigned long mask = msr_mask(msr_name);
         msr_write(device_type, device_index, offset, mask, value);
     }
 
@@ -216,7 +216,7 @@ namespace geopm
 
     uint64_t PlatformImp::msr_read(int device_type, int device_index, const std::string &msr_name)
     {
-        off_t offset = m_msr_map.find(msr_name)->second.first;
+        off_t offset = msr_offset(msr_name);
         return msr_read(device_type, device_index, offset);
     }
 
@@ -252,8 +252,8 @@ namespace geopm
 
     off_t PlatformImp::msr_offset(std::string msr_name)
     {
-        auto it = m_msr_map.find(msr_name);
-        if (it == m_msr_map.end()) {
+        auto it = m_msr_map_ptr->find(msr_name);
+        if (it == m_msr_map_ptr->end()) {
             throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return (*it).second.first;
@@ -261,8 +261,8 @@ namespace geopm
 
     unsigned long PlatformImp::msr_mask(std::string msr_name)
     {
-        auto it = m_msr_map.find(msr_name);
-        if (it == m_msr_map.end()) {
+        auto it = m_msr_map_ptr->find(msr_name);
+        if (it == m_msr_map_ptr->end()) {
             throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return (*it).second.second;
@@ -336,7 +336,7 @@ namespace geopm
     void PlatformImp::whitelist(FILE *file_desc)
     {
         fprintf(file_desc, "# MSR      Write Mask         # Comment\n");
-        for (auto it : m_msr_map) {
+        for (auto it : *m_msr_map_ptr) {
             fprintf(file_desc, "0x%.8llx 0x%.16lx # %s\n", (long long)it.second.first, it.second.second, it.first.c_str());
         }
     }

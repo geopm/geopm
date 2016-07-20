@@ -64,9 +64,12 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual double read_signal(int device_type, int device_index, int signal_type);
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
+    protected:
+        static const std::map<std::string, std::pair<off_t, unsigned long> > m_msr_map;
 };
 
 TestPlatformImp::TestPlatformImp()
+    : PlatformImp(2, 5, 8.0, &m_msr_map)
 {
     m_num_logical_cpu = NUM_CPU;
     m_num_hw_cpu = NUM_CPU;
@@ -75,10 +78,6 @@ TestPlatformImp::TestPlatformImp()
     m_num_cpu_per_core = 1;
 
     for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
-        std::string name = "MSR_TEST_";
-        name.append(std::to_string(i));
-        std::pair<off_t, unsigned long> msr_info(i*64, 0x0FFFFFFFFFFFFFFF);
-        m_msr_map.insert(std::pair<std::string, std::pair<off_t, unsigned long> >(name, msr_info));
         msr_open(i);
     }
     //for negative tests
@@ -212,11 +211,11 @@ class TestPlatformImp2 : public geopm::PlatformImp
         }
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed)
         {
-            ;
+
         }
         virtual void write_control(int device_type, int device_index, int signal_type, double value)
         {
-            ;
+
         }
         virtual std::string platform_name();
     protected:
@@ -229,6 +228,25 @@ std::string TestPlatformImp2::platform_name()
     std::string name = "test_platform2";
     return name;
 }
+
+const std::map<std::string, std::pair<off_t, unsigned long> > TestPlatformImp::m_msr_map = {
+    {"MSR_TEST_0", {0, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_1", {64, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_2", {128, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_3", {192, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_4", {256, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_5", {320, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_6", {384, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_7", {448, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_8", {512, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_9", {576, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_10", {640, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_11", {704, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_12", {768, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_13", {832, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_14", {896, 0x0FFFFFFFFFFFFFFF}},
+    {"MSR_TEST_15", {960, 0x0FFFFFFFFFFFFFFF}}};
+
 ////////////////////////////////////////////////////////////////////
 
 class PlatformImpTest: public :: testing :: Test
