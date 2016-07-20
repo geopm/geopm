@@ -63,8 +63,14 @@ int main(int argc, char **argv)
     stdout_fileno_dup = dup(STDOUT_FILENO);
     stderr_fileno_dup = dup(STDERR_FILENO);
 
-    freopen(per_rank_log_name, "w", stdout);
-    freopen(per_rank_err_name, "w", stderr);
+    if (!freopen(per_rank_log_name, "w", stdout)) {
+        perror(per_rank_log_name);
+        exit(EXIT_FAILURE);
+    }
+    if (!freopen(per_rank_err_name, "w", stderr)) {
+        perror(per_rank_err_name);
+        exit(EXIT_FAILURE);
+    }
     try {
         err = RUN_ALL_TESTS();
     }
