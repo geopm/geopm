@@ -33,6 +33,7 @@
 #include <inttypes.h>
 #include <cpuid.h>
 #include <string>
+#include <dlfcn.h>
 
 #include "geopm_plugin.h"
 #include "Exception.hpp"
@@ -42,13 +43,13 @@
 #include "config.h"
 
 
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider)
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider, void *dl_ptr)
 {
     geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
     if (fact_obj == NULL) {
         throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
     }
-    fact_obj->register_decider(decider);
+    fact_obj->register_decider(decider, dl_ptr);
 }
 
 namespace geopm
@@ -58,26 +59,29 @@ namespace geopm
     {
         // register all the deciders we know about
         geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
-        register_decider(new StaticPolicyDecider());
+        register_decider(new StaticPolicyDecider(), NULL);
     }
 
     DeciderFactory::DeciderFactory(Decider *decider)
     {
-        register_decider(decider);
+        register_decider(decider, NULL);
     }
 
     DeciderFactory::~DeciderFactory()
     {
-        for (auto it = decider_list.rbegin(); it != decider_list.rend(); ++it) {
+        for (auto it = m_decider_list.rbegin(); it != m_decider_list.rend(); ++it) {
             delete *it;
         }
-        decider_list.clear();
+
+        for (auto it = m_dl_ptr_list.rbegin(); it != m_dl_ptr_list.rend(); ++it) {
+            dlclose(*it);
+        }
     }
 
     Decider* DeciderFactory::decider(const std::string &description)
     {
         Decider *result = NULL;
-        for (auto it = decider_list.begin(); it != decider_list.end(); ++it) {
+        for (auto it = m_decider_list.begin(); it != m_decider_list.end(); ++it) {
             if (*it != NULL &&
                 (*it)->decider_supported(description)) {
                 result = (*it)->clone();
@@ -92,8 +96,11 @@ namespace geopm
         return result;
     }
 
-    void DeciderFactory::register_decider(Decider *decider)
+    void DeciderFactory::register_decider(Decider *decider, void *dl_ptr)
     {
-        decider_list.push_back(decider);
+        m_decider_list.push_back(decider);
+        if (dl_ptr) {
+            m_dl_ptr_list.push_back(dl_ptr);
+        }
     }
 }

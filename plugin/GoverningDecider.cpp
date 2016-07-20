@@ -37,14 +37,14 @@
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 
-int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
+int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
     int err = 0;
 
     try {
         if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
             geopm::Decider *decider = new geopm::GoverningDecider;
-            geopm_factory_register(factory, decider);
+            geopm_factory_register(factory, decider, dl_ptr);
         }
     }
     catch(...) {

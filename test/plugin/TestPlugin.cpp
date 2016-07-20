@@ -37,7 +37,7 @@
 
 #include "TestPlugin.hpp"
 
-int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
+int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
     int err = 0;
     Decider *decider = NULL;
@@ -48,15 +48,15 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
         switch (plugin_type) {
             case GEOPM_PLUGIN_TYPE_DECIDER:
                 decider = new DumbDecider;
-                geopm_factory_register(factory, decider);
+                geopm_factory_register(factory, decider, dl_ptr);
                 break;
             case GEOPM_PLUGIN_TYPE_PLATFORM:
                 platform = new DumbPlatform;
-                geopm_factory_register(factory, platform);
+                geopm_factory_register(factory, platform, dl_ptr);
                 break;
             case GEOPM_PLUGIN_TYPE_PLATFORM_IMP:
                 platform_imp = new ShmemFreqPlatformImp;
-                geopm_factory_register(factory, platform_imp);
+                geopm_factory_register(factory, platform_imp, dl_ptr);
                 break;
         }
     }

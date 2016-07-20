@@ -79,10 +79,11 @@ namespace geopm
             /// @param [in] decider The unique_ptr to a Decider object
             /// assures that the object cannot be destroyed before it
             /// is copied.
-            void register_decider(Decider *decider);
+            void register_decider(Decider *decider, void *dl_ptr);
         private:
             // @brief Holds all registered concrete Decider instances
-            std::list<Decider*> decider_list;
+            std::list<Decider*> m_decider_list;
+            std::list<void *> m_dl_ptr_list;
     };
 
 }
