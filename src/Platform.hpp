@@ -33,8 +33,6 @@
 #ifndef PLATFORM_HPP_INCLUDE
 #define PLATFORM_HPP_INCLUDE
 
-#include <hwloc.h>
-
 #include "Region.hpp"
 #include "Policy.hpp"
 #include "PlatformImp.hpp"
