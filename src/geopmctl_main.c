@@ -139,18 +139,18 @@ int main(int argc, char **argv)
     }
 
     if (!err0) {
-        err_mpi = MPI_Init(&argc, &argv);
+        err_mpi = PMPI_Init(&argc, &argv);
         comm_world = MPI_COMM_WORLD;
         if (!err_mpi) {
-            err_mpi = MPI_Comm_size(comm_world, &world_size);
+            err_mpi = PMPI_Comm_size(comm_world, &world_size);
         }
         if (!err_mpi) {
-            err_mpi = MPI_Comm_rank(comm_world, &my_rank);
+            err_mpi = PMPI_Comm_rank(comm_world, &my_rank);
         }
     }
     if (err_mpi) {
         i = MPI_MAX_ERROR_STRING;
-        MPI_Error_string(err_mpi, error_str, &i);
+        PMPI_Error_string(err_mpi, error_str, &i);
         fprintf(stderr, "Error: %s\n", error_str);
         err0 = err_mpi;
     }
@@ -200,6 +200,6 @@ int main(int argc, char **argv)
         }
     }
 
-    MPI_Finalize();
+    PMPI_Finalize();
     return err0;
 }
