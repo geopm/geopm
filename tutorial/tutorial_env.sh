@@ -49,18 +49,12 @@ if [ ! "$GEOPM_INCLUDEDIR" ]; then
     GEOPM_INCLUDEDIR=$GEOPM_PREFIX/include
 fi
 
-# GEOPM_CFLAGS: Contains -I and -L options for geopm.
+# GEOPM_CFLAGS: Contains compile options for geopm.
 if [ ! "$GEOPM_CFLAGS" ]; then
-    GEOPM_CFLAGS="-I$GEOPM_INCLUDEDIR -L$GEOPM_LIDIR"
+    GEOPM_CFLAGS="-I$GEOPM_INCLUDEDIR"
 fi
 
-# MPICC: The MPI compiler wrapper for C.
-if [ ! "$MPICC" ]; then
-    MPICC=mpicc
+# GEOPM_CFLAGS: Contains link options for geopm.
+if [ ! "$GEOPM_LDFLAGS" ]; then
+    GEOPM_LDFLAGS="-L$GEOPM_LIBDIR -lgeopm"
 fi
-
-# MPIEXEC: The command line prefix for running mpi executables.
-if [ ! "$MPIEXEC" ]; then
-    MPIEXEC=mpiexec
-fi
-

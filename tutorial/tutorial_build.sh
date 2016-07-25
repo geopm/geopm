@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 #  Copyright (c) 2015, 2016, Intel Corporation
 #
@@ -33,9 +32,9 @@
 
 source tutorial_env.sh
 
-LD_DYNAMIC_WEAK=true \
-LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so \
-GEOPM_PMPI_CTL=process \
-GEOPM_REPORT=geopm-report \
-GEOPM_TRACE=geopm-trace \
-./tutorial_0
+# OMP_FLAGS: Flags for enabling OpenMP
+if [ ! "$OMP_FLAGS" ]; then
+    OMP_FLAGS="-fopenmp"
+fi
+
+make CFLAGS="$GEOPM_CFLAGS $OMP_FLAGS" LDFLAGS="$GEOPM_LDFLAGS $OMP_FLAGS -lm"
