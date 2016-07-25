@@ -140,3 +140,6 @@ tutorial/tutorial_3.c
 tutorial/tutorial_3.sh
 tutorial/tutorial_region.c
 tutorial/tutorial_region.h
+tutorial/tutorial_build.sh
+tutorial/tutorial_build_icc.sh
+
