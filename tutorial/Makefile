@@ -39,20 +39,32 @@ TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3
 
 all: $(TUTORIAL_BIN)
 
-tutorial_0: tutorial_0.c
-	$(MPICC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+tutorial_0.o: tutorial_0.c
+	$(MPICC) -c $^ $(CFLAGS) -o $@
 
-tutorial_1: tutorial_1.c tutorial_region.o
-	$(MPICC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+tutorial_0: tutorial_0.o
+	$(MPICC) $^ $(LDFLAGS) -o $@
 
-tutorial_2: tutorial_2.c tutorial_region.o
-	$(MPICC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+tutorial_1.o: tutorial_1.c
+	$(MPICC) -c $^ $(CFLAGS) -o $@
 
-tutorial_3: tutorial_3.c tutorial_region.o
-	$(MPICC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+tutorial_1: tutorial_1.o tutorial_region.o
+	$(MPICC) $^ $(LDFLAGS) -o $@
+
+tutorial_2.o: tutorial_2.c
+	$(MPICC) -c $^ $(CFLAGS) -o $@
+
+tutorial_2: tutorial_2.o tutorial_region.o
+	$(MPICC) $^ $(LDFLAGS) -o $@
+
+tutorial_3.o: tutorial_3.c
+	$(MPICC) -c $^ $(CFLAGS) -o $@
+
+tutorial_3: tutorial_3.o tutorial_region.o
+	$(MPICC) $^ $(LDFLAGS) -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
-	$(MPICC) $(CFLAGS) -c tutorial_region.c -o $@
+	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
 
 clean:
 	rm -f $(TUTORIAL_BIN) tutorial_region.o

@@ -94,4 +94,4 @@ doc/*.log
 doc/geopm-plugin-guide.pdf
 *.swp
 tutorial/tutorial_[0-9]
-tutorial/tutorial_region.o
+tutorial/*.o
