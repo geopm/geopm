@@ -33,10 +33,9 @@
 
 source tutorial_env.sh
 
-
 LD_DYNAMIC_WEAK=true \
 LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
 GEOPM_PMPI_CTL=process \
-GEOPM_REPORT=geopm-report \
-GEOPM_TRACE=geopm-trace \
+GEOPM_REPORT=tutorial_2_report \
+GEOPM_TRACE=tutorial_2_trace \
 ./tutorial_2
