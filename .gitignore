@@ -93,7 +93,5 @@ doc/*.blg
 doc/*.log
 doc/geopm-plugin-guide.pdf
 *.swp
-tutorial/tutorial_0
-tutorial/tutorial_1
-tutorial/tutorial_2
+tutorial/tutorial_[0-9]
 tutorial/tutorial_region.o
