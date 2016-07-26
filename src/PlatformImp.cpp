@@ -408,7 +408,7 @@ namespace geopm
     {
         std::ifstream restore_file;
         std::string line;
-        std::vector<int64_t> vals;
+        std::vector<uint64_t> vals;
         std::string item;
 
         if (path == NULL) {
@@ -420,7 +420,7 @@ namespace geopm
         while (std::getline(restore_file,line)) {
             std::stringstream ss(line);
             while (std::getline(ss, item, ':')) {
-                vals.push_back((int64_t)atol(item.c_str()));
+                vals.push_back((uint64_t)strtoul(item.c_str(), NULL, 0));
             }
             if (vals.size() == 5) {
                 msr_write(vals[0], vals[1], vals[2], vals[3], vals[4]);

@@ -49,6 +49,7 @@
 #endif
 
 static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map(void);
+static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map2(void);
 
 class TestPlatformImp : public geopm::PlatformImp
 {
@@ -173,10 +174,7 @@ void TestPlatformImp::write_control(int device_type, int device_index, int signa
 class TestPlatformImp2 : public geopm::PlatformImp
 {
     public:
-        TestPlatformImp2()
-        {
-            ;
-        }
+        TestPlatformImp2();
         virtual ~TestPlatformImp2()
         {
             ;
@@ -185,6 +183,8 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             return true;
         }
+        virtual void parse_hw_topology(void);
+        virtual void msr_path(int cpu);
         virtual void msr_initialize(void)
         {
             return;
@@ -218,10 +218,74 @@ class TestPlatformImp2 : public geopm::PlatformImp
 
         }
         virtual std::string platform_name();
+        std::vector<std::string> m_msr_list;
+
     protected:
         FRIEND_TEST(PlatformImpTest, negative_msr_open);
         FRIEND_TEST(PlatformImpTest, parse_topology);
 };
+
+TestPlatformImp2::TestPlatformImp2()
+    : PlatformImp(2, 5, 8.0, &(test_msr_map2()))
+{
+    m_num_logical_cpu = NUM_CPU;
+    m_num_hw_cpu = NUM_CPU;
+    m_num_tile = NUM_TILE;
+    m_num_package = NUM_PACKAGE;
+    m_num_cpu_per_core = 1;
+
+    std::vector<std::string> msr_list = {
+        "PKG_POWER_LIMIT",
+        "PP0_POWER_LIMIT",
+        "DRAM_POWER_LIMIT",
+        "PERF_FIXED_CTR_CTRL",
+        "PERF_GLOBAL_CTRL",
+        "PERF_GLOBAL_OVF_CTRL",
+        "IA32_PERF_CTL"
+    };
+
+    m_msr_list = msr_list;
+}
+
+// Overrided so initialize() can be called
+void TestPlatformImp2::parse_hw_topology(void)
+{
+    geopm::PlatformImp::parse_hw_topology();
+
+    // Restoring the values from the constructor
+    m_num_logical_cpu = NUM_CPU;
+    m_num_hw_cpu = NUM_CPU;
+    m_num_tile = NUM_TILE;
+    m_num_package = NUM_PACKAGE;
+    m_num_cpu_per_core = 1;
+}
+
+void TestPlatformImp2::msr_path(int cpu)
+{
+    uint32_t lval = 0x0;
+    uint32_t hval = 0xDEADBEEF;
+    int err;
+    std::ofstream msrfile;
+
+    err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", cpu);
+    ASSERT_TRUE(err >= 0);
+
+    msrfile.open(m_msr_path, std::ios::out|std::ios::binary);
+    ASSERT_TRUE(msrfile.is_open());
+
+    for (unsigned int i = 0; i < m_msr_list.size(); i++) {
+        msrfile.seekp(i*64);
+        lval = i;
+        msrfile.write((const char*)&lval, sizeof(lval));
+        msrfile.write((const char*)&hval, sizeof(hval));
+    }
+
+    msrfile.flush();
+    msrfile.close();
+    ASSERT_FALSE(msrfile.is_open());
+
+    return;
+}
 
 std::string TestPlatformImp2::platform_name()
 {
@@ -251,6 +315,18 @@ static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_m
     return msr_map;
 }
 
+static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map2(void)
+{
+    static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
+        {"PKG_POWER_LIMIT",      {0,   0xDFFFFFFFFFFFFFFF}},
+        {"PP0_POWER_LIMIT",      {64,  0xDFFFFFFFFFFFFFFF}},
+        {"DRAM_POWER_LIMIT",     {128, 0xDFFFFFFFFFFFFFFF}},
+        {"PERF_FIXED_CTR_CTRL",  {192, 0xDFFFFFFFFFFFFFFF}},
+        {"PERF_GLOBAL_CTRL",     {256, 0xDFFFFFFFFFFFFFFF}},
+        {"PERF_GLOBAL_OVF_CTRL", {320, 0xDFFFFFFFFFFFFFFF}},
+        {"IA32_PERF_CTL",        {384, 0xDFFFFFFFFFFFFFFF}}});
+    return msr_map;
+}
 ////////////////////////////////////////////////////////////////////
 
 class PlatformImpTest: public :: testing :: Test
@@ -270,6 +346,36 @@ PlatformImpTest::PlatformImpTest()
 PlatformImpTest::~PlatformImpTest()
 {
     delete m_platform;
+}
+
+class PlatformImpTest2: public :: testing :: Test
+{
+    public:
+        PlatformImpTest2();
+        ~PlatformImpTest2();
+    protected:
+        TestPlatformImp2 *m_platform2;
+        virtual void TearDown();
+};
+
+PlatformImpTest2::PlatformImpTest2()
+{
+    m_platform2 = new TestPlatformImp2();
+}
+
+PlatformImpTest2::~PlatformImpTest2()
+{
+}
+
+void PlatformImpTest2::TearDown()
+{
+    char msr_path[NAME_MAX];
+
+    for(int i = 0; i < NUM_CPU; i++) {
+        /// @todo call msr_close in the destructor for the PlatformImp
+        snprintf(msr_path, NAME_MAX, "/tmp/msrfile%d", i);
+        remove(msr_path);
+    }
 }
 
 TEST_F(PlatformImpTest, platform_get_name)
@@ -514,5 +620,66 @@ TEST_F(PlatformImpTest, parse_topology)
 
     EXPECT_TRUE((p.num_package() > 0));
     EXPECT_TRUE((p.num_hw_cpu() > 0));
+}
+
+TEST_F(PlatformImpTest2, int_type_checks)
+{
+    const char *large_value_str = "0xDEADBEEFCAFED00D";
+    uint64_t large_value = 0xDEADBEEFCAFED00D;
+    unsigned long ul_result;
+
+    // If this test ever fails, we need to look at converting all our "unsigned long" code to "unsigned long long".
+    // Since uint64_t is defined as an "unsigned long long", if sizeof(long) is < 8 then we'll have problems.
+    EXPECT_EQ(
+        sizeof(unsigned long),
+        sizeof(uint64_t)
+    );
+
+    ul_result = strtoul(large_value_str, NULL, 0);
+    EXPECT_EQ(large_value, ul_result);
+
+    ul_result = large_value;
+    EXPECT_EQ(ul_result, large_value);
+}
+
+TEST_F(PlatformImpTest2, msr_write_restore_read)
+{
+    const char *path = "/tmp/.geopm_msr_save_test";
+    uint64_t value = 0xDEADBEEFCAFED00D;
+    uint64_t read_value;
+
+    // Open the MSR fd's
+    m_platform2->initialize();
+
+    // Write big value.
+    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+        for (std::string s : m_platform2->m_msr_list) {
+            m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, i, s, value);
+        }
+    }
+
+    // Read back big value, verify contents
+    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+        for (std::string s : m_platform2->m_msr_list) {
+            read_value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, s);
+            EXPECT_TRUE((read_value == value));
+        }
+    }
+
+    // Write save file
+    m_platform2->save_msr_state(path);
+
+    // Restore from save file
+    m_platform2->restore_msr_state(path);
+
+    // Verify restored contents
+    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+        for (std::string s : m_platform2->m_msr_list) {
+            read_value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, s);
+            EXPECT_TRUE((read_value == value));
+        }
+    }
+
+    delete m_platform2;
 }
 
