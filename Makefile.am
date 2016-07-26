@@ -131,9 +131,9 @@ EXTRA_DIST = .gitignore \
              TODO \
              tutorial/Makefile \
              tutorial/README.md \
-             tutorial/tutorial-0.c \
-             tutorial/tutorial-0.sh \
-             tutorial/tutorial-env.sh \
+             tutorial/tutorial_0.c \
+             tutorial/tutorial_0.sh \
+             tutorial/tutorial_env.sh \
              # end
 
 # EXTEND FLAGS FOR MPI TARGETS
