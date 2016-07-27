@@ -67,6 +67,9 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual double read_signal(int device_type, int device_index, int signal_type);
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
+
+    protected:
+        FRIEND_TEST(PlatformImpTest, parse_topology);
 };
 
 TestPlatformImp::TestPlatformImp()
@@ -183,7 +186,10 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             return true;
         }
-        virtual void parse_hw_topology(void);
+        virtual void parse_hw_topology(void)
+        {
+            return;
+        }
         virtual void msr_path(int cpu);
         virtual void msr_initialize(void)
         {
@@ -222,7 +228,6 @@ class TestPlatformImp2 : public geopm::PlatformImp
 
     protected:
         FRIEND_TEST(PlatformImpTest, negative_msr_open);
-        FRIEND_TEST(PlatformImpTest, parse_topology);
 };
 
 TestPlatformImp2::TestPlatformImp2()
@@ -245,19 +250,6 @@ TestPlatformImp2::TestPlatformImp2()
     };
 
     m_msr_list = msr_list;
-}
-
-// Overrided so initialize() can be called
-void TestPlatformImp2::parse_hw_topology(void)
-{
-    geopm::PlatformImp::parse_hw_topology();
-
-    // Restoring the values from the constructor
-    m_num_logical_cpu = NUM_CPU;
-    m_num_hw_cpu = NUM_CPU;
-    m_num_tile = NUM_TILE;
-    m_num_package = NUM_PACKAGE;
-    m_num_cpu_per_core = 1;
 }
 
 void TestPlatformImp2::msr_path(int cpu)
@@ -607,10 +599,9 @@ TEST_F(PlatformImpTest, negative_msr_write_bad_value)
 TEST_F(PlatformImpTest, parse_topology)
 {
     int thrown = 0;
-    TestPlatformImp2 p;
 
     try {
-        p.parse_hw_topology();
+        m_platform->parse_hw_topology();
     }
     catch(std::system_error e) {
         thrown = 1;
@@ -618,8 +609,8 @@ TEST_F(PlatformImpTest, parse_topology)
 
     EXPECT_TRUE((thrown==0));
 
-    EXPECT_TRUE((p.num_package() > 0));
-    EXPECT_TRUE((p.num_hw_cpu() > 0));
+    EXPECT_TRUE((m_platform->num_package() > 0));
+    EXPECT_TRUE((m_platform->num_hw_cpu() > 0));
 }
 
 TEST_F(PlatformImpTest2, int_type_checks)
