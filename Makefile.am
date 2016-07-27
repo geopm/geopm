@@ -133,7 +133,18 @@ EXTRA_DIST = .gitignore \
              tutorial/README.md \
              tutorial/tutorial_0.c \
              tutorial/tutorial_0.sh \
+             tutorial/tutorial_1.c \
+             tutorial/tutorial_1.sh \
+             tutorial/tutorial_2.c \
+             tutorial/tutorial_2.sh \
+             tutorial/tutorial_3.c \
+             tutorial/tutorial_3_policy.json \
+             tutorial/tutorial_3.sh \
+             tutorial/tutorial_build_icc.sh \
+             tutorial/tutorial_build.sh \
              tutorial/tutorial_env.sh \
+             tutorial/tutorial_region.c \
+             tutorial/tutorial_region.h \
              # end
 
 # EXTEND FLAGS FOR MPI TARGETS
