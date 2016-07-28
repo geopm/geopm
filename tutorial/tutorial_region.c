@@ -127,18 +127,70 @@ int tutorial_dgemm(double big_o, int do_report)
 
 int tutorial_stream(double big_o_n, int do_report)
 {
-    if (do_report) {
-        printf("Warning: tutorial_stream() not implemented.\n");
-        fflush(stdout);
+    size_t cline_size = 64;
+    size_t num_stream = (size_t)big_o_n;
+    size_t mem_size = sizeof(double) * num_stream;
+    double *a = NULL;
+    double *b = NULL;
+    double *c = NULL;
+    double scalar = 3.0;
+
+    int err = posix_memalign((void *)&a, cline_size, mem_size);
+    if (!err) {
+        err = posix_memalign((void *)&b, cline_size, mem_size);
     }
-    return 0;
+    if (!err) {
+        err = posix_memalign((void *)&c, cline_size, mem_size);
+    }
+    if (!err) {
+#pragma omp parallel for
+        for (int i = 0; i < num_stream; i++) {
+            a[i] = 0.0;
+            b[i] = 1.0;
+            c[i] = 2.0;
+        }
+
+        if (do_report) {
+            printf("Executing STREAM triad on length %d vectors.\n", num_stream);
+            fflush(stdout);
+        }
+
+#pragma omp parallel for
+        for (int i = 0; i < num_stream; ++i) {
+            a[i] = b[i] + scalar * c[i];
+        }
+    }
+    return err;
 }
 
 int tutorial_all2all(double big_o_n, int do_report)
 {
-    if (do_report) {
-        printf("Warning: tutorial_all2all() not implemented.\n");
-        fflush(stdout);
+    /* Best case scaling is O(ln(num_send) + num_rank) => */
+    /*     num_send = exp(big_o_n - factor * num_rank) */
+    /* We have somewhat arbitrarily set factor to 1/128 */
+    int num_rank = 0;
+    int err = MPI_Comm_size(MPI_COMM_WORLD, &num_rank);
+    size_t num_send = (size_t)pow(2.0, big_o_n - num_rank / 128.0);
+    num_send = num_send ? num_send : 1;
+    size_t cline_size = 64;
+    char *send_buffer = NULL;
+    char *recv_buffer = NULL;
+    if (!err) {
+        err = posix_memalign((void *)&send_buffer, cline_size, num_rank * num_send * sizeof(char));
     }
-    return 0;
+    if (!err) {
+        err = posix_memalign((void *)&recv_buffer, cline_size, num_rank * num_send * sizeof(char));
+    }
+    if (!err) {
+        if (do_report) {
+            printf("Executing all2all of %d byte buffer on %d ranks.\n", num_send * sizeof(char), num_rank);
+            fflush(stdout);
+        }
+        err = MPI_Alltoall(send_buffer, num_send, MPI_CHAR, recv_buffer, num_send, MPI_CHAR, MPI_COMM_WORLD);
+    }
+
+    if (!err) {
+        err = MPI_Barrier(MPI_COMM_WORLD);
+    }
+    return err;
 }

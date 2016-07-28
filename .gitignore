@@ -95,3 +95,5 @@ doc/geopm-plugin-guide.pdf
 *.swp
 tutorial/tutorial_[0-9]
 tutorial/*.o
+tutorial/tutorial_[0-9]_report-*
+tutorial/tutorial_[0-9]_trace-*

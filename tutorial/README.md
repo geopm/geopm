@@ -1,32 +1,47 @@
 GEOPM TUTORIAL
 ==============
 This directory contains a step by step tutorial on how to use the
-geopm software.  There is a simple Makefile which is not part of the
-geopm build system that compiles the tutorial code.  Each step has an
-associated source and script file.  The script file will run the
-associated program and demonstrate a geopm feature.  There is a script
-called "tutorial-env.sh" which is sourced by all other tutorial
-scripts, and defines some variables which describe the install
-location for MPI and geopm.  The environment script may have to be
-modified to describe the install locations on your system.  Each step
-in the tutorial is documented below in this README.  The tutorial is a
-work in progress.
+geopm package.  Each step has an associated source and script file.
+The script file will run the associated program and demonstrate a
+geopm feature.  There is a script called "tutorial-env.sh" which is
+sourced by all other tutorial scripts, and defines variables which
+describe the install location of geopm.  The environment script may
+have to be modified to describe the installed locations on your
+system.  Each step in the tutorial is documented below in this README.
+The tutorial is a work in progress.
 
 Building the tutorials
 ----------------------
-A build script called tutorial_build.sh can be executed to build the
-tutorial suite.  The tutorial_build.sh script and the geopm_env.sh
-script may have to be modified to suit your build environment.
+A simple Makefile which is not part of the geopm autotools build
+system compiles the tutorial code.  There are two build scripts, one
+which compiles with the GNU toolchain: "tutorial_build_gnu.sh", and
+one which compiles with the Intel toolchain:
+"tutorial_build_intel.sh".  The build scripts use the geopm install
+location defined in "tutorial_env.sh".  If "mpicc" is not in the
+user's PATH, the environment variable "MPICC" must be set to the path
+of the to the user's MPI C compiler wrapper.
 
 
 0. Profiling and Tracing an Unmodified Application
 --------------------------------------------------
-The first thing a user will want to do when integrating with the geopm
-runtime is to analyze performance of the application being integrated
-without modifying the application.  This can be enabled by setting a
-few environment variables before launching the application.  See the
-geopm.7 man page for a more detailed description of these environment
-variables.
+
+The first thing an HPC application user will want to do when
+integrating their application with the geopm runtime is to analyze
+performance of the application without modifying its source code.
+This can be enabled by setting a few environment variables before
+launching the application.  The tutorial_0.sh sets these as follows:
+
+    LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so
+    LD_DYNAMIC_WEAK=true
+    GEOPM_PMPI_CTL=process
+    GEOPM_REPORT=tutorial_0_report
+    GEOPM_TRACE=tutorial_0_trace
+
+The LD_PRELOAD environment variable enables the geopm library to
+interpose on MPI using the PMPI interface.  Linking directly to
+libgeopm has the same effect, but this is not done in the Makefile for
+tutorial_0 or tutorial_1.  See the geopm.7 man page for a detailed
+description of the other environment variables.
 
 The tutorial_0.c application is an extremely simple MPI application.
 It queries the size of the world communicator, prints it out from rank
@@ -43,10 +58,10 @@ or
 Since this script sets the environment variable "GEOPM_PMPI_CTL" to
 "process" you will notice that the MPI world communicator is reported
 to have one fewer rank per compute node than the "-n" parameter passed
-to the MPI runtime execution.  This is because the GEOPM controller is
-using one rank per compute node to execute and has removed this rank
-from the world communicator.  This is important to understand when
-launching the controller in this way.
+to the MPI runtime execution.  This is because the geopm controller is
+using one rank per compute node to execute the runtime and has removed
+this rank from the world communicator.  This is important to
+understand when launching the controller in this way.
 
 The geopm report will be created in the file named
 
@@ -59,17 +74,19 @@ file for each compute node will be named
     tutorial_0_trace-`hostname`
 
 The report file will contain information about time and energy spent
-in MPI regions and outside of MPI regions.
+in MPI regions and outside of MPI regions as well as the average CPU
+frequency.
 
 1. A slightly more realistic application
 ----------------------------------------
-In tutorial 1 show a slightly more realistic application which
-contains a loop that does a number of different types of operations.
-In addition to sleeping, the loop does a memory intensive operation,
-then a compute intensive operation, then again does a memory
-intensive operation followed by a communication intensive operation.
-In this example we are again using geopm without modifying the
-application with the geopm APIs.
+Tutorial 1 shows a slightly more realistic application.  This
+application implements a loop that does a number of different types of
+operations.  In addition to sleeping, the loop does a memory intensive
+operation, then a compute intensive operation, then again does a
+memory intensive operation followed by a communication intensive
+operation.  In this example we are again using geopm without including
+any geopm APIs in the application and using LD_PRELOAD int interpose
+geopm on MPI.
 
 2. Adding geopm mark up to the application
 ------------------------------------------

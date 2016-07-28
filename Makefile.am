@@ -129,23 +129,27 @@ EXTRA_DIST = .gitignore \
              src/Comm.hpp \
              test/geopm_static_modes_test.sh \
              TODO \
-             tutorial/Makefile \
-             tutorial/README.md \
-             tutorial/tutorial_0.c \
-             tutorial/tutorial_0.sh \
-             tutorial/tutorial_1.c \
-             tutorial/tutorial_1.sh \
-             tutorial/tutorial_2.c \
-             tutorial/tutorial_2.sh \
-             tutorial/tutorial_3.c \
-             tutorial/tutorial_3_policy.json \
-             tutorial/tutorial_3.sh \
-             tutorial/tutorial_build_icc.sh \
-             tutorial/tutorial_build.sh \
-             tutorial/tutorial_env.sh \
-             tutorial/tutorial_region.c \
-             tutorial/tutorial_region.h \
+             $(TUTORIAL_DIST) \
+             geopm-tutorial.tar.gz \
              # end
+
+TUTORIAL_DIST = tutorial/Makefile \
+                tutorial/README.md \
+                tutorial/tutorial_0.c \
+                tutorial/tutorial_0.sh \
+                tutorial/tutorial_1.c \
+                tutorial/tutorial_1.sh \
+                tutorial/tutorial_2.c \
+                tutorial/tutorial_2.sh \
+                tutorial/tutorial_3.c \
+                tutorial/tutorial_3_policy.json \
+                tutorial/tutorial_3.sh \
+                tutorial/tutorial_build_gnu.sh \
+                tutorial/tutorial_build_intel.sh \
+                tutorial/tutorial_env.sh \
+                tutorial/tutorial_region.c \
+                tutorial/tutorial_region.h \
+                # end
 
 # EXTEND FLAGS FOR MPI TARGETS
 if ENABLE_MPI
@@ -359,6 +363,9 @@ doxygen:
 
 # MAN TARGET
 BUILT_SOURCES = ruby/bin/ronn
+
+geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
+	tar --transform='s|^|geopm-|' -zcf $@ $^
 
 ruby/bin/ronn:
 	mkdir -p ruby/bin; \

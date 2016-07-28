@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     if (!err) {
         err = geopm_prof_region("tutorial_dgemm",
                                 GEOPM_POLICY_HINT_COMPUTE,
-                                &stream_rid);
+                                &dgemm_rid);
     }
     if (!err) {
         err = geopm_prof_region("tutorial_all2all",
@@ -87,10 +87,14 @@ int main(int argc, char **argv)
     double all2all_big_o = 1024.0;
     double stream1_big_o = 1024.0;
 
+    if (!rank) {
+        printf("Beginning loop of %d iterations.\n", num_iter);
+        fflush(stdout);
+    }
     for (int i = 0; !err && i < num_iter; ++i) {
         err = geopm_prof_enter(sleep_rid);
         if (!err) {
-            err = tutorial_sleep(sleep_big_o, !rank);
+            err = tutorial_sleep(sleep_big_o, 0);
         }
         if (!err) {
             err = geopm_prof_exit(sleep_rid);
@@ -99,7 +103,7 @@ int main(int argc, char **argv)
             err = geopm_prof_enter(stream_rid);
         }
         if (!err) {
-            err = tutorial_stream(stream0_big_o, !rank);
+            err = tutorial_stream(stream0_big_o, 0);
         }
         if (!err) {
             err = geopm_prof_exit(stream_rid);
@@ -108,7 +112,7 @@ int main(int argc, char **argv)
             err = geopm_prof_enter(dgemm_rid);
         }
         if (!err) {
-            err = tutorial_dgemm(dgemm_big_o, !rank);
+            err = tutorial_dgemm(dgemm_big_o, 0);
         }
         if (!err) {
             err = geopm_prof_exit(dgemm_rid);
@@ -117,7 +121,7 @@ int main(int argc, char **argv)
             err = geopm_prof_enter(stream_rid);
         }
         if (!err) {
-            err = tutorial_stream(stream1_big_o, !rank);
+            err = tutorial_stream(stream1_big_o, 0);
         }
         if (!err) {
             err = geopm_prof_exit(stream_rid);
@@ -129,11 +133,19 @@ int main(int argc, char **argv)
             err = geopm_prof_enter(all2all_rid);
         }
         if (!err) {
-            err = tutorial_all2all(all2all_big_o, !rank);
+            err = tutorial_all2all(all2all_big_o, 0);
         }
         if (!err) {
             err = geopm_prof_exit(all2all_rid);
         }
+        if (!err && !rank) {
+            printf("Iteration=%.3d\r", i);
+            fflush(stdout);
+        }
+    }
+    if (!err && !rank) {
+        printf("Completed loop.                    \n");
+        fflush(stdout);
     }
     if (!err) {
         err = MPI_Finalize();

@@ -33,8 +33,8 @@
 
 source tutorial_env.sh
 
-LD_DYNAMIC_WEAK=true \
 LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
+LD_DYNAMIC_WEAK=true \
 GEOPM_PMPI_CTL=process \
 GEOPM_REPORT=tutorial_3_report \
 GEOPM_TRACE=tutorial_3_trace \

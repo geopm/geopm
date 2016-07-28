@@ -55,18 +55,18 @@ tutorial_2.o: tutorial_2.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_2: tutorial_2.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
+	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
 
 tutorial_3.o: tutorial_3.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_3: tutorial_3.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
+	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
 
 clean:
-	rm -f $(TUTORIAL_BIN) tutorial_region.o
+	rm -f $(TUTORIAL_BIN) *.o
 
 .PHONY: all clean

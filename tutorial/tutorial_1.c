@@ -58,21 +58,34 @@ int main(int argc, char **argv)
     if (!err && !rank ) {
         printf("MPI_COMM_WORLD size: %d\n", size);
     }
+    if (!rank) {
+        printf("Beginning loop of %d iterations.\n", num_iter);
+        fflush(stdout);
+    }
     for (int i = 0; !err && i < num_iter; ++i) {
-        err = tutorial_sleep(sleep_big_o, !rank);
+        err = tutorial_sleep(sleep_big_o, 0);
         if (!err) {
-            err = tutorial_stream(stream0_big_o, !rank);
+            err = tutorial_stream(stream0_big_o, 0);
         }
         if (!err) {
-            err = tutorial_dgemm(dgemm_big_o, !rank);
+            err = tutorial_dgemm(dgemm_big_o, 0);
         }
         if (!err) {
-            err = tutorial_stream(stream1_big_o, !rank);
+            err = tutorial_stream(stream1_big_o, 0);
         }
         if (!err) {
-            err = tutorial_all2all(all2all_big_o, !rank);
+            err = tutorial_all2all(all2all_big_o, 0);
+        }
+        if (!err && !rank) {
+            printf("Iteration=%.3d\r", i);
+            fflush(stdout);
         }
     }
+    if (!err && !rank) {
+        printf("Completed loop.                    \n");
+        fflush(stdout);
+    }
+
     if (!err) {
         err = MPI_Finalize();
     }
