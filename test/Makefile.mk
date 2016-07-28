@@ -38,26 +38,24 @@ endif
 GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformFactoryTest.no_supported_platform \
               test/gtest_links/PlatformImpTest.platform_get_name \
-              test/gtest_links/PlatformImpTest.platform_get_sockets \
-              test/gtest_links/PlatformImpTest.platform_get_tiles \
-              test/gtest_links/PlatformImpTest.platform_get_cpus \
+              test/gtest_links/PlatformImpTest.platform_get_package \
+              test/gtest_links/PlatformImpTest.platform_get_tile \
+              test/gtest_links/PlatformImpTest.platform_get_cpu \
               test/gtest_links/PlatformImpTest.platform_get_hyperthreaded \
               test/gtest_links/PlatformImpTest.cpu_msr_read_write \
               test/gtest_links/PlatformImpTest.tile_msr_read_write \
-              test/gtest_links/PlatformImpTest.socket_msr_read_write \
-              test/gtest_links/PlatformImpTest.write_msr_whitelist \
+              test/gtest_links/PlatformImpTest.package_msr_read_write \
+              test/gtest_links/PlatformImpTest.msr_write_whitelist \
               test/gtest_links/PlatformImpTest.negative_read_no_desc \
               test/gtest_links/PlatformImpTest.negative_write_no_desc \
               test/gtest_links/PlatformImpTest.negative_read_bad_desc \
               test/gtest_links/PlatformImpTest.negative_write_bad_desc \
-              test/gtest_links/PlatformImpTest.negative_open_msr \
+              test/gtest_links/PlatformImpTest.negative_msr_open \
               test/gtest_links/PlatformImpTest.negative_msr_write_bad_value \
               test/gtest_links/PlatformImpTest2.int_type_checks \
               test/gtest_links/PlatformImpTest2.msr_write_restore_read \
               test/gtest_links/PlatformTopologyTest.cpu_count \
-              test/gtest_links/PlatformTopologyTest.get_cpus \
               test/gtest_links/PlatformTopologyTest.negative_num_domain \
-              test/gtest_links/PlatformTopologyTest.negative_domain_by_type \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
               test/gtest_links/CircularBufferTest.buffer_capacity \
@@ -89,7 +87,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/RegionTest.sample_message \
               test/gtest_links/RegionTest.signal_last \
               test/gtest_links/RegionTest.signal_num \
-              test/gtest_links/RegionTest.derivative \
+              test/gtest_links/RegionTest.signal_derivative \
               test/gtest_links/RegionTest.signal_mean \
               test/gtest_links/RegionTest.signal_median \
               test/gtest_links/RegionTest.signal_stddev \
@@ -104,7 +102,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/SampleRegulatorTest.insert_platform \
               test/gtest_links/SampleRegulatorTest.insert_profile \
               test/gtest_links/SampleRegulatorTest.align_profile \
-              test/gtest_links/SampleRegulatorTest.transform \
               test/gtest_links/PolicyTest.num_domain \
               test/gtest_links/PolicyTest.region_id \
               test/gtest_links/PolicyTest.mode \

@@ -225,9 +225,6 @@ class TestPlatformImp2 : public geopm::PlatformImp
         }
         virtual std::string platform_name();
         std::vector<std::string> m_msr_list;
-
-    protected:
-        FRIEND_TEST(PlatformImpTest, negative_msr_open);
 };
 
 TestPlatformImp2::TestPlatformImp2()
@@ -318,6 +315,67 @@ static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_m
         {"PERF_GLOBAL_OVF_CTRL", {320, 0xDFFFFFFFFFFFFFFF}},
         {"IA32_PERF_CTL",        {384, 0xDFFFFFFFFFFFFFFF}}});
     return msr_map;
+}
+
+// The methods here purposefully do as little as possible to instantiate a
+// PlatformImp object for testing. The msr_path method is specifically not
+// overrided so the base class version is tested.
+class TestPlatformImp4 : public geopm::PlatformImp
+{
+    public:
+        TestPlatformImp4()
+        {
+            ;
+        }
+        virtual ~TestPlatformImp4()
+        {
+            ;
+        }
+        virtual bool model_supported(int platform_id)
+        {
+            return true;
+        }
+        virtual void msr_initialize(void)
+        {
+            return;
+        }
+        virtual void msr_reset(void)
+        {
+            return;
+        }
+        virtual int power_control_domain(void) const
+        {
+            return geopm::GEOPM_DOMAIN_PACKAGE;
+        }
+        virtual int frequency_control_domain(void) const
+        {
+            return geopm::GEOPM_DOMAIN_CPU;
+        }
+        virtual int performance_counter_domain(void) const
+        {
+            return geopm::GEOPM_DOMAIN_CPU;
+        }
+        virtual double read_signal(int device_type, int device_index, int signal_type)
+        {
+            return 1.0;
+        }
+        virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed)
+        {
+            return;
+        }
+        virtual void write_control(int device_type, int device_index, int signal_type, double value)
+        {
+            ;
+        }
+        virtual std::string platform_name();
+    protected:
+        FRIEND_TEST(PlatformImpTest, negative_msr_open);
+};
+
+std::string TestPlatformImp4::platform_name()
+{
+    std::string name = "test_platform4";
+    return name;
 }
 ////////////////////////////////////////////////////////////////////
 
@@ -470,22 +528,22 @@ TEST_F(PlatformImpTest, msr_write_whitelist)
     bool same = false;
 
     const char key_buf[] = {"# MSR      Write Mask         # Comment\n" \
-                            "0x00000000 0x0000000000000000 # MSR_TEST_0\n" \
-                            "0x00000040 0x0000000000000000 # MSR_TEST_1\n" \
-                            "0x00000280 0x0000000000000000 # MSR_TEST_10\n" \
-                            "0x000002c0 0x0000000000000000 # MSR_TEST_11\n" \
-                            "0x00000300 0x0000000000000000 # MSR_TEST_12\n" \
-                            "0x00000340 0x0000000000000000 # MSR_TEST_13\n" \
-                            "0x00000380 0x0000000000000000 # MSR_TEST_14\n" \
-                            "0x000003c0 0x0000000000000000 # MSR_TEST_15\n" \
-                            "0x00000080 0x0000000000000000 # MSR_TEST_2\n" \
-                            "0x000000c0 0x0000000000000000 # MSR_TEST_3\n" \
-                            "0x00000100 0x0000000000000000 # MSR_TEST_4\n" \
-                            "0x00000140 0x0000000000000000 # MSR_TEST_5\n" \
-                            "0x00000180 0x0000000000000000 # MSR_TEST_6\n" \
-                            "0x000001c0 0x0000000000000000 # MSR_TEST_7\n" \
-                            "0x00000200 0x0000000000000000 # MSR_TEST_8\n" \
-                            "0x00000240 0x0000000000000000 # MSR_TEST_9\0"
+                            "0x00000000 0x0fffffffffffffff # MSR_TEST_0\n" \
+                            "0x00000040 0x0fffffffffffffff # MSR_TEST_1\n" \
+                            "0x00000280 0x0fffffffffffffff # MSR_TEST_10\n" \
+                            "0x000002c0 0x0fffffffffffffff # MSR_TEST_11\n" \
+                            "0x00000300 0x0fffffffffffffff # MSR_TEST_12\n" \
+                            "0x00000340 0x0fffffffffffffff # MSR_TEST_13\n" \
+                            "0x00000380 0x0fffffffffffffff # MSR_TEST_14\n" \
+                            "0x000003c0 0x0fffffffffffffff # MSR_TEST_15\n" \
+                            "0x00000080 0x0fffffffffffffff # MSR_TEST_2\n" \
+                            "0x000000c0 0x0fffffffffffffff # MSR_TEST_3\n" \
+                            "0x00000100 0x0fffffffffffffff # MSR_TEST_4\n" \
+                            "0x00000140 0x0fffffffffffffff # MSR_TEST_5\n" \
+                            "0x00000180 0x0fffffffffffffff # MSR_TEST_6\n" \
+                            "0x000001c0 0x0fffffffffffffff # MSR_TEST_7\n" \
+                            "0x00000200 0x0fffffffffffffff # MSR_TEST_8\n" \
+                            "0x00000240 0x0fffffffffffffff # MSR_TEST_9\0"
                            };
 
     fd = fopen("/tmp/whitelist", "w");
@@ -577,7 +635,7 @@ TEST_F(PlatformImpTest, negative_write_bad_desc)
 TEST_F(PlatformImpTest, negative_msr_open)
 {
     int thrown = 0;
-    TestPlatformImp2 p;
+    TestPlatformImp4 p;
 
     try {
         p.msr_open(5000);
