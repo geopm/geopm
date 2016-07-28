@@ -90,9 +90,8 @@ namespace geopm
             free(m_batch.ops);
         }
 
-        while (m_cpu_file_desc.size()) {
-            close(m_cpu_file_desc.back());
-            m_cpu_file_desc.pop_back();
+        for (int i = 0; i < m_num_logical_cpu; ++i) {
+            msr_close(i);
         }
 
         if (m_msr_batch_desc != -1) {

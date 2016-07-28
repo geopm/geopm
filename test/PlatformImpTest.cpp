@@ -91,7 +91,6 @@ TestPlatformImp::TestPlatformImp()
 TestPlatformImp::~TestPlatformImp()
 {
     for (off_t i = 0; (int)i < m_num_hw_cpu; i++) {
-        msr_close(i);
         snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", (int)i);
         remove(m_msr_path);
     }
@@ -422,7 +421,6 @@ void PlatformImpTest2::TearDown()
     char msr_path[NAME_MAX];
 
     for (int i = 0; i < NUM_CPU; i++) {
-        /// @todo call msr_close in the destructor for the PlatformImp
         snprintf(msr_path, NAME_MAX, "/tmp/msrfile%d", i);
         remove(msr_path);
     }
