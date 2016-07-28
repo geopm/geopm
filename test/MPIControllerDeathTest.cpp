@@ -65,15 +65,15 @@ std::vector<int> MPIControllerDeathTest::getProcessList(void)
     std::shared_ptr<FILE> std_out(popen("pgrep -fu `whoami` MPIControllerDeathTest", "r"),  pclose);
     std::string token;
 
-    while(!feof(std_out.get())) {
-        if(fgets(buf, 512, std_out.get()) != NULL) {
+    while (!feof(std_out.get())) {
+        if (fgets(buf, 512, std_out.get()) != NULL) {
             output += buf;
         }
     }
 
     std::istringstream stream(output);
     std::vector<int> pids;
-    while(std::getline(stream, token, '\n')) {
+    while (std::getline(stream, token, '\n')) {
         pids.push_back(std::stoi(token, nullptr));
     }
 

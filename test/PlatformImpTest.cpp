@@ -81,7 +81,7 @@ TestPlatformImp::TestPlatformImp()
     m_num_package = NUM_PACKAGE;
     m_num_cpu_per_core = 1;
 
-    for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
+    for (off_t i = 0; (int)i < m_num_hw_cpu; i++) {
         msr_open(i);
     }
     //for negative tests
@@ -90,7 +90,7 @@ TestPlatformImp::TestPlatformImp()
 
 TestPlatformImp::~TestPlatformImp()
 {
-    for(off_t i = 0; (int)i < m_num_hw_cpu; i++) {
+    for (off_t i = 0; (int)i < m_num_hw_cpu; i++) {
         msr_close(i);
         snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", (int)i);
         remove(m_msr_path);
@@ -146,7 +146,7 @@ void TestPlatformImp::msr_path(int cpu)
     msrfile.open(m_msr_path, std::ios::out|std::ios::binary);
     ASSERT_TRUE(msrfile.is_open());
 
-    for(uint64_t i = 0; i < NUM_CPU; i++) {
+    for (uint64_t i = 0; i < NUM_CPU; i++) {
         lval = i;
         msrfile.write((const char*)&hval, sizeof(hval));
         msrfile.write((const char*)&lval, sizeof(lval));
@@ -421,7 +421,7 @@ void PlatformImpTest2::TearDown()
 {
     char msr_path[NAME_MAX];
 
-    for(int i = 0; i < NUM_CPU; i++) {
+    for (int i = 0; i < NUM_CPU; i++) {
         /// @todo call msr_close in the destructor for the PlatformImp
         snprintf(msr_path, NAME_MAX, "/tmp/msrfile%d", i);
         remove(msr_path);
@@ -469,13 +469,13 @@ TEST_F(PlatformImpTest, cpu_msr_read_write)
 {
     uint64_t value;
 
-    for(uint64_t i = 0; i < NUM_CPU; i++) {
+    for (uint64_t i = 0; i < NUM_CPU; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, i, name, i);
     }
 
-    for(uint64_t i = 0; i < NUM_CPU; i++) {
+    for (uint64_t i = 0; i < NUM_CPU; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         value = m_platform->msr_read(geopm::GEOPM_DOMAIN_CPU, i, name);
@@ -487,13 +487,13 @@ TEST_F(PlatformImpTest, tile_msr_read_write)
 {
     uint64_t value;
 
-    for(uint64_t i = 0; i < NUM_TILE; i++) {
+    for (uint64_t i = 0; i < NUM_TILE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         m_platform->msr_write(geopm::GEOPM_DOMAIN_TILE, i, name, i*3);
     }
 
-    for(uint64_t i = 0; i < NUM_TILE; i++) {
+    for (uint64_t i = 0; i < NUM_TILE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         value = m_platform->msr_read(geopm::GEOPM_DOMAIN_TILE, i, name);
@@ -505,13 +505,13 @@ TEST_F(PlatformImpTest, package_msr_read_write)
 {
     uint64_t value;
 
-    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+    for (uint64_t i = 0; i < NUM_PACKAGE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         m_platform->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, i, name, i*5);
     }
 
-    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+    for (uint64_t i = 0; i < NUM_PACKAGE; i++) {
         std::string name = "MSR_TEST_";
         name.append(std::to_string(i));
         value = m_platform->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, name);
@@ -701,14 +701,14 @@ TEST_F(PlatformImpTest2, msr_write_restore_read)
     m_platform2->initialize();
 
     // Write big value.
-    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+    for (uint64_t i = 0; i < NUM_PACKAGE; i++) {
         for (std::string s : m_platform2->m_msr_list) {
             m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, i, s, value);
         }
     }
 
     // Read back big value, verify contents
-    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+    for (uint64_t i = 0; i < NUM_PACKAGE; i++) {
         for (std::string s : m_platform2->m_msr_list) {
             read_value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, s);
             EXPECT_TRUE((read_value == value));
@@ -722,7 +722,7 @@ TEST_F(PlatformImpTest2, msr_write_restore_read)
     m_platform2->restore_msr_state(path);
 
     // Verify restored contents
-    for(uint64_t i = 0; i < NUM_PACKAGE; i++) {
+    for (uint64_t i = 0; i < NUM_PACKAGE; i++) {
         for (std::string s : m_platform2->m_msr_list) {
             read_value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, s);
             EXPECT_TRUE((read_value == value));

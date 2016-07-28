@@ -224,7 +224,7 @@ int main(int argc, char** argv)
     }
 
     if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_RESTORE) {
-        if(strlen(file) == 0) {
+        if (strlen(file) == 0) {
             snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
         }
         else {
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
         struct stat statbuffer;
         char* pdir;
 
-        if(strlen(file) == 0) {
+        if (strlen(file) == 0) {
             snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
         }
         else {
@@ -298,11 +298,11 @@ int main(int argc, char** argv)
         }
         //make sure path exists, if not, create
         pdir = dirname(copy_string);
-        for(int i = 1; i < strlen(pdir); i++) {
+        for (int i = 1; i < strlen(pdir); i++) {
             if (pdir[i] == '/') {
                 pdir[i] = 0;
-                if(stat(pdir, &statbuffer) == -1) {
-                    if(mkdir(pdir, S_IRWXU)) {
+                if (stat(pdir, &statbuffer) == -1) {
+                    if (mkdir(pdir, S_IRWXU)) {
                         fprintf(stderr, "Error: Could not create directory %s\n", dirname(file));
                         return errno ? errno : GEOPM_ERROR_RUNTIME;
                     }
@@ -310,8 +310,8 @@ int main(int argc, char** argv)
                 pdir[i] = '/';
             }
         }
-        if(stat(pdir, &statbuffer) == -1) {
-            if(mkdir(pdir, S_IRWXU)) {
+        if (stat(pdir, &statbuffer) == -1) {
+            if (mkdir(pdir, S_IRWXU)) {
                 fprintf(stderr, "Error: Could not create directory %s\n", dirname(file));
                 return errno ? errno : GEOPM_ERROR_RUNTIME;
             }
@@ -453,16 +453,16 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                 err = EINVAL;
             }
             if (!err) {
-                if(strncmp(key, "tdp_percent", strlen("tdp_percent") + 1) == 0) {
+                if (strncmp(key, "tdp_percent", strlen("tdp_percent") + 1) == 0) {
                     err = geopm_policy_tdp_percent(policy, atoi(value));
                 }
-                else if(strncmp(key, "cpu_mhz", strlen("cpu_mhz") + 1) == 0) {
+                else if (strncmp(key, "cpu_mhz", strlen("cpu_mhz") + 1) == 0) {
                     err = geopm_policy_cpu_freq(policy, atoi(value));
                 }
-                else if(strncmp(key, "num_cpu_max_perf", strlen("num_cpu_max_perf") + 1) == 0) {
+                else if (strncmp(key, "num_cpu_max_perf", strlen("num_cpu_max_perf") + 1) == 0) {
                     err = geopm_policy_full_perf(policy, atoi(value));
                 }
-                else if(strncmp(key, "affinity", strlen("affinity") + 1) == 0) {
+                else if (strncmp(key, "affinity", strlen("affinity") + 1) == 0) {
                     if (strncmp(value, "compact", strlen("compact") + 1) == 0) {
                         err = geopm_policy_affinity(policy, GEOPM_POLICY_AFFINITY_COMPACT);
                     }
@@ -474,16 +474,16 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                         err = EINVAL;
                     }
                 }
-                else if(strncmp(key, "power_budget", strlen("power_budget") + 1) == 0) {
+                else if (strncmp(key, "power_budget", strlen("power_budget") + 1) == 0) {
                     err = geopm_policy_power(policy, atoi(value));
                 }
-                else if(strncmp(key, "tree_decider", strlen("tree_decider") + 1) == 0) {
+                else if (strncmp(key, "tree_decider", strlen("tree_decider") + 1) == 0) {
                     err = geopm_policy_tree_decider(policy, value);
                 }
-                else if(strncmp(key, "leaf_decider", strlen("leaf_decider") + 1) == 0) {
+                else if (strncmp(key, "leaf_decider", strlen("leaf_decider") + 1) == 0) {
                     err = geopm_policy_tree_decider(policy, value);
                 }
-                else if(strncmp(key, "platform", strlen("platform") + 1) == 0) {
+                else if (strncmp(key, "platform", strlen("platform") + 1) == 0) {
                     err = geopm_policy_tree_decider(policy, value);
                 }
                 else {

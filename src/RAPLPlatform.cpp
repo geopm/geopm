@@ -222,7 +222,7 @@ namespace geopm
         std::vector<double> target(m_num_energy_domain);
         policy.target(region_id, target);
 
-        if((m_control_domain_type == GEOPM_CONTROL_DOMAIN_POWER) &&
+        if ((m_control_domain_type == GEOPM_CONTROL_DOMAIN_POWER) &&
            (m_num_energy_domain == (int)target.size())) {
             control_type = GEOPM_TELEMETRY_TYPE_PKG_ENERGY;
             for (int i = 0; i < m_num_package; ++i) {

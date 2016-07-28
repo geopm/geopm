@@ -188,7 +188,7 @@ int main(int argc, char **argv)
             strncpy(policy_config, geopm_env_policy(),GEOPMCTL_STRING_LENGTH-1);
             policy_ptr = policy_config;
         }
-        if(!my_rank) {
+        if (!my_rank) {
             err0 = geopmctl_main(policy_ptr, sample_key);
         }
         else {
