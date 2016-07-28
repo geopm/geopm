@@ -133,6 +133,12 @@ fi
 
 if [ "$run_test" != "true" ]; then
     echo "SKIP: $test_name"
+else
+    # Parse output log to see if the test actually ran.
+    if (grep -Fq "[  PASSED  ] 0 tests." $dir_name/$test_name.log); then
+        echo "ERROR: Test $test_name does not exist!"
+        err=1
+    fi
 fi
 
 
