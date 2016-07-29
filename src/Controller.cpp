@@ -131,7 +131,7 @@ extern "C"
             ctl_obj->run();
         }
         catch (...) {
-            geopm_error_destroy_shmem();
+            ctl_obj->reset();
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
@@ -408,6 +408,8 @@ namespace geopm
             }
         }
         geopm_signal_handler_check();
+
+        reset();
     }
 
     void Controller::step(void)
@@ -744,5 +746,11 @@ namespace geopm
             (*it).second->report(report, name);
         }
         report.close();
+    }
+
+    void Controller::reset(void)
+    {
+        geopm_error_destroy_shmem();
+        m_platform->revert_msr_state();
     }
 }

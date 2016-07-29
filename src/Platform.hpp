@@ -88,6 +88,8 @@ namespace geopm
             /// @brief Output a MSR whitelist for use with the Linux MSR driver.
             /// @param [in] file_desc File descriptor for output.
             void write_msr_whitelist(FILE *file_desc) const;
+            /// @brief Revert the MSR values to their initial state.
+            void revert_msr_state(void) const;
             /// @brief Number of MSR values returned from sample().
             virtual size_t capacity(void) = 0;
             /// @brief Record telemetry from counters and RAPL MSRs.

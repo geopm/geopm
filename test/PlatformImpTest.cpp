@@ -34,6 +34,7 @@
 #include <string>
 #include <fstream>
 #include <system_error>
+#include <sys/stat.h>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
@@ -181,6 +182,7 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             ;
         }
+
         virtual bool model_supported(int platform_id)
         {
             return true;
@@ -279,6 +281,30 @@ std::string TestPlatformImp2::platform_name()
 {
     std::string name = "test_platform2";
     return name;
+}
+
+// #3 is only needed to probe the MSR files created in #2.
+class TestPlatformImp3 : public TestPlatformImp2
+{
+    public:
+        virtual void save_msr_state(const char* path)
+        {
+            return;
+        }
+        virtual void msr_path(int cpu);
+        virtual std::string platform_name();
+};
+
+std::string TestPlatformImp3::platform_name()
+{
+    std::string name = "test_platform3";
+    return name;
+}
+
+void TestPlatformImp3::msr_path(int cpu)
+{
+    int err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", cpu);
+    ASSERT_TRUE(err >= 0);
 }
 
 static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map(void)
@@ -410,10 +436,12 @@ class PlatformImpTest2: public :: testing :: Test
 PlatformImpTest2::PlatformImpTest2()
 {
     m_platform2 = new TestPlatformImp2();
+    m_platform2->initialize();
 }
 
 PlatformImpTest2::~PlatformImpTest2()
 {
+    delete m_platform2;
 }
 
 void PlatformImpTest2::TearDown()
@@ -695,9 +723,6 @@ TEST_F(PlatformImpTest2, msr_write_restore_read)
     uint64_t value = 0xDEADBEEFCAFED00D;
     uint64_t read_value;
 
-    // Open the MSR fd's
-    m_platform2->initialize();
-
     // Write big value.
     for (uint64_t i = 0; i < NUM_PACKAGE; i++) {
         for (std::string s : m_platform2->m_msr_list) {
@@ -726,7 +751,85 @@ TEST_F(PlatformImpTest2, msr_write_restore_read)
             EXPECT_TRUE((read_value == value));
         }
     }
+}
 
-    delete m_platform2;
+TEST_F(PlatformImpTest2, msr_write_backup_file)
+{
+    /// @todo Ask the PlatformImp for this string
+    const char *name = "/tmp/.geopm_msr_initial_vals";
+    struct stat buf;
+
+    // Verify that the backup file exists
+    EXPECT_TRUE(stat(name, &buf) == 0);
+    EXPECT_TRUE(buf.st_size > 0);
+
+    m_platform2->revert_msr_state();
+
+    // The backup file should be removed after it is used.
+    EXPECT_FALSE(stat(name, &buf) == 0);
+}
+
+TEST_F(PlatformImpTest2, msr_restore_modified_value)
+{
+    uint64_t value;
+    uint64_t test_value_1 = 0xDEADBEEFBADDCAFE;
+    uint64_t test_value_2 = 0xDEADBEEFBADDDDDD;
+
+    // Get default values, verify contents
+    for (unsigned int i = 0; i < NUM_PACKAGE; i++) {
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
+        EXPECT_EQ(value, 0xDEADBEEF00000000);
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
+        EXPECT_EQ(value, 0xDEADBEEF00000001);
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
+        EXPECT_EQ(value, 0xDEADBEEF00000002);
+    }
+
+    for (unsigned int i = 0; i < NUM_CPU; i++) {
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, i, "PERF_FIXED_CTR_CTRL");
+        EXPECT_EQ(value, 0xDEADBEEF00000003);
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_CTRL");
+        EXPECT_EQ(value, 0xDEADBEEF00000004);
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
+        EXPECT_EQ(value, 0xDEADBEEF00000005);
+        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
+        EXPECT_EQ(value, 0xDEADBEEF00000006);
+    }
+
+    // Do something to twiddle random MSR values
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT", test_value_1);
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, 1, "DRAM_POWER_LIMIT", test_value_1);
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL", test_value_2);
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_CPU, 15, "IA32_PERF_CTL", test_value_2);
+
+    // Test that it has been modified compared to the default value
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
+    EXPECT_EQ(value, test_value_1);
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 1, "DRAM_POWER_LIMIT");
+    EXPECT_EQ(value, test_value_1);
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL");
+    EXPECT_EQ(value, test_value_2);
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "IA32_PERF_CTL");
+    EXPECT_EQ(value, test_value_2);
+
+    m_platform2->revert_msr_state();
+
+    TestPlatformImp3 *m_platform3 = new TestPlatformImp3();
+
+    // Call initialize again (open the MSR fd's, but do not create a new MSR save file since
+    // that method was overrided)
+    m_platform3->initialize();
+
+    // Call msr_read
+    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
+    EXPECT_EQ(value, 0xDEADBEEF00000000);
+    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 1, "DRAM_POWER_LIMIT");
+    EXPECT_EQ(value, 0xDEADBEEF00000002);
+    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL");
+    EXPECT_EQ(value, 0xDEADBEEF00000003);
+    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "IA32_PERF_CTL");
+    EXPECT_EQ(value, 0xDEADBEEF00000006);
+
+    delete m_platform3;
 }
 

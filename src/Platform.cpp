@@ -311,6 +311,11 @@ namespace geopm
         m_imp->whitelist(file_desc);
     }
 
+    void Platform::revert_msr_state(void) const
+    {
+        m_imp->revert_msr_state();
+    }
+
     double Platform::control_latency_ms(void) const
     {
         return m_imp->control_latency_ms();

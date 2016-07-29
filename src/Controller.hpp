@@ -155,6 +155,12 @@ namespace geopm
             ///  @return Number of hierarchy levels.
             int num_level(void) const;
             void generate_report(void);
+            /// @brief Reset system to initial state.
+            ///
+            /// This will remove the shared memory keys and will reset
+            /// all MSR values that GEO can alter to the value that was
+            /// read at GEO startup.
+            void reset(void);
         protected:
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
