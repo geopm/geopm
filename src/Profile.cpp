@@ -231,10 +231,11 @@ namespace geopm
     {
         int shm_num_rank = 0;
 
-        MPI_Comm_rank(comm, &m_rank);
+        PMPI_Comm_rank(comm, &m_rank);
         geopm_comm_split_shared(comm, &m_shm_comm);
-        MPI_Comm_rank(m_shm_comm, &m_shm_rank);
-        MPI_Comm_size(m_shm_comm, &shm_num_rank);
+        PMPI_Comm_rank(m_shm_comm, &m_shm_rank);
+        PMPI_Comm_size(m_shm_comm, &shm_num_rank);
+        PMPI_Barrier(m_shm_comm);
 
         std::string key(geopm_env_shmkey());
         if (!key.size()) {
@@ -254,7 +255,7 @@ namespace geopm
             m_is_enabled = false;
             return;
         }
-        MPI_Barrier(m_shm_comm);
+        PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_shmem->unlink();
         }
@@ -262,6 +263,13 @@ namespace geopm
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
 
         init_cpu_list();
+
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_READY;
+        }
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {
+            geopm_signal_handler_check();
+        }
 
         for (int i = 0 ; i < shm_num_rank; ++i) {
             if (i == m_shm_rank) {
@@ -284,7 +292,7 @@ namespace geopm
                     }
                 }
             }
-            MPI_Barrier(m_shm_comm);
+            PMPI_Barrier(m_shm_comm);
         }
 
         if (!m_shm_rank) {
@@ -304,18 +312,22 @@ namespace geopm
             m_ctl_msg->app_status = GEOPM_STATUS_INITIALIZED;
         }
 
-        while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {}
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_INITIALIZED) {
+            geopm_signal_handler_check();
+        }
         std::string table_shm_key(key + "-" + std::to_string(m_rank));
         m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
         m_table_buffer = m_table_shmem->pointer();
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
-        MPI_Barrier(m_shm_comm);
+        PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_table_shmem->unlink();
             m_ctl_msg->app_status = GEOPM_STATUS_ACTIVE;
         }
 
-        while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {}
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {
+            geopm_signal_handler_check();
+        }
         geopm_pmpi_prof_enable(1);
     }
 
@@ -485,7 +497,9 @@ namespace geopm
             m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
         }
 
-        while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {}
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_REPORT) {
+            geopm_signal_handler_check();
+        }
         geopm_pmpi_prof_enable(0);
 
         size_t buffer_offset = 0;
@@ -507,7 +521,9 @@ namespace geopm
                 m_ctl_msg->app_status = GEOPM_STATUS_READY;
             }
 
-            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {}
+            while (m_ctl_msg->ctl_status != GEOPM_STATUS_READY) {
+                geopm_signal_handler_check();
+            }
             PMPI_Barrier(m_shm_comm);
             if (!m_shm_rank && !is_all_done) {
                 m_ctl_msg->app_status = GEOPM_STATUS_REPORT;
@@ -570,6 +586,7 @@ namespace geopm
         key += "-sample";
         m_ctl_shmem = new SharedMemory(key, table_size);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
+        m_ctl_msg->ctl_status = GEOPM_STATUS_READY;
     }
 
     ProfileSampler::~ProfileSampler(void)
@@ -585,7 +602,7 @@ namespace geopm
         std::string shm_key;
 
         while (m_ctl_msg->app_status != GEOPM_STATUS_INITIALIZED) {
-           geopm_signal_handler_check();
+            geopm_signal_handler_check();
         }
 
         std::set<int> rank_set;
@@ -672,7 +689,9 @@ namespace geopm
         while (!is_all_done && m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
             m_ctl_msg->ctl_status = GEOPM_STATUS_REPORT;
             while (m_ctl_msg->app_status != GEOPM_STATUS_READY &&
-                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
+                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+                geopm_signal_handler_check();
+            }
             if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
                 is_all_done = true;
                 for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
@@ -684,7 +703,9 @@ namespace geopm
             m_ctl_msg->ctl_status = GEOPM_STATUS_READY;
 
             while (m_ctl_msg->app_status != GEOPM_STATUS_READY &&
-                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
+                   m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+                geopm_signal_handler_check();
+            }
 
             if (!is_all_done && m_ctl_msg->app_status == GEOPM_STATUS_SHUTDOWN) {
                 throw Exception("ProfileSampler::report(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -694,7 +715,9 @@ namespace geopm
         m_rank_sampler.front()->profile_name(m_profile_name);
         m_do_report = true;
 
-        while (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {}
+        while (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
+            geopm_signal_handler_check();
+        }
     }
 
     void ProfileSampler::name_set(std::set<std::string> &region_name)
