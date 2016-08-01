@@ -238,6 +238,7 @@ namespace geopm
             /// values for feature_name are: "instr", "flop" and
             /// "joules".
             void disable(const std::string feature_name);
+            void shutdown(void);
         protected:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,

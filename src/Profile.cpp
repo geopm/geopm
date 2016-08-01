@@ -40,6 +40,7 @@
 #include <unistd.h>
 #include <hwloc.h>
 #include <iostream>
+#include <errno.h>
 
 #include "geopm.h"
 #include "geopm_sched.h"
@@ -53,11 +54,16 @@
 #include "LockingHashTable.hpp"
 #include "config.h"
 
-static geopm::Profile *g_default_prof = NULL;
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
     return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
+}
+
+static geopm::Profile &geopm_default_prof(void)
+{
+    static geopm::Profile default_prof(std::string(program_invocation_name), MPI_COMM_WORLD);
+    return default_prof;
 }
 
 extern "C"
@@ -65,50 +71,11 @@ extern "C"
     // defined in geopm_pmpi.c and used only here
     void geopm_pmpi_prof_enable(int do_profile);
 
-    // Called only in geopm_pmpi.c in wrapper for MPI_Init()
-    int geopm_prof_create(const char *name, MPI_Comm comm)
-    {
-        int err = 0;
-        try {
-            /*! @todo Code below is not thread safe, we need a singleton! */
-            if (g_default_prof == NULL) {
-                g_default_prof = new geopm::Profile(std::string(name), comm);
-            }
-            else {
-                throw geopm::Exception("geopm_prof_create(): can be called only once",
-                                       GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    // Called only in geopm_pmpi.c in wrapper for MPI_Finalize()
-    int geopm_prof_destroy(void)
-    {
-        int err = 0;
-        try {
-            if (g_default_prof == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            delete g_default_prof;
-            g_default_prof = NULL;
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
     int geopm_prof_region(const char *region_name, long policy_hint, uint64_t *region_id)
     {
         int err = 0;
         try {
-            if (g_default_prof) {
-                *region_id = g_default_prof->region(std::string(region_name), policy_hint);
-            }
+            *region_id = geopm_default_prof().region(std::string(region_name), policy_hint);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -120,9 +87,7 @@ extern "C"
     {
         int err = 0;
         try {
-            if (g_default_prof) {
-                g_default_prof->enter(region_id);
-            }
+            geopm_default_prof().enter(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -135,9 +100,7 @@ extern "C"
     {
         int err = 0;
         try {
-            if (g_default_prof) {
-                g_default_prof->exit(region_id);
-            }
+            geopm_default_prof().exit(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -150,9 +113,7 @@ extern "C"
     {
         int err = 0;
         try {
-            if (g_default_prof) {
-                g_default_prof->progress(region_id, fraction);
-            }
+            geopm_default_prof().progress(region_id, fraction);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -165,9 +126,7 @@ extern "C"
     {
         int err = 0;
         try {
-            if (g_default_prof) {
-                g_default_prof->outer_sync();
-            }
+            geopm_default_prof().outer_sync();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -180,16 +139,25 @@ extern "C"
     {
         int err = 0;
         try {
-            if (!g_default_prof) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            g_default_prof->disable(std::string(feature_name));
+            geopm_default_prof().disable(std::string(feature_name));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
 
+    }
+
+    int geopm_prof_shutdown(void)
+    {
+        int err = 0;
+        try {
+            geopm_default_prof().shutdown();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
     }
 
     int geopm_tprof_create(int num_thread, size_t num_iter, size_t chunk_size, struct geopm_tprof_c **tprof)
@@ -224,13 +192,11 @@ extern "C"
     {
         int err = 0;
         try {
-            if (g_default_prof) {
-                geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
-                if (tprof_obj == NULL) {
-                    throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-                }
-                tprof_obj->increment(*g_default_prof, region_id, thread_idx);
+            geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
+            if (tprof_obj == NULL) {
+                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
             }
+            tprof_obj->increment(geopm_default_prof(), region_id, thread_idx);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -351,20 +317,28 @@ namespace geopm
 
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_ACTIVE) {}
         geopm_pmpi_prof_enable(1);
-        outer_sync();
     }
 
     Profile::~Profile()
     {
-        if (m_is_enabled && !m_shm_rank) {
-            m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
-        }
-        if (geopm_env_report_verbosity()) {
-            print(geopm_env_report(), geopm_env_report_verbosity());
-        }
+        shutdown();
         delete m_table;
         delete m_table_shmem;
         delete m_ctl_shmem;
+    }
+
+    void Profile::shutdown(void)
+    {
+        if (m_is_enabled) {
+            outer_sync();
+            if (!m_shm_rank) {
+                m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
+            }
+            if (geopm_env_report_verbosity()) {
+                print(geopm_env_report(), geopm_env_report_verbosity());
+            }
+            m_is_enabled = false;
+        }
     }
 
     uint64_t Profile::region(const std::string region_name, long policy_hint)

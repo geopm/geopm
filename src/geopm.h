@@ -90,6 +90,8 @@ int geopm_prof_outer_sync(void);
 
 int geopm_prof_disable(const char *feature_name);
 
+int geopm_prof_shutdown(void);
+
 int geopm_tprof_create(int num_thread,
                        size_t num_iter,
                        size_t chunk_size,

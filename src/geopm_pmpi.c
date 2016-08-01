@@ -43,8 +43,6 @@
 #include "config.h"
 
 void geopm_pmpi_prof_mpi(int do_profile);
-int geopm_prof_create(const char *name, MPI_Comm comm);
-int geopm_prof_destroy(void);
 
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static int g_is_geopm_pmpi_prof_enabled = 0;
@@ -186,7 +184,7 @@ static int geopm_pmpi_init(const char *exec_name)
         }
     }
     if (!err) {
-        err = geopm_prof_create(exec_name, MPI_COMM_WORLD);
+        err = geopm_prof_outer_sync();
     }
 #ifdef GEOPM_DEBUG
     if (err) {
@@ -213,7 +211,7 @@ static int geopm_pmpi_finalize(void)
         err = geopm_ctl_destroy(g_ctl);
     }
     if (!err && !g_ctl) {
-        geopm_prof_destroy();
+        err = geopm_prof_shutdown();
     }
 
     PMPI_Barrier(MPI_COMM_WORLD);
