@@ -136,8 +136,7 @@ static int geopm_pmpi_init(const char *exec_name)
         }
         if (!err && is_ctl) {
             int ctl_rank;
-            PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
-
+            err = PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
             if (!err && !ctl_rank) {
                 err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
             }
