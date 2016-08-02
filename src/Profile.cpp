@@ -357,7 +357,8 @@ namespace geopm
         }
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
-            if (geopm_env_do_region_barrier()) {
+            if (region_id != GEOPM_REGION_ID_MPI &&
+                geopm_env_do_region_barrier()) {
                 PMPI_Barrier(m_shm_comm);
             }
             m_curr_region_id = region_id;
@@ -395,7 +396,8 @@ namespace geopm
         }
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
-            if (region_id != GEOPM_REGION_ID_MPI && geopm_env_do_region_barrier()) {
+            if (region_id != GEOPM_REGION_ID_MPI &&
+                geopm_env_do_region_barrier()) {
                 PMPI_Barrier(m_shm_comm);
             }
             m_progress = 1.0;
