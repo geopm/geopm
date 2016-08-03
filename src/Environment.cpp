@@ -55,7 +55,7 @@ namespace geopm
             int do_region_barrier(void) const;
             int do_trace(void) const;
             int do_ignore_affinity() const;
-            int do_profile_only() const;
+            int do_profile() const;
         private:
             const std::string m_report_env;
             const std::string m_policy_env;
@@ -67,7 +67,7 @@ namespace geopm
             const bool m_do_region_barrier;
             const bool m_do_trace;
             const bool m_do_ignore_affinity;
-            const bool m_do_profile_only;
+            bool m_do_profile;
     };
 
     static const Environment &environment(void)
@@ -87,14 +87,18 @@ namespace geopm
         , m_do_region_barrier(getenv("GEOPM_REGION_BARRIER") != NULL)
         , m_do_trace(getenv("GEOPM_TRACE") != NULL)
         , m_do_ignore_affinity(getenv("GEOPM_ERROR_AFFINITY_IGNORE") != NULL)
-        , m_do_profile_only(m_policy_env.empty())
+        , m_do_profile(m_report_env.length() ||
+                       m_trace_env.length() ||
+                       getenv("GEOPM_PROFILE") != NULL)
     {
         char *pmpi_ctl_env  = getenv("GEOPM_PMPI_CTL");
         if (pmpi_ctl_env && !strncmp(pmpi_ctl_env, "process", strlen("process") + 1))  {
             m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
+            m_do_profile = true;
         }
         else if (pmpi_ctl_env && !strncmp(pmpi_ctl_env, "pthread", strlen("pthread") + 1))  {
             m_pmpi_ctl = GEOPM_PMPI_CTL_PTHREAD;
+            m_do_profile = true;
         }
         else {
             m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
@@ -156,9 +160,9 @@ namespace geopm
         return m_do_ignore_affinity;
     }
 
-    int Environment::do_profile_only() const
+    int Environment::do_profile() const
     {
-        return m_do_profile_only;
+        return m_do_profile;
     }
 }
 
@@ -214,8 +218,8 @@ extern "C"
         return geopm::environment().do_ignore_affinity();
     }
 
-    int geopm_env_do_profile_only(void)
+    int geopm_env_do_profile(void)
     {
-        return geopm::environment().do_profile_only();
+        return geopm::environment().do_profile();
     }
 }

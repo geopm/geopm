@@ -198,6 +198,14 @@ will print a subset of the fields in the trace file called
     this feature may require the LD_DYNAMIC_WEAK variable as
     documented above.
 
+  * `GEOPM_PROFILE`:
+    If set, will enable geopm profiling.  Only required when running
+    the controller with the geopmctl application and no report or
+    trace is being generated.  If `GEOPM_REPORT`, or `GEOPM_TRACE` are
+    set then geopm profiling will be enabled.  Also if
+    `GEOPM_PMPI_CTL` is set to "process" or "pthread" geopm profiling
+    will be enabled.
+
   * `GEOPM_PLUGIN_PATH`:
     The search path for geopm plugins.  It is a colon-separated list
     of directories used by geopm to search for shared objects which

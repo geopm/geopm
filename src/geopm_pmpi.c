@@ -42,8 +42,6 @@
 #include "geopm_env.h"
 #include "config.h"
 
-void geopm_pmpi_prof_mpi(int do_profile);
-
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static int g_is_geopm_pmpi_prof_enabled = 0;
 static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
@@ -182,7 +180,7 @@ static int geopm_pmpi_init(const char *exec_name)
             }
         }
     }
-    if (!err) {
+    if (!err && geopm_env_do_profile()) {
         err = geopm_prof_outer_sync();
     }
 #ifdef GEOPM_DEBUG
@@ -209,7 +207,7 @@ static int geopm_pmpi_finalize(void)
     if (!err && g_ctl) {
         err = geopm_ctl_destroy(g_ctl);
     }
-    if (!err && !g_ctl) {
+    if (!err && !g_ctl && geopm_env_do_profile()) {
         err = geopm_prof_shutdown();
     }
 
