@@ -471,6 +471,7 @@ namespace geopm
         int level;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
+        std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
         size_t length;
         struct geopm_time_s loop_t1;
 
@@ -488,7 +489,10 @@ namespace geopm
                     // use .begin() because map has only one entry
                     auto it = m_region[level].begin();
                     (*it).second->insert(child_sample);
-                    m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]));
+                    if (m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]))) {
+                       m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER, m_last_policy_msg[level], child_policy_msg);
+                       m_tree_comm->send_policy(level - 1, child_policy_msg);
+                    }
                     (*it).second->sample_message(sample_msg);
                 }
                 catch (geopm::Exception ex) {
