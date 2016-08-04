@@ -132,6 +132,11 @@ namespace geopm
     {
         m_time_buffer.clear();
         m_domain_buffer.clear();
+        std::fill(m_min.begin(), m_min.end(), DBL_MAX);
+        std::fill(m_max.begin(), m_max.end(), -DBL_MAX);
+        std::fill(m_sum.begin(), m_sum.end(), 0.0);
+        std::fill(m_sum_squares.begin(), m_sum_squares.end(), 0.0);
+        std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
     }
 
     uint64_t Region::identifier(void) const
