@@ -35,7 +35,7 @@ geopmctl(1) -- geopm runtime mpi application
 
   * `geopmctl` [`--help`] [`--version`]:
     `-c` policy_config <br>
-    [`-s` sample_key] [`-r` report]
+    [`-s` sample_key]
 
 ## DESCRIPTION
     The geopmctl application runs concurrently with a computational MPI
