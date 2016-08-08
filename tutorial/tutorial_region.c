@@ -120,6 +120,9 @@ int tutorial_dgemm(double big_o, int do_report)
 
         dgemm(&transa, &transb, &M, &N, &K, &alpha,
               A, &LDA, B, &LDB, &beta, C, &LDC);
+        free(C);
+        free(B);
+        free(A);
     }
     return err;
 }
@@ -159,6 +162,9 @@ int tutorial_stream(double big_o_n, int do_report)
         for (int i = 0; i < num_stream; ++i) {
             a[i] = b[i] + scalar * c[i];
         }
+        free(c);
+        free(b);
+        free(a);
     }
     return err;
 }
@@ -191,6 +197,10 @@ int tutorial_all2all(double big_o_n, int do_report)
 
     if (!err) {
         err = MPI_Barrier(MPI_COMM_WORLD);
+    }
+    if (!err) {
+        free(recv_buffer);
+        free(send_buffer);
     }
     return err;
 }
