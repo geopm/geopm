@@ -37,4 +37,8 @@ if [ ! "$OMP_FLAGS" ]; then
     OMP_FLAGS="-qopenmp"
 fi
 
-make CFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_BLAS -D_GNU_SOURCE -std=c99" LDFLAGS="$GEOPM_LDFLAGS $OMP_FLAGS -lm -lrt -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -std=c++11"
+make \
+CC=icc CXX=icpc \
+CFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_BLAS -D_GNU_SOURCE -std=c99" \
+CXXFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_BLAS -D_GNU_SOURCE -std=c++11" \
+LDFLAGS="$GEOPM_LDFLAGS $OMP_FLAGS -lm -lrt -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core"

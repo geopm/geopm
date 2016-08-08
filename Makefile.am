@@ -133,7 +133,9 @@ EXTRA_DIST = .gitignore \
              geopm-tutorial.tar.gz \
              # end
 
-TUTORIAL_DIST = tutorial/Makefile \
+TUTORIAL_DIST = tutorial/Imbalancer.cpp \
+                tutorial/imbalancer.h \
+                tutorial/Makefile \
                 tutorial/README.md \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
@@ -144,12 +146,16 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_3.c \
                 tutorial/tutorial_3_policy.json \
                 tutorial/tutorial_3.sh \
+                tutorial/tutorial_4.c \
+                tutorial/tutorial_4_policy.json \
+                tutorial/tutorial_4.sh \
                 tutorial/tutorial_build_gnu.sh \
                 tutorial/tutorial_build_intel.sh \
                 tutorial/tutorial_env.sh \
                 tutorial/tutorial_region.c \
                 tutorial/tutorial_region.h \
                 # end
+
 
 # EXTEND FLAGS FOR MPI TARGETS
 if ENABLE_MPI

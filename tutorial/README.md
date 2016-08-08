@@ -105,3 +105,23 @@ is enabled through the GEOPM_POLICY environment variable which refers
 to a json formatted policy file.  This control is intended to
 synchronize the run time of each rank in the face of this load
 imbalance.
+
+4. Adding artificial imbalance to the application
+-------------------------------------------------
+Tutorial 4 enables artificial injection of imbalance and includes a
+loop that runs only the DGEMM region.  The imbalance is controlled by
+a file who's path is given by the IMBALANCER_CONFIG environment
+variable.  This file gives a list of hostnames and imbalance injection
+fraction.  An example file might be:
+
+    my-cluster-node3 0.25
+    my-cluster-node11 0.15
+
+which would inject 25% extra time on node with hostname
+"my-cluster-node3" and 15% extra time on node "my-cluster-node11" for
+each pass through the loop.  All nodes which have hostnames that are
+not included in the configuration file will perform normally.  The
+tutorial_4.sh script will create a configuration file called
+"tutorial_3_imbalance.conf" if one does not exist, and one of the
+nodes will have a 50% injection of imbalance.  The node is chosen
+arbitrarily by a race if the configuration file is not present.

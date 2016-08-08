@@ -128,6 +128,8 @@ test/SampleRegulatorTest.cpp
 test/RegionTest.cpp
 test/PolicyTest.cpp
 test/BalancingDeciderTest.cpp
+tutorial/Imbalancer.cpp
+tutorial/imbalancer.h
 tutorial/Makefile
 tutorial/tutorial_0.c
 tutorial/tutorial_0.sh
@@ -138,6 +140,8 @@ tutorial/tutorial_2.c
 tutorial/tutorial_2.sh
 tutorial/tutorial_3.c
 tutorial/tutorial_3.sh
+tutorial/tutorial_4.c
+tutorial/tutorial_4.sh
 tutorial/tutorial_build_intel.sh
 tutorial/tutorial_build_gnu.sh
 tutorial/tutorial_region.c

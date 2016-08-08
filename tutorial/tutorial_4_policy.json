@@ -1,0 +1,1 @@
+{ "mode": "static", "options": { "tree_decider": "static_policy", "leaf_decider": "static_policy", "platform": "rapl", "power_budget": 800 } }

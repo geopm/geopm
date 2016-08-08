@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 #  Copyright (c) 2015, 2016, Intel Corporation
 #
@@ -30,51 +31,18 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3 tutorial_4
+source tutorial_env.sh
 
-CC = gcc
-CXX = g++
-MPICC = mpicc
+# Create configuration file for Imbalancer.
+if [ ! -e tutorial_4_imbalance.conf ]; then
+    echo $(hostname) 0.50 > tutorial_4_imbalance.conf
+fi
 
-all: $(TUTORIAL_BIN)
-
-tutorial_0.o: tutorial_0.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
-
-tutorial_0: tutorial_0.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
-
-tutorial_1.o: tutorial_1.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
-
-tutorial_1: tutorial_1.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
-
-tutorial_2.o: tutorial_2.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
-
-tutorial_2: tutorial_2.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
-
-tutorial_3.o: tutorial_3.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
-
-tutorial_3: tutorial_3.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
-
-tutorial_4.o: tutorial_4.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
-
-tutorial_4: tutorial_4.o imbalancer.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
-
-tutorial_region.o: tutorial_region.c tutorial_region.h
-	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
-
-imbalancer.o: Imbalancer.cpp imbalancer.h
-	$(CXX) -c Imbalancer.cpp $(CXXFLAGS) -I../src -o $@
-
-clean:
-	rm -f $(TUTORIAL_BIN) *.o
-
-.PHONY: all clean
+IMBALANCER_CONFIG=tutorial_4_imbalance.conf \
+LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
+LD_DYNAMIC_WEAK=true \
+GEOPM_PMPI_CTL=process \
+GEOPM_REPORT=tutorial_4_report \
+GEOPM_TRACE=tutorial_4_trace \
+GEOPM_POLICY=tutorial_4_policy.json \
+./tutorial_4
