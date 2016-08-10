@@ -82,10 +82,10 @@ int main(int argc, char **argv)
 
     int num_iter = 128;
     double sleep_big_o = 0.1;
-    double stream0_big_o = 1024.0;
-    double dgemm_big_o = 8192.0 * (1.0 + 0.01 * rank);
-    double all2all_big_o = 1024.0;
-    double stream1_big_o = 1024.0;
+    double stream0_big_o = 16384.0;
+    double dgemm_big_o = 67108864.0 * (1.0 + 0.01 * rank);
+    double all2all_big_o = 16384.0;
+    double stream1_big_o = 16384.0;
 
     if (!rank) {
         printf("Beginning loop of %d iterations.\n", num_iter);
