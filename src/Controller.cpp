@@ -486,6 +486,7 @@ namespace geopm
 
         do {
             geopm_time(&loop_t1);
+            geopm_signal_handler_check();
         }
         while (geopm_time_diff(&m_loop_t0, &loop_t1) < m_rate_limit);
         m_loop_t0 = loop_t1;
