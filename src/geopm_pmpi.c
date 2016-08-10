@@ -198,17 +198,19 @@ static int geopm_pmpi_finalize(void)
     int err = 0;
     int tmp_err = 0;
 
+    if (!err && geopm_env_do_profile() &&
+        (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD)) {
+        err = geopm_prof_shutdown();
+    }
+
     if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
         void *return_val;
         err = pthread_join(g_ctl_thread, &return_val);
-        err = err ? err : *((int *)return_val);
+        err = err ? err : ((size_t)return_val);
     }
 
     if (!err && g_ctl) {
         err = geopm_ctl_destroy(g_ctl);
-    }
-    if (!err && !g_ctl && geopm_env_do_profile()) {
-        err = geopm_prof_shutdown();
     }
 
     PMPI_Barrier(MPI_COMM_WORLD);

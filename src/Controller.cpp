@@ -431,8 +431,6 @@ namespace geopm
 
     void Controller::pthread(const pthread_attr_t *attr, pthread_t *thread)
     {
-        throw Exception("Controller::pthread(): implementation can seg fault, use Controller::run(), geopm_ctl_run() or \"export GEOPM_PMPI_CTL=process\" instead.",
-                        GEOPM_ERROR_NOT_TESTED, __FILE__, __LINE__);
         if (!m_is_node_root) {
             return;
         }
