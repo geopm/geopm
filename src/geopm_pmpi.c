@@ -206,7 +206,7 @@ static int geopm_pmpi_finalize(void)
     if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
         void *return_val;
         err = pthread_join(g_ctl_thread, &return_val);
-        err = err ? err : ((size_t)return_val);
+        err = err ? err : ((long)return_val);
     }
 
     if (!err && g_ctl) {
