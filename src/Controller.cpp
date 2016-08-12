@@ -179,8 +179,7 @@ namespace geopm
         , m_sample_regulator(NULL)
         , m_tracer(NULL)
         , m_region_id_all(0)
-        , m_ctl_status(GEOPM_STATUS_UNDEFINED)
-        , m_do_teardown(false)
+        , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rate_limit(0.0)
         , m_is_in_outer(false)
@@ -307,7 +306,6 @@ namespace geopm
                     m_max_fanout = m_tree_comm->level_size(level);
                 }
             }
-            m_ctl_status = GEOPM_STATUS_INITIALIZED;
 
             // Synchronize the ranks so time zero is uniform.
             MPI_Barrier(ppn1_comm);
@@ -322,10 +320,7 @@ namespace geopm
             return;
         }
 
-        m_do_teardown = true;
-        while (m_ctl_status != GEOPM_STATUS_SHUTDOWN) {
-            geopm_signal_handler_check();
-        }
+        m_do_shutdown = true;
 
         delete m_tracer;
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
@@ -359,7 +354,6 @@ namespace geopm
             m_sampler->cpu_rank(cpu_rank);
             m_platform->init_transform(cpu_rank);
             m_sample_regulator = new SampleRegulator(cpu_rank);
-            m_ctl_status = GEOPM_STATUS_ACTIVE;
             m_is_connected = true;
         }
     }
@@ -397,15 +391,11 @@ namespace geopm
         }
         while (err);
 
-        while (1) {
+        while (!m_do_shutdown) {
+            walk_down();
             geopm_signal_handler_check();
-            if (walk_down()) {
-                break;
-            }
+            walk_up();
             geopm_signal_handler_check();
-            if (walk_up()) {
-                break;
-            }
         }
         geopm_signal_handler_check();
 
@@ -420,11 +410,12 @@ namespace geopm
 
         connect();
 
-        int err = walk_down();
-        if (!err) {
-            err = walk_up();
-        }
-        if (err) {
+        walk_down();
+        geopm_signal_handler_check();
+        walk_up();
+        geopm_signal_handler_check();
+
+        if (m_do_shutdown) {
             throw Exception("Controller::step(): Shutdown signaled", GEOPM_ERROR_SHUTDOWN, __FILE__, __LINE__);
         }
     }
@@ -441,10 +432,9 @@ namespace geopm
         }
     }
 
-    int Controller::walk_down(void)
+    void Controller::walk_down(void)
     {
         int level;
-        int do_shutdown = 0;
         struct geopm_policy_message_s policy_msg;
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
 
@@ -459,9 +449,8 @@ namespace geopm
             }
             m_tree_comm->get_policy(level - 1, policy_msg);
         }
-        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN || m_do_teardown == true) {
-            m_ctl_status = GEOPM_STATUS_SHUTDOWN;
-            do_shutdown = 1;
+        if (policy_msg.mode == GEOPM_POLICY_MODE_SHUTDOWN) {
+            m_do_shutdown = true;
         }
         else {
             // update the leaf level (0)
@@ -470,13 +459,11 @@ namespace geopm
                 m_tracer->update(policy_msg);
             }
         }
-        return do_shutdown;
     }
 
-    int Controller::walk_up(void)
+    void Controller::walk_up(void)
     {
         int level;
-        int do_shutdown = 0;
         struct geopm_sample_message_s sample_msg;
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         size_t length;
@@ -489,7 +476,7 @@ namespace geopm
         while (geopm_time_diff(&m_loop_t0, &loop_t1) < m_rate_limit);
         m_loop_t0 = loop_t1;
 
-        for (level = 0; level < m_tree_comm->num_level(); ++level) {
+        for (level = 0; !m_do_shutdown && level < m_tree_comm->num_level(); ++level) {
             if (level) {
                 try {
                     m_tree_comm->get_sample(level, child_sample);
@@ -610,7 +597,7 @@ namespace geopm
                     sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                 }
 
-                do_shutdown = m_sampler->do_shutdown();
+                m_do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
                 m_policy[level]->is_converged(m_region_id_all) &&
@@ -620,16 +607,9 @@ namespace geopm
                 m_last_sample_msg[level] = sample_msg;
             }
         }
-        if (m_do_teardown == true) {
-            do_shutdown = 1;
+        if (m_do_shutdown && m_sampler->do_report()) {
+            generate_report();
         }
-        if (do_shutdown) {
-            if (m_sampler->do_report()) {
-                generate_report();
-            }
-            m_ctl_status = GEOPM_STATUS_SHUTDOWN;
-        }
-        return do_shutdown;
     }
 
     void Controller::override_telemetry(double progress)

@@ -170,8 +170,8 @@ namespace geopm
             void check_signal(void);
             void connect(void);
             void enforce_child_policy(int level, const Policy &policy);
-            int walk_down(void);
-            int walk_up(void);
+            void walk_down(void);
+            void walk_up(void);
             void override_telemetry(double progress);
             void update_region(void);
             bool m_is_node_root;
@@ -197,8 +197,7 @@ namespace geopm
             std::vector<struct geopm_sample_message_s> m_last_sample_msg;
             std::vector<uint64_t> m_region_id;
             uint64_t m_region_id_all;
-            int m_ctl_status;
-            bool m_do_teardown;
+            bool m_do_shutdown;
             bool m_is_connected;
             double m_rate_limit;
             struct geopm_time_s m_loop_t0;
