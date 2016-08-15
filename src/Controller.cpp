@@ -435,6 +435,7 @@ namespace geopm
     void Controller::walk_down(void)
     {
         int level;
+        bool is_policy_updated;
         struct geopm_policy_message_s policy_msg;
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
 
@@ -455,8 +456,12 @@ namespace geopm
         else {
             // update the leaf level (0)
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
-                m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
+                is_policy_updated = m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
                 m_tracer->update(policy_msg);
+                if (is_policy_updated) {
+                    m_platform->enforce_policy(GEOPM_REGION_ID_OUTER, *(m_policy[level]));
+                }
+                m_last_policy_msg[level] = policy_msg;
             }
         }
     }
