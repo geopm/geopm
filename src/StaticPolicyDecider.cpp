@@ -61,11 +61,6 @@ namespace geopm
         return m_name;
     }
 
-    bool StaticPolicyDecider::update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy)
-    {
-        return false;
-    }
-
     bool StaticPolicyDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
         return false;
