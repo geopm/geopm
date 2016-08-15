@@ -63,6 +63,8 @@ namespace geopm
             virtual bool decider_supported(const std::string &descripton) = 0;
             /// @brief Return the name of the decider, virtual.
             virtual const std::string& name(void) const = 0;
+            /// @brief Save the last known power budget
+            double m_last_power_budget;
     };
 
 }

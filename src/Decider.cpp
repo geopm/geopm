@@ -39,6 +39,7 @@ namespace geopm
 {
 
     Decider::Decider()
+        : m_last_power_budget(DBL_MIN)
     {
 
     }
@@ -50,6 +51,18 @@ namespace geopm
 
     bool Decider::update_policy(const struct geopm_policy_message_s &policy, Policy &curr_policy)
     {
-        return false;
+        bool result = false;
+        if (policy.power_budget != m_last_power_budget) {
+            curr_policy.is_converged(GEOPM_REGION_ID_OUTER, false);
+            int num_domain = curr_policy.num_domain();
+            // Split the budget up evenly to start.
+            double split_budget = policy.power_budget / num_domain;
+            std::vector<double> domain_budget(num_domain);
+            std::fill(domain_budget.begin(), domain_budget.end(), split_budget);
+            curr_policy.update(GEOPM_REGION_ID_OUTER, domain_budget);
+            m_last_power_budget = policy.power_budget;
+            result = true;
+        }
+        return result;
     }
 }
