@@ -41,7 +41,7 @@
 !
         integer nx, ny, nz, maxdim, niter_default, ntdivnp, np_min
         parameter (nx=512, ny=512, nz=512, maxdim=512)
-        parameter (niter_default=500)
+        parameter (niter_default=200)
         parameter (np_min = 1)
         parameter (ntdivnp=((nx*ny)/np_min)*nz)
         double precision ntotal_f
