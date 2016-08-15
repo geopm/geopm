@@ -154,9 +154,6 @@ static int geopm_pmpi_init(const char *exec_name)
 
         int mpi_thread_level;
 
-        if (!strlen(geopm_env_policy())) {
-            err = GEOPM_ERROR_ENVIRONMENT;
-        }
         if (!err) {
             err = PMPI_Query_thread(&mpi_thread_level);
         }

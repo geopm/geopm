@@ -121,7 +121,7 @@ extern "C"
                 strncpy(msg, "<geopm> MPI ranks are not affitinized to distinct CPUs", size);
                 break;
             case GEOPM_ERROR_ENVIRONMENT:
-                strncpy(msg, "<geopm> Unset or invalid environement variable", size);
+                strncpy(msg, "<geopm> Unset or invalid environment variable", size);
                 break;
             default:
 #ifndef _GNU_SOURCE

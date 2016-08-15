@@ -124,7 +124,7 @@ The system error numbers are documented in the **errno(3)** man page.
     MPI ranks are not affitinized to distinct CPUs
 
   * `GEOPM_ERROR_ENVIRONMENT = -23`:
-    Unset or invalid environement variable
+    Unset or invalid environment variable
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
