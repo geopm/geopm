@@ -201,6 +201,10 @@ namespace geopm
     void PlatformImp::msr_write(int device_type, int device_index, off_t msr_offset, unsigned long msr_mask, uint64_t value)
     {
         uint64_t old_value;
+        uint64_t curr_value;
+
+        curr_value = msr_read(device_type, device_index, msr_offset);
+        curr_value &= ~msr_mask;
 
         if (device_type == GEOPM_DOMAIN_PACKAGE)
             device_index = (m_num_logical_cpu / m_num_package) * device_index;
@@ -219,6 +223,8 @@ namespace geopm
                 << " After mask = 0x" << std::hex << value;
             throw Exception(message.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
+
+        value |= curr_value;
 
         int rv = pwrite(m_cpu_file_desc[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
@@ -413,6 +419,8 @@ namespace geopm
     void PlatformImp::build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name)
     {
         uint64_t msr_val = msr_read(device_type, device_index, name);
+        unsigned long mask = msr_mask(name);
+        msr_val &= mask;
         save_file << device_type << ":" << device_index << ":" << msr_offset(name) << ":" << msr_mask(name) << ":" << msr_val << std::endl;
     }
 

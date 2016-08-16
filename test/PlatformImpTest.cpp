@@ -147,6 +147,9 @@ void TestPlatformImp::msr_path(int cpu)
     msrfile.open(m_msr_path, std::ios::out|std::ios::binary);
     ASSERT_TRUE(msrfile.is_open());
 
+    // This seek ensures that the values written to the temp file are written
+    // at the offset specified in the map.
+    msrfile.seekp(cpu*64);
     for (uint64_t i = 0; i < NUM_CPU; i++) {
         lval = i;
         msrfile.write((const char*)&hval, sizeof(hval));
@@ -256,7 +259,6 @@ TestPlatformImp2::TestPlatformImp2()
         "PERF_FIXED_CTR_CTRL",
         "PERF_GLOBAL_CTRL",
         "PERF_GLOBAL_OVF_CTRL",
-        "IA32_PERF_CTL"
     };
 
     m_msr_list = msr_list;
@@ -281,6 +283,13 @@ void TestPlatformImp2::msr_path(int cpu)
         msrfile.write((const char*)&lval, sizeof(lval));
         msrfile.write((const char*)&hval, sizeof(hval));
     }
+
+    // The IA32_PERF_CTL is used to prove the save/restore logic and preserving data that's outside
+    // the mask. It's not in m_msr_list for this specific reason, and must be handled seperatly.
+    msrfile.seekp(m_msr_list.size() * 64);
+    lval = 0xBEEFCAFE;
+    msrfile.write((const char*)&lval, sizeof(lval));
+    msrfile.write((const char*)&hval, sizeof(hval));
 
     msrfile.flush();
     msrfile.close();
@@ -355,7 +364,7 @@ static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_m
         {"PERF_FIXED_CTR_CTRL",  {192, 0xDFFFFFFFFFFFFFFF}},
         {"PERF_GLOBAL_CTRL",     {256, 0xDFFFFFFFFFFFFFFF}},
         {"PERF_GLOBAL_OVF_CTRL", {320, 0xDFFFFFFFFFFFFFFF}},
-        {"IA32_PERF_CTL",        {384, 0xDFFFFFFFFFFFFFFF}}});
+        {"IA32_PERF_CTL",        {384, 0x00000000FFFFFFFF}}});
     return msr_map;
 }
 
@@ -646,7 +655,9 @@ TEST_F(PlatformImpTest, negative_write_no_desc)
         thrown = e.err_value();
     }
 
-    EXPECT_TRUE((thrown == GEOPM_ERROR_MSR_WRITE));
+    // We expect the READ exception here since all writes will do a read for the current value
+    // before writing.
+    EXPECT_TRUE((thrown == GEOPM_ERROR_MSR_READ));
 }
 
 TEST_F(PlatformImpTest, negative_read_bad_desc)
@@ -814,15 +825,13 @@ TEST_F(PlatformImpTest2, msr_restore_modified_value)
         EXPECT_EQ(value, 0xDEADBEEF00000004);
         value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, i, "PERF_GLOBAL_OVF_CTRL");
         EXPECT_EQ(value, 0xDEADBEEF00000005);
-        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL");
-        EXPECT_EQ(value, 0xDEADBEEF00000006);
     }
 
     // Do something to twiddle random MSR values
     m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT", test_value_1);
     m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, 1, "DRAM_POWER_LIMIT", test_value_1);
     m_platform2->msr_write(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL", test_value_2);
-    m_platform2->msr_write(geopm::GEOPM_DOMAIN_CPU, 15, "IA32_PERF_CTL", test_value_2);
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_CPU, 15, "PERF_GLOBAL_OVF_CTRL", test_value_2);
 
     // Test that it has been modified compared to the default value
     value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
@@ -831,7 +840,7 @@ TEST_F(PlatformImpTest2, msr_restore_modified_value)
     EXPECT_EQ(value, test_value_1);
     value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL");
     EXPECT_EQ(value, test_value_2);
-    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "IA32_PERF_CTL");
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "PERF_GLOBAL_OVF_CTRL");
     EXPECT_EQ(value, test_value_2);
 
     m_platform2->revert_msr_state();
@@ -849,9 +858,35 @@ TEST_F(PlatformImpTest2, msr_restore_modified_value)
     EXPECT_EQ(value, 0xDEADBEEF00000002);
     value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL");
     EXPECT_EQ(value, 0xDEADBEEF00000003);
-    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "IA32_PERF_CTL");
-    EXPECT_EQ(value, 0xDEADBEEF00000006);
+    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "PERF_GLOBAL_OVF_CTRL");
+    EXPECT_EQ(value, 0xDEADBEEF00000005);
 
     delete m_platform3;
+}
+
+TEST_F(PlatformImpTest2, msr_restore_original)
+{
+    uint64_t value;
+
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "IA32_PERF_CTL");
+    EXPECT_EQ(value, 0xDEADBEEFBEEFCAFE);
+
+    // IA32_PERF_CTL mask is 0x00000000FFFFFFFF
+    // Writing 0 will only write it to the bits we are allowed to write to
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, 0, "IA32_PERF_CTL", 0);
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "IA32_PERF_CTL");
+    EXPECT_EQ(value, 0xDEADBEEF00000000);
+
+    // Writing 64-bits worth of 0's will not overwrite the top 32 bits because of the mask.  Since we
+    // read the current value before writing, the top 32 bits are preserved.  Note that no error occurs
+    // in this case.
+    m_platform2->msr_write(geopm::GEOPM_DOMAIN_PACKAGE, 0, "IA32_PERF_CTL", 0x0000000000000000);
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "IA32_PERF_CTL");
+    EXPECT_EQ(value, 0xDEADBEEF00000000);
+
+    m_platform2->revert_msr_state();
+
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "IA32_PERF_CTL");
+    EXPECT_EQ(value, 0xDEADBEEFBEEFCAFE);
 }
 
