@@ -58,6 +58,8 @@ namespace geopm
             Region(uint64_t identifier, int hint, int num_domain, int level);
             /// @brief Default destructor.
             virtual ~Region();
+            /// @brief Record an entry into the region.
+            void entry(void);
             /// @brief Insert signal data into internal buffers
             ///
             /// Inserts hw telemetry and per-domain application data into the
@@ -221,7 +223,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
-            void report(std::ofstream &file_stream, const std::string &name) const;
+            void report(std::ofstream &file_stream, const std::string &name, int rank_per_node) const;
         protected:
             /// @brief Bound testing of input parameters.
             ///

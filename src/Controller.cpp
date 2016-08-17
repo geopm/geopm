@@ -183,6 +183,7 @@ namespace geopm
         , m_is_connected(false)
         , m_rate_limit(0.0)
         , m_is_in_outer(false)
+        , m_rank_per_node(0)
     {
         MPI_Comm ppn1_comm;
         int err = 0;
@@ -364,7 +365,7 @@ namespace geopm
         }
 
         if (!m_is_connected) {
-            m_sampler->initialize();
+            m_sampler->initialize(m_rank_per_node);
             m_prof_sample.resize(m_sampler->capacity());
             std::vector<int> cpu_rank;
             m_sampler->cpu_rank(cpu_rank);
@@ -531,10 +532,27 @@ namespace geopm
                 }
 
                 std::vector<double> aligned_signal;
+                bool is_outer_found = false;
+                // Catch outer sync regions and region entries
+                for (auto sample_it = m_prof_sample.cbegin();
+                     sample_it != m_prof_sample.cbegin() + length;
+                     ++sample_it) {
+                    if ((*sample_it).second.progress == 0.0) {
+                        auto region_it = m_region[level].find((*sample_it).second.region_id);
+                        if (region_it == m_region[level].end()) {
+                            auto tmp_it = m_region[level].insert(
+                                          std::pair<uint64_t, Region *> ((*sample_it).second.region_id,
+                                          new Region((*sample_it).second.region_id,
+                                                     GEOPM_POLICY_HINT_UNKNOWN,
+                                                     m_platform->num_control_domain(),
+                                                     level)));
+                            region_it = tmp_it.first;
+                        }
+                        (*region_it).second->entry();
+                    }
 
-                // Catch outer sync regions
-                for (auto it = m_prof_sample.cbegin(); it != m_prof_sample.cbegin() + length; ++it) {
-                    if ((*it).second.region_id == GEOPM_REGION_ID_OUTER) {
+                    if (!is_outer_found &&
+                        (*sample_it).second.region_id == GEOPM_REGION_ID_OUTER) {
                         uint64_t region_id_all_tmp = m_region_id_all;
                         m_region_id_all = GEOPM_REGION_ID_OUTER;
                         (*m_sample_regulator)(m_msr_sample[0].timestamp,
@@ -553,7 +571,7 @@ namespace geopm
                         update_region();
                         m_tracer->update(m_telemetry_sample);
                         m_region_id_all = region_id_all_tmp;
-                        break;
+                        is_outer_found = true;
                     }
                 }
 
@@ -741,7 +759,7 @@ namespace geopm
                     throw Exception("Controller::generate_report(): Invalid region", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
-            (*it).second->report(report, name);
+            (*it).second->report(report, name, m_rank_per_node);
         }
         report.close();
     }

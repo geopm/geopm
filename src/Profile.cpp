@@ -615,7 +615,7 @@ namespace geopm
         delete m_ctl_shmem;
     }
 
-    void ProfileSampler::initialize(void)
+    void ProfileSampler::initialize(int &rank_per_node)
     {
         std::string shm_key;
 
@@ -638,6 +638,7 @@ namespace geopm
             shm_key = m_ctl_shmem->key() + "-" + std::to_string(*it);
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
         }
+        rank_per_node = rank_set.size();
         m_ctl_msg->ctl_status = GEOPM_STATUS_MAP_END;
         while (m_ctl_msg->app_status != GEOPM_STATUS_SAMPLE_BEGIN) {
             geopm_signal_handler_check();
@@ -785,7 +786,6 @@ namespace geopm
     {
         m_table.dump(content_begin, length);
         std::sort(content_begin, content_begin + length, geopm_prof_compare);
-
     }
 
     bool ProfileRankSampler::name_fill(std::set<std::string> &name_set)

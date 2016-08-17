@@ -476,7 +476,10 @@ namespace geopm
             /// Coordinates with the application to initialize shared memory
             /// and create ProfileRankSamplers for each MPI application rank
             /// running on the local compute node.
-            void initialize(void);
+            ///
+            /// @param [out] rank_per_node number of mpi ranks
+            /// running on the node.
+            void initialize(int &rank_per_node);
             /// @brief Retrieve a vector to the affinities of all
             ///        application ranks.
             ///

@@ -75,6 +75,7 @@ int main(int argc, char** argv)
     int rank;
     int cpu_id;
     double timeout;
+    int rank_per_node = 0;
     geopm::PlatformImp *plat = NULL;
     geopm::ProfileSampler *sampler = NULL;;
     geopm_time_s start, stop;
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
         }
         plat->initialize();
         sampler = new geopm::ProfileSampler(4096);
-        sampler->initialize();
+        sampler->initialize(rank_per_node);
         sample.resize(sampler->capacity());
 
         while (!sampler->do_shutdown()) {

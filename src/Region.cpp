@@ -74,6 +74,11 @@ namespace geopm
 
     }
 
+    void Region::entry(void)
+    {
+        ++m_num_entry;
+    }
+
     void Region::insert(std::vector<struct geopm_telemetry_message_s> &telemetry)
     {
         if (telemetry.size()!= m_num_domain) {
@@ -105,7 +110,6 @@ namespace geopm
              ++domain_idx);
         if (domain_idx == m_num_domain) {
             // All domains have completed so do update
-            ++m_num_entry;
             update_curr_sample();
         }
     }
@@ -252,13 +256,19 @@ namespace geopm
         return 0.0;
     }
 
-    void Region::report(std::ofstream &file_stream, const std::string &name) const
+    void Region::report(std::ofstream &file_stream, const std::string &name, int num_rank_per_node) const
     {
         file_stream << "Region " + name + ":" << std::endl;
         file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
         file_stream << "\tfrequency (%): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] * 100 << std::endl;
-        file_stream << "\tcount: " << m_num_entry << std::endl;
+        if (m_identifier != GEOPM_REGION_ID_OUTER) {
+            file_stream << "\tcount: " << (double)m_num_entry / num_rank_per_node << std::endl;
+        }
+        else {
+            // Remove two counts: one for startup call and one for shutdown call
+            file_stream << "\tcount: " << m_num_entry - 2 << std::endl;
+        }
     }
 
     // Protected function definitions
