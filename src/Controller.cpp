@@ -451,7 +451,6 @@ namespace geopm
     void Controller::walk_down(void)
     {
         int level;
-        bool is_policy_updated;
         struct geopm_policy_message_s policy_msg;
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
 

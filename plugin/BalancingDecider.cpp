@@ -151,7 +151,6 @@ namespace geopm
             // We are not within bounds. Redistribute power.
             if (!curr_policy.is_converged(curr_region.identifier()) && (stddev > m_convergence_target)) {
                 m_num_converged = 0;
-                double lval;
                 double total = 0.0;
                 std::vector<double> percentage(num_domain);
                 std::sort(runtime.begin(), runtime.end(), pair_greater);
@@ -161,9 +160,6 @@ namespace geopm
                     curr_policy.target(GEOPM_REGION_ID_OUTER, (*iter).first, curr_target);
                     double last_percentage = curr_target / m_last_power_budget;
                     median = curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME);
-                    if (iter == runtime.begin()) {
-                        lval = (median * last_percentage) / sum;
-                    }
                     percentage[(*iter).first] = ((1.0 + median) * last_percentage) / sum;
                     total += percentage[(*iter).first];
                 }
