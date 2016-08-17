@@ -49,11 +49,13 @@ namespace geopm
             RAPLPlatform();
             /// @brief Default destructor
             virtual ~RAPLPlatform();
+            virtual int control_domain(void);
             virtual void set_implementation(PlatformImp* platform_imp);
             virtual bool model_supported(int platform_id, const std::string &description) const;
             virtual size_t capacity(void);
             virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values);
             virtual void enforce_policy(uint64_t region_id, Policy &policy) const;
+            virtual void bound(double &upper_bound, double &lower_bound);
         protected:
             /// @brief structure to hold buffer indicies for platform signals.
             struct m_buffer_index_s {

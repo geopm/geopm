@@ -34,6 +34,8 @@
 
 class MockPlatform : public geopm::Platform {
     public:
+        MOCK_METHOD0(control_domain,
+            int(void));
         MOCK_METHOD0(capacity,
             size_t(void));
         MOCK_METHOD1(sample,
@@ -42,4 +44,6 @@ class MockPlatform : public geopm::Platform {
             bool(int platform_id, const std::string &description));
         MOCK_CONST_METHOD2(enforce_policy,
             void(uint64_t region_id, geopm::Policy &policy));
+        MOCK_METHOD2(bound,
+            void(double &upper_bound, double &lower_bound));
 };

@@ -75,7 +75,7 @@ void BalancingDeciderTest::SetUp()
     for (int sample_idx = 0; sample_idx < 8; ++sample_idx) {
         sample[sample_idx].region_id = 42;
     }
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < GEOPM_NUM_SAMPLE_TYPE; j++) {
             for (int k = 0; k < 8; ++k) {
                 sample[k].signal[j] = (double)(i + 1 + k);
@@ -152,8 +152,8 @@ TEST_F(BalancingDeciderTest, update_policy)
     }
     m_balancer->update_policy(*m_region, *m_policy);
     m_policy->target(GEOPM_REGION_ID_OUTER, tgt);
-    double expect = 53.333333333333336;
+    double expect = 63.15789473684211;
     for (int dom = 0; dom < m_num_domain; ++dom) {
-        EXPECT_DOUBLE_EQ(expect + (dom * 13.333333333333336), tgt[dom]);
+        EXPECT_NEAR(expect + (dom * 10.52631578947367), tgt[dom], 1E-9);
     }
 }

@@ -106,6 +106,27 @@ namespace geopm
         return GEOPM_DOMAIN_TILE;
     }
 
+    void KNLPlatformImp::bound(int control_type, double &upper_bound, double &lower_bound)
+    {
+        switch (control_type) {
+            case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+                upper_bound = m_max_pkg_watts;
+                lower_bound = m_min_pkg_watts;
+                break;
+            case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
+                upper_bound = m_max_dram_watts;
+                lower_bound = m_min_dram_watts;
+                break;
+            case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+                throw Exception("KNLPlatformImp::bound(GEOPM_TELEMETRY_TYPE_FREQUENCY)", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                break;
+            default:
+                throw geopm::Exception("KNLPlatformImp::bound(): Invalid control type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
+
+    }
+
     double KNLPlatformImp::read_signal(int device_type, int device_index, int signal_type)
     {
         double value = 0.0;
@@ -433,6 +454,7 @@ namespace geopm
 
         //Make sure bounds are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
+        m_tdp_pkg_watts = ((double)(tmp & 0x7fff)) / m_power_units;
         m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
 

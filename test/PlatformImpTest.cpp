@@ -68,6 +68,7 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual double read_signal(int device_type, int device_index, int signal_type);
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
+        virtual void bound(int control_type, double &upper_bound, double &lower_bound);
 
     protected:
         FRIEND_TEST(PlatformImpTest, parse_topology);
@@ -174,6 +175,12 @@ void TestPlatformImp::write_control(int device_type, int device_index, int signa
 
 }
 
+void TestPlatformImp::bound(int control_type, double &upper_bound, double &lower_bound)
+{
+    upper_bound = DBL_MAX;
+    lower_bound = DBL_MIN;
+}
+
 class TestPlatformImp2 : public geopm::PlatformImp
 {
     public:
@@ -225,6 +232,11 @@ class TestPlatformImp2 : public geopm::PlatformImp
 
         }
         virtual std::string platform_name();
+        virtual void bound(int control_type, double &upper_bound, double &lower_bound)
+        {
+            upper_bound = DBL_MAX;
+            lower_bound = DBL_MIN;
+        }
         std::vector<std::string> m_msr_list;
 };
 
@@ -293,6 +305,11 @@ class TestPlatformImp3 : public TestPlatformImp2
         }
         virtual void msr_path(int cpu);
         virtual std::string platform_name();
+        virtual void bound(int control_type, double &upper_bound, double &lower_bound)
+        {
+            upper_bound = DBL_MAX;
+            lower_bound = DBL_MIN;
+        }
 };
 
 std::string TestPlatformImp3::platform_name()
@@ -391,6 +408,11 @@ class TestPlatformImp4 : public geopm::PlatformImp
         virtual void write_control(int device_type, int device_index, int signal_type, double value)
         {
             ;
+        }
+        virtual void bound(int control_type, double &upper_bound, double &lower_bound)
+        {
+            upper_bound = DBL_MAX;
+            lower_bound = DBL_MIN;
         }
         virtual std::string platform_name();
     protected:

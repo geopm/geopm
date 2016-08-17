@@ -239,17 +239,11 @@ namespace geopm
     void Platform::tdp_limit(int percentage) const
     {
         //Get the TDP for each socket and set its power limit to match
-        double tdp = 0.0;
-        double power_units = pow(2, (double)((m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT") >> 0) & 0xF));
         int packages = m_imp->num_package();
-        int64_t pkg_lim, pkg_magic;
-
-        for (int i = 0; i <  packages; i++) {
-            tdp = ((double)(m_imp->msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO") & 0x3fff)) / power_units;
-            tdp *= ((double)percentage * 0.01);
-            pkg_lim = (int64_t)(tdp * tdp);
-            pkg_magic = pkg_lim | (pkg_lim << 32) | PKG_POWER_LIMIT_MASK_MAGIC;
-            m_imp->msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", pkg_magic);
+        double tdp = m_imp->package_tdp();
+        uint64_t pkg_lim = (uint64_t)(tdp * ((double)percentage * 0.01));
+        for (int i = 0; i < packages; i++) {
+            m_imp->write_control(m_imp->power_control_domain(), i,  GEOPM_TELEMETRY_TYPE_PKG_ENERGY, pkg_lim);
         }
     }
 

@@ -61,8 +61,8 @@ namespace geopm
         , m_guard_band(0.05)
         , m_min_num_converged(5)
         , m_last_power_budget(DBL_MIN)
+        , m_num_sample(5)
     {
-
     }
 
     GoverningDecider::~GoverningDecider()
@@ -118,50 +118,55 @@ namespace geopm
 
     bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
-        const int num_domain = curr_policy.num_domain();
-        const uint64_t region_id = curr_region.identifier();
         bool is_updated = false;
         bool is_greater = false;
         bool is_less = false;
 
-        std::vector<double> limit(num_domain);
-        std::vector<double> target(num_domain);
-        curr_policy.target(GEOPM_REGION_ID_OUTER, limit);
-        curr_policy.target(region_id, target);
-        for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-            double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
-            double dram_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
-            double total_power = pkg_power + dram_power;
-            is_greater = total_power > limit[domain_idx] * (1 + m_guard_band);
-            is_less = total_power < limit[domain_idx] * (1 - m_guard_band);
-            if (is_greater || is_less) {
-                target[domain_idx] = limit[domain_idx] - dram_power;
-                is_updated = true;
+        if (curr_region.num_sample(0, GEOPM_SAMPLE_TYPE_RUNTIME) > m_num_sample) {
+            const int num_domain = curr_policy.num_domain();
+            const uint64_t region_id = curr_region.identifier();
+
+            std::vector<double> limit(num_domain);
+            std::vector<double> target(num_domain);
+            curr_policy.target(GEOPM_REGION_ID_OUTER, limit);
+            curr_policy.target(region_id, target);
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
+                double dram_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
+                double total_power = pkg_power + dram_power;
+                is_greater = total_power > limit[domain_idx] * (1 + m_guard_band);
+                is_less = total_power < limit[domain_idx] * (1 - m_guard_band);
+                if (is_greater || is_less) {
+                    target[domain_idx] = limit[domain_idx] - dram_power;
+                    is_updated = true;
+                }
             }
-        }
-        if (is_updated) {
-            curr_policy.update(region_id, target);
-            if (is_greater) {
+            if (is_updated) {
+                curr_policy.update(region_id, target);
+                if (is_greater) {
+                    auto it = m_num_converged.lower_bound(region_id);
+                    if (it != m_num_converged.end() && (*it).first == region_id) {
+                        (*it).second = 0;
+                    }
+                    else {
+                        it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
+                    }
+                    curr_policy.is_converged(region_id, false);
+                    curr_region.clear();
+                    m_num_sample = 0;
+                }
+            }
+            if (!is_updated || is_less) {
                 auto it = m_num_converged.lower_bound(region_id);
                 if (it != m_num_converged.end() && (*it).first == region_id) {
-                    (*it).second = 0;
+                    ++(*it).second;
                 }
                 else {
-                    it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
+                    it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
                 }
-                curr_policy.is_converged(region_id, false);
-            }
-        }
-        else {
-            auto it = m_num_converged.lower_bound(region_id);
-            if (it != m_num_converged.end() && (*it).first == region_id) {
-                ++(*it).second;
-            }
-            else {
-                it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
-            }
-            if ((*it).second >= m_min_num_converged) {
-                curr_policy.is_converged(region_id, true);
+                if ((*it).second >= m_min_num_converged) {
+                    curr_policy.is_converged(region_id, true);
+                }
             }
         }
         return is_updated;

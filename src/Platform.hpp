@@ -90,6 +90,8 @@ namespace geopm
             void write_msr_whitelist(FILE *file_desc) const;
             /// @brief Revert the MSR values to their initial state.
             void revert_msr_state(void) const;
+            /// @brief Return the domain of control;
+            virtual int control_domain(void) = 0;
             /// @brief Number of MSR values returned from sample().
             virtual size_t capacity(void) = 0;
             /// @brief Record telemetry from counters and RAPL MSRs.
@@ -110,6 +112,16 @@ namespace geopm
             /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.
             virtual void enforce_policy(uint64_t region_id, Policy &policy) const = 0;
+            /// @brief Return the upper and lower bounds of the control.
+            ///
+            /// For a RAPL platform this would be the package power limit,
+            /// for a frequency platform tis would be the p-state bounds.
+            ///
+            /// @param [out] upper_bound The upper control bound.
+            ///
+            /// @param [out] lower_bound The lower control bound.
+            ///
+            virtual void bound(double &upper_bound, double &lower_bound) = 0;
             /// @brief Retrieve the topology of the current platform.
             /// @return PlatformTopology object containing the current
             ///         topology information.

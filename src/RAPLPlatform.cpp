@@ -55,6 +55,11 @@ namespace geopm
 
     }
 
+    int RAPLPlatform::control_domain()
+    {
+        return GEOPM_CONTROL_DOMAIN_POWER;
+    }
+
     bool RAPLPlatform::model_supported(int platform_id, const std::string &description) const
     {
         return ((platform_id == M_IVT_ID ||
@@ -132,6 +137,19 @@ namespace geopm
     size_t RAPLPlatform::capacity(void)
     {
         return m_imp->num_domain(m_imp->power_control_domain()) * (m_imp->num_energy_signal() + m_imp->num_counter_signal());
+    }
+
+    void RAPLPlatform::bound(double &upper_bound, double &lower_bound)
+    {
+        double min_pkg;
+        double max_pkg;
+        double min_dram;
+        double max_dram;
+
+        m_imp->bound(GEOPM_TELEMETRY_TYPE_PKG_ENERGY, max_pkg, min_pkg);
+        m_imp->bound(GEOPM_TELEMETRY_TYPE_DRAM_ENERGY, max_dram, min_dram);
+        upper_bound = max_pkg + max_dram;
+        lower_bound = min_pkg + min_dram;
     }
 
     void RAPLPlatform::sample(std::vector<struct geopm_msr_message_s> &msr_values)

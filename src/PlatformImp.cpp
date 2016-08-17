@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
+#include <float.h>
 #include <sys/stat.h>
 
 #include <sstream>
@@ -60,6 +61,7 @@ namespace geopm
         , m_num_package(0)
         , m_num_core_per_tile(0)
         , m_control_latency_ms(10.0)
+        , m_tdp_pkg_watts(DBL_MIN)
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
@@ -79,6 +81,7 @@ namespace geopm
         , m_num_energy_signal(num_energy_signal)
         , m_num_counter_signal(num_counter_signal)
         , m_control_latency_ms(control_latency)
+        , m_tdp_pkg_watts(DBL_MIN)
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
@@ -148,6 +151,11 @@ namespace geopm
     int PlatformImp::num_counter_signal(void) const
     {
         return m_num_counter_signal;
+    }
+
+    double PlatformImp::package_tdp(void) const
+    {
+        return m_tdp_pkg_watts;
     }
 
     int PlatformImp::num_domain(int domain_type)

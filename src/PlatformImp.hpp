@@ -115,6 +115,8 @@ namespace geopm
             virtual int num_counter_signal(void) const;
             virtual int num_domain(int domain_type);
             virtual double control_latency_ms(void) const;
+            /// @brief Return the TDP of a single package.
+            double package_tdp(void) const;
             /// @brief Retrieve the topology tree for the platform.
             /// @return PlatformTopology object holding the
             ///         current platform topology.
@@ -207,6 +209,18 @@ namespace geopm
             virtual int frequency_control_domain(void) const = 0;
             /// @brief Retrieve the domain for performance counter collection.
             virtual int performance_counter_domain(void) const = 0;
+            /// @brief Return the upper and lower bounds of the control.
+            ///
+            /// For a RAPL platform this would be the package power limit,
+            /// for a frequency platform tis would be the p-state bounds.
+            ///
+            /// @param [in] control_type The control to get the bounds for.
+            ///
+            /// @param [out] upper_bound The upper control bound.
+            ///
+            /// @param [out] lower_bound The lower control bound.
+            ///
+            virtual void bound(int control_type, double &upper_bound, double &lower_bound) = 0;
 
         protected:
 
@@ -305,6 +319,8 @@ namespace geopm
             /// @brief The number of signals per CPU.
             int m_num_counter_signal;
             double m_control_latency_ms;
+            /// @brief TDP value for package (CPU) power read from RAPL.
+            double m_tdp_pkg_watts;
             /// @brief The last values read from all counters.
             std::vector<double> m_msr_value_last;
             /// @brief The current aggregated overflow for all the counters.

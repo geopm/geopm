@@ -62,6 +62,8 @@ class DumbPlatform : public Platform
         virtual void sample(std::vector<struct geopm_msr_message_s> &msr_msg);
         virtual bool model_supported(int platfrom_id, const std::string &description) const;
         virtual void enforce_policy(uint64_t region_id, Policy &policy) const;
+        virtual int control_domain(void);
+        virtual void bound(double &upper_bound, double &lower_bound);
     protected:
         const std::string m_name;
 };
@@ -80,6 +82,7 @@ class ShmemFreqPlatformImp : public PlatformImp
         virtual double read_signal(int device_type, int device_idx, int signal_type);
         virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed); 
         virtual void write_control(int device_type, int device_idx, int signal_type, double value);
+        virtual void bound(int control_type, double &upper_bound, double &lower_bound);
     protected:
         virtual void msr_initialize(void);
         virtual double cpu_freq(int cpu_idx);

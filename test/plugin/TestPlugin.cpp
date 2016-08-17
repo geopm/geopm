@@ -128,6 +128,17 @@ void DumbPlatform::enforce_policy(uint64_t region_id, Policy &policy) const
 
 }
 
+int DumbPlatform::control_domain(void)
+{
+    return GEOPM_CONTROL_DOMAIN_POWER;
+}
+
+void DumbPlatform::bound(double &upper_bound, double &lower_bound)
+{
+    upper_bound = DBL_MAX;
+    lower_bound = DBL_MIN;
+}
+
 ShmemFreqPlatformImp::ShmemFreqPlatformImp()
     : m_name("shmem_freq")
     , m_cpu_freq_shmem_key("/geopm_test_platform_shmem_freq")
@@ -236,3 +247,10 @@ void ShmemFreqPlatformImp::write_control(int device_type, int device_idx, int si
     }
     cpu_freq(device_idx, value);
 }
+
+void ShmemFreqPlatformImp::bound(int control_type, double &upper_bound, double &lower_bound)
+{
+    upper_bound = 4000.0 ;
+    lower_bound = 2500.0;
+}
+

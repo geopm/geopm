@@ -54,6 +54,7 @@ namespace geopm
             /// @brief BalancinDecider destructor, virtual.
             virtual ~BalancingDecider();
             virtual Decider *clone(void) const;
+            virtual void bound(double upper_bound, double lower_bound);
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
             virtual bool update_policy(Region &curr_region, Policy &curr_policy);
             virtual bool decider_supported(const std::string &descripton);
@@ -65,6 +66,8 @@ namespace geopm
             unsigned m_num_converged;
             double m_last_power_budget;
             int m_num_sample;
+            int m_num_out_of_range;
+            const double M_GUARD_BAND;
     };
 }
 

@@ -40,6 +40,8 @@ namespace geopm
 
     Decider::Decider()
         : m_last_power_budget(DBL_MIN)
+        , m_upper_bound(DBL_MAX)
+        , m_lower_bound(DBL_MIN)
     {
 
     }
@@ -47,6 +49,12 @@ namespace geopm
     Decider::~Decider()
     {
 
+    }
+
+    void Decider::bound(double upper_bound, double lower_bound)
+    {
+        m_upper_bound = upper_bound;
+        m_lower_bound = lower_bound;
     }
 
     bool Decider::update_policy(const struct geopm_policy_message_s &policy, Policy &curr_policy)

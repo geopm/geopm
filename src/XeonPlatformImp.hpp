@@ -79,6 +79,8 @@ namespace geopm
             virtual void cbo_counters_reset(void);
             /// @brief Reset free running counters to default state.
             virtual void fixed_counters_reset(void);
+            /// @brief Return the upper and lower bounds of the control.
+            virtual void bound(int control_type, double &upper_bound, double &lower_bound);
 
             /// @brief Store the units of energy read from RAPL.
             double m_energy_units;

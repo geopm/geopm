@@ -269,6 +269,9 @@ namespace geopm
 
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform);
+            double upper_bound;
+            double lower_bound;
+            m_platform->bound(upper_bound, lower_bound);
             // convert rate limit from ms to seconds
             m_rate_limit = m_platform->control_latency_ms() * 1E-3;
             geopm_time(&m_loop_t0);
@@ -277,6 +280,7 @@ namespace geopm
 
             m_decider_factory = new DeciderFactory;
             m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
+            m_leaf_decider->bound(upper_bound, lower_bound);
 
             int num_domain;
             for (int level = 0; level < num_level; ++level) {
@@ -295,7 +299,19 @@ namespace geopm
                     num_domain = m_tree_comm->level_size(level - 1);
                 }
                 m_policy[level] = new Policy(num_domain);
+                if (m_platform->control_domain() == GEOPM_CONTROL_DOMAIN_POWER) {
+                    upper_bound *= m_platform->num_control_domain();
+                    lower_bound *= m_platform->num_control_domain();
+                    if (level > 1) {
+                        int i = level - 1;
+                        while (i >= 0) {
+                            upper_bound *= m_tree_comm->level_size(i);
+                            --i;
+                        }
+                    }
+                }
                 m_tree_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
+                m_tree_decider[level]->bound(upper_bound, lower_bound);
                 m_region[level].insert(std::pair<uint64_t, Region *>
                                        (GEOPM_REGION_ID_OUTER,
                                         new Region(GEOPM_REGION_ID_OUTER,
@@ -456,12 +472,7 @@ namespace geopm
         else {
             // update the leaf level (0)
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
-                is_policy_updated = m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
-                m_tracer->update(policy_msg);
-                if (is_policy_updated) {
-                    m_platform->enforce_policy(GEOPM_REGION_ID_OUTER, *(m_policy[level]));
-                }
-                m_last_policy_msg[level] = policy_msg;
+                m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
             }
         }
     }
