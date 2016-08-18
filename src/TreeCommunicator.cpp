@@ -507,11 +507,13 @@ namespace geopm
         : m_comm(comm)
         , m_sample_mpi_type(sample_mpi_type)
         , m_policy_mpi_type(policy_mpi_type)
+        , m_policy_request(MPI_REQUEST_NULL)
     {
         check_mpi(MPI_Comm_size(comm, &m_size));
         check_mpi(MPI_Comm_rank(comm, &m_rank));
         m_sample_mailbox.resize(m_size);
         m_sample_request.resize(m_size);
+        std::fill(m_sample_request.begin(), m_sample_request.end(), MPI_REQUEST_NULL);
         m_policy = GEOPM_POLICY_UNKNOWN;
         open_recv();
     }
@@ -568,6 +570,7 @@ namespace geopm
 
         // Don't check return code or hold onto request, drop message if receiver not ready
         (void) MPI_Irsend(const_cast<struct geopm_sample_message_s*>(&sample), 1, m_sample_mpi_type, 0, GEOPM_SAMPLE_TAG, m_comm, &request);
+        (void) MPI_Request_free(&request);
     }
 
     void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length)
@@ -582,6 +585,7 @@ namespace geopm
         for (auto policy_it = policy.begin(); dest != length; ++policy_it, ++dest) {
             // Don't check return code or hold onto request, drop message if receiver not ready
             (void) MPI_Irsend(const_cast<struct geopm_policy_message_s*>(&(*policy_it)), 1, m_policy_mpi_type, dest, GEOPM_POLICY_TAG, m_comm, &request);
+            (void) MPI_Request_free(&request);
         }
     }
 
@@ -606,10 +610,18 @@ namespace geopm
 
     void TreeCommunicatorLevel::close_recv(void)
     {
-        check_mpi(MPI_Cancel(&m_policy_request));
+        if (m_policy_request != MPI_REQUEST_NULL) {
+            check_mpi(MPI_Cancel(&m_policy_request));
+            check_mpi(MPI_Request_free(&m_policy_request));
+        }
         if (m_rank == 0) {
-            for (auto request_it = m_sample_request.begin(); request_it < m_sample_request.end(); ++request_it) {
-                check_mpi(MPI_Cancel(&(*request_it)));
+            for (auto request_it = m_sample_request.begin();
+                 request_it < m_sample_request.end();
+                 ++request_it) {
+                if (m_policy_request != MPI_REQUEST_NULL) {
+                    check_mpi(MPI_Cancel(&(*request_it)));
+                    check_mpi(MPI_Request_free(&(*request_it)));
+                }
             }
         }
     }
