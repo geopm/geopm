@@ -60,6 +60,7 @@ namespace geopm
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
         , m_num_entry(0)
     {
+        std::fill(m_domain_sample.begin(), m_domain_sample.end(), m_curr_sample);
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
         std::fill(m_max.begin(), m_max.end(), -DBL_MAX);
         std::fill(m_sum.begin(), m_sum.end(), 0.0);
@@ -261,14 +262,17 @@ namespace geopm
         file_stream << "Region " + name + ":" << std::endl;
         file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
-        file_stream << "\tfrequency (%): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] * 100 << std::endl;
-        if (m_identifier != GEOPM_REGION_ID_OUTER) {
-            file_stream << "\tcount: " << (double)m_num_entry / num_rank_per_node << std::endl;
-        }
-        else {
-            // Remove two counts: one for startup call and one for shutdown call
-            file_stream << "\tcount: " << m_num_entry - 2 << std::endl;
-        }
+        file_stream << "\tfrequency (%): " << (m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] ? 100 *
+                                               m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] /
+                                               m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] :
+                                               0.0) << std::endl;
+        // For outer-sync, remove two counts: one for startup call and
+        // one for shutdown call. For other regions normalize by
+        // number of ranks per node since each rank reports enry
+        // (unlike outer-sync which reports once per node).
+        file_stream << "\tcount: " << (m_identifier != GEOPM_REGION_ID_OUTER ?
+                                       (double)m_num_entry / num_rank_per_node :
+                                       m_num_entry - 2) << std::endl;
     }
 
     // Protected function definitions
@@ -332,11 +336,12 @@ namespace geopm
                  telemetry.signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]) -
                 (m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_PKG_ENERGY] +
                  m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_DRAM_ENERGY]);
-            m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY] =
-                (telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
-                 m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE]) /
-                (telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF] -
-                 m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF]);
+            m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] +=
+                telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE] -
+                m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE];
+            m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] +=
+                telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF] -
+                m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF];
             m_entry_telemetry[domain_idx].region_id = 0;
         }
     }
@@ -439,12 +444,13 @@ namespace geopm
                 m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] > m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] ?
                 m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] : m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
             m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_ENERGY];
-            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER];
+            m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] += m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM];
         }
-        m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] /= m_num_domain;
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY];
-        m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY] = m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY];
+        m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER];
+        m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM];
     }
 
 }

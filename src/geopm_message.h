@@ -60,7 +60,8 @@ enum geopm_control_e {
 enum geopm_sample_type_e {
     GEOPM_SAMPLE_TYPE_RUNTIME,
     GEOPM_SAMPLE_TYPE_ENERGY,
-    GEOPM_SAMPLE_TYPE_FREQUENCY,
+    GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER,
+    GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM,
     GEOPM_NUM_SAMPLE_TYPE // Sample counter, must be last
 };
 
