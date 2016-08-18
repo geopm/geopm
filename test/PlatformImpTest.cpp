@@ -730,7 +730,7 @@ TEST_F(PlatformImpTest, parse_topology)
     EXPECT_TRUE((m_platform->num_hw_cpu() > 0));
 }
 
-TEST_F(PlatformImpTest2, int_type_checks)
+TEST_F(PlatformImpTest, int_type_checks)
 {
     const char *large_value_str = "0xDEADBEEFCAFED00D";
     uint64_t large_value = 0xDEADBEEFCAFED00D;
