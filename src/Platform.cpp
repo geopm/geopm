@@ -97,8 +97,6 @@ extern "C"
 
 namespace geopm
 {
-    static const uint64_t PKG_POWER_LIMIT_MASK_MAGIC  = 0x0007800000078000ul;
-
     Platform::Platform()
         : m_imp(NULL)
         , m_num_domain(0)
