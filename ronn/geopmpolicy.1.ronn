@@ -154,10 +154,10 @@ modifying the behavior of the mode by matching key strings to value strings.
     Implements the GEOPM_MODE_PERF_BALANCE_DYNAMIC mode described in the
     **geopm_policy_c(3)** man page in the `DYNAMIC MODES` section.  The
     only key required to be passed to the `-d` flag is the _power_budget_
-    which is the power budget in units of Watts for all compute nodes
-    allocated to the job. Optional keys that can be set are the _tree_decider_,
-    _leaf_decider_, and the _platform_ keys which are used to select custom
-    plugins. All other keys are ignored.
+    which is the average per-node power budget in units of Watts for each
+    compute node allocated to the job. Optional keys that can be set are
+    the _tree_decider_, _leaf_decider_, and the _platform_ keys which are
+    used to select custom plugins. All other keys are ignored.
 
   * `freq_uniform_dynamic`:
     Implements the GEOPM_MODE_FREQ_UNIFORM_DYNAMIC mode described in the
@@ -198,17 +198,17 @@ modifying the behavior of the mode by matching key strings to value strings.
     $ geopmpolicy -c -f geopm.conf -m tdp_balance_static \ <br>
     -d tdp_percent:75
 
-  * Create a configuration file for global energy optimization with a power budget of 1 MWatt::
+  * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts::
     $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
-    -d power_budget:1000000
+    -d power_budget:300
 
-  * Create a configuration file for global energy optimization with a power budget of 1 MWatt and use a custom platform plugin::
+  * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts and use a custom platform plugin::
     $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
-    -d power_budget:1000000,platform:broadwell_platform
+    -d power_budget:300,platform:broadwell_platform
 
-  * Create a configuration file for global energy optimization with a power budget of 1 MWatt and use custom decider plugins::
+  * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts and use custom decider plugins::
     $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
-    -d power_budget:1000000,tree_decider:uniform_frequency,leaf_decider:max_efficiency
+    -d power_budget:300,tree_decider:uniform_frequency,leaf_decider:max_efficiency
 
   * Enforce a static policy defined in a preexisting configuration file::
     $ geopmpolicy -e -f geopm.conf

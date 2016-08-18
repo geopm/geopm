@@ -141,15 +141,16 @@ and zero upon success; see [ERRORS][] section below for details.
 
   * `geopm_policy_power`():
     sets the _power_budget_, in units of Watts, for the _policy_. The
-    power budget determines the upper limit on the aggregate power
-    that can be drawn by all compute nodes within the entire MPI job
-    allocation.
+    power budget defines the average per-node power limit. The
+    aggregation of these limits for all compute nodes within the MPI
+    job allocation determines the upper limit on the power that can be
+    drawn by all compute node within the entire MPI job allocation.
 
   * `geopm_policy_mode`():
 
     selects the control _mode_ that will be used by the _policy_. The
     _mode_ can be selected from the enumeration defined in
-    _geopm_message.h_ and these options are described in the 
+    _geopm_message.h_ and these options are described in the
     [STATIC MODES][] and [DYNAMIC MODES][] sections below.
 
   * `geopm_policy_cpu_freq`():

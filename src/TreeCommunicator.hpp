@@ -227,6 +227,8 @@ namespace geopm
             void mpi_type_destroy(void);
             /// Number of levels this rank participates in
             int m_num_level;
+            /// @brief Number of nodes in the job.
+            int m_num_node;
             /// Tree fan out from root to leaf. Note levels go from
             /// leaf to root
             std::vector<int> m_fan_out;

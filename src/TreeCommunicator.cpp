@@ -324,7 +324,8 @@ namespace geopm
     ///////////////////////////////////
 
     TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, GlobalPolicy *global_policy, const MPI_Comm &comm)
-        : m_fan_out(fan_out)
+        : m_num_node(0)
+        , m_fan_out(fan_out)
         , m_comm(fan_out.size())
         , m_global_policy(global_policy)
         , m_level(fan_out.size())
@@ -332,6 +333,7 @@ namespace geopm
         mpi_type_create();
         comm_create(comm);
         level_create();
+        check_mpi(MPI_Comm_size(comm, &m_num_node));
     }
 
     TreeCommunicator::~TreeCommunicator()
@@ -398,6 +400,9 @@ namespace geopm
         }
         if (level == root_level()) {
             m_global_policy->policy_message(policy);
+            if (policy.power_budget > 0) {
+                policy.power_budget *= m_num_node;
+            }
         }
         else {
             m_level[level]->get_policy(policy);
