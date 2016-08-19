@@ -155,19 +155,19 @@ namespace geopm
                 break;
             case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
-                value = msr_overflow(offset_idx, 64,
+                value = msr_overflow(offset_idx, 40,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_INST_RETIRED]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
-                value = msr_overflow(offset_idx, 64,
+                value = msr_overflow(offset_idx, 40,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_CLK_UNHALTED_CORE])) / m_num_core_per_tile;
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
-                value = msr_overflow(offset_idx, 64,
+                value = msr_overflow(offset_idx, 40,
                                      (double)msr_read(device_type, device_index,
                                                       m_signal_msr_offset[M_CLK_UNHALTED_REF]));
                 break;
@@ -297,25 +297,25 @@ namespace geopm
                         break;
                     case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 64,
+                        (*it).value = msr_overflow(offset_idx, 40,
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         break;
                     case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 64,
+                        (*it).value = msr_overflow(offset_idx, 40,
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         break;
                     case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 64,
+                        (*it).value = msr_overflow(offset_idx, 40,
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         break;
                     case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 44,
+                        (*it).value = msr_overflow(offset_idx, 48,
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
-                        (*it).value += msr_overflow(offset_idx, 44,
+                        (*it).value += msr_overflow(offset_idx, 48,
                                              (double)(m_batch.ops[signal_index++].msrdata));
                         break;
                     default:
