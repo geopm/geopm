@@ -62,10 +62,13 @@ int main(int argc, char **argv)
             platform->name(plat_name);
             std::cout << "Platform \"" << plat_name << "\" supported by GEOPM runtime." << std::endl;
         }
-        catch (...) {
-           err = GEOPM_ERROR_PLATFORM_UNSUPPORTED;
-           geopm_error_message(err, error_msg, 512);
-           std::cerr << "Warning: <geopm_platform_supported>: " << error_msg << "." << std::endl;
+        catch (geopm::Exception ex) {
+            err = ex.err_value();
+            geopm_error_message(err, error_msg, 512);
+            std::cerr << "Warning: <geopm_platform_supported>: " << error_msg << "." << std::endl;
+            if (err != GEOPM_ERROR_PLATFORM_UNSUPPORTED) {
+                 err = 0;
+            }
         }
     }
     return err;
