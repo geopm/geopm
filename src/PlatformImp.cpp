@@ -341,13 +341,16 @@ namespace geopm
 
     void PlatformImp::msr_close(int cpu)
     {
-        int rv = close(m_cpu_file_desc[cpu]);
-        //mark as invalid
-        m_cpu_file_desc[cpu] = -1;
+        if (m_cpu_file_desc.size() > (size_t)cpu &&
+            m_cpu_file_desc[cpu] >= 0) {
+            int rv = close(m_cpu_file_desc[cpu]);
+            //mark as invalid
+            m_cpu_file_desc[cpu] = -1;
 
-        //check for errors
-        if (rv < 0) {
-            throw Exception("system error closing cpu device", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            //check for errors
+            if (rv < 0) {
+                throw Exception("system error closing cpu device", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
     }
 
