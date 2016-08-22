@@ -88,13 +88,22 @@ extern "C"
     int geopm_comm_split_shared(MPI_Comm comm, MPI_Comm *split_comm)
     {
         int err = 0;
+        struct stat stat_struct;
         try {
             const char *shmem_key = "/geopm_comm_split_shared_tmp";
+            const char *shmem_path = "/dev/shm/geopm_comm_split_shared_tmp";
             geopm::SharedMemory *shmem = NULL;
             geopm::SharedMemoryUser *shmem_user = NULL;
             int rank, color = -1;
 
             MPI_Comm_rank(comm, &rank);
+            // remove shared memory file if one already exists
+            (void)unlink(shmem_path);
+            MPI_Barrier(comm);
+            err = stat(shmem_path, &stat_struct);
+            if (!err || (err && errno != ENOENT)) {
+                throw geopm::Exception("geopm_comm_split_shared(): " + std::string(shmem_key) + " already exists and cannot be deleted.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
             MPI_Barrier(comm);
             try {
                 shmem = new geopm::SharedMemory(shmem_key, sizeof(int));

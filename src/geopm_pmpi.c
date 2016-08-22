@@ -129,7 +129,10 @@ static int geopm_pmpi_init(const char *exec_name)
         int is_ctl;
         MPI_Comm tmp_comm;
         err = geopm_comm_split(MPI_COMM_WORLD, &tmp_comm, &is_ctl);
-        if (!err) {
+        if (err) {
+            MPI_Abort(MPI_COMM_WORLD, err);
+        }
+        else {
             G_GEOPM_COMM_WORLD_SWAP = tmp_comm;
         }
         if (!err && is_ctl) {
