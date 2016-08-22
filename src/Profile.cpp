@@ -785,7 +785,7 @@ namespace geopm
     void ProfileRankSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
         m_table.dump(content_begin, length);
-        std::sort(content_begin, content_begin + length, geopm_prof_compare);
+        std::stable_sort(content_begin, content_begin + length, geopm_prof_compare);
     }
 
     bool ProfileRankSampler::name_fill(std::set<std::string> &name_set)
