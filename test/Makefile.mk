@@ -181,8 +181,12 @@ test_geopm_test_LDADD = libgtest.a \
                         # end
 
 test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
-test_geopm_test_CFLAGS = $(AM_CFLAGS) -fno-delete-null-pointer-checks
-test_geopm_test_CXXFLAGS = $(AM_CXXFLAGS) -fno-delete-null-pointer-checks
+test_geopm_test_CFLAGS = $(AM_CFLAGS)
+test_geopm_test_CXXFLAGS = $(AM_CXXFLAGS)
+if GEOPM_DISABLE_NULL_PTR
+    test_geopm_test_CFLAGS += -fno-delete-null-pointer-checks
+    test_geopm_test_CXXFLAGS += -fno-delete-null-pointer-checks
+endif
 if ENABLE_OPENMP
     test_geopm_static_modes_test_SOURCES = test/geopm_static_modes_test.cpp
     test_geopm_static_modes_test_LDADD = libgeopmpolicy.la
@@ -205,8 +209,12 @@ if ENABLE_MPI
                                 # end
 
     test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -fno-delete-null-pointer-checks
-    test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS) -fno-delete-null-pointer-checks
+    test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+if GEOPM_DISABLE_NULL_PTR
+    test_geopm_mpi_test_CFLAGS += -fno-delete-null-pointer-checks
+    test_geopm_mpi_test_CXXFLAGS += -fno-delete-null-pointer-checks
+endif
 endif
 
 # Target for building test programs.

@@ -339,6 +339,21 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
 ])
 
+[CFLAGS_SAVE="$CFLAGS"]
+[CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
+AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[#include <stdio.h>]],
+          [[printf("Hello World.\n");]])
+],[
+    AC_MSG_RESULT(yes)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [true])
+],[
+    AC_MSG_RESULT(no)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [false])
+])
+[CFLAGS="$CFLAGS_SAVE"]
+
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
 AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
