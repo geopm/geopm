@@ -48,6 +48,7 @@
 #include "GlobalPolicy.hpp"
 #include "SharedMemory.hpp"
 #include "geopm_message.h"
+#include "geopm_env.h"
 #include "config.h"
 
 extern "C"
@@ -90,17 +91,18 @@ extern "C"
         int err = 0;
         struct stat stat_struct;
         try {
-            const char *shmem_key = "/geopm_comm_split_shared_tmp";
-            const char *shmem_path = "/dev/shm/geopm_comm_split_shared_tmp";
+            std::string shmem_key(geopm_env_shmkey());
+            shmem_key += "-comm-split-shared-tmp";
+            std::string shmem_path("/dev/shm" + shmem_key);
             geopm::SharedMemory *shmem = NULL;
             geopm::SharedMemoryUser *shmem_user = NULL;
             int rank, color = -1;
 
             MPI_Comm_rank(comm, &rank);
             // remove shared memory file if one already exists
-            (void)unlink(shmem_path);
+            (void)unlink(shmem_path.c_str());
             MPI_Barrier(comm);
-            err = stat(shmem_path, &stat_struct);
+            err = stat(shmem_path.c_str(), &stat_struct);
             if (!err || (err && errno != ENOENT)) {
                 throw geopm::Exception("geopm_comm_split_shared(): " + std::string(shmem_key) + " already exists and cannot be deleted.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
