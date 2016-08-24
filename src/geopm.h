@@ -106,13 +106,11 @@ int geopm_tprof_increment(struct geopm_tprof_c *tprof,
 /*****************/
 /* MPI COMM APIS */
 /*****************/
-int geopm_comm_num_node(MPI_Comm comm, int *num_node);
+int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm);
 
-int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm);
+int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm);
 
-int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm);
-
-int geopm_comm_split_shared(MPI_Comm comm, MPI_Comm *split_comm);
+int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm);
 
 #ifdef __cplusplus
 }

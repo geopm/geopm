@@ -53,24 +53,13 @@
 
 extern "C"
 {
-    static int geopm_comm_split_imp(MPI_Comm comm, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
+    static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
 
-    int geopm_comm_num_node(MPI_Comm comm, int *num_node)
-    {
-        int is_shm_root = 0;
-        return geopm_comm_split_imp(comm, num_node, NULL, &is_shm_root);
-    }
-
-    int geopm_comm_num_node_f(int comm, int *num_node)
-    {
-        return geopm_comm_num_node(MPI_Comm_f2c(comm), num_node);
-    }
-
-    int geopm_comm_split_ppn1(MPI_Comm comm, MPI_Comm *ppn1_comm)
+    int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm)
     {
         int num_node = 0;
         int is_shm_root = 0;
-        int err = geopm_comm_split_imp(comm, &num_node, ppn1_comm, &is_shm_root);
+        int err = geopm_comm_split_imp(comm, tag, &num_node, ppn1_comm, &is_shm_root);
         if (!err && !is_shm_root) {
             err = MPI_Comm_free(ppn1_comm);
             *ppn1_comm = MPI_COMM_NULL;
@@ -78,21 +67,13 @@ extern "C"
         return err;
     }
 
-    int geopm_comm_split_ppn1_f(int comm, int *ppn1_comm)
-    {
-        MPI_Comm ppn1_comm_c;
-        int err = geopm_comm_split_ppn1(MPI_Comm_f2c(comm), &ppn1_comm_c);
-        *ppn1_comm = MPI_Comm_c2f(ppn1_comm_c);
-        return err;
-    }
-
-    int geopm_comm_split_shared(MPI_Comm comm, MPI_Comm *split_comm)
+    int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm)
     {
         int err = 0;
         struct stat stat_struct;
         try {
             std::string shmem_key(geopm_env_shmkey());
-            shmem_key += "-comm-split-shared-tmp";
+            shmem_key += "-comm-split-shared-" + std::string(tag);
             std::string shmem_path("/dev/shm" + shmem_key);
             geopm::SharedMemory *shmem = NULL;
             geopm::SharedMemoryUser *shmem_user = NULL;
@@ -136,29 +117,13 @@ extern "C"
         return err;
     }
 
-    int geopm_comm_split_shared_f(int comm, int *split_comm)
-    {
-        MPI_Comm split_comm_c;
-        int err = geopm_comm_split_shared(MPI_Comm_f2c(comm), &split_comm_c);
-        *split_comm = MPI_Comm_c2f(split_comm_c);
-        return err;
-    }
-
-    int geopm_comm_split(MPI_Comm comm, MPI_Comm *split_comm, int *is_ctl_comm)
+    int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm)
     {
         int num_node = 0;
-        return geopm_comm_split_imp(comm, &num_node, split_comm, is_ctl_comm);
+        return geopm_comm_split_imp(comm, tag, &num_node, split_comm, is_ctl_comm);
     }
 
-    int geopm_comm_split_f(int comm, int *split_comm, int *is_ctl_comm)
-    {
-        MPI_Comm split_comm_c;
-        int err = geopm_comm_split(MPI_Comm_f2c(comm), &split_comm_c, is_ctl_comm);
-        *split_comm = MPI_Comm_c2f(split_comm_c);
-        return err;
-    }
-
-    static int geopm_comm_split_imp(MPI_Comm comm, int *num_node, MPI_Comm *split_comm, int *is_shm_root)
+    static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_shm_root)
     {
         int err, comm_size, comm_rank, shm_rank;
         MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
@@ -178,7 +143,7 @@ extern "C"
             err = MPI_Comm_rank(comm, &comm_rank);
         }
         if (!err) {
-            err = geopm_comm_split_shared(comm, &shm_comm);
+            err = geopm_comm_split_shared(comm, tag, &shm_comm);
         }
         if (!err) {
             err = MPI_Comm_rank(shm_comm, &shm_rank);

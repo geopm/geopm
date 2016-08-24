@@ -233,7 +233,7 @@ namespace geopm
         int shm_num_rank = 0;
 
         PMPI_Comm_rank(comm, &m_rank);
-        geopm_comm_split_shared(comm, &m_shm_comm);
+        geopm_comm_split_shared(comm, "prof", &m_shm_comm);
         PMPI_Comm_rank(m_shm_comm, &m_shm_rank);
         PMPI_Comm_size(m_shm_comm, &shm_num_rank);
         PMPI_Barrier(m_shm_comm);

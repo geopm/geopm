@@ -66,7 +66,6 @@ geopmctl(1) -- geopm runtime mpi application
 Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 
 **geopm(7)**,
-**geopm_comm(3)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,

@@ -71,7 +71,6 @@ endif
 
 dist_man_MANS = man/geopm.7 \
                 man/geopmctl.1 \
-                man/geopm_comm.3 \
                 man/geopm_ctl_c.3 \
                 man/geopm_error.3 \
                 man/geopm_fortran.3 \
@@ -114,7 +113,6 @@ EXTRA_DIST = .gitignore \
              README.md \
              ronn/geopm.7.ronn \
              ronn/geopmctl.1.ronn \
-             ronn/geopm_comm.3.ronn \
              ronn/geopm_ctl_c.3.ronn \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \

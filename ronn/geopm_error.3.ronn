@@ -131,7 +131,6 @@ Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm_comm(3)**,
 **geopm_ctl_c(3)**,
 **geopm_fortran(3)**,
 **geopmkey(3)**,

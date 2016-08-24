@@ -170,42 +170,5 @@ module geopm
             integer(kind=c_int), value, intent(in) :: thread_idx
         end function geopm_tprof_increment
 
-        !!!!!!!!!!!!!!!!!!!
-        !! MPI COMM APIS !!
-        !!!!!!!!!!!!!!!!!!!
-
-        !> @brief Fortran interface to geopm_comm_num_node C function.
-        integer(kind=c_int) function geopm_comm_num_node(comm, num_node)  bind(C, name="geopm_comm_num_node_f")
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: comm
-            integer(kind=c_int), intent(out) :: num_node
-        end function geopm_comm_num_node
-
-        !> @brief Fortran interface to geopm_comm_split C function.
-        integer(kind=c_int) function geopm_comm_split(comm, split_comm, is_ctl_comm) bind(C, name="geopm_comm_split_f")
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: comm
-            integer(kind=c_int), intent(out) :: split_comm
-            integer(kind=c_int), intent(out) :: is_ctl_comm
-        end function geopm_comm_split
-
-        !> @brief Fortran interface to geopm_comm_split_shared C function.
-        integer(kind=c_int) function geopm_comm_split_shared(comm, split_comm) bind(C, name="geopm_comm_split_shared_f")
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: comm
-            integer(kind=c_int), intent(out) :: split_comm
-        end function geopm_comm_split_shared
-
-        !> @brief Fortran interface to geopm_comm_split_ppn1 C function.
-        integer(kind=c_int) function geopm_comm_split_ppn1(comm, ppn1_comm) bind(C, name="geopm_comm_split_ppn1_f")
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: comm
-            integer(kind=c_int), intent(out) :: ppn1_comm
-        end function geopm_comm_split_ppn1
-
     end interface
 end module geopm

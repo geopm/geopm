@@ -128,7 +128,7 @@ static int geopm_pmpi_init(const char *exec_name)
 
         int is_ctl;
         MPI_Comm tmp_comm;
-        err = geopm_comm_split(MPI_COMM_WORLD, &tmp_comm, &is_ctl);
+        err = geopm_comm_split(MPI_COMM_WORLD, "pmpi", &tmp_comm, &is_ctl);
         if (err) {
             MPI_Abort(MPI_COMM_WORLD, err);
         }
@@ -164,7 +164,7 @@ static int geopm_pmpi_init(const char *exec_name)
             err = GEOPM_ERROR_LOGIC;
         }
         if (!err) {
-            err = geopm_comm_split_ppn1(MPI_COMM_WORLD, &g_ppn1_comm);
+            err = geopm_comm_split_ppn1(MPI_COMM_WORLD, "pmpi", &g_ppn1_comm);
         }
         if (!err && g_ppn1_comm != MPI_COMM_NULL) {
             int ppn1_rank;

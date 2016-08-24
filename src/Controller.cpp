@@ -189,7 +189,7 @@ namespace geopm
         int err = 0;
         int num_nodes = 0;
 
-        err = geopm_comm_split_ppn1(comm, &ppn1_comm);
+        err = geopm_comm_split_ppn1(comm, "ctl", &ppn1_comm);
         if (err) {
             throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
         }
