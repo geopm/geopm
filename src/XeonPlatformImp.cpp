@@ -200,46 +200,46 @@ namespace geopm
             case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
                 offset_idx = device_index * m_num_energy_signal + M_PKG_STATUS_OVERFLOW;
                 value = msr_overflow(offset_idx, 32,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_RAPL_PKG_STATUS]));
+                                     msr_read(device_type, device_index,
+                                              m_signal_msr_offset[M_RAPL_PKG_STATUS]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
                 offset_idx = device_index * m_num_energy_signal + M_DRAM_STATUS_OVERFLOW;
                 value = msr_overflow(offset_idx, 32,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_RAPL_DRAM_STATUS]));
+                                     msr_read(device_type, device_index,
+                                              m_signal_msr_offset[M_RAPL_DRAM_STATUS]));
                 value *= m_dram_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 value = (double)((msr_read(device_type, device_index,
-                                          m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
+                                           m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
                 //convert to MHZ
                 value *= 0.1;
                 break;
             case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
                 value = msr_overflow(offset_idx, 40,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_INST_RETIRED]));
+                                     msr_read(device_type, device_index,
+                                              m_signal_msr_offset[M_INST_RETIRED]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
                 value = msr_overflow(offset_idx, 40,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_CLK_UNHALTED_CORE]));
+                                     msr_read(device_type, device_index,
+                                              m_signal_msr_offset[M_CLK_UNHALTED_CORE]));
                 break;
             case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
                 value = msr_overflow(offset_idx, 40,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_CLK_UNHALTED_REF]));
+                                     msr_read(device_type, device_index,
+                                              m_signal_msr_offset[M_CLK_UNHALTED_REF]));
                 break;
             case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_LLC_VICTIMS_OVERFLOW;
                 value = msr_overflow(offset_idx, 44,
-                                     (double)msr_read(device_type, device_index,
-                                                      m_signal_msr_offset[M_LLC_VICTIMS + device_index]));
+                                     msr_read(device_type, device_index,
+                                              m_signal_msr_offset[M_LLC_VICTIMS + device_index]));
                 break;
             default:
                 throw geopm::Exception("XeONPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -336,13 +336,13 @@ namespace geopm
                     case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
                         offset_idx = (*it).device_index * m_num_energy_signal + M_PKG_STATUS_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 32,
-                                                   (double)(m_batch.ops[signal_index++].msrdata));
+                                                   m_batch.ops[signal_index++].msrdata);
                         (*it).value *= m_energy_units;
                         break;
                     case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
                         offset_idx = (*it).device_index * m_num_energy_signal + M_DRAM_STATUS_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 32,
-                                             (double)(m_batch.ops[signal_index++].msrdata));
+                                                   m_batch.ops[signal_index++].msrdata);
                         (*it).value *= m_dram_energy_units;
                         break;
                     case GEOPM_TELEMETRY_TYPE_FREQUENCY:
@@ -353,22 +353,22 @@ namespace geopm
                     case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 40,
-                                             (double)(m_batch.ops[signal_index++].msrdata));
+                                                   m_batch.ops[signal_index++].msrdata);
                         break;
                     case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 40,
-                                             (double)(m_batch.ops[signal_index++].msrdata));
+                                                   m_batch.ops[signal_index++].msrdata);
                         break;
                     case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 40,
-                                             (double)(m_batch.ops[signal_index++].msrdata));
+                                                   m_batch.ops[signal_index++].msrdata);
                         break;
                     case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
                         offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_LLC_VICTIMS_OVERFLOW;
                         (*it).value = msr_overflow(offset_idx, 44,
-                                             (double)(m_batch.ops[signal_index++].msrdata));
+                                                   m_batch.ops[signal_index++].msrdata);
                         break;
                     default:
                         throw geopm::Exception("XeonPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);

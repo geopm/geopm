@@ -372,16 +372,16 @@ namespace geopm
         m_num_core_per_tile = m_num_hw_cpu / m_num_tile;
     }
 
-    double PlatformImp::msr_overflow(int signal_idx, uint32_t msr_size, double value)
+    double PlatformImp::msr_overflow(int signal_idx, uint32_t msr_size, uint64_t value)
     {
+        // Mask off bits beyond msr_size
+        value &= ((~0ULL) >> (64 - msr_size));
         // Deal with register overflow
         if (value < m_msr_value_last[signal_idx]) {
             m_msr_overflow_offset[signal_idx] += pow(2, msr_size);
         }
         m_msr_value_last[signal_idx] = value;
-        value += m_msr_overflow_offset[signal_idx];
-
-        return value;
+        return value + m_msr_overflow_offset[signal_idx];
     }
 
     void PlatformImp::save_msr_state(const char *path)

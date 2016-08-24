@@ -275,7 +275,7 @@ namespace geopm
             /// @param [in] The size of the counter.
             /// @param [in] The value read from the counter.
             /// @return The value corrected for overflow.
-            double msr_overflow(int signal_idx, uint32_t msr_size, double value);
+            double msr_overflow(int signal_idx, uint32_t msr_size, uint64_t value);
 
             struct m_msr_batch_op {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
@@ -322,7 +322,7 @@ namespace geopm
             /// @brief TDP value for package (CPU) power read from RAPL.
             double m_tdp_pkg_watts;
             /// @brief The last values read from all counters.
-            std::vector<double> m_msr_value_last;
+            std::vector<uint64_t> m_msr_value_last;
             /// @brief The current aggregated overflow for all the counters.
             std::vector<double> m_msr_overflow_offset;
             int m_msr_batch_desc;
