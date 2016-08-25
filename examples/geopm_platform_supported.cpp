@@ -68,7 +68,7 @@ int main(int argc, char **argv)
             cpu_id != 0x657) {
             err = GEOPM_ERROR_PLATFORM_UNSUPPORTED;
             geopm_error_message(err, error_msg, 512);
-            std::cerr << "Warning: <geopm_platform_supported>: Platform does not have a supported CPU " << std::hex << cpu_id << " " << error_msg << "." << std::endl;
+            std::cerr << "Warning: <geopm_platform_supported>: Platform 0x" << std::hex << cpu_id << " is not a supported CPU" << " " << error_msg << "." << std::endl;
         }
         if (!err) {
             int fd = open("/dev/cpu/0/msr_safe", O_RDONLY);

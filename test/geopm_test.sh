@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+unset GEOPM_PMPI_CTL
+unset GEOPM_POLICY
+unset GEOPM_REPORT
+unset GEOPM_TRACE
+
 test_name=`basename $0`
 dir_name=`dirname $0`
 run_test=true
@@ -63,6 +68,9 @@ else
     if [ "$MPIEXEC" ]; then
         # Use MPIEXEC environment variable if it is set
         mpiexec="$MPIEXEC"
+        if echo $MPIEXEC | grep -q ^srun; then
+            num_node=$(getopt -qu N: $MPIEXEC | awk '{print $2}')
+        fi
     elif command -v srun >& /dev/null && \
         srun -N 4 true >& /dev/null; then
         # use slurm srun if in path
@@ -90,7 +98,6 @@ else
     if [[ $test_name =~ ^MPIProfile ||
           $test_name =~ ^MPIController ]] &&
         [[ ! $test_name =~ noctl ]]; then
-       export GEOPM_POLICY=test/default_policy.json
        export GEOPM_PMPI_CTL=process
        export GEOPM_REPORT=geopm_report
 
@@ -105,7 +112,6 @@ else
            num_proc=$(($num_proc + $num_node))
        fi
 
-       num_cpu=$(nproc)
        if ! ./examples/geopm_platform_supported; then
           run_test=false
        fi
