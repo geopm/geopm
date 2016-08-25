@@ -30,13 +30,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TUTORIAL_REGION_H_INCLUDE
-#define TUTORIAL_REGION_H_INCLUDE
+#include <stdlib.h>
+#include <stdio.h>
+#include <mpi.h>
+#include <geopm.h>
 
-int tutorial_sleep(double big_o, int do_report);
-int tutorial_dgemm(double big_o, int do_report);
-int tutorial_stream(double big_o, int do_report);
-int tutorial_all2all(double big_o, int do_report);
-int tutorial_stream_profiled(double big_o, int do_report);
+#include "imbalancer.h"
+#include "tutorial_region.h"
 
-#endif
+
+int main(int argc, char **argv)
+{
+    int size = 0;
+    int rank = 0;
+
+    int err = MPI_Init(&argc, &argv);
+    if (!err) {
+        err = MPI_Comm_size(MPI_COMM_WORLD, &size);
+    }
+    if (!err) {
+        err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    }
+    if (!err && !rank) {
+        printf("MPI_COMM_WORLD size: %d\n", size);
+    }
+
+    int num_iter = 10;
+    double stream_big_o = 1.0;
+
+    if (!rank) {
+        printf("Beginning loop of %d iterations.\n", num_iter);
+        fflush(stdout);
+    }
+    for (int i = 0; !err && i < num_iter; ++i) {
+        err = tutorial_stream_profiled(stream_big_o, 0);
+        if (!err && !rank) {
+            printf("Iteration=%.3d\r", i);
+            fflush(stdout);
+        }
+    }
+    if (!err && !rank) {
+        printf("Completed loop.                    \n");
+        fflush(stdout);
+    }
+    if (!err) {
+        err = MPI_Finalize();
+    }
+
+    return err;
+}
