@@ -125,3 +125,15 @@ tutorial_4.sh script will create a configuration file called
 "tutorial_3_imbalance.conf" if one does not exist, and one of the
 nodes will have a 50% injection of imbalance.  The node is chosen
 arbitrarily by a race if the configuration file is not present.
+
+5. Using the progress interface
+-------------------------------
+A computational application may make use of the geopm_prof_progress()
+or the geopm_tprof_progress() interfaces to report fractional progress
+through a region to the controller.  These interfaces are documented
+in the geopm_prof_c(3) man page.  In tutorial 5 we modify the stream
+region to send progress updates though either the threaded or
+unthreaded interface depending on if OpenMP is enabled at compile
+time.  Note that the unmodified tutorials build scripts do enable
+OpenMP, so the geopm_tprof* interfaces will be used by default.  The
+progress values recorded can be seen in the trace output.

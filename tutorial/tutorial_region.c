@@ -34,11 +34,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include <stdint.h>
 #include <mpi.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
+#include "geopm.h"
 #include "tutorial_region.h"
 
 void dgemm(const char *transa, const char *transb, const int *M,
@@ -134,7 +136,6 @@ int tutorial_dgemm(double big_o, int do_report)
     return err;
 }
 
-
 int tutorial_stream(double big_o, int do_report)
 {
     int err = 0;
@@ -220,4 +221,98 @@ int tutorial_all2all(double big_o, int do_report)
         }
     }
     return err;
+}
+
+#ifdef _OPENMP
+static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double scalar, double *a, double *b, double *c)
+{
+    int err = 0;
+    int num_thread = 1;
+    struct geopm_tprof_c *tprof = NULL;
+
+#pragma omp parallel
+{
+    num_thread = omp_get_num_threads();
+}
+    err = geopm_tprof_create(num_thread, num_stream, 0, &tprof);
+    if (!err) {
+#pragma omp parallel
+{
+        int thread_idx = omp_get_thread_num();
+#pragma omp for
+        for (int i = 0; i < num_stream; ++i) {
+            a[i] = b[i] + scalar * c[i];
+            geopm_tprof_increment(tprof, region_id, thread_idx);
+        }
+}
+    }
+    if (!err) {
+        geopm_tprof_destroy(tprof);
+    }
+
+    return err;
+}
+#endif
+
+static int stream_profiled_serial(uint64_t region_id, size_t num_stream, double scalar, double *a, double *b, double *c)
+{
+    double norm = 1.0 / num_stream;
+
+    for (int i = 0; i < num_stream; ++i) {
+        a[i] = b[i] + scalar * c[i];
+        geopm_prof_progress(region_id, i * norm);
+    }
+    return 0;
+}
+
+int tutorial_stream_profiled(double big_o, int do_report)
+{
+    int err = 0;
+    if (big_o != 0.0) {
+        uint64_t region_id = 0;
+        size_t cline_size = 64;
+        size_t num_stream = (size_t)big_o * 500000000;
+        size_t mem_size = sizeof(double) * num_stream;
+        double *a = NULL;
+        double *b = NULL;
+        double *c = NULL;
+        double scalar = 3.0;
+
+        err = geopm_prof_region("tutorial_stream_profiled", GEOPM_POLICY_HINT_MEMORY, &region_id);
+        if (!err) {
+            err = geopm_prof_enter(region_id);
+        }
+        if (!err) {
+            err = posix_memalign((void *)&a, cline_size, mem_size);
+        }
+        if (!err) {
+            err = posix_memalign((void *)&b, cline_size, mem_size);
+        }
+        if (!err) {
+            err = posix_memalign((void *)&c, cline_size, mem_size);
+        }
+        if (!err) {
+#pragma omp parallel for
+            for (int i = 0; i < num_stream; i++) {
+                a[i] = 0.0;
+                b[i] = 1.0;
+                c[i] = 2.0;
+            }
+
+            if (do_report) {
+                printf("Executing profiled STREAM triad on length %d vectors.\n", num_stream);
+                fflush(stdout);
+            }
+#ifdef _OPENMP
+            err = stream_profiled_omp(region_id, num_stream, scalar, a, b, c);
+#else
+            err = stream_profiled_serial(region_id, num_stream, scalar, a, b, c);
+#endif
+        }
+        if (!err) {
+            free(c);
+            free(b);
+            free(a);
+        }
+    }
 }

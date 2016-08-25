@@ -144,6 +144,8 @@ tutorial/tutorial_3.c
 tutorial/tutorial_3.sh
 tutorial/tutorial_4.c
 tutorial/tutorial_4.sh
+tutorial/tutorial_5.c
+tutorial/tutorial_5.sh
 tutorial/tutorial_build_intel.sh
 tutorial/tutorial_build_gnu.sh
 tutorial/tutorial_region.c
