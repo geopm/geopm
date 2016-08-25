@@ -86,7 +86,13 @@ MPIProfileTest::MPIProfileTest()
     m_log_file_node.append(hostname);
 
     geopm_comm_split_ppn1(MPI_COMM_WORLD, "prof_test", &ppn1_comm);
-    m_is_node_root = ppn1_comm != MPI_COMM_NULL;
+    if (ppn1_comm != MPI_COMM_NULL) {
+        m_is_node_root = true;
+        MPI_Comm_free(&ppn1_comm);
+    }
+    else {
+        m_is_node_root = false;
+    }
 }
 
 MPIProfileTest::~MPIProfileTest()
@@ -113,6 +119,59 @@ void MPIProfileTest::sleep_exact(double duration)
             geopm_time(&curr);
             timeout = geopm_time_diff(&start, &curr);
         }
+    }
+}
+
+void MPIProfileTest::parse_log(const std::vector<double> &check_val)
+{
+    ASSERT_EQ(3ULL, check_val.size());
+    int err = geopm_prof_shutdown();
+    ASSERT_EQ(0, err);
+    sleep(1); // Wait for controller to finish writing the report
+
+    if (m_is_node_root) {
+        std::string line;
+        double curr_value = -1.0;
+        double value = 0.0;
+        double outer_sync_value = 0.0;
+        double mpi_value = 0.0;
+
+        std::ifstream log(m_log_file_node, std::ios_base::in);
+
+        ASSERT_TRUE(log.is_open());
+
+        while(std::getline(log, line)) {
+            curr_value = -1.0;
+            if (line.find("Region loop_one:") == 0) {
+                curr_value = check_val[0];
+            }
+            else if (line.find("Region loop_two:") == 0) {
+                curr_value = check_val[1];
+            }
+            else if (line.find("Region loop_three:") == 0) {
+                curr_value = check_val[2];
+            }
+            else if (line.find("Region outer-sync:") == 0) {
+                std::getline(log, line);
+                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &outer_sync_value));
+            }
+            else if (line.find("Region mpi-sync:") == 0) {
+                std::getline(log, line);
+                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value));
+            }
+            if (curr_value != -1.0) {
+                std::getline(log, line);
+                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &value));
+                ASSERT_GT(m_epsilon, fabs(curr_value - value));
+            }
+        }
+
+        if (outer_sync_value != 0.0 && mpi_value != 0.0) {
+            double outer_sync_target = std::accumulate(check_val.begin(), check_val.end(), mpi_value);
+            ASSERT_GT(m_epsilon, fabs(outer_sync_target - outer_sync_value));
+        }
+
+        log.close();
     }
 }
 
@@ -154,6 +213,7 @@ TEST_F(MPIProfileTest, runtime)
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
 
+    parse_log(m_check_val_multi);
 }
 
 TEST_F(MPIProfileTest, progress)
@@ -196,6 +256,8 @@ TEST_F(MPIProfileTest, progress)
         geopm_prof_progress(region_id[2], timeout/3.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
+
+    parse_log(m_check_val_multi);
 }
 
 TEST_F(MPIProfileTest, multiple_entries)
@@ -271,6 +333,8 @@ TEST_F(MPIProfileTest, multiple_entries)
         geopm_prof_progress(region_id[1], timeout/3.0);
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
+
+    parse_log(m_check_val_single);
 }
 
 TEST_F(MPIProfileTest, nested_region)
@@ -322,6 +386,8 @@ TEST_F(MPIProfileTest, nested_region)
     }
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
+
+    parse_log(m_check_val_single);
 }
 
 TEST_F(MPIProfileTest, outer_sync)
@@ -351,6 +417,8 @@ TEST_F(MPIProfileTest, outer_sync)
 
         MPI_Barrier(MPI_COMM_WORLD);
     }
+
+    parse_log(m_check_val_default);
 }
 
 TEST_F(MPIProfileTest, noctl)
