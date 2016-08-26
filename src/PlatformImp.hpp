@@ -221,6 +221,8 @@ namespace geopm
             /// @param [out] lower_bound The lower control bound.
             ///
             virtual void bound(int control_type, double &upper_bound, double &lower_bound) = 0;
+            /// @brief Return the path used for the MSR default save file.
+            std::string msr_save_file_path(void);
 
         protected:
 
@@ -332,7 +334,10 @@ namespace geopm
             struct m_msr_batch_array m_batch;
 
         private:
+            void build_msr_save_file_path(void);
             void build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name);
+
+            std::string m_msr_save_file_path;
 
             ///Constants
             const std::string M_MSR_SAVE_FILE_PATH;

@@ -72,6 +72,7 @@ class TestPlatformImp : public geopm::PlatformImp
 
     protected:
         FRIEND_TEST(PlatformImpTest, parse_topology);
+        std::vector<std::string> m_msr_file_paths;
 };
 
 TestPlatformImp::TestPlatformImp()
@@ -93,8 +94,7 @@ TestPlatformImp::TestPlatformImp()
 TestPlatformImp::~TestPlatformImp()
 {
     for (off_t i = 0; (int)i < m_num_hw_cpu; i++) {
-        snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", (int)i);
-        remove(m_msr_path);
+        remove(m_msr_file_paths.at(i).c_str());
     }
 }
 
@@ -141,8 +141,14 @@ void TestPlatformImp::msr_path(int cpu)
     int err;
     std::ofstream msrfile;
 
-    err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", cpu);
+    err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d_XXXXXX", cpu);
     ASSERT_TRUE(err >= 0);
+
+    int fd;
+    fd = mkstemp(m_msr_path);
+    close(fd);
+
+    m_msr_file_paths.push_back(m_msr_path);
 
     msrfile.open(m_msr_path, std::ios::out|std::ios::binary);
     ASSERT_TRUE(msrfile.is_open());
@@ -241,6 +247,7 @@ class TestPlatformImp2 : public geopm::PlatformImp
             lower_bound = DBL_MIN;
         }
         std::vector<std::string> m_msr_list;
+        std::vector<std::string> m_msr_file_paths;
 };
 
 TestPlatformImp2::TestPlatformImp2()
@@ -271,8 +278,14 @@ void TestPlatformImp2::msr_path(int cpu)
     int err;
     std::ofstream msrfile;
 
-    err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", cpu);
+    err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d_XXXXXX", cpu);
     ASSERT_TRUE(err >= 0);
+
+    int fd;
+    fd = mkstemp(m_msr_path);
+    close(fd);
+
+    m_msr_file_paths.push_back(m_msr_path);
 
     msrfile.open(m_msr_path, std::ios::out|std::ios::binary);
     ASSERT_TRUE(msrfile.is_open());
@@ -302,35 +315,6 @@ std::string TestPlatformImp2::platform_name()
 {
     std::string name = "test_platform2";
     return name;
-}
-
-// #3 is only needed to probe the MSR files created in #2.
-class TestPlatformImp3 : public TestPlatformImp2
-{
-    public:
-        virtual void save_msr_state(const char* path)
-        {
-            return;
-        }
-        virtual void msr_path(int cpu);
-        virtual std::string platform_name();
-        virtual void bound(int control_type, double &upper_bound, double &lower_bound)
-        {
-            upper_bound = DBL_MAX;
-            lower_bound = DBL_MIN;
-        }
-};
-
-std::string TestPlatformImp3::platform_name()
-{
-    std::string name = "test_platform3";
-    return name;
-}
-
-void TestPlatformImp3::msr_path(int cpu)
-{
-    int err = snprintf(m_msr_path, NAME_MAX, "/tmp/msrfile%d", cpu);
-    ASSERT_TRUE(err >= 0);
 }
 
 static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map(void)
@@ -462,12 +446,14 @@ class PlatformImpTest2: public :: testing :: Test
     protected:
         TestPlatformImp2 *m_platform2;
         virtual void TearDown();
+        std::vector<std::string> m_msr_file_paths;
 };
 
 PlatformImpTest2::PlatformImpTest2()
 {
     m_platform2 = new TestPlatformImp2();
     m_platform2->initialize();
+    m_msr_file_paths = m_platform2->m_msr_file_paths;
 }
 
 PlatformImpTest2::~PlatformImpTest2()
@@ -477,11 +463,8 @@ PlatformImpTest2::~PlatformImpTest2()
 
 void PlatformImpTest2::TearDown()
 {
-    char msr_path[NAME_MAX];
-
     for (int i = 0; i < NUM_CPU; i++) {
-        snprintf(msr_path, NAME_MAX, "/tmp/msrfile%d", i);
-        remove(msr_path);
+        remove(m_msr_file_paths.at(i).c_str());
     }
 }
 
@@ -789,17 +772,16 @@ TEST_F(PlatformImpTest2, msr_write_restore_read)
 TEST_F(PlatformImpTest2, msr_write_backup_file)
 {
     /// @todo Ask the PlatformImp for this string
-    const char *name = "/tmp/.geopm_msr_initial_vals";
     struct stat buf;
 
     // Verify that the backup file exists
-    EXPECT_TRUE(stat(name, &buf) == 0);
+    EXPECT_TRUE(stat(m_platform2->msr_save_file_path().c_str(), &buf) == 0);
     EXPECT_TRUE(buf.st_size > 0);
 
     m_platform2->revert_msr_state();
 
     // The backup file should be removed after it is used.
-    EXPECT_FALSE(stat(name, &buf) == 0);
+    EXPECT_FALSE(stat(m_platform2->msr_save_file_path().c_str(), &buf) == 0);
 }
 
 TEST_F(PlatformImpTest2, msr_restore_modified_value)
@@ -845,23 +827,15 @@ TEST_F(PlatformImpTest2, msr_restore_modified_value)
 
     m_platform2->revert_msr_state();
 
-    TestPlatformImp3 *m_platform3 = new TestPlatformImp3();
-
-    // Call initialize again (open the MSR fd's, but do not create a new MSR save file since
-    // that method was overrided)
-    m_platform3->initialize();
-
     // Call msr_read
-    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
     EXPECT_EQ(value, 0xDEADBEEF00000000);
-    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 1, "DRAM_POWER_LIMIT");
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, 1, "DRAM_POWER_LIMIT");
     EXPECT_EQ(value, 0xDEADBEEF00000002);
-    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL");
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 10, "PERF_FIXED_CTR_CTRL");
     EXPECT_EQ(value, 0xDEADBEEF00000003);
-    value = m_platform3->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "PERF_GLOBAL_OVF_CTRL");
+    value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_CPU, 15, "PERF_GLOBAL_OVF_CTRL");
     EXPECT_EQ(value, 0xDEADBEEF00000005);
-
-    delete m_platform3;
 }
 
 TEST_F(PlatformImpTest2, msr_restore_original)

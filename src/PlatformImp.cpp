@@ -65,7 +65,7 @@ namespace geopm
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
-        , M_MSR_SAVE_FILE_PATH("/tmp/.geopm_msr_initial_vals")
+        , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
     }
@@ -85,7 +85,7 @@ namespace geopm
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
-        , M_MSR_SAVE_FILE_PATH("/tmp/.geopm_msr_initial_vals")
+        , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
     }
@@ -103,6 +103,8 @@ namespace geopm
         if (m_msr_batch_desc != -1) {
             close(m_msr_batch_desc);
         }
+
+        remove(m_msr_save_file_path.c_str());
     }
 
     void PlatformImp::initialize()
@@ -113,7 +115,9 @@ namespace geopm
             msr_open(i);
         }
 
-        save_msr_state(M_MSR_SAVE_FILE_PATH.c_str());
+        build_msr_save_file_path();
+
+        save_msr_state(m_msr_save_file_path.c_str());
 
         msr_initialize();
     }
@@ -390,13 +394,13 @@ namespace geopm
         std::ofstream save_file;
 
         if (path == NULL) {
-            throw Exception("PlatformImp(): file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("PlatformImp(): MSR save file path is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         save_file.open(path);
 
         if (!save_file.good()) {
-            throw Exception("PlatformImp(): save_file stream is bad", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("PlatformImp(): MSR save_file stream is bad", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         //per package state
@@ -459,7 +463,31 @@ namespace geopm
 
     void PlatformImp::revert_msr_state(void)
     {
-        restore_msr_state(M_MSR_SAVE_FILE_PATH.c_str());
+        restore_msr_state(m_msr_save_file_path.c_str());
     }
 
+    void PlatformImp::build_msr_save_file_path()
+    {
+        std::string path_template(M_MSR_SAVE_FILE_PATH);
+
+        if (path_template.size() > NAME_MAX)
+        {
+            throw Exception("Save file path too long!", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        char tmp_path_template[NAME_MAX];
+        std::copy(path_template.begin(), path_template.end(), tmp_path_template);
+        tmp_path_template[path_template.size()] = '\0';
+
+        int fd;
+        fd = mkstemp(tmp_path_template);
+        close(fd);
+
+        m_msr_save_file_path = tmp_path_template;
+    }
+
+    std::string PlatformImp::msr_save_file_path(void)
+    {
+        return m_msr_save_file_path;
+    }
 }
