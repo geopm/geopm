@@ -82,8 +82,8 @@ static inline void geopm_time_add(const struct geopm_time_s *begin, double elaps
     end->t.tv_sec += elapsed;
     elapsed -= floor(elapsed);
     end->t.tv_nsec += 1E9 * elapsed;
-    if (end->t.tv_nsec >= 100000000) {
-        end->t.tv_nsec -= 100000000;
+    if (end->t.tv_nsec >= 1000000000) {
+        end->t.tv_nsec -= 1000000000;
         ++(end->t.tv_sec);
     }
 }
