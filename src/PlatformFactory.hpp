@@ -38,6 +38,8 @@
 
 #include "Platform.hpp"
 
+int geopm_read_cpuid(void);
+
 namespace geopm
 {
     /// @brief Provides a factory abstraction for creating Platform/PlatformImp pairs
@@ -92,7 +94,7 @@ namespace geopm
         private:
             /// @brief Uses the cpuid asm instruction to identify the hardware
             /// it is being run on.
-            virtual int read_cpuid();
+            virtual int read_cpuid(void);
 
             // @brief Holds all registered concrete Platform instances.
             std::vector<Platform *> platforms;

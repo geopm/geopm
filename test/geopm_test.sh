@@ -88,7 +88,7 @@ else
 
     # Enable GEOPM runtime variables for MPIProfile tests
     if [[ $test_name =~ ^MPIProfile ||
-        $test_name =~ ^MPIController ]] &&
+          $test_name =~ ^MPIController ]] &&
         [[ ! $test_name =~ noctl ]]; then
        export GEOPM_POLICY=test/default_policy.json
        export GEOPM_PMPI_CTL=process

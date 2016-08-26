@@ -31,10 +31,14 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "PlatformFactory.hpp"
-#include "Platform.hpp"
 #include "geopm_hash.h"
 
 
@@ -51,24 +55,35 @@ int main(int argc, char **argv)
         }
         else {
             err = GEOPM_ERROR_PLATFORM_UNSUPPORTED;
-            std::cerr << "Warning: Platform does not support crc32 intrinsic." << std::endl;
+            std::cerr << "Warning: <geopm_platform_supported>: Platform does not support crc32 intrinsic." << std::endl;
         }
     }
     else {
-        try {
-            geopm::PlatformFactory factory;
-            geopm::Platform *platform = factory.platform("rapl");
-            std::string plat_name;
-            platform->name(plat_name);
-            std::cout << "Platform \"" << plat_name << "\" supported by GEOPM runtime." << std::endl;
-        }
-        catch (geopm::Exception ex) {
-            err = ex.err_value();
+        int cpu_id = geopm_read_cpuid();
+        if (cpu_id != 0x63F &&
+            cpu_id != 0x63F &&
+            cpu_id != 0x63E &&
+            cpu_id != 0x62D &&
+            cpu_id != 0x64F &&
+            cpu_id != 0x657) {
+            err = GEOPM_ERROR_PLATFORM_UNSUPPORTED;
             geopm_error_message(err, error_msg, 512);
-            std::cerr << "Warning: <geopm_platform_supported>: " << error_msg << "." << std::endl;
-            if (err != GEOPM_ERROR_PLATFORM_UNSUPPORTED) {
-                 err = 0;
+            std::cerr << "Warning: <geopm_platform_supported>: Platform does not have a supported CPU " << std::hex << cpu_id << " " << error_msg << "." << std::endl;
+        }
+        if (!err) {
+            int fd = open("/dev/cpu/0/msr_safe", O_RDONLY);
+            if (fd == -1) {
+                err = GEOPM_ERROR_MSR_OPEN;
+                geopm_error_message(err, error_msg, 512);
+                std::cerr << "Warning: <geopm_platform_supported>: Not able to open msr_safe device. " << error_msg << "." << std::endl;
+
             }
+            else {
+                close(fd);
+            }
+        }
+        if (!err) {
+           std::cout << "Platform 0x" << std::hex << cpu_id << " is supported by geopm and msr_safe is available." << std::endl;
         }
     }
     return err;
