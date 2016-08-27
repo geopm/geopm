@@ -228,7 +228,7 @@ namespace geopm
 
         int rv = pwrite(m_cpu_file_desc[device_index], &value, sizeof(value), msr_offset);
         if (rv != sizeof(value)) {
-            throw Exception(std::to_string(msr_offset), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+            throw Exception(std::to_string(msr_offset) + " value: " + std::to_string(value), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
     }
 

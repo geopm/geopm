@@ -75,7 +75,7 @@ namespace geopm
 
     XeonPlatformImp::~XeonPlatformImp()
     {
-
+        rapl_reset();
     }
 
     SNBPlatformImp::SNBPlatformImp()
@@ -284,10 +284,10 @@ namespace geopm
                     m_batch.ops[index].wmask = 0x0;
                     switch ((*it).device_type) {
                         case GEOPM_DOMAIN_PACKAGE:
-                            m_batch.ops[index].cpu = (m_num_logical_cpu / m_num_package) * (*it).device_index;
+                            m_batch.ops[index].cpu = (m_num_hw_cpu / m_num_package) * (*it).device_index;
                             break;
                         case GEOPM_DOMAIN_TILE:
-                            m_batch.ops[index].cpu = (m_num_logical_cpu / m_num_tile) * (*it).device_index;
+                            m_batch.ops[index].cpu = (m_num_hw_cpu / m_num_tile) * (*it).device_index;
                             break;
                         case GEOPM_DOMAIN_CPU:
                             m_batch.ops[index].cpu = (*it).device_index;
@@ -396,7 +396,7 @@ namespace geopm
                     value = m_max_pkg_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK;
+                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK | m_pkg_time_window;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
                     m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
                 break;
@@ -515,6 +515,11 @@ namespace geopm
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
 
+        //Set time window 1 to the m_control_latency_ms
+        m_pkg_time_window = (uint64_t)(log(m_control_latency_ms)/log(2)) << 17;
+        //Set time window 2 to 1 sec
+        m_pkg_time_window = m_pkg_time_window | (0xaul << 49);
+
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
             double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
@@ -593,13 +598,14 @@ namespace geopm
 
     void XeonPlatformImp::rapl_reset()
     {
+        uint64_t msr_val;
         //clear power limits
         for (int i = 1; i < m_num_package; i++) {
-            msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", 0x0);
-            msr_write(GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT", 0x0);
+            msr_val = (uint64_t)(m_max_pkg_watts * m_power_units);
+            msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK | m_pkg_time_window;
+            msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", msr_val);
             msr_write(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
         }
-
     }
 
     void XeonPlatformImp::cbo_counters_reset()

@@ -321,6 +321,8 @@ namespace geopm
             double m_control_latency_ms;
             /// @brief TDP value for package (CPU) power read from RAPL.
             double m_tdp_pkg_watts;
+            /// @brief Time window that the PCU controls power over.
+            uint64_t m_pkg_time_window;
             /// @brief The last values read from all counters.
             std::vector<uint64_t> m_msr_value_last;
             /// @brief The current aggregated overflow for all the counters.
