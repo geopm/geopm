@@ -102,6 +102,8 @@ AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
 if test "x$with_mpi_bin" != x; then
   MPICC=$with_mpi_bin/mpicc
   MPICXX=$with_mpi_bin/mpicxx
+  MPIFC=$with_mpi_bin/mpif90
+  MPIF77=$with_mpi_bin/mpif77
 fi
 
 AC_ARG_WITH([mpicc], [AS_HELP_STRING([--with-mpicc=PATH],
@@ -406,7 +408,8 @@ MPI_FLIBS=$MPI_F77LIBS
 #
 [MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
 [MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
-
+[MPI_FCFLAGS=`echo $MPI_FCFLAGS | sed 's|-lmpigi||'`]
+[MPI_FFFLAGS=`echo $MPI_FFFLAGS | sed 's|-lmpigi||'`]
 AC_SUBST([MPI_FCFLAGS])
 AC_SUBST([MPI_FFLAGS])
 AC_SUBST([MPI_LDFLAGS])
