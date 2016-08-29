@@ -515,10 +515,10 @@ namespace geopm
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
 
-        //Set time window 1 to the m_control_latency_ms
-        m_pkg_time_window = (uint64_t)(log(m_control_latency_ms)/log(2)) << 17;
-        //Set time window 2 to 1 sec
-        m_pkg_time_window = m_pkg_time_window | (0xaul << 49);
+        //Set time window 1 to 1 sec
+        m_pkg_time_window = m_pkg_time_window | (0xaul << 17);
+        //Set time window 2 to the m_control_latency_ms
+        m_pkg_time_window = (uint64_t)(log(m_control_latency_ms)/log(2)) << 49;
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
