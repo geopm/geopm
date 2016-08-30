@@ -60,6 +60,9 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
     elif [ "$TRAVIS_REPO_SLUG" == "bgeltz/geopm" ]; then
         obs_url=https://api.opensuse.org/source/home:bgeltz/geopm
         do_obs=true
+    elif [ "$TRAVIS_REPO_SLUG" == "sssylvester/geopm" ]; then
+        obs_url=https://api.opensuse.org/source/home:sssylvester/geopm
+        do_obs=true
     fi
 
 fi
