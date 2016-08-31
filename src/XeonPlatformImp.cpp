@@ -116,7 +116,7 @@ namespace geopm
     HSXPlatformImp::HSXPlatformImp(int platform_id, const std::string &model_name)
         : XeonPlatformImp(platform_id, model_name, &(hsx_msr_map()))
     {
-
+        XeonPlatformImp::m_dram_energy_units = 1.5258789063E-5;
     }
 
     HSXPlatformImp::~HSXPlatformImp()
