@@ -135,6 +135,7 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
         double value = 0.0;
         double outer_sync_value = 0.0;
         double mpi_value = 0.0;
+        double startup_value = 0.0;
 
         std::ifstream log(m_log_file_node, std::ios_base::in);
 
@@ -159,16 +160,20 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
                 std::getline(log, line);
                 ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value));
             }
+            else if (line.find("Region geopm_mpi_test-startup:") == 0) {
+                std::getline(log, line);
+                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &startup_value));
+            }
             if (curr_value != -1.0) {
                 std::getline(log, line);
                 ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &value));
-                ASSERT_GT(m_epsilon, fabs(curr_value - value));
+                ASSERT_NEAR(value, curr_value, m_epsilon);
             }
         }
 
         if (outer_sync_value != 0.0 && mpi_value != 0.0) {
-            double outer_sync_target = std::accumulate(check_val.begin(), check_val.end(), mpi_value);
-            ASSERT_GT(m_epsilon, fabs(outer_sync_target - outer_sync_value));
+            double outer_sync_target = std::accumulate(check_val.begin(), check_val.end(), startup_value + mpi_value);
+            ASSERT_NEAR(outer_sync_target, outer_sync_value, m_epsilon);
         }
 
         log.close();

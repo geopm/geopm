@@ -30,9 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gtest/gtest.h"
-#include "mpi.h"
 #include <stdlib.h>
+#include "mpi.h"
+#include "gtest/gtest.h"
+#include "geopm.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 1024
@@ -46,9 +47,15 @@ int main(int argc, char **argv)
 
     err = MPI_Init(&argc, &argv);
     if (err) {
-        std::cerr << "Error: <geopm_mpi_test>, MPI_Init failed: " << err << std::endl;
+        std::cerr << "Error: <geopm_mpi_test>, MPI_Init() failed: " << err << std::endl;
+        (void)MPI_Abort(MPI_COMM_WORLD, err);
         return err;
     }
+
+    uint64_t startup_rid = 0;
+    geopm_prof_region("geopm_mpi_test-startup", GEOPM_POLICY_HINT_UNKNOWN, &startup_rid);
+    MPI_Barrier(MPI_COMM_WORLD);
+    geopm_prof_enter(startup_rid);
 
     testing::InitGoogleTest(&argc, argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -71,6 +78,10 @@ int main(int argc, char **argv)
         perror(per_rank_err_name);
         exit(EXIT_FAILURE);
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    geopm_prof_exit(startup_rid);
+
     try {
         err = RUN_ALL_TESTS();
     }
