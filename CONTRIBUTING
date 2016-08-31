@@ -1,24 +1,84 @@
 CONTRIBUTING
 ============
-This file describes how to contribute to the geopm project.  We would like to
-support development (build and unit testing) on a number of platforms.  Please
-report any issues you have with build and unit testing on your favorite
-development platform.
+This file describes how to contribute to the geopm project.  All
+feedback is appreciated.
 
+BUG REPORT
+==========
+Please file an issue on our github site for any bug observed:
 
-CODING STYLE
-============
-Code formatting can be corrected to conform to the standard using
-astyle with the following options:
+    https://github.com/geopm/geopm/issues
 
-    astyle --style=linux --indent=spaces=4 -y -S -C -N
+If possible, please reproduce issue with the --enable-debug option
+passed to configure at build time and then report any error messages
+emitted by geopm at run time.  Please provide the version of geopm
+that produced the problem.  The geopm version can be found by running
+the command
+
+    geopmpolicy --version
+
+Providing code that is small and reproduces the issue is nice to have.
+
+FEATURE REQUEST
+===============
+Please submit a issue on github for any feature requests.
+
+CHANGE REQUEST
+==============
+There are two ways to submit a change request.  Opening a pull request
+on github from a fork of geopm is preferred for most cases.  It is
+also acceptable to submit a change request directly to gerrithub, and
+this is the workflow for maintainers and active developers.
+
+Github pull request
+-------------------
+All pull requests to the geopm/geopm repository on github will
+automatically be submitted to travis-ci for unit testing.  The link
+for creating a pull request is here:
+
+    https://github.com/geopm/geopm/pulls
+
+and the link to the results of the unit testing is here:
+
+    https://travis-ci.org/geopm/geopm
+
+If the tests pass in travis-ci then the pull request will be brought
+into gerrithub for review by the geopm maintainers.  Including a
+Change-id: and Signed-off-by: line in the commit message is
+appreciated, but not required (they will be added for you by the
+maintainers).  The link for the gerrithub reviews is here:
+
+    https://review.gerrithub.io/#/q/project:geopm/geopm
+
+We encourage users and developers of the geopm software to participate
+in our code review process through gerrithub.  When the request passes
+review the change will be integrated into the geopm development branch
+on github through a gerrit submission.
+
+Gerrithub review request
+------------------------
+It is also possible to submit a change request directly to gerrithub.
+This is the primary workflow of active developers.  When using this
+method please include a Change-id: and Signed-off-by: line in the
+commit message.  The geopm gerrit server information can be found
+here:
+
+    https://review.gerrithub.io/#/admin/projects/geopm/geopm
+
+Please refer to the gerrit documentation on how to create review
+request.
 
 TEST INSTRUCTIONS
 =================
-To test the library once it has been built run
+To launch the geopm unit tests run the following command in the geopm
+directory:
 
     make check
 
+Please run these tests before submitting a change request.  Set the
+MPIEXEC environment variable as is appropriate for your system to
+launch the tests with an MPI dependency.  The default if MPIEXEC not
+set is "mpiexec".
 
 COVERAGE INSTRUCTIONS
 =====================
@@ -32,139 +92,42 @@ simply run
 
     make coverage
 
-which run tests and produce a coverage report in
+which runs tests and produce a coverage report in
 
     coverage/index.html
 
 Note that all tests must pass in order to generate a coverage report.
+Any help in increasing code coverage levels is appreciated.
 
+CODING STYLE
+============
+Code formatting can be corrected to conform to the geopm standard
+using astyle with the following options:
 
-LIBRARY DESIGN
-==============
+    astyle --style=linux --indent=spaces=4 -y -S -C -N
 
-The geopm library solves a range of distributed computing power management
-problems.  We will break down each of these problems first and then propose a
-solution.  The library is designed to implement these solutions with the
-intention of balancing the trade offs between two goals: performance and
-code reuse.
+Note that astyle is not perfect (in particular it is confused by C++11
+initializer lists), and some versions of astyle will format the code
+slightly differently.
 
-Problem 1: Fixed control
-------------------------
+Use C style variable names with lower case and underscores.  Upper
+camel case is used exclusively for class names.  Prefix all member
+variables with "m_" and all global variables with "g_".  Do not prefix
+class methods with "get_" or "set_", the interface should reflect the
+usage.
 
-Requirements:
-~~~~~~~~~~~~~
+Please avoid global variables as much as possible and if it is
+necessary to use a global (primarily for C code) please scope them
+statically to the compilation unit.
 
-Must set MSR values on all of the compute nodes that are part of an MPI job
-allocation before the application starts up.  At application termination, reset
-MSRs to original values.  The values for these MSRs are derived from a
-configuration file read at application start up.  This configuration file may
-have been generated by the resource manager.
+Avoid preprocessor macros as much as possible (use enum not #define).
+Preprocesssor usage should be reserved for expressing configure time
+options.
 
-Solution:
-~~~~~~~~~
-
-Problem can be solved with one application that runs on every compute node
-independently.  MPI can be used for process placement, or a distributed shell
-or parallel job launch (e.g. srun or aprun) can be used.  No communication is
-required beyond access to a shared file system to read the configuration file.
-Command can be issued in epilogue and prologue script.  No modifications to
-the application are required.  Abstraction of hardware may have some value,
-but not strictly necessary since application is not being modified, and
-epilogue and prologue script are installation specific.
-
-Problem 2: Application profile feedback
----------------------------------------
-
-Requirements:
-~~~~~~~~~~~~~
-
-Must write MSR values dynamically at runtime in response to feedback from
-computation application and feedback from system resource manager.  This
-feedback is derived from the compute application and the resource manager
-making calls to GEOPM APIs.
-
-The application feedback includes:
-
-1) Registration of a string and a 64 bit integer identifier associated with a
-   section of code with a distinct computational signature (region).  If no
-   identifier is provided, define a hash function to map string to 64 bit
-   integer.
-
-2) Identifying entry and exit from section of code associated with a region.
-
-3) Measuring performance counter registers to characterize a region at time of
-   region entry and region exit.
-
-4) Marking fractional progress within a region.
-
-5) Regions cannot be nested: only outer-most region is profiled, nested regions
-   are ignored.  This avoids region ID lookup for progress reporting which must
-   be in the fast path.  It also avoids storing counter data for more than one
-   region at a time, only aggregated data is stored for every region.
-
-The resource manager feedback includes:
-
-1) For static control, write a configuration file that sets a power budget for
-   the entire job.  Pass the path to the configuration file to the calling
-   application.
-
-2) For dynamic control, write to shared memory a power budget for the entire
-   job.  The shared memory region must be accessible from the root process of
-   the job's MPI communicator.
-
-Solution with application integration of control:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-Solution with POSIX thread creation:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-Solution with a helper process:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If the application processes are impacted to an unacceptable level, an
-alternative solution would introduce one process per compute node that is
-dedicated to calculating optimal control policy.  This dedicated process would
-be pinned to a CPU that is not used by the primary application.  The
-alternative solution is more easily justified on a many-core architecture and
-an application which is memory bandwidth bound, or memory footprint bound.  In
-these situations the cores used for control would otherwise provide no
-benefit, at least during the process regions which are bounded by memory
-constraints.  There are several challenges introduced by this solution with
-regard to process creation and interprocess communication.
-
-Modify job launch script to simultaneously launch MPI application used for
-control.  This control application communicates by POSIX shared memory with
-one of the primary application processes on each compute node.  The POSIX
-shared memory key must be passed to the primary application at start up, and
-is the same string on all compute nodes under control.  Process placement on
-an unused core is resource management specific.  This will have to be managed
-by the end user.
-
-Problem 3: Unmodified application feedback
-------------------------------------------
-
-Requirements
-~~~~~~~~~~~~
-
-Must write MSR values dynamically at runtime in response to feedback collected
-at a periodic interval by a daemon process measuring package level performance
-counters and interrupting the application to measure CPU specific performance
-counters.  This is a stretch goal, and not intended to be solved by early
-versions of geopm.
-
-Node local optimizations
-
-- Temporal energy steering from one region to another
-
-- Per region optimization energy steering between CPUs on a package (tile
-  groups)
-
-- Spatially steering optimization of power between different hardware resources
-
-Internode optimizations
-
-- Spatially steering the allocation of power between nodes
+Introducing a new file requires a license comment in its header with a
+corresponding copying_headers/header.* file.  The new file path must
+be listed in the corresponding copying_headers/MANIFEST.* file.  This
+can be tested by running the copying_headers/test_license script after
+commiting the new file to git, removing the geopm/MANIFEST file and
+running the autogen.sh script.  Files for which a license comment is
+not appropriate should be listed in copying_headers/MANIFEST.EXEMPT.
