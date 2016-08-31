@@ -211,9 +211,9 @@ namespace geopm
         curr_value &= ~msr_mask;
 
         if (device_type == GEOPM_DOMAIN_PACKAGE)
-            device_index = (m_num_logical_cpu / m_num_package) * device_index;
+            device_index = (m_num_hw_cpu / m_num_package) * device_index;
         else if (device_type == GEOPM_DOMAIN_TILE)
-            device_index = (m_num_logical_cpu / m_num_tile) * device_index;
+            device_index = (m_num_hw_cpu / m_num_tile) * device_index;
 
         if (m_cpu_file_desc.size() < (uint64_t)device_index) {
             throw Exception("no file descriptor found for cpu device", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
