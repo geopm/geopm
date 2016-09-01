@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_9da3a900",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-01T18:42:48Z",
+      "side": 1,
+      "message": "do we want an \"_\" or a \"-\" to joint the domain index?",
+      "revId": "d785d37e324dd434b54ae41096795746555d85ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
