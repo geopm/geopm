@@ -93,7 +93,7 @@ EXTRA_DIST = .gitignore \
              autogen.sh \
              ChangeLog \
              configure.ac \
-             CONTRIBUTING \
+             CONTRIBUTING.md \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
              copying_headers/header.NAS \

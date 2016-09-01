@@ -1,7 +1,7 @@
 .gitignore
 AUTHORS
 ChangeLog
-CONTRIBUTING
+CONTRIBUTING.md
 COPYING
 copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl

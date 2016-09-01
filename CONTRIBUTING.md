@@ -4,10 +4,10 @@ This file describes how to contribute to the geopm project.  All
 feedback is appreciated.
 
 BUG REPORT
-==========
+----------
 Please file an issue on our github site for any bug observed:
 
-    https://github.com/geopm/geopm/issues
+https://github.com/geopm/geopm/issues
 
 If possible, please reproduce issue with the --enable-debug option
 passed to configure at build time and then report any error messages
@@ -20,27 +20,26 @@ the command
 Providing code that is small and reproduces the issue is nice to have.
 
 FEATURE REQUEST
-===============
+---------------
 Please submit a issue on github for any feature requests.
 
 CHANGE REQUEST
-==============
+--------------
 There are two ways to submit a change request.  Opening a pull request
 on github from a fork of geopm is preferred for most cases.  It is
 also acceptable to submit a change request directly to gerrithub, and
 this is the workflow for maintainers and active developers.
 
-Github pull request
--------------------
+### Github pull request
 All pull requests to the geopm/geopm repository on github will
 automatically be submitted to travis-ci for unit testing.  The link
 for creating a pull request is here:
 
-    https://github.com/geopm/geopm/pulls
+https://github.com/geopm/geopm/pulls
 
 and the link to the results of the unit testing is here:
 
-    https://travis-ci.org/geopm/geopm
+https://travis-ci.org/geopm/geopm
 
 If the tests pass in travis-ci then the pull request will be brought
 into gerrithub for review by the geopm maintainers.  Including a
@@ -48,28 +47,27 @@ Change-id: and Signed-off-by: line in the commit message is
 appreciated, but not required (they will be added for you by the
 maintainers).  The link for the gerrithub reviews is here:
 
-    https://review.gerrithub.io/#/q/project:geopm/geopm
+https://review.gerrithub.io/#/q/project:geopm/geopm
 
 We encourage users and developers of the geopm software to participate
 in our code review process through gerrithub.  When the request passes
 review the change will be integrated into the geopm development branch
 on github through a gerrit submission.
 
-Gerrithub review request
-------------------------
+### Gerrithub review request
 It is also possible to submit a change request directly to gerrithub.
 This is the primary workflow of active developers.  When using this
 method please include a Change-id: and Signed-off-by: line in the
 commit message.  The geopm gerrit server information can be found
 here:
 
-    https://review.gerrithub.io/#/admin/projects/geopm/geopm
+https://review.gerrithub.io/#/admin/projects/geopm/geopm
 
 Please refer to the gerrit documentation on how to create review
 request.
 
 TEST INSTRUCTIONS
-=================
+-----------------
 To launch the geopm unit tests run the following command in the geopm
 directory:
 
@@ -81,11 +79,11 @@ launch the tests with an MPI dependency.  The default if MPIEXEC not
 set is "mpiexec".
 
 COVERAGE INSTRUCTIONS
-=====================
+---------------------
 To generate a coverage report, first be sure that you have installed
 the lcov package available here:
 
-    http://ltp.sourceforge.net/coverage/lcov.php
+http://ltp.sourceforge.net/coverage/lcov.php
 
 The geopm build must be configured with the "--enable-coverage" option.  Then
 simply run
@@ -100,7 +98,7 @@ Note that all tests must pass in order to generate a coverage report.
 Any help in increasing code coverage levels is appreciated.
 
 CODING STYLE
-============
+------------
 Code formatting can be corrected to conform to the geopm standard
 using astyle with the following options:
 
