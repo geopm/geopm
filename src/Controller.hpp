@@ -203,6 +203,8 @@ namespace geopm
             struct geopm_time_s m_loop_t0;
             bool m_is_in_outer;
             int m_rank_per_node;
+            double m_outer_sync_time;
+            bool m_is_outer_changed;
     };
 }
 
