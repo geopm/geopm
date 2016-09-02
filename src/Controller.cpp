@@ -184,6 +184,8 @@ namespace geopm
         , m_rate_limit(0.0)
         , m_is_in_outer(false)
         , m_rank_per_node(0)
+        , m_outer_sync_time(0.0)
+        , m_is_outer_changed(false)
     {
         MPI_Comm ppn1_comm;
         int err = 0;
@@ -300,7 +302,7 @@ namespace geopm
                     num_domain = m_tree_comm->level_size(level - 1);
                 }
                 m_policy[level] = new Policy(num_domain);
-                if (m_platform->control_domain() == GEOPM_CONTROL_DOMAIN_POWER) {
+                if (m_platform->control_domain() == GEOPM_CONTROL_DOMAIN_POWER && level == 1) {
                     upper_bound *= m_platform->num_control_domain();
                     lower_bound *= m_platform->num_control_domain();
                     if (level > 1) {
@@ -622,7 +624,6 @@ namespace geopm
                     update_region();
                     m_tracer->update(m_telemetry_sample);
                 }
-
                 // GEOPM_REGION_ID_OUTER is inserted at construction
                 auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                 (*outer_it).second->sample_message(sample_msg);
@@ -631,18 +632,19 @@ namespace geopm
                 // GEOPM_REGION_ID_MPI is inserted at construction
                 struct geopm_sample_message_s mpi_sample;
                 (*mpi_it).second->sample_message(mpi_sample);
-                if (sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != 0.0) {
+                if (sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_outer_sync_time) {
+                    m_outer_sync_time = sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                    m_is_outer_changed = true;
                     sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                 }
-
                 m_do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
                 m_policy[level]->is_converged(m_region_id_all) &&
-                (sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] > 0.0) &&
-                !geopm_is_sample_equal(&m_last_sample_msg[level], &sample_msg)) {
+                m_is_outer_changed) {
                 m_tree_comm->send_sample(level, sample_msg);
                 m_last_sample_msg[level] = sample_msg;
+                m_is_outer_changed = false;
             }
         }
         if (m_do_shutdown && m_sampler->do_report()) {
