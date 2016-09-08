@@ -92,8 +92,6 @@ namespace geopm
                     struct m_rank_sample_s rank_sample;
                     rank_sample.timestamp = (*it).second.timestamp;
                     rank_sample.progress = (*it).second.progress;
-                    /// @todo: FIXME geopm_prof_message_s does not contain runtime
-                    // rank_sample.runtime = (*it).second.runtime;
                     rank_sample.runtime = 0.0;
                     // Dereference of find result below will
                     // segfault with bad profile sample data
