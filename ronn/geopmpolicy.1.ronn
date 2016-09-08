@@ -107,7 +107,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     the whitelist before enabling user access.
 
   * `-m` mode:
-    <br> Power management mode, must be one of those described in the [MODES][] section
+    Power management mode, must be one of those described in the [MODES][] section
     below.  The static modes do not require the geopm runtime to be running
     concurrently with the primary computational application, where as dynamic
     modes do have a runtime requirement on geopm.
