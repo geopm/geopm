@@ -288,6 +288,7 @@ namespace geopm
             std::vector<double> m_sum_squares;
             struct geopm_sample_message_s m_agg_stats;
             uint64_t m_num_entry;
+            std::vector<bool> m_is_entered;
     };
 }
 

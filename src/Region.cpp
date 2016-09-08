@@ -59,6 +59,7 @@ namespace geopm
         , m_sum_squares(m_num_signal * m_num_domain)
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
         , m_num_entry(0)
+        , m_is_entered(m_num_domain)
     {
         std::fill(m_domain_sample.begin(), m_domain_sample.end(), m_curr_sample);
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
@@ -68,6 +69,7 @@ namespace geopm
         std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
         struct geopm_telemetry_message_s invalid_telemetry = {0, {{0, 0}}, {0}};
         std::fill(m_entry_telemetry.begin(), m_entry_telemetry.end(), invalid_telemetry);
+        std::fill(m_is_entered.begin(), m_is_entered.end(), false);
     }
 
     Region::~Region()
@@ -309,16 +311,24 @@ namespace geopm
 
     bool Region::is_telemetry_entry(const struct geopm_telemetry_message_s &telemetry, int domain_idx)
     {
-        return telemetry.signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 0.0 && // We are entering the region
-               telemetry.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0 && // The sample is valid
-               domain_buffer_value(-1, domain_idx, GEOPM_TELEMETRY_TYPE_PROGRESS) != 0.0; // We have not already entered region
+        bool result = telemetry.signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 0.0 && // We are entering the region
+                      telemetry.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0 && // The sample is valid
+                      !m_is_entered[domain_idx]; // We have not already entered region
+        if (result) {
+            m_is_entered[domain_idx] = true;
+        }
+        return result;
     }
 
     bool Region::is_telemetry_exit(const struct geopm_telemetry_message_s &telemetry, int domain_idx)
     {
-        return telemetry.signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0 && // We are exiting the region
-               telemetry.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0 && // The sample is valid
-               domain_buffer_value(-1, domain_idx, GEOPM_TELEMETRY_TYPE_PROGRESS) != 1.0; // We have not already exited region
+        bool result = telemetry.signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 1.0 && // We are exiting the region
+                      telemetry.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] != -1.0 && // The sample is valid
+                      domain_buffer_value(-1, domain_idx, GEOPM_TELEMETRY_TYPE_PROGRESS) != 1.0; // We have not already exited region
+        if (result) {
+            m_is_entered[domain_idx] = false;
+        }
+        return result;
     }
 
     void Region::update_domain_sample(const struct geopm_telemetry_message_s &telemetry, int domain_idx)
@@ -326,8 +336,7 @@ namespace geopm
         if (is_telemetry_entry(telemetry, domain_idx) ) {
             m_entry_telemetry[domain_idx] = telemetry;
         }
-        /// @todo why does the Region get telemetry data for a different region id?
-        else if (m_entry_telemetry[domain_idx].region_id == m_identifier &&
+        else if (m_entry_telemetry[domain_idx].region_id != 0 &&
                  is_telemetry_exit(telemetry, domain_idx)) {
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                 geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry.timestamp));
