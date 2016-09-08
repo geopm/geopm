@@ -37,6 +37,10 @@ noinst_PROGRAMS += examples/geopm_platform_supported
 examples_geopm_platform_supported_SOURCES = examples/geopm_platform_supported.cpp
 examples_geopm_platform_supported_LDADD = libgeopmpolicy.la
 
+noinst_PROGRAMS += examples/geopmhash
+examples_geopmhash_SOURCES = examples/geopmhash.c
+examples_geopmhash_LDADD = libgeopmpolicy.la
+
 if ENABLE_MPI
     noinst_PROGRAMS += examples/geopm_ctl_single \
                        examples/timed_region \
