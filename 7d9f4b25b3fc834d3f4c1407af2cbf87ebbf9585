@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_ee6788e8",
+        "filename": "src/Region.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2016-09-08T23:05:13Z",
+      "side": 1,
+      "message": "What is the purpose of this change? The old code seemed to be making sure that telemetry truly belonged to this specific region, where the new check only makes sure it is in a region.",
+      "range": {
+        "startLine": 339,
+        "startChar": 57,
+        "endLine": 339,
+        "endChar": 61
+      },
+      "revId": "7d9f4b25b3fc834d3f4c1407af2cbf87ebbf9585",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
