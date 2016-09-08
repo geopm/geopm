@@ -55,7 +55,6 @@ const char *program_invocation_name = "geopm_profile";
 #include "LockingHashTable.hpp"
 #include "config.h"
 
-
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
 {
     return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
@@ -232,7 +231,7 @@ namespace geopm
     {
         int shm_num_rank = 0;
 
-        PMPI_Comm_rank(comm, &m_rank);
+        MPI_Comm_rank(comm, &m_rank);
         geopm_comm_split_shared(comm, "prof", &m_shm_comm);
         PMPI_Comm_rank(m_shm_comm, &m_shm_rank);
         PMPI_Comm_size(m_shm_comm, &shm_num_rank);
