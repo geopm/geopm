@@ -30,33 +30,49 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TUTORIAL_REGION_H_INCLUDE
-#define TUTORIAL_REGION_H_INCLUDE
+#include <iostream>
 
-int tutorial_sleep(double big_o, int do_report);
-int tutorial_dgemm(double big_o, int do_report);
-int tutorial_stream(double big_o, int do_report);
-int tutorial_all2all(double big_o, int do_report);
-int tutorial_stream_profiled(double big_o, int do_report);
+#include "Exception.hpp"
+#include "ModelApplication.hpp"
 
-#ifndef TUTORIAL_ENABLE_MKL
-// Terrible DGEMM implementation if there is no BLAS
-static inline
-void dgemm(const char *transa, const char *transb, const int *M,
-           const int *N, const int *K, const double *alpha,
-           const double *A, const int *LDA, const double *B,
-           const int *LDB, const double *beta, double *C, const int *LDC)
+namespace geopm
 {
-#pragma omp parallel for
-    for (int i = 0; i < *M; ++i) {
-        for (int j = 0; j < *N; ++j) {
-            C[i * *LDC + j] = 0;
-            for (int k = 0; k < *K; ++k) {
-                C[i * *LDC + j] += A[i * *LDA + j] * B[j * *LDB + k];
+    ModelApplication::ModelApplication(std::vector<std::string> region_name, std::vector<double> big_o, uint64_t repeat, int verbosity, int rank)
+        : m_repeat(repeat)
+        , m_rank(rank)
+    {
+        if (region_name.size() != big_o.size()) {
+            throw Exception("ModelApplication: Length of region names is different than the length of big_o",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto name_it = region_name.begin();
+        for (auto big_o_it = big_o.begin(); big_o_it != big_o.end(); ++big_o_it, ++name_it) {
+            m_region.push_back(model_region_factory(*name_it, *big_o_it, verbosity));
+        }
+    }
+
+    ModelApplication::~ModelApplication()
+    {
+        for (auto it = m_region.rbegin(); it != m_region.rend(); ++it) {
+            delete *it;
+        }
+    }
+
+    void ModelApplication::run(void)
+    {
+        if (!m_rank) {
+            std::cout << "Beginning loop of " << m_repeat << " iterations." << std::endl << std::flush;
+        }
+        for (uint64_t i = 0; i < m_repeat; ++i) {
+            for (auto it = m_region.begin(); it != m_region.end(); ++it) {
+                (*it)->run();
             }
+            if (!m_rank) {
+                std::cout << "Iteration: " << i << "\r" << std::flush;
+            }
+        }
+        if (!m_rank) {
+            std::cout << "Completed loop.                    " << std::endl << std::flush;
         }
     }
 }
-#endif
-
-#endif

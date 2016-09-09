@@ -42,32 +42,9 @@
 
 #include "geopm.h"
 #include "tutorial_region.h"
-
-void dgemm(const char *transa, const char *transb, const int *M,
-           const int *N, const int *K, const double *alpha,
-           const double *A, const int *LDA, const double *B,
-           const int *LDB, const double *beta, double *C, const int *LDC);
-
-
-#ifndef TUTORIAL_ENABLE_BLAS
-void dgemm(const char *transa, const char *transb, const int *M,
-           const int *N, const int *K, const double *alpha,
-           const double *A, const int *LDA, const double *B,
-           const int *LDB, const double *beta, double *C, const int *LDC)
-{
-    // Terrible DGEMM implementation if there is no BLAS
-#pragma omp parallel for
-    for (int i = 0; i < *M; ++i) {
-        for (int j = 0; j < *N; ++j) {
-            C[i * *LDC + j] = 0;
-            for (int k = 0; k < *K; ++k) {
-                C[i * *LDC + j] += A[i * *LDA + j] * B[j * *LDB + k];
-            }
-        }
-    }
-}
+#ifdef TUTORIAL_ENABLE_MKL
+#include "mkl.h"
 #endif
-
 
 int tutorial_sleep(double big_o, int do_report)
 {
