@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 #  Copyright (c) 2015, 2016, Intel Corporation
 #
@@ -32,13 +33,9 @@
 
 source tutorial_env.sh
 
-# OMP_FLAGS: Flags for enabling OpenMP
-if [ ! "$OMP_FLAGS" ]; then
-    OMP_FLAGS="-qopenmp"
-fi
-
-make \
-CC=icc CXX=icpc \
-CFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99" \
-CXXFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11" \
-LDFLAGS="$GEOPM_LDFLAGS $OMP_FLAGS -lm -lrt -mkl -ljson-c"
+LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
+LD_DYNAMIC_WEAK=true \
+GEOPM_PMPI_CTL=process \
+GEOPM_REPORT=tutorial_6_report \
+GEOPM_TRACE=tutorial_6_trace \
+./tutorial_6

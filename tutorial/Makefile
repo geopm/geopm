@@ -30,11 +30,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3 tutorial_4 tutorial_5
+TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3 tutorial_4 tutorial_5 tutorial_6
 
 CC = gcc
 CXX = g++
 MPICC = mpicc
+MPICXX = mpicxx
 
 all: $(TUTORIAL_BIN)
 
@@ -74,11 +75,23 @@ tutorial_5.o: tutorial_5.c
 tutorial_5: tutorial_5.o tutorial_region.o
 	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
 
+tutorial_6.o: tutorial_6.cpp
+	$(MPICXX) -c $^ $(CXXFLAGS) -I../src -o $@
+
+tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o
+	$(MPICXX) $^ $(LDFLAGS) -lgeopm -o $@
+
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
 
 imbalancer.o: Imbalancer.cpp imbalancer.h
 	$(CXX) -c Imbalancer.cpp $(CXXFLAGS) -I../src -o $@
+
+ModelApplication.o: ModelApplication.cpp ModelApplication.hpp
+	$(CXX) -c ModelApplication.cpp $(CXXFLAGS) -I../src -o $@
+
+ModelRegion.o: ModelRegion.cpp ModelRegion.hpp
+	$(MPICXX) -c ModelRegion.cpp $(CXXFLAGS) -I../src -o $@
 
 clean:
 	rm -f $(TUTORIAL_BIN) *.o
