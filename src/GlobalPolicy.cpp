@@ -551,7 +551,7 @@ namespace geopm
         enum json_type type;
         std::ifstream config_file_in;
 
-        config_file_in.open(m_in_config.c_str(), std::ifstream::in);
+        config_file_in.open(m_in_config, std::ifstream::in);
         if (!config_file_in.is_open()) {
             throw Exception("GlobalPolicy::read(): input configuration file \"" + m_in_config + "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }

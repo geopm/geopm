@@ -133,6 +133,10 @@ tracker/track
 tutorial/Imbalancer.cpp
 tutorial/imbalancer.h
 tutorial/Makefile
+tutorial/ModelApplication.cpp
+tutorial/ModelApplication.hpp
+tutorial/ModelRegion.cpp
+tutorial/ModelRegion.hpp
 tutorial/tutorial_0.c
 tutorial/tutorial_0.sh
 tutorial/tutorial_env.sh
@@ -146,6 +150,8 @@ tutorial/tutorial_4.c
 tutorial/tutorial_4.sh
 tutorial/tutorial_5.c
 tutorial/tutorial_5.sh
+tutorial/tutorial_6.cpp
+tutorial/tutorial_6.sh
 tutorial/tutorial_build_intel.sh
 tutorial/tutorial_build_gnu.sh
 tutorial/tutorial_region.c
