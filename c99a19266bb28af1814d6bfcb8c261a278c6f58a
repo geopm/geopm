@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_044cc474",
+        "filename": "tutorial/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-12T21:23:43Z",
+      "side": 1,
+      "message": "This belongs in the build script (tutorial_build_gnu.sh)",
+      "revId": "c99a19266bb28af1814d6bfcb8c261a278c6f58a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
