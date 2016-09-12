@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_84ae94e5",
+        "filename": "tutorial/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-12T21:47:36Z",
+      "side": 1,
+      "message": "Use LDFLAGS and LIBS not LDPATH. See GNU make standard documentation.",
+      "revId": "16d62038c2ffb4792265849e4b13b58be2c3596b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
