@@ -185,7 +185,9 @@ namespace geopm
         , m_is_in_outer(false)
         , m_rank_per_node(0)
         , m_outer_sync_time(0.0)
+        , m_mpi_sync_time(0.0)
         , m_is_outer_changed(false)
+        , m_mpi_enter_time({{0,0}})
     {
         MPI_Comm ppn1_comm;
         int err = 0;
@@ -595,10 +597,15 @@ namespace geopm
                 }
                 m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
 
+                bool do_accumulate_mpi = false;
+                bool do_latch_time_mpi = false;
                 if (m_region_id_all && !region_id_all) {
                     override_telemetry(1.0);
                     update_region();
                     m_tracer->update(m_telemetry_sample);
+                    if (m_region_id_all == GEOPM_REGION_ID_MPI) {
+                        do_accumulate_mpi = true;
+                    }
                     m_region_id_all = 0;
                     std::fill(m_region_id.begin(), m_region_id.end(), 0);
                 }
@@ -607,35 +614,48 @@ namespace geopm
                     override_telemetry(0.0);
                     update_region();
                     m_tracer->update(m_telemetry_sample);
+                    if (m_region_id_all == GEOPM_REGION_ID_MPI) {
+                        do_latch_time_mpi = true;
+                    }
                 }
                 else if (m_region_id_all && region_id_all &&
                          m_region_id_all != region_id_all) {
                     override_telemetry(1.0);
                     update_region();
                     m_tracer->update(m_telemetry_sample);
-
+                    if (m_region_id_all == GEOPM_REGION_ID_MPI) {
+                        do_accumulate_mpi = true;
+                    }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
                     std::fill(m_region_id.begin(), m_region_id.end(), m_region_id_all);
                     update_region();
                     m_tracer->update(m_telemetry_sample);
+                    if (m_region_id_all == GEOPM_REGION_ID_MPI) {
+                        do_latch_time_mpi = true;
+                    }
                 }
                 else { // No entries or exits
                     update_region();
                     m_tracer->update(m_telemetry_sample);
                 }
+                if (do_latch_time_mpi) {
+                    m_mpi_enter_time = m_telemetry_sample[0].timestamp;
+                }
+                if (do_accumulate_mpi) {
+                    m_mpi_sync_time += geopm_time_diff(&m_mpi_enter_time, &(m_telemetry_sample[0].timestamp));
+                }
                 // GEOPM_REGION_ID_OUTER is inserted at construction
                 auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                 (*outer_it).second->sample_message(sample_msg);
                 // Subtract mpi syncronization time from outer-sync
-                auto mpi_it = m_region[level].find(GEOPM_REGION_ID_MPI);
-                // GEOPM_REGION_ID_MPI is inserted at construction
-                struct geopm_sample_message_s mpi_sample;
-                (*mpi_it).second->sample_message(mpi_sample);
                 if (sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_outer_sync_time) {
                     m_outer_sync_time = sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                     m_is_outer_changed = true;
-                    sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= mpi_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                    sample_msg.signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_mpi_sync_time;
+                }
+                if (is_outer_found) {
+                    m_mpi_sync_time = 0.0;
                 }
                 m_do_shutdown = m_sampler->do_shutdown();
             }
