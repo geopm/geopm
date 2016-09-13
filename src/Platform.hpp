@@ -115,7 +115,7 @@ namespace geopm
             /// @brief Return the upper and lower bounds of the control.
             ///
             /// For a RAPL platform this would be the package power limit,
-            /// for a frequency platform tis would be the p-state bounds.
+            /// for a frequency platform this would be the p-state bounds.
             ///
             /// @param [out] upper_bound The upper control bound.
             ///
