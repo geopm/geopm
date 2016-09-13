@@ -141,7 +141,7 @@ namespace geopm
                 case M_INTERP_TYPE_NEAREST:
                     // if there is only one sample insert it directly
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = (*it).value(0).progress;
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = (*it).value(0).runtime;
+                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = (*it).value(0).runtime; /// @todo runtime is not set by application, this is uninitialized memory
                     break;
                 case M_INTERP_TYPE_LINEAR:
                     // if there are two samples, extrapolate to the given timestamp
@@ -164,7 +164,7 @@ namespace geopm
                     }
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
                     dsdt = ((*it).value(1).runtime - (*it).value(0).runtime) * factor;
-                    runtime = (*it).value(1).runtime + dsdt * delta;
+                    runtime = (*it).value(1).runtime + dsdt * delta; /// @todo runtime is not set by application, this is uninitialized memory
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = runtime;
                     break;
                 default:
