@@ -36,7 +36,7 @@
 #include <stdio.h>
 
 const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1.0};
-const struct geopm_sample_message_s GEOPM_SAMPLE_INVALID = {-1, {0}};
+const struct geopm_sample_message_s GEOPM_SAMPLE_INVALID = {0, {0}};
 
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b)
 {
