@@ -62,6 +62,7 @@ namespace geopm
         , m_min_num_converged(5)
         , m_last_power_budget(DBL_MIN)
         , m_num_sample(5)
+        , m_num_out_of_range(0)
     {
     }
 
@@ -141,7 +142,13 @@ namespace geopm
                     is_updated = true;
                 }
             }
-            if (is_updated) {
+            if (is_updated && curr_policy.is_converged(region_id)) {
+                ++m_num_out_of_range;
+                if (m_num_out_of_range < m_min_num_converged) {
+                    is_updated = false;
+                }
+            }
+            if (is_updated && curr_policy.is_converged(region_id)) {
                 curr_policy.update(region_id, target);
                 if (is_greater) {
                     auto it = m_num_converged.lower_bound(region_id);
@@ -154,9 +161,13 @@ namespace geopm
                     curr_policy.is_converged(region_id, false);
                     curr_region.clear();
                     m_num_sample = 0;
+                    m_num_out_of_range = 0;
                 }
             }
             if (!is_updated || is_less) {
+                if (curr_policy.is_converged(region_id)) {
+                    m_num_out_of_range = 0;
+                }
                 auto it = m_num_converged.lower_bound(region_id);
                 if (it != m_num_converged.end() && (*it).first == region_id) {
                     ++(*it).second;
