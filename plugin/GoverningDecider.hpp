@@ -62,6 +62,7 @@ namespace geopm
             const unsigned m_min_num_converged;
             double m_last_power_budget;
             int m_num_sample;
+            unsigned m_num_out_of_range;
             std::map<uint64_t, unsigned> m_num_converged;
     };
 }
