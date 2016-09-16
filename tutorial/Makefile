@@ -79,7 +79,7 @@ tutorial_6.o: tutorial_6.cpp
 	$(MPICXX) -c $^ $(CXXFLAGS) -I../src -o $@
 
 tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o
-	$(MPICXX) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICXX) $^ $(LDFLAGS) -ljson-c -lgeopm -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
