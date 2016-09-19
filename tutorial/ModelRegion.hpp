@@ -41,7 +41,7 @@ namespace geopm
     class ModelRegionBase
     {
         public:
-            ModelRegionBase(double big_o, int verbosity);
+            ModelRegionBase(int verbosity);
             virtual ~ModelRegionBase();
             std::string name(void);
             double big_o(void);
@@ -108,7 +108,7 @@ namespace geopm
             const size_t m_align;
     };
 
-    ModelRegionBase *model_region_factory(std::string name, uint64_t big_o, int verbosity);
+    ModelRegionBase *model_region_factory(std::string name, double big_o, int verbosity);
 }
 
 #endif
