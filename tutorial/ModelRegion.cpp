@@ -49,7 +49,7 @@
 
 namespace geopm
 {
-    ModelRegionBase *model_region_factory(std::string name, uint64_t big_o, int verbosity)
+    ModelRegionBase *model_region_factory(std::string name, double big_o, int verbosity)
     {
         ModelRegionBase *result = NULL;
         if (name == "sleep") {
@@ -71,8 +71,9 @@ namespace geopm
         return result;
     }
 
-    ModelRegionBase::ModelRegionBase(double big_o_in, int verbosity)
-        : m_verbosity(verbosity)
+    ModelRegionBase::ModelRegionBase(int verbosity)
+        : m_big_o(0.0)
+        , m_verbosity(verbosity)
     {
 
     }
@@ -93,9 +94,9 @@ namespace geopm
     }
 
     SleepModelRegion::SleepModelRegion(double big_o_in, int verbosity)
-        : ModelRegionBase(big_o_in, verbosity)
+        : ModelRegionBase(verbosity)
     {
-        m_name = "model-sleep";
+        m_name = "sleep";
         big_o(big_o_in);
         int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_UNKNOWN, &m_region_id);
         if (err) {
@@ -141,9 +142,9 @@ namespace geopm
         , m_matrix_c(NULL)
         , m_matrix_size(0)
         , m_pad_size(64)
-        , ModelRegionBase(big_o_in, verbosity)
+        , ModelRegionBase(verbosity)
     {
-        m_name = "model-dgemm";
+        m_name = "dgemm";
         big_o(big_o_in);
         int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_COMPUTE, &m_region_id);
         if (err) {
@@ -219,9 +220,9 @@ namespace geopm
         , m_array_c(NULL)
         , m_array_len(0)
         , m_align(64)
-        , ModelRegionBase(big_o_in, verbosity)
+        , ModelRegionBase(verbosity)
     {
-        m_name = "model-stream";
+        m_name = "stream";
         big_o(big_o_in);
         int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_MEMORY, &m_region_id);
         if (err) {
@@ -289,9 +290,9 @@ namespace geopm
         , m_num_send(0)
         , m_num_rank(0)
         , m_align(64)
-        , ModelRegionBase(big_o_in, verbosity)
+        , ModelRegionBase(verbosity)
     {
-        m_name = "model-all2all";
+        m_name = "all2all";
         int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_NETWORK, &m_region_id);
         if (err) {
             throw Exception("All2allModelRegion::All2allModelRegion()",

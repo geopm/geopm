@@ -110,11 +110,8 @@ namespace geopm
                         if (json_object_get_type(big_o_obj) == json_type_double) {
                             big_o.push_back(json_object_get_double(big_o_obj));
                         }
-                        else if (json_object_get_type(big_o_obj) == json_type_int) {
-                            big_o.push_back((double)json_object_get_int(big_o_obj));
-                        }
                         else {
-                           throw Exception("model_parse_config(): big-o expected to be an integer or double type",
+                           throw Exception("model_parse_config(): big-o expected to be a double type",
                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                         }
                     }
