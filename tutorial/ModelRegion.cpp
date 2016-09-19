@@ -92,11 +92,6 @@ namespace geopm
         return m_big_o;
     }
 
-    uint64_t ModelRegionBase::num_ops(void)
-    {
-        return m_num_ops;
-    }
-
     SleepModelRegion::SleepModelRegion(double big_o_in, int verbosity)
         : ModelRegionBase(big_o_in, verbosity)
     {
@@ -117,8 +112,7 @@ namespace geopm
     void SleepModelRegion::big_o(double big_o)
     {
         m_big_o = big_o;
-        m_num_ops = (uint64_t)big_o;
-     }
+    }
 
     void SleepModelRegion::run(void)
     {

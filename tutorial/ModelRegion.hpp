@@ -45,14 +45,12 @@ namespace geopm
             virtual ~ModelRegionBase();
             std::string name(void);
             double big_o(void);
-            uint64_t num_ops(void);
             virtual void big_o(double big_o) = 0;
             virtual void run(void) = 0;
         protected:
             std::string m_name;
             double m_big_o;
             int m_verbosity;
-            uint64_t m_num_ops;
             uint64_t m_region_id;
     };
 
