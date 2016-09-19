@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_ea8d14d4",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-09-19T23:44:21Z",
+      "side": 1,
+      "message": "Did you mean to make this a \u00271\u0027?\n\nIt seems silly to print argv[0] twice...",
+      "range": {
+        "startLine": 102,
+        "startChar": 44,
+        "endLine": 102,
+        "endChar": 45
+      },
+      "revId": "88faf4d0d3b404bb04b054d04e20a004f0a6b0dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
