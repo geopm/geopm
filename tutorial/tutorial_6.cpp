@@ -52,13 +52,43 @@ int main(int argc, char **argv)
     int verbosity = 0;
     uint64_t init_rid;
     char *config_path = NULL;
-    const char *usage = "%s [--verbose] [config_file]\n"
-                        "    --verbose: Print output from rank zero for every region\n"
-                        "    config_file: Path to file containing loop count and sequence\n"
-                        "                 of regions in each loop.  Example:\n"
-                        "                 {\"loop-count\": 100,\n"
-                        "                  \"region\": [\"sleep\", \"stream\", \"dgemm\", \"stream\", \"all2all\"],\n"
-                        "                  \"big-o\": [1.0, 1.0, 1.0, 1.0, 1.0]}\n\n";
+    const char *usage = "\n"
+"%s -h | --help\n"
+"    Print this help message.\n"
+"\n"
+"%s [--verbose] [config_file]\n"
+"\n"
+"    --verbose: Print output from rank zero as every region executes.\n"
+"\n"
+"    config_file: Path to json file containing loop count and sequence\n"
+"                 of regions in each loop.\n"
+"\n"
+"                 Example configuration json string:\n"
+"\n"
+"                 {\"loop-count\": 100,\n"
+"                  \"region\": [\"sleep\", \"stream\", \"dgemm\", \"stream\", \"all2all\"],\n"
+"                  \"big-o\": [1.0, 1.0, 1.0, 1.0, 1.0]}\n"
+"\n"
+"                 The \"loop-count\" value is an integer that sets the\n"
+"                 number of loops executed.  Each time through the loop\n"
+"                 the regions listed in the \"region\" array are\n"
+"                 executed.  The \"big-o\" array gives double precision\n"
+"                 values for each region.  Region names can be one of\n"
+"                 the following options:\n"
+"\n"
+"                 sleep: Executes clock_nanosleep() for big-o seconds.\n"
+"\n"
+"                 stream: Executes stream \"triadd\" on a vector with\n"
+"                 length proportional to big-o.\n"
+"\n"
+"                 dgemm: Dense matrix vector multiply with floating\n"
+"                 point operations proportional to big-o.\n"
+"\n"
+"                 all2all: All processes send buffers to all other\n"
+"                 processes.  The time of this operation is\n"
+"                 proportional to big-o.\n"
+"\n"
+"\n";
 
     err = MPI_Init(&argc, &argv);
     if (!err) {
@@ -69,7 +99,7 @@ int main(int argc, char **argv)
         if (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
             strncmp(argv[1], "-h", strlen("-h")) == 0) {
             if (!rank) {
-                printf(usage, argv[0]);
+                printf(usage, argv[0], argv[0]);
             }
             return 0;
         }
