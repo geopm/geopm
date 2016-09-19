@@ -16,6 +16,24 @@
       "revId": "4d51bdcf81954b5ed4e200d667de222eb9c127c3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_4ace4084",
+        "filename": "tutorial/ModelRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-19T20:22:21Z",
+      "side": 1,
+      "message": "This is just an artifact of the way gerrit displays the diff.",
+      "parentUuid": "baa041b7_2ae2dc01",
+      "revId": "4d51bdcf81954b5ed4e200d667de222eb9c127c3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
