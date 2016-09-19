@@ -85,7 +85,7 @@ operations.  In addition to sleeping, the loop does a memory intensive
 operation, then a compute intensive operation, then again does a
 memory intensive operation followed by a communication intensive
 operation.  In this example we are again using geopm without including
-any geopm APIs in the application and using LD_PRELOAD int interpose
+any geopm APIs in the application and using LD_PRELOAD to interpose
 geopm on MPI.
 
 2. Adding geopm mark up to the application
@@ -134,6 +134,58 @@ through a region to the controller.  These interfaces are documented
 in the geopm_prof_c(3) man page.  In tutorial 5 we modify the stream
 region to send progress updates though either the threaded or
 unthreaded interface depending on if OpenMP is enabled at compile
-time.  Note that the unmodified tutorials build scripts do enable
+time.  Note that the unmodified tutorial build scripts do enable
 OpenMP, so the geopm_tprof* interfaces will be used by default.  The
 progress values recorded can be seen in the trace output.
+
+6. The model application
+------------------------
+Tutorial 6 is the first tutorial written in C++.  The regions defined
+in the previous examples (with the exception of the sleep region) have
+non-trivial amounts of time dedicated to start-up and shutdown
+operations in each call to execute the region.  These include memory
+allocation, value initialization and memory deallocation.  In tutorial
+6 we move these start-up and shutdown operations into the beginning
+and end of the application so that the execution of a region is
+dedicated entirely to a compute intensive (dgemm), memory intensive
+(stream) or network intensive (all2all) operation.  The ModelRegion
+and ModelApplication will form the basis for the geopm integration
+tests.
+
+The tutorial_6 application is the first to accept command line
+parameters.  The tutorial_6 --help output:
+
+    ./tutorial_6 -h | --help
+        Print this help message.
+
+    ./tutorial_6 [--verbose] [config_file]
+
+        --verbose: Print output from rank zero as every region executes.
+
+        config_file: Path to json file containing loop count and sequence
+                     of regions in each loop.
+
+                     Example configuration json string:
+
+                     {"loop-count": 100,
+                      "region": ["sleep", "stream", "dgemm", "stream", "all2all"],
+                      "big-o": [1.0, 1.0, 1.0, 1.0, 1.0]}
+
+                     The "loop-count" value is an integer that sets the
+                     number of loops executed.  Each time through the loop
+                     the regions listed in the "region" array are
+                     executed.  The "big-o" array gives double precision
+                     values for each region.  Region names can be one of
+                     the following options:
+
+                     sleep: Executes clock_nanosleep() for big-o seconds.
+
+                     stream: Executes stream "triadd" on a vector with
+                     length proportional to big-o.
+
+                     dgemm: Dense matrix vector multiply with floating
+                     point operations proportional to big-o.
+
+                     all2all: All processes send buffers to all other
+                     processes.  The time of this operation is
+                     proportional to big-o.
