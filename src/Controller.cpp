@@ -478,6 +478,7 @@ namespace geopm
             // update the leaf level (0)
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
+                m_last_policy_msg[level] = policy_msg;
                 m_tracer->update(policy_msg);
             }
         }
