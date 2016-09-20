@@ -80,6 +80,30 @@
       "revId": "88faf4d0d3b404bb04b054d04e20a004f0a6b0dd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_6a14644c",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-09-20T00:47:25Z",
+      "side": 1,
+      "message": "Ahh.... I missed the fancy %s replacement you\u0027re doing on my first read through.",
+      "parentUuid": "baa041b7_4a5e4046",
+      "range": {
+        "startLine": 102,
+        "startChar": 44,
+        "endLine": 102,
+        "endChar": 45
+      },
+      "revId": "88faf4d0d3b404bb04b054d04e20a004f0a6b0dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
