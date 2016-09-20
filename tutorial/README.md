@@ -3,7 +3,7 @@ GEOPM TUTORIAL
 This directory contains a step by step tutorial on how to use the
 geopm package.  Each step has an associated source and script file.
 The script file will run the associated program and demonstrate a
-geopm feature.  There is a script called "tutorial-env.sh" which is
+geopm feature.  There is a script called "tutorial_env.sh" which is
 sourced by all other tutorial scripts, and defines variables which
 describe the install location of geopm.  The environment script may
 have to be modified to describe the installed locations on your
@@ -24,7 +24,6 @@ of the to the user's MPI C compiler wrapper.
 
 0. Profiling and Tracing an Unmodified Application
 --------------------------------------------------
-
 The first thing an HPC application user will want to do when
 integrating their application with the geopm runtime is to analyze
 performance of the application without modifying its source code.
@@ -189,3 +188,18 @@ parameters.  The tutorial_6 --help output:
                      all2all: All processes send buffers to all other
                      processes.  The time of this operation is
                      proportional to big-o.
+
+        If "-imbalance" is appended to any region name in the
+        configuration file then the "IMBALANCER_CONFIG" environment
+        variable will be used to delay processes on selected hosts for
+        the region.  The "IMBALANCER_CONFIG" environment variable
+        should be set to point to a text file with two entries on each
+        line.  The first entry is the hostname to be delayed and the
+        second column is the fractional delay added to the region.
+        Example imbalancer config file:
+
+            my-compute-node-3 0.05
+            my-compute-node-15 0.15
+
+        This would inforce a 5% delay on my-compute-node-3 and a 15%
+        delay on my-compute-node-15.

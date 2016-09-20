@@ -52,12 +52,14 @@ namespace geopm
             double m_big_o;
             int m_verbosity;
             uint64_t m_region_id;
+            bool m_do_imbalance;
     };
 
     class SleepModelRegion : public ModelRegionBase
     {
         public:
             SleepModelRegion(double big_o, int verbosity);
+            SleepModelRegion(double big_o, int verbosity, bool do_imbalance);
             virtual ~SleepModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -67,6 +69,7 @@ namespace geopm
     {
         public:
             DGEMMModelRegion(double big_o, int verbosity);
+            DGEMMModelRegion(double big_o, int verbosity, bool do_imbalance);
             virtual ~DGEMMModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -82,6 +85,7 @@ namespace geopm
     {
         public:
             StreamModelRegion(double big_o, int verbosity);
+            StreamModelRegion(double big_o, int verbosity, bool do_imbalance);
             virtual ~StreamModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -97,6 +101,7 @@ namespace geopm
     {
         public:
             All2allModelRegion(double big_o, int verbosity);
+            All2allModelRegion(double big_o, int verbosity, bool do_imbalance);
             virtual ~All2allModelRegion();
             void big_o(double big_o);
             void run(void);
