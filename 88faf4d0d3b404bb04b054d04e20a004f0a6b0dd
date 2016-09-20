@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_2a59bc5b",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-20T00:24:30Z",
+      "side": 1,
+      "message": "First use of application name.",
+      "revId": "88faf4d0d3b404bb04b054d04e20a004f0a6b0dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_0a583855",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-20T00:24:30Z",
+      "side": 1,
+      "message": "Second use of application name.",
+      "revId": "88faf4d0d3b404bb04b054d04e20a004f0a6b0dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_ea8d14d4",
         "filename": "tutorial/tutorial_6.cpp",
         "patchSetId": 1
@@ -13,6 +47,30 @@
       "writtenOn": "2016-09-19T23:44:21Z",
       "side": 1,
       "message": "Did you mean to make this a \u00271\u0027?\n\nIt seems silly to print argv[0] twice...",
+      "range": {
+        "startLine": 102,
+        "startChar": 44,
+        "endLine": 102,
+        "endChar": 45
+      },
+      "revId": "88faf4d0d3b404bb04b054d04e20a004f0a6b0dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_4a5e4046",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-20T00:24:30Z",
+      "side": 1,
+      "message": "It\u0027s just that the usage string has two references to the application name (argv[0]) one when describing the --help option and again when describing normal use.",
+      "parentUuid": "baa041b7_ea8d14d4",
       "range": {
         "startLine": 102,
         "startChar": 44,
