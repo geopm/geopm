@@ -234,7 +234,6 @@ is mpiexec).  The tests assume that this application will respect the
 by the MPI standard.  Each MPI dependent test is run with 16 MPI
 processes.
 
-
 STATUS
 ------
 This software is pre-alpha quality and is provided for collaborative
@@ -294,3 +293,8 @@ BalancingDecider.hpp     |   1      |     1      |     100%
 GoverningDecider.cpp     |   75     |     67     |     89%
 GoverningDecider.hpp     |   1      |     1      |     100%
 TOTAL                    |   4373   |     3152   |     72%
+
+ACKNOWLEDGMENTS
+---------------
+Development of the GEOPM software package has been partially funded
+through contract B609815 with Argonne National Laboratory.
