@@ -78,7 +78,7 @@ tutorial_5: tutorial_5.o tutorial_region.o
 tutorial_6.o: tutorial_6.cpp
 	$(MPICXX) -c $^ $(CXXFLAGS) -I../src -o $@
 
-tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o
+tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o imbalancer.o
 	$(MPICXX) $^ $(LDFLAGS) -ljson-c -lgeopm -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h

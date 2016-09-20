@@ -43,6 +43,7 @@
 #include "ModelRegion.hpp"
 #include "Exception.hpp"
 #include "tutorial_region.h"
+#include "imbalancer.h"
 #ifdef TUTORIAL_ENABLE_MKL
 #include <mkl.h>
 #endif
@@ -64,6 +65,18 @@ namespace geopm
         else if (name == "all2all") {
             result = new All2allModelRegion(big_o, verbosity);
         }
+        if (name == "sleep-imbalance") {
+            result = new SleepModelRegion(big_o, verbosity, true);
+        }
+        else if (name == "dgemm-imbalance") {
+            result = new DGEMMModelRegion(big_o, verbosity, true);
+        }
+        else if (name == "stream-imbalance") {
+            result = new StreamModelRegion(big_o, verbosity, true);
+        }
+        else if (name == "all2all-imbalance") {
+            result = new All2allModelRegion(big_o, verbosity, true);
+        }
         else {
             throw Exception("model_region_factory: unknown name: " + name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -74,6 +87,7 @@ namespace geopm
     ModelRegionBase::ModelRegionBase(int verbosity)
         : m_big_o(0.0)
         , m_verbosity(verbosity)
+        , m_do_imbalance(false)
     {
 
     }
@@ -105,6 +119,12 @@ namespace geopm
         }
     }
 
+    SleepModelRegion::SleepModelRegion(double big_o_in, int verbosity, bool do_imbalance)
+        : SleepModelRegion(big_o_in, verbosity)
+    {
+        m_do_imbalance = do_imbalance;
+    }
+
     SleepModelRegion::~SleepModelRegion()
     {
 
@@ -122,6 +142,9 @@ namespace geopm
                 std::cout << "Executing " << m_big_o << " second sleep."  << std::endl << std::flush;
             }
             (void)geopm_prof_enter(m_region_id);
+            if (m_do_imbalance) {
+                (void)imbalancer_enter();
+            }
 
             struct timespec seconds = {(time_t)(m_big_o),
                                        (long)((m_big_o -
@@ -132,6 +155,9 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
+            if (m_do_imbalance) {
+                (void)imbalancer_exit();
+            }
             (void)geopm_prof_exit(m_region_id);
         }
     }
@@ -151,6 +177,12 @@ namespace geopm
             throw Exception("DGEMMModelRegion::DGEMMModelRegion()",
                             err, __FILE__, __LINE__);
         }
+    }
+
+    DGEMMModelRegion::DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance)
+        : DGEMMModelRegion(big_o_in, verbosity)
+    {
+        m_do_imbalance = do_imbalance;
     }
 
     DGEMMModelRegion::~DGEMMModelRegion()
@@ -195,6 +227,9 @@ namespace geopm
                 std::cout << "Executing " << m_matrix_size << " x " << m_matrix_size << " DGEMM." << std::endl << std::flush;
             }
             (void)geopm_prof_enter(m_region_id);
+            if (m_do_imbalance) {
+                (void)imbalancer_enter();
+            }
 
             int M = m_matrix_size;
             int N = m_matrix_size;
@@ -210,6 +245,9 @@ namespace geopm
             dgemm(&transa, &transb, &M, &N, &K, &alpha,
                   m_matrix_a, &LDA, m_matrix_b, &LDB, &beta, m_matrix_c, &LDC);
 
+            if (m_do_imbalance) {
+                (void)imbalancer_exit();
+            }
             (void)geopm_prof_exit(m_region_id);
         }
     }
@@ -229,6 +267,12 @@ namespace geopm
             throw Exception("StreamModelRegion::StreamModelRegion()",
                             err, __FILE__, __LINE__);
         }
+    }
+
+    StreamModelRegion::StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance)
+        : StreamModelRegion(big_o_in, verbosity)
+    {
+        m_do_imbalance = do_imbalance;
     }
 
     StreamModelRegion::~StreamModelRegion()
@@ -273,13 +317,18 @@ namespace geopm
                 std::cout << "Executing " << m_array_len << " array length stream triadd."  << std::endl << std::flush;
             }
             (void)geopm_prof_enter(m_region_id);
+            if (m_do_imbalance) {
+                (void)imbalancer_enter();
+            }
 
             double scalar = 3.0;
 #pragma omp parallel for
             for (int i = 0; i < m_array_len; ++i) {
                 m_array_a[i] = m_array_b[i] + scalar * m_array_c[i];
             }
-
+            if (m_do_imbalance) {
+                (void)imbalancer_exit();
+            }
             (void)geopm_prof_exit(m_region_id);
         }
     }
@@ -299,6 +348,12 @@ namespace geopm
                             err, __FILE__, __LINE__);
         }
         big_o(big_o_in);
+    }
+
+    All2allModelRegion::All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance)
+        : All2allModelRegion(big_o_in, verbosity)
+    {
+        m_do_imbalance = do_imbalance;
     }
 
     All2allModelRegion::~All2allModelRegion()
@@ -346,6 +401,9 @@ namespace geopm
                 std::cout << "Executing " << m_num_send << " byte buffer all2all."  << std::endl << std::flush;
             }
             (void)geopm_prof_enter(m_region_id);
+            if (m_do_imbalance) {
+                (void)imbalancer_enter();
+            }
 
             int err = MPI_Alltoall(m_send_buffer, m_num_send, MPI_CHAR, m_recv_buffer,
                                    m_num_send, MPI_CHAR, MPI_COMM_WORLD);
@@ -359,6 +417,9 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
 
+            if (m_do_imbalance) {
+                (void)imbalancer_exit();
+            }
             (void)geopm_prof_exit(m_region_id);
         }
     }
