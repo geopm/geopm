@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_cce1492c",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-09-20T18:03:08Z",
+      "side": 1,
+      "message": "Is this needed here?  The only place I see geopm_crc32_u64 being used is in the ProfileTable.cpp.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 23
+      },
+      "revId": "5b735ed5b8cf6cea7d97df9594eef4073c8b56b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_6ca47d07",
         "filename": "src/Profile.cpp",
         "patchSetId": 2
