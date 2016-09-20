@@ -88,6 +88,22 @@ int main(int argc, char **argv)
 "                 processes.  The time of this operation is\n"
 "                 proportional to big-o.\n"
 "\n"
+"\n"
+"        If \"-imbalance\" is appended to any region name in the\n"
+"        configuration file then the \"IMBALANCER_CONFIG\" environment\n"
+"        variable will be used to delay processes on selected hosts for\n"
+"        the region.  The \"IMBALANCER_CONFIG\" environment variable\n"
+"        should be set to point to a text file with two entries on each\n"
+"        line.  The first entry is the hostname to be delayed and the\n"
+"        second column is the fractional delay added to the region.\n"
+"        Example imbalancer config file:\n"
+"\n"
+"            my-compute-node-3 0.05\n"
+"            my-compute-node-15 0.15\n"
+"\n"
+"        This would inforce a 5% delay on my-compute-node-3 and a 15%\n"
+"        delay on my-compute-node-15.\n"
+"\n"
 "\n";
 
     err = MPI_Init(&argc, &argv);
