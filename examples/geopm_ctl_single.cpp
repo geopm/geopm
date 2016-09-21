@@ -35,7 +35,6 @@
 #include "geopm.h"
 #include "XeonPlatformImp.hpp"
 #include "Profile.hpp"
-#include "Exception.hpp"
 
 void decide(geopm::PlatformImp *plat, std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &sample, size_t sample_length);
 

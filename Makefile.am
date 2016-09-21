@@ -213,8 +213,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Policy.hpp \
                             src/PolicyFlags.cpp \
                             src/PolicyFlags.hpp \
-                            src/ProfileTable.cpp \
-                            src/ProfileTable.hpp \
                             src/RAPLPlatform.cpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
@@ -272,6 +270,7 @@ if ENABLE_MPI
                           src/GlobalPolicy.hpp \
                           src/KNLPlatformImp.cpp \
                           src/KNLPlatformImp.hpp \
+                          src/LockingHashTable.hpp \
                           src/Platform.cpp \
                           src/PlatformFactory.cpp \
                           src/PlatformFactory.hpp \
@@ -286,8 +285,6 @@ if ENABLE_MPI
                           src/PolicyFlags.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
-                          src/ProfileTable.cpp \
-                          src/ProfileTable.hpp \
                           src/ProfileThread.cpp \
                           src/ProfileThread.hpp \
                           src/RAPLPlatform.cpp \

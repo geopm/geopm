@@ -60,6 +60,7 @@ src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
+src/LockingHashTable.hpp
 src/Platform.cpp
 src/PlatformFactory.cpp
 src/PlatformFactory.hpp
@@ -74,8 +75,6 @@ src/PolicyFlags.cpp
 src/PolicyFlags.hpp
 src/Profile.cpp
 src/Profile.hpp
-src/ProfileTable.cpp
-src/ProfileTable.hpp
 src/ProfileThread.cpp
 src/ProfileThread.hpp
 src/RAPLPlatform.cpp
@@ -107,7 +106,7 @@ test/geopm_test.cpp
 test/geopm_test.sh
 test/GlobalPolicyTest.cpp
 test/googletest.mk
-test/ProfileTableTest.cpp
+test/LockingHashTableTest.cpp
 test/Makefile.mk
 test/MockPlatform.hpp
 test/MockPlatformImp.hpp

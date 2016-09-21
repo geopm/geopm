@@ -99,7 +99,7 @@ class ShmemFreqPlatformImp : public PlatformImp
         const double m_llc_ratio;
         const double m_cpu_freq_start;
         SharedMemory m_cpu_freq_shmem;
-        ProfileTable m_cpu_freq_table;
+        LockingHashTable<double> m_cpu_freq_table;
         std::vector<uint64_t> m_clock_count;
         std::vector<struct geopm_telemetry_message_s> m_telemetry;
         struct geopm_time_s m_time_zero;

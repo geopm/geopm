@@ -33,7 +33,7 @@
 #include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "SharedMemory.hpp"
-#include "ProfileTable.hpp"
+#include "LockingHashTable.hpp"
 
 #include "TestPlugin.hpp"
 
@@ -158,10 +158,8 @@ ShmemFreqPlatformImp::ShmemFreqPlatformImp()
 {
     geopm_time(&m_time_zero);
     m_time_last = m_time_zero;
-    struct geopm_prof_message_s message;
-    message.progress = m_cpu_freq_start;
     for (int i = 0; i < m_num_cpu; ++i) {
-        m_cpu_freq_table.insert(i, message);
+        m_cpu_freq_table.insert(i, m_cpu_freq_start);
     }
 }
 

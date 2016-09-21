@@ -48,7 +48,6 @@
 #include "geopm.h"
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
-#include "geopm_hash.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "config.h"

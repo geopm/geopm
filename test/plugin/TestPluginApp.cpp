@@ -37,7 +37,7 @@
 #include "geopm.h"
 #include "geopm_time.h"
 #include "SharedMemory.hpp"
-#include "ProfileTable.hpp"
+#include "LockingHashTable.hpp"
 
 int main(int argc, char **argv)
 {
@@ -53,7 +53,6 @@ int main(int argc, char **argv)
     double progress, time_delta, clock_freq;
     struct geopm_time_s last_time;
     struct geopm_time_s curr_time;
-    struct geopm_prof_message_s message;
 
     setenv("GEOPM_POLICY", policy_name, 1);
     setenv("GEOPM_REPORT", report_name, 1);
@@ -64,7 +63,7 @@ int main(int argc, char **argv)
     local_rank = comm_rank % rank_per_node;
 
     geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 5.0);
-    geopm::ProfileTable table(shmem.size(), shmem.pointer());
+    geopm::LockingHashTable<double> table(shmem.size(), shmem.pointer());
 
     geopm_prof_region("main_loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
 
@@ -77,8 +76,7 @@ int main(int argc, char **argv)
     while (num_clock < clock_req) {
         geopm_time(&curr_time);
         time_delta = geopm_time_diff(&last_time, &curr_time);
-        message = table.find(local_rank);
-        clock_freq = message.progress;
+        clock_freq = table.find(local_rank);
         num_clock += time_delta * clock_freq;
         progress = (double)num_clock / (double)clock_req;
         progress = progress <= 1.0 ? progress : 1.0;

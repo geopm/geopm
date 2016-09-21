@@ -37,12 +37,10 @@
 const char *program_invocation_name = "geopm_profile";
 #endif
 
-#include <algorithm>
-#include <iostream>
-
 #include <float.h>
 #include <unistd.h>
 #include <hwloc.h>
+#include <iostream>
 #include <errno.h>
 
 #include "geopm.h"
@@ -54,7 +52,7 @@ const char *program_invocation_name = "geopm_profile";
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
 #include "geopm_env.h"
-#include "ProfileTable.hpp"
+#include "LockingHashTable.hpp"
 #include "config.h"
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
@@ -814,5 +812,26 @@ namespace geopm
     void ProfileRankSampler::profile_name(std::string &prof_str)
     {
         prof_str = m_prof_name;
+    }
+
+    ProfileTable::ProfileTable(size_t size, void *buffer)
+        : LockingHashTable(size, buffer)
+    {
+
+    }
+
+    ProfileTable::~ProfileTable()
+    {
+
+    }
+
+
+    bool ProfileTable::sticky(const struct geopm_prof_message_s &value)
+    {
+        bool result = false;
+        if (value.progress == 0.0 || value.progress == 1.0) {
+            result = true;
+        }
+        return result;
     }
 }
