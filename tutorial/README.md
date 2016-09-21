@@ -166,7 +166,7 @@ parameters.  The tutorial_6 --help output:
 
                      Example configuration json string:
 
-                     {"loop-count": 100,
+                     {"loop-count": 10,
                       "region": ["sleep", "stream", "dgemm", "stream", "all2all"],
                       "big-o": [1.0, 1.0, 1.0, 1.0, 1.0]}
 

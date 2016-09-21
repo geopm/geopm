@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 "\n"
 "                 Example configuration json string:\n"
 "\n"
-"                 {\"loop-count\": 100,\n"
+"                 {\"loop-count\": 10,\n"
 "                  \"region\": [\"sleep\", \"stream\", \"dgemm\", \"stream\", \"all2all\"],\n"
 "                  \"big-o\": [1.0, 1.0, 1.0, 1.0, 1.0]}\n"
 "\n"
