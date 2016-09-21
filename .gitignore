@@ -22,6 +22,7 @@
 .dirstamp
 /examples/geopm_print_error
 /examples/threaded_step
+/examples/geopmhash
 /examples/geopm_ctl_single
 /examples/simple_prof_c
 /examples/simple_prof_f
