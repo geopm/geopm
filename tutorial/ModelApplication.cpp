@@ -36,6 +36,7 @@
 #include <string>
 #include <json-c/json.h>
 
+#include "geopm.h"
 #include "Exception.hpp"
 #include "ModelApplication.hpp"
 
@@ -159,6 +160,7 @@ namespace geopm
             for (auto it = m_region.begin(); it != m_region.end(); ++it) {
                 (*it)->run();
             }
+            (void)geopm_prof_outer_sync();
             if (!m_rank) {
                 std::cout << "Iteration: " << i << "\r" << std::flush;
             }

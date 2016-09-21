@@ -88,7 +88,7 @@ imbalancer.o: Imbalancer.cpp imbalancer.h
 	$(CXX) -c Imbalancer.cpp $(CXXFLAGS) -I../src -o $@
 
 ModelApplication.o: ModelApplication.cpp ModelApplication.hpp
-	$(CXX) -c ModelApplication.cpp $(CXXFLAGS) -I../src -o $@
+	$(MPICXX) -c ModelApplication.cpp $(CXXFLAGS) -I../src -o $@
 
 ModelRegion.o: ModelRegion.cpp ModelRegion.hpp
 	$(MPICXX) -c ModelRegion.cpp $(CXXFLAGS) -I../src -o $@
