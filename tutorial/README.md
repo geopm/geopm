@@ -189,17 +189,19 @@ parameters.  The tutorial_6 --help output:
                      processes.  The time of this operation is
                      proportional to big-o.
 
-        If "-imbalance" is appended to any region name in the
-        configuration file then the "IMBALANCER_CONFIG" environment
-        variable will be used to delay processes on selected hosts for
-        the region.  The "IMBALANCER_CONFIG" environment variable
-        should be set to point to a text file with two entries on each
-        line.  The first entry is the hostname to be delayed and the
-        second column is the fractional delay added to the region.
-        Example imbalancer config file:
+                     Example configuration json string with imbalance:
 
-            my-compute-node-3 0.05
-            my-compute-node-15 0.15
+                     {"loop-count": 10,
+                      "region": ["sleep", "stream", "dgemm-imbalance", "stream", "all2all"],
+                      "big-o": [1.0, 1.0, 1.0, 1.0, 1.0],
+                      "hostname": ["compute-node-3", "compute-node-15"],
+                      "imbalance": [0.05, 0.15]}
 
-        This would inforce a 5% delay on my-compute-node-3 and a 15%
-        delay on my-compute-node-15.
+                     If "-imbalance" is appended to any region name in
+                     the configuration file and the "hostname" and
+                     "imbalance" fields are provided then those
+                     regions will have an injected delay on the hosts
+                     listed.  In the above example a 5% delay on
+                     "my-compute-node-3" and a 15% delay on
+                     "my-compute-node-15" are injected when executing
+                     the dgemm region.
