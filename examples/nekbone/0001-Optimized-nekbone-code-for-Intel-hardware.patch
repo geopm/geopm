@@ -1,0 +1,880 @@
+From 07dc5e5e11e882c66e52569d9aa2b32aed102fdb Mon Sep 17 00:00:00 2001
+From: "Geltz, Brad" <brad.geltz@intel.com>
+Date: Thu, 22 Sep 2016 10:32:56 -0700
+Subject: [PATCH 1/2] Optimized nekbone code for Intel hardware.
+
+- Changes described in README_changes_Intel.txt.
+- Code acquired from Thomas Spelce <thomas.spelce@intel.com>.
+
+Change-Id: I0d89e078538b377e736366f2936447694789334c
+Signed-off-by: Geltz, Brad <brad.geltz@intel.com>
+---
+ README_changes_Intel.txt        |  29 +++++++++
+ src/blas.f                      |  27 ++++++++
+ src/cg.f                        |  21 +++++-
+ src/comm_mpi.f                  |   5 ++
+ src/driver.f                    |   6 ++
+ src/jl/gs.c                     |   3 +
+ src/makenek.inc                 |  13 ++--
+ src/mxm_std.f                   |  32 +++++++++
+ src/mxm_wrapper.f               |   1 +
+ src/omp.f                       |  11 +++-
+ src/prox_dssum.f                |   4 ++
+ src/prox_setup.f                |  26 +++++++-
+ test/example1/SIZE              |   5 +-
+ test/example1/data.rea          |  10 +--
+ test/example1/makefile          | 140 ++++++++++++++++++++++++++++++++++++++++
+ test/example1/makefile.old      | 140 ++++++++++++++++++++++++++++++++++++++++
+ test/example1/makefile.template |   2 +-
+ test/example1/makenek           |  51 +++++++++++++--
+ test/example1/nekpmpi           |   3 +-
+ 19 files changed, 503 insertions(+), 26 deletions(-)
+ create mode 100755 examples/nekbone/README_changes_Intel.txt
+ create mode 100644 examples/nekbone/test/example1/makefile
+ create mode 100755 examples/nekbone/test/example1/makefile.old
+
+diff --git a/README_changes_Intel.txt b/README_changes_Intel.txt
+new file mode 100755
+index 0000000..2c93415
+--- /dev/null
++++ b/README_changes_Intel.txt
+@@ -0,0 +1,29 @@
++All changes made in the code are guarded by macro variables of the type
++	#define ITL_?????  1
++
++If the macro variable is defined, then the Intel modifications will be used.
++Otherwise the original native code will be used.
++
++
++The following changes are to be used for best performance:
++
++#define ITL_CHANGEG 1
++	=It affects the files "cg.f", "prox_setup.f"
++	=It reorders the Gaussian weight tensor for faster accessing.
++
++#define ITL_MXF_MODS 1
++	=It affects the file "mxm_std.f"
++	=It defines directives to speed-up the dense matrix-vector products.
++	=It has been applied to only the subroutines:
++		mxf9(), mxf10(), mxf12()
++
++#define ITL_ATOMIC 1
++	=It affects the file "omp.f"
++	=It loosen an overly restrictive OpenMP call to "OMP CRITICAL".
++
++
++
++The following changes addresses usablility:
++#define ITL_SAVE 1
++	=It affects the files "driver.f", "prox_dssum.f"
++	=It makes sure variables end up on the heap, for OpenMP.
+diff --git a/src/blas.f b/src/blas.f
+index e0129cc..a9fcf9a 100644
+--- a/src/blas.f
++++ b/src/blas.f
+@@ -1,3 +1,29 @@
++      SUBROUTINE DGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
++     $                   BETA, C, LDC )
++      CHARACTER*1        TRANSA, TRANSB
++      INTEGER            M, N, K, LDA, LDB, LDC
++      DOUBLE PRECISION   ALPHA, BETA
++      DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), C( LDC, * )
++
++ 1234 GO TO 1234    
++
++      RETURN
++      END
++
++      SUBROUTINE SGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
++     $                   BETA, C, LDC )
++      CHARACTER*1        TRANSA, TRANSB
++      INTEGER            M, N, K, LDA, LDB, LDC
++      REAL               ALPHA, BETA
++      REAL               A( LDA, * ), B( LDB, * ), C( LDC, * )
++
++ 5678 GO TO 5678
++
++      RETURN
++      END
++
++#ifdef NEVER_USE_THIS_BLAS
++
+       subroutine caxpy(n,ca,cx,incx,cy,incy)
+ c
+ c     constant times a vector plus a vector.
+@@ -30884,3 +30910,4 @@ c       code for both increments equal to 1
+ *     End of ZTRSV .
+ *
+       END
++#endif 
+diff --git a/src/cg.f b/src/cg.f
+index 0cf8a73..5a8e6e2 100644
+--- a/src/cg.f
++++ b/src/cg.f
+@@ -1,3 +1,5 @@
++#define ITL_CHANGEG 1
++
+ #ifdef TIMERS
+ #define NBTIMER(a) a = dnekclock()
+ #define STIMER(a) a = dnekclock_sync()
+@@ -172,7 +174,11 @@ c-----------------------------------------------------------------------
+ 
+       parameter (lxyz=lx1*ly1*lz1)
+       real w(nx1*ny1*nz1,nelt),u(nx1*ny1*nz1,nelt)
+-      real gxyz(2*ldim,nx1*ny1*nz1,nelt)
++#     ifdef ITL_CHANGEG
++        real gxyz(nx1*ny1*nz1,2*ldim,nelt)
++#     else
++        real gxyz(2*ldim,nx1*ny1*nz1,nelt)
++#     endif
+       parameter (lt=lx1*ly1*lz1*lelt)
+ 
+       integer fel, lel, find, lind
+@@ -228,7 +234,12 @@ c-------------------------------------------------------------------------
+       include 'TOTAL'
+ 
+       parameter (lxyz=lx1*ly1*lz1)
+-      real w(lxyz),u(lxyz),g(2*ldim,lxyz)
++      real w(lxyz),u(lxyz)
++#     ifdef ITL_CHANGEG
++        real g(nx1*ny1*nz1, 2*ldim)
++#     else
++        real g(2*ldim,lxyz)
++#     endif
+ 
+       real ur(nx1*ny1*nz1),us(nx1*ny1*nz1),ut(nx1*ny1*nz1)
+ 
+@@ -238,9 +249,15 @@ c-------------------------------------------------------------------------
+       call local_grad3(ur,us,ut,u,n,dxm1,dxtm1)
+ 
+       do i=1,nxyz
++#     ifdef ITL_CHANGEG
++         wr = g(i,1)*ur(i) + g(i,2)*us(i) + g(i,3)*ut(i)
++         ws = g(i,2)*ur(i) + g(i,4)*us(i) + g(i,5)*ut(i)
++         wt = g(i,3)*ur(i) + g(i,5)*us(i) + g(i,6)*ut(i)
++#     else
+          wr = g(1,i)*ur(i) + g(2,i)*us(i) + g(3,i)*ut(i)
+          ws = g(2,i)*ur(i) + g(4,i)*us(i) + g(5,i)*ut(i)
+          wt = g(3,i)*ur(i) + g(5,i)*us(i) + g(6,i)*ut(i)
++#     endif
+          ur(i) = wr
+          us(i) = ws
+          ut(i) = wt
+diff --git a/src/comm_mpi.f b/src/comm_mpi.f
+index 4db7f8f..a959a17 100644
+--- a/src/comm_mpi.f
++++ b/src/comm_mpi.f
+@@ -1,3 +1,4 @@
++!#define ITL_OPT_F90 1
+ c-----------------------------------------------------------------------
+       subroutine iniproc(intracomm)
+       include 'SIZE'
+@@ -120,7 +121,11 @@ c
+          call exitt
+       endif
+ 
++#ifdef ITL_OPT_F90
++      x=w
++#else
+       call copy(x,w,n)
++#endif
+ 
+       return
+       end
+diff --git a/src/driver.f b/src/driver.f
+index 386bf0c..3341bd0 100644
+--- a/src/driver.f
++++ b/src/driver.f
+@@ -1,3 +1,4 @@
++#define ITL_SAVE 1
+ c-----------------------------------------------------------------------
+       program nekbone
+       
+@@ -13,6 +14,11 @@ c-----------------------------------------------------------------------
+       
+       real x(lt),f(lt),r(lt),w(lt),p(lt),z(lt),c(lt)
+       real g(6,lt)
++
++#ifdef ITL_SAVE
++      save x,f,r,w,p,z,c, g
++#endif
++
+       real mfloplist(1024), avmflop
+       integer icount
+ 
+diff --git a/src/jl/gs.c b/src/jl/gs.c
+index d39051a..499fb35 100644
+--- a/src/jl/gs.c
++++ b/src/jl/gs.c
+@@ -1,3 +1,4 @@
++//#define ITL_MPISIM
+ #include <stdio.h>
+ 
+ #include <stddef.h>
+@@ -1215,6 +1216,7 @@ static void auto_setup(struct gs_remote *r, struct gs_topology *top,
+         r_alt.fin(r_alt.data); \
+     } while(0)
+ 
++#ifndef ITL_MPISIM //If ITL_MPISIM is defined, only use pairwise.
+     DRY_RUN(0, r, "pairwise times (avg, min, max)");
+ 
+     cr_setup(&r_alt, top,comm,buf);
+@@ -1224,6 +1226,7 @@ static void auto_setup(struct gs_remote *r, struct gs_topology *top,
+       allreduce_setup(&r_alt, top,comm,buf);
+       DRY_RUN_CHECK(    "all reduce                    ", "allreduce");
+     }
++#endif // ITL_MPISIM
+ 
+     #undef DRY_RUN_CHECK
+     #undef DRY_RUN
+diff --git a/src/makenek.inc b/src/makenek.inc
+index 0652d7a..030e4db 100644
+--- a/src/makenek.inc
++++ b/src/makenek.inc
+@@ -268,12 +268,13 @@ sed -e "s:^F77[ ]*=.*:F77\:=$F77:" \
+ -e "s:^USR_LFLAGS[ ]*=.*:USR_LFLAGS\:=$USR_LFLAGS:" \
+ -e "s:^S[ ]*=.*:S\:=${SOURCE_ROOT}:" ./makefile.template >.makefile
+ 
+-echo $G | grep '\-g' 1>/dev/null
+-if [ $? -eq 0 ]; then
+-  sed 's/-O[1-4]/-O0/g' .makefile > .makefile.tmp
+-  mv .makefile.tmp .makefile
+-  echo "Activate DEBUG mode"
+-fi
++#ITL - disable the -g scrubbing
++#echo $G | grep '\-g' 1>/dev/null
++#if [ $? -eq 0 ]; then
++#  sed 's/-O[1-4]/-O0/g' .makefile > .makefile.tmp
++#  mv .makefile.tmp .makefile
++#  echo "Activate DEBUG mode"
++#fi
+ 
+ if [ "$USR" != "" ]; then
+   echo "###########################################################" >> makefile
+diff --git a/src/mxm_std.f b/src/mxm_std.f
+index 5e21cb3..0e90166 100644
+--- a/src/mxm_std.f
++++ b/src/mxm_std.f
+@@ -1,3 +1,5 @@
++#define ITL_MXF_MODS 1
++!#define ITL_MXF_UNROLL 1
+       subroutine mxmf2(A,N1,B,N2,C,N3)
+ c
+ c     unrolled loop version 
+@@ -193,7 +195,17 @@ c-----------------------------------------------------------------------
+ c
+       real a(n1,9),b(9,n3),c(n1,n3)
+ c
++#ifdef ITL_MXF_MODS
++cdir$ novector
++#endif
++#ifdef ITL_MXF_UNROLL
++cdir$ unroll(2)
++#endif
+       do j=1,n3
++#ifdef ITL_MXF_MODS
++cdir$ vector always
++cdir$ loopcount(9)
++#endif
+          do i=1,n1
+             c(i,j) = a(i,1)*b(1,j)
+      $             + a(i,2)*b(2,j)
+@@ -213,7 +225,17 @@ c-----------------------------------------------------------------------
+ c
+       real a(n1,10),b(10,n3),c(n1,n3)
+ c
++#ifdef ITL_MXF_MODS
++cdir$ novector
++#endif
++#ifdef ITL_MXF_UNROLL
++cdir$ unroll(2)
++#endif
+       do j=1,n3
++#ifdef ITL_MXF_MODS
++cdir$ vector always
++cdir$ loopcount(10)
++#endif
+          do i=1,n1
+             c(i,j) = a(i,1)*b(1,j)
+      $             + a(i,2)*b(2,j)
+@@ -256,7 +278,17 @@ c-----------------------------------------------------------------------
+ c
+       real a(n1,12),b(12,n3),c(n1,n3)
+ c
++#ifdef ITL_MXF_MODS
++cdir$ novector
++#endif
++#ifdef ITL_MXF_UNROLL
++cdir$ unroll(2)
++#endif
+       do j=1,n3
++#ifdef ITL_MXF_MODS
++cdir$ vector always
++cdir$ loopcount(12)
++#endif
+          do i=1,n1
+             c(i,j) = a(i,1)*b(1,j)
+      $             + a(i,2)*b(2,j)
+diff --git a/src/mxm_wrapper.f b/src/mxm_wrapper.f
+index 58e82ab..fb7913b 100644
+--- a/src/mxm_wrapper.f
++++ b/src/mxm_wrapper.f
+@@ -12,6 +12,7 @@ c
+       integer K10_mxm
+ 
+ #ifdef BLAS_MXM
++#include "mkl.fi"
+       call dgemm('N','N',n1,n3,n2,1.0,a,n1,b,n2,0.0,c,n1)
+       return
+ #endif
+diff --git a/src/omp.f b/src/omp.f
+index 68c19e8..3fe0130 100644
+--- a/src/omp.f
++++ b/src/omp.f
+@@ -1,4 +1,5 @@
+-      subroutine rzeroi(a,n,start,fin)
++#define ITL_ATOMIC 1      
++        subroutine rzeroi(a,n,start,fin)
+         implicit none
+   
+         real a(n)
+@@ -46,9 +47,17 @@ c----------------------------------------------------------
+       if (find == 1) psum = 0.0
+ 
+ c$OMP BARRIER
++#ifdef ITL_ATOMIC
++c$OMP ATOMIC
++#else
+ c$OMP CRITICAL
++#endif
+       psum = psum + tsum
++#ifdef ITL_ATOMIC
++c$OMP END ATOMIC
++#else
+ c$OMP END CRITICAL
++#endif
+ 
+ c$OMP BARRIER
+ c$OMP MASTER
+diff --git a/src/prox_dssum.f b/src/prox_dssum.f
+index c3c0402..9c710b4 100644
+--- a/src/prox_dssum.f
++++ b/src/prox_dssum.f
+@@ -1,3 +1,4 @@
++#define ITL_SAVE 1
+ c-----------------------------------------------------------------------
+       subroutine dssum(f)
+       include 'SIZE'
+@@ -17,6 +18,9 @@ c-----------------------------------------------------------------------
+ 
+       integer gs_handle,dof
+       integer*8 glo_num(lx1*ly1*lz1*lelt)
++#ifdef ITL_SAVE
++      save glo_num
++#endif
+ 
+       common /nekmpi/ mid,mp,nekcomm,nekgroup,nekreal
+ 
+diff --git a/src/prox_setup.f b/src/prox_setup.f
+index 325f14e..cee1b0e 100644
+--- a/src/prox_setup.f
++++ b/src/prox_setup.f
+@@ -1,16 +1,27 @@
++#define ITL_CHANGEG 1
++!#define ITL_OPT_F90
+ c-----------------------------------------------------------------------
+       subroutine proxy_setup(a,b,c,d,z,w,g)
+ 
+       include 'SIZE'
+       include 'TOTAL'
+ 
++#ifdef ITL_OPT_F90
++      real a(lx1*lx1),b(lx1),c(lx1*lx1),d(lx1,lx1),z(lx1)
++     $               , w(lx1*2),g(6,lx1*ly1*lz1*lelt)
++#else
+       real a(lx1*lx1),b(lx1),c(lx1*lx1),d(lx1*lx1),z(lx1)
+      $               , w(lx1*2),g(6,lx1*ly1*lz1*lelt)
++#endif
+ 
+       call semhat(a,b,c,d,z,w,nx1-1)
+ 
+       n = nx1*nx1
++#ifdef ITL_OPT_F90
++      dxm1=d
++#else
+       call copy(dxm1,d,n)
++#endif
+       call transpose(dxtm1,nx1,dxm1,nx1)
+ 
+       call copy(zgm1,z,nx1)   ! GLL points
+@@ -28,7 +39,11 @@ c-------------------------------------------------------------------------
+ 
+       include 'SIZE'
+       include 'TOTAL'
+-      real g(6,nx1,ny1,nz1,nelt)
++#     ifdef ITL_CHANGEG
++        real g(nx1,ny1,nz1, 2*ldim, nelt)
++#     else
++        real g(6,nx1,ny1,nz1,nelt)
++#     endif
+       integer e
+ 
+       n = nx1*ny1*nz1*nelt
+@@ -38,11 +53,20 @@ c-------------------------------------------------------------------------
+       do k=1,nz1
+       do j=1,ny1
+       do i=1,nx1
++#     ifdef ITL_CHANGEG
++        g(i,j,k,1,e) = wxm1(i)*wxm1(j)*wxm1(k)
++        g(i,j,k,2,e) = 0
++        g(i,j,k,3,e) = 0
++        g(i,j,k,4,e) = wxm1(i)*wxm1(j)*wxm1(k)
++        g(i,j,k,5,e) = 0
++        g(i,j,k,6,e) = wxm1(i)*wxm1(j)*wxm1(k)
++#     else
+          call rzero(g(1,i,j,k,e),6)
+          g(1,i,j,k,e) = wxm1(i)*wxm1(j)*wxm1(k)
+          g(4,i,j,k,e) = wxm1(i)*wxm1(j)*wxm1(k)
+          g(6,i,j,k,e) = wxm1(i)*wxm1(j)*wxm1(k)
+          g(6,i,j,k,e) = wxm1(i)*wxm1(j)*wxm1(k)
++#     endif
+       enddo
+       enddo
+       enddo
+diff --git a/test/example1/SIZE b/test/example1/SIZE
+index 941aedc..bc7ef7f 100644
+--- a/test/example1/SIZE
++++ b/test/example1/SIZE
+@@ -3,8 +3,9 @@ C     Dimension file to be included
+       parameter (ldim=3)                      ! dimension
+       parameter (lx1=12,ly1=lx1,lz1=lx1)      ! polynomial order
+ 
+-      parameter (lp =49152)                 ! max number of processors
+-      parameter (lelt= 512)                    ! max number of elements, per proc
++      parameter (lp = 61440)                 ! max number of processors
++c     parameter (lelt=4096 )                    ! max number of elements, per proc
++      parameter (lelt=8192 )                    ! max number of elements, per proc
+ 
+       parameter (lelg=lelt*lp)                ! max total elements in a test
+       parameter (lelx=lelg,lely=1,lelz=1)     ! max elements in each direction
+diff --git a/test/example1/data.rea b/test/example1/data.rea
+index 36077f4..ae19c40 100644
+--- a/test/example1/data.rea
++++ b/test/example1/data.rea
+@@ -1,5 +1,5 @@
+-.true. = ifbrick               ! brick or linear geometry
+-512 512 1  = iel0,ielN,ielD (per processor)  ! range of number of elements per proc.
+- 9  12 3 = nx0,nxN,nxD         ! poly. order range for nx1
+- 1  1  1 = npx, npy, npz       ! processor distribution in x,y,z
+- 1  1  1 = mx, my, mz          ! local element distribution in x,y,z
++.true. = ifbrick               ! brick or linear geometry
++4096 4096  1  = iel0,ielN,ielD (per processor)  ! range of number of elements per proc.
++ 9 12 3 = nx0,nxN,nxD         ! poly. order range for nx1
++48 40 32 = npx, npy, npz       ! processor distribution in x,y,z
++16 16 16 = mx, my, mz          ! local element distribution in x,y,z
+diff --git a/test/example1/makefile b/test/example1/makefile
+new file mode 100644
+index 0000000..0c4f938
+--- /dev/null
++++ b/test/example1/makefile
+@@ -0,0 +1,140 @@
++### makefile automatically created by makenek 07/07/2016 22:54:57 ###
++BINNAME=nekbone
++CASENAME:=
++CASEDIR:=/nfshome/tspelce/apps/nekbone-2.3.4_ss/test/example1
++S:=/nfshome/tspelce/apps/nekbone-2.3.4_ss/src
++J:=$S/jl
++OPT_INCDIR:=./
++OBJDIR=obj
++IFMPI:=true
++F77:=mpiifort -qopenmp
++CC:=mpiicc -qopenmp
++P:=-r8 -fpconstant -fpp
++PPPO=
++PPS= PTRSIZE8 MPI LONGINT8 UNDERSCORE GLOBAL_LONG_LONG
++G:=-xMIC-AVX512 
++OPT_FLAGS_STD=
++USR:=
++USR_LFLAGS:=
++
++################################################################################
++
++lFLAGS = $(USR_LFLAGS)
++
++PPS_F = $(patsubst %,$(PPPO)-D%,$(PPS))
++PPS_C = $(patsubst %,-D%,$(PPS))
++
++#NEW #########################################################################
++EXTRA = cg.o driver.o math.o omp.o mxm_wrapper.o prox_dssum.o prox_setup.o semhat.o \
++speclib.o
++
++################################################################################
++# MXM 
++MXM=mxm_std.o blas.o
++
++# JL Routines ###################################################################
++JO  = jl_
++JL := -DPREFIX=jl_
++
++JLCORE = $(JO)gs.o $(JO)sort.o $(JO)sarray_transfer.o $(JO)sarray_sort.o \
++$(JO)gs_local.o $(JO)crystal.o $(JO)comm.o $(JO)tensor.o $(JO)fail.o \
++$(JO)fcrystal.o
++
++COMM_MPI := comm_mpi.o
++ifeq ($(IFMPI),false)
++  COMM_MPI := ${COMM_MPI} mpi_dummy.o
++endif
++
++ifeq ($(IFMPI),false)
++	DUMMY:= $(shell cp $S/mpi_dummy.h $S/mpif.h) 
++else
++	DUMMY:= $(shell rm -rf $S/mpif.h) 
++endif
++
++#####################################################################################
++TMP0 = $(EXTRA) $(COMM_MPI) $(MXM)
++NOBJS_F0 = $(patsubst %,$(OBJDIR)/%,$(TMP0))
++TMP0c = $(JLCORE)
++NOBJS_C0 = $(patsubst %,$(OBJDIR)/%,$(TMP0c))
++
++NOBJS0 = $(NOBJS_F0) $(NOBJS_C0)
++##############################################################################
++
++L0=$(G) -O0
++L2=$(G) -mcmodel=medium -O3
++L3=$(G) -mcmodel=medium -O3
++L4=$(G) -mcmodel=medium -O3
++
++FL0   = $(L0) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL2i4 = $(L2)      $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL2   = $(L2) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL3   = $(L3) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL4   = $(L4) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++
++cFL0   = $(L0) $(PPS_C) 
++cFL2   = $(L2) $(PPS_C) 
++cFL3   = $(L3) $(PPS_C) 
++cFL4   = $(L4) $(PPS_C) 
++################################################################################
++all : nekbone
++
++objdir: 
++	@mkdir $(OBJDIR) 2>/dev/null; cat /dev/null 
++
++nekbone: 	objdir $(NOBJS0)
++	$(F77) -o ${BINNAME} $G $(NOBJS0) $(lFLAGS)
++	@if test -f ${BINNAME}; then \
++	echo "#############################################################"; \
++	echo "#                  Compilation successful!                  #"; \
++	echo "#############################################################"; \
++        size ${BINNAME}; \
++        echo ""; \
++	else \
++	echo -e "\033[1;31;38m" "ERROR: Compilation failed!"; \
++	echo -e "\033[0m"; \
++	fi
++ifeq ($(IFMPI),false) 
++	@rm -rf $S/mpif.h
++endif
++
++clean:
++	rm -rf ./obj ${BINNAME}
++ifeq ($(IFMPI),false) 
++	@rm -rf $S/mpif.h
++endif
++
++$(NOBJS_F0) : SIZE
++# CORE      ############################################################################
++$(OBJDIR)/cg.o		:$S/cg.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/driver.o	:$S/driver.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/math.o	:$S/math.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/omp.o		:$S/omp.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/prox_dssum.o  :$S/prox_dssum.f;		$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/prox_setup.o	:$S/prox_setup.f;		$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/semhat.o	:$S/semhat.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/speclib.o	:$S/speclib.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/blas.o        :$S/blas.f; 		        $(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/byte_mpi.o	:$S/byte_mpi.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/comm_mpi.o	:$S/comm_mpi.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/mpi_dummy.o	:$S/mpi_dummy.f;		$(F77) -c $(FL2) $< -o $@
++# MXM       ############################################################################
++$(OBJDIR)/mxm_wrapper.o	  :$S/mxm_wrapper.f;		$(F77) -c $(FL2) $< -o $@ 
++$(OBJDIR)/mxm_std.o	  :$S/mxm_std.f;		$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/bg_aligned3.o	  :$S/bg_aligned3.s;		$(CC) -c $< -o $@
++$(OBJDIR)/bg_mxm3.o	  :$S/bg_mxm3.s;		$(CC) -c $< -o $@
++$(OBJDIR)/bg_mxm44.o	  :$S/bg_mxm44.s;		$(CC) -c $< -o $@
++$(OBJDIR)/bg_mxm44_uneven.o :$S/bg_mxm44_uneven.s;	$(CC) -c $< -o $@
++$(OBJDIR)/k10_mxm.o	  :$S/k10_mxm.c;		$(CC)  -c $(cFL2) $(JL) $< -o $@
++# C Files ##################################################################################
++$(OBJDIR)/byte.o                 :$S/byte.c;              $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/chelpers.o             :$S/chelpers.c;          $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)fail.o            :$(J)/fail.c;            $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)tensor.o          :$(J)/tensor.c;          $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)sort.o            :$(J)/sort.c;            $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)sarray_sort.o     :$(J)/sarray_sort.c;     $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)comm.o            :$(J)/comm.c;            $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)crystal.o         :$(J)/crystal.c;         $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)sarray_transfer.o :$(J)/sarray_transfer.c; $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)fcrystal.o        :$(J)/fcrystal.c;        $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)gs.o              :$(J)/gs.c;              $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)gs_local.o        :$(J)/gs_local.c;        $(CC) -c $(cFL2) $(JL) $< -o $@
+diff --git a/test/example1/makefile.old b/test/example1/makefile.old
+new file mode 100755
+index 0000000..7c6b40c
+--- /dev/null
++++ b/test/example1/makefile.old
+@@ -0,0 +1,140 @@
++### makefile automatically created by makenek 06/09/2016 12:17:06 ###
++BINNAME=nekbone
++CASENAME:=
++CASEDIR:=/mnt/mos_home/tspelce/apps/nekbone-2.3.4/test/example1
++S:=/mnt/mos_home/tspelce/apps/nekbone-2.3.4/src
++J:=$S/jl
++OPT_INCDIR:=./
++OBJDIR=obj
++IFMPI:=true
++F77:=mpif77 -openmp
++CC:=mpicc -openmp
++P:=-r8 -fpconstant -fpp
++PPPO=
++PPS= PTRSIZE8 MPI LONGINT8 UNDERSCORE GLOBAL_LONG_LONG
++G:=-xAVX -opt-report
++OPT_FLAGS_STD=
++USR:=
++USR_LFLAGS:=-lhugetlbfs
++
++################################################################################
++
++lFLAGS = $(USR_LFLAGS)
++
++PPS_F = $(patsubst %,$(PPPO)-D%,$(PPS))
++PPS_C = $(patsubst %,-D%,$(PPS))
++
++#NEW #########################################################################
++EXTRA = cg.o driver.o math.o omp.o mxm_wrapper.o prox_dssum.o prox_setup.o semhat.o \
++speclib.o
++
++################################################################################
++# MXM 
++MXM=mxm_std.o blas.o
++
++# JL Routines ###################################################################
++JO  = jl_
++JL := -DPREFIX=jl_
++
++JLCORE = $(JO)gs.o $(JO)sort.o $(JO)sarray_transfer.o $(JO)sarray_sort.o \
++$(JO)gs_local.o $(JO)crystal.o $(JO)comm.o $(JO)tensor.o $(JO)fail.o \
++$(JO)fcrystal.o
++
++COMM_MPI := comm_mpi.o
++ifeq ($(IFMPI),false)
++  COMM_MPI := ${COMM_MPI} mpi_dummy.o
++endif
++
++ifeq ($(IFMPI),false)
++	DUMMY:= $(shell cp $S/mpi_dummy.h $S/mpif.h) 
++else
++	DUMMY:= $(shell rm -rf $S/mpif.h) 
++endif
++
++#####################################################################################
++TMP0 = $(EXTRA) $(COMM_MPI) $(MXM)
++NOBJS_F0 = $(patsubst %,$(OBJDIR)/%,$(TMP0))
++TMP0c = $(JLCORE)
++NOBJS_C0 = $(patsubst %,$(OBJDIR)/%,$(TMP0c))
++
++NOBJS0 = $(NOBJS_F0) $(NOBJS_C0)
++##############################################################################
++
++L0=$(G) -O0
++L2=$(G) -O3
++L3=$(G) -O3
++L4=$(G) -O3
++
++FL0   = $(L0) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL2i4 = $(L2)      $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL2   = $(L2) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL3   = $(L3) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++FL4   = $(L4) $(P) $(PPS_F) -I$(CASEDIR) -I$S -I$(OPT_INCDIR)
++
++cFL0   = $(L0) $(PPS_C) 
++cFL2   = $(L2) $(PPS_C) 
++cFL3   = $(L3) $(PPS_C) 
++cFL4   = $(L4) $(PPS_C) 
++################################################################################
++all : nekbone
++
++objdir: 
++	@mkdir $(OBJDIR) 2>/dev/null; cat /dev/null 
++
++nekbone: 	objdir $(NOBJS0)
++	$(F77) -o ${BINNAME} $G $(NOBJS0) $(lFLAGS)
++	@if test -f ${BINNAME}; then \
++	echo "#############################################################"; \
++	echo "#                  Compilation successful!                  #"; \
++	echo "#############################################################"; \
++        size ${BINNAME}; \
++        echo ""; \
++	else \
++	echo -e "\033[1;31;38m" "ERROR: Compilation failed!"; \
++	echo -e "\033[0m"; \
++	fi
++ifeq ($(IFMPI),false) 
++	@rm -rf $S/mpif.h
++endif
++
++clean:
++	rm -rf ./obj ${BINNAME}
++ifeq ($(IFMPI),false) 
++	@rm -rf $S/mpif.h
++endif
++
++$(NOBJS_F0) : SIZE
++# CORE      ############################################################################
++$(OBJDIR)/cg.o		:$S/cg.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/driver.o	:$S/driver.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/math.o	:$S/math.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/omp.o		:$S/omp.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/prox_dssum.o  :$S/prox_dssum.f;		$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/prox_setup.o	:$S/prox_setup.f;		$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/semhat.o	:$S/semhat.f;			$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/speclib.o	:$S/speclib.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/blas.o        :$S/blas.f; 		        $(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/byte_mpi.o	:$S/byte_mpi.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/comm_mpi.o	:$S/comm_mpi.f;			$(F77) -c $(FL2) $< -o $@
++$(OBJDIR)/mpi_dummy.o	:$S/mpi_dummy.f;		$(F77) -c $(FL2) $< -o $@
++# MXM       ############################################################################
++$(OBJDIR)/mxm_wrapper.o	  :$S/mxm_wrapper.f;		$(F77) -c $(FL2) $< -o $@ 
++$(OBJDIR)/mxm_std.o	  :$S/mxm_std.f;		$(F77) -c $(FL4) $< -o $@
++$(OBJDIR)/bg_aligned3.o	  :$S/bg_aligned3.s;		$(CC) -c $< -o $@
++$(OBJDIR)/bg_mxm3.o	  :$S/bg_mxm3.s;		$(CC) -c $< -o $@
++$(OBJDIR)/bg_mxm44.o	  :$S/bg_mxm44.s;		$(CC) -c $< -o $@
++$(OBJDIR)/bg_mxm44_uneven.o :$S/bg_mxm44_uneven.s;	$(CC) -c $< -o $@
++$(OBJDIR)/k10_mxm.o	  :$S/k10_mxm.c;		$(CC)  -c $(cFL2) $(JL) $< -o $@
++# C Files ##################################################################################
++$(OBJDIR)/byte.o                 :$S/byte.c;              $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/chelpers.o             :$S/chelpers.c;          $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)fail.o            :$(J)/fail.c;            $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)tensor.o          :$(J)/tensor.c;          $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)sort.o            :$(J)/sort.c;            $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)sarray_sort.o     :$(J)/sarray_sort.c;     $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)comm.o            :$(J)/comm.c;            $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)crystal.o         :$(J)/crystal.c;         $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)sarray_transfer.o :$(J)/sarray_transfer.c; $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)fcrystal.o        :$(J)/fcrystal.c;        $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)gs.o              :$(J)/gs.c;              $(CC) -c $(cFL2) $(JL) $< -o $@
++$(OBJDIR)/$(JO)gs_local.o        :$(J)/gs_local.c;        $(CC) -c $(cFL2) $(JL) $< -o $@
+diff --git a/test/example1/makefile.template b/test/example1/makefile.template
+index 87080ad..346145e 100644
+--- a/test/example1/makefile.template
++++ b/test/example1/makefile.template
+@@ -112,7 +112,7 @@ $(OBJDIR)/prox_dssum.o  :$S/prox_dssum.f;		$(F77) -c $(FL2) $< -o $@
+ $(OBJDIR)/prox_setup.o	:$S/prox_setup.f;		$(F77) -c $(FL4) $< -o $@
+ $(OBJDIR)/semhat.o	:$S/semhat.f;			$(F77) -c $(FL4) $< -o $@
+ $(OBJDIR)/speclib.o	:$S/speclib.f;			$(F77) -c $(FL2) $< -o $@
+-$(OBJDIR)/blas.o        :$S/blas.f; 		        $(F77) -c $(FL2i4) $< -o $@
++$(OBJDIR)/blas.o        :$S/blas.f; 		        $(F77) -c $(FL2) $< -o $@
+ $(OBJDIR)/byte_mpi.o	:$S/byte_mpi.f;			$(F77) -c $(FL2) $< -o $@
+ $(OBJDIR)/comm_mpi.o	:$S/comm_mpi.f;			$(F77) -c $(FL2) $< -o $@
+ $(OBJDIR)/mpi_dummy.o	:$S/mpi_dummy.f;		$(F77) -c $(FL2) $< -o $@
+diff --git a/test/example1/makenek b/test/example1/makenek
+index e22cb14..60db3e7 100755
+--- a/test/example1/makenek
++++ b/test/example1/makenek
+@@ -3,18 +3,47 @@
+ # (c) 2008,2009,2010 UCHICAGO ARGONNE, LLC
+ 
+ # source path 
+-SOURCE_ROOT="../../src"
++SOURCE_ROOT="../../src/"
+ 
+ # Fortran compiler
+-F77="mpixlf77_r -qsmp=omp -qnosave"
++#F77="mpif77 -openmp"
++F77="mpiifort -qopenmp"
+ 
+ # C compiler
+-CC="mpixlc_r -qsmp=omp"
++#CC="mpicc -openmp"
++CC="mpiicc -qopenmp"
+ 
+ # pre-processor symbol list 
+ # (set PPLIST=? to get a list of available symbols)
+-PPLIST="TIMERS"
++#PPLIST="TIMERS"
+ 
++#TargetARCH=SNB
++TargetARCH=KNL
++#TargetARCH=KNLavxH31
++#TargetARCH=BDWavx2
++#TargetARCH=KNC
++
++if [ ${TargetARCH} == 'SNB' ]; then
++GFLAGS=-xAVX
++fi
++
++if [ ${TargetARCH} == 'KNC' ]; then
++GFLAGS=-mmic
++fi
++
++if [ ${TargetARCH} == 'KNL' ]; then
++GFLAGS=-xMIC-AVX512
++export MKL_DEBUG_CPU_TYPE=6
++fi
++
++if [ ${TargetARCH} == 'KNLavxH31' ]; then
++GFLAGS=-xBETA_H31
++export MKL_DEBUG_CPU_TYPE=6
++fi
++
++if [ ${TargetARCH} == 'BDWavx2' ]; then
++GFLAGS=-xCORE-AVX2
++fi
+ 
+ # OPTIONAL SETTINGS
+ # -----------------
+@@ -28,14 +57,22 @@ PPLIST="TIMERS"
+ #USR="foo.o"
+ 
+ # linking flags
++#USR_LFLAGS="-lhugetlbfs"
+ #USR_LFLAGS="-L/usr/lib/ -lfoo"
+ 
+ # generic compiler flags
+ #G="-g"
++#G="-g -debug inline-debug-info ${GFLAGS} -opt-report"
++#G="${GFLAGS} -opt-report"
++G="${GFLAGS} "
+ 
+ # optimization flags
+-OPT_FLAGS_STD="-O3"
+-OPT_FLAGS_MAG="-O3"
++OPT_FLAGS_STD="-mcmodel=medium -O3"
++
++#OPT_FLAGS_MAG="-O3"
++OPT_FLAGS_MAG=${OPT_FLAGS_STD}
++
++export OMP_NUM_THREADS=2
+ 
+ ###############################################################################
+ # DONT'T TOUCH WHAT FOLLOWS !!!
+@@ -51,4 +88,4 @@ fi
+ source $SOURCE_ROOT/makenek.inc
+ # compile
+ make -j4 -f makefile 2>&1 | tee compiler.out
+-exit 0
++#original--> exit 0
+diff --git a/test/example1/nekpmpi b/test/example1/nekpmpi
+index 1c4cc8a..c8ffe6e 100755
+--- a/test/example1/nekpmpi
++++ b/test/example1/nekpmpi
+@@ -1,4 +1,5 @@
+ rm -f logfile
+ mv $1.log.$2 $1.log1.$2
+-mpiexec -np $2 ./nekbone $1 > $1.log.$2
++#mpiexec -np $2 ./nekbone $1 > $1.log.$2
++mpirun -np $2 ./nekbone $1 > $1.log.$2
+ ln $1.log.$2 logfile
+-- 
+1.9.1
+
