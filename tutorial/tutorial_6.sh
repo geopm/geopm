@@ -38,4 +38,4 @@ LD_DYNAMIC_WEAK=true \
 GEOPM_PMPI_CTL=process \
 GEOPM_REPORT=tutorial_6_report \
 GEOPM_TRACE=tutorial_6_trace \
-./tutorial_6
+./tutorial_6 tutorial_6_config.json
