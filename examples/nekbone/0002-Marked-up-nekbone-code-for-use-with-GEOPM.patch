@@ -1,0 +1,378 @@
+From c0df7f6dc1d1838338da0523d7a69ef6e050b845 Mon Sep 17 00:00:00 2001
+From: "Geltz, Brad" <brad.geltz@intel.com>
+Date: Thu, 22 Sep 2016 10:40:10 -0700
+Subject: [PATCH 2/2] Marked up nekbone code for use with GEOPM.
+
+Change-Id: If4f7c3db87bbefd330c3674e47962f69bc216f87
+Signed-off-by: Geltz, Brad <brad.geltz@intel.com>
+---
+ src/cg.f               | 138 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/driver.f           |   5 +-
+ test/example1/makefile |  16 +++---
+ test/example1/makenek  |  22 ++++++--
+ 4 files changed, 167 insertions(+), 14 deletions(-)
+
+diff --git a/src/cg.f b/src/cg.f
+index 5a8e6e2..474ed19 100644
+--- a/src/cg.f
++++ b/src/cg.f
+@@ -13,6 +13,11 @@
+ 
+ c-----------------------------------------------------------------------
+       subroutine cg(x,f,g,c,r,w,p,z,n,niter,flop_cg)
++
++#ifdef GEOPM
++      use geopm
++#endif
++
+       include 'SIZE'
+       include 'TIMER'
+ 
+@@ -42,6 +47,10 @@ c     real ur(lxyz),us(lxyz),ut(lxyz),wk(lxyz)
+       integer thread, numth, find, lind, fel, lel
+       integer omp_get_thread_num, omp_get_num_threads
+       integer fiter, tmt
++#ifdef GEOPM
++      integer(8) region_id
++      integer ierr
++#endif
+ 
+       pap = 0.0
+ 
+@@ -55,6 +64,9 @@ c     set machine tolerances
+       miter = niter
+ 
+ c$OMP PARALLEL DEFAULT(shared) PRIVATE(thread,numth,find,lind,iter,
++#ifdef GEOPM
++c$OMP&  region_id,ierr,
++#endif
+ c$OMP&  fel,lel,rtz2,beta,alpha,alphm,rlim2,rtr0)
+ 
+       thread = 0
+@@ -94,41 +106,120 @@ c$OMP&  fel,lel,rtz2,beta,alpha,alphm,rlim2,rtr0)
+ 
+ 
+       do iter=1,miter
++#ifdef GEOPM
++         if (thread == 0) then
++             ierr = geopm_prof_outer_sync()
++             ierr = geopm_prof_region(
++     $              c_char_'REGION_4'//c_null_char,
++     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++             ierr = geopm_prof_enter(region_id)
++         endif
++#endif
+          NBTIMER(ttemp1)
+          call solveMi(z,r,n,find,lind)    ! preconditioner here
+          ACCUMTIMER(tzc(tmt), ttemp1)
++#ifdef GEOPM
++         if (thread == 0) then
++            ierr = geopm_prof_exit(region_id)
++         endif
++#endif
+ 
++#ifdef GEOPM
++         if (thread == 0) then
++             ierr = geopm_prof_region(
++     $              c_char_'REGION_5a'//c_null_char,
++     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++             ierr = geopm_prof_enter(region_id)
++         endif
++#endif
+          rtz2=rtz1                                                       ! OPS
+          NBTIMER(ttemp1)
+          call glsc3i(rtz1,r,c,z,n,find,lind)
+          ACCUMTIMER(tglsc3(tmt), ttemp1)
++#ifdef GEOPM
++         if (thread == 0) then
++            ierr = geopm_prof_exit(region_id)
++         endif
++#endif
+ 
+          beta = rtz1/rtz2
+          if (iter.eq.1) beta=0.0
+ 
++#ifdef GEOPM
++         if (thread == 0) then
++             ierr = geopm_prof_region(
++     $              c_char_'REGION_6'//c_null_char,
++     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++             ierr = geopm_prof_enter(region_id)
++         endif
++#endif
+          NBTIMER(ttemp1)
+          call add2s1i(p,z,beta,n,find,lind)                              ! 2n
+          ACCUMTIMER(tadd2sx(tmt), ttemp1)
++#ifdef GEOPM
++         if (thread == 0) then
++            ierr = geopm_prof_exit(region_id)
++         endif
++#endif
+ 
+          NBTIMER(ttemp1)
+          call axi(w,p,g,n,fel,lel,find,lind)                             ! flopa
+          ACCUMTIMER(tax(tmt), ttemp1)
+ 
++#ifdef GEOPM
++         if (thread == 0) then
++             ierr = geopm_prof_region(
++     $              c_char_'REGION_5b'//c_null_char,
++     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++             ierr = geopm_prof_enter(region_id)
++         endif
++#endif
+          NBTIMER(ttemp1)
+          call glsc3i(pap, w,c,p,n,find,lind)                             ! 3n
+          ACCUMTIMER(tglsc3(tmt), ttemp1)
++#ifdef GEOPM
++         if (thread == 0) then
++            ierr = geopm_prof_exit(region_id)
++         endif
++#endif
+ 
+          alpha=rtz1/pap
+          alphm=-alpha
+ 
++#ifdef GEOPM
++         if (thread == 0) then
++             ierr = geopm_prof_region(
++     $              c_char_'REGION_8a'//c_null_char,
++     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++             ierr = geopm_prof_enter(region_id)
++         endif
++#endif
+          NBTIMER(ttemp1)
+          call add2s2i(x,p,alpha,n,find,lind)                             ! 2n
+          call add2s2i(r,w,alphm,n,find,lind)                             ! 2n
+          ACCUMTIMER(tadd2sx(tmt), ttemp1)
++#ifdef GEOPM
++         if (thread == 0) then
++            ierr = geopm_prof_exit(region_id)
++         endif
++#endif
+ 
++#ifdef GEOPM
++         if (thread == 0) then
++             ierr = geopm_prof_region(
++     $              c_char_'REGION_5c'//c_null_char,
++     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++             ierr = geopm_prof_enter(region_id)
++         endif
++#endif
+          NBTIMER(ttemp1)
+          call  glsc3i(rtr, r,c,r,n,find,lind)                            ! 3n
+          ACCUMTIMER(tglsc3(tmt), ttemp1)
++#ifdef GEOPM
++         if (thread == 0) then
++            ierr = geopm_prof_exit(region_id)
++         endif
++#endif
+ 
+          if (iter.eq.1) rlim2 = rtr*eps**2
+          if (iter.eq.1) rtr0  = rtr
+@@ -168,6 +259,10 @@ c-----------------------------------------------------------------------
+ c-----------------------------------------------------------------------
+       subroutine axi(w,u,gxyz,n,fel,lel,find,lind) ! Matrix-vector product: w=A*u
+ 
++#ifdef GEOPM
++      use geopm
++#endif
++
+       include 'SIZE'
+       include 'TOTAL'
+       include 'TIMER'
+@@ -183,6 +278,10 @@ c-----------------------------------------------------------------------
+ 
+       integer fel, lel, find, lind
+       integer e,thread, tmt, omp_get_thread_num
++#ifdef GEOPM
++      integer(8) region_id
++      integer ierr
++#endif
+ 
+       thread = 0
+ #ifdef _OPENMP
+@@ -190,19 +289,58 @@ c-----------------------------------------------------------------------
+ #endif
+       tmt = thread + 1
+ 
++#ifdef GEOPM
++      if (thread == 0) then
++          ierr = geopm_prof_region(
++     $           c_char_'REGION_7a'//c_null_char,
++     $           GEOPM_POLICY_HINT_UNKNOWN, region_id)
++          ierr = geopm_prof_enter(region_id)
++      endif
++#endif
+       NBTIMER(ttemp2)
+       do e= fel, lel
+          call ax_e( w(1,e),u(1,e),gxyz(1,1,e))
+       enddo
+       ACCUMTIMER(taxe(tmt),ttemp2)
++#ifdef GEOPM
++      if (thread == 0) then
++         ierr = geopm_prof_exit(region_id)
++      endif
++#endif
+ 
++#ifdef GEOPM
++      if (thread == 0) then
++          ierr = geopm_prof_region(
++     $           c_char_'REGION_7b'//c_null_char,
++     $           GEOPM_POLICY_HINT_UNKNOWN, region_id)
++          ierr = geopm_prof_enter(region_id)
++      endif
++#endif
+       NBTIMER(ttemp2)
+       call gs_op(gsh,w,1,1,0)  ! Gather-scatter operation  ! w   = QQ  w
+       ACCUMTIMER(tgsop(tmt),ttemp2)
++#ifdef GEOPM
++      if (thread == 0) then
++         ierr = geopm_prof_exit(region_id)
++      endif
++#endif
+                                                            !            L
++#ifdef GEOPM
++      if (thread == 0) then
++          ierr = geopm_prof_region(
++     $           c_char_'REGION_8b'//c_null_char,
++     $           GEOPM_POLICY_HINT_UNKNOWN, region_id)
++          ierr = geopm_prof_enter(region_id)
++      endif
++#endif
+       NBTIMER(ttemp2)
+       call add2s2i(w,u,.1,n,find,lind)
+       ACCUMTIMER(tadd2s2(tmt),ttemp2)
++#ifdef GEOPM
++      if (thread == 0) then
++         ierr = geopm_prof_exit(region_id)
++      endif
++#endif
+ 
+       if (find == 1) then
+         call mask(w)             ! Zero out Dirichlet conditions
+diff --git a/src/driver.f b/src/driver.f
+index 3341bd0..aa68140 100644
+--- a/src/driver.f
++++ b/src/driver.f
+@@ -1,7 +1,7 @@
+ #define ITL_SAVE 1
+ c-----------------------------------------------------------------------
+       program nekbone
+-      
++
+       include 'SIZE'
+       include 'TOTAL'
+       include 'mpif.h'
+@@ -34,7 +34,6 @@ c-----------------------------------------------------------------------
+       call read_param(ifbrick,iel0,ielN,ielD,nx0,nxN,nxD,
+      +                npx,npy,npz,mx,my,mz)
+ 
+-
+       numthreads = 1
+ #ifdef _OPENMP
+       numthreads= omp_get_max_threads()
+@@ -60,7 +59,7 @@ c     SET UP and RUN NEKBONE
+ 
+            call proxy_setup(ah,bh,ch,dh,zpts,wght,g) 
+ 
+-           niter = 100
++           niter = 200
+            n     = nx1*ny1*nz1*nelt
+ 
+            call set_f(f,c,n)
+diff --git a/test/example1/makefile b/test/example1/makefile
+index 0c4f938..06c35b9 100644
+--- a/test/example1/makefile
++++ b/test/example1/makefile
+@@ -1,21 +1,21 @@
+-### makefile automatically created by makenek 07/07/2016 22:54:57 ###
++### makefile automatically created by makenek 08/02/2016 13:51:36 ###
+ BINNAME=nekbone
+-CASENAME:=
+-CASEDIR:=/nfshome/tspelce/apps/nekbone-2.3.4_ss/test/example1
+-S:=/nfshome/tspelce/apps/nekbone-2.3.4_ss/src
++CASENAME:=ex1
++CASEDIR:=/home/sssylves/repos/p3_power_management-applications/nekbone-2.3.4_ss/test/example1
++S:=/home/sssylves/repos/p3_power_management-applications/nekbone-2.3.4_ss/src
+ J:=$S/jl
+ OPT_INCDIR:=./
+ OBJDIR=obj
+ IFMPI:=true
+-F77:=mpiifort -qopenmp
+-CC:=mpiicc -qopenmp
++F77:=mpifort -qopenmp -I/home/sssylves/build/geopm/lib/ifort/modules/geopm-x86_64/
++CC:=mpicc -qopenmp
+ P:=-r8 -fpconstant -fpp
+ PPPO=
+ PPS= PTRSIZE8 MPI LONGINT8 UNDERSCORE GLOBAL_LONG_LONG
+-G:=-xMIC-AVX512 
++G:=-xMIC-AVX512 -DGEOPM -I/home/sssylves/build/geopm/include
+ OPT_FLAGS_STD=
+ USR:=
+-USR_LFLAGS:=
++USR_LFLAGS:=-L/home/sssylves/build/geopm/lib -lgeopmfort -lgeopm
+ 
+ ################################################################################
+ 
+diff --git a/test/example1/makenek b/test/example1/makenek
+index 60db3e7..73676c4 100755
+--- a/test/example1/makenek
++++ b/test/example1/makenek
+@@ -7,11 +7,14 @@ SOURCE_ROOT="../../src/"
+ 
+ # Fortran compiler
+ #F77="mpif77 -openmp"
+-F77="mpiifort -qopenmp"
++#F77="mpifort -qopenmp"
+ 
+ # C compiler
+ #CC="mpicc -openmp"
+-CC="mpiicc -qopenmp"
++#CC="mpicc -qopenmp"
++
++TargetMPI=mvapich2
++#TargetMPI=impi
+ 
+ # pre-processor symbol list 
+ # (set PPLIST=? to get a list of available symbols)
+@@ -23,6 +26,16 @@ TargetARCH=KNL
+ #TargetARCH=BDWavx2
+ #TargetARCH=KNC
+ 
++if [ ${TargetMPI} == 'impi' ]; then
++F77="mpiifort -qopenmp -I$HOME/build/geopm/lib/ifort/modules/geopm-x86_64/"
++CC="mpiicc -qopenmp"
++fi
++
++if [ ${TargetMPI} == 'mvapich2' ]; then
++F77="mpifort -qopenmp -I$HOME/build/geopm/lib/ifort/modules/geopm-x86_64/"
++CC="mpicc -qopenmp"
++fi
++
+ if [ ${TargetARCH} == 'SNB' ]; then
+ GFLAGS=-xAVX
+ fi
+@@ -56,15 +69,18 @@ fi
+ #       a makefile_usr.inc has to be provided containing the build rules 
+ #USR="foo.o"
+ 
++OPT_INCDIR="-I$HOME/build/geopm/include"
++
+ # linking flags
+ #USR_LFLAGS="-lhugetlbfs"
+ #USR_LFLAGS="-L/usr/lib/ -lfoo"
++USR_LFLAGS="-L/home/sssylves/build/geopm/lib -lgeopmfort -lgeopm"
+ 
+ # generic compiler flags
+ #G="-g"
+ #G="-g -debug inline-debug-info ${GFLAGS} -opt-report"
+ #G="${GFLAGS} -opt-report"
+-G="${GFLAGS} "
++G="${GFLAGS} -DGEOPM -I$HOME/build/geopm/include"
+ 
+ # optimization flags
+ OPT_FLAGS_STD="-mcmodel=medium -O3"
+-- 
+1.9.1
+
