@@ -35,10 +35,12 @@
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 #include <mpi.h>
 
 #include "geopm.h"
-#include "geopm_error.h"
+#include "imbalancer.h"
+#include "Exception.hpp"
 #include "ModelApplication.hpp"
 
 #ifndef NAME_MAX
@@ -142,8 +144,31 @@ int main(int argc, char **argv)
         uint64_t loop_count = 0;
         std::vector<std::string> region_sequence;
         std::vector<double> big_o_sequence;
+        std::vector<std::string> hostname;
+        std::vector<double> imbalance;
         if (config_path) {
-            geopm::model_parse_config(config_path, loop_count, region_sequence, big_o_sequence);
+            geopm::model_parse_config(config_path, loop_count,
+                                      region_sequence, big_o_sequence,
+                                      hostname, imbalance);
+            if (region_sequence.size() != big_o_sequence.size() ||
+                hostname.size() != imbalance.size()) {
+                throw geopm::Exception("Array length mismatch in configuration file " + std::string(config_path),
+                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            if (hostname.size()) {
+                char hostname_tmp[NAME_MAX];
+                hostname_tmp[NAME_MAX - 1] = '\0';
+                if (gethostname(hostname_tmp, NAME_MAX - 1)) {
+                    throw geopm::Exception("gethostname():", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                std::string this_hostname(hostname_tmp);
+                auto hostname_it = hostname.begin();
+                for (auto imbalance_it = imbalance.begin(); imbalance_it != imbalance.end(); ++imbalance_it, ++hostname_it) {
+                    if (this_hostname == *hostname_it) {
+                        imbalancer_frac(*imbalance_it);
+                    }
+                }
+            }
         }
         else {
             // Default values if no configuration is specified

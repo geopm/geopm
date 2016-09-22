@@ -43,7 +43,8 @@
 namespace geopm
 {
     void model_parse_config(const std::string config_path, uint64_t &loop_count,
-                            std::vector<std::string> &region_name, std::vector<double> &big_o)
+                            std::vector<std::string> &region_name, std::vector<double> &big_o,
+                            std::vector<std::string> &hostname, std::vector<double> &imbalance)
     {
         std::ifstream config_stream;
         config_stream.open(config_path, std::ifstream::in);
@@ -118,7 +119,45 @@ namespace geopm
                     }
                 }
                 else {
-                    throw Exception("model_parse_config(): region must specify an array",
+                    throw Exception("model_parse_config(): big-o must specify an array",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+            }
+            else if (key_string == "hostname") {
+                if (json_object_get_type(val) == json_type_array) {
+                    json_object *hostname_obj;
+                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                        hostname_obj = json_object_array_get_idx(val, i);
+                        if (json_object_get_type(hostname_obj) == json_type_string) {
+                            hostname.push_back(json_object_get_string(hostname_obj));
+                        }
+                        else {
+                            throw Exception("model_parse_config(): hostname array value is not a string type",
+                                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                        }
+                    }
+                }
+                else {
+                    throw Exception("model_parse_config(): hostname must specify an array",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+            }
+            else if (key_string == "imbalance") {
+                if (json_object_get_type(val) == json_type_array) {
+                    json_object *imbalance_obj;
+                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                        imbalance_obj = json_object_array_get_idx(val, i);
+                        if (json_object_get_type(imbalance_obj) == json_type_double) {
+                            imbalance.push_back(json_object_get_double(imbalance_obj));
+                        }
+                        else {
+                           throw Exception("model_parse_config(): imbalance expected to be a double type",
+                                   GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                        }
+                    }
+                }
+                else {
+                    throw Exception("model_parse_config(): imbalance must specify an array",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }

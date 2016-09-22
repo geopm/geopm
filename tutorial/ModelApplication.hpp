@@ -40,7 +40,8 @@
 namespace geopm
 {
     void model_parse_config(const std::string config_path, uint64_t &loop_count,
-                            std::vector<std::string> &region_name, std::vector<double> &big_o);
+                            std::vector<std::string> &region_name, std::vector<double> &big_o,
+                            std::vector<std::string> &hostname, std::vector<double> &imbalance);
 
     class ModelApplication
     {

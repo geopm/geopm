@@ -47,8 +47,10 @@
 class Imbalancer
 {
     public:
+        Imbalancer();
         Imbalancer(const std::string config_path);
         virtual ~Imbalancer();
+        void frac(double delay_frac);
         void enter(void);
         void exit(void);
     private:
@@ -57,9 +59,15 @@ class Imbalancer
 };
 
 
-Imbalancer::Imbalancer(const std::string config_path)
+Imbalancer::Imbalancer()
     : m_delay_frac(0.0)
     , m_enter_time({{0,0}})
+{
+
+}
+
+Imbalancer::Imbalancer(const std::string config_path)
+    : Imbalancer()
 {
     if (config_path.length()) {
         char hostname[HOST_NAME_MAX + 1];
@@ -73,7 +81,7 @@ Imbalancer::Imbalancer(const std::string config_path)
         while(config_stream.good()) {
             config_stream >> this_host >> this_frac;
             if (strncmp(hostname, this_host.c_str(), HOST_NAME_MAX) == 0) {
-                m_delay_frac = this_frac;
+                frac(this_frac);
             }
         }
         config_stream.close();
@@ -83,6 +91,17 @@ Imbalancer::Imbalancer(const std::string config_path)
 Imbalancer::~Imbalancer()
 {
 
+}
+
+void Imbalancer::frac(double delay_frac)
+{
+    if (delay_frac >= 0.0) {
+        m_delay_frac = delay_frac;
+    }
+    else {
+        throw geopm::Exception("Imbalancer::frac(): delay_fraction is negative",
+                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
 }
 
 void Imbalancer::enter(void)
@@ -111,6 +130,18 @@ static Imbalancer &imbalancer(void)
     static char *config_path = getenv("IMBALANCER_CONFIG");
     static Imbalancer instance(config_path ? std::string(config_path) : "");
     return instance;
+}
+
+int imbalancer_frac(double delay_frac)
+{
+    int err = 0;
+    try {
+        imbalancer().frac(delay_frac);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception());
+    }
+    return err;
 }
 
 int imbalancer_enter(void)
