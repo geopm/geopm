@@ -37,6 +37,7 @@ extern "C"
 {
 #endif
 
+    int imbalancer_frac(double frac);
     int imbalancer_enter(void);
     int imbalancer_exit(void);
 

@@ -34,11 +34,17 @@
 #include <fstream>
 #include <streambuf>
 #include <string>
+#include <unistd.h>
 #include <json-c/json.h>
 
 #include "geopm.h"
+#include "imbalancer.h"
 #include "Exception.hpp"
 #include "ModelApplication.hpp"
+
+#ifndef NAME_MAX
+#define NAME_MAX 512
+#endif
 
 namespace geopm
 {
@@ -72,6 +78,8 @@ namespace geopm
                             GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
 
+        std::vector<std::string> hostname;
+        std::vector<double> imbalance;
         std::string key_string;
         json_object_object_foreach(object, key, val) {
             key_string = key;
@@ -118,7 +126,45 @@ namespace geopm
                     }
                 }
                 else {
-                    throw Exception("model_parse_config(): region must specify an array",
+                    throw Exception("model_parse_config(): big-o must specify an array",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+            }
+            else if (key_string == "hostname") {
+                if (json_object_get_type(val) == json_type_array) {
+                    json_object *hostname_obj;
+                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                        hostname_obj = json_object_array_get_idx(val, i);
+                        if (json_object_get_type(hostname_obj) == json_type_string) {
+                            hostname.push_back(json_object_get_string(hostname_obj));
+                        }
+                        else {
+                            throw Exception("model_parse_config(): hostname array value is not a string type",
+                                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                        }
+                    }
+                }
+                else {
+                    throw Exception("model_parse_config(): hostname must specify an array",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+            }
+            else if (key_string == "imbalance") {
+                if (json_object_get_type(val) == json_type_array) {
+                    json_object *imbalance_obj;
+                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                        imbalance_obj = json_object_array_get_idx(val, i);
+                        if (json_object_get_type(imbalance_obj) == json_type_double) {
+                            imbalance.push_back(json_object_get_double(imbalance_obj));
+                        }
+                        else {
+                           throw Exception("model_parse_config(): imbalance expected to be a double type",
+                                   GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                        }
+                    }
+                }
+                else {
+                    throw Exception("model_parse_config(): imbalance must specify an array",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
@@ -128,6 +174,31 @@ namespace geopm
             }
         }
         config_stream.close();
+
+        if (region_name.size() != big_o.size() ||
+            hostname.size() != imbalance.size()) {
+            throw geopm::Exception("model_parse_config(): array length mismatch",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (hostname.size()) {
+            char hostname_tmp[NAME_MAX];
+            hostname_tmp[NAME_MAX - 1] = '\0';
+            if (gethostname(hostname_tmp, NAME_MAX - 1)) {
+               throw geopm::Exception("gethostname():", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            std::string this_hostname(hostname_tmp);
+            auto hostname_it = hostname.begin();
+            for (auto imbalance_it = imbalance.begin(); imbalance_it != imbalance.end(); ++imbalance_it, ++hostname_it) {
+                if (this_hostname == *hostname_it) {
+                    int err = imbalancer_frac(*imbalance_it);
+                    if (err) {
+                        throw geopm::Exception("model_parse_confg(): imbalance fraction is negative",
+                                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                }
+            }
+        }
     }
 
     ModelApplication::ModelApplication(uint64_t repeat, std::vector<std::string> region_name, std::vector<double> big_o, int verbosity, int rank)
