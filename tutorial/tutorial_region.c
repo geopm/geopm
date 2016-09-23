@@ -93,6 +93,7 @@ int tutorial_dgemm(double big_o, int do_report)
         }
 
         if (!err) {
+#pragma omp parallel for
             for (int i = 0; i < mem_size / sizeof(double); ++i) {
                 A[i] = random() / RAND_MAX;
                 B[i] = random() / RAND_MAX;
