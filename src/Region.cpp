@@ -49,7 +49,7 @@ namespace geopm
         , m_signal_matrix(m_num_signal * m_num_domain)
         , m_entry_telemetry(m_num_domain)
         , m_domain_sample(m_num_domain)
-        , m_curr_sample({m_identifier, {0.0, 0.0, 0.0}})
+        , m_curr_sample({m_identifier, {0.0, 0.0, 0.0, 0.0}})
         , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
         , m_time_buffer(M_NUM_SAMPLE_HISTORY)
         , m_valid_entries(m_num_signal * m_num_domain)
@@ -57,7 +57,7 @@ namespace geopm
         , m_max(m_num_signal * m_num_domain)
         , m_sum(m_num_signal * m_num_domain)
         , m_sum_squares(m_num_signal * m_num_domain)
-        , m_agg_stats({m_identifier, {0.0, 0.0, 0.0}})
+        , m_agg_stats({m_identifier, {0.0, 0.0, 0.0, 0.0}})
         , m_num_entry(0)
         , m_is_entered(m_num_domain)
     {
