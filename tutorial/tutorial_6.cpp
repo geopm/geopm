@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 "                 stream: Executes stream \"triadd\" on a vector with\n"
 "                 length proportional to big-o.\n"
 "\n"
-"                 dgemm: Dense matrix vector multiply with floating\n"
+"                 dgemm: Dense matrix-matrix multiply with floating\n"
 "                 point operations proportional to big-o.\n"
 "\n"
 "                 all2all: All processes send buffers to all other\n"

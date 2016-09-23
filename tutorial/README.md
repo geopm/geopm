@@ -182,7 +182,7 @@ parameters.  The tutorial_6 --help output:
                      stream: Executes stream "triadd" on a vector with
                      length proportional to big-o.
 
-                     dgemm: Dense matrix vector multiply with floating
+                     dgemm: Dense matrix-matrix multiply with floating
                      point operations proportional to big-o.
 
                      all2all: All processes send buffers to all other
