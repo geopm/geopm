@@ -15,6 +15,8 @@ examples/synthetic_benchmark.hpp
 examples/threaded_step_example.c
 examples/timed_region.cpp
 examples/fft/Makefile.mk
+examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch
+examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch
 geopm.spec.mk
 Makefile.am
 plugin/BalancingDecider.cpp
