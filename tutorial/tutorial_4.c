@@ -89,7 +89,7 @@ int main(int argc, char **argv)
             err = geopm_prof_outer_sync();
         }
         if (!err) {
-            MPI_Barrier(MPI_COMM_WORLD);
+            err = MPI_Barrier(MPI_COMM_WORLD);
         }
         if (!err && !rank) {
             printf("Iteration=%.3d\r", i);
@@ -99,6 +99,9 @@ int main(int argc, char **argv)
     if (!err && !rank) {
         printf("Completed loop.                    \n");
         fflush(stdout);
+    }
+    if (!err) {
+        err = tutorial_dgemm_static(0.0, 0);
     }
     if (!err) {
         err = MPI_Finalize();
