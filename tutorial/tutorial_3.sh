@@ -36,8 +36,9 @@ source tutorial_env.sh
 LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
 LD_DYNAMIC_WEAK=true \
 GEOPM_PMPI_CTL=process \
-GEOPM_REPORT=tutorial_3_noctl_report \
-GEOPM_TRACE=tutorial_3_noctl_trace \
+GEOPM_REPORT=tutorial_3_governed_report \
+GEOPM_TRACE=tutorial_3_governed_trace \
+GEOPM_POLICY=tutorial_governed_policy.json \
 ./tutorial_3
 
 LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
@@ -45,7 +46,7 @@ LD_DYNAMIC_WEAK=true \
 GEOPM_PMPI_CTL=process \
 GEOPM_REPORT=tutorial_3_balanced_report \
 GEOPM_TRACE=tutorial_3_balanced_trace \
-GEOPM_POLICY=tutorial_3_policy.json \
+GEOPM_POLICY=tutorial_balanced_policy.json \
 ./tutorial_3
 
 #
