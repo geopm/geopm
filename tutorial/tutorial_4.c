@@ -62,8 +62,8 @@ int main(int argc, char **argv)
                                 &dgemm_rid);
     }
 
-    int num_iter = 100;
-    double dgemm_big_o = 1.0;
+    int num_iter = 500;
+    double dgemm_big_o = 8.0;
 
     if (!rank) {
         printf("Beginning loop of %d iterations.\n", num_iter);
