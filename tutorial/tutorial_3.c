@@ -62,7 +62,10 @@ int main(int argc, char **argv)
     }
 
     int num_iter = 100;
-    double dgemm_big_o = 1.0 + 0.1 * rank;
+    double dgemm_big_o = 1.0;
+    if (rank >= size / 2) {
+        dgemm_big_o *= 1.1;
+    }
 
     if (!rank) {
         printf("Beginning loop of %d iterations.\n", num_iter);
