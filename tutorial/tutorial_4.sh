@@ -35,7 +35,7 @@ source tutorial_env.sh
 
 # Create configuration file for Imbalancer.
 if [ ! -e tutorial_4_imbalance.conf ]; then
-    echo $(hostname) 0.10 > tutorial_4_imbalance.conf
+    echo $(hostname) 0.04 > tutorial_4_imbalance.conf
 fi
 
 IMBALANCER_CONFIG=tutorial_4_imbalance.conf \
