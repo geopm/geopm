@@ -22,6 +22,30 @@
       "revId": "cae979826d56a67d90165e7434f02a735d963899",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_65947c36",
+        "filename": "tutorial/tutorial_3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-09-26T17:14:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baa041b7_057db01b",
+      "range": {
+        "startLine": 84,
+        "startChar": 25,
+        "endLine": 84,
+        "endChar": 28
+      },
+      "revId": "cae979826d56a67d90165e7434f02a735d963899",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
