@@ -35,14 +35,22 @@ source tutorial_env.sh
 
 # Create configuration file for Imbalancer.
 if [ ! -e tutorial_4_imbalance.conf ]; then
-    echo $(hostname) 0.50 > tutorial_4_imbalance.conf
+    echo $(hostname) 0.10 > tutorial_4_imbalance.conf
 fi
 
 IMBALANCER_CONFIG=tutorial_4_imbalance.conf \
 LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
 LD_DYNAMIC_WEAK=true \
 GEOPM_PMPI_CTL=process \
-GEOPM_REPORT=tutorial_4_report \
-GEOPM_TRACE=tutorial_4_trace \
+GEOPM_REPORT=tutorial_4_noctl_report \
+GEOPM_TRACE=tutorial_4_noctl_trace \
+./tutorial_4
+
+IMBALANCER_CONFIG=tutorial_4_imbalance.conf \
+LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
+LD_DYNAMIC_WEAK=true \
+GEOPM_PMPI_CTL=process \
+GEOPM_REPORT=tutorial_4_balanced_report \
+GEOPM_TRACE=tutorial_4_balanced_trace \
 GEOPM_POLICY=tutorial_4_policy.json \
 ./tutorial_4

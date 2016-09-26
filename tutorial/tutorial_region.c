@@ -201,6 +201,76 @@ int tutorial_all2all(double big_o, int do_report)
     return err;
 }
 
+int tutorial_dgemm_static(double big_o, int do_report)
+{
+    static double big_o_last = 0.0;
+    static double *A = NULL;
+    static double *B = NULL;
+    static double *C = NULL;
+
+    int err = 0;
+    if (big_o != 0.0) {
+        int matrix_size = (int) pow(4e9 * big_o, 1.0/3.0);
+        int pad_size = 64;
+        size_t mem_size = sizeof(double) * (matrix_size * (matrix_size + pad_size));
+        char transa = 'n';
+        char transb = 'n';
+        int M = matrix_size;
+        int N = matrix_size;
+        int K = matrix_size;
+        int LDA = matrix_size + pad_size / sizeof(double);
+        int LDB = matrix_size + pad_size / sizeof(double);
+        int LDC = matrix_size + pad_size / sizeof(double);
+        double alpha = 2.0;
+        double beta = 3.0;
+
+        if (big_o != big_o_last) {
+            big_o_last = big_o;
+            if (A) {
+                free(C);
+                free(B);
+                free(A);
+                A = NULL;
+                B = NULL;
+                C = NULL;
+            }
+            err = posix_memalign((void *)&A, pad_size, mem_size);
+            if (!err) {
+                err = posix_memalign((void *)&B, pad_size, mem_size);
+            }
+            if (!err) {
+                err = posix_memalign((void *)&C, pad_size, mem_size);
+            }
+
+            if (!err) {
+#pragma omp parallel for
+                for (int i = 0; i < mem_size / sizeof(double); ++i) {
+                    A[i] = random() / RAND_MAX;
+                    B[i] = random() / RAND_MAX;
+                }
+            }
+        }
+        if (!err) {
+            if (do_report) {
+                printf("Executing a %d x %d DGEMM\n", matrix_size, matrix_size);
+                fflush(stdout);
+            }
+
+            dgemm(&transa, &transb, &M, &N, &K, &alpha,
+                  A, &LDA, B, &LDB, &beta, C, &LDC);
+        }
+    }
+    else if (A) {
+        free(C);
+        free(B);
+        free(A);
+        A = NULL;
+        B = NULL;
+        C = NULL;
+    }
+    return err;
+}
+
 #ifdef _OPENMP
 static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double scalar, double *a, double *b, double *c)
 {
