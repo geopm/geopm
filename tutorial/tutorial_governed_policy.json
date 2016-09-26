@@ -2,4 +2,4 @@
   "options": { "tree_decider": "static_policy",
                "leaf_decider": "power_governing",
                "platform": "rapl",
-               "power_budget": 145 } }
+               "power_budget": 150 } }
