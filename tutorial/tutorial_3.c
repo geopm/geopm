@@ -81,9 +81,9 @@ int main(int argc, char **argv)
     }
 
     int num_iter = 10;
-    double sleep_big_o = 1;
+    double sleep_big_o = 1.0;
     double stream0_big_o = 1.0;
-    double dgemm_big_o = 1.0 + 0.01 * rank;
+    double dgemm_big_o = 1.0 + 0.02 * rank;
     double all2all_big_o = 1.0;
     double stream1_big_o = 1.0;
 
