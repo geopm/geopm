@@ -37,6 +37,7 @@ int tutorial_sleep(double big_o, int do_report);
 int tutorial_dgemm(double big_o, int do_report);
 int tutorial_stream(double big_o, int do_report);
 int tutorial_all2all(double big_o, int do_report);
+int tutorial_dgemm_static(double big_o, int do_report);
 int tutorial_stream_profiled(double big_o, int do_report);
 
 #ifndef TUTORIAL_ENABLE_MKL

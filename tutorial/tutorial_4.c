@@ -77,7 +77,7 @@ int main(int argc, char **argv)
             err = imbalancer_enter();
         }
         if (!err) {
-            err = tutorial_dgemm(dgemm_big_o, 0);
+            err = tutorial_dgemm_static(dgemm_big_o, 0);
         }
         if (!err) {
             err = imbalancer_exit();
@@ -87,6 +87,9 @@ int main(int argc, char **argv)
         }
         if (!err) {
             err = geopm_prof_outer_sync();
+        }
+        if (!err) {
+            MPI_Barrier(MPI_COMM_WORLD);
         }
         if (!err && !rank) {
             printf("Iteration=%.3d\r", i);
