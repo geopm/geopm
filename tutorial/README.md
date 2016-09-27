@@ -107,14 +107,14 @@ the second half.  In this example we also enable geopm to do control
 in addition to simply profiling the application.  This is enabled
 through the GEOPM_POLICY environment variable which refers to a json
 formatted policy file.  This control is intended to synchronize the
-run time of each rank in the face of this load imbalance.  The
-tutorial 3 script executes the application with two different
-policies.  The first run enforces a uniform power budget of 150 Watts
-to each compute node using the governing decider alone, and the second
-run enforces an average power budget of 150 Watts across all compute
-nodes while diverting power to the nodes which have more work to do
-using the balancing decider at the tree levels of the hierarchy and
-the governing decider at the leaf.
+run time of each rank to overcome this load imbalance.  The tutorial 3
+script executes the application with two different policies.  The
+first run enforces a uniform power budget of 150 Watts to each compute
+node using the governing decider alone, and the second run enforces an
+average power budget of 150 Watts across all compute nodes while
+diverting power to the nodes which have more work to do using the
+balancing decider at the tree levels of the hierarchy and the
+governing decider at the leaf.
 
 
 4. Adding artificial imbalance to the application
