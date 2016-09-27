@@ -76,7 +76,7 @@ namespace geopm
                 result = GEOPM_POLICY_AFFINITY_SCATTER;
                 break;
             default:
-                throw Exception("PolicyFlags::affinity(): flags not match any geopm_policy_affinity_e values.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                result = GEOPM_POLICY_AFFINITY_INVALID;
                 break;
         }
 

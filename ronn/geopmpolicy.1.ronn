@@ -207,7 +207,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     -d power_budget:300,platform:broadwell_platform
 
   * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts and use custom decider plugins::
-    $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
+    $ geopmpolicy -c -f geopm.conf -m dynamic \ <br>
     -d power_budget:300,tree_decider:uniform_frequency,leaf_decider:max_efficiency
 
   * Enforce a static policy defined in a preexisting configuration file::
