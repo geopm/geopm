@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_2bfac2bd",
+        "filename": "tutorial/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-09-27T20:33:48Z",
+      "side": 1,
+      "message": "in spite?\n\nI do like getting in the face of the load imbalance though. :)",
+      "range": {
+        "startLine": 110,
+        "startChar": 22,
+        "endLine": 110,
+        "endChar": 33
+      },
+      "revId": "490925f3a0f9ca3f72509f5c7ace1a1fbd8691f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
