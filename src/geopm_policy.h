@@ -65,6 +65,7 @@ enum geopm_policy_mode_e {
 };
 
 enum geopm_policy_affinity_e {
+    GEOPM_POLICY_AFFINITY_INVALID,
     GEOPM_POLICY_AFFINITY_COMPACT,
     GEOPM_POLICY_AFFINITY_SCATTER,
 };

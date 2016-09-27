@@ -423,6 +423,12 @@ static int _geopm_policy_mode_parse(struct geopm_policy_c *policy, const char *m
     else if (strncmp(mode_str, "freq_hybrid_dynamic", strlen("freq_hybrid_dynamic") + 1) == 0) {
         mode = GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC;
     }
+    else if (strncmp(mode_str, "dynamic", strlen("dynamic") + 1) == 0) {
+        mode = GEOPM_POLICY_MODE_DYNAMIC;
+    }
+    else if (strncmp(mode_str, "static", strlen("static") + 1) == 0) {
+        mode = GEOPM_POLICY_MODE_STATIC;
+    }
     else {
         fprintf(stderr, "Error: Invalid power mode: %s\n", mode_str);
         err = EINVAL;
@@ -481,10 +487,10 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
                     err = geopm_policy_tree_decider(policy, value);
                 }
                 else if (strncmp(key, "leaf_decider", strlen("leaf_decider") + 1) == 0) {
-                    err = geopm_policy_tree_decider(policy, value);
+                    err = geopm_policy_leaf_decider(policy, value);
                 }
                 else if (strncmp(key, "platform", strlen("platform") + 1) == 0) {
-                    err = geopm_policy_tree_decider(policy, value);
+                    err = geopm_policy_platform(policy, value);
                 }
                 else {
                     fprintf(stderr, "Error: invalid option: %s\n", key);
