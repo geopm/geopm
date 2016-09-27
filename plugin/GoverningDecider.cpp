@@ -138,7 +138,8 @@ namespace geopm
                 is_greater = total_power > limit[domain_idx] * (1 + m_guard_band);
                 is_less = total_power < limit[domain_idx] * (1 - m_guard_band);
                 if (is_greater || is_less) {
-                    target[domain_idx] = limit[domain_idx] - dram_power;
+                    target[domain_idx] = limit[domain_idx] - ((total_power - limit[domain_idx]) > dram_power
+                                         ? (total_power - limit[domain_idx]) : dram_power);
                     is_updated = true;
                 }
             }
