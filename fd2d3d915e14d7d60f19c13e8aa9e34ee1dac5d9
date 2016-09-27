@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_ebedfaf0",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-09-27T20:48:52Z",
+      "side": 1,
+      "message": "I think having a stack variable for (total_power - limit[domain_idx]) would make this more readable.\n\ndouble overage \u003d total_power - limit[domain_idx];\ntarget[domain_idx] \u003d limit[domain_idx] - (overage \u003e dram_power ?\n                                          overage : dram_power)",
+      "revId": "fd2d3d915e14d7d60f19c13e8aa9e34ee1dac5d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
