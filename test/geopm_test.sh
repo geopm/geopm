@@ -41,8 +41,8 @@ run_test=true
 err=0
 
 if [[ ! $test_name =~ ^MPI ]]; then
-    # Check for crc32 intrinsic support before running LockingHashTable tests
-    if [[ $test_name =~ ^LockingHashTable ]]; then
+    # Check for crc32 intrinsic support before running ProfileTable tests
+    if [[ $test_name =~ ^ProfileTable ]]; then
         if  ! ./examples/geopm_platform_supported crc32; then
             echo "Warning: _mm_crc32_u64 intrisic not supported."
             run_test=false

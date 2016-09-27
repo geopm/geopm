@@ -79,9 +79,9 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
-              test/gtest_links/LockingHashTableTest.hello \
-              test/gtest_links/LockingHashTableTest.name_set_fill_short \
-              test/gtest_links/LockingHashTableTest.name_set_fill_long \
+              test/gtest_links/ProfileTableTest.hello \
+              test/gtest_links/ProfileTableTest.name_set_fill_short \
+              test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/DeciderFactoryTest.decider_register \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/RegionTest.identifier \
@@ -161,8 +161,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
                           test/ExceptionTest.cpp \
-                          test/LockingHashTableTest.cpp \
-                          src/LockingHashTable.hpp \
+                          test/ProfileTableTest.cpp \
                           test/DeciderFactoryTest.cpp \
                           test/SampleRegulatorTest.cpp \
                           test/RegionTest.cpp \
