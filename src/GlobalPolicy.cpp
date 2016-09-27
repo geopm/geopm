@@ -313,8 +313,8 @@ namespace geopm
         ,m_mode(GEOPM_POLICY_MODE_STATIC)
         ,m_power_budget_watts(-1)
         ,m_flags(0)
-        ,m_tree_decider("static_policy")
-        ,m_leaf_decider("static_policy")
+        ,m_tree_decider("none")
+        ,m_leaf_decider("none")
         ,m_platform("rapl")
         ,m_is_shm_in(false)
         ,m_is_shm_out(false)
@@ -389,6 +389,10 @@ namespace geopm
                 }
             }
             read();
+        }
+        if (m_in_config.empty() && m_out_config.empty()) {
+            m_tree_decider = "static_policy";
+            m_leaf_decider = "static_policy";
         }
     }
 
@@ -722,24 +726,37 @@ namespace geopm
              m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC) &&
             (m_tree_decider != "static_policy" ||
              m_leaf_decider != "static_policy")) {
-            throw Exception("GlobalPolicy::check_valid(): cannot set mode to static unless the deciders are static", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (m_leaf_decider == "none" && m_tree_decider == "none") {
+                m_leaf_decider = "static_policy";
+                m_tree_decider = "static_policy";
+            }
+            else {
+                throw Exception("GlobalPolicy::check_valid(): cannot set mode to static unless the deciders are static", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
         if ((m_mode == GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC ||
              m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC ||
              m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC) &&
-             (m_tree_decider != "power_balancing" ||
+             (m_tree_decider!= "power_balancing" ||
               m_leaf_decider != "power_governing")) {
-            throw Exception("GlobalPolicy::check_valid(): dynamic mode does not match the required decider", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (m_mode == GEOPM_POLICY_MODE_DYNAMIC &&
-            m_tree_decider == "static_policy" &&
-            m_leaf_decider == "static_policy") {
-           throw Exception("GlobalPolicy::check_valid(): dynamic mode cannnot set when both the tree and leaf decider are static", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (m_leaf_decider == "none" && m_tree_decider == "none") {
+                m_leaf_decider = "power_governing";
+                m_tree_decider = "power_balancing";
+            }
+            else {
+                throw Exception("GlobalPolicy::check_valid(): dynamic mode does not match the required decider", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
         if (m_mode == GEOPM_POLICY_MODE_STATIC &&
             (m_tree_decider != "static_policy" ||
              m_leaf_decider != "static_policy")) {
-           throw Exception("GlobalPolicy::check_valid(): static mode cannnot set when either the tree or leaf decider are dynamic", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (m_leaf_decider == "none" && m_tree_decider == "none") {
+                m_leaf_decider = "static_policy";
+                m_tree_decider = "static_policy";
+            }
+            else {
+                throw Exception("GlobalPolicy::check_valid(): static mode cannnot set when either the tree or leaf decider are dynamic", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
     }
 
@@ -887,17 +904,6 @@ namespace geopm
             case GEOPM_POLICY_MODE_STATIC:
                 json_object_object_add(policy, "mode",
                                        json_object_new_string("static"));
-                json_object_object_add(options, "tdp_percent",
-                                       json_object_new_int(tdp_percent()));
-                json_object_object_add(options, "cpu_mhz",
-                                       json_object_new_int(frequency_mhz()));
-                json_object_object_add(options, "num_cpu_max_perf",
-                                       json_object_new_int(num_max_perf()));
-                affinity_string(affinity(), affinity_name);
-                json_object_object_add(options, "affinity",
-                                       json_object_new_string(affinity_name.c_str()));
-                json_object_object_add(options, "power_budget",
-                                       json_object_new_int(budget_watts()));
                 json_object_object_add(options, "platform",
                                        json_object_new_string(m_platform.c_str()));
                 break;
@@ -910,9 +916,11 @@ namespace geopm
                                        json_object_new_int(frequency_mhz()));
                 json_object_object_add(options, "num_cpu_max_perf",
                                        json_object_new_int(num_max_perf()));
-                affinity_string(affinity(), affinity_name);
-                json_object_object_add(options, "affinity",
-                                       json_object_new_string(affinity_name.c_str()));
+                if (affinity() != GEOPM_POLICY_AFFINITY_INVALID) {
+                    affinity_string(affinity(), affinity_name);
+                    json_object_object_add(options, "affinity",
+                                           json_object_new_string(affinity_name.c_str()));
+                }
                 json_object_object_add(options, "power_budget",
                                        json_object_new_int(budget_watts()));
                 json_object_object_add(options, "tree_decider",
