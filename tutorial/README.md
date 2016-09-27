@@ -95,23 +95,38 @@ contain region specific information.
 
 3. Adding work imbalance to the application
 -------------------------------------------
-Tutorial 3 modifies tutorial 2 by adding a load imbalance in the
-compute intensive region of the application.  It scales the amount of
-work done by each rank by one percent so that rank N is doing N
-percent more work than rank 0.  In this example we also enable geopm
-to do control in addition to simply profiling the application.  This
-is enabled through the GEOPM_POLICY environment variable which refers
-to a json formatted policy file.  This control is intended to
-synchronize the run time of each rank in the face of this load
-imbalance.
+Tutorial 3 modifies tutorial 2 removing all but the compute intensive
+region from the application and then adding work imbalance across the
+MPI ranks.  This tutorial also uses a modified implementation of the
+DGEMM region which does set up and shutdown once per application run
+rather than once per main loop iteration.  In this way the main
+application loop is focused entirely on the DGEMM operation.  Note an
+MPI_Barrier has also been added to the loop.  The work imbalance is
+done by assigning the first half of the MPI ranks 10% more work than
+the second half.  In this example we also enable geopm to do control
+in addition to simply profiling the application.  This is enabled
+through the GEOPM_POLICY environment variable which refers to a json
+formatted policy file.  This control is intended to synchronize the
+run time of each rank in the face of this load imbalance.  The
+tutorial 3 script executes the application with two different
+policies.  The first run enforces a uniform power budget of 150 Watts
+to each compute node using the governing decider alone, and the second
+run enforces an average power budget of 150 Watts across all compute
+nodes while diverting power to the nodes which have more work to do
+using the balancing decider at the tree levels of the hierarchy and
+the governing decider at the leaf.
+
 
 4. Adding artificial imbalance to the application
 -------------------------------------------------
-Tutorial 4 enables artificial injection of imbalance and includes a
-loop that runs only the DGEMM region.  The imbalance is controlled by
-a file who's path is given by the IMBALANCER_CONFIG environment
-variable.  This file gives a list of hostnames and imbalance injection
-fraction.  An example file might be:
+Tutorial 4 enables artificial injection of imbalance.  This differs
+from from tutorial by 3 having the application sleep for a period of
+time proportional to the amount of work done rather than simply
+increasing the amount of work done.  This type of modeling is useful
+when the amount of work within cannot be easily scaled.  The imbalance
+is controlled by a file who's path is given by the IMBALANCER_CONFIG
+environment variable.  This file gives a list of hostnames and
+imbalance injection fraction.  An example file might be:
 
     my-cluster-node3 0.25
     my-cluster-node11 0.15
@@ -122,7 +137,7 @@ each pass through the loop.  All nodes which have hostnames that are
 not included in the configuration file will perform normally.  The
 tutorial_4.sh script will create a configuration file called
 "tutorial_3_imbalance.conf" if one does not exist, and one of the
-nodes will have a 50% injection of imbalance.  The node is chosen
+nodes will have a 10% injection of imbalance.  The node is chosen
 arbitrarily by a race if the configuration file is not present.
 
 5. Using the progress interface
@@ -146,7 +161,7 @@ operations in each call to execute the region.  These include memory
 allocation, value initialization and memory deallocation.  In tutorial
 6 we move these start-up and shutdown operations into the beginning
 and end of the application so that the execution of a region is
-dedicated entirely to a compute intensive (dgemm), memory intensive
+dedicated entirely to a compute intensive (DGEMM), memory intensive
 (stream) or network intensive (all2all) operation.  The ModelRegion
 and ModelApplication will form the basis for the geopm integration
 tests.
