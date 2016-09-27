@@ -43,7 +43,7 @@
 #include "geopm_time.h"
 #include "geopm_message.h"
 #include "SharedMemory.hpp"
-#include "LockingHashTable.hpp"
+#include "ProfileTable.hpp"
 #include "SampleScheduler.hpp"
 
 /// @brief Enum encompassing application and
@@ -80,16 +80,6 @@ struct geopm_ctl_message_s {
 
 namespace geopm
 {
-    /// @brief ProfileTable class is a specific instantiation of the LockingHashTable class
-    /// for dealing with application profile data.
-    class ProfileTable : public LockingHashTable<struct geopm_prof_message_s>
-    {
-        public:
-            ProfileTable(size_t size, void *buffer);
-            virtual ~ProfileTable();
-            virtual bool sticky(const struct geopm_prof_message_s &value);
-    };
-
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///
