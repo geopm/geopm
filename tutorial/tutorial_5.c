@@ -55,6 +55,13 @@ int main(int argc, char **argv)
         printf("MPI_COMM_WORLD size: %d\n", size);
     }
 
+    uint64_t stream_rid;
+    if (!err) {
+        err = geopm_prof_region("tutorial_stream",
+                                GEOPM_POLICY_HINT_MEMORY,
+                                &stream_rid);
+    }
+
     int num_iter = 10;
     double stream_big_o = 1.0;
 
@@ -63,7 +70,13 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
     for (int i = 0; !err && i < num_iter; ++i) {
-        err = tutorial_stream_profiled(stream_big_o, 0);
+        err = geopm_prof_enter(stream_rid);
+        if (!err) {
+            err = tutorial_stream_profiled(stream_big_o, 0);
+        }
+        if (!err) {
+            err = geopm_prof_exit(stream_rid);
+        }
         if (!err && !rank) {
             printf("Iteration=%.3d\r", i);
             fflush(stdout);
