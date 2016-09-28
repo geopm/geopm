@@ -274,23 +274,33 @@ int tutorial_dgemm_static(double big_o, int do_report)
 #ifdef _OPENMP
 static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double scalar, double *a, double *b, double *c)
 {
+    const size_t block = 256;
+    const size_t num_block = num_stream / block;
+    const size_t num_remain = num_stream % block;
     int err = 0;
     int num_thread = 1;
     struct geopm_tprof_c *tprof = NULL;
+
 
 #pragma omp parallel
 {
     num_thread = omp_get_num_threads();
 }
-    err = geopm_tprof_create(num_thread, num_stream, 0, &tprof);
+    err = geopm_tprof_create(num_thread, num_block, 0, &tprof);
     if (!err) {
 #pragma omp parallel
 {
         int thread_idx = omp_get_thread_num();
 #pragma omp for
-        for (int i = 0; i < num_stream; ++i) {
-            a[i] = b[i] + scalar * c[i];
+        for (size_t i = 0; i < num_block; ++i) {
+            for (size_t j = 0; j < block; ++j) {
+                a[i * block + j] = b[i * block + j] + scalar * c[i * block + j];
+            }
             geopm_tprof_increment(tprof, region_id, thread_idx);
+        }
+#pragma omp for
+        for (size_t j = 0; j < num_remain; ++j) {
+            a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];
         }
 }
     }
@@ -304,12 +314,21 @@ static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double sca
 
 static int stream_profiled_serial(uint64_t region_id, size_t num_stream, double scalar, double *a, double *b, double *c)
 {
-    double norm = 1.0 / num_stream;
+    const size_t block = 256;
+    const size_t num_block = num_stream / block;
+    const size_t num_remain = num_stream % block;
+    const double norm = 1.0 / num_block;
 
-    for (int i = 0; i < num_stream; ++i) {
-        a[i] = b[i] + scalar * c[i];
+    for (size_t i = 0; i < num_block; ++i) {
+        for (size_t j = 0; j < block; ++j) {
+            a[i * block + j] = b[i * block + j] + scalar * c[i * block + j];
+        }
         geopm_prof_progress(region_id, i * norm);
     }
+    for (size_t j = 0; j < num_remain; ++j) {
+        a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];
+    }
+
     return 0;
 }
 
@@ -326,13 +345,7 @@ int tutorial_stream_profiled(double big_o, int do_report)
         double *c = NULL;
         double scalar = 3.0;
 
-        err = geopm_prof_region("tutorial_stream_profiled", GEOPM_POLICY_HINT_MEMORY, &region_id);
-        if (!err) {
-            err = geopm_prof_enter(region_id);
-        }
-        if (!err) {
-            err = posix_memalign((void *)&a, cline_size, mem_size);
-        }
+        err = posix_memalign((void *)&a, cline_size, mem_size);
         if (!err) {
             err = posix_memalign((void *)&b, cline_size, mem_size);
         }
