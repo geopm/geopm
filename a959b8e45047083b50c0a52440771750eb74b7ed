@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_181740ef",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-10-03T23:35:32Z",
+      "side": 1,
+      "message": "The only place that m_is_in_outer is set to false is in the initializer list for the Controller.  This seems to only be used to handle the very first call to update_outer_sync.  Every other call has it set to true.\n\nI think m_is_in_outer could be removed as a member variable, and instead declared as a static int in this specific method.  It\u0027s more of a one-shot thing anyway.",
+      "range": {
+        "startLine": 685,
+        "startChar": 12,
+        "endLine": 685,
+        "endChar": 25
+      },
+      "revId": "a959b8e45047083b50c0a52440771750eb74b7ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
