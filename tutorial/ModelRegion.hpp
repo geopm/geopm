@@ -45,31 +45,34 @@ namespace geopm
             virtual ~ModelRegionBase();
             std::string name(void);
             double big_o(void);
-            virtual void big_o(double big_o) = 0;
+            virtual void big_o(double big_o_in) = 0;
             virtual void run(void) = 0;
         protected:
+            virtual void loop_count(double big_o_in);
             std::string m_name;
             double m_big_o;
             int m_verbosity;
             uint64_t m_region_id;
             bool m_do_imbalance;
+            bool m_do_progress;
+            uint64_t m_loop_count;
     };
 
     class SleepModelRegion : public ModelRegionBase
     {
         public:
-            SleepModelRegion(double big_o, int verbosity);
-            SleepModelRegion(double big_o, int verbosity, bool do_imbalance);
+            SleepModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~SleepModelRegion();
             void big_o(double big_o);
             void run(void);
+        protected:
+            struct timespec m_delay;
     };
 
     class DGEMMModelRegion : public ModelRegionBase
     {
         public:
-            DGEMMModelRegion(double big_o, int verbosity);
-            DGEMMModelRegion(double big_o, int verbosity, bool do_imbalance);
+            DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~DGEMMModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -84,8 +87,7 @@ namespace geopm
     class StreamModelRegion : public ModelRegionBase
     {
         public:
-            StreamModelRegion(double big_o, int verbosity);
-            StreamModelRegion(double big_o, int verbosity, bool do_imbalance);
+            StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~StreamModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -100,8 +102,7 @@ namespace geopm
     class All2allModelRegion : public ModelRegionBase
     {
         public:
-            All2allModelRegion(double big_o, int verbosity);
-            All2allModelRegion(double big_o, int verbosity, bool do_imbalance);
+            All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~All2allModelRegion();
             void big_o(double big_o);
             void run(void);
