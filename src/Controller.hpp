@@ -174,6 +174,7 @@ namespace geopm
             void walk_up(void);
             void override_telemetry(double progress);
             void update_region(void);
+            void update_outer_sync(std::vector<struct geopm_telemetry_message_s> &telemetry);
             bool m_is_node_root;
             int m_max_fanout;
             std::vector<int> m_fan_out;
