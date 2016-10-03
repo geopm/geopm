@@ -105,6 +105,10 @@ int main(int argc, char **argv)
 "                 \"my-compute-node-15\" are injected when executing\n"
 "                 the dgemm region.\n"
 "\n"
+"                     If \"-progress\" is appended to any region name in the\n"
+"                     configuration, then progress for the region will be\n"
+"                     reported through the geopm_prof_progress API.\n"
+"\n"
 "\n";
 
     err = MPI_Init(&argc, &argv);
