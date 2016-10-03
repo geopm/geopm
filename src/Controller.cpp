@@ -183,7 +183,6 @@ namespace geopm
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rate_limit(0.0)
-        , m_is_in_outer(false)
         , m_rank_per_node(0)
         , m_outer_sync_time(0.0)
         , m_mpi_sync_time(0.0)
@@ -490,6 +489,7 @@ namespace geopm
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
         std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
+        std::vector<struct geopm_telemetry_message_s> outer_telemetry_sample(m_telemetry_sample.size());
         size_t length;
         struct geopm_time_s loop_t1;
 
@@ -568,18 +568,9 @@ namespace geopm
                                               m_prof_sample.cbegin(), m_prof_sample.cbegin(),
                                               aligned_signal,
                                               m_region_id);
-                        m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
-                        if (m_is_in_outer) {
-                            override_telemetry(1.0);
-                            update_region();
-                            m_tracer->update(m_telemetry_sample);
-                        }
-                        m_is_in_outer = true;
-                        override_telemetry(0.0);
-                        update_region();
-                        m_tracer->update(m_telemetry_sample);
-                        m_region_id_all = region_id_all_tmp;
+                        m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, outer_telemetry_sample);
                         is_outer_found = true;
+                        m_region_id_all = region_id_all_tmp;
                     }
                 }
 
@@ -605,18 +596,22 @@ namespace geopm
                 if (m_region_id_all && !region_id_all) {
                     override_telemetry(1.0);
                     update_region();
-                    m_tracer->update(m_telemetry_sample);
                     if (m_region_id_all == GEOPM_REGION_ID_MPI) {
                         do_accumulate_mpi = true;
                     }
                     m_region_id_all = 0;
                     std::fill(m_region_id.begin(), m_region_id.end(), 0);
+                    if (is_outer_found) {
+                        update_outer_sync(outer_telemetry_sample);
+                    }
                 }
                 else if (!m_region_id_all && region_id_all) {
+                    if (is_outer_found) {
+                        update_outer_sync(outer_telemetry_sample);
+                    }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
                     update_region();
-                    m_tracer->update(m_telemetry_sample);
                     if (m_region_id_all == GEOPM_REGION_ID_MPI) {
                         do_latch_time_mpi = true;
                     }
@@ -625,22 +620,25 @@ namespace geopm
                          m_region_id_all != region_id_all) {
                     override_telemetry(1.0);
                     update_region();
-                    m_tracer->update(m_telemetry_sample);
                     if (m_region_id_all == GEOPM_REGION_ID_MPI) {
                         do_accumulate_mpi = true;
+                    }
+                    if (is_outer_found) {
+                        update_outer_sync(outer_telemetry_sample);
                     }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
                     std::fill(m_region_id.begin(), m_region_id.end(), m_region_id_all);
                     update_region();
-                    m_tracer->update(m_telemetry_sample);
                     if (m_region_id_all == GEOPM_REGION_ID_MPI) {
                         do_latch_time_mpi = true;
                     }
                 }
                 else { // No entries or exits
+                    if (is_outer_found) {
+                        update_outer_sync(outer_telemetry_sample);
+                    }
                     update_region();
-                    m_tracer->update(m_telemetry_sample);
                 }
                 if (do_latch_time_mpi) {
                     m_mpi_enter_time = m_telemetry_sample[0].timestamp;
@@ -678,6 +676,23 @@ namespace geopm
         }
     }
 
+    void Controller::update_outer_sync(std::vector<struct geopm_telemetry_message_s> &telemetry)
+    {
+        static bool is_in_outer = false;
+        uint64_t region_id_all_tmp = m_region_id_all;
+        m_region_id_all = GEOPM_REGION_ID_OUTER;
+        m_telemetry_sample.swap(telemetry);
+        if (is_in_outer) {
+            override_telemetry(1.0);
+            update_region();
+        }
+        is_in_outer = true;
+        override_telemetry(0.0);
+        update_region();
+        m_region_id_all = region_id_all_tmp;
+        m_telemetry_sample.swap(telemetry);
+    }
+
     void Controller::override_telemetry(double progress)
     {
         for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
@@ -704,6 +719,7 @@ namespace geopm
             Region *curr_region = (*it).second;
             Policy *curr_policy = m_policy[level];
             curr_region->insert(m_telemetry_sample);
+            m_tracer->update(m_telemetry_sample);
             if (m_region_id_all != GEOPM_REGION_ID_OUTER &&
                 m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
                 m_platform->enforce_policy(m_region_id_all, *curr_policy);
@@ -735,12 +751,9 @@ namespace geopm
             return;
         }
 
-        if (m_is_in_outer) {
-            m_region_id_all = GEOPM_REGION_ID_OUTER;
-            override_telemetry(1.0);
-            update_region();
-            m_tracer->update(m_telemetry_sample);
-        }
+        m_region_id_all = GEOPM_REGION_ID_OUTER;
+        override_telemetry(1.0);
+        update_region();
 
         std::string report_name;
         std::string profile_name;
