@@ -53,23 +53,25 @@ namespace geopm
             int m_verbosity;
             uint64_t m_region_id;
             bool m_do_imbalance;
+            bool m_do_progress;
+            uint64_t m_loop_count;
     };
 
     class SleepModelRegion : public ModelRegionBase
     {
         public:
-            SleepModelRegion(double big_o, int verbosity);
-            SleepModelRegion(double big_o, int verbosity, bool do_imbalance);
+            SleepModelRegion(double big_o, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~SleepModelRegion();
             void big_o(double big_o);
             void run(void);
+        protected:
+            struct timespec m_delay;
     };
 
     class DGEMMModelRegion : public ModelRegionBase
     {
         public:
-            DGEMMModelRegion(double big_o, int verbosity);
-            DGEMMModelRegion(double big_o, int verbosity, bool do_imbalance);
+            DGEMMModelRegion(double big_o, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~DGEMMModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -84,8 +86,7 @@ namespace geopm
     class StreamModelRegion : public ModelRegionBase
     {
         public:
-            StreamModelRegion(double big_o, int verbosity);
-            StreamModelRegion(double big_o, int verbosity, bool do_imbalance);
+            StreamModelRegion(double big_o, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~StreamModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -100,8 +101,7 @@ namespace geopm
     class All2allModelRegion : public ModelRegionBase
     {
         public:
-            All2allModelRegion(double big_o, int verbosity);
-            All2allModelRegion(double big_o, int verbosity, bool do_imbalance);
+            All2allModelRegion(double big_o, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~All2allModelRegion();
             void big_o(double big_o);
             void run(void);

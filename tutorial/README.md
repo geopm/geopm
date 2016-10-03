@@ -223,3 +223,7 @@ parameters.  The tutorial_6 --help output:
                      "my-compute-node-3" and a 15% delay on
                      "my-compute-node-15" are injected when executing
                      the dgemm region.
+
+                     If "-progress" is appended to any region name in the
+                     configuration, then progress for the region will be
+                     reported through the geopm_prof_progress API.
