@@ -490,6 +490,7 @@ namespace geopm
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
         std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
+        std::vector<struct geopm_telemetry_message_s> outer_telemetry_sample(m_telemetry_sample.size());
         size_t length;
         struct geopm_time_s loop_t1;
 
@@ -561,24 +562,13 @@ namespace geopm
 
                     if (!is_outer_found &&
                         (*sample_it).second.region_id == GEOPM_REGION_ID_OUTER) {
-                        uint64_t region_id_all_tmp = m_region_id_all;
                         m_region_id_all = GEOPM_REGION_ID_OUTER;
                         (*m_sample_regulator)(m_msr_sample[0].timestamp,
                                               platform_sample.cbegin(), platform_sample.cend(),
                                               m_prof_sample.cbegin(), m_prof_sample.cbegin(),
                                               aligned_signal,
                                               m_region_id);
-                        m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
-                        if (m_is_in_outer) {
-                            override_telemetry(1.0);
-                            update_region();
-                            m_tracer->update(m_telemetry_sample);
-                        }
-                        m_is_in_outer = true;
-                        override_telemetry(0.0);
-                        update_region();
-                        m_tracer->update(m_telemetry_sample);
-                        m_region_id_all = region_id_all_tmp;
+                        m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, outer_telemetry_sample);
                         is_outer_found = true;
                     }
                 }
@@ -647,6 +637,21 @@ namespace geopm
                 }
                 if (do_accumulate_mpi) {
                     m_mpi_sync_time += geopm_time_diff(&m_mpi_enter_time, &(m_telemetry_sample[0].timestamp));
+                }
+                if (is_outer_found) {
+                    uint64_t region_id_all_tmp = m_region_id_all;
+                    m_telemetry_sample.swap(outer_telemetry_sample);
+                    if (m_is_in_outer) {
+                        override_telemetry(1.0);
+                        update_region();
+                        m_tracer->update(m_telemetry_sample);
+                    }
+                    m_is_in_outer = true;
+                    override_telemetry(0.0);
+                    update_region();
+                    m_tracer->update(m_telemetry_sample);
+                    m_region_id_all = region_id_all_tmp;
+                    m_telemetry_sample.swap(outer_telemetry_sample);
                 }
                 // GEOPM_REGION_ID_OUTER is inserted at construction
                 struct geopm_sample_message_s outer_sample;
