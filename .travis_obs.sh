@@ -39,6 +39,7 @@ fi
 
 spec_file=geopm-${version}.spec
 source_file=geopm-${version}.tar.gz
+obs_url=https://api.opensuse.org
 
 if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
    [ $OSC_CREDENTIALS ] && \
@@ -48,31 +49,44 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
     if [ "$TRAVIS_REPO_SLUG" == "geopm/geopm" ] && \
        [ "$TRAVIS_BRANCH" == "master" ] && \
        git describe --exact-match >& /dev/null; then
-        obs_repo=https://api.opensuse.org/source/home:cmcantalupo:geopm/geopm
+        obs_proj=home:cmcantalupo:geopm
+        obs_pkg=geopm
         do_obs=true
     elif [ "$TRAVIS_REPO_SLUG" == "geopm/geopm" ] && \
          [ "$TRAVIS_BRANCH" == "dev" ]; then
-        obs_url=https://api.opensuse.org/source/home:cmcantalupo:geopm-dev/geopm-dev
+        obs_proj=home:cmcantalupo:geopm-dev
+        obs_pkg=geopm-dev
         do_obs=true
     elif [ "$TRAVIS_REPO_SLUG" == "cmcantalupo/geopm" ]; then
-        obs_url=https://api.opensuse.org/source/home:cmcantalupo/geopm
+        obs_proj=home:cmcantalupo
+        obs_pkg=geopm
         do_obs=true
     elif [ "$TRAVIS_REPO_SLUG" == "bgeltz/geopm" ]; then
-        obs_url=https://api.opensuse.org/source/home:bgeltz/geopm
+        obs_proj=home:bgeltz
+        obs_pkg=geopm
         do_obs=true
     elif [ "$TRAVIS_REPO_SLUG" == "sssylvester/geopm" ]; then
-        obs_url=https://api.opensuse.org/source/home:sssylvester/geopm
+        obs_proj=home:sssylvester
+        obs_pkg=geopm
         do_obs=true
     fi
 
 fi
 
 if [ "$do_obs" == "true" ]; then
-    curl -X DELETE -u ${OSC_CREDENTIALS} ${obs_url}/geopm.spec
-    curl -X DELETE -u ${OSC_CREDENTIALS} ${obs_url}/geopm.tar.gz
-    curl -X PUT -T $spec_file -u ${OSC_CREDENTIALS} ${obs_url}/geopm.spec
-    curl -X PUT -T $source_file -u ${OSC_CREDENTIALS} ${obs_url}/geopm.tar.gz
-    echo "Pushed to OpenSUSE builds."
+    echo "[general]" > $HOME/.oscrc
+    echo "apiurl = $obs_url" >> $HOME/.oscrc
+    echo "[$obs_url]" >> $HOME/.oscrc
+    echo "user = $(echo $OSC_CREDENTIALS | awk -F: '{print $1}')" >> $HOME/.oscrc
+    echo "password = $(echo $OSC_CREDENTIALS | awk -F: '{print $2}')" >> $HOME/.oscrc
+    osc co $obs_proj $obs_pkg && \
+    cp $spec_file $obs_proj/$obs_pkg/geopm.spec && \
+    cp $source_file $obs_proj/$obs_pkg/geopm.tar.gz && \
+    cd $obs_proj/$obs_pkg && \
+    osc ci -m $version && \
+    cd - && \
+    echo "Pushed to OpenSUSE builds." ||
+    echo "Failed to push to OpenSUSE builds."
 else
     echo TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST
     echo TRAVIS_REPO_SLUG: $TRAVIS_REPO_SLUG
@@ -83,5 +97,3 @@ else
     fi
     echo "Did not push to OpenSUSE builds."
 fi
-
-

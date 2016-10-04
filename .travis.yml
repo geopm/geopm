@@ -79,3 +79,4 @@ addons:
     - libhwloc-dev
     - openmpi-bin
     - libopenmpi-dev
+    - osc
