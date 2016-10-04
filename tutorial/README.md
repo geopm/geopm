@@ -10,6 +10,9 @@ have to be modified to describe the installed locations on your
 system.  Each step in the tutorial is documented below in this README.
 The tutorial is a work in progress.
 
+A video demonstration of these tutorials is available online here:
+https://www.youtube.com/playlist?list=PLwm-z8c2AbIBU-T7HnMi_Pux7iO3gQQnz
+
 Building the tutorials
 ----------------------
 A simple Makefile which is not part of the geopm autotools build
