@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_78de4c3f",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-10-04T00:02:51Z",
+      "side": 1,
+      "message": "I spent a while trying to figure out why this swap, and the one lower in this method was necessary here.  AFAICT, this is only because the override_telemetry and update_region methods operate on m_telemetry_sample directly, so if you need to inject specific data (e.g. the outer_sync samples) you needed a way to force that to happen.\n\nIs that the jist of it?  Had you considered altering override_telemetry and update_region so that they took a vector of telemetry messages as input (instead of directly operating on m_telemetry_sample?  Is that any less ugly than all this swapping?",
+      "range": {
+        "startLine": 684,
+        "startChar": 8,
+        "endLine": 684,
+        "endChar": 43
+      },
+      "revId": "a959b8e45047083b50c0a52440771750eb74b7ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_181740ef",
         "filename": "src/Controller.cpp",
         "patchSetId": 3
