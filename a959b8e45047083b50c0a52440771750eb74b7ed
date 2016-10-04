@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_38e56408",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-10-04T00:09:34Z",
+      "side": 1,
+      "message": "In every case of the above compound if you check to see if is_outer_found is set, then call update_region.\n\nCould this be simplified by moving this if(is_outer_found) check just below line 643, and only doing it once?",
+      "range": {
+        "startLine": 643,
+        "startChar": 16,
+        "endLine": 643,
+        "endChar": 17
+      },
+      "revId": "a959b8e45047083b50c0a52440771750eb74b7ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_78de4c3f",
         "filename": "src/Controller.cpp",
         "patchSetId": 3
