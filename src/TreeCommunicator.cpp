@@ -548,7 +548,7 @@ namespace geopm
     void TreeCommunicatorLevel::send_sample(const struct geopm_sample_message_s &sample)
     {
         check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, m_sample_window));
-        check_mpi(MPI_Put(&sample, 1, m_sample_mpi_type, 0, m_rank, 1, m_sample_mpi_type, m_sample_window));
+        check_mpi(MPI_Put((const void*)&sample, 1, m_sample_mpi_type, 0, m_rank, 1, m_sample_mpi_type, m_sample_window));
         check_mpi(MPI_Win_unlock(0, m_sample_window));
     }
 
