@@ -66,12 +66,13 @@ namespace geopm
 {
     BalancingDecider::BalancingDecider()
         : m_name("power_balancing")
-        , m_convergence_target(0.001)
+        , m_convergence_target(0.05)
         , m_min_num_converged(7)
         , m_num_converged(0)
         , m_last_power_budget(DBL_MIN)
         , m_num_sample(8)
         , m_num_out_of_range(0)
+        , m_slope_modifier(3.0)
         , M_GUARD_BAND(1.15)
     {
 
@@ -145,11 +146,12 @@ namespace geopm
                 runtime[i].first = i;
                 runtime[i].second = curr_region.median(i, GEOPM_SAMPLE_TYPE_RUNTIME);
                 sum += runtime[i].second;
-                sum_sqr += pow(runtime[i].second, 2);
+                sum_sqr += runtime[i].second * runtime[i].second;
             }
-            double stddev = sqrt(sum_sqr / num_domain - pow(sum / num_domain, 2));
+            double mean = sum / num_domain;
+            double rel_stddev = sqrt(sum_sqr / num_domain - (mean * mean)) / mean;
             // We are not within bounds. Redistribute power.
-            if (!curr_policy.is_converged(curr_region.identifier()) && (stddev > m_convergence_target)) {
+            if (!curr_policy.is_converged(curr_region.identifier()) && (rel_stddev > m_convergence_target)) {
                 m_num_converged = 0;
                 double total = 0.0;
                 std::vector<double> percentage(num_domain);
@@ -160,17 +162,21 @@ namespace geopm
                     curr_policy.target(GEOPM_REGION_ID_OUTER, (*iter).first, curr_target);
                     double last_percentage = curr_target / m_last_power_budget;
                     median = curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME);
-                    percentage[(*iter).first] = ((1.0 + median) * last_percentage) / sum;
+                    percentage[(*iter).first] = (((mean * m_slope_modifier) + median) * last_percentage) / sum;
                     total += percentage[(*iter).first];
                 }
 
                 int pool = m_last_power_budget;
+                int power_sum = 0;
+                double runtime_sum = 0.0;
                 for (auto iter = runtime.begin(); iter != runtime.end(); ++iter) {
                     double target = (percentage[(*iter).first] / total) * pool;
                     if (target < m_lower_bound) {
                         target = m_lower_bound;
-                        pool -= target;
-                        sum -= curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME);
+                        pool -= (target + power_sum);
+                        sum -= (curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME) + runtime_sum);
+                        power_sum = 0;
+                        runtime_sum = 0.0;
                         total = 0.0;
                         for (auto it = (iter + 1); it != runtime.end(); ++it) {
                             double median;
@@ -178,9 +184,13 @@ namespace geopm
                             curr_policy.target(GEOPM_REGION_ID_OUTER, (*it).first, curr_target);
                             double last_percentage = curr_target / m_last_power_budget;
                             median = curr_region.median((*it).first, GEOPM_SAMPLE_TYPE_RUNTIME);
-                            percentage[(*it).first] = (median * last_percentage) / sum;
+                            percentage[(*it).first] = (((mean * m_slope_modifier) + median) * last_percentage) / sum;
                             total += percentage[(*it).first];
                         }
+                    }
+                    else {
+                        power_sum += target;
+                        runtime_sum += curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME);
                     }
                     curr_policy.update(GEOPM_REGION_ID_OUTER, (*iter).first, target);
                 }
@@ -188,7 +198,7 @@ namespace geopm
                 curr_region.clear();
                 is_updated = true;
             }
-            if (curr_policy.is_converged(curr_region.identifier()) && (stddev > m_convergence_target)) {
+            if (curr_policy.is_converged(curr_region.identifier()) && (rel_stddev > m_convergence_target)) {
                 ++m_num_out_of_range;
                 if (m_num_out_of_range >= m_min_num_converged) {
                     curr_policy.is_converged(curr_region.identifier(), false);
@@ -197,7 +207,7 @@ namespace geopm
                 }
             }
             // We are within bounds.
-            else if (!curr_policy.is_converged(curr_region.identifier()) && (stddev < m_convergence_target)) {
+            else if (!curr_policy.is_converged(curr_region.identifier()) && (rel_stddev < m_convergence_target)) {
                 m_num_out_of_range = 0;
                 ++m_num_converged;
                 if (m_num_converged >= m_min_num_converged) {
