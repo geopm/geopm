@@ -200,8 +200,10 @@ namespace geopm
             uint64_t m_region_id_all;
             bool m_do_shutdown;
             bool m_is_connected;
-            double m_rate_limit;
-            struct geopm_time_s m_loop_t0;
+            double m_control_rate_limit;
+            double m_sample_rate_limit;
+            struct geopm_time_s m_control_loop_t0;
+            struct geopm_time_s m_sample_loop_t0;
             int m_rank_per_node;
             double m_outer_sync_time;
             double m_mpi_sync_time;

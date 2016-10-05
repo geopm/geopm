@@ -182,7 +182,8 @@ namespace geopm
         , m_region_id_all(0)
         , m_do_shutdown(false)
         , m_is_connected(false)
-        , m_rate_limit(0.0)
+        , m_control_rate_limit(0.0)
+        , m_sample_rate_limit(0.001)
         , m_rank_per_node(0)
         , m_outer_sync_time(0.0)
         , m_mpi_sync_time(0.0)
@@ -278,8 +279,9 @@ namespace geopm
             double lower_bound;
             m_platform->bound(upper_bound, lower_bound);
             // convert rate limit from ms to seconds
-            m_rate_limit = m_platform->control_latency_ms() * 1E-3;
-            geopm_time(&m_loop_t0);
+            m_control_rate_limit = m_platform->control_latency_ms() * 1E-3;
+            geopm_time(&m_control_loop_t0);
+            m_sample_loop_t0 = m_control_loop_t0;
 
             m_msr_sample.resize(m_platform->capacity());
 
@@ -491,15 +493,15 @@ namespace geopm
         std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
         std::vector<struct geopm_telemetry_message_s> outer_telemetry_sample(m_telemetry_sample.size());
         size_t length;
-        struct geopm_time_s loop_t1;
+        struct geopm_time_s sample_loop_t1;
 
         std::fill(sample_msg.begin(), sample_msg.end(), GEOPM_SAMPLE_INVALID);
         do {
-            geopm_time(&loop_t1);
+            geopm_time(&sample_loop_t1);
             geopm_signal_handler_check();
         }
-        while (geopm_time_diff(&m_loop_t0, &loop_t1) < m_rate_limit);
-        m_loop_t0 = loop_t1;
+        while (geopm_time_diff(&m_sample_loop_t0, &sample_loop_t1) < m_sample_rate_limit);
+        m_sample_loop_t0 = sample_loop_t1;
 
         for (level = 0; !m_do_shutdown && level < m_tree_comm->num_level(); ++level) {
             if (level) {
@@ -704,6 +706,8 @@ namespace geopm
 
     void Controller::update_region(void)
     {
+        struct geopm_time_s control_loop_t1;
+
         if (m_region_id_all) {
             int level = 0; // Called only at the leaf
             auto it = m_region[level].find(m_region_id_all);
@@ -720,9 +724,13 @@ namespace geopm
             Policy *curr_policy = m_policy[level];
             curr_region->insert(m_telemetry_sample);
             m_tracer->update(m_telemetry_sample);
-            if (m_region_id_all != GEOPM_REGION_ID_OUTER &&
+
+            geopm_time(&control_loop_t1);
+            if (geopm_time_diff(&m_control_loop_t0, &control_loop_t1) >= m_control_rate_limit &&
+                m_region_id_all != GEOPM_REGION_ID_OUTER &&
                 m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
                 m_platform->enforce_policy(m_region_id_all, *curr_policy);
+                m_control_loop_t0 = control_loop_t1;
             }
         }
     }
