@@ -67,6 +67,7 @@ namespace geopm
             double m_last_power_budget;
             int m_num_sample;
             unsigned m_num_out_of_range;
+            double m_slope_modifier;
             const double M_GUARD_BAND;
     };
 }

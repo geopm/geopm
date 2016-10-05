@@ -152,8 +152,8 @@ TEST_F(BalancingDeciderTest, update_policy)
     }
     m_balancer->update_policy(*m_region, *m_policy);
     m_policy->target(GEOPM_REGION_ID_OUTER, tgt);
-    double expect = 63.15789473684211;
+    double expect = 89.705882352941174;
     for (int dom = 0; dom < m_num_domain; ++dom) {
-        EXPECT_NEAR(expect + (dom * 10.52631578947367), tgt[dom], 1E-9);
+        EXPECT_NEAR(expect + (dom * 2.94117647058825), tgt[dom], 1E-9);
     }
 }
