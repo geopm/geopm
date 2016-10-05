@@ -74,16 +74,24 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
 fi
 
 if [ "$do_obs" == "true" ]; then
+    sudo pip install urlgrabber
+    git clone https://github.com/openSUSE/osc
+    cd osc
+    git checkout 0.155.1
+    python setup.py build
+    OSC=$(readlink -f build/scripts-*/osc-wrapper.py)
+    cd -
+
     echo "[general]" > $HOME/.oscrc
     echo "apiurl = $obs_url" >> $HOME/.oscrc
     echo "[$obs_url]" >> $HOME/.oscrc
     echo "user = $(echo $OSC_CREDENTIALS | awk -F: '{print $1}')" >> $HOME/.oscrc
     echo "password = $(echo $OSC_CREDENTIALS | awk -F: '{print $2}')" >> $HOME/.oscrc
-    osc co $obs_proj $obs_pkg && \
+    $OSC co $obs_proj $obs_pkg && \
     cp $spec_file $obs_proj/$obs_pkg/geopm.spec && \
     cp $source_file $obs_proj/$obs_pkg/geopm.tar.gz && \
     cd $obs_proj/$obs_pkg && \
-    osc ci -m $version && \
+    $OSC ci -m $version && \
     cd - && \
     echo "Pushed to OpenSUSE builds." ||
     echo "Failed to push to OpenSUSE builds."

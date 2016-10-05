@@ -81,5 +81,5 @@ addons:
     - libhwloc-dev
     - openmpi-bin
     - libopenmpi-dev
+    - python-pip
     - rpm
-    - osc
