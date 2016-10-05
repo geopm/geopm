@@ -147,19 +147,19 @@ TUTORIAL_DIST = tutorial/Imbalancer.cpp \
                 tutorial/tutorial_2.c \
                 tutorial/tutorial_2.sh \
                 tutorial/tutorial_3.c \
-                tutorial/tutorial_3_policy.json \
                 tutorial/tutorial_3.sh \
                 tutorial/tutorial_4.c \
-                tutorial/tutorial_4_policy.json \
                 tutorial/tutorial_4.sh \
                 tutorial/tutorial_5.c \
                 tutorial/tutorial_5.sh \
                 tutorial/tutorial_6.cpp \
                 tutorial/tutorial_6.sh \
                 tutorial/tutorial_6_config.json \
+                tutorial/tutorial_balanced_policy.json \
                 tutorial/tutorial_build_gnu.sh \
                 tutorial/tutorial_build_intel.sh \
                 tutorial/tutorial_env.sh \
+                tutorial/tutorial_governed_policy.json \
                 tutorial/tutorial_region.c \
                 tutorial/tutorial_region.h \
                 # end
