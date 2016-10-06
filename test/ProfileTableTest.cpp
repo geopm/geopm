@@ -44,8 +44,8 @@ class ProfileTableTest: public :: testing :: Test
     protected:
         size_t m_size;
         size_t m_small_size;
-        char m_ptr[4192];
-        char m_small_ptr[4192];
+        char m_ptr[5192];
+        char m_small_ptr[5192];
         geopm::ProfileTable *m_table;
         geopm::ProfileTable *m_table_small;
 };
