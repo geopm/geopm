@@ -73,7 +73,7 @@ extern "C"
         struct stat stat_struct;
         try {
             std::string shmem_key(geopm_env_shmkey());
-            shmem_key += "-comm-split-shared-" + std::string(tag);
+            shmem_key += "-comm-split-" + std::string(tag);
             std::string shmem_path("/dev/shm" + shmem_key);
             geopm::SharedMemory *shmem = NULL;
             geopm::SharedMemoryUser *shmem_user = NULL;

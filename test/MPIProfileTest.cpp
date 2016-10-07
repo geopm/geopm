@@ -85,7 +85,7 @@ MPIProfileTest::MPIProfileTest()
     m_log_file_node.append("-");
     m_log_file_node.append(hostname);
 
-    geopm_comm_split_ppn1(MPI_COMM_WORLD, "prof_test", &ppn1_comm);
+    geopm_comm_split_ppn1(MPI_COMM_WORLD, "prof", &ppn1_comm);
     if (ppn1_comm != MPI_COMM_NULL) {
         m_is_node_root = true;
         MPI_Comm_free(&ppn1_comm);
