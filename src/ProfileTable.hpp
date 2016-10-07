@@ -39,10 +39,6 @@
 
 #include "geopm_message.h"
 
-#ifndef GEOPM_HASH_TABLE_DEPTH_MAX
-#define GEOPM_HASH_TABLE_DEPTH_MAX 16
-#endif
-
 namespace geopm
 {
     /// @brief Container for multi-threaded or multi-process
@@ -200,11 +196,14 @@ namespace geopm
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
             virtual bool sticky(const struct geopm_prof_message_s &value);
+            enum {
+                TABLE_DEPTH_MAX = 16,
+            };
             /// @brief structure to hold state for a single table entry.
             struct table_entry_s {
                 pthread_mutex_t lock;
-                uint64_t key[GEOPM_HASH_TABLE_DEPTH_MAX];
-                struct geopm_prof_message_s value[GEOPM_HASH_TABLE_DEPTH_MAX];
+                uint64_t key[TABLE_DEPTH_MAX];
+                struct geopm_prof_message_s value[TABLE_DEPTH_MAX];
             };
             size_t hash(uint64_t key) const;
             size_t table_length(size_t buffer_size) const;
@@ -217,7 +216,6 @@ namespace geopm
             std::set<uint64_t> m_key_set;
             bool m_is_pshared;
             std::map<const std::string, uint64_t>::iterator m_key_map_last;
-            const size_t m_num_private_entry;
     };
 }
 #endif

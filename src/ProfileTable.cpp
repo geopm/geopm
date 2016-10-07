@@ -44,10 +44,6 @@
 #include "Exception.hpp"
 #include "ProfileTable.hpp"
 
-#ifndef GEOPM_HASH_TABLE_DEPTH_MAX
-#define GEOPM_HASH_TABLE_DEPTH_MAX 1024
-#endif
-
 namespace geopm
 {
     ProfileTable::ProfileTable(size_t size, void *buffer)
@@ -58,12 +54,11 @@ namespace geopm
         , m_key_map_lock(PTHREAD_MUTEX_INITIALIZER)
         , m_is_pshared(true)
         , m_key_map_last(m_key_map.end())
-        , m_num_private_entry(2)
     {
         if (buffer == NULL) {
             throw Exception("ProfileTable: Buffer pointer is NULL", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (GEOPM_HASH_TABLE_DEPTH_MAX < 4) {
+        if (TABLE_DEPTH_MAX < 4) {
             throw Exception("ProfileTable: Table depth must be at least 4", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         struct table_entry_s table_init;
@@ -79,7 +74,7 @@ namespace geopm
                 throw Exception("ProfileTable: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
-        for (size_t i = 0; i < m_table_length + m_num_private_entry; ++i) {
+        for (size_t i = 0; i < m_table_length; ++i) {
             m_table[i] = table_init;
             err = pthread_mutex_init(&(m_table[i].lock), &lock_attr);
             if (err) {
@@ -95,9 +90,13 @@ namespace geopm
 
     size_t ProfileTable::table_length(size_t buffer_size) const
     {
+        size_t private_size = GEOPM_REGION_ID_NUM_PRIVATE * sizeof(struct table_entry_s);
+        if (buffer_size < private_size + sizeof(struct table_entry_s)) {
+            throw Exception("ProfileTable: Buffer size too small",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        size_t result = (buffer_size - private_size) / sizeof(struct table_entry_s);
         // The closest power of two small enough to fit in the buffer
-        size_t result = buffer_size / sizeof(struct table_entry_s);
-        size_t private_size = m_num_private_entry * sizeof(struct table_entry_s);
         if (result) {
             result--;
             result |= result >> 1;
@@ -109,12 +108,13 @@ namespace geopm
             result++;
             result = result >> 1;
         }
-        if ((result * sizeof(struct table_entry_s) + private_size) > buffer_size) {
+        if (result * sizeof(struct table_entry_s) + private_size > buffer_size) {
             result /= 2;
         }
-        if (result == 0) {
+        if (result <= 0) {
             throw Exception("ProfileTable: Failing to created empty table, increase size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        result += GEOPM_REGION_ID_NUM_PRIVATE;
         return result;
     }
 
@@ -144,7 +144,7 @@ namespace geopm
             throw Exception("ProfileTable::insert(): pthread_mutex_lock()", err, __FILE__, __LINE__);
         }
         bool is_stored = false;
-        for (size_t i = 0; !is_stored && i != GEOPM_HASH_TABLE_DEPTH_MAX; ++i) {
+        for (size_t i = 0; !is_stored && i != TABLE_DEPTH_MAX; ++i) {
             if (m_table[table_idx].key[i] == 0 ||
                 (m_table[table_idx].key[i] == key &&
                  !sticky(m_table[table_idx].value[i]))) {
@@ -166,9 +166,9 @@ namespace geopm
             if (m_table[table_idx].value[0].progress == 1.0) {
                 ++entry_index;
             }
-            if (m_table[table_idx].value[GEOPM_HASH_TABLE_DEPTH_MAX - 1].progress == 0.0) {
-                m_table[table_idx].value[entry_index] = m_table[table_idx].value[GEOPM_HASH_TABLE_DEPTH_MAX - 1];
-                m_table[table_idx].key[entry_index] = m_table[table_idx].key[GEOPM_HASH_TABLE_DEPTH_MAX - 1];
+            if (m_table[table_idx].value[TABLE_DEPTH_MAX - 1].progress == 0.0) {
+                m_table[table_idx].value[entry_index] = m_table[table_idx].value[TABLE_DEPTH_MAX - 1];
+                m_table[table_idx].key[entry_index] = m_table[table_idx].key[TABLE_DEPTH_MAX - 1];
                 ++entry_index;
             }
             m_table[table_idx].key[entry_index] = key;
@@ -188,7 +188,7 @@ namespace geopm
         if (err) {
             throw Exception("ProfileTable::find(): pthread_mutex_lock()", err, __FILE__, __LINE__);
         }
-        for (size_t i = 0; i < GEOPM_HASH_TABLE_DEPTH_MAX; ++i) {
+        for (size_t i = 0; i < TABLE_DEPTH_MAX; ++i) {
             if (m_table[table_idx].key[i] == key) {
                 result_ptr = m_table[table_idx].value + i;
                 break;
@@ -245,19 +245,19 @@ namespace geopm
 
     size_t ProfileTable::capacity(void) const
     {
-        return (m_table_length + m_num_private_entry) * GEOPM_HASH_TABLE_DEPTH_MAX;
+        return m_table_length * TABLE_DEPTH_MAX;
     }
 
     size_t ProfileTable::size(void) const
     {
         int err;
         size_t result = 0;
-        for (size_t table_idx = 0; table_idx < m_table_length + m_num_private_entry; ++table_idx) {
+        for (size_t table_idx = 0; table_idx < m_table_length; ++table_idx) {
             err = pthread_mutex_lock(&(m_table[table_idx].lock));
             if (err) {
                 throw Exception("ProfileTable::size(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
-            for (int depth = 0; depth < GEOPM_HASH_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
+            for (int depth = 0; depth < TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
                 ++result;
             }
             err = pthread_mutex_unlock(&(m_table[table_idx].lock));
@@ -272,12 +272,12 @@ namespace geopm
     {
         int err;
         length = 0;
-        for (size_t table_idx = 0; table_idx < m_table_length + m_num_private_entry; ++table_idx) {
+        for (size_t table_idx = 0; table_idx < m_table_length; ++table_idx) {
             err = pthread_mutex_lock(&(m_table[table_idx].lock));
             if (err) {
                 throw Exception("ProfileTable::dump(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
-            for (int depth = 0; depth < GEOPM_HASH_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
+            for (int depth = 0; depth < TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
                 content->first = m_table[table_idx].key[depth];
                 content->second = m_table[table_idx].value[depth];
                 m_table[table_idx].key[depth] = 0;
