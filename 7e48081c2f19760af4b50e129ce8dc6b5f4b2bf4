@@ -45,6 +45,30 @@
       "revId": "7e48081c2f19760af4b50e129ce8dc6b5f4b2bf4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_211cfe64",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-07T18:53:50Z",
+      "side": 1,
+      "message": "A couple of lines above \"table_size()\" is called to initialize m_table_size.  The table_size() method used m_num_private_entry.",
+      "parentUuid": "baa041b7_3e4f7b93",
+      "range": {
+        "startLine": 11,
+        "startChar": 17,
+        "endLine": 11,
+        "endChar": 50
+      },
+      "revId": "7e48081c2f19760af4b50e129ce8dc6b5f4b2bf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
