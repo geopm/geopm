@@ -83,6 +83,7 @@ if [ "$do_obs" == "true" ]; then
     cp $spec_file $obs_proj/$obs_pkg/geopm.spec && \
     cp $source_file $obs_proj/$obs_pkg/geopm.tar.gz && \
     cd $obs_proj/$obs_pkg && \
+    osc add geopm.spec geopm.tar.gz &> /dev/null
     osc ci -m $version && \
     cd - && \
     echo "Pushed to OpenSUSE builds." ||
