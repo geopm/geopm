@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_73f5344f",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2016-10-10T18:10:38Z",
+      "side": 1,
+      "message": "Do you have another suggestion as to what our sample time should be?",
+      "parentUuid": "baa041b7_13cdc82f",
+      "revId": "98fa80bd568d6547941e035ac11e89dde701ecea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_f3d144cd",
         "filename": "src/Controller.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-10T18:02:25Z",
       "side": 1,
       "message": "why is the 1E-3 multiplied",
+      "revId": "98fa80bd568d6547941e035ac11e89dde701ecea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_539590e1",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2016-10-10T18:10:38Z",
+      "side": 1,
+      "message": "To convert it into seconds.",
+      "parentUuid": "baa041b7_f3d144cd",
       "revId": "98fa80bd568d6547941e035ac11e89dde701ecea",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
