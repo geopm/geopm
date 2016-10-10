@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_931c38c3",
+        "filename": "plugin/BalancingDecider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-10-10T17:51:55Z",
+      "side": 1,
+      "message": "Above on line 149 you removed the pow() call and did calculated the square by hand.  Should you make the same optimization here for consistency?",
+      "range": {
+        "startLine": 152,
+        "startChar": 60,
+        "endLine": 152,
+        "endChar": 72
+      },
+      "revId": "62436036241b5d3b1a7a1c25dc0dc2b777e3ba82",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
