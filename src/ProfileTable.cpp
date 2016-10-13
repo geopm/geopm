@@ -49,7 +49,7 @@ namespace geopm
     ProfileTable::ProfileTable(size_t size, void *buffer)
         : m_buffer_size(size)
         , m_table_length(table_length(m_buffer_size))
-        , m_mask(m_table_length - 1)
+        , m_mask(m_table_length - GEOPM_NUM_REGION_ID_PRIVATE - 1)
         , m_table((struct table_entry_s *)buffer)
         , m_key_map_lock(PTHREAD_MUTEX_INITIALIZER)
         , m_is_pshared(true)
