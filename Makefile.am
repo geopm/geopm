@@ -425,6 +425,7 @@ noinst_PROGRAMS =
 TESTS =
 
 include test/Makefile.mk
+include test_integration/Makefile.mk
 include examples/Makefile.mk
 include plugin/Makefile.mk
 include doc/Makefile.mk

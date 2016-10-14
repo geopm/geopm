@@ -132,6 +132,8 @@ test/SampleRegulatorTest.cpp
 test/RegionTest.cpp
 test/PolicyTest.cpp
 test/BalancingDeciderTest.cpp
+test_integration/Makefile.mk
+test_integration/geopm_test_integration.py
 tracker/track
 tutorial/Imbalancer.cpp
 tutorial/imbalancer.h

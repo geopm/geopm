@@ -183,12 +183,12 @@ namespace geopm
     }
 
     DGEMMModelRegion::DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress)
-        : m_matrix_a(NULL)
+        : ModelRegionBase(verbosity)
+        , m_matrix_a(NULL)
         , m_matrix_b(NULL)
         , m_matrix_c(NULL)
         , m_matrix_size(0)
         , m_pad_size(64)
-        , ModelRegionBase(verbosity)
     {
         m_name = "dgemm";
         m_do_imbalance = do_imbalance;
@@ -231,7 +231,7 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
 #pragma omp parallel for
-            for (int i = 0; i < mem_size / sizeof(double); ++i) {
+            for (size_t i = 0; i < mem_size / sizeof(double); ++i) {
                 m_matrix_a[i] = 2.0 * i;
                 m_matrix_b[i] = 3.0 * i;
             }
@@ -279,12 +279,12 @@ namespace geopm
     }
 
     StreamModelRegion::StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress)
-        : m_array_a(NULL)
+        : ModelRegionBase(verbosity)
+        , m_array_a(NULL)
         , m_array_b(NULL)
         , m_array_c(NULL)
         , m_array_len(0)
         , m_align(64)
-        , ModelRegionBase(verbosity)
     {
         m_name = "stream";
         m_do_imbalance = do_imbalance;
@@ -326,7 +326,7 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
 #pragma omp parallel for
-            for (int i = 0; i < m_array_len; i++) {
+            for (size_t i = 0; i < m_array_len; i++) {
                 m_array_a[i] = 0.0;
                 m_array_b[i] = 1.0;
                 m_array_c[i] = 2.0;
@@ -353,7 +353,7 @@ namespace geopm
 
                 double scalar = 3.0;
 #pragma omp parallel for
-                for (int i = 0; i < m_array_len; ++i) {
+                for (size_t i = 0; i < m_array_len; ++i) {
                     m_array_a[i] = m_array_b[i] + scalar * m_array_c[i];
                 }
                 if (m_do_imbalance) {
@@ -365,12 +365,12 @@ namespace geopm
     }
 
     All2allModelRegion::All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress)
-        : m_send_buffer(NULL)
+        : ModelRegionBase(verbosity)
+        , m_send_buffer(NULL)
         , m_recv_buffer(NULL)
         , m_num_send(0)
         , m_num_rank(0)
         , m_align(64)
-        , ModelRegionBase(verbosity)
     {
         m_name = "all2all";
         m_do_imbalance = do_imbalance;
@@ -417,7 +417,7 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
 #pragma omp parallel for
-            for (int i = 0; i < m_num_rank * m_num_send; i++) {
+            for (size_t i = 0; i < m_num_rank * m_num_send; i++) {
                 m_send_buffer[i] = (char)(i);
             }
         }
