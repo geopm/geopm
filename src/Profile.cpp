@@ -73,6 +73,18 @@ extern "C"
     // defined in geopm_pmpi.c and used only here
     void geopm_pmpi_prof_enable(int do_profile);
 
+    int geopm_prof_init(void)
+    {
+        int err = 0;
+        try {
+            geopm_default_prof();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+
     int geopm_prof_region(const char *region_name, long policy_hint, uint64_t *region_id)
     {
         int err = 0;
@@ -95,7 +107,6 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
-
     }
 
     int geopm_prof_exit(uint64_t region_id)
@@ -108,7 +119,6 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
-
     }
 
     int geopm_prof_progress(uint64_t region_id, double fraction)
@@ -121,7 +131,6 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
-
     }
 
     int geopm_prof_outer_sync(void)
@@ -134,7 +143,6 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
-
     }
 
     int geopm_prof_disable(const char *feature_name)
@@ -147,7 +155,6 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
-
     }
 
     int geopm_prof_shutdown(void)
@@ -348,7 +355,6 @@ namespace geopm
     void Profile::shutdown(void)
     {
         if (m_is_enabled) {
-            outer_sync();
             geopm_pmpi_prof_enable(0);
             PMPI_Barrier(m_shm_comm);
             if (!m_shm_rank) {

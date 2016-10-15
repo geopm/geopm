@@ -209,6 +209,8 @@ namespace geopm
             double m_mpi_sync_time;
             bool m_is_outer_changed;
             struct geopm_time_s m_mpi_enter_time;
+            struct geopm_time_s m_app_start_time;
+            double m_counter_energy_start;
     };
 }
 

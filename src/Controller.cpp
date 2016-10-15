@@ -189,6 +189,8 @@ namespace geopm
         , m_mpi_sync_time(0.0)
         , m_is_outer_changed(false)
         , m_mpi_enter_time({{0,0}})
+        , m_app_start_time({{0,0}})
+        , m_counter_energy_start(0.0)
     {
         MPI_Comm ppn1_comm;
         int err = 0;
@@ -275,6 +277,16 @@ namespace geopm
 
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform);
+            m_msr_sample.resize(m_platform->capacity());
+            m_platform->sample(m_msr_sample);
+            m_app_start_time = m_msr_sample[0].timestamp;
+            for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
+                if ((*it).domain_type == GEOPM_DOMAIN_PACKAGE &&
+                   ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
+                   (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
+                    m_counter_energy_start += (*it).signal;
+                }
+            }
             double upper_bound;
             double lower_bound;
             m_platform->bound(upper_bound, lower_bound);
@@ -282,8 +294,6 @@ namespace geopm
             m_control_rate_limit = m_platform->control_latency_ms() * 1E-3;
             geopm_time(&m_control_loop_t0);
             m_sample_loop_t0 = m_control_loop_t0;
-
-            m_msr_sample.resize(m_platform->capacity());
 
             m_decider_factory = new DeciderFactory;
             m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
@@ -708,6 +718,7 @@ namespace geopm
     {
         struct geopm_time_s control_loop_t1;
 
+        m_tracer->update(m_telemetry_sample);
         if (m_region_id_all) {
             int level = 0; // Called only at the leaf
             auto it = m_region[level].find(m_region_id_all);
@@ -723,7 +734,6 @@ namespace geopm
             Region *curr_region = (*it).second;
             Policy *curr_policy = m_policy[level];
             curr_region->insert(m_telemetry_sample);
-            m_tracer->update(m_telemetry_sample);
 
             geopm_time(&control_loop_t1);
             if (geopm_time_diff(&m_control_loop_t0, &control_loop_t1) >= m_control_rate_limit &&
@@ -759,9 +769,11 @@ namespace geopm
             return;
         }
 
-        m_region_id_all = GEOPM_REGION_ID_OUTER;
-        override_telemetry(1.0);
-        update_region();
+        if ((*(m_region[0].find(GEOPM_REGION_ID_OUTER))).second->num_entry()) {
+            m_region_id_all = GEOPM_REGION_ID_OUTER;
+            override_telemetry(1.0);
+            update_region();
+        }
 
         std::string report_name;
         std::string profile_name;
@@ -769,7 +781,16 @@ namespace geopm
         std::map<uint64_t, std::string> region;
         std::ofstream report;
         char hostname[NAME_MAX];
+        double energy_exit = 0.0;
 
+        m_platform->sample(m_msr_sample);
+        for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
+            if ((*it).domain_type == GEOPM_DOMAIN_PACKAGE &&
+               ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
+               (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
+                energy_exit += (*it).signal;
+            }
+        }
         m_sampler->report_name(report_name);
         m_sampler->profile_name(profile_name);
         m_sampler->name_set(region_name);
@@ -809,8 +830,12 @@ namespace geopm
                     throw Exception("Controller::generate_report(): Invalid region", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
-            (*it).second->report(report, name, m_rank_per_node);
+            if ((*it).second->num_entry()) {
+                (*it).second->report(report, name, m_rank_per_node);
+            }
         }
+        report << "Application Totals:\n" << "\truntime (sec): " << geopm_time_diff(&m_app_start_time, &m_msr_sample[0].timestamp)
+               << std::endl << "\tenergy (joules): " << (energy_exit - m_counter_energy_start) << std::endl;
         report.close();
     }
 
