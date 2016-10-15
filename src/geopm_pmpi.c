@@ -181,7 +181,7 @@ static int geopm_pmpi_init(const char *exec_name)
         }
     }
     if (!err && geopm_env_do_profile()) {
-        err = geopm_prof_outer_sync();
+        geopm_prof_init();
     }
 #ifdef GEOPM_DEBUG
     if (err) {

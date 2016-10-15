@@ -60,6 +60,8 @@ namespace geopm
             virtual ~Region();
             /// @brief Record an entry into the region.
             void entry(void);
+            /// @brief Return the number of entries into the region.
+            int num_entry(void);
             /// @brief Insert signal data into internal buffers
             ///
             /// Inserts hw telemetry and per-domain application data into the

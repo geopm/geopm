@@ -82,6 +82,11 @@ namespace geopm
         ++m_num_entry;
     }
 
+    int Region::num_entry(void)
+    {
+        return m_num_entry;
+    }
+
     void Region::insert(std::vector<struct geopm_telemetry_message_s> &telemetry)
     {
         if (telemetry.size()!= m_num_domain) {
@@ -274,7 +279,7 @@ namespace geopm
         // (unlike outer-sync which reports once per node).
         file_stream << "\tcount: " << (m_identifier != GEOPM_REGION_ID_OUTER ?
                                        (double)m_num_entry / num_rank_per_node :
-                                       m_num_entry - 2) << std::endl;
+                                       m_num_entry) << std::endl;
     }
 
     // Protected function definitions
