@@ -40,9 +40,9 @@ if ENABLE_MPI
                                                       # end
 
     test_integration_geopm_test_integration_LDADD = libgeopm.la
-
-    test_integration_geopm_test_integration_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    test_integration_geopm_test_integration_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    test_integration_geopm_test_integration_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
+    test_integration_geopm_test_integration_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    test_integration_geopm_test_integration_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 endif
 
 EXTRA_DIST += test_integration/geopm_test_integration.py \
