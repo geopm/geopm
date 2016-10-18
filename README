@@ -1,4 +1,4 @@
-GEOPM - Global Energy Optimization Power Management
+GEOPM - Global Extensible Open Power Manager
 ===================================================
 
 DISCLAIMER
@@ -18,7 +18,7 @@ http://geopm.github.io/geopm
 
 SUMMARY
 -------
-Global Energy Optimization Power Management (GEOPM) is an extensible power
+Global Extensible Open Power Manager (GEOPM) is an extensible power
 management framework targeting high performance computing.  The library can be
 extended to support new control algorithms and new hardware power management
 features.  The GEOPM package provides built in features ranging from static
@@ -253,46 +253,48 @@ reported by gcovr for a recent build are below:
 File                     |   Lines  |     Exec   |     Cover
 ------------------------ | -------- | ---------- | ---------
 CircularBuffer.hpp       |   27     |     25     |     93%
-Controller.cpp           |   369    |     254    |     69%
-Decider.cpp              |   6      |     4      |     67%
+Controller.cpp           |   462    |     351    |     76%
+Decider.cpp              |   21     |     21     |     100%
 Decider.hpp              |   1      |     1      |     100%
-DeciderFactory.cpp       |   33     |     29     |     88%
-Environment.cpp          |   52     |     48     |     92%
-Exception.cpp            |   100    |     70     |     70%
+DeciderFactory.cpp       |   34     |     30     |     88%
+Environment.cpp          |   72     |     62     |     86%
+Exception.cpp            |   127    |     97     |     76%
 Exception.hpp            |   1      |     0      |     0%
-GlobalPolicy.cpp         |   488    |     380    |     78%
-HSXPlatformImp.cpp       |   232    |     175    |     75%
-IVTPlatformImp.cpp       |   234    |     177    |     76%
-LockingHashTable.hpp     |   140    |     119    |     85%
-Observation.cpp          |   87     |     75     |     86%
-Platform.cpp             |   187    |     77     |     41%
-PlatformFactory.cpp      |   83     |     64     |     77%
-PlatformImp.cpp          |   113    |     91     |     81%
-PlatformTopology.cpp     |   31     |     21     |     68%
+GlobalPolicy.cpp         |   574    |     456    |     79%
+KNLPlatformImp.cpp       |   335    |     245    |     73%
+Platform.cpp             |   148    |     80     |     54%
+PlatformFactory.cpp      |   78     |     63     |     80%
+PlatformImp.cpp          |   224    |     197    |     88%
+PlatformTopology.cpp     |   33     |     29     |     88%
 Policy.cpp               |   130    |     130    |     100%
-PolicyFlags.cpp          |   77     |     67     |     87%
-Profile.cpp              |   442    |     319    |     72%
+PolicyFlags.cpp          |   78     |     67     |     86%
+Profile.cpp              |   431    |     356    |     88%
 ProfileThread.cpp        |   45     |     0      |     0%
-RAPLPlatform.cpp         |   96     |     88     |     92%
-Region.cpp               |   233    |     240    |     97%
+RAPLPlatform.cpp         |   149    |     136    |     91%
+Region.cpp               |   267    |     260    |     97%
 SampleRegulator.cpp      |   77     |     76     |     99%
 SampleScheduler.cpp      |   39     |     35     |     90%
-SharedMemory.cpp         |   93     |     58     |     62%
-TreeCommunicator.cpp     |   262    |     220    |     84%
+SharedMemory.cpp         |   101    |     65     |     64%
+SignalHandler.cpp        |   57     |     53     |     93%
+StaticPolicyDecider.cpp  |   13     |     11     |     85%
+StaticPolicyDecider.hpp  |   1      |     1      |     100%
+Tracer.cpp               |   39     |     14     |     36%
+TreeCommunicator.cpp     |   286    |     250    |     87%
+XeonPlatformImp.cpp      |   353    |     245    |     69%
 geopm_ctl_spawn.c        |   2      |     0      |     0%
 geopm_hash.c             |   13     |     13     |     100%
 geopm_hash.h             |   2      |     2      |     100%
 geopm_message.c          |   16     |     8      |     50%
 geopm_omp.c              |   11     |     0      |     0%
-geopm_plugin.c           |   36     |     33     |     92%
-geopm_pmpi.c             |   458    |     111    |     24%
-geopm_time.h             |   10     |     10     |     100%
-geopm_version.c          |   2      |     0      |     0%
-BalancingDecider.cpp     |   68     |     63     |     93%
+geopm_plugin.c           |   37     |     34     |     92%
+geopm_pmpi.c             |   479    |     105    |     22%
+geopm_time.h             |   19     |     17     |     90%
+geopm_version.c          |   2      |     2      |     100%
+BalancingDecider.cpp     |   102    |     75     |     74%
 BalancingDecider.hpp     |   1      |     1      |     100%
-GoverningDecider.cpp     |   75     |     67     |     89%
+GoverningDecider.cpp     |   88     |     17     |     19%
 GoverningDecider.hpp     |   1      |     1      |     100%
-TOTAL                    |   4373   |     3152   |     72%
+TOTAL                    |   4994   |     3631   |     73%
 
 ACKNOWLEDGMENTS
 ---------------
