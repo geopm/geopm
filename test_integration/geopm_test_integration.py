@@ -230,12 +230,13 @@ class Launcher(object):
     def set_pmpi_ctl(self, pmpi_ctl):
         self._pmpi_ctl = pmpi_ctl
 
-    def run(self):
+    def run(self, test_name):
         env = dict(os.environ)
         env.update(self._environ())
         self._app_conf.write()
         self._ctl_conf.write()
-        subprocess.check_call(self._exec_str(), shell=True, env=env)
+        with open(test_name + '.log', 'w') as outfile:
+            subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
 
     def get_report(self):
         return Report(self._report_path)
@@ -315,12 +316,16 @@ class TestReport(unittest.TestCase):
                          'leaf_decider': 'power_governing',
                          'platform' : 'rapl',
                          'power_budget' : 150}
-        self._epsilon = 0.01
+        self._epsilon = 0.05
         self._tmp_files = []
 
     def tearDown(self):
         for ff in self._tmp_files:
             os.remove(ff)
+
+    def assertNear(self, a, b):
+        if abs(a - b) / a >= self._epsilon:
+            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=self._epsilon))
 
     def test_report_generation(self):
         name = 'test_report_generation'
@@ -335,7 +340,7 @@ class TestReport(unittest.TestCase):
         launcher = SrunLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
-        launcher.run()
+        launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         self.assertTrue(len(reports) == num_node)
@@ -344,7 +349,7 @@ class TestReport(unittest.TestCase):
             self.assertTrue(os.stat(ff).st_size != 0)
 
     def test_runtime(self):
-        name = 'test_report_generation'
+        name = 'test_runtime'
         report_path = name + '.report'
         num_node = 1
         num_rank = 5
@@ -357,14 +362,37 @@ class TestReport(unittest.TestCase):
         launcher = SrunLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
-        launcher.run()
+        launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         reports = [Report(rr) for rr in reports]
         self.assertTrue(len(reports) == num_node)
         for rr in reports:
-            self.assertTrue(abs(rr['sleep'].get_runtime() - delay) / delay < self._epsilon)
-            self.assertTrue(rr['outer-sync'].get_runtime > rr['sleep'].get_runtime())
+            self.assertNear(delay, rr['sleep'].get_runtime())
+            self.assertGreater(rr['outer-sync'].get_runtime, rr['sleep'].get_runtime())
+
+    def test_progress(self):
+        name = 'test_progress'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 5
+        delay = 3.0
+        app_conf = AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep-progress', delay)
+        ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = SrunLauncher(app_conf, ctl_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [Report(rr) for rr in reports]
+        self.assertTrue(len(reports) == num_node)
+        for rr in reports:
+            self.assertNear(delay, rr['sleep'].get_runtime())
+            self.assertGreater(rr['outer-sync'].get_runtime, rr['sleep'].get_runtime())
 
 if __name__ == '__main__':
     unittest.main()
