@@ -36,6 +36,8 @@ import subprocess
 import os
 import json
 import re
+import fnmatch
+import multiprocessing
 
 class Report(dict):
     def __init__(self, report_path):
@@ -160,9 +162,9 @@ class AppConf(object):
         return self._path
 
     def write(self):
-        obj = {'loop_count' : self._loop_count,
+        obj = {'loop-count' : self._loop_count,
                'region' : self._region,
-               'big_o' : self._big_o}
+               'big-o' : self._big_o}
 
         if (self._imbalance and self._hostname):
             obj['imbalance'] = self._imbalance
@@ -208,12 +210,19 @@ class Launcher(object):
         self._report_path = report_path
         self._trace_path = trace_path
         self._host_file = host_file
+        self._pmpi_ctl = 'process'
+        self._num_thread = multiprocessing.cpu_count() / self._num_rank
+
 
     def set_num_node(self, num_node):
         self._num_node = num_node
 
     def set_num_rank(self, num_rank):
         self._num_rank = num_rank
+        self._num_thread = multiprocessing.cpu_count() / self._num_rank
+
+    def set_pmpi_ctl(self, pmpi_ctl):
+        self._pmpi_ctl = pmpi_ctl
 
     def run(self):
         env = dict(os.environ)
@@ -230,7 +239,8 @@ class Launcher(object):
 
     def _environ(self):
         result = {'LD_DYNAMIC_WEAK': 'true',
-                  'GEOPM_PMPI_CTL' : 'process',
+                  'OMP_NUM_THREADS' : str(self._num_thread),
+                  'GEOPM_PMPI_CTL' : self._pmpi_ctl,
                   'GEOPM_REPORT' : self._report_path,
                   'GEOPM_POLICY' : self._ctl_conf.path()}
         if (self._trace_path):
@@ -270,8 +280,10 @@ class Launcher(object):
         return result
 
 class SrunLauncher(Launcher):
-    def __init__(self, app_conf, ctl_conf, host_file=None):
-        super(SrunLauncher, self).__init__(app_conf, ctl_conf, host_file)
+    def __init__(self, app_conf, ctl_conf, report_path,
+                 trace_path=None, host_file=None):
+        super(SrunLauncher, self).__init__(app_conf, ctl_conf, report_path,
+                                           trace_path=trace_path, host_file=host_file)
 
     def _mpiexec_option(self):
         return 'srun'
@@ -279,26 +291,39 @@ class SrunLauncher(Launcher):
     def _num_node_option(self):
         return '-N {num_node}'.format(num_node=self._num_node)
 
+    def _affinity_option(self):
+        proc_mask = self._num_thread * '1' + '00'
+        result_base = '--cpu_bind=v,mask_cpu:'
+        mask_list = []
+        if (self._pmpi_ctl == 'process'):
+            mask_list.append('0x2,')
+        for ii in range(self._num_rank):
+            mask_list.append('0x{:x}'.format(int(proc_mask, 2)))
+            proc_mask = proc_mask + self._num_thread * '0'
+        return result_base + ','.join(mask_list)
+
 class TestReport(unittest.TestCase):
     def setUp(self):
         self._mode = 'dynamic'
         self._options = {'tree_decider' : 'static_policy',
                          'leaf_decider': 'power_governing',
                          'platform' : 'rapl',
-                         'power_budget' : 150.0}
+                         'power_budget' : 150}
 
     def test_report_generation(self):
         name = 'test_report_generation'
         report_path = name + '.report'
-        num_node = 2
+        num_node = 4
+        num_rank = 20
         app_conf = AppConf(name + '_app.config')
         app_conf.append_region('sleep', 1.0)
         ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
         launcher = SrunLauncher(app_conf, ctl_conf, report_path)
-        launcher.set_num_node(2)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
         launcher.run()
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self.assertTrue(reports.len() == num_node)
+        self.assertTrue(len(reports) == num_node)
         for ff in reports:
             self.assertTrue(os.path.isfile(ff))
             self.assertTrue(os.stat(ff).st_size != 0)
