@@ -42,6 +42,7 @@ import multiprocessing
 class Report(dict):
     def __init__(self, report_path):
         super(Report, self).__init__()
+        self._path = report_path
         with open(report_path, 'r') as fid:
             (region_name, runtime, energy, frequency, count) = None, None, None, None, None
 
@@ -95,6 +96,9 @@ class Report(dict):
             return self[name]
         except KeyError:
             return ZeroRegion(name)
+
+    def get_path(self):
+        return self._path
 
 class Region(object):
     def __init__(self, name, runtime, energy, frequency, count):
@@ -158,7 +162,7 @@ class AppConf(object):
         self._hostname.append(hostname)
         self._imbalance.append(imbalance)
 
-    def path(self):
+    def get_path(self):
         return self._path
 
     def write(self):
@@ -191,7 +195,7 @@ class CtlConf(object):
     def set_power_budget(self, budget):
         self._options['power_budget'] = budget
 
-    def path(self):
+    def get_path(self):
         return self._path
 
     def write(self):
@@ -244,7 +248,7 @@ class Launcher(object):
                   'OMP_NUM_THREADS' : str(self._num_thread),
                   'GEOPM_PMPI_CTL' : self._pmpi_ctl,
                   'GEOPM_REPORT' : self._report_path,
-                  'GEOPM_POLICY' : self._ctl_conf.path()}
+                  'GEOPM_POLICY' : self._ctl_conf.get_path()}
         if (self._trace_path):
             result['GEOPM_TRACE'] = self._trace_path
         return result
@@ -260,7 +264,7 @@ class Launcher(object):
                          self._host_option(),
                          self._membind_option(),
                          exec_path,
-                         self._app_conf.path()))
+                         self._app_conf.get_path()))
 
 
     def _num_rank_option(self):
@@ -311,6 +315,12 @@ class TestReport(unittest.TestCase):
                          'leaf_decider': 'power_governing',
                          'platform' : 'rapl',
                          'power_budget' : 150}
+        self._epsilon = 0.05
+        self._tmp_files = []
+
+    def tearDown(self):
+        for ff in self._tmp_files:
+            os.remove(ff)
 
     def test_report_generation(self):
         name = 'test_report_generation'
@@ -318,20 +328,42 @@ class TestReport(unittest.TestCase):
         num_node = 4
         num_rank = 20
         app_conf = AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
         launcher = SrunLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run()
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
         self.assertTrue(len(reports) == num_node)
         for ff in reports:
             self.assertTrue(os.path.isfile(ff))
             self.assertTrue(os.stat(ff).st_size != 0)
-            os.remove(ff)
-        os.remove(app_conf.path())
-        os.remove(ctl_conf.path())
+
+    def test_runtime(self):
+        name = 'test_report_generation'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 5
+        app_conf = AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', 3.0)
+        ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = SrunLauncher(app_conf, ctl_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run()
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [Report(rr) for rr in reports]
+        self.assertTrue(len(reports) == num_node)
+        for rr in reports:
+            self.assertTrue(abs(rr['sleep'].get_runtime() - 3.0) < self._epsilon)
+            self.assertTrue(rr['outer-sync'].get_runtime > rr['sleep'].get_runtime())
 
 if __name__ == '__main__':
     unittest.main()
