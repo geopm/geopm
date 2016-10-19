@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_b0ddcbde",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-10-19T21:31:01Z",
+      "side": 1,
+      "message": "FIXME",
+      "range": {
+        "startLine": 1,
+        "startChar": 19,
+        "endLine": 1,
+        "endChar": 38
+      },
+      "revId": "2634b8591d68737653a910d5dc036c7abe87c205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
