@@ -168,7 +168,13 @@ namespace geopm
                     (void)imbalancer_enter();
                 }
 
-                int err = clock_nanosleep(CLOCK_REALTIME, 0, &m_delay, NULL);
+                int err;
+#ifdef __APPLE__
+                err = nanosleep(&m_delay, NULL);
+#else
+                err = clock_nanosleep(CLOCK_REALTIME, 0, &m_delay, NULL);
+#endif
+
                 if (err) {
                     throw Exception("SleepModelRegion::run()",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
