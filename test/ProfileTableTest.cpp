@@ -141,7 +141,7 @@ TEST_F(ProfileTableTest, name_set_fill_short)
 TEST_F(ProfileTableTest, name_set_fill_long)
 {
     std::set<std::string> input_set = {
-        "Global", "Energy", "Optimization", "Power", "Management", "GEOPM", "is", "an", "extensible", "power",
+        "Global", "Extensible", "Open", "Power", "Manager", "GEOPM", "is", "an", "extensible", "power",
         "management", "framework", "targeting", "high", "performance", "computing", "The", "library", "can", "be",
         "extended", "to", "support", "new", "control", "algorithms", "and", "new", "hardware", "power", "management",
         "features", "The", "GEOPM", "package", "provides", "built", "in", "features", "ranging", "from", "static",
