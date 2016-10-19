@@ -52,8 +52,8 @@
 
 namespace geopm
 {
-    /// @brief Class used to launch or step the global energy
-    ///        optimization power management algorithm.
+    /// @brief Class used to launch or step the global extensible
+    ///        open power management algorithm.
     ///
     /// The Controller class enables several methods of control:
     /// explicit stepping of the control algorithm by the application

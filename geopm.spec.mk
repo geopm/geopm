@@ -44,7 +44,7 @@ geopm-$(version).spec:
 .PHONY: rpm
 
 define geopm_spec
-Summary: Global Energy Optimization Power Management
+Summary: Global Extensible Open Power Management
 Name: geopm
 Version: $(version)
 Release: $(release)
@@ -78,7 +78,7 @@ Prefix: %{_prefix}
 %endif
 
 %description
-Global Energy Optimization Power Management (GEOPM) is an extensible power
+Global Extensible Open Power Management (GEOPM) is an extensible power
 management framework targeting high performance computing.  The library can be
 extended to support new control algorithms and new hardware power management
 features.  The GEOPM package provides built in features ranging from static
@@ -111,13 +111,13 @@ including support for static control.
 %setup
 
 %package devel
-Summary: Global Energy Optimization Power Management - development
+Summary: Global Extensible Open Power Management - development
 Group: Development/Libraries
 Requires: geopm
 
 %description devel
 
-Development package for GEOPM.  Global Energy Optimization Power Management is
+Development package for GEOPM.  Global Extensible Open Power Management is
 a hierarchical control system for optimizing power policy in a
 power-constrained MPI job to increase performance.  It is designed to
 coordinate power policy and performance across all of the compute nodes
