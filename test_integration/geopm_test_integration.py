@@ -35,12 +35,52 @@ import unittest
 import subprocess
 import os
 import json
+import re
 
 class Report(dict):
     def __init__(self, report_path):
         super(Report, self).__init__()
         with open(report_path, 'r') as fid:
-            raise NotImplementedError
+            (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+
+            for line in fid:
+                match = re.search(r'^##### geopm (\S+) #####$', line)
+                if match is not None:
+                    self._version = match.group(1)
+                    continue
+
+                match = re.search(r'^Profile: \.\/(\S+)$', line)
+                if match is not None:
+                    self._name = match.group(1)
+                    continue
+
+                match = re.search(r'^Region (\S+):', line)
+                if match is not None:
+                    region_name = match.group(1)
+                    continue
+
+                match = re.search(r'^\s+runtime.+: (\d*\.\d+|\d+)', line)
+                if match is not None:
+                    runtime = float(match.group(1))
+                    continue
+
+                match = re.search(r'^\s+energy.+: (\d*\.\d+|\d+)', line)
+                if match is not None:
+                    energy = float(match.group(1))
+                    continue
+
+                match = re.search(r'^\s+frequency.+: (\d*\.\d+|\d+)', line)
+                if match is not None:
+                    frequency = float(match.group(1))
+                    continue
+
+                match = re.search(r'^\s+count: (\d*\.\d+|\d+)', line)
+                if match is not None:
+                    count = float(match.group(1))
+
+                if None not in (region_name, runtime, energy, frequency, count):
+                    self[region_name] = Region(region_name, runtime, energy, frequency, count)
+                    (region_name, runtime, energy, frequency, count) = None, None, None, None, None
 
     def get_name(self):
         return self._name
@@ -55,8 +95,19 @@ class Report(dict):
             return ZeroRegion(name)
 
 class Region(object):
-    def __init__(self, fid):
-        raise NotImplementedError
+    def __init__(self, name, runtime, energy, frequency, count):
+        self._name = name
+        self._runtime = runtime
+        self._energy = energy
+        self._frequency = frequency
+        self._count = count
+
+    def __repr__(self):
+        return self._name + "\n  Runtime : %f" % self._runtime + "\n  Energy : %f" % self._energy \
+            + "\n  Frequency : %f" % self._frequency + "\n  Count : %f" % self._count
+
+    def __str__(self):
+        return self.__repr__()
 
     def get_name(self):
         return self._name
