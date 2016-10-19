@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_b0f4ab54",
+        "filename": "doc/geopm-plugin-guide.tex",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-19T21:32:11Z",
+      "side": 1,
+      "message": "The .pdf linked from our web page is your original with references to GEO and Global Energy Optimization.",
+      "revId": "2634b8591d68737653a910d5dc036c7abe87c205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_b0ddcbde",
         "filename": "ronn/geopm.7.ronn",
         "patchSetId": 1
