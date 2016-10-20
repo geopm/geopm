@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_4abb6be5",
+        "filename": "doc/geopm-plugin-guide.tex",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-20T17:09:03Z",
+      "side": 1,
+      "message": "Managet (sp)",
+      "revId": "b2b395b9adfe74b5324ba9d450ebdc362510bb3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
