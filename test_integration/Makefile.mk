@@ -34,7 +34,7 @@ if ENABLE_MPI
                                                       tutorial/ModelRegion.cpp \
                                                       tutorial/ModelApplication.hpp \
                                                       tutorial/ModelApplication.cpp \
-                                                      tutorial/Imbalancer.hpp \
+                                                      tutorial/imbalancer.h \
                                                       tutorial/Imbalancer.cpp \
                                                       tutorial/tutorial_6.cpp \
                                                       # end
