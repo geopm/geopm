@@ -38,6 +38,7 @@ import json
 import re
 import fnmatch
 import multiprocessing
+import socket
 
 class Report(dict):
     def __init__(self, report_path):
@@ -204,6 +205,15 @@ class CtlConf(object):
         with open(self._path, 'w') as fid:
             json.dump(obj, fid)
 
+def launcher_factory(app_conf, ctl_conf, report_path,
+                     trace_path=None, host_file=None):
+    hostname = socket.gethostname()
+    if hostname.find('mr-fusion') == 0:
+        return SrunLauncher(app_conf, ctl_conf, report_path,
+                            trace_path, host_file)
+    else:
+        raise LookupError('Unrecognized hostname: ' + hostname)
+
 class Launcher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
                  trace_path=None, host_file=None):
@@ -343,7 +353,7 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = SrunLauncher(app_conf, ctl_conf, report_path)
+        launcher = launcher_factory(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -365,7 +375,7 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep', delay)
         ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = SrunLauncher(app_conf, ctl_conf, report_path)
+        launcher = launcher_factory(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -388,7 +398,7 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep-progress', delay)
         ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = SrunLauncher(app_conf, ctl_conf, report_path)
+        launcher = launcher_factory(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
