@@ -78,6 +78,8 @@ int main(int argc, char **argv)
 "\n"
 "                 sleep: Executes clock_nanosleep() for big-o seconds.\n"
 "\n"
+"                 spin: Executes a spin loop for big-o seconds.\n"
+"\n"
 "                 stream: Executes stream \"triadd\" on a vector with\n"
 "                 length proportional to big-o.\n"
 "\n"

@@ -42,6 +42,7 @@
 #endif
 
 #include "geopm.h"
+#include "geopm_time.h"
 #include "ModelRegion.hpp"
 #include "Exception.hpp"
 #include "tutorial_region.h"
@@ -62,6 +63,11 @@ namespace geopm
             (name[strlen("sleep")] == '\0' ||
              name[strlen("sleep")] == '-')) {
             result = new SleepModelRegion(big_o, verbosity, do_imbalance, do_progress);
+        }
+        else if (name.find("spin") == 0 &&
+                 (name[strlen("spin")] == '\0' ||
+                  name[strlen("spin")] == '-'))  {
+            result = new SpinModelRegion(big_o, verbosity, do_imbalance, do_progress);
         }
         else if (name.find("dgemm") == 0 &&
                  (name[strlen("dgemm")] == '\0' ||
@@ -178,6 +184,65 @@ namespace geopm
                 if (err) {
                     throw Exception("SleepModelRegion::run()",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+
+                if (m_do_imbalance) {
+                    (void)imbalancer_exit();
+                }
+            }
+            (void)geopm_prof_exit(m_region_id);
+        }
+    }
+
+    SpinModelRegion::SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress)
+        : ModelRegionBase(verbosity)
+    {
+        m_name = "spin";
+        m_do_imbalance = do_imbalance;
+        m_do_progress = do_progress;
+        big_o(big_o_in);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_UNKNOWN, &m_region_id);
+        if (err) {
+            throw Exception("SpinModelRegion::SpinModelRegion()",
+                            err, __FILE__, __LINE__);
+        }
+    }
+
+    SpinModelRegion::~SpinModelRegion()
+    {
+
+    }
+
+    void SpinModelRegion::big_o(double big_o_in)
+    {
+        loop_count(big_o_in);
+        m_delay = big_o_in / m_loop_count;
+        m_big_o = big_o_in;
+    }
+
+    void SpinModelRegion::run(void)
+    {
+        if (m_big_o != 0.0) {
+            if (m_verbosity) {
+                std::cout << "Executing " << m_big_o << " second spin."  << std::endl << std::flush;
+            }
+            double norm = 1.0 / m_loop_count;
+            (void)geopm_prof_enter(m_region_id);
+            for (uint64_t i = 0 ; i < m_loop_count; ++i) {
+                if (m_do_progress) {
+                    geopm_prof_progress(m_region_id, i * norm);
+                }
+                if (m_do_imbalance) {
+                    (void)imbalancer_enter();
+                }
+
+                double timeout = 0.0;
+                struct geopm_time_s start = {{0,0}};
+                struct geopm_time_s curr = {{0,0}};
+                (void)geopm_time(&start);
+                while (timeout < m_delay) {
+                    (void)geopm_time(&curr);
+                    timeout = geopm_time_diff(&start, &curr);
                 }
 
                 if (m_do_imbalance) {

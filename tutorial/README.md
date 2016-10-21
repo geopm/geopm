@@ -197,6 +197,8 @@ parameters.  The tutorial_6 --help output:
 
                      sleep: Executes clock_nanosleep() for big-o seconds.
 
+                     spin: Executes a spin loop for big-o seconds.
+
                      stream: Executes stream "triadd" on a vector with
                      length proportional to big-o.
 

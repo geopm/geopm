@@ -69,6 +69,17 @@ namespace geopm
             struct timespec m_delay;
     };
 
+    class SpinModelRegion : public ModelRegionBase
+    {
+        public:
+            SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            virtual ~SpinModelRegion();
+            void big_o(double big_o);
+            void run(void);
+        protected:
+            double m_delay;
+    };
+
     class DGEMMModelRegion : public ModelRegionBase
     {
         public:
