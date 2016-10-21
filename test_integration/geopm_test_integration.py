@@ -281,10 +281,10 @@ class Launcher(object):
         return 'libtool --mode=execute'
 
     def _host_option(self):
-        result = ''
         if self._host_file:
-            result = '-w {host_file}'.format(self._host_file)
-        return result
+            throw NotImplementedError
+        return ''
+
 
 class SrunLauncher(Launcher):
     def __init__(self, app_conf, ctl_conf, report_path,
@@ -308,6 +308,12 @@ class SrunLauncher(Launcher):
             mask_list.append('0x{:x}'.format(int(proc_mask, 2)))
             proc_mask = proc_mask + self._num_thread * '0'
         return result_base + ','.join(mask_list)
+
+    def _host_option(self):
+        result = ''
+        if self._host_file:
+            result = '-w {host_file}'.format(self._host_file)
+        return result
 
 class TestReport(unittest.TestCase):
     def setUp(self):
