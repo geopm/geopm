@@ -44,47 +44,60 @@ class Report(dict):
     def __init__(self, report_path):
         super(Report, self).__init__()
         self._path = report_path
-        with open(report_path, 'r') as fid:
-            (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+        self._version = None
+        self._name = None
+        self._total_runtime = None
+        self._total_energy = None
+        found_totals = False
+        (region_name, runtime, energy, frequency, count) = None, None, None, None, None
 
+        with open(self._path, 'r') as fid:
             for line in fid:
-                match = re.search(r'^##### geopm (\S+) #####$', line)
-                if match is not None:
-                    self._version = match.group(1)
-                    continue
-
-                match = re.search(r'^Profile: \.\/(\S+)$', line)
-                if match is not None:
-                    self._name = match.group(1)
-                    continue
-
-                match = re.search(r'^Region (\S+):', line)
-                if match is not None:
-                    region_name = match.group(1)
-                    continue
-
-                match = re.search(r'^\s+runtime.+: (\d*\.\d+|\d+)', line)
-                if match is not None:
-                    runtime = float(match.group(1))
-                    continue
-
-                match = re.search(r'^\s+energy.+: (\d*\.\d+|\d+)', line)
-                if match is not None:
-                    energy = float(match.group(1))
-                    continue
-
-                match = re.search(r'^\s+frequency.+: (\d*\.\d+|\d+)', line)
-                if match is not None:
-                    frequency = float(match.group(1))
-                    continue
-
-                match = re.search(r'^\s+count: (\d*\.\d+|\d+)', line)
-                if match is not None:
-                    count = float(match.group(1))
-
-                if None not in (region_name, runtime, energy, frequency, count):
-                    self[region_name] = Region(region_name, runtime, energy, frequency, count)
-                    (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+                if self._version is None:
+                    match = re.search(r'^##### geopm (\S+) #####$', line)
+                    if match is not None:
+                        self._version = match.group(1)
+                elif self._name is None:
+                    match = re.search(r'^Profile: (\S+)$', line)
+                    if match is not None:
+                        self._name = match.group(1)
+                elif region_name is None:
+                    match = re.search(r'^Region (\S+):', line)
+                    if match is not None:
+                        region_name = match.group(1)
+                elif runtime is None:
+                    match = re.search(r'^\s+runtime.+: (\d*\.\d+|\d+)', line)
+                    if match is not None:
+                        runtime = float(match.group(1))
+                elif energy is None:
+                    match = re.search(r'^\s+energy.+: (\d*\.\d+|\d+)', line)
+                    if match is not None:
+                        energy = float(match.group(1))
+                elif frequency is None:
+                    match = re.search(r'^\s+frequency.+: (\d*\.\d+|\d+)', line)
+                    if match is not None:
+                        frequency = float(match.group(1))
+                elif count is None:
+                    match = re.search(r'^\s+count: (\d*\.\d+|\d+)', line)
+                    if match is not None:
+                        count = float(match.group(1))
+                        self[region_name] = Region(region_name, runtime, energy, frequency, count)
+                        (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+                if not found_totals:
+                    match = re.search(r'^Application Totals:$', line)
+                    if match is not None:
+                        found_totals = True
+                elif self._total_runtime is None:
+                    match = re.search(r'\s+runtime.+: (\d*\.\d+|\d+)', line)
+                    if match is not None:
+                        self._total_runtime = float(match.group(1))
+                elif self._total_energy is None:
+                    match = re.search(r'\s+energy.+: (\d*\.\d+|\d+)', line)
+                    if match is not None:
+                        self._total_energy = float(match.group(1))
+        if (region_name is not None or not found_totals or
+            None in (self._name, self._version, self._total_runtime, self._total_energy)):
+            raise SyntaxError('Unable to parse file: ' + self._path)
 
     def get_name(self):
         return self._name
@@ -92,14 +105,14 @@ class Report(dict):
     def get_version(self):
         return self._version
 
-    def get_region(self, name):
-        try:
-            return self[name]
-        except KeyError:
-            return ZeroRegion(name)
-
     def get_path(self):
         return self._path
+
+    def get_runtime(self):
+        return self._total_runtime
+
+    def get_energy(self):
+        return self._total_energy
 
 class Region(object):
     def __init__(self, name, runtime, energy, frequency, count):
@@ -130,14 +143,6 @@ class Region(object):
 
     def get_count(self):
         return self._count
-
-class ZeroRegion(Region):
-    def __init__(self, name):
-        self._name = name
-        self._runtime = 0.0
-        self._energy = 0.0
-        self._frequency = 0.0
-        self._count = 0.0
 
 class Trace(object):
     def __init__(self, trace_path):
@@ -337,7 +342,10 @@ class TestReport(unittest.TestCase):
 
     def tearDown(self):
         for ff in self._tmp_files:
-            os.remove(ff)
+            try:
+                os.remove(ff)
+            except OSError:
+                pass
 
     def assertNear(self, a, b):
         if abs(a - b) / a >= self._epsilon:
@@ -385,7 +393,7 @@ class TestReport(unittest.TestCase):
         self.assertTrue(len(reports) == num_node)
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
-            self.assertGreater(rr['outer-sync'].get_runtime, rr['sleep'].get_runtime())
+            self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
 
     def test_progress(self):
         name = 'test_progress'
@@ -408,7 +416,7 @@ class TestReport(unittest.TestCase):
         self.assertTrue(len(reports) == num_node)
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
-            self.assertGreater(rr['outer-sync'].get_runtime, rr['sleep'].get_runtime())
+            self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
 
 if __name__ == '__main__':
     unittest.main()
