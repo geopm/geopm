@@ -259,8 +259,16 @@ class Launcher(object):
         env.update(self._environ())
         self._app_conf.write()
         self._ctl_conf.write()
+        # The following open() is required to preserve the proper output ordering when stdout and stderr are combined.
         with open(test_name + '.log', 'w') as outfile:
-            subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
+                outfile.write(str(self) + '\n\n')
+        with open(test_name + '.log', 'a') as outfile:
+            try:
+                subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
+            except Exception as e:
+                print "Attempted command with env:"
+                print self
+                raise e
 
     def get_report(self):
         return Report(self._report_path)
@@ -348,13 +356,15 @@ class TestReport(unittest.TestCase):
                          'power_budget' : 150}
         self._epsilon = 0.05
         self._tmp_files = []
+        self._do_cleanup = False
 
     def tearDown(self):
-        for ff in self._tmp_files:
-            try:
-                os.remove(ff)
-            except OSError:
-                pass
+        if self._do_cleanup:
+            for ff in self._tmp_files:
+                try:
+                    os.remove(ff)
+                except OSError:
+                    pass
 
     def assertNear(self, a, b):
         if abs(a - b) / a >= self._epsilon:
@@ -380,6 +390,7 @@ class TestReport(unittest.TestCase):
         for ff in reports:
             self.assertTrue(os.path.isfile(ff))
             self.assertTrue(os.stat(ff).st_size != 0)
+        self._do_cleanup = True
 
     def test_runtime(self):
         name = 'test_runtime'
@@ -403,6 +414,7 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+        self._do_cleanup = True
 
     def test_progress(self):
         name = 'test_progress'
@@ -426,6 +438,7 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+        self._do_cleanup = True
 
 if __name__ == '__main__':
     unittest.main()
