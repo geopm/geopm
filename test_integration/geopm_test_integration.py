@@ -234,6 +234,15 @@ class Launcher(object):
         # OS and one (potentially) for the controller.
         self._num_thread = (multiprocessing.cpu_count() - 2) / self._num_rank
 
+    def __repr__(self):
+        output = ''
+        for k,v in self._environ().iteritems():
+            output += '{k}={v} '.format(k=k, v=v)
+        output += self._exec_str()
+        return output
+
+    def __str__(self):
+        return self.__repr__()
 
     def set_num_node(self, num_node):
         self._num_node = num_node
