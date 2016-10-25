@@ -39,6 +39,7 @@ import re
 import fnmatch
 import multiprocessing
 import socket
+import sys
 
 class Report(dict):
     def __init__(self, report_path):
@@ -261,6 +262,8 @@ class Launcher(object):
         self._app_conf.write()
         self._ctl_conf.write()
         with open(test_name + '.log', 'w') as outfile:
+            outfile.write(str(self) + '\n\n')
+            outfile.flush()
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
 
     def get_report(self):
@@ -354,11 +357,12 @@ class TestReport(unittest.TestCase):
         self._tmp_files = []
 
     def tearDown(self):
-        for ff in self._tmp_files:
-            try:
-                os.remove(ff)
-            except OSError:
-                pass
+        if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
+            for ff in self._tmp_files:
+                try:
+                    os.remove(ff)
+                except OSError:
+                    pass
 
     def assertNear(self, a, b):
         if abs(a - b) / a >= self._epsilon:
