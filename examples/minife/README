@@ -1,0 +1,21 @@
+The patch files in this directory are designed to be applied on top of MiniFE v1.4b.
+
+Source code:
+    http://www.nersc.gov/assets/Trinity--NERSC-8-RFP/Benchmarks/Feb22/MiniFE_ref_1.4b.tar
+
+Installation:
+
+1. Acquire the source:
+    wget http://www.nersc.gov/assets/Trinity--NERSC-8-RFP/Benchmarks/Feb22/MiniFE_ref_1.4b.tar
+
+2. Unpack the source:
+    mkdir MiniFE_1.4b && tar xvf MiniFE_ref_1.4b.tar -C MiniFE_1.4b
+
+3. Change directories to the unpacked files.
+    cd MiniFE_1.4b/source
+
+4. Patch MiniFE with the patch utility:
+    patch -p1 < ../../0001-Optimized-MiniFE-code-for-Intel-hardware.patch
+    patch -p1 < ../../0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch
+
+5. Profit.
