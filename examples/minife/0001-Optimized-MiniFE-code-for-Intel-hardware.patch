@@ -1,0 +1,188 @@
+From bfab468551dee6dd7a41576beef9c2b2362fe52f Mon Sep 17 00:00:00 2001
+From: "Geltz, Brad" <brad.geltz@intel.com>
+Date: Mon, 24 Oct 2016 16:00:17 -0700
+Subject: [PATCH 1/3] Optimized MiniFE code for Intel hardware.
+
+#  Copyright (c) 2015, 2016, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Change-Id: I147a529a1e45810aa59e77cfe2c25877fac3f923
+Signed-off-by: Geltz, Brad <brad.geltz@intel.com>
+---
+ SparseMatrix_functions.hpp |  5 ++++-
+ Vector_functions.hpp       | 10 ++++++++--
+ cg_solve.hpp               |  4 ++--
+ driver.hpp                 |  2 +-
+ main.cpp                   |  2 ++
+ makefile                   |  8 ++++----
+ 6 files changed, 21 insertions(+), 10 deletions(-)
+
+diff --git a/SparseMatrix_functions.hpp b/SparseMatrix_functions.hpp
+index 22f1379..1af3fad 100644
+--- a/SparseMatrix_functions.hpp
++++ b/SparseMatrix_functions.hpp
+@@ -566,7 +566,9 @@ void operator()(MatrixType& A,
+         ScalarType* ycoefs = &y.coefs[0];
+   ScalarType beta = 0;
+ 
+-  #pragma omp parallel for
++  #pragma omp parallel
++  {
++  #pragma omp for
+   for(int row=0; row<n; ++row) {
+     ScalarType sum = beta*ycoefs[row];
+ 
+@@ -576,6 +578,7 @@ void operator()(MatrixType& A,
+ 
+     ycoefs[row] = sum;
+   }
++  }
+ }
+ };
+ 
+diff --git a/Vector_functions.hpp b/Vector_functions.hpp
+index c4e2a36..956d126 100644
+--- a/Vector_functions.hpp
++++ b/Vector_functions.hpp
+@@ -148,10 +148,13 @@ void
+   const ScalarType* ycoefs = &y.coefs[0];
+         ScalarType* wcoefs = &w.coefs[0];
+ 
+-  #pragma omp parallel for
++  #pragma omp parallel
++  {
++  #pragma omp for
+   for(int i=0; i<n; ++i) {
+     wcoefs[i] = alpha*xcoefs[i] + beta*ycoefs[i];
+   }
++  }
+ }
+ 
+ //Like waxpby above, except operates on two sets of arguments.
+@@ -218,10 +221,13 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
+   const Scalar* ycoefs = &y.coefs[0];
+   magnitude result = 0;
+ 
+-  #pragma omp parallel for reduction(+:result)
++  #pragma omp parallel
++  {
++  #pragma omp for reduction(+:result)
+   for(int i=0; i<n; ++i) {
+     result += xcoefs[i]*ycoefs[i];
+   }
++  }
+ 
+ #ifdef HAVE_MPI
+   magnitude local_dot = result, global_dot = 0;
+diff --git a/cg_solve.hpp b/cg_solve.hpp
+index cbb5bcc..ee7ba93 100644
+--- a/cg_solve.hpp
++++ b/cg_solve.hpp
+@@ -112,7 +112,7 @@ cg_solve(OperatorType& A,
+   magnitude_type rtrans = 0;
+   magnitude_type oldrtrans = 0;
+ 
+-  LocalOrdinalType print_freq = max_iter/10;
++  LocalOrdinalType print_freq = max_iter/40;
+   if (print_freq>50) print_freq = 50;
+   if (print_freq<1)  print_freq = 1;
+ 
+@@ -148,6 +148,7 @@ cg_solve(OperatorType& A,
+ 
+ 
+   for(LocalOrdinalType k=1; k <= max_iter && normr > tolerance; ++k) {
++
+     if (k == 1) {
+       TICK(); waxpby(one, r, zero, r, p); TOCK(tWAXPY);
+     }
+@@ -173,7 +174,6 @@ cg_solve(OperatorType& A,
+     TOCK(tMATVECDOT);
+ #else
+     TICK(); matvec(A, p, Ap); TOCK(tMATVEC);
+-
+     TICK(); p_ap_dot = dot(Ap, p); TOCK(tDOT);
+ #endif
+ 
+diff --git a/driver.hpp b/driver.hpp
+index 6c0f0f0..d93362d 100644
+--- a/driver.hpp
++++ b/driver.hpp
+@@ -239,7 +239,7 @@ driver(const Box& global_box, Box& my_box,
+ 
+   //Prepare to perform conjugate gradient solve:
+ 
+-  LocalOrdinal max_iters = 200;
++  LocalOrdinal max_iters = 400;
+   LocalOrdinal num_iters = 0;
+   typedef typename TypeTraits<Scalar>::magnitude_type magnitude;
+   magnitude rnorm = 0;
+diff --git a/main.cpp b/main.cpp
+index a825d76..7ac63f7 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -117,6 +117,8 @@ int main(int argc, char** argv) {
+   if (min_ids == 0) {
+     std::cout<<"One or more processors have 0 equations. Not currently supported. Exiting."<<std::endl;
+ 
++
++    MPI_Barrier(MPI_COMM_WORLD);
+     miniFE::finalize_mpi();
+ 
+     return 1;
+diff --git a/makefile b/makefile
+index 908206c..feb3864 100644
+--- a/makefile
++++ b/makefile
+@@ -10,8 +10,8 @@ MINIFE_MATRIX_TYPE = -DMINIFE_CSR_MATRIX
+ 
+ #-----------------------------------------------------------------------
+ 
+-CFLAGS = -O3
+-CXXFLAGS = -O3
++CFLAGS = -O3 -fopenmp
++CXXFLAGS = -O3 -fopenmp
+ 
+ # For debugging, the macro MINIFE_DEBUG will cause miniFE to dump a log file
+ # from each proc containing various information.
+@@ -28,8 +28,8 @@ LIBS=
+ # The MPICH_IGNORE_CXX_SEEK macro is required for some mpich versions,
+ # such as the one on my cygwin machine.
+ 
+-CXX=CC
+-CC=cc
++CXX=mpicxx
++CC=mpicc
+ 
+ include make_targets
+ 
+-- 
+1.9.1
+
