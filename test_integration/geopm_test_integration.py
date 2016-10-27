@@ -211,11 +211,11 @@ class CtlConf(object):
             json.dump(obj, fid)
 
 def launcher_factory(app_conf, ctl_conf, report_path,
-                     trace_path=None, host_file=None):
+                     trace_path=None, host_file=None, time_limit=1):
     hostname = socket.gethostname()
     if hostname.find('mr-fusion') == 0:
         return SrunLauncher(app_conf, ctl_conf, report_path,
-                            trace_path, host_file)
+                            trace_path, host_file, time_limit)
     else:
         raise LookupError('Unrecognized hostname: ' + hostname)
 
@@ -317,12 +317,16 @@ class Launcher(object):
 
 class SrunLauncher(Launcher):
     def __init__(self, app_conf, ctl_conf, report_path,
-                 trace_path=None, host_file=None):
+                 trace_path=None, host_file=None, time_limit=1):
         super(SrunLauncher, self).__init__(app_conf, ctl_conf, report_path,
                                            trace_path=trace_path, host_file=host_file)
+        self._time_limit = time_limit
 
     def _mpiexec_option(self):
-        return 'srun'
+        if self._time_limit is not None:
+            return 'srun -t {time_limit}'.format(time_limit=self._time_limit)
+        else:
+            return 'srun'
 
     def _num_node_option(self):
         return '-N {num_node}'.format(num_node=self._num_node)
