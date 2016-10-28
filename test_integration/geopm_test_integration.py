@@ -40,6 +40,7 @@ import fnmatch
 import multiprocessing
 import socket
 import sys
+import time
 
 
 class Report(dict):
@@ -246,6 +247,7 @@ class Launcher(object):
         self._trace_path = trace_path
         self._host_file = host_file
         self._time_limit = time_limit
+        self._node_list = None
         self._pmpi_ctl = 'process'
         # Figure out the number of CPUs per rank leaving one for the
         # OS and one (potentially) for the controller.
@@ -260,6 +262,9 @@ class Launcher(object):
 
     def __str__(self):
         return self.__repr__()
+
+    def set_node_list(self, node_list):
+        self._node_list = node_list
 
     def set_num_node(self, num_node):
         self._num_node = num_node
@@ -276,7 +281,7 @@ class Launcher(object):
         env.update(self._environ())
         self._app_conf.write()
         self._ctl_conf.write()
-        with open(test_name + '.log', 'w') as outfile:
+        with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(self) + '\n\n')
             outfile.flush()
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
@@ -286,6 +291,17 @@ class Launcher(object):
 
     def get_trace(self):
         return Trace(self._trace_path)
+
+    def get_idle_nodes(self):
+        return ''
+
+    def get_alloc_nodes(self):
+        return ''
+
+    def write_log(self, test_name, message):
+        with open(test_name + '.log', 'a') as outfile:
+            outfile.write(message + '\n\n')
+            outfile.flush()
 
     def _environ(self):
         result = {'LD_DYNAMIC_WEAK': 'true',
@@ -336,9 +352,11 @@ class SrunLauncher(Launcher):
                                            trace_path=trace_path, host_file=host_file, time_limit=time_limit)
 
     def _mpiexec_option(self):
-        mpiexec = 'srun'
+        mpiexec = 'srun -I -J int_test'
         if self._time_limit is not None:
             mpiexec += ' -t {time_limit}'.format(time_limit=self._time_limit)
+        if self._node_list is not None:
+            mpiexec += ' -w ' + ','.join(self._node_list)
         return mpiexec
 
     def _num_node_option(self):
@@ -360,6 +378,12 @@ class SrunLauncher(Launcher):
         if self._host_file:
             result = '-w {host_file}'.format(self._host_file)
         return result
+
+    def get_idle_nodes(self):
+        return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
+
+    def get_alloc_nodes(self):
+        return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
 
 
 class TestReport(unittest.TestCase):
@@ -404,6 +428,45 @@ class TestReport(unittest.TestCase):
         for ff in reports:
             self.assertTrue(os.path.isfile(ff))
             self.assertTrue(os.stat(ff).st_size != 0)
+
+    def test_report_generation_all_nodes(self):
+        name = 'test_report_generation_all_nodes'
+        report_path = name + '.report'
+        num_node=1
+        num_rank=5
+        delay = 1.0
+        app_conf = AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', delay)
+        ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = launcher_factory(app_conf, ctl_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        time.sleep(5) # Wait a moment to finish cleaning-up from a previous test
+        idle_nodes = launcher.get_idle_nodes()
+        idle_nodes_copy = list(idle_nodes)
+        alloc_nodes = launcher.get_alloc_nodes()
+        launcher.write_log(name, 'Idle nodes : {nodes}'.format(nodes=idle_nodes))
+        launcher.write_log(name, 'Alloc\'d  nodes : {nodes}'.format(nodes=alloc_nodes))
+        for n in idle_nodes_copy:
+            launcher.set_node_list(n.split()) # Hack to convert string to list
+            try:
+                launcher.run(name)
+            except subprocess.CalledProcessError as e:
+                if e.returncode == 1 and n not in launcher.get_idle_nodes():
+                    launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=n))
+                    idle_nodes.remove(n)
+                else:
+                    launcher.write_log(name, 'Return code = {code}'.format(code=e.returncode))
+                    raise e
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [Report(rr) for rr in reports]
+        self.assertTrue(len(reports) == len(idle_nodes))
+        for rr in reports:
+            self.assertNear(delay, rr['sleep'].get_runtime())
+            self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
 
     def test_runtime(self):
         name = 'test_runtime'
@@ -450,7 +513,6 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
-
 
 if __name__ == '__main__':
     unittest.main()
