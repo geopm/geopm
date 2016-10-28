@@ -41,6 +41,7 @@ import multiprocessing
 import socket
 import sys
 
+
 class Report(dict):
     def __init__(self, report_path):
         super(Report, self).__init__()
@@ -115,6 +116,7 @@ class Report(dict):
     def get_energy(self):
         return self._total_energy
 
+
 class Region(object):
     def __init__(self, name, runtime, energy, frequency, count):
         self._name = name
@@ -124,8 +126,16 @@ class Region(object):
         self._count = count
 
     def __repr__(self):
-        return self._name + "\n  Runtime : %f" % self._runtime + "\n  Energy : %f" % self._energy \
-            + "\n  Frequency : %f" % self._frequency + "\n  Count : %f" % self._count
+        return '{name}\
+               \n  Runtime : {runtime}\
+               \n  Energy : {energy}\
+               \n  Frequency : {frequency}\
+               \n  Count : {count}\
+               '.format(name=self._name,
+                   runtime=self._runtime,
+                   energy=self._energy,
+                   frequency=self._frequency,
+                   count=self._count)
 
     def __str__(self):
         return self.__repr__()
@@ -184,6 +194,7 @@ class AppConf(object):
         with open(self._path, 'w') as fid:
             json.dump(obj, fid)
 
+
 class CtlConf(object):
     def __init__(self, path, mode, options):
         self._path = path
@@ -211,6 +222,7 @@ class CtlConf(object):
         with open(self._path, 'w') as fid:
             json.dump(obj, fid)
 
+
 def launcher_factory(app_conf, ctl_conf, report_path,
                      trace_path=None, host_file=None, time_limit=1):
     hostname = socket.gethostname()
@@ -219,6 +231,7 @@ def launcher_factory(app_conf, ctl_conf, report_path,
                             trace_path, host_file, time_limit)
     else:
         raise LookupError('Unrecognized hostname: ' + hostname)
+
 
 class Launcher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
@@ -346,6 +359,7 @@ class SrunLauncher(Launcher):
             result = '-w {host_file}'.format(self._host_file)
         return result
 
+
 class TestReport(unittest.TestCase):
     def setUp(self):
         self._mode = 'dynamic'
@@ -434,6 +448,7 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+
 
 if __name__ == '__main__':
     unittest.main()
