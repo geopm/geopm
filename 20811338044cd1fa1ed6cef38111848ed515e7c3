@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_b1c7df45",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-31T21:54:33Z",
+      "side": 1,
+      "message": "Get rid of the +\u003d and use just one format.",
+      "revId": "20811338044cd1fa1ed6cef38111848ed515e7c3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
