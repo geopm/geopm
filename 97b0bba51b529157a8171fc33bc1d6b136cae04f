@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_11dfab0d",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-31T22:00:47Z",
+      "side": 1,
+      "message": "Don\u0027t fail on non-slurm system.  Just return an empty string.",
+      "revId": "97b0bba51b529157a8171fc33bc1d6b136cae04f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f1e327d7",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-31T22:00:47Z",
+      "side": 1,
+      "message": "Same as above.",
+      "revId": "97b0bba51b529157a8171fc33bc1d6b136cae04f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_31daaf1e",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-31T22:00:47Z",
+      "side": 1,
+      "message": "Does this get run if the name doesn\u0027t begin with \"test\"?",
+      "revId": "97b0bba51b529157a8171fc33bc1d6b136cae04f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_51be53af",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-31T22:00:47Z",
+      "side": 1,
+      "message": "Wait to merge for _do_cleanup() patch.",
+      "revId": "97b0bba51b529157a8171fc33bc1d6b136cae04f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
