@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_919dfb59",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-10-31T21:50:19Z",
+      "side": 1,
+      "message": "Should we just have a method called cleanup() that is called at the end of each test since we have to explicitly set the self._do_cleanup at the end of each test anyway?  Another solution would be to leverage a TestCase built in variable if such a thing exists.",
+      "revId": "dff56c3290debb682057c3f65736cb639ffb1c3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
