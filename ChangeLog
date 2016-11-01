@@ -1,3 +1,94 @@
+- Renamed package to Global Extensible Open Power Manager.
+- Improved features, performance, documentation, testing and continuous integration.
+- Many bug fixes.
+- Modified CONTRIBUTING.md to reflect current work-flow.
+- Enabled Travis-CI on github repository.
+- Linked Travis-CI to Open SUSE Build Service for automation of multi-distro packaging and testing.
+- Removed explicit creation and destruction of geopm_prof_c objects from public interface.
+- Introduced new environment variable GEOPM_PROFILE to control profiling.
+- Introduced new environment variable GEOPM_DEBUG_ATTACH to enable attaching with a serial debugger.
+- Removed geopm_prof_print interface.
+- Removed "-r" command line option from geopmctl.
+- Made the power budget in the policy an average per-node budget instead of a whole job budget.
+- Modified report to include geopm version.
+- Added accounting in report for the number of entries into each region.
+- Added reporting of application totals.
+- Refined how the geopm_outer_sync() API works.
+- Added a --disable-doc configuration option for systems without ronn.
+- Changed default shmem key base from "geopm_default" to "geopm-shm".
+- Enabled GEOPM profiling without application modification through LD_PRELOAD.
+- Appended domain numbers to the trace file column headers.
+- Brought policy back to trace output.
+- Modified implementation to print warning if controller is not found by the Profile interface.
+- Enabled building in the SUSE environment.
+- Added an example that prints the geopm hash of any string.
+- Added support for Broadwell E Xeon and Knights Landing Xeon Phi platforms.
+- Added capability to save/restore MSR values before/after GEOPM runs.
+- Major improvements to signal handling and shutdown clean up.
+- Improvements to temporary file and shared memory management.
+- Added a suite of tutorials that step through GEOPM features.
+- Posted video walk through of the GEOPM tutorials to YouTube.
+- Created the ideal "model" application for geopm shown in tutorial 6.
+- Added integration test infrastructure using python unittest and model application.
+- Added patches for GEOPM mark up to MiniFE and Nekbone benchmark source code.
+- Added support for batch MSR read through msr-safe ioctl interface.
+- Tuned decision making algorithms based on performance of several benchmarks.
+- Allowed GoverningDecider to "unconverge."
+- Added separate throttling times for sampling and control.
+- Moved LockingHashTable template to a non-template implementation.
+- Added distinct entries in profile table for MPI and outer_sync events.
+- Switched to one sided communication (MPI_Put/MPI_Get) for passing samples up.
+- When a new policy is received at the leaf it is enforced immediately.
+- Modified implementation to unlink shared memory regions as soon as all users have attached.
+- Added an example which will check if geopm supports the current platform which is used to skip some tests.
+- Made check for supported platform more robust.
+- Removed all throw calls inside destructor methods.
+- Re-implemented application/controller handshake.
+- Moved default profile object into Singleton pattern.
+- Cleaned up factory registration pattern.
+- Added better error checking of user inputs.
+- Applied the write mask when writing to a MSR.
+- Abstracted the read_bandwidth signal in the PlatformImp classes.
+- Made PlatformImp objects abstract to signal topology.
+- Added death tests for the controller.
+- Removed use of MPI::Exception and all other MPI C++ constructs as they are deprecated.
+- Wrote an abstraction of the hwloc interface remove hwloc version specific implementation requirement.
+- Introduced XeonPlatformImp which Xeon platforms inherit from.
+- Proposed a class interface to abstract MPI usage by GEOPM's controller.
+- Fixed MSR read to mask off bits read from MSR beyond the overflow bit.
+- Fixed possible under/over power budget conditions.
+- Fixed a number of issues in report and trace output.
+- Fixed issue where hash table could overflow.
+- Fixed policy creation so that all the man page examples work correctly.
+- Fixed subtraction of MPI time from outer sync time.
+- Fixed accounting error in reported per region run-time.
+- Fixed msr write logic for multi-socket systems.
+- Fixed MSR save/restore.
+- Fixed usage of RAPL time window 1 and 2.
+- Fixed race condition: use MPI_Isend instead of MPI_Irsend.
+- Fixed RAPL interface logic.
+- Fixed geopm_time_add() to avoid overflowing nsec field.
+- Fixed frequency calculation in report.
+- Fixed the region entry count in report.
+- Fixed issues around MPI_Request usage in non-blocking MPI calls.
+- Fixed decider and accompanying logic.
+- Fixed issue related to sending new polices down when new decisions are made.
+- Fixed race condition in application/controller handshake.
+- Fixed shutdown logic in PMPI wrapper when controller is run as a pthread.
+- Fixed test executable so that non-matching test filters give an error.
+- Fixed bug in MSR restore from file related to overflow.
+- Fixed issue that occurs when using googlemock with gcc 6.
+- Fixed issues around incorrect use of PMPI wrappers.
+- Fixed a number of issues in the the PMPI wrappers.
+- Fixed PMPI wrappers to work with both the MPI-2 and MPI-3 standards.
+- Fixed missing dlclose() calls for dynamically opened shared objects.
+- Fixed issue related to launching the controller with pthread in PMPI wrapper.
+- Fixed multiple platform issues.
+- Fixed death test issue due to inconsistent SLURM exit status codes.
+- Fixed CPU indexing bug in PlatformImp derived classes.
+- Fixed typo in Environment.cpp which was breaking GEOPM_ERROR_AFFINITY_IGNORE environment variable.
+- Fixed the mask for getting frequency from IA32_PERF_STATUS.
+- Fixed broken download, switched to Fedora URL for downloading gmock 1.7.0.
 * Mon May 23 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.1.1
 - Fixed race condition in geopm_comm_split_shared().
 - Fixed geopmctl so that it works properly (error introduced with policy environment).
