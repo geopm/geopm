@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_26915047",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2016-11-01T20:36:25Z",
+      "side": 1,
+      "message": "It was printing with an extra blank line with the way you had it, so I removed the extra line.",
+      "range": {
+        "startLine": 134,
+        "startChar": 21,
+        "endLine": 135,
+        "endChar": 3
+      },
+      "revId": "43f1da53432b8d0f559a32ac939d691649e6b3f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
