@@ -71,6 +71,7 @@ namespace geopm
 
     class SpinModelRegion : public ModelRegionBase
     {
+        friend class NestedModelRegion;
         public:
             SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~SpinModelRegion();
@@ -112,6 +113,7 @@ namespace geopm
 
     class All2allModelRegion : public ModelRegionBase
     {
+        friend class NestedModelRegion;
         public:
             All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
             virtual ~All2allModelRegion();
@@ -123,6 +125,18 @@ namespace geopm
             size_t m_num_send;
             int m_num_rank;
             const size_t m_align;
+    };
+
+    class NestedModelRegion : public ModelRegionBase
+    {
+        public:
+            NestedModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            virtual ~NestedModelRegion();
+            void big_o(double big_o);
+            void run(void);
+        protected:
+            SpinModelRegion m_spin_region;
+            All2allModelRegion m_all2all_region;
     };
 
     ModelRegionBase *model_region_factory(std::string name, double big_o, int verbosity);

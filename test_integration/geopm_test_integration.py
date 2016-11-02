@@ -51,8 +51,10 @@ class Report(dict):
         self._name = None
         self._total_runtime = None
         self._total_energy = None
+        self._total_mpi_runtime = None
         found_totals = False
         (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+        float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
             for line in fid:
@@ -69,19 +71,19 @@ class Report(dict):
                     if match is not None:
                         region_name = match.group(1)
                 elif runtime is None:
-                    match = re.search(r'^\s+runtime.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
                         runtime = float(match.group(1))
                 elif energy is None:
-                    match = re.search(r'^\s+energy.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+energy.+: ' + float_regex, line)
                     if match is not None:
                         energy = float(match.group(1))
                 elif frequency is None:
-                    match = re.search(r'^\s+frequency.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+frequency.+: ' + float_regex, line)
                     if match is not None:
                         frequency = float(match.group(1))
                 elif count is None:
-                    match = re.search(r'^\s+count: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
                         self[region_name] = Region(region_name, runtime, energy, frequency, count)
@@ -91,15 +93,20 @@ class Report(dict):
                     if match is not None:
                         found_totals = True
                 elif self._total_runtime is None:
-                    match = re.search(r'\s+runtime.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'\s+runtime.+: ' + float_regex, line)
                     if match is not None:
                         self._total_runtime = float(match.group(1))
                 elif self._total_energy is None:
-                    match = re.search(r'\s+energy.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'\s+energy.+: ' + float_regex, line)
                     if match is not None:
                         self._total_energy = float(match.group(1))
+                elif self._total_mpi_runtime is None:
+                    match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
+                    if match is not None:
+                        self._total_mpi_runtime = float(match.group(1))
+
         if (region_name is not None or not found_totals or
-            None in (self._name, self._version, self._total_runtime, self._total_energy)):
+            None in (self._name, self._version, self._total_runtime, self._total_energy, self._total_mpi_runtime)):
             raise SyntaxError('Unable to parse file: ' + self._path)
 
     def get_name(self):
@@ -113,6 +120,9 @@ class Report(dict):
 
     def get_runtime(self):
         return self._total_runtime
+
+    def get_mpi_runtime(self):
+        return self._total_mpi_runtime
 
     def get_energy(self):
         return self._total_energy
@@ -238,7 +248,7 @@ def launcher_factory(app_conf, ctl_conf, report_path,
 
 class Launcher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
-                 trace_path=None, host_file=None, time_limit=None):
+                 trace_path=None, host_file=None, time_limit=None, region_barrier=False):
         self._num_rank = 16
         self._num_node = 4
         self._app_conf = app_conf
@@ -247,6 +257,7 @@ class Launcher(object):
         self._trace_path = trace_path
         self._host_file = host_file
         self._time_limit = time_limit
+        self._region_barrier = region_barrier
         self._node_list = None
         self._pmpi_ctl = 'process'
         # Figure out the number of CPUs per rank leaving one for the
@@ -308,15 +319,17 @@ class Launcher(object):
                   'GEOPM_PMPI_CTL' : self._pmpi_ctl,
                   'GEOPM_REPORT' : self._report_path,
                   'GEOPM_POLICY' : self._ctl_conf.get_path()}
-        if (self._trace_path):
+        if self._trace_path:
             result['GEOPM_TRACE'] = self._trace_path
+        if self._region_barrier:
+            result['GEOPM_REGION_BARRIER'] = 'true'
         return result
 
     def _exec_str(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        exec_path = os.path.join(script_dir, 'geopm_test_integration')
-        return ' '.join((self._libtool_option(),
-                         self._mpiexec_option(),
+        # Using libtool causes sporadic issues with the Intel toolchain.
+        exec_path = os.path.join(script_dir, '.libs', 'geopm_test_integration --verbose')
+        return ' '.join((self._mpiexec_option(),
                          self._num_node_option(),
                          self._num_rank_option(),
                          self._affinity_option(),
@@ -324,7 +337,6 @@ class Launcher(object):
                          self._membind_option(),
                          exec_path,
                          self._app_conf.get_path()))
-
 
     def _num_rank_option(self):
         return '-n {num_rank}'.format(num_rank=self._num_rank)
@@ -334,9 +346,6 @@ class Launcher(object):
 
     def _membind_option(self):
         return ''
-
-    def _libtool_option(self):
-        return 'libtool --mode=execute'
 
     def _host_option(self):
         if self._host_file:
@@ -392,7 +401,6 @@ class TestReport(unittest.TestCase):
                          'leaf_decider': 'power_governing',
                          'platform' : 'rapl',
                          'power_budget' : 150}
-        self._epsilon = 0.05
         self._tmp_files = []
 
     def tearDown(self):
@@ -403,9 +411,9 @@ class TestReport(unittest.TestCase):
                 except OSError:
                     pass
 
-    def assertNear(self, a, b):
-        if abs(a - b) / a >= self._epsilon:
-            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=self._epsilon))
+    def assertNear(self, a, b, epsilon=0.05):
+        if abs(a - b) / a >= epsilon:
+            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
 
     def test_report_generation(self):
         name = 'test_report_generation'
@@ -489,6 +497,34 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+
+    def test_runtime_nested(self):
+        name = 'test_runtime_nested'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 2
+        delay = 1.0
+        loop_count = 2
+        app_conf = AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('nested-progress', delay)
+        ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = launcher_factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [Report(rr) for rr in reports]
+        self.assertTrue(len(reports) == num_node)
+        for rr in reports:
+            # The spin sections of this region sleep for 'delay' seconds twice per loop.
+            self.assertNear(delay*loop_count*2, rr['spin'].get_runtime())
+            self.assertNear(rr['spin'].get_runtime(), rr['outer-sync'].get_runtime(), epsilon=0.01)
+            self.assertGreater(rr.get_mpi_runtime(), 0)
+            self.assertGreater(0.1, rr.get_mpi_runtime())
 
     def test_progress(self):
         name = 'test_progress'
