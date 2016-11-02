@@ -83,12 +83,18 @@ namespace geopm
         region_id = m_region_id;
     }
 
+    std::map<int, int> &SampleRegulator::rank_idx_map(void)
+    {
+       return m_rank_idx_map;
+    }
+
     void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         if (prof_sample_begin != prof_sample_end) {
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
-                if ((*it).second.region_id != GEOPM_REGION_ID_OUTER) {
+                if (!geopm_region_id_is_outer((*it).second.region_id) &&
+                    (*it).second.region_id != GEOPM_REGION_ID_INVALID) {
                     struct m_rank_sample_s rank_sample;
                     rank_sample.timestamp = (*it).second.timestamp;
                     rank_sample.progress = (*it).second.progress;
@@ -100,7 +106,7 @@ namespace geopm
                         m_rank_sample_prev[rank_idx].clear();
                     }
                     if (rank_sample.progress == 1.0) {
-                        m_region_id[rank_idx] = 0;
+                        m_region_id[rank_idx] = GEOPM_REGION_ID_INVALID;
                     }
                     else {
                         m_region_id[rank_idx] = (*it).second.region_id;

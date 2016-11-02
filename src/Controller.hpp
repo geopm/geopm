@@ -169,7 +169,6 @@ namespace geopm
             void signal_handler(void);
             void check_signal(void);
             void connect(void);
-            void enforce_child_policy(int level, const Policy &policy);
             void walk_down(void);
             void walk_up(void);
             void override_telemetry(double progress);
@@ -197,6 +196,8 @@ namespace geopm
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
             std::vector<struct geopm_sample_message_s> m_last_sample_msg;
             std::vector<uint64_t> m_region_id;
+            // Per rank vector counting number of entries into MPI.
+            std::vector<uint64_t> m_num_mpi_enter;
             uint64_t m_region_id_all;
             bool m_do_shutdown;
             bool m_is_connected;
@@ -207,8 +208,10 @@ namespace geopm
             int m_rank_per_node;
             double m_outer_sync_time;
             double m_mpi_sync_time;
+            double m_mpi_agg_time;
             bool m_is_outer_changed;
-            struct geopm_time_s m_mpi_enter_time;
+            // Per rank vector tracking time of last entry into MPI.
+            std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
     };

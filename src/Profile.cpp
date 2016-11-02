@@ -390,7 +390,7 @@ namespace geopm
         }
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
-            if (region_id != GEOPM_REGION_ID_MPI &&
+            if (!geopm_region_id_is_mpi(region_id) &&
                 geopm_env_do_region_barrier()) {
                 PMPI_Barrier(m_shm_comm);
             }
@@ -401,18 +401,20 @@ namespace geopm
         }
         // Allow nesting of one MPI region within a non-mpi region
         else if (m_curr_region_id &&
-                 m_curr_region_id != GEOPM_REGION_ID_MPI &&
-                 region_id == GEOPM_REGION_ID_MPI) {
+                 !geopm_region_id_is_mpi(m_curr_region_id) &&
+                 geopm_region_id_is_mpi(region_id)) {
             m_parent_num_enter = m_num_enter;
             m_num_enter = 0;
             m_parent_region = m_curr_region_id;
             m_parent_progress = m_progress;
-            m_curr_region_id = region_id;
+            m_curr_region_id = geopm_region_id_set_mpi(m_curr_region_id);
             m_progress = 0.0;
-            sample(region_id);
+            sample(m_curr_region_id);
         }
         // keep track of number of entries to account for nesting
-        if (m_curr_region_id == region_id) {
+        if (m_curr_region_id == region_id ||
+            (geopm_region_id_is_mpi(m_curr_region_id) &&
+             geopm_region_id_is_mpi(region_id))) {
             ++m_num_enter;
         }
     }
@@ -424,20 +426,22 @@ namespace geopm
         }
 
         // keep track of number of exits to account for nesting
-        if (m_curr_region_id == region_id) {
+        if (m_curr_region_id == region_id ||
+            (geopm_region_id_is_mpi(m_curr_region_id) &&
+             geopm_region_id_is_mpi(region_id))) {
             --m_num_enter;
         }
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
-            if (region_id != GEOPM_REGION_ID_MPI &&
+            if (!geopm_region_id_is_mpi(region_id) &&
                 geopm_env_do_region_barrier()) {
                 PMPI_Barrier(m_shm_comm);
             }
             m_progress = 1.0;
-            sample(region_id);
+            sample(m_curr_region_id);
             m_curr_region_id = 0;
             m_scheduler.clear();
-            if (region_id == GEOPM_REGION_ID_MPI) {
+            if (geopm_region_id_is_mpi(region_id)) {
                 m_curr_region_id = m_parent_region;
                 m_progress = m_parent_progress;
                 m_num_enter = m_parent_num_enter;

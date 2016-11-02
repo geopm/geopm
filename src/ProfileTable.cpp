@@ -121,10 +121,10 @@ namespace geopm
     size_t ProfileTable::hash(uint64_t key) const
     {
         size_t result = 0;
-        if (key == GEOPM_REGION_ID_MPI) {
+        if (geopm_region_id_is_mpi(key)) {
             result = m_mask + 1;
         }
-        else if (key == GEOPM_REGION_ID_OUTER) {
+        else if (geopm_region_id_is_outer(key)) {
             result = m_mask + 2;
         }
         else {
