@@ -109,18 +109,6 @@ namespace geopm
             /// @return Returns the 64 bit hash used to reference the
             ///         name in other ProfileTable methods.
             void insert(uint64_t key, const struct geopm_prof_message_s &value);
-            /// @brief Returns a copy of the data associated with the
-            ///        key.
-            ///
-            /// Used to access a specific element of data from the
-            /// table without deleting the entry.  If there is no data
-            /// associated with the key or the data has been deleted
-            /// by a call to dump() then a geopm::Exception is thrown
-            /// with an error_value() of GEOPM_ERROR_INVALID.
-            ///
-            /// @param [in] key The integer returned by key() when the
-            ///        name was registered.
-            struct geopm_prof_message_s find(uint64_t key);
             /// @brief Maximum number of entries the table can hold.
             ///
             /// Returns the upper bound on the number of values that
