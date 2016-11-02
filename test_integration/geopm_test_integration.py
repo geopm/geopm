@@ -51,8 +51,10 @@ class Report(dict):
         self._name = None
         self._total_runtime = None
         self._total_energy = None
+        self._total_mpi_runtime = None
         found_totals = False
         (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+        float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
             for line in fid:
@@ -69,19 +71,19 @@ class Report(dict):
                     if match is not None:
                         region_name = match.group(1)
                 elif runtime is None:
-                    match = re.search(r'^\s+runtime.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
                         runtime = float(match.group(1))
                 elif energy is None:
-                    match = re.search(r'^\s+energy.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+energy.+: ' + float_regex, line)
                     if match is not None:
                         energy = float(match.group(1))
                 elif frequency is None:
-                    match = re.search(r'^\s+frequency.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+frequency.+: ' + float_regex, line)
                     if match is not None:
                         frequency = float(match.group(1))
                 elif count is None:
-                    match = re.search(r'^\s+count: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
                         self[region_name] = Region(region_name, runtime, energy, frequency, count)
@@ -91,15 +93,21 @@ class Report(dict):
                     if match is not None:
                         found_totals = True
                 elif self._total_runtime is None:
-                    match = re.search(r'\s+runtime.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'\s+runtime.+: ' + float_regex, line)
                     if match is not None:
                         self._total_runtime = float(match.group(1))
                 elif self._total_energy is None:
-                    match = re.search(r'\s+energy.+: (\d*\.\d+|\d+)', line)
+                    match = re.search(r'\s+energy.+: ' + float_regex, line)
                     if match is not None:
                         self._total_energy = float(match.group(1))
+                elif self._total_mpi_runtime is None:
+                    match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
+                    if match is not None:
+                        self._total_mpi_runtime = float(match.group(1))
+                        print 'total-mpi-runtime = {runtime}'.format(runtime=self._total_mpi_runtime)
+
         if (region_name is not None or not found_totals or
-            None in (self._name, self._version, self._total_runtime, self._total_energy)):
+            None in (self._name, self._version, self._total_runtime, self._total_energy, self._total_mpi_runtime)):
             raise SyntaxError('Unable to parse file: ' + self._path)
 
     def get_name(self):
@@ -113,6 +121,9 @@ class Report(dict):
 
     def get_runtime(self):
         return self._total_runtime
+
+    def get_mpi_runtime(self):
+        return self._total_mpi_runtime
 
     def get_energy(self):
         return self._total_energy
@@ -306,6 +317,7 @@ class Launcher(object):
         result = {'LD_DYNAMIC_WEAK': 'true',
                   'OMP_NUM_THREADS' : str(self._num_thread),
                   'GEOPM_PMPI_CTL' : self._pmpi_ctl,
+                  'GEOPM_REGION_BARRIER' : 'true',
                   'GEOPM_REPORT' : self._report_path,
                   'GEOPM_POLICY' : self._ctl_conf.get_path()}
         if (self._trace_path):
@@ -314,7 +326,7 @@ class Launcher(object):
 
     def _exec_str(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        exec_path = os.path.join(script_dir, 'geopm_test_integration')
+        exec_path = os.path.join(script_dir, '.libs', 'geopm_test_integration --verbose')
         return ' '.join((self._libtool_option(),
                          self._mpiexec_option(),
                          self._num_node_option(),
@@ -336,7 +348,8 @@ class Launcher(object):
         return ''
 
     def _libtool_option(self):
-        return 'libtool --mode=execute'
+        #  return 'libtool --mode=execute'
+        return ''
 
     def _host_option(self):
         if self._host_file:
@@ -392,20 +405,20 @@ class TestReport(unittest.TestCase):
                          'leaf_decider': 'power_governing',
                          'platform' : 'rapl',
                          'power_budget' : 150}
-        self._epsilon = 0.05
         self._tmp_files = []
 
     def tearDown(self):
-        if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
-            for ff in self._tmp_files:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+        pass
+        #  if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
+        #      for ff in self._tmp_files:
+        #          try:
+        #              os.remove(ff)
+        #          except OSError:
+        #              pass
 
-    def assertNear(self, a, b):
-        if abs(a - b) / a >= self._epsilon:
-            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=self._epsilon))
+    def assertNear(self, a, b, epsilon=0.05):
+        if abs(a - b) / a >= epsilon:
+            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
 
     def test_report_generation(self):
         name = 'test_report_generation'
@@ -489,6 +502,42 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+
+    def test_runtime_nested(self):
+        name = 'test_runtime_nested'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 1
+        num_rank = 2
+        delay = 1.0
+        loop_count = 2
+        app_conf = AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('nested-progress', delay)
+        #  app_conf.append_region('nested-progress-imbalance', delay)
+        #  app_conf.append_imbalance('mr-fusion4', 0.95)
+        #  app_conf.append_imbalance('mr-fusion5', 0.15)
+        ctl_conf = CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = launcher_factory(app_conf, ctl_conf, report_path, trace_path=trace_path, time_limit=None)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        #  launcher.set_node_list(['mr-fusion4', 'mr-fusion5']) # Hack
+        launcher.run(name)
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [Report(rr) for rr in reports]
+        self.assertTrue(len(reports) == num_node)
+        for rr in reports:
+            print "Comparing theoretical max to spin runtime..."
+            self.assertNear(delay*loop_count*2, rr['spin'].get_runtime())
+            region_runtime = rr['spin'].get_runtime()
+            print "Comparing spin + mpi_time to outer-sync..."
+            self.assertNear(region_runtime, rr['outer-sync'].get_runtime(), epsilon=0.01)
+            self.assertGreater(rr.get_mpi_runtime(), 0)
+            self.assertGreater(0.1, rr.get_mpi_runtime())
+
 
     def test_progress(self):
         name = 'test_progress'
