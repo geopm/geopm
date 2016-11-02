@@ -79,7 +79,7 @@ int geopm_read_cpuid(void) {
     model = (proc_info & model_mask) >> 4;
     family = (proc_info & family_mask) >> 8;
     ext_model = (proc_info & extended_model_mask) >> 16;
-    ext_family = (proc_info & extended_family_mask)>> 20;
+    ext_family = (proc_info & extended_family_mask) >> 20;
 
     if (family == 6) {
         model+=(ext_model << 4);

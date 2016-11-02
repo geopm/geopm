@@ -76,24 +76,12 @@ void ProfileTableTest::overfill_small(void)
 TEST_F(ProfileTableTest, hello)
 {
     struct geopm_prof_message_s insert_message;
-    struct geopm_prof_message_s answer_message;
-    answer_message.progress = 0;
     insert_message.progress = 1.234;
     m_table->insert(1234, insert_message);
-    answer_message = m_table->find(1234);
-    EXPECT_EQ(1.234, answer_message.progress);
     insert_message.progress = 5.678;
     m_table->insert(5678, insert_message);
-    answer_message.progress = 0;
-    answer_message = m_table->find(1234);
-    EXPECT_EQ(1.234, answer_message.progress);
-    answer_message = m_table->find(5678);
-    EXPECT_EQ(5.678, answer_message.progress);
     insert_message.progress = 9.876;
     m_table->insert(5678, insert_message);
-    answer_message = m_table->find(5678);
-    EXPECT_EQ(9.876, answer_message.progress);
-    EXPECT_THROW(m_table->find(0), geopm::Exception);
     EXPECT_THROW(geopm::ProfileTable(0,NULL), geopm::Exception);
     uint64_t tmp[128];
     EXPECT_THROW(geopm::ProfileTable(1,tmp), geopm::Exception);
@@ -104,8 +92,6 @@ TEST_F(ProfileTableTest, hello)
     EXPECT_EQ(key0, key2);
     insert_message.progress = 1234.5;
     m_table->insert(key0, insert_message);
-    answer_message = m_table->find(key0);
-    EXPECT_EQ(1234.5, answer_message.progress);
     std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > contents(3);
     size_t length;
     m_table->dump(contents.begin(), length);
