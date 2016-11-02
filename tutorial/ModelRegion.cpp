@@ -84,6 +84,11 @@ namespace geopm
                   name[strlen("all2all")] == '-')) {
             result = new All2allModelRegion(big_o, verbosity, do_imbalance, do_progress);
         }
+        else if (name.find("nested") == 0 &&
+                 (name[strlen("nested")] == '\0' ||
+                  name[strlen("nested")] == '-')) {
+            result = new NestedModelRegion(big_o, verbosity, do_imbalance, do_progress);
+        }
         else {
             throw Exception("model_region_factory: unknown name: " + name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -527,6 +532,111 @@ namespace geopm
                 (void)imbalancer_exit();
             }
             (void)geopm_prof_exit(m_region_id);
+        }
+    }
+
+    NestedModelRegion::NestedModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress)
+        : ModelRegionBase(verbosity)
+        , m_spin_region(big_o_in, verbosity, do_imbalance, do_progress)
+        , m_all2all_region(big_o_in, verbosity, do_imbalance, do_progress)
+    {
+    }
+
+    NestedModelRegion::~NestedModelRegion()
+    {
+    }
+
+    void NestedModelRegion::big_o(double big_o_in)
+    {
+        m_spin_region.big_o(big_o_in);
+        m_all2all_region.big_o(big_o_in);
+    }
+
+    void NestedModelRegion::run(void)
+    {
+
+        if (m_spin_region.m_big_o != 0.0 && m_all2all_region.m_big_o != 0.0) {
+            (void)geopm_prof_outer_sync();
+        }
+
+        // Do spin
+        if (m_spin_region.m_big_o != 0.0) {
+            if (m_spin_region.m_verbosity) {
+                std::cout << "Executing " << m_spin_region.m_big_o << " second spin."  << std::endl << std::flush;
+            }
+            (void)geopm_prof_enter(m_spin_region.m_region_id);
+            for (uint64_t i = 0 ; i < m_spin_region.m_loop_count; ++i) {
+                if (m_spin_region.m_do_imbalance) {
+                    (void)imbalancer_enter();
+                }
+
+                double timeout = 0.0;
+                struct geopm_time_s start = {{0,0}};
+                struct geopm_time_s curr = {{0,0}};
+                (void)geopm_time(&start);
+                while (timeout < m_spin_region.m_delay) {
+                    (void)geopm_time(&curr);
+                    timeout = geopm_time_diff(&start, &curr);
+                }
+
+                if (m_spin_region.m_do_imbalance) {
+                    (void)imbalancer_exit();
+                }
+            }
+        }
+
+        // Do all2all before spin region exit
+        if (m_all2all_region.m_big_o != 0) {
+            if (m_all2all_region.m_verbosity) {
+                std::cout << "Executing " << m_all2all_region.m_num_send << " byte buffer all2all "
+                          << m_all2all_region.m_loop_count << " times."  << std::endl << std::flush;
+            }
+            for (uint64_t i = 0; i < m_all2all_region.m_loop_count; ++i) {
+                if (m_all2all_region.m_do_imbalance) {
+                    (void)imbalancer_enter();
+                }
+
+                int err = MPI_Alltoall(m_all2all_region.m_send_buffer, m_all2all_region.m_num_send,
+                                       MPI_CHAR, m_all2all_region.m_recv_buffer,
+                                       m_all2all_region.m_num_send, MPI_CHAR, MPI_COMM_WORLD);
+                if (err) {
+                    throw Exception("MPI_Alltoall()", err, __FILE__, __LINE__);
+                }
+                err = MPI_Barrier(MPI_COMM_WORLD);
+                if (err) {
+                    throw Exception("MPI_Barrier()", err, __FILE__, __LINE__);
+                }
+            }
+
+            if (m_all2all_region.m_do_imbalance) {
+                (void)imbalancer_exit();
+            }
+        }
+
+        // Do spin part deux.
+        if (m_spin_region.m_big_o != 0.0) {
+            if (m_spin_region.m_verbosity) {
+                std::cout << "Executing " << m_spin_region.m_big_o << " second spin #2."  << std::endl << std::flush;
+            }
+            for (uint64_t i = 0 ; i < m_spin_region.m_loop_count; ++i) {
+                if (m_spin_region.m_do_imbalance) {
+                    (void)imbalancer_enter();
+                }
+
+                double timeout = 0.0;
+                struct geopm_time_s start = {{0,0}};
+                struct geopm_time_s curr = {{0,0}};
+                (void)geopm_time(&start);
+                while (timeout < m_spin_region.m_delay) {
+                    (void)geopm_time(&curr);
+                    timeout = geopm_time_diff(&start, &curr);
+                }
+
+                if (m_spin_region.m_do_imbalance) {
+                    (void)imbalancer_exit();
+                }
+            }
+            (void)geopm_prof_exit(m_spin_region.m_region_id);
         }
     }
 }
