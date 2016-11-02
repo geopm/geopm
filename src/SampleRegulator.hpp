@@ -132,6 +132,7 @@ namespace geopm
                               std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
                               std::vector<double> &aligned_signal,
                               std::vector<uint64_t> &region_id);
+            std::map<int, int> &rank_idx_map(void);
         protected:
             /// @brief Insert ProfileSampler data.
             void insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,

@@ -47,7 +47,9 @@ int main(int argc, char **argv)
     const double imbalance = 0.10;
     const int rank_per_node = 8;
     const size_t clock_req_base = 100000000000;
-    int comm_size, comm_rank, local_rank;
+    int comm_size, comm_rank;
+    /// @todo: Lost find method.
+    /// int local_rank;
     uint64_t region_id;
     size_t clock_req, num_clock;
     double progress, time_delta, clock_freq;
@@ -61,7 +63,8 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
-    local_rank = comm_rank % rank_per_node;
+    /// @todo: Lost find method.
+    /// local_rank = comm_rank % rank_per_node;
 
     geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 5.0);
     geopm::ProfileTable table(shmem.size(), shmem.pointer());
@@ -77,7 +80,8 @@ int main(int argc, char **argv)
     while (num_clock < clock_req) {
         geopm_time(&curr_time);
         time_delta = geopm_time_diff(&last_time, &curr_time);
-        message = table.find(local_rank);
+        /// @todo: Lost find method.
+        /// message = table.find(local_rank);
         clock_freq = message.progress;
         num_clock += time_delta * clock_freq;
         progress = (double)num_clock / (double)clock_req;
