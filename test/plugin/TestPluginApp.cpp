@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     while (num_clock < clock_req) {
         geopm_time(&curr_time);
         time_delta = geopm_time_diff(&last_time, &curr_time);
-        message = table.find(local_rank);
+        //message = table.find(local_rank);
         clock_freq = message.progress;
         num_clock += time_delta * clock_freq;
         progress = (double)num_clock / (double)clock_req;

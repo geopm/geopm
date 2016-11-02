@@ -249,14 +249,8 @@ namespace geopm
             ///
             /// Called to derive a sample based on the profiling
             /// information collected.  This sample is posted to the
-            /// geopm::Controller through shared memory.  This call is
-            /// ignored when called within a nested region or passing
-            /// a region_id that does not match the current region.
-            ///
-            /// @param [in] region_id The identifier returned by
-            ///        Profile::region() when the region was
-            ///        registered.
-            void sample(uint64_t region_id);
+            /// geopm::Controller through shared memory.
+            void sample(void);
             /// @brief Print profile report to a file.
             ///
             /// Writes a profile report to a file with the given
