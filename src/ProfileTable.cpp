@@ -153,10 +153,6 @@ namespace geopm
                 is_stored = true;
             }
         }
-        err = pthread_mutex_unlock(&(m_table[table_idx].lock));
-        if (err) {
-            throw Exception("ProfileTable::insert(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
-        }
         if (!is_stored) {
             int entry_index = 0;
             // We have overflowed the table entry. Clear it out unless there is a region exit in
@@ -174,6 +170,10 @@ namespace geopm
             m_table[table_idx].key[entry_index] = key;
             m_table[table_idx].value[entry_index] = value;
             m_table[table_idx].key[entry_index + 1] = 0;
+        }
+        err = pthread_mutex_unlock(&(m_table[table_idx].lock));
+        if (err) {
+            throw Exception("ProfileTable::insert(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
         }
     }
 
