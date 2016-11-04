@@ -397,7 +397,7 @@ namespace geopm
             m_curr_region_id = region_id;
             m_num_enter = 0;
             m_progress = 0.0;
-            sample(region_id);
+            sample();
         }
         // Allow nesting of one MPI region within a non-mpi region
         else if (m_curr_region_id &&
@@ -409,7 +409,7 @@ namespace geopm
             m_parent_progress = m_progress;
             m_curr_region_id = geopm_region_id_set_mpi(m_curr_region_id);
             m_progress = 0.0;
-            sample(m_curr_region_id);
+            sample();
         }
         // keep track of number of entries to account for nesting
         if (m_curr_region_id == region_id ||
@@ -438,7 +438,7 @@ namespace geopm
                 PMPI_Barrier(m_shm_comm);
             }
             m_progress = 1.0;
-            sample(m_curr_region_id);
+            sample();
             m_curr_region_id = 0;
             m_scheduler.clear();
             if (geopm_region_id_is_mpi(region_id)) {
@@ -462,7 +462,7 @@ namespace geopm
             fraction > 0.0 && fraction < 1.0 &&
             m_scheduler.do_sample()) {
             m_progress = fraction;
-            sample(region_id);
+            sample();
             m_scheduler.record_exit();
         }
     }
@@ -484,20 +484,18 @@ namespace geopm
         }
     }
 
-    void Profile::sample(uint64_t region_id)
+    void Profile::sample(void)
     {
         if (!m_is_enabled) {
            return;
         }
 
-        if (region_id == m_curr_region_id) {
-            struct geopm_prof_message_s sample;
-            sample.rank = m_rank;
-            sample.region_id = region_id;
-            (void) geopm_time(&(sample.timestamp));
-            sample.progress = m_progress;
-            m_table->insert(region_id, sample);
-        }
+        struct geopm_prof_message_s sample;
+        sample.rank = m_rank;
+        sample.region_id = m_curr_region_id;
+        (void) geopm_time(&(sample.timestamp));
+        sample.progress = m_progress;
+        m_table->insert(m_curr_region_id, sample);
     }
 
     void Profile::disable(const std::string feature_name)
