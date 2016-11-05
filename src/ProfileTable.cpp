@@ -154,54 +154,55 @@ namespace geopm
             }
         }
         if (!is_stored) {
-            int entry_index = 0;
-            // We have overflowed the table entry. Clear it out unless there is a region exit in
-            // the first position, then save it. If there is an region enter in the last position,
-            // then copy it to the first open position, insert the current entry, and invalidate
-            // the rest of the entries.
-            if (m_table[table_idx].value[0].progress == 1.0) {
-                ++entry_index;
+            // Overwrite all sequential entry/exit pairs in array and
+            // move others to head of the array, then insert new value.
+            uint64_t *key_ptr = m_table[table_idx].key;
+            uint64_t *key_insert_ptr = m_table[table_idx].key;
+            struct geopm_prof_message_s *value_ptr = m_table[table_idx].value;
+            struct geopm_prof_message_s *value_insert_ptr = m_table[table_idx].value;
+            int i = 0;
+            while (i < M_TABLE_DEPTH_MAX - 1) {
+                if (key_ptr[0] == key_ptr[1] &&
+                    value_ptr[0].region_id == value_ptr[1].region_id &&
+                    value_ptr[0].progress == 0.0 &&
+                    value_ptr[1].progress == 1.0) {
+                    key_ptr += 2;
+                    value_ptr += 2;
+                    i += 2;
+                }
+                else {
+                    *key_insert_ptr = *key_ptr;
+                    ++key_insert_ptr;
+                    *value_insert_ptr = *value_ptr;
+                    ++value_insert_ptr;
+                    ++key_ptr;
+                    ++value_ptr;
+                    ++i;
+                }
             }
-            if (m_table[table_idx].value[M_TABLE_DEPTH_MAX - 1].progress == 0.0) {
-                m_table[table_idx].value[entry_index] = m_table[table_idx].value[M_TABLE_DEPTH_MAX - 1];
-                m_table[table_idx].key[entry_index] = m_table[table_idx].key[M_TABLE_DEPTH_MAX - 1];
-                ++entry_index;
+            if (i == M_TABLE_DEPTH_MAX - 1) {
+                *key_insert_ptr = *key_ptr;
+                *value_insert_ptr = *value_ptr;
+                ++key_insert_ptr;
+                ++value_insert_ptr;
             }
-            m_table[table_idx].key[entry_index] = key;
-            m_table[table_idx].value[entry_index] = value;
-            m_table[table_idx].key[entry_index + 1] = 0;
+
+            if (key_insert_ptr >= m_table[table_idx].key + M_TABLE_DEPTH_MAX - 1) {
+                throw Exception("ProfileTable::insert(): failed to compact table.",
+                                GEOPM_ERROR_TOO_MANY_COLLISIONS, __FILE__, __LINE__);
+            }
+            *key_insert_ptr = key;
+            *value_insert_ptr = value;
+            ++key_insert_ptr;
+            while (key_insert_ptr < m_table[table_idx].key + M_TABLE_DEPTH_MAX) {
+                *key_insert_ptr = 0;
+                ++key_insert_ptr;
+            }
         }
         err = pthread_mutex_unlock(&(m_table[table_idx].lock));
         if (err) {
             throw Exception("ProfileTable::insert(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
         }
-    }
-
-    struct geopm_prof_message_s ProfileTable::find(uint64_t key)
-    {
-        if (key == 0) {
-            throw Exception("ProfileTable::find(): zero is not a valid key", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        size_t table_idx = hash(key);
-        const struct geopm_prof_message_s *result_ptr = NULL;
-        int err = pthread_mutex_lock(&(m_table[table_idx].lock));
-        if (err) {
-            throw Exception("ProfileTable::find(): pthread_mutex_lock()", err, __FILE__, __LINE__);
-        }
-        for (size_t i = 0; i < M_TABLE_DEPTH_MAX; ++i) {
-            if (m_table[table_idx].key[i] == key) {
-                result_ptr = m_table[table_idx].value + i;
-                break;
-            }
-        }
-        err = pthread_mutex_unlock(&(m_table[table_idx].lock));
-        if (err) {
-            throw Exception("ProfileTable::find(): pthread_mutex_unlock()", err, __FILE__, __LINE__);
-        }
-        if (result_ptr == NULL) {
-            throw Exception("ProfileTable::find(): key not found", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return *result_ptr;
     }
 
     uint64_t ProfileTable::key(const std::string &name)
@@ -277,7 +278,7 @@ namespace geopm
             if (err) {
                 throw Exception("ProfileTable::dump(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
-            for (int depth = 0; depth < M_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
+            for (int depth = 0; depth != M_TABLE_DEPTH_MAX && m_table[table_idx].key[depth]; ++depth) {
                 content->first = m_table[table_idx].key[depth];
                 content->second = m_table[table_idx].value[depth];
                 m_table[table_idx].key[depth] = 0;
