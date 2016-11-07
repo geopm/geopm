@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_f2d549b7",
+        "filename": "ronn/geopmpolicy.1.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2016-11-07T21:10:14Z",
+      "side": 0,
+      "message": "This instance isn\u0027t referring to the framework name, but to a power management mode. Just referring to a mode that globally optimizes energy.",
+      "range": {
+        "startLine": 201,
+        "startChar": 36,
+        "endLine": 201,
+        "endChar": 62
+      },
+      "revId": "f8353b17c8dc76e9dae152e03ca503be9c84f0b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
