@@ -108,7 +108,7 @@ TEST_F(PolicyTest, region_id)
     EXPECT_EQ((uint64_t)13, id[0]);
     EXPECT_EQ((uint64_t)21, id[1]);
     EXPECT_EQ((uint64_t)42, id[2]);
-    EXPECT_EQ((uint64_t)GEOPM_REGION_ID_OUTER, id[3]);
+    EXPECT_EQ((uint64_t)GEOPM_REGION_ID_EPOCH, id[3]);
 }
 
 TEST_F(PolicyTest, mode)

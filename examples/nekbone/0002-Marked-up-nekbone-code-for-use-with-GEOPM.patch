@@ -86,7 +86,7 @@ index 5a8e6e2..474ed19 100644
        do iter=1,miter
 +#ifdef GEOPM
 +         if (thread == 0) then
-+             ierr = geopm_prof_outer_sync()
++             ierr = geopm_prof_epoch()
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_4'//c_null_char,
 +     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)

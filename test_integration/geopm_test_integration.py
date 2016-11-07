@@ -522,7 +522,7 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
             self.assertNear(delay*loop_count*2, rr['spin'].get_runtime())
-            self.assertNear(rr['spin'].get_runtime(), rr['outer-sync'].get_runtime(), epsilon=0.01)
+            self.assertNear(rr['spin'].get_runtime(), rr['epoch'].get_runtime(), epsilon=0.01)
             self.assertGreater(rr.get_mpi_runtime(), 0)
             self.assertGreater(0.1, rr.get_mpi_runtime())
 

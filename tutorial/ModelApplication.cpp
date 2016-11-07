@@ -231,7 +231,7 @@ namespace geopm
             for (auto it = m_region.begin(); it != m_region.end(); ++it) {
                 (*it)->run();
             }
-            (void)geopm_prof_outer_sync();
+            (void)geopm_prof_epoch();
             if (!m_rank) {
                 std::cout << "Iteration: " << i << "\r" << std::flush;
             }
