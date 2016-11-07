@@ -41,10 +41,10 @@ int main(int argc, char **argv)
                         "    Returns the geopm_hash() of the input string.\n"
                         "    this is useful for determining the region name\n"
                         "    from the region_id printed in the trace.\n"
-                        "    Note the mpi-sync and outer-sync regions have\n"
+                        "    Note the mpi-runtime and epoch regions have\n"
                         "    special region IDs:\n"
                         "        mpi-runtime: 4611686018427387904\n"
-                        "        outer-sync:  9223372036854775808\n\n";
+                        "        epoch:  9223372036854775808\n\n";
     if (argc == 1 ||
         strncmp("-h", argv[1], strlen("-h")) == 0 ||
         strncmp("--help", argv[1], strlen("--help")) == 0) {

@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     for (int i = 0; !err && i < num_iter; ++i) {
         err = tutorial_stream_profiled(stream_big_o, 0);
         if (!err) {
-            err = geopm_prof_outer_sync();
+            err = geopm_prof_epoch();
         }
         if (!err) {
             err = MPI_Barrier(MPI_COMM_WORLD);

@@ -185,7 +185,7 @@ namespace geopm
         , m_control_rate_limit(0.0)
         , m_sample_rate_limit(0.001)
         , m_rank_per_node(0)
-        , m_outer_sync_time(0.0)
+        , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
         , m_mpi_agg_time(0.0)
         , m_is_outer_changed(false)
@@ -572,7 +572,7 @@ namespace geopm
 
                 std::vector<double> aligned_signal;
                 bool is_outer_found = false;
-                // Catch outer sync regions and region entries
+                // Catch epoch regions and region entries
                 for (auto sample_it = m_prof_sample.cbegin();
                      sample_it != m_prof_sample.cbegin() + length;
                      ++sample_it) {
@@ -636,14 +636,14 @@ namespace geopm
                     m_region_id_all = 0;
                     std::fill(m_region_id.begin(), m_region_id.end(), 0);
                     if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                        update_epoch(outer_telemetry_sample);
                     }
                 }
                 // Entering a region from unmarked code
                 else if (!geopm_region_id_unset_mpi(m_region_id_all) &&
                          geopm_region_id_unset_mpi(region_id_all)) {
                     if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                        update_epoch(outer_telemetry_sample);
                     }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
@@ -657,7 +657,7 @@ namespace geopm
                     override_telemetry(1.0);
                     update_region();
                     if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                        update_epoch(outer_telemetry_sample);
                     }
                     m_region_id_all = region_id_all;
                     if (geopm_region_id_is_mpi(region_id_all)) {
@@ -670,7 +670,7 @@ namespace geopm
                 // No entries or exits
                 else {
                     if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                        update_epoch(outer_telemetry_sample);
                     }
                     update_region();
                 }
@@ -679,11 +679,11 @@ namespace geopm
                 struct geopm_sample_message_s outer_sample;
                 auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
                 (*outer_it).second->sample_message(outer_sample);
-                // Subtract mpi syncronization time from outer-sync
-                if (outer_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_outer_sync_time &&
+                // Subtract mpi syncronization time from epoch
+                if (outer_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_epoch_time &&
                     m_policy[level]->is_converged(m_region_id_all)) {
                     sample_msg[level] = outer_sample;
-                    m_outer_sync_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                    m_epoch_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                     m_is_outer_changed = true;
                     sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_mpi_sync_time;
                 }
@@ -706,7 +706,7 @@ namespace geopm
         }
     }
 
-    void Controller::update_outer_sync(std::vector<struct geopm_telemetry_message_s> &telemetry)
+    void Controller::update_epoch(std::vector<struct geopm_telemetry_message_s> &telemetry)
     {
         static bool is_in_outer = false;
         uint64_t region_id_all_tmp = m_region_id_all;
@@ -818,7 +818,7 @@ namespace geopm
             uint64_t region_id = (*it).first;
             std::string name;
             if (region_id == GEOPM_REGION_ID_OUTER) {
-                name = "outer-sync";
+                name = "epoch";
             }
             else if (region_id == 0) {
                 name = "unmarked region";

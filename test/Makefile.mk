@@ -135,7 +135,7 @@ GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPIProfileTest.progress \
                test/gtest_links/MPIProfileTest.multiple_entries \
                test/gtest_links/MPIProfileTest.nested_region \
-               test/gtest_links/MPIProfileTest.outer_sync \
+               test/gtest_links/MPIProfileTest.epoch \
                test/gtest_links/MPIProfileTest.noctl \
                test/gtest_links/MPIControllerDeathTest.shm_clean_up \
                # end

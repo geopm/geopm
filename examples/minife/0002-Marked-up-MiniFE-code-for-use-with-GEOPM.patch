@@ -167,7 +167,7 @@ index ee7ba93..1a88507 100644
    for(LocalOrdinalType k=1; k <= max_iter && normr > tolerance; ++k) {
  
 +#ifndef NO_GEOPM
-+geopm_prof_outer_sync();
++geopm_prof_epoch();
 +#endif
      if (k == 1) {
 +// Phase 3: WAXPBY: Sums two scaled vectors into a vector (OpenMP within rank)

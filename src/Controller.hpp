@@ -173,7 +173,7 @@ namespace geopm
             void walk_up(void);
             void override_telemetry(double progress);
             void update_region(void);
-            void update_outer_sync(std::vector<struct geopm_telemetry_message_s> &telemetry);
+            void update_epoch(std::vector<struct geopm_telemetry_message_s> &telemetry);
             bool m_is_node_root;
             int m_max_fanout;
             std::vector<int> m_fan_out;
@@ -206,7 +206,7 @@ namespace geopm
             struct geopm_time_s m_control_loop_t0;
             struct geopm_time_s m_sample_loop_t0;
             int m_rank_per_node;
-            double m_outer_sync_time;
+            double m_epoch_time;
             double m_mpi_sync_time;
             double m_mpi_agg_time;
             bool m_is_outer_changed;
