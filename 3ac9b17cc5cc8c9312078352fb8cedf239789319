@@ -42,6 +42,40 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_123f8db6",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-07T18:28:35Z",
+      "side": 1,
+      "message": "Get rid of _libtool_option() entirely.",
+      "revId": "3ac9b17cc5cc8c9312078352fb8cedf239789319",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_d25fe50d",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-07T18:28:35Z",
+      "side": 1,
+      "message": "get rid of commented code.",
+      "revId": "3ac9b17cc5cc8c9312078352fb8cedf239789319",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_f7aadb19",
         "filename": "tutorial/ModelRegion.cpp",
         "patchSetId": 7
@@ -76,6 +110,30 @@
       "writtenOn": "2016-11-07T17:46:55Z",
       "side": 1,
       "message": "Delete?",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 568,
+        "endChar": 20
+      },
+      "revId": "3ac9b17cc5cc8c9312078352fb8cedf239789319",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_52a2b5fd",
+        "filename": "tutorial/ModelRegion.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-07T18:28:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baa041b7_17ae5f2f",
       "range": {
         "startLine": 566,
         "startChar": 16,
