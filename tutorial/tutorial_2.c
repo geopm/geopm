@@ -127,7 +127,7 @@ int main(int argc, char **argv)
             err = geopm_prof_exit(stream_rid);
         }
         if (!err) {
-            err = geopm_prof_outer_sync();
+            err = geopm_prof_epoch();
         }
         if (!err) {
             err = geopm_prof_enter(all2all_rid);

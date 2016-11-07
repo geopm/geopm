@@ -554,11 +554,9 @@ namespace geopm
 
     void NestedModelRegion::run(void)
     {
-
         if (m_spin_region.m_big_o != 0.0 && m_all2all_region.m_big_o != 0.0) {
-            (void)geopm_prof_outer_sync();
+            (void)geopm_prof_epoch();
         }
-
         // Do spin
         if (m_spin_region.m_big_o != 0.0) {
             if (m_spin_region.m_verbosity) {

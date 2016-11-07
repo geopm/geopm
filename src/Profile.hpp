@@ -107,7 +107,7 @@ namespace geopm
     /// which synchronizes periodically the user can alleviate load
     /// imbalance on larger time scales than the regions provide.
     /// This is done by marking the end of the outer most loop, or the
-    /// "outer synchronization point."
+    /// "epoch."
     ///
     /// The Profile class is the C++ implementation of the
     /// computational application side interface to the GEOPM
@@ -214,16 +214,15 @@ namespace geopm
             ///        normalized to be between 0.0 and 1.0 (zero on
             ///        entry one on completion).
             void progress(uint64_t region_id, double fraction);
-            /// @brief Signal entry to global barrier.
+            /// @brief Signal pass through outer loop.
             ///
-            /// Called just prior to the highest level global
-            /// synchronization point in an application. This occurs
-            /// in the application's outermost loop in an iterative
-            /// algorithm just prior to the last synchronizing MPI
-            /// call.  There should be just one place in an
-            /// application code where this call occurs, and it should
-            /// be called repeatedly inside of a loop.
-            void outer_sync(void);
+            /// Called once for each pass through the outer most
+            /// computational loop executed by the application.  This
+            /// function call should occur exactly once in the
+            /// application source at the beginning of the loop that
+            /// encapsulates the primary computational region of the
+            /// application.
+            void epoch(void);
             /// @brief Disable a data collection feature.
             ///
             /// Called at application start up to disable a profiling
@@ -310,7 +309,7 @@ namespace geopm
             int m_rank;
             /// @brief The process's rank in m_shm_comm.
             int m_shm_rank;
-            /// @brief Tracks the first call to outer_sync.
+            /// @brief Tracks the first call to epoch.
             bool m_is_first_sync;
             uint64_t m_parent_region;
             double m_parent_progress;
@@ -390,7 +389,7 @@ namespace geopm
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
-            struct geopm_prof_message_s m_outer_sync_entry;
+            struct geopm_prof_message_s m_epoch_entry;
             /// Holds the profile name string.
             std::string m_prof_name;
             /// Holds the file name for the post-process report.

@@ -133,7 +133,7 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
         std::string line;
         double curr_value = -1.0;
         double value = 0.0;
-        double outer_sync_value = 0.0;
+        double epoch_value = 0.0;
         double mpi_value = 0.0;
         double startup_value = 0.0;
 
@@ -152,11 +152,11 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
             else if (line.find("Region loop_three:") == 0) {
                 curr_value = check_val[2];
             }
-            else if (line.find("Region outer-sync:") == 0) {
+            else if (line.find("Region epoch:") == 0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &outer_sync_value));
+                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &epoch_value));
             }
-            else if (line.find("Region mpi-sync:") == 0) {
+            else if (line.find("Region mpi-sync:") == 0) { /// @todo: parser needs to be updated
                 std::getline(log, line);
                 ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value));
             }
@@ -171,9 +171,9 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
             }
         }
 
-        if (outer_sync_value != 0.0 && mpi_value != 0.0) {
-            double outer_sync_target = std::accumulate(check_val.begin(), check_val.end(), startup_value + mpi_value);
-            ASSERT_NEAR(outer_sync_target, outer_sync_value, m_epsilon);
+        if (epoch_value != 0.0 && mpi_value != 0.0) {
+            double epoch_target = std::accumulate(check_val.begin(), check_val.end(), startup_value + mpi_value);
+            ASSERT_NEAR(epoch_target, epoch_value, m_epsilon);
         }
 
         log.close();
@@ -395,7 +395,7 @@ TEST_F(MPIProfileTest, nested_region)
     parse_log(m_check_val_single);
 }
 
-TEST_F(MPIProfileTest, outer_sync)
+TEST_F(MPIProfileTest, epoch)
 {
     uint64_t region_id[4];
     int rank;
@@ -403,7 +403,7 @@ TEST_F(MPIProfileTest, outer_sync)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     for (int i = 0; i < 3; i++) {
-        ASSERT_EQ(0, geopm_prof_outer_sync());
+        ASSERT_EQ(0, geopm_prof_epoch());
 
         ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
         ASSERT_EQ(0, geopm_prof_enter(region_id[0]));

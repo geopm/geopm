@@ -273,10 +273,10 @@ namespace geopm
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] /
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] :
                                                0.0) << std::endl;
-        // For outer-sync, remove two counts: one for startup call and
+        // For epoch, remove two counts: one for startup call and
         // one for shutdown call. For other regions normalize by
         // number of ranks per node since each rank reports enry
-        // (unlike outer-sync which reports once per node).
+        // (unlike epoch which reports once per node).
         file_stream << "\tcount: " << (m_identifier != GEOPM_REGION_ID_OUTER ?
                                        (double)m_num_entry / num_rank_per_node :
                                        m_num_entry) << std::endl;
