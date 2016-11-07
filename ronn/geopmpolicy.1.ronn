@@ -198,15 +198,15 @@ modifying the behavior of the mode by matching key strings to value strings.
     $ geopmpolicy -c -f geopm.conf -m tdp_balance_static \ <br>
     -d tdp_percent:75
 
-  * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts::
+  * Create a configuration file for GEOPM with a per-node power budget of 300 Watts::
     $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
     -d power_budget:300
 
-  * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts and use a custom platform plugin::
+  * Create a configuration file for GEOPM with a per-node power budget of 300 Watts and use a custom platform plugin::
     $ geopmpolicy -c -f geopm.conf -m perf_balance_dynamic \ <br>
     -d power_budget:300,platform:broadwell_platform
 
-  * Create a configuration file for global energy optimization with a per-node power budget of 300 Watts and use custom decider plugins::
+  * Create a configuration file for GEOPM with a per-node power budget of 300 Watts and use custom decider plugins::
     $ geopmpolicy -c -f geopm.conf -m dynamic \ <br>
     -d power_budget:300,tree_decider:uniform_frequency,leaf_decider:max_efficiency
 
