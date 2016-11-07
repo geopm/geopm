@@ -14,7 +14,7 @@
 - Modified report to include geopm version.
 - Added accounting in report for the number of entries into each region.
 - Added reporting of application totals.
-- Refined how the geopm_outer_sync() API works.
+- Refined how the geopm_prof_outer_sync() API works and renamed interface geopm_prof_epoch().
 - Added a --disable-doc configuration option for systems without ronn.
 - Changed default shmem key base from "geopm_default" to "geopm-shm".
 - Enabled GEOPM profiling without application modification through LD_PRELOAD.
@@ -37,7 +37,7 @@
 - Allowed GoverningDecider to "unconverge."
 - Added separate throttling times for sampling and control.
 - Moved LockingHashTable template to a non-template implementation.
-- Added distinct entries in profile table for MPI and outer_sync events.
+- Added distinct entries in profile table for MPI and epoch events.
 - Switched to one sided communication (MPI_Put/MPI_Get) for passing samples up.
 - When a new policy is received at the leaf it is enforced immediately.
 - Modified implementation to unlink shared memory regions as soon as all users have attached.

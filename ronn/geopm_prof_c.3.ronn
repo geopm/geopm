@@ -52,7 +52,7 @@ geopm_prof_c(3) -- geopm application profiling structure
     `uint64_t` _region_id_, <br>
     `double` _fraction_);
 
-  * `int geopm_prof_outer_sync(`:
+  * `int geopm_prof_epoch(`:
     `void);
 
   * `int geopm_prof_disable(`:
@@ -94,7 +94,7 @@ under the assumption that the region is bulk synchronous.  Under the
 assumption that the application employs an iterative algorithm which
 synchronizes periodically the user can alleviate load imbalance on
 larger time scales than the regions provide.  This is done by marking
-the end of the outer most loop, or the "outer synchronization point."
+the end of the outer most loop, or the "epoch."
 
   * `geopm_prof_region`():
     registers an application region.  The _region_name_ and
@@ -133,13 +133,12 @@ the end of the outer most loop, or the "outer synchronization point."
     call to geopm_prof_prof_enter() which was not nested, then this
     call is ignored and an error code is returned.
 
-  * `geopm_prof_outer_sync`():
-    is called just prior to the highest level global synchronization
-    point in an application.  This occurs in the application's
-    outermost loop in an iterative algorithm just prior to the last
-    synchronizing MPI call.  There should be just one place in an
-    application code where this call occurs, and it should be called
-    repeatedly inside of a loop.
+  * `geopm_prof_epoch`():
+    is called once for each pass through the outer most computational
+    loop executed by the application.  This function call should occur
+    exactly once in the application source at the beginning of the loop
+    that encapsulates the primary computational region of the
+    application.
 
   * `geopm_prof_disable`():
     is called at application start up to disable a profiling feature.

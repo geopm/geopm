@@ -133,11 +133,11 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_outer_sync(void)
+    int geopm_prof_epoch(void)
     {
         int err = 0;
         try {
-            geopm_default_prof().outer_sync();
+            geopm_default_prof().epoch();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -467,7 +467,7 @@ namespace geopm
         }
     }
 
-    void Profile::outer_sync(void)
+    void Profile::epoch(void)
     {
         if (!m_is_enabled) {
            return;

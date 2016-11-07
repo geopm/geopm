@@ -88,7 +88,7 @@ int geopm_prof_exit(uint64_t region_id);
 int geopm_prof_progress(uint64_t region_id,
                         double fraction);
 
-int geopm_prof_outer_sync(void);
+int geopm_prof_epoch(void);
 
 int geopm_prof_disable(const char *feature_name);
 
