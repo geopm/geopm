@@ -235,7 +235,7 @@
       if (timers_enabled) call timer_stop(T_fft)
 
       do iter = 1, niter
-         ierr = geopm_prof_outer_sync()
+         ierr = geopm_prof_epoch()
          if (timers_enabled) call timer_start(T_evolve)
          call evolve(u0, u1, twiddle, dims(1,1), dims(2,1), dims(3,1))
          if (timers_enabled) call timer_stop(T_evolve)

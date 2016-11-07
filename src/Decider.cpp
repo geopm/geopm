@@ -61,13 +61,13 @@ namespace geopm
     {
         bool result = false;
         if (policy.power_budget != m_last_power_budget) {
-            curr_policy.is_converged(GEOPM_REGION_ID_OUTER, false);
+            curr_policy.is_converged(GEOPM_REGION_ID_EPOCH, false);
             int num_domain = curr_policy.num_domain();
             // Split the budget up evenly to start.
             double split_budget = policy.power_budget / num_domain;
             std::vector<double> domain_budget(num_domain);
             std::fill(domain_budget.begin(), domain_budget.end(), split_budget);
-            curr_policy.update(GEOPM_REGION_ID_OUTER, domain_budget);
+            curr_policy.update(GEOPM_REGION_ID_EPOCH, domain_budget);
             m_last_power_budget = policy.power_budget;
             result = true;
         }

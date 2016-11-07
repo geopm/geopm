@@ -108,15 +108,15 @@ namespace geopm
     {
         bool result = false;
         if (policy_msg.power_budget != m_last_power_budget) {
-            curr_policy.is_converged(GEOPM_REGION_ID_OUTER, false);
+            curr_policy.is_converged(GEOPM_REGION_ID_EPOCH, false);
             int num_domain = curr_policy.num_domain();
             if (m_last_power_budget != DBL_MIN) {
                 // Split the budget up by the same ratio we split the old budget.
                 for (int i = 0; i < num_domain; ++i) {
                     double curr_target;
-                    curr_policy.target(GEOPM_REGION_ID_OUTER, i, curr_target);
+                    curr_policy.target(GEOPM_REGION_ID_EPOCH, i, curr_target);
                     double split_budget = policy_msg.power_budget * (curr_target / m_last_power_budget);
-                    curr_policy.update(GEOPM_REGION_ID_OUTER, i, split_budget);
+                    curr_policy.update(GEOPM_REGION_ID_EPOCH, i, split_budget);
                 }
             }
             else {
@@ -124,7 +124,7 @@ namespace geopm
                 double split_budget = policy_msg.power_budget / num_domain;
                 std::vector<double> domain_budget(num_domain);
                 std::fill(domain_budget.begin(), domain_budget.end(), split_budget);
-                curr_policy.update(GEOPM_REGION_ID_OUTER, domain_budget);
+                curr_policy.update(GEOPM_REGION_ID_EPOCH, domain_budget);
             }
             m_last_power_budget = policy_msg.power_budget;
             result = true;
@@ -159,7 +159,7 @@ namespace geopm
                 for (auto iter = runtime.begin(); iter != runtime.end(); ++iter) {
                     double median;
                     double curr_target;
-                    curr_policy.target(GEOPM_REGION_ID_OUTER, (*iter).first, curr_target);
+                    curr_policy.target(GEOPM_REGION_ID_EPOCH, (*iter).first, curr_target);
                     double last_percentage = curr_target / m_last_power_budget;
                     median = curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME);
                     percentage[(*iter).first] = (((mean * m_slope_modifier) + median) * last_percentage) / sum;
@@ -181,7 +181,7 @@ namespace geopm
                         for (auto it = (iter + 1); it != runtime.end(); ++it) {
                             double median;
                             double curr_target;
-                            curr_policy.target(GEOPM_REGION_ID_OUTER, (*it).first, curr_target);
+                            curr_policy.target(GEOPM_REGION_ID_EPOCH, (*it).first, curr_target);
                             double last_percentage = curr_target / m_last_power_budget;
                             median = curr_region.median((*it).first, GEOPM_SAMPLE_TYPE_RUNTIME);
                             percentage[(*it).first] = (((mean * m_slope_modifier) + median) * last_percentage) / sum;
@@ -192,7 +192,7 @@ namespace geopm
                         power_sum += target;
                         runtime_sum += curr_region.median((*iter).first, GEOPM_SAMPLE_TYPE_RUNTIME);
                     }
-                    curr_policy.update(GEOPM_REGION_ID_OUTER, (*iter).first, target);
+                    curr_policy.update(GEOPM_REGION_ID_EPOCH, (*iter).first, target);
                 }
                 // clear out stale sample data
                 curr_region.clear();

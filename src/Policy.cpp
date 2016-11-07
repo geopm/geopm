@@ -78,7 +78,7 @@ namespace geopm
         , m_num_domain(num_domain)
     {
         //Add the default unmarked region
-        (void) region_policy(GEOPM_REGION_ID_OUTER);
+        (void) region_policy(GEOPM_REGION_ID_EPOCH);
     }
 
     Policy::~Policy()
@@ -102,7 +102,7 @@ namespace geopm
             m_region_policy.insert(std::pair<uint64_t, RegionPolicy *>(region_id, result));
             // Give the new region the global power targets
             std::vector<double> budget(m_num_domain);
-            target(GEOPM_REGION_ID_OUTER, budget);
+            target(GEOPM_REGION_ID_EPOCH, budget);
             update(region_id, budget);
         }
         else {

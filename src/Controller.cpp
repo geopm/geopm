@@ -185,10 +185,10 @@ namespace geopm
         , m_control_rate_limit(0.0)
         , m_sample_rate_limit(0.001)
         , m_rank_per_node(0)
-        , m_outer_sync_time(0.0)
+        , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
         , m_mpi_agg_time(0.0)
-        , m_is_outer_changed(false)
+        , m_is_epoch_changed(false)
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
     {
@@ -323,8 +323,8 @@ namespace geopm
                 m_tree_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
                 m_tree_decider[level]->bound(upper_bound, lower_bound);
                 m_region[level].insert(std::pair<uint64_t, Region *>
-                                       (GEOPM_REGION_ID_OUTER,
-                                        new Region(GEOPM_REGION_ID_OUTER,
+                                       (GEOPM_REGION_ID_EPOCH,
+                                        new Region(GEOPM_REGION_ID_EPOCH,
                                                    GEOPM_POLICY_HINT_UNKNOWN,
                                                    num_domain,
                                                    level)));
@@ -471,7 +471,7 @@ namespace geopm
         for (; policy_msg.mode != GEOPM_POLICY_MODE_SHUTDOWN && level != 0; --level) {
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_tree_decider[level]->update_policy(policy_msg, *(m_policy[level]));
-                m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER, policy_msg, child_policy_msg);
+                m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, policy_msg, child_policy_msg);
                 m_tree_comm->send_policy(level - 1, child_policy_msg);
                 m_last_policy_msg[level] = policy_msg;
             }
@@ -496,7 +496,7 @@ namespace geopm
         std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
         std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
-        std::vector<struct geopm_telemetry_message_s> outer_telemetry_sample(m_telemetry_sample.size());
+        std::vector<struct geopm_telemetry_message_s> epoch_telemetry_sample(m_telemetry_sample.size());
         size_t length;
         struct geopm_time_s sample_loop_t1;
 
@@ -516,7 +516,7 @@ namespace geopm
                     auto it = m_region[level].begin();
                     (*it).second->insert(child_sample);
                     if (m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]))) {
-                       m_policy[level]->policy_message(GEOPM_REGION_ID_OUTER, m_last_policy_msg[level], child_policy_msg);
+                       m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, m_last_policy_msg[level], child_policy_msg);
                        m_tree_comm->send_policy(level - 1, child_policy_msg);
                     }
                     (*it).second->sample_message(sample_msg[level]);
@@ -571,8 +571,8 @@ namespace geopm
                 }
 
                 std::vector<double> aligned_signal;
-                bool is_outer_found = false;
-                // Catch outer sync regions and region entries
+                bool is_epoch_found = false;
+                // Catch epoch regions and region entries
                 for (auto sample_it = m_prof_sample.cbegin();
                      sample_it != m_prof_sample.cbegin() + length;
                      ++sample_it) {
@@ -590,17 +590,17 @@ namespace geopm
                             }
                             (*region_it).second->entry();
                         }
-                        if (!is_outer_found &&
-                            geopm_region_id_is_outer((*sample_it).second.region_id)) {
+                        if (!is_epoch_found &&
+                            geopm_region_id_is_epoch((*sample_it).second.region_id)) {
                             uint64_t region_id_all_tmp = m_region_id_all;
-                            m_region_id_all = GEOPM_REGION_ID_OUTER;
+                            m_region_id_all = GEOPM_REGION_ID_EPOCH;
                             (*m_sample_regulator)(m_msr_sample[0].timestamp,
                                                   platform_sample.cbegin(), platform_sample.cend(),
                                                   m_prof_sample.cbegin(), m_prof_sample.cbegin(),
                                                   aligned_signal,
                                                   m_region_id);
-                            m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, outer_telemetry_sample);
-                            is_outer_found = true;
+                            m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, epoch_telemetry_sample);
+                            is_epoch_found = true;
                             m_region_id_all = region_id_all_tmp;
                         }
                     }
@@ -635,15 +635,15 @@ namespace geopm
                     update_region();
                     m_region_id_all = 0;
                     std::fill(m_region_id.begin(), m_region_id.end(), 0);
-                    if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                    if (is_epoch_found) {
+                        update_epoch(epoch_telemetry_sample);
                     }
                 }
                 // Entering a region from unmarked code
                 else if (!geopm_region_id_unset_mpi(m_region_id_all) &&
                          geopm_region_id_unset_mpi(region_id_all)) {
-                    if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                    if (is_epoch_found) {
+                        update_epoch(epoch_telemetry_sample);
                     }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
@@ -656,8 +656,8 @@ namespace geopm
                          geopm_region_id_unset_mpi(region_id_all)) {
                     override_telemetry(1.0);
                     update_region();
-                    if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                    if (is_epoch_found) {
+                        update_epoch(epoch_telemetry_sample);
                     }
                     m_region_id_all = region_id_all;
                     if (geopm_region_id_is_mpi(region_id_all)) {
@@ -669,25 +669,25 @@ namespace geopm
                 }
                 // No entries or exits
                 else {
-                    if (is_outer_found) {
-                        update_outer_sync(outer_telemetry_sample);
+                    if (is_epoch_found) {
+                        update_epoch(epoch_telemetry_sample);
                     }
                     update_region();
                 }
 
-                // GEOPM_REGION_ID_OUTER is inserted at construction
-                struct geopm_sample_message_s outer_sample;
-                auto outer_it = m_region[level].find(GEOPM_REGION_ID_OUTER);
-                (*outer_it).second->sample_message(outer_sample);
-                // Subtract mpi syncronization time from outer-sync
-                if (outer_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_outer_sync_time &&
+                // GEOPM_REGION_ID_EPOCH is inserted at construction
+                struct geopm_sample_message_s epoch_sample;
+                auto epoch_it = m_region[level].find(GEOPM_REGION_ID_EPOCH);
+                (*epoch_it).second->sample_message(epoch_sample);
+                // Subtract mpi syncronization time from epoch
+                if (epoch_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_epoch_time &&
                     m_policy[level]->is_converged(m_region_id_all)) {
-                    sample_msg[level] = outer_sample;
-                    m_outer_sync_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
-                    m_is_outer_changed = true;
+                    sample_msg[level] = epoch_sample;
+                    m_epoch_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+                    m_is_epoch_changed = true;
                     sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_mpi_sync_time;
                 }
-                if (is_outer_found) {
+                if (is_epoch_found) {
                     m_mpi_agg_time += m_mpi_sync_time;
                     m_mpi_sync_time = 0.0;
                 }
@@ -695,10 +695,10 @@ namespace geopm
             }
             if (level != m_tree_comm->root_level() &&
                 m_policy[level]->is_converged(m_region_id_all) &&
-                m_is_outer_changed) {
+                m_is_epoch_changed) {
                 m_tree_comm->send_sample(level, sample_msg[level]);
                 m_last_sample_msg[level] = sample_msg[level];
-                m_is_outer_changed = false;
+                m_is_epoch_changed = false;
             }
         }
         if (m_do_shutdown && m_sampler->do_report()) {
@@ -706,17 +706,17 @@ namespace geopm
         }
     }
 
-    void Controller::update_outer_sync(std::vector<struct geopm_telemetry_message_s> &telemetry)
+    void Controller::update_epoch(std::vector<struct geopm_telemetry_message_s> &telemetry)
     {
-        static bool is_in_outer = false;
+        static bool is_in_epoch = false;
         uint64_t region_id_all_tmp = m_region_id_all;
-        m_region_id_all = GEOPM_REGION_ID_OUTER;
+        m_region_id_all = GEOPM_REGION_ID_EPOCH;
         m_telemetry_sample.swap(telemetry);
-        if (is_in_outer) {
+        if (is_in_epoch) {
             override_telemetry(1.0);
             update_region();
         }
-        is_in_outer = true;
+        is_in_epoch = true;
         override_telemetry(0.0);
         update_region();
         m_region_id_all = region_id_all_tmp;
@@ -760,7 +760,7 @@ namespace geopm
 
             geopm_time(&control_loop_t1);
             if (geopm_time_diff(&m_control_loop_t0, &control_loop_t1) >= m_control_rate_limit &&
-                !geopm_region_id_is_outer(region_id) &&
+                !geopm_region_id_is_epoch(region_id) &&
                 m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
                 m_platform->enforce_policy(region_id, *curr_policy);
                 m_control_loop_t0 = control_loop_t1;
@@ -774,8 +774,8 @@ namespace geopm
             return;
         }
 
-        if ((*(m_region[0].find(GEOPM_REGION_ID_OUTER))).second->num_entry()) {
-            m_region_id_all = GEOPM_REGION_ID_OUTER;
+        if ((*(m_region[0].find(GEOPM_REGION_ID_EPOCH))).second->num_entry()) {
+            m_region_id_all = GEOPM_REGION_ID_EPOCH;
             override_telemetry(1.0);
             update_region();
         }
@@ -817,8 +817,8 @@ namespace geopm
         for (auto it = m_region[0].begin(); it != m_region[0].end(); ++it) {
             uint64_t region_id = (*it).first;
             std::string name;
-            if (region_id == GEOPM_REGION_ID_OUTER) {
-                name = "outer-sync";
+            if (region_id == GEOPM_REGION_ID_EPOCH) {
+                name = "epoch";
             }
             else if (region_id == 0) {
                 name = "unmarked region";

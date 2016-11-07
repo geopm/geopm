@@ -129,7 +129,7 @@ namespace geopm
 
             std::vector<double> limit(num_domain);
             std::vector<double> target(num_domain);
-            curr_policy.target(GEOPM_REGION_ID_OUTER, limit);
+            curr_policy.target(GEOPM_REGION_ID_EPOCH, limit);
             curr_policy.target(region_id, target);
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);

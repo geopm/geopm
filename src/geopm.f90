@@ -131,11 +131,11 @@ module geopm
             real(kind=c_double), value, intent(in) :: fraction
         end function geopm_prof_progress
 
-        !> @brief Fortran interface to geopm_prof_outer_sync C function.
-        integer(kind=c_int) function geopm_prof_outer_sync() bind(C)
+        !> @brief Fortran interface to geopm_prof_epoch C function.
+        integer(kind=c_int) function geopm_prof_epoch() bind(C)
             import
             implicit none
-        end function geopm_prof_outer_sync
+        end function geopm_prof_epoch
 
         !> @brief Fortran interface to geopm_prof_disable C function.
         integer(kind=c_int) function geopm_prof_disable(feature_name) bind(C)

@@ -133,11 +133,11 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_outer_sync(void)
+    int geopm_prof_epoch(void)
     {
         int err = 0;
         try {
-            geopm_default_prof().outer_sync();
+            geopm_default_prof().epoch();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -467,7 +467,7 @@ namespace geopm
         }
     }
 
-    void Profile::outer_sync(void)
+    void Profile::epoch(void)
     {
         if (!m_is_enabled) {
            return;
@@ -477,7 +477,7 @@ namespace geopm
         PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             sample.rank = m_rank;
-            sample.region_id = GEOPM_REGION_ID_OUTER;
+            sample.region_id = GEOPM_REGION_ID_EPOCH;
             (void) geopm_time(&(sample.timestamp));
             sample.progress = 0.0;
             m_table->insert(sample.region_id, sample);

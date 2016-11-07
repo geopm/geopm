@@ -124,7 +124,7 @@ namespace geopm
         if (geopm_region_id_is_mpi(key)) {
             result = m_mask + 1;
         }
-        else if (geopm_region_id_is_outer(key)) {
+        else if (geopm_region_id_is_epoch(key)) {
             result = m_mask + 2;
         }
         else {

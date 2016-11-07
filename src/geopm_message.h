@@ -49,7 +49,7 @@ extern "C" {
 enum geopm_region_id_e {
     GEOPM_REGION_ID_INVALID = 0,
     GEOPM_REGION_ID_MPI = 1ULL << 62,
-    GEOPM_REGION_ID_OUTER = 1ULL << 63,
+    GEOPM_REGION_ID_EPOCH = 1ULL << 63,
     GEOPM_NUM_REGION_ID_PRIVATE = 2,
 };
 
@@ -58,9 +58,9 @@ static inline int geopm_region_id_is_mpi(uint64_t rid)
     return (rid & GEOPM_REGION_ID_MPI) ? 1 : 0;
 }
 
-static inline int geopm_region_id_is_outer(uint64_t rid)
+static inline int geopm_region_id_is_epoch(uint64_t rid)
 {
-    return (rid & GEOPM_REGION_ID_OUTER) ? 1 : 0;
+    return (rid & GEOPM_REGION_ID_EPOCH) ? 1 : 0;
 }
 
 static inline int geopm_region_id_is_nested(uint64_t rid)
