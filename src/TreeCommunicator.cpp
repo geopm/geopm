@@ -258,7 +258,7 @@ namespace geopm
     static MPI_Datatype create_sample_mpi_type(void)
     {
         int blocklength[4] = {1, 1, 1, 1};
-        MPI_Datatype mpi_type[5] = {MPI_INT,
+        MPI_Datatype mpi_type[5] = {MPI_UNSIGNED_LONG_LONG,
                                     MPI_DOUBLE,
                                     MPI_DOUBLE,
                                     MPI_DOUBLE
