@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_e28c5430",
+        "filename": "src/Region.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-08T19:31:45Z",
+      "side": 1,
+      "message": "GEOPM_REGION_ID_OUTER should be changed to GEOPM_REGION_ID_EPOCH!",
+      "revId": "80ee06d6a452c5b1b06afa8b2566e3812c979967",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
