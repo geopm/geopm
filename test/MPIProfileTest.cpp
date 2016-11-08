@@ -134,8 +134,8 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
         double curr_value = -1.0;
         double value = 0.0;
         double epoch_value = 0.0;
-        double mpi_value = 0.0;
         double startup_value = 0.0;
+        double total_runtime_value = 0.0;
 
         std::ifstream log(m_log_file_node, std::ios_base::in);
 
@@ -154,26 +154,30 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
             }
             else if (line.find("Region epoch:") == 0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &epoch_value));
-            }
-            else if (line.find("Region mpi-sync:") == 0) { /// @todo: parser needs to be updated
-                std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &mpi_value));
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &epoch_value));
             }
             else if (line.find("Region geopm_mpi_test-startup:") == 0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &startup_value));
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &startup_value));
+            }
+            else if (line.find("Application Totals:") == 0) {
+                std::getline(log, line);
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &total_runtime_value));
             }
             if (curr_value != -1.0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "        runtime (sec): %lf", &value));
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &value));
                 ASSERT_NEAR(value, curr_value, m_epsilon);
             }
         }
 
-        if (epoch_value != 0.0 && mpi_value != 0.0) {
-            double epoch_target = std::accumulate(check_val.begin(), check_val.end(), startup_value + mpi_value);
+        if (epoch_value != 0.0) {
+            double epoch_target = std::accumulate(check_val.begin(), check_val.end(), 0.0);
             ASSERT_NEAR(epoch_target, epoch_value, m_epsilon);
+            double total_runtime_target = std::accumulate(check_val.begin(), check_val.end(), startup_value);
+            ASSERT_LT(total_runtime_target, total_runtime_value);
+            /// @todo: The assert below may fail because of unaccounted for time reported (~1 second)
+            /// ASSERT_NEAR(total_runtime_target, total_runtime_value, m_epsilon);
         }
 
         log.close();
