@@ -774,6 +774,7 @@ namespace geopm
             return;
         }
 
+        m_mpi_agg_time += m_mpi_sync_time;
         if ((*(m_region[0].find(GEOPM_REGION_ID_EPOCH))).second->num_entry()) {
             m_region_id_all = GEOPM_REGION_ID_EPOCH;
             override_telemetry(1.0);
