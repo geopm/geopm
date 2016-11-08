@@ -188,6 +188,11 @@ namespace geopm
             }
 
             if (key_insert_ptr >= m_table[table_idx].key + M_TABLE_DEPTH_MAX - 1) {
+                (void) pthread_mutex_unlock(&(m_table[table_idx].lock));
+                if (m_table[table_idx].value[0].region_id == GEOPM_REGION_ID_EPOCH) {
+                    throw Exception("ProfileTable::insert(): epoch time interval too short.",
+                                    GEOPM_ERROR_TOO_MANY_COLLISIONS, __FILE__, __LINE__);
+                }
                 throw Exception("ProfileTable::insert(): failed to compact table.",
                                 GEOPM_ERROR_TOO_MANY_COLLISIONS, __FILE__, __LINE__);
             }
