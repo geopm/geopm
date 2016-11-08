@@ -249,8 +249,6 @@ def launcher_factory(app_conf, ctl_conf, report_path,
 class Launcher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
                  trace_path=None, host_file=None, time_limit=None, region_barrier=False):
-        self._num_rank = 16
-        self._num_node = 4
         self._app_conf = app_conf
         self._ctl_conf = ctl_conf
         self._report_path = report_path
@@ -260,9 +258,8 @@ class Launcher(object):
         self._region_barrier = region_barrier
         self._node_list = None
         self._pmpi_ctl = 'process'
-        # Figure out the number of CPUs per rank leaving one for the
-        # OS and one (potentially) for the controller.
-        self._num_thread = (multiprocessing.cpu_count() - 2) / self._num_rank
+        self.set_num_rank(16)
+        self.set_num_node(4)
 
     def __repr__(self):
         output = ''
@@ -282,7 +279,10 @@ class Launcher(object):
 
     def set_num_rank(self, num_rank):
         self._num_rank = num_rank
-        self._num_thread = multiprocessing.cpu_count() / self._num_rank
+        # Figure out the number of CPUs per rank leaving one for the
+        # OS and one (potentially, may/may not be use depending on pmpi_ctl)
+        # for the controller.
+        self._num_thread = (multiprocessing.cpu_count() - 2) / self._num_rank
 
     def set_pmpi_ctl(self, pmpi_ctl):
         self._pmpi_ctl = pmpi_ctl
@@ -339,7 +339,10 @@ class Launcher(object):
                          self._app_conf.get_path()))
 
     def _num_rank_option(self):
-        return '-n {num_rank}'.format(num_rank=self._num_rank)
+        num_rank = self._num_rank
+        if self._pmpi_ctl == 'process':
+            num_rank += self._num_node
+        return '-n {num_rank}'.format(num_rank=num_rank)
 
     def _affinity_option(self):
         return ''
@@ -360,7 +363,7 @@ class SrunLauncher(Launcher):
                                            trace_path=trace_path, host_file=host_file, time_limit=time_limit)
 
     def _mpiexec_option(self):
-        mpiexec = 'srun -I -J int_test'
+        mpiexec = 'srun -I30 -J int_test'
         if self._time_limit is not None:
             mpiexec += ' -t {time_limit}'.format(time_limit=self._time_limit)
         if self._node_list is not None:
@@ -375,8 +378,8 @@ class SrunLauncher(Launcher):
         result_base = '--cpu_bind=v,mask_cpu:'
         mask_list = []
         if (self._pmpi_ctl == 'process'):
-            mask_list.append('0x2,')
-        for ii in range(self._num_rank):
+            mask_list.append('0x2')
+        for ii in range(self._num_rank / self._num_node):
             mask_list.append('0x{:x}'.format(int(proc_mask, 2)))
             proc_mask = proc_mask + self._num_thread * '0'
         return result_base + ','.join(mask_list)
@@ -419,7 +422,7 @@ class TestReport(unittest.TestCase):
         name = 'test_report_generation'
         report_path = name + '.report'
         num_node = 4
-        num_rank = 20
+        num_rank = 16
         app_conf = AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
@@ -440,7 +443,7 @@ class TestReport(unittest.TestCase):
         name = 'test_report_generation_all_nodes'
         report_path = name + '.report'
         num_node=1
-        num_rank=5
+        num_rank=1
         delay = 1.0
         app_conf = AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
@@ -502,7 +505,7 @@ class TestReport(unittest.TestCase):
         name = 'test_runtime_nested'
         report_path = name + '.report'
         num_node = 1
-        num_rank = 2
+        num_rank = 1
         delay = 1.0
         loop_count = 2
         app_conf = AppConf(name + '_app.config')
@@ -530,7 +533,7 @@ class TestReport(unittest.TestCase):
         name = 'test_progress'
         report_path = name + '.report'
         num_node = 1
-        num_rank = 5
+        num_rank = 4
         delay = 3.0
         app_conf = AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
