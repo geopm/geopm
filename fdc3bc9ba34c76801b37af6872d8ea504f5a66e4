@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_4ec8c656",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-09T18:03:31Z",
+      "side": 1,
+      "message": "If num_node changes, but num_rank stays the same then the num_thread member must be adjusted.",
+      "revId": "fdc3bc9ba34c76801b37af6872d8ea504f5a66e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_6eb26ae7",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-09T18:03:31Z",
+      "side": 1,
+      "message": "Need to divide self._num_rank by self._num_node for denominator.",
+      "revId": "fdc3bc9ba34c76801b37af6872d8ea504f5a66e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_2ec5823c",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-09T18:03:31Z",
+      "side": 1,
+      "message": "Should 30 be a member variable?",
+      "revId": "fdc3bc9ba34c76801b37af6872d8ea504f5a66e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
