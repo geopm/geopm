@@ -18,10 +18,6 @@ out-of-place-testing
       does not, gtest links are broken and the license header check
       does not work (2015-10-30).
 
-platform-domain-brittle
-    - Platform assumes that the RAPL domain of control is the socket
-      scope, and cannot handle a platform where this is not the case.
-
 policy-hint-ignored
     - Policy hint is being entirely ignored.  Should be stored in the
       state of the region and inform the decider (2016-05-06).
@@ -32,16 +28,12 @@ no-app-runtime
       provide runtime information, and the runtime is only needed
       after the region has completed (2016-05-06).
 
-default-prof-singleton
-    - Need to use singleton pattern (as is done in the Environment
-      class) to create the default profile.  Current implementation is
-      not thread safe (2016-05-06).
-
 runtime-decider-change
     - The Policy object enables the deciders to be chaged during
       runtime, but the Controller does not switch the deciders during
       runtime if the Policy changes.  The code should at least throw
-      an error if the Policy's decider is changed during runtime.
+      an error if the Policy's decider is changed during runtime
+      (2016-06-17).
 
 ONGOING ENHANCEMENTS
 --------------------
@@ -50,15 +42,13 @@ extend-unit-tests
     - Test coverage is too low.  Need to expand unit testing to
       increase coverage. (2015-12-14)
 
-create-examples
-    - Generate an example for all important use cases of geopm with
-      the focus on using these examples as our integration test
-      suite. (2015-12-14)
-
 improve-documentation
     - Add detail to doxygen comments where @brief descriptions are all
       that is provided.  Unify documentation style. (2015-12-14)
 
+fix-klocwork-issues
+    - Fix all critical and error level issues exposed by static source
+      code analysis with klocwork (2016-11-03).
 
 HIGH PRIORITY ENHANCEMENTS
 --------------------------
@@ -77,6 +67,10 @@ enable-telemetry-extension
       decision algorithms will want to sample other signals, and we
       need to make signal inclusion more easily extensible
       (2016-05-06).
+
+enhance-profiling-support
+    - Enable more hardware telemetry to be recorded to the trace and
+      final report produced by the geopm profiler (2016-05-20).
 
 change-scheduler-scope
     - Change the use of the SampleScheduler to account for the overhead
@@ -105,10 +99,6 @@ collect-bmc-data
       cores, especially when CPU doesn't have access to out of band
       network supporting BMC data. (2015-12-14)
 
-expand-platform-support
-    - Add support for KNL, Broadwell, and Skylake servers in the
-      Platform and PlatformImp classes (2016-05-06).
-
 enable-cpu-granularity
     - Investigate enabling the decider to set policies per-CPU and the
       platform to give the decider data at per-CPU resolution.  The
@@ -123,23 +113,27 @@ enable-rm-signal-abnormal
       This signal can be used to ignore measurements made while other
       power management systems are interfering. (2016-05-13)
 
-enable-batch-msr-access
-    - Use the batch read/write feature of the msr-safe driver to
-      speed up our MSR accesses by making fewer calls into the
-      driver. (2016-05-17)
+application-data-aliasing
+    - If the application is calling into the profile APIs at a rate
+      faster than the controller is sampling counters, the
+      interpolation done by the controller can dilute the application
+      data fidelity through aliasing (2016-10-31).
 
-add-high-level-catch
-    - Add a catch in Controller.cpp that catches all throws, cleans
-      up /dev/shm (and possibly other cleanup) , and then re-throws
-      the error. (2016-05-17)
+per-region-mpi-accounting
+    - Report out MPI time for each region, total application MPI time,
+      and total application MPI time outside of user defined regions
+      (2016-10-31).
 
+ompt-callback-region
+    - Use the OpenMP "omp_t" callbacks to mark regions in the
+      application (2016-07-15).
+
+check-linux-cpu-governor
+    - Make sure that no Linux CPU governor is running that will
+      conflict with GEO (2016-05-19).
 
 LOW PRIORITY ENHANCEMENTS
 -------------------------
-
-automated-ci
-    - Do some automated continuous integration testing, currently only
-      doing developer workstation testing. (2015-12-14)
 
 generate-aggregated-report
     - Currently one report file per compute node, aggregate data based
@@ -159,3 +153,10 @@ enable-automatic-profiling
       required will be collected, designing the interface to provide
       it to an outside agent may break designs for
       encapsulation. (2015-12-14)
+
+dox-fortran-c-confusion
+    - The doxygen generated developer documentation web pages are
+      confusing the fortran and C interface documentation:
+      http://geopm.github.io/geopm/dox/annotated.html
+      http://geopm.github.io/geopm/dox/interfacegeopm_1_1geopm__prof__create.html
+      (2016-05-30)

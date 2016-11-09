@@ -1,4 +1,4 @@
-* Tue Nov 01 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.0
+* Fri Nov 11 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.0
 - Renamed package to Global Extensible Open Power Manager.
 - Improved features, performance, documentation, testing and continuous integration.
 - Many bug fixes.
@@ -14,7 +14,10 @@
 - Modified report to include geopm version.
 - Added accounting in report for the number of entries into each region.
 - Added reporting of application totals.
+- MPI is no longer explicitly a region and MPI accounting is now part of application totals.
 - Refined how the geopm_prof_outer_sync() API works and renamed interface geopm_prof_epoch().
+- The epoch start is no longer associated with application synchronization as geopm_prof_outer_sync was.
+- Epoch start marks the beginning of the outer most iterative algorithm of the application.
 - Added a --disable-doc configuration option for systems without ronn.
 - Changed default shmem key base from "geopm_default" to "geopm-shm".
 - Enabled GEOPM profiling without application modification through LD_PRELOAD.
@@ -27,7 +30,7 @@
 - Added capability to save/restore MSR values before/after GEOPM runs.
 - Major improvements to signal handling and shutdown clean up.
 - Improvements to temporary file and shared memory management.
-- Added a suite of tutorials that step through GEOPM features.
+- Added a suite of tutorials that steps through GEOPM features.
 - Posted video walk through of the GEOPM tutorials to YouTube.
 - Created the ideal "model" application for geopm shown in tutorial 6.
 - Added integration test infrastructure using python unittest and model application.
