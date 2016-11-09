@@ -69,7 +69,8 @@ namespace geopm
                 m_norm[i] = (double) min_it;
                 if (i < last_full_thread) {
                     m_norm[i] += (double) chunk_size;
-                } else if (i == last_full_thread) {
+                }
+                else if (i == last_full_thread) {
                     m_norm[i] += (double) unchunked;
                 }
                 if (m_norm[i]) {
@@ -111,7 +112,7 @@ namespace geopm
             else {
                 result = 0.0;
                 for (int j = 0; j != m_num_thread; ++j) {
-                   result += m_progress[j * m_stride];
+                    result += m_progress[j * m_stride];
                 }
                 result *= m_norm[0];
             }

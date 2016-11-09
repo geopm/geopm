@@ -85,7 +85,7 @@ namespace geopm
 
     const std::map<int, int> &SampleRegulator::rank_idx_map(void) const
     {
-       return m_rank_idx_map;
+        return m_rank_idx_map;
     }
 
     void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,

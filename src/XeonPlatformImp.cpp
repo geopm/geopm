@@ -269,7 +269,7 @@ namespace geopm
                             break;
                         default:
                             throw geopm::Exception("XeonPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                        break;
+                            break;
                     }
                 }
                 if (num_signal > m_batch.numops) {
@@ -320,7 +320,7 @@ namespace geopm
                             break;
                         default:
                             throw geopm::Exception("XeonPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                        break;
+                            break;
                     }
                     ++index;
                 }
@@ -398,7 +398,7 @@ namespace geopm
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK | m_pkg_time_window;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
-                    m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
+                          m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
                 if (value < m_min_dram_watts) {
@@ -410,13 +410,13 @@ namespace geopm
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_DRAM_LIMIT].first,
-                    m_control_msr_pair[M_RAPL_DRAM_LIMIT].second,  msr_val);
+                          m_control_msr_pair[M_RAPL_DRAM_LIMIT].second,  msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 msr_val = (uint64_t)(value * 10);
                 msr_val = msr_val << 8;
                 msr_write(device_type, device_index, m_control_msr_pair[M_IA32_PERF_CTL].first,
-                    m_control_msr_pair[M_IA32_PERF_CTL].second,  msr_val);
+                          m_control_msr_pair[M_IA32_PERF_CTL].second,  msr_val);
                 break;
             default:
                 throw geopm::Exception("XeonPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -756,7 +756,8 @@ namespace geopm
             {"C11_MSR_PMON_CTR1",       {0x0E77, 0x0000000000000000}},
             {"C12_MSR_PMON_CTR1",       {0x0E97, 0x0000000000000000}},
             {"C13_MSR_PMON_CTR1",       {0x0EB7, 0x0000000000000000}},
-            {"C14_MSR_PMON_CTR1",       {0x0ED7, 0x0000000000000000}}});
+            {"C14_MSR_PMON_CTR1",       {0x0ED7, 0x0000000000000000}}
+        });
         return msr_map;
     }
 
@@ -934,7 +935,8 @@ namespace geopm
             {"C18_MSR_PMON_CTR1",       {0x0F29, 0x0000000000000000}},
             {"C19_MSR_PMON_CTR1",       {0x0F39, 0x0000000000000000}},
             {"C20_MSR_PMON_CTR1",       {0x0F49, 0x0000000000000000}},
-            {"C21_MSR_PMON_CTR1",       {0x0F59, 0x0000000000000000}}});
+            {"C21_MSR_PMON_CTR1",       {0x0F59, 0x0000000000000000}}
+        });
         return msr_map;
     }
 }

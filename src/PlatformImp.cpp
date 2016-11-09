@@ -222,7 +222,7 @@ namespace geopm
         if (value != old_value) {
             std::ostringstream message;
             message << "MSR value to be written was modified by the mask! Desired = 0x" << std::hex << old_value
-                << " After mask = 0x" << std::hex << value;
+                    << " After mask = 0x" << std::hex << value;
             throw Exception(message.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
 
@@ -398,41 +398,35 @@ namespace geopm
         }
 
         path_length = strlen(path);
-        if (path_length > NAME_MAX)
-        {
+        if (path_length > NAME_MAX) {
             throw Exception("Save file path too long!", ENAMETOOLONG, __FILE__, __LINE__);
         }
 
-        if (path_length >= 6 && strncmp(path + path_length - 6, "XXXXXX", NAME_MAX) == 0)
-        {
+        if (path_length >= 6 && strncmp(path + path_length - 6, "XXXXXX", NAME_MAX) == 0) {
             //The geopmpolicy main tries to open the path before getting here.  If it was successful,
             //a file would be left dangling.
             struct stat buf;
-            if (stat(path, &buf) == 0)
-            {
+            if (stat(path, &buf) == 0) {
                 (void)remove(path);
             }
 
             char tmp_path_template[NAME_MAX];
             strncpy(tmp_path_template, path, NAME_MAX);
             int fd = mkstemp(tmp_path_template);
-            if (fd == -1)
-            {
+            if (fd == -1) {
                 std::ostringstream message;
                 message << "Cannot create tmp file: " << tmp_path_template;
                 throw Exception(message.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             close(fd);
 
-            if (strncmp(M_MSR_SAVE_FILE_PATH.c_str(), path, path_length) == 0)
-            {
+            if (strncmp(M_MSR_SAVE_FILE_PATH.c_str(), path, path_length) == 0) {
                 m_msr_save_file_path = tmp_path_template;
             }
 
             tmp_path = tmp_path_template;
         }
-        else
-        {
+        else {
             tmp_path = path;
         }
 

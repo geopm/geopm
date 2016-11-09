@@ -61,7 +61,8 @@ void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp 
     fact_obj->register_platform(std::unique_ptr<geopm::PlatformImp>(platform));
 }
 
-int geopm_read_cpuid(void) {
+int geopm_read_cpuid(void)
+{
     uint32_t key = 1; //processor features
     uint32_t proc_info = 0;
     uint32_t model;

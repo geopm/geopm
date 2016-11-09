@@ -37,9 +37,9 @@ extern "C"
 {
 #endif
 
-    void geopm_signal_handler_register(void);
-    void geopm_signal_handler_check(void);
-    void geopm_signal_handler_revert(void);
+void geopm_signal_handler_register(void);
+void geopm_signal_handler_check(void);
+void geopm_signal_handler_revert(void);
 
 #ifdef __cplusplus
 }

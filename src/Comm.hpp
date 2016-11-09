@@ -89,7 +89,7 @@ namespace geopm
             virtual void reduce(const void *sendbuf, void *recvbuf, int count, int buffer_type, int operation) = 0;
             /// @brief Reduce distributed messages across all ranks using specified operation, store result only on root
             virtual void reduce(const void *sendbuf, void *recvbuf, int count, int buffer_type, int operation, int root) = 0;
-   };
+    };
 
     /// @brief Abstract base class for handling non-blocking request status for Comm
     class Request

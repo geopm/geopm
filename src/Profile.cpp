@@ -386,7 +386,7 @@ namespace geopm
     void Profile::enter(uint64_t region_id)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
@@ -422,7 +422,7 @@ namespace geopm
     void Profile::exit(uint64_t region_id)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         // keep track of number of exits to account for nesting
@@ -455,7 +455,7 @@ namespace geopm
     void Profile::progress(uint64_t region_id, double fraction)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         if (m_num_enter == 1 && m_curr_region_id == region_id &&
@@ -470,7 +470,7 @@ namespace geopm
     void Profile::epoch(void)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         struct geopm_prof_message_s sample;
@@ -487,7 +487,7 @@ namespace geopm
     void Profile::sample(void)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         struct geopm_prof_message_s sample;
@@ -501,7 +501,7 @@ namespace geopm
     void Profile::disable(const std::string feature_name)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         throw geopm::Exception("Profile::disable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -510,7 +510,7 @@ namespace geopm
     void Profile::print(const std::string file_name, int depth)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         int is_done = 0;
@@ -566,7 +566,7 @@ namespace geopm
     void Profile::init_cpu_list(void)
     {
         if (!m_is_enabled) {
-           return;
+            return;
         }
 
         int err = 0;

@@ -154,8 +154,8 @@ extern "C"
             shm_key[NAME_MAX - 1] = '\0';
             while ((entry = readdir(did))) {
                 if (strstr(entry->d_name, geopm_env_shmkey() + 1) == entry->d_name) {
-                   strncpy(shm_key + 1, entry->d_name, NAME_MAX - 2);
-                   shm_unlink(shm_key);
+                    strncpy(shm_key + 1, entry->d_name, NAME_MAX - 2);
+                    shm_unlink(shm_key);
                 }
             }
         }

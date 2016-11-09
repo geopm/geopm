@@ -50,7 +50,7 @@ namespace geopm
 {
 
 #ifndef X86_IOC_MSR_BATCH
-    #define  X86_IOC_MSR_BATCH _IOWR('c', 0xA2, m_msr_batch_array)
+#define  X86_IOC_MSR_BATCH _IOWR('c', 0xA2, m_msr_batch_array)
 #endif
 
     struct geopm_signal_descriptor {

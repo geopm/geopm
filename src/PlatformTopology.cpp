@@ -72,8 +72,9 @@ namespace geopm
 
     PlatformTopology::~PlatformTopology()
     {
-        hwloc_topology_destroy(m_topo); /// @todo: This was failing internally on Catalyst. Need to debug.
-                                        /// Thre is a ptr=malloc(0); free(ptr); in hwloc which alarmed ElectricFence
+        /// @todo: This was failing internally on Catalyst. Need to debug.
+        /// Thre is a ptr=malloc(0); free(ptr); in hwloc which alarmed ElectricFence.
+        hwloc_topology_destroy(m_topo);
     }
 
     int PlatformTopology::num_domain(int domain_type) const

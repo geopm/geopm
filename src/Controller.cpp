@@ -282,8 +282,8 @@ namespace geopm
             m_app_start_time = m_msr_sample[0].timestamp;
             for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
                 if ((*it).domain_type == GEOPM_DOMAIN_PACKAGE &&
-                   ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
-                   (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
+                    ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
+                     (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
                     m_counter_energy_start += (*it).signal;
                 }
             }
@@ -356,7 +356,7 @@ namespace geopm
             delete m_policy[level];
         }
         for (auto it = m_tree_decider.begin(); it != m_tree_decider.end(); ++it) {
-           delete (*it);
+            delete (*it);
         }
         delete m_leaf_decider;
         delete m_decider_factory;
@@ -516,8 +516,8 @@ namespace geopm
                     auto it = m_region[level].begin();
                     (*it).second->insert(child_sample);
                     if (m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]))) {
-                       m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, m_last_policy_msg[level], child_policy_msg);
-                       m_tree_comm->send_policy(level - 1, child_policy_msg);
+                        m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, m_last_policy_msg[level], child_policy_msg);
+                        m_tree_comm->send_policy(level - 1, child_policy_msg);
                     }
                     (*it).second->sample_message(sample_msg[level]);
                 }
@@ -581,11 +581,11 @@ namespace geopm
                             auto region_it = m_region[level].find((*sample_it).second.region_id);
                             if (region_it == m_region[level].end()) {
                                 auto tmp_it = m_region[level].insert(
-                                              std::pair<uint64_t, Region *> ((*sample_it).second.region_id,
-                                              new Region((*sample_it).second.region_id,
-                                                         GEOPM_POLICY_HINT_UNKNOWN,
-                                                         m_platform->num_control_domain(),
-                                                         level)));
+                                                  std::pair<uint64_t, Region *> ((*sample_it).second.region_id,
+                                                          new Region((*sample_it).second.region_id,
+                                                                     GEOPM_POLICY_HINT_UNKNOWN,
+                                                                     m_platform->num_control_domain(),
+                                                                     level)));
                                 region_it = tmp_it.first;
                             }
                             (*region_it).second->entry();
@@ -792,8 +792,8 @@ namespace geopm
         m_platform->sample(m_msr_sample);
         for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
             if ((*it).domain_type == GEOPM_DOMAIN_PACKAGE &&
-               ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
-               (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
+                ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
+                 (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
                 energy_exit += (*it).signal;
             }
         }

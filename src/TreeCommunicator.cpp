@@ -93,7 +93,7 @@ extern "C"
             }
             catch (geopm::Exception ex) {
                 if (ex.err_value() != EEXIST) {
-                   throw ex;
+                    throw ex;
                 }
             }
             if (!shmem) {

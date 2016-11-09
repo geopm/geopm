@@ -37,23 +37,23 @@ extern "C"
 {
 #endif
 
-    enum geopm_pmpi_ctl_e {
-        GEOPM_PMPI_CTL_NONE,
-        GEOPM_PMPI_CTL_PROCESS,
-        GEOPM_PMPI_CTL_PTHREAD,
-    };
+enum geopm_pmpi_ctl_e {
+    GEOPM_PMPI_CTL_NONE,
+    GEOPM_PMPI_CTL_PROCESS,
+    GEOPM_PMPI_CTL_PTHREAD,
+};
 
-    const char *geopm_env_policy(void);
-    const char *geopm_env_shmkey(void);
-    const char *geopm_env_trace(void);
-    const char *geopm_env_plugin_path(void);
-    const char *geopm_env_report(void);
-    int geopm_env_report_verbosity(void);
-    int geopm_env_pmpi_ctl(void);
-    int geopm_env_do_region_barrier(void);
-    int geopm_env_do_trace(void);
-    int geopm_env_do_ignore_affinity(void);
-    int geopm_env_do_profile(void);
+const char *geopm_env_policy(void);
+const char *geopm_env_shmkey(void);
+const char *geopm_env_trace(void);
+const char *geopm_env_plugin_path(void);
+const char *geopm_env_report(void);
+int geopm_env_report_verbosity(void);
+int geopm_env_pmpi_ctl(void);
+int geopm_env_do_region_barrier(void);
+int geopm_env_do_trace(void);
+int geopm_env_do_ignore_affinity(void);
+int geopm_env_do_profile(void);
 
 #ifdef __cplusplus
 }

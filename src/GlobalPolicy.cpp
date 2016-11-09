@@ -401,8 +401,8 @@ namespace geopm
         if (m_do_read && m_is_shm_in) {
             if (munmap(m_policy_shmem_in, sizeof(struct geopm_policy_message_s))) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unmap root policy shared memory region",
-                                                  errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+                std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unmap root policy shared memory region",
+                                                      errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
 #endif
             }
         }
@@ -415,8 +415,8 @@ namespace geopm
             }
             if (shm_unlink(m_out_config.c_str())) {
 #ifdef GEOPM_DEBUG
-                    std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unlink shared memory region on GlobalPolicy destruction",
-                                                          errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
+                std::cerr << "Warning: " << Exception("GlobalPolicy: Could not unlink shared memory region on GlobalPolicy destruction",
+                                                      errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
 #endif
             }
         }
@@ -605,7 +605,7 @@ namespace geopm
         std::string value_string;
 
         if (json_object_get_type(options_obj) != json_type_object) {
-           throw Exception("GlobalPolicy::read(): options expected to be an object type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy::read(): options expected to be an object type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
         json_object_object_foreach(options_obj, subkey, subval) {
             key_string = subkey;
@@ -737,8 +737,8 @@ namespace geopm
         if ((m_mode == GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC ||
              m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC ||
              m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC) &&
-             (m_tree_decider!= "power_balancing" ||
-              m_leaf_decider != "power_governing")) {
+            (m_tree_decider!= "power_balancing" ||
+             m_leaf_decider != "power_governing")) {
             if (m_leaf_decider == "none" && m_tree_decider == "none") {
                 m_leaf_decider = "power_governing";
                 m_tree_decider = "power_balancing";
@@ -760,8 +760,8 @@ namespace geopm
         }
     }
 
-   void GlobalPolicy::read_json_mode(json_object *mode_obj)
-   {
+    void GlobalPolicy::read_json_mode(json_object *mode_obj)
+    {
         std::string value_string;
         if (json_object_get_type(mode_obj) != json_type_string) {
             throw Exception("GlobalPolicy::read(): mode expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);

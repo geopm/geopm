@@ -149,7 +149,7 @@ namespace geopm
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 value = (double)((msr_read(device_type, device_index,
-                                          m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
+                                           m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
                 //convert to MHZ
                 value *= 0.1;
                 break;
@@ -178,8 +178,8 @@ namespace geopm
                                               m_signal_msr_offset[M_L2_MISSES + 2 * device_index]));
                 offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
                 value += msr_overflow(offset_idx, 48,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * device_index]));
+                                      msr_read(device_type, device_index,
+                                               m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * device_index]));
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -266,7 +266,7 @@ namespace geopm
                             break;
                         default:
                             throw geopm::Exception("KNLPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                        break;
+                            break;
                     }
                     ++index;
                 }
@@ -346,7 +346,7 @@ namespace geopm
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK | m_pkg_time_window;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
-                    m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
+                          m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
                 if (value < m_min_dram_watts) {
@@ -358,13 +358,13 @@ namespace geopm
                 msr_val = (uint64_t)(value * m_power_units);
                 msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_DRAM_LIMIT].first,
-                    m_control_msr_pair[M_RAPL_DRAM_LIMIT].second,  msr_val);
+                          m_control_msr_pair[M_RAPL_DRAM_LIMIT].second,  msr_val);
                 break;
             case GEOPM_TELEMETRY_TYPE_FREQUENCY:
                 msr_val = (uint64_t)(value * 10);
                 msr_val = msr_val << 8;
                 msr_write(device_type, device_index, m_control_msr_pair[M_IA32_PERF_CTL].first,
-                    m_control_msr_pair[M_IA32_PERF_CTL].second,  msr_val);
+                          m_control_msr_pair[M_IA32_PERF_CTL].second,  msr_val);
                 break;
             default:
                 throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -871,7 +871,8 @@ namespace geopm
             {"C33_MSR_PMON_CTR1",       {0x0FA1, 0x0000000000000000}},
             {"C34_MSR_PMON_CTR1",       {0x0FAD, 0x0000000000000000}},
             {"C35_MSR_PMON_CTR1",       {0x0FB9, 0x0000000000000000}},
-            {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000}}});
+            {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000}}
+        });
         return msr_map;
     }
 }
