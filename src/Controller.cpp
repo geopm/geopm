@@ -509,6 +509,7 @@ namespace geopm
         m_sample_loop_t0 = sample_loop_t1;
 
         for (level = 0; !m_do_shutdown && level < m_tree_comm->num_level(); ++level) {
+            bool is_converged = false;
             if (level) {
                 try {
                     m_tree_comm->get_sample(level, child_sample);
@@ -520,6 +521,7 @@ namespace geopm
                         m_tree_comm->send_policy(level - 1, child_policy_msg);
                     }
                     (*it).second->sample_message(sample_msg[level]);
+                    is_converged = m_policy[level]->is_converged(GEOPM_REGION_ID_EPOCH);
                 }
                 catch (geopm::Exception ex) {
                     if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
@@ -596,7 +598,7 @@ namespace geopm
                             m_region_id_all = GEOPM_REGION_ID_EPOCH;
                             (*m_sample_regulator)(m_msr_sample[0].timestamp,
                                                   platform_sample.cbegin(), platform_sample.cend(),
-                                                  m_prof_sample.cbegin(), m_prof_sample.cbegin(), // Not useing profile data with epoch samples
+                                                  m_prof_sample.cbegin(), m_prof_sample.cbegin(), // Not using profile data with epoch samples
                                                   aligned_signal,
                                                   m_region_id);
                             m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, epoch_telemetry_sample);
@@ -662,15 +664,18 @@ namespace geopm
                     }
                     update_region();
                 }
-
                 // GEOPM_REGION_ID_EPOCH is inserted at construction
                 struct geopm_sample_message_s epoch_sample;
                 auto epoch_it = m_region[level].find(GEOPM_REGION_ID_EPOCH);
                 (*epoch_it).second->sample_message(epoch_sample);
+                for (auto it = m_region[level].begin(); it != m_region[level].end(); ++it) {
+                    if (m_policy[level]->is_converged(((*it).first))) {
+                        is_converged = true;
+                    }
+                }
                 // Subtract mpi syncronization time from epoch
-                if (is_epoch_found &&
-                    epoch_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_epoch_time &&
-                    m_policy[level]->is_converged(m_region_id_all)) {
+                if (epoch_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_epoch_time &&
+                    is_converged) {
                     sample_msg[level] = epoch_sample;
                     m_epoch_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                     m_is_epoch_changed = true;
@@ -683,7 +688,7 @@ namespace geopm
                 m_do_shutdown = m_sampler->do_shutdown();
             }
             if (level != m_tree_comm->root_level() &&
-                m_policy[level]->is_converged(m_region_id_all) &&
+                is_converged &&
                 m_is_epoch_changed) {
                 m_tree_comm->send_sample(level, sample_msg[level]);
                 m_last_sample_msg[level] = sample_msg[level];
