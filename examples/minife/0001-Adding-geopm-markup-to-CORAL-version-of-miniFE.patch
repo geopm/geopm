@@ -1,0 +1,223 @@
+From 4e8acba5ebf953eee85cdcf22cb9f50f7304a6a3 Mon Sep 17 00:00:00 2001
+From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
+Date: Thu, 10 Nov 2016 11:32:13 -0800
+Subject: [PATCH] Adding geopm markup to CORAL version of miniFE.
+
+#  Copyright (c) 2015, 2016, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Signed-off-by: Steve S. Sylvester <steve.s.sylvester@intel.com>
+---
+ src/Makefile                   | 14 ++++++++------
+ src/SparseMatrix_functions.hpp | 20 ++++++++++++++++++++
+ src/Vector_functions.hpp       | 20 ++++++++++++++++++++
+ src/cg_solve.hpp               |  7 +++++++
+ 4 files changed, 55 insertions(+), 6 deletions(-)
+
+diff --git a/src/Makefile b/src/Makefile
+index 461bdde..0ef6065 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -16,7 +16,7 @@ MINIFE_MATRIX_TYPE = -DMINIFE_CSR_MATRIX
+ 
+ # BG/Q
+ #CFLAGS = -DIBM_HPM -qlist -qsource  -g -O3 -qsmp=omp
+-CFLAGS = -qlist -qsource  -g -O3 -qsmp=omp
++CFLAGS = -g -O3 -fopenmp -I$(HOME)/build/geopm/include
+ CXXFLAGS = $(CFLAGS)
+ 
+ # To enable memory high water mark reporting uncomment the
+@@ -25,15 +25,17 @@ CPPFLAGS = -I. -I../utils -I../fem $(MINIFE_TYPES) \
+ 	$(MINIFE_MATRIX_TYPE) \
+ 	-DHAVE_MPI -DMPICH_IGNORE_CXX_SEEK #-DMINIFE_REPORT_RUSAGE
+ 
+-LDFLAGS=$(CFLAGS)
+-LIBS=
++LDFLAGS=$(CFLAGS) -L$(HOME)/build/geopm/lib
++LIBS=-lgeopm
+ 
+ # GNU CXX=mpicxx
+ # GNU CC=mpicc
+ 
+ # BG/Q
+-CXX=mpixlcxx_r
+-CC=mpixlc_r
+-
++# CXX=mpixlcxx_r
++# CC=mpixlc_r
++#
++CXX=mpicxx
++CC=mpicc
+ 
+ include make_targets
+diff --git a/src/SparseMatrix_functions.hpp b/src/SparseMatrix_functions.hpp
+index 876f4ad..38a2582 100644
+--- a/src/SparseMatrix_functions.hpp
++++ b/src/SparseMatrix_functions.hpp
+@@ -43,6 +43,10 @@
+ #include <exchange_externals.hpp>
+ #include <mytimer.hpp>
+ 
++#ifndef NO_GEOPM
++#include "geopm.h"
++#endif
++
+ #ifdef MINIFE_HAVE_TBB
+ #include <LockingMatrix.hpp>
+ #endif
+@@ -515,6 +519,11 @@ void operator()(MatrixType& A,
+         ScalarType* ycoefs                        = &y.coefs[0];
+         const ScalarType beta                     = 0;
+ 
++#ifndef NO_GEOPM
++        uint64_t R_ID;
++        geopm_prof_region( "PHASE_MATVEC", 0, &R_ID);
++        geopm_prof_enter( R_ID);
++#endif
+         #pragma omp parallel for
+         for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
+                 const MINIFE_GLOBAL_ORDINAL row_start = Arowoffsets[row];
+@@ -529,6 +538,9 @@ void operator()(MatrixType& A,
+ 
+                 ycoefs[row] = sum;
+         }
++#ifndef NO_GEOPM
++        geopm_prof_exit(R_ID);
++#endif
+ }
+ };
+ #elif defined(MINIFE_ELL_MATRIX)
+@@ -553,6 +565,11 @@ void operator()(MatrixType& A,
+         ScalarType* ycoefs = &y.coefs[0];
+   ScalarType beta = 0;
+ 
++#ifndef NO_GEOPM
++  uint64_t R_ID;
++  geopm_prof_region( "PHASE_MATVEC", 0, &R_ID);
++  geopm_prof_enter( R_ID);
++#endif
+   #pragma omp parallel for
+   for(int row=0; row<n; ++row) {
+     ScalarType sum = beta*ycoefs[row];
+@@ -566,6 +583,9 @@ void operator()(MatrixType& A,
+ 
+     ycoefs[row] = sum;
+   }
++#ifndef NO_GEOPM
++  geopm_prof_exit(R_ID);
++#endif
+ }
+ };
+ #endif
+diff --git a/src/Vector_functions.hpp b/src/Vector_functions.hpp
+index cdf9b15..9dee368 100644
+--- a/src/Vector_functions.hpp
++++ b/src/Vector_functions.hpp
+@@ -36,6 +36,10 @@
+ #include <mpi.h>
+ #endif
+ 
++#ifndef NO_GEOPM
++#include "geopm.h"
++#endif
++
+ #ifdef MINIFE_HAVE_TBB
+ #include <LockingVector.hpp>
+ #endif
+@@ -152,6 +156,11 @@ void
+   const ScalarType*  ycoefs = &y.coefs[0];
+         ScalarType*  wcoefs = &w.coefs[0];
+ 
++#ifndef NO_GEOPM
++  uint64_t R_ID;
++  geopm_prof_region( "PHASE_WAXPBY", 0, &R_ID);
++  geopm_prof_enter( R_ID);
++#endif
+   if(beta == 0.0) {
+ 	if(alpha == 1.0) {
+   		#pragma omp parallel for
+@@ -177,6 +186,9 @@ void
+   		}
+   	}
+   }
++#ifndef NO_GEOPM
++  geopm_prof_exit( R_ID);
++#endif
+ 
+ #ifdef MINIFE_DEBUG_OPENMP
+   std::cout << "Finished WAXPBY." << std::endl;
+@@ -245,10 +257,18 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
+   const Scalar*  ycoefs = &y.coefs[0];
+   MINIFE_SCALAR result = 0;
+ 
++#ifndef NO_GEOPM
++  uint64_t R_ID;
++  geopm_prof_region( "PHASE_DOT", 0, &R_ID);
++  geopm_prof_enter( R_ID);
++#endif
+   #pragma omp parallel for reduction(+:result)
+   for(int i=0; i<n; ++i) {
+     result += xcoefs[i] * ycoefs[i];
+   }
++#ifndef NO_GEOPM
++  geopm_prof_exit( R_ID);
++#endif
+ 
+ #ifdef HAVE_MPI
+   magnitude local_dot = result, global_dot = 0;
+diff --git a/src/cg_solve.hpp b/src/cg_solve.hpp
+index 69812c4..d43c6cd 100644
+--- a/src/cg_solve.hpp
++++ b/src/cg_solve.hpp
+@@ -36,6 +36,10 @@
+ 
+ #include <outstream.hpp>
+ 
++#ifndef NO_GEOPM
++#include "geopm.h"
++#endif
++
+ namespace miniFE {
+ 
+ template<typename Scalar>
+@@ -150,6 +154,9 @@ cg_solve(OperatorType& A,
+ #endif
+ 
+   for(LocalOrdinalType k=1; k <= max_iter && normr > tolerance; ++k) {
++#ifndef NO_GEOPM
++    geopm_prof_epoch();
++#endif
+     if (k == 1) {
+       TICK(); waxpby(one, r, zero, r, p); TOCK(tWAXPY);
+     }
+-- 
+1.8.3.1
+

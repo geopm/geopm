@@ -108,6 +108,7 @@ EXTRA_DIST = .gitignore \
              examples/fft/make.def \
              examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
              examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch \
+             examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
              examples/minife/README \
              examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch \
              examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch \
