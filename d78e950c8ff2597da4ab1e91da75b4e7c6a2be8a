@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_12e654b0",
+        "filename": "copying_headers/MANIFEST.BSD3-intel",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-11T18:53:26Z",
+      "side": 1,
+      "message": "exampled -\u003e examples",
+      "revId": "d78e950c8ff2597da4ab1e91da75b4e7c6a2be8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
