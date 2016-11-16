@@ -46,5 +46,6 @@ if ENABLE_MPI
 endif
 
 EXTRA_DIST += test_integration/geopm_test_integration.py \
+              test_integration/test_loop.sh \
               test_integration/README.md \
               # end
