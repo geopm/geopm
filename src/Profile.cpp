@@ -437,6 +437,9 @@ namespace geopm
                 geopm_env_do_region_barrier()) {
                 PMPI_Barrier(m_shm_comm);
             }
+            if (geopm_region_id_is_mpi(region_id)) {
+                m_curr_region_id = geopm_region_id_set_mpi(m_parent_region);
+            }
             m_progress = 1.0;
             sample();
             m_curr_region_id = 0;
