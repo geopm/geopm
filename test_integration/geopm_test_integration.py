@@ -316,7 +316,8 @@ class Launcher(object):
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
         try:
-            self._num_thread = (multiprocessing.cpu_count() - 2) / (self._num_rank / self._num_node)
+            # FIXME : Make this code detect hyperthreading instead of hardcoding the divide by 4
+            self._num_thread = (multiprocessing.cpu_count() / 4 - 2) / (self._num_rank / self._num_node)
         except AttributeError:
             pass
 
