@@ -33,6 +33,7 @@ check_PROGRAMS += test/geopm_test
 
 if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test
+    check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
 GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
@@ -138,6 +139,8 @@ GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPIProfileTest.epoch \
                test/gtest_links/MPIProfileTest.noctl \
                test/gtest_links/MPIControllerDeathTest.shm_clean_up \
+               test/gtest_links/MPIInterfaceTest.geopm_api \
+               test/gtest_links/MPIInterfaceTest.mpi_api \
                # end
 endif
 
@@ -148,6 +151,7 @@ TESTS += $(GTEST_TESTS) \
 EXTRA_DIST += test/geopm_test.sh \
               test/MPITreeCommunicatorTest.cpp \
               test/MPIControllerTest.cpp \
+              test/MPIInterfaceTest.cpp \
               test/no_omp_cpu.c \
               test/default_policy.json \
               test/invalid_policy.json \
@@ -201,18 +205,29 @@ if ENABLE_MPI
                                   test/MPIControllerDeathTest.cpp \
                                   # end
 
+    test_geopm_mpi_test_api_SOURCES = test/geopm_mpi_test.cpp \
+                                      test/MPIInterfaceTest.cpp \
+                                  # end
+
     test_geopm_mpi_test_LDADD = libgtest.a \
                                 libgmock.a \
                                 libgeopm.la \
                                 $(MPI_CXXLIBS) \
                                 # end
 
+    test_geopm_mpi_test_api_LDADD = $(test_geopm_mpi_test_LDADD)
+
     test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
     test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    test_geopm_mpi_test_api_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    test_geopm_mpi_test_api_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    test_geopm_mpi_test_api_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 if GEOPM_DISABLE_NULL_PTR
     test_geopm_mpi_test_CFLAGS += -fno-delete-null-pointer-checks
     test_geopm_mpi_test_CXXFLAGS += -fno-delete-null-pointer-checks
+    test_geopm_mpi_test_api_CFLAGS += -fno-delete-null-pointer-checks
+    test_geopm_mpi_test_api_CXXFLAGS += -fno-delete-null-pointer-checks
 endif
 endif
 

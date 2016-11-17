@@ -117,8 +117,19 @@ else
        fi
     fi
 
+    if [[ $test_name =~ ^MPIInterface ]]; then
+       if [[ "$mpiexec" =~ ^srun ]]; then
+           mpiexec="srun -N 1"
+       fi
+       num_proc=2
+    fi
+
     if [ "$run_test" == "true" ]; then
-        LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc $dir_name/../.libs/geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
+        if [[ $test_name =~ ^MPIInterface ]]; then
+            LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc $dir_name/../.libs/geopm_mpi_test_api --gtest_filter=$test_name >& $dir_name/$test_name.log
+        else
+            LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc $dir_name/../.libs/geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
+        fi
         err=$?
 
         # SLURM does not always handle death testing properly. Sometimes

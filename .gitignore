@@ -77,6 +77,7 @@
 /test-driver
 /test_plugin_app
 /test/geopm_mpi_test
+/test/geopm_mpi_test_api
 /test/geopm_print_error
 /test/geopm_static_modes_test
 /test/geopm_test
