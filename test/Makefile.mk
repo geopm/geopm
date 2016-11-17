@@ -138,6 +138,8 @@ GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPIProfileTest.epoch \
                test/gtest_links/MPIProfileTest.noctl \
                test/gtest_links/MPIControllerDeathTest.shm_clean_up \
+               test/gtest_links/MPIInterfaceTest.geopm_api \
+               test/gtest_links/MPIInterfaceTest.mpi_api \
                # end
 endif
 
@@ -148,6 +150,7 @@ TESTS += $(GTEST_TESTS) \
 EXTRA_DIST += test/geopm_test.sh \
               test/MPITreeCommunicatorTest.cpp \
               test/MPIControllerTest.cpp \
+              test/MPIInterfaceTest.cpp \
               test/no_omp_cpu.c \
               test/default_policy.json \
               test/invalid_policy.json \
@@ -196,6 +199,7 @@ endif
 if ENABLE_MPI
     test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
                                   test/MPITreeCommunicatorTest.cpp \
+                                  test/MPIInterfaceTest.cpp \
                                   test/MPISharedMemoryTest.cpp \
                                   test/MPIProfileTest.cpp \
                                   test/MPIControllerDeathTest.cpp \
