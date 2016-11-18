@@ -1,3 +1,7 @@
+* Fri Nov 18 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.1
+- Fix for accounting problem with nested MPI exits.
+- Fix to thread calculation in integration test to avoid hyper-threads.
+- Added script to loop over integration tests.
 * Fri Nov 11 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.0
 - Renamed package to Global Extensible Open Power Manager.
 - Improved features, performance, documentation, testing and continuous integration.
