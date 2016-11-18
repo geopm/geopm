@@ -315,9 +315,22 @@ class Launcher(object):
         # Figure out the number of CPUs per rank leaving one for the
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
+        cmd = 'lscpu'
+        pid = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (out, err) = pid.communicate()
+        if pid.returncode:
+            raise subprocess.CalledProcessError(pid.returncode, cmd, err)
+        core_socket = [int(line.split(':')[1])
+                       for line in out.splitlines()
+                       if line.find('Core(s) per socket:') == 0 or
+                          line.find('Socket(s):') == 0]
+        # Mulitply num core per socket by num socket and remove one
+        # CPU for BSP and one for the controller to calculate number
+        # of CPU for application.  Don't use hyper-threads.
+        num_cpu = core_socket[0] * core_socket[1] - 2
         try:
-            # FIXME : Make this code detect hyperthreading instead of hardcoding the divide by 4
-            self._num_thread = (multiprocessing.cpu_count() / 4 - 2) / (self._num_rank / self._num_node)
+            rank_per_node = self._num_rank / self._num_node
+            self._num_thread = num_cpu / rank_per_node
         except AttributeError:
             pass
 
