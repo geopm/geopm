@@ -237,7 +237,12 @@ namespace geopm
         , m_parent_region(0)
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
+        , m_overhead_time(0.0)
     {
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
         int shm_num_rank = 0;
 
         MPI_Comm_rank(comm, &m_rank);
@@ -342,6 +347,11 @@ namespace geopm
             geopm_signal_handler_check();
         }
         geopm_pmpi_prof_enable(1);
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
     }
 
     Profile::~Profile()
@@ -354,24 +364,38 @@ namespace geopm
 
     void Profile::shutdown(void)
     {
-        if (m_is_enabled) {
-            geopm_pmpi_prof_enable(0);
-            PMPI_Barrier(m_shm_comm);
-            if (!m_shm_rank) {
-                m_ctl_msg->app_status = GEOPM_STATUS_SAMPLE_END;
-            }
-            while (m_ctl_msg->ctl_status != GEOPM_STATUS_SAMPLE_END) {
-                geopm_signal_handler_check();
-            }
-            if (geopm_env_report_verbosity()) {
-                print(geopm_env_report(), geopm_env_report_verbosity());
-            }
-            PMPI_Barrier(m_shm_comm);
-            if (!m_shm_rank) {
-                m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
-            }
-            m_is_enabled = false;
+        if (!m_is_enabled) {
+            return;
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
+
+        geopm_pmpi_prof_enable(0);
+        PMPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_SAMPLE_END;
+        }
+        while (m_ctl_msg->ctl_status != GEOPM_STATUS_SAMPLE_END) {
+            geopm_signal_handler_check();
+        }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
+        if (geopm_env_report_verbosity()) {
+            print(geopm_env_report(), geopm_env_report_verbosity());
+        }
+        PMPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_ctl_msg->app_status = GEOPM_STATUS_SHUTDOWN;
+        }
+        m_is_enabled = false;
     }
 
     uint64_t Profile::region(const std::string region_name, long policy_hint)
@@ -379,8 +403,22 @@ namespace geopm
         if (!m_is_enabled) {
             return 0;
         }
-        return m_table->key(region_name);
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
+
+        uint64_t result = m_table->key(region_name);
         /// @todo Record policy hint when registering a region.
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
+        return result;
     }
 
     void Profile::enter(uint64_t region_id)
@@ -388,6 +426,12 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
+
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
             if (!geopm_region_id_is_mpi(region_id) &&
@@ -417,6 +461,13 @@ namespace geopm
              geopm_region_id_is_mpi(region_id))) {
             ++m_num_enter;
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
     }
 
     void Profile::exit(uint64_t region_id)
@@ -424,6 +475,11 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
 
         // keep track of number of exits to account for nesting
         if (m_curr_region_id == region_id ||
@@ -453,6 +509,13 @@ namespace geopm
                 m_parent_num_enter = 0;
             }
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
     }
 
     void Profile::progress(uint64_t region_id, double fraction)
@@ -461,6 +524,11 @@ namespace geopm
             return;
         }
 
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
+
         if (m_num_enter == 1 && m_curr_region_id == region_id &&
             fraction > 0.0 && fraction < 1.0 &&
             m_scheduler.do_sample()) {
@@ -468,6 +536,13 @@ namespace geopm
             sample();
             m_scheduler.record_exit();
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
     }
 
     void Profile::epoch(void)
@@ -475,6 +550,11 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
 
         struct geopm_prof_message_s sample;
         PMPI_Barrier(m_shm_comm);
@@ -485,6 +565,13 @@ namespace geopm
             sample.progress = 0.0;
             m_table->insert(sample.region_id, sample);
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
     }
 
     void Profile::sample(void)
@@ -493,12 +580,24 @@ namespace geopm
             return;
         }
 
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
+
         struct geopm_prof_message_s sample;
         sample.rank = m_rank;
         sample.region_id = m_curr_region_id;
         (void) geopm_time(&(sample.timestamp));
         sample.progress = m_progress;
         m_table->insert(m_curr_region_id, sample);
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+
     }
 
     void Profile::disable(const std::string feature_name)
@@ -515,6 +614,11 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_entry;
+        geopm_time(&overhead_entry);
+#endif
 
         int is_done = 0;
         int is_all_done = 0;
@@ -564,6 +668,19 @@ namespace geopm
         while (m_ctl_msg->ctl_status != GEOPM_STATUS_NAME_END) {
             geopm_signal_handler_check();
         }
+
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        double max_overhead;
+        MPI_Reduce(&m_overhead_time, &max_overhead, 1,
+                   MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+        if (!m_rank) {
+            std::cout << "GEOPM overhead (seconds): " << max_overhead << std::endl;
+        }
+#endif
+
     }
 
     void Profile::init_cpu_list(void)

@@ -71,6 +71,7 @@ namespace geopm
             virtual void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy) = 0;
             virtual void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample) = 0;
             virtual void get_policy(int level, struct geopm_policy_message_s &policy) = 0;
+            virtual size_t overhead_send(void) = 0;
     };
 
     class TreeCommunicator : public TreeCommunicatorBase
@@ -207,6 +208,7 @@ namespace geopm
             /// @param [out] policy The current policy message for the
             ///        calling process at the given level.
             void get_policy(int level, struct geopm_policy_message_s &policy);
+            size_t overhead_send(void);
         protected:
             /// @brief Constructor helper to instantiate MPI types.
             void mpi_type_create(void);
@@ -265,6 +267,7 @@ namespace geopm
             void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy);
             void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
             void get_policy(int level, struct geopm_policy_message_s &policy);
+            size_t overhead_send(void);
         protected:
             GlobalPolicy *m_policy;
             struct geopm_sample_message_s m_sample;

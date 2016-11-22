@@ -236,6 +236,7 @@ namespace geopm
             void send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length);
             /// Returns the level rank of the calling process.
             int level_rank(void);
+            size_t overhead_send(void);
         protected:
             void open_recv(void);
             void close_recv(void);
@@ -249,6 +250,7 @@ namespace geopm
             struct geopm_policy_message_s m_policy_mailbox;
             MPI_Request m_policy_request;
             struct geopm_policy_message_s m_policy;
+            size_t m_overhead_send;
     };
 
     /////////////////////////////////
@@ -385,6 +387,16 @@ namespace geopm
         }
     }
 
+    size_t TreeCommunicator::overhead_send(void)
+    {
+        size_t result = 0;
+        for (auto it = m_level.begin(); it != m_level.end(); ++it) {
+            result += (*it)->overhead_send();
+        }
+        return result;
+    }
+
+
     //////////////////////////////////////
     // TreeCommunicator protected API's //
     //////////////////////////////////////
@@ -492,6 +504,7 @@ namespace geopm
         , m_sample_mpi_type(sample_mpi_type)
         , m_policy_mpi_type(policy_mpi_type)
         , m_policy_request(MPI_REQUEST_NULL)
+        , m_overhead_send(0)
     {
         check_mpi(MPI_Comm_size(comm, &m_size));
         check_mpi(MPI_Comm_rank(comm, &m_rank));
@@ -554,6 +567,9 @@ namespace geopm
         check_mpi(MPI_Put((void *)&sample, 1, m_sample_mpi_type, 0, m_rank, 1, m_sample_mpi_type, m_sample_window));
 #endif
         check_mpi(MPI_Win_unlock(0, m_sample_window));
+#ifdef GEOPM_OVERHEAD
+        m_overhead_send += sizeof(struct geopm_sample_message_s);
+#endif
     }
 
     void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length)
@@ -570,6 +586,14 @@ namespace geopm
             (void) MPI_Isend(const_cast<struct geopm_policy_message_s*>(&(*policy_it)), 1, m_policy_mpi_type, dest, GEOPM_POLICY_TAG, m_comm, &request);
             (void) MPI_Request_free(&request);
         }
+#ifdef GEOPM_OVERHEAD
+        m_overhead_send += sizeof(struct geopm_policy_message_s);
+#endif
+    }
+
+    size_t TreeCommunicatorLevel::overhead_send(void)
+    {
+        return m_overhead_send;
     }
 
     int TreeCommunicatorLevel::level_rank(void)
@@ -647,6 +671,11 @@ namespace geopm
     void SingleTreeCommunicator::get_policy(int level, struct geopm_policy_message_s &policy)
     {
         m_policy->policy_message(policy);
+    }
+
+    size_t SingleTreeCommunicator::overhead_send(void)
+    {
+        return 0;
     }
 
 }
