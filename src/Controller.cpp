@@ -41,6 +41,7 @@
 #include <json-c/json.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
@@ -836,10 +837,36 @@ namespace geopm
                 (*it).second->report(report, name, m_rank_per_node);
             }
         }
+        double total_runtime = geopm_time_diff(&m_app_start_time, &m_msr_sample[0].timestamp);
         report << "Application Totals:" << std::endl
-               << "\truntime (sec): " << geopm_time_diff(&m_app_start_time, &m_msr_sample[0].timestamp) << std::endl
+               << "\truntime (sec): " << total_runtime << std::endl
                << "\tenergy (joules): " << (energy_exit - m_counter_energy_start) << std::endl
                << "\tmpi-runtime (sec): " << m_mpi_agg_time << std::endl;
+
+#ifdef GEOPM_OVERHEAD
+        std::ifstream proc_stream("/proc/" + std::to_string((int)getpid()) +  "/status");
+        std::string line;
+        std::string max_memory;
+        const std::string key("VmHWM:");
+        while (proc_stream.good()) {
+            getline(proc_stream, line);
+            if (line.find(key) == 0) {
+                max_memory = line.substr(key.length());
+                size_t off = max_memory.find_first_not_of(" \t");
+                if (off != std::string::npos) {
+                    max_memory = max_memory.substr(off);
+                }
+            }
+        }
+        proc_stream.close();
+        if (!max_memory.size()) {
+            throw Exception("Controller::generate_report(): Unable to get memory overhead from /proc",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
+        report << "\tgeopmctl network BW (B/sec): " << m_tree_comm->overhead_send() / total_runtime << std::endl;
+#endif
+
         report.close();
     }
 
