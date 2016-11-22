@@ -288,6 +288,17 @@ fi
 [enable_coverage="0"]
 )
 
+AC_ARG_ENABLE([overhead],
+  [AS_HELP_STRING([--enable-overhead], [Enable GEOPM to calculate and display time spent in GEOPM API calls])],
+[if test "x$enable_overhead" = "xno" ; then
+  enable_overhead="0"
+else
+  enable_overhead="1"
+fi
+],
+[enable_overhead="0"]
+)
+
 if test "x$enable_openmp" = "xno" ; then
   enable_openmp="0"
 else
@@ -309,6 +320,12 @@ if test "x$enable_coverage" = "x1" ; then
   LDFLAGS="$LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
+
+if test "x$enable_overhead" = "x1" ; then
+  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
+fi
+AC_SUBST([enable_overhead])
+
 
 AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
@@ -483,6 +500,7 @@ AC_MSG_RESULT([mandir             : ${mandir}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
+AC_MSG_RESULT([overhead           : ${enable_overhead}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
