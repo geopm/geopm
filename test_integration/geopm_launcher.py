@@ -90,7 +90,7 @@ class Launcher(object):
         env.update(self._environ())
         self._app_conf.write()
         self._ctl_conf.write()
-        with open(test_name + '.log', 'a') as outfile:
+        with open(test_name + '.log', 'w') as outfile:
             outfile.write(str(self) + '\n\n')
             outfile.flush()
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
