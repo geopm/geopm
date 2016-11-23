@@ -888,7 +888,13 @@ int MPI_Comm_test_inter(MPI_Comm comm, int *flag)
 
 int MPI_Exscan(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
 {
-    return PMPI_Exscan(sendbuf, recvbuf, count, datatype, op, geopm_swap_comm_world(comm));
+    int err = 0;
+
+    geopm_mpi_region_enter();
+    err = PMPI_Exscan(sendbuf, recvbuf, count, datatype, op, geopm_swap_comm_world(comm));
+    geopm_mpi_region_exit();
+
+    return err;
 }
 
 #ifdef GEOPM_ENABLE_MPI3
