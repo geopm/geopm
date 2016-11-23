@@ -1046,7 +1046,13 @@ int MPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source, int t
 
 int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
 {
-    return PMPI_Recv(buf, count, datatype, source, tag, geopm_swap_comm_world(comm), status);
+    int err = 0;
+
+    geopm_mpi_region_enter();
+    err = PMPI_Recv(buf, count, datatype, source, tag, geopm_swap_comm_world(comm), status);
+    geopm_mpi_region_exit();
+
+    return err;
 }
 
 #ifdef GEOPM_ENABLE_MPI3
@@ -1088,17 +1094,35 @@ int MPI_Send_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, i
 
 int MPI_Send(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
-    return PMPI_Send(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
+    int err = 0;
+
+    geopm_mpi_region_enter();
+    err =  PMPI_Send(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
+    geopm_mpi_region_exit();
+
+    return err;
 }
 
 int MPI_Sendrecv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, int dest, int sendtag, void *recvbuf, int recvcount, MPI_Datatype recvtype, int source, int recvtag, MPI_Comm comm, MPI_Status *status)
 {
-    return PMPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf, recvcount, recvtype, source, recvtag, geopm_swap_comm_world(comm), status);
+    int err = 0;
+
+    geopm_mpi_region_enter();
+    err = PMPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf, recvcount, recvtype, source, recvtag, geopm_swap_comm_world(comm), status);
+    geopm_mpi_region_exit();
+
+    return err;
 }
 
 int MPI_Sendrecv_replace(void * buf, int count, MPI_Datatype datatype, int dest, int sendtag, int source, int recvtag, MPI_Comm comm, MPI_Status *status)
 {
-    return PMPI_Sendrecv_replace(buf, count, datatype, dest, sendtag, source, recvtag, geopm_swap_comm_world(comm), status);
+    int err = 0;
+
+    geopm_mpi_region_enter();
+    err = PMPI_Sendrecv_replace(buf, count, datatype, dest, sendtag, source, recvtag, geopm_swap_comm_world(comm), status);
+    geopm_mpi_region_exit();
+
+    return err;
 }
 
 int MPI_Ssend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
@@ -1108,7 +1132,13 @@ int MPI_Ssend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, 
 
 int MPI_Ssend(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
-    return PMPI_Ssend(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
+    int err = 0;
+
+    geopm_mpi_region_enter();
+    err = PMPI_Ssend(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
+    geopm_mpi_region_exit();
+
+    return err;
 }
 
 int MPI_Topo_test(MPI_Comm comm, int *status)
