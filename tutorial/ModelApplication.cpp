@@ -228,10 +228,10 @@ namespace geopm
             std::cout << "Beginning loop of " << m_repeat << " iterations." << std::endl << std::flush;
         }
         for (uint64_t i = 0; i < m_repeat; ++i) {
+            (void)geopm_prof_epoch();
             for (auto it = m_region.begin(); it != m_region.end(); ++it) {
                 (*it)->run();
             }
-            (void)geopm_prof_epoch();
             if (!m_rank) {
                 std::cout << "Iteration: " << i << "\r" << std::flush;
             }
