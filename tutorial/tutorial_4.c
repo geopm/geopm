@@ -70,6 +70,7 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
     for (int i = 0; !err && i < num_iter; ++i) {
+        err = geopm_prof_epoch();
         if (!err) {
             err = geopm_prof_enter(dgemm_rid);
         }
@@ -84,9 +85,6 @@ int main(int argc, char **argv)
         }
         if (!err) {
             err = geopm_prof_exit(dgemm_rid);
-        }
-        if (!err) {
-            err = geopm_prof_epoch();
         }
         if (!err) {
             err = MPI_Barrier(MPI_COMM_WORLD);
