@@ -587,8 +587,9 @@ namespace geopm
             (void) MPI_Request_free(&request);
         }
 #ifdef GEOPM_OVERHEAD
-        m_overhead_send += sizeof(struct geopm_policy_message_s);
+        m_overhead_send += policy.size() * sizeof(struct geopm_policy_message_s);
 #endif
+
     }
 
     size_t TreeCommunicatorLevel::overhead_send(void)
