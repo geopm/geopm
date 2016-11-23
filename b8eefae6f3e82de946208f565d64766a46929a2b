@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aa53dc9_7d31200b",
+        "filename": "tutorial/tutorial_6_config.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-11-23T21:48:25Z",
+      "side": 1,
+      "message": "didn\u0027t mean to commit this.",
+      "revId": "b8eefae6f3e82de946208f565d64766a46929a2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
