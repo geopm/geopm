@@ -92,7 +92,10 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
     for (int i = 0; !err && i < num_iter; ++i) {
-        err = geopm_prof_enter(sleep_rid);
+        err = geopm_prof_epoch();
+        if (!err) {
+            err = geopm_prof_enter(sleep_rid);
+        }
         if (!err) {
             err = tutorial_sleep(sleep_big_o, 0);
         }
@@ -125,9 +128,6 @@ int main(int argc, char **argv)
         }
         if (!err) {
             err = geopm_prof_exit(stream_rid);
-        }
-        if (!err) {
-            err = geopm_prof_epoch();
         }
         if (!err) {
             err = geopm_prof_enter(all2all_rid);
