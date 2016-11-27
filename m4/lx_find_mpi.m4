@@ -74,7 +74,7 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPICC" ]]; then
              LX_QUERY_MPI_COMPILER(MPICC, [$MPICC], C)
          else
-             LX_QUERY_MPI_COMPILER(MPICC, [mpicc mpiicc mpixlc mpipgcc], C)
+             LX_QUERY_MPI_COMPILER(MPICC, [cc mpicc mpiicc mpixlc mpipgcc], C)
          fi
      ],
      [C++], [
@@ -82,7 +82,7 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPICXX" ]]; then
              LX_QUERY_MPI_COMPILER(MPICXX, [$MPICXX], CXX)
          else
-             LX_QUERY_MPI_COMPILER(MPICXX, [mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC], CXX)
+             LX_QUERY_MPI_COMPILER(MPICXX, [CC mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC], CXX)
          fi
      ],
      [Fortran 77], [
@@ -90,7 +90,7 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPIF77" ]]; then
              LX_QUERY_MPI_COMPILER(MPIF77, [$MPIF77], F77)
          else
-             LX_QUERY_MPI_COMPILER(MPIF77, [mpif77 mpiifort mpifort mpixlf77 mpixlf77_r], F77)
+             LX_QUERY_MPI_COMPILER(MPIF77, [ftn mpif77 mpiifort mpifort mpixlf77 mpixlf77_r], F77)
          fi
      ],
      [Fortran], [
@@ -98,11 +98,12 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPIFC" ]]; then
              LX_QUERY_MPI_COMPILER(MPIFC, [$MPIFC], F)
          else
+             mpi_cray_fc="ftn"
              mpi_default_fc="mpif95 mpif90 mpigfortran mpif2003"
              mpi_intel_fc="mpiifort mpifort"
              mpi_xl_fc="mpixlf95 mpixlf95_r mpixlf90 mpixlf90_r mpixlf2003 mpixlf2003_r"
              mpi_pg_fc="mpipgf95 mpipgf90"
-             LX_QUERY_MPI_COMPILER(MPIFC, [$mpi_default_fc $mpi_intel_fc $mpi_xl_fc $mpi_pg_fc], F)
+             LX_QUERY_MPI_COMPILER(MPIFC, [$mpi_cray_fc $mpi_default_fc $mpi_intel_fc $mpi_xl_fc $mpi_pg_fc], F)
          fi
      ])
 ])
@@ -151,6 +152,13 @@ AC_DEFUN([LX_QUERY_MPI_COMPILER],
                      echo yes
                  else
                      echo no
+                     echo -n "Checking whether $$1 responds to '--cray-print-opts=all'... "
+                     lx_mpi_command_line=`$$1 --cray-print-opts=all  2>/dev/null`
+                     if [[ "$?" -eq 0 ]]; then
+                         echo yes
+                     else
+                         echo no
+	             fi
                  fi
              fi
          else
