@@ -97,6 +97,7 @@ doc/*.blg
 doc/*.log
 doc/geopm-plugin-guide.pdf
 *.swp
+*.pyc
 tutorial/tutorial_[0-9]
 tutorial/*.o
 tutorial/tutorial_[0-9]*_report-*
