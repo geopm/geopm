@@ -266,7 +266,7 @@ namespace geopm
 
     void Region::report(std::ofstream &file_stream, const std::string &name, int num_rank_per_node) const
     {
-        file_stream << "Region " + name + ":" << std::endl;
+        file_stream << "Region " + name + " (" << m_identifier << "):" << std::endl;
         file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
         file_stream << "\tfrequency (%): " << (m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] ? 100 *
