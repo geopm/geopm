@@ -122,6 +122,7 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+            self.assertEqual(1, rr['sleep'].get_count())
 
     def test_runtime(self):
         name = 'test_runtime'
@@ -169,10 +170,11 @@ class TestReport(unittest.TestCase):
         self.assertTrue(len(reports) == num_node)
         for rr in reports:
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
-            self.assertNear(delay*loop_count*2, rr['spin'].get_runtime())
+            self.assertNear(loop_count * 2 * delay, rr['spin'].get_runtime())
             self.assertNear(rr['spin'].get_runtime(), rr['epoch'].get_runtime(), epsilon=0.01)
             self.assertGreater(rr.get_mpi_runtime(), 0)
             self.assertGreater(0.1, rr.get_mpi_runtime())
+            self.assertEqual(2 * loop_count, rr['spin'].get_count())
 
     def test_progress(self):
         name = 'test_progress'
@@ -196,6 +198,33 @@ class TestReport(unittest.TestCase):
         for rr in reports:
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+            self.assertEqual(1, rr['sleep'].get_count())
+
+    def test_count(self):
+        name = 'test_count'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 4
+        delay = 0.001
+        loop_count = 500
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('spin', delay)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [geopm_io.Report(rr) for rr in reports]
+        self.assertTrue(len(reports) == num_node)
+        for rr in reports:
+            self.assertNear(delay * loop_count, rr['spin'].get_runtime())
+            self.assertEqual(loop_count, rr['spin'].get_count())
+            self.assertEqual(loop_count, rr['epoch'].get_count())
 
 if __name__ == '__main__':
     unittest.main()
