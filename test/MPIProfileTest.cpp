@@ -143,16 +143,16 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
 
         while(std::getline(log, line)) {
             curr_value = -1.0;
-            if (line.find("Region loop_one:") == 0) {
+            if (line.find("Region loop_one") == 0) {
                 curr_value = check_val[0];
             }
-            else if (line.find("Region loop_two:") == 0) {
+            else if (line.find("Region loop_two") == 0) {
                 curr_value = check_val[1];
             }
-            else if (line.find("Region loop_three:") == 0) {
+            else if (line.find("Region loop_three") == 0) {
                 curr_value = check_val[2];
             }
-            else if (line.find("Region epoch:") == 0) {
+            else if (line.find("Region epoch") == 0) {
                 std::getline(log, line);
                 ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &epoch_value));
             }

@@ -59,7 +59,7 @@ class Report(dict):
                     if match is not None:
                         self._name = match.group(1)
                 elif region_name is None:
-                    match = re.search(r'^Region (\S+):', line)
+                    match = re.search(r'^Region (\S+) \([0-9]+\):', line)
                     if match is not None:
                         region_name = match.group(1)
                 elif runtime is None:
