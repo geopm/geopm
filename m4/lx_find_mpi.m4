@@ -68,42 +68,55 @@
 #
 AC_DEFUN([LX_FIND_MPI],
 [
+     #Check for Cray MPI wrappers
+     cray_string=`driver 2>&1`
+     have_cray=0
+     if [[ "$cray_string" == "Use either: 'cc', 'CC', or 'ftn'." ]]; then
+         have_cray=1
+     fi
      AC_LANG_CASE(
      [C], [
          AC_REQUIRE([AC_PROG_CC])
          if [[ ! -z "$MPICC" ]]; then
              LX_QUERY_MPI_COMPILER(MPICC, [$MPICC], C)
+         elif [[ $have_cray -eq 1 ]]; then
+             LX_QUERY_MPI_COMPILER(MPICC, [cc], C)
          else
-             LX_QUERY_MPI_COMPILER(MPICC, [cc mpicc mpiicc mpixlc mpipgcc], C)
+             LX_QUERY_MPI_COMPILER(MPICC, [mpicc mpiicc mpixlc mpipgcc], C)
          fi
      ],
      [C++], [
          AC_REQUIRE([AC_PROG_CXX])
          if [[ ! -z "$MPICXX" ]]; then
              LX_QUERY_MPI_COMPILER(MPICXX, [$MPICXX], CXX)
+         elif [[ $have_cray -eq 1 ]]; then
+             LX_QUERY_MPI_COMPILER(MPICXX, [CC], CXX)
          else
-             LX_QUERY_MPI_COMPILER(MPICXX, [CC mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC], CXX)
+             LX_QUERY_MPI_COMPILER(MPICXX, [mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC], CXX)
          fi
      ],
      [Fortran 77], [
          AC_REQUIRE([AC_PROG_F77])
          if [[ ! -z "$MPIF77" ]]; then
              LX_QUERY_MPI_COMPILER(MPIF77, [$MPIF77], F77)
+         elif [[ $have_cray -eq 1 ]]; then
+             LX_QUERY_MPI_COMPILER(MPIF77, [ftn], F77)
          else
-             LX_QUERY_MPI_COMPILER(MPIF77, [ftn mpif77 mpiifort mpifort mpixlf77 mpixlf77_r], F77)
+             LX_QUERY_MPI_COMPILER(MPIF77, [mpif77 mpiifort mpifort mpixlf77 mpixlf77_r], F77)
          fi
      ],
      [Fortran], [
          AC_REQUIRE([AC_PROG_FC])
          if [[ ! -z "$MPIFC" ]]; then
              LX_QUERY_MPI_COMPILER(MPIFC, [$MPIFC], F)
+         elif [[ $have_cray -eq 1 ]]; then
+             LX_QUERY_MPI_COMPILER(MPIFC, [ftn], F)
          else
-             mpi_cray_fc="ftn"
              mpi_default_fc="mpif95 mpif90 mpigfortran mpif2003"
              mpi_intel_fc="mpiifort mpifort"
              mpi_xl_fc="mpixlf95 mpixlf95_r mpixlf90 mpixlf90_r mpixlf2003 mpixlf2003_r"
              mpi_pg_fc="mpipgf95 mpipgf90"
-             LX_QUERY_MPI_COMPILER(MPIFC, [$mpi_cray_fc $mpi_default_fc $mpi_intel_fc $mpi_xl_fc $mpi_pg_fc], F)
+             LX_QUERY_MPI_COMPILER(MPIFC, [$mpi_default_fc $mpi_intel_fc $mpi_xl_fc $mpi_pg_fc], F)
          fi
      ])
 ])
