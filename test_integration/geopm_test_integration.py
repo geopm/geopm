@@ -170,11 +170,11 @@ class TestReport(unittest.TestCase):
         self.assertTrue(len(reports) == num_node)
         for rr in reports:
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
-            self.assertNear(loop_count * 2 * delay, rr['spin'].get_runtime())
+            self.assertNear(2 * loop_count * delay, rr['spin'].get_runtime())
             self.assertNear(rr['spin'].get_runtime(), rr['epoch'].get_runtime(), epsilon=0.01)
             self.assertGreater(rr.get_mpi_runtime(), 0)
             self.assertGreater(0.1, rr.get_mpi_runtime())
-            self.assertEqual(2 * loop_count, rr['spin'].get_count())
+            self.assertEqual(loop_count, rr['spin'].get_count())
 
     def test_progress(self):
         name = 'test_progress'

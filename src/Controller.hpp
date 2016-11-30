@@ -214,7 +214,6 @@ namespace geopm
             std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
-            std::vector<double> m_rank_progress;
     };
 }
 
