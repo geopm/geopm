@@ -315,6 +315,8 @@ namespace geopm
             double m_parent_progress;
             int m_parent_num_enter;
             double m_overhead_time;
+            double m_overhead_time_startup;
+            double m_overhead_time_shutdown;
     };
 
     /// @brief Retrieves sample data from a single application rank through

@@ -238,6 +238,8 @@ namespace geopm
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
         , m_overhead_time(0.0)
+        , m_overhead_time_startup(0.0)
+        , m_overhead_time_shutdown(0.0)
     {
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -350,7 +352,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
         geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time_startup = geopm_time_diff(&overhead_entry, &overhead_exit);
 #endif
     }
 
@@ -385,7 +387,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
         geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time_shutdown = geopm_time_diff(&overhead_entry, &overhead_exit);
 #endif
 
         if (geopm_env_report_verbosity()) {
@@ -673,11 +675,16 @@ namespace geopm
         struct geopm_time_s overhead_exit;
         geopm_time(&overhead_exit);
         m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
-        double max_overhead;
-        MPI_Reduce(&m_overhead_time, &max_overhead, 1,
+        double overhead_buffer[3] = {m_overhead_time_startup,
+                                     m_overhead_time,
+                                     m_overhead_time_shutdown};
+        double max_overhead[3] = {};
+        MPI_Reduce(overhead_buffer, max_overhead, 3,
                    MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
         if (!m_rank) {
-            std::cout << "GEOPM overhead (seconds): " << max_overhead << std::endl;
+            std::cout << "GEOPM startup (seconds):  " << max_overhead[0] << std::endl;
+            std::cout << "GEOPM runtime (seconds):  " << max_overhead[1] << std::endl;
+            std::cout << "GEOPM shutdown (seconds): " << max_overhead[2] << std::endl;
         }
 #endif
 
