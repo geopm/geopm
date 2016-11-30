@@ -383,7 +383,6 @@ namespace geopm
             m_sampler->cpu_rank(cpu_rank);
             m_platform->init_transform(cpu_rank);
             m_sample_regulator = new SampleRegulator(cpu_rank);
-            m_rank_progress.resize(m_sample_regulator->rank_idx_map().size(), 0.0);
             m_is_connected = true;
         }
     }
@@ -561,13 +560,7 @@ namespace geopm
                                 m_mpi_sync_time += geopm_time_diff(&(m_mpi_enter_time[local_rank]), &((*sample_it).second.timestamp)) / m_rank_per_node;
                             }
                         }
-                        (*sample_it).second.region_id = geopm_region_id_parent((*sample_it).second.region_id);
-                        if ((*sample_it).second.region_id) {
-                            (*sample_it).second.progress = m_rank_progress[local_rank];
-                        }
-                    }
-                    else {
-                        m_rank_progress[local_rank] = (*sample_it).second.progress;
+                        (*sample_it).second.region_id = GEOPM_REGION_ID_INVALID;
                     }
                 }
 
@@ -582,13 +575,11 @@ namespace geopm
 
                 std::vector<double> aligned_signal;
                 bool is_epoch_found = false;
-                uint64_t region_id_all_tmp = m_region_id_all;
                 // Catch epoch regions and region entries
                 for (auto sample_it = m_prof_sample.cbegin();
                      sample_it != m_prof_sample.cbegin() + length;
                      ++sample_it) {
-                    if ((*sample_it).second.region_id != GEOPM_REGION_ID_INVALID &&
-                        (*sample_it).second.region_id != m_region_id_all) {
+                    if ((*sample_it).second.region_id != GEOPM_REGION_ID_INVALID) {
                         if ((*sample_it).second.progress == 0.0) {
                             auto region_it = m_region[level].find((*sample_it).second.region_id);
                             if (region_it == m_region[level].end()) {
@@ -601,10 +592,10 @@ namespace geopm
                                 region_it = tmp_it.first;
                             }
                             (*region_it).second->entry();
-                            m_region_id_all = (*sample_it).second.region_id;
                         }
                         if (!is_epoch_found &&
                             geopm_region_id_is_epoch((*sample_it).second.region_id)) {
+                            uint64_t region_id_all_tmp = m_region_id_all;
                             m_region_id_all = GEOPM_REGION_ID_EPOCH;
                             (*m_sample_regulator)(m_msr_sample[0].timestamp,
                                                   platform_sample.cbegin(), platform_sample.cend(),
@@ -613,10 +604,10 @@ namespace geopm
                                                   m_region_id);
                             m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, epoch_telemetry_sample);
                             is_epoch_found = true;
+                            m_region_id_all = region_id_all_tmp;
                         }
                     }
                 }
-                m_region_id_all = region_id_all_tmp;
 
                 // Align profile data
                 (*m_sample_regulator)(m_msr_sample[0].timestamp,
