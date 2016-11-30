@@ -567,9 +567,7 @@ namespace geopm
         check_mpi(MPI_Put((void *)&sample, 1, m_sample_mpi_type, 0, m_rank, 1, m_sample_mpi_type, m_sample_window));
 #endif
         check_mpi(MPI_Win_unlock(0, m_sample_window));
-#ifdef GEOPM_OVERHEAD
         m_overhead_send += sizeof(struct geopm_sample_message_s);
-#endif
     }
 
     void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length)
@@ -586,10 +584,7 @@ namespace geopm
             (void) MPI_Isend(const_cast<struct geopm_policy_message_s*>(&(*policy_it)), 1, m_policy_mpi_type, dest, GEOPM_POLICY_TAG, m_comm, &request);
             (void) MPI_Request_free(&request);
         }
-#ifdef GEOPM_OVERHEAD
         m_overhead_send += policy.size() * sizeof(struct geopm_policy_message_s);
-#endif
-
     }
 
     size_t TreeCommunicatorLevel::overhead_send(void)

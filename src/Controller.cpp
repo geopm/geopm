@@ -834,7 +834,6 @@ namespace geopm
                << "\tenergy (joules): " << (energy_exit - m_counter_energy_start) << std::endl
                << "\tmpi-runtime (sec): " << m_mpi_agg_time << std::endl;
 
-#ifdef GEOPM_OVERHEAD
         std::ifstream proc_stream("/proc/" + std::to_string((int)getpid()) +  "/status");
         std::string line;
         std::string max_memory;
@@ -856,7 +855,6 @@ namespace geopm
         }
         report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
         report << "\tgeopmctl network BW (B/sec): " << m_tree_comm->overhead_send() / total_runtime << std::endl;
-#endif
 
         report.close();
     }
