@@ -61,34 +61,34 @@ AC_ARG_VAR([MPIF77],
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
             [specify directory for installed hwloc package.])])
 if test "x$with_hwloc" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
   LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
 fi
 AC_ARG_WITH([hwloc-include], [AS_HELP_STRING([--with-hwloc-include=PATH],
             [specify directory for the installed hwloc include files.])])
 if test "x$with_hwloc_include" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
 fi
 AC_ARG_WITH([hwloc-lib], [AS_HELP_STRING([--with-hwloc-lib=PATH],
             [specify directory for installed hwloc library])])
 if test "x$with_hwloc_lib" != x; then
   LD_LIBRARY_PATH="$with_hwloc_lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
 fi
 
 AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
             [specify directory for installed json-c package.])])
 
 if test "x$with_json" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
   LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
 fi
 AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
             [specify directory for the installed json-c include files.])])
 if test "x$with_json_include" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
 fi
 AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
             [specify directory for installed json-c library])])
@@ -315,9 +315,9 @@ AC_SUBST([enable_debug])
 
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  CFLAGS="$CFLAGS --coverage"
-  CXXFLAGS="$CXXFLAGS --coverage"
-  LDFLAGS="$LDFLAGS --coverage -lgcov"
+  AM_CFLAGS="$AM_CFLAGS --coverage"
+  AM_CXXFLAGS="$AM_CXXFLAGS --coverage"
+  AM_LDFLAGS="$AM_LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
 
