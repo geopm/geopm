@@ -162,6 +162,7 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~SNBPlatformImp();
             virtual int frequency_control_domain(void) const;
+            static int platform_id(void);
     };
 
     /// @brief This class provides a concrete platform implementation of
@@ -174,6 +175,7 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~IVTPlatformImp();
             virtual int frequency_control_domain(void) const;
+            static int platform_id(void);
     };
 
 
@@ -187,6 +189,7 @@ namespace geopm
             HSXPlatformImp(int platform_id, const std::string &model_name);
             /// @brief Default destructor.
             virtual ~HSXPlatformImp();
+            static int platform_id(void);
     };
 
     class BDXPlatformImp : public HSXPlatformImp
@@ -196,6 +199,7 @@ namespace geopm
             BDXPlatformImp();
             /// @brief Default destructor.
             virtual ~BDXPlatformImp();
+            static int platform_id(void);
     };
 
 }

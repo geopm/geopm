@@ -73,6 +73,7 @@ namespace geopm
             virtual int performance_counter_domain(void) const;
             /// @brief Return the upper and lower bounds of the control.
             virtual void bound(int control_type, double &upper_bound, double &lower_bound);
+            static int platform_id(void);
 
         protected:
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.

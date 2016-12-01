@@ -41,6 +41,11 @@ namespace geopm
 {
     static const std::map<std::string, std::pair<off_t, unsigned long> > &knl_msr_map(void);
 
+    int KNLPlatformImp::platform_id(void)
+    {
+        return 0x657;
+    }
+
     KNLPlatformImp::KNLPlatformImp()
         : PlatformImp(2, 5, 8.0, &(knl_msr_map()))
         , m_energy_units(1.0)
@@ -71,7 +76,7 @@ namespace geopm
         , M_PKG_POWER_LIMIT_MASK(0x1800000018000ul)
         , M_DRAM_POWER_LIMIT_MASK(0x18000)
         , M_EXTRA_SIGNAL(1)
-        , M_PLATFORM_ID(0x657)
+        , M_PLATFORM_ID(platform_id())
     {
 
     }
