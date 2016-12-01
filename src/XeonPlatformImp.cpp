@@ -78,8 +78,13 @@ namespace geopm
         rapl_reset();
     }
 
+    int SNBPlatformImp::platform_id(void)
+    {
+        return 0x62D;
+    }
+
     SNBPlatformImp::SNBPlatformImp()
-        : XeonPlatformImp(0x62D, "Sandybridge E", &(snb_msr_map()))
+        : XeonPlatformImp(platform_id(), "Sandybridge E", &(snb_msr_map()))
     {
 
     }
@@ -95,8 +100,14 @@ namespace geopm
 
     }
 
+
+    int IVTPlatformImp::platform_id(void)
+    {
+        return 0x63E;
+    }
+
     IVTPlatformImp::IVTPlatformImp()
-        : SNBPlatformImp(0x63E, "Ivybridge E")
+        : SNBPlatformImp(platform_id(), "Ivybridge E")
     {
 
     }
@@ -106,9 +117,13 @@ namespace geopm
 
     }
 
+    int HSXPlatformImp::platform_id(void)
+    {
+        return 0x63F;
+    }
 
     HSXPlatformImp::HSXPlatformImp()
-        : XeonPlatformImp(0x63F, "Haswell E", &(hsx_msr_map()))
+        : XeonPlatformImp(platform_id(), "Haswell E", &(hsx_msr_map()))
     {
         XeonPlatformImp::m_dram_energy_units = 1.5258789063E-5;
     }
@@ -124,8 +139,13 @@ namespace geopm
 
     }
 
+    int BDXPlatformImp::platform_id(void)
+    {
+        return 0x64F;
+    }
+
     BDXPlatformImp::BDXPlatformImp()
-        : HSXPlatformImp(0x64F, "Broadwell E")
+        : HSXPlatformImp(platform_id(), "Broadwell E")
     {
 
     }
