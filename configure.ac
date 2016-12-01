@@ -61,41 +61,106 @@ AC_ARG_VAR([MPIF77],
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
             [specify directory for installed hwloc package.])])
 if test "x$with_hwloc" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_hwloc/include"
   LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_hwloc/lib"
 fi
 AC_ARG_WITH([hwloc-include], [AS_HELP_STRING([--with-hwloc-include=PATH],
             [specify directory for the installed hwloc include files.])])
 if test "x$with_hwloc_include" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_hwloc_include"
 fi
 AC_ARG_WITH([hwloc-lib], [AS_HELP_STRING([--with-hwloc-lib=PATH],
             [specify directory for installed hwloc library])])
 if test "x$with_hwloc_lib" != x; then
   LD_LIBRARY_PATH="$with_hwloc_lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_hwloc_lib"
 fi
 
 AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
             [specify directory for installed json-c package.])])
-
 if test "x$with_json" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_json/include"
   LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_json/lib"
 fi
 AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
             [specify directory for the installed json-c include files.])])
 if test "x$with_json_include" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_json_include"
 fi
 AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
             [specify directory for installed json-c library])])
 if test "x$with_json_lib" != x; then
   LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
-  AM_LDFLAGS="$AM_LDFLAGS -L$with_json_lib"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_json_lib"
 fi
+
+AC_ARG_ENABLE([debug],
+  [AS_HELP_STRING([--enable-debug], [Build debugging code and compile with -O0 -g])],
+[if test "x$enable_debug" = "xno" ; then
+  enable_debug="0"
+else
+  enable_debug="1"
+fi
+],
+[enable_debug="0"]
+)
+
+AC_ARG_ENABLE([coverage],
+  [AS_HELP_STRING([--enable-coverage], [Build with test coverage support and enable debug])],
+[if test "x$enable_coverage" = "xno" ; then
+  enable_coverage="0"
+else
+  enable_coverage="1"
+  enable_debug="1"
+fi
+],
+[enable_coverage="0"]
+)
+
+AC_ARG_ENABLE([overhead],
+  [AS_HELP_STRING([--enable-overhead], [Enable GEOPM to calculate and display time spent in GEOPM API calls])],
+[if test "x$enable_overhead" = "xno" ; then
+  enable_overhead="0"
+else
+  enable_overhead="1"
+fi
+],
+[enable_overhead="0"]
+)
+
+if test "x$enable_openmp" = "xno" ; then
+  enable_openmp="0"
+else
+  enable_openmp="1"
+fi
+
+if test "x$enable_debug" = "x1" ; then
+  AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
+  CFLAGS="$CFLAGS -O0 -g"
+  CXXFLAGS="$CXXFLAGS -O0 -g"
+fi
+AC_SUBST([enable_debug])
+
+
+if test "x$enable_coverage" = "x1" ; then
+  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
+  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
+fi
+AC_SUBST([enable_coverage])
+
+if test "x$enable_overhead" = "x1" ; then
+  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
+fi
+AC_SUBST([enable_overhead])
+
+
+AC_SUBST([enable_openmp])
+AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
+
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
@@ -201,6 +266,73 @@ if test "x$enable_fortran" = "x1"; then
 fi
 fi
 
+AC_LANG_PUSH([C++])
+AC_OPENMP()
+AC_LANG_POP([C++])
+
+
+[MPI_FCFLAGS=$MPI_FFLAGS]
+[MPI_FFLAGS=$MPI_F77FLAGS]
+[MPI_LDFLAGS=$MPI_CLDFLAGS]
+[MPI_LIBS=$MPI_CLIBS]
+[MPI_FCLIBS=$MPI_FLIBS]
+[MPI_FLIBS=$MPI_F77LIBS]
+
+# WORK AROUND FOR SLES-12.
+#
+# The version of openmpi installed on SLES-12 has an mpicc wrapper
+# which emits the include flag for the version of hwloc compiled into
+# the mpi library.  This forces the geopm objects which use MPI to be
+# derived from source files that include the openmpi version of the
+# hwloc header.  The geopm objects which do not require MPI will
+# derived from source files that include the system version in
+# /usr/include which is always searched after all non-system -I
+# options have been exhausted.
+#
+# https://gcc.gnu.org/onlinedocs/cpp/System-Headers.html#System-Headers
+#
+# The hwloc interface is based on enums that change frequently with
+# version number (not a great feature) and we would like to use
+# configure to cononicalize the hwloc interface with the
+# GEOPM_HWLOC_HAS_* defines above.  This forces us to use one version
+# of hwloc for MPI and non-MPI objects.  To enable this to be the
+# system version we remove the include path for the openmpi version of
+# hwloc compiled into the mpi library from the MPI_CLFAGS and
+# MPI_CXXFLAGS.
+#
+# I would recommend that in the future SLES either not package hwloc
+# or not allow the mpicc compiler wrapper to emit the include path for
+# the openmpi versioned hwloc.  Alternatively the openmpi hwloc header
+# should be versioned i.e. hwloc.h -> hwloc172.h.
+#
+[MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
+[MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
+[MPI_FCFLAGS=`echo $MPI_FCFLAGS | sed 's|-lmpigi||'`]
+[MPI_FFFLAGS=`echo $MPI_FFFLAGS | sed 's|-lmpigi||'`]
+
+AC_SUBST([MPI_FCFLAGS])
+AC_SUBST([MPI_FFLAGS])
+AC_SUBST([MPI_LDFLAGS])
+AC_SUBST([MPI_LIBS])
+AC_SUBST([MPI_FCLIBS])
+AC_SUBST([MPI_FLIBS])
+
+[EXTRA_CFLAGS="$EXTRA_CFLAGS $OPENMP_CXXFLAGS -std=c99 -msse4.2"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $OPENMP_CXXFLAGS -std=c++11 -msse4.2"]
+[EXTRA_FFLAGS="$EXTRA_FFLAGS $OPENMP_CXXFLAGS -msse4.2"]
+[EXTRA_FCFLAGS="$EXTRA_FCFLAGS $OPENMP_CXXFLAGS -msse4.2"]
+[EXTRA_LDFLAGS="$EXTRA_LDFLAGS $OPENMP_CXXFLAGS"]
+
+
+[LDFLAGS_SAVE="$LDFLAGS"]
+[LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
+[CFLAGS_SAVE="$CFLAGS"]
+[CFLAGS="$EXTRA_CFLAGS $CFLAGS"]
+[CXXFLAGS_SAVE="$CXXFLAGS"]
+[CXXFLAGS="$EXTRA_CXXFLAGS $CXXFLAGS"]
+[CPPFLAGS_SAVE="$CPPFLAGS"]
+[CPPFLAGS="$EXTRA_CPPFLAGS $MPI_CXXFLAGS $CPPFLAGS"]
+
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
 
@@ -216,14 +348,10 @@ AC_PROG_FC
 AC_PROG_F77
 fi
 AC_PROG_MAKE_SET
-AC_LANG_PUSH([C++])
-AC_OPENMP()
-AC_LANG_POP([C++])
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 AM_PROG_CC_C_O
 LT_INIT
-
 
 AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
     echo "missing libpthread: POSIX thread interface is required"
@@ -265,71 +393,6 @@ AC_TYPE_UINT64_T
 # Checks for library functions.
 AC_CHECK_FUNCS([clock_gettime dup2 floor getcwd memset mkfifo pow sqrt strdup strstr])
 
-AC_ARG_ENABLE([debug],
-  [AS_HELP_STRING([--enable-debug], [Build debugging code and compile with -O0 -g])],
-[if test "x$enable_debug" = "xno" ; then
-  enable_debug="0"
-else
-  enable_debug="1"
-fi
-],
-[enable_debug="0"]
-)
-
-AC_ARG_ENABLE([coverage],
-  [AS_HELP_STRING([--enable-coverage], [Build with test coverage support and enable debug])],
-[if test "x$enable_coverage" = "xno" ; then
-  enable_coverage="0"
-else
-  enable_coverage="1"
-  enable_debug="1"
-fi
-],
-[enable_coverage="0"]
-)
-
-AC_ARG_ENABLE([overhead],
-  [AS_HELP_STRING([--enable-overhead], [Enable GEOPM to calculate and display time spent in GEOPM API calls])],
-[if test "x$enable_overhead" = "xno" ; then
-  enable_overhead="0"
-else
-  enable_overhead="1"
-fi
-],
-[enable_overhead="0"]
-)
-
-if test "x$enable_openmp" = "xno" ; then
-  enable_openmp="0"
-else
-  enable_openmp="1"
-fi
-
-if test "x$enable_debug" = "x1" ; then
-  AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
-fi
-AC_SUBST([enable_debug])
-
-
-if test "x$enable_coverage" = "x1" ; then
-  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  CFLAGS="$CFLAGS --coverage"
-  CXXFLAGS="$CXXFLAGS --coverage"
-  LDFLAGS="$LDFLAGS --coverage -lgcov"
-fi
-AC_SUBST([enable_coverage])
-
-if test "x$enable_overhead" = "x1" ; then
-  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
-fi
-AC_SUBST([enable_overhead])
-
-
-AC_SUBST([enable_openmp])
-AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
-
 AC_MSG_CHECKING([that hwloc supports HWLOC_OBJ_SOCKET])
 AC_COMPILE_IFELSE([
     AC_LANG_PROGRAM([[#include <hwloc.h>]],
@@ -358,84 +421,11 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
 ])
 
-[CFLAGS_SAVE="$CFLAGS"]
-[CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
-AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])
-AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[#include <stdio.h>]],
-          [[printf("Hello World.\n");]])
-],[
-    AC_MSG_RESULT(yes)
-    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [true])
-],[
-    AC_MSG_RESULT(no)
-    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [false])
-])
-[CFLAGS="$CFLAGS_SAVE"]
 
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
 AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
 
-AM_CFLAGS="${AM_CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
-AM_CXXFLAGS="${AM_CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
-AM_FFLAGS="${AM_FFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -msse4.2"
-AM_FCFLAGS="${AM_FCFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -msse4.2"
-AM_LDFLAGS="${AM_LDFLAGS} ${OPENMP_CXXFLAGS}"
-
-AC_SUBST([AM_CFLAGS])
-AC_SUBST([AM_CXXFLAGS])
-AC_SUBST([AM_FFLAGS])
-AC_SUBST([AM_FCFLAGS])
-AC_SUBST([AM_LDFLAGS])
-
-MPI_FCFLAGS=$MPI_FFLAGS
-MPI_FFLAGS=$MPI_F77FLAGS
-MPI_LDFLAGS=$MPI_CLDFLAGS
-MPI_LIBS=$MPI_CLIBS
-MPI_FCLIBS=$MPI_FLIBS
-MPI_FLIBS=$MPI_F77LIBS
-
-# WORK AROUND FOR SLES-12.
-#
-# The version of openmpi installed on SLES-12 has an mpicc wrapper
-# which emits the include flag for the version of hwloc compiled into
-# the mpi library.  This forces the geopm objects which use MPI to be
-# derived from source files that include the openmpi version of the
-# hwloc header.  The geopm objects which do not require MPI will
-# derived from source files that include the system version in
-# /usr/include which is always searched after all non-system -I
-# options have been exhausted.
-#
-# https://gcc.gnu.org/onlinedocs/cpp/System-Headers.html#System-Headers
-#
-# The hwloc interface is based on enums that change frequently with
-# version number (not a great feature) and we would like to use
-# configure to cononicalize the hwloc interface with the
-# GEOPM_HWLOC_HAS_* defines above.  This forces us to use one version
-# of hwloc for MPI and non-MPI objects.  To enable this to be the
-# system version we remove the include path for the openmpi version of
-# hwloc compiled into the mpi library from the MPI_CLFAGS and
-# MPI_CXXFLAGS.
-#
-# I would recommend that in the future SLES either not package hwloc
-# or not allow the mpicc compiler wrapper to emit the include path for
-# the openmpi versioned hwloc.  Alternatively the openmpi hwloc header
-# should be versioned i.e. hwloc.h -> hwloc172.h.
-#
-[MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
-[MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
-[MPI_FCFLAGS=`echo $MPI_FCFLAGS | sed 's|-lmpigi||'`]
-[MPI_FFFLAGS=`echo $MPI_FFFLAGS | sed 's|-lmpigi||'`]
-AC_SUBST([MPI_FCFLAGS])
-AC_SUBST([MPI_FFLAGS])
-AC_SUBST([MPI_LDFLAGS])
-AC_SUBST([MPI_LIBS])
-AC_SUBST([MPI_FCLIBS])
-AC_SUBST([MPI_FLIBS])
-
-[CFLAGS_SAVE="$CFLAGS"]
-[CFLAGS="$CFLAGS $MPI_CFLAGS -Wall -Werror"]
 AC_MSG_CHECKING([for support for MPI-3 standard])
 AC_COMPILE_IFELSE([
     AC_LANG_SOURCE(
@@ -449,7 +439,43 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
     AC_DEFINE([GEOPM_MPI_CONST], [], [MPI interfaces do not use const qualifier.])
 ])
+
+[CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
+AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[#include <stdio.h>]],
+          [[printf("Hello World.\n");]])
+],[
+    AC_MSG_RESULT(yes)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [true])
+],[
+    AC_MSG_RESULT(no)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [false])
+])
+
+[LDFLAGS="$LDFLAGS_SAVE"]
 [CFLAGS="$CFLAGS_SAVE"]
+[CXXFLAGS="$CXXFLAGS_SAVE"]
+[CPPFLAGS="$CPPFLAGS_SAVE"]
+
+[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Werror"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Werror"]
+[EXTRA_FFLAGS="$EXTRA_FFLAGS -Wall -Werror"]
+[EXTRA_FCFLAGS="$EXTRA_FCFLAGS -Wall -Werror"]
+
+[AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
+[AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
+[AM_CPPFLAGS="$EXTRA_CPPFLAGS $AM_CPPFLAGS"]
+[AM_FFLAGS="$EXTRA_FFLAGS $AM_FFLAGS"]
+[AM_FCFLAGS="$EXTRA_FCFLAGS $AM_FCFLAGS"]
+[AM_LDFLAGS="$EXTRA_LDFLAGS $AM_LDFLAGS"]
+
+AC_SUBST([AM_CFLAGS])
+AC_SUBST([AM_CXXFLAGS])
+AC_SUBST([AM_CPPFLAGS])
+AC_SUBST([AM_FFLAGS])
+AC_SUBST([AM_FCFLAGS])
+AC_SUBST([AM_LDFLAGS])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
