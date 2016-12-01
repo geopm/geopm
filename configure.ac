@@ -61,34 +61,34 @@ AC_ARG_VAR([MPIF77],
 AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
             [specify directory for installed hwloc package.])])
 if test "x$with_hwloc" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc/include"
   LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc/lib"
 fi
 AC_ARG_WITH([hwloc-include], [AS_HELP_STRING([--with-hwloc-include=PATH],
             [specify directory for the installed hwloc include files.])])
 if test "x$with_hwloc_include" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_hwloc_include"
 fi
 AC_ARG_WITH([hwloc-lib], [AS_HELP_STRING([--with-hwloc-lib=PATH],
             [specify directory for installed hwloc library])])
 if test "x$with_hwloc_lib" != x; then
   LD_LIBRARY_PATH="$with_hwloc_lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_hwloc_lib"
 fi
 
 AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
             [specify directory for installed json-c package.])])
 
 if test "x$with_json" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json/include"
   LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
-  LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_json/lib"
 fi
 AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
             [specify directory for the installed json-c include files.])])
 if test "x$with_json_include" != x; then
-  CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_json_include"
 fi
 AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
             [specify directory for installed json-c library])])
@@ -96,6 +96,62 @@ if test "x$with_json_lib" != x; then
   LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
   AM_LDFLAGS="$AM_LDFLAGS -L$with_json_lib"
 fi
+
+
+AC_ARG_ENABLE([coverage],
+  [AS_HELP_STRING([--enable-coverage], [Build with test coverage support and enable debug])],
+[if test "x$enable_coverage" = "xno" ; then
+  enable_coverage="0"
+else
+  enable_coverage="1"
+  enable_debug="1"
+fi
+],
+[enable_coverage="0"]
+)
+
+AC_ARG_ENABLE([overhead],
+  [AS_HELP_STRING([--enable-overhead], [Enable GEOPM to calculate and display time spent in GEOPM API calls])],
+[if test "x$enable_overhead" = "xno" ; then
+  enable_overhead="0"
+else
+  enable_overhead="1"
+fi
+],
+[enable_overhead="0"]
+)
+
+if test "x$enable_openmp" = "xno" ; then
+  enable_openmp="0"
+else
+  enable_openmp="1"
+fi
+
+if test "x$enable_debug" = "x1" ; then
+  AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
+  CFLAGS="$CFLAGS -O0 -g"
+  CXXFLAGS="$CXXFLAGS -O0 -g"
+fi
+AC_SUBST([enable_debug])
+
+
+if test "x$enable_coverage" = "x1" ; then
+  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
+  AM_CFLAGS="$AM_CFLAGS --coverage"
+  AM_CXXFLAGS="$AM_CXXFLAGS --coverage"
+  AM_LDFLAGS="$AM_LDFLAGS --coverage -lgcov"
+fi
+AC_SUBST([enable_coverage])
+
+if test "x$enable_overhead" = "x1" ; then
+  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
+fi
+AC_SUBST([enable_overhead])
+
+
+AC_SUBST([enable_openmp])
+AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
+
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
@@ -201,6 +257,15 @@ if test "x$enable_fortran" = "x1"; then
 fi
 fi
 
+[LDFLAGS_SAVE=$LDFLAGS]
+[LDFLAGS=$AM_LDFLAGS $LDFLAGS]
+[CFLAGS_SAVE=$CFLAGS]
+[CFLAGS=$AM_CFLAGS $CFLAGS]
+[CXXFLAGS_SAVE=$CXXFLAGS]
+[CXXFLAGS=$AM_CXXFLAGS $CXXFLAGS]
+[CPPFLAGS_SAVE=$CPPFLAGS]
+[CPPFLAGS=$AM_CPPFLAGS $CPPFLAGS]
+
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
 
@@ -223,7 +288,6 @@ m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 AM_PROG_CC_C_O
 LT_INIT
-
 
 AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
     echo "missing libpthread: POSIX thread interface is required"
@@ -276,59 +340,6 @@ fi
 [enable_debug="0"]
 )
 
-AC_ARG_ENABLE([coverage],
-  [AS_HELP_STRING([--enable-coverage], [Build with test coverage support and enable debug])],
-[if test "x$enable_coverage" = "xno" ; then
-  enable_coverage="0"
-else
-  enable_coverage="1"
-  enable_debug="1"
-fi
-],
-[enable_coverage="0"]
-)
-
-AC_ARG_ENABLE([overhead],
-  [AS_HELP_STRING([--enable-overhead], [Enable GEOPM to calculate and display time spent in GEOPM API calls])],
-[if test "x$enable_overhead" = "xno" ; then
-  enable_overhead="0"
-else
-  enable_overhead="1"
-fi
-],
-[enable_overhead="0"]
-)
-
-if test "x$enable_openmp" = "xno" ; then
-  enable_openmp="0"
-else
-  enable_openmp="1"
-fi
-
-if test "x$enable_debug" = "x1" ; then
-  AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
-fi
-AC_SUBST([enable_debug])
-
-
-if test "x$enable_coverage" = "x1" ; then
-  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  CFLAGS="$CFLAGS --coverage"
-  CXXFLAGS="$CXXFLAGS --coverage"
-  LDFLAGS="$LDFLAGS --coverage -lgcov"
-fi
-AC_SUBST([enable_coverage])
-
-if test "x$enable_overhead" = "x1" ; then
-  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
-fi
-AC_SUBST([enable_overhead])
-
-
-AC_SUBST([enable_openmp])
-AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 AC_MSG_CHECKING([that hwloc supports HWLOC_OBJ_SOCKET])
 AC_COMPILE_IFELSE([
@@ -358,24 +369,15 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
 ])
 
-[CFLAGS_SAVE="$CFLAGS"]
-[CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
-AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])
-AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[#include <stdio.h>]],
-          [[printf("Hello World.\n");]])
-],[
-    AC_MSG_RESULT(yes)
-    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [true])
-],[
-    AC_MSG_RESULT(no)
-    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [false])
-])
-[CFLAGS="$CFLAGS_SAVE"]
 
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
 AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
+
+[LDFLAGS=$LDFLAGS_SAVE]
+[CFLAGS=$CFLAGS_SAVE]
+[CXXFLAGS_SAVE=$CXXFLAGS_SAVE]
+[CPPFLAGS=$CPPFLAGS_SAVE]
 
 AM_CFLAGS="${AM_CFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c99 -msse4.2"
 AM_CXXFLAGS="${AM_CXXFLAGS} ${OPENMP_CXXFLAGS} -Wall -Werror -std=c++11 -msse4.2"
@@ -448,6 +450,21 @@ AC_COMPILE_IFELSE([
 ],[
     AC_MSG_RESULT(no)
     AC_DEFINE([GEOPM_MPI_CONST], [], [MPI interfaces do not use const qualifier.])
+])
+[CFLAGS="$CFLAGS_SAVE"]
+
+[CFLAGS_SAVE="$CFLAGS"]
+[CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
+AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[#include <stdio.h>]],
+          [[printf("Hello World.\n");]])
+],[
+    AC_MSG_RESULT(yes)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [true])
+],[
+    AC_MSG_RESULT(no)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [false])
 ])
 [CFLAGS="$CFLAGS_SAVE"]
 
