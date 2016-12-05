@@ -106,6 +106,7 @@ EXTRA_DIST = .gitignore \
              examples/README \
              examples/threaded_step_example.c \
              examples/fft/make.def \
+             examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
              examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
              examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch \
              examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
