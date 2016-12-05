@@ -1,0 +1,21 @@
+The patch file in this directory is designed to be applied on top of CoMD v1.1,
+commit 3d48396b77ca8caa3124bc2391f9139c3ffb556c.
+
+Source code:
+    https://github.com/exmatex/CoMD
+
+Installation:
+
+1. Acquire the source:
+    wget https://github.com/exmatex/CoMD/archive/3d48396b77ca8caa3124bc2391f9139c3ffb556c.zip
+
+2. Unpack the source:
+    unzip 3d48396b77ca8caa3124bc2391f9139c3ffb556c.zip
+
+3. Change directories to the unpacked files.
+    cd CoMD-3d48396b77ca8caa3124bc2391f9139c3ffb556c
+
+4. Patch nekbone with the patch utility:
+    patch -p1 < ../0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch
+
+5. Profit.
