@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aa745d1_1a0a2cd3",
+        "filename": "examples/comd/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-12-05T23:06:13Z",
+      "side": 1,
+      "message": "Probably want to specify the SHA that the patch applies cleanly to in case master advances.",
+      "revId": "d8b55bf3154b88f210003ff8738c02416e30bb17",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
