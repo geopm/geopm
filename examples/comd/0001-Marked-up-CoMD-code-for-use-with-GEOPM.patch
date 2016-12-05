@@ -1,0 +1,489 @@
+From 6c198f4c3e88b03a8483a26bd8b8f3a88f82db39 Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Mon, 5 Dec 2016 14:12:23 -0800
+Subject: [PATCH] Marked up CoMD code for use with GEOPM.
+
+- Includes Makefiles and source code modifications.
+
+#  Copyright (c) 2015, 2016, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ src-mpi/CoMD.c        |   1 +
+ src-mpi/Makefile      | 108 ++++++++++++++++++++++++++++++++++++++++++++++++
+ src-openmp/CoMD.c     |  60 ++++++++++++++++++++++++---
+ src-openmp/Makefile   | 111 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ src-openmp/timestep.c |  21 ++++++++++
+ 5 files changed, 295 insertions(+), 6 deletions(-)
+ create mode 100644 src-mpi/Makefile
+ create mode 100644 src-openmp/Makefile
+
+diff --git a/src-mpi/CoMD.c b/src-mpi/CoMD.c
+index 109fabb..1689805 100644
+--- a/src-mpi/CoMD.c
++++ b/src-mpi/CoMD.c
+@@ -123,6 +123,7 @@ int main(int argc, char** argv)
+       stopTimer(timestepTimer);
+ 
+       iStep += printRate;
++      MPI_Pcontrol(1);
+    }
+    profileStop(loopTimer);
+ 
+diff --git a/src-mpi/Makefile b/src-mpi/Makefile
+new file mode 100644
+index 0000000..9537bab
+--- /dev/null
++++ b/src-mpi/Makefile
+@@ -0,0 +1,108 @@
++# Makefile for src-parallel
++
++SHELL = /bin/bash
++
++### CoMD can be built in either double or single precision and with or
++### without MPI.  Select desired precision and MPI here.
++
++# double precision (ON/OFF)
++DOUBLE_PRECISION = ON
++# MPI for parallel (ON/OFF)
++DO_MPI = ON
++
++### Set your desired C compiler and any necessary flags.  Note that CoMD
++### uses some c99 features.  You can also set flags for optimization and
++### specify paths to include files that the compiler can't find on its
++### own.  If you need any -L or -l switches to get C standard libraries
++### (such as -lm for the math library) put them in C_LIB.
++CC = mpicc
++CFLAGS = -std=c99 -qopenmp
++OPTFLAGS = -g -O5
++INCLUDES = 
++C_LIB = -lm -lgeopm
++
++
++### If you need to specify include paths, library paths, or link flags
++### for MPI, put them here.  Put both -L and -l switches into MPI_LIB.
++MPI_LIB =
++MPI_INCLUDE =
++
++### A place to specify any other include or library switches your
++### platform requires.
++OTHER_LIB = -L$(HOME)/build/geopm/lib
++OTHER_INCLUDE = -I$(HOME)/build/geopm/include
++
++
++
++
++#########################################
++### Below here, it is pitch black.  
++### You are likely to be eaten by a grue.
++##########################################
++
++# clear all suffixes
++.SUFFIXES:
++# list only those that we use 
++.SUFFIXES: .c .o
++
++.PHONY: DEFAULT clean distclean depend
++
++BIN_DIR=../bin
++
++# Check for double precision
++ifeq ($(DOUBLE_PRECISION), ON)
++CFLAGS += -DDOUBLE
++else
++CFLAGS += -DSINGLE
++endif
++
++# Set executable name and add includes & libraries for MPI if needed.
++CoMD_VARIANT = CoMD-serial
++ifeq ($(DO_MPI), ON)
++CoMD_VARIANT = CoMD-mpi
++INCLUDES += ${MPI_INCLUDE}
++CFLAGS += -DDO_MPI
++LDFLAGS += ${MPI_LIB}
++endif
++CoMD_EXE = ${BIN_DIR}/${CoMD_VARIANT}
++
++LDFLAGS += ${C_LIB} ${OTHER_LIB}
++CFLAGS  += ${OPTFLAGS} ${INCLUDES} ${OTHER_INCLUDE}
++
++
++SOURCES=$(wildcard *.c)
++OBJECTS=$(SOURCES:.c=.o)
++
++
++DEFAULT: ${CoMD_EXE}
++
++%.o: %.c
++	${CC} ${CFLAGS} -c $< -o $@
++
++${CoMD_EXE}: ${BIN_DIR} CoMD_info.h ${OBJECTS} 
++	${CC} ${CFLAGS} -o ${CoMD_EXE} ${OBJECTS} ${LDFLAGS}
++
++CoMD_info.h: Makefile
++	./generate_info_header ${CoMD_VARIANT} "$(CC)" "$(CFLAGS)" "$(LDFLAGS)"
++
++${BIN_DIR}:
++	@if [ ! -d ${BIN_DIR} ]; then mkdir -p ${BIN_DIR} ; fi
++
++clean:
++	rm -f *.o CoMD_info.h .depend
++
++distclean: clean
++	rm -f ${CoMD_EXE} .depend.bak
++	rm -rf html latex
++
++.depend: $(SOURCES)
++	@touch .depend
++	@$(MAKE) --no-print-directory depend
++
++depend:
++	@echo "Rebuilding dependencies..."
++	@$(MAKE) CoMD_info.h
++	@makedepend -f .depend -Y. --$(CFLAGS)-- $(SOURCES) 2> /dev/null
++
++
++-include .depend
+diff --git a/src-openmp/CoMD.c b/src-openmp/CoMD.c
+index 12466c8..d4dec78 100644
+--- a/src-openmp/CoMD.c
++++ b/src-openmp/CoMD.c
+@@ -47,6 +47,7 @@
+ #include <strings.h>
+ #include <unistd.h>
+ #include <assert.h>
++#include <geopm.h>
+ 
+ #include "CoMDTypes.h"
+ #include "decomposition.h"
+@@ -61,10 +62,18 @@
+ #include "mycommand.h"
+ #include "timestep.h"
+ #include "constants.h"
++#include "mpi.h"
+ 
+ #define REDIRECT_OUTPUT 0
+ #define   MIN(A,B) ((A) < (B) ? (A) : (B))
+ 
++uint64_t advanceVelocity_rid;
++uint64_t advancePosition_rid;
++uint64_t redistributeAtoms_rid;
++uint64_t computeForce_rid;
++uint64_t advanceVelocity_rid;
++uint64_t kineticEnergy_rid;
++
+ static SimFlat* initSimulation(Command cmd);
+ static void destroySimulation(SimFlat** ps);
+ 
+@@ -89,6 +98,27 @@ int main(int argc, char** argv)
+    initParallel(&argc, &argv);
+    profileStart(totalTimer);
+    initSubsystems();
++
++   uint64_t initsim_rid;
++   uint64_t timestep_rid;
++   uint64_t destroysim_rid;
++   uint64_t sumatoms_rid;
++   int err;
++
++   /* Region registration for functions in CoMD.c */
++   err = geopm_prof_region("initsim", GEOPM_POLICY_HINT_UNKNOWN, &initsim_rid);
++   err = geopm_prof_region("timestep", GEOPM_POLICY_HINT_COMPUTE, &timestep_rid);
++   err = geopm_prof_region("destroysim", GEOPM_POLICY_HINT_UNKNOWN, &destroysim_rid);
++   err = geopm_prof_region("sumatoms", GEOPM_POLICY_HINT_COMPUTE, &sumatoms_rid);
++
++   /* Region registration for functions in timestep.c */
++   err = geopm_prof_region("advanceVelocity", GEOPM_POLICY_HINT_COMPUTE, &advanceVelocity_rid);
++   err = geopm_prof_region("advancePosition", GEOPM_POLICY_HINT_COMPUTE, &advancePosition_rid);
++   err = geopm_prof_region("redistributeAtoms", GEOPM_POLICY_HINT_UNKNOWN, &redistributeAtoms_rid);
++   err = geopm_prof_region("computeForce", GEOPM_POLICY_HINT_COMPUTE, &computeForce_rid);
++   err = geopm_prof_region("advanceVelocity", GEOPM_POLICY_HINT_COMPUTE, &advanceVelocity_rid);
++   err = geopm_prof_region("kineticEnergy", GEOPM_POLICY_HINT_COMPUTE, &kineticEnergy_rid);
++
+    timestampBarrier("Starting Initialization\n");
+ 
+    yamlAppInfo(yamlFile);
+@@ -98,11 +128,14 @@ int main(int argc, char** argv)
+    printCmdYaml(yamlFile, &cmd);
+    printCmdYaml(screenOut, &cmd);
+ 
++   err = geopm_prof_enter(initsim_rid);
+    SimFlat* sim = initSimulation(cmd);
+    printSimulationDataYaml(yamlFile, sim);
+    printSimulationDataYaml(screenOut, sim);
+ 
+    Validate* validate = initValidate(sim); // atom counts, energy
++   err = geopm_prof_exit(initsim_rid);
++
+    timestampBarrier("Initialization Finished\n");
+ 
+    timestampBarrier("Starting simulation\n");
+@@ -114,21 +147,34 @@ int main(int argc, char** argv)
+    profileStart(loopTimer);
+    for (; iStep<nSteps;)
+    {
+-      startTimer(commReduceTimer);
+-      sumAtoms(sim);
+-      stopTimer(commReduceTimer);
+-
+-      printThings(sim, iStep, getElapsedTime(timestepTimer));
++//      err = geopm_prof_epoch();
++      if (iStep % printRate == 0) {
++        startTimer(commReduceTimer);
++        err = geopm_prof_enter(sumatoms_rid);
++        sumAtoms(sim);
++        err = geopm_prof_exit(sumatoms_rid);
++        stopTimer(commReduceTimer);
++
++        printThings(sim, iStep, getElapsedTime(timestepTimer));
++      }
+ 
+       startTimer(timestepTimer);
++      /* Temporarily commenting out the markup call since nested
++       * regions are not supported yet */
++      /* err = geopm_prof_enter(timestep_rid); */
+       timestep(sim, printRate, sim->dt);
++      /* err = geopm_prof_exit(timestep_rid); */
+       stopTimer(timestepTimer);
+ 
+-      iStep += printRate;
++      iStep += 1;
++      MPI_Barrier(MPI_COMM_WORLD);
++      MPI_Pcontrol(1);
+    }
+    profileStop(loopTimer);
+ 
++   err = geopm_prof_enter(sumatoms_rid);
+    sumAtoms(sim);
++   err = geopm_prof_exit(sumatoms_rid);
+    printThings(sim, iStep, getElapsedTime(timestepTimer));
+    timestampBarrier("Ending simulation\n");
+ 
+@@ -139,9 +185,11 @@ int main(int argc, char** argv)
+    printPerformanceResults(sim->atoms->nGlobal, sim->printRate);
+    printPerformanceResultsYaml(yamlFile);
+ 
++   err = geopm_prof_enter(destroysim_rid);
+    destroySimulation(&sim);
+    comdFree(validate);
+    finalizeSubsystems();
++   err = geopm_prof_exit(destroysim_rid);
+ 
+    timestampBarrier("CoMD Ending\n");
+    destroyParallel();
+diff --git a/src-openmp/Makefile b/src-openmp/Makefile
+new file mode 100644
+index 0000000..db71722
+--- /dev/null
++++ b/src-openmp/Makefile
+@@ -0,0 +1,111 @@
++# Makefile for src-openmp
++
++GEO_INSTALL_PATH=$(HOME)/build/geopm
++SHELL = /bin/bash
++
++### CoMD can be built in either double or single precision and with or
++### without MPI.  Select desired precision and MPI here.
++
++# double precision (ON/OFF)
++DOUBLE_PRECISION = ON
++# MPI for parallel (ON/OFF)
++DO_MPI = ON
++
++### Set your desired C compiler and any necessary flags.  Note that CoMD
++### uses some c99 features.  You can also set flags for optimization and
++### specify paths to include files that the compiler can't find on its
++### own.  If you need any -L or -l switches to get C standard libraries
++### (such as -lm for the math library) put them in C_LIB.
++CC = mpicc
++CFLAGS = -std=c99 -fopenmp
++CFLAGS_no_omp = -std=c99
++OPTFLAGS = -g -O3
++INCLUDES = 
++C_LIB = -lm
++
++
++### If you need to specify include paths, library paths, or link flags
++### for MPI, put them here.  Put both -L and -l switches into MPI_LIB.
++MPI_LIB =
++MPI_INCLUDE =
++
++### A place to specify any other include or library switches your
++### platform requires.
++OTHER_LIB = -L$(GEO_INSTALL_PATH)/lib \
++			-Xlinker -rpath $(GEO_INSTALL_PATH)/lib -lgeopm -fopenmp
++OTHER_INCLUDE = -I$(GEO_INSTALL_PATH)/include
++
++#########################################
++### Below here, it is pitch black.  
++### You are likely to be eaten by a grue.
++##########################################
++
++# clear all suffixes
++.SUFFIXES:
++# list only those that we use 
++.SUFFIXES: .c .o
++
++.PHONY: DEFAULT clean distclean depend
++
++BIN_DIR=../bin
++
++# Check for double precision
++ifeq ($(DOUBLE_PRECISION), ON)
++CFLAGS += -DDOUBLE
++else
++CFLAGS += -DSINGLE
++endif
++
++# Set executable name and add includes & libraries for MPI if needed.
++CoMD_VARIANT = CoMD-openmp
++ifeq ($(DO_MPI), ON)
++CoMD_VARIANT = CoMD-openmp-mpi
++INCLUDES += ${MPI_INCLUDE}
++CFLAGS += -DDO_MPI
++LDFLAGS += ${MPI_LIB}
++endif
++CoMD_EXE = ${BIN_DIR}/${CoMD_VARIANT}
++
++LDFLAGS += ${C_LIB} ${OTHER_LIB}
++CFLAGS  += ${OPTFLAGS} ${INCLUDES} ${OTHER_INCLUDE}
++
++
++SOURCES=$(wildcard *.c)
++OBJECTS=$(SOURCES:.c=.o)
++
++
++DEFAULT: ${CoMD_EXE}
++
++%.o: %.c
++	${CC} ${CFLAGS} -c $< -o $@
++
++${CoMD_EXE}: ${BIN_DIR} CoMD_info.h ${OBJECTS} 
++	${CC} ${CFLAGS_no_omp} -o comd.no_power ${OBJECTS} ${LDFLAGS} -fopenmp
++	${CC} ${CFLAGS_no_omp} -o comd.geo ${OBJECTS} ${LDFLAGS} 
++	cp comd.no_power ../bin/
++	cp comd.geo ../bin/
++
++CoMD_info.h: Makefile
++	./generate_info_header ${CoMD_VARIANT} "$(CC)" "$(CFLAGS)" "$(LDFLAGS)"
++
++${BIN_DIR}:
++	@if [ ! -d ${BIN_DIR} ]; then mkdir -p ${BIN_DIR} ; fi
++
++clean:
++	rm -f *.o CoMD_info.h .depend comd.no_power comd.geo
++
++distclean: clean
++	rm -f ${CoMD_EXE} .depend.bak
++	rm -rf html latex
++
++.depend: $(SOURCES)
++	@touch .depend
++	@$(MAKE) --no-print-directory depend
++
++depend:
++	@echo "Rebuilding dependencies..."
++	@$(MAKE) CoMD_info.h
++	@makedepend -f .depend -Y. --$(CFLAGS)-- $(SOURCES) 2> /dev/null
++
++
++-include .depend
+diff --git a/src-openmp/timestep.c b/src-openmp/timestep.c
+index a200618..e4522d6 100644
+--- a/src-openmp/timestep.c
++++ b/src-openmp/timestep.c
+@@ -9,10 +9,17 @@
+ #include "linkCells.h"
+ #include "parallel.h"
+ #include "performanceTimers.h"
++#include <geopm.h>
+ 
+ static void advanceVelocity(SimFlat* s, int nBoxes, real_t dt);
+ static void advancePosition(SimFlat* s, int nBoxes, real_t dt);
+ 
++extern uint64_t advanceVelocity_rid;
++extern uint64_t advancePosition_rid;
++extern uint64_t redistributeAtoms_rid;
++extern uint64_t computeForce_rid;
++extern uint64_t advanceVelocity_rid;
++extern uint64_t kineticEnergy_rid;
+ 
+ /// Advance the simulation time to t+dt using a leap frog method
+ /// (equivalent to velocity verlet).
+@@ -32,30 +39,44 @@ static void advancePosition(SimFlat* s, int nBoxes, real_t dt);
+ /// After nSteps the kinetic energy is computed for diagnostic output.
+ double timestep(SimFlat* s, int nSteps, real_t dt)
+ {
++   int err;
+    for (int ii=0; ii<nSteps; ++ii)
+    {
++      geopm_prof_epoch();
+       startTimer(velocityTimer);
++      err = geopm_prof_enter(advanceVelocity_rid);
+       advanceVelocity(s, s->boxes->nLocalBoxes, 0.5*dt); 
++      err = geopm_prof_exit(advanceVelocity_rid);
+       stopTimer(velocityTimer);
+ 
+       startTimer(positionTimer);
++      err = geopm_prof_enter(advancePosition_rid);
+       advancePosition(s, s->boxes->nLocalBoxes, dt);
++      err = geopm_prof_exit(advancePosition_rid);
+       stopTimer(positionTimer);
+ 
+       startTimer(redistributeTimer);
++      err = geopm_prof_enter(redistributeAtoms_rid);
+       redistributeAtoms(s);
++      err = geopm_prof_exit(redistributeAtoms_rid);
+       stopTimer(redistributeTimer);
+ 
+       startTimer(computeForceTimer);
++      err = geopm_prof_enter(computeForce_rid);
+       computeForce(s);
++      err = geopm_prof_exit(computeForce_rid);
+       stopTimer(computeForceTimer);
+ 
+       startTimer(velocityTimer);
++      err = geopm_prof_enter(advanceVelocity_rid);
+       advanceVelocity(s, s->boxes->nLocalBoxes, 0.5*dt); 
++      err = geopm_prof_exit(advanceVelocity_rid);
+       stopTimer(velocityTimer);
+    }
+ 
++   err = geopm_prof_enter(kineticEnergy_rid);
+    kineticEnergy(s);
++   err = geopm_prof_exit(kineticEnergy_rid);
+ 
+    return s->ePotential;
+ }
+-- 
+1.9.1
+
