@@ -134,10 +134,14 @@ extern "C"
     #define PMPI_Reduce(...) return_zero()
     #define PMPI_Reduce_scatter(...) return_zero()
     #define PMPI_Reduce_scatter_block(...) return_zero()
+    #define PMPI_Ireduce(...) return_zero()
+    #define PMPI_Ireduce_scatter(...) return_zero()
+    #define PMPI_Ireduce_scatter_block(...) return_zero()
     #define PMPI_Wait(...) return_zero()
     #define PMPI_Waitsome(...) return_zero()
     #define PMPI_Waitany(...) return_zero()
     #define PMPI_Waitall(...) return_zero()
+    #define PMPI_Comm_dup_with_info(...) return_zero()
 }
 
 #include "gtest/gtest.h"
