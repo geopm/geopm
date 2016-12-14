@@ -105,6 +105,8 @@ EXTRA_DIST = .gitignore \
              dox/Doxyfile \
              examples/README \
              examples/threaded_step_example.c \
+             examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch \
+             examples/amg2013/README \
              examples/fft/make.def \
              examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
              examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
