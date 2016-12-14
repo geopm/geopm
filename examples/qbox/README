@@ -1,0 +1,22 @@
+The patch file in this directory are designed to be applied on top of QBOX v1.2.
+
+Source code:
+    https://asc.llnl.gov/CORAL-benchmarks/Science/qball_r140b.tgz
+
+Installation:
+
+1. Acquire the source:
+    wget https://asc.llnl.gov/CORAL-benchmarks/Science/qball_r140b.tgz
+
+2. Unpack the source:
+    tar zxvf qball_r140b.tgz
+
+3. Change directories to the unpacked files.
+    cd qball_r140
+
+4. Patch nekbone with the patch utility:
+    patch -p1 < ../0001-Adding-geopm-markup-for-qbox.patch
+    patch -p1 < ../0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch
+
+5. Profit.
+
