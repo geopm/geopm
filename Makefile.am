@@ -115,6 +115,9 @@ EXTRA_DIST = .gitignore \
              examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch \
              examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch \
              examples/nekbone/README \
+             examples/qbox/README \
+             examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
+             examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch \
              geopm.spec.mk \
              geopm-$(VERSION).spec \
              Makefile.am \

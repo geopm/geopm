@@ -21,6 +21,8 @@ examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch
 examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch
 examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch
 examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch
+examples/qbox/0001-Adding-geopm-markup-for-qbox.patch
+examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch
 geopm.spec.mk
 Makefile.am
 plugin/BalancingDecider.cpp

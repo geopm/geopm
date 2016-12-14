@@ -1,0 +1,364 @@
+From 51356f7291d0b5466f0f05d3487c34568bb7f9ed Mon Sep 17 00:00:00 2001
+From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
+Date: Fri, 2 Dec 2016 10:45:18 -0800
+Subject: [PATCH 2/2] Fixing run scripts and adding run scipt for qbox.
+
+#  Copyright (c) 2015, 2016, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Signed-off-by: Steve S. Sylvester <steve.s.sylvester@intel.com>
+---
+ examples/mgo_benchmark/mgo.N288.i   |  14 ++
+ examples/mgo_benchmark/mgo.N288.sys | 291 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 305 insertions(+)
+ create mode 100644 qball_r140/examples/mgo_benchmark/mgo.N288.i
+ create mode 100644 qball_r140/examples/mgo_benchmark/mgo.N288.sys
+
+diff --git a/examples/mgo_benchmark/mgo.N288.i b/examples/mgo_benchmark/mgo.N288.i
+new file mode 100644
+index 0000000..953568a
+--- /dev/null
++++ b/examples/mgo_benchmark/mgo.N288.i
+@@ -0,0 +1,14 @@
++set nrowmax 48
++mgo.N288.sys
++
++set xc LDA
++set ecut 65
++set wf_dyn PSDA
++set ecutprec 8.0
++
++kpoint 0.0000001 0 0 1.0
++
++randomize_wf
++run 0 50
++
++quit
+diff --git a/examples/mgo_benchmark/mgo.N288.sys b/examples/mgo_benchmark/mgo.N288.sys
+new file mode 100644
+index 0000000..d360d3e
+--- /dev/null
++++ b/examples/mgo_benchmark/mgo.N288.sys
+@@ -0,0 +1,291 @@
++set cell 15.4 0.0 0.0 0.0 15.4 0.0 0.0 0.0 69.3
++species magnesium Mg.xml
++species oxygen O.xml
++atom Mg1 magnesium   0.0000000   0.0000000   0.0000000
++atom Mg2 magnesium   3.8500000   3.8500000   0.0000000
++atom Mg3 magnesium   3.8500000   0.0000000   3.8500000
++atom Mg4 magnesium   0.0000000   3.8500000   3.8500000
++atom Mg5 magnesium   0.0000000   0.0000000   7.7000000
++atom Mg6 magnesium   3.8500000   3.8500000   7.7000000
++atom Mg7 magnesium   3.8500000   0.0000000  11.5500000
++atom Mg8 magnesium   0.0000000   3.8500000  11.5500000
++atom Mg9 magnesium   0.0000000   0.0000000  15.4000000
++atom Mg10 magnesium   3.8500000   3.8500000  15.4000000
++atom Mg11 magnesium   3.8500000   0.0000000  19.2500000
++atom Mg12 magnesium   0.0000000   3.8500000  19.2500000
++atom Mg13 magnesium   0.0000000   0.0000000  23.1000000
++atom Mg14 magnesium   3.8500000   3.8500000  23.1000000
++atom Mg15 magnesium   3.8500000   0.0000000  26.9500000
++atom Mg16 magnesium   0.0000000   3.8500000  26.9500000
++atom Mg17 magnesium   0.0000000   0.0000000  30.8000000
++atom Mg18 magnesium   3.8500000   3.8500000  30.8000000
++atom Mg19 magnesium   3.8500000   0.0000000  34.6500000
++atom Mg20 magnesium   0.0000000   3.8500000  34.6500000
++atom Mg21 magnesium   0.0000000   0.0000000  38.5000000
++atom Mg22 magnesium   3.8500000   3.8500000  38.5000000
++atom Mg23 magnesium   3.8500000   0.0000000  42.3500000
++atom Mg24 magnesium   0.0000000   3.8500000  42.3500000
++atom Mg25 magnesium   0.0000000   0.0000000  46.2000000
++atom Mg26 magnesium   3.8500000   3.8500000  46.2000000
++atom Mg27 magnesium   3.8500000   0.0000000  50.0500000
++atom Mg28 magnesium   0.0000000   3.8500000  50.0500000
++atom Mg29 magnesium   0.0000000   0.0000000  53.9000000
++atom Mg30 magnesium   3.8500000   3.8500000  53.9000000
++atom Mg31 magnesium   3.8500000   0.0000000  57.7500000
++atom Mg32 magnesium   0.0000000   3.8500000  57.7500000
++atom Mg33 magnesium   0.0000000   0.0000000  61.6000000
++atom Mg34 magnesium   3.8500000   3.8500000  61.6000000
++atom Mg35 magnesium   3.8500000   0.0000000  65.4500000
++atom Mg36 magnesium   0.0000000   3.8500000  65.4500000
++atom Mg37 magnesium   0.0000000   7.7000000   0.0000000
++atom Mg38 magnesium   3.8500000  11.5500000   0.0000000
++atom Mg39 magnesium   3.8500000   7.7000000   3.8500000
++atom Mg40 magnesium   0.0000000  11.5500000   3.8500000
++atom Mg41 magnesium   0.0000000   7.7000000   7.7000000
++atom Mg42 magnesium   3.8500000  11.5500000   7.7000000
++atom Mg43 magnesium   3.8500000   7.7000000  11.5500000
++atom Mg44 magnesium   0.0000000  11.5500000  11.5500000
++atom Mg45 magnesium   0.0000000   7.7000000  15.4000000
++atom Mg46 magnesium   3.8500000  11.5500000  15.4000000
++atom Mg47 magnesium   3.8500000   7.7000000  19.2500000
++atom Mg48 magnesium   0.0000000  11.5500000  19.2500000
++atom Mg49 magnesium   0.0000000   7.7000000  23.1000000
++atom Mg50 magnesium   3.8500000  11.5500000  23.1000000
++atom Mg51 magnesium   3.8500000   7.7000000  26.9500000
++atom Mg52 magnesium   0.0000000  11.5500000  26.9500000
++atom Mg53 magnesium   0.0000000   7.7000000  30.8000000
++atom Mg54 magnesium   3.8500000  11.5500000  30.8000000
++atom Mg55 magnesium   3.8500000   7.7000000  34.6500000
++atom Mg56 magnesium   0.0000000  11.5500000  34.6500000
++atom Mg57 magnesium   0.0000000   7.7000000  38.5000000
++atom Mg58 magnesium   3.8500000  11.5500000  38.5000000
++atom Mg59 magnesium   3.8500000   7.7000000  42.3500000
++atom Mg60 magnesium   0.0000000  11.5500000  42.3500000
++atom Mg61 magnesium   0.0000000   7.7000000  46.2000000
++atom Mg62 magnesium   3.8500000  11.5500000  46.2000000
++atom Mg63 magnesium   3.8500000   7.7000000  50.0500000
++atom Mg64 magnesium   0.0000000  11.5500000  50.0500000
++atom Mg65 magnesium   0.0000000   7.7000000  53.9000000
++atom Mg66 magnesium   3.8500000  11.5500000  53.9000000
++atom Mg67 magnesium   3.8500000   7.7000000  57.7500000
++atom Mg68 magnesium   0.0000000  11.5500000  57.7500000
++atom Mg69 magnesium   0.0000000   7.7000000  61.6000000
++atom Mg70 magnesium   3.8500000  11.5500000  61.6000000
++atom Mg71 magnesium   3.8500000   7.7000000  65.4500000
++atom Mg72 magnesium   0.0000000  11.5500000  65.4500000
++atom Mg73 magnesium   7.7000000   0.0000000   0.0000000
++atom Mg74 magnesium  11.5500000   3.8500000   0.0000000
++atom Mg75 magnesium  11.5500000   0.0000000   3.8500000
++atom Mg76 magnesium   7.7000000   3.8500000   3.8500000
++atom Mg77 magnesium   7.7000000   0.0000000   7.7000000
++atom Mg78 magnesium  11.5500000   3.8500000   7.7000000
++atom Mg79 magnesium  11.5500000   0.0000000  11.5500000
++atom Mg80 magnesium   7.7000000   3.8500000  11.5500000
++atom Mg81 magnesium   7.7000000   0.0000000  15.4000000
++atom Mg82 magnesium  11.5500000   3.8500000  15.4000000
++atom Mg83 magnesium  11.5500000   0.0000000  19.2500000
++atom Mg84 magnesium   7.7000000   3.8500000  19.2500000
++atom Mg85 magnesium   7.7000000   0.0000000  23.1000000
++atom Mg86 magnesium  11.5500000   3.8500000  23.1000000
++atom Mg87 magnesium  11.5500000   0.0000000  26.9500000
++atom Mg88 magnesium   7.7000000   3.8500000  26.9500000
++atom Mg89 magnesium   7.7000000   0.0000000  30.8000000
++atom Mg90 magnesium  11.5500000   3.8500000  30.8000000
++atom Mg91 magnesium  11.5500000   0.0000000  34.6500000
++atom Mg92 magnesium   7.7000000   3.8500000  34.6500000
++atom Mg93 magnesium   7.7000000   0.0000000  38.5000000
++atom Mg94 magnesium  11.5500000   3.8500000  38.5000000
++atom Mg95 magnesium  11.5500000   0.0000000  42.3500000
++atom Mg96 magnesium   7.7000000   3.8500000  42.3500000
++atom Mg97 magnesium   7.7000000   0.0000000  46.2000000
++atom Mg98 magnesium  11.5500000   3.8500000  46.2000000
++atom Mg99 magnesium  11.5500000   0.0000000  50.0500000
++atom Mg100 magnesium   7.7000000   3.8500000  50.0500000
++atom Mg101 magnesium   7.7000000   0.0000000  53.9000000
++atom Mg102 magnesium  11.5500000   3.8500000  53.9000000
++atom Mg103 magnesium  11.5500000   0.0000000  57.7500000
++atom Mg104 magnesium   7.7000000   3.8500000  57.7500000
++atom Mg105 magnesium   7.7000000   0.0000000  61.6000000
++atom Mg106 magnesium  11.5500000   3.8500000  61.6000000
++atom Mg107 magnesium  11.5500000   0.0000000  65.4500000
++atom Mg108 magnesium   7.7000000   3.8500000  65.4500000
++atom Mg109 magnesium   7.7000000   7.7000000   0.0000000
++atom Mg110 magnesium  11.5500000  11.5500000   0.0000000
++atom Mg111 magnesium  11.5500000   7.7000000   3.8500000
++atom Mg112 magnesium   7.7000000  11.5500000   3.8500000
++atom Mg113 magnesium   7.7000000   7.7000000   7.7000000
++atom Mg114 magnesium  11.5500000  11.5500000   7.7000000
++atom Mg115 magnesium  11.5500000   7.7000000  11.5500000
++atom Mg116 magnesium   7.7000000  11.5500000  11.5500000
++atom Mg117 magnesium   7.7000000   7.7000000  15.4000000
++atom Mg118 magnesium  11.5500000  11.5500000  15.4000000
++atom Mg119 magnesium  11.5500000   7.7000000  19.2500000
++atom Mg120 magnesium   7.7000000  11.5500000  19.2500000
++atom Mg121 magnesium   7.7000000   7.7000000  23.1000000
++atom Mg122 magnesium  11.5500000  11.5500000  23.1000000
++atom Mg123 magnesium  11.5500000   7.7000000  26.9500000
++atom Mg124 magnesium   7.7000000  11.5500000  26.9500000
++atom Mg125 magnesium   7.7000000   7.7000000  30.8000000
++atom Mg126 magnesium  11.5500000  11.5500000  30.8000000
++atom Mg127 magnesium  11.5500000   7.7000000  34.6500000
++atom Mg128 magnesium   7.7000000  11.5500000  34.6500000
++atom Mg129 magnesium   7.7000000   7.7000000  38.5000000
++atom Mg130 magnesium  11.5500000  11.5500000  38.5000000
++atom Mg131 magnesium  11.5500000   7.7000000  42.3500000
++atom Mg132 magnesium   7.7000000  11.5500000  42.3500000
++atom Mg133 magnesium   7.7000000   7.7000000  46.2000000
++atom Mg134 magnesium  11.5500000  11.5500000  46.2000000
++atom Mg135 magnesium  11.5500000   7.7000000  50.0500000
++atom Mg136 magnesium   7.7000000  11.5500000  50.0500000
++atom Mg137 magnesium   7.7000000   7.7000000  53.9000000
++atom Mg138 magnesium  11.5500000  11.5500000  53.9000000
++atom Mg139 magnesium  11.5500000   7.7000000  57.7500000
++atom Mg140 magnesium   7.7000000  11.5500000  57.7500000
++atom Mg141 magnesium   7.7000000   7.7000000  61.6000000
++atom Mg142 magnesium  11.5500000  11.5500000  61.6000000
++atom Mg143 magnesium  11.5500000   7.7000000  65.4500000
++atom Mg144 magnesium   7.7000000  11.5500000  65.4500000
++atom O1 oxygen   3.8500000   3.8500000   3.8500000
++atom O2 oxygen   0.0000000   0.0000000   3.8500000
++atom O3 oxygen   0.0000000   3.8500000   0.0000000
++atom O4 oxygen   3.8500000   0.0000000   0.0000000
++atom O5 oxygen   3.8500000   3.8500000  11.5500000
++atom O6 oxygen   0.0000000   0.0000000  11.5500000
++atom O7 oxygen   0.0000000   3.8500000   7.7000000
++atom O8 oxygen   3.8500000   0.0000000   7.7000000
++atom O9 oxygen   3.8500000   3.8500000  19.2500000
++atom O10 oxygen   0.0000000   0.0000000  19.2500000
++atom O11 oxygen   0.0000000   3.8500000  15.4000000
++atom O12 oxygen   3.8500000   0.0000000  15.4000000
++atom O13 oxygen   3.8500000   3.8500000  26.9500000
++atom O14 oxygen   0.0000000   0.0000000  26.9500000
++atom O15 oxygen   0.0000000   3.8500000  23.1000000
++atom O16 oxygen   3.8500000   0.0000000  23.1000000
++atom O17 oxygen   3.8500000   3.8500000  34.6500000
++atom O18 oxygen   0.0000000   0.0000000  34.6500000
++atom O19 oxygen   0.0000000   3.8500000  30.8000000
++atom O20 oxygen   3.8500000   0.0000000  30.8000000
++atom O21 oxygen   3.8500000   3.8500000  42.3500000
++atom O22 oxygen   0.0000000   0.0000000  42.3500000
++atom O23 oxygen   0.0000000   3.8500000  38.5000000
++atom O24 oxygen   3.8500000   0.0000000  38.5000000
++atom O25 oxygen   3.8500000   3.8500000  50.0500000
++atom O26 oxygen   0.0000000   0.0000000  50.0500000
++atom O27 oxygen   0.0000000   3.8500000  46.2000000
++atom O28 oxygen   3.8500000   0.0000000  46.2000000
++atom O29 oxygen   3.8500000   3.8500000  57.7500000
++atom O30 oxygen   0.0000000   0.0000000  57.7500000
++atom O31 oxygen   0.0000000   3.8500000  53.9000000
++atom O32 oxygen   3.8500000   0.0000000  53.9000000
++atom O33 oxygen   3.8500000   3.8500000  65.4500000
++atom O34 oxygen   0.0000000   0.0000000  65.4500000
++atom O35 oxygen   0.0000000   3.8500000  61.6000000
++atom O36 oxygen   3.8500000   0.0000000  61.6000000
++atom O37 oxygen   3.8500000  11.5500000   3.8500000
++atom O38 oxygen   0.0000000   7.7000000   3.8500000
++atom O39 oxygen   0.0000000  11.5500000   0.0000000
++atom O40 oxygen   3.8500000   7.7000000   0.0000000
++atom O41 oxygen   3.8500000  11.5500000  11.5500000
++atom O42 oxygen   0.0000000   7.7000000  11.5500000
++atom O43 oxygen   0.0000000  11.5500000   7.7000000
++atom O44 oxygen   3.8500000   7.7000000   7.7000000
++atom O45 oxygen   3.8500000  11.5500000  19.2500000
++atom O46 oxygen   0.0000000   7.7000000  19.2500000
++atom O47 oxygen   0.0000000  11.5500000  15.4000000
++atom O48 oxygen   3.8500000   7.7000000  15.4000000
++atom O49 oxygen   3.8500000  11.5500000  26.9500000
++atom O50 oxygen   0.0000000   7.7000000  26.9500000
++atom O51 oxygen   0.0000000  11.5500000  23.1000000
++atom O52 oxygen   3.8500000   7.7000000  23.1000000
++atom O53 oxygen   3.8500000  11.5500000  34.6500000
++atom O54 oxygen   0.0000000   7.7000000  34.6500000
++atom O55 oxygen   0.0000000  11.5500000  30.8000000
++atom O56 oxygen   3.8500000   7.7000000  30.8000000
++atom O57 oxygen   3.8500000  11.5500000  42.3500000
++atom O58 oxygen   0.0000000   7.7000000  42.3500000
++atom O59 oxygen   0.0000000  11.5500000  38.5000000
++atom O60 oxygen   3.8500000   7.7000000  38.5000000
++atom O61 oxygen   3.8500000  11.5500000  50.0500000
++atom O62 oxygen   0.0000000   7.7000000  50.0500000
++atom O63 oxygen   0.0000000  11.5500000  46.2000000
++atom O64 oxygen   3.8500000   7.7000000  46.2000000
++atom O65 oxygen   3.8500000  11.5500000  57.7500000
++atom O66 oxygen   0.0000000   7.7000000  57.7500000
++atom O67 oxygen   0.0000000  11.5500000  53.9000000
++atom O68 oxygen   3.8500000   7.7000000  53.9000000
++atom O69 oxygen   3.8500000  11.5500000  65.4500000
++atom O70 oxygen   0.0000000   7.7000000  65.4500000
++atom O71 oxygen   0.0000000  11.5500000  61.6000000
++atom O72 oxygen   3.8500000   7.7000000  61.6000000
++atom O73 oxygen  11.5500000   3.8500000   3.8500000
++atom O74 oxygen   7.7000000   0.0000000   3.8500000
++atom O75 oxygen   7.7000000   3.8500000   0.0000000
++atom O76 oxygen  11.5500000   0.0000000   0.0000000
++atom O77 oxygen  11.5500000   3.8500000  11.5500000
++atom O78 oxygen   7.7000000   0.0000000  11.5500000
++atom O79 oxygen   7.7000000   3.8500000   7.7000000
++atom O80 oxygen  11.5500000   0.0000000   7.7000000
++atom O81 oxygen  11.5500000   3.8500000  19.2500000
++atom O82 oxygen   7.7000000   0.0000000  19.2500000
++atom O83 oxygen   7.7000000   3.8500000  15.4000000
++atom O84 oxygen  11.5500000   0.0000000  15.4000000
++atom O85 oxygen  11.5500000   3.8500000  26.9500000
++atom O86 oxygen   7.7000000   0.0000000  26.9500000
++atom O87 oxygen   7.7000000   3.8500000  23.1000000
++atom O88 oxygen  11.5500000   0.0000000  23.1000000
++atom O89 oxygen  11.5500000   3.8500000  34.6500000
++atom O90 oxygen   7.7000000   0.0000000  34.6500000
++atom O91 oxygen   7.7000000   3.8500000  30.8000000
++atom O92 oxygen  11.5500000   0.0000000  30.8000000
++atom O93 oxygen  11.5500000   3.8500000  42.3500000
++atom O94 oxygen   7.7000000   0.0000000  42.3500000
++atom O95 oxygen   7.7000000   3.8500000  38.5000000
++atom O96 oxygen  11.5500000   0.0000000  38.5000000
++atom O97 oxygen  11.5500000   3.8500000  50.0500000
++atom O98 oxygen   7.7000000   0.0000000  50.0500000
++atom O99 oxygen   7.7000000   3.8500000  46.2000000
++atom O100 oxygen  11.5500000   0.0000000  46.2000000
++atom O101 oxygen  11.5500000   3.8500000  57.7500000
++atom O102 oxygen   7.7000000   0.0000000  57.7500000
++atom O103 oxygen   7.7000000   3.8500000  53.9000000
++atom O104 oxygen  11.5500000   0.0000000  53.9000000
++atom O105 oxygen  11.5500000   3.8500000  65.4500000
++atom O106 oxygen   7.7000000   0.0000000  65.4500000
++atom O107 oxygen   7.7000000   3.8500000  61.6000000
++atom O108 oxygen  11.5500000   0.0000000  61.6000000
++atom O109 oxygen  11.5500000  11.5500000   3.8500000
++atom O110 oxygen   7.7000000   7.7000000   3.8500000
++atom O111 oxygen   7.7000000  11.5500000   0.0000000
++atom O112 oxygen  11.5500000   7.7000000   0.0000000
++atom O113 oxygen  11.5500000  11.5500000  11.5500000
++atom O114 oxygen   7.7000000   7.7000000  11.5500000
++atom O115 oxygen   7.7000000  11.5500000   7.7000000
++atom O116 oxygen  11.5500000   7.7000000   7.7000000
++atom O117 oxygen  11.5500000  11.5500000  19.2500000
++atom O118 oxygen   7.7000000   7.7000000  19.2500000
++atom O119 oxygen   7.7000000  11.5500000  15.4000000
++atom O120 oxygen  11.5500000   7.7000000  15.4000000
++atom O121 oxygen  11.5500000  11.5500000  26.9500000
++atom O122 oxygen   7.7000000   7.7000000  26.9500000
++atom O123 oxygen   7.7000000  11.5500000  23.1000000
++atom O124 oxygen  11.5500000   7.7000000  23.1000000
++atom O125 oxygen  11.5500000  11.5500000  34.6500000
++atom O126 oxygen   7.7000000   7.7000000  34.6500000
++atom O127 oxygen   7.7000000  11.5500000  30.8000000
++atom O128 oxygen  11.5500000   7.7000000  30.8000000
++atom O129 oxygen  11.5500000  11.5500000  42.3500000
++atom O130 oxygen   7.7000000   7.7000000  42.3500000
++atom O131 oxygen   7.7000000  11.5500000  38.5000000
++atom O132 oxygen  11.5500000   7.7000000  38.5000000
++atom O133 oxygen  11.5500000  11.5500000  50.0500000
++atom O134 oxygen   7.7000000   7.7000000  50.0500000
++atom O135 oxygen   7.7000000  11.5500000  46.2000000
++atom O136 oxygen  11.5500000   7.7000000  46.2000000
++atom O137 oxygen  11.5500000  11.5500000  57.7500000
++atom O138 oxygen   7.7000000   7.7000000  57.7500000
++atom O139 oxygen   7.7000000  11.5500000  53.9000000
++atom O140 oxygen  11.5500000   7.7000000  53.9000000
++atom O141 oxygen  11.5500000  11.5500000  65.4500000
++atom O142 oxygen   7.7000000   7.7000000  65.4500000
++atom O143 oxygen   7.7000000  11.5500000  61.6000000
++atom O144 oxygen  11.5500000   7.7000000  61.6000000
+-- 
+1.9.1
+

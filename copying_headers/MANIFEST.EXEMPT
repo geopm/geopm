@@ -22,6 +22,7 @@ examples/fft/COPYING-NAS
 examples/example_policy.json
 examples/minife/README
 examples/nekbone/README
+examples/qbox/README
 MANIFEST
 README
 README.md
