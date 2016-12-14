@@ -1,0 +1,21 @@
+The patch file in this directory are designed to be applied on top of amg2013 v2.3.
+
+Source code:
+    https://asc.llnl.gov/CORAL-benchmarks/Throughput/amg20130624.tgz
+
+Installation:
+
+1. Acquire the source:
+    wget https://asc.llnl.gov/CORAL-benchmarks/Throughput/amg20130624.tgz
+
+2. Unpack the source:
+    tar zxvf amg20130624.tgz
+
+3. Change directories to the unpacked files.
+    cd AMG2013
+
+4. Patch nekbone with the patch utility:
+    patch -p1 < ../0001-Adding-geopm-markup-to-AMG.patch
+
+5. Profit.
+

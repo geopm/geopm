@@ -16,6 +16,7 @@ doc/leaf-figure.pdf
 doc/tree-figure.pdf
 dox/Doxyfile
 examples/README
+examples/amg2013/README
 examples/fft/README
 examples/fft/COPYING-NAS
 examples/example_policy.json
