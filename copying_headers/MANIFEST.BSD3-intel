@@ -14,6 +14,7 @@ examples/synthetic_benchmark.cpp
 examples/synthetic_benchmark.hpp
 examples/threaded_step_example.c
 examples/timed_region.cpp
+examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch
 examples/fft/Makefile.mk
 examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch
 examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch
