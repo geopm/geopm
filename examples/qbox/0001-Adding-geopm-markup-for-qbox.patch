@@ -1,0 +1,223 @@
+From 369af7dc32a52d4c33b388af614c315404b41180 Mon Sep 17 00:00:00 2001
+From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
+Date: Tue, 15 Nov 2016 17:44:23 -0800
+Subject: [PATCH 1/2] Adding geopm markup for qbox.
+
+#  Copyright (c) 2015, 2016, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Signed-off-by: Steve S. Sylvester <steve.s.sylvester@intel.com>
+---
+ trunk/src/BOSampleStepper.C               | 48 ++++++++++++++++++++++++++++++-
+ trunk/src/linux_x86_64_intel_omp_geopm.mk | 37 ++++++++++++++++++++++++
+ 2 files changed, 84 insertions(+), 1 deletion(-)
+ create mode 100644 qball_r140/trunk/src/linux_x86_64_intel_omp_geopm.mk
+
+diff --git a/trunk/src/BOSampleStepper.C b/trunk/src/BOSampleStepper.C
+index 724e2d1..597eb96 100644
+--- a/trunk/src/BOSampleStepper.C
++++ b/trunk/src/BOSampleStepper.C
+@@ -61,6 +61,9 @@
+ extern "C" void HPM_Start(char *);
+ extern "C" void HPM_Stop(char *);
+ #endif
++#ifdef GEOPM
++#include "geopm.h"
++#endif
+ using namespace std;
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -1125,6 +1128,10 @@ void BOSampleStepper::step(int niter)
+         tmap["scfloop"].start();
+         for ( int itscf = 0; itscf < nitscf_; itscf++ )
+         {
++#ifdef GEOPM
++          uint64_t region_id;
++          geopm_prof_epoch();
++#endif
+ 
+           // check timing
+           if (niter <= 1 && s_.ctrl.run_timer > 0.0 && nitscf_ > 1 && itscf > 1 && testtimer) {
+@@ -1154,6 +1161,10 @@ void BOSampleStepper::step(int niter)
+           
+           // check convergence
+           if (conv_scf.isConverged()) {
++#ifdef GEOPM
++            geopm_prof_region("convergence_check", 0, &region_id);
++            geopm_prof_enter(region_id);
++#endif
+             if ( s_.ctxt_.oncoutpe() ) {
+               cout.setf(ios::scientific,ios::floatfield);
+               if (fractional_occ)
+@@ -1173,6 +1184,9 @@ void BOSampleStepper::step(int niter)
+             }
+             itscf = nitscf_;
+             convflag = true;
++#ifdef GEOPM
++          geopm_prof_exit(region_id);
++#endif
+           }          
+           // continue itscf loop
+           else {
+@@ -1185,6 +1199,10 @@ void BOSampleStepper::step(int niter)
+             if ( nite_ > 1 && onpe0 )
+               cout << "  <!-- BOSampleStepper: start scf iteration -->" << endl;
+ 
++#ifdef GEOPM
++            geopm_prof_region("compute_density", 0, &region_id);
++            geopm_prof_enter(region_id);
++#endif
+             // compute new density in cd_.rhog
+             tmap["charge"].start();
+             if ( itscf==0 && initial_atomic_density ) {
+@@ -1197,6 +1215,9 @@ void BOSampleStepper::step(int niter)
+                cd_.update_density();
+                // QB_Pstop("charge");
+             tmap["charge"].stop();
++#ifdef GEOPM
++            geopm_prof_exit(region_id);
++#endif
+ 
+             if (fractional_occ)
+                ef_.update_harris();
+@@ -1261,19 +1282,32 @@ void BOSampleStepper::step(int niter)
+                 cd_.update_rhor();
+               }              
+             }
+-
++#ifdef GEOPM
++           geopm_prof_region("vhxc_update", 0, &region_id);
++           geopm_prof_enter(region_id);
++#endif
+             //QB_Pstart(update_vhxc);
+             ef_.update_vhxc();
+             //QB_Pstop(update_vhxc);
++#ifdef GEOPM
++           geopm_prof_exit(region_id);
++#endif
+ 
+             // reset stepper only if multiple non-selfconsistent steps
+             if ( nite_ > 0 ) wf_stepper->preprocess();
+             int nitemin_ = ( nite_ > 0 ? nite_ : 1);
+             for ( int ite = 0; ite < nitemin_; ite++ )
+             {
++#ifdef GEOPM
++               geopm_prof_region("energy_update", 0, &region_id);
++               geopm_prof_enter(region_id);
++#endif
+                //QB_Pstart(energy+hamiltonian_update);
+                double energy = ef_.energy(true,dwf,false,fion,false,sigma_eks);
+                //QB_Pstop(energy+hamiltonian_update);
++#ifdef GEOPM
++               geopm_prof_exit(region_id);
++#endif
+ 
+                // compute the sum of eigenvalues (with fixed weight)
+                // to measure convergence of the subspace update
+@@ -1294,6 +1328,10 @@ void BOSampleStepper::step(int niter)
+                      cout << "  <eigenvalue_sum> "
+                           << eigenvalue_sum << " </eigenvalue_sum>" << endl;
+                }
++#ifdef GEOPM
++               geopm_prof_region("update_waveform", 0, &region_id);
++               geopm_prof_enter(region_id);
++#endif
+                //QB_Pstart(pzgemm used to update wf)               
+                wf_stepper->update(dwf); 
+                //QB_Pstop(pzgemm used to update wf)
+@@ -1301,6 +1339,11 @@ void BOSampleStepper::step(int niter)
+               if (ultrasoft)
+                   wf.update_usfns();
+ 
++#ifdef GEOPM
++               geopm_prof_exit(region_id);
++               geopm_prof_region("gram_schmitt", 0, &region_id);
++               geopm_prof_enter(region_id);
++#endif
+                // update ultrasoft functions if needed, call gram
+                for ( int ispin = 0; ispin < s_.wf.nspin(); ispin++ ) {
+                   if (s_.wf.spinactive(ispin)) {
+@@ -1325,6 +1368,9 @@ void BOSampleStepper::step(int niter)
+                      }
+                   }
+                }
++#ifdef GEOPM
++               geopm_prof_exit(region_id);
++#endif
+                
+                if ( onpe0 )
+                {
+diff --git a/trunk/src/linux_x86_64_intel_omp_geopm.mk b/trunk/src/linux_x86_64_intel_omp_geopm.mk
+new file mode 100644
+index 0000000..1cf1426
+--- /dev/null
++++ b/trunk/src/linux_x86_64_intel_omp_geopm.mk
+@@ -0,0 +1,37 @@
++#-------------------------------------------------------------------------------
++#
++#  zeus-x86_64_intel.mk
++#
++#-------------------------------------------------------------------------------
++# $Id: linux_x86_64_intel.mk,v 1.1 2010/01/22 00:35:01 draeger1 Exp $
++#
++ PLT=LINUX_X86_64
++#-------------------------------------------------------------------------------
++ XERCESCDIR=$(HOME)/build/xerces-c
++ XERCESCLIBDIR=$(XERCESCDIR)/lib
++ XERCESLIB=$(XERCESCLIBDIR)/libxerces-c.a
++ FFTWDIR=$(HOME)/build/fftw
++ FFTWLIB=$(FFTWDIR)/lib/libfftw.a
++ BLASDIR=/opt/ohpc/pub/compiler/intel/compilers_and_libraries_2016.2.181/linux/mkl/lib/intel64_lin
++ SCALAPACK_DIR = $(HOME)/build/scalapack-2.0.2
++ SCALAPACKLIB  = $(SCALAPACK_DIR)/libscalapack.a
++ GEOPMDIR=$(HOME)/build/geopm
++ GEOPMLIBDIR=$(GEOPMDIR)/lib
++
++ CXX=mpicxx
++ CC=mpicc
++ LD=$(CXX)
++
++ DFLAGS += -DPRINTALL -DUSE_FFTW -DUSE_CSTDIO_LFS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DXML -DUSE_XERCES -DGEOPM
++
++ INCLUDE = -I$(FFTWDIR)/include -I$(XERCESCDIR)/include -I$(GEOPMDIR)/include
++
++ CXXFLAGS= -g -openmp -O3 -xW -DUSE_MPI -DSCALAPACK -DADD_ -D$(PLT) $(INCLUDE) $(DFLAGS)
++ CFLAGS= -g -openmp -O3 -xW -DUSE_MPI -DSCALAPACK -DADD_ -D$(PLT) $(INCLUDE) $(DFLAGS)
++
++ LIBPATH = -L$(FFTWDIR)/lib -L$(BLASDIR) -L$(XERCESCLIBDIR) -L$(GEOPMLIBDIR)
++ LIBS =  $(SCALAPACKLIB) -lfftw -openmp -lmkl_core -lmkl_intel_thread -lmkl_intel_lp64 -lifcore -lxerces-c -lgeopm
++
++ LDFLAGS = $(LIBPATH) $(LIBS) -Wl,-rpath,/usr/local/tools/mkl-10.3.1/lib
++
++#-------------------------------------------------------------------------------
+-- 
+1.9.1
+
