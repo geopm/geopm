@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ab451fb_356e0dca",
+        "filename": "examples/qbox/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2016-12-15T16:27:49Z",
+      "side": 1,
+      "message": "trailing white space",
+      "revId": "2b7e1792940628bb2b4dba87b7a15799b71b7a0d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
