@@ -42,6 +42,9 @@ def factory(app_conf, ctl_conf, report_path,
     if hostname.find('mr-fusion') == 0:
         return SrunLauncher(app_conf, ctl_conf, report_path,
                             trace_path, host_file, time_limit)
+    elif hostname.find('theta') == 0:
+        return AlpsLauncher(app_conf, ctl_conf, report_path,
+                              trace_path, host_file, time_limit)
     else:
         raise LookupError('Unrecognized hostname: ' + hostname)
 
@@ -181,7 +184,8 @@ class SrunLauncher(Launcher):
     def __init__(self, app_conf, ctl_conf, report_path,
                  trace_path=None, host_file=None, time_limit=1):
         super(SrunLauncher, self).__init__(app_conf, ctl_conf, report_path,
-                                           trace_path=trace_path, host_file=host_file, time_limit=time_limit)
+                                           trace_path=trace_path, host_file=host_file,
+                                           time_limit=time_limit)
         self._queuing_timeout = 30
         self._job_name = 'int_test'
 
@@ -219,3 +223,55 @@ class SrunLauncher(Launcher):
     def get_alloc_nodes(self):
         return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
 
+class AlpsLauncher(Launcher):
+    def __init__(self, app_conf, ctl_conf, report_path,
+                 trace_path=None, host_file=None, time_limit=1):
+        super(AlpsLauncher, self).__init__(app_conf, ctl_conf, report_path,
+                                           trace_path=trace_path, host_file=host_file,
+                                           time_limit=time_limit)
+        self._queuing_timeout = 30
+        self._job_name = 'int_test'
+
+    def _environ(self):
+        result = super(AlpsLauncher, self)._environ()
+        result['KMP_AFFINITY'] = 'disabled'
+        return result
+
+    def _mpiexec_option(self):
+        mpiexec = 'aprun'
+        if self._time_limit is not None:
+            mpiexec += ' -t {time_limit}'.format(time_limit=self._time_limit * 60)
+        if self._node_list is not None:
+            mpiexec += ' -L ' + ','.join(self._node_list)
+        return mpiexec
+
+    def _num_node_option(self):
+        rank_per_node = self._num_rank / self._num_node
+        if self._pmpi_ctl == 'process':
+            rank_per_node += 1
+        return '-N {rank_per_node}'.format(rank_per_node=rank_per_node)
+
+    def _affinity_option(self):
+        result_base = '-cc '
+        mask_list = []
+        off_start = 1
+        if (self._pmpi_ctl == 'process'):
+            mask_list.append('1')
+            off_start = 2
+        rank_per_node = self._num_rank / self._num_node
+        thread_per_node = rank_per_node * self._num_thread
+        mask_list.extend(['{0}-{1}'.format(off, off + self._num_thread - 1)
+                          for off in range(off_start,thread_per_node + off_start, self._num_thread)])
+        return result_base + ':'.join(mask_list)
+
+    def _host_option(self):
+        result = ''
+        if self._host_file:
+            result = '--node-list-file {host_file}'.format(self._host_file)
+        return result
+
+    def get_idle_nodes(self):
+        raise NotImplementedError;
+
+    def get_alloc_nodes(self):
+        raise NotImplementedError;
