@@ -210,8 +210,6 @@ namespace geopm
             void get_policy(int level, struct geopm_policy_message_s &policy);
             size_t overhead_send(void);
         protected:
-            /// @brief Constructor helper to instantiate MPI types.
-            void mpi_type_create(void);
             /// @brief Constructor helper to instantiate
             ///        sub-communicators.
             void comm_create(const MPI_Comm &comm);
@@ -224,9 +222,6 @@ namespace geopm
             /// @brief Destructor helper to free resources of
             ///        sub-communicators.
             void comm_destroy(void);
-            /// @brief Destructor helper to free resources from MPI
-            ///        types.
-            void mpi_type_destroy(void);
             /// Number of levels this rank participates in
             int m_num_level;
             /// @brief Number of nodes in the job.
@@ -241,10 +236,6 @@ namespace geopm
             GlobalPolicy *m_global_policy;
             /// Intermediate levels
             std::vector<TreeCommunicatorLevel *> m_level;
-            /// MPI data type for sample message
-            MPI_Datatype m_sample_mpi_type;
-            /// MPI data type for policy message
-            MPI_Datatype m_policy_mpi_type;
     };
 
     class SingleTreeCommunicator : public TreeCommunicatorBase

@@ -85,7 +85,10 @@ extern "C"
             MPI_Barrier(comm);
             err = stat(shmem_path.c_str(), &stat_struct);
             if (!err || (err && errno != ENOENT)) {
-                throw geopm::Exception("geopm_comm_split_shared(): " + std::string(shmem_key) + " already exists and cannot be deleted.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw geopm::Exception("geopm_comm_split_shared(): " +
+                                       std::string(shmem_key) +
+                                       " already exists and cannot be deleted.",
+                                       GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             MPI_Barrier(comm);
             try {
@@ -199,13 +202,6 @@ namespace geopm
         }
     }
 
-    //////////////////////////////////
-    // Static function declarations //
-    //////////////////////////////////
-
-    static MPI_Datatype create_sample_mpi_type(void);
-    static MPI_Datatype create_policy_mpi_type(void);
-
     /////////////////////////////////
     // Internal class declarations //
     /////////////////////////////////
@@ -215,7 +211,7 @@ namespace geopm
     class TreeCommunicatorLevel
     {
         public:
-            TreeCommunicatorLevel(MPI_Comm comm, MPI_Datatype sample_mpi_type, MPI_Datatype policy_mpi_type);
+            TreeCommunicatorLevel(MPI_Comm comm);
             ~TreeCommunicatorLevel();
             /// Check sample mailbox for each child and if all are full copy
             /// them into sample and post a new MPI_Irecv(), otherwise throw
@@ -241,8 +237,6 @@ namespace geopm
             void open_recv(void);
             void close_recv(void);
             MPI_Comm m_comm;
-            MPI_Datatype m_sample_mpi_type; // MPI data type for sample message
-            MPI_Datatype m_policy_mpi_type; // MPI data type for policy message
             int m_size;
             int m_rank;
             std::vector <struct geopm_sample_message_s> m_sample_mailbox;
@@ -252,50 +246,6 @@ namespace geopm
             struct geopm_policy_message_s m_policy;
             size_t m_overhead_send;
     };
-
-    /////////////////////////////////
-    // Static function definitions //
-    /////////////////////////////////
-
-    static MPI_Datatype create_sample_mpi_type(void)
-    {
-        int blocklength[4] = {1, 1, 1, 1};
-        MPI_Datatype mpi_type[5] = {MPI_UNSIGNED_LONG_LONG,
-                                    MPI_DOUBLE,
-                                    MPI_DOUBLE,
-                                    MPI_DOUBLE
-                                   };
-        MPI_Aint offset[4];
-        MPI_Datatype result;
-        offset[0] = offsetof(struct geopm_sample_message_s, region_id);
-        offset[1] = offsetof(struct geopm_sample_message_s, signal);
-        offset[2] = offset[1] + sizeof(double);
-        offset[3] = offset[2] + sizeof(double);
-        check_mpi(MPI_Type_create_struct(4, blocklength, offset, mpi_type, &result));
-        check_mpi(MPI_Type_commit(&result));
-        return result;
-    }
-
-
-    static MPI_Datatype create_policy_mpi_type(void)
-    {
-        int blocklength[4] = {1, 1, 1, 1};
-        MPI_Datatype mpi_type[4] = {MPI_INT,
-                                    MPI_UNSIGNED_LONG,
-                                    MPI_INT,
-                                    MPI_DOUBLE
-                                   };
-        MPI_Aint offset[4];
-        MPI_Datatype result;
-
-        offset[0] = offsetof(struct geopm_policy_message_s, mode);
-        offset[1] = offsetof(struct geopm_policy_message_s, flags);
-        offset[2] = offsetof(struct geopm_policy_message_s, num_sample);
-        offset[3] = offsetof(struct geopm_policy_message_s, power_budget);
-        check_mpi(MPI_Type_create_struct(4, blocklength, offset, mpi_type, &result));
-        check_mpi(MPI_Type_commit(&result));
-        return result;
-    }
 
     ///////////////////////////////////
     // TreeCommunicator public API's //
@@ -308,7 +258,6 @@ namespace geopm
         , m_global_policy(global_policy)
         , m_level(fan_out.size())
     {
-        mpi_type_create();
         comm_create(comm);
         level_create();
         check_mpi(MPI_Comm_size(comm, &m_num_node));
@@ -318,7 +267,6 @@ namespace geopm
     {
         level_destroy();
         comm_destroy();
-        mpi_type_destroy();
     }
 
     int TreeCommunicator::num_level(void) const
@@ -401,12 +349,6 @@ namespace geopm
     // TreeCommunicator protected API's //
     //////////////////////////////////////
 
-    void TreeCommunicator::mpi_type_create(void)
-    {
-        m_sample_mpi_type = create_sample_mpi_type();
-        m_policy_mpi_type = create_policy_mpi_type();
-    }
-
     void TreeCommunicator::comm_create(const MPI_Comm &comm)
     {
         int num_dim = m_fan_out.size();
@@ -449,10 +391,12 @@ namespace geopm
         }
 
         if (rank_cart == 0 && m_global_policy == NULL) {
-            throw Exception("process at root of tree communicator has not mapped the control file", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+            throw Exception("process at root of tree communicator has not mapped the control file",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
         if (rank_cart != 0 && m_global_policy != NULL) {
-            throw Exception("process not at root of tree communicator has mapped the control file", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+            throw Exception("process not at root of tree communicator has mapped the control file",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
     }
 
@@ -469,7 +413,7 @@ namespace geopm
         for (auto level_it = m_level.begin();
              level_it != m_level.end();
              ++level_it, ++comm_it) {
-            *level_it = new TreeCommunicatorLevel(*comm_it, m_sample_mpi_type, m_policy_mpi_type);
+            *level_it = new TreeCommunicatorLevel(*comm_it);
         }
     }
 
@@ -489,20 +433,12 @@ namespace geopm
         }
     }
 
-    void TreeCommunicator::mpi_type_destroy(void)
-    {
-        MPI_Type_free(&m_policy_mpi_type);
-        MPI_Type_free(&m_sample_mpi_type);
-    }
-
     /////////////////////////////////
     // TreeCommunicatorLevel API's //
     /////////////////////////////////
 
-    TreeCommunicatorLevel::TreeCommunicatorLevel(MPI_Comm comm, MPI_Datatype sample_mpi_type, MPI_Datatype policy_mpi_type)
+    TreeCommunicatorLevel::TreeCommunicatorLevel(MPI_Comm comm)
         : m_comm(comm)
-        , m_sample_mpi_type(sample_mpi_type)
-        , m_policy_mpi_type(policy_mpi_type)
         , m_policy_request(MPI_REQUEST_NULL)
         , m_overhead_send(0)
     {
@@ -522,7 +458,8 @@ namespace geopm
     void TreeCommunicatorLevel::get_sample(std::vector<struct geopm_sample_message_s> &sample)
     {
         if (sample.size() < m_sample_mailbox.size()) {
-            throw Exception(std::string(__func__) + ": Input sample vector too small", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+            throw Exception(std::string(__func__) + ": Input sample vector too small",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
 
         bool is_complete = true;
@@ -550,21 +487,27 @@ namespace geopm
         check_mpi(MPI_Test(&m_policy_request, &is_complete, &status));
         if (is_complete) {
             m_policy = m_policy_mailbox;
-            check_mpi(MPI_Irecv(&m_policy_mailbox, 1, m_policy_mpi_type, 0, GEOPM_POLICY_TAG, m_comm, &m_policy_request));
+            size_t msg_size = sizeof(struct geopm_policy_message_s);
+            check_mpi(MPI_Irecv(&m_policy_mailbox, msg_size, MPI_BYTE,
+                                0, GEOPM_POLICY_TAG, m_comm, &m_policy_request));
         }
         policy = m_policy;
         if (geopm_is_policy_equal(&policy, &GEOPM_POLICY_UNKNOWN)) {
-            throw Exception("TreeCommunicatorLevel::get_policy", GEOPM_ERROR_POLICY_UNKNOWN, __FILE__, __LINE__);
+            throw Exception("TreeCommunicatorLevel::get_policy",
+                            GEOPM_ERROR_POLICY_UNKNOWN, __FILE__, __LINE__);
         }
     }
 
     void TreeCommunicatorLevel::send_sample(const struct geopm_sample_message_s &sample)
     {
+        size_t msg_size = sizeof(struct geopm_sample_message_s);
         check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, m_sample_window));
 #ifdef GEOPM_ENABLE_MPI3
-        check_mpi(MPI_Put(&sample, 1, m_sample_mpi_type, 0, m_rank, 1, m_sample_mpi_type, m_sample_window));
+        check_mpi(MPI_Put(&sample, msg_size, MPI_BYTE, 0, m_rank * msg_size,
+                          msg_size, MPI_BYTE, m_sample_window));
 #else
-        check_mpi(MPI_Put((void *)&sample, 1, m_sample_mpi_type, 0, m_rank, 1, m_sample_mpi_type, m_sample_window));
+        check_mpi(MPI_Put((void *)&sample, msg_size, MPI_BYTE, 0, m_rank * msg_size,
+                          msg_size, MPI_BYTE, m_sample_window));
 #endif
         check_mpi(MPI_Win_unlock(0, m_sample_window));
         m_overhead_send += sizeof(struct geopm_sample_message_s);
@@ -572,19 +515,22 @@ namespace geopm
 
     void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length)
     {
-        size_t dest;
-        MPI_Request request;
-
         if (m_rank != 0) {
-            throw Exception("called send_policy() from rank not at root of level", GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+            throw Exception("Called send_policy() from rank not at root of level",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
-        dest = 0;
+
+        MPI_Request request;
+        size_t msg_size = sizeof(struct geopm_policy_message_s);
+        size_t dest = 0;
+
         for (auto policy_it = policy.begin(); dest != length; ++policy_it, ++dest) {
             // Don't check return code or hold onto request, drop message if receiver not ready
-            (void) MPI_Isend(const_cast<struct geopm_policy_message_s*>(&(*policy_it)), 1, m_policy_mpi_type, dest, GEOPM_POLICY_TAG, m_comm, &request);
+            (void) MPI_Isend(const_cast<struct geopm_policy_message_s*>(&(*policy_it)), msg_size,
+                             MPI_BYTE, dest, GEOPM_POLICY_TAG, m_comm, &request);
             (void) MPI_Request_free(&request);
         }
-        m_overhead_send += policy.size() * sizeof(struct geopm_policy_message_s);
+        m_overhead_send += policy.size() * msg_size;
     }
 
     size_t TreeCommunicatorLevel::overhead_send(void)
@@ -599,12 +545,17 @@ namespace geopm
 
     void TreeCommunicatorLevel::open_recv(void)
     {
-        check_mpi(MPI_Irecv(&m_policy_mailbox, 1, m_policy_mpi_type, 0, GEOPM_POLICY_TAG, m_comm, &m_policy_request));
+        size_t msg_size = sizeof(struct geopm_policy_message_s);
+        check_mpi(MPI_Irecv(&m_policy_mailbox, msg_size, MPI_BYTE, 0,
+                            GEOPM_POLICY_TAG, m_comm, &m_policy_request));
+
+        msg_size = sizeof(struct geopm_sample_message_s);
         if (!m_rank) {
-            check_mpi(MPI_Win_create(m_sample_mailbox.data(), m_sample_mailbox.size(), sizeof(struct geopm_sample_message_s), MPI_INFO_NULL, m_comm, &m_sample_window));
+            check_mpi(MPI_Win_create(m_sample_mailbox.data(), m_sample_mailbox.size() * msg_size,
+                                     1, MPI_INFO_NULL, m_comm, &m_sample_window));
         }
         else {
-            check_mpi(MPI_Win_create(NULL, 0, sizeof(struct geopm_sample_message_s), MPI_INFO_NULL, m_comm, &m_sample_window));
+            check_mpi(MPI_Win_create(NULL, 0, 1, MPI_INFO_NULL, m_comm, &m_sample_window));
         }
     }
 
