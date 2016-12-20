@@ -226,5 +226,60 @@ class TestReport(unittest.TestCase):
             self.assertEqual(loop_count, rr['spin'].get_count())
             self.assertEqual(loop_count, rr['epoch'].get_count())
 
+    def test_scaling(self):
+        """
+        This test will start at ${num_node} nodes and ranks.  It will then calls check_run() to
+        ensure that commands can be executed successfully on all of the allocated compute nodes.
+        Afterwards it will run the specified app config on each node and verify the reports.  When
+        complete it will double num_node and run the steps again.
+
+        WARNING: This test can take a long time to run depending on the number of starting nodes and
+        the size of the allocation.
+        """
+        name = 'test_scaling'
+        report_path = name + '.report'
+        num_node = 1
+        loop_count = 100
+
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm', 1.0)
+        app_conf.append_region('all2all', 1.0)
+        app_conf.set_loop_count(loop_count)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+
+        check_successful = True
+        while check_successful:
+            launcher.set_num_node(num_node)
+            launcher.set_num_rank(num_node)
+            try:
+                launcher.check_run(name)
+            except subprocess.CalledProcessError as e:
+                # If we exceed the available nodes in the allocation ALPS/SLURM give a rc of 1
+                # All other rc's are real errors
+                if e.returncode != 1:
+                    raise e
+                check_successful = False
+            if check_successful:
+                launcher.write_log(name, 'About to run on {} nodes.'.format(num_node))
+                launcher.run(name)
+                report_paths = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+                self._tmp_files.extend(report_paths)
+                reports = [geopm_io.Report(rr) for rr in report_paths]
+                self.assertTrue(len(reports) == num_node)
+                for rr in reports:
+                    self.assertEqual(loop_count, rr['dgemm'].get_count())
+                    self.assertEqual(loop_count, rr['all2all'].get_count())
+                    self.assertGreater(rr['dgemm'].get_runtime(), 0.0)
+                    self.assertGreater(rr['all2all'].get_runtime(), 0.0)
+                for ff in report_paths:
+                    try:
+                        os.remove(ff)
+                    except OSError:
+                        pass
+                num_node *= 2
+
 if __name__ == '__main__':
     unittest.main()
