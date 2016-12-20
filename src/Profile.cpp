@@ -807,7 +807,7 @@ namespace geopm
         return result;
     }
 
-    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length)
+    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm)
     {
         length = 0;
         if (m_ctl_msg->app_status == GEOPM_STATUS_SAMPLE_BEGIN ||
@@ -822,6 +822,7 @@ namespace geopm
                 length += rank_length;
             }
             if (m_ctl_msg->app_status == GEOPM_STATUS_SAMPLE_END) {
+                PMPI_Barrier(comm);
                 m_ctl_msg->ctl_status = GEOPM_STATUS_SAMPLE_END;
                 while (m_ctl_msg->app_status != GEOPM_STATUS_NAME_BEGIN &&
                        m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
