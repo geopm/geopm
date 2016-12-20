@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 
         while (!sampler->do_shutdown()) {
             geopm_time(&start);
-            sampler->sample(sample, sample_length);
+            sampler->sample(sample, sample_length, MPI_COMM_WORLD);
             decide(plat, sample, sample_length);
 
             timeout = 0.0;

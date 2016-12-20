@@ -192,21 +192,21 @@ namespace geopm
         , m_is_epoch_changed(false)
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
+        , m_ppn1_comm(MPI_COMM_NULL)
     {
-        MPI_Comm ppn1_comm;
         int err = 0;
         int num_nodes = 0;
 
-        err = geopm_comm_split_ppn1(comm, "ctl", &ppn1_comm);
+        err = geopm_comm_split_ppn1(comm, "ctl", &m_ppn1_comm);
         if (err) {
             throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
         }
         // Only the root rank on each node will have a fully initialized controller
-        if (ppn1_comm != MPI_COMM_NULL) {
+        if (m_ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
             struct geopm_plugin_description_s plugin_desc;
             int rank;
-            check_mpi(MPI_Comm_rank(ppn1_comm, &rank));
+            check_mpi(MPI_Comm_rank(m_ppn1_comm, &rank));
             if (!rank) { // We are the root of the tree
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
@@ -238,9 +238,9 @@ namespace geopm
                         throw Exception("Controller::Controller(): Invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
-            check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, ppn1_comm));
+            check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, m_ppn1_comm));
 
-            check_mpi(MPI_Comm_size(ppn1_comm, &num_nodes));
+            check_mpi(MPI_Comm_size(m_ppn1_comm, &num_nodes));
 
             if (num_nodes > 1) {
                 int num_fan_out = 1;
@@ -259,7 +259,7 @@ namespace geopm
                 }
                 std::reverse(fan_out.begin(), fan_out.end());
 
-                m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
+                m_tree_comm = new TreeCommunicator(fan_out, global_policy, m_ppn1_comm);
             }
             else {
                 m_tree_comm = new SingleTreeCommunicator(global_policy);
@@ -335,7 +335,7 @@ namespace geopm
             }
 
             // Synchronize the ranks so time zero is uniform.
-            MPI_Barrier(ppn1_comm);
+            MPI_Barrier(m_ppn1_comm);
             m_tracer = new Tracer();
             m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
         }
@@ -348,6 +348,10 @@ namespace geopm
         }
 
         m_do_shutdown = true;
+        if (m_ppn1_comm != MPI_COMM_NULL) {
+            MPI_Barrier(m_ppn1_comm);
+            MPI_Comm_free(&m_ppn1_comm);
+        }
 
         delete m_tracer;
         for (int level = 0; level < m_tree_comm->num_level(); ++level) {
@@ -539,7 +543,7 @@ namespace geopm
                 // decider who will create a new per domain policy for
                 // the current region. Then we can enforce the policy
                 // by adjusting RAPL power domain limits.
-                m_sampler->sample(m_prof_sample, length);
+                m_sampler->sample(m_prof_sample, length, m_ppn1_comm);
 
                 // Find all MPI time and aggregate.
                 for (auto sample_it = m_prof_sample.begin();
@@ -696,8 +700,11 @@ namespace geopm
                 m_is_epoch_changed = false;
             }
         }
-        if (m_do_shutdown && m_sampler->do_report()) {
-            generate_report();
+        if (m_do_shutdown) {
+            MPI_Barrier(m_ppn1_comm);
+            if (m_sampler->do_report()) {
+                generate_report();
+            }
         }
     }
 
