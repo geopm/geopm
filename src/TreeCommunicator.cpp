@@ -495,6 +495,7 @@ namespace geopm
             check_mpi(MPI_Get(&policy, msg_size, MPI_BYTE, 0, m_rank * msg_size,
                               msg_size, MPI_BYTE, m_policy_window));
             check_mpi(MPI_Win_unlock(0, m_policy_window));
+            m_overhead_send += msg_size;
         }
         else {
             policy = *m_policy_mailbox;
@@ -504,24 +505,26 @@ namespace geopm
             throw Exception("TreeCommunicatorLevel::get_policy",
                             GEOPM_ERROR_POLICY_UNKNOWN, __FILE__, __LINE__);
         }
-        if (m_rank) {
-            m_overhead_send += msg_size;
-        }
     }
 
     void TreeCommunicatorLevel::send_sample(const struct geopm_sample_message_s &sample)
     {
         size_t msg_size = sizeof(struct geopm_sample_message_s);
-        check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, m_sample_window));
+        if (m_rank) {
+            check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, m_sample_window));
 #ifdef GEOPM_ENABLE_MPI3
-        check_mpi(MPI_Put(&sample, msg_size, MPI_BYTE, 0, m_rank * msg_size,
-                          msg_size, MPI_BYTE, m_sample_window));
+            check_mpi(MPI_Put(&sample, msg_size, MPI_BYTE, 0, m_rank * msg_size,
+                              msg_size, MPI_BYTE, m_sample_window));
 #else
-        check_mpi(MPI_Put((void *)&sample, msg_size, MPI_BYTE, 0, m_rank * msg_size,
-                          msg_size, MPI_BYTE, m_sample_window));
+            check_mpi(MPI_Put((void *)&sample, msg_size, MPI_BYTE, 0, m_rank * msg_size,
+                              msg_size, MPI_BYTE, m_sample_window));
 #endif
-        check_mpi(MPI_Win_unlock(0, m_sample_window));
-        m_overhead_send += sizeof(struct geopm_sample_message_s);
+            check_mpi(MPI_Win_unlock(0, m_sample_window));
+            m_overhead_send += sizeof(struct geopm_sample_message_s);
+        }
+        else {
+            *m_sample_mailbox = sample;
+        }
     }
 
     void TreeCommunicatorLevel::send_policy(const std::vector<struct geopm_policy_message_s> &policy, size_t length)
