@@ -426,6 +426,7 @@ namespace geopm
             walk_up();
             geopm_signal_handler_check();
         }
+        walk_down();
         geopm_signal_handler_check();
 
         reset();
@@ -445,6 +446,7 @@ namespace geopm
         geopm_signal_handler_check();
 
         if (m_do_shutdown) {
+            walk_down();
             throw Exception("Controller::step(): Shutdown signaled", GEOPM_ERROR_SHUTDOWN, __FILE__, __LINE__);
         }
     }
