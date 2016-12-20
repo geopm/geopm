@@ -442,7 +442,7 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm);
             /// @brief Check if the application is shutting down.
             ///
             /// Queries the control shared memory region to test if the
