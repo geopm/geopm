@@ -88,12 +88,18 @@ class Launcher(object):
     def set_pmpi_ctl(self, pmpi_ctl):
         self._pmpi_ctl = pmpi_ctl
 
+    def check_run(self, test_name):
+        with open(test_name + '.log', 'a') as outfile:
+            outfile.write(self._check_str() + '\n\n')
+            outfile.flush()
+            subprocess.check_call(self._check_str(), shell=True, stdout=outfile, stderr=outfile)
+
     def run(self, test_name):
         env = dict(os.environ)
         env.update(self._environ())
         self._app_conf.write()
         self._ctl_conf.write()
-        with open(test_name + '.log', 'w') as outfile:
+        with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(self) + '\n\n')
             outfile.flush()
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
@@ -133,6 +139,8 @@ class Launcher(object):
         num_cpu = core_socket[0] * core_socket[1] - 2
         try:
             rank_per_node = self._num_rank / self._num_node
+            # Fixes situations when rank_per_node may be 0 which results in a divide by 0 below.
+            rank_per_node = rank_per_node if rank_per_node != 0 else 1
             self._num_thread = num_cpu / rank_per_node
         except AttributeError:
             pass
@@ -148,6 +156,17 @@ class Launcher(object):
         if self._region_barrier:
             result['GEOPM_REGION_BARRIER'] = 'true'
         return result
+
+    def _check_str(self):
+        # Save the pmpi_ctl state since we don't need it to run 'true'
+        tmp_pmpi_ctl = self._pmpi_ctl
+        self._pmpi_ctl = ''
+        check_str = ' '.join((self._mpiexec_option(),
+                              self._num_node_option(),
+                              self._num_rank_option(),
+                              'true'))
+        self._pmpi_ctl = tmp_pmpi_ctl
+        return check_str
 
     def _exec_str(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
