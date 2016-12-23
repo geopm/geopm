@@ -495,7 +495,7 @@ namespace geopm
         if (m_rank) {
             check_mpi(MPI_Win_lock(MPI_LOCK_SHARED, m_rank, 0, m_policy_window));
             policy = *m_policy_mailbox;
-            check_mpi(MPI_Win_unlock(0, m_policy_window));
+            check_mpi(MPI_Win_unlock(m_rank, m_policy_window));
         }
         else {
             policy = *m_policy_mailbox;
