@@ -250,6 +250,7 @@ namespace geopm
                 while (fan_out[0] > M_MAX_FAN_OUT && fan_out[num_fan_out - 1] != 1) {
                     ++num_fan_out;
                     fan_out.resize(num_fan_out);
+                    std::fill(fan_out.begin(), fan_out.end(), 0);
                     check_mpi(MPI_Dims_create(num_nodes, num_fan_out, fan_out.data()));
                 }
 

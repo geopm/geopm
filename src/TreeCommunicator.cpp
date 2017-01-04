@@ -352,29 +352,39 @@ namespace geopm
 
     void TreeCommunicator::comm_create(const MPI_Comm &comm)
     {
-        int num_dim = m_fan_out.size();
+        int num_level = m_fan_out.size();
         int color, key;
         MPI_Comm comm_cart;
-        std::vector<int> flags(num_dim);
-        std::vector<int> coords(num_dim);
+        std::vector<int> flags(num_level, 0);
+        std::vector<int> coords(num_level, 0);
+        std::vector<int> parent_coords(num_level, 0);
         int rank_cart;
 
-        memset(flags.data(), 0, sizeof(int)*num_dim);
-        flags[0] = 1;
-        check_mpi(MPI_Cart_create(comm, num_dim, m_fan_out.data(), flags.data(), 1, &comm_cart));
+        check_mpi(MPI_Cart_create(comm, num_level, m_fan_out.data(), flags.data(), 1, &comm_cart));
         check_mpi(MPI_Comm_rank(comm_cart, &rank_cart));
-        check_mpi(MPI_Cart_coords(comm_cart, rank_cart, num_dim, coords.data()));
-        check_mpi(MPI_Cart_sub(comm_cart, flags.data(), &(m_comm[0])));
-        for (int i = 1; i < num_dim; ++i) {
-            if (coords[i-1] == 0) {
-                color = 1;
-                key = coords[i];
+        check_mpi(MPI_Cart_coords(comm_cart, rank_cart, num_level, coords.data()));
+        parent_coords = coords;
+
+        /* Tracks if the rank's coordinate is zero for higher order
+	   dimensions than the depth */
+        bool is_all_zero = true;
+        for (int level = 0; level != num_level; ++level) {
+            int depth = num_level - 1 - level;
+            if (is_all_zero) {
+                parent_coords[depth] = 0;
+                MPI_Cart_rank(comm_cart, parent_coords.data(), &color);
+                key = rank_cart;
             }
             else {
                 color = MPI_UNDEFINED;
                 key = 0;
             }
-            check_mpi(MPI_Comm_split(comm_cart, color, key, &(m_comm[i])));
+
+            check_mpi(MPI_Comm_split(comm_cart, color, key, &(m_comm[level])));
+
+            if (coords[depth] != 0) {
+                is_all_zero = false;
+            }
         }
         check_mpi(MPI_Comm_free(&comm_cart));
 
