@@ -396,6 +396,7 @@ ruby/bin/ronn:
 	which ronn >& /dev/null && \
 	ln -s `which ronn` ruby/bin/ronn || \
 	gem install ronn -i ruby
+	if [ ! -f $@ ]; then pushd ruby/bin && ln -s ronn.ruby* ronn && popd; fi
 
 $(dist_man_MANS): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	mkdir -p man
