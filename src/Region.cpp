@@ -124,7 +124,11 @@ namespace geopm
 
     void Region::insert(const std::vector<struct geopm_sample_message_s> &sample)
     {
-        std::copy(sample.begin(), sample.end(), m_domain_sample.begin());
+        if (sample.size() < m_num_domain) {
+            throw Exception("Region::insert(): input sample vector too small",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::copy(sample.begin(), sample.begin() + m_num_domain, m_domain_sample.begin());
         update_curr_sample();
         // Calculate the number of entries *after* we insert the new data: size() + 1 or capacity
         int num_entries = m_domain_buffer.size() + 1 < m_domain_buffer.capacity() ?
@@ -132,8 +136,8 @@ namespace geopm
         // This insert is called above leaf level, so all entries are valid
         std::fill(m_valid_entries.begin(), m_valid_entries.end(), num_entries);
 
-        int domain_idx = 0;
-        for (auto it = sample.begin(); it != sample.end(); ++it, ++domain_idx) {
+        auto it = sample.begin();
+        for (size_t domain_idx = 0; domain_idx != m_num_domain; ++domain_idx, ++it) {
             update_signal_matrix((*it).signal, domain_idx);
             update_stats((*it).signal, domain_idx);
         }
