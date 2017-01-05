@@ -49,7 +49,7 @@ before_install:
     - ./autogen.sh
 
 install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran
+    - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran --disable-mpi
 
 script:
     - make
