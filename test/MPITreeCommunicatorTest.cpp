@@ -213,7 +213,7 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
                 }
                 catch (geopm::Exception ex) {
                     if (ex.err_value() == GEOPM_ERROR_POLICY_UNKNOWN) {
-                        sleep(1);
+                        //sleep(1);
                     }
                     else {
                         throw ex;
@@ -251,7 +251,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
                 }
                 catch (geopm::Exception ex) {
                     if (ex.err_value() == GEOPM_ERROR_SAMPLE_INCOMPLETE) {
-                        sleep(1);
+                        //sleep(1);
                     }
                     else {
                         throw ex;
