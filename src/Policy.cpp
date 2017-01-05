@@ -291,8 +291,9 @@ namespace geopm
 
     void RegionPolicy::policy_message(const struct geopm_policy_message_s &parent_msg, std::vector<struct geopm_policy_message_s> &child_msg)
     {
-        if ((int)child_msg.size() == m_num_domain) {
-            std::fill(child_msg.begin(), child_msg.end(), parent_msg);
+        if ((int)child_msg.size() >= m_num_domain) {
+            std::fill(child_msg.begin(), child_msg.begin() + m_num_domain, parent_msg);
+            std::fill(child_msg.begin() + m_num_domain, child_msg.end(), GEOPM_POLICY_UNKNOWN);
             for (int domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
                 child_msg[domain_idx].power_budget = m_target[domain_idx];
             }
