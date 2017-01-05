@@ -548,9 +548,9 @@ namespace geopm
         m_last_policy[0] = policy[0];
         size_t msg_size = sizeof(struct geopm_policy_message_s);
         int child_rank = 1;
-        auto last_it = m_last_policy.begin() + 1;
-        for (auto this_it = policy.begin() + 1;
-             this_it != policy.end();
+        auto this_it = policy.begin() + 1;
+        for (auto last_it = m_last_policy.begin() + 1;
+             last_it != m_last_policy.end();
              ++this_it, ++last_it, ++child_rank) {
             if (!geopm_is_policy_equal(&(*this_it), &(*last_it))) {
                 check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, child_rank, 0, m_policy_window));
