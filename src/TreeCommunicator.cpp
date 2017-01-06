@@ -583,8 +583,13 @@ namespace geopm
     {
         // Create policy window
         size_t msg_size = sizeof(struct geopm_policy_message_s);
-        check_mpi(MPI_Win_create((void *)(&m_policy_mailbox), msg_size, 1,
-                                 MPI_INFO_NULL, m_comm, &m_policy_window));
+        if (m_rank) {
+            check_mpi(MPI_Win_create((void *)(&m_policy_mailbox), msg_size, 1,
+                                     MPI_INFO_NULL, m_comm, &m_policy_window));
+        }
+        else {
+            check_mpi(MPI_Win_create(NULL, 0, 1, MPI_INFO_NULL, m_comm, &m_policy_window));
+        }
         // Create sample window
         if (!m_rank) {
             size_t msg_size = sizeof(struct geopm_sample_message_s);

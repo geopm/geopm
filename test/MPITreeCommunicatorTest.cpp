@@ -57,133 +57,47 @@ class MPITreeCommunicatorTest: public :: testing :: Test
     protected:
         geopm::TreeCommunicator *m_tcomm;
         geopm::GlobalPolicy *m_polctl;
-};
-
-
-class MPITreeCommunicatorTestShmem: public :: testing :: Test
-{
-    public:
-        MPITreeCommunicatorTestShmem();
-        ~MPITreeCommunicatorTestShmem();
-    protected:
-        geopm::TreeCommunicator *m_tcomm;
-        std::string m_shm_id;
-        struct geopm_policy_message_s m_initial_policy;
-        struct geopm_policy_message_s m_final_policy;
+        const std::string m_ctl_path;
 };
 
 
 MPITreeCommunicatorTest::MPITreeCommunicatorTest()
     : m_tcomm(NULL)
     , m_polctl(NULL)
+    , m_ctl_path("/tmp/MPIControllerTest.hello.control")
 {
     int rank;
     std::vector<int> factor(2);
-    std::string control;
-    factor[0] = 4;
-    factor[1] = 4;
+    factor[0] = 2;
+    factor[1] = 8;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (!rank) {
-        control = "/tmp/MPIControllerTest.hello.control";
-        m_polctl = new geopm::GlobalPolicy("", control);
+        m_polctl = new geopm::GlobalPolicy("", m_ctl_path);
         m_polctl->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
         m_polctl->frequency_mhz(1200);
         m_polctl->write();
     }
 
     m_tcomm = new geopm::TreeCommunicator(factor, m_polctl, MPI_COMM_WORLD);
-
-    if (!rank) {
-        unlink(control.c_str());
-    }
 }
 
 
 MPITreeCommunicatorTest::~MPITreeCommunicatorTest()
 {
-    delete m_tcomm;
     if (m_polctl) {
+        unlink(m_ctl_path.c_str());
         delete m_polctl;
     }
-}
-
-#if 0
-MPITreeCommunicatorTestShmem::MPITreeCommunicatorTestShmem()
-    : m_tcomm(NULL)
-    ,  m_polctl(NULL)
-    , m_initial_policy(
-{
-    1, 2, 3, 4, 5.0
-})
-, m_final_policy({5, 4, 3, 2, 1.0})
-{
-    int rank, comm_size;
-    std::vector<int> factor(2);
-    char shm_id[NAME_MAX] = {0};
-    std::string control;
-    factor[0] = 4;
-    factor[1] = 4;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
-    EXPECT_EQ(16, comm_size);
-
-    if (!rank) {
-        snprintf(shm_id, NAME_MAX - 1, "/MPITreeCommunicatorTestShmem.control-%ld", (long)getpid());
-    }
-    MPI_Bcast(shm_id, NAME_MAX, MPI_CHAR, 0, MPI_COMM_WORLD);
-
-    m_shm_id = std::string(shm_id);
-
-    if (rank == 15) {
-        m_polctl = new geopm::PolicyController(std::string(shm_id), m_initial_policy);
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (!rank) {
-        m_tcomm = new geopm::TreeCommunicator(factor, std::string(shm_id), MPI_COMM_WORLD);
-    }
-    else {
-        m_tcomm = new geopm::TreeCommunicator(factor, std::string(), MPI_COMM_WORLD);
-    }
-}
-
-
-MPITreeCommunicatorTestShmem::~MPITreeCommunicatorTestShmem()
-{
-    delete m_polctl;
     delete m_tcomm;
 }
 
-
-TEST_F(MPITreeCommunicatorTestShmem, hello)
-{
-    int rank, comm_size;
-    geopm_policy_message_s root_policy;
-
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
-    if (!rank) {
-        EXPECT_EQ(m_tcomm->root_level(), m_tcomm->num_level() - 1);
-        m_tcomm->get_policy(m_tcomm->root_level(), root_policy);
-        EXPECT_EQ(1, is_policy_equal(&root_policy, &m_initial_policy));
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rank == 15) {
-        m_polctl->set_policy(m_final_policy);
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (!rank) {
-        m_tcomm->get_policy(m_tcomm->root_level(), root_policy);
-        EXPECT_EQ(1, is_policy_equal(&root_policy, &m_final_policy));
-    }
-}
-#endif
 
 TEST_F(MPITreeCommunicatorTest, hello)
 {
     EXPECT_EQ(1, m_tcomm->num_level() > 0 && m_tcomm->num_level() <= 3);
     EXPECT_EQ(1, m_tcomm->root_level() == 2);
-    EXPECT_EQ(1, m_tcomm->level_size(0) == 4);
-    EXPECT_EQ(1, m_tcomm->level_size(1) == 4);
+    EXPECT_EQ(1, m_tcomm->level_size(0) == 8);
+    EXPECT_EQ(1, m_tcomm->level_size(1) == 2);
     EXPECT_EQ(1, m_tcomm->level_size(2) == 1);
 }
 
@@ -193,17 +107,12 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
     struct geopm_policy_message_s policy = {0};
     std::vector <struct geopm_policy_message_s> send_policy;
 
-    for (int level = m_tcomm->num_level() - 1; level >= 0; --level) {
+    for (int level = m_tcomm->num_level() - 1; level > 0; --level) {
         if (level == m_tcomm->root_level()) {
             m_tcomm->get_policy(level, policy);
             policy.flags = m_tcomm->root_level();
         }
         else {
-            if (m_tcomm->level_rank(level) == 0) {
-                send_policy.resize(m_tcomm->level_size(level));
-                fill(send_policy.begin(), send_policy.end(), policy);
-                m_tcomm->send_policy(level, send_policy);
-            }
             success = 0;
             while (!success) {
                 try {
@@ -212,14 +121,16 @@ TEST_F(MPITreeCommunicatorTest, send_policy_down)
                     success = 1;
                 }
                 catch (geopm::Exception ex) {
-                    if (ex.err_value() == GEOPM_ERROR_POLICY_UNKNOWN) {
-                        //sleep(1);
-                    }
-                    else {
+                    if (ex.err_value() != GEOPM_ERROR_POLICY_UNKNOWN) {
                         throw ex;
                     }
                 }
             }
+        }
+        if (level) {
+            send_policy.resize(m_tcomm->level_size(level - 1));
+            fill(send_policy.begin(), send_policy.end(), policy);
+            m_tcomm->send_policy(level - 1, send_policy);
         }
     }
 }
@@ -239,7 +150,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
         send_sample.signal[0] = m_tcomm->level_rank(level) * (level + 1);
         m_tcomm->send_sample(level, send_sample);
         if (level && m_tcomm->level_rank(level) == 0) {
-            sample.resize(m_tcomm->level_size(level));
+            sample.resize(m_tcomm->level_size(level - 1));
             success = 0;
             while (!success) {
                 try {
@@ -250,10 +161,7 @@ TEST_F(MPITreeCommunicatorTest, send_sample_up)
                     success = 1;
                 }
                 catch (geopm::Exception ex) {
-                    if (ex.err_value() == GEOPM_ERROR_SAMPLE_INCOMPLETE) {
-                        //sleep(1);
-                    }
-                    else {
+                    if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
                         throw ex;
                     }
                 }
