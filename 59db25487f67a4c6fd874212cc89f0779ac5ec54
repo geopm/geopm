@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_0a708771",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-06T22:58:05Z",
+      "side": 1,
+      "message": "MPI_Put is used, not MPI_Get",
+      "revId": "59db25487f67a4c6fd874212cc89f0779ac5ec54",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
