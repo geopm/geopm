@@ -53,7 +53,7 @@ install:
 
 script:
     - make
-    - make check
+    - MPIEXEC="mpiexec --mca osc pt2pt" make check
 
 env:
     global:
