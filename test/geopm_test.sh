@@ -93,6 +93,18 @@ else
         echo "Error: MPIEXEC unset, and no alternative found." 2>&1
         exit -1
     fi
+    if [[ $test_name =~ ^MPITreeCommunicator ]] && $mpiexec --version 2>&1 | grep OpenRTE > /dev/null; then
+        # If using OpenMPI, check that version is higher than 1.8.8 so
+        # that MPITreeCommunicator tests don't hang due to issue here:
+        # http://stackoverflow.com/questions/18737545/mpi-with-c-passive-rma-synchronization
+        major=$(mpiexec --version 2>&1 | grep OpenRTE | awk '{print $3}' | awk -F\. '{print $1}')
+        minor=$(mpiexec --version 2>&1 | grep OpenRTE | awk '{print $3}' | awk -F\. '{print $2}')
+        hotfix=$(mpiexec --version 2>&1 | grep OpenRTE | awk '{print $3}' | awk -F\. '{print $3}')
+        padded=$(printf %.3d%.3d%.3d $major $minor $hotfix)
+        if [ "$padded" -lt "001008008" ]; then
+           run_test=false
+        fi
+    fi
 
     # Enable GEOPM runtime variables for MPIProfile tests
     if [[ $test_name =~ ^MPIProfile ||
