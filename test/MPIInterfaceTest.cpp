@@ -207,6 +207,7 @@ TEST_F(MPIInterfaceTest, geopm_api)
 
     // TODO GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE testing
     MPI_Comm comm, result;
+    MPI_Comm_dup(MPI_COMM_WORLD, &comm);
     result = geopm_swap_comm_world(comm);
     EXPECT_EQ(result, comm);
     EXPECT_NE(G_GEOPM_COMM_WORLD_SWAP, result);
@@ -252,7 +253,7 @@ TEST_F(MPIInterfaceTest, mpi_api)
     char *dbuf;
     char **ddbuf;
     MPI_Request req;
-    MPI_Info info;
+    MPI_Info info = MPI_INFO_NULL;
     MPI_Group group;
     MPI_Comm comm;
 
@@ -271,6 +272,8 @@ TEST_F(MPIInterfaceTest, mpi_api)
     MPI_Aint aints[size];
     MPI_Message message;
 #endif
+
+    MPI_Comm_group(MPI_COMM_WORLD, &group);
 
     EXPECT_EQ(0, MPI_Allgather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
