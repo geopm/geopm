@@ -104,6 +104,9 @@ class Launcher(object):
             outfile.flush()
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
 
+    def cancel(self):
+        raise NotImplementedError
+
     def get_report(self):
         return Report(self._report_path)
 
@@ -238,6 +241,10 @@ class SrunLauncher(Launcher):
         if self._host_file:
             result = '-w {host_file}'.format(self._host_file)
         return result
+
+    def cancel(self):
+        cmd = '/usr/bin/scancel -s TERM -u $(whoami) && sleep 3 && /usr/bin/scancel -u $(whoami)'
+        subprocess.check_call(cmd, shell=True)
 
     def get_idle_nodes(self):
         return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
