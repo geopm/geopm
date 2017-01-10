@@ -34,15 +34,28 @@
 import socket
 import subprocess
 import os
+import datetime
+import signal
+
+def get_resource_manager():
+    # FIXME This should do some better autodetection rather than looking at the hostname.
+    hostname = socket.gethostname()
+    slurm_hosts = ['mr-fusion', 'KNP12']
+    if any(word in hostname for word in slurm_hosts):
+        return "SLURM"
+    elif hostname.find('theta') == 0:
+        return "ALPS"
+    else:
+        raise LookupError('Unrecognized hostname: ' + hostname)
 
 
 def factory(app_conf, ctl_conf, report_path,
                      trace_path=None, host_file=None, time_limit=1):
-    hostname = socket.gethostname()
-    if hostname.find('mr-fusion') == 0:
+    resource_manager = get_resource_manager()
+    if resource_manager == "SLURM":
         return SrunLauncher(app_conf, ctl_conf, report_path,
                             trace_path, host_file, time_limit)
-    elif hostname.find('theta') == 0:
+    elif resource_manager == "ALPS":
         return AlpsLauncher(app_conf, ctl_conf, report_path,
                               trace_path, host_file, time_limit)
     else:
@@ -61,6 +74,7 @@ class Launcher(object):
         self._region_barrier = region_barrier
         self._node_list = None
         self._pmpi_ctl = 'process'
+        self._default_handler = signal.getsignal(signal.SIGINT)
         self.set_num_rank(16)
         self.set_num_node(4)
 
@@ -73,6 +87,16 @@ class Launcher(object):
 
     def __str__(self):
         return self.__repr__()
+
+    def _int_handler(self, signum, frame):
+        """
+        This is necessary to prevent the script from dying on the first CTRL-C press.  SLURM requires 2
+        SIGINT signals to abort the job.
+        """
+        if type(self) == SrunLauncher:
+            print "srun: interrupt (one more within 1 sec to abort)"
+        else:
+            self._default_handler(signum, frame)
 
     def set_node_list(self, node_list):
         self._node_list = node_list
@@ -90,9 +114,12 @@ class Launcher(object):
 
     def check_run(self, test_name):
         with open(test_name + '.log', 'a') as outfile:
+            outfile.write(str(datetime.datetime.now()) + '\n\n' )
             outfile.write(self._check_str() + '\n\n')
             outfile.flush()
+            signal.signal(signal.SIGINT, self._int_handler)
             subprocess.check_call(self._check_str(), shell=True, stdout=outfile, stderr=outfile)
+            signal.signal(signal.SIGINT, self._default_handler)
 
     def run(self, test_name):
         env = dict(os.environ)
@@ -100,9 +127,12 @@ class Launcher(object):
         self._app_conf.write()
         self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:
+            outfile.write(str(datetime.datetime.now()) + '\n\n' )
             outfile.write(str(self) + '\n\n')
             outfile.flush()
+            signal.signal(signal.SIGINT, self._int_handler)
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
+            signal.signal(signal.SIGINT, self._default_handler)
 
     def get_report(self):
         return Report(self._report_path)
@@ -125,8 +155,10 @@ class Launcher(object):
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
         cmd = ' '.join((self._exec_option(), 'lscpu'))
+        signal.signal(signal.SIGINT, self._int_handler)
         pid = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (out, err) = pid.communicate()
+        signal.signal(signal.SIGINT, self._default_handler)
         if pid.returncode:
             raise subprocess.CalledProcessError(pid.returncode, cmd, err)
         core_socket = [int(line.split(':')[1])
@@ -240,10 +272,16 @@ class SrunLauncher(Launcher):
         return result
 
     def get_idle_nodes(self):
-        return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
+        signal.signal(signal.SIGINT, self._int_handler)
+        result = subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
+        signal.signal(signal.SIGINT, self._default_handler)
+        return result
 
     def get_alloc_nodes(self):
-        return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
+        signal.signal(signal.SIGINT, self._int_handler)
+        result = subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
+        signal.signal(signal.SIGINT, self._default_handler)
+        return result
 
 class AlpsLauncher(Launcher):
     def __init__(self, app_conf, ctl_conf, report_path,
