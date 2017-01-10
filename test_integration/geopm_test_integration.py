@@ -41,8 +41,8 @@ import time
 import geopm_launcher
 import geopm_io
 
-
 class TestReport(unittest.TestCase):
+
     def setUp(self):
         self._mode = 'dynamic'
         self._options = {'tree_decider' : 'static_policy',
@@ -84,6 +84,7 @@ class TestReport(unittest.TestCase):
             self.assertTrue(os.path.isfile(ff))
             self.assertTrue(os.stat(ff).st_size != 0)
 
+    @unittest.skipUnless(geopm_launcher.get_resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
         report_path = name + '.report'
@@ -226,6 +227,8 @@ class TestReport(unittest.TestCase):
             self.assertEqual(loop_count, rr['spin'].get_count())
             self.assertEqual(loop_count, rr['epoch'].get_count())
 
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
     def test_scaling(self):
         """
         This test will start at ${num_node} nodes and ranks.  It will then calls check_run() to

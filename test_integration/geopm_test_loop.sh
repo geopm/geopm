@@ -42,7 +42,7 @@ do
     git clean -fd .
     COUNT=$((COUNT+1))
     echo "Beginning loop ${COUNT}..." > >(tee -a ${LOG_FILE})
-    ./geopm_test_integration.py -fv > >(tee -a ${LOG_FILE}) 2>&1
+    GEOPM_RUN_LONG_TESTS=true ./geopm_test_integration.py -fv > >(tee -a ${LOG_FILE}) 2>&1
 done
 TEST_RETURN_CODE=$?
 
