@@ -37,13 +37,22 @@ import os
 import fnmatch
 import sys
 import time
+import socket
+import signal
 
 import geopm_launcher
 import geopm_io
 
-
 class TestReport(unittest.TestCase):
+
+    def int_handler(self, signum, frame):
+        if self._launcher is not None:
+            self._launcher.cancel()
+        raise KeyboardInterrupt('CTRL-C')
+
     def setUp(self):
+        self._default_handler = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self.int_handler)
         self._mode = 'dynamic'
         self._options = {'tree_decider' : 'static_policy',
                          'leaf_decider': 'power_governing',
@@ -52,6 +61,7 @@ class TestReport(unittest.TestCase):
         self._tmp_files = []
 
     def tearDown(self):
+        signal.signal(signal.SIGINT, self._default_handler)
         if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
             for ff in self._tmp_files:
                 try:
@@ -73,10 +83,10 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        self._launcher.set_num_node(num_node)
+        self._launcher.set_num_rank(num_rank)
+        self._launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         self.assertTrue(len(reports) == num_node)
@@ -84,6 +94,7 @@ class TestReport(unittest.TestCase):
             self.assertTrue(os.path.isfile(ff))
             self.assertTrue(os.stat(ff).st_size != 0)
 
+    @unittest.skipUnless(socket.gethostname().startswith('mr-fusion'), 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
         report_path = name + '.report'
@@ -95,25 +106,25 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        self._launcher.set_num_node(num_node)
+        self._launcher.set_num_rank(num_rank)
         time.sleep(5) # Wait a moment to finish cleaning-up from a previous test
-        idle_nodes = launcher.get_idle_nodes()
+        idle_nodes = self._launcher.get_idle_nodes()
         idle_nodes_copy = list(idle_nodes)
-        alloc_nodes = launcher.get_alloc_nodes()
-        launcher.write_log(name, 'Idle nodes : {nodes}'.format(nodes=idle_nodes))
-        launcher.write_log(name, 'Alloc\'d  nodes : {nodes}'.format(nodes=alloc_nodes))
+        alloc_nodes = self._launcher.get_alloc_nodes()
+        self._launcher.write_log(name, 'Idle nodes : {nodes}'.format(nodes=idle_nodes))
+        self._launcher.write_log(name, 'Alloc\'d  nodes : {nodes}'.format(nodes=alloc_nodes))
         for n in idle_nodes_copy:
-            launcher.set_node_list(n.split()) # Hack to convert string to list
+            self._launcher.set_node_list(n.split()) # Hack to convert string to list
             try:
-                launcher.run(name)
+                self._launcher.run(name)
             except subprocess.CalledProcessError as e:
-                if e.returncode == 1 and n not in launcher.get_idle_nodes():
-                    launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=n))
+                if e.returncode == 1 and n not in self._launcher.get_idle_nodes():
+                    self._launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=n))
                     idle_nodes.remove(n)
                 else:
-                    launcher.write_log(name, 'Return code = {code}'.format(code=e.returncode))
+                    self._launcher.write_log(name, 'Return code = {code}'.format(code=e.returncode))
                     raise e
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
@@ -135,10 +146,10 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        self._launcher.set_num_node(num_node)
+        self._launcher.set_num_rank(num_rank)
+        self._launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         reports = [geopm_io.Report(rr) for rr in reports]
@@ -160,10 +171,10 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('nested-progress', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        self._launcher.set_num_node(num_node)
+        self._launcher.set_num_rank(num_rank)
+        self._launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         reports = [geopm_io.Report(rr) for rr in reports]
@@ -187,10 +198,10 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep-progress', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        self._launcher.set_num_node(num_node)
+        self._launcher.set_num_rank(num_rank)
+        self._launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         reports = [geopm_io.Report(rr) for rr in reports]
@@ -213,10 +224,10 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('spin', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        self._launcher.set_num_node(num_node)
+        self._launcher.set_num_rank(num_rank)
+        self._launcher.run(name)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         reports = [geopm_io.Report(rr) for rr in reports]
@@ -226,6 +237,8 @@ class TestReport(unittest.TestCase):
             self.assertEqual(loop_count, rr['spin'].get_count())
             self.assertEqual(loop_count, rr['epoch'].get_count())
 
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
     def test_scaling(self):
         """
         This test will start at ${num_node} nodes and ranks.  It will then calls check_run() to
@@ -248,14 +261,14 @@ class TestReport(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        self._launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
 
         check_successful = True
         while check_successful:
-            launcher.set_num_node(num_node)
-            launcher.set_num_rank(num_node)
+            self._launcher.set_num_node(num_node)
+            self._launcher.set_num_rank(num_node)
             try:
-                launcher.check_run(name)
+                self._launcher.check_run(name)
             except subprocess.CalledProcessError as e:
                 # If we exceed the available nodes in the allocation ALPS/SLURM give a rc of 1
                 # All other rc's are real errors
@@ -263,8 +276,8 @@ class TestReport(unittest.TestCase):
                     raise e
                 check_successful = False
             if check_successful:
-                launcher.write_log(name, 'About to run on {} nodes.'.format(num_node))
-                launcher.run(name)
+                self._launcher.write_log(name, 'About to run on {} nodes.'.format(num_node))
+                self._launcher.run(name)
                 report_paths = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
                 self._tmp_files.extend(report_paths)
                 reports = [geopm_io.Report(rr) for rr in report_paths]
