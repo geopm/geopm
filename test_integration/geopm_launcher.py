@@ -34,15 +34,26 @@
 import socket
 import subprocess
 import os
+import datetime
+
+def get_resource_manager():
+    # FIXME This should do some better autodetection rather than looking at the hostname.
+    hostname = socket.gethostname()
+    if hostname.find('mr-fusion') == 0:
+        return "SLURM"
+    elif hostname.find('theta') == 0:
+        return "ALPS"
+    else:
+        raise LookupError('Unrecognized hostname: ' + hostname)
 
 
 def factory(app_conf, ctl_conf, report_path,
                      trace_path=None, host_file=None, time_limit=1):
-    hostname = socket.gethostname()
-    if hostname.find('mr-fusion') == 0:
+    resource_manager = get_resource_manager()
+    if resource_manager == "SLURM":
         return SrunLauncher(app_conf, ctl_conf, report_path,
                             trace_path, host_file, time_limit)
-    elif hostname.find('theta') == 0:
+    elif resource_manager == "ALPS":
         return AlpsLauncher(app_conf, ctl_conf, report_path,
                               trace_path, host_file, time_limit)
     else:
@@ -90,6 +101,7 @@ class Launcher(object):
 
     def check_run(self, test_name):
         with open(test_name + '.log', 'a') as outfile:
+            outfile.write(str(datetime.datetime.now()) + '\n\n' )
             outfile.write(self._check_str() + '\n\n')
             outfile.flush()
             subprocess.check_call(self._check_str(), shell=True, stdout=outfile, stderr=outfile)
@@ -100,6 +112,7 @@ class Launcher(object):
         self._app_conf.write()
         self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:
+            outfile.write(str(datetime.datetime.now()) + '\n\n' )
             outfile.write(str(self) + '\n\n')
             outfile.flush()
             subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
