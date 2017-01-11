@@ -62,6 +62,6 @@ fi
 
 ERR_MSG="The integration tests have failed at iteration ${COUNT}.  Please see the output for more information:\nhttp://10.23.186.193/~test/cron_runs/${TIMESTAMP}"
 
-echo -e ${ERR_MSG} | mail -r "do-not-reply" -s "Integration test failure : ${TIMESTAMP}" brad.geltz@intel.com
+echo -e ${ERR_MSG} | mail -r "do-not-reply" -s "Integration test failure : ${TIMESTAMP}" brad.geltz@intel.com,christopher.m.cantalupo@intel.com,steve.s.sylvester@intel.com
 
 echo "Done."
