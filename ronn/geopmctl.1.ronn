@@ -1,7 +1,7 @@
 geopmctl(1) -- geopm runtime mpi application
 ============================================
 
-[//]: # (Copyright (c) 2015, 2016, Intel Corporation)
+[//]: # (Copyright (c) 2015 - 2017, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -63,7 +63,7 @@ geopmctl(1) -- geopm runtime mpi application
     memory region for profile feedback.
 
 ## COPYRIGHT
-Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.
+Copyright (C) 2015 - 2017, Intel Corporation. All rights reserved.
 
 **geopm(7)**,
 **geopm_ctl_c(3)**,

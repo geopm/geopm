@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Intel Corporation
+ * Copyright (c) 2015 - 2017, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -91,12 +91,12 @@ int main(int argc, char **argv)
                         "              tion  on  how to create the sample shared memory region for pro‐\n"
                         "              file feedback.\n"
                         "\n"
-                        "    Copyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n"
+                        "    Copyright (C) 2015 - 2017, Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
         strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n", geopm_version());
-        printf("\n\nCopyright (C) 2015, 2016, Intel Corporation. All rights reserved.\n\n");
+        printf("\n\nCopyright (C) 2015 - 2017, Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (argc > 1 && (
