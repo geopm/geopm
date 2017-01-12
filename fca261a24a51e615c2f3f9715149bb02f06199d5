@@ -33,6 +33,24 @@
       "revId": "fca261a24a51e615c2f3f9715149bb02f06199d5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_4de56b07",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-12T06:12:05Z",
+      "side": 1,
+      "message": "I tried to do this, but it won\u0027t work here.  If this test is run in isolation, then the self._launcher variable won\u0027t be defined until after we\u0027re executing inside the test.\n\ngit clean -fd \u0026\u0026 GEOPM_RUN_LONG_TESTS\u003dtrue ./geopm_test_integration.py -v TestReport.test_scaling",
+      "parentUuid": "fabf19d9_4a2311be",
+      "revId": "fca261a24a51e615c2f3f9715149bb02f06199d5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
