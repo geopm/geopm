@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_aa3bcdea",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-12T01:11:31Z",
+      "side": 1,
+      "message": "self.assertGreater(0.0, rr[\u0027dgemm\u0027].get_runtime())\nself.assertGreater(0.0, rr[\u0027all2all\u0027].get_runtime())",
+      "revId": "d466c71635a13750903252b24685cee60aaaf082",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
