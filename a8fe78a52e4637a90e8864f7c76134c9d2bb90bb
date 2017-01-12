@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fabf19d9_d9ddbd15",
+        "filename": "test_integration/geopm_launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-12T20:07:55Z",
+      "side": 1,
+      "message": "This is going to have to be done similar to how the factory method determines the resource manager.  I\u0027m thinking a dictionary of hostnames and their respective resource manager names will do the trick.",
+      "parentUuid": "fabf19d9_7ebb3773",
+      "revId": "a8fe78a52e4637a90e8864f7c76134c9d2bb90bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fabf19d9_debc836e",
         "filename": "test_integration/geopm_launcher.py",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fabf19d9_b909e997",
+        "filename": "test_integration/geopm_launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-12T20:07:55Z",
+      "side": 1,
+      "message": "That\u0027s a fair point.  On SLURM, what I\u0027m seeing is that if you CTRL-C the running Python script the signal does get propagated to the child process.  The real problem is that SLRUM requires 2 CTRL-C presses to kill a job, and once you CTRL-C the Python script, you don\u0027t have direct control over the running job any longer.\n\nI haven\u0027t yet investigated whether or not the signal is getting propagated on ALPS because of the theta downtime, but the behavior is at least similar.  I can CTRL-C the Python to death, but the running job remains until it completes normally.  This is a TODO for me.\n\nFor now, I can change the signal handler I\u0027m introducing to call the default one after I\u0027ve done what I need to do to kill the job properly.",
+      "parentUuid": "fabf19d9_debc836e",
+      "revId": "a8fe78a52e4637a90e8864f7c76134c9d2bb90bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fabf19d9_be9aef12",
         "filename": "test_integration/geopm_launcher.py",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-01-12T16:08:35Z",
       "side": 1,
       "message": "I believe this cancels all jobs that the user has in the queue!  In the use case where a user had a 3000 node job queued for 2 weeks and she presses cntl-c on the integration test, she would be very disappointed.  Think we need a way to record the job id in the launcher object.",
+      "revId": "a8fe78a52e4637a90e8864f7c76134c9d2bb90bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_99fe256a",
+        "filename": "test_integration/geopm_launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-12T20:07:55Z",
+      "side": 1,
+      "message": "Agreed.  I was trying to avoid this complexity by operating under the assumption that one would not be running integration tests on the same system where they have a massive job queued.  This appears to not be a fair assumption to make.  I\u0027ll rework it so that this is avoided.",
+      "parentUuid": "fabf19d9_be9aef12",
       "revId": "a8fe78a52e4637a90e8864f7c76134c9d2bb90bb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
