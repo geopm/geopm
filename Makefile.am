@@ -226,6 +226,10 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/GlobalPolicy.hpp \
                             src/KNLPlatformImp.cpp \
                             src/KNLPlatformImp.hpp \
+                            src/MSRAccess.cpp \
+                            src/MSRAccess.hpp \
+                            src/MSRSignal.cpp \
+                            src/MSRSignal.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
                             src/Platform.cpp \
@@ -250,9 +254,13 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/SampleScheduler.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
+                            src/Signal.cpp \
+                            src/Signal.hpp \
                             src/SignalHandler.cpp \
                             src/StaticPolicyDecider.cpp \
                             src/StaticPolicyDecider.hpp \
+                            src/TelemetryConfig.cpp \
+                            src/TelemetryConfig.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/XeonPlatformImp.cpp \
@@ -297,6 +305,10 @@ if ENABLE_MPI
                           src/GlobalPolicy.hpp \
                           src/KNLPlatformImp.cpp \
                           src/KNLPlatformImp.hpp \
+                          src/MSRAccess.cpp \
+                          src/MSRAccess.hpp \
+                          src/MSRSignal.cpp \
+                          src/MSRSignal.hpp \
                           src/OMPT.cpp \
                           src/OMPT.hpp \
                           src/Platform.cpp \
@@ -327,9 +339,13 @@ if ENABLE_MPI
                           src/SampleScheduler.hpp \
                           src/SharedMemory.cpp \
                           src/SharedMemory.hpp \
+                          src/Signal.cpp \
+                          src/Signal.hpp \
                           src/SignalHandler.cpp \
                           src/StaticPolicyDecider.cpp \
                           src/StaticPolicyDecider.hpp \
+                          src/TelemetryConfig.cpp \
+                          src/TelemetryConfig.hpp \
                           src/Tracer.cpp \
                           src/Tracer.hpp \
                           src/geopm_env.h \

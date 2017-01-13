@@ -188,13 +188,18 @@ namespace geopm
             ISampleRegulator *m_sample_regulator;
             ITracer *m_tracer;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
-            std::vector<struct geopm_msr_message_s> m_msr_sample;
-            std::vector<struct geopm_telemetry_message_s> m_telemetry_sample;
-            // Per level vector of maps from region identifier to region object
-            std::vector<std::map <uint64_t, IRegion *> > m_region;
+            std::vector<double> m_telemetry_sample;
+            // Region object for non-leaf region (only the epoch
+            // region is used at the tree level). The vector is over
+            // levels: note that m_tree_region[i] corresponds to level
+            // (i + 1) of the tree since leaf is not included in vector.
+            std::vector<IRegion *> m_tree_region;
+            // Map from region identifier, signal domain pair to a
+            // region object pointer.
+            std::vector<std::map<uint64_t, IRegion*> > m_region;
             std::vector<IPolicy *> m_policy;
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
-            std::vector<struct geopm_sample_message_s> m_last_sample_msg;
+            std::vector<std::vector<double> > m_last_sample_msg;
             std::vector<uint64_t> m_region_id;
             // Per rank vector counting number of entries into MPI.
             std::vector<uint64_t> m_num_mpi_enter;

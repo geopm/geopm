@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,50 +29,3 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef TRACER_HPP_INCLUDE
-#define TRACER_HPP_INCLUDE
-
-#include <fstream>
-#include <string>
-#include <vector>
-#include <sstream>
-
-#include <geopm_message.h>
-#include "GlobalPolicy.hpp"
-#include "TelemetryConfig.hpp"
-
-namespace geopm
-{
-    /// @brief Abstract base class for the Tracer object defines the interface.
-    class ITracer
-    {
-        public:
-            ITracer() {}
-            virtual ~ITracer() {}
-            virtual void update(uint64_t region_id, struct geopm_time_s, const std::vector <double> &telemetry) = 0;
-            virtual void update(const struct geopm_policy_message_s &policy) = 0;
-    };
-
-    /// @brief Class used to write a trace of the telemetry and policy.
-    class Tracer : public ITracer
-    {
-        public:
-            /// @brief Tracer constructor.
-            Tracer(const std::string header, const TelemetryConfig &config);
-            /// @brief Tracer destructor, virtual.
-            virtual ~Tracer();
-            void update(uint64_t region_id, struct geopm_time_s, const std::vector <double> &telemetry);
-            void update(const struct geopm_policy_message_s &policy);
-        protected:
-            std::string m_hostname;
-            bool m_is_trace_enabled;
-            std::ofstream m_stream;
-            std::ostringstream m_buffer;
-            off_t m_buffer_limit;
-            struct geopm_time_s m_time_zero;
-            struct geopm_policy_message_s m_policy;
-    };
-}
-
-#endif

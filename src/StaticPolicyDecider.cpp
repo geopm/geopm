@@ -68,6 +68,11 @@ namespace geopm
         return m_name;
     }
 
+    void StaticPolicyDecider::requires(int level, TelemetryConfig &config)
+    {
+        return;
+    }
+
     bool StaticPolicyDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
         return false;

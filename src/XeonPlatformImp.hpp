@@ -52,36 +52,37 @@ namespace geopm
     {
         public:
             /// @brief Default constructor.
-            XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map);
+            XeonPlatformImp(int platform_id, const std::string &model_name,
+                            const std::map<std::string, struct IMSRAccess::m_msr_signal_entry> *msr_signal_map,
+                            const std::map<std::string, std::pair<off_t, uint64_t> > *msr_control_map);
             /// @brief Copy constructor.
             XeonPlatformImp(const XeonPlatformImp &other);
             /// @brief Default destructor.
             virtual ~XeonPlatformImp();
-            virtual bool model_supported(int platform_id);
+            virtual bool is_model_supported(int platform_id);
             virtual std::string platform_name(void);
-            virtual double read_signal(int device_type, int device_index, int signal_type);
-            virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed);
-            virtual void write_control(int device_type, int device_index, int signal_type, double value);
+            virtual int num_domain(int domain_type) const = 0;
+            virtual void create_domain_map(int domain, std::vector<std::vector<int> > &domain_map) const = 0;
+            virtual double throttle_limit_mhz(void) const;
+            virtual void batch_read_signal(std::vector<double> &signal_value);
+            virtual void write_control(int control, int domain_index, double value);
             virtual void msr_initialize(void);
             virtual void msr_reset(void);
-            virtual int power_control_domain(void) const;
-            virtual int frequency_control_domain(void) const;
-            virtual int performance_counter_domain(void) const;
-            virtual double throttle_limit_mhz(void) const;
+            virtual void provides(TelemetryConfig &config) const = 0;
+            virtual void init_telemetry(const TelemetryConfig &config);
+            double energy(void) const;
 
         protected:
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
             virtual void rapl_init(void);
             /// @brief Initialize per-CPU counters.
-            virtual void cbo_counters_init(void);
+            virtual void cbo_counters_init(int counter_idx, uint32_t event);
             /// @brief Initialize free running counters.
             virtual void fixed_counters_init(void);
             /// @brief Reset per-CPU counters to default state.
             virtual void cbo_counters_reset(void);
             /// @brief Reset free running counters to default state.
             virtual void fixed_counters_reset(void);
-            /// @brief Return the upper and lower bounds of the control.
-            virtual void bound(int control_type, double &upper_bound, double &lower_bound);
 
             /// @brief Frequency where anything <= is considered throttling.
             double m_throttle_limit_mhz;
@@ -99,6 +100,12 @@ namespace geopm
             double m_min_dram_watts;
             /// @brief Maximum value for DRAM power read from RAPL.
             double m_max_dram_watts;
+            /// @brief Minimum supported p-state.
+            double m_min_freq_mhz;
+            /// @brief Maximum supported p-state.
+            double m_max_freq_mhz;
+            /// @brief Step size in between supported p-states.
+            double m_freq_step_mhz;
             /// @brief Vector of MSR offsets for reading.
             std::vector<off_t> m_signal_msr_offset;
             ///@brief Vector of MSR data containing pairs of offsets and write masks.
@@ -110,44 +117,17 @@ namespace geopm
             const unsigned int M_BOX_FRZ;
             const unsigned int M_CTR_EN;
             const unsigned int M_RST_CTRS;
-            const unsigned int M_LLC_FILTER_MASK;
-            const unsigned int M_LLC_VICTIMS_EV_SEL;
-            const unsigned int M_LLC_VICTIMS_UMASK;
-            const unsigned int M_EVENT_SEL_0;
-            const unsigned int M_UMASK_0;
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
             const int M_PLATFORM_ID;
             const std::string M_MODEL_NAME;
             const std::string M_TRIGGER_NAME;
 
             enum {
-                M_RAPL_PKG_STATUS,
-                M_RAPL_DRAM_STATUS,
-                M_IA32_PERF_STATUS,
-                M_INST_RETIRED,
-                M_CLK_UNHALTED_CORE,
-                M_CLK_UNHALTED_REF,
-                M_LLC_VICTIMS,
-            } m_signal_offset_e;
-            enum {
                 M_RAPL_PKG_LIMIT,
                 M_RAPL_DRAM_LIMIT,
                 M_IA32_PERF_CTL,
                 M_NUM_CONTROL
             } m_control_offset_e;
-            enum {
-                M_PKG_STATUS_OVERFLOW,
-                M_DRAM_STATUS_OVERFLOW,
-                M_NUM_PACKAGE_OVERFLOW_OFFSET
-            } m_package_overflow_offset_e;
-            enum {
-                M_PERF_STATUS_OVERFLOW,
-                M_INST_RETIRED_OVERFLOW,
-                M_CLK_UNHALTED_CORE_OVERFLOW,
-                M_CLK_UNHALTED_REF_OVERFLOW,
-                M_LLC_VICTIMS_OVERFLOW,
-                M_NUM_SIGNAL_OVERFLOW_OFFSET
-            } m_signal_overflow_offset_e;
     };
 
 
@@ -162,8 +142,10 @@ namespace geopm
             SNBPlatformImp(const SNBPlatformImp &other);
             /// @brief Default destructor.
             virtual ~SNBPlatformImp();
-            virtual int frequency_control_domain(void) const;
+            virtual int num_domain(int domain_type) const;
+            virtual void create_domain_map(int domain, std::vector<std::vector<int> > &domain_map) const;
             static int platform_id(void);
+            void provides(TelemetryConfig &config) const;
     };
 
     /// @brief This class provides a concrete platform implementation of
@@ -176,12 +158,11 @@ namespace geopm
             IVTPlatformImp(const IVTPlatformImp &other);
             /// @brief Default destructor.
             virtual ~IVTPlatformImp();
-            virtual int frequency_control_domain(void) const;
             static int platform_id(void);
     };
 
 
-    /// @brief This class provides a concrete platform implementation of
+    /// @bef This class provides a concrete platform implementation of
     /// Haswell E processors: cpuid=0x63F.
     class HSXPlatformImp : public XeonPlatformImp
     {
@@ -192,7 +173,10 @@ namespace geopm
             HSXPlatformImp(int platform_id, const std::string &model_name);
             /// @brief Default destructor.
             virtual ~HSXPlatformImp();
+            virtual int num_domain(int domain_type) const;
+            virtual void create_domain_map(int domain, std::vector<std::vector<int> > &domain_map) const;
             static int platform_id(void);
+            void provides(TelemetryConfig &config) const;
     };
 
     class BDXPlatformImp : public HSXPlatformImp

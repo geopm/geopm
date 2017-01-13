@@ -97,18 +97,33 @@ namespace geopm
         return m_name;
     }
 
+    void GoverningDecider::requires(int level, TelemetryConfig &config)
+    {
+        if (!config.is_domain_supported(GEOPM_DOMAIN_CONTROL_POWER)) {
+            throw Exception("GoverningDecider::enable_features(): platform does not support required control type: " +
+                            "GEOPM_DOMAIN_CONTROL_POWER",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (!config.is_provided(GEOPM_DOMAIN_SIGNAL_ENERGY, "dram_energy")) {
+            throw Exception("GoverningDecider::enable_features(): platform does not support required signal type: " +
+                            "dram_energy",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        config.set_required(GEOPM_DOMAIN_SIGNAL_ENERGY, "dram_energy");
+    }
+
     bool GoverningDecider::update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy)
     {
         bool result = false;
         if (policy_msg.power_budget != m_last_power_budget) {
-            int num_domain = curr_policy.num_domain();
+            int num_domain = curr_policy.num_control_domain();
             double split_budget = policy_msg.power_budget / num_domain;
             std::vector<double> domain_budget(num_domain);
             std::fill(domain_budget.begin(), domain_budget.end(), split_budget);
             std::vector<uint64_t> region_id;
             curr_policy.region_id(region_id);
             for (auto region = region_id.begin(); region != region_id.end(); ++region) {
-                curr_policy.update((*region), domain_budget);
+                curr_policy.update((*region), GEOPM_CONTROL_TYPE_POWER, domain_budget);
                 auto it = m_num_converged.lower_bound((*region));
                 if (it != m_num_converged.end() && (*it).first == (*region)) {
                     (*it).second = 0;
@@ -137,14 +152,14 @@ namespace geopm
 
         // If we have enough samples from the current region then update policy.
         if (curr_region.num_sample(0, GEOPM_TELEMETRY_TYPE_PKG_ENERGY) >= m_num_sample) {
-            const int num_domain = curr_policy.num_domain();
+            const int num_domain = curr_policy.num_control_domain();
             std::vector<double> limit(num_domain);
             std::vector<double> target(num_domain);
             std::vector<double> domain_dram_power(num_domain);
             // Get node limit for epoch set by tree decider
-            curr_policy.target(GEOPM_REGION_ID_EPOCH, limit);
+            curr_policy.target(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, limit);
             // Get last policy target for the current region
-            curr_policy.target(region_id, target);
+            curr_policy.target(region_id, GEOPM_CONTROL_TYPE_POWER, target);
 
             // Sum package and dram power over all domains to get total_power
             double dram_power = 0.0;
@@ -165,7 +180,7 @@ namespace geopm
                     for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                         target[domain_idx] = limit[domain_idx] - domain_dram_power[domain_idx];
                     }
-                    curr_policy.update(region_id, target);
+                    curr_policy.update(region_id, GEOPM_CONTROL_TYPE_POWER, target);
                     is_target_updated = true;
                 }
                 if (!curr_policy.is_converged(region_id)) {

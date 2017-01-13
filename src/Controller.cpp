@@ -257,31 +257,25 @@ namespace geopm
 
             check_mpi(MPI_Comm_size(m_ppn1_comm, &num_nodes));
 
-            if (num_nodes > 1) {
-                int num_fan_out = 1;
-                std::vector<int> fan_out(num_fan_out);
-                fan_out[0] = num_nodes;
+            int num_fan_out = 1;
+            std::vector<int> fan_out(num_fan_out);
+            fan_out[0] = num_nodes;
 
+            if (num_nodes > 1) {
                 while (fan_out[0] > M_MAX_FAN_OUT && fan_out[num_fan_out - 1] != 1) {
                     ++num_fan_out;
                     fan_out.resize(num_fan_out);
                     std::fill(fan_out.begin(), fan_out.end(), 0);
                     check_mpi(MPI_Dims_create(num_nodes, num_fan_out, fan_out.data()));
                 }
-
                 if (num_fan_out > 1 && fan_out[num_fan_out - 1] == 1) {
                     --num_fan_out;
                     fan_out.resize(num_fan_out);
                 }
                 std::reverse(fan_out.begin(), fan_out.end());
-
-                m_tree_comm = new TreeCommunicator(fan_out, global_policy, m_ppn1_comm);
-            }
-            else {
-                m_tree_comm = new SingleTreeCommunicator(global_policy);
             }
 
-            int num_level = m_tree_comm->num_level();
+            int num_level = fan_out.size();
             m_region.resize(num_level);
             m_policy.resize(num_level);
             m_tree_decider.resize(num_level);
@@ -291,62 +285,47 @@ namespace geopm
             m_is_epoch_changed.resize(num_level);
             std::fill(m_is_epoch_changed.begin(), m_is_epoch_changed.end(), false);
 
-            m_last_sample_msg.resize(num_level);
-            std::fill(m_last_sample_msg.begin(), m_last_sample_msg.end(), GEOPM_SAMPLE_INVALID);
-
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform, true);
-            m_msr_sample.resize(m_platform->capacity());
-            m_platform->sample(m_msr_sample);
-            m_app_start_time = m_msr_sample[0].timestamp;
-            for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
-                if ((*it).domain_type == GEOPM_DOMAIN_PACKAGE &&
-                    ((*it).signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
-                     (*it).signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
-                    m_counter_energy_start += (*it).signal;
-                }
-            }
-            double upper_bound;
-            double lower_bound;
-            m_platform->bound(upper_bound, lower_bound);
+            TelemetryConfig config(fan_out);
+            m_platform->provides(config);
             m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
             m_decider_factory = new DeciderFactory;
             m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
-            m_leaf_decider->bound(upper_bound, lower_bound);
+            m_leaf_decider->requires(0, config);
 
-            int num_domain;
             for (int level = 0; level < num_level; ++level) {
-                if (level == 0) {
-                    num_domain = m_platform->num_control_domain();
-                    m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
-                }
-                else {
-                    num_domain = m_tree_comm->level_size(level - 1);
-                }
-                m_policy[level] = new Policy(num_domain);
-                if (m_platform->control_domain() == GEOPM_CONTROL_DOMAIN_POWER && level == 1) {
-                    upper_bound *= m_platform->num_control_domain();
-                    lower_bound *= m_platform->num_control_domain();
-                    if (level > 1) {
-                        int i = level - 1;
-                        while (i >= 0) {
-                            upper_bound *= m_tree_comm->level_size(i);
-                            --i;
-                        }
-                    }
-                }
+                m_policy[level] = new Policy(config);
                 m_tree_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
-                m_tree_decider[level]->bound(upper_bound, lower_bound);
+                m_tree_decider[level]->requires(level, config);
                 m_region[level].insert(std::pair<uint64_t, Region *>
                                        (GEOPM_REGION_ID_EPOCH,
                                         new Region(GEOPM_REGION_ID_EPOCH,
-                                                   num_domain,
-                                                   level)));
+                                                   level,
+                                                   config)));
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
                     m_max_fanout = m_tree_comm->level_size(level);
                 }
             }
+
+            if (num_nodes > 1) {
+                m_tree_comm = new TreeCommunicator(fan_out, global_policy, m_ppn1_comm, config.num_aggregated_signal());
+            }
+            else {
+                m_tree_comm = new SingleTreeCommunicator(fan_out, global_policy, config.num_aggregated_signal());
+            }
+
+            m_last_sample_msg.resize(num_level);
+            for (auto it = m_last_sample_msg.begin(); it != m_last_sample_msg.end(); ++it) {
+                it->resize(config.num_aggregated_signal());
+                std::fill(it->begin(), it->end(), GEOPM_VALUE_INVALID);
+            }
+
+            m_platform->init_telemetry(config);
+            m_telemetry_sample.resize(config.num_required_signal());
+            m_platform->sample(m_app_start_time, m_telemetry_sample);
+            m_counter_energy_start = m_platform->energy();
 
             // Barrier to ensure all ProfileSamplers are created at the same time.
             MPI_Barrier(m_ppn1_comm);
@@ -368,7 +347,7 @@ namespace geopm
             // The broadcast will also synchronize the ranks so time zero is uniform.
             MPI_Bcast(header_vec.data(), header_size, MPI_CHAR, 0, m_ppn1_comm);
 
-            m_tracer = new Tracer(header_vec.data());
+            m_tracer = new Tracer(header_vec.data(), config);
         }
     }
 
@@ -414,11 +393,6 @@ namespace geopm
             m_num_mpi_enter.resize(m_rank_per_node, 0);
             m_mpi_enter_time.resize(m_rank_per_node, {{0,0}});
             m_prof_sample.resize(m_sampler->capacity());
-            std::vector<int> cpu_rank;
-            m_sampler->cpu_rank(cpu_rank);
-            m_platform->init_transform(cpu_rank);
-            m_sample_regulator = new SampleRegulator(cpu_rank);
-            m_is_connected = true;
         }
     }
 
@@ -529,22 +503,27 @@ namespace geopm
     void Controller::walk_up(void)
     {
         int level;
-        std::vector<struct geopm_sample_message_s> child_sample(m_max_fanout);
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
-        std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
-        std::vector<struct geopm_telemetry_message_s> epoch_telemetry_sample(m_telemetry_sample.size());
+        std::vector<double > sample_msg(m_tree_comm->num_level());
+        std::vector<double> epoch_telemetry_sample(m_telemetry_sample.size());
         size_t length;
 
-        std::fill(sample_msg.begin(), sample_msg.end(), GEOPM_SAMPLE_INVALID);
+        for (auto& it : sample_msg) {
+            it.resize(m_last_sample_msg[0].size());
+            std::fill(it.begin(), it.end(), GEOPM_VALUE_INVALID);
+        }
 
         for (level = 0; !m_do_shutdown && level < m_tree_comm->num_level(); ++level) {
             bool is_converged = false;
+            std::vector<double> child_sample(m_tree_comm->level_size(level) * m_last_sample_msg[0].size());
             if (level) {
                 try {
                     m_tree_comm->get_sample(level, child_sample);
+                    struct geopm_time_s sample_time;
+                    geopm_time(&sample_time);
                     // use .begin() because map has only one entry
                     auto it = m_region[level].begin();
-                    (*it).second->insert(child_sample);
+                    (*it).second->insert(sample_time, child_sample, IRegion::TELEMETRY_STATUS_EPOCH);
                     if (m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]))) {
                         m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, m_last_policy_msg[level], child_policy_msg);
                         m_tree_comm->send_policy(level - 1, child_policy_msg);
@@ -631,7 +610,7 @@ namespace geopm
                         auto tmp_it = m_region[level].insert(
                                           std::pair<uint64_t, Region *> (map_id,
                                                   new Region(base_region_id,
-                                                             m_platform->num_control_domain(),
+                                                             m_platform->num_control_domain(GEOPM_CONTROL_TYPE_POWER),
                                                              level)));
                         region_it = tmp_it.first;
                     }
@@ -671,7 +650,7 @@ namespace geopm
                                 auto tmp_it = m_region[level].insert(
                                                   std::pair<uint64_t, Region *> (map_id,
                                                           new Region((*sample_it).second.region_id,
-                                                                     m_platform->num_control_domain(),
+                                                                     m_platform->num_control_domain(GEOPM_CONTROL_TYPE_POWER),
                                                                      level)));
                                 region_it = tmp_it.first;
                             }
@@ -846,7 +825,7 @@ namespace geopm
             auto tmp_it = m_region[level].insert(
                               std::pair<uint64_t, Region *> (map_id,
                                       new Region(m_region_id_all,
-                                                 m_platform->num_control_domain(),
+                                                 m_platform->num_control_domain(GEOPM_CONTROL_TYPE_POWER),
                                                  level)));
             it = tmp_it.first;
         }

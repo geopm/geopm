@@ -135,14 +135,14 @@ namespace geopm
         Platform *result = NULL;
         platform_id = read_cpuid();
         for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-            if ((*it) != NULL && (*it)->model_supported(platform_id, description)) {
+            if ((*it) != NULL && (*it)->is_model_supported(platform_id, description)) {
                 result = (*it);
                 break;
             }
         }
         for (auto it = platform_imps.begin(); it != platform_imps.end(); ++it) {
             if ((*it) != NULL && result != NULL &&
-                (*it)->model_supported(platform_id)) {
+                (*it)->is_model_supported(platform_id)) {
                 result->set_implementation((*it), do_initialize);
                 is_found = true;
                 break;

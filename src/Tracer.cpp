@@ -45,10 +45,8 @@
 
 namespace geopm
 {
-    Tracer::Tracer(std::string header)
-        : m_header(header)
-        , m_is_trace_enabled(false)
-        , m_do_header(true)
+    Tracer::Tracer(const std::string header, const TelemetryConfig &config)
+        : m_is_trace_enabled(false)
         , m_buffer_limit(134217728) // 128 MiB
         , m_time_zero({{0, 0}})
         , m_policy({0, 0, 0, 0.0})
@@ -64,8 +62,27 @@ namespace geopm
             std::ostringstream output_path;
             output_path << geopm_env_trace() << "-" << m_hostname;
             m_stream.open(output_path.str());
-            m_buffer << std::setprecision(16);
             m_is_trace_enabled = true;
+            m_buffer << std::setprecision(16);
+            m_buffer << header;
+            m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << std::endl;
+            m_buffer << "region_id | seconds | ";
+            std::map<int, std::vector<std::string> > required;
+            config.get_required(required);
+            std::vector<int> signal_per_domain;
+            config.num_signal_per_domain(signal_per_domain);
+            auto signum = signal_per_domain.begin();
+            for (auto domain_it = required.begin(); domain_it != required.end(); ++domain_it) {
+                for (auto signal = domain_it->second.begin(); signal != domain_it->second.end(); ++signal) {
+                    for (int i = 0; i < (*signum); ++i) {
+                        m_buffer << (*signal) << "-" << i << " | ";
+                    }
+                }
+                ++signum;
+            }
+            m_buffer << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
+            m_stream << m_buffer.str();
+            m_buffer.str("");
         }
     }
 
@@ -77,34 +94,13 @@ namespace geopm
         }
     }
 
-    void Tracer::update(const std::vector <struct geopm_telemetry_message_s> &telemetry)
+    void Tracer::update(uint64_t region_id, const struct geopm_time_s timestamp, const std::vector <double> &telemetry)
     {
         if (m_is_trace_enabled && telemetry.size()) {
-            if (m_do_header) {
-                // Write the GlobalPolicy information first
-                m_buffer << m_header;
-                m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << std::endl;
-                m_buffer << "region_id | seconds | ";
-                for (size_t i = 0; i < telemetry.size(); ++i) {
-                    m_buffer << "pkg_energy-" << i << " | "
-                             << "dram_energy-" << i << " | "
-                             << "frequency-" << i << " | "
-                             << "inst_retired-" << i << " | "
-                             << "clk_unhalted_core-" << i << " | "
-                             << "clk_unhalted_ref-" << i << " | "
-                             << "read_bandwidth-" << i << " | "
-                             << "progress-" << i << " | "
-                             << "runtime-" << i << " | ";
-                }
-                m_buffer << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
-                m_do_header = false;
-            }
-            m_buffer << telemetry[0].region_id << " | "
-                     << geopm_time_diff(&m_time_zero, &(telemetry[0].timestamp)) << " | ";
+            m_buffer << region_id << " | "
+                     << geopm_time_diff(&m_time_zero, &timestamp) << " | ";
             for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
-                for (int i = 0; i != GEOPM_NUM_TELEMETRY_TYPE; ++i) {
-                    m_buffer << (*it).signal[i] << " | ";
-                }
+                    m_buffer << (*it) << " | ";
             }
             m_buffer << m_policy.mode << " | "
                      << m_policy.flags << " | "

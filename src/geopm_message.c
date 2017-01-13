@@ -36,7 +36,6 @@
 #include <stdio.h>
 
 const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1.0};
-const struct geopm_sample_message_s GEOPM_SAMPLE_INVALID = {0, {0}};
 
 int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b)
 {
@@ -45,22 +44,6 @@ int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct g
         a->flags != b->flags ||
         a->num_sample != b->num_sample ||
         a->power_budget != b->power_budget) {
-        result = 0;
-    }
-    return result;
-}
-
-int geopm_is_sample_equal(const struct geopm_sample_message_s *a, const struct geopm_sample_message_s *b)
-{
-
-    int i;
-    int result = 1;
-    for (i = 0; result && (i < GEOPM_NUM_SAMPLE_TYPE); ++i) {
-        if (a->signal[i] != b->signal[i]) {
-            result = 0;
-        }
-    }
-    if (a->region_id != b->region_id) {
         result = 0;
     }
     return result;

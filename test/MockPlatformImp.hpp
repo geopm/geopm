@@ -78,10 +78,10 @@ class MockPlatformImp : public geopm::PlatformImp {
             void(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed));
         MOCK_METHOD4(write_control,
             void(int device_type, int device_index, int signal_type, double value));
-        MOCK_METHOD3(bound,
-            void(int control_type, double &upper_bound, double &lower_bound));
         MOCK_CONST_METHOD0(throttle_limit_mhz,
             double(void));
         MOCK_METHOD1(msr_offset,
             off_t(std::string));
+        MOCK_METHOD1(bound,
+            void(std::map<int, std::pair<double, double> > &bound));
 };

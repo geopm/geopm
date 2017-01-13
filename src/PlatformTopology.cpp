@@ -129,7 +129,7 @@ namespace geopm
         auto it = domain_hwloc_map().find(domain_type);
         if (it == domain_hwloc_map().end()) {
             std::ostringstream ex_str;
-            ex_str << "PlatformTopology::num_domain: Domain type unknown: "  << domain_type;
+            ex_str << "PlatformTopology::hwloc_domain(): Domain type unknown: "  << domain_type;
             throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return (*it).second;

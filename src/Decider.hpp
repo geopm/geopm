@@ -34,6 +34,7 @@
 #define DECIDER_HPP_INCLUDE
 
 #include "Region.hpp"
+#include "TelemetryConfig.hpp"
 
 namespace geopm
 {
@@ -61,11 +62,9 @@ namespace geopm
             /// a frequency based control this will be the p-state bounds of
             /// a single leaf node.
             ///
-            /// @param [in] upper_bound The upper control bound.
+            /// @param [in] bound Map from control domain to the lower and upper
+            ///             bounds for the control.
             ///
-            /// @param [in] lower_bound The lower control bound.
-            ///
-            virtual void bound(double upper_bound, double lower_bound) = 0;
             /// @brief Updates the power split among power control domains when
             /// recieving a new global budget, vitual.
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) = 0;
@@ -75,6 +74,7 @@ namespace geopm
             virtual bool decider_supported(const std::string &descripton) = 0;
             /// @brief Return the name of the decider, virtual.
             virtual const std::string& name(void) const = 0;
+            virtual void requires(int level, TelemetryConfig &config) = 0;
     };
 
     class Decider : public IDecider
@@ -89,13 +89,10 @@ namespace geopm
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
             virtual bool decider_supported(const std::string &descripton) = 0;
             virtual const std::string& name(void) const = 0;
+            virtual void requires(int level, TelemetryConfig &config) = 0;
         protected:
             /// @brief Save the last known power budget
             double m_last_power_budget;
-            /// @brief The upper control bound;
-            double m_upper_bound;
-            /// @brief The lower control bound;
-            double m_lower_bound;
     };
 
 }

@@ -113,8 +113,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PolicyTest.goal \
               test/gtest_links/PolicyTest.num_max_perf \
               test/gtest_links/PolicyTest.target \
-              test/gtest_links/PolicyTest.target_updated \
-              test/gtest_links/PolicyTest.target_valid \
               test/gtest_links/PolicyTest.policy_message \
               test/gtest_links/PolicyTest.converged \
               test/gtest_links/PolicyTest.negative_unsized_vector \

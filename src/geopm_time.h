@@ -46,6 +46,7 @@ struct geopm_time_s;
 static inline int geopm_time(struct geopm_time_s *time);
 static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end);
 static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
+static inline bool geopm_time_zero(const struct geopm_time_s *time);
 static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end);
 
 #ifdef __linux__
@@ -74,6 +75,11 @@ static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct g
         result = aa->t.tv_nsec < bb->t.tv_nsec;
     }
     return result;
+}
+
+static inline bool geopm_time_zero(const struct geopm_time_s *time)
+{
+    return time->t.tv_sec == 0 && time->t.tv_nsec == 0;
 }
 
 static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end)
@@ -114,6 +120,11 @@ static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct g
         result = aa->t.tv_usec < bb->t.tv_usec;
     }
     return result;
+}
+
+static inline bool geopm_time_zero(const struct geopm_time_s *time)
+{
+    return time->t.tv_sec == 0 && time->t.tv_usec == 0;
 }
 
 static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end)

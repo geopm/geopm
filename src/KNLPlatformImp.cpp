@@ -40,7 +40,18 @@
 
 namespace geopm
 {
-    static const std::map<std::string, std::pair<off_t, unsigned long> > &knl_msr_map(void);
+    static const std::map<std::string, struct IMSRAccess::m_msr_signal_entry> &knl_msr_signal_map(void);
+    static const std::map<std::string, std::pair<off_t, uint64_t> > &knl_msr_control_map(void);
+    static const std::map<std::string, std::string> signal_to_msr_map {
+        {"pkg_energy", "PKG_ENERGY_STATUS"},
+        {"dram_energy", "DRAM_ENERGY_STATUS"},
+        {"frequency", "IA32_PERF_STATUS"},
+        {"instructions_retired", "PERF_FIXED_CTR0"},
+        {"clock_unhalted_core", "PERF_FIXED_CTR1"},
+        {"clock_unhalted_ref", "PERF_FIXED_CTR2"},
+        {"l2_cache_victims", "event-0x4123"},
+        {"l2_prefetches", "event-0x43e"}
+    };
 
     int KNLPlatformImp::platform_id(void)
     {
@@ -48,33 +59,27 @@ namespace geopm
     }
 
     KNLPlatformImp::KNLPlatformImp()
-        : PlatformImp(2, 5, 50.0, &(knl_msr_map()))
+        : PlatformImp({{GEOPM_DOMAIN_CONTROL_POWER, 50.0},{GEOPM_DOMAIN_CONTROL_FREQUENCY, 1.0}},
+          &(knl_msr_signal_map()), 
+          &(knl_msr_control_map()))
         , m_throttle_limit_mhz(0.5)
         , m_energy_units(1.0)
         , m_power_units_inv(1.0)
         , m_dram_energy_units(1.5258789063E-5)
-        , m_min_pkg_watts(1)
-        , m_max_pkg_watts(100)
-        , m_min_dram_watts(1)
+        , m_min_pkg_watts(1.0)
+        , m_max_pkg_watts(100.0)
+        , m_min_dram_watts(1.0)
         , m_max_dram_watts(100)
-        , m_signal_msr_offset(M_L2_MISSES)
+        , m_min_freq_mhz(1000.0)
+        , m_max_freq_mhz(1200.0)
+        , m_freq_step_mhz(100.0)
         , m_control_msr_pair(M_NUM_CONTROL)
         , m_pkg_power_limit_static(0)
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
         , M_CTR_EN(0x1 << 22)
         , M_RST_CTRS(0x1 << 1)
-        , M_L2_FILTER_MASK(0x7 << 18)
-        , M_L2_REQ_MISS_EV_SEL(0x2e)
-        , M_L2_REQ_MISS_UMASK(0x41 << 8)
-        , M_L2_PREFETCH_EV_SEL(0x3e)
-        , M_L2_PREFETCH_UMASK(0x04 << 8)
-        , M_EVENT_SEL_0(M_L2_REQ_MISS_EV_SEL)
-        , M_UMASK_0(M_L2_REQ_MISS_UMASK)
-        , M_EVENT_SEL_1(M_L2_PREFETCH_EV_SEL)
-        , M_UMASK_1(M_L2_PREFETCH_UMASK)
         , M_DRAM_POWER_LIMIT_MASK(0x18000)
-        , M_EXTRA_SIGNAL(1)
         , M_PLATFORM_ID(platform_id())
         , M_MODEL_NAME("Knights Landing")
         , M_TRIGGER_NAME("PKG_ENERGY_STATUS")
@@ -92,24 +97,13 @@ namespace geopm
         , m_max_pkg_watts(other.m_max_pkg_watts)
         , m_min_dram_watts(other.m_min_dram_watts)
         , m_max_dram_watts(other.m_max_dram_watts)
-        , m_signal_msr_offset(other.m_signal_msr_offset)
         , m_control_msr_pair(other.m_control_msr_pair)
         , m_pkg_power_limit_static(other.m_pkg_power_limit_static)
         , M_BOX_FRZ_EN(other.M_BOX_FRZ_EN)
         , M_BOX_FRZ(other.M_BOX_FRZ)
         , M_CTR_EN(other.M_CTR_EN)
         , M_RST_CTRS(other.M_RST_CTRS)
-        , M_L2_FILTER_MASK(other.M_L2_FILTER_MASK)
-        , M_L2_REQ_MISS_EV_SEL(other.M_L2_REQ_MISS_EV_SEL)
-        , M_L2_REQ_MISS_UMASK(other.M_L2_REQ_MISS_UMASK)
-        , M_L2_PREFETCH_EV_SEL(other.M_L2_PREFETCH_EV_SEL)
-        , M_L2_PREFETCH_UMASK(other.M_L2_PREFETCH_UMASK)
-        , M_EVENT_SEL_0(other.M_EVENT_SEL_0)
-        , M_UMASK_0(other.M_UMASK_0)
-        , M_EVENT_SEL_1(other.M_EVENT_SEL_1)
-        , M_UMASK_1(other.M_UMASK_1)
         , M_DRAM_POWER_LIMIT_MASK(other.M_DRAM_POWER_LIMIT_MASK)
-        , M_EXTRA_SIGNAL(other.M_EXTRA_SIGNAL)
         , M_PLATFORM_ID(other.M_PLATFORM_ID)
         , M_MODEL_NAME(other.M_MODEL_NAME)
         , M_TRIGGER_NAME(other.M_TRIGGER_NAME)
@@ -122,7 +116,7 @@ namespace geopm
 
     }
 
-    bool KNLPlatformImp::model_supported(int platform_id)
+    bool KNLPlatformImp::is_model_supported(int platform_id)
     {
         return (platform_id == M_PLATFORM_ID);
     }
@@ -132,40 +126,54 @@ namespace geopm
         return M_MODEL_NAME;
     }
 
-    int KNLPlatformImp::power_control_domain(void) const
+    int KNLPlatformImp::num_domain(int domain_type) const
     {
-        return GEOPM_DOMAIN_PACKAGE;
-    }
-
-    int KNLPlatformImp::frequency_control_domain(void) const
-    {
-        return GEOPM_DOMAIN_PACKAGE;
-    }
-
-    int KNLPlatformImp::performance_counter_domain(void) const
-    {
-        return GEOPM_DOMAIN_TILE;
-    }
-
-    void KNLPlatformImp::bound(int control_type, double &upper_bound, double &lower_bound)
-    {
-        switch (control_type) {
-            case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                upper_bound = m_max_pkg_watts;
-                lower_bound = m_min_pkg_watts;
+        int count;
+        switch (domain_type) {
+            case GEOPM_DOMAIN_SIGNAL_ENERGY:
+            case GEOPM_DOMAIN_CONTROL_POWER:
+            case GEOPM_DOMAIN_CONTROL_FREQUENCY:
+                count = m_num_package;
                 break;
-            case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                upper_bound = m_max_dram_watts;
-                lower_bound = m_min_dram_watts;
-                break;
-            case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                throw Exception("KNLPlatformImp::bound(GEOPM_TELEMETRY_TYPE_FREQUENCY)", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+            case GEOPM_DOMAIN_SIGNAL_PERF:
+                count = m_num_logical_cpu;
                 break;
             default:
-                throw geopm::Exception("KNLPlatformImp::bound(): Invalid control type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                count = 0;
                 break;
         }
+        return count;
+    }
 
+    void KNLPlatformImp::create_domain_map(int domain, std::vector<std::vector<int> > &domain_map) const
+    {
+        if (domain == GEOPM_DOMAIN_SIGNAL_PERF) {
+            domain_map.reserve(m_num_logical_cpu);
+            std::vector<int> cpus;
+            for (int i = 0; i < m_num_logical_cpu; ++i) {
+                domain_map.push_back(std::vector<int>({i}));
+            }
+        }
+        else if (domain == GEOPM_DOMAIN_SIGNAL_ENERGY ||
+                 domain == GEOPM_DOMAIN_CONTROL_POWER  ||
+                 domain == GEOPM_DOMAIN_CONTROL_FREQUENCY) {
+            domain_map.reserve(m_num_package);
+            std::vector<int> cpus(m_num_logical_cpu / m_num_package);
+            for (int i = 0; i < m_num_package; ++i) {
+                for (int j = i * m_num_hw_cpu; j < (i + 1) * m_num_hw_cpu; ++j) {
+                    for (int k = 0; k < m_num_cpu_per_core; ++k) {
+                        cpus.push_back(m_num_hw_cpu * k + j);
+                    }
+                }
+                domain_map.push_back(cpus);
+                cpus.clear();
+            }
+        }
+        else {
+            throw Exception("KNLPlatformImp::create_domain_maps() unknown domain type:" +
+                            std::to_string(domain),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
     double KNLPlatformImp::throttle_limit_mhz(void) const
@@ -173,216 +181,32 @@ namespace geopm
         return m_throttle_limit_mhz;
     }
 
-    double KNLPlatformImp::read_signal(int device_type, int device_index, int signal_type)
+    void KNLPlatformImp::batch_read_signal(std::vector<double> &signal_value)
     {
-        double value = 0.0;
-        int offset_idx = 0;
-
-        switch (signal_type) {
-            case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                offset_idx = device_index * m_num_energy_signal + M_PKG_STATUS_OVERFLOW;
-                value = msr_overflow(offset_idx, 32,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_RAPL_PKG_STATUS]));
-                value *= m_energy_units;
-                break;
-            case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                offset_idx = device_index * m_num_energy_signal + M_DRAM_STATUS_OVERFLOW;
-                value = msr_overflow(offset_idx, 32,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_RAPL_DRAM_STATUS]));
-                value *= m_dram_energy_units;
-                break;
-            case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                value = (double)((msr_read(device_type, device_index,
-                                           m_signal_msr_offset[M_IA32_PERF_STATUS]) >> 8) & 0x0FF);
-                //convert to MHZ
-                value *= 0.1;
-                break;
-            case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
-                value = msr_overflow(offset_idx, 40,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_INST_RETIRED]));
-                break;
-            case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
-                value = msr_overflow(offset_idx, 40,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_CLK_UNHALTED_CORE])) / m_num_core_per_tile;
-                break;
-            case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
-                value = msr_overflow(offset_idx, 40,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_CLK_UNHALTED_REF]));
-                break;
-            case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
-                value = msr_overflow(offset_idx, 48,
-                                     msr_read(device_type, device_index,
-                                              m_signal_msr_offset[M_L2_MISSES + 2 * device_index]));
-                offset_idx = m_num_package * m_num_energy_signal + device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
-                value += msr_overflow(offset_idx, 48,
-                                      msr_read(device_type, device_index,
-                                               m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * device_index]));
-                break;
-            default:
-                throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                break;
-        }
-
-        return value;
-    }
-
-    void KNLPlatformImp::batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed)
-    {
-        if (m_is_batch_enabled) {
-            int index = 0;
-            int signal_index = 0;
-            size_t num_signal = 0;
-            int cpu_per_tile = m_num_core_per_tile * m_num_cpu_per_core;
-            if (is_changed) {
-                for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
-                    switch ((*it).signal_type) {
-                        case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                        case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                        case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                        case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                            num_signal++;
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                            num_signal+=2;
-                            break;
-                        default:
-                            throw geopm::Exception("KNLPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                            break;
-                    }
+        std::vector<uint64_t> raw_val(m_msr_access->num_raw_signal());
+        m_msr_access->read_batch(raw_val);
+        auto value_it = signal_value.begin();
+        auto batch_it = raw_val.begin();
+        for (auto signal_it = m_signal.begin(); signal_it != m_signal.end(); ++signal_it) {
+            for (int i = 0; i < (*signal_it)->num_source(); ++i) {
+                std::vector<uint64_t> val;
+                for (int j = 0; j < (*signal_it)->num_encoded(); ++j) {
+                    val.push_back((*batch_it));
+                    ++batch_it;
                 }
-                if (num_signal > m_batch.numops) {
-                    m_batch.numops = num_signal;
-                    m_batch.ops = (struct m_msr_batch_op*)realloc(m_batch.ops, m_batch.numops * sizeof(struct m_msr_batch_op));
-                }
-
-                for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
-                    m_batch.ops[index].isrdmsr = 1;
-                    m_batch.ops[index].err = 0;
-                    m_batch.ops[index].msrdata = 0;
-                    m_batch.ops[index].wmask = 0x0;
-                    switch ((*it).device_type) {
-                        case GEOPM_DOMAIN_PACKAGE:
-                            m_batch.ops[index].cpu = (m_num_hw_cpu / m_num_package) * (*it).device_index;
-                            break;
-                        case GEOPM_DOMAIN_TILE:
-                            m_batch.ops[index].cpu = (m_num_hw_cpu / m_num_tile) * (*it).device_index;
-                            break;
-                        case GEOPM_DOMAIN_CPU:
-                            m_batch.ops[index].cpu = (*it).device_index;
-                            break;
-                        default:
-                            throw Exception("PlatformImp::batch_msr_read(): Invalid device type", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
-                            break;
-                    }
-                    switch ((*it).signal_type) {
-                        case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_RAPL_PKG_STATUS];
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_RAPL_DRAM_STATUS];
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_IA32_PERF_STATUS];
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_INST_RETIRED];
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_CLK_UNHALTED_CORE];
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_CLK_UNHALTED_REF];
-                            break;
-                        case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_L2_MISSES + 2 * (m_batch.ops[index].cpu / cpu_per_tile)];
-                            ++index;
-                            m_batch.ops[index] = m_batch.ops[index - 1];
-                            m_batch.ops[index].msr = m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * (m_batch.ops[index].cpu / cpu_per_tile)];
-                            break;
-                        default:
-                            throw geopm::Exception("KNLPlatformImp::batch_read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                            break;
-                    }
-                    ++index;
-                }
-            }
-
-            batch_msr_read();
-
-            signal_index = 0;
-            int offset_idx;
-            for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
-                switch ((*it).signal_type) {
-                    case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
-                        offset_idx = (*it).device_index * m_num_energy_signal + M_PKG_STATUS_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 32,
-                                                   m_batch.ops[signal_index++].msrdata);
-                        (*it).value *= m_energy_units;
-                        break;
-                    case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                        offset_idx = (*it).device_index * m_num_energy_signal + M_DRAM_STATUS_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 32,
-                                                   m_batch.ops[signal_index++].msrdata);
-                        (*it).value *= m_dram_energy_units;
-                        break;
-                    case GEOPM_TELEMETRY_TYPE_FREQUENCY:
-                        (*it).value = (double)((m_batch.ops[signal_index++].msrdata >> 8) & 0x0FF);
-                        //convert to MHZ
-                        (*it).value *= 0.1;
-                        break;
-                    case GEOPM_TELEMETRY_TYPE_INST_RETIRED:
-                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_INST_RETIRED_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 40,
-                                                   m_batch.ops[signal_index++].msrdata);
-                        break;
-                    case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE:
-                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_CORE_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 40,
-                                                   m_batch.ops[signal_index++].msrdata);
-                        break;
-                    case GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF:
-                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_CLK_UNHALTED_REF_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 40,
-                                                   m_batch.ops[signal_index++].msrdata);
-                        break;
-                    case GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH:
-                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_L2_MISSES_OVERFLOW;
-                        (*it).value = msr_overflow(offset_idx, 48,
-                                                   m_batch.ops[signal_index++].msrdata);
-                        offset_idx = m_num_package * m_num_energy_signal + (*it).device_index * m_num_counter_signal + M_HW_L2_PREFETCH_OVERFLOW;
-                        (*it).value += msr_overflow(offset_idx, 48,
-                                                    m_batch.ops[signal_index++].msrdata);
-                        break;
-                    default:
-                        throw geopm::Exception("KNLPlatformImp::read_signal: Invalid signal type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                        break;
-                }
-            }
-        }
-        else { // batching is not enabled, just call serial code path
-            for (auto it = signal_desc.begin(); it != signal_desc.end(); ++it) {
-                (*it).value = read_signal((*it).device_type, (*it).device_index, (*it).signal_type);
+                (*value_it) = (*signal_it)->sample(val);
+                ++value_it;
             }
         }
     }
 
-    void KNLPlatformImp::write_control(int device_type, int device_index, int signal_type, double value)
+    void KNLPlatformImp::write_control(int control_domain, int domain_index, double value)
     {
         uint64_t msr_val = 0;
+        int cpu_id = (m_num_hw_cpu / m_num_package) * domain_index;;
 
-        switch (signal_type) {
-            case GEOPM_TELEMETRY_TYPE_PKG_ENERGY:
+        switch (control_domain) {
+            case GEOPM_DOMAIN_CONTROL_POWER:
                 if (value < m_min_pkg_watts) {
                     value = m_min_pkg_watts;
                 }
@@ -391,25 +215,13 @@ namespace geopm
                 }
                 msr_val = (uint64_t)(value * m_power_units_inv);
                 msr_val = msr_val | m_pkg_power_limit_static;
-                msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
+                m_msr_access->write(cpu_id, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
                           m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
                 break;
-            case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:
-                if (value < m_min_dram_watts) {
-                    value = m_min_dram_watts;
-                }
-                if (value > m_max_dram_watts) {
-                    value = m_max_dram_watts;
-                }
-                msr_val = (uint64_t)(value * m_power_units_inv);
-                msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
-                msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_DRAM_LIMIT].first,
-                          m_control_msr_pair[M_RAPL_DRAM_LIMIT].second,  msr_val);
-                break;
-            case GEOPM_TELEMETRY_TYPE_FREQUENCY:
+            case GEOPM_DOMAIN_CONTROL_FREQUENCY:
                 msr_val = (uint64_t)(value * 10);
                 msr_val = msr_val << 8;
-                msr_write(device_type, device_index, m_control_msr_pair[M_IA32_PERF_CTL].first,
+                m_msr_access->write(cpu_id, m_control_msr_pair[M_IA32_PERF_CTL].first,
                           m_control_msr_pair[M_IA32_PERF_CTL].second,  msr_val);
                 break;
             default:
@@ -418,63 +230,143 @@ namespace geopm
         }
     }
 
-    void KNLPlatformImp::msr_initialize()
+    void KNLPlatformImp::msr_initialize(void)
     {
         rapl_init();
-        cbo_counters_init();
+        m_trigger_offset = m_msr_access->offset(M_TRIGGER_NAME);
+        // Get supported p-state bounds
+        uint64_t tmp = m_msr_access->read(1, m_msr_access->offset("IA32_PLATFORM_INFO"));
+        m_min_freq_mhz = ((tmp >> 40) | 0xFF) * 100.0;
+        tmp = m_msr_access->read(1, m_msr_access->offset("TURBO_RATIO_LIMIT"));
+        // This value is single core turbo
+        m_max_freq_mhz = (tmp >> 8 | 0xFF) * 100.0;
         fixed_counters_init();
+    }
 
-        m_signal_msr_offset.resize(M_L2_MISSES + 2 * m_num_tile);
-
-        // Add en extra counter signal since we use two counters to calculate read bandwidth
-        size_t num_signal = m_num_energy_signal * m_num_package + (m_num_counter_signal + M_EXTRA_SIGNAL)  * m_num_tile;
-        m_msr_value_last.resize(num_signal);
-        m_msr_overflow_offset.resize(num_signal);
-        std::fill(m_msr_value_last.begin(), m_msr_value_last.end(), 0.0);
-        std::fill(m_msr_overflow_offset.begin(), m_msr_overflow_offset.end(), 0.0);
-
-        //Save off the msr offsets for the signals we want to read to avoid a map lookup
-        for (int i = 0; i < M_L2_MISSES; ++i) {
-            switch (i) {
-                case M_RAPL_PKG_STATUS:
-                    m_signal_msr_offset[i] = msr_offset("PKG_ENERGY_STATUS");
-                    break;
-                case M_RAPL_DRAM_STATUS:
-                    m_signal_msr_offset[i] = msr_offset("DRAM_ENERGY_STATUS");
-                    break;
-                case M_IA32_PERF_STATUS:
-                    m_signal_msr_offset[i] = msr_offset("IA32_PERF_STATUS");
-                    break;
-                case M_INST_RETIRED:
-                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR0");
-                    break;
-                case M_CLK_UNHALTED_CORE:
-                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR1");
-                    break;
-                case M_CLK_UNHALTED_REF:
-                    m_signal_msr_offset[i] = msr_offset("PERF_FIXED_CTR2");
-                    break;
-                default:
-                    throw Exception("KNLPlatformImp: Index not enumerated",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                    break;
+    void KNLPlatformImp::init_telemetry(const TelemetryConfig &config)
+    {
+        std::vector<std::string> rapl_signals;
+        std::vector<std::string> cpu_signals;
+        config.get_required(GEOPM_DOMAIN_SIGNAL_ENERGY, rapl_signals);
+        config.get_required(GEOPM_DOMAIN_SIGNAL_PERF, cpu_signals);
+        std::vector<int> cpu;
+        cpu.reserve(rapl_signals.size() * m_num_package +
+                    cpu_signals.size() * m_num_logical_cpu);
+        std::vector<int> read_off;
+        read_off.reserve(rapl_signals.size() * m_num_package +
+                         cpu_signals.size() * m_num_logical_cpu);
+        for (auto it = rapl_signals.begin(); it != rapl_signals.end(); ++it) {
+            auto signal_name = signal_to_msr_map.find(*it);
+            if (signal_name == signal_to_msr_map.end()) {
+                throw Exception("KNLPlatformImp::init_telemetry(): Invalid signal string", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            auto msr_entry = m_msr_signal_map_ptr->find((*signal_name).second);
+            if (msr_entry == m_msr_signal_map_ptr->end()) {
+                throw Exception("KNLPlatformImp::init_telemetry(): Invalid MSR type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            std::vector<off_t> off(1);
+            off.back() = (*msr_entry).second.offset;
+            m_signal.push_back(new MSRSignal(off, m_num_package));
+            m_signal.back()->num_bit(0, (*msr_entry).second.size);
+            m_signal.back()->left_shift(0, (*msr_entry).second.lshift_mod);
+            m_signal.back()->right_shift(0, (*msr_entry).second.rshift_mod);
+            m_signal.back()->mask(0, (*msr_entry).second.mask_mod);
+            m_signal.back()->scalar(0, (*msr_entry).second.multiply_mod);
+            for (int i = 0; i < m_num_package; ++i) {
+                cpu.push_back((m_num_package / m_num_hw_cpu) * i);
+                read_off.push_back(off.back());
             }
         }
-        for (int i = 0; i < m_num_tile; i++) {
-            std::ostringstream msr_name;
-            msr_name << "C" <<  i  << "_MSR_PMON_CTR0";
-            m_signal_msr_offset[M_L2_MISSES + 2 * i] = msr_offset(msr_name.str());
-            msr_name.str("");
-            msr_name << "C"  <<  i <<  "_MSR_PMON_CTR1";
-            m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * i] = msr_offset(msr_name.str());
+        for (auto it = cpu_signals.begin(); it != cpu_signals.end(); ++it) {
+            int counter_idx = 0;
+            std::vector<off_t> off;
+            std::vector<std::string> signame;
+            std::vector<struct IMSRAccess::m_msr_signal_entry> msr_entry;
+            std::string key;
+            std::vector<std::vector<off_t> > per_cpu_offsets;
+            std::string signal_string;
+            if ((*it) == "bandwidth") {
+                signame.push_back("llc_victims");
+                signame.push_back("l2_prefetches");
+            }
+            else {
+                signame.push_back(*it);
+            }
+            for (auto name_it = signame.begin(); name_it != signame.end(); ++name_it) {
+                per_cpu_offsets.push_back(std::vector<off_t>(m_num_logical_cpu));
+                auto signal_name = signal_to_msr_map.find(*name_it);
+                if (signal_name == signal_to_msr_map.end()) {
+                    throw Exception("KNLPlatformImp::init_telemetry(): Invalid signal string", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                key = (*signal_name).second;
+                signal_string = key;
+                if ((*signal_name).second.find("event-0x") == 0) {
+                    uint32_t event = strtol((*signal_name).second.substr(std::string("event-0x").size()).c_str(), NULL, 16);
+                    cbo_counters_init(counter_idx, event);
+                    counter_idx++;
+                    std::ostringstream buffer;
+                    buffer << "C0_MSR_PMON_CTR" << counter_idx;
+                    counter_idx++;
+                    key = buffer.str();
+                    int cpu_idx = 0;
+                    int cpu_per_core = m_num_logical_cpu / m_num_hw_cpu;
+                    int core_per_tile = m_num_hw_cpu / m_num_tile;
+                    for (auto off_it = per_cpu_offsets.back().begin(); off_it != per_cpu_offsets.back().end(); ++off_it) {
+                        int cha_idx = cpu_idx / (cpu_per_core * core_per_tile);
+                        buffer.clear();
+                        buffer << "C" << cha_idx << "_MSR_PMON_CTR" << counter_idx;
+                        std::string lookup = buffer.str();
+                        auto lookup_it = m_msr_signal_map_ptr->find(lookup);
+                        if (lookup_it == m_msr_signal_map_ptr->end()) {
+                            throw Exception("KNLPlatformImp::init_telemetry(): Invalid MSR type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        }
+                        (*off_it) = (*lookup_it).second.offset;
+                        ++cpu_idx;
+                    }
+                }
+                auto msr_it = m_msr_signal_map_ptr->find(key);
+                if (msr_it == m_msr_signal_map_ptr->end()) {
+                    throw Exception("KNLPlatformImp::init_telemetry(): Invalid MSR type", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                msr_entry.push_back((*msr_it).second);
+                off.push_back(msr_entry.back().offset);
+                if (signal_string.find("event-0x") != 0) {
+                     std::fill(per_cpu_offsets.back().begin(), per_cpu_offsets.back().end(), off.back());
+                }
+            }
+            m_signal.push_back(new MSRSignal(off, m_num_logical_cpu));
+            int count = 0;
+            for (auto msr_entry_it = msr_entry.begin(); msr_entry_it != msr_entry.end(); ++msr_entry_it) {
+                m_signal.back()->num_bit(count, msr_entry_it->size);
+                m_signal.back()->left_shift(count, msr_entry_it->lshift_mod);
+                m_signal.back()->right_shift(count, msr_entry_it->rshift_mod);
+                m_signal.back()->mask(count, msr_entry_it->mask_mod);
+                m_signal.back()->scalar(count, msr_entry_it->multiply_mod);
+                count++;
+            }
+
+            for (int i = 0; i < m_num_logical_cpu; ++i) {
+                for (auto off_it = per_cpu_offsets.begin(); off_it != per_cpu_offsets.end(); ++off_it) {
+                    cpu.push_back(i);
+                    read_off.push_back((*off_it)[i]);
+                }
+            }
         }
 
         //Save off the msr offsets and masks for the controls we want to write to avoid a map lookup
-        m_control_msr_pair[M_RAPL_PKG_LIMIT] = std::make_pair(msr_offset("PKG_POWER_LIMIT"), msr_mask("PKG_POWER_LIMIT") );
-        m_control_msr_pair[M_RAPL_DRAM_LIMIT] = std::make_pair(msr_offset("DRAM_POWER_LIMIT"), msr_mask("DRAM_POWER_LIMIT") );
-        m_control_msr_pair[M_IA32_PERF_CTL] = std::make_pair(msr_offset("IA32_PERF_CTL"), msr_mask("IA32_PERF_CTL") );
+        m_control_msr_pair[M_RAPL_PKG_LIMIT] = std::make_pair(m_msr_access->offset("PKG_POWER_LIMIT"), m_msr_access->write_mask("PKG_POWER_LIMIT") );
+        m_control_msr_pair[M_RAPL_DRAM_LIMIT] = std::make_pair(m_msr_access->offset("DRAM_POWER_LIMIT"), m_msr_access->write_mask("DRAM_POWER_LIMIT") );
+        m_control_msr_pair[M_IA32_PERF_CTL] = std::make_pair(m_msr_access->offset("IA32_PERF_CTL"), m_msr_access->write_mask("IA32_PERF_CTL") );
+    }
 
-        m_trigger_offset = msr_offset(M_TRIGGER_NAME);
+    double KNLPlatformImp::energy(void) const
+    {
+        double total_energy = 0;   
+        for (int i = 0; i < m_num_package; ++i) {
+            total_energy += msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_ENERGY_STATUS");
+            total_energy += msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_ENERGY_STATUS");
+        }
+        return total_energy;    
     }
 
     void KNLPlatformImp::msr_reset()
@@ -569,21 +461,15 @@ namespace geopm
         }
     }
 
-    void KNLPlatformImp::cbo_counters_init()
+    void KNLPlatformImp::cbo_counters_init(int counter_idx, uint32_t event)
     {
         for (int i = 0; i < m_num_tile; i++) {
-            std::string ctl1_msr_name("_MSR_PMON_CTL0");
-            std::string ctl2_msr_name("_MSR_PMON_CTL1");
+            std::string ctl_msr_name("_MSR_PMON_CTL" + std::to_string(counter_idx));
             std::string box_msr_name("_MSR_PMON_BOX_CTL");
-            std::string filter_msr_name("_MSR_PMON_BOX_FILTER");
             box_msr_name.insert(0, std::to_string(i));
             box_msr_name.insert(0, "C");
-            ctl1_msr_name.insert(0, std::to_string(i));
-            ctl1_msr_name.insert(0, "C");
-            ctl2_msr_name.insert(0, std::to_string(i));
-            ctl2_msr_name.insert(0, "C");
-            filter_msr_name.insert(0, std::to_string(i));
-            filter_msr_name.insert(0, "C");
+            ctl_msr_name.insert(0, std::to_string(i));
+            ctl_msr_name.insert(0, "C");
 
             // enable freeze
             msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
@@ -593,22 +479,14 @@ namespace geopm
             msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
                       msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
                       | M_BOX_FRZ);
-            // enable counter 0
-            msr_write(GEOPM_DOMAIN_TILE, i, ctl1_msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, ctl1_msr_name)
+            // enable counter
+            msr_write(GEOPM_DOMAIN_TILE, i, ctl_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, ctl_msr_name)
                       | M_CTR_EN);
-            // enable counter 1
-            msr_write(GEOPM_DOMAIN_TILE, i, ctl2_msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, ctl2_msr_name)
-                      | M_CTR_EN);
-            // l2 misses
-            msr_write(GEOPM_DOMAIN_TILE, i, ctl1_msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, ctl1_msr_name)
-                      | M_EVENT_SEL_0 | M_UMASK_0);
-            // l2 prefetches
-            msr_write(GEOPM_DOMAIN_TILE, i, ctl2_msr_name,
-                      msr_read(GEOPM_DOMAIN_TILE, i, ctl2_msr_name)
-                      | M_EVENT_SEL_1 | M_UMASK_1);
+            // program event
+            msr_write(GEOPM_DOMAIN_TILE, i, ctl_msr_name,
+                      msr_read(GEOPM_DOMAIN_TILE, i, ctl_msr_name)
+                      | event);
             // reset counters
             msr_write(GEOPM_DOMAIN_TILE, i, box_msr_name,
                       msr_read(GEOPM_DOMAIN_TILE, i, box_msr_name)
@@ -655,25 +533,135 @@ namespace geopm
         }
     }
 
-    static const std::map<std::string, std::pair<off_t, unsigned long> > &knl_msr_map(void)
+    void KNLPlatformImp::provides(TelemetryConfig &config) const
     {
-        static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
-            {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000}},
+        std::vector<int> domains = {GEOPM_DOMAIN_CONTROL_POWER, GEOPM_DOMAIN_CONTROL_FREQUENCY,
+                                    GEOPM_DOMAIN_SIGNAL_ENERGY, GEOPM_DOMAIN_SIGNAL_PERF};
+        std::vector<std::string> energy_signals = {"dram_energy", "pkg_energy"};
+        std::vector<std::string> counter_signals = {"frequency", "instructions_retired", "clock_unhalted_core", "clock_unhalted_ref", "read_bandwidth"};
+        std::vector<std::vector<int> > domain_map;
+        config.supported_domain(domains);
+        config.set_provided(GEOPM_DOMAIN_SIGNAL_ENERGY, energy_signals);
+        config.set_provided(GEOPM_DOMAIN_SIGNAL_PERF, counter_signals);
+        config.set_bounds(GEOPM_DOMAIN_CONTROL_POWER, m_min_pkg_watts + m_max_dram_watts, m_max_pkg_watts + m_max_dram_watts);
+        config.set_bounds(GEOPM_DOMAIN_CONTROL_FREQUENCY, m_min_freq_mhz, m_max_freq_mhz);
+        create_domain_map(GEOPM_DOMAIN_CONTROL_POWER, domain_map);
+        config.set_domain_cpu_map(GEOPM_DOMAIN_CONTROL_POWER, domain_map);
+        domain_map.clear();
+        create_domain_map(GEOPM_DOMAIN_CONTROL_FREQUENCY, domain_map);
+        config.set_domain_cpu_map(GEOPM_DOMAIN_CONTROL_FREQUENCY, domain_map);
+        domain_map.clear();
+        create_domain_map(GEOPM_DOMAIN_SIGNAL_ENERGY, domain_map);
+        config.set_domain_cpu_map(GEOPM_DOMAIN_SIGNAL_ENERGY, domain_map);
+        domain_map.clear();
+        create_domain_map(GEOPM_DOMAIN_SIGNAL_PERF, domain_map);
+        config.set_domain_cpu_map(GEOPM_DOMAIN_SIGNAL_PERF, domain_map);
+    }
+
+    static const std::map<std::string, struct IMSRAccess::m_msr_signal_entry> &knl_msr_signal_map(void)
+    {
+        static const std::map<std::string, struct IMSRAccess::m_msr_signal_entry> msr_signal_map({
+            {"IA32_PERF_STATUS",        {0x0198, 0x0000000000000000, 32, 0, 8, 0x0ff, 0.1}},
+            {"PKG_ENERGY_STATUS",       {0x0611, 0x0000000000000000, 32, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"DRAM_ENERGY_STATUS",      {0x0619, 0x0000000000000000, 32, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"PERF_FIXED_CTR0",         {0x0309, 0x0000000000000000, 40, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"PERF_FIXED_CTR1",         {0x030A, 0x0000000000000000, 40, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"PERF_FIXED_CTR2",         {0x030B, 0x0000000000000000, 40, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C0_MSR_PMON_CTR0",        {0x0E08, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C1_MSR_PMON_CTR0",        {0x0E14, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C2_MSR_PMON_CTR0",        {0x0E20, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C3_MSR_PMON_CTR0",        {0x0E2C, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C4_MSR_PMON_CTR0",        {0x0E38, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C5_MSR_PMON_CTR0",        {0x0E44, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C6_MSR_PMON_CTR0",        {0x0E50, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C7_MSR_PMON_CTR0",        {0x0E5C, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C8_MSR_PMON_CTR0",        {0x0E68, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C9_MSR_PMON_CTR0",        {0x0E74, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C10_MSR_PMON_CTR0",       {0x0E80, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C11_MSR_PMON_CTR0",       {0x0E8C, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C12_MSR_PMON_CTR0",       {0x0E98, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C13_MSR_PMON_CTR0",       {0x0EA4, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C14_MSR_PMON_CTR0",       {0x0EB0, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C15_MSR_PMON_CTR0",       {0x0EBC, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C16_MSR_PMON_CTR0",       {0x0EC8, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C17_MSR_PMON_CTR0",       {0x0ED4, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C18_MSR_PMON_CTR0",       {0x0EE0, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C19_MSR_PMON_CTR0",       {0x0EEC, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C20_MSR_PMON_CTR0",       {0x0EF8, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C21_MSR_PMON_CTR0",       {0x0F04, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C22_MSR_PMON_CTR0",       {0x0F10, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C23_MSR_PMON_CTR0",       {0x0F1C, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C24_MSR_PMON_CTR0",       {0x0F28, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C25_MSR_PMON_CTR0",       {0x0F34, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C26_MSR_PMON_CTR0",       {0x0F40, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C27_MSR_PMON_CTR0",       {0x0F4C, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C28_MSR_PMON_CTR0",       {0x0F58, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C29_MSR_PMON_CTR0",       {0x0F64, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C30_MSR_PMON_CTR0",       {0x0F70, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C31_MSR_PMON_CTR0",       {0x0F7C, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C32_MSR_PMON_CTR0",       {0x0F88, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C33_MSR_PMON_CTR0",       {0x0F94, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C34_MSR_PMON_CTR0",       {0x0FA0, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C35_MSR_PMON_CTR0",       {0x0FAC, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C36_MSR_PMON_CTR0",       {0x0FB8, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C37_MSR_PMON_CTR0",       {0x0FC4, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C0_MSR_PMON_CTR1",        {0x0E09, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C1_MSR_PMON_CTR1",        {0x0E15, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C2_MSR_PMON_CTR1",        {0x0E21, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C3_MSR_PMON_CTR1",        {0x0E2D, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C4_MSR_PMON_CTR1",        {0x0E39, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C5_MSR_PMON_CTR1",        {0x0E45, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C6_MSR_PMON_CTR1",        {0x0E51, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C7_MSR_PMON_CTR1",        {0x0E5D, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C8_MSR_PMON_CTR1",        {0x0E69, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C9_MSR_PMON_CTR1",        {0x0E75, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C10_MSR_PMON_CTR1",       {0x0E81, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C11_MSR_PMON_CTR1",       {0x0E8D, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C12_MSR_PMON_CTR1",       {0x0E99, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C13_MSR_PMON_CTR1",       {0x0EA5, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C14_MSR_PMON_CTR1",       {0x0EB1, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C15_MSR_PMON_CTR1",       {0x0EBD, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C16_MSR_PMON_CTR1",       {0x0EC9, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C17_MSR_PMON_CTR1",       {0x0ED5, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C17_MSR_PMON_CTR1",       {0x0EE1, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C18_MSR_PMON_CTR1",       {0x0EED, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C19_MSR_PMON_CTR1",       {0x0EF9, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C20_MSR_PMON_CTR1",       {0x0F05, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C21_MSR_PMON_CTR1",       {0x0F11, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C22_MSR_PMON_CTR1",       {0x0F1D, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C23_MSR_PMON_CTR1",       {0x0F29, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C24_MSR_PMON_CTR1",       {0x0F35, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C25_MSR_PMON_CTR1",       {0x0F41, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C26_MSR_PMON_CTR1",       {0x0F4D, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C27_MSR_PMON_CTR1",       {0x0F59, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C28_MSR_PMON_CTR1",       {0x0F65, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C29_MSR_PMON_CTR1",       {0x0F71, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C30_MSR_PMON_CTR1",       {0x0F7D, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C31_MSR_PMON_CTR1",       {0x0F89, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C32_MSR_PMON_CTR1",       {0x0F95, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C33_MSR_PMON_CTR1",       {0x0FA1, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C34_MSR_PMON_CTR1",       {0x0FAD, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C35_MSR_PMON_CTR1",       {0x0FB9, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}},
+            {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000, 44, 0, 0, 0xffffffffffffffff, 1.0}}
+        });
+        return msr_signal_map;
+    }
+
+    static const std::map<std::string, std::pair<off_t, uint64_t> > &knl_msr_control_map(void)
+    {
+        static const std::map<std::string, std::pair<off_t, uint64_t> > msr_control_map({
+            {"IA32_PLATFORM_INFO",      {0x00CE, 0x0000000000000000}},
             {"IA32_PERF_CTL",           {0x0199, 0x000000010000ffff}},
+            {"TURBO_RATIO_LIMIT",       {0x01AD, 0x0000000000000000}},
             {"RAPL_POWER_UNIT",         {0x0606, 0x0000000000000000}},
             {"PKG_POWER_LIMIT",         {0x0610, 0x00ffffff00ffffff}},
-            {"PKG_ENERGY_STATUS",       {0x0611, 0x0000000000000000}},
             {"PKG_POWER_INFO",          {0x0614, 0x0000000000000000}},
             {"DRAM_POWER_LIMIT",        {0x0618, 0x0000000000ffffff}},
-            {"DRAM_ENERGY_STATUS",      {0x0619, 0x0000000000000000}},
             {"DRAM_PERF_STATUS",        {0x061B, 0x0000000000000000}},
             {"DRAM_POWER_INFO",         {0x061C, 0x0000000000000000}},
             {"PERF_FIXED_CTR_CTRL",     {0x038D, 0x0000000000000bbb}},
             {"PERF_GLOBAL_CTRL",        {0x038F, 0x0000000700000003}},
             {"PERF_GLOBAL_OVF_CTRL",    {0x0390, 0xc000000700000003}},
-            {"PERF_FIXED_CTR0",         {0x0309, 0xffffffffffffffff}},
-            {"PERF_FIXED_CTR1",         {0x030A, 0xffffffffffffffff}},
-            {"PERF_FIXED_CTR2",         {0x030B, 0xffffffffffffffff}},
             {"C0_MSR_PMON_BOX_CTL",     {0x0E00, 0x00000000ffffffff}},
             {"C1_MSR_PMON_BOX_CTL",     {0x0E0C, 0x00000000ffffffff}},
             {"C2_MSR_PMON_BOX_CTL",     {0x0E18, 0x00000000ffffffff}},
@@ -863,84 +851,8 @@ namespace geopm
             {"C34_MSR_PMON_CTL1",       {0x0F9A, 0x00000000ffffffff}},
             {"C35_MSR_PMON_CTL1",       {0x0FA6, 0x00000000ffffffff}},
             {"C36_MSR_PMON_CTL1",       {0x0FB2, 0x00000000ffffffff}},
-            {"C37_MSR_PMON_CTL1",       {0x0FBE, 0x00000000ffffffff}},
-            {"C0_MSR_PMON_CTR0",        {0x0E08, 0x0000000000000000}},
-            {"C1_MSR_PMON_CTR0",        {0x0E14, 0x0000000000000000}},
-            {"C2_MSR_PMON_CTR0",        {0x0E20, 0x0000000000000000}},
-            {"C3_MSR_PMON_CTR0",        {0x0E2C, 0x0000000000000000}},
-            {"C4_MSR_PMON_CTR0",        {0x0E38, 0x0000000000000000}},
-            {"C5_MSR_PMON_CTR0",        {0x0E44, 0x0000000000000000}},
-            {"C6_MSR_PMON_CTR0",        {0x0E50, 0x0000000000000000}},
-            {"C7_MSR_PMON_CTR0",        {0x0E5C, 0x0000000000000000}},
-            {"C8_MSR_PMON_CTR0",        {0x0E68, 0x0000000000000000}},
-            {"C9_MSR_PMON_CTR0",        {0x0E74, 0x0000000000000000}},
-            {"C10_MSR_PMON_CTR0",       {0x0E80, 0x0000000000000000}},
-            {"C11_MSR_PMON_CTR0",       {0x0E8C, 0x0000000000000000}},
-            {"C12_MSR_PMON_CTR0",       {0x0E98, 0x0000000000000000}},
-            {"C13_MSR_PMON_CTR0",       {0x0EA4, 0x0000000000000000}},
-            {"C14_MSR_PMON_CTR0",       {0x0EB0, 0x0000000000000000}},
-            {"C15_MSR_PMON_CTR0",       {0x0EBC, 0x0000000000000000}},
-            {"C16_MSR_PMON_CTR0",       {0x0EC8, 0x0000000000000000}},
-            {"C17_MSR_PMON_CTR0",       {0x0ED4, 0x0000000000000000}},
-            {"C18_MSR_PMON_CTR0",       {0x0EE0, 0x0000000000000000}},
-            {"C19_MSR_PMON_CTR0",       {0x0EEC, 0x0000000000000000}},
-            {"C20_MSR_PMON_CTR0",       {0x0EF8, 0x0000000000000000}},
-            {"C21_MSR_PMON_CTR0",       {0x0F04, 0x0000000000000000}},
-            {"C22_MSR_PMON_CTR0",       {0x0F10, 0x0000000000000000}},
-            {"C23_MSR_PMON_CTR0",       {0x0F1C, 0x0000000000000000}},
-            {"C24_MSR_PMON_CTR0",       {0x0F28, 0x0000000000000000}},
-            {"C25_MSR_PMON_CTR0",       {0x0F34, 0x0000000000000000}},
-            {"C26_MSR_PMON_CTR0",       {0x0F40, 0x0000000000000000}},
-            {"C27_MSR_PMON_CTR0",       {0x0F4C, 0x0000000000000000}},
-            {"C28_MSR_PMON_CTR0",       {0x0F58, 0x0000000000000000}},
-            {"C29_MSR_PMON_CTR0",       {0x0F64, 0x0000000000000000}},
-            {"C30_MSR_PMON_CTR0",       {0x0F70, 0x0000000000000000}},
-            {"C31_MSR_PMON_CTR0",       {0x0F7C, 0x0000000000000000}},
-            {"C32_MSR_PMON_CTR0",       {0x0F88, 0x0000000000000000}},
-            {"C33_MSR_PMON_CTR0",       {0x0F94, 0x0000000000000000}},
-            {"C34_MSR_PMON_CTR0",       {0x0FA0, 0x0000000000000000}},
-            {"C35_MSR_PMON_CTR0",       {0x0FAC, 0x0000000000000000}},
-            {"C36_MSR_PMON_CTR0",       {0x0FB8, 0x0000000000000000}},
-            {"C37_MSR_PMON_CTR0",       {0x0FC4, 0x0000000000000000}},
-            {"C0_MSR_PMON_CTR1",        {0x0E09, 0x0000000000000000}},
-            {"C1_MSR_PMON_CTR1",        {0x0E15, 0x0000000000000000}},
-            {"C2_MSR_PMON_CTR1",        {0x0E21, 0x0000000000000000}},
-            {"C3_MSR_PMON_CTR1",        {0x0E2D, 0x0000000000000000}},
-            {"C4_MSR_PMON_CTR1",        {0x0E39, 0x0000000000000000}},
-            {"C5_MSR_PMON_CTR1",        {0x0E45, 0x0000000000000000}},
-            {"C6_MSR_PMON_CTR1",        {0x0E51, 0x0000000000000000}},
-            {"C7_MSR_PMON_CTR1",        {0x0E5D, 0x0000000000000000}},
-            {"C8_MSR_PMON_CTR1",        {0x0E69, 0x0000000000000000}},
-            {"C9_MSR_PMON_CTR1",        {0x0E75, 0x0000000000000000}},
-            {"C10_MSR_PMON_CTR1",       {0x0E81, 0x0000000000000000}},
-            {"C11_MSR_PMON_CTR1",       {0x0E8D, 0x0000000000000000}},
-            {"C12_MSR_PMON_CTR1",       {0x0E99, 0x0000000000000000}},
-            {"C13_MSR_PMON_CTR1",       {0x0EA5, 0x0000000000000000}},
-            {"C14_MSR_PMON_CTR1",       {0x0EB1, 0x0000000000000000}},
-            {"C15_MSR_PMON_CTR1",       {0x0EBD, 0x0000000000000000}},
-            {"C16_MSR_PMON_CTR1",       {0x0EC9, 0x0000000000000000}},
-            {"C17_MSR_PMON_CTR1",       {0x0ED5, 0x0000000000000000}},
-            {"C17_MSR_PMON_CTR1",       {0x0EE1, 0x0000000000000000}},
-            {"C18_MSR_PMON_CTR1",       {0x0EED, 0x0000000000000000}},
-            {"C19_MSR_PMON_CTR1",       {0x0EF9, 0x0000000000000000}},
-            {"C20_MSR_PMON_CTR1",       {0x0F05, 0x0000000000000000}},
-            {"C21_MSR_PMON_CTR1",       {0x0F11, 0x0000000000000000}},
-            {"C22_MSR_PMON_CTR1",       {0x0F1D, 0x0000000000000000}},
-            {"C23_MSR_PMON_CTR1",       {0x0F29, 0x0000000000000000}},
-            {"C24_MSR_PMON_CTR1",       {0x0F35, 0x0000000000000000}},
-            {"C25_MSR_PMON_CTR1",       {0x0F41, 0x0000000000000000}},
-            {"C26_MSR_PMON_CTR1",       {0x0F4D, 0x0000000000000000}},
-            {"C27_MSR_PMON_CTR1",       {0x0F59, 0x0000000000000000}},
-            {"C28_MSR_PMON_CTR1",       {0x0F65, 0x0000000000000000}},
-            {"C29_MSR_PMON_CTR1",       {0x0F71, 0x0000000000000000}},
-            {"C30_MSR_PMON_CTR1",       {0x0F7D, 0x0000000000000000}},
-            {"C31_MSR_PMON_CTR1",       {0x0F89, 0x0000000000000000}},
-            {"C32_MSR_PMON_CTR1",       {0x0F95, 0x0000000000000000}},
-            {"C33_MSR_PMON_CTR1",       {0x0FA1, 0x0000000000000000}},
-            {"C34_MSR_PMON_CTR1",       {0x0FAD, 0x0000000000000000}},
-            {"C35_MSR_PMON_CTR1",       {0x0FB9, 0x0000000000000000}},
-            {"C37_MSR_PMON_CTR1",       {0x0FC5, 0x0000000000000000}}
+            {"C37_MSR_PMON_CTL1",       {0x0FBE, 0x00000000ffffffff}}
         });
-        return msr_map;
+        return msr_control_map;
     }
 }

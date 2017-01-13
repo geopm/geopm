@@ -37,6 +37,7 @@
 #include <sys/stat.h>
 
 #include "gtest/gtest.h"
+#include "geopm_message.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "PlatformImp.hpp"
@@ -68,9 +69,8 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual double read_signal(int device_type, int device_index, int signal_type);
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
-        virtual void bound(int control_type, double &upper_bound, double &lower_bound);
+        virtual void bound(std::map<int, std::pair<double, double> > &bound);
         virtual double throttle_limit_mhz(void) const;
-
     protected:
         FRIEND_TEST(PlatformImpTest, parse_topology);
         std::vector<std::string> m_msr_file_paths;
@@ -185,10 +185,10 @@ void TestPlatformImp::write_control(int device_type, int device_index, int signa
 
 }
 
-void TestPlatformImp::bound(int control_type, double &upper_bound, double &lower_bound)
+void TestPlatformImp::bound(std::map<int, std::pair<double, double> > &bound)
 {
-    upper_bound = DBL_MAX;
-    lower_bound = DBL_MIN;
+    bound.insert(std::pair<int, std::pair<double, double> >(GEOPM_CONTROL_TYPE_POWER,
+                 std::pair<double, double>(DBL_MIN, DBL_MAX)));
 }
 
 double  TestPlatformImp::throttle_limit_mhz(void) const
@@ -247,10 +247,10 @@ class TestPlatformImp2 : public geopm::PlatformImp
 
         }
         virtual std::string platform_name();
-        virtual void bound(int control_type, double &upper_bound, double &lower_bound)
+        virtual void bound(std::map<int, std::pair<double, double> > &bound)
         {
-            upper_bound = DBL_MAX;
-            lower_bound = DBL_MIN;
+            bound.insert(std::pair<int, std::pair<double, double> >(GEOPM_CONTROL_TYPE_POWER,
+                         std::pair<double, double>(DBL_MIN, DBL_MAX)));
         }
         virtual double throttle_limit_mhz(void) const
         {
@@ -413,10 +413,10 @@ class TestPlatformImp4 : public geopm::PlatformImp
         {
             ;
         }
-        virtual void bound(int control_type, double &upper_bound, double &lower_bound)
+        virtual void bound(std::map<int, std::pair<double, double> > &bound)
         {
-            upper_bound = DBL_MAX;
-            lower_bound = DBL_MIN;
+            bound.insert(std::pair<int, std::pair<double, double> >(GEOPM_CONTROL_TYPE_POWER,
+                         std::pair<double, double>(DBL_MIN, DBL_MAX)));
         }
         virtual double throttle_limit_mhz(void) const
         {

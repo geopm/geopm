@@ -97,6 +97,11 @@ bool DumbDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     return false;
 }
 
+void DumbDecider::bound(std::map<int, std::pair<double, double> > &bound)
+{
+    return;
+}
+
 DumbPlatform::DumbPlatform()
     : m_name("dumb")
 {
@@ -130,13 +135,13 @@ void DumbPlatform::enforce_policy(uint64_t region_id, IPolicy &policy) const
 
 int DumbPlatform::control_domain(void)
 {
-    return GEOPM_CONTROL_DOMAIN_POWER;
+    return GEOPM_CONTROL_TYPE_POWER;
 }
 
-void DumbPlatform::bound(double &upper_bound, double &lower_bound)
+void DumbPlatform::bound(std::map<int, std::pair<double, double> > &bound)
 {
-    upper_bound = DBL_MAX;
-    lower_bound = DBL_MIN;
+    bound.insert(std::pair<int, std::pair<double, double> >(GEOPM_CONTROL_TYPE_POWER,
+                 std::pair<double, double>(DBL_MIN, DBL_MAX)));
 }
 
 void DumbPlatform::initialize(void)
@@ -254,10 +259,10 @@ void ShmemFreqPlatformImp::write_control(int device_type, int device_idx, int si
     cpu_freq(device_idx, value);
 }
 
-void ShmemFreqPlatformImp::bound(int control_type, double &upper_bound, double &lower_bound)
+void ShmemFreqPlatformImp::bound(std::map<int, std::pair<double, double> > &bound)
 {
-    upper_bound = 4000.0 ;
-    lower_bound = 2500.0;
+    bound.insert(std::pair<int, std::pair<double, double> >(GEOPM_CONTROL_TYPE_POWER,
+                 std::pair<double, double>(2500.0, 4000.0)));
 }
 
 double  ShmemFreqPlatformImp::throttle_limit_mhz(void) const

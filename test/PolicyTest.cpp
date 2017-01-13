@@ -55,15 +55,15 @@ void PolicyTest::SetUp()
 
     std::vector<double> target(m_num_domain);
     std::fill(target.begin(), target.end(), 13.0);
-    m_policy->update((uint64_t)13, target); 
+    m_policy->update((uint64_t)13, GEOPM_CONTROL_TYPE_POWER, target);
     std::fill(target.begin(), target.end(), 21.0);
-    m_policy->update((uint64_t)21, target); 
+    m_policy->update((uint64_t)21, GEOPM_CONTROL_TYPE_POWER, target);
     for (int i = 0; i < m_num_domain; i++) {
         if (i == m_num_domain / 2) {
-            m_policy->update((uint64_t)42, i, -DBL_MAX);
+            m_policy->update((uint64_t)42, GEOPM_CONTROL_TYPE_POWER, i, -DBL_MAX);
         }
         else {
-            m_policy->update((uint64_t)42, i, 42.0);
+            m_policy->update((uint64_t)42, GEOPM_CONTROL_TYPE_POWER, i, 42.0);
         }
     }
     m_flags->frequency_mhz(1200);
@@ -146,17 +146,17 @@ TEST_F(PolicyTest, target)
 {
     std::vector<double> tgt(m_num_domain);
     double actual;
-    
-    m_policy->target(13, tgt);
+
+    m_policy->target(13, GEOPM_CONTROL_TYPE_POWER, tgt);
     for (int i = 0; i < m_num_domain; ++i) {
         EXPECT_DOUBLE_EQ(13.0, tgt[i]);
     }
-    m_policy->target(21, tgt);
+    m_policy->target(21, GEOPM_CONTROL_TYPE_POWER, tgt);
     for (int i = 0; i < m_num_domain; ++i) {
         EXPECT_DOUBLE_EQ(21.0, tgt[i]);
     }
     for (int i = 0; i < m_num_domain; ++i) {
-        m_policy->target(42, i, actual);
+        m_policy->target(42, GEOPM_CONTROL_TYPE_POWER, i, actual);
         if (i == m_num_domain / 2) {
             EXPECT_DOUBLE_EQ(-DBL_MAX, actual);
         }
@@ -164,44 +164,6 @@ TEST_F(PolicyTest, target)
             EXPECT_DOUBLE_EQ(42.0, actual);
         }
     }
-}
-
-TEST_F(PolicyTest, target_updated)
-{
-    std::map<int, double> tgt;
-    double value;
-    // get target to mark as not updated
-    // It should not be returned
-    m_policy->target(42, 7, value);
-    m_policy->target_updated(42, tgt);
-    EXPECT_EQ((size_t)(m_num_domain - 2), tgt.size());
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(0)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(1)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(2)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(3)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(5)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(6)).second);
-    EXPECT_TRUE(tgt.end() == tgt.find(4));
-    EXPECT_TRUE(tgt.end() == tgt.find(7));
-}
-
-TEST_F(PolicyTest, target_valid)
-{
-    std::map<int, double> tgt;
-    double value;
-    // get target to mark as not updated
-    // It should still get returned in this case
-    m_policy->target(42, 7, value);
-    m_policy->target_valid(42, tgt);
-    EXPECT_EQ((size_t)(m_num_domain - 1), tgt.size());
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(0)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(1)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(2)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(3)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(5)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(6)).second);
-    EXPECT_DOUBLE_EQ(42.0, (*tgt.find(7)).second);
-    EXPECT_TRUE(tgt.end() == tgt.find(4));
 }
 
 TEST_F(PolicyTest, policy_message)
@@ -224,7 +186,7 @@ TEST_F(PolicyTest, negative_unsized_vector)
 
     int thrown = 0;
     try {
-        m_policy->update(13, target);
+        m_policy->update(13, GEOPM_CONTROL_TYPE_POWER, target);
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();
@@ -232,7 +194,7 @@ TEST_F(PolicyTest, negative_unsized_vector)
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
     thrown = 0;
     try {
-        m_policy->target(13, target);
+        m_policy->target(13, GEOPM_CONTROL_TYPE_POWER, target);
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();
@@ -253,7 +215,7 @@ TEST_F(PolicyTest, negative_index_oob)
     int thrown = 0;
     double target = 13.0;
     try {
-        m_policy->update(13, m_num_domain + 1, target);
+        m_policy->update(13, GEOPM_CONTROL_TYPE_POWER, m_num_domain + 1, target);
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();
@@ -261,7 +223,7 @@ TEST_F(PolicyTest, negative_index_oob)
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
     thrown = 0;
     try {
-        m_policy->target(13, m_num_domain + 1, target);
+        m_policy->target(13, GEOPM_CONTROL_TYPE_POWER, m_num_domain + 1, target);
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();

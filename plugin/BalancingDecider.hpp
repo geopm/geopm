@@ -60,6 +60,7 @@ namespace geopm
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
             virtual bool decider_supported(const std::string &descripton);
             virtual const std::string& name(void) const;
+            virtual void requires(int level, TelemetryConfig &config);
         private:
             const std::string m_name;
             const double m_convergence_target;
@@ -67,6 +68,8 @@ namespace geopm
             unsigned m_num_converged;
             double m_last_power_budget;
             int m_num_sample;
+            double m_lower_bound;
+            double m_upper_bound;
             unsigned m_num_out_of_range;
             double m_slope_modifier;
             const double M_GUARD_BAND;

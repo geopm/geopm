@@ -133,18 +133,18 @@ TEST_F(BalancingDeciderTest, new_policy_message)
 {
     std::vector<double> tgt(m_num_domain);
     m_balancer->update_policy(m_policy_message, *m_policy);
-    m_policy->target(GEOPM_REGION_ID_EPOCH, tgt);
+    m_policy->target(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, tgt);
     // The first time it should split evenly
     for (int dom = 0; dom < m_num_domain; ++dom) {
         EXPECT_DOUBLE_EQ(13, tgt[dom]);
     }
     // Now skew the power balance
-    m_policy->update(GEOPM_REGION_ID_EPOCH, 0, 12.0);
-    m_policy->update(GEOPM_REGION_ID_EPOCH, 1, 14.0);
+    m_policy->update(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, 0, 12.0);
+    m_policy->update(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, 1, 14.0);
     // Double the power budget
     m_policy_message.power_budget = 208;
     m_balancer->update_policy(m_policy_message, *m_policy);
-    m_policy->target(GEOPM_REGION_ID_EPOCH, tgt);
+    m_policy->target(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, tgt);
     // The first time it should split evenly
     for (int dom = 0; dom < m_num_domain; ++dom) {
         if (dom == 0) {
@@ -164,13 +164,13 @@ TEST_F(BalancingDeciderTest, update_policy)
     std::vector<double> tgt(m_num_domain);
     m_policy_message.power_budget = 800;
     m_balancer->update_policy(m_policy_message, *m_policy);
-    m_policy->target(GEOPM_REGION_ID_EPOCH, tgt);
+    m_policy->target(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, tgt);
     // The first time it should split evenly
     for (int dom = 0; dom < m_num_domain; ++dom) {
         EXPECT_DOUBLE_EQ(100.0, tgt[dom]);
     }
     m_balancer->update_policy(*m_region, *m_policy);
-    m_policy->target(GEOPM_REGION_ID_EPOCH, tgt);
+    m_policy->target(GEOPM_REGION_ID_EPOCH, GEOPM_CONTROL_TYPE_POWER, tgt);
     double expect = 89.705882352941174;
     for (int dom = 0; dom < m_num_domain; ++dom) {
         EXPECT_NEAR(expect + (dom * 2.94117647058825), tgt[dom], 1E-9);

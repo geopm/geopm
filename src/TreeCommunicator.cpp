@@ -215,14 +215,14 @@ namespace geopm
     class TreeCommunicatorLevel
     {
         public:
-            TreeCommunicatorLevel(MPI_Comm comm);
+            TreeCommunicatorLevel(MPI_Comm comm, int sample_size);
             TreeCommunicatorLevel(const TreeCommunicatorLevel &other);
             ~TreeCommunicatorLevel();
             /// Check sample mailbox for each child and if all are full copy
             /// them into sample and reset values in mailbox, otherwise throw
             /// geopm::Exception with err_value() of
             /// GEOPM_ERROR_SAMPLE_INCOMPLETE
-            void get_sample(std::vector<struct geopm_sample_message_s> &sample);
+            void get_sample(std::vector<double> &sample);
             /// Check policy mailbox and set policy to new value
             /// stored there.  If the mailbox has not been modified or
             /// contains GEOPM_POLICY_UNKNOWN for any other reason
@@ -230,7 +230,7 @@ namespace geopm
             /// GEOPM_ERROR_POLICY_UNKNOWN.
             void get_policy(struct geopm_policy_message_s &policy);
             /// Send sample via MPI_Put() to root of level.
-            void send_sample(const struct geopm_sample_message_s &sample);
+            void send_sample(std::vector<double> &sample);
             /// Send any changed policies via MPI_Put() to children.
             void send_policy(const std::vector<struct geopm_policy_message_s> &policy);
             /// Returns the level rank of the calling process.
@@ -242,19 +242,20 @@ namespace geopm
             MPI_Comm m_comm;
             int m_size;
             int m_rank;
-            struct geopm_sample_message_s *m_sample_mailbox;
+            double *m_sample_mailbox;
             volatile struct geopm_policy_message_s m_policy_mailbox;
             MPI_Win m_sample_window;
             MPI_Win m_policy_window;
             size_t m_overhead_send;
             std::vector<struct geopm_policy_message_s> m_last_policy;
+            int m_sample_size;
     };
 
     ///////////////////////////////////
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm, int sample_size)
         : m_num_node(0)
         , m_fan_out(fan_out)
         , m_global_policy(global_policy)
@@ -300,7 +301,7 @@ namespace geopm
                 ++m_num_level;
                 // TreeCommunicatorLevel will call MPI_Comm_Free on
                 // level_comm in destructor.
-                *level_it = new TreeCommunicatorLevel(level_comm);
+                *level_it = new TreeCommunicatorLevel(level_comm, sample_size);
             }
 
             if (coords[depth] != 0) {
@@ -376,7 +377,7 @@ namespace geopm
         return result;
     }
 
-    void TreeCommunicator::send_sample(int level, const struct geopm_sample_message_s &sample)
+    void TreeCommunicator::send_sample(int level, const std::vector<double> &sample)
     {
         if (level < 0 || level >= num_level() || level == root_level()) {
             throw Exception("TreeCommunicator::send_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
@@ -394,7 +395,7 @@ namespace geopm
         }
     }
 
-    void TreeCommunicator::get_sample(int level, std::vector<struct geopm_sample_message_s> &sample)
+    void TreeCommunicator::get_sample(int level, std::vector<double> &sample)
     {
         if (level <= 0 || level >= num_level()) {
             throw Exception("TreeCommunicator::get_sample()", GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
@@ -427,11 +428,16 @@ namespace geopm
         return result;
     }
 
+    void TreeCommunicator::fan_out(std::vector<int> &fanout)
+    {
+        fanout = m_fan_out;
+    }
+
     /////////////////////////////////
     // TreeCommunicatorLevel API's //
     /////////////////////////////////
 
-    TreeCommunicatorLevel::TreeCommunicatorLevel(MPI_Comm comm)
+    TreeCommunicatorLevel::TreeCommunicatorLevel(MPI_Comm comm, int sample_size)
         : m_comm(comm)
         , m_size(0)
         , m_rank(0)
@@ -440,6 +446,7 @@ namespace geopm
         , m_sample_window(MPI_WIN_NULL)
         , m_policy_window(MPI_WIN_NULL)
         , m_overhead_send(0)
+        , m_sample_size(sample_size)
     {
         check_mpi(MPI_Comm_size(m_comm, &m_size));
         check_mpi(MPI_Comm_rank(m_comm, &m_rank));
@@ -482,13 +489,13 @@ namespace geopm
         check_mpi(MPI_Comm_free(&m_comm));
     }
 
-    void TreeCommunicatorLevel::get_sample(std::vector<struct geopm_sample_message_s> &sample)
+    void TreeCommunicatorLevel::get_sample(std::vector<double> &sample)
     {
         if (m_rank != 0) {
             throw Exception("TreeCommunicatorLevel::get_sample(): Only zero rank of the level can call sample",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        if (sample.size() < (size_t)m_size) {
+        if (sample.size() < m_sample_size * m_size) {
             throw Exception("TreeCommunicatorLevel::get_sample(): Input sample vector too small",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -496,7 +503,7 @@ namespace geopm
         bool is_complete = true;
         check_mpi(MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, m_sample_window));
         for (int i = 0; is_complete && i < m_size; ++i) {
-            if (m_sample_mailbox[i].region_id == 0) {
+            if (m_sample_mailbox[i * m_sample_size] == GEOPM_VALUE_INVALID) {
                 is_complete = false;
             }
         }
@@ -507,8 +514,12 @@ namespace geopm
         }
 
         check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, m_sample_window));
-        std::copy(m_sample_mailbox, m_sample_mailbox + m_size, sample.begin());
-        std::fill(m_sample_mailbox, m_sample_mailbox + m_size, GEOPM_SAMPLE_INVALID);
+        for (int i = 0; i < m_sample_size; ++i) {
+            for (int j = 0; j < m_size; ++j) {
+                sample[i * m_sample_size + j] = m_sample_mailbox[j * m_sample_size + i];
+                m_sample_mailbox[j * m_sample_size + i] = GEOPM_VALUE_INVALID;
+            }
+        }
         check_mpi(MPI_Win_unlock(0, m_sample_window));
     }
 
@@ -529,9 +540,13 @@ namespace geopm
         }
     }
 
-    void TreeCommunicatorLevel::send_sample(const struct geopm_sample_message_s &sample)
+    void TreeCommunicatorLevel::send_sample(const std::vector<double> &sample)
     {
-        size_t msg_size = sizeof(struct geopm_sample_message_s);
+        size_t msg_size = m_sample_size * sizeof(double);
+        if (sample.size() != m_sample_size) {
+            throw Exception("TreeCommunicatorLevel::send_sample(): Input sample vector wrong size",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         if (m_rank) {
             check_mpi(MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, m_sample_window));
 #ifdef GEOPM_ENABLE_MPI3
@@ -545,7 +560,7 @@ namespace geopm
             m_overhead_send += msg_size;
         }
         else {
-            *m_sample_mailbox = sample;
+            std::copy(sample.begin(), sample.end(), m_sample_mailbox);
         }
     }
 
@@ -603,7 +618,7 @@ namespace geopm
         }
         // Create sample window
         if (!m_rank) {
-            size_t msg_size = sizeof(struct geopm_sample_message_s);
+            size_t msg_size = m_sample_size * sizeof(double);
             check_mpi(MPI_Alloc_mem(m_size * msg_size, MPI_INFO_NULL, &m_sample_mailbox));
             std::fill(m_sample_mailbox, m_sample_mailbox + m_size, GEOPM_SAMPLE_INVALID);
             check_mpi(MPI_Win_create((void *)m_sample_mailbox, m_size * msg_size,
@@ -614,8 +629,9 @@ namespace geopm
         }
     }
 
-    SingleTreeCommunicator::SingleTreeCommunicator(IGlobalPolicy *global_policy)
-        : m_policy(global_policy)
+    SingleTreeCommunicator::SingleTreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy)
+        : m_fan_out(fan_out)
+        , m_policy(global_policy)
         , m_sample(GEOPM_SAMPLE_INVALID)
     {
 
@@ -671,4 +687,8 @@ namespace geopm
         return 0;
     }
 
+    void SingleTreeCommunicator::fan_out(std::vector<int> &fanout)
+    {
+        fanout = m_fan_out;
+    }
 }

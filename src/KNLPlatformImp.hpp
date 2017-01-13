@@ -62,32 +62,30 @@ namespace geopm
             //////////////////////////////////////////////
             // KNLPlatformImp dependent implementations //
             //////////////////////////////////////////////
-            virtual bool model_supported(int platform_id);
-            virtual std::string platform_name();
-            virtual double read_signal(int device_type, int device_index, int signal_type);
-            virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed);
-            virtual void write_control(int device_type, int device_index, int signal_type, double value);
-            virtual void msr_initialize();
-            virtual void msr_reset();
-            virtual int power_control_domain(void) const;
-            virtual int frequency_control_domain(void) const;
-            virtual int performance_counter_domain(void) const;
-            /// @brief Return the upper and lower bounds of the control.
-            virtual void bound(int control_type, double &upper_bound, double &lower_bound);
+            virtual bool is_model_supported(int platform_id);
+            virtual std::string platform_name(void);
+            virtual int num_domain(int domain_type) const;
+            virtual void create_domain_map(int domain, std::vector<std::vector<int> > &domain_map) const;
             virtual double throttle_limit_mhz(void) const;
+            virtual void batch_read_signal(std::vector<double> &signal_value);
+            virtual void write_control(int control_domain, int domain_index, double value);
+            virtual void msr_initialize(void);
+            virtual void init_telemetry(const TelemetryConfig &config);
+            virtual void msr_reset(void);
             static int platform_id(void);
-
+            void provides(TelemetryConfig &config) const;
+            double energy(void) const;
         protected:
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
-            void rapl_init();
+            void rapl_init(void);
             /// @brief Initialize per-CPU counters.
-            void cbo_counters_init();
+            void cbo_counters_init(int counter_idx, uint32_t event);
             /// @brief Initialize free running counters.
-            void fixed_counters_init();
+            void fixed_counters_init(void);
             /// @brief Reset per-CPU counters to default state.
-            void cbo_counters_reset();
+            void cbo_counters_reset(void);
             /// @brief Reset free running counters to default state.
-            void fixed_counters_reset();
+            void fixed_counters_reset(void);
 
             /// @brief Frequency where anything <= is considered throttling.
             double m_throttle_limit_mhz;
@@ -105,8 +103,12 @@ namespace geopm
             double m_min_dram_watts;
             /// @brief Maximum value for DRAM power read from RAPL.
             double m_max_dram_watts;
-            /// @brief Vector of MSR offsets for reading.
-            std::vector<off_t> m_signal_msr_offset;
+            /// @brief Minimum supported p-state.
+            double m_min_freq_mhz;
+            /// @brief Maximum supported p-state.
+            double m_max_freq_mhz;
+            /// @brief Step size in between supported p-states.
+            double m_freq_step_mhz;
             ///@brief Vector of MSR data containing pairs of offsets and write masks.
             std::vector<std::pair<off_t, unsigned long> > m_control_msr_pair;
             uint64_t m_pkg_power_limit_static;
@@ -116,51 +118,17 @@ namespace geopm
             const unsigned int M_BOX_FRZ;
             const unsigned int M_CTR_EN;
             const unsigned int M_RST_CTRS;
-            const unsigned int M_L2_FILTER_MASK;
-            const unsigned int M_L2_REQ_MISS_EV_SEL;
-            const unsigned int M_L2_REQ_MISS_UMASK;
-            const unsigned int M_L2_PREFETCH_EV_SEL;
-            const unsigned int M_L2_PREFETCH_UMASK;
-            const unsigned int M_EVENT_SEL_0;
-            const unsigned int M_UMASK_0;
-            const unsigned int M_EVENT_SEL_1;
-            const unsigned int M_UMASK_1;
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
-            const unsigned int M_EXTRA_SIGNAL;
             const int M_PLATFORM_ID;
             const std::string M_MODEL_NAME;
             const std::string M_TRIGGER_NAME;
 
-            enum {
-                M_RAPL_PKG_STATUS,
-                M_RAPL_DRAM_STATUS,
-                M_IA32_PERF_STATUS,
-                M_INST_RETIRED,
-                M_CLK_UNHALTED_CORE,
-                M_CLK_UNHALTED_REF,
-                M_L2_MISSES,
-                M_HW_L2_PREFETCH,
-            } m_signal_offset_e;
             enum {
                 M_RAPL_PKG_LIMIT,
                 M_RAPL_DRAM_LIMIT,
                 M_IA32_PERF_CTL,
                 M_NUM_CONTROL
             } m_control_e;
-            enum {
-                M_PKG_STATUS_OVERFLOW,
-                M_DRAM_STATUS_OVERFLOW,
-                M_NUM_PACKAGE_OVERFLOW_OFFSET
-            } m_package_overflow_offset_e;
-            enum {
-                M_PERF_STATUS_OVERFLOW,
-                M_INST_RETIRED_OVERFLOW,
-                M_CLK_UNHALTED_CORE_OVERFLOW,
-                M_CLK_UNHALTED_REF_OVERFLOW,
-                M_L2_MISSES_OVERFLOW,
-                M_HW_L2_PREFETCH_OVERFLOW,
-                M_NUM_SIGNAL_OVERFLOW_OFFSET
-            } m_signal_overflow_offset_e;
     };
 }
 #endif
