@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_ab3cec93",
+        "filename": ".travis.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-13T02:12:52Z",
+      "side": 1,
+      "message": "I prefer\n\n# Copyright (c) 2015, 2016, 2017, Intel Corporation",
+      "revId": "fcda929a96a7f03cf34abf3fbdf6063fd7bfe851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
