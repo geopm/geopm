@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_709fdb03",
+        "filename": "test_integration/geopm_launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-14T00:32:01Z",
+      "side": 1,
+      "message": "This is a nit, but this first check looks for the hostname fragment anywhere in the hostname, and below we check that the hostname starts with the fragment.",
+      "revId": "35f9e17779edc61df4d154e18edd4e8d6b71d3ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_d090e7ee",
+        "filename": "test_integration/geopm_launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-14T00:32:01Z",
+      "side": 1,
+      "message": "probably overkill to add the signal handling designed for srun here.",
+      "revId": "35f9e17779edc61df4d154e18edd4e8d6b71d3ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_b0bc536d",
+        "filename": "test_integration/geopm_launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-14T00:32:01Z",
+      "side": 1,
+      "message": "Same comment as above.",
+      "revId": "35f9e17779edc61df4d154e18edd4e8d6b71d3ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
