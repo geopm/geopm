@@ -198,6 +198,7 @@ namespace geopm
             std::vector<uint64_t> m_region_id;
             // Per rank vector counting number of entries into MPI.
             std::vector<uint64_t> m_num_mpi_enter;
+            std::vector<bool> m_is_epoch_changed;
             uint64_t m_region_id_all;
             bool m_do_shutdown;
             bool m_is_connected;
@@ -209,7 +210,6 @@ namespace geopm
             double m_epoch_time;
             double m_mpi_sync_time;
             double m_mpi_agg_time;
-            bool m_is_epoch_changed;
             // Per rank vector tracking time of last entry into MPI.
             std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;

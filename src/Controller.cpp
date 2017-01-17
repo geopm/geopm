@@ -189,7 +189,6 @@ namespace geopm
         , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
         , m_mpi_agg_time(0.0)
-        , m_is_epoch_changed(false)
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
         , m_ppn1_comm(MPI_COMM_NULL)
@@ -273,6 +272,8 @@ namespace geopm
             std::fill(m_tree_decider.begin(), m_tree_decider.end(), (Decider *)NULL);
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
+            m_is_epoch_changed.resize(num_level);
+            std::fill(m_is_epoch_changed.begin(), m_is_epoch_changed.end(), false);
 
             m_last_sample_msg.resize(num_level);
             std::fill(m_last_sample_msg.begin(), m_last_sample_msg.end(), GEOPM_SAMPLE_INVALID);
@@ -527,6 +528,9 @@ namespace geopm
                         m_tree_comm->send_policy(level - 1, child_policy_msg);
                     }
                     (*it).second->sample_message(sample_msg[level]);
+                    if (sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_last_sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME]) {
+                        m_is_epoch_changed[level] = true;
+                    }
                     is_converged = m_policy[level]->is_converged(GEOPM_REGION_ID_EPOCH);
                 }
                 catch (geopm::Exception ex) {
@@ -684,7 +688,7 @@ namespace geopm
                     is_converged) {
                     sample_msg[level] = epoch_sample;
                     m_epoch_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
-                    m_is_epoch_changed = true;
+                    m_is_epoch_changed[level] = true;
                     sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_mpi_sync_time;
                 }
                 if (is_epoch_found) {
@@ -695,10 +699,10 @@ namespace geopm
             }
             if (level != m_tree_comm->root_level() &&
                 is_converged &&
-                m_is_epoch_changed) {
+                m_is_epoch_changed[level]) {
                 m_tree_comm->send_sample(level, sample_msg[level]);
                 m_last_sample_msg[level] = sample_msg[level];
-                m_is_epoch_changed = false;
+                m_is_epoch_changed[level] = false;
             }
         }
         if (m_do_shutdown) {
