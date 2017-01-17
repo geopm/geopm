@@ -392,7 +392,7 @@ int MPI_Gather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendty
     int err = 0;
 
     geopm_mpi_region_enter();
-    err = PMPI_Gather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
+    err = PMPI_Gather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, geopm_swap_comm_world(comm));
     geopm_mpi_region_exit();
 
     return err;
@@ -403,7 +403,7 @@ int MPI_Gatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendt
     int err = 0;
 
     geopm_mpi_region_enter();
-    err = PMPI_Gatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, root, comm);
+    err = PMPI_Gatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, root, geopm_swap_comm_world(comm));
     geopm_mpi_region_exit();
 
     return err;
