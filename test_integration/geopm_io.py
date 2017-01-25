@@ -33,6 +33,7 @@
 
 import json
 import re
+import pandas
 
 
 class Report(dict):
@@ -44,8 +45,12 @@ class Report(dict):
         self._total_runtime = None
         self._total_energy = None
         self._total_mpi_runtime = None
+        split_path = report_path.split('-')
+        del split_path[0] # Removes the report file name prefix, leaving only the node name in this list
+        self._node_name = '-'.join(split_path)
+
         found_totals = False
-        (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+        (region_name, region_id, runtime, energy, frequency, count) = None, None, None, None, None, None
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
@@ -59,9 +64,10 @@ class Report(dict):
                     if match is not None:
                         self._name = match.group(1)
                 elif region_name is None:
-                    match = re.search(r'^Region (\S+) \([0-9]+\):', line)
+                    match = re.search(r'^Region (\S+) \(([0-9]+)\):', line)
                     if match is not None:
                         region_name = match.group(1)
+                        region_id = match.group(2)
                 elif runtime is None:
                     match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
@@ -78,8 +84,8 @@ class Report(dict):
                     match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
-                        self[region_name] = Region(region_name, runtime, energy, frequency, count)
-                        (region_name, runtime, energy, frequency, count) = None, None, None, None, None
+                        self[region_name] = Region(region_name, region_id, runtime, energy, frequency, count)
+                        (region_name, region_id, runtime, energy, frequency, count) = None, None, None, None, None, None
                 if not found_totals:
                     match = re.search(r'^Application Totals:$', line)
                     if match is not None:
@@ -119,10 +125,14 @@ class Report(dict):
     def get_energy(self):
         return self._total_energy
 
+    def get_node_name(self):
+        return self._node_name
+
 
 class Region(object):
-    def __init__(self, name, runtime, energy, frequency, count):
+    def __init__(self, name, rid, runtime, energy, frequency, count):
         self._name = name
+        self._id = rid
         self._runtime = runtime
         self._energy = energy
         self._frequency = frequency
@@ -130,13 +140,14 @@ class Region(object):
 
     def __repr__(self):
         template = """\
-{name}
+{name} ({rid})
   Runtime   : {runtime}
   Energy    : {energy}
   Frequency : {frequency}
   Count     : {count}
 """
         return template.format(name=self._name,
+                               rid=self._id,
                                runtime=self._runtime,
                                energy=self._energy,
                                frequency=self._frequency,
@@ -147,6 +158,9 @@ class Region(object):
 
     def get_name(self):
         return self._name
+
+    def get_id(self):
+        return self._id
 
     def get_runtime(self):
         return self._runtime
@@ -160,9 +174,33 @@ class Region(object):
     def get_count(self):
         return self._count
 
+
 class Trace(object):
     def __init__(self, trace_path):
-        raise NotImplementedError
+        self._path = trace_path
+        self._df = pandas.read_table(trace_path, '|')
+        self._df.columns = list(map(str.strip, self._df[:0])) # Strip whitespace from column names
+        self._df['region_id'] = self._df['region_id'].map(str.strip) # Strip whitespace from region ID's
+        split_path = self._path.split('-')
+        del split_path[0] # Removes the trace file name prefix, leaving only the node name in this list
+        self._df['node_name'] = '-'.join(split_path) # Putting this in the DF for now for calling set_index()
+        self._df.set_index('node_name', inplace=True)
+
+    def __repr__(self):
+        return self._df.__repr__()
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __getattr__(self, attr):
+        return getattr(self._df, attr)
+
+    def __getitem__(self, key):
+        return self._df.__getitem__(key)
+
+    def get_df(self):
+        return self._df
+
 
 class AppConf(object):
     def __init__(self, path):
