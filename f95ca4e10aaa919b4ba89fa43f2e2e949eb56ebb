@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_9b9c9dc1",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-25T23:27:16Z",
+      "side": 1,
+      "message": "RFC: Does this seem reasonable?  I\u0027m just comparing the last entry in this node\u0027s trace file to the application total for the report for runtimes.",
+      "range": {
+        "startLine": 218,
+        "startChar": 12,
+        "endLine": 219,
+        "endChar": 93
+      },
+      "revId": "f95ca4e10aaa919b4ba89fa43f2e2e949eb56ebb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
