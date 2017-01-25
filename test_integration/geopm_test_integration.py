@@ -37,10 +37,10 @@ import os
 import fnmatch
 import sys
 import time
+import pandas
 
 import geopm_launcher
 import geopm_io
-
 
 class TestReport(unittest.TestCase):
     def setUp(self):
@@ -63,9 +63,10 @@ class TestReport(unittest.TestCase):
         if abs(a - b) / a >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
 
-    def test_report_generation(self):
-        name = 'test_report_generation'
+    def test_report_and_trace_generation(self):
+        name = 'test_report_and_trace_generation'
         report_path = name + '.report'
+        trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
         app_conf = geopm_io.AppConf(name + '_app.config')
@@ -73,10 +74,16 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
+        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
+        self._tmp_files.extend(traces)
+        self.assertTrue(len(traces) == num_node)
+        for ff in traces:
+            self.assertTrue(os.path.isfile(ff))
+            self.assertTrue(os.stat(ff).st_size != 0)
         reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
         self._tmp_files.extend(reports)
         self.assertTrue(len(reports) == num_node)
@@ -177,6 +184,52 @@ class TestReport(unittest.TestCase):
             self.assertGreater(0.1, rr.get_mpi_runtime())
             self.assertEqual(loop_count, rr['spin'].get_count())
 
+    def test_trace_runtimes(self):
+        name = 'test_trace_generation'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', 1.0)
+        app_conf.append_region('dgemm', 1.0)
+        app_conf.append_region('all2all', 1.0)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')] # File names list
+        self._tmp_files.extend(reports)
+        reports = [geopm_io.Report(rr) for rr in reports] # Report objects list
+        reports = {rr.get_node_name(): rr for rr in reports} # Report objects dict
+
+        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
+        self._tmp_files.extend(traces)
+        # concat() will only operate on DataFrame objects
+        traces = [geopm_io.Trace(tt).get_df() for tt in traces]
+        traces_df = pandas.concat(traces)
+
+        # Calculate runtime totals for each trace, compare to report
+        for node_name, node_trace in traces_df.groupby(level='node_name'):
+            # TODO Verify that looking at the last entry in the trace is ~= the runtime total from the report.
+            self.assertNear(node_trace.iloc[-1]['seconds'], reports[node_name].get_runtime())
+
+        # Calculate runtime totals for each region in each trace, compare to report
+        traces_df.set_index(['region_id'], append=True, inplace=True)
+        traces_g = traces_df.groupby(level=['node_name', 'region_id'])
+
+        for node_name, report in reports.iteritems():
+            for region_name, report_data in report.iteritems():
+                if report_data.get_runtime() == 0:
+                    continue
+                trace_data = traces_g.get_group((node_name, report_data.get_id()))
+                trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
+                self.assertNear(trace_elapsed_time, report_data.get_runtime())
+
     def test_progress(self):
         name = 'test_progress'
         report_path = name + '.report'
@@ -204,6 +257,7 @@ class TestReport(unittest.TestCase):
     def test_count(self):
         name = 'test_count'
         report_path = name + '.report'
+        trace_path = name + '.trace'
         num_node = 1
         num_rank = 4
         delay = 0.001
@@ -214,7 +268,7 @@ class TestReport(unittest.TestCase):
         app_conf.append_region('spin', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -226,6 +280,8 @@ class TestReport(unittest.TestCase):
             self.assertNear(delay * loop_count, rr['spin'].get_runtime())
             self.assertEqual(loop_count, rr['spin'].get_count())
             self.assertEqual(loop_count, rr['epoch'].get_count())
+
+        # TODO Trace file parsing + analysis
 
     @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
                          "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
