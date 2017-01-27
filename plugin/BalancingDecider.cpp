@@ -66,11 +66,11 @@ namespace geopm
 {
     BalancingDecider::BalancingDecider()
         : m_name("power_balancing")
-        , m_convergence_target(0.05)
+        , m_convergence_target(0.01)
         , m_min_num_converged(7)
         , m_num_converged(0)
         , m_last_power_budget(DBL_MIN)
-        , m_num_sample(8)
+        , m_num_sample(3)
         , m_num_out_of_range(0)
         , m_slope_modifier(3.0)
         , M_GUARD_BAND(1.15)
