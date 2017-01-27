@@ -69,6 +69,7 @@ class TestPlatformImp : public geopm::PlatformImp
         virtual void batch_read_signal(std::vector<struct geopm::geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_index, int signal_type, double value);
         virtual void bound(int control_type, double &upper_bound, double &lower_bound);
+        virtual double throttle_limit_mhz(void) const;
 
     protected:
         FRIEND_TEST(PlatformImpTest, parse_topology);
@@ -190,6 +191,11 @@ void TestPlatformImp::bound(int control_type, double &upper_bound, double &lower
     lower_bound = DBL_MIN;
 }
 
+double  TestPlatformImp::throttle_limit_mhz(void) const
+{
+    return 0.5;
+}
+
 class TestPlatformImp2 : public geopm::PlatformImp
 {
     public:
@@ -245,6 +251,10 @@ class TestPlatformImp2 : public geopm::PlatformImp
         {
             upper_bound = DBL_MAX;
             lower_bound = DBL_MIN;
+        }
+        virtual double throttle_limit_mhz(void) const
+        {
+            return 0.5;
         }
         std::vector<std::string> m_msr_list;
         std::vector<std::string> m_msr_file_paths;
@@ -406,6 +416,10 @@ class TestPlatformImp4 : public geopm::PlatformImp
         {
             upper_bound = DBL_MAX;
             lower_bound = DBL_MIN;
+        }
+        virtual double throttle_limit_mhz(void) const
+        {
+            return 0.5;
         }
         virtual std::string platform_name();
     protected:

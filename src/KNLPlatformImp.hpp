@@ -73,6 +73,7 @@ namespace geopm
             virtual int performance_counter_domain(void) const;
             /// @brief Return the upper and lower bounds of the control.
             virtual void bound(int control_type, double &upper_bound, double &lower_bound);
+            virtual double throttle_limit_mhz(void) const;
             static int platform_id(void);
 
         protected:
@@ -89,6 +90,8 @@ namespace geopm
             /// @brief Reset free running counters to default state.
             void fixed_counters_reset();
 
+            /// @brief Frequency where anything <= is considered throttling.
+            double m_throttle_limit_mhz;
             /// @brief Store the units of energy read from RAPL.
             double m_energy_units;
             /// @brief Store the units of power read from RAPL.

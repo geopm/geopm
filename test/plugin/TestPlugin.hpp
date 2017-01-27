@@ -83,6 +83,7 @@ class ShmemFreqPlatformImp : public PlatformImp
         virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed); 
         virtual void write_control(int device_type, int device_idx, int signal_type, double value);
         virtual void bound(int control_type, double &upper_bound, double &lower_bound);
+        virtual double throttle_limit_mhz(void) const;
     protected:
         virtual void msr_initialize(void);
         virtual double cpu_freq(int cpu_idx);

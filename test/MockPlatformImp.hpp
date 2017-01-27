@@ -78,4 +78,6 @@ class MockPlatformImp : public geopm::PlatformImp {
             void(int device_type, int device_index, int signal_type, double value));
         MOCK_METHOD3(bound,
             void(int control_type, double &upper_bound, double &lower_bound));
+        MOCK_CONST_METHOD0(throttle_limit_mhz,
+            double(void));
 };

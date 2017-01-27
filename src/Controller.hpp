@@ -210,6 +210,9 @@ namespace geopm
             double m_epoch_time;
             double m_mpi_sync_time;
             double m_mpi_agg_time;
+            uint64_t m_sample_count;
+            uint64_t m_throttle_count;
+            double m_throttle_limit_mhz;
             // Per rank vector tracking time of last entry into MPI.
             std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;

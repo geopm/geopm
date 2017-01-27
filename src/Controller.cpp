@@ -189,6 +189,9 @@ namespace geopm
         , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
         , m_mpi_agg_time(0.0)
+        , m_sample_count(0)
+        , m_throttle_count(0)
+        , m_throttle_limit_mhz(0.0)
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
         , m_ppn1_comm(MPI_COMM_NULL)
@@ -293,6 +296,7 @@ namespace geopm
             double upper_bound;
             double lower_bound;
             m_platform->bound(upper_bound, lower_bound);
+            m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
             // convert rate limit from ms to seconds
             m_control_rate_limit = m_platform->control_latency_ms() * 1E-3;
             geopm_time(&m_control_loop_t0);
@@ -744,6 +748,10 @@ namespace geopm
         struct geopm_time_s control_loop_t1;
 
         m_tracer->update(m_telemetry_sample);
+        m_sample_count++;
+        if (m_telemetry_sample[0].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] <= m_throttle_limit_mhz) {
+            m_throttle_count++;
+        }
 
         if (m_region_id_all) {
             int level = 0; // Called only at the leaf
@@ -844,7 +852,8 @@ namespace geopm
         report << "Application Totals:" << std::endl
                << "\truntime (sec): " << total_runtime << std::endl
                << "\tenergy (joules): " << (energy_exit - m_counter_energy_start) << std::endl
-               << "\tmpi-runtime (sec): " << m_mpi_agg_time << std::endl;
+               << "\tmpi-runtime (sec): " << m_mpi_agg_time << std::endl
+               << "\tthrottle time (%): " << (double)m_throttle_count / (double)m_sample_count * 100.0 << std::endl;
 
         std::ifstream proc_stream("/proc/" + std::to_string((int)getpid()) +  "/status");
         std::string line;
