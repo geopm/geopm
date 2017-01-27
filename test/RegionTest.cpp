@@ -41,8 +41,10 @@ class RegionTest: public :: testing :: Test
 {
     protected:
         void SetUp();
+        void TearDown();
         geopm::Region *m_leaf_region;
         geopm::Region *m_tree_region;
+        geopm::Region *m_two_point_region;
         struct geopm_time_s m_time;
 };
 
@@ -53,6 +55,7 @@ void RegionTest::SetUp()
     geopm_time(&m_time);
 
     m_leaf_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
+    m_two_point_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
     m_tree_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 8, 1);
 
     std::vector<struct geopm_telemetry_message_s> telemetry(2);
@@ -85,7 +88,17 @@ void RegionTest::SetUp()
         }
         m_leaf_region->insert(telemetry);
         m_tree_region->insert(sample);
+        if (i < 2) {
+            m_two_point_region->insert(telemetry);
+        }
     }
+}
+
+void RegionTest::TearDown()
+{
+    delete m_tree_region;
+    delete m_two_point_region;
+    delete m_leaf_region;
 }
 
 TEST_F(RegionTest, identifier)
@@ -157,6 +170,8 @@ TEST_F(RegionTest, signal_derivative)
 {
     EXPECT_DOUBLE_EQ(0.5, m_leaf_region->derivative(0, GEOPM_TELEMETRY_TYPE_RUNTIME));
     EXPECT_DOUBLE_EQ(0.5, m_leaf_region->derivative(1, GEOPM_TELEMETRY_TYPE_RUNTIME));
+    EXPECT_DOUBLE_EQ(0.5, m_two_point_region->derivative(0, GEOPM_TELEMETRY_TYPE_RUNTIME));
+    EXPECT_DOUBLE_EQ(0.5, m_two_point_region->derivative(1, GEOPM_TELEMETRY_TYPE_RUNTIME));
 }
 
 TEST_F(RegionTest, signal_mean)
