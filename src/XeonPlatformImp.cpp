@@ -45,6 +45,7 @@ namespace geopm
 
     XeonPlatformImp::XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map)
         : PlatformImp(2, 5, 8.0, msr_map)
+        , m_throttle_frequency_mhz(0.5)
         , m_energy_units(0.0)
         , m_dram_energy_units(0.0)
         , m_power_units(0.0)
@@ -209,6 +210,11 @@ namespace geopm
                 break;
         }
 
+    }
+
+    double XeonPlatformImp::throttle_limit_mhz(void) const
+    {
+        return m_throttle_frequency_mhz;
     }
 
     double XeonPlatformImp::read_signal(int device_type, int device_index, int signal_type)

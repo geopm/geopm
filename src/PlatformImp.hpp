@@ -219,8 +219,11 @@ namespace geopm
             /// @param [out] upper_bound The upper control bound.
             ///
             /// @param [out] lower_bound The lower control bound.
-            ///
             virtual void bound(int control_type, double &upper_bound, double &lower_bound) = 0;
+            /// @brief Return the frequency limit where throttling occurs.
+            ///
+            /// @return frequency limit where anything <= is considered throttling.
+            virtual double throttle_limit_mhz(void) const = 0;
             /// @brief Return the path used for the MSR default save file.
             std::string msr_save_file_path(void);
 
