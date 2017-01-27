@@ -256,7 +256,7 @@ namespace geopm
         std::string key(geopm_env_shmkey());
         key += "-sample";
         try {
-            m_ctl_shmem = new SharedMemoryUser(key, 5); // 5 second timeout
+            m_ctl_shmem = new SharedMemoryUser(key, 30); // 30 second timeout
         }
         catch (Exception ex) {
             if (ex.err_value() != ENOENT) {
