@@ -339,5 +339,60 @@ class TestIntegration(unittest.TestCase):
                         pass
                 num_node *= 2
 
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    def test_power_consumption(self):
+        name = 'test_power_consumption'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        loop_count = 500
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm', 8.0)
+        app_conf.set_loop_count(loop_count)
+        self._options['power_budget'] = 150
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
+        launcher.run(name)
+
+        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
+        self._tmp_files.extend(traces)
+        # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
+        traces = {tt.split('.trace-')[-1] : geopm_io.Trace(tt).get_df() for tt in traces}
+
+        # Total power consumed will be Socket(s) + DRAM
+        all_power_data = {}
+        for node_name, trace_data in traces.iteritems():
+            first_epoch_index = trace_data.loc[ trace_data['region_id'] == '9223372036854775808' ][:1].index[0]
+            epoch_dropped_data = trace_data[first_epoch_index:] # Drop all startup data
+
+            # TODO Handle multi socket systems (i.e. pkg_energy-1, dram_energy-1, etc.)
+            power_data = epoch_dropped_data[['seconds', 'pkg_energy-0', 'dram_energy-0']]
+            power_data = power_data.diff().dropna()
+            power_data.rename(columns={'seconds' : 'elapsed_time'}, inplace=True)
+            power_data = power_data.loc[(power_data != 0).all(axis=1)] # Will drop any row that is all 0's
+
+            power_data['combined_power'] = (power_data['pkg_energy-0'] + power_data['dram_energy-0']) / power_data['elapsed_time']
+            power_data['socket_power'] = (power_data['pkg_energy-0']) / power_data['elapsed_time']
+            power_data['dram_power'] = (power_data['dram_energy-0']) / power_data['elapsed_time']
+
+            pandas.set_option('display.width', 100)
+            launcher.write_log(name, 'Power stats from {} :\n{}'.format(node_name, power_data.describe()))
+
+            all_power_data[node_name] = power_data
+
+        for node_name, power_data in all_power_data.iteritems():
+            # Allow for overages of 1% at the 75th percentile.
+            self.assertGreater(self._options['power_budget'] * 1.01, power_data['combined_power'].quantile(.75))
+
+            # TODO Checks on the maximum power computed during the run?
+            # TODO Checks to see how much power was left on the table?
+
 if __name__ == '__main__':
     unittest.main()

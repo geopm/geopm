@@ -176,11 +176,10 @@ class Region(object):
 class Trace(object):
     def __init__(self, trace_path):
         self._path = trace_path
-        self._df = pandas.read_table(trace_path, '|')
+        self._df = pandas.read_table(trace_path, '|', dtype={'region_id ' : str})
         self._df.columns = list(map(str.strip, self._df[:0])) # Strip whitespace from column names
-        self._df['region_id'] = self._df['region_id'].map(str.strip) # Strip whitespace from region ID's
-        self._df['node_name'] = trace_path.split('.trace-')[-1]
-        self._df.set_index('node_name', inplace=True)
+        self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip) # Strip whitespace from region ID's
+        self._node_name = trace_path.split('.trace-')[-1]
 
     def __repr__(self):
         return self._df.__repr__()
@@ -196,6 +195,9 @@ class Trace(object):
 
     def get_df(self):
         return self._df
+
+    def get_node_name(self):
+        return self._node_name
 
 
 class AppConf(object):
