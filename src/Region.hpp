@@ -49,6 +49,7 @@ namespace geopm
         public:
             enum m_const_e {
                 M_NUM_SAMPLE_HISTORY = 8,
+                M_DERIVATIVE_MAX_SAMPLE_FIT = 5,
             };
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.
@@ -192,6 +193,7 @@ namespace geopm
             ///
             /// @return The max signal value.
             double max(int domain_idx, int signal_type) const;
+            double derivative(int domain_idx, int signal_type, double &error) const;
             /// @brief Retrieve the derivative of the signal values for a domain of control.
             ///
             /// Get the derivative of the signal values for a given domain of control and
