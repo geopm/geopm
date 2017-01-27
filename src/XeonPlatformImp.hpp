@@ -65,6 +65,7 @@ namespace geopm
             virtual int power_control_domain(void) const;
             virtual int frequency_control_domain(void) const;
             virtual int performance_counter_domain(void) const;
+            virtual double throttle_limit_mhz(void) const;
 
         protected:
             /// @brief Initialize Running Average Power Limiting (RAPL) controls.
@@ -82,6 +83,8 @@ namespace geopm
             /// @brief Return the upper and lower bounds of the control.
             virtual void bound(int control_type, double &upper_bound, double &lower_bound);
 
+            /// @brief Frequency where anything <= is considered throttling.
+            double m_throttle_limit_mhz;
             /// @brief Store the units of energy read from RAPL.
             double m_energy_units;
             /// @brief Store the units of energy read from RAPL for dram.

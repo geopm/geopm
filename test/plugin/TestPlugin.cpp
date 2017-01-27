@@ -256,3 +256,8 @@ void ShmemFreqPlatformImp::bound(int control_type, double &upper_bound, double &
     lower_bound = 2500.0;
 }
 
+double  ShmemFreqPlatformImp::throttle_limit_mhz(void) const
+{
+    return 0.5;
+}
+

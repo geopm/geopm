@@ -48,6 +48,7 @@ namespace geopm
 
     KNLPlatformImp::KNLPlatformImp()
         : PlatformImp(2, 5, 8.0, &(knl_msr_map()))
+        , m_throttle_limit_mhz(0.5)
         , m_energy_units(1.0)
         , m_power_units(1.0)
         , m_dram_energy_units(1.5258789063E-5)
@@ -130,6 +131,11 @@ namespace geopm
                 break;
         }
 
+    }
+
+    double KNLPlatformImp::throttle_limit_mhz(void) const
+    {
+        return m_throttle_limit_mhz;
     }
 
     double KNLPlatformImp::read_signal(int device_type, int device_index, int signal_type)
