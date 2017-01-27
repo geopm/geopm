@@ -49,6 +49,7 @@ namespace geopm
         public:
             enum m_const_e {
                 M_NUM_SAMPLE_HISTORY = 8,
+                M_DERIVATIVE_MAX_SAMPLE_FIT = 5,
             };
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.

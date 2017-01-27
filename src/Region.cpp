@@ -245,18 +245,36 @@ namespace geopm
     {
         check_bounds(domain_idx, signal_type, __FILE__, __LINE__);
         if (m_level) {
-            throw Exception("Region::derivative(): Not implemented for non-leaf", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+            throw Exception("Region::derivative(): Not implemented for non-leaf",
+                            GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         double result = NAN;
-        if (m_domain_buffer.size() >= 2) {
-            const std::vector<double> &signal_matrix_0 = m_domain_buffer.value(m_domain_buffer.size() - 2);
-            const std::vector<double> &signal_matrix_1 = m_domain_buffer.value(m_domain_buffer.size() - 1);
-            double delta_signal = signal_matrix_1[domain_idx * m_num_signal + signal_type] -
-                                  signal_matrix_0[domain_idx * m_num_signal + signal_type];
-            const struct geopm_time_s &time_0 = m_time_buffer.value(m_time_buffer.size() - 2);
-            const struct geopm_time_s &time_1 = m_time_buffer.value(m_time_buffer.size() - 1);
-            double delta_time = geopm_time_diff(&time_0, &time_1);
-            result = delta_signal / delta_time;
+
+        // Least squares linear regression on at most
+        // M_DERIVATIVE_MAX_SAMPLE_FIT samples used to approximate the
+        // derivative with noisy data.
+        const int num_sample_fit = m_domain_buffer.size() <
+                                   M_DERIVATIVE_MAX_SAMPLE_FIT ?
+                                   m_domain_buffer.size() :
+                                   M_DERIVATIVE_MAX_SAMPLE_FIT;
+
+        if (num_sample_fit >= 2) {
+            size_t sig_off = domain_idx * m_num_signal + signal_type;
+            size_t buf_size = m_time_buffer.size();
+            double A = 0.0, B = 0.0, C = 0.0, D = 0.0;
+            double N = num_sample_fit;
+            const struct geopm_time_s &time_0 = m_time_buffer.value(buf_size - num_sample_fit);
+            for (size_t buf_off = buf_size - num_sample_fit;
+                 buf_off < buf_size; ++buf_off) {
+                const struct geopm_time_s &tt = m_time_buffer.value(buf_off);
+                double time = geopm_time_diff(&time_0, &tt);
+                double sig = m_domain_buffer.value(buf_off)[sig_off];
+                A += time * sig;
+                B += time;
+                C += sig;
+                D += time * time;
+            }
+            result = (N * A - B * C) / (N * D - B * B);
         }
         return result;
     }
@@ -291,14 +309,12 @@ namespace geopm
     void Region::check_bounds(int domain_idx, int signal_type, const char *file, int line) const
     {
         if (domain_idx < 0 || domain_idx > (int)m_num_domain) {
-            throw geopm::Exception("Region::check_bounds(): the requested domain index is out of bounds. called from geopm/"
-                                   + std::string(file) + ":" + std::to_string(line),
-                                   GEOPM_ERROR_INVALID);
+            throw geopm::Exception("Region::check_bounds(): the requested domain index is out of bounds.",
+                                   GEOPM_ERROR_INVALID, file, line);
         }
         if (signal_type < 0 || signal_type > m_num_signal) {
-            throw geopm::Exception("Region::check_bounds(): the requested signal type is invalid. called from geopm/"
-                                   + std::string(file) + ":" + std::to_string(line),
-                                   GEOPM_ERROR_INVALID);
+            throw geopm::Exception("Region::check_bounds(): the requested signal type is invalid.",
+                                   GEOPM_ERROR_INVALID, file, line);
         }
     }
 
