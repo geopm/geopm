@@ -208,6 +208,7 @@ namespace geopm
             m_is_node_root = true;
             struct geopm_plugin_description_s plugin_desc;
             int rank;
+            geopm_error_destroy_shmem();
             check_mpi(MPI_Comm_rank(m_ppn1_comm, &rank));
             if (!rank) { // We are the root of the tree
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
