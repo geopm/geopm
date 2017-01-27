@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_8d4455b7",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-27T18:55:13Z",
+      "side": 1,
+      "message": "self._node_name \u003d report_path.split(\u0027.report-\u0027)[-1]",
+      "revId": "b0b8d35eb4fe26994ce66965fd6f047ab57b3c67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_0d0f2589",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-27T18:55:13Z",
+      "side": 1,
+      "message": "Same comment as above about splitting on \u0027.report-\u0027",
+      "revId": "b0b8d35eb4fe26994ce66965fd6f047ab57b3c67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_ed2871e4",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-27T18:55:13Z",
+      "side": 1,
+      "message": "Maybe TestReport -\u003e TestIntegration",
+      "revId": "b0b8d35eb4fe26994ce66965fd6f047ab57b3c67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_cd25ad09",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-27T18:55:13Z",
+      "side": 1,
+      "message": "Move comment",
+      "revId": "b0b8d35eb4fe26994ce66965fd6f047ab57b3c67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_ad1ef9b8",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-27T18:55:13Z",
+      "side": 1,
+      "message": "keep traces variable name not traces_df",
+      "revId": "b0b8d35eb4fe26994ce66965fd6f047ab57b3c67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
