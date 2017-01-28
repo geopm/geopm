@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_d0dae4e7",
+        "filename": "src/Platform.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-28T01:40:45Z",
+      "side": 1,
+      "message": "Intentional blank line?",
+      "range": {
+        "startLine": 155,
+        "startChar": 12,
+        "endLine": 155,
+        "endChar": 15
+      },
+      "revId": "3085062ea205712d1c0d85f1502211fa21722339",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_b0e3f0a3",
+        "filename": "src/PlatformImp.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-01-28T01:40:45Z",
+      "side": 1,
+      "message": "Intentional?",
+      "range": {
+        "startLine": 224,
+        "startChar": 12,
+        "endLine": 224,
+        "endChar": 15
+      },
+      "revId": "3085062ea205712d1c0d85f1502211fa21722339",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
