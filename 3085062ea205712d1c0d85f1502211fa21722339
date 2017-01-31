@@ -93,6 +93,23 @@
       "revId": "3085062ea205712d1c0d85f1502211fa21722339",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_7ea99b8f",
+        "filename": "src/XeonPlatformImp.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-01-31T16:13:24Z",
+      "side": 1,
+      "message": "Why give the variable a different name than the method (limit vs frequency)?",
+      "revId": "3085062ea205712d1c0d85f1502211fa21722339",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
