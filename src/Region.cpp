@@ -248,7 +248,19 @@ namespace geopm
             throw Exception("Region::derivative(): Not implemented for non-leaf", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         double result = NAN;
-        if (m_domain_buffer.size() >= 2) {
+        if (m_domain_buffer.size() >= 5) {
+            // Use 5 point stencil to approximate derivative
+            const struct geopm_time_s &time_0 = m_time_buffer.value(m_time_buffer.size() - 5);
+            const struct geopm_time_s &time_4 = m_time_buffer.value(m_time_buffer.size() - 1);
+            double delta_time = geopm_time_diff(&time_0, &time_4);
+            int off = domain_idx * m_num_signal + signal_type;
+            double signal_0 = m_domain_buffer.value(m_domain_buffer.size() - 5)[off];
+            double signal_1 = m_domain_buffer.value(m_domain_buffer.size() - 4)[off];
+            double signal_3 = m_domain_buffer.value(m_domain_buffer.size() - 2)[off];
+            double signal_4 = m_domain_buffer.value(m_domain_buffer.size() - 1)[off];
+            result = (-1.0 * signal_4 + 8 * signal_3 - 8 * signal_1 + signal_0) / (3 * delta_time);
+        }
+        else if (m_domain_buffer.size() >= 2) {
             const std::vector<double> &signal_matrix_0 = m_domain_buffer.value(m_domain_buffer.size() - 2);
             const std::vector<double> &signal_matrix_1 = m_domain_buffer.value(m_domain_buffer.size() - 1);
             double delta_signal = signal_matrix_1[domain_idx * m_num_signal + signal_type] -
