@@ -206,6 +206,12 @@ will print a subset of the fields in the trace file called
     `GEOPM_PMPI_CTL` is set to "process" or "pthread" geopm profiling
     will be enabled.
 
+  * `GEOPM_PROFILE_TIMEOUT`:
+    If set, will enable changing of the geopm profiler timeout.  The
+    value is in seconds and represents the amount of time any application
+    rank will wait for the controller before continuing execution. The
+    default timeout is 30 seconds.
+
   * `GEOPM_PLUGIN_PATH`:
     The search path for geopm plugins.  It is a colon-separated list
     of directories used by geopm to search for shared objects which

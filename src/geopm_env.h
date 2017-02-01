@@ -54,6 +54,7 @@ int geopm_env_do_region_barrier(void);
 int geopm_env_do_trace(void);
 int geopm_env_do_ignore_affinity(void);
 int geopm_env_do_profile(void);
+int geopm_env_profile_timeout(void);
 
 #ifdef __cplusplus
 }
