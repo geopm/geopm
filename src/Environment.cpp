@@ -56,6 +56,7 @@ namespace geopm
             int do_trace(void) const;
             int do_ignore_affinity() const;
             int do_profile() const;
+            int profile_timeout(void) const;
         private:
             const std::string m_report_env;
             const std::string m_policy_env;
@@ -68,6 +69,7 @@ namespace geopm
             const bool m_do_trace;
             const bool m_do_ignore_affinity;
             bool m_do_profile;
+            int m_profile_timeout;
     };
 
     static const Environment &environment(void)
@@ -90,6 +92,9 @@ namespace geopm
         , m_do_profile(m_report_env.length() ||
                        m_trace_env.length() ||
                        getenv("GEOPM_PROFILE") != NULL)
+        , m_profile_timeout(getenv("GEOPM_PROFILE_TIMEOUT") ?
+                            atoi(getenv("GEOPM_PROFILE_TIMEOUT")) :
+                            30)
     {
         char *pmpi_ctl_env  = getenv("GEOPM_PMPI_CTL");
         if (pmpi_ctl_env && !strncmp(pmpi_ctl_env, "process", strlen("process") + 1))  {
@@ -164,6 +169,11 @@ namespace geopm
     {
         return m_do_profile;
     }
+
+    int Environment::profile_timeout() const
+    {
+        return m_profile_timeout;
+    }
 }
 
 extern "C"
@@ -221,5 +231,10 @@ extern "C"
     int geopm_env_do_profile(void)
     {
         return geopm::environment().do_profile();
+    }
+
+    int geopm_env_profile_timeout(void)
+    {
+        return geopm::environment().profile_timeout();
     }
 }
