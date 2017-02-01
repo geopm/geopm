@@ -78,7 +78,15 @@ namespace geopm
             if (m_do_header) {
                 m_stream << "region_id | seconds | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
-                    m_stream << "pkg_energy-" + std::to_string(i) + " | dram_energy-" + std::to_string(i) + " | frequency-" + std::to_string(i) + " | inst_retired-" + std::to_string(i) + " | clk_unhalted_core-" + std::to_string(i) + " | clk_unhalted_ref-" + std::to_string(i) + " | read_bandwidth-" + std::to_string(i) + " | progress-" + std::to_string(i) + " | runtime-" + std::to_string(i) + " | ";
+                    m_stream << "pkg_energy-" << i << " | "
+                             << "dram_energy-" << i << " | "
+                             << "frequency-" << i << " | "
+                             << "inst_retired-" << i << " | "
+                             << "clk_unhalted_core-" << i << " | "
+                             << "clk_unhalted_ref-" << i << " | "
+                             << "read_bandwidth-" << i << " | "
+                             << "progress-" << i << " | "
+                             << "runtime-" << i << " | ";
                 }
                 m_stream << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
                 m_do_header = false;
