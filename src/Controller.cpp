@@ -643,7 +643,7 @@ namespace geopm
                 // Exiting a region for unmarked code
                 if (m_region_id_all && !region_id_all) {
                     override_telemetry(1.0);
-                    update_region();
+                    update_region(true);
                     m_region_id_all = 0;
                     std::fill(m_region_id.begin(), m_region_id.end(), 0);
                     if (is_epoch_found) {
@@ -657,27 +657,27 @@ namespace geopm
                     }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
-                    update_region();
+                    update_region(false);
                 }
                 // Entering a region from another region
                 else if (m_region_id_all && region_id_all &&
                          m_region_id_all != region_id_all) {
                     override_telemetry(1.0);
-                    update_region();
+                    update_region(true);
                     if (is_epoch_found) {
                         update_epoch(epoch_telemetry_sample);
                     }
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
                     std::fill(m_region_id.begin(), m_region_id.end(), region_id_all);
-                    update_region();
+                    update_region(false);
                 }
                 // No entries or exits
                 else {
                     if (is_epoch_found) {
                         update_epoch(epoch_telemetry_sample);
                     }
-                    update_region();
+                    update_region(false);
                 }
                 // GEOPM_REGION_ID_EPOCH is inserted at construction
                 struct geopm_sample_message_s epoch_sample;
@@ -726,11 +726,11 @@ namespace geopm
         m_telemetry_sample.swap(telemetry);
         if (is_in_epoch) {
             override_telemetry(1.0);
-            update_region();
+            update_region(false);
         }
         is_in_epoch = true;
         override_telemetry(0.0);
-        update_region();
+        update_region(false);
         m_region_id_all = region_id_all_tmp;
         m_telemetry_sample.swap(telemetry);
     }
@@ -744,7 +744,7 @@ namespace geopm
         }
     }
 
-    void Controller::update_region(void)
+    void Controller::update_region(bool do_reset_derivative)
     {
         struct geopm_time_s control_loop_t1;
 
@@ -767,6 +767,9 @@ namespace geopm
                 it = tmp_it.first;
             }
             Region *curr_region = (*it).second;
+            if (do_reset_derivative) {
+                curr_region->reset_derivative();
+            }
             Policy *curr_policy = m_policy[level];
             curr_region->insert(m_telemetry_sample);
 
@@ -790,7 +793,7 @@ namespace geopm
         if ((*(m_region[0].find(GEOPM_REGION_ID_EPOCH))).second->num_entry()) {
             m_region_id_all = GEOPM_REGION_ID_EPOCH;
             override_telemetry(1.0);
-            update_region();
+            update_region(false);
         }
 
         std::string report_name;

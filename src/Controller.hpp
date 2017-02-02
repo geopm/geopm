@@ -172,7 +172,7 @@ namespace geopm
             void walk_down(void);
             void walk_up(void);
             void override_telemetry(double progress);
-            void update_region(void);
+            void update_region(bool do_reset_derivative);
             void update_epoch(std::vector<struct geopm_telemetry_message_s> &telemetry);
             bool m_is_node_root;
             int m_max_fanout;
