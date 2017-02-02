@@ -211,7 +211,7 @@ namespace geopm
             ///
             /// @return If there are 2 valid samples then return he derivative of the
             /// signal values, else return NAN.
-            double derivative(int domain_idx, int signal_type) const;
+            double derivative(int domain_idx, int signal_type);
             /// @brief Integrate a signal over time.
             ///
             /// Computes the integral of the signal over the interval
@@ -229,6 +229,7 @@ namespace geopm
             ///
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
             void report(std::ofstream &file_stream, const std::string &name, int rank_per_node) const;
+            void reset_derivative(void);
         protected:
             /// @brief Bound testing of input parameters.
             ///
@@ -273,10 +274,10 @@ namespace geopm
             std::vector<double> m_signal_matrix;
             /// @brief Holder for telemerty state on region entry.
             std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
-            /// @brief Holder for sample data calculated after a domain exits a region.
-            std::vector<struct geopm_sample_message_s> m_domain_sample;
             /// @brief the current sample message to be sent up the tree.
             struct geopm_sample_message_s m_curr_sample;
+            /// @brief Holder for sample data calculated after a domain exits a region.
+            std::vector<struct geopm_sample_message_s> m_domain_sample;
             /// @brief Circular buffer is over time, vector is indexed over both domains and signals.
             CircularBuffer<std::vector<double> > m_domain_buffer;
             /// @brief time stamp for each entry in the m_domain_buffer.
@@ -291,9 +292,11 @@ namespace geopm
             std::vector<double> m_sum;
             /// @brief the current sum of squares of signal values per domain and signal type.
             std::vector<double> m_sum_squares;
+            std::vector<double> m_derivative_last;
             struct geopm_sample_message_s m_agg_stats;
             uint64_t m_num_entry;
             std::vector<bool> m_is_entered;
+            int m_derivative_num_fit;
     };
 }
 
