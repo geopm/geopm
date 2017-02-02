@@ -48,29 +48,23 @@ namespace geopm
         , m_level(level)
         , m_num_signal(m_level == 0 ? (int)GEOPM_NUM_TELEMETRY_TYPE : (int)GEOPM_NUM_SAMPLE_TYPE)
         , m_signal_matrix(m_num_signal * m_num_domain)
-        , m_entry_telemetry(m_num_domain)
-        , m_domain_sample(m_num_domain)
+        , m_entry_telemetry(m_num_domain, {0, {{0, 0}}, {0}})
         , m_curr_sample({m_identifier, {0.0, 0.0, 0.0, 0.0}})
+        , m_domain_sample(m_num_domain, m_curr_sample)
         , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
         , m_time_buffer(M_NUM_SAMPLE_HISTORY)
-        , m_valid_entries(m_num_signal * m_num_domain)
-        , m_min(m_num_signal * m_num_domain)
-        , m_max(m_num_signal * m_num_domain)
-        , m_sum(m_num_signal * m_num_domain)
-        , m_sum_squares(m_num_signal * m_num_domain)
+        , m_valid_entries(m_num_signal * m_num_domain, 0)
+        , m_min(m_num_signal * m_num_domain, DBL_MAX)
+        , m_max(m_num_signal * m_num_domain, -DBL_MAX)
+        , m_sum(m_num_signal * m_num_domain, 0.0)
+        , m_sum_squares(m_num_signal * m_num_domain, 0.0)
+        , m_derivative_last(m_num_signal * m_num_domain, 0.0)
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0, 0.0}})
         , m_num_entry(0)
-        , m_is_entered(m_num_domain)
+        , m_is_entered(m_num_domain, false)
+        , m_derivative_num_fit(0)
     {
-        std::fill(m_domain_sample.begin(), m_domain_sample.end(), m_curr_sample);
-        std::fill(m_min.begin(), m_min.end(), DBL_MAX);
-        std::fill(m_max.begin(), m_max.end(), -DBL_MAX);
-        std::fill(m_sum.begin(), m_sum.end(), 0.0);
-        std::fill(m_sum_squares.begin(), m_sum_squares.end(), 0.0);
-        std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
-        struct geopm_telemetry_message_s invalid_telemetry = {0, {{0, 0}}, {0}};
-        std::fill(m_entry_telemetry.begin(), m_entry_telemetry.end(), invalid_telemetry);
-        std::fill(m_is_entered.begin(), m_is_entered.end(), false);
+
     }
 
     Region::~Region()
@@ -121,6 +115,7 @@ namespace geopm
             // All domains have completed so do update
             update_curr_sample();
         }
+        ++m_derivative_num_fit;
     }
 
     void Region::insert(const std::vector<struct geopm_sample_message_s> &sample)
@@ -243,25 +238,23 @@ namespace geopm
         return m_max[domain_idx * m_num_signal + signal_type];
     }
 
-    double Region::derivative(int domain_idx, int signal_type) const
+    double Region::derivative(int domain_idx, int signal_type)
     {
         check_bounds(domain_idx, signal_type, __FILE__, __LINE__);
         if (m_level) {
             throw Exception("Region::derivative(): Not implemented for non-leaf",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
-        // Least squares linear regression on at most
-        // M_DERIVATIVE_MAX_SAMPLE_FIT samples used to approximate the
+        // Least squares linear regression to approximate the
         // derivative with noisy data.
-        double result = NAN;
-        const int num_sample_fit = m_domain_buffer.size();
-        if (num_sample_fit >= 2) {
-            size_t sig_off = domain_idx * m_num_signal + signal_type;
+        size_t sig_off = domain_idx * m_num_signal + signal_type;
+        double result = m_derivative_last[sig_off];
+        if (m_derivative_num_fit >= 2) {
             size_t buf_size = m_time_buffer.size();
             double A = 0.0, B = 0.0, C = 0.0, D = 0.0, E = 0.0;
-            double F = 1.0 / num_sample_fit;
-            const struct geopm_time_s &time_0 = m_time_buffer.value(buf_size - num_sample_fit);
-            for (size_t buf_off = buf_size - num_sample_fit;
+            double F = 1.0 / m_derivative_num_fit;
+            const struct geopm_time_s &time_0 = m_time_buffer.value(buf_size - m_derivative_num_fit);
+            for (size_t buf_off = buf_size - m_derivative_num_fit;
                  buf_off < buf_size; ++buf_off) {
                 const struct geopm_time_s &tt = m_time_buffer.value(buf_off);
                 double time = geopm_time_diff(&time_0, &tt);
@@ -275,6 +268,7 @@ namespace geopm
             double ssxx = D - B * B * F;
             double ssxy = A - B * C * F;
             result = ssxy / ssxx;
+            m_derivative_last[sig_off] = result;
         }
         return result;
     }
@@ -302,6 +296,11 @@ namespace geopm
         file_stream << "\tcount: " << (m_identifier != GEOPM_REGION_ID_EPOCH ?
                                        (double)m_num_entry / num_rank_per_node :
                                        m_num_entry) << std::endl;
+    }
+
+    void Region::reset_derivative(void)
+    {
+        m_derivative_num_fit = 0;
     }
 
     // Protected function definitions
