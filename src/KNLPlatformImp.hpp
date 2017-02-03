@@ -114,6 +114,7 @@ namespace geopm
             std::vector<off_t> m_signal_msr_offset;
             ///@brief Vector of MSR data containing pairs of offsets and write masks.
             std::vector<std::pair<off_t, unsigned long> > m_control_msr_pair;
+            uint64_t m_pkg_rapl_pl2;
 
             ///Constants
             const std::string M_KNL_MODEL_NAME;
