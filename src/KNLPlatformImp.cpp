@@ -47,7 +47,7 @@ namespace geopm
     }
 
     KNLPlatformImp::KNLPlatformImp()
-        : PlatformImp(2, 5, 8.0, &(knl_msr_map()))
+        : PlatformImp(2, 5, 50.0, &(knl_msr_map()))
         , m_throttle_limit_mhz(0.5)
         , m_energy_units(1.0)
         , m_power_units(1.0)
@@ -60,6 +60,7 @@ namespace geopm
         , m_max_dram_watts(100)
         , m_signal_msr_offset(M_L2_MISSES)
         , m_control_msr_pair(M_NUM_CONTROL)
+        , m_pkg_rapl_pl2(0)
         , M_KNL_MODEL_NAME("Knights Landing")
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
@@ -355,7 +356,7 @@ namespace geopm
                     value = m_max_pkg_watts;
                 }
                 msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK | m_pkg_time_window;
+                msr_val = msr_val | m_pkg_rapl_pl2;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
                           m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
                 break;
@@ -473,10 +474,12 @@ namespace geopm
         m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
         m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
 
-        //Set time window 1 to 1 sec
-        m_pkg_time_window = m_pkg_time_window | (0xaul << 17);
-        //Set time window 2 to the m_control_latency_ms
-        m_pkg_time_window = (uint64_t)(log(m_control_latency_ms)/log(2)) << 49;
+        tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
+        //Set time window 1 to the m_control_latency_ms
+        uint64_t pkg_time_window = (uint64_t)(log(m_control_latency_ms)/log(2)) << 17;
+        m_pkg_rapl_pl2 = (tmp & 0xFFFFFFFFFF000000) | pkg_time_window;
+        // enable pl1 limits
+        m_pkg_rapl_pl2 = m_pkg_rapl_pl2 | (0x3 << 15);
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
@@ -568,7 +571,7 @@ namespace geopm
         //clear power limits
         for (int i = 1; i < m_num_package; i++) {
             msr_val = (uint64_t)(m_max_pkg_watts * m_power_units);
-            msr_val = msr_val | (msr_val << 32) | M_PKG_POWER_LIMIT_MASK | m_pkg_time_window;
+            msr_val = msr_val | m_pkg_rapl_pl2;
             msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", msr_val);
             msr_write(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
         }
