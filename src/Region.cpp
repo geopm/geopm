@@ -254,22 +254,22 @@ namespace geopm
         double result = m_derivative_last[sig_off];
         if (m_derivative_num_fit >= 2) {
             size_t buf_size = m_time_buffer.size();
-            double A = 0.0, B = 0.0, C = 0.0, D = 0.0, E = 0.0;
-            double F = 1.0 / m_derivative_num_fit;
+            double A = 0.0, B = 0.0, C = 0.0, D = 0.0;
+            double E = 1.0 / m_derivative_num_fit;
             const struct geopm_time_s &time_0 = m_time_buffer.value(buf_size - m_derivative_num_fit);
+            const double sig_0 = m_domain_buffer.value(buf_size - m_derivative_num_fit)[sig_off];
             for (size_t buf_off = buf_size - m_derivative_num_fit;
                  buf_off < buf_size; ++buf_off) {
                 const struct geopm_time_s &tt = m_time_buffer.value(buf_off);
                 double time = geopm_time_diff(&time_0, &tt);
-                double sig = m_domain_buffer.value(buf_off)[sig_off];
+                double sig = m_domain_buffer.value(buf_off)[sig_off] - sig_0;
                 A += time * sig;
                 B += time;
                 C += sig;
                 D += time * time;
-                E += sig * sig;
             }
-            double ssxx = D - B * B * F;
-            double ssxy = A - B * C * F;
+            double ssxx = D - B * B * E;
+            double ssxy = A - B * C * E;
             result = ssxy / ssxx;
             m_derivative_last[sig_off] = result;
         }
