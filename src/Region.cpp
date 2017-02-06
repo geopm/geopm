@@ -58,7 +58,7 @@ namespace geopm
         , m_max(m_num_signal * m_num_domain, -DBL_MAX)
         , m_sum(m_num_signal * m_num_domain, 0.0)
         , m_sum_squares(m_num_signal * m_num_domain, 0.0)
-        , m_derivative_last(m_num_signal * m_num_domain, 0.0)
+        , m_derivative_last(m_num_signal * m_num_domain, NAN)
         , m_agg_stats({m_identifier, {0.0, 0.0, 0.0, 0.0}})
         , m_num_entry(0)
         , m_is_entered(m_num_domain, false)
@@ -145,6 +145,7 @@ namespace geopm
 
     void Region::clear(void)
     {
+        m_derivative_num_fit = 0;
         m_time_buffer.clear();
         m_domain_buffer.clear();
         std::fill(m_min.begin(), m_min.end(), DBL_MAX);
@@ -273,7 +274,7 @@ namespace geopm
             result = ssxy / ssxx;
             m_derivative_last[sig_off] = result;
         }
-        return result;
+        return result ? result : NAN;
     }
 
     double Region::integral(int domain_idx, int signal_type, double &delta_time, double &integral) const

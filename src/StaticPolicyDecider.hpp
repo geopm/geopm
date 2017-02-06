@@ -47,6 +47,7 @@ namespace geopm
         public:
             /// @ brief StaticPolicyDecider default constructor.
             StaticPolicyDecider();
+            StaticPolicyDecider(const StaticPolicyDecider &other);
             /// @ brief StaticPolicyDecider destructor, virtual.
             virtual ~StaticPolicyDecider();
             virtual Decider *clone(void) const;
