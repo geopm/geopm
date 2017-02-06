@@ -51,6 +51,7 @@ namespace geopm
         public:
             /// @ brief BalancingDecider default constructor.
             BalancingDecider();
+            BalancingDecider(const BalancingDecider &other);
             /// @brief BalancinDecider destructor, virtual.
             virtual ~BalancingDecider();
             virtual Decider *clone(void) const;

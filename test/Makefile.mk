@@ -125,6 +125,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/BalancingDeciderTest.supported \
               test/gtest_links/BalancingDeciderTest.new_policy_message \
               test/gtest_links/BalancingDeciderTest.update_policy \
+              test/gtest_links/GoverningDeciderTest.decider_is_supported \
+              test/gtest_links/GoverningDeciderTest.name \
+              test/gtest_links/GoverningDeciderTest.clone \
+              test/gtest_links/GoverningDeciderTest.1_socket_under_budget \
+              test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
+              test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
+              test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
               # end
 
 if ENABLE_MPI
@@ -170,9 +177,10 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/SampleRegulatorTest.cpp \
                           test/RegionTest.cpp \
                           test/PolicyTest.cpp \
-                          plugin/BalancingDecider.cpp \
                           plugin/BalancingDecider.hpp \
                           test/BalancingDeciderTest.cpp \
+                          plugin/GoverningDecider.hpp \
+                          test/GoverningDeciderTest.cpp \
                           test/MockPlatform.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
