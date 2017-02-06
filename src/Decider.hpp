@@ -50,6 +50,7 @@ namespace geopm
         public:
             /// @brief Decider default constructor.
             Decider();
+            Decider(const Decider &other);
             /// @brief Decider destructor, virtual.
             virtual ~Decider();
             /// @brief return a pointer of the derived class, virtual.

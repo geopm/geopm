@@ -46,6 +46,14 @@ namespace geopm
 
     }
 
+    Decider::Decider(const Decider &other)
+        : m_last_power_budget(other.m_last_power_budget)
+        , m_upper_bound(other.m_upper_bound)
+        , m_lower_bound(other.m_lower_bound)
+    {
+
+    }
+
     Decider::~Decider()
     {
 
