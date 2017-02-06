@@ -45,7 +45,9 @@ class RegionTest: public :: testing :: Test
         geopm::Region *m_leaf_region;
         geopm::Region *m_tree_region;
         geopm::Region *m_two_point_region;
+        geopm::Region *m_measured_region;
         struct geopm_time_s m_time;
+        double m_measured_derivative;
 };
 
 void RegionTest::SetUp()
@@ -56,6 +58,7 @@ void RegionTest::SetUp()
 
     m_leaf_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
     m_two_point_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
+    m_measured_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
     m_tree_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 8, 1);
 
     std::vector<struct geopm_telemetry_message_s> telemetry(2);
@@ -92,6 +95,69 @@ void RegionTest::SetUp()
             m_two_point_region->insert(telemetry);
         }
     }
+
+    double time_value [60] = {0.971089186, 185081.6459350586,
+                              0.98057151, 185082.7827148438,
+                              0.990539676, 185083.9800415039,
+                              1.000531979, 185085.1676025391,
+                              1.01053277, 185086.3432006836,
+                              1.020532801, 185087.5316162109,
+                              1.030539225, 185088.7138671875,
+                              1.040526907, 185089.8894042969,
+                              1.050545329, 185091.0755004883,
+                              1.060531848, 185092.2589111328,
+                              1.070526225, 185093.4329223633,
+                              1.080525383, 185094.6185913086,
+                              1.090524161, 185095.8010253906,
+                              1.100526446, 185096.9779052734,
+                              1.110535858, 185098.1661987305,
+                              1.120527659, 185099.3529052734,
+                              1.130526205, 185100.532409668,
+                              1.140524251, 185101.7197265625,
+                              1.150524782, 185102.9041748047,
+                              1.160524872, 185104.0786743164,
+                              1.170535627, 185105.2644042969,
+                              1.180531187, 185106.4526977539,
+                              1.190526205, 185107.6298828125,
+                              1.200523439, 185108.6975708008,
+                              1.210525093, 185109.8846435547,
+                              1.220527047, 185111.0631713867,
+                              1.230523399, 185112.2510375977,
+                              1.240524311, 185113.4346313477,
+                              1.250523269, 185114.6119995117,
+                              1.260526185, 185115.7997436523};
+    struct geopm_time_s tt;
+    for (i = 0; i < 30; ++i) {
+        geopm_time_add(&m_time, time_value[2 * i], &tt);
+        telemetry[0].timestamp = tt;
+        telemetry[1].timestamp = tt;
+        for (j = 0; j < GEOPM_NUM_TELEMETRY_TYPE; ++j) {
+            if (j == GEOPM_TELEMETRY_TYPE_PROGRESS) {
+                telemetry[0].signal[j] = 0.0;
+                telemetry[1].signal[j] = 0.0;
+            }
+            else {
+                telemetry[0].signal[j] = time_value[2 * i + 1];
+                telemetry[1].signal[j] = time_value[2 * i + 1];
+            }
+        }
+        m_measured_region->insert(telemetry);
+    }
+
+    size_t buf_size = 8;
+    double A = 0.0, B = 0.0, C = 0.0, D = 0.0;
+    double F = 1.0 / buf_size;
+    for (size_t buf_off = 0; buf_off < 8; ++buf_off) {
+        double time = time_value[(22 + buf_off) * 2] - time_value[44];
+        double sig = time_value[(22 + buf_off) * 2 + 1];
+        A += time * sig;
+        B += time;
+        C += sig;
+        D += time * time;
+    }
+    double ssxx = D - B * B * F;
+    double ssxy = A - B * C * F;
+    m_measured_derivative = ssxy / ssxx;
 }
 
 void RegionTest::TearDown()
@@ -172,6 +238,8 @@ TEST_F(RegionTest, signal_derivative)
     EXPECT_DOUBLE_EQ(0.5, m_leaf_region->derivative(1, GEOPM_TELEMETRY_TYPE_RUNTIME));
     EXPECT_DOUBLE_EQ(0.5, m_two_point_region->derivative(0, GEOPM_TELEMETRY_TYPE_RUNTIME));
     EXPECT_DOUBLE_EQ(0.5, m_two_point_region->derivative(1, GEOPM_TELEMETRY_TYPE_RUNTIME));
+    EXPECT_NEAR(m_measured_derivative, m_measured_region->derivative(0, GEOPM_TELEMETRY_TYPE_RUNTIME), 1e-6);
+    EXPECT_NEAR(m_measured_derivative, m_measured_region->derivative(1, GEOPM_TELEMETRY_TYPE_RUNTIME), 1e-6);
 }
 
 TEST_F(RegionTest, signal_mean)
@@ -494,4 +562,3 @@ TEST_F(RegionTest, negative_signal_derivative_tree)
     }
     EXPECT_EQ(GEOPM_ERROR_NOT_IMPLEMENTED, thrown);
 }
-
