@@ -49,6 +49,7 @@ namespace geopm
         public:
             /// @ brief GoverningDecider default constructor.
             GoverningDecider();
+            GoverningDecider(const GoverningDecider &other);
             /// @ brief GoverningDecider destructor, virtual.
             virtual ~GoverningDecider();
             virtual Decider *clone(void) const;
@@ -58,11 +59,9 @@ namespace geopm
             virtual const std::string& name(void) const;
         private:
             const std::string m_name;
-            const double m_guard_band;
             const unsigned m_min_num_converged;
             double m_last_power_budget;
-            int m_num_sample;
-            unsigned m_num_out_of_range;
+            const int m_num_sample;
             std::map<uint64_t, unsigned> m_num_converged;
     };
 }
