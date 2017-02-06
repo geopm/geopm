@@ -184,7 +184,7 @@ namespace geopm
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_control_rate_limit(0.0)
-        , m_sample_rate_limit(0.01)
+        , m_sample_rate_limit(0.005)
         , m_rank_per_node(0)
         , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)

@@ -89,8 +89,8 @@ namespace geopm
             double m_energy_units;
             /// @brief Store the units of energy read from RAPL for dram.
             double m_dram_energy_units;
-            /// @brief Store the units of power read from RAPL.
-            double m_power_units;
+            /// @brief Store the inverse units of power read from RAPL.
+            double m_power_units_inv;
             /// @brief Minimum value for package (CPU) power read from RAPL.
             double m_min_pkg_watts;
             /// @brief Maximum value for package (CPU) power read from RAPL.
@@ -107,7 +107,7 @@ namespace geopm
             std::vector<off_t> m_signal_msr_offset;
             ///@brief Vector of MSR data containing pairs of offsets and write masks.
             std::vector<std::pair<off_t, unsigned long> > m_control_msr_pair;
-            uint64_t m_pkg_rapl_pl2;
+            uint64_t m_pkg_power_limit_static;
 
             ///Constants
             const unsigned int M_BOX_FRZ_EN;
@@ -119,7 +119,6 @@ namespace geopm
             const unsigned int M_LLC_VICTIMS_UMASK;
             const unsigned int M_EVENT_SEL_0;
             const unsigned int M_UMASK_0;
-            const uint64_t M_PKG_POWER_LIMIT_MASK;
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
             const int M_PLATFORM_ID;
             const std::string M_MODEL_NAME;

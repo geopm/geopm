@@ -78,6 +78,21 @@ namespace geopm
 
     }
 
+    BalancingDecider::BalancingDecider(const BalancingDecider &other)
+        : Decider(other)
+        , m_name(other.m_name)
+        , m_convergence_target(other.m_convergence_target)
+        , m_min_num_converged(other.m_min_num_converged)
+        , m_num_converged(other.m_num_converged)
+        , m_last_power_budget(other.m_last_power_budget)
+        , m_num_sample(other.m_num_sample)
+        , m_num_out_of_range(other.m_num_out_of_range)
+        , m_slope_modifier(other.m_slope_modifier)
+        , M_GUARD_BAND(other.M_GUARD_BAND)
+    {
+
+    }
+
     BalancingDecider::~BalancingDecider()
     {
 

@@ -31,7 +31,7 @@
  */
 
 #include <hwloc.h>
-
+#include <cmath>
 #include "geopm_message.h"
 #include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
@@ -58,12 +58,21 @@ namespace geopm
 {
     GoverningDecider::GoverningDecider()
         : m_name("power_governing")
-        , m_guard_band(0.05)
         , m_min_num_converged(5)
         , m_last_power_budget(DBL_MIN)
         , m_num_sample(5)
-        , m_num_out_of_range(0)
     {
+
+    }
+
+    GoverningDecider::GoverningDecider(const GoverningDecider &other)
+        : Decider(other)
+        , m_name(other.m_name)
+        , m_min_num_converged(other.m_min_num_converged)
+        , m_last_power_budget(other.m_last_power_budget)
+        , m_num_sample(other.m_num_sample)
+    {
+
     }
 
     GoverningDecider::~GoverningDecider()
@@ -119,69 +128,93 @@ namespace geopm
 
     bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
-        bool is_updated = false;
+        static const double UPPER_GUARD_BAND = 1.05;
+        static const double LOWER_GUARD_BAND = 0.99;
+        bool is_target_updated = false;
         bool is_greater = false;
-        bool is_less = false;
 
-        if (curr_region.num_sample(0, GEOPM_SAMPLE_TYPE_RUNTIME) > m_num_sample) {
+        if (curr_region.num_sample(0, GEOPM_TELEMETRY_TYPE_PKG_ENERGY) >= m_num_sample) {
             const int num_domain = curr_policy.num_domain();
             const uint64_t region_id = curr_region.identifier();
-
             std::vector<double> limit(num_domain);
             std::vector<double> target(num_domain);
+            std::vector<double> domain_pkg_power(num_domain);
+            std::vector<double> domain_dram_power(num_domain);
             curr_policy.target(GEOPM_REGION_ID_EPOCH, limit);
             curr_policy.target(region_id, target);
+            double pkg_power = 0.0;
+            double dram_power = 0.0;
+            double limit_total = 0.0;
+            bool is_derivative_valid = true;
+
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                double pkg_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
-                double dram_power = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
-                double total_power = pkg_power + dram_power;
-                is_greater = total_power > limit[domain_idx] * (1 + m_guard_band);
-                is_less = total_power < limit[domain_idx] * (1 - m_guard_band);
-                if (is_greater || is_less) {
-                    double overage = total_power - limit[domain_idx];
-                    target[domain_idx] = limit[domain_idx] - (overage > dram_power ?
-                                                              overage : dram_power);
-                    is_updated = true;
-                }
+                domain_pkg_power[domain_idx] = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
+                pkg_power += domain_pkg_power[domain_idx];
+                domain_dram_power[domain_idx] = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
+                dram_power += domain_dram_power[domain_idx];
+                limit_total += limit[domain_idx];
             }
-            if (is_updated && curr_policy.is_converged(region_id)) {
-                ++m_num_out_of_range;
-                if (m_num_out_of_range < m_min_num_converged) {
-                    is_updated = false;
-                }
+            double total_power = pkg_power + dram_power;
+            if (std::isnan(total_power)) {
+                is_derivative_valid = false;
             }
-            if (is_updated && curr_policy.is_converged(region_id)) {
-                curr_policy.update(region_id, target);
-                if (is_greater) {
-                    auto it = m_num_converged.lower_bound(region_id);
-                    if (it != m_num_converged.end() && (*it).first == region_id) {
-                        (*it).second = 0;
+            if (is_derivative_valid) {
+                is_greater = total_power > limit_total * UPPER_GUARD_BAND;
+                double overage = total_power - limit_total;
+                double target_total = limit_total * LOWER_GUARD_BAND - (overage > dram_power ?
+                                                                        overage : dram_power);
+
+                for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                    target[domain_idx] = target_total * ((domain_pkg_power[domain_idx] + domain_dram_power[domain_idx]) / total_power);
+                }
+
+                if (!curr_policy.is_converged(region_id)) {
+                    curr_policy.update(region_id, target);
+                    is_target_updated = true;
+                    if (is_greater) {
+                        auto it = m_num_converged.lower_bound(region_id);
+                        if (it != m_num_converged.end() && (*it).first == region_id) {
+                            (*it).second = 0;
+                        }
+                        else {
+                            it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
+                        }
                     }
                     else {
-                        it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
+                         auto it = m_num_converged.lower_bound(region_id);
+                         if (it != m_num_converged.end() && (*it).first == region_id) {
+                            ++(*it).second;
+                        }
+                        else {
+                            it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
+                        }
+                        if ((*it).second >= m_min_num_converged) {
+                            curr_policy.is_converged(region_id, true);
+                            (*it).second = 0;
+                        }
                     }
-                    curr_policy.is_converged(region_id, false);
-                    curr_region.clear();
-                    m_num_sample = 0;
-                    m_num_out_of_range = 0;
-                }
-            }
-            if (!is_updated || is_less) {
-                if (curr_policy.is_converged(region_id)) {
-                    m_num_out_of_range = 0;
-                }
-                auto it = m_num_converged.lower_bound(region_id);
-                if (it != m_num_converged.end() && (*it).first == region_id) {
-                    ++(*it).second;
                 }
                 else {
-                    it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
+                    if (is_greater) {
+                        auto it = m_num_converged.lower_bound(region_id);
+                        if (it != m_num_converged.end() && (*it).first == region_id) {
+                            ++(*it).second;
+                        }
+                        else {
+                            it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
+                        }
+                        if ((*it).second >= m_min_num_converged) {
+                            curr_policy.is_converged(region_id, false);
+                            (*it).second = 0;
+                        }
+                    }
                 }
-                if ((*it).second >= m_min_num_converged) {
-                    curr_policy.is_converged(region_id, true);
+                if (is_target_updated) {
+                    curr_region.clear();
                 }
             }
         }
-        return is_updated;
+
+        return is_target_updated;
     }
 }
