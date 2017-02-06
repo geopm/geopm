@@ -40,9 +40,17 @@ if ENABLE_MPI
                                                       # end
 
     test_integration_geopm_test_integration_LDADD = libgeopm.la $(MPI_CLIBS)
-    test_integration_geopm_test_integration_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
-    test_integration_geopm_test_integration_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    test_integration_geopm_test_integration_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
+
+if HAVE_ICPC
+    test_integration_geopm_test_integration_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -lrt -mkl -xAVX
+    test_integration_geopm_test_integration_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99 -xAVX
+    test_integration_geopm_test_integration_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11
+else
+    test_integration_geopm_test_integration_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -lrt -mavx
+    test_integration_geopm_test_integration_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
+    test_integration_geopm_test_integration_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -std=gnu++11 -mavx
+endif
+
 endif
 
 EXTRA_DIST += test_integration/geopm_test_integration.py \
