@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <math.h>
+#include <cmath>
 #include <unistd.h>
 #include "geopm_error.h"
 #include "geopm_message.h"
@@ -50,7 +50,7 @@ namespace geopm
         : PlatformImp(2, 5, 50.0, &(knl_msr_map()))
         , m_throttle_limit_mhz(0.5)
         , m_energy_units(1.0)
-        , m_power_units(1.0)
+        , m_power_units_inv(1.0)
         , m_dram_energy_units(1.5258789063E-5)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)
@@ -60,7 +60,7 @@ namespace geopm
         , m_max_dram_watts(100)
         , m_signal_msr_offset(M_L2_MISSES)
         , m_control_msr_pair(M_NUM_CONTROL)
-        , m_pkg_rapl_pl2(0)
+        , m_pkg_power_limit_static(0)
         , M_KNL_MODEL_NAME("Knights Landing")
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
@@ -75,7 +75,6 @@ namespace geopm
         , M_UMASK_0(M_L2_REQ_MISS_UMASK)
         , M_EVENT_SEL_1(M_L2_PREFETCH_EV_SEL)
         , M_UMASK_1(M_L2_PREFETCH_UMASK)
-        , M_PKG_POWER_LIMIT_MASK(0x1800000018000ul)
         , M_DRAM_POWER_LIMIT_MASK(0x18000)
         , M_EXTRA_SIGNAL(1)
         , M_PLATFORM_ID(platform_id())
@@ -355,8 +354,8 @@ namespace geopm
                 if (value > m_max_pkg_watts) {
                     value = m_max_pkg_watts;
                 }
-                msr_val = (uint64_t)(value * m_power_units);
-                msr_val = msr_val | m_pkg_rapl_pl2;
+                msr_val = (uint64_t)(value * m_power_units_inv);
+                msr_val = msr_val | m_pkg_power_limit_static;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_PKG_LIMIT].first,
                           m_control_msr_pair[M_RAPL_PKG_LIMIT].second,  msr_val);
                 break;
@@ -367,7 +366,7 @@ namespace geopm
                 if (value > m_max_dram_watts) {
                     value = m_max_dram_watts;
                 }
-                msr_val = (uint64_t)(value * m_power_units);
+                msr_val = (uint64_t)(value * m_power_units_inv);
                 msr_val = msr_val | (msr_val << 32) | M_DRAM_POWER_LIMIT_MASK;
                 msr_write(device_type, device_index, m_control_msr_pair[M_RAPL_DRAM_LIMIT].first,
                           m_control_msr_pair[M_RAPL_DRAM_LIMIT].second,  msr_val);
@@ -448,51 +447,86 @@ namespace geopm
 
     void KNLPlatformImp::rapl_init()
     {
+        // RAPL_POWER_UNIT described in Section 14.9.1 of
+        // Intel(R) 64 and IA-32 Architectures Software Developer’s
+        // Manual Volume 3 (3A, 3B, 3C & 3D): System Programming Guide
+
         uint64_t tmp;
 
         //Make sure units are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
-        m_energy_units = pow(0.5, (double)((tmp >> 8)  & 0x1F));
-        m_power_units = pow(2, (double)(tmp & 0xF));
+        m_power_units_inv = (double)(1 << (tmp & 0xF));
+        m_energy_units = 1.0 / (double)(1 << ((tmp >> 8)  & 0x1F));
+        double time_units = 1.0 / (double)(1 << ((tmp >> 16) & 0xF));
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "RAPL_POWER_UNIT");
-            double energy = pow(0.5, (double)((tmp >> 8) & 0x1F00));
-            double power = pow(2, (double)((tmp >> 0) & 0xF));
-            if (energy != m_energy_units || power != m_power_units) {
-                throw Exception("detected inconsistent power units among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            double power_inv = (double)(1 << (tmp & 0xF));
+            double energy = 1.0 / (double)(1 << ((tmp >> 8)  & 0x1F));
+            if (energy != m_energy_units || power_inv != m_power_units_inv) {
+                throw Exception("detected inconsistent power units among packages",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
 
-        //Make sure bounds are consistent between packages
+        // PKG_POWER_INFO described in Section 14.9.3
+        // Intel(R) 64 and IA-32 Architectures Software Developer’s
+        // Manual Volume 3 (3A, 3B, 3C & 3D): System Programming Guide
+
+        // Make sure bounds are consistent between packages
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_INFO");
-        m_tdp_pkg_watts = ((double)(tmp & 0x7fff)) / m_power_units;
-        m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
-        m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
+        m_tdp_pkg_watts = ((double)(tmp & 0x7fff)) / m_power_units_inv;
+        m_min_pkg_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units_inv;
+        m_max_pkg_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units_inv;
+
+        // DRAM_POWER_INFO described in Section 14.9.5
+        // Intel(R) 64 and IA-32 Architectures Software Developer’s
+        // Manual Volume 3 (3A, 3B, 3C & 3D): System Programming Guide
 
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "DRAM_POWER_INFO");
-        m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
-        m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
+        m_min_dram_watts = ((double)((tmp >> 16) & 0x7fff)) / m_power_units_inv;
+        m_max_dram_watts = ((double)((tmp >> 32) & 0x7fff)) / m_power_units_inv;
+
+        // PKG_POWER_LIMIT described in Section 14.9.3 of
+        // Intel(R) 64 and IA-32 Architectures Software Developer’s
+        // Manual Volume 3 (3A, 3B, 3C & 3D): System Programming Guide
 
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
-        //Set time window 1 to the m_control_latency_ms
-        uint64_t pkg_time_window = (uint64_t)(log(m_control_latency_ms)/log(2)) << 17;
-        m_pkg_rapl_pl2 = (tmp & 0xFFFFFFFFFF000000) | pkg_time_window;
+        //Set time window 1 to the sample limit
+        double tau = m_control_latency_ms * 0.001;
+        uint64_t pkg_time_window_y = (uint64_t)std::log2(tau/time_units);
+        uint64_t pkg_time_window_z = (uint64_t)(4.0 * ((tau / ((double)(1 << pkg_time_window_y) * time_units)) - 1.0));
+        if ((pkg_time_window_z >> 2) != 0 || (pkg_time_window_y >> 5) != 0) {
+            throw Exception("KNLPlatformImp::rapl_init(): Package time limit too large",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+        double tau_inferred = (1 << pkg_time_window_y) * (1.0 + (pkg_time_window_z / 4.0)) * time_units;
+        if ((tau - tau_inferred) > (tau  / 4.0)) {
+            throw Exception("KNLPlatformImp::rapl_init(): Time window calculation inaccurate: "
+                            + std::to_string(tau_inferred),
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+
+        pkg_time_window_y = pkg_time_window_y << 17;
+        pkg_time_window_z = pkg_time_window_z << 22;
+        m_pkg_power_limit_static = (tmp & 0x00FFFFFF00FF0000) | pkg_time_window_y | pkg_time_window_z;
         // enable pl1 limits
-        m_pkg_rapl_pl2 = m_pkg_rapl_pl2 | (0x3 << 15);
+        m_pkg_power_limit_static = m_pkg_power_limit_static | (0x3 << 15);
 
         for (int i = 1; i < m_num_package; i++) {
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_INFO");
-            double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
-            double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
+            double pkg_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units_inv;
+            double pkg_max = ((double)((tmp >> 32) & 0x7fff)) / m_power_units_inv;
             if (pkg_min != m_min_pkg_watts || pkg_max != m_max_pkg_watts) {
-                throw Exception("detected inconsistent power pkg bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("detected inconsistent power pkg bounds among packages",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             tmp = msr_read(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_INFO");
-            double dram_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units;
-            double dram_max = ((double)((tmp >> 32) & 0x7fff)) / m_power_units;
+            double dram_min = ((double)((tmp >> 16) & 0x7fff)) / m_power_units_inv;
+            double dram_max = ((double)((tmp >> 32) & 0x7fff)) / m_power_units_inv;
             if (dram_min != m_min_dram_watts || dram_max != m_max_dram_watts) {
-                throw Exception("detected inconsistent power dram bounds among packages", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("detected inconsistent power dram bounds among packages",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         m_min_pp0_watts = m_min_pkg_watts;
@@ -570,8 +604,8 @@ namespace geopm
         uint64_t msr_val;
         //clear power limits
         for (int i = 1; i < m_num_package; i++) {
-            msr_val = (uint64_t)(m_max_pkg_watts * m_power_units);
-            msr_val = msr_val | m_pkg_rapl_pl2;
+            msr_val = (uint64_t)(m_max_pkg_watts * m_power_units_inv);
+            msr_val = msr_val | m_pkg_power_limit_static;
             msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", msr_val);
             msr_write(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
         }
