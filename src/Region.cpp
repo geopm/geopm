@@ -114,8 +114,9 @@ namespace geopm
         if (domain_idx == m_num_domain) {
             // All domains have completed so do update
             update_curr_sample();
+            m_derivative_num_fit = 0;
         }
-        if (m_derivative_num_fit < M_NUM_SAMPLE_HISTORY) {
+        else if (m_derivative_num_fit < M_NUM_SAMPLE_HISTORY) {
             ++m_derivative_num_fit;
         }
     }
@@ -299,11 +300,6 @@ namespace geopm
         file_stream << "\tcount: " << (m_identifier != GEOPM_REGION_ID_EPOCH ?
                                        (double)m_num_entry / num_rank_per_node :
                                        m_num_entry) << std::endl;
-    }
-
-    void Region::reset_derivative(void)
-    {
-        m_derivative_num_fit = 0;
     }
 
     // Protected function definitions
