@@ -229,7 +229,6 @@ namespace geopm
             ///
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
             void report(std::ofstream &file_stream, const std::string &name, int rank_per_node) const;
-            void reset_derivative(void);
         protected:
             /// @brief Bound testing of input parameters.
             ///
