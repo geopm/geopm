@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_6801bd05",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-07T18:45:47Z",
+      "side": 1,
+      "message": "No longer used.",
+      "range": {
+        "startLine": 78,
+        "startChar": 10,
+        "endLine": 78,
+        "endChar": 51
+      },
+      "revId": "5d4504eb4c4d82c017b4beb1768eeb36b7d97bf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_08100158",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-07T18:45:47Z",
+      "side": 1,
+      "message": "Bad comment.",
+      "range": {
+        "startLine": 481,
+        "startChar": 18,
+        "endLine": 481,
+        "endChar": 21
+      },
+      "revId": "5d4504eb4c4d82c017b4beb1768eeb36b7d97bf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_c3154a40",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-07T18:45:47Z",
+      "side": 1,
+      "message": "It\u0027s probably worth commenting what the heck is going in this variable.  It\u0027s setting bits 15 and 16 which enable the limit and turn on clamping.",
+      "range": {
+        "startLine": 482,
+        "startChar": 43,
+        "endLine": 482,
+        "endChar": 46
+      },
+      "revId": "5d4504eb4c4d82c017b4beb1768eeb36b7d97bf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_43013a04",
+        "filename": "src/KNLPlatformImp.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-07T18:45:47Z",
+      "side": 1,
+      "message": "No longer used.",
+      "range": {
+        "startLine": 134,
+        "startChar": 12,
+        "endLine": 134,
+        "endChar": 50
+      },
+      "revId": "5d4504eb4c4d82c017b4beb1768eeb36b7d97bf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
