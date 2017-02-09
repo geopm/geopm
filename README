@@ -116,7 +116,7 @@ DISTRO appropriate for you system.  Select the BRANCH as "geopm" or
 "geopm-dev" to follow either the "master" or "dev" branches of
 repository hosted at <http://github.com/geopm/geopm>.
 
-    DISTRO=# Select from: "SLES_12" "SLES_12-1"
+    DISTRO=# Select from: "SLES_12" or "SLE_12_SP1"
     BRANCH=# Select from: "geopm" or "geopm-dev"
     REPO=home:/cmcantalupo:
     sudo zypper addrepo http://download.opensuse.org/repositories/${REPO}/${BRANCH}/${DISTRO}/${REPO}${BRANCH}.repo ${BRANCH}
