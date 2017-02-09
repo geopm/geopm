@@ -32,6 +32,7 @@
 
 #include <unistd.h>
 #include <iomanip>
+#include <sstream>
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
@@ -57,9 +58,9 @@ namespace geopm
             if (err) {
                 throw Exception("Tracer::Tracer() gethostname() failed", err, __FILE__, __LINE__);
             }
-            std::string output_path(geopm_env_trace());
-            output_path += "-" + std::string(hostname);
-            m_stream.open(output_path);
+            std::ostringstream output_path;
+            output_path << geopm_env_trace() << "-" << hostname;
+            m_stream.open(output_path.str());
             m_stream << std::setprecision(16);
             m_is_trace_enabled = true;
         }
