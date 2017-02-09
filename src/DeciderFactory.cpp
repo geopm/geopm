@@ -33,6 +33,7 @@
 #include <inttypes.h>
 #include <cpuid.h>
 #include <string>
+#include <sstream>
 #include <dlfcn.h>
 
 #include "geopm_plugin.h"
@@ -90,7 +91,9 @@ namespace geopm
         }
         if (!result) {
             // If we get here, no acceptable decider was found
-            throw Exception("decider: " + description, GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "decider: " << description;
+            throw Exception(ex_str.str(), GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
         }
 
         return result;

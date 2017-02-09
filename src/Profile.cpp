@@ -39,6 +39,7 @@ const char *program_invocation_name = "geopm_profile";
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 #include <float.h>
 #include <unistd.h>
@@ -333,8 +334,9 @@ namespace geopm
             geopm_signal_handler_check();
         }
 
-        std::string table_shm_key(key + "-" + std::to_string(m_rank));
-        m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
+        std::ostringstream table_shm_key;
+        table_shm_key << key <<  "-"  << m_rank;
+        m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
         PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_table_shmem->unlink();
@@ -753,7 +755,7 @@ namespace geopm
 
     void ProfileSampler::initialize(int &rank_per_node)
     {
-        std::string shm_key;
+        std::ostringstream shm_key;
 
         while (m_ctl_msg->app_status != GEOPM_STATUS_MAP_BEGIN) {
             geopm_signal_handler_check();
@@ -771,8 +773,8 @@ namespace geopm
         }
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
-            shm_key = m_ctl_shmem->key() + "-" + std::to_string(*it);
-            m_rank_sampler.push_front(new ProfileRankSampler(shm_key, m_table_size));
+            shm_key << m_ctl_shmem->key() <<  "-"  << *it;
+            m_rank_sampler.push_front(new ProfileRankSampler(shm_key.str(), m_table_size));
         }
         rank_per_node = rank_set.size();
         m_ctl_msg->ctl_status = GEOPM_STATUS_MAP_END;
@@ -834,7 +836,9 @@ namespace geopm
             }
         }
         else if (m_ctl_msg->app_status != GEOPM_STATUS_SHUTDOWN) {
-            throw Exception("ProfileSampler: invalid application status: " + std::to_string(m_ctl_msg->app_status), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "ProfileSampler: invalid application status: " << m_ctl_msg->app_status;
+            throw Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 

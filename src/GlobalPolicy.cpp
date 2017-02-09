@@ -35,6 +35,7 @@
 #include <streambuf>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -557,7 +558,9 @@ namespace geopm
 
         config_file_in.open(m_in_config, std::ifstream::in);
         if (!config_file_in.is_open()) {
-            throw Exception("GlobalPolicy::read(): input configuration file \"" + m_in_config + "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "GlobalPolicy::read(): input configuration file \"" << m_in_config << "\" could not be opened";
+            throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         config_file_in.seekg(0, std::ios::end);
         size_t file_size = config_file_in.tellg();
@@ -639,7 +642,9 @@ namespace geopm
                     affinity(GEOPM_POLICY_AFFINITY_SCATTER);
                 }
                 else {
-                    throw Exception(("GlobalPolicy: unsupported affinity type:" + value_string).c_str(), GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                    std::ostringstream ex_str;
+                    ex_str << "GlobalPolicy: unsupported affinity type: " << value_string;
+                    throw Exception(ex_str.str(), GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
             else if (key_string == "power_budget") {
@@ -670,7 +675,9 @@ namespace geopm
                 platform(value_string);
             }
             else {
-                throw Exception("GlobalPolicy::read(): unknown option \"" + key_string + "\"", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                std::ostringstream ex_str;
+                ex_str << "GlobalPolicy::read(): unknown option \"" << key_string << "\"";
+                throw Exception(ex_str.str(), GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
     }

@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sstream>
 #include "Exception.hpp"
 #include "PlatformTopology.hpp"
 #include "config.h"
@@ -110,8 +111,9 @@ namespace geopm
     {
         auto it = domain_hwloc_map().find(domain_type);
         if (it == domain_hwloc_map().end()) {
-            throw Exception("PlatformTopology::num_domain: Domain type unknown: " + std::to_string(domain_type),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "PlatformTopology::num_domain: Domain type unknown: "  << domain_type;
+            throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return (*it).second;
     }
