@@ -225,8 +225,9 @@ namespace geopm
 
     Exception::Exception(const std::string &what, int err, const char *file, int line)
         : std::runtime_error(error_message(err) + (
-                                 what.size() != 0 ? (": " + what) : "") + (
-                                 file != NULL ? (": at geopm/" + std::string(file) + ":" + std::to_string(line)) : ""))
+                                 what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (
+                                 file != NULL ? (std::string(": at geopm/") + std::string(file) +
+                                 std::string(":") + std::to_string(line)) : std::string("")))
         , m_err(err ? err : GEOPM_ERROR_RUNTIME)
     {
 
@@ -267,7 +268,7 @@ namespace geopm
     }
 
     SignalException::SignalException(int signum)
-        : Exception("Signal " + std::to_string(signum) + " raised", errno ? errno : GEOPM_ERROR_RUNTIME)
+        : Exception(std::string("Signal ") + std::to_string(signum) + std::string(" raised"), errno ? errno : GEOPM_ERROR_RUNTIME)
         , m_sig(signum)
     {
 

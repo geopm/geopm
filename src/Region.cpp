@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "Region.hpp"
 #include "config.h"
@@ -101,7 +102,9 @@ namespace geopm
                 throw Exception("Region::insert(): input telemetry vector has non-uniform timestamp values", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             if ((*it).region_id != m_identifier) {
-                throw Exception("Region::insert(): input telemetry vector wrong region id: expecting " + std::to_string(m_identifier) + ", recieved: " + std::to_string((*it).region_id), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                std::ostringstream ex_str;
+                ex_str << "Region::insert(): input telemetry vector wrong region id, expecting: "  << m_identifier  << ", recieved: " << (*it).region_id;
+                throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 #endif
             update_domain_sample(*it, domain_idx);
@@ -270,7 +273,7 @@ namespace geopm
 
     void Region::report(std::ofstream &file_stream, const std::string &name, int num_rank_per_node) const
     {
-        file_stream << "Region " + name + " (" << m_identifier << "):" << std::endl;
+        file_stream << "Region " << name << " (" << m_identifier << "):" << std::endl;
         file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
         file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
         file_stream << "\tfrequency (%): " << (m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] ? 100 *
@@ -291,14 +294,12 @@ namespace geopm
     void Region::check_bounds(int domain_idx, int signal_type, const char *file, int line) const
     {
         if (domain_idx < 0 || domain_idx > (int)m_num_domain) {
-            throw geopm::Exception("Region::check_bounds(): the requested domain index is out of bounds. called from geopm/"
-                                   + std::string(file) + ":" + std::to_string(line),
-                                   GEOPM_ERROR_INVALID);
+            throw geopm::Exception("Region::check_bounds(): the requested domain index is out of bounds.",
+                                   GEOPM_ERROR_INVALID, file, line);
         }
         if (signal_type < 0 || signal_type > m_num_signal) {
-            throw geopm::Exception("Region::check_bounds(): the requested signal type is invalid. called from geopm/"
-                                   + std::string(file) + ":" + std::to_string(line),
-                                   GEOPM_ERROR_INVALID);
+            throw geopm::Exception("Region::check_bounds(): the requested signal type is invalid.",
+                                   GEOPM_ERROR_INVALID, file, line);
         }
     }
 

@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <iostream>
+#include <sstream>
 
 #include "geopm_time.h"
 #include "SharedMemory.hpp"
@@ -57,14 +58,18 @@ namespace geopm
         mode_t old_mask = umask(0);
         int shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IROTH| S_IWOTH);
         if (shm_id < 0) {
-            throw Exception("SharedMemory: Could not open shared memory with key " + m_shm_key, errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "SharedMemory: Could not open shared memory with key " << m_shm_key;
+            throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         int err = ftruncate(shm_id, size);
         if (err) {
             (void) close(shm_id);
             (void) shm_unlink(m_shm_key.c_str());
             (void) umask(old_mask);
-            throw Exception("SharedMemory: Could not extend shared memory to size " + std::to_string(size), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "SharedMemory: Could not extend shared memory to size "  << size;
+            throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
         if (m_ptr == MAP_FAILED) {
@@ -125,11 +130,15 @@ namespace geopm
         if (!timeout) {
             shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
             if (shm_id < 0) {
-                throw Exception("SharedMemoryUser: Could not open shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::ostringstream ex_str;
+                ex_str << "SharedMemoryUser: Could not open shared memory with key \""  <<  shm_key << "\"";
+                throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             err = fstat(shm_id, &stat_struct);
             if (err) {
-                throw Exception("SharedMemoryUser: fstat() error on shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::ostringstream ex_str;
+                ex_str << "SharedMemoryUser: fstat() error on shared memory with key \"" << shm_key << "\"";
+                throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_size = stat_struct.st_size;
 
@@ -150,7 +159,9 @@ namespace geopm
                 geopm_time(&curr_time);
             }
             if (shm_id < 0) {
-                throw Exception("SharedMemoryUser: Could not open shared memory with key \"" + shm_key + "\"", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::ostringstream ex_str;
+                ex_str << "SharedMemoryUser: Could not open shared memory with key \"" << shm_key << "\"";
+                throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
             while (!m_size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
@@ -209,8 +220,9 @@ namespace geopm
         if (m_is_linked) {
             int err = shm_unlink(m_shm_key.c_str());
             if (err) {
-                throw Exception("SharedMemoryUser::unlink() Call to shm_unlink(" + m_shm_key + ") failed",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::ostringstream tmp_str;
+                tmp_str << "SharedMemoryUser::unlink() Call to shm_unlink(" << m_shm_key  << ") failed",
+                throw Exception(tmp_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_is_linked = false;
         }

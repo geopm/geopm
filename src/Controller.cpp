@@ -38,6 +38,7 @@
 #include <streambuf>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <json-c/json.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -824,7 +825,9 @@ namespace geopm
         }
 
         gethostname(hostname, NAME_MAX);
-        report.open(report_name + "-" + std::string(hostname), std::ios_base::out);
+        std::ostringstream host_report_name;
+        host_report_name << report_name << "-" << hostname;
+        report.open(host_report_name.str(), std::ios_base::out);
         report << "##### geopm " << geopm_version() << " #####" << std::endl << std::endl;
         report << "Profile: " << profile_name << std::endl;
         for (auto it = m_region[0].begin(); it != m_region[0].end(); ++it) {
@@ -842,7 +845,9 @@ namespace geopm
                     name = (*region_it).second;
                 }
                 else {
-                    throw Exception("Controller::generate_report(): Invalid region " + std::to_string(region_id), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    std::ostringstream ex_str;
+                    ex_str << "Controller::generate_report(): Invalid region " << region_id;
+                    throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
             if ((*it).second->num_entry()) {
@@ -856,7 +861,9 @@ namespace geopm
                << "\tmpi-runtime (sec): " << m_mpi_agg_time << std::endl
                << "\tthrottle time (%): " << (double)m_throttle_count / (double)m_sample_count * 100.0 << std::endl;
 
-        std::ifstream proc_stream("/proc/" + std::to_string((int)getpid()) +  "/status");
+        std::ostringstream proc_str;
+        proc_str << "/proc/" << (int)getpid() <<  "/status";
+        std::ifstream proc_stream(proc_str.str());
         std::string line;
         std::string max_memory;
         const std::string key("VmHWM:");
