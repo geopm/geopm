@@ -39,15 +39,34 @@ import signal
 
 
 def get_resource_manager():
-    # FIXME This should do some better autodetection rather than looking at the hostname.
-    hostname = socket.gethostname()
     slurm_hosts = ['mr-fusion', 'KNP12']
-    if any(hostname.startswith(word) for word in slurm_hosts):
-        return "SLURM"
-    elif hostname.find('theta') == 0:
-        return "ALPS"
-    else:
-        raise LookupError('Unrecognized hostname: ' + hostname)
+    alps_hosts = ['theta']
+
+    result = os.environ.get('GEOPM_RM')
+
+    if not result:
+        hostname = socket.gethostname()
+
+        if any(hostname.startswith(word) for word in slurm_hosts):
+            result = "SLURM"
+        elif any(hostname.startswith(word) for word in alps_hosts):
+            result = "ALPS"
+        else:
+            try:
+                exec_str = 'srun --version'
+                subprocess.check_call(exec_str, shell=True)
+                sys.stderr.write('Warning: Unrecognized host: "{hn}", using SLURM'.format(hh=hostname))
+                result = "SLURM"
+            except subprocess.CalledProcessError:
+                try:
+                    exec_str = 'aprun --version'
+                    subprocess.check_call(exec_str, shell=True)
+                    sys.stderr.write("Warning: Unrecognized host: \"{hn}\", using ALPS".format(hh=hostname))
+                    result = "ALPS"
+                except subprocess.CalledProcessError:
+                    raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable to "SLURM" or "ALPS"')
+
+    return result;
 
 
 def factory(app_conf, ctl_conf, report_path,
