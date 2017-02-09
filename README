@@ -92,12 +92,13 @@ DISTRO appropriate for you system.  Select the BRANCH as "geopm" or
 "geopm-dev" to follow either the "master" or "dev" branches of
 repository hosted at <http://github.com/geopm/geopm>.
 
-    DISTRO=# Select from: "CentOS_7" "RHEL7" "Fedora_21" "Fedora_22" "Fedora_23"
+    DISTRO=# Select from: "CentOS_7" "RHEL_7" "Fedora_23" "Fedora_24"
     BRANCH=# Select from: "geopm" or "geopm-dev"
-    REPO=home:/cmcantalupo:
-    wget http://download.opensuse.org/repositories/${REPO}/${BRANCH}/${DISTRO}/${REPO}${BRANCH}.repo
+    ROOT="home:/cmcantalupo:"
+    REPO=$(echo $ROOT | sed 's|/||')
+    wget http://download.opensuse.org/repositories/${ROOT}/${BRANCH}/${DISTRO}/${REPO}${BRANCH}.repo
     sudo install --mode 644 ${REPO}${BRANCH}.repo /etc/yum.repos.d/${BRANCH}.repo
-    unset DISTRO BRANCH REPO
+    unset DISTRO BRANCH ROOT REPO
 
 After the yum repository has been added, you can simply install geopm
 with yum:
@@ -116,12 +117,13 @@ DISTRO appropriate for you system.  Select the BRANCH as "geopm" or
 "geopm-dev" to follow either the "master" or "dev" branches of
 repository hosted at <http://github.com/geopm/geopm>.
 
-    DISTRO=# Select from: "SLES_12" "SLES_12-1"
+    DISTRO=# Select from: "SLE_12" or "SLE_12_SP1"
     BRANCH=# Select from: "geopm" or "geopm-dev"
-    REPO=home:/cmcantalupo:
-    sudo zypper addrepo http://download.opensuse.org/repositories/${REPO}/${BRANCH}/${DISTRO}/${REPO}${BRANCH}.repo ${BRANCH}
+    ROOT="home:/cmcantalupo:"
+    REPO=$(echo $ROOT | sed 's|/||')
+    sudo zypper addrepo http://download.opensuse.org/repositories/${ROOT}/${BRANCH}/${DISTRO}/${REPO}${BRANCH}.repo ${BRANCH}
     sudo zypper refresh
-    unset DISTRO BRANCH REPO
+    unset DISTRO BRANCH ROOT REPO
 
 After the zypper repository has been added, you can simply install
 geopm with zypper:
