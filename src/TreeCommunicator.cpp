@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -72,27 +73,28 @@ extern "C"
         int err = 0;
         struct stat stat_struct;
         try {
-            std::string shmem_key(geopm_env_shmkey());
-            shmem_key += "-comm-split-" + std::string(tag);
-            std::string shmem_path("/dev/shm" + shmem_key);
+            std::ostringstream shmem_key;
+            shmem_key << geopm_env_shmkey() << "-comm-split-" << tag;
+            std::ostringstream shmem_path;
+            shmem_path << "/dev/shm" << shmem_key.str();
             geopm::SharedMemory *shmem = NULL;
             geopm::SharedMemoryUser *shmem_user = NULL;
             int rank, color = -1;
 
             MPI_Comm_rank(comm, &rank);
             // remove shared memory file if one already exists
-            (void)unlink(shmem_path.c_str());
+            (void)unlink(shmem_path.str().c_str());
             MPI_Barrier(comm);
-            err = stat(shmem_path.c_str(), &stat_struct);
+            err = stat(shmem_path.str().c_str(), &stat_struct);
             if (!err || (err && errno != ENOENT)) {
-                throw geopm::Exception("geopm_comm_split_shared(): " +
-                                       std::string(shmem_key) +
-                                       " already exists and cannot be deleted.",
-                                       GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::stringstream ex_str;
+                ex_str << "geopm_comm_split_shared(): " << shmem_key.str()
+                       << " already exists and cannot be deleted.";
+                throw geopm::Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             MPI_Barrier(comm);
             try {
-                shmem = new geopm::SharedMemory(shmem_key, sizeof(int));
+                shmem = new geopm::SharedMemory(shmem_key.str(), sizeof(int));
             }
             catch (geopm::Exception ex) {
                 if (ex.err_value() != EEXIST) {
@@ -100,7 +102,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = new geopm::SharedMemoryUser(shmem_key, 1);
+                shmem_user = new geopm::SharedMemoryUser(shmem_key.str(), 1);
             }
             else {
                 color = rank;
@@ -198,7 +200,9 @@ namespace geopm
             char error_str[MPI_MAX_ERROR_STRING];
             int name_max = MPI_MAX_ERROR_STRING;
             MPI_Error_string(err, error_str, &name_max);
-            throw Exception("MPI Error: " + std::string(error_str), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "MPI Error: " << error_str;
+            throw Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -473,11 +477,11 @@ namespace geopm
     void TreeCommunicatorLevel::get_sample(std::vector<struct geopm_sample_message_s> &sample)
     {
         if (m_rank != 0) {
-            throw Exception(std::string(__func__) + ": Only zero rank of the level can call sample",
+            throw Exception("TreeCommunicatorLevel::get_sample(): Only zero rank of the level can call sample",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         if (sample.size() < (size_t)m_size) {
-            throw Exception(std::string(__func__) + ": Input sample vector too small",
+            throw Exception("TreeCommunicatorLevel::get_sample(): Input sample vector too small",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
