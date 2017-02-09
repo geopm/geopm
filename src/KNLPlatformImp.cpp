@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sstream>
 #include <math.h>
 #include <unistd.h>
 #include "geopm_error.h"
@@ -426,10 +427,12 @@ namespace geopm
             }
         }
         for (int i = 0; i < m_num_tile; i++) {
-            std::string msr_name("C" + std::to_string(i) + "_MSR_PMON_CTR0");
-            m_signal_msr_offset[M_L2_MISSES + 2 * i] = msr_offset(msr_name);
-            msr_name = "C" + std::to_string(i) + "_MSR_PMON_CTR1";
-            m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * i] = msr_offset(msr_name);
+            std::ostringstream msr_name;
+            msr_name << "C" <<  i  << "_MSR_PMON_CTR0";
+            m_signal_msr_offset[M_L2_MISSES + 2 * i] = msr_offset(msr_name.str());
+            msr_name.str("");
+            msr_name << "C"  <<  i <<  "_MSR_PMON_CTR1";
+            m_signal_msr_offset[M_HW_L2_PREFETCH + 2 * i] = msr_offset(msr_name.str());
         }
 
         //Save off the msr offsets and masks for the controls we want to write to avoid a map lookup

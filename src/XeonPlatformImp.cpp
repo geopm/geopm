@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sstream>
 #include <math.h>
 #include <unistd.h>
 
@@ -493,8 +494,9 @@ namespace geopm
         }
         int cpu_per_socket = m_num_hw_cpu / m_num_package;
         for (int i = 0; i < m_num_hw_cpu; i++) {
-            std::string msr_name("C" + std::to_string(i % cpu_per_socket) + "_MSR_PMON_CTR1");
-            m_signal_msr_offset[M_LLC_VICTIMS + i] = msr_offset(msr_name);
+            std::ostringstream msr_name;
+            msr_name << "C" << i % cpu_per_socket << "_MSR_PMON_CTR1";
+            m_signal_msr_offset[M_LLC_VICTIMS + i] = msr_offset(msr_name.str());
         }
 
         //Save off the msr offsets and masks for the controls we want to write to avoid a map lookup

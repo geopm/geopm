@@ -31,6 +31,7 @@
  */
 
 #include <string>
+#include <sstream>
 #include <inttypes.h>
 #include <cpuid.h>
 
@@ -152,7 +153,9 @@ namespace geopm
         }
         if (!result) {
             // If we get here, no acceptable platform was found
-            throw Exception("cpuid: " + std::to_string(platform_id), GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
+            std::ostringstream ex_str;
+            ex_str << "cpuid: " << platform_id;
+            throw Exception(ex_str.str(), GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
 
         return result;
