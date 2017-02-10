@@ -362,6 +362,8 @@ AC_CHECK_HEADER([pthread.h], [], [
 AC_CHECK_LIB([hwloc], [hwloc_topology_init], [], [
     echo "missing libhwloc: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-lib"
     exit -1])
+AC_CHECK_LIB([hwloc], [hwloc_topology_dup], [
+    AC_DEFINE([GEOPM_HWLOC_HAS_TOPOLOGY_DUP], [1], [hwloc supports hwloc_topology_dup.])], [])
 AC_CHECK_HEADER([hwloc.h], [], [
     echo "missing hwloc.h: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-include"
     exit -1])
@@ -420,7 +422,6 @@ AC_COMPILE_IFELSE([
 ],[
     AC_MSG_RESULT(no)
 ])
-
 
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
