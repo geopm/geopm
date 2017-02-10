@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_4fa70aaa",
+        "filename": "src/Region.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-10T18:05:06Z",
+      "side": 1,
+      "message": "Not used. I thought you already removed this in a clean-up patch you had somewhere...",
+      "range": {
+        "startLine": 273,
+        "startChar": 16,
+        "endLine": 273,
+        "endChar": 31
+      },
+      "revId": "282a7f18fad9386fcc39662fd21c8cd90808946c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
