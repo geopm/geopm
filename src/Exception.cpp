@@ -239,6 +239,13 @@ namespace geopm
 
     }
 
+    Exception::Exception(const Exception &other)
+        : std::runtime_error(other.what())
+        , m_err(other.m_err)
+    {
+
+    }
+
     Exception::Exception(int err)
         : Exception("", err, NULL, 0)
     {
@@ -265,6 +272,20 @@ namespace geopm
     int Exception::err_value(void) const
     {
         return m_err;
+    }
+
+
+    SignalException::SignalException()
+        : SignalException(0)
+    {
+
+    }
+
+    SignalException::SignalException(const SignalException &other)
+        : Exception(other)
+        , m_sig(other.m_sig)
+    {
+
     }
 
     SignalException::SignalException(int signum)

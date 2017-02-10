@@ -85,6 +85,7 @@ namespace geopm
             /// abbreviated what() result.  If errno is zero then
             /// GEOPM_ERROR_RUNTIME (-1) is used for the error code.
             Exception();
+            Exception(const Exception &other);
             /// @brief Error number only constructor.
             ///
             /// User provides error code.  Enables an abbreviated
@@ -172,7 +173,9 @@ namespace geopm
     class SignalException: public Exception
     {
         public:
+            SignalException();
             SignalException(int signum);
+            SignalException(const SignalException &other);
             virtual ~SignalException();
             int sig_value(void) const;
         private:
