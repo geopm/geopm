@@ -49,6 +49,7 @@ namespace geopm
         public:
             /// @ brief GoverningDecider default constructor.
             GoverningDecider();
+            GoverningDecider(const GoverningDecider &other);
             /// @ brief GoverningDecider destructor, virtual.
             virtual ~GoverningDecider();
             virtual Decider *clone(void) const;

@@ -64,6 +64,20 @@ namespace geopm
         , m_num_sample(5)
         , m_num_out_of_range(0)
     {
+
+    }
+
+    GoverningDecider::GoverningDecider(const GoverningDecider &other)
+        : Decider(other)
+        , m_name(other.m_name)
+        , m_guard_band(other.m_guard_band)
+        , m_min_num_converged(other.m_min_num_converged)
+        , m_last_power_budget(other.m_last_power_budget)
+        , m_num_sample(other.m_num_sample)
+        , m_num_out_of_range(other.m_num_out_of_range)
+        , m_num_converged(other.m_num_converged)
+    {
+
     }
 
     GoverningDecider::~GoverningDecider()

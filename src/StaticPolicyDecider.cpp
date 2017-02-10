@@ -41,6 +41,14 @@ namespace geopm
 
     }
 
+    StaticPolicyDecider::StaticPolicyDecider(const StaticPolicyDecider &other)
+        : Decider(other)
+        , m_name(other.m_name)
+    {
+
+    }
+
+
     StaticPolicyDecider::~StaticPolicyDecider()
     {
 
