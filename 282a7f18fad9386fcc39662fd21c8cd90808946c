@@ -22,6 +22,30 @@
       "revId": "282a7f18fad9386fcc39662fd21c8cd90808946c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_4fd5cae5",
+        "filename": "src/Region.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-02-10T18:19:55Z",
+      "side": 1,
+      "message": "That change is in the next patch 19c09dbc.  Thanks for looking out for missed work.  There are a lot of outstanding patches right now.",
+      "parentUuid": "fabf19d9_4fa70aaa",
+      "range": {
+        "startLine": 273,
+        "startChar": 16,
+        "endLine": 273,
+        "endChar": 31
+      },
+      "revId": "282a7f18fad9386fcc39662fd21c8cd90808946c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
