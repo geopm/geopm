@@ -71,6 +71,23 @@ namespace geopm
         }
     }
 
+#ifdef HWLOC_HAS_TOPOLOGY_DUP
+    PlatformTopology::PlatformTopology(const PlatformTopology &other)
+    {
+        int err = hwloc_topology_dup(&m_topo, other.m_topo);
+        if (err) {
+            throw Exception("PlatformTopology: error returned by hwloc_topology_dup()",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+#else
+    PlatformTopology::PlatformTopology(const PlatformTopology &other)
+        : PlatformTopology()
+    {
+
+    }
+#endif
+
     PlatformTopology::~PlatformTopology()
     {
         /// @todo: This was failing internally on Catalyst. Need to debug.

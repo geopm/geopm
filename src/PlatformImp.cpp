@@ -90,6 +90,36 @@ namespace geopm
 
     }
 
+    PlatformImp::PlatformImp(const PlatformImp &other)
+        : m_topology(other.m_topology)
+        , m_cpu_file_desc(other.m_cpu_file_desc)
+        , m_msr_map_ptr(other.m_msr_map_ptr)
+        , m_num_logical_cpu(other.m_num_logical_cpu)
+        , m_num_hw_cpu(other.m_num_hw_cpu)
+        , m_num_cpu_per_core(other.m_num_cpu_per_core)
+        , m_num_tile(other.m_num_tile)
+        , m_num_tile_group(other.m_num_tile_group)
+        , m_num_package(other.m_num_package)
+        , m_num_core_per_tile(other.m_num_core_per_tile)
+        , m_num_energy_signal(other.m_num_energy_signal)
+        , m_num_counter_signal(other.m_num_counter_signal)
+        , m_control_latency_ms(other.m_control_latency_ms)
+        , m_tdp_pkg_watts(other.m_tdp_pkg_watts)
+        , m_pkg_time_window(other.m_pkg_time_window)
+        , m_msr_value_last(other.m_msr_value_last)
+        , m_msr_overflow_offset(other.m_msr_overflow_offset)
+        , m_msr_batch_desc(other.m_msr_batch_desc)
+        , m_is_batch_enabled(other.m_is_batch_enabled)
+        , m_batch(other.m_batch)
+        , m_msr_save_file_path(other.m_msr_save_file_path)
+        , M_MSR_SAVE_FILE_PATH(other.M_MSR_SAVE_FILE_PATH)
+    {
+        // Copy C string for m_msr_path
+        m_msr_path[NAME_MAX - 1] = '\0';
+        strncpy(m_msr_path, other.m_msr_path, NAME_MAX - 1);
+    }
+
+
     PlatformImp::~PlatformImp()
     {
         if (m_batch.numops) {
