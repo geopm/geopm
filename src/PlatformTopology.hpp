@@ -73,6 +73,7 @@ namespace geopm
             /// @brief Default constructor initializes and builds
             /// the hwloc tree.
             PlatformTopology();
+            PlatformTopology(const PlatformTopology &other);
             /// @brief Default destructor destroys the hwloc tree.
             virtual ~PlatformTopology();
             /// @brief Retrieve the count of a specific hwloc resource type.
@@ -81,10 +82,9 @@ namespace geopm
             /// @return Count of the specified resource type.
             virtual int num_domain(int domain_type) const;
         private:
+            virtual hwloc_obj_type_t hwloc_domain(int domain_type) const;
             /// @brief Holds the hwloc topology tree.
             hwloc_topology_t m_topo;
-
-            virtual hwloc_obj_type_t hwloc_domain(int domain_type) const;
     };
 }
 

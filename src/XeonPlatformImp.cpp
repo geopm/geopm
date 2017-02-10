@@ -74,6 +74,37 @@ namespace geopm
 
     }
 
+    XeonPlatformImp::XeonPlatformImp(const XeonPlatformImp &other)
+        : PlatformImp(other)
+        , m_throttle_limit_mhz(other.m_throttle_limit_mhz)
+        , m_energy_units(other.m_energy_units)
+        , m_dram_energy_units(other.m_dram_energy_units)
+        , m_power_units(other.m_power_units)
+        , m_min_pkg_watts(other.m_min_pkg_watts)
+        , m_max_pkg_watts(other.m_max_pkg_watts)
+        , m_min_pp0_watts(other.m_min_pp0_watts)
+        , m_max_pp0_watts(other.m_max_pp0_watts)
+        , m_min_dram_watts(other.m_min_dram_watts)
+        , m_max_dram_watts(other.m_max_dram_watts)
+        , m_signal_msr_offset(other.m_signal_msr_offset)
+        , m_control_msr_pair(other.m_control_msr_pair)
+        , M_BOX_FRZ_EN(other.M_BOX_FRZ_EN)
+        , M_BOX_FRZ(other.M_BOX_FRZ)
+        , M_CTR_EN(other.M_CTR_EN)
+        , M_RST_CTRS(other.M_RST_CTRS)
+        , M_LLC_FILTER_MASK(other.M_LLC_FILTER_MASK)
+        , M_LLC_VICTIMS_EV_SEL(other.M_LLC_VICTIMS_EV_SEL)
+        , M_LLC_VICTIMS_UMASK(other.M_LLC_VICTIMS_UMASK)
+        , M_EVENT_SEL_0(other.M_EVENT_SEL_0)
+        , M_UMASK_0(other.M_UMASK_0)
+        , M_PKG_POWER_LIMIT_MASK(other.M_PKG_POWER_LIMIT_MASK)
+        , M_DRAM_POWER_LIMIT_MASK(other.M_DRAM_POWER_LIMIT_MASK)
+        , M_PLATFORM_ID(other.M_PLATFORM_ID)
+        , M_MODEL_NAME(other.M_MODEL_NAME)
+    {
+
+    }
+
     XeonPlatformImp::~XeonPlatformImp()
     {
         rapl_reset();
@@ -96,6 +127,13 @@ namespace geopm
 
     }
 
+    SNBPlatformImp::SNBPlatformImp(const SNBPlatformImp &other)
+        : XeonPlatformImp(other)
+    {
+
+    }
+
+
     SNBPlatformImp::~SNBPlatformImp()
     {
 
@@ -109,6 +147,12 @@ namespace geopm
 
     IVTPlatformImp::IVTPlatformImp()
         : SNBPlatformImp(platform_id(), "Ivybridge E")
+    {
+
+    }
+
+    IVTPlatformImp::IVTPlatformImp(const IVTPlatformImp &other)
+        : SNBPlatformImp(other)
     {
 
     }
@@ -135,6 +179,12 @@ namespace geopm
         XeonPlatformImp::m_dram_energy_units = 1.5258789063E-5;
     }
 
+    HSXPlatformImp::HSXPlatformImp(const HSXPlatformImp &other)
+        : XeonPlatformImp(other)
+    {
+
+    }
+
     HSXPlatformImp::~HSXPlatformImp()
     {
 
@@ -147,6 +197,12 @@ namespace geopm
 
     BDXPlatformImp::BDXPlatformImp()
         : HSXPlatformImp(platform_id(), "Broadwell E")
+    {
+
+    }
+
+    BDXPlatformImp::BDXPlatformImp(const BDXPlatformImp &other)
+        : HSXPlatformImp(other)
     {
 
     }

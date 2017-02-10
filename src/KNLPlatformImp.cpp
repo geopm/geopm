@@ -83,6 +83,42 @@ namespace geopm
 
     }
 
+    KNLPlatformImp::KNLPlatformImp(const KNLPlatformImp &other)
+        : PlatformImp(other)
+        , m_throttle_limit_mhz(other.m_throttle_limit_mhz)
+        , m_energy_units(other.m_energy_units)
+        , m_power_units(other.m_power_units)
+        , m_dram_energy_units(other.m_dram_energy_units)
+        , m_min_pkg_watts(other.m_min_pkg_watts)
+        , m_max_pkg_watts(other.m_max_pkg_watts)
+        , m_min_pp0_watts(other.m_min_pp0_watts)
+        , m_max_pp0_watts(other.m_max_pp0_watts)
+        , m_min_dram_watts(other.m_min_dram_watts)
+        , m_max_dram_watts(other.m_max_dram_watts)
+        , m_signal_msr_offset(other.m_signal_msr_offset)
+        , m_control_msr_pair(other.m_control_msr_pair)
+        , M_KNL_MODEL_NAME(other.M_KNL_MODEL_NAME)
+        , M_BOX_FRZ_EN(other.M_BOX_FRZ_EN)
+        , M_BOX_FRZ(other.M_BOX_FRZ)
+        , M_CTR_EN(other.M_CTR_EN)
+        , M_RST_CTRS(other.M_RST_CTRS)
+        , M_L2_FILTER_MASK(other.M_L2_FILTER_MASK)
+        , M_L2_REQ_MISS_EV_SEL(other.M_L2_REQ_MISS_EV_SEL)
+        , M_L2_REQ_MISS_UMASK(other.M_L2_REQ_MISS_UMASK)
+        , M_L2_PREFETCH_EV_SEL(other.M_L2_PREFETCH_EV_SEL)
+        , M_L2_PREFETCH_UMASK(other.M_L2_PREFETCH_UMASK)
+        , M_EVENT_SEL_0(other.M_EVENT_SEL_0)
+        , M_UMASK_0(other.M_UMASK_0)
+        , M_EVENT_SEL_1(other.M_EVENT_SEL_1)
+        , M_UMASK_1(other.M_UMASK_1)
+        , M_PKG_POWER_LIMIT_MASK(other.M_PKG_POWER_LIMIT_MASK)
+        , M_DRAM_POWER_LIMIT_MASK(other.M_DRAM_POWER_LIMIT_MASK)
+        , M_EXTRA_SIGNAL(other.M_EXTRA_SIGNAL)
+        , M_PLATFORM_ID(other.M_PLATFORM_ID)
+    {
+
+    }
+
     KNLPlatformImp::~KNLPlatformImp()
     {
         rapl_reset();

@@ -53,6 +53,8 @@ namespace geopm
         public:
             /// @brief Default constructor.
             XeonPlatformImp(int platform_id, const std::string &model_name, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map);
+            /// @brief Copy constructor.
+            XeonPlatformImp(const XeonPlatformImp &other);
             /// @brief Default destructor.
             virtual ~XeonPlatformImp();
             virtual bool model_supported(int platform_id);
@@ -162,6 +164,7 @@ namespace geopm
             /// @brief Default constructor.
             SNBPlatformImp();
             SNBPlatformImp(int platform_id, const std::string &model_name);
+            SNBPlatformImp(const SNBPlatformImp &other);
             /// @brief Default destructor.
             virtual ~SNBPlatformImp();
             virtual int frequency_control_domain(void) const;
@@ -175,6 +178,7 @@ namespace geopm
         public:
             /// @brief Default constructor.
             IVTPlatformImp();
+            IVTPlatformImp(const IVTPlatformImp &other);
             /// @brief Default destructor.
             virtual ~IVTPlatformImp();
             virtual int frequency_control_domain(void) const;
@@ -189,6 +193,7 @@ namespace geopm
         public:
             /// @brief Default constructor.
             HSXPlatformImp();
+            HSXPlatformImp(const HSXPlatformImp &other);
             HSXPlatformImp(int platform_id, const std::string &model_name);
             /// @brief Default destructor.
             virtual ~HSXPlatformImp();
@@ -200,6 +205,7 @@ namespace geopm
         public:
             /// @brief Default constructor.
             BDXPlatformImp();
+            BDXPlatformImp(const BDXPlatformImp &other);
             /// @brief Default destructor.
             virtual ~BDXPlatformImp();
             static int platform_id(void);
