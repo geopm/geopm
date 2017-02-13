@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_2ff28b06",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T19:04:59Z",
+      "side": 1,
+      "message": "Drop all samples before the first epoch.  Probably not compute intensive, or don\u0027t care about balancing.  It\u0027s assumed to be startup code.\n\nSwap mean out for 90th (?) percentile check.",
+      "range": {
+        "startLine": 370,
+        "startChar": 8,
+        "endLine": 384,
+        "endChar": 98
+      },
+      "revId": "0671c285c033b5866d9cb1685e688d7798966911",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
