@@ -216,6 +216,7 @@ namespace geopm
     {
         public:
             TreeCommunicatorLevel(MPI_Comm comm);
+            TreeCommunicatorLevel(const TreeCommunicatorLevel &other);
             ~TreeCommunicatorLevel();
             /// Check sample mailbox for each child and if all are full copy
             /// them into sample and reset values in mailbox, otherwise throw
@@ -238,7 +239,6 @@ namespace geopm
             size_t overhead_send(void);
         protected:
             void create_window(void);
-            void destroy_window(void);
             MPI_Comm m_comm;
             int m_size;
             int m_rank;
@@ -257,20 +257,98 @@ namespace geopm
     TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, GlobalPolicy *global_policy, const MPI_Comm &comm)
         : m_num_node(0)
         , m_fan_out(fan_out)
-        , m_comm(fan_out.size())
         , m_global_policy(global_policy)
-        , m_level(fan_out.size())
+        , m_level(fan_out.size(), NULL)
     {
-        comm_create(comm);
-        level_create();
+        int num_level = m_fan_out.size();
+        int color, key;
+        MPI_Comm comm_cart;
+        std::vector<int> flags(num_level, 0);
+        std::vector<int> coords(num_level, 0);
+        std::vector<int> parent_coords(num_level, 0);
+        int rank_cart;
+
         check_mpi(MPI_Comm_size(comm, &m_num_node));
+
+        check_mpi(MPI_Cart_create(comm, num_level, m_fan_out.data(), flags.data(), 1, &comm_cart));
+        check_mpi(MPI_Comm_rank(comm_cart, &rank_cart));
+        check_mpi(MPI_Cart_coords(comm_cart, rank_cart, num_level, coords.data()));
+        parent_coords = coords;
+
+        /* Tracks if the rank's coordinate is zero for higher order
+	   dimensions than the depth */
+        bool is_all_zero = true;
+        MPI_Comm level_comm;
+        m_num_level = 0;
+        int level = 0;
+        int depth = num_level - 1;
+        for (auto level_it = m_level.begin();
+             level_it != m_level.end();
+             ++level_it, ++level, --depth) {
+            if (is_all_zero) {
+                parent_coords[depth] = 0;
+                MPI_Cart_rank(comm_cart, parent_coords.data(), &color);
+                key = rank_cart;
+            }
+            else {
+                color = MPI_UNDEFINED;
+                key = 0;
+            }
+
+            check_mpi(MPI_Comm_split(comm_cart, color, key, &level_comm));
+            if (level_comm != MPI_COMM_NULL) {
+                ++m_num_level;
+                // TreeCommunicatorLevel will call MPI_Comm_Free on
+                // level_comm in destructor.
+                *level_it = new TreeCommunicatorLevel(level_comm);
+            }
+
+            if (coords[depth] != 0) {
+                is_all_zero = false;
+            }
+        }
+        check_mpi(MPI_Comm_free(&comm_cart));
+
+        if (m_global_policy) {
+            m_num_level++;
+        }
+
+        if (rank_cart == 0 && m_global_policy == NULL) {
+            throw Exception("process at root of tree communicator has not mapped the control file",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+        }
+        if (rank_cart != 0 && m_global_policy != NULL) {
+            throw Exception("process not at root of tree communicator has mapped the control file",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+        }
+
         PMPI_Barrier(comm);
     }
 
+    TreeCommunicator::TreeCommunicator(const TreeCommunicator &other)
+        : TreeCommunicatorBase(other)
+        , m_num_level(other.m_num_level)
+        , m_num_node(other.m_num_node)
+        , m_fan_out(other.m_fan_out)
+        , m_global_policy(other.m_global_policy)
+        , m_level(other.m_level.size())
+    {
+        auto o_level_it = other.m_level.begin();
+        for (auto level_it = m_level.begin();
+             level_it != m_level.end();
+             ++level_it, ++o_level_it) {
+            *level_it = new TreeCommunicatorLevel(**o_level_it);
+        }
+    }
+
+
     TreeCommunicator::~TreeCommunicator()
     {
-        level_destroy();
-        comm_destroy();
+        for (auto level_it = m_level.rbegin();
+             level_it != m_level.rend();
+             ++level_it) {
+            delete *level_it;
+        }
     }
 
     int TreeCommunicator::num_level(void) const
@@ -348,105 +426,6 @@ namespace geopm
         return result;
     }
 
-
-    //////////////////////////////////////
-    // TreeCommunicator protected API's //
-    //////////////////////////////////////
-
-    void TreeCommunicator::comm_create(const MPI_Comm &comm)
-    {
-        int num_level = m_fan_out.size();
-        int color, key;
-        MPI_Comm comm_cart;
-        std::vector<int> flags(num_level, 0);
-        std::vector<int> coords(num_level, 0);
-        std::vector<int> parent_coords(num_level, 0);
-        int rank_cart;
-
-        check_mpi(MPI_Cart_create(comm, num_level, m_fan_out.data(), flags.data(), 1, &comm_cart));
-        check_mpi(MPI_Comm_rank(comm_cart, &rank_cart));
-        check_mpi(MPI_Cart_coords(comm_cart, rank_cart, num_level, coords.data()));
-        parent_coords = coords;
-
-        /* Tracks if the rank's coordinate is zero for higher order
-	   dimensions than the depth */
-        bool is_all_zero = true;
-        for (int level = 0; level != num_level; ++level) {
-            int depth = num_level - 1 - level;
-            if (is_all_zero) {
-                parent_coords[depth] = 0;
-                MPI_Cart_rank(comm_cart, parent_coords.data(), &color);
-                key = rank_cart;
-            }
-            else {
-                color = MPI_UNDEFINED;
-                key = 0;
-            }
-
-            check_mpi(MPI_Comm_split(comm_cart, color, key, &(m_comm[level])));
-
-            if (coords[depth] != 0) {
-                is_all_zero = false;
-            }
-        }
-        check_mpi(MPI_Comm_free(&comm_cart));
-
-        m_num_level = 0;
-        for (auto comm_it = m_comm.begin();
-             comm_it != m_comm.end() && *comm_it != MPI_COMM_NULL;
-             ++comm_it) {
-            m_num_level++;
-        }
-
-        m_comm.resize(m_num_level);
-
-        if (m_global_policy) {
-            m_num_level++;
-        }
-
-        if (rank_cart == 0 && m_global_policy == NULL) {
-            throw Exception("process at root of tree communicator has not mapped the control file",
-                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
-        }
-        if (rank_cart != 0 && m_global_policy != NULL) {
-            throw Exception("process not at root of tree communicator has mapped the control file",
-                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
-        }
-    }
-
-    void TreeCommunicator::level_create(void)
-    {
-        if (num_level() == root_level() + 1) {
-            m_level.resize(root_level());
-        }
-        else {
-            m_level.resize(num_level());
-        }
-
-        auto comm_it = m_comm.begin();
-        for (auto level_it = m_level.begin();
-             level_it != m_level.end();
-             ++level_it, ++comm_it) {
-            *level_it = new TreeCommunicatorLevel(*comm_it);
-        }
-    }
-
-    void TreeCommunicator::level_destroy(void)
-    {
-        for (auto level_it = m_level.rbegin();
-             level_it != m_level.rend();
-             ++level_it) {
-            delete *level_it;
-        }
-    }
-
-    void TreeCommunicator::comm_destroy(void)
-    {
-        for (auto comm_it = m_comm.begin(); comm_it != m_comm.end(); ++comm_it) {
-            MPI_Comm_free(&(*comm_it));
-        }
-    }
-
     /////////////////////////////////
     // TreeCommunicatorLevel API's //
     /////////////////////////////////
@@ -469,9 +448,37 @@ namespace geopm
         create_window();
     }
 
+    TreeCommunicatorLevel::TreeCommunicatorLevel(const TreeCommunicatorLevel &other)
+        : m_comm(MPI_COMM_NULL)
+        , m_size(other.m_size)
+        , m_rank(other.m_rank)
+        , m_sample_mailbox(NULL)
+        , m_sample_window(MPI_WIN_NULL)
+        , m_policy_window(MPI_WIN_NULL)
+        , m_overhead_send(other.m_overhead_send)
+        , m_last_policy(other.m_last_policy)
+    {
+        m_policy_mailbox.mode = other.m_policy_mailbox.mode;
+        m_policy_mailbox.flags = other.m_policy_mailbox.flags;
+        m_policy_mailbox.num_sample = other.m_policy_mailbox.num_sample;
+        m_policy_mailbox.power_budget = other.m_policy_mailbox.power_budget;
+        MPI_Comm_dup(other.m_comm, &m_comm);
+        create_window();
+        std::copy(other.m_sample_mailbox, other.m_sample_mailbox + m_size, m_sample_mailbox);
+    }
+
     TreeCommunicatorLevel::~TreeCommunicatorLevel()
     {
-        destroy_window();
+        PMPI_Barrier(m_comm);
+        // Destroy sample window
+        check_mpi(MPI_Win_free(&m_sample_window));
+        if (m_sample_mailbox) {
+            MPI_Free_mem(m_sample_mailbox);
+        }
+        // Destroy policy window
+        check_mpi(MPI_Win_free(&m_policy_window));
+        // Destroy the comm
+        check_mpi(MPI_Comm_free(&m_comm));
     }
 
     void TreeCommunicatorLevel::get_sample(std::vector<struct geopm_sample_message_s> &sample)
@@ -604,18 +611,6 @@ namespace geopm
         else {
             check_mpi(MPI_Win_create(NULL, 0, 1, MPI_INFO_NULL, m_comm, &m_sample_window));
         }
-    }
-
-    void TreeCommunicatorLevel::destroy_window(void)
-    {
-        PMPI_Barrier(m_comm);
-        // Destroy sample window
-        check_mpi(MPI_Win_free(&m_sample_window));
-        if (m_sample_mailbox) {
-            MPI_Free_mem(m_sample_mailbox);
-        }
-        // Destroy policy window
-        check_mpi(MPI_Win_free(&m_policy_window));
     }
 
     SingleTreeCommunicator::SingleTreeCommunicator(GlobalPolicy *global_policy)
