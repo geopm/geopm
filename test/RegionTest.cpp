@@ -126,8 +126,8 @@ void RegionTest::SetUp()
                               1.240524311, 185113.4346313477,
                               1.250523269, 185114.6119995117,
                               1.260526185, 185115.7997436523};
-    struct geopm_time_s tt;
-    struct geopm_time_s tt0;
+    struct geopm_time_s tt = {{0, 0}};
+    struct geopm_time_s tt0 = {{0, 0}};
     for (i = 0; i < 30; ++i) {
         geopm_time_add(&m_time, time_value[2 * i], &tt);
         if (i == 0) {
