@@ -1,0 +1,262 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_afbd7b03",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Need unit test / comment.",
+      "range": {
+        "startLine": 167,
+        "startChar": 16,
+        "endLine": 169,
+        "endChar": 17
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_efc7f393",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Bad indent.",
+      "range": {
+        "startLine": 184,
+        "startChar": 24,
+        "endLine": 186,
+        "endChar": 43
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_cfc2ef84",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Not possible?  Throw instead?",
+      "range": {
+        "startLine": 188,
+        "startChar": 24,
+        "endLine": 190,
+        "endChar": 25
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_8fb87712",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Possible?  New region inside a region where we\u0027ve already converged?",
+      "range": {
+        "startLine": 203,
+        "startChar": 24,
+        "endLine": 205,
+        "endChar": 25
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_4f3dbf8d",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Copy/paste text from SDM on bitfield usage.",
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_2f404b06",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Mask change?",
+      "range": {
+        "startLine": 496,
+        "startChar": 42,
+        "endLine": 496,
+        "endChar": 60
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_cf49cf32",
+        "filename": "src/ProfileTable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "AR: Brad add Github issue for separating the detection of these errors.  PID checking?",
+      "range": {
+        "startLine": 193,
+        "startChar": 61,
+        "endLine": 193,
+        "endChar": 117
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_af545bc9",
+        "filename": "src/Region.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "If infinity, set to 0?  Or set to NaN directly?",
+      "range": {
+        "startLine": 274,
+        "startChar": 12,
+        "endLine": 274,
+        "endChar": 33
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_8f4f5733",
+        "filename": "src/XeonPlatformImp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Same comments as KNL file.  Comment blurb from SDM.",
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_6f61a3a8",
+        "filename": "test/GoverningDeciderTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "Check pointers too?",
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_4f649fb7",
+        "filename": "test/GoverningDeciderTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": "check_param_case",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 18
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_2f0e0be5",
+        "filename": "test/RegionTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-02-13T20:21:57Z",
+      "side": 1,
+      "message": ";;",
+      "range": {
+        "startLine": 130,
+        "startChar": 38,
+        "endLine": 130,
+        "endChar": 40
+      },
+      "revId": "037d4e4554940a3eba1a7cd8019b4f446aec6d29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
