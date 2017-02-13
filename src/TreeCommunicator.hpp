@@ -61,6 +61,7 @@ namespace geopm
     {
         public:
             TreeCommunicatorBase() {}
+            TreeCommunicatorBase(const TreeCommunicatorBase &other) {}
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicatorBase() {}
             virtual int num_level(void) const = 0;
@@ -103,6 +104,7 @@ namespace geopm
             /// @param [in] comm All ranks in MPI communicator
             ///        participate in the tree.
             TreeCommunicator(const std::vector<int> &fan_out, GlobalPolicy *global_policy, const MPI_Comm &comm);
+            TreeCommunicator(const TreeCommunicator &other);
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicator();
             /// @brief The number of levels for calling process.
@@ -229,9 +231,6 @@ namespace geopm
             /// Tree fan out from root to leaf. Note levels go from
             /// leaf to root
             std::vector<int> m_fan_out;
-            /// Vector of communicators for each level (MPI_COMM_NULL
-            /// for levels this rank does not participate in).
-            std::vector<MPI_Comm> m_comm;
             /// GlobalPolicy object defining the policy
             GlobalPolicy *m_global_policy;
             /// Intermediate levels
@@ -249,6 +248,7 @@ namespace geopm
             /// @param [in] global_policy Determines the policy for
             ///        the run.
             SingleTreeCommunicator(GlobalPolicy *global_policy);
+            SingleTreeCommunicator(const SingleTreeCommunicator &other);
             virtual ~SingleTreeCommunicator();
             int num_level(void) const;
             int root_level(void) const;
