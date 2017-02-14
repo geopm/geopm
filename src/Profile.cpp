@@ -773,6 +773,7 @@ namespace geopm
         }
 
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
+            shm_key("");
             shm_key << m_ctl_shmem->key() <<  "-"  << *it;
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key.str(), m_table_size));
         }
