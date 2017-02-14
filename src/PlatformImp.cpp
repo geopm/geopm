@@ -105,7 +105,6 @@ namespace geopm
         , m_num_counter_signal(other.m_num_counter_signal)
         , m_control_latency_ms(other.m_control_latency_ms)
         , m_tdp_pkg_watts(other.m_tdp_pkg_watts)
-        , m_pkg_time_window(other.m_pkg_time_window)
         , m_msr_value_last(other.m_msr_value_last)
         , m_msr_overflow_offset(other.m_msr_overflow_offset)
         , m_msr_batch_desc(other.m_msr_batch_desc)
