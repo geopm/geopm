@@ -372,15 +372,17 @@ class TestIntegration(unittest.TestCase):
             first_epoch_index = trace_data.loc[ trace_data['region_id'] == '9223372036854775808' ][:1].index[0]
             epoch_dropped_data = trace_data[first_epoch_index:] # Drop all startup data
 
-            # TODO Handle multi socket systems (i.e. pkg_energy-1, dram_energy-1, etc.)
-            power_data = epoch_dropped_data[['seconds', 'pkg_energy-0', 'dram_energy-0']]
+            power_data = epoch_dropped_data.filter(regex='energy')
+            power_data['seconds'] = epoch_dropped_data['seconds']
             power_data = power_data.diff().dropna()
             power_data.rename(columns={'seconds' : 'elapsed_time'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)] # Will drop any row that is all 0's
 
-            power_data['combined_power'] = (power_data['pkg_energy-0'] + power_data['dram_energy-0']) / power_data['elapsed_time']
-            power_data['socket_power'] = (power_data['pkg_energy-0']) / power_data['elapsed_time']
-            power_data['dram_power'] = (power_data['dram_energy-0']) / power_data['elapsed_time']
+            pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
+            dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
+            power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
+            power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
+            power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
 
             pandas.set_option('display.width', 100)
             launcher.write_log(name, 'Power stats from {} :\n{}'.format(node_name, power_data.describe()))

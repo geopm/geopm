@@ -261,7 +261,7 @@ class SrunLauncher(Launcher):
                                            time_limit=time_limit)
 
     def _mpiexec_option(self):
-        mpiexec = 'srun -I{timeout} -J {name}'.format(timeout=self._queuing_timeout, name=self._job_name)
+        mpiexec = 'srun -K -I{timeout} -J {name}'.format(timeout=self._queuing_timeout, name=self._job_name)
         if self._time_limit is not None:
             mpiexec += ' -t {time_limit}'.format(time_limit=self._time_limit)
         if self._node_list is not None:
