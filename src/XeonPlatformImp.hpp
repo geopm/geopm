@@ -124,6 +124,7 @@ namespace geopm
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
             const int M_PLATFORM_ID;
             const std::string M_MODEL_NAME;
+            const std::string M_TRIGGER_NAME;
 
             enum {
                 M_RAPL_PKG_STATUS,

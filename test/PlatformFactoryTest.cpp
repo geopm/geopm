@@ -60,6 +60,9 @@ TEST_F(PlatformFactoryTest, platform_register)
     std::string ans;
     geopm::Platform* p = NULL;
 
+    EXPECT_CALL(*m_platform_imp, msr_offset(_))
+    .WillRepeatedly(Return(500));
+
     EXPECT_CALL(*m_platform_imp, initialize());
     EXPECT_CALL(*m_platform, model_supported(_,_))
     .Times(1)
@@ -91,6 +94,9 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     geopm::PlatformFactory m_platform_fact(std::move(m_ap), std::move(m_ap_imp));
     geopm::Platform* p = NULL;
     int thrown = 0;
+
+    EXPECT_CALL(*m_platform_imp, msr_offset(_))
+    .WillRepeatedly(Return(500));
 
     EXPECT_CALL(*m_platform, model_supported(_,_))
     .Times(1)
