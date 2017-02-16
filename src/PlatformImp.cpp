@@ -65,6 +65,7 @@ namespace geopm
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
+        , m_trigger_offset(this->msr_offset("PKG_ENERGY_STATUS"))
         , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
@@ -529,6 +530,12 @@ namespace geopm
     {
         restore_msr_state(m_msr_save_file_path.c_str());
     }
+
+    uint64_t PlatformImp::trigger_value(void)
+    {
+        return msr_read(GEOPM_DOMAIN_PACKAGE, 0, m_trigger_offset);
+    }
+
 
     std::string PlatformImp::msr_save_file_path(void)
     {
