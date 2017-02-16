@@ -118,7 +118,6 @@ namespace geopm
             uint64_t m_pkg_power_limit_static;
 
             ///Constants
-            const std::string M_KNL_MODEL_NAME;
             const unsigned int M_BOX_FRZ_EN;
             const unsigned int M_BOX_FRZ;
             const unsigned int M_CTR_EN;
@@ -135,6 +134,8 @@ namespace geopm
             const uint64_t M_DRAM_POWER_LIMIT_MASK;
             const unsigned int M_EXTRA_SIGNAL;
             const int M_PLATFORM_ID;
+            const std::string M_MODEL_NAME;
+            const std::string M_TRIGGER_NAME;
 
             enum {
                 M_RAPL_PKG_STATUS,
