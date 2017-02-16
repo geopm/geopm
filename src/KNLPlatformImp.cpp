@@ -62,7 +62,6 @@ namespace geopm
         , m_signal_msr_offset(M_L2_MISSES)
         , m_control_msr_pair(M_NUM_CONTROL)
         , m_pkg_power_limit_static(0)
-        , M_KNL_MODEL_NAME("Knights Landing")
         , M_BOX_FRZ_EN(0x1 << 16)
         , M_BOX_FRZ(0x1 << 8)
         , M_CTR_EN(0x1 << 22)
@@ -79,6 +78,8 @@ namespace geopm
         , M_DRAM_POWER_LIMIT_MASK(0x18000)
         , M_EXTRA_SIGNAL(1)
         , M_PLATFORM_ID(platform_id())
+        , M_MODEL_NAME("Knights Landing")
+        , M_TRIGGER_NAME("PKG_ENERGY_STATUS")
     {
 
     }
@@ -98,7 +99,6 @@ namespace geopm
         , m_signal_msr_offset(other.m_signal_msr_offset)
         , m_control_msr_pair(other.m_control_msr_pair)
         , m_pkg_power_limit_static(other.m_pkg_power_limit_static)
-        , M_KNL_MODEL_NAME(other.M_KNL_MODEL_NAME)
         , M_BOX_FRZ_EN(other.M_BOX_FRZ_EN)
         , M_BOX_FRZ(other.M_BOX_FRZ)
         , M_CTR_EN(other.M_CTR_EN)
@@ -115,6 +115,8 @@ namespace geopm
         , M_DRAM_POWER_LIMIT_MASK(other.M_DRAM_POWER_LIMIT_MASK)
         , M_EXTRA_SIGNAL(other.M_EXTRA_SIGNAL)
         , M_PLATFORM_ID(other.M_PLATFORM_ID)
+        , M_MODEL_NAME(other.M_MODEL_NAME)
+        , M_TRIGGER_NAME(other.M_TRIGGER_NAME)
     {
 
     }
@@ -131,7 +133,7 @@ namespace geopm
 
     std::string KNLPlatformImp::platform_name()
     {
-        return M_KNL_MODEL_NAME;
+        return M_MODEL_NAME;
     }
 
     int KNLPlatformImp::power_control_domain(void) const
@@ -475,6 +477,8 @@ namespace geopm
         m_control_msr_pair[M_RAPL_PKG_LIMIT] = std::make_pair(msr_offset("PKG_POWER_LIMIT"), msr_mask("PKG_POWER_LIMIT") );
         m_control_msr_pair[M_RAPL_DRAM_LIMIT] = std::make_pair(msr_offset("DRAM_POWER_LIMIT"), msr_mask("DRAM_POWER_LIMIT") );
         m_control_msr_pair[M_IA32_PERF_CTL] = std::make_pair(msr_offset("IA32_PERF_CTL"), msr_mask("IA32_PERF_CTL") );
+
+        m_trigger_offset = msr_offset(M_TRIGGER_NAME);
     }
 
     void KNLPlatformImp::msr_reset()
