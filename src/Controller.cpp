@@ -46,6 +46,7 @@
 #include <fcntl.h>
 #include <system_error>
 #include <unistd.h>
+#include <xmmintrin.h>
 
 #include "geopm.h"
 #include "geopm_version.h"
@@ -517,6 +518,7 @@ namespace geopm
                 ++update_count;
             }
             geopm_signal_handler_check();
+            _mm_pause();
         }
         while (update_count < m_update_per_sample);
 
