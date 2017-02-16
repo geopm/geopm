@@ -374,6 +374,8 @@ AC_CHECK_HEADER([json-c/json.h], [], [
     echo "missing json-c/json.h: <https://github.com/json-c/json-c/wiki> use --with-json or --with-json-include"
     exit -1])
 
+AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
 
