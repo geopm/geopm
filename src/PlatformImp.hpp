@@ -158,6 +158,8 @@ namespace geopm
             void restore_msr_state(const char *path);
             /// @brief Revert the MSR values to their initial state.
             void revert_msr_state(void);
+            /// @brief Return if sample is updated.
+            virtual bool is_updated(void);
 
             ////////////////////////////////////////////////////////////////////
             //              Platform dependent implementations                //
@@ -255,7 +257,7 @@ namespace geopm
             /// @brief Retrieve the address offset of a Model Specific Register.
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Address offset of the requested MSR.
-            off_t msr_offset(std::string msr_name);
+            virtual off_t msr_offset(std::string msr_name);
             /// @brief Retrieve the write mask of a Model Specific Register.
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Write mask of the requested MSR.
@@ -334,10 +336,11 @@ namespace geopm
             int m_msr_batch_desc;
             bool m_is_batch_enabled;
             struct m_msr_batch_array m_batch;
+            uint64_t m_trigger_offset;
+            uint64_t m_trigger_value;
 
         private:
             void build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name);
-
             std::string m_msr_save_file_path;
 
             ///Constants

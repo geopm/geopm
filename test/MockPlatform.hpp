@@ -38,6 +38,8 @@ class MockPlatform : public geopm::Platform {
             int(void));
         MOCK_METHOD0(capacity,
             size_t(void));
+        MOCK_METHOD0(is_updated,
+            bool(void));
         MOCK_METHOD1(sample,
             void(std::vector<struct geopm_msr_message_s> &msr_values));
         MOCK_CONST_METHOD2(model_supported,
