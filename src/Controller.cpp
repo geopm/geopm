@@ -55,6 +55,10 @@
 #include "Exception.hpp"
 #include "config.h"
 
+#ifdef GEOPM_HAS_XMMINTRIN
+#include <xmmintrin.h>
+#endif
+
 #ifndef NAME_MAX
 #define NAME_MAX 1024
 #endif
@@ -517,6 +521,9 @@ namespace geopm
                 ++update_count;
             }
             geopm_signal_handler_check();
+#ifdef GEOPM_HAS_XMMINTRIN
+            _mm_pause();
+#endif
         }
         while (update_count < m_update_per_sample);
 
