@@ -184,8 +184,9 @@ namespace geopm
         , m_region_id_all(0)
         , m_do_shutdown(false)
         , m_is_connected(false)
-        , m_control_rate_limit(0.0)
-        , m_sample_rate_limit(0.005)
+        , m_update_per_sample(10)
+        , m_sample_per_control(10)
+        , m_control_count(0)
         , m_rank_per_node(0)
         , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
@@ -299,10 +300,6 @@ namespace geopm
             double lower_bound;
             m_platform->bound(upper_bound, lower_bound);
             m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
-            // convert rate limit from ms to seconds
-            m_control_rate_limit = m_platform->control_latency_ms() * 1E-3;
-            geopm_time(&m_control_loop_t0);
-            m_sample_loop_t0 = m_control_loop_t0;
 
             m_decider_factory = new DeciderFactory;
             m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
@@ -511,15 +508,17 @@ namespace geopm
         std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
         std::vector<struct geopm_telemetry_message_s> epoch_telemetry_sample(m_telemetry_sample.size());
         size_t length;
-        struct geopm_time_s sample_loop_t1;
 
         std::fill(sample_msg.begin(), sample_msg.end(), GEOPM_SAMPLE_INVALID);
+
+        int update_count = 0;
         do {
-            geopm_time(&sample_loop_t1);
+            if (m_platform->is_updated()) {
+                ++update_count;
+            }
             geopm_signal_handler_check();
         }
-        while (geopm_time_diff(&m_sample_loop_t0, &sample_loop_t1) < m_sample_rate_limit);
-        m_sample_loop_t0 = sample_loop_t1;
+        while (update_count < m_update_per_sample);
 
         for (level = 0; !m_do_shutdown && level < m_tree_comm->num_level(); ++level) {
             bool is_converged = false;
@@ -747,8 +746,6 @@ namespace geopm
 
     void Controller::update_region(void)
     {
-        struct geopm_time_s control_loop_t1;
-
         m_tracer->update(m_telemetry_sample);
         m_sample_count++;
         if (m_telemetry_sample[0].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] <= m_throttle_limit_mhz) {
@@ -771,12 +768,16 @@ namespace geopm
             Policy *curr_policy = m_policy[level];
             curr_region->insert(m_telemetry_sample);
 
-            geopm_time(&control_loop_t1);
-            if (geopm_time_diff(&m_control_loop_t0, &control_loop_t1) >= m_control_rate_limit &&
+            bool do_control = false;
+            ++m_control_count;
+            if (m_control_count >= m_sample_per_control) {
+                do_control = true;
+                m_control_count = 0;
+            }
+            if (do_control &&
                 !geopm_region_id_is_epoch(m_region_id_all) &&
                 m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
                 m_platform->enforce_policy(m_region_id_all, *curr_policy);
-                m_control_loop_t0 = control_loop_t1;
             }
         }
     }
