@@ -202,10 +202,9 @@ namespace geopm
             uint64_t m_region_id_all;
             bool m_do_shutdown;
             bool m_is_connected;
-            double m_control_rate_limit;
-            double m_sample_rate_limit;
-            struct geopm_time_s m_control_loop_t0;
-            struct geopm_time_s m_sample_loop_t0;
+            int m_update_per_sample;
+            int m_sample_per_control;
+            int m_control_count;
             int m_rank_per_node;
             double m_epoch_time;
             double m_mpi_sync_time;

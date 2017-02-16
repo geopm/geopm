@@ -317,4 +317,12 @@ namespace geopm
     {
         return m_imp->throttle_limit_mhz();
     }
+
+    bool Platform::is_updated(void)
+    {
+        uint64_t curr_value = m_imp->trigger_value();
+        bool result = (curr_value != m_trigger_value);
+        m_trigger_value = curr_value;
+        return result;
+    }
 }
