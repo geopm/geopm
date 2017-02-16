@@ -103,6 +103,8 @@ namespace geopm
         , m_control_domain_type(GEOPM_CONTROL_DOMAIN_POWER)
         , m_num_energy_domain(0)
         , m_num_counter_domain(0)
+        , m_num_rank(0)
+        , m_trigger_value(0)
     {
 
     }
@@ -111,7 +113,10 @@ namespace geopm
         : m_imp(NULL)
         , m_num_domain(0)
         , m_control_domain_type(control_domain_type)
+        , m_num_energy_domain(0)
+        , m_num_counter_domain(0)
         , m_num_rank(0)
+        , m_trigger_value(0)
     {
 
     }
@@ -316,5 +321,13 @@ namespace geopm
     double Platform::throttle_limit_mhz(void) const
     {
         return m_imp->throttle_limit_mhz();
+    }
+
+    bool Platform::is_updated(void)
+    {
+        uint64_t curr_value = m_imp->trigger_value();
+        bool result = (m_trigger_value && curr_value != m_trigger_value);
+        m_trigger_value = curr_value;
+        return result;
     }
 }

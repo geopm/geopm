@@ -155,6 +155,8 @@ namespace geopm
             ///
             /// @return frequency limit where anything <= is considered throttling.
             double throttle_limit_mhz(void) const;
+            /// @brief Has the trigger msr of the platform changed value since last call.
+            virtual bool is_updated(void);
             void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
                                      const std::vector<double> &aligned_data,
                                      std::vector<struct geopm_telemetry_message_s> &telemetry);
@@ -173,6 +175,7 @@ namespace geopm
             /// per-cpu, and per-rank signals into the domain of control.
             std::vector<std::vector<int> > m_rank_cpu;
             int m_num_rank;
+            uint64_t m_trigger_value;
     };
 }
 
