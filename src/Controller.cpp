@@ -517,7 +517,9 @@ namespace geopm
             if (m_platform->is_updated()) {
                 ++update_count;
             }
-            geopm_signal_handler_check();
+            for (int i = 0; i < 100; ++i) {
+                geopm_signal_handler_check();
+            }
             _mm_pause();
         }
         while (update_count < m_update_per_sample);
