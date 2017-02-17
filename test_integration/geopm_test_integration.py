@@ -53,11 +53,12 @@ class TestIntegration(unittest.TestCase):
 
     def tearDown(self):
         if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
-            for ff in self._tmp_files:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+            if os.getenv('GEOPM_KEEP_FILES') is None:
+                for ff in self._tmp_files:
+                    try:
+                        os.remove(ff)
+                    except OSError:
+                        pass
 
     def assertNear(self, a, b, epsilon=0.05):
         if abs(a - b) / a >= epsilon:
@@ -209,23 +210,21 @@ class TestIntegration(unittest.TestCase):
 
         traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
         self._tmp_files.extend(traces)
-        traces = [geopm_io.Trace(tt).get_df() for tt in traces]
-        # concat() will only operate on DataFrame objects
-        traces = pandas.concat(traces)
+        # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
+        traces = {tt.split('.trace-')[-1] : geopm_io.Trace(tt).get_df() for tt in traces}
 
         # Calculate runtime totals for each trace, compare to report
-        for node_name, node_trace in traces.groupby(level='node_name'):
+        for node_name, node_trace in traces.iteritems():
             self.assertNear(node_trace.iloc[-1]['seconds'], reports[node_name].get_runtime())
 
-        # Calculate runtime totals for each region in each trace, compare to report
-        traces.set_index(['region_id'], append=True, inplace=True)
-        traces = traces.groupby(level=['node_name', 'region_id'])
-
         for node_name, report in reports.iteritems():
+            # Calculate runtime totals for each region in each trace, compare to report
+            t = traces[node_name].set_index(['region_id'], append=True)
+            t = t.groupby(level=['region_id'])
             for region_name, report_data in report.iteritems():
                 if report_data.get_runtime() == 0:
                     continue
-                trace_data = traces.get_group((node_name, report_data.get_id()))
+                trace_data = t.get_group((report_data.get_id()))
                 trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                 self.assertNear(trace_elapsed_time, report_data.get_runtime())
 
@@ -296,7 +295,7 @@ class TestIntegration(unittest.TestCase):
         """
         name = 'test_scaling'
         report_path = name + '.report'
-        num_node = 1
+        num_node = 2
         loop_count = 100
 
         app_conf = geopm_io.AppConf(name + '_app.config')
@@ -360,6 +359,9 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
         launcher.run(name)
+
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
 
         traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
         self._tmp_files.extend(traces)
