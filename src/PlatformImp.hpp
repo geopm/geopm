@@ -257,7 +257,7 @@ namespace geopm
             /// @brief Retrieve the address offset of a Model Specific Register.
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Address offset of the requested MSR.
-            off_t msr_offset(std::string msr_name);
+            virtual off_t msr_offset(std::string msr_name);
             /// @brief Retrieve the write mask of a Model Specific Register.
             /// @param [in] msr_name String name of the requested MSR.
             /// @return Write mask of the requested MSR.

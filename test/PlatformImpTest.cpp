@@ -345,7 +345,8 @@ static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_m
         {"MSR_TEST_12", {768, 0x0FFFFFFFFFFFFFFF}},
         {"MSR_TEST_13", {832, 0x0FFFFFFFFFFFFFFF}},
         {"MSR_TEST_14", {896, 0x0FFFFFFFFFFFFFFF}},
-        {"MSR_TEST_15", {960, 0x0FFFFFFFFFFFFFFF}}});
+        {"MSR_TEST_15", {960, 0x0FFFFFFFFFFFFFFF}},
+        {"PKG_ENERGY_STATUS", {1024, 0x0FFFFFFFFFFFFFFF}}});
     return msr_map;
 }
 
@@ -358,7 +359,8 @@ static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_m
         {"PERF_FIXED_CTR_CTRL",  {192, 0xDFFFFFFFFFFFFFFF}},
         {"PERF_GLOBAL_CTRL",     {256, 0xDFFFFFFFFFFFFFFF}},
         {"PERF_GLOBAL_OVF_CTRL", {320, 0xDFFFFFFFFFFFFFFF}},
-        {"IA32_PERF_CTL",        {384, 0x00000000FFFFFFFF}}});
+        {"IA32_PERF_CTL",        {384, 0x00000000FFFFFFFF}},
+        {"PKG_ENERGY_STATUS",    {448, 0x0FFFFFFFFFFFFFFF}}});
     return msr_map;
 }
 
@@ -369,6 +371,7 @@ class TestPlatformImp4 : public geopm::PlatformImp
 {
     public:
         TestPlatformImp4()
+            : PlatformImp(2, 5, 8.0, &(test_msr_map2()))
         {
             ;
         }
@@ -597,7 +600,8 @@ TEST_F(PlatformImpTest, msr_write_whitelist)
                             "0x00000180 0x0fffffffffffffff # MSR_TEST_6\n" \
                             "0x000001c0 0x0fffffffffffffff # MSR_TEST_7\n" \
                             "0x00000200 0x0fffffffffffffff # MSR_TEST_8\n" \
-                            "0x00000240 0x0fffffffffffffff # MSR_TEST_9\0"
+                            "0x00000240 0x0fffffffffffffff # MSR_TEST_9\n" \
+                            "0x00000400 0x0fffffffffffffff # PKG_ENERGY_STATUS\0"
                            };
 
     fd = fopen("/tmp/whitelist", "w");

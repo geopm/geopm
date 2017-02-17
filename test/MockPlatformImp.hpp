@@ -50,6 +50,8 @@ class MockPlatformImp : public geopm::PlatformImp {
             int(void));
         MOCK_CONST_METHOD0(topology,
             geopm::PlatformTopology*(void));
+        MOCK_METHOD0(trigger_value,
+            uint64_t(void));
         MOCK_METHOD0(initialize,
             void(void));
         MOCK_METHOD1(msr_path,
@@ -80,4 +82,6 @@ class MockPlatformImp : public geopm::PlatformImp {
             void(int control_type, double &upper_bound, double &lower_bound));
         MOCK_CONST_METHOD0(throttle_limit_mhz,
             double(void));
+        MOCK_METHOD1(msr_offset,
+            off_t(std::string));
 };
