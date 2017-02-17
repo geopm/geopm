@@ -175,7 +175,6 @@ namespace geopm
             /// per-cpu, and per-rank signals into the domain of control.
             std::vector<std::vector<int> > m_rank_cpu;
             int m_num_rank;
-            uint64_t m_trigger_value;
     };
 }
 

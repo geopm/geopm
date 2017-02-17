@@ -66,6 +66,7 @@ namespace geopm
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
         , m_trigger_offset(0)
+        , m_trigger_value(0)
         , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
@@ -86,7 +87,8 @@ namespace geopm
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
-        , m_trigger_offset(this->msr_offset("PKG_ENERGY_STATUS"))
+        , m_trigger_offset(0)
+        , m_trigger_value(0)
         , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
@@ -113,6 +115,7 @@ namespace geopm
         , m_is_batch_enabled(other.m_is_batch_enabled)
         , m_batch(other.m_batch)
         , m_trigger_offset(other.m_trigger_offset)
+        , m_trigger_value(other.m_trigger_value)
         , m_msr_save_file_path(other.m_msr_save_file_path)
         , M_MSR_SAVE_FILE_PATH(other.M_MSR_SAVE_FILE_PATH)
     {
@@ -533,9 +536,12 @@ namespace geopm
         restore_msr_state(m_msr_save_file_path.c_str());
     }
 
-    uint64_t PlatformImp::trigger_value(void)
+    bool PlatformImp::is_updated(void)
     {
-        return msr_read(GEOPM_DOMAIN_PACKAGE, 0, m_trigger_offset);
+        uint64_t curr_value = msr_read(GEOPM_DOMAIN_PACKAGE, 0, m_trigger_offset);
+        bool result = (m_trigger_value && curr_value != m_trigger_value);
+        m_trigger_value = curr_value;
+        return result;
     }
 
 

@@ -71,6 +71,7 @@ namespace geopm
         , M_DRAM_POWER_LIMIT_MASK(0x18000)
         , M_PLATFORM_ID(platform_id)
         , M_MODEL_NAME(model_name)
+        , M_TRIGGER_NAME("PKG_ENERGY_STATUS")
     {
 
     }
@@ -102,6 +103,7 @@ namespace geopm
         , M_DRAM_POWER_LIMIT_MASK(other.M_DRAM_POWER_LIMIT_MASK)
         , M_PLATFORM_ID(other.M_PLATFORM_ID)
         , M_MODEL_NAME(other.M_MODEL_NAME)
+        , M_TRIGGER_NAME(other.M_TRIGGER_NAME)
     {
 
     }
@@ -560,7 +562,7 @@ namespace geopm
         m_control_msr_pair[M_RAPL_DRAM_LIMIT] = std::make_pair(msr_offset("DRAM_POWER_LIMIT"), msr_mask("DRAM_POWER_LIMIT") );
         m_control_msr_pair[M_IA32_PERF_CTL] = std::make_pair(msr_offset("IA32_PERF_CTL"), msr_mask("IA32_PERF_CTL") );
 
-        m_trigger_offset = msr_offset("PKG_ENERGY_STATUS");
+        m_trigger_offset = msr_offset(M_TRIGGER_NAME);
     }
 
     void XeonPlatformImp::msr_reset()

@@ -158,8 +158,8 @@ namespace geopm
             void restore_msr_state(const char *path);
             /// @brief Revert the MSR values to their initial state.
             void revert_msr_state(void);
-            /// @brief Return the value of the msr which triggers a sample.
-            virtual uint64_t trigger_value(void);
+            /// @brief Return if sample is updated.
+            virtual bool is_updated(void);
 
             ////////////////////////////////////////////////////////////////////
             //              Platform dependent implementations                //
@@ -337,6 +337,7 @@ namespace geopm
             bool m_is_batch_enabled;
             struct m_msr_batch_array m_batch;
             uint64_t m_trigger_offset;
+            uint64_t m_trigger_value;
 
         private:
             void build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name);

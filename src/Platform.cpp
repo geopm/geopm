@@ -104,7 +104,6 @@ namespace geopm
         , m_num_energy_domain(0)
         , m_num_counter_domain(0)
         , m_num_rank(0)
-        , m_trigger_value(0)
     {
 
     }
@@ -116,7 +115,6 @@ namespace geopm
         , m_num_energy_domain(0)
         , m_num_counter_domain(0)
         , m_num_rank(0)
-        , m_trigger_value(0)
     {
 
     }
@@ -325,9 +323,6 @@ namespace geopm
 
     bool Platform::is_updated(void)
     {
-        uint64_t curr_value = m_imp->trigger_value();
-        bool result = (m_trigger_value && curr_value != m_trigger_value);
-        m_trigger_value = curr_value;
-        return result;
+        return m_imp->is_updated();
     }
 }
