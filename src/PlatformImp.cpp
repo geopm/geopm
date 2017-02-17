@@ -65,7 +65,7 @@ namespace geopm
         , m_msr_batch_desc(-1)
         , m_is_batch_enabled(false)
         , m_batch({0, NULL})
-        , m_trigger_offset(this->msr_offset("PKG_ENERGY_STATUS"))
+        , m_trigger_offset(0)
         , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
