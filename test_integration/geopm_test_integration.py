@@ -53,11 +53,12 @@ class TestIntegration(unittest.TestCase):
 
     def tearDown(self):
         if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
-            for ff in self._tmp_files:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+            if os.getenv('GEOPM_KEEP_FILES') is None:
+                for ff in self._tmp_files:
+                    try:
+                        os.remove(ff)
+                    except OSError:
+                        pass
 
     def assertNear(self, a, b, epsilon=0.05):
         if abs(a - b) / a >= epsilon:
@@ -296,7 +297,7 @@ class TestIntegration(unittest.TestCase):
         """
         name = 'test_scaling'
         report_path = name + '.report'
-        num_node = 1
+        num_node = 2
         loop_count = 100
 
         app_conf = geopm_io.AppConf(name + '_app.config')
@@ -360,6 +361,9 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
         launcher.run(name)
+
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
 
         traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
         self._tmp_files.extend(traces)
