@@ -38,6 +38,7 @@ import fnmatch
 import sys
 import time
 import pandas
+import collections
 
 import geopm_launcher
 import geopm_io
@@ -397,6 +398,81 @@ class TestIntegration(unittest.TestCase):
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
+
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    def test_region_runtime(self):
+        name = 'test_region_runtime'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        loop_count = 500
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm', 8.0)
+        app_conf.set_loop_count(loop_count)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
+        self._tmp_files.extend(reports)
+        reports = [geopm_io.Report(rr) for rr in reports] # Report objects list
+        reports = {rr.get_node_name(): rr for rr in reports} # Report objects dict
+
+        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
+        self._tmp_files.extend(traces)
+        # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
+        traces = {tt.split('.trace-')[-1] : geopm_io.Trace(tt).get_df() for tt in traces}
+
+        # Calculate region times from traces
+        region_times = collections.defaultdict(lambda: collections.defaultdict(dict))
+        for node_name, trace_data in traces.iteritems():
+            t = trace_data.set_index(['region_id'], append=True)
+            t = t.groupby(level=['region_id'])
+            for region_id, data in t:
+                if region_id == '0':
+                    continue
+
+                region_start = -1
+                filtered_df = pandas.DataFrame()
+                for index, row in data.iterrows():
+                    if region_start == -1 and row['progress-0'] == 0:
+                        region_start = index
+                        filtered_df = filtered_df.append(row[['seconds', 'progress-0']])
+                    elif row['progress-0'] == 1:
+                        filtered_df = filtered_df.append(row[['seconds', 'progress-0']])
+                        region_start = -1
+
+                filtered_df = filtered_df.diff()
+                # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
+                # case where 1 - 0 = 1 for the progress column.
+                filtered_df = filtered_df.loc[ filtered_df['progress-0'] == 1 ]
+
+                if len(filtered_df) > 1:
+                    launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
+                                       .format(node_name, region_id, filtered_df['seconds'].describe()))
+                    filtered_df['seconds'].describe()
+                    region_times[node_name][region_id] = filtered_df
+
+            launcher.write_log(name, '\n{}'.format('-' * 80))
+
+        # Loop through the reports to see if the region runtimes line up with what was calculated from the trace files above.
+        write_regions = True
+        for node_name, report in reports.iteritems():
+            for region_name, region in report.iteritems():
+                if region.get_id() == 0 or region.get_count() <= 1:
+                    continue
+                if write_regions:
+                    launcher.write_log(name, 'Region {} is {}.'.format(region.get_id(), region_name))
+                self.assertNear(region.get_runtime(),
+                                region_times[node_name][region.get_id()]['seconds'].sum())
+            write_regions = False
+
 
 if __name__ == '__main__':
     unittest.main()
