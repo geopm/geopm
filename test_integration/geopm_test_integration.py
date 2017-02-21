@@ -38,6 +38,7 @@ import fnmatch
 import sys
 import time
 import pandas
+import collections
 
 import geopm_launcher
 import geopm_io
@@ -220,6 +221,78 @@ class TestIntegration(unittest.TestCase):
                     trace_data = tt.get_group((region_data.get_id()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     self.assertNear(trace_elapsed_time, region_data.get_runtime())
+
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+    "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    def test_region_runtimes(self):
+        name = 'test_region_runtime'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        loop_count = 500
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm', 8.0)
+        app_conf.set_loop_count(loop_count)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+
+        # Calculate region times from traces
+        region_times = collections.defaultdict(lambda: collections.defaultdict(dict))
+        for nn in node_names:
+            tt = output.get_trace(nn).set_index(['region_id'], append=True).groupby(level=['region_id'])
+
+            for region_id, data in tt:
+                if region_id == '0':
+                    continue
+
+                # Build a df with only the first region entry and the exit.
+                last_index = 0
+                filtered_df = pandas.DataFrame()
+                row_list = []
+                progress_1s = data['progress-0'].loc[ data['progress-0'] == 1 ]
+                for index, junk in progress_1s.iteritems():
+                    row = data.ix[last_index:index].head(1)
+                    row_list += [row[['seconds', 'progress-0']]]
+                    row = data.ix[last_index:index].tail(1)
+                    row_list += [row[['seconds', 'progress-0']]]
+                    last_index = index[0] + 1 # Set the next starting index to be one past where we are
+                filtered_df = pandas.concat(row_list)
+
+                filtered_df = filtered_df.diff()
+                # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
+                # case where 1 - 0 = 1 for the progress column.
+                filtered_df = filtered_df.loc[ filtered_df['progress-0'] == 1 ]
+
+                if len(filtered_df) > 1:
+                    launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
+                    .format(nn, region_id, filtered_df['seconds'].describe()))
+                    filtered_df['seconds'].describe()
+                    region_times[nn][region_id] = filtered_df
+
+            launcher.write_log(name, '{}'.format('-' * 80))
+
+        # Loop through the reports to see if the region runtimes line up with what was calculated from the trace files above.
+        write_regions = True
+        for nn in node_names:
+            rr = output.get_report(nn)
+            for region_name, region in rr.iteritems():
+                if region.get_id() == 0 or region.get_count() <= 1:
+                    continue
+                if write_regions:
+                    launcher.write_log(name, 'Region {} is {}.'.format(region.get_id(), region_name))
+                self.assertNear(region.get_runtime(),
+                                region_times[nn][region.get_id()]['seconds'].sum())
+            write_regions = False
 
     def test_progress(self):
         name = 'test_progress'
