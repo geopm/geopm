@@ -31,10 +31,41 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import json
 import re
 import pandas
+import fnmatch
 
+class AppOutput(object):
+    def __init__(self, report_base, trace_base=None):
+        self._reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_base + '*')] # File names list
+        self._all_paths = self._reports
+        self._reports = [Report(rr) for rr in self._reports] # Report objects list
+        self._reports = {rr.get_node_name(): rr for rr in self._reports} # Report objects dict
+        self._traces = None
+        if trace_base:
+            self._traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_base + '*')]
+            self._all_paths.extend(self._traces)
+            self._traces = [Trace(tt) for tt in self._traces]
+            # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
+            self._traces = {tt.get_node_name(): tt.get_df() for tt in self._traces}
+
+    def __del__(self):
+        for ff in self._all_paths:
+            try:
+                os.remove(ff)
+            except OSError:
+                pass
+
+    def get_node_names(self):
+        return self._reports.keys()
+
+    def get_report(self, node_name):
+        return self._reports[node_name]
+
+    def get_trace(self, node_name):
+        return self._traces[node_name]
 
 class Report(dict):
     def __init__(self, report_path):
