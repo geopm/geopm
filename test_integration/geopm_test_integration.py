@@ -51,14 +51,13 @@ class TestIntegration(unittest.TestCase):
                          'power_budget' : 150}
         self._tmp_files = []
 
-    def tearDown(self):
-        if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
-            if os.getenv('GEOPM_KEEP_FILES') is None:
-                for ff in self._tmp_files:
-                    try:
-                        os.remove(ff)
-                    except OSError:
-                        pass
+    def __del__(self):
+        if os.getenv('GEOPM_KEEP_FILES') is None:
+            for ff in self._tmp_files:
+                try:
+                    os.remove(ff)
+                except OSError:
+                    pass
 
     def assertNear(self, a, b, epsilon=0.05):
         if abs(a - b) / a >= epsilon:
@@ -79,18 +78,15 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
-        self._tmp_files.extend(traces)
-        self.assertTrue(len(traces) == num_node)
-        for ff in traces:
-            self.assertTrue(os.path.isfile(ff))
-            self.assertTrue(os.stat(ff).st_size != 0)
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-        self.assertTrue(len(reports) == num_node)
-        for ff in reports:
-            self.assertTrue(os.path.isfile(ff))
-            self.assertTrue(os.stat(ff).st_size != 0)
+
+        output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = output.get_node_names()
+        self.assertTrue(len(node_names) == num_node)
+        for nn in node_names:
+            report = output.get_report(nn)
+            self.assertTrue(len(report) != 0)
+            trace = output.get_trace(nn)
+            self.assertTrue(len(trace) != 0)
 
     @unittest.skipUnless(geopm_launcher.get_resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
@@ -124,14 +120,16 @@ class TestIntegration(unittest.TestCase):
                 else:
                     launcher.write_log(name, 'Return code = {code}'.format(code=e.returncode))
                     raise e
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-        reports = [geopm_io.Report(rr) for rr in reports]
-        self.assertTrue(len(reports) == len(idle_nodes))
-        for rr in reports:
-            self.assertNear(delay, rr['sleep'].get_runtime())
-            self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
-            self.assertEqual(1, rr['sleep'].get_count())
+
+        output = geopm_io.AppOutput(report_path)
+        node_names = output.get_node_names()
+        self.assertTrue(len(node_names) == len(idle_nodes))
+        for nn in node_names:
+            report = output.get_report(nn)
+            self.assertTrue(len(report) != 0)
+            self.assertNear(delay, report['sleep'].get_runtime())
+            self.assertGreater(report.get_runtime(), report['sleep'].get_runtime())
+            self.assertEqual(1, report['sleep'].get_count())
 
     def test_runtime(self):
         name = 'test_runtime'
@@ -148,11 +146,11 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-        reports = [geopm_io.Report(rr) for rr in reports]
-        self.assertTrue(len(reports) == num_node)
-        for rr in reports:
+        output = geopm_io.AppOutput(report_path)
+        node_names = output.get_node_names()
+        self.assertTrue(len(node_names) == num_node)
+        for nn in node_names:
+            rr = output.get_report(nn)
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
 
@@ -173,11 +171,11 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-        reports = [geopm_io.Report(rr) for rr in reports]
-        self.assertTrue(len(reports) == num_node)
-        for rr in reports:
+        output = geopm_io.AppOutput(report_path)
+        node_names = output.get_node_names()
+        self.assertTrue(len(node_names) == num_node)
+        for nn in node_names:
+            rr = output.get_report(nn)
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
             self.assertNear(2 * loop_count * delay, rr['spin'].get_runtime())
             self.assertNear(rr['spin'].get_runtime(), rr['epoch'].get_runtime(), epsilon=0.01)
@@ -203,30 +201,23 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')] # File names list
-        self._tmp_files.extend(reports)
-        reports = [geopm_io.Report(rr) for rr in reports] # Report objects list
-        reports = {rr.get_node_name(): rr for rr in reports} # Report objects dict
+        output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
 
-        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
-        self._tmp_files.extend(traces)
-        # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
-        traces = {tt.split('.trace-')[-1] : geopm_io.Trace(tt).get_df() for tt in traces}
+        for nn in node_names:
+            report = output.get_report(nn)
+            trace = output.get_trace(nn)
+            self.assertNear(trace.iloc[-1]['seconds'], report.get_runtime())
 
-        # Calculate runtime totals for each trace, compare to report
-        for node_name, node_trace in traces.iteritems():
-            self.assertNear(node_trace.iloc[-1]['seconds'], reports[node_name].get_runtime())
-
-        for node_name, report in reports.iteritems():
             # Calculate runtime totals for each region in each trace, compare to report
-            t = traces[node_name].set_index(['region_id'], append=True)
-            t = t.groupby(level=['region_id'])
-            for region_name, report_data in report.iteritems():
-                if report_data.get_runtime() == 0:
-                    continue
-                trace_data = t.get_group((report_data.get_id()))
-                trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
-                self.assertNear(trace_elapsed_time, report_data.get_runtime())
+            tt = trace.set_index(['region_id'], append=True)
+            tt = tt.groupby(level=['region_id'])
+            for region_name, region_data in report.iteritems():
+                if region_data.get_runtime() != 0:
+                    trace_data = tt.get_group((region_data.get_id()))
+                    trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
+                    self.assertNear(trace_elapsed_time, region_data.get_runtime())
 
     def test_progress(self):
         name = 'test_progress'
@@ -243,11 +234,11 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-        reports = [geopm_io.Report(rr) for rr in reports]
-        self.assertTrue(len(reports) == num_node)
-        for rr in reports:
+        output = geopm_io.AppOutput(report_path)
+        node_names = output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+        for nn in node_names:
+            rr = output.get_report(nn)
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
             self.assertEqual(1, rr['sleep'].get_count())
@@ -270,11 +261,11 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-        reports = [geopm_io.Report(rr) for rr in reports]
-        self.assertTrue(len(reports) == num_node)
-        for rr in reports:
+        output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+        for nn in node_names:
+            rr = output.get_report(nn)
             self.assertNear(delay * loop_count, rr['spin'].get_runtime())
             self.assertEqual(loop_count, rr['spin'].get_count())
             self.assertEqual(loop_count, rr['epoch'].get_count())
@@ -322,20 +313,15 @@ class TestIntegration(unittest.TestCase):
             if check_successful:
                 launcher.write_log(name, 'About to run on {} nodes.'.format(num_node))
                 launcher.run(name)
-                report_paths = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-                self._tmp_files.extend(report_paths)
-                reports = [geopm_io.Report(rr) for rr in report_paths]
-                self.assertTrue(len(reports) == num_node)
-                for rr in reports:
+                output = geopm_io.AppOutput(report_path)
+                node_names = output.get_node_names()
+                self.assertEqual(len(node_names), num_node)
+                for nn in node_names:
+                    rr = output.get_report(nn)
                     self.assertEqual(loop_count, rr['dgemm'].get_count())
                     self.assertEqual(loop_count, rr['all2all'].get_count())
                     self.assertGreater(rr['dgemm'].get_runtime(), 0.0)
                     self.assertGreater(rr['all2all'].get_runtime(), 0.0)
-                for ff in report_paths:
-                    try:
-                        os.remove(ff)
-                    except OSError:
-                        pass
                 num_node *= 2
 
     @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
@@ -360,19 +346,17 @@ class TestIntegration(unittest.TestCase):
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
         launcher.run(name)
 
-        reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_path + '*')]
-        self._tmp_files.extend(reports)
-
-        traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_path + '*')]
-        self._tmp_files.extend(traces)
-        # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
-        traces = {tt.split('.trace-')[-1] : geopm_io.Trace(tt).get_df() for tt in traces}
-
-        # Total power consumed will be Socket(s) + DRAM
+        output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = output.get_node_names()
+        self.assertTrue(len(node_names) == num_node)
         all_power_data = {}
-        for node_name, trace_data in traces.iteritems():
-            first_epoch_index = trace_data.loc[ trace_data['region_id'] == '9223372036854775808' ][:1].index[0]
-            epoch_dropped_data = trace_data[first_epoch_index:] # Drop all startup data
+        # Total power consumed will be Socket(s) + DRAM
+        for nn in node_names:
+            rr = output.get_report(nn)
+            tt = output.get_trace(nn)
+
+            first_epoch_index = tt.loc[ tt['region_id'] == '9223372036854775808' ][:1].index[0]
+            epoch_dropped_data = tt[first_epoch_index:] # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
             power_data['seconds'] = epoch_dropped_data['seconds']
@@ -387,9 +371,9 @@ class TestIntegration(unittest.TestCase):
             power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
 
             pandas.set_option('display.width', 100)
-            launcher.write_log(name, 'Power stats from {} :\n{}'.format(node_name, power_data.describe()))
+            launcher.write_log(name, 'Power stats from {} :\n{}'.format(nn, power_data.describe()))
 
-            all_power_data[node_name] = power_data
+            all_power_data[nn] = power_data
 
         for node_name, power_data in all_power_data.iteritems():
             # Allow for overages of 1% at the 75th percentile.
@@ -397,6 +381,65 @@ class TestIntegration(unittest.TestCase):
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
+
+
+    @unittest.skipUnless(False, 'Not implemented')
+    def test_sample_rate(self):
+        """
+        Check that sample rate is regular and fast.
+        """
+        name = 'test_sample_rate'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 16
+        loop_count = 100
+        big_o = 1.0
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('dgemm-progress', big_o)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+
+
+    @unittest.skipUnless(False, 'Not implemented')
+    def test_variable_end_time(self):
+        """
+        Check that two ranks on the same node can shutdown at
+        different times without overflowing the table.
+        """
+        raise NotImplementedError
+
+    @unittest.skipUnless(False, 'Not implemented')
+    def test_power_excursion(self):
+        """
+        When a low power region is followed by a high power region, check
+        that the power consumed at beginning of high power region does
+        not excede the RAPL limit for too long.
+        """
+        raise NotImplementedError
+
+    @unittest.skipUnless(False, 'Not implemented')
+    def test_short_region_control(self):
+        """
+        Check that power limit is maintained when an application has many
+        short running regions.
+        """
+        raise NotImplementedError
+
+    @unittest.skipUnless(False, 'Not implemented')
+    def test_mean_power_against_integration(self):
+        """
+        Check that the average of the per sample power is close to the
+        total change in energy divided by the total change in time.
+        """
+        raise NotImplementedError
+
 
 if __name__ == '__main__':
     unittest.main()
