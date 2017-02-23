@@ -749,6 +749,10 @@ namespace geopm
     {
         struct geopm_time_s control_loop_t1;
 
+        // Unmarked region should always have a progress of 0
+        if (!m_region_id_all) {
+            override_telemetry(0.0);
+        }
         m_tracer->update(m_telemetry_sample);
         m_sample_count++;
         if (m_telemetry_sample[0].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] <= m_throttle_limit_mhz) {
