@@ -590,6 +590,7 @@ namespace geopm
 
                 std::vector<double> aligned_signal;
                 bool is_epoch_found = false;
+                bool is_exit_found = false;
                 // Catch epoch regions and region entries
                 for (auto sample_it = m_prof_sample.cbegin();
                      sample_it != m_prof_sample.cbegin() + length;
@@ -607,6 +608,9 @@ namespace geopm
                                 region_it = tmp_it.first;
                             }
                             (*region_it).second->entry();
+                        }
+                        else if ((*sample_it).second.progress == 1.0) {
+                            is_exit_found = true;
                         }
                         if (!is_epoch_found &&
                             geopm_region_id_is_epoch((*sample_it).second.region_id)) {
@@ -675,10 +679,21 @@ namespace geopm
                 }
                 // No entries or exits
                 else {
-                    if (is_epoch_found) {
-                        update_epoch(epoch_telemetry_sample);
+                    if (is_exit_found) {
+                        override_telemetry(1.0);
+                        update_region();
+                        if (is_epoch_found) {
+                            update_epoch(epoch_telemetry_sample);
+                        }
+                        override_telemetry(0.0);
+                        update_region();
                     }
-                    update_region();
+                    else {
+                        if (is_epoch_found) {
+                            update_epoch(epoch_telemetry_sample);
+                        }
+                        update_region();
+                    }
                 }
                 // GEOPM_REGION_ID_EPOCH is inserted at construction
                 struct geopm_sample_message_s epoch_sample;
