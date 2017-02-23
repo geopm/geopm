@@ -39,17 +39,22 @@ import fnmatch
 
 class AppOutput(object):
     def __init__(self, report_base, trace_base=None):
-        self._reports = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, report_base + '*')] # File names list
-        self._all_paths = self._reports
-        self._reports = [Report(rr) for rr in self._reports] # Report objects list
-        self._reports = {rr.get_node_name(): rr for rr in self._reports} # Report objects dict
-        self._traces = None
+        self._reports = {}
+        self._traces = {}
+        self._all_paths = []
+        report_paths = [ff for ff in os.listdir('.')
+                        if fnmatch.fnmatch(ff, report_base + '*')]
+        self._all_paths.extend(report_paths)
+        # Create a dict of <NODE_NAME> : <REPORT_OBJ>
+        self._reports = {rr.get_node_name(): rr for rr in
+                         [Report(rp) for rp in report_paths]}
         if trace_base:
-            self._traces = [ff for ff in os.listdir('.') if fnmatch.fnmatch(ff, trace_base + '*')]
-            self._all_paths.extend(self._traces)
-            self._traces = [Trace(tt) for tt in self._traces]
+            trace_paths = [ff for ff in os.listdir('.')
+                           if fnmatch.fnmatch(ff, trace_base + '*')]
+            self._all_paths.extend(trace_paths)
             # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
-            self._traces = {tt.get_node_name(): tt.get_df() for tt in self._traces}
+            self._traces = {tt.get_node_name(): tt.get_df() for tt in
+                            [Trace(tp) for tp in trace_paths]}
 
     def __del__(self):
         for ff in self._all_paths:
