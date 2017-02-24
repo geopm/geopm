@@ -38,6 +38,7 @@ import fnmatch
 import sys
 import time
 import pandas
+import code
 
 import geopm_launcher
 import geopm_io
@@ -431,6 +432,7 @@ class TestIntegration(unittest.TestCase):
         """
         name = 'test_sample_rate'
         report_path = name + '.report'
+        trace_path = name + '.trace'
         num_node = 1
         num_rank = 16
         loop_count = 100
@@ -441,12 +443,21 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('dgemm-progress', big_o)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
+        output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = output.get_node_names()
+        self.assertTrue(len(node_names) == num_node)
 
+        for nn in node_names:
+            rr = output.get_report(nn)
+            tt = output.get_trace(nn)
+
+            samples = tt['seconds'].loc[ (tt['region_id'] != '9223372036854775808') & (tt['progress-0'] != 1.0) ].diff()
+            code.interact(local=dict(globals(), **locals()))
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
