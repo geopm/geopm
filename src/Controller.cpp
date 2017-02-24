@@ -679,7 +679,7 @@ namespace geopm
                 }
                 // No entries or exits
                 else {
-                    if (is_exit_found) {
+                    if (is_exit_found && m_region_id_all) {
                         override_telemetry(1.0);
                         update_region();
                         if (is_epoch_found) {
