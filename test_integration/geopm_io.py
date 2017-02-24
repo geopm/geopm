@@ -57,11 +57,12 @@ class AppOutput(object):
                             [Trace(tp) for tp in trace_paths]}
 
     def __del__(self):
-        for ff in self._all_paths:
-            try:
-                os.remove(ff)
-            except OSError:
-                pass
+        if os.getenv('GEOPM_KEEP_FILES') is None:
+            for ff in self._all_paths:
+                try:
+                    os.remove(ff)
+                except OSError:
+                    pass
 
     def get_node_names(self):
         return self._reports.keys()
