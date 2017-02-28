@@ -36,6 +36,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include <geopm_message.h>
 
@@ -55,6 +56,8 @@ namespace geopm
             bool m_is_trace_enabled;
             bool m_do_header;
             std::ofstream m_stream;
+            std::ostringstream m_buffer;
+            size_t m_buffer_limit;
             struct geopm_time_s m_time_zero;
             struct geopm_policy_message_s m_policy;
     };
