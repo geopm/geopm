@@ -48,6 +48,7 @@ namespace geopm
     Tracer::Tracer()
         : m_is_trace_enabled(false)
         , m_do_header(true)
+        , m_buffer_limit(134217728)
         , m_time_zero({{0, 0}})
         , m_policy({0, 0, 0, 0.0})
     {
@@ -61,13 +62,14 @@ namespace geopm
             std::ostringstream output_path;
             output_path << geopm_env_trace() << "-" << hostname;
             m_stream.open(output_path.str());
-            m_stream << std::setprecision(16);
+            m_buffer << std::setprecision(16);
             m_is_trace_enabled = true;
         }
     }
 
     Tracer::~Tracer()
     {
+        m_stream << m_buffer.str();
         if (m_is_trace_enabled) {
             m_stream.close();
         }
@@ -77,9 +79,9 @@ namespace geopm
     {
         if (m_is_trace_enabled && telemetry.size()) {
             if (m_do_header) {
-                m_stream << "region_id | seconds | ";
+                m_buffer << "region_id | seconds | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
-                    m_stream << "pkg_energy-" << i << " | "
+                    m_buffer << "pkg_energy-" << i << " | "
                              << "dram_energy-" << i << " | "
                              << "frequency-" << i << " | "
                              << "inst_retired-" << i << " | "
@@ -89,21 +91,25 @@ namespace geopm
                              << "progress-" << i << " | "
                              << "runtime-" << i << " | ";
                 }
-                m_stream << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
+                m_buffer << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
                 m_do_header = false;
             }
-            m_stream << telemetry[0].region_id << " | "
+            m_buffer << telemetry[0].region_id << " | "
                      << geopm_time_diff(&m_time_zero, &(telemetry[0].timestamp)) << " | ";
             for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
                 for (int i = 0; i != GEOPM_NUM_TELEMETRY_TYPE; ++i) {
-                    m_stream << (*it).signal[i] << " | ";
+                    m_buffer << (*it).signal[i] << " | ";
                 }
             }
-            m_stream << m_policy.mode << " | "
+            m_buffer << m_policy.mode << " | "
                      << m_policy.flags << " | "
                      << m_policy.num_sample << " | "
                      << m_policy.power_budget << std::endl;
 
+        }
+        if (m_buffer.tellp() > m_buffer_limit) {
+            m_stream << m_buffer.str();
+            m_buffer.str("");
         }
     }
 
