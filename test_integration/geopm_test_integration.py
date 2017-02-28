@@ -38,7 +38,6 @@ import fnmatch
 import sys
 import time
 import pandas
-import code
 
 import geopm_launcher
 import geopm_io
@@ -82,12 +81,12 @@ class TestIntegration(unittest.TestCase):
 
         output = geopm_io.AppOutput(report_path, trace_path)
         node_names = output.get_node_names()
-        self.assertTrue(len(node_names) == num_node)
+        self.assertEqual(num_node, len(node_names))
         for nn in node_names:
             report = output.get_report(nn)
-            self.assertTrue(len(report) != 0)
+            self.assertNotEqual(0, len(report))
             trace = output.get_trace(nn)
-            self.assertTrue(len(trace) != 0)
+            self.assertNotEqual(0, len(trace))
 
     @unittest.skipUnless(geopm_launcher.get_resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
@@ -124,10 +123,10 @@ class TestIntegration(unittest.TestCase):
 
         output = geopm_io.AppOutput(report_path)
         node_names = output.get_node_names()
-        self.assertTrue(len(node_names) == len(idle_nodes))
+        self.assertEqual(len(node_names), len(idle_nodes))
         for nn in node_names:
             report = output.get_report(nn)
-            self.assertTrue(len(report) != 0)
+            self.assertNotEqual(0, len(report))
             self.assertNear(delay, report['sleep'].get_runtime())
             self.assertGreater(report.get_runtime(), report['sleep'].get_runtime())
             self.assertEqual(1, report['sleep'].get_count())
@@ -149,7 +148,7 @@ class TestIntegration(unittest.TestCase):
         launcher.run(name)
         output = geopm_io.AppOutput(report_path)
         node_names = output.get_node_names()
-        self.assertTrue(len(node_names) == num_node)
+        self.assertEqual(num_node, len(node_names))
         for nn in node_names:
             rr = output.get_report(nn)
             self.assertNear(delay, rr['sleep'].get_runtime())
@@ -174,7 +173,7 @@ class TestIntegration(unittest.TestCase):
         launcher.run(name)
         output = geopm_io.AppOutput(report_path)
         node_names = output.get_node_names()
-        self.assertTrue(len(node_names) == num_node)
+        self.assertEqual(num_node, len(node_names))
         for nn in node_names:
             rr = output.get_report(nn)
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
@@ -349,7 +348,7 @@ class TestIntegration(unittest.TestCase):
 
         output = geopm_io.AppOutput(report_path, trace_path)
         node_names = output.get_node_names()
-        self.assertTrue(len(node_names) == num_node)
+        self.assertEqual(num_node, len(node_names))
         all_power_data = {}
         # Total power consumed will be Socket(s) + DRAM
         for nn in node_names:
@@ -435,29 +434,32 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 1
         num_rank = 16
-        loop_count = 100
-        big_o = 1.0
+        loop_count = 10
+        big_o = 10.0
+        region = 'dgemm-progress'
+        max_mean = 0.01 # 10 millisecon max sample period
+        max_nstd = 0.1 # 10% normalized standard deviation (std / mean)
         app_conf = geopm_io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
-        app_conf.append_region('dgemm-progress', big_o)
+        app_conf.append_region(region, big_o)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-
         output = geopm_io.AppOutput(report_path, trace_path)
         node_names = output.get_node_names()
-        self.assertTrue(len(node_names) == num_node)
+        self.assertEqual(num_node, len(node_names))
 
         for nn in node_names:
             rr = output.get_report(nn)
             tt = output.get_trace(nn)
-
-            samples = tt['seconds'].loc[ (tt['region_id'] != '9223372036854775808') & (tt['progress-0'] != 1.0) ].diff()
-            code.interact(local=dict(globals(), **locals()))
+            delta_t = tt['seconds'].diff()
+            delta_t = delta_t.loc[ delta_t != 0]
+            self.assertGreater(max_mean, delta_t.mean())
+            self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
