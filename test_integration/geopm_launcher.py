@@ -34,6 +34,7 @@
 import socket
 import subprocess
 import os
+import sys
 import datetime
 import signal
 
@@ -55,13 +56,13 @@ def get_resource_manager():
             try:
                 exec_str = 'srun --version'
                 subprocess.check_call(exec_str, shell=True)
-                sys.stderr.write('Warning: Unrecognized host: "{hn}", using SLURM'.format(hh=hostname))
+                sys.stderr.write('Warning: Unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
                 result = "SLURM"
             except subprocess.CalledProcessError:
                 try:
                     exec_str = 'aprun --version'
                     subprocess.check_call(exec_str, shell=True)
-                    sys.stderr.write("Warning: Unrecognized host: \"{hn}\", using ALPS".format(hh=hostname))
+                    sys.stderr.write("Warning: Unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
                     result = "ALPS"
                 except subprocess.CalledProcessError:
                     raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable to "SLURM" or "ALPS"')
