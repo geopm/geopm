@@ -95,7 +95,7 @@ namespace geopm
             else if (key_string == "region") {
                 if (json_object_get_type(val) == json_type_array) {
                     json_object *region_obj;
-                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
                         region_obj = json_object_array_get_idx(val, i);
                         if (json_object_get_type(region_obj) == json_type_string) {
                             region_name.push_back(json_object_get_string(region_obj));
@@ -114,7 +114,7 @@ namespace geopm
             else if (key_string == "big-o") {
                 if (json_object_get_type(val) == json_type_array) {
                     json_object *big_o_obj;
-                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
                         big_o_obj = json_object_array_get_idx(val, i);
                         if (json_object_get_type(big_o_obj) == json_type_double) {
                             big_o.push_back(json_object_get_double(big_o_obj));
@@ -133,7 +133,7 @@ namespace geopm
             else if (key_string == "hostname") {
                 if (json_object_get_type(val) == json_type_array) {
                     json_object *hostname_obj;
-                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
                         hostname_obj = json_object_array_get_idx(val, i);
                         if (json_object_get_type(hostname_obj) == json_type_string) {
                             hostname.push_back(json_object_get_string(hostname_obj));
@@ -152,7 +152,7 @@ namespace geopm
             else if (key_string == "imbalance") {
                 if (json_object_get_type(val) == json_type_array) {
                     json_object *imbalance_obj;
-                    for (int i = 0; i < json_object_array_length(val); ++i) {
+                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
                         imbalance_obj = json_object_array_get_idx(val, i);
                         if (json_object_get_type(imbalance_obj) == json_type_double) {
                             imbalance.push_back(json_object_get_double(imbalance_obj));
