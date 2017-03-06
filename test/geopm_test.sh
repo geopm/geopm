@@ -38,6 +38,10 @@ unset GEOPM_TRACE
 test_name=`basename $0`
 dir_name=`dirname $0`
 run_test=true
+xml_dir=$dir_name
+if [ $GTEST_XML_DIR ]; then
+    xml_dir=$GTEST_XML_DIR
+fi
 err=0
 
 if [[ ! $test_name =~ ^MPI ]]; then
@@ -51,7 +55,8 @@ if [[ ! $test_name =~ ^MPI ]]; then
 
     if [ "$run_test" == "true" ]; then
         # This is not an MPI test, run geopm_test
-        LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $dir_name/../.libs/geopm_test --gtest_filter=$test_name >& $dir_name/$test_name.log
+        LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $dir_name/../.libs/geopm_test \
+            --gtest_filter=$test_name --gtest_output=xml:$xml_dir/$test_name.xml >& $dir_name/$test_name.log
         err=$?
     fi
 else
@@ -137,11 +142,13 @@ else
     fi
 
     if [ "$run_test" == "true" ]; then
+        exec_name=geopm_mpi_test
         if [[ $test_name =~ ^MPIInterface ]]; then
-            LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc $dir_name/../.libs/geopm_mpi_test_api --gtest_filter=$test_name >& $dir_name/$test_name.log
-        else
-            LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc $dir_name/../.libs/geopm_mpi_test --gtest_filter=$test_name >& $dir_name/$test_name.log
+            exec_name=geopm_mpi_test_api
         fi
+        LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc \
+            $dir_name/../.libs/$exec_name --gtest_filter=$test_name \
+            --gtest_output=xml:$xml_dir/$test_name.xml>& $dir_name/$test_name.log
         err=$?
 
         # SLURM does not always handle death testing properly. Sometimes
