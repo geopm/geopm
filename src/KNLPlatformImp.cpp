@@ -534,8 +534,8 @@ namespace geopm
         // Manual Volume 3 (3A, 3B, 3C & 3D): System Programming Guide
 
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "PKG_POWER_LIMIT");
-        //Set time window 1 to the sample limit
-        double tau = m_control_latency_ms * 0.001;
+        //Set time window 1 to the minimum time window of 15 msec
+        double tau = 0.015;
         uint64_t pkg_time_window_y = (uint64_t)std::log2(tau/time_units);
         uint64_t pkg_time_window_z = (uint64_t)(4.0 * ((tau / ((double)(1 << pkg_time_window_y) * time_units)) - 1.0));
         if ((pkg_time_window_z >> 2) != 0 || (pkg_time_window_y >> 5) != 0) {
