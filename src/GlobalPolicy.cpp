@@ -160,7 +160,7 @@ extern "C"
         return err;
     }
 
-    int geopm_policy_tdp_percent(struct geopm_policy_c *policy, int percent)
+    int geopm_policy_tdp_percent(struct geopm_policy_c *policy, double percent)
     {
         int err = 0;
 
@@ -169,7 +169,8 @@ extern "C"
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
-            policy_obj->tdp_percent(percent);
+            // round the value to the closest integer
+            policy_obj->tdp_percent((int)(percent + 0.5));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -613,10 +614,10 @@ namespace geopm
         json_object_object_foreach(options_obj, subkey, subval) {
             key_string = subkey;
             if (key_string == "tdp_percent") {
-                if (json_object_get_type(subval) != json_type_int) {
-                    throw Exception("GlobalPolicy::read(): tdp_percent expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (json_object_get_type(subval) != json_type_double) {
+                    throw Exception("GlobalPolicy::read(): tdp_percent expected to be a double type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                tdp_percent(json_object_get_int(subval));
+                tdp_percent(json_object_get_double(subval));
             }
             else if (key_string == "cpu_mhz") {
                 if (json_object_get_type(subval) != json_type_int) {

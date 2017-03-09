@@ -460,7 +460,7 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
             }
             if (!err) {
                 if (strncmp(key, "tdp_percent", strlen("tdp_percent") + 1) == 0) {
-                    err = geopm_policy_tdp_percent(policy, atoi(value));
+                    err = geopm_policy_tdp_percent(policy, atof(value));
                 }
                 else if (strncmp(key, "cpu_mhz", strlen("cpu_mhz") + 1) == 0) {
                     err = geopm_policy_cpu_freq(policy, atoi(value));
