@@ -237,12 +237,12 @@ namespace geopm
         return (topology()->num_domain(m_imp->power_control_domain()));
     }
 
-    void Platform::tdp_limit(int percentage) const
+    void Platform::tdp_limit(double percentage) const
     {
         //Get the TDP for each socket and set its power limit to match
         int packages = m_imp->num_package();
         double tdp = m_imp->package_tdp();
-        uint64_t pkg_lim = (uint64_t)(tdp * ((double)percentage * 0.01));
+        double pkg_lim = tdp * (percentage * 0.01);
         for (int i = 0; i < packages; i++) {
             m_imp->write_control(m_imp->power_control_domain(), i,  GEOPM_TELEMETRY_TYPE_PKG_ENERGY, pkg_lim);
         }
