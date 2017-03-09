@@ -80,21 +80,21 @@ TEST_F(GlobalPolicyTest, mode_tdp_balance_static)
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
     policy->mode(GEOPM_POLICY_MODE_TDP_BALANCE_STATIC);
-    policy->tdp_percent(75);
+    policy->tdp_percent(75.0);
     policy->write();
     delete policy;
 
     policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->tdp_percent(34);
+    policy->tdp_percent(34.0);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
-    EXPECT_EQ(34, policy->tdp_percent());
+    EXPECT_DOUBLE_EQ(34.0, policy->tdp_percent());
 
     //read saved values back
     policy->read();
     EXPECT_EQ(GEOPM_POLICY_MODE_TDP_BALANCE_STATIC, policy->mode());
-    EXPECT_DOUBLE_EQ(75, policy->tdp_percent());
+    EXPECT_DOUBLE_EQ(75.0, policy->tdp_percent());
     delete policy;
 }
 
@@ -271,17 +271,17 @@ TEST_F(GlobalPolicyTestShmem, mode_tdp_balance_static)
     policy->tree_decider("static_policy");
     policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_TDP_BALANCE_STATIC);
-    policy->tdp_percent(75);
+    policy->tdp_percent(75.0);
     policy->write();
     //overwrite local values
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->tdp_percent(34);
+    policy->tdp_percent(34.0);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
-    EXPECT_EQ(34, policy->tdp_percent());
+    EXPECT_DOUBLE_EQ(34.0, policy->tdp_percent());
     //read saved values back
     policy->read();
     EXPECT_EQ(GEOPM_POLICY_MODE_TDP_BALANCE_STATIC, policy->mode());
-    EXPECT_DOUBLE_EQ(75, policy->tdp_percent());
+    EXPECT_DOUBLE_EQ(75.0, policy->tdp_percent());
     delete policy;
 }
 
