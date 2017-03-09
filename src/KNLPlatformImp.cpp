@@ -123,7 +123,7 @@ namespace geopm
 
     KNLPlatformImp::~KNLPlatformImp()
     {
-        rapl_reset();
+
     }
 
     bool KNLPlatformImp::model_supported(int platform_id)
@@ -483,7 +483,6 @@ namespace geopm
 
     void KNLPlatformImp::msr_reset()
     {
-        rapl_reset();
         cbo_counters_reset();
         fixed_counters_reset();
     }
@@ -574,8 +573,6 @@ namespace geopm
         }
         m_min_pp0_watts = m_min_pkg_watts;
         m_max_pp0_watts = m_max_pkg_watts;
-
-        rapl_reset();
     }
 
     void KNLPlatformImp::cbo_counters_init()
@@ -639,18 +636,6 @@ namespace geopm
             msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_FIXED_CTR_CTRL", 0x0333);
             msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_GLOBAL_CTRL", 0x700000003);
             msr_write(GEOPM_DOMAIN_TILE, tile, "PERF_GLOBAL_OVF_CTRL", 0x0);
-        }
-    }
-
-    void KNLPlatformImp::rapl_reset()
-    {
-        uint64_t msr_val;
-        //clear power limits
-        for (int i = 1; i < m_num_package; i++) {
-            msr_val = (uint64_t)(m_max_pkg_watts * m_power_units_inv);
-            msr_val = msr_val | m_pkg_power_limit_static;
-            msr_write(GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT", msr_val);
-            msr_write(GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT", 0x0);
         }
     }
 

@@ -76,8 +76,6 @@ namespace geopm
             virtual void cbo_counters_init(void);
             /// @brief Initialize free running counters.
             virtual void fixed_counters_init(void);
-            /// @brief Reset RAPL controls to default state.
-            virtual void rapl_reset(void);
             /// @brief Reset per-CPU counters to default state.
             virtual void cbo_counters_reset(void);
             /// @brief Reset free running counters to default state.
