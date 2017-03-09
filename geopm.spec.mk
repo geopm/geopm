@@ -156,6 +156,8 @@ test -f configure || ./autogen.sh
 
 %{__make}
 
+%check
+
 %if %{defined suse_version}
 MPIEXEC=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec %{__make} check || \
 ( cat test/gtest_links/*.log && false )
