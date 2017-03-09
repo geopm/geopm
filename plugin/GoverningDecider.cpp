@@ -60,6 +60,7 @@ namespace geopm
         : m_name("power_governing")
         , m_min_num_converged(5)
         , m_last_power_budget(DBL_MIN)
+        , m_last_dram_power(DBL_MAX)
         , m_num_sample(5)
     {
 
@@ -70,6 +71,7 @@ namespace geopm
         , m_name(other.m_name)
         , m_min_num_converged(other.m_min_num_converged)
         , m_last_power_budget(other.m_last_power_budget)
+        , m_last_dram_power(other.m_last_dram_power)
         , m_num_sample(other.m_num_sample)
     {
 
@@ -121,6 +123,7 @@ namespace geopm
                 curr_policy.policy_flags(policy_msg.flags);
             }
             m_last_power_budget = policy_msg.power_budget;
+            m_last_dram_power = DBL_MAX;
             result = true;
         }
         return result;
@@ -128,18 +131,15 @@ namespace geopm
 
     bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
     {
-        static const double UPPER_GUARD_BAND = 1.05;
-        static const double LOWER_GUARD_BAND = 0.99;
+        static const double GUARD_BAND = 0.02;
         bool is_target_updated = false;
-        bool is_greater = false;
+        const uint64_t region_id = curr_region.identifier();
 
         // If we have enough samples from the current region then update policy.
         if (curr_region.num_sample(0, GEOPM_TELEMETRY_TYPE_PKG_ENERGY) >= m_num_sample) {
             const int num_domain = curr_policy.num_domain();
-            const uint64_t region_id = curr_region.identifier();
             std::vector<double> limit(num_domain);
             std::vector<double> target(num_domain);
-            std::vector<double> domain_pkg_power(num_domain);
             std::vector<double> domain_dram_power(num_domain);
             // Get node limit for epoch set by tree decider
             curr_policy.target(GEOPM_REGION_ID_EPOCH, limit);
@@ -147,40 +147,29 @@ namespace geopm
             curr_policy.target(region_id, target);
 
             // Sum package and dram power over all domains to get total_power
-            double pkg_power = 0.0;
             double dram_power = 0.0;
             double limit_total = 0.0;
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                domain_pkg_power[domain_idx] = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
-                pkg_power += domain_pkg_power[domain_idx];
                 domain_dram_power[domain_idx] = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
                 dram_power += domain_dram_power[domain_idx];
                 limit_total += limit[domain_idx];
             }
-            double total_power = pkg_power + dram_power;
+            double upper_limit = m_last_dram_power + (GUARD_BAND * limit_total);
+            double lower_limit = m_last_dram_power - (GUARD_BAND * limit_total);
 
             // If we have enough energy samples to accurately
             // calculate power: derivative function did not return NaN.
-            if (!std::isnan(total_power)) {
-                is_greater = total_power > limit_total * UPPER_GUARD_BAND;
-                double overage = total_power - limit_total;
-                double target_total = limit_total * LOWER_GUARD_BAND - (overage > dram_power ?
-                                                                        overage : dram_power);
-
-                for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                    // Divide the total power budget over domains
-                    // in proportion to the fraction of power used by
-                    // each domain as observed in the last sample.
-                    target[domain_idx] = target_total * (domain_pkg_power[domain_idx] +
-                                         domain_dram_power[domain_idx]) / total_power;
-                }
-
-                if (!curr_policy.is_converged(region_id)) {
-                    // If the region's policy is currently in a state
-                    // of "unconvergence", update the target
+            if (!std::isnan(dram_power)) {
+                if (dram_power < lower_limit || dram_power > upper_limit) {
+                    m_last_dram_power = dram_power;
+                    for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                        target[domain_idx] = limit[domain_idx] - domain_dram_power[domain_idx];
+                    }
                     curr_policy.update(region_id, target);
                     is_target_updated = true;
-                    if (is_greater) {
+                }
+                if (!curr_policy.is_converged(region_id)) {
+                    if (is_target_updated) {
                         // Set to zero the number of times we were
                         // under budget since last in "converged"
                         // state (since policy is not currently in a
@@ -213,41 +202,6 @@ namespace geopm
                             // reset the counter.
                             curr_policy.is_converged(region_id, true);
                             (*it).second = 0;
-                        }
-                    }
-                }
-                else {
-                    // If the region's policy is currently is a state
-                    // of "convergence" count number of samples where
-                    // we go over budget since convergence occured.
-                    if (is_greater) {
-                        auto it = m_num_converged.lower_bound(region_id);
-                        if (it != m_num_converged.end() && (*it).first == region_id) {
-                            ++(*it).second;
-                        }
-                        else {
-                            it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
-                        }
-                        if ((*it).second >= m_min_num_converged) {
-                            // As soon as m_min_num_converged samples
-                            // are found over the budget since
-                            // convergence occured switch policy state
-                            // to "unconverged" and reset counter.
-                            curr_policy.is_converged(region_id, false);
-                            (*it).second = 0;
-                        }
-                    }
-                    else {
-                        // Set to zero the number of times we were
-                        // over budget since last in "unconverged"
-                        // state (since policy is currently in a
-                        // converged state).
-                        auto it = m_num_converged.lower_bound(region_id);
-                        if (it != m_num_converged.end() && (*it).first == region_id) {
-                            (*it).second = 0;
-                        }
-                        else {
-                            it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
                         }
                     }
                 }
