@@ -149,7 +149,7 @@ void GoverningDeciderTest::run_param_case(double budget, double pkg_power, doubl
     EXPECT_FALSE(policy.is_converged(region_id));
     policy.target(region_id, target);
     for (int i = 0; i < num_domain; ++i) {
-        EXPECT_DOUBLE_EQ(((budget * 0.99 - dram_power) / num_domain), target[i]);
+        EXPECT_DOUBLE_EQ(((budget - dram_power) / num_domain), target[i]);
     }
 
     int convergence_num = 5;
@@ -164,5 +164,5 @@ void GoverningDeciderTest::run_param_case(double budget, double pkg_power, doubl
         }
         m_decider->update_policy(region, policy);
     }
-    EXPECT_EQ((budget > (pkg_power + dram_power)), policy.is_converged(region_id));
+    EXPECT_TRUE(policy.is_converged(region_id));
 }

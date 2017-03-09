@@ -61,6 +61,7 @@ namespace geopm
             const std::string m_name;
             const unsigned m_min_num_converged;
             double m_last_power_budget;
+            double m_last_dram_power;
             const int m_num_sample;
             std::map<uint64_t, unsigned> m_num_converged;
     };
