@@ -67,7 +67,7 @@ namespace geopm
             /// @brief Set the power limit of the CPUs to a percentage of
             /// Thermal Design Power (TDP).
             /// @param [in] percentage The percentage of TDP.
-            void tdp_limit(int percentage) const;
+            void tdp_limit(double percentage) const;
             /// @brief Set the frequency to a fixed value for CPUs within an
             /// affinity set.
             /// @param [in] frequency Frequency in MHz to set the CPUs to.
