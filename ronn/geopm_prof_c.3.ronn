@@ -75,26 +75,27 @@ geopm_prof_c(3) -- geopm application profiling structure
 ## DESCRIPTION
 The functions described here enable application feedback to the
 control algorithm for identifying regions of code, progress within
-regions, and global synchronization points in the application.
-Regions of code define periods in the application during which control
-parameters are tuned with the expectation that control parameters for
-a region can be optimized independently of other regions.  In this way
-a region is associated with a set of control parameters which can be
-optimized, and future time intervals associated with the same region
-will benefit from the application of control parameters which were
-determined from tuning within previous occurrences of the region.
-There are two competing motivations for defining a region within the
-application.  The first is to identify a section of code that has
-distinct compute, memory or network characteristics.  The second is to
-avoid defining these regions such that they are nested within each
-other, as nested regions are ignored, and only the outer most region
-is used for tuning when nesting occurs.  Identifying progress within a
-region can be used to alleviate load imbalance in the application
-under the assumption that the region is bulk synchronous.  Under the
-assumption that the application employs an iterative algorithm which
-synchronizes periodically the user can alleviate load imbalance on
-larger time scales than the regions provide.  This is done by marking
-the end of the outer most loop, or the "epoch."
+regions, and iterations through loops that contain inter-node
+synchronization points in the application.  Regions of code define
+periods in the application during which control parameters are tuned
+with the expectation that control parameters for a region can be
+optimized independently of other regions.  In this way a region is
+associated with a set of control parameters which can be optimized,
+and future time intervals associated with the same region will benefit
+from the application of control parameters which were determined from
+tuning within previous occurrences of the region.  There are two
+competing motivations for defining a region within the application.
+The first is to identify a section of code that has distinct compute,
+memory or network characteristics.  The second is to avoid defining
+these regions such that they are nested within each other, as nested
+regions are ignored, and only the outer most region is used for tuning
+when nesting occurs.  Identifying progress within a region can be used
+to alleviate load imbalance in the application under the assumption
+that the region is bulk synchronous.  Under the assumption that the
+application employs an iterative algorithm which synchronizes
+periodically the user can alleviate load imbalance on larger time
+scales than the regions provide.  This is done by marking iterations
+through an outer loop in the application, the "epoch".
 
   * `geopm_prof_region`():
     registers an application region.  The _region_name_ and
@@ -134,11 +135,16 @@ the end of the outer most loop, or the "epoch."
     call is ignored and an error code is returned.
 
   * `geopm_prof_epoch`():
-    is called once for each pass through the outer most computational
-    loop executed by the application.  This function call should occur
-    exactly once in the application source at the beginning of the loop
-    that encapsulates the primary computational region of the
-    application.
+    is called once for each pass through a computational loop
+    containing inter-node synchronization events.  This call acts as a
+    beacon signal emitted by each MPI rank as it begins a loop
+    iteration.  The divergence in the elapsed time between calls by
+    different MPI ranks is interpreted as an imbalance to be corrected
+    by the runtime.  This function may be called at different places
+    in an application, but it should not be used to mark a loop that
+    is nested inside of another loop which is also marked.  It is
+    important to note that this call acts as a barrier between ranks
+    running within the same compute node.
 
   * `geopm_prof_disable`():
     is called at application start up to disable a profiling feature.
