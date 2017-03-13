@@ -209,21 +209,63 @@ MPI targets are built.
 RUN REQUIREMENTS
 ----------------
 We are targeting SLES12 and RHEL7 distributions for functional runtime
-support.  The msr-safe kernel driver must be loaded at runtime to support user
-level read and write of white-listed MSRs.  The source code for the driver can
-be found here: <https://github.com/scalability-llnl/msr-safe>.
+support.  There are several runtime requirements that can be obtained
+from those distributions including the OpenMPI implementation of MPI,
+the json-c library, and the hwloc library.  To install follow the
+instructions below for your Linux distribution.
+
+RHEL:
+
+    yum install openmpi json-c hwloc
+
+SUSE:
+
+    zypper install openmpi libjson-c hwloc
+
+### MSR DRIVER
+The msr-safe kernel driver must be loaded at runtime to
+support user level read and write of white-listed MSRs.  The source
+code for the driver can be found here:
+<https://github.com/scalability-llnl/msr-safe>.
 
 Alternately you can run geopm as root with the standard msr driver loaded:
 
     modprobe msr
 
-Note that other Linux mechanisms for power management can interfere with
-geopm, and these must be disabled.  We suggest the following:
+Note that other Linux mechanisms for power management can interfere
+with geopm, and these must be disabled.  We suggest the following:
 
     echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
-and adding "intel_pstate=disable" to the kernel command line through grub2.
+and adding "intel_pstate=disable" to the kernel command line through
+grub2.
 
+### CPU AFFINITY REQUIREMENTS
+The GEOPM runtime requires that each MPI process of the application
+under control is affinitized to distinct CPUs.  This is a strict
+requirement for the runtime and must be enforced by the resource
+manager and/or MPI launch application.
+
+Affinitizing the GEOPM control thread to a CPU that is distinct from
+the application CPUs may improve performance of the application, but
+this is not a requirement.  On systems where an application achieves
+highest performance when leaving a CPU unused by the application so
+that this CPU can be dedicated to the operating system, it is usually
+best to affinitize the GEOPM control thread to this CPU designated for
+system threads.
+
+There are many ways to launch an MPI application, and there is no
+single uniform way of enforcing MPI rank CPU affinities across
+different job launch mechanisms.  Additionally, OpenMP runtimes, which
+are associated with the compiler choice, have different mechanisms for
+affinitizing OpenMP threads within CPUs available to each MPI process.
+To complicate things further the GEOPM control thread can be launched
+as an application thread or a process that may be part of the primary
+MPI application or a completely separate MPI application.  For these
+reasons it is difficult to document how to correctly affinitize
+processes in all configurations.  Please refer to your site
+documentation about CPU affinity for the best solution on the system
+you are using.
 
 TESTING
 -------
