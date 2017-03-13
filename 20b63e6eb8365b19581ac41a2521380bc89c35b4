@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9364f3e_8aedc8e5",
+        "filename": "geopm.spec.mk",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1010658
+      },
+      "writtenOn": "2017-03-13T16:21:45Z",
+      "side": 1,
+      "message": "Looks good.  Perhaps you would like to add parallization to the make by adding %{?_smp_mflags} after %{__make}.",
+      "revId": "20b63e6eb8365b19581ac41a2521380bc89c35b4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
