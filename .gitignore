@@ -24,6 +24,7 @@
 /examples/threaded_step
 /examples/geopmhash
 /examples/geopm_ctl_single
+/examples/print_affinity
 /examples/simple_prof_c
 /examples/simple_prof_f
 /examples/synthetic_benchmark

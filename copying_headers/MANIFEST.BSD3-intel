@@ -8,6 +8,7 @@ examples/geopm_ctl_single.cpp
 examples/geopm_platform_supported.cpp
 examples/geopm_print_error.c
 examples/Makefile.mk
+examples/print_affinity.cpp
 examples/simple_prof_c.c
 examples/simple_prof_f.f90
 examples/synthetic_benchmark.cpp

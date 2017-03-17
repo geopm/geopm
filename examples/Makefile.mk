@@ -59,7 +59,9 @@ endif
 
 if ENABLE_MPI
 if ENABLE_SCHED
-    noinst_PROGRAMS += examples/synthetic_benchmark
+    noinst_PROGRAMS += examples/synthetic_benchmark \
+                       examples/print_affinity \
+                       # end
     examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
     examples_synthetic_benchmark_LDADD = libgeopm.la $(MPI_CXXLIBS)
     examples_synthetic_benchmark_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
@@ -80,6 +82,11 @@ if ENABLE_SCHED
     examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(OPENMP_CFLAGS)
     examples_simple_prof_c_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
     examples_simple_prof_c_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS) $(OPENMP_CFLAGS)
+    examples_print_affinity_SOURCES = examples/print_affinity.cpp
+    examples_print_affinity_LDADD  = $(MPI_CXXLIBS)
+    examples_print_affinity_LDFLAGS  = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_print_affinity_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
+    examples_print_affinity_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS) $(OPENMP_CFLAGS)
 if ENABLE_FORTRAN
     noinst_PROGRAMS += examples/simple_prof_f
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
