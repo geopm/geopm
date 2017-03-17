@@ -71,14 +71,14 @@ def get_resource_manager():
 
 
 def factory(app_conf, ctl_conf, report_path,
-                     trace_path=None, host_file=None, time_limit=1):
+            trace_path=None, host_file=None, time_limit=1):
     resource_manager = get_resource_manager()
     if resource_manager == "SLURM":
         return SrunLauncher(app_conf, ctl_conf, report_path,
                             trace_path, host_file, time_limit)
     elif resource_manager == "ALPS":
         return AlpsLauncher(app_conf, ctl_conf, report_path,
-                              trace_path, host_file, time_limit)
+                            trace_path, host_file, time_limit)
     else:
         raise LookupError('Unrecognized hostname: ' + hostname)
 
