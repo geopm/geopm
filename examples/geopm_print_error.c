@@ -96,22 +96,28 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_ENVIRONMENT",
     };
 
+    enum format_type_e {
+        GEOPM_FORMAT_TYPE_HUMAN,
+        GEOPM_FORMAT_TYPE_ROFF,
+        GEOPM_FORMAT_TYPE_RONN
+    };
+
     const int num_error = sizeof(error_codes) / sizeof(int);
     const char *format_human = "    %s = %i\n        %s\n";
     const char *format_roff = ".TP\n.B %s = %i\n%s\n";
     const char *format_ronn = "  * `%s = %i`:\n    %s\n\n";
 
     const char *tag = "<geopm> ";
-    const char **format_ptr = &format_human;
+    int format_type = GEOPM_FORMAT_TYPE_HUMAN;
     const char *usage = "%s [--help] [--roff]\n";
     char message[NAME_MAX];
     int i;
 
     if (argc == 2 && strncmp(argv[1], "--roff", strlen("--roff")) == 0 ) {
-        format_ptr = &format_roff;
+        format_type = GEOPM_FORMAT_TYPE_ROFF;
     }
     else if (argc == 2 && strncmp(argv[1], "--ronn", strlen("--ronn")) == 0 ) {
-        format_ptr = &format_ronn;
+        format_type = GEOPM_FORMAT_TYPE_RONN;
     }
     else if (argc == 2 && (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
                            strncmp(argv[1], "-h", strlen("-h")) == 0)) {
@@ -124,13 +130,24 @@ int main(int argc, char **argv)
         return EINVAL;
     }
 
-    if (*format_ptr == format_human) {
+    if (format_type == GEOPM_FORMAT_TYPE_HUMAN) {
         printf("GEOPM ERROR CODES\n");
     }
     for (i = 0; !return_code && i < num_error; ++i) {
         geopm_error_message(error_codes[i], message, NAME_MAX);
+        message[NAME_MAX - 1] = '\0';
         if (strstr(message, tag) == message) {
-            printf(*format_ptr, error_names[i], error_codes[i], message + strlen(tag));
+            switch (format_type) {
+                case GEOPM_FORMAT_TYPE_HUMAN:
+                    printf(format_human, error_names[i], error_codes[i], message + strlen(tag));
+                    break;
+                case GEOPM_FORMAT_TYPE_ROFF:
+                    printf(format_roff, error_names[i], error_codes[i], message + strlen(tag));
+                    break;
+                case GEOPM_FORMAT_TYPE_RONN:
+                    printf(format_ronn, error_names[i], error_codes[i], message + strlen(tag));
+                    break;
+            }
         }
         else {
             fprintf(stderr, "Error: <%s> Message does not begin with the tag \"%s\"\n", argv[0], tag);
