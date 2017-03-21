@@ -55,6 +55,7 @@ int geopm_env_do_trace(void);
 int geopm_env_do_ignore_affinity(void);
 int geopm_env_do_profile(void);
 int geopm_env_profile_timeout(void);
+int geopm_env_debug_attach(void);
 
 #ifdef __cplusplus
 }
