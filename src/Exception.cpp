@@ -310,6 +310,7 @@ namespace geopm
         char tmp_msg[NAME_MAX];
         err = err ? err : GEOPM_ERROR_RUNTIME;
         geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
+        tmp_msg[NAME_MAX-1] = '\0';
         return tmp_msg;
     }
 }
