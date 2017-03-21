@@ -307,7 +307,7 @@ namespace geopm
 
     static std::string error_message(int err)
     {
-        char tmp_msg[NAME_MAX];
+        char tmp_msg[NAME_MAX] = "\0";
         err = err ? err : GEOPM_ERROR_RUNTIME;
         geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
         return tmp_msg;

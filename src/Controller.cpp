@@ -702,7 +702,7 @@ namespace geopm
                     }
                 }
                 // GEOPM_REGION_ID_EPOCH is inserted at construction
-                struct geopm_sample_message_s epoch_sample;
+                struct geopm_sample_message_s epoch_sample = GEOPM_SAMPLE_INVALID;
                 auto epoch_it = m_region[level].find(GEOPM_REGION_ID_EPOCH);
                 (*epoch_it).second->sample_message(epoch_sample);
                 for (auto it = m_region[level].begin(); it != m_region[level].end(); ++it) {
