@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13996d46_e079aa9e",
+        "filename": "examples/print_affinity.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-03-21T23:42:19Z",
+      "side": 1,
+      "message": "Indented by 3 spaces instead of 4",
+      "revId": "7034588f9802b685ef65f952315a2015414c2741",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c0ccc38f_27fd9810",
+        "filename": "examples/print_affinity.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-03-21T23:42:19Z",
+      "side": 1,
+      "message": "Trying to introduce Klockworks issues? Needs a return value.",
+      "revId": "7034588f9802b685ef65f952315a2015414c2741",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
