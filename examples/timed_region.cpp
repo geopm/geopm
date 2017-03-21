@@ -74,4 +74,6 @@ int main(int argc, char**argv)
     geopm_prof_exit(region_id[2]);
 
     MPI_Finalize();
+
+    return 0;
 }
