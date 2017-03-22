@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bef1f7a_0f8fb1e3",
+        "filename": "scripts/geopm_srun",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-22T00:56:41Z",
+      "side": 1,
+      "message": "FWIW, I\u0027ve been adding a traceback.print_exc() call to print a stack trace when an exception occurs in main().  The way you\u0027ve got it now, that\u0027d be swallowed by the except clause.\n\nhttps://docs.python.org/2/library/traceback.html",
+      "range": {
+        "startLine": 169,
+        "startChar": 8,
+        "endLine": 169,
+        "endChar": 16
+      },
+      "revId": "26f30aee46b9b702bf8186dcb8097e7a44028243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
