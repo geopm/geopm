@@ -141,13 +141,13 @@ set energy policy control parameters for MPI jobs.
 test -f configure || ./autogen.sh
 
 %if %{defined suse_version}
-./configure --prefix=%{_prefix} --libdir=%{_libdir} \
+./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
             --disable-fortran --disable-doc
 %else
-./configure --prefix=%{_prefix} --libdir=%{_libdir} \
+./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
@@ -202,9 +202,14 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_libdir}/geopm/libgeopmpi_balancing.so.0.0.0
 %{_libdir}/geopm/libgeopmpi_balancing.so.0
 %{_libdir}/geopm/libgeopmpi_balancing.so
-
+%dir %{_libexecdir}/geopm
+%{_libexecdir}/geopm/geopm_launcher.py
+%exclude %{_libexecdir}/geopm/geopm_launcher.pyc
+%exclude %{_libexecdir}/geopm/geopm_launcher.pyo
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
+%{_bindir}/geopmsrun
+%{_bindir}/geopmaprun
 %dir %{docdir}
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
