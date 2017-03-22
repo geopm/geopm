@@ -36,6 +36,9 @@ import json
 import re
 import pandas
 import fnmatch
+import sys
+
+keep_files=False
 
 class AppOutput(object):
     def __init__(self, report_base, trace_base=None):
@@ -57,12 +60,12 @@ class AppOutput(object):
                             [Trace(tp) for tp in trace_paths]}
 
     def __del__(self):
-        if os.getenv('GEOPM_KEEP_FILES') is None:
-            for ff in self._all_paths:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+        if keep_files == False and os.getenv('GEOPM_KEEP_FILES') is None:
+                for ff in self._all_paths:
+                    try:
+                        os.remove(ff)
+                    except OSError:
+                        pass
 
     def get_node_names(self):
         return self._reports.keys()

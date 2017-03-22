@@ -51,13 +51,15 @@ class TestIntegration(unittest.TestCase):
                          'power_budget' : 150}
         self._tmp_files = []
 
-    def __del__(self):
-        if os.getenv('GEOPM_KEEP_FILES') is None:
-            for ff in self._tmp_files:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+    def tearDown(self):
+        if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
+                for ff in self._tmp_files:
+                    try:
+                        os.remove(ff)
+                    except OSError:
+                        pass
+        else: # Workround for when exc_info is different between this class and the AppOutput
+            geopm_io.keep_files=True
 
     def assertNear(self, a, b, epsilon=0.05):
         if abs(a - b) / a >= epsilon:
