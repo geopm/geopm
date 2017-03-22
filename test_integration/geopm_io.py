@@ -56,13 +56,12 @@ class AppOutput(object):
             self._traces = {tt.get_node_name(): tt.get_df() for tt in
                             [Trace(tp) for tp in trace_paths]}
 
-    def __del__(self):
-        if os.getenv('GEOPM_KEEP_FILES') is None:
-            for ff in self._all_paths:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+    def remove_files(self):
+        for ff in self._all_paths:
+            try:
+                os.remove(ff)
+            except OSError:
+                pass
 
     def get_node_names(self):
         return self._reports.keys()
@@ -72,6 +71,7 @@ class AppOutput(object):
 
     def get_trace(self, node_name):
         return self._traces[node_name]
+
 
 class Report(dict):
     def __init__(self, report_path):
