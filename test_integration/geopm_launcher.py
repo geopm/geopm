@@ -181,6 +181,7 @@ class Launcher(object):
         (out, err) = pid.communicate()
         signal.signal(signal.SIGINT, self._default_handler)
         if pid.returncode:
+            print "{}".format(err)
             raise subprocess.CalledProcessError(pid.returncode, cmd, err)
         core_socket = [int(line.split(':')[1])
                        for line in out.splitlines()
