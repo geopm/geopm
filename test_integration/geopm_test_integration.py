@@ -379,8 +379,8 @@ class TestIntegration(unittest.TestCase):
             all_power_data[nn] = power_data
 
         for node_name, power_data in all_power_data.iteritems():
-            # Allow for overages of 1% at the 75th percentile.
-            self.assertGreater(self._options['power_budget'] * 1.01, power_data['combined_power'].quantile(.75))
+            # Allow for overages of 2% at the 75th percentile.
+            self.assertGreater(self._options['power_budget'] * 1.02, power_data['combined_power'].quantile(.75))
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
