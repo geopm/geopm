@@ -45,6 +45,13 @@ if ENABLE_MPI
 
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
+
+install-exec-hook: install-fortran install-launcher
+
+else
+
+install-exec-hook: install-launcher
+
 endif
 endif
 
@@ -62,12 +69,13 @@ if ENABLE_FORTRAN
 
 all-local: geopm.mod
 
-install-exec-hook:
+install-fortran:
 	$(INSTALL) -d  $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 
 endif
 endif
+
 
 dist_man_MANS = man/geopm.7 \
                 man/geopmctl.1 \
@@ -425,5 +433,6 @@ include test_integration/Makefile.mk
 include examples/Makefile.mk
 include plugin/Makefile.mk
 include doc/Makefile.mk
+include scripts/Makefile.mk
 
 .PHONY: clean-local clean-local-coverage clean-local-man distclean-local rpm doxygen gh_pages
