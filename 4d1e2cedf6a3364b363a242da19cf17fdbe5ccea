@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73a49347_42be34c1",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-22T00:10:32Z",
+      "side": 1,
+      "message": "This doesn\u0027t need to be nested if you do positive checking on the type:\n\nif (json_object_get_type(subval) \u003d\u003d json_type_double) {\n    tdp_percent(json_object_get_double(subval));\n}\nelse if (json_object_get_type(subval) \u003d\u003d json_type_int) {\n    tdp_percent(json_object_get_int(subval));\n}\nelse {\n    throw Exception(\"GlobalPolicy::read(): tdp_percent expected to be a double type\", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);\n}",
+      "range": {
+        "startLine": 617,
+        "startChar": 16,
+        "endLine": 627,
+        "endChar": 17
+      },
+      "revId": "4d1e2cedf6a3364b363a242da19cf17fdbe5ccea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
