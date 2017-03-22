@@ -51,13 +51,16 @@ class TestIntegration(unittest.TestCase):
                          'power_budget' : 150}
         self._tmp_files = []
 
-    def __del__(self):
-        if os.getenv('GEOPM_KEEP_FILES') is None:
-            for ff in self._tmp_files:
-                try:
-                    os.remove(ff)
-                except OSError:
-                    pass
+    def tearDown(self):
+        if sys.exc_info() == (None, None, None): # Will not be none if handling exception (i.e. failing test)
+            if os.getenv('GEOPM_KEEP_FILES') is None:
+                for ff in self._tmp_files:
+                    try:
+                        os.remove(ff)
+                    except OSError:
+                        pass
+        else: # Workround for when exc_info is different between this class and the AppOutput
+            geopm_io.keep_files=True
 
     def assertNear(self, a, b, epsilon=0.05):
         if abs(a - b) / a >= epsilon:
@@ -377,7 +380,7 @@ class TestIntegration(unittest.TestCase):
 
         for node_name, power_data in all_power_data.iteritems():
             # Allow for overages of 2% at the 75th percentile.
-            self.assertGreater(self._options['power_budget'] * 1.02, power_data['combined_power'].quantile(.75))
+            self.assertGreater(self._options['power_budget'] * 1.00, power_data['combined_power'].quantile(.75))
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
