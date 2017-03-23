@@ -60,7 +60,7 @@ if [ ${TEST_RETURN_CODE} -eq 0 ]; then
     exit 0
 fi
 
-ERR_MSG="The integration tests have failed at iteration ${COUNT}.  Please see the output for more information:\nhttp://10.23.186.193/~test/cron_runs/${TIMESTAMP}"
+ERR_MSG="The integration tests have failed at iteration ${COUNT}.  Please see the output for more information:\nhttp://10.23.186.193/~test/cron_runs/${TIMESTAMP}\n\n$(cat ${LOG_FILE})"
 
 echo -e ${ERR_MSG} | mail -r "do-not-reply" -s "Integration test failure : ${TIMESTAMP}" brad.geltz@intel.com,christopher.m.cantalupo@intel.com,steve.s.sylvester@intel.com
 
