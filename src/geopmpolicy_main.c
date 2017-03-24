@@ -185,7 +185,7 @@ int main(int argc, char** argv)
                 err = EINVAL;
                 break;
         }
-        if (!err && optarg != NULL && arg_ptr == NULL) {
+        if (!err && optarg != NULL && arg_ptr != NULL) {
             strncpy(arg_ptr, optarg, GEOPMPOLICY_STRING_LENGTH);
             if (arg_ptr[GEOPMPOLICY_STRING_LENGTH - 1] != '\0') {
                 fprintf(stderr, "Error: option string too long\n");
