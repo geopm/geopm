@@ -32,9 +32,32 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <errno.h>
 #include <string>
 
 #include "geopm_env.h"
+#include "Exception.hpp"
+
+int geopm_getenv(const char *name, char **env_string)
+{
+    int err = 0;
+    char *check_string = NULL;
+    (*env_string) = NULL;
+    check_string = getenv(name);
+    if (check_string != NULL) {
+        size_t strsize = (strlen(check_string) <  (NAME_MAX - 1)) ? (strlen(check_string) + 1) : NAME_MAX;
+        (*env_string) = (char*)malloc(strsize);
+        if ((*env_string) != NULL) {
+            strncpy((*env_string), check_string, strsize);
+            (*env_string)[strsize-1] = '\0';
+        }
+        else {
+            err = errno;
+        }
+    }
+    return err;
+}
 
 namespace geopm
 {
@@ -80,33 +103,84 @@ namespace geopm
 
     Environment::Environment()
     {
+        int err = 0;
         char *env_string = NULL;
-        env_string = getenv("GEOPM_REPORT");
+        char *end_string = NULL;
+        err = geopm_getenv("GEOPM_REPORT", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_report_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_POLICY");
+        err = geopm_getenv("GEOPM_POLICY", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_policy_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_SHMKEY");
+        err = geopm_getenv("GEOPM_SHMKEY", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_shmkey_env = env_string ? env_string : "/geopm-shm";
-        env_string = getenv("GEOPM_TRACE");
+        err = geopm_getenv("GEOPM_TRACE", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_trace_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_PLUGIN_PATH");
+        err = geopm_getenv("GEOPM_PLUGIN_PATH", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_plugin_path_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_REPORT_VERBOSITY");
-        m_report_verbosity = env_string ? stol(std::string(env_string)) : (m_report_env.size() ? 1 : 0);
-        env_string = getenv("GEOPM_REGION_BARIER");
+        err = geopm_getenv("GEOPM_REPORT_VERBOSITY", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
+        if (env_string != NULL) {
+            m_report_verbosity = strtol(env_string, &end_string, 10);
+            if (env_string == end_string) {
+                throw Exception("Environment::Environment(): Read invalid value from environment", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        else {
+            m_report_verbosity = m_report_env.size() ? 1 : 0;
+        }
+        err = geopm_getenv("GEOPM_REGION_BARRIER", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_do_region_barrier = env_string != NULL;
-        env_string = getenv("GEOPM_TRACE");
+        err = geopm_getenv("GEOPM_TRACE", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_do_trace = env_string != NULL;
-        env_string = getenv("GEOPM_ERROR_AFFINITY_IGNORE");
+        err = geopm_getenv("GEOPM_ERROR_AFFINITY_IGNORE", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_do_ignore_affinity = env_string != NULL;
-        env_string = getenv("GEOPM_PROFILE");
+        err = geopm_getenv("GEOPM_PROFILE", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         m_do_profile = m_report_env.length() ||
                      m_trace_env.length() ||
                      env_string != NULL;
-        env_string = getenv("GEOPM_PROFILE_TIMEOUT");
-        m_profile_timeout = env_string ? atoi(env_string) : 30;
-
-        env_string = getenv("GEOPM_PMPI_CTL");
+        err = geopm_getenv("GEOPM_PROFILE_TIMEOUT", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
+        m_profile_timeout = 30;
+        if (env_string != NULL) {
+            m_profile_timeout = strtol(env_string, &end_string, 10);
+            if (env_string == end_string) {
+                throw Exception("Environment::Environment(): Read invalid value from environment", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        err = geopm_getenv("GEOPM_PMPI_CTL", &env_string);
+        if (err) {
+            throw Exception("Environment::Environment(): Could read from environment", err, __FILE__, __LINE__);
+        }
         if (env_string && !strncmp(env_string, "process", strlen("process") + 1))  {
             m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
             m_do_profile = true;

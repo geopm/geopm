@@ -101,12 +101,13 @@ static inline void geopm_mpi_region_exit(void)
 static int geopm_pmpi_init(const char *exec_name)
 {
     int rank;
+    int err = 0;
     PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
 #ifdef GEOPM_DEBUG
     /// @todo use geopm_env_* interface
-    char *attach_str = getenv("GEOPM_DEBUG_ATTACH");
-    if (attach_str) {
+    char *attach_str = NULL;
+    err = geopm_getenv("GEOPM_DEBUG_ATTACH", &attach_str);
+    if (!err && attach_str) {
         char *end_ptr;
         int attach_rank = strtol(attach_str, &end_ptr, 10);
         if (end_ptr == attach_str ||
@@ -120,109 +121,108 @@ static int geopm_pmpi_init(const char *exec_name)
         }
     }
 #endif
-
-    int err = 0;
-    struct geopm_policy_c *policy = NULL;
-    if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PROCESS) {
-        g_is_geopm_pmpi_ctl_enabled = 1;
-
-        int is_ctl;
-        MPI_Comm tmp_comm;
-        err = geopm_comm_split(MPI_COMM_WORLD, "pmpi", &tmp_comm, &is_ctl);
-        if (err) {
-            MPI_Abort(MPI_COMM_WORLD, err);
+    if (!err) {
+        struct geopm_policy_c *policy = NULL;
+        if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PROCESS) {
+            g_is_geopm_pmpi_ctl_enabled = 1;
+            int is_ctl;
+            MPI_Comm tmp_comm;
+            err = geopm_comm_split(MPI_COMM_WORLD, "pmpi", &tmp_comm, &is_ctl);
+            if (err) {
+                MPI_Abort(MPI_COMM_WORLD, err);
+            }
+            else {
+                G_GEOPM_COMM_WORLD_SWAP = tmp_comm;
+            }
+            if (!err && is_ctl) {
+                int ctl_rank;
+                err = PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
+                if (!err && !ctl_rank) {
+                    err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
+                }
+                if (!err) {
+                    err = geopm_ctl_create(policy, G_GEOPM_COMM_WORLD_SWAP, &g_ctl);
+                }
+                if (!err) {
+                    err = geopm_ctl_run(g_ctl);
+                }
+                int err_final = MPI_Finalize();
+                err = err ? err : err_final;
+                exit(err);
+            }
         }
-        else {
-            G_GEOPM_COMM_WORLD_SWAP = tmp_comm;
-        }
-        if (!err && is_ctl) {
-            int ctl_rank;
-            err = PMPI_Comm_rank(G_GEOPM_COMM_WORLD_SWAP, &ctl_rank);
-            if (!err && !ctl_rank) {
-                err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
+        else if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+            g_is_geopm_pmpi_ctl_enabled = 1;
+
+            int mpi_thread_level;
+
+            if (!err) {
+                err = PMPI_Query_thread(&mpi_thread_level);
+            }
+            if (!err && mpi_thread_level < MPI_THREAD_MULTIPLE) {
+                err = GEOPM_ERROR_LOGIC;
             }
             if (!err) {
-                err = geopm_ctl_create(policy, G_GEOPM_COMM_WORLD_SWAP, &g_ctl);
+                err = geopm_comm_split_ppn1(MPI_COMM_WORLD, "pmpi", &g_ppn1_comm);
             }
-            if (!err) {
-                err = geopm_ctl_run(g_ctl);
-            }
-            int err_final = MPI_Finalize();
-            err = err ? err : err_final;
-            exit(err);
-        }
-    }
-    else if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
-        g_is_geopm_pmpi_ctl_enabled = 1;
-
-        int mpi_thread_level;
-
-        if (!err) {
-            err = PMPI_Query_thread(&mpi_thread_level);
-        }
-        if (!err && mpi_thread_level < MPI_THREAD_MULTIPLE) {
-            err = GEOPM_ERROR_LOGIC;
-        }
-        if (!err) {
-            err = geopm_comm_split_ppn1(MPI_COMM_WORLD, "pmpi", &g_ppn1_comm);
-        }
-        if (!err && g_ppn1_comm != MPI_COMM_NULL) {
-            int ppn1_rank;
-            err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
-            if (!err && !ppn1_rank) {
-                err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
-            }
-            if (!err) {
-                err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
-            }
-            if (!err) {
-                err = geopm_ctl_pthread(g_ctl, NULL, &g_ctl_thread);
+            if (!err && g_ppn1_comm != MPI_COMM_NULL) {
+                int ppn1_rank;
+                err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
+                if (!err && !ppn1_rank) {
+                    err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
+                }
+                if (!err) {
+                    err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
+                }
+                if (!err) {
+                    err = geopm_ctl_pthread(g_ctl, NULL, &g_ctl_thread);
+                }
             }
         }
-    }
-    if (!err && geopm_env_do_profile()) {
-        geopm_prof_init();
-    }
+        if (!err && geopm_env_do_profile()) {
+            geopm_prof_init();
+        }
 #ifdef GEOPM_DEBUG
-    if (err) {
-        char err_msg[NAME_MAX];
-        geopm_error_message(err, err_msg, NAME_MAX);
-        fprintf(stderr, "%s", err_msg);
-    }
+        if (err) {
+            char err_msg[NAME_MAX];
+            geopm_error_message(err, err_msg, NAME_MAX);
+            fprintf(stderr, "%s", err_msg);
+        }
 #endif
-    return err;
-}
-
-static int geopm_pmpi_finalize(void)
-{
-    int err = 0;
-    int tmp_err = 0;
-
-    if (!err && geopm_env_do_profile() &&
-        (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD)) {
-        err = geopm_prof_shutdown();
+    }
+        return err;
     }
 
-    if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
-        void *return_val;
-        err = pthread_join(g_ctl_thread, &return_val);
-        err = err ? err : ((long)return_val);
-    }
+    static int geopm_pmpi_finalize(void)
+    {
+        int err = 0;
+        int tmp_err = 0;
 
-    if (!err && g_ctl) {
-        err = geopm_ctl_destroy(g_ctl);
-    }
+        if (!err && geopm_env_do_profile() &&
+            (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD)) {
+            err = geopm_prof_shutdown();
+        }
 
-    PMPI_Barrier(MPI_COMM_WORLD);
+        if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+            void *return_val;
+            err = pthread_join(g_ctl_thread, &return_val);
+            err = err ? err : ((long)return_val);
+        }
 
-    if (G_GEOPM_COMM_WORLD_SWAP != MPI_COMM_WORLD) {
-        tmp_err = PMPI_Comm_free(&G_GEOPM_COMM_WORLD_SWAP);
-        err = err ? err : tmp_err;
-    }
-    if (g_ppn1_comm != MPI_COMM_NULL) {
-        tmp_err = PMPI_Comm_free(&g_ppn1_comm);
-        err = err ? err : tmp_err;
-    }
+        if (!err && g_ctl) {
+            err = geopm_ctl_destroy(g_ctl);
+        }
+
+        PMPI_Barrier(MPI_COMM_WORLD);
+
+        if (G_GEOPM_COMM_WORLD_SWAP != MPI_COMM_WORLD) {
+            tmp_err = PMPI_Comm_free(&G_GEOPM_COMM_WORLD_SWAP);
+            err = err ? err : tmp_err;
+        }
+        if (g_ppn1_comm != MPI_COMM_NULL) {
+            tmp_err = PMPI_Comm_free(&g_ppn1_comm);
+            err = err ? err : tmp_err;
+        }
     return err;
 }
 
