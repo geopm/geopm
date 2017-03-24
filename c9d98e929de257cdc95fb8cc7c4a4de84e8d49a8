@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fab0c4d0_48cb7953",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-24T00:49:36Z",
+      "side": 1,
+      "message": "I know globals are gross, but I can\u0027t find a better way to do this.  I\u0027m definitely open to suggestion.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 16
+      },
+      "revId": "c9d98e929de257cdc95fb8cc7c4a4de84e8d49a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
