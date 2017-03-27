@@ -185,7 +185,7 @@ int main(int argc, char** argv)
                 err = EINVAL;
                 break;
         }
-        if (!err && optarg != NULL && arg_ptr == NULL) {
+        if (!err && optarg != NULL) {
             strncpy(arg_ptr, optarg, GEOPMPOLICY_STRING_LENGTH);
             if (arg_ptr[GEOPMPOLICY_STRING_LENGTH - 1] != '\0') {
                 fprintf(stderr, "Error: option string too long\n");
@@ -452,10 +452,6 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
     }
     if (!err) {
         key = strtok(options_cpy, ":");
-        if (key == NULL) {
-            fprintf(stderr, "Error: Invalid execution mode.\n");
-            err = EINVAL;
-        }
         do {
             value = strtok(NULL, ",");
             if (value == NULL) {

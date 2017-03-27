@@ -788,9 +788,9 @@ namespace geopm
     void ProfileSampler::cpu_rank(std::vector<int> &cpu_rank)
     {
 #ifdef _SC_NPROCESSORS_ONLN
-        uint32_t num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
+        int num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
 #else
-        uint32_t num_cpu = 1;
+        int num_cpu = 1;
         size_t len = sizeof(num_cpu);
         sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &num_cpu, &len, NULL, 0);
 #endif

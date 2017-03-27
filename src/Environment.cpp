@@ -58,16 +58,16 @@ namespace geopm
             int do_profile() const;
             int profile_timeout(void) const;
         private:
-            std::string m_report_env;
-            std::string m_policy_env;
-            std::string m_shmkey_env;
-            std::string m_trace_env;
-            std::string m_plugin_path_env;
-            int m_report_verbosity;
+            const std::string m_report_env;
+            const std::string m_policy_env;
+            const std::string m_shmkey_env;
+            const std::string m_trace_env;
+            const std::string m_plugin_path_env;
+            const int m_report_verbosity;
             int m_pmpi_ctl;
-            bool m_do_region_barrier;
-            bool m_do_trace;
-            bool m_do_ignore_affinity;
+            const bool m_do_region_barrier;
+            const bool m_do_trace;
+            const bool m_do_ignore_affinity;
             bool m_do_profile;
             int m_profile_timeout;
     };
@@ -79,39 +79,29 @@ namespace geopm
     }
 
     Environment::Environment()
+        : m_report_env(getenv("GEOPM_REPORT") ? getenv("GEOPM_REPORT") : "")
+        , m_policy_env(getenv("GEOPM_POLICY") ? getenv("GEOPM_POLICY") : "")
+        , m_shmkey_env(getenv("GEOPM_SHMKEY") ? getenv("GEOPM_SHMKEY") : "/geopm-shm")
+        , m_trace_env(getenv("GEOPM_TRACE") ? getenv("GEOPM_TRACE") : "")
+        , m_plugin_path_env(getenv("GEOPM_PLUGIN_PATH") ? getenv("GEOPM_PLUGIN_PATH") : "")
+        , m_report_verbosity(getenv("GEOPM_REPORT_VERBOSITY") ? stol(std::string(getenv("GEOPM_REPORT_VERBOSITY"))) :
+                             (m_report_env.size() ? 1 : 0))
+        , m_do_region_barrier(getenv("GEOPM_REGION_BARRIER") != NULL)
+        , m_do_trace(getenv("GEOPM_TRACE") != NULL)
+        , m_do_ignore_affinity(getenv("GEOPM_ERROR_AFFINITY_IGNORE") != NULL)
+        , m_do_profile(m_report_env.length() ||
+                       m_trace_env.length() ||
+                       getenv("GEOPM_PROFILE") != NULL)
+        , m_profile_timeout(getenv("GEOPM_PROFILE_TIMEOUT") ?
+                            atoi(getenv("GEOPM_PROFILE_TIMEOUT")) :
+                            30)
     {
-        char *env_string = NULL;
-        env_string = getenv("GEOPM_REPORT");
-        m_report_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_POLICY");
-        m_policy_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_SHMKEY");
-        m_shmkey_env = env_string ? env_string : "/geopm-shm";
-        env_string = getenv("GEOPM_TRACE");
-        m_trace_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_PLUGIN_PATH");
-        m_plugin_path_env = env_string ? env_string : "";
-        env_string = getenv("GEOPM_REPORT_VERBOSITY");
-        m_report_verbosity = env_string ? stol(std::string(env_string)) : (m_report_env.size() ? 1 : 0);
-        env_string = getenv("GEOPM_REGION_BARIER");
-        m_do_region_barrier = env_string != NULL;
-        env_string = getenv("GEOPM_TRACE");
-        m_do_trace = env_string != NULL;
-        env_string = getenv("GEOPM_ERROR_AFFINITY_IGNORE");
-        m_do_ignore_affinity = env_string != NULL;
-        env_string = getenv("GEOPM_PROFILE");
-        m_do_profile = m_report_env.length() ||
-                     m_trace_env.length() ||
-                     env_string != NULL;
-        env_string = getenv("GEOPM_PROFILE_TIMEOUT");
-        m_profile_timeout = env_string ? atoi(env_string) : 30;
-
-        env_string = getenv("GEOPM_PMPI_CTL");
-        if (env_string && !strncmp(env_string, "process", strlen("process") + 1))  {
+        char *pmpi_ctl_env  = getenv("GEOPM_PMPI_CTL");
+        if (pmpi_ctl_env && !strncmp(pmpi_ctl_env, "process", strlen("process") + 1))  {
             m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
             m_do_profile = true;
         }
-        else if (env_string && !strncmp(env_string, "pthread", strlen("pthread") + 1))  {
+        else if (pmpi_ctl_env && !strncmp(pmpi_ctl_env, "pthread", strlen("pthread") + 1))  {
             m_pmpi_ctl = GEOPM_PMPI_CTL_PTHREAD;
             m_do_profile = true;
         }

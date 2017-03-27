@@ -614,15 +614,10 @@ namespace geopm
         json_object_object_foreach(options_obj, subkey, subval) {
             key_string = subkey;
             if (key_string == "tdp_percent") {
-                if (json_object_get_type(subval) == json_type_double) {
-                    tdp_percent(json_object_get_double(subval));
-                }
-                else if (json_object_get_type(subval) == json_type_int) {
-                    tdp_percent(json_object_get_int(subval));
-                }
-                else {
+                if (json_object_get_type(subval) != json_type_double) {
                     throw Exception("GlobalPolicy::read(): tdp_percent expected to be a double type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
+                tdp_percent(json_object_get_double(subval));
             }
             else if (key_string == "cpu_mhz") {
                 if (json_object_get_type(subval) != json_type_int) {

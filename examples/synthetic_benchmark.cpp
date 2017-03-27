@@ -141,10 +141,8 @@ inline double do_work(int input)
 void dumpRankAffinity(const char *rankid, pthread_t pid, int cid, const char *id)
 {
     FILE *RankAffinityFile = fopen(RANK_AFFINITY_LOG, "a");
-    if (RankAffinityFile != NULL) {
-        fprintf(RankAffinityFile, "%2s %ld %2d %s\n", rankid, (long)pid, cid, id);
-        fclose(RankAffinityFile);
-    }
+    fprintf(RankAffinityFile, "%2s %ld %2d %s\n", rankid, (long)pid, cid, id);
+    fclose(RankAffinityFile);
 }
 
 void printError(const char *msg)
@@ -218,36 +216,30 @@ struct MinMax setReplayStaticImbalance(int nranks, int *rank_iters, string infil
 void dumpRankItersReplay(int nranks, int *rankIters)
 {
     FILE *RankItersConfigFile = fopen(RANK_ITERATIONS_CONFIG, "w");
-    if (RankItersConfigFile != NULL) {
-        for (int i = 0; i < nranks; i++) {
-            fprintf(RankItersConfigFile, "%d\n", rankIters[i]);
-        }
-        fclose(RankItersConfigFile);
+    for (int i = 0; i < nranks; i++) {
+        fprintf(RankItersConfigFile, "%d\n", rankIters[i]);
     }
+    fclose(RankItersConfigFile);
 }
 
 void dumpRankIters(int nranks, int *rankIters)
 {
     FILE *RankItersLogFile = fopen(RANK_ITERATIONS_LOG, "w");
-    if (RankItersLogFile != NULL) {
-        fprintf(RankItersLogFile, "omp_tid, niters\n");
-        for (int i = 0; i < nranks; i++) {
-            fprintf(RankItersLogFile, "%d, %d\n", i, rankIters[i]);
-        }
-        fclose(RankItersLogFile);
+    fprintf(RankItersLogFile, "omp_tid, niters\n");
+    for (int i = 0; i < nranks; i++) {
+        fprintf(RankItersLogFile, "%d, %d\n", i, rankIters[i]);
     }
+    fclose(RankItersLogFile);
 }
 
 void dumpRankRuntime(int nranks, double *rank_runtime)
 {
     FILE *RankRuntimeLogFile = fopen(RANK_RUNTIME_LOG, "w");
-    if (RankRuntimeLogFile != NULL) {
-        fprintf(RankRuntimeLogFile, "omp_tid, runtime\n");
-        for (int i = 0; i < nranks; i++) {
-            fprintf(RankRuntimeLogFile, "%d, %.4f\n", i, rank_runtime[i]);
-        }
-        fclose(RankRuntimeLogFile);
+    fprintf(RankRuntimeLogFile, "omp_tid, runtime\n");
+    for (int i = 0; i < nranks; i++) {
+        fprintf(RankRuntimeLogFile, "%d, %.4f\n", i, rank_runtime[i]);
     }
+    fclose(RankRuntimeLogFile);
 }
 
 int round_int(double d)
@@ -327,10 +319,8 @@ void synthetic_benchmark_main(int nranks, int rank)
         }
 
         FILE *RankAffinityLog = fopen(RANK_AFFINITY_LOG, "w");
-        if (RankAffinityLog != NULL) {
-            fprintf(RankAffinityLog, "rankID pthread_pid cpu_cid name\n");
-            fclose(RankAffinityLog);
-        }
+        fprintf(RankAffinityLog, "rankID pthread_pid cpu_cid name\n");
+        fclose(RankAffinityLog);
     }
     // Broadcast iterations to every rank
     MPI_Bcast(syntheticcfg.rank_iters(), nranks, MPI_INT, MASTER, MPI_COMM_WORLD);
@@ -472,6 +462,4 @@ int main(int argc, char **argv)
     synthetic_benchmark_main(nranks, rank);
 
     MPI_Finalize();
-
-    return 0;
 }
