@@ -117,7 +117,12 @@ namespace geopm
         if (domain_idx == m_num_domain) {
             // All domains have completed so do update
             update_curr_sample();
-            m_derivative_num_fit = 0;
+            /// @fixme Commenting out the following line. It restarts samples after
+            /// leaving a region, which is the athematically correct thing to do.
+            /// However we are observing a great deal of run-to-run variance when this
+            /// line is enabled. Without this line in we are wrapping all energy usage
+            /// in between instances of a region into a single sample.
+            //m_derivative_num_fit = 0;
         }
         else if (m_derivative_num_fit < M_NUM_SAMPLE_HISTORY) {
             ++m_derivative_num_fit;
