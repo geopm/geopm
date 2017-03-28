@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a0fa072_5294882a",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-28T17:49:36Z",
+      "side": 1,
+      "message": "Bad indent.",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 5
+      },
+      "revId": "15bb819b3061922003c98e81290ff17ad446319e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "364d030e_ee7ea7c3",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-28T17:49:36Z",
+      "side": 1,
+      "message": "Indented too far.",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 9
+      },
+      "revId": "15bb819b3061922003c98e81290ff17ad446319e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
