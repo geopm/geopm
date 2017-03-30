@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18b5264b_79d8b9ba",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-03-30T16:49:43Z",
+      "side": 1,
+      "message": "Lets introduce a method to AppOutput called all_paths() that returns a list of the files.  The test can then choose to delete the files from this list or not.  This should solve the scoping problem, and also make it so the AppOutput doesn\u0027t destroy all of the files be default when it goes out of scope.",
+      "revId": "44713b20f3e323967511ae088440292f55db9163",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
