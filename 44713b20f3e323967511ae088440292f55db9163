@@ -16,6 +16,24 @@
       "revId": "44713b20f3e323967511ae088440292f55db9163",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c25950aa_07b3addd",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-30T18:23:51Z",
+      "side": 1,
+      "message": "I had to solve this by adding a separate method here to clean up the files.  The reason being that the scaling test loops several times in the same fixture, so TearDown is not called until the last iteration.  The traces/reports need to be cleaned up between each iteration for it to work properly.",
+      "parentUuid": "18b5264b_79d8b9ba",
+      "revId": "44713b20f3e323967511ae088440292f55db9163",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
