@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d881f7ce_203c1c1d",
+        "filename": "scripts/geopm_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-03-30T21:48:08Z",
+      "side": 1,
+      "message": "All of these equal signs need to go since they can\u0027t be parsed.",
+      "range": {
+        "startLine": 35,
+        "startChar": 17,
+        "endLine": 35,
+        "endChar": 18
+      },
+      "revId": "32b37cb64f77f98de669913e806413992e3e3043",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e09cad55_4708aa7e",
         "filename": "scripts/geopm_launcher.py",
         "patchSetId": 1
