@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c8ebec0_29247c74",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-03-30T16:54:03Z",
+      "side": 1,
+      "message": "This will have to be changed as well.  Perhaps a output.del_files() to go with the all_files() (not all all_paths() as I suggested in the last review).",
+      "revId": "840073eeb57ef798f49a1c15295dad90373d4e84",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
