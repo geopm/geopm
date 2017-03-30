@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41dbeab3_9c68cfb5",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-03-30T16:42:40Z",
+      "side": 1,
+      "message": "Nit, can we restructure this logic without the continue.",
+      "revId": "c437234406634bd3e70f0eb5b1babc656222faac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
