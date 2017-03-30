@@ -393,6 +393,7 @@ class TestIntegration(unittest.TestCase):
                     self.assertGreater(rr['dgemm'].get_runtime(), 0.0)
                     self.assertGreater(rr['all2all'].get_runtime(), 0.0)
                 num_node *= 2
+                del output
 
     @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
                          "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
