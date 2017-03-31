@@ -1,3 +1,73 @@
+* Mon Apr 04 2017 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.2
+- Modified implementations and interfaces:
+- Added environment variable GEOPM_RUN_LONG_TESTS to enable long running integration tests.
+- Added environment variable GEOPM_KEEP_FILES to leave temporary files created by unit tests.
+- Added environment variable GTEST_XML_DIR to configure location of junit xml output from unit tests.
+- Changed documentation for geopm_epoch(): multiple calls per application is okay.
+- Changed geopm_epoch() calls in examples to reflect new usage.
+- Changed GoverningDecider to use much simpler and more effective algorithm.
+- Changed all TreeCommunicator MPI runtime communication to send binary data: do not use MPI data marshaling.
+- Changed all TreeCommunicator MPI runtime communication to one-sided MPI_Put() calls.
+- Changed tuning for parameters used by BalancingDecider.
+- Changed tuning for RAPL time window settings.
+- Changed TDP percentage to double throughout code.
+- Changed copyright dates for 2017.
+- Updated features:
+- Added least squared linear regression to calculate derivative.
+- Added compiler optimizations for Intel when using Intel toolchain.
+- Added environment control GEOPM_PROFILE_TIMEOUT of application timeout when waiting for controller.
+- Added warning message about stale keys.
+- Added throttling percentage to reports.
+- Added GEOPM runtime/memory/network overhead calculation and reporting.
+- Added --enable-overhead configure option for heavy-weight overhead measurement.
+- Added support for Cray MPI.
+- Added region IDs to report files.
+- Added junit xml output from unit tests.
+- Added energy hardware counter update sample triggering (reduce latency and jitter).
+- Added memory buffering for trace object, buffer size is hardcoded to 128 MB (should be configurable).
+- Added rpmbuild --nocheck support (%check definition in spec file).
+- Added minimal documentation about CPU affinity requirements.
+- Added an example that will print affinity of MPI processes and OpenMP threads.
+- Added a stability fix for power calculation that will be made more robust.
+- Updated examples:
+- Added CoMD to examples.
+- Added QBOX to examples.
+- Added AMG to examples.
+- Updated and extended integration tests:
+- Added support for ALPS to integration tests.
+- Added support for resource manager detection.
+- Added support for integration test environment configuration options.
+- Added support for better signal handling to integration tests.
+- Added integration tests that use the trace feature.
+- Added integration tests for scaling compute node count.
+- Added integration tests for power cap enforcement by GoverningDecider.
+- Added integration tests that region entry is always preceded by region exit.
+- Added integration tests for sample rate frequency and jitter.
+- Added integration test for consistency between report and trace per region run-times.
+- Updated unit tests:
+- Added data driven unit test for derivative feature.
+- Added unit tests for PMPI wrappers.
+- Bug fixes:
+- Fixed documentation for installing from OBS yum and zypper repos.
+- Fixed some objects which were improperly using default copy constructor.
+- Fixed issue where unmarked regions (region 0) would report a progress value other than zero.
+- Fixed accounting issue when exiting a region and then immediately entering it again.
+- Fixed issue where RAPL values would be reset upon PlatformImp destruction (bad behavior for applications that change values and exit like geopmpolicy).
+- Fixed error handling in integration test script.
+- Fixed issue due to changing return type of json_object_array_length() for different versions of the json-c library.
+- Fixed issue preventing samples from being sent up tree beyond level 1.
+- Fixed issue with stale shared memory keys by deleting them at start up.
+- Fixed missing comm swap call in MPI_Gather() and MPI_Gatherv(): terminal error.
+- Fixed TreeCommunicator topology mapping logic.
+- Fixed issue with message vector sizing in TreeCommunicator.
+- Fixed missing ronn executable documentation build issue.
+- Fixed TreeCommunicator unit tests.
+- Fixed MPIInterface tests exposed by CLANG.
+- Fixed RAPL window MSR interface.
+- Fixed user control of GNU standard build variables when running make.
+- Fixed missing GEOPM annotation in some MPI wrappers in geopm_pmpi.c.
+- Fixed accounting for region entries.
+- Fixed issue by skipping TreeCommunicator tests on OpenMPI prior to 1.8.8 where one-sided comm was fixed.
 * Fri Nov 18 2016 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.1
 - Fix for accounting problem with nested MPI exits.
 - Fix to thread calculation in integration test to avoid hyper-threads.
