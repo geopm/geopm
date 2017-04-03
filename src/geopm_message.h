@@ -47,10 +47,11 @@ extern "C" {
 
 
 enum geopm_region_id_e {
-    GEOPM_REGION_ID_INVALID = 0,
-    GEOPM_REGION_ID_MPI = 1ULL << 62,
-    GEOPM_REGION_ID_EPOCH = 1ULL << 63,
-    GEOPM_NUM_REGION_ID_PRIVATE = 2,
+    GEOPM_REGION_ID_UNMARKED = 0, // Code executed outside of a region
+    GEOPM_REGION_ID_UNDEFINED = 1ULL << 61, // Special value for an unset region id
+    GEOPM_REGION_ID_MPI = 1ULL << 62, // Execution of MPI calls
+    GEOPM_REGION_ID_EPOCH = 1ULL << 63, // Signaling the start of an epoch, no associated Region
+    GEOPM_NUM_REGION_ID_PRIVATE = 3, // Number of high order bits reserved for GEOPM defined regions
 };
 
 static inline int geopm_region_id_is_mpi(uint64_t rid)

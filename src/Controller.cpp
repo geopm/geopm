@@ -185,7 +185,7 @@ namespace geopm
         , m_sampler(NULL)
         , m_sample_regulator(NULL)
         , m_tracer(NULL)
-        , m_region_id_all(0)
+        , m_region_id_all(GEOPM_REGION_ID_UNDEFINED)
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_update_per_sample(5)
@@ -581,7 +581,7 @@ namespace geopm
                                 m_mpi_sync_time += geopm_time_diff(&(m_mpi_enter_time[local_rank]), &((*sample_it).second.timestamp)) / m_rank_per_node;
                             }
                         }
-                        (*sample_it).second.region_id = GEOPM_REGION_ID_INVALID;
+                        (*sample_it).second.region_id = GEOPM_REGION_ID_UNMARKED;
                     }
                 }
 
@@ -601,7 +601,7 @@ namespace geopm
                 for (auto sample_it = m_prof_sample.cbegin();
                      sample_it != m_prof_sample.cbegin() + length;
                      ++sample_it) {
-                    if ((*sample_it).second.region_id != GEOPM_REGION_ID_INVALID) {
+                    if ((*sample_it).second.region_id != GEOPM_REGION_ID_UNDEFINED) {
                         if ((*sample_it).second.progress == 0.0) {
                             auto region_it = m_region[level].find((*sample_it).second.region_id);
                             if (region_it == m_region[level].end()) {
@@ -645,34 +645,25 @@ namespace geopm
                 uint64_t region_id_all = m_region_id[0];
                 for (auto it = m_region_id.begin(); it != m_region_id.end(); ++it) {
                     if (*it != region_id_all) {
-                        region_id_all = 0;
+                        region_id_all = GEOPM_REGION_ID_UNMARKED;
+                        is_exit_found = false;
                     }
                 }
 
                 m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
 
-                // Exiting a region for unmarked code
-                if (m_region_id_all && !region_id_all) {
-                    override_telemetry(1.0);
-                    update_region();
-                    m_region_id_all = 0;
-                    std::fill(m_region_id.begin(), m_region_id.end(), 0);
-                    if (is_epoch_found) {
-                        update_epoch(epoch_telemetry_sample);
-                    }
-                }
-                // Entering a region from unmarked code
-                else if (!m_region_id_all && region_id_all) {
-                    if (is_epoch_found) {
-                        update_epoch(epoch_telemetry_sample);
-                    }
+                // First entry into any region
+                if (m_region_id_all == GEOPM_REGION_ID_UNDEFINED && region_id_all != m_region_id_all) {
                     m_region_id_all = region_id_all;
                     override_telemetry(0.0);
                     update_region();
+                    std::fill(m_region_id.begin(), m_region_id.end(), m_region_id_all);
+                    if (is_epoch_found) {
+                        update_epoch(epoch_telemetry_sample);
+                    }
                 }
                 // Entering a region from another region
-                else if (m_region_id_all && region_id_all &&
-                         m_region_id_all != region_id_all) {
+                else if (m_region_id_all != region_id_all) {
                     override_telemetry(1.0);
                     update_region();
                     if (is_epoch_found) {
@@ -685,7 +676,7 @@ namespace geopm
                 }
                 // No entries or exits
                 else {
-                    if (is_exit_found && m_region_id_all) {
+                    if (is_exit_found && m_region_id_all != GEOPM_REGION_ID_UNMARKED) {
                         override_telemetry(1.0);
                         update_region();
                         if (is_epoch_found) {
@@ -697,6 +688,9 @@ namespace geopm
                     else {
                         if (is_epoch_found) {
                             update_epoch(epoch_telemetry_sample);
+                        }
+                        if (m_region_id_all == GEOPM_REGION_ID_UNMARKED) {
+                            override_telemetry(0.0);
                         }
                         update_region();
                     }
@@ -768,43 +762,37 @@ namespace geopm
 
     void Controller::update_region(void)
     {
-        // Unmarked region should always have a progress of 0
-        if (!m_region_id_all) {
-            override_telemetry(0.0);
-        }
         m_tracer->update(m_telemetry_sample);
         m_sample_count++;
         if (m_telemetry_sample[0].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] <= m_throttle_limit_mhz) {
             m_throttle_count++;
         }
 
-        if (m_region_id_all) {
-            int level = 0; // Called only at the leaf
-            auto it = m_region[level].find(m_region_id_all);
-            if (it == m_region[level].end()) {
-                auto tmp_it = m_region[level].insert(
-                                  std::pair<uint64_t, Region *> (m_region_id_all,
-                                          new Region(m_region_id_all,
-                                                     GEOPM_POLICY_HINT_UNKNOWN,
-                                                     m_platform->num_control_domain(),
-                                                     level)));
-                it = tmp_it.first;
-            }
-            Region *curr_region = (*it).second;
-            Policy *curr_policy = m_policy[level];
-            curr_region->insert(m_telemetry_sample);
+        int level = 0; // Called only at the leaf
+        auto it = m_region[level].find(m_region_id_all);
+        if (it == m_region[level].end()) {
+            auto tmp_it = m_region[level].insert(
+                              std::pair<uint64_t, Region *> (m_region_id_all,
+                                      new Region(m_region_id_all,
+                                                 GEOPM_POLICY_HINT_UNKNOWN,
+                                                 m_platform->num_control_domain(),
+                                                 level)));
+            it = tmp_it.first;
+        }
+        Region *curr_region = (*it).second;
+        Policy *curr_policy = m_policy[level];
+        curr_region->insert(m_telemetry_sample);
 
-            bool do_control = false;
-            ++m_control_count;
-            if (m_control_count >= m_sample_per_control) {
-                do_control = true;
-                m_control_count = 0;
-            }
-            if (do_control &&
-                !geopm_region_id_is_epoch(m_region_id_all) &&
-                m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
-                m_platform->enforce_policy(m_region_id_all, *curr_policy);
-            }
+        bool do_control = false;
+        ++m_control_count;
+        if (m_control_count >= m_sample_per_control) {
+            do_control = true;
+            m_control_count = 0;
+        }
+        if (do_control &&
+            !geopm_region_id_is_epoch(m_region_id_all) &&
+            m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+            m_platform->enforce_policy(m_region_id_all, *curr_policy);
         }
     }
 
@@ -815,6 +803,10 @@ namespace geopm
         }
 
         m_mpi_agg_time += m_mpi_sync_time;
+        if ((m_region_id_all == GEOPM_REGION_ID_UNMARKED) && (*(m_region[0].find(GEOPM_REGION_ID_UNMARKED))).second->num_entry()) {
+            override_telemetry(1.0);
+            update_region();
+        }
         if ((*(m_region[0].find(GEOPM_REGION_ID_EPOCH))).second->num_entry()) {
             m_region_id_all = GEOPM_REGION_ID_EPOCH;
             override_telemetry(1.0);
@@ -863,7 +855,7 @@ namespace geopm
             if (region_id == GEOPM_REGION_ID_EPOCH) {
                 name = "epoch";
             }
-            else if (region_id == 0) {
+            else if (region_id == GEOPM_REGION_ID_UNMARKED) {
                 name = "unmarked region";
             }
             else {
