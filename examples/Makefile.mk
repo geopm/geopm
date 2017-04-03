@@ -29,6 +29,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+EXTRA_DIST += examples/README \
+              examples/example_policy.json \
+              examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch \
+              examples/amg2013/README \
+              examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
+              examples/comd/README \
+              examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
+              examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch \
+              examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
+              examples/minife/README \
+              examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch \
+              examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch \
+              examples/nekbone/README \
+              examples/qbox/README \
+              examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
+              examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch \
+              #end
+
+
 noinst_PROGRAMS += examples/geopm_print_error
 examples_geopm_print_error_SOURCES = examples/geopm_print_error.c
 examples_geopm_print_error_LDADD = libgeopmpolicy.la
