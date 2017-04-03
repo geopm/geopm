@@ -103,22 +103,6 @@ EXTRA_DIST = .gitignore \
              copying_headers/MANIFEST.NAS \
              copying_headers/test-license \
              dox/Doxyfile \
-             examples/README \
-             examples/threaded_step_example.c \
-             examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch \
-             examples/amg2013/README \
-             examples/fft/make.def \
-             examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
-             examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
-             examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch \
-             examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
-             examples/minife/README \
-             examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch \
-             examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch \
-             examples/nekbone/README \
-             examples/qbox/README \
-             examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
-             examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch \
              geopm.spec.mk \
              geopm-$(VERSION).spec \
              Makefile.am \

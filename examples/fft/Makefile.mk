@@ -29,6 +29,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+EXTRA_DIST += examples/fft/make.def \
+              examples/fft/COPYING-NAS \
+              examples/fft/README \
+              #end
+
 if ENABLE_FORTRAN
 if ENABLE_MPI
 if ENABLE_OPENMP
