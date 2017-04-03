@@ -45,6 +45,7 @@ EXTRA_DIST += examples/README \
               examples/qbox/README \
               examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
               examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch \
+              examples/hacc/README \
               #end
 
 noinst_PROGRAMS += examples/geopm_print_error
