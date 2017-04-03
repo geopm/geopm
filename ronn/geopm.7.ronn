@@ -252,6 +252,13 @@ will print a subset of the fields in the trace file called
     geopm runtime will not function at all in a multi-node setting
     with this environment variable set.
 
+  * `GEOPM_RM`:
+    Used by job launch wrapper (geopm_launcher.py) to select resource
+    manager to use for job launch.  Accepted options are "SLURM" or
+    "ALPS".  If not set the script will attempt to determine the
+    resource manager based on your PATH and hostname.  This variable
+    is also used by the integration tests.
+
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 
