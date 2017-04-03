@@ -94,7 +94,7 @@ namespace geopm
         if (prof_sample_begin != prof_sample_end) {
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
                 if (!geopm_region_id_is_epoch((*it).second.region_id) &&
-                    (*it).second.region_id != GEOPM_REGION_ID_INVALID) {
+                    (*it).second.region_id != GEOPM_REGION_ID_UNMARKED) {
                     struct m_rank_sample_s rank_sample;
                     rank_sample.timestamp = (*it).second.timestamp;
                     rank_sample.progress = (*it).second.progress;
@@ -106,7 +106,7 @@ namespace geopm
                         m_rank_sample_prev[rank_idx].clear();
                     }
                     if (rank_sample.progress == 1.0) {
-                        m_region_id[rank_idx] = GEOPM_REGION_ID_INVALID;
+                        m_region_id[rank_idx] = GEOPM_REGION_ID_UNMARKED;
                     }
                     else {
                         m_region_id[rank_idx] = (*it).second.region_id;

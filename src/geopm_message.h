@@ -47,10 +47,11 @@ extern "C" {
 
 
 enum geopm_region_id_e {
-    GEOPM_REGION_ID_INVALID = 0,
+    GEOPM_REGION_ID_UNMARKED = 0,
+    GEOPM_REGION_ID_UNDEFINED = 1ULL << 61,
     GEOPM_REGION_ID_MPI = 1ULL << 62,
     GEOPM_REGION_ID_EPOCH = 1ULL << 63,
-    GEOPM_NUM_REGION_ID_PRIVATE = 2,
+    GEOPM_NUM_REGION_ID_PRIVATE = 3,
 };
 
 static inline int geopm_region_id_is_mpi(uint64_t rid)

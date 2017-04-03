@@ -49,7 +49,7 @@ namespace geopm
         , m_level(level)
         , m_num_signal(m_level == 0 ? (int)GEOPM_NUM_TELEMETRY_TYPE : (int)GEOPM_NUM_SAMPLE_TYPE)
         , m_signal_matrix(m_num_signal * m_num_domain)
-        , m_entry_telemetry(m_num_domain, {0, {{0, 0}}, {0}})
+        , m_entry_telemetry(m_num_domain, {GEOPM_REGION_ID_UNDEFINED, {{0, 0}}, {0}})
         , m_curr_sample({m_identifier, {0.0, 0.0, 0.0, 0.0}})
         , m_domain_sample(m_num_domain, m_curr_sample)
         , m_domain_buffer(M_NUM_SAMPLE_HISTORY)
@@ -302,12 +302,18 @@ namespace geopm
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] :
                                                0.0) << std::endl;
         // For epoch, remove two counts: one for startup call and
-        // one for shutdown call. For other regions normalize by
-        // number of ranks per node since each rank reports enry
+        // one for shutdown call.  For umarked code just print 0
+        // for count. For other regions normalize by number of
+        // ranks per node since each rank reports entry
         // (unlike epoch which reports once per node).
-        file_stream << "\tcount: " << (m_identifier != GEOPM_REGION_ID_EPOCH ?
-                                       (double)m_num_entry / num_rank_per_node :
-                                       m_num_entry) << std::endl;
+        double count = 0.0;
+        if (m_identifier == GEOPM_REGION_ID_EPOCH) {
+            count = m_num_entry;
+        }
+        else if (m_identifier != GEOPM_REGION_ID_UNMARKED) {
+            count = (double)m_num_entry / num_rank_per_node;
+        }
+        file_stream << "\tcount: " << count << std::endl;
     }
 
     // Protected function definitions
@@ -367,7 +373,7 @@ namespace geopm
         if (is_telemetry_entry(telemetry, domain_idx) ) {
             m_entry_telemetry[domain_idx] = telemetry;
         }
-        else if (m_entry_telemetry[domain_idx].region_id != 0 &&
+        else if (m_entry_telemetry[domain_idx].region_id != GEOPM_REGION_ID_UNDEFINED &&
                  is_telemetry_exit(telemetry, domain_idx)) {
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME] =
                 geopm_time_diff(&(m_entry_telemetry[domain_idx].timestamp), &(telemetry.timestamp));
@@ -382,7 +388,7 @@ namespace geopm
             m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] +=
                 telemetry.signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF] -
                 m_entry_telemetry[domain_idx].signal[GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF];
-            m_entry_telemetry[domain_idx].region_id = 0;
+            m_entry_telemetry[domain_idx].region_id = GEOPM_REGION_ID_UNDEFINED;
         }
     }
 
