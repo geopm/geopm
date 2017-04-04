@@ -562,6 +562,9 @@ namespace geopm
                 // by adjusting RAPL power domain limits.
                 m_sampler->sample(m_prof_sample, length, m_ppn1_comm);
 
+                double region_mpi_time = 0.0;
+                uint64_t base_region_id = 0;
+                static bool is_epoch_begun = false;
                 // Find all MPI time and aggregate.
                 for (auto sample_it = m_prof_sample.begin();
                      sample_it != m_prof_sample.begin() + length;
@@ -578,10 +581,32 @@ namespace geopm
                         else if ((*sample_it).second.progress == 1.0) {
                             --m_num_mpi_enter[local_rank];
                             if (!m_num_mpi_enter[local_rank]) {
-                                m_mpi_sync_time += geopm_time_diff(&(m_mpi_enter_time[local_rank]), &((*sample_it).second.timestamp)) / m_rank_per_node;
+                                region_mpi_time += geopm_time_diff(&(m_mpi_enter_time[local_rank]), &((*sample_it).second.timestamp)) / m_rank_per_node;
                             }
                         }
+                        base_region_id = geopm_region_id_unset_mpi((*sample_it).second.region_id);
                         (*sample_it).second.region_id = GEOPM_REGION_ID_UNMARKED;
+                    }
+                    if (geopm_region_id_is_epoch((*sample_it).second.region_id)) {
+                        is_epoch_begun = true;
+                    }
+                }
+                m_mpi_sync_time += region_mpi_time;
+                if (region_mpi_time != 0.0) {
+                    auto region_it = m_region[level].find(base_region_id);
+                    if (region_it == m_region[level].end()) {
+                        auto tmp_it = m_region[level].insert(
+                                          std::pair<uint64_t, Region *> (base_region_id,
+                                                  new Region(base_region_id,
+                                                             GEOPM_POLICY_HINT_UNKNOWN,
+                                                             m_platform->num_control_domain(),
+                                                             level)));
+                        region_it = tmp_it.first;
+                    }
+                    (*region_it).second->increment_mpi_time(region_mpi_time);
+                    if (is_epoch_begun) {
+                        region_it = m_region[level].find(GEOPM_REGION_ID_EPOCH);
+                        (*region_it).second->increment_mpi_time(region_mpi_time);
                     }
                 }
 
@@ -856,7 +881,7 @@ namespace geopm
                 name = "epoch";
             }
             else if (region_id == GEOPM_REGION_ID_UNMARKED) {
-                name = "unmarked region";
+                name = "unmarked-region";
             }
             else {
                 auto region_it = region.find(region_id);

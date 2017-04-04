@@ -535,6 +535,37 @@ class TestIntegration(unittest.TestCase):
             self.assertGreater(max_mean, delta_t.mean())
             self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
+    def test_mpi_runtimes(self):
+        name = 'test_mpi_runtimes'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', 1.0)
+        app_conf.append_region('dgemm', 1.0)
+        app_conf.append_region('all2all', 1.0)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        self._output = geopm_io.AppOutput(report_path, trace_path)
+        node_names = self._output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+        for nn in node_names:
+            rr = self._output.get_report(nn)
+            self.assertEqual(0, rr['unmarked-region'].get_count())
+            self.assertNear(rr['all2all'].get_mpi_runtime(), rr['all2all'].get_runtime())
+            self.assertEqual(rr['all2all'].get_mpi_runtime(), rr['epoch'].get_mpi_runtime())
+            self.assertEqual(rr['all2all'].get_mpi_runtime(), rr.get_mpi_runtime())
+            self.assertEqual(0, rr['unmarked-region'].get_mpi_runtime())
+            self.assertEqual(0, rr['sleep'].get_mpi_runtime())
+            self.assertEqual(0, rr['dgemm'].get_mpi_runtime())
+
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
         """
