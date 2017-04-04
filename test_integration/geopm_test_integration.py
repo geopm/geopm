@@ -322,8 +322,8 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 1
         num_rank = 4
-        delay = 0.001
-        loop_count = 500
+        delay = 0.01
+        loop_count = 100
         app_conf = geopm_io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
