@@ -125,6 +125,7 @@ namespace geopm
             size_t m_num_send;
             int m_num_rank;
             const size_t m_align;
+            int m_rank;
     };
 
     class NestedModelRegion : public ModelRegionBase

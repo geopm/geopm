@@ -447,12 +447,16 @@ namespace geopm
         , m_num_send(0)
         , m_num_rank(0)
         , m_align(64)
+        , m_rank(-1)
     {
         m_name = "all2all";
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
         int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_NETWORK, &m_region_id);
+        if (!err) {
+            err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
+        }
         if (err) {
             throw Exception("All2allModelRegion::All2allModelRegion()",
                             err, __FILE__, __LINE__);
@@ -478,8 +482,13 @@ namespace geopm
             throw Exception("MPI_Comm_size()",
                             err, __FILE__, __LINE__);
         }
-        m_num_send = (size_t)pow(2.0, 16 * big_o_in / m_loop_count - m_num_rank / 128.0);
-        m_num_send = m_num_send ? m_num_send : 1;
+
+        if (m_loop_count > 1) {
+            m_num_send = 1048576; //1MB
+        }
+        else {
+            m_num_send = 10485760; //10MB
+        }
 
         if (big_o_in && m_big_o != big_o_in) {
             err = posix_memalign((void **)&m_send_buffer, m_align,
@@ -517,14 +526,30 @@ namespace geopm
                     (void)imbalancer_enter();
                 }
 
-                int err = MPI_Alltoall(m_send_buffer, m_num_send, MPI_CHAR, m_recv_buffer,
-                                       m_num_send, MPI_CHAR, MPI_COMM_WORLD);
-                if (err) {
-                    throw Exception("MPI_Alltoall()", err, __FILE__, __LINE__);
+                double timeout = 0.0;
+                struct geopm_time_s start = {{0,0}};
+                struct geopm_time_s curr = {{0,0}};
+                int loop_done = 0;
+                if (!m_rank) {
+                    (void)geopm_time(&start);
                 }
-                err = MPI_Barrier(MPI_COMM_WORLD);
-                if (err) {
-                    throw Exception("MPI_Barrier()", err, __FILE__, __LINE__);
+                while (!loop_done) {
+                    int err = MPI_Alltoall(m_send_buffer, m_num_send, MPI_CHAR, m_recv_buffer,
+                                           m_num_send, MPI_CHAR, MPI_COMM_WORLD);
+                    if (err) {
+                        throw Exception("MPI_Alltoall()", err, __FILE__, __LINE__);
+                    }
+                    if (!m_rank) {
+                        (void)geopm_time(&curr);
+                        timeout = geopm_time_diff(&start, &curr);
+                        if (timeout > (m_big_o / m_loop_count)) {
+                            loop_done = 1;
+                        }
+                    }
+                    err = MPI_Bcast((void*)&loop_done, 1, MPI_INT, 0, MPI_COMM_WORLD);
+                    if (err) {
+                        throw Exception("MPI_Bcast()", err, __FILE__, __LINE__);
+                    }
                 }
             }
 
