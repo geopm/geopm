@@ -91,6 +91,10 @@ namespace geopm
             /// @return geopm_policy_hint_e describing the compute characteristics
             /// of this region.
             int hint(void) const;
+            /// @brief Add increment amount to the total time spent in MPI calls
+            //  during this region.
+            //  @param [in] mpi_increment_amout Value to add to the MPI time total.
+            void increment_mpi_time(double mpi_increment_amount);
             /// @brief Return an aggregated sample to send up the tree.
             /// Called once this region has converged to send a sample
             /// up to the next level of the tree.
@@ -296,6 +300,7 @@ namespace geopm
             uint64_t m_num_entry;
             std::vector<bool> m_is_entered;
             int m_derivative_num_fit;
+            double m_mpi_time;
     };
 }
 

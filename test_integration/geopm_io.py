@@ -85,7 +85,7 @@ class Report(dict):
         self._node_name = report_path.split('.report-')[-1]
 
         found_totals = False
-        (region_name, region_id, runtime, energy, frequency, count) = None, None, None, None, None, None
+        (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
@@ -115,12 +115,16 @@ class Report(dict):
                     match = re.search(r'^\s+frequency.+: ' + float_regex, line)
                     if match is not None:
                         frequency = float(match.group(1))
+                elif mpi_runtime is None:
+                    match = re.search(r'^\s+mpi-runtime.+: ' + float_regex, line)
+                    if match is not None:
+                        mpi_runtime = float(match.group(1))
                 elif count is None:
                     match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
-                        self[region_name] = Region(region_name, region_id, runtime, energy, frequency, count)
-                        (region_name, region_id, runtime, energy, frequency, count) = None, None, None, None, None, None
+                        self[region_name] = Region(region_name, region_id, runtime, energy, frequency, mpi_runtime, count)
+                        (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None
                 if not found_totals:
                     match = re.search(r'^Application Totals:$', line)
                     if match is not None:
@@ -165,27 +169,30 @@ class Report(dict):
 
 
 class Region(object):
-    def __init__(self, name, rid, runtime, energy, frequency, count):
+    def __init__(self, name, rid, runtime, energy, frequency, mpi_runtime, count):
         self._name = name
         self._id = rid
         self._runtime = runtime
         self._energy = energy
         self._frequency = frequency
+        self._mpi_runtime = mpi_runtime
         self._count = count
 
     def __repr__(self):
         template = """\
 {name} ({rid})
-  Runtime   : {runtime}
-  Energy    : {energy}
-  Frequency : {frequency}
-  Count     : {count}
+  runtime     : {runtime}
+  energy      : {energy}
+  frequency   : {frequency}
+  mpi-runtime : {mpi_runtime}
+  count       : {count}
 """
         return template.format(name=self._name,
                                rid=self._id,
                                runtime=self._runtime,
                                energy=self._energy,
                                frequency=self._frequency,
+                               mpi_runtime=self._mpi_runtime,
                                count=self._count)
 
     def __str__(self):
@@ -205,6 +212,9 @@ class Region(object):
 
     def get_frequency(self):
         return self._frequency
+
+    def get_mpi_runtime(self):
+        return self._mpi_runtime
 
     def get_count(self):
         return self._count

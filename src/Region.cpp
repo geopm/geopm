@@ -64,6 +64,7 @@ namespace geopm
         , m_num_entry(0)
         , m_is_entered(m_num_domain, false)
         , m_derivative_num_fit(0)
+        , m_mpi_time(0.0)
     {
 
     }
@@ -161,6 +162,11 @@ namespace geopm
         std::fill(m_sum.begin(), m_sum.end(), 0.0);
         std::fill(m_sum_squares.begin(), m_sum_squares.end(), 0.0);
         std::fill(m_valid_entries.begin(), m_valid_entries.end(), 0);
+    }
+
+    void Region::increment_mpi_time(double mpi_increment_amount)
+    {
+        m_mpi_time += mpi_increment_amount;
     }
 
     uint64_t Region::identifier(void) const
@@ -301,6 +307,7 @@ namespace geopm
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] /
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] :
                                                0.0) << std::endl;
+        file_stream << "\tmpi-runtime (sec): " << m_mpi_time << std::endl;
         // For epoch, remove two counts: one for startup call and
         // one for shutdown call.  For umarked code just print 0
         // for count. For other regions normalize by number of
