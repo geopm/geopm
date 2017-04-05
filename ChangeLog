@@ -1,3 +1,6 @@
+* Wed Apr 05 2017 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.3
+- Fixed broken OBS build of version 0.2.2.
+- Fixed broken integration test for region timing.
 * Tue Apr 04 2017 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.2
 - Modified implementations and interfaces:
 - Added environment variable GEOPM_RUN_LONG_TESTS to enable long running integration tests.
