@@ -37,53 +37,9 @@ import os
 import sys
 import datetime
 import signal
+import geopm_launcher
 
-
-def get_resource_manager():
-    slurm_hosts = ['mr-fusion', 'KNP12']
-    alps_hosts = ['theta']
-
-    result = os.environ.get('GEOPM_RM')
-
-    if not result:
-        hostname = socket.gethostname()
-
-        if any(hostname.startswith(word) for word in slurm_hosts):
-            result = "SLURM"
-        elif any(hostname.startswith(word) for word in alps_hosts):
-            result = "ALPS"
-        else:
-            try:
-                exec_str = 'srun --version'
-                subprocess.check_call(exec_str, shell=True)
-                sys.stderr.write('Warning: Unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
-                result = "SLURM"
-            except subprocess.CalledProcessError:
-                try:
-                    exec_str = 'aprun --version'
-                    subprocess.check_call(exec_str, shell=True)
-                    sys.stderr.write("Warning: Unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
-                    result = "ALPS"
-                except subprocess.CalledProcessError:
-                    raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable to "SLURM" or "ALPS"')
-
-    return result;
-
-
-def factory(app_conf, ctl_conf, report_path,
-            trace_path=None, host_file=None, time_limit=1):
-    resource_manager = get_resource_manager()
-    if resource_manager == "SLURM":
-        return SrunLauncher(app_conf, ctl_conf, report_path,
-                            trace_path, host_file, time_limit)
-    elif resource_manager == "ALPS":
-        return AlpsLauncher(app_conf, ctl_conf, report_path,
-                            trace_path, host_file, time_limit)
-    else:
-        raise LookupError('Unrecognized hostname: ' + hostname)
-
-
-class Launcher(object):
+class TestLauncher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
                  trace_path=None, host_file=None, time_limit=None, region_barrier=False):
         self._app_conf = app_conf
@@ -95,65 +51,54 @@ class Launcher(object):
         self._region_barrier = region_barrier
         self._node_list = None
         self._pmpi_ctl = 'process'
-        self._default_handler = signal.getsignal(signal.SIGINT)
+        self.set_num_cpu()
         self.set_num_rank(16)
         self.set_num_node(4)
-
-    def __repr__(self):
-        output = ''
-        for k,v in self._environ().iteritems():
-            output += '{k}={v} '.format(k=k, v=v)
-        output += self._exec_str()
-        return output
-
-    def __str__(self):
-        return self.__repr__()
-
-    def _int_handler(self, signum, frame):
-        """
-        This is necessary to prevent the script from dying on the first CTRL-C press.  SLURM requires 2
-        SIGINT signals to abort the job.
-        """
-        if type(self) == SrunLauncher:
-            print "srun: interrupt (one more within 1 sec to abort)"
-        else:
-            self._default_handler(signum, frame)
 
     def set_node_list(self, node_list):
         self._node_list = node_list
 
     def set_num_node(self, num_node):
         self._num_node = num_node
-        self._set_num_thread()
+        self.set_cpu_per_rank()
 
     def set_num_rank(self, num_rank):
         self._num_rank = num_rank
-        self._set_num_thread()
+        self.set_cpu_per_rank()
 
     def set_pmpi_ctl(self, pmpi_ctl):
         self._pmpi_ctl = pmpi_ctl
 
     def check_run(self, test_name):
         with open(test_name + '.log', 'a') as outfile:
-            outfile.write(str(datetime.datetime.now()) + '\n\n' )
-            outfile.write(self._check_str() + '\n\n')
-            outfile.flush()
-            signal.signal(signal.SIGINT, self._int_handler)
-            subprocess.check_call(self._check_str(), shell=True, stdout=outfile, stderr=outfile)
-            signal.signal(signal.SIGINT, self._default_handler)
+            argv = ['dummy', 'true']
+            launcher = geopm_launcher.factory(argv, self._num_rank, self._num_node,
+                                              self._cpu_per_rank, self._timeout,
+                                              self.time_limit, self._job_name,
+                                              self._node_list, self._host_file)
+            launcher.run(argv, stdout=outfile, stderr=outfile)
 
     def run(self, test_name):
-        env = dict(os.environ)
-        env.update(self._environ())
         self._app_conf.write()
         self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(datetime.datetime.now()) + '\n\n' )
             outfile.write(str(self) + '\n\n')
             outfile.flush()
-            signal.signal(signal.SIGINT, self._int_handler)
-            subprocess.check_call(self._exec_str(), shell=True, env=env, stdout=outfile, stderr=outfile)
-            signal.signal(signal.SIGINT, self._default_handler)
+            script_dir = os.path.dirname(os.path.realpath(__file__))
+            # Using libtool causes sporadic issues with the Intel toolchain.
+            exec_path = os.path.join(script_dir, '.libs', 'geopm_test_integration')
+            argv = ['dummy', '--geopm-ctl', self._pmpi_ctl,
+                             '--geopm-policy', self._ctl_config.get_path(),
+                             '--geopm-report', self._report_path]
+            if self._trace_path is not None:
+                argv.extend(['--geopm-trace', self._trace_path])
+            if self.region_barrier:
+                argv.append('--geopm-barrier')
+            argv.extend([exec_path, '--verbose', self._app_conf.get_path()])
+            launcher = geopm_launcher.factory(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+                                              self._time_limit, test_name, self._node_list, self._host_file)
+            launcher.run(stdout=outfile, stderr=outfile)
 
     def get_report(self):
         return Report(self._report_path)
@@ -161,196 +106,34 @@ class Launcher(object):
     def get_trace(self):
         return Trace(self._trace_path)
 
-    def get_idle_nodes(self):
-        return ''
-
-    def get_alloc_nodes(self):
-        return ''
-
     def write_log(self, test_name, message):
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(message + '\n\n')
 
-    def _set_num_thread(self):
+    def set_num_cpu(self):
         # Figure out the number of CPUs per rank leaving one for the
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
-        cmd = ' '.join((self._exec_option(), 'lscpu'))
-        signal.signal(signal.SIGINT, self._int_handler)
-        pid = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (out, err) = pid.communicate()
-        signal.signal(signal.SIGINT, self._default_handler)
-        if pid.returncode:
-            print "{}".format(err)
-            raise subprocess.CalledProcessError(pid.returncode, cmd, err)
+        argv = ['dummy', 'lscpu']
+        launcher = geopm_launcher.factory(argv, 1, 1)
+        ostream = StringIO()
+        launcher.run(stdout=ostream)
+        out = ostream.getvalue()
         core_socket = [int(line.split(':')[1])
                        for line in out.splitlines()
                        if line.find('Core(s) per socket:') == 0 or
                           line.find('Socket(s):') == 0]
         # Mulitply num core per socket by num socket and remove one
-        # CPU for BSP and one for the controller to calculate number
-        # of CPU for application.  Don't use hyper-threads.
-        num_cpu = core_socket[0] * core_socket[1] - 2
+        # CPU for BSP to calculate number of CPU for application.
+        # Don't use hyper-threads.
+        self._num_cpu = core_socket[0] * core_socket[1] - 1
+
+    def set_cpu_per_rank(self):
         try:
-            rank_per_node = self._num_rank / self._num_node
-            # Fixes situations when rank_per_node may be 0 which results in a divide by 0 below.
-            rank_per_node = rank_per_node if rank_per_node != 0 else 1
-            self._num_thread = num_cpu / rank_per_node
-        except AttributeError:
+            rank_per_node = int(math.ceil(float(self._num_rank) / float(self._num_node)))
+            self._cpu_per_rank = int(math.floor(self._num_cpu / rank_per_node))
+        except (AttributeError, TypeError):
             pass
 
-    def _environ(self):
-        result = {'LD_DYNAMIC_WEAK': 'true',
-                  'OMP_NUM_THREADS' : str(self._num_thread),
-                  'GEOPM_PMPI_CTL' : self._pmpi_ctl,
-                  'GEOPM_REPORT' : self._report_path,
-                  'GEOPM_POLICY' : self._ctl_conf.get_path()}
-        if self._trace_path:
-            result['GEOPM_TRACE'] = self._trace_path
-        if self._region_barrier:
-            result['GEOPM_REGION_BARRIER'] = 'true'
-        return result
-
-    def _check_str(self):
-        # Save the pmpi_ctl state since we don't need it to run 'true'
-        tmp_pmpi_ctl = self._pmpi_ctl
-        self._pmpi_ctl = ''
-        check_str = ' '.join((self._mpiexec_option(),
-                              self._num_node_option(),
-                              self._num_rank_option(),
-                              'true'))
-        self._pmpi_ctl = tmp_pmpi_ctl
-        return check_str
-
-    def _exec_str(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        # Using libtool causes sporadic issues with the Intel toolchain.
-        exec_path = os.path.join(script_dir, '.libs', 'geopm_test_integration --verbose')
-        return ' '.join((self._mpiexec_option(),
-                         self._num_node_option(),
-                         self._num_rank_option(),
-                         self._affinity_option(),
-                         self._host_option(),
-                         self._membind_option(),
-                         exec_path,
-                         self._app_conf.get_path()))
-
-    def _num_rank_option(self):
-        num_rank = self._num_rank
-        if self._pmpi_ctl == 'process':
-            num_rank += self._num_node
-        return '-n {num_rank}'.format(num_rank=num_rank)
-
-    def _affinity_option(self):
-        return ''
-
-    def _membind_option(self):
-        return ''
-
-    def _host_option(self):
-        if self._host_file:
-            raise NotImplementedError
-        return ''
 
 
-class SrunLauncher(Launcher):
-    def __init__(self, app_conf, ctl_conf, report_path,
-                 trace_path=None, host_file=None, time_limit=1):
-        self._queuing_timeout = 30
-        self._job_name = 'int_test'
-        super(SrunLauncher, self).__init__(app_conf, ctl_conf, report_path,
-                                           trace_path=trace_path, host_file=host_file,
-                                           time_limit=time_limit)
-
-    def _mpiexec_option(self):
-        mpiexec = 'srun -K -I{timeout} -J {name}'.format(timeout=self._queuing_timeout, name=self._job_name)
-        if self._time_limit is not None:
-            mpiexec += ' -t {time_limit}'.format(time_limit=self._time_limit)
-        if self._node_list is not None:
-            mpiexec += ' -w ' + ','.join(self._node_list)
-        return mpiexec
-
-    def _exec_option(self):
-        return 'srun -I{timeout} -J {name} -n 1'.format(timeout=self._queuing_timeout, name=self._job_name)
-
-    def _num_node_option(self):
-        return '-N {num_node}'.format(num_node=self._num_node)
-
-    def _affinity_option(self):
-        proc_mask = self._num_thread * '1' + '00'
-        result_base = '--cpu_bind=v,mask_cpu:'
-        mask_list = []
-        if (self._pmpi_ctl == 'process'):
-            mask_list.append('0x2')
-        for ii in range(self._num_rank / self._num_node):
-            mask_list.append('0x{:x}'.format(int(proc_mask, 2)))
-            proc_mask = proc_mask + self._num_thread * '0'
-        return result_base + ','.join(mask_list)
-
-    def _host_option(self):
-        result = ''
-        if self._host_file:
-            result = '-w {host_file}'.format(self._host_file)
-        return result
-
-    def get_idle_nodes(self):
-        return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
-
-    def get_alloc_nodes(self):
-        return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
-
-class AlpsLauncher(Launcher):
-    def __init__(self, app_conf, ctl_conf, report_path,
-                 trace_path=None, host_file=None, time_limit=1):
-        self._queuing_timeout = 30
-        self._job_name = 'int_test'
-        super(AlpsLauncher, self).__init__(app_conf, ctl_conf, report_path,
-                                           trace_path=trace_path, host_file=host_file,
-                                           time_limit=time_limit)
-
-    def _environ(self):
-        result = super(AlpsLauncher, self)._environ()
-        result['KMP_AFFINITY'] = 'disabled'
-        return result
-
-    def _mpiexec_option(self):
-        mpiexec = 'aprun'
-        if self._time_limit is not None:
-            mpiexec += ' -t {time_limit}'.format(time_limit=self._time_limit * 60)
-        if self._node_list is not None:
-            mpiexec += ' -L ' + ','.join(self._node_list)
-        return mpiexec
-
-    def _exec_option(self):
-        return 'aprun -n 1'
-
-    def _num_node_option(self):
-        rank_per_node = self._num_rank / self._num_node
-        if self._pmpi_ctl == 'process':
-            rank_per_node += 1
-        return '-N {rank_per_node}'.format(rank_per_node=rank_per_node)
-
-    def _affinity_option(self):
-        result_base = '-cc '
-        mask_list = []
-        off_start = 1
-        if (self._pmpi_ctl == 'process'):
-            mask_list.append('1')
-            off_start = 2
-        rank_per_node = self._num_rank / self._num_node
-        thread_per_node = rank_per_node * self._num_thread
-        mask_list.extend(['{0}-{1}'.format(off, off + self._num_thread - 1)
-                          for off in range(off_start,thread_per_node + off_start, self._num_thread)])
-        return result_base + ':'.join(mask_list)
-
-    def _host_option(self):
-        result = ''
-        if self._host_file:
-            result = '--node-list-file {host_file}'.format(self._host_file)
-        return result
-
-    def get_idle_nodes(self):
-        raise NotImplementedError;
-
-    def get_alloc_nodes(self):
-        raise NotImplementedError;
