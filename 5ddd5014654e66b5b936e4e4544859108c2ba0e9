@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17bca53b_b9bb2a61",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-05T23:38:35Z",
+      "side": 1,
+      "message": "Is it possible to never enter the unmarked region?  Seems like this logic allows for that.",
+      "revId": "5ddd5014654e66b5b936e4e4544859108c2ba0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64f882fa_5ceabf02",
+        "filename": "src/geopm_message.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-05T23:38:35Z",
+      "side": 1,
+      "message": "I think we need some comments here to explain what these enums mean.  I\u0027m not sure I get it.",
+      "revId": "5ddd5014654e66b5b936e4e4544859108c2ba0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
