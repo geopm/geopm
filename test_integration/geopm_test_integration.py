@@ -468,7 +468,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 16
         loop_count = 100
-        big_o = 1.0
+        big_o = 0.01
         app_conf = geopm_io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
