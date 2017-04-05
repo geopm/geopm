@@ -30,17 +30,16 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
+import os
+import sys
 import unittest
 import subprocess
-import os
 import fnmatch
-import sys
 import time
 import pandas
 import collections
 
-import geopm_launcher
+import geopm_test_launcher
 import geopm_io
 
 class TestIntegration(unittest.TestCase):
@@ -79,7 +78,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -93,7 +92,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace(nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skipUnless(geopm_launcher.get_resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
+    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
         report_path = name + '.report'
@@ -105,7 +104,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         time.sleep(5) # Wait a moment to finish cleaning-up from a previous test
@@ -147,7 +146,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -172,7 +171,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('nested-progress', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -201,7 +200,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('all2all', 1.0)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -239,7 +238,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -310,7 +309,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep-progress', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -337,7 +336,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('spin', delay)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -376,7 +375,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, time_limit=None)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, time_limit=None)
 
         check_successful = True
         while check_successful:
@@ -421,7 +420,7 @@ class TestIntegration(unittest.TestCase):
         self._options['power_budget'] = 150
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=15)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
@@ -483,7 +482,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('spin-progress', 0.01)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -525,7 +524,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region(region, big_o)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=None)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -554,7 +553,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('all2all', 1.0)
         ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_launcher.factory(app_conf, ctl_conf, report_path, trace_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
