@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abee537b_ca82fcb6",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-06T00:43:49Z",
+      "side": 1,
+      "message": "This is a memory leak, why doesn\u0027t this pass the Environment class members by reference?  Better yet it seems like getenv() could be a method of Environment even if it didn\u0027t use any members directly.  This way the throw() code repeated below could be inside of the method just once.",
+      "revId": "7671b0cda82fd785a16a6a5c7303f27663bd9f0c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89e94420_f71662b0",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-06T00:43:49Z",
+      "side": 1,
+      "message": "Could -\u003e Could not (below many times).",
+      "revId": "7671b0cda82fd785a16a6a5c7303f27663bd9f0c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "352ad51b_71af084c",
+        "filename": "src/geopm_env.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-06T00:43:49Z",
+      "side": 1,
+      "message": "Lets put this inside of the Environment class.",
+      "revId": "7671b0cda82fd785a16a6a5c7303f27663bd9f0c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ccb4e12_def3baa6",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-06T00:43:49Z",
+      "side": 1,
+      "message": "Think we should put this in the Environment class as in @todo above.  Seems like this is the time for it.",
+      "revId": "7671b0cda82fd785a16a6a5c7303f27663bd9f0c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
