@@ -232,7 +232,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
-            void report(std::ofstream &file_stream, const std::string &name, int rank_per_node) const;
+            void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const;
         protected:
             /// @brief Bound testing of input parameters.
             ///

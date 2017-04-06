@@ -38,16 +38,21 @@ import pandas
 import fnmatch
 
 class AppOutput(object):
-    def __init__(self, report_base, trace_base=None):
+    def __init__(self, report_path, trace_base=None):
         self._reports = {}
         self._traces = {}
         self._all_paths = []
-        report_paths = [ff for ff in os.listdir('.')
-                        if fnmatch.fnmatch(ff, report_base + '*')]
-        self._all_paths.extend(report_paths)
+        self._all_paths.extend(report_path)
+
         # Create a dict of <NODE_NAME> : <REPORT_OBJ>
-        self._reports = {rr.get_node_name(): rr for rr in
-                         [Report(rp) for rp in report_paths]}
+        rr_size = os.stat(report_path).st_size
+        rr = Report(report_path)
+        self._reports[rr.get_node_name()] = rr
+        while (rr.get_last_offset() != rr_size):
+            rr = Report(report_path, rr.get_last_offset())
+            if rr.get_node_name() is not None:
+                self._reports[rr.get_node_name()] = rr
+
         if trace_base:
             trace_paths = [ff for ff in os.listdir('.')
                            if fnmatch.fnmatch(ff, trace_base + '*')]
@@ -74,30 +79,37 @@ class AppOutput(object):
 
 
 class Report(dict):
-    def __init__(self, report_path):
+    def __init__(self, report_path, offset=0):
         super(Report, self).__init__()
         self._path = report_path
+        self._offset = offset
         self._version = None
         self._name = None
         self._total_runtime = None
         self._total_energy = None
         self._total_mpi_runtime = None
-        self._node_name = report_path.split('.report-')[-1]
+        self._node_name = None
 
         found_totals = False
         (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
-            for line in fid:
+            fid.seek(self._offset)
+            line = fid.readline()
+            while len(line) != 0:
                 if self._version is None:
                     match = re.search(r'^##### geopm (\S+) #####$', line)
                     if match is not None:
                         self._version = match.group(1)
-                elif self._name is None:
+                if self._name is None:
                     match = re.search(r'^Profile: (\S+)$', line)
                     if match is not None:
                         self._name = match.group(1)
+                if self._node_name is None:
+                    match = re.search(r'^Host: (\S+)$', line)
+                    if match is not None:
+                        self._node_name = match.group(1)
                 elif region_name is None:
                     match = re.search(r'^Region (\S+) \(([0-9]+)\):', line)
                     if match is not None:
@@ -141,10 +153,14 @@ class Report(dict):
                     match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
                     if match is not None:
                         self._total_mpi_runtime = float(match.group(1))
+                        break # End of report blob
 
-        if (region_name is not None or not found_totals or
-            None in (self._name, self._version, self._total_runtime, self._total_energy, self._total_mpi_runtime)):
-            raise SyntaxError('Unable to parse file: ' + self._path)
+                line = fid.readline()
+            self._offset = fid.tell()
+
+        if (len(line) != 0 and (region_name is not None or not found_totals or
+            None in (self._total_runtime, self._total_energy, self._total_mpi_runtime))):
+            raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
     def get_name(self):
         return self._name
@@ -166,6 +182,9 @@ class Report(dict):
 
     def get_node_name(self):
         return self._node_name
+
+    def get_last_offset(self):
+        return self._offset
 
 
 class Region(object):

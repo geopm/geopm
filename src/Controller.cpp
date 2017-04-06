@@ -39,6 +39,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <numeric>
 #include <json-c/json.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -201,6 +202,7 @@ namespace geopm
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
         , m_ppn1_comm(MPI_COMM_NULL)
+        , m_ppn1_rank(-1)
     {
         int err = 0;
         int num_nodes = 0;
@@ -213,10 +215,9 @@ namespace geopm
         if (m_ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
             struct geopm_plugin_description_s plugin_desc;
-            int rank;
             geopm_error_destroy_shmem();
-            check_mpi(MPI_Comm_rank(m_ppn1_comm, &rank));
-            if (!rank) { // We are the root of the tree
+            check_mpi(MPI_Comm_rank(m_ppn1_comm, &m_ppn1_rank));
+            if (!m_ppn1_rank) { // We are the root of the tree
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.platform[NAME_MAX - 1] = '\0';
@@ -842,7 +843,8 @@ namespace geopm
         std::string profile_name;
         std::set<std::string> region_name;
         std::map<uint64_t, std::string> region;
-        std::ofstream report;
+        std::ostringstream report;
+        std::ofstream master_report;
         char hostname[NAME_MAX];
         double energy_exit = 0.0;
 
@@ -868,12 +870,13 @@ namespace geopm
             region.insert(std::pair<uint64_t, std::string>(region_id, (*it)));
         }
 
+        if (!m_ppn1_rank) {
+            master_report.open(report_name.c_str(), std::ios_base::out);
+            master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
+            master_report << "Profile: " << profile_name << std::endl << std::endl;
+        }
         gethostname(hostname, NAME_MAX);
-        std::ostringstream host_report_name;
-        host_report_name << report_name << "-" << hostname;
-        report.open(host_report_name.str(), std::ios_base::out);
-        report << "##### geopm " << geopm_version() << " #####" << std::endl << std::endl;
-        report << "Profile: " << profile_name << std::endl;
+        report << "Host: " << hostname << std::endl;
         for (auto it = m_region[0].begin(); it != m_region[0].end(); ++it) {
             uint64_t region_id = (*it).first;
             std::string name;
@@ -927,9 +930,41 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
-        report << "\tgeopmctl network BW (B/sec): " << m_tree_comm->overhead_send() / total_runtime << std::endl;
+        report << "\tgeopmctl network BW (B/sec): " << m_tree_comm->overhead_send() / total_runtime << std::endl << std::endl;
 
-        report.close();
+        report.seekp(0, std::ios::end);
+        int buffer_size = report.tellp();
+        report.seekp(0, std::ios::beg);
+        std::vector<char> report_buffer;
+        std::vector<int> buffer_size_array;
+        std::vector<int> buffer_displacement;
+        int num_ranks;
+        MPI_Comm_size(m_ppn1_comm, &num_ranks);
+        buffer_size_array.resize(num_ranks);
+        buffer_displacement.resize(num_ranks);
+
+        MPI_Gather(&buffer_size, 1, MPI_INT,
+                   buffer_size_array.data(), 1, MPI_INT,
+                   0, m_ppn1_comm);
+
+        if (!m_ppn1_rank) {
+            int full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
+            report_buffer.resize(full_report_size);
+            buffer_displacement[0] = 0;
+            for (int i = 1; i < num_ranks; ++i) {
+                buffer_displacement[i] = buffer_displacement[i-1] + buffer_size_array[i-1];
+            }
+        }
+
+        MPI_Gatherv(GEOPM_MPI_CONST_CAST(char*)(report.str().data()), buffer_size, MPI_CHAR,
+                    report_buffer.data(), buffer_size_array.data(), buffer_displacement.data(), MPI_CHAR,
+                    0, m_ppn1_comm);
+
+        if (!m_ppn1_rank) {
+            report_buffer.back() = '\0';
+            master_report << report_buffer.data();
+            master_report.close();
+        }
     }
 
     void Controller::reset(void)
