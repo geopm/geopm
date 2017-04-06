@@ -62,7 +62,8 @@ class MPIProfileTest: public :: testing :: Test
         bool m_use_std_sleep;
         std::string m_log_file;
         std::string m_log_file_node;
-        bool m_is_node_root;
+        bool m_is_root_process;
+        int m_report_size;
         std::vector<double> m_check_val_default;
         std::vector<double> m_check_val_single;
         std::vector<double> m_check_val_multi;
@@ -74,31 +75,30 @@ MPIProfileTest::MPIProfileTest()
     , m_use_std_sleep(false)
     , m_log_file(geopm_env_report())
     , m_log_file_node(m_log_file)
-    , m_is_node_root(false)
+    , m_is_root_process(false)
+    , m_report_size(0)
     , m_check_val_default({3.0, 6.0, 9.0})
     , m_check_val_single({6.0, 0.0, 9.0})
     , m_check_val_multi({1.0, 2.0, 3.0})
 {
-    char hostname[NAME_MAX];
     MPI_Comm ppn1_comm;
-    gethostname(hostname, NAME_MAX);
-    m_log_file_node.append("-");
-    m_log_file_node.append(hostname);
-
+    int rank;
     geopm_comm_split_ppn1(MPI_COMM_WORLD, "prof", &ppn1_comm);
-    if (ppn1_comm != MPI_COMM_NULL) {
-        m_is_node_root = true;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &m_report_size);
+    if (!rank) {
+        m_is_root_process = true;
         MPI_Comm_free(&ppn1_comm);
     }
     else {
-        m_is_node_root = false;
+        m_is_root_process = false;
     }
 }
 
 MPIProfileTest::~MPIProfileTest()
 {
     MPI_Barrier(MPI_COMM_WORLD);
-    if (m_is_node_root) {
+    if (m_is_root_process) {
         remove(m_log_file_node.c_str());
     }
 
@@ -129,55 +129,63 @@ void MPIProfileTest::parse_log(const std::vector<double> &check_val)
     ASSERT_EQ(0, err);
     sleep(1); // Wait for controller to finish writing the report
 
-    if (m_is_node_root) {
+    if (m_is_root_process) {
         std::string line;
-        double curr_value = -1.0;
-        double value = 0.0;
-        double epoch_value = 0.0;
-        double startup_value = 0.0;
-        double total_runtime_value = 0.0;
+        std::vector<double> curr_value(m_report_size, -1.0);
+        std::vector<double> value(m_report_size, 0.0);
+        std::vector<double> epoch_value(m_report_size, 0.0);
+        std::vector<double> startup_value(m_report_size, 0.0);
+        std::vector<double> total_runtime_value(m_report_size, 0.0);
 
         std::ifstream log(m_log_file_node, std::ios_base::in);
 
         ASSERT_TRUE(log.is_open());
 
+        int hostnum = -1;
         while(std::getline(log, line)) {
-            curr_value = -1.0;
-            if (line.find("Region loop_one") == 0) {
-                curr_value = check_val[0];
+            if (hostnum >= 0) {
+                curr_value[hostnum] = -1.0;
             }
-            else if (line.find("Region loop_two") == 0) {
-                curr_value = check_val[1];
+            if (line.find("Region loop_one") == 0 && hostnum >= 0) {
+                curr_value[hostnum] = check_val[0];
             }
-            else if (line.find("Region loop_three") == 0) {
-                curr_value = check_val[2];
+            else if (line.find("Region loop_two") == 0 && hostnum >= 0) {
+                curr_value[hostnum] = check_val[1];
             }
-            else if (line.find("Region epoch") == 0) {
+            else if (line.find("Region loop_three") == 0 && hostnum >= 0) {
+                curr_value[hostnum] = check_val[2];
+            }
+            else if (line.find("Region epoch") == 0 && hostnum >= 0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &epoch_value));
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &epoch_value[hostnum]));
             }
-            else if (line.find("Region geopm_mpi_test-startup:") == 0) {
+            else if (line.find("Region geopm_mpi_test-startup:") == 0 && hostnum >= 0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &startup_value));
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &startup_value[hostnum]));
             }
-            else if (line.find("Application Totals:") == 0) {
+            else if (line.find("Application Totals:") == 0 && hostnum >= 0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &total_runtime_value));
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &total_runtime_value[hostnum]));
             }
-            if (curr_value != -1.0) {
+            if (hostnum >= 0 && curr_value[hostnum] != -1.0) {
                 std::getline(log, line);
-                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &value));
-                ASSERT_NEAR(value, curr_value, m_epsilon);
+                ASSERT_NE(0, sscanf(line.c_str(), "\truntime (sec): %lf", &value[hostnum]));
+                ASSERT_NEAR(value[hostnum], curr_value[hostnum], m_epsilon);
+            }
+            if (line.find("Host:") == 0) {
+                ++hostnum;
             }
         }
 
-        if (epoch_value != 0.0) {
-            double epoch_target = std::accumulate(check_val.begin(), check_val.end(), 0.0);
-            ASSERT_NEAR(epoch_target, epoch_value, m_epsilon);
-            double total_runtime_target = std::accumulate(check_val.begin(), check_val.end(), startup_value);
-            ASSERT_LT(total_runtime_target, total_runtime_value);
-            /// @todo: The assert below may fail because of unaccounted for time reported (~1 second)
-            /// ASSERT_NEAR(total_runtime_target, total_runtime_value, m_epsilon);
+        for(hostnum = 0; hostnum < m_report_size; ++hostnum) {
+            if (epoch_value[hostnum] != 0.0) {
+                double epoch_target = std::accumulate(check_val.begin(), check_val.end(), 0.0);
+                ASSERT_NEAR(epoch_target, epoch_value[hostnum], m_epsilon);
+                double total_runtime_target = std::accumulate(check_val.begin(), check_val.end(), startup_value[hostnum]);
+                ASSERT_LT(total_runtime_target, total_runtime_value[hostnum]);
+                /// @todo: The assert below may fail because of unaccounted for time reported (~1 second)
+                /// ASSERT_NEAR(total_runtime_target, total_runtime_value, m_epsilon);
+            }
         }
 
         log.close();

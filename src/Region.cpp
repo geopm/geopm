@@ -298,16 +298,16 @@ namespace geopm
         return 0.0;
     }
 
-    void Region::report(std::ofstream &file_stream, const std::string &name, int num_rank_per_node) const
+    void Region::report(std::ostringstream &string_stream, const std::string &name, int num_rank_per_node) const
     {
-        file_stream << "Region " << name << " (" << m_identifier << "):" << std::endl;
-        file_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
-        file_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
-        file_stream << "\tfrequency (%): " << (m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] ? 100 *
+        string_stream << "Region " << name << " (" << m_identifier << "):" << std::endl;
+        string_stream << "\truntime (sec): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_RUNTIME] << std::endl;
+        string_stream << "\tenergy (joules): " << m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] << std::endl;
+        string_stream << "\tfrequency (%): " << (m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] ? 100 *
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] /
                                                m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] :
                                                0.0) << std::endl;
-        file_stream << "\tmpi-runtime (sec): " << m_mpi_time << std::endl;
+        string_stream << "\tmpi-runtime (sec): " << m_mpi_time << std::endl;
         // For epoch, remove two counts: one for startup call and
         // one for shutdown call.  For umarked code just print 0
         // for count. For other regions normalize by number of
@@ -320,7 +320,7 @@ namespace geopm
         else if (m_identifier != GEOPM_REGION_ID_UNMARKED) {
             count = (double)m_num_entry / num_rank_per_node;
         }
-        file_stream << "\tcount: " << count << std::endl;
+        string_stream << "\tcount: " << count << std::endl;
     }
 
     // Protected function definitions
