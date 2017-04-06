@@ -188,7 +188,7 @@ class TestIntegration(unittest.TestCase):
             self.assertEqual(loop_count, rr['spin'].get_count())
 
     def test_trace_runtimes(self):
-        name = 'test_trace_generation'
+        name = 'test_trace_runtimes'
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 4
@@ -218,7 +218,7 @@ class TestIntegration(unittest.TestCase):
             tt = trace.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
             for region_name, region_data in report.iteritems():
-                if region_data.get_runtime() != 0:
+                if region_name != 'unmarked-region' and region_data.get_runtime() != 0:
                     trace_data = tt.get_group((region_data.get_id()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     self.assertNear(trace_elapsed_time, region_data.get_runtime())
@@ -253,30 +253,29 @@ class TestIntegration(unittest.TestCase):
             tt = self._output.get_trace(nn).set_index(['region_id'], append=True).groupby(level=['region_id'])
 
             for region_id, data in tt:
-                if region_id != '0':
-                    # Build a df with only the first region entry and the exit.
-                    last_index = 0
-                    filtered_df = pandas.DataFrame()
-                    row_list = []
-                    progress_1s = data['progress-0'].loc[ data['progress-0'] == 1 ]
-                    for index, junk in progress_1s.iteritems():
-                        row = data.ix[last_index:index].head(1)
-                        row_list += [row[['seconds', 'progress-0']]]
-                        row = data.ix[last_index:index].tail(1)
-                        row_list += [row[['seconds', 'progress-0']]]
-                        last_index = index[0] + 1 # Set the next starting index to be one past where we are
-                    filtered_df = pandas.concat(row_list)
+                # Build a df with only the first region entry and the exit.
+                last_index = 0
+                filtered_df = pandas.DataFrame()
+                row_list = []
+                progress_1s = data['progress-0'].loc[ data['progress-0'] == 1 ]
+                for index, junk in progress_1s.iteritems():
+                    row = data.ix[last_index:index].head(1)
+                    row_list += [row[['seconds', 'progress-0']]]
+                    row = data.ix[last_index:index].tail(1)
+                    row_list += [row[['seconds', 'progress-0']]]
+                    last_index = index[0] + 1 # Set the next starting index to be one past where we are
+                filtered_df = pandas.concat(row_list)
 
-                    filtered_df = filtered_df.diff()
-                    # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
-                    # case where 1 - 0 = 1 for the progress column.
-                    filtered_df = filtered_df.loc[ filtered_df['progress-0'] == 1 ]
+                filtered_df = filtered_df.diff()
+                # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
+                # case where 1 - 0 = 1 for the progress column.
+                filtered_df = filtered_df.loc[ filtered_df['progress-0'] == 1 ]
 
-                    if len(filtered_df) > 1:
-                        launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
-                        .format(nn, region_id, filtered_df['seconds'].describe()))
-                        filtered_df['seconds'].describe()
-                        region_times[nn][region_id] = filtered_df
+                if len(filtered_df) > 1:
+                    launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
+                    .format(nn, region_id, filtered_df['seconds'].describe()))
+                    filtered_df['seconds'].describe()
+                    region_times[nn][region_id] = filtered_df
 
             launcher.write_log(name, '{}'.format('-' * 80))
 
@@ -493,11 +492,10 @@ class TestIntegration(unittest.TestCase):
             tt = tt.groupby(level=['region_id'])
 
             for region_id, data in tt:
-                if region_id != '0':
-                    tmp = data['progress-0'].diff()
-                    negative_progress =  tmp.loc[ (tmp > -1) & (tmp < 0) ]
-                    launcher.write_log(name, '{}'.format(negative_progress))
-                    self.assertEqual(0, len(negative_progress))
+                tmp = data['progress-0'].diff()
+                negative_progress =  tmp.loc[ (tmp > -1) & (tmp < 0) ]
+                launcher.write_log(name, '{}'.format(negative_progress))
+                self.assertEqual(0, len(negative_progress))
 
     def test_sample_rate(self):
         """
