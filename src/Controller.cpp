@@ -894,7 +894,7 @@ namespace geopm
                     throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
-            if ((*it).second->num_entry()) {
+            if ((*it).second->num_entry() || region_id == GEOPM_REGION_ID_UNMARKED) {
                 (*it).second->report(report, name, m_rank_per_node);
             }
         }

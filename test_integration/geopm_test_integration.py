@@ -45,6 +45,7 @@ import geopm_io
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
+        self.longMessage = True
         self._mode = 'dynamic'
         self._options = {'tree_decider' : 'static_policy',
                          'leaf_decider': 'power_governing',
@@ -290,6 +291,13 @@ class TestIntegration(unittest.TestCase):
                     self.assertNear(region.get_runtime(),
                                     region_times[nn][region.get_id()]['seconds'].sum())
             write_regions = False
+
+        # Test to ensure every region detected in the trace is captured in the report.
+        for nn in node_names:
+            rr = self._output.get_report(nn)
+            for region_id in region_times[nn].keys():
+                report_ids = [rr[ii].get_id() for ii in rr]
+                self.assertTrue(region_id in report_ids, msg='Report from {} missing region_id {}'.format(nn, region_id))
 
     def test_progress(self):
         name = 'test_progress'
