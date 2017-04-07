@@ -77,8 +77,11 @@ namespace geopm
             /// Platform/PlatformImp pair is found.
             ///
             /// @param [in] description The descrition string corresponding
-            /// to the desired Platform.
-            Platform *platform(const std::string &description);
+            ///        to the desired Platform.
+            ///
+            /// @param [in] do_initialize Choose whether or not to initialize
+            ///        the returned Platform.
+            Platform *platform(const std::string &description, bool do_initialize);
             /// @brief Concrete Platforms register with the factory through this API.
             ///
             /// @param [in] platform The unique_ptr to a Platform object

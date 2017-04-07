@@ -52,7 +52,7 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform("rapl");
+            geopm::Platform *platform = platform_factory.platform("rapl", true);
             platform->save_msr_state(path);
         }
         catch (...) {
@@ -68,7 +68,7 @@ extern "C"
 
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform("rapl");
+            geopm::Platform *platform = platform_factory.platform("rapl", true);
             platform->restore_msr_state(path);
         }
         catch (...) {
@@ -83,7 +83,7 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformFactory platform_factory;
-            geopm::Platform *platform = platform_factory.platform("rapl");
+            geopm::Platform *platform = platform_factory.platform("rapl", false);
 
             platform->write_msr_whitelist(file_desc);
         }
@@ -124,10 +124,13 @@ namespace geopm
 
     }
 
-    void Platform::set_implementation(PlatformImp* platform_imp)
+    void Platform::set_implementation(PlatformImp* platform_imp, bool do_initialize)
     {
         m_imp = platform_imp;
-        m_imp->initialize();
+        if (do_initialize) {
+            m_imp->initialize();
+            initialize();
+        }
     }
 
     void Platform::name(std::string &plat_name) const

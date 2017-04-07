@@ -992,7 +992,7 @@ namespace geopm
     void GlobalPolicy::enforce_static_mode()
     {
         PlatformFactory platform_factory;
-        Platform *platform = platform_factory.platform(std::string("rapl"));
+        Platform *platform = platform_factory.platform(std::string("rapl"), true);
 
         switch (m_mode) {
             case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:

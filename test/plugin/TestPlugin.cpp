@@ -139,6 +139,11 @@ void DumbPlatform::bound(double &upper_bound, double &lower_bound)
     lower_bound = DBL_MIN;
 }
 
+void DumbPlatform::initialize(void)
+{
+
+}
+
 ShmemFreqPlatformImp::ShmemFreqPlatformImp()
     : m_name("shmem_freq")
     , m_cpu_freq_shmem_key("/geopm_test_platform_shmem_freq")

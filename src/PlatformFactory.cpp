@@ -128,7 +128,7 @@ namespace geopm
         }
     }
 
-    Platform* PlatformFactory::platform(const std::string &description)
+    Platform* PlatformFactory::platform(const std::string &description, bool do_initialize)
     {
         int platform_id;
         bool is_found = false;
@@ -143,7 +143,7 @@ namespace geopm
         for (auto it = platform_imps.begin(); it != platform_imps.end(); ++it) {
             if ((*it) != NULL && result != NULL &&
                 (*it)->model_supported(platform_id)) {
-                result->set_implementation((*it));
+                result->set_implementation((*it), do_initialize);
                 is_found = true;
                 break;
             }

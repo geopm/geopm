@@ -57,7 +57,9 @@ namespace geopm
             /// @brief Set our member variable pointing to a PlatformImp object.
             /// @param [in] platform_imp A PlatformImp object that is compatible
             ///        with this platform and the underlying hardware.
-            virtual void set_implementation(PlatformImp* platform_imp);
+            /// @param [in] do_initialize Choose whether or not to initialize the Platform.
+            ///        This also initialized the underlying PlatformImp.
+            void set_implementation(PlatformImp* platform_imp, bool do_initialize);
             /// @brief Retrieve the number of power domains.
             /// @return Number of power domains.
             int num_domain(void) const;
@@ -161,6 +163,8 @@ namespace geopm
                                      const std::vector<double> &aligned_data,
                                      std::vector<struct geopm_telemetry_message_s> &telemetry);
         protected:
+            /// @brief Platform specific initialization code.
+            virtual void initialize(void) = 0;
             /// @brief Pointer to a PlatformImp object that supports the target
             /// hardware platform.
             PlatformImp *m_imp;
