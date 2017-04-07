@@ -83,7 +83,7 @@ void PlatformTest::SetUp()
     EXPECT_CALL(*platformimp, num_cpu_signal())
     .WillRepeatedly(testing::Return(5));
 
-    platform->set_implementation((geopm::PlatformImp*)platformimp);
+    platform->set_implementation((geopm::PlatformImp*)platformimp, true);
     hwloc_obj_t obj;
 
     for (int i = 0; i < 2; i++) {

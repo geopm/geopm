@@ -70,9 +70,8 @@ namespace geopm
                 description == m_description);
     }
 
-    void RAPLPlatform::set_implementation(PlatformImp* platform_imp)
+    void RAPLPlatform::initialize(void)
     {
-        m_imp = platform_imp;
         m_imp->initialize();
 
         m_num_cpu = m_imp->num_hw_cpu();

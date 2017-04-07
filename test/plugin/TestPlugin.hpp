@@ -59,6 +59,7 @@ class DumbPlatform : public Platform
         DumbPlatform();
         virtual ~DumbPlatform();
         virtual size_t capacity(void);
+        virtual void initialize(void);
         virtual void sample(std::vector<struct geopm_msr_message_s> &msr_msg);
         virtual bool model_supported(int platfrom_id, const std::string &description) const;
         virtual void enforce_policy(uint64_t region_id, Policy &policy) const;
