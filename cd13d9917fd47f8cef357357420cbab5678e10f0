@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f212e87_b9b8f4d8",
+        "filename": "src/Platform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-10T17:26:58Z",
+      "side": 1,
+      "message": "why not just make write_msr_whitelist() a static function that can bee called",
+      "revId": "cd13d9917fd47f8cef357357420cbab5678e10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
