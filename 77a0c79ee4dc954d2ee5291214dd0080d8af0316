@@ -22,6 +22,30 @@
       "revId": "77a0c79ee4dc954d2ee5291214dd0080d8af0316",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b9bcdf9_194e0950",
+        "filename": "Makefile.am",
+        "patchSetId": 15
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-10T23:02:10Z",
+      "side": 1,
+      "message": "Good catch!  This was causing travis to be unable to make the tarball for OBS, so this would have broken the OBS build. Fix pushed.",
+      "parentUuid": "9264987c_b927a58c",
+      "range": {
+        "startLine": 132,
+        "startChar": 13,
+        "endLine": 132,
+        "endChar": 32
+      },
+      "revId": "77a0c79ee4dc954d2ee5291214dd0080d8af0316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
