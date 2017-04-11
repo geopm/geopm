@@ -347,7 +347,7 @@ int tutorial_stream_profiled(double big_o, int do_report)
 
         if (!err) {
             err = geopm_prof_region("tutorial_stream",
-                                    GEOPM_POLICY_HINT_MEMORY,
+                                    GEOPM_REGION_HINT_MEMORY,
                                     &stream_rid);
         }
 

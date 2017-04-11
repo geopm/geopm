@@ -61,22 +61,22 @@ int main(int argc, char **argv)
 
     if (!err) {
         err = geopm_prof_region("tutorial_sleep",
-                                GEOPM_POLICY_HINT_UNKNOWN,
+                                GEOPM_REGION_HINT_UNKNOWN,
                                 &sleep_rid);
     }
     if (!err) {
         err = geopm_prof_region("tutorial_stream",
-                                GEOPM_POLICY_HINT_MEMORY,
+                                GEOPM_REGION_HINT_MEMORY,
                                 &stream_rid);
     }
     if (!err) {
         err = geopm_prof_region("tutorial_dgemm",
-                                GEOPM_POLICY_HINT_COMPUTE,
+                                GEOPM_REGION_HINT_COMPUTE,
                                 &dgemm_rid);
     }
     if (!err) {
         err = geopm_prof_region("tutorial_all2all",
-                                GEOPM_POLICY_HINT_NETWORK,
+                                GEOPM_REGION_HINT_NETWORK,
                                 &all2all_rid);
     }
 
