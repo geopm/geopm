@@ -140,6 +140,17 @@ namespace geopm
             All2allModelRegion m_all2all_region;
     };
 
+    class IgnoreModelRegion : public ModelRegionBase
+    {
+        public:
+            IgnoreModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            virtual ~IgnoreModelRegion();
+            void big_o(double big_o);
+            void run(void);
+        protected:
+            struct timespec m_delay;
+    };
+
     ModelRegionBase *model_region_factory(std::string name, double big_o, int verbosity);
 }
 
