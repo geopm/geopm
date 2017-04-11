@@ -141,7 +141,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_UNKNOWN, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_UNKNOWN, &m_region_id);
         if (err) {
             throw Exception("SleepModelRegion::SleepModelRegion()",
                             err, __FILE__, __LINE__);
@@ -206,7 +206,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_UNKNOWN, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_UNKNOWN, &m_region_id);
         if (err) {
             throw Exception("SpinModelRegion::SpinModelRegion()",
                             err, __FILE__, __LINE__);
@@ -270,7 +270,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_COMPUTE, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_COMPUTE, &m_region_id);
         if (err) {
             throw Exception("DGEMMModelRegion::DGEMMModelRegion()",
                             err, __FILE__, __LINE__);
@@ -366,7 +366,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_MEMORY, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_MEMORY, &m_region_id);
         if (err) {
             throw Exception("StreamModelRegion::StreamModelRegion()",
                             err, __FILE__, __LINE__);
@@ -453,7 +453,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_NETWORK, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_NETWORK, &m_region_id);
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }

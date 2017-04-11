@@ -209,6 +209,7 @@ namespace geopm
             double m_epoch_time;
             double m_mpi_sync_time;
             double m_mpi_agg_time;
+            double m_hint_ignore_time;
             uint64_t m_sample_count;
             uint64_t m_throttle_count;
             double m_throttle_limit_mhz;

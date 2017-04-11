@@ -34,6 +34,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
+#include "geopm.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "DeciderFactory.hpp"
@@ -111,7 +112,7 @@ TEST_F(GoverningDeciderTest, 2_socket_over_budget)
 void GoverningDeciderTest::run_param_case(double budget, double pkg_power, double dram_power, int num_domain)
 {
     const int region_id = 1;
-    geopm::Region region(region_id, GEOPM_POLICY_HINT_UNKNOWN, num_domain, 0);
+    geopm::Region region(region_id, GEOPM_REGION_HINT_UNKNOWN, num_domain, 0);
     geopm::Policy policy(num_domain);
 
     struct geopm_policy_message_s policy_msg = {GEOPM_POLICY_MODE_DYNAMIC, 0, 1, budget};

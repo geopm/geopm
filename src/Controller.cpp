@@ -195,6 +195,7 @@ namespace geopm
         , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
         , m_mpi_agg_time(0.0)
+        , m_hint_ignore_time(0.0)
         , m_sample_count(0)
         , m_throttle_count(0)
         , m_throttle_limit_mhz(0.0)
@@ -335,7 +336,6 @@ namespace geopm
                 m_region[level].insert(std::pair<uint64_t, Region *>
                                        (GEOPM_REGION_ID_EPOCH,
                                         new Region(GEOPM_REGION_ID_EPOCH,
-                                                   GEOPM_POLICY_HINT_UNKNOWN,
                                                    num_domain,
                                                    level)));
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
@@ -598,7 +598,6 @@ namespace geopm
                         auto tmp_it = m_region[level].insert(
                                           std::pair<uint64_t, Region *> (base_region_id,
                                                   new Region(base_region_id,
-                                                             GEOPM_POLICY_HINT_UNKNOWN,
                                                              m_platform->num_control_domain(),
                                                              level)));
                         region_it = tmp_it.first;
@@ -633,7 +632,6 @@ namespace geopm
                                 auto tmp_it = m_region[level].insert(
                                                   std::pair<uint64_t, Region *> ((*sample_it).second.region_id,
                                                           new Region((*sample_it).second.region_id,
-                                                                     GEOPM_POLICY_HINT_UNKNOWN,
                                                                      m_platform->num_control_domain(),
                                                                      level)));
                                 region_it = tmp_it.first;
@@ -729,17 +727,19 @@ namespace geopm
                         is_converged = true;
                     }
                 }
-                // Subtract mpi syncronization time from epoch
+                // Subtract mpi syncronization and ignored region times from epoch
                 if (epoch_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_epoch_time &&
                     is_converged) {
                     sample_msg[level] = epoch_sample;
                     m_epoch_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                     m_is_epoch_changed[level] = true;
                     sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_mpi_sync_time;
+                    sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_hint_ignore_time;
                 }
                 if (is_epoch_found) {
                     m_mpi_agg_time += m_mpi_sync_time;
                     m_mpi_sync_time = 0.0;
+                    m_hint_ignore_time = 0.0;
                 }
                 m_do_shutdown = m_sampler->do_shutdown();
             }
@@ -799,7 +799,6 @@ namespace geopm
             auto tmp_it = m_region[level].insert(
                               std::pair<uint64_t, Region *> (m_region_id_all,
                                       new Region(m_region_id_all,
-                                                 GEOPM_POLICY_HINT_UNKNOWN,
                                                  m_platform->num_control_domain(),
                                                  level)));
             it = tmp_it.first;
@@ -807,6 +806,12 @@ namespace geopm
         Region *curr_region = (*it).second;
         Policy *curr_policy = m_policy[level];
         curr_region->insert(m_telemetry_sample);
+
+        if (geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, m_region_id_all)) {
+            struct geopm_sample_message_s ignore_sample;
+            curr_region->sample_message(ignore_sample);
+            m_hint_ignore_time += ignore_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+        }
 
         bool do_control = false;
         ++m_control_count;

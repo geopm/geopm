@@ -342,7 +342,7 @@ void synthetic_benchmark_main(int nranks, int rank)
     sprintf(buf, "%d", rank);
     dumpRankAffinity(buf, my_pid, sched_getcpu(), "Workload");
 
-    geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]);
+    geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]);
     geopm_prof_enter(region_id[0]);
     geopm_time(&start);
 

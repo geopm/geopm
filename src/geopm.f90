@@ -35,10 +35,14 @@ module geopm
     implicit none
 
     enum, bind(C)
-        enumerator :: GEOPM_POLICY_HINT_UNKNOWN = 0
-        enumerator :: GEOPM_POLICY_HINT_COMPUTE = 1
-        enumerator :: GEOPM_POLICY_HINT_MEMORY = 2
-        enumerator :: GEOPM_POLICY_HINT_NETWORK = 3
+        INTEGER(8), PARAMETER :: GEOPM_POLICY_HINT_UNKNOWN = (1 << 63)
+        INTEGER(8), PARAMETER :: GEOPM_POLICY_HINT_COMPUTE = (1 << 62)
+        INTEGER(8), PARAMETER :: GEOPM_POLICY_HINT_MEMORY =  (1 << 61)
+        INTEGER(8), PARAMETER :: GEOPM_POLICY_HINT_NETWORK = (1 << 60)
+        INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IO =      (1 << 59)
+        INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_SERIAL =  (1 << 58)
+        INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_PARALL =  (1 << 57)
+        INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IGNORE =  (1 << 56)
     end enum
 
     interface

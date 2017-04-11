@@ -193,7 +193,7 @@ TEST_F(MPIProfileTest, runtime)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 1.0) {
@@ -203,7 +203,7 @@ TEST_F(MPIProfileTest, runtime)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 2.0) {
@@ -213,7 +213,7 @@ TEST_F(MPIProfileTest, runtime)
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[2]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -234,7 +234,7 @@ TEST_F(MPIProfileTest, progress)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 1.0) {
@@ -245,7 +245,7 @@ TEST_F(MPIProfileTest, progress)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 2.0) {
@@ -256,7 +256,7 @@ TEST_F(MPIProfileTest, progress)
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[2]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -278,7 +278,7 @@ TEST_F(MPIProfileTest, multiple_entries)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 1.0) {
@@ -289,7 +289,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -300,7 +300,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 2.0) {
@@ -311,7 +311,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -322,7 +322,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -333,7 +333,7 @@ TEST_F(MPIProfileTest, multiple_entries)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -355,9 +355,9 @@ TEST_F(MPIProfileTest, nested_region)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
-    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -369,9 +369,9 @@ TEST_F(MPIProfileTest, nested_region)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[2]));
-    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 9.0) {
@@ -383,9 +383,9 @@ TEST_F(MPIProfileTest, nested_region)
     ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
-    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
@@ -409,17 +409,17 @@ TEST_F(MPIProfileTest, epoch)
     for (int i = 0; i < 3; i++) {
         ASSERT_EQ(0, geopm_prof_epoch());
 
-        ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+        ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
         ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
         sleep_exact(1.0);
         ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
-        ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+        ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
         ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
         sleep_exact(2.0);
         ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
 
-        ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]));
+        ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]));
         ASSERT_EQ(0, geopm_prof_enter(region_id[2]));
         sleep_exact(3.0);
         ASSERT_EQ(0, geopm_prof_exit(region_id[2]));
@@ -439,7 +439,7 @@ TEST_F(MPIProfileTest, noctl)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]));
+    ASSERT_EQ(0, geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[0]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 1.0) {
@@ -449,7 +449,7 @@ TEST_F(MPIProfileTest, noctl)
     ASSERT_EQ(0, geopm_prof_exit(region_id[0]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]));
+    ASSERT_EQ(0, geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[1]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 2.0) {
@@ -459,7 +459,7 @@ TEST_F(MPIProfileTest, noctl)
     ASSERT_EQ(0, geopm_prof_exit(region_id[1]));
 
     timeout = 0.0;
-    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]));
+    ASSERT_EQ(0, geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]));
     ASSERT_EQ(0, geopm_prof_enter(region_id[2]));
     ASSERT_EQ(0, geopm_time(&start));
     while (timeout < 3.0) {
