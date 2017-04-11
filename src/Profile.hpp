@@ -160,8 +160,8 @@ namespace geopm
             ///        printed next to the region statistics in the
             ///        report.
             ///
-            /// @param [in] policy_hint Value from the
-            ///        #geopm_policy_hint_e structure which is used to
+            /// @param [in] hint Value from the
+            ///        #geopm_hint_e structure which is used to
             ///        derive a starting policy before the application
             ///        has been profiled.
             ///
@@ -171,7 +171,7 @@ namespace geopm
             ///         Profile::exit(), Profile::progress and
             ///         Profile::sample() to associate these calls with
             ///         the registered region.
-            uint64_t region(const std::string region_name, long policy_hint);
+            uint64_t region(const std::string region_name, long hint);
             /// @brief Mark a region entry point.
             ///
             /// Called to denote the beginning of region of code that

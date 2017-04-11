@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     uint64_t dgemm_rid;
     if (!err) {
         err = geopm_prof_region("tutorial_dgemm",
-                                GEOPM_POLICY_HINT_COMPUTE,
+                                GEOPM_REGION_HINT_COMPUTE,
                                 &dgemm_rid);
     }
 

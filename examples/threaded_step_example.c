@@ -104,7 +104,7 @@ static int run_something(void)
         err = geopm_ctl_step(ctl);
     }
     if (!err) {
-        err = geopm_prof_region("main-loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+        err = geopm_prof_region("main-loop", GEOPM_REGION_HINT_UNKNOWN, &region_id);
     }
     if (!err) {
         #pragma omp parallel default(shared) private(i)

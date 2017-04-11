@@ -55,10 +55,8 @@ namespace geopm
             };
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.
-            /// @param [in] hint geopm_policy_hint_e describing the compute
-            ///             characteristics of this region
             /// @param [in] num_domain Number of control domains.
-            Region(uint64_t identifier, int hint, int num_domain, int level);
+            Region(uint64_t identifier, int num_domain, int level);
             /// @brief Default destructor.
             virtual ~Region();
             /// @brief Record an entry into the region.
@@ -87,10 +85,6 @@ namespace geopm
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.
             uint64_t identifier(void) const;
-            /// @brief Retrieve the compute characteristic hint for this region.
-            /// @return geopm_policy_hint_e describing the compute characteristics
-            /// of this region.
-            int hint(void) const;
             /// @brief Add increment amount to the total time spent in MPI calls
             //  during this region.
             //  @param [in] mpi_increment_amout Value to add to the MPI time total.
@@ -265,8 +259,6 @@ namespace geopm
             void update_curr_sample(void);
             /// @brief Holds a unique 64 bit region identifier.
             const uint64_t m_identifier;
-            /// @brief Holds the compute characteristic hint for this region.
-            const int m_hint;
             /// @brief Numnber of domains reporting to the region.
             const unsigned m_num_domain;
             /// @brief The level of the tree where the region resides
