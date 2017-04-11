@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
     }
     if (!err) {
-        err = geopm_prof_region("loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+        err = geopm_prof_region("loop_0", GEOPM_REGION_HINT_UNKNOWN, &region_id);
     }
     MPI_Barrier(MPI_COMM_WORLD);
     if (!err) {

@@ -216,18 +216,18 @@ index 12466c8..d4dec78 100644
 +   int err;
 +
 +   /* Region registration for functions in CoMD.c */
-+   err = geopm_prof_region("initsim", GEOPM_POLICY_HINT_UNKNOWN, &initsim_rid);
-+   err = geopm_prof_region("timestep", GEOPM_POLICY_HINT_COMPUTE, &timestep_rid);
-+   err = geopm_prof_region("destroysim", GEOPM_POLICY_HINT_UNKNOWN, &destroysim_rid);
-+   err = geopm_prof_region("sumatoms", GEOPM_POLICY_HINT_COMPUTE, &sumatoms_rid);
++   err = geopm_prof_region("initsim", GEOPM_REGION_HINT_UNKNOWN, &initsim_rid);
++   err = geopm_prof_region("timestep", GEOPM_REGION_HINT_COMPUTE, &timestep_rid);
++   err = geopm_prof_region("destroysim", GEOPM_REGION_HINT_UNKNOWN, &destroysim_rid);
++   err = geopm_prof_region("sumatoms", GEOPM_REGION_HINT_COMPUTE, &sumatoms_rid);
 +
 +   /* Region registration for functions in timestep.c */
-+   err = geopm_prof_region("advanceVelocity", GEOPM_POLICY_HINT_COMPUTE, &advanceVelocity_rid);
-+   err = geopm_prof_region("advancePosition", GEOPM_POLICY_HINT_COMPUTE, &advancePosition_rid);
-+   err = geopm_prof_region("redistributeAtoms", GEOPM_POLICY_HINT_UNKNOWN, &redistributeAtoms_rid);
-+   err = geopm_prof_region("computeForce", GEOPM_POLICY_HINT_COMPUTE, &computeForce_rid);
-+   err = geopm_prof_region("advanceVelocity", GEOPM_POLICY_HINT_COMPUTE, &advanceVelocity_rid);
-+   err = geopm_prof_region("kineticEnergy", GEOPM_POLICY_HINT_COMPUTE, &kineticEnergy_rid);
++   err = geopm_prof_region("advanceVelocity", GEOPM_REGION_HINT_COMPUTE, &advanceVelocity_rid);
++   err = geopm_prof_region("advancePosition", GEOPM_REGION_HINT_COMPUTE, &advancePosition_rid);
++   err = geopm_prof_region("redistributeAtoms", GEOPM_REGION_HINT_UNKNOWN, &redistributeAtoms_rid);
++   err = geopm_prof_region("computeForce", GEOPM_REGION_HINT_COMPUTE, &computeForce_rid);
++   err = geopm_prof_region("advanceVelocity", GEOPM_REGION_HINT_COMPUTE, &advanceVelocity_rid);
++   err = geopm_prof_region("kineticEnergy", GEOPM_REGION_HINT_COMPUTE, &kineticEnergy_rid);
 +
     timestampBarrier("Starting Initialization\n");
  
