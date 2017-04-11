@@ -226,11 +226,15 @@ class Launcher(object):
         stdout.write(echo)
         stdout.flush()
         signal.signal(signal.SIGINT, self.int_handler)
-        pid = subprocess.Popen(argv_mod, env=self.environ(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout_str, stderr_str = pid.communicate()
+        if 'fileno' in dir(stdout) and 'fileno' in dir(stderr):
+            pid = subprocess.Popen(argv_mod, env=self.environ(), stdout=stdout, stderr=stderr)
+            pid.communicate()
+        else:
+            pid = subprocess.Popen(argv_mod, env=self.environ(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout_str, stderr_str = pid.communicate()
+            stdout.write(stdout_str)
+            stderr.write(stderr_str)
         signal.signal(signal.SIGINT, self.default_handler)
-        stdout.write(stdout_str)
-        stderr.write(stderr_str)
         if pid.returncode:
             raise subprocess.CalledProcessError(pid.returncode, argv_mod)
 
@@ -238,7 +242,7 @@ class Launcher(object):
         result = dict(os.environ)
         if self.config is not None:
             result.update(self.config.environ())
-            if ('OMP_NUM_THREADS' not in result.keys() and
+            if ('OMP_NUM_THREADS' not in result and
                self.cpu_per_rank is not None):
                result['OMP_NUM_THREADS'] = str(self.cpu_per_rank)
 
