@@ -369,20 +369,28 @@ class SrunLauncher(Launcher):
     def affinity_option(self):
         if self.config.ctl == 'application':
             raise NotImplementedError('Launch with geopmctl not supported')
-        result = ['--cpu_bind']
-        mask_list = []
-        if self.config.ctl == 'process':
-            mask_list.append('0x1')
-            binary_mask = self.cpu_per_rank * '1' + '0'
-        elif self.config.ctl == 'pthread':
-            binary_mask = (self.cpu_per_rank + 1) * '1'
-        for ii in range(self.num_app_mask):
-            hex_mask = '0x{:x}'.format(int(binary_mask, 2))
-            mask_list.append(hex_mask)
-            if ii == 0 and self.config.ctl == 'pthread':
+        result = []
+        pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = pid.communicate()
+
+        if out.find('--cpu_bind') != -1:
+            result.append('--cpu_bind')
+            mask_list = []
+            if self.config.ctl == 'process':
+                mask_list.append('0x1')
                 binary_mask = self.cpu_per_rank * '1' + '0'
-            binary_mask = binary_mask + self.cpu_per_rank * '0'
-        result.append('v,mask_cpu:' + ','.join(mask_list))
+            elif self.config.ctl == 'pthread':
+                binary_mask = (self.cpu_per_rank + 1) * '1'
+            for ii in range(self.num_app_mask):
+                hex_mask = '0x{:x}'.format(int(binary_mask, 2))
+                mask_list.append(hex_mask)
+                if ii == 0 and self.config.ctl == 'pthread':
+                    binary_mask = self.cpu_per_rank * '1' + '0'
+                binary_mask = binary_mask + self.cpu_per_rank * '0'
+            result.append('v,mask_cpu:' + ','.join(mask_list))
+        elif out.find('--mpibind') != -1:
+            result.append('--mpibind=vv.on')
+
         return result
 
     def timeout_option(self):
