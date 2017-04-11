@@ -238,6 +238,10 @@ class Launcher(object):
         result = dict(os.environ)
         if self.config is not None:
             result.update(self.config.environ())
+            if ('OMP_NUM_THREADS' not in result.keys() and
+               self.cpu_per_rank is not None):
+               result['OMP_NUM_THREADS'] = str(self.cpu_per_rank)
+
         return result
 
     def mod_alloc(self):
