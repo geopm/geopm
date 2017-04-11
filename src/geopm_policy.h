@@ -42,15 +42,6 @@ extern "C" {
 /* opaque structure that is a handle for a geopm::Policy object. */
 struct geopm_policy_c;
 
-/// @brief Enum encompassing application region
-/// characteristic hints.
-enum geopm_policy_hint_e {
-    GEOPM_POLICY_HINT_UNKNOWN = 0,
-    GEOPM_POLICY_HINT_COMPUTE = 1,
-    GEOPM_POLICY_HINT_MEMORY = 2,
-    GEOPM_POLICY_HINT_NETWORK = 3,
-};
-
 /// @brief Enum encompassing geopm power management modes.
 enum geopm_policy_mode_e {
     GEOPM_POLICY_MODE_TDP_BALANCE_STATIC = 1,

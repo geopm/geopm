@@ -196,6 +196,7 @@ namespace geopm
         , m_epoch_time(0.0)
         , m_mpi_sync_time(0.0)
         , m_mpi_agg_time(0.0)
+        , m_hint_ignore_time(0.0)
         , m_sample_count(0)
         , m_throttle_count(0)
         , m_throttle_limit_mhz(0.0)
@@ -336,7 +337,6 @@ namespace geopm
                 m_region[level].insert(std::pair<uint64_t, Region *>
                                        (GEOPM_REGION_ID_EPOCH,
                                         new Region(GEOPM_REGION_ID_EPOCH,
-                                                   GEOPM_POLICY_HINT_UNKNOWN,
                                                    num_domain,
                                                    level)));
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
@@ -573,19 +573,22 @@ namespace geopm
                     // Use the map from the sample regulator get the node local rank index for the sample.
                     int local_rank = (*(m_sample_regulator->rank_idx_map().find((*sample_it).second.rank))).second;
                     if (geopm_region_id_is_mpi((*sample_it).second.region_id)) {
-                        if ((*sample_it).second.progress == 0.0) {
+                        base_region_id = geopm_region_id_unset_mpi((*sample_it).second.region_id);
+                        if ((*sample_it).second.progress == 0.0 && !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
                             if (!m_num_mpi_enter[local_rank]) {
                                 m_mpi_enter_time[local_rank] = (*sample_it).second.timestamp;
                             }
                             ++m_num_mpi_enter[local_rank];
                         }
-                        else if ((*sample_it).second.progress == 1.0) {
+                        else if ((*sample_it).second.progress == 1.0 && !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
                             --m_num_mpi_enter[local_rank];
                             if (!m_num_mpi_enter[local_rank]) {
                                 region_mpi_time += geopm_time_diff(&(m_mpi_enter_time[local_rank]), &((*sample_it).second.timestamp)) / m_rank_per_node;
                             }
                         }
-                        base_region_id = geopm_region_id_unset_mpi((*sample_it).second.region_id);
+                        if (!base_region_id) {
+                            base_region_id = GEOPM_REGION_ID_UNMARKED;
+                        }
                         (*sample_it).second.region_id = GEOPM_REGION_ID_UNMARKED;
                     }
                     if (geopm_region_id_is_epoch((*sample_it).second.region_id)) {
@@ -594,12 +597,15 @@ namespace geopm
                 }
                 m_mpi_sync_time += region_mpi_time;
                 if (region_mpi_time != 0.0) {
-                    auto region_it = m_region[level].find(base_region_id);
+                    uint64_t map_id = base_region_id;
+                    if (map_id != GEOPM_REGION_ID_UNMARKED && map_id != GEOPM_REGION_ID_EPOCH) {
+                        map_id = (map_id << 32) >> 32;
+                    }
+                    auto region_it = m_region[level].find(map_id);
                     if (region_it == m_region[level].end()) {
                         auto tmp_it = m_region[level].insert(
-                                          std::pair<uint64_t, Region *> (base_region_id,
+                                          std::pair<uint64_t, Region *> (map_id,
                                                   new Region(base_region_id,
-                                                             GEOPM_POLICY_HINT_UNKNOWN,
                                                              m_platform->num_control_domain(),
                                                              level)));
                         region_it = tmp_it.first;
@@ -629,12 +635,15 @@ namespace geopm
                      ++sample_it) {
                     if ((*sample_it).second.region_id != GEOPM_REGION_ID_UNDEFINED) {
                         if ((*sample_it).second.progress == 0.0) {
-                            auto region_it = m_region[level].find((*sample_it).second.region_id);
+                            uint64_t map_id = (*sample_it).second.region_id;
+                            if (map_id != GEOPM_REGION_ID_UNMARKED && map_id != GEOPM_REGION_ID_EPOCH) {
+                                map_id = (map_id << 32) >> 32;
+                            }
+                            auto region_it = m_region[level].find(map_id);
                             if (region_it == m_region[level].end()) {
                                 auto tmp_it = m_region[level].insert(
-                                                  std::pair<uint64_t, Region *> ((*sample_it).second.region_id,
+                                                  std::pair<uint64_t, Region *> (map_id,
                                                           new Region((*sample_it).second.region_id,
-                                                                     GEOPM_POLICY_HINT_UNKNOWN,
                                                                      m_platform->num_control_domain(),
                                                                      level)));
                                 region_it = tmp_it.first;
@@ -730,17 +739,19 @@ namespace geopm
                         is_converged = true;
                     }
                 }
-                // Subtract mpi syncronization time from epoch
+                // Subtract mpi syncronization and ignored region times from epoch
                 if (epoch_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME] != m_epoch_time &&
                     is_converged) {
                     sample_msg[level] = epoch_sample;
                     m_epoch_time = sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
                     m_is_epoch_changed[level] = true;
                     sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_mpi_sync_time;
+                    sample_msg[level].signal[GEOPM_SAMPLE_TYPE_RUNTIME] -= m_hint_ignore_time;
                 }
                 if (is_epoch_found) {
                     m_mpi_agg_time += m_mpi_sync_time;
                     m_mpi_sync_time = 0.0;
+                    m_hint_ignore_time = 0.0;
                 }
                 m_do_shutdown = m_sampler->do_shutdown();
             }
@@ -789,18 +800,22 @@ namespace geopm
     void Controller::update_region(void)
     {
         m_tracer->update(m_telemetry_sample);
+
         m_sample_count++;
         if (m_telemetry_sample[0].signal[GEOPM_TELEMETRY_TYPE_FREQUENCY] <= m_throttle_limit_mhz) {
             m_throttle_count++;
         }
 
         int level = 0; // Called only at the leaf
-        auto it = m_region[level].find(m_region_id_all);
+        uint64_t map_id = m_region_id_all;
+        if (map_id != GEOPM_REGION_ID_UNMARKED && map_id != GEOPM_REGION_ID_EPOCH) {
+            map_id = (map_id << 32) >> 32;
+        }
+        auto it = m_region[level].find(map_id);
         if (it == m_region[level].end()) {
             auto tmp_it = m_region[level].insert(
-                              std::pair<uint64_t, Region *> (m_region_id_all,
+                              std::pair<uint64_t, Region *> (map_id,
                                       new Region(m_region_id_all,
-                                                 GEOPM_POLICY_HINT_UNKNOWN,
                                                  m_platform->num_control_domain(),
                                                  level)));
             it = tmp_it.first;
@@ -808,6 +823,12 @@ namespace geopm
         Region *curr_region = (*it).second;
         Policy *curr_policy = m_policy[level];
         curr_region->insert(m_telemetry_sample);
+
+        if (geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, m_region_id_all)) {
+            struct geopm_sample_message_s ignore_sample;
+            curr_region->sample_message(ignore_sample);
+            m_hint_ignore_time += ignore_sample.signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+        }
 
         bool do_control = false;
         ++m_control_count;

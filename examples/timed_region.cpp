@@ -43,7 +43,7 @@ int main(int argc, char**argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    geopm_prof_region("loop_one", GEOPM_POLICY_HINT_UNKNOWN, &region_id[0]);
+    geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]);
     geopm_prof_enter(region_id[0]);
     geopm_time(&start);
     while (timeout < 1.0) {
@@ -53,7 +53,7 @@ int main(int argc, char**argv)
     }
     geopm_prof_exit(region_id[0]);
 
-    geopm_prof_region("loop_two", GEOPM_POLICY_HINT_UNKNOWN, &region_id[1]);
+    geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]);
     geopm_prof_enter(region_id[1]);
     geopm_time(&start);
     while (timeout < 2.0) {
@@ -63,7 +63,7 @@ int main(int argc, char**argv)
     }
     geopm_prof_exit(region_id[1]);
 
-    geopm_prof_region("loop_three", GEOPM_POLICY_HINT_UNKNOWN, &region_id[2]);
+    geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]);
     geopm_prof_enter(region_id[2]);
     geopm_time(&start);
     while (timeout < 3.0) {

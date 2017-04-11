@@ -56,10 +56,10 @@ void RegionTest::SetUp()
 
     geopm_time(&m_time);
 
-    m_leaf_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
-    m_two_point_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
-    m_measured_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 2, 0);
-    m_tree_region = new geopm::Region(42, GEOPM_POLICY_HINT_COMPUTE, 8, 1);
+    m_leaf_region = new geopm::Region(42, 2, 0);
+    m_two_point_region = new geopm::Region(42, 2, 0);
+    m_measured_region = new geopm::Region(42, 2, 0);
+    m_tree_region = new geopm::Region(42, 8, 1);
 
     std::vector<struct geopm_telemetry_message_s> telemetry(2);
     std::vector<struct geopm_sample_message_s> sample(8);
@@ -177,12 +177,6 @@ TEST_F(RegionTest, identifier)
 {
     EXPECT_EQ((uint64_t)42, m_leaf_region->identifier());
     EXPECT_EQ((uint64_t)42, m_tree_region->identifier());
-}
-
-TEST_F(RegionTest, hint)
-{
-    EXPECT_EQ(GEOPM_POLICY_HINT_COMPUTE, m_leaf_region->hint());
-    EXPECT_EQ(GEOPM_POLICY_HINT_COMPUTE, m_tree_region->hint());
 }
 
 TEST_F(RegionTest, sample_message)

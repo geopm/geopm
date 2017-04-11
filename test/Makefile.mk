@@ -86,7 +86,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/DeciderFactoryTest.decider_register \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/RegionTest.identifier \
-              test/gtest_links/RegionTest.hint \
               test/gtest_links/RegionTest.sample_message \
               test/gtest_links/RegionTest.signal_last \
               test/gtest_links/RegionTest.signal_num \
