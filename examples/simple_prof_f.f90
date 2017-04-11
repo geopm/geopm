@@ -55,7 +55,7 @@ num_iter = 100000000
 chunk_size = 1000
 
 call MPI_Init(ierr)
-ierr = geopm_prof_region(c_char_'loop_0'//c_null_char, GEOPM_POLICY_HINT_UNKNOWN, region_id)
+ierr = geopm_prof_region(c_char_'loop_0'//c_null_char, GEOPM_REGION_HINT_UNKNOWN, region_id)
 ierr = geopm_prof_enter(region_id)
 sum = 0
 !$omp parallel
