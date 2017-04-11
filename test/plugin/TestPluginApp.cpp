@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     geopm::SharedMemoryUser shmem("/geopm_test_platform_shmem_freq", 5.0);
     geopm::ProfileTable table(shmem.size(), shmem.pointer());
 
-    geopm_prof_region("main_loop", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+    geopm_prof_region("main_loop", GEOPM_REGION_HINT_UNKNOWN, &region_id);
 
     // imbalance is proportional to rank and ranges from 0 to 10%
     clock_req = clock_req_base * (1.0 + (comm_rank * imbalance) / comm_size);

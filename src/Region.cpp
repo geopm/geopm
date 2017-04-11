@@ -42,9 +42,8 @@
 
 namespace geopm
 {
-    Region::Region(uint64_t identifier, int hint, int num_domain, int level)
+    Region::Region(uint64_t identifier, int num_domain, int level)
         : m_identifier(identifier)
-        , m_hint(hint)
         , m_num_domain(num_domain)
         , m_level(level)
         , m_num_signal(m_level == 0 ? (int)GEOPM_NUM_TELEMETRY_TYPE : (int)GEOPM_NUM_SAMPLE_TYPE)
@@ -172,11 +171,6 @@ namespace geopm
     uint64_t Region::identifier(void) const
     {
         return m_identifier;
-    }
-
-    int Region::hint(void) const
-    {
-        return m_hint;
     }
 
     void Region::sample_message(struct geopm_sample_message_s &sample)
