@@ -414,7 +414,8 @@ namespace geopm
 #endif
 
         uint64_t result = m_table->key(region_name);
-        /// @todo Record policy hint when registering a region.
+        /// Record policy hint when registering a region.
+        result = geopm_region_id_set_hint(policy_hint, result);
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;

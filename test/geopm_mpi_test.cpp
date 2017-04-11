@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     }
 
     uint64_t startup_rid = 0;
-    geopm_prof_region("geopm_mpi_test-startup", GEOPM_POLICY_HINT_UNKNOWN, &startup_rid);
+    geopm_prof_region("geopm_mpi_test-startup", GEOPM_REGION_HINT_UNKNOWN, &startup_rid);
     MPI_Barrier(MPI_COMM_WORLD);
     geopm_prof_enter(startup_rid);
 
