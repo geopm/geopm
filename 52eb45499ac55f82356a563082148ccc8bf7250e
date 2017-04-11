@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc7a32ca_108caa6c",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-11T01:06:49Z",
+      "side": 1,
+      "message": "I\u0027d really like to find a way to make this into a comprehension of sorts.  I don\u0027t see it at the moment.",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 54
+      },
+      "revId": "52eb45499ac55f82356a563082148ccc8bf7250e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
