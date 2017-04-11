@@ -34,12 +34,14 @@ module geopm
     use, intrinsic :: ISO_C_BINDING
     implicit none
 
-    enum, bind(C)
-        enumerator :: GEOPM_POLICY_HINT_UNKNOWN = 0
-        enumerator :: GEOPM_POLICY_HINT_COMPUTE = 1
-        enumerator :: GEOPM_POLICY_HINT_MEMORY = 2
-        enumerator :: GEOPM_POLICY_HINT_NETWORK = 3
-    end enum
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_UNKNOWN = lshift(1, 63)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_COMPUTE = lshift(1, 62)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_MEMORY =  lshift(1, 61)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_NETWORK = lshift(1, 60)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IO =      lshift(1, 59)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_SERIAL =  lshift(1, 58)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_PARALL =  lshift(1, 57)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IGNORE =  lshift(1, 56)
 
     interface
         !!!!!!!!!!!!!!!!!!!!!!!!!!

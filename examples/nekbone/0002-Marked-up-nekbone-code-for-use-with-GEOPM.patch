@@ -89,7 +89,7 @@ index 5a8e6e2..474ed19 100644
 +             ierr = geopm_prof_epoch()
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_4'//c_null_char,
-+     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $              GEOPM_REGION_HINT_UNKNOWN, region_id)
 +             ierr = geopm_prof_enter(region_id)
 +         endif
 +#endif
@@ -106,7 +106,7 @@ index 5a8e6e2..474ed19 100644
 +         if (thread == 0) then
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_5a'//c_null_char,
-+     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $              GEOPM_REGION_HINT_UNKNOWN, region_id)
 +             ierr = geopm_prof_enter(region_id)
 +         endif
 +#endif
@@ -127,7 +127,7 @@ index 5a8e6e2..474ed19 100644
 +         if (thread == 0) then
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_6'//c_null_char,
-+     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $              GEOPM_REGION_HINT_UNKNOWN, region_id)
 +             ierr = geopm_prof_enter(region_id)
 +         endif
 +#endif
@@ -148,7 +148,7 @@ index 5a8e6e2..474ed19 100644
 +         if (thread == 0) then
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_5b'//c_null_char,
-+     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $              GEOPM_REGION_HINT_UNKNOWN, region_id)
 +             ierr = geopm_prof_enter(region_id)
 +         endif
 +#endif
@@ -168,7 +168,7 @@ index 5a8e6e2..474ed19 100644
 +         if (thread == 0) then
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_8a'//c_null_char,
-+     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $              GEOPM_REGION_HINT_UNKNOWN, region_id)
 +             ierr = geopm_prof_enter(region_id)
 +         endif
 +#endif
@@ -186,7 +186,7 @@ index 5a8e6e2..474ed19 100644
 +         if (thread == 0) then
 +             ierr = geopm_prof_region(
 +     $              c_char_'REGION_5c'//c_null_char,
-+     $              GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $              GEOPM_REGION_HINT_UNKNOWN, region_id)
 +             ierr = geopm_prof_enter(region_id)
 +         endif
 +#endif
@@ -231,7 +231,7 @@ index 5a8e6e2..474ed19 100644
 +      if (thread == 0) then
 +          ierr = geopm_prof_region(
 +     $           c_char_'REGION_7a'//c_null_char,
-+     $           GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $           GEOPM_REGION_HINT_UNKNOWN, region_id)
 +          ierr = geopm_prof_enter(region_id)
 +      endif
 +#endif
@@ -250,7 +250,7 @@ index 5a8e6e2..474ed19 100644
 +      if (thread == 0) then
 +          ierr = geopm_prof_region(
 +     $           c_char_'REGION_7b'//c_null_char,
-+     $           GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $           GEOPM_REGION_HINT_UNKNOWN, region_id)
 +          ierr = geopm_prof_enter(region_id)
 +      endif
 +#endif
@@ -267,7 +267,7 @@ index 5a8e6e2..474ed19 100644
 +      if (thread == 0) then
 +          ierr = geopm_prof_region(
 +     $           c_char_'REGION_8b'//c_null_char,
-+     $           GEOPM_POLICY_HINT_UNKNOWN, region_id)
++     $           GEOPM_REGION_HINT_UNKNOWN, region_id)
 +          ierr = geopm_prof_enter(region_id)
 +      endif
 +#endif

@@ -86,11 +86,11 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_region(const char *region_name, long policy_hint, uint64_t *region_id)
+    int geopm_prof_region(const char *region_name, long hint, uint64_t *region_id)
     {
         int err = 0;
         try {
-            *region_id = geopm_default_prof().region(std::string(region_name), policy_hint);
+            *region_id = geopm_default_prof().region(std::string(region_name), hint);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -402,7 +402,7 @@ namespace geopm
         m_is_enabled = false;
     }
 
-    uint64_t Profile::region(const std::string region_name, long policy_hint)
+    uint64_t Profile::region(const std::string region_name, long hint)
     {
         if (!m_is_enabled) {
             return 0;
@@ -414,7 +414,8 @@ namespace geopm
 #endif
 
         uint64_t result = m_table->key(region_name);
-        /// @todo Record policy hint when registering a region.
+        /// Record policy hint when registering a region.
+        result = geopm_region_id_set_hint(hint, result);
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;

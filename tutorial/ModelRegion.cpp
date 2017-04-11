@@ -89,6 +89,11 @@ namespace geopm
                   name[strlen("nested")] == '-')) {
             result = new NestedModelRegion(big_o, verbosity, do_imbalance, do_progress);
         }
+        else if (name.find("ignore") == 0 &&
+            (name[strlen("ignore")] == '\0' ||
+             name[strlen("ignore")] == '-')) {
+            result = new IgnoreModelRegion(big_o, verbosity, do_imbalance, do_progress);
+        }
         else {
             throw Exception("model_region_factory: unknown name: " + name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -141,7 +146,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_UNKNOWN, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_UNKNOWN, &m_region_id);
         if (err) {
             throw Exception("SleepModelRegion::SleepModelRegion()",
                             err, __FILE__, __LINE__);
@@ -206,7 +211,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_UNKNOWN, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_UNKNOWN, &m_region_id);
         if (err) {
             throw Exception("SpinModelRegion::SpinModelRegion()",
                             err, __FILE__, __LINE__);
@@ -270,7 +275,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_COMPUTE, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_COMPUTE, &m_region_id);
         if (err) {
             throw Exception("DGEMMModelRegion::DGEMMModelRegion()",
                             err, __FILE__, __LINE__);
@@ -366,7 +371,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_MEMORY, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_MEMORY, &m_region_id);
         if (err) {
             throw Exception("StreamModelRegion::StreamModelRegion()",
                             err, __FILE__, __LINE__);
@@ -453,7 +458,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         big_o(big_o_in);
-        int err = geopm_prof_region(m_name.c_str(), GEOPM_POLICY_HINT_NETWORK, &m_region_id);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_NETWORK, &m_region_id);
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
@@ -660,6 +665,71 @@ namespace geopm
                 }
             }
             (void)geopm_prof_exit(m_spin_region.m_region_id);
+        }
+    }
+
+    IgnoreModelRegion::IgnoreModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress)
+        : ModelRegionBase(verbosity)
+    {
+        m_name = "ignore";
+        m_do_imbalance = do_imbalance;
+        m_do_progress = do_progress;
+        big_o(big_o_in);
+        int err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_IGNORE, &m_region_id);
+        if (err) {
+            throw Exception("IgnoreModelRegion::IgnoreModelRegion()",
+                            err, __FILE__, __LINE__);
+        }
+    }
+
+    IgnoreModelRegion::~IgnoreModelRegion()
+    {
+
+    }
+
+    void IgnoreModelRegion::big_o(double big_o_in)
+    {
+        loop_count(big_o_in);
+        double seconds = big_o_in / m_loop_count;
+        m_delay = {(time_t)(seconds),
+                   (long)((seconds - (time_t)(seconds)) * 1E9)};
+
+        m_big_o = big_o_in;
+    }
+
+    void IgnoreModelRegion::run(void)
+    {
+        if (m_big_o != 0.0) {
+            if (m_verbosity) {
+                std::cout << "Executing ignored " << m_big_o << " second sleep."  << std::endl << std::flush;
+            }
+            double norm = 1.0 / m_loop_count;
+            (void)geopm_prof_enter(m_region_id);
+            for (uint64_t i = 0 ; i < m_loop_count; ++i) {
+                if (m_do_progress) {
+                    geopm_prof_progress(m_region_id, i * norm);
+                }
+                if (m_do_imbalance) {
+                    (void)imbalancer_enter();
+                }
+
+                int err;
+#ifdef __APPLE__
+                err = nanosleep(&m_delay, NULL);
+#else
+                err = clock_nanosleep(CLOCK_REALTIME, 0, &m_delay, NULL);
+#endif
+
+                if (err) {
+                    throw Exception("IgnoreModelRegion::run()",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+
+                if (m_do_imbalance) {
+                    (void)imbalancer_exit();
+                }
+            }
+            (void)geopm_prof_exit(m_region_id);
         }
     }
 }

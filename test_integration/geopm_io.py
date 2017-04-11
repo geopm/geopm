@@ -87,6 +87,7 @@ class Report(dict):
         self._name = None
         self._total_runtime = None
         self._total_energy = None
+        self._total_ignore_runtime = None
         self._total_mpi_runtime = None
         self._node_name = None
 
@@ -153,13 +154,17 @@ class Report(dict):
                     match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
                     if match is not None:
                         self._total_mpi_runtime = float(match.group(1))
+                elif self._total_ignore_runtime is None:
+                    match = re.search(r'\s+ignore-time.+: ' + float_regex, line)
+                    if match is not None:
+                        self._total_ignore_runtime = float(match.group(1))
                         break # End of report blob
 
                 line = fid.readline()
             self._offset = fid.tell()
 
         if (len(line) != 0 and (region_name is not None or not found_totals or
-            None in (self._total_runtime, self._total_energy, self._total_mpi_runtime))):
+            None in (self._total_runtime, self._total_energy, self._total_ignore_runtime, self._total_mpi_runtime))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
     def get_name(self):
@@ -173,6 +178,9 @@ class Report(dict):
 
     def get_runtime(self):
         return self._total_runtime
+
+    def get_ignore_runtime(self):
+        return self._total_ignore_runtime
 
     def get_mpi_runtime(self):
         return self._total_mpi_runtime
