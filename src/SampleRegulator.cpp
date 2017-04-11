@@ -54,7 +54,7 @@ namespace geopm
         for (int i = 0; i < m_num_rank; ++i) {
             m_rank_sample_prev.emplace_back(M_INTERP_TYPE_LINEAR); // two samples are required for linear interpolation
         }
-        m_region_id.resize(m_num_rank, 0);
+        m_region_id.resize(m_num_rank, GEOPM_REGION_ID_UNMARKED);
     }
 
     SampleRegulator::~SampleRegulator()
