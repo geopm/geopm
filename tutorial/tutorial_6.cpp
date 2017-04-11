@@ -140,7 +140,7 @@ int main(int argc, char **argv)
     }
 
     if (!err) {
-        err = geopm_prof_region("model-init", GEOPM_POLICY_HINT_UNKNOWN, &init_rid);
+        err = geopm_prof_region("model-init", GEOPM_REGION_HINT_UNKNOWN, &init_rid);
     }
     if (!err) {
         err = geopm_prof_enter(init_rid);

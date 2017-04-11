@@ -105,6 +105,18 @@ int geopm_tprof_increment(struct geopm_tprof_c *tprof,
                           uint64_t region_id,
                           int thread_idx);
 
+/* Application Region Hints */
+enum geopm_region_hint_e {
+    GEOPM_REGION_HINT_UNKNOWN =   1ULL << 63, // Region with unknown or varying characteristics
+    GEOPM_REGION_HINT_COMPUTE =   1ULL << 62, // Region dominated by compute
+    GEOPM_REGION_HINT_MEMORY =    1ULL << 61, // Region dominated by memory access
+    GEOPM_REGION_HINT_NETWORK =   1ULL << 60, // Region dominated by network traffic
+    GEOPM_REGION_HINT_IO =        1ULL << 59, // Region dominated by disk access
+    GEOPM_REGION_HINT_SERIAL =    1ULL << 58, // Single threaded region
+    GEOPM_REGION_HINT_PARALLEL =  1ULL << 57, // Region is threaded
+    GEOPM_REGION_HINT_IGNORE =    1ULL << 56, // Do not add region time to epoch
+};
+
 /*****************/
 /* MPI COMM APIS */
 /*****************/
