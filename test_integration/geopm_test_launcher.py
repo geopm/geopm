@@ -88,7 +88,7 @@ class TestLauncher(object):
                                               self._cpu_per_rank, self._timeout,
                                               self._time_limit, self._job_name,
                                               self._node_list, self._host_file)
-            launcher.run(argv, stdout=outfile, stderr=outfile)
+            launcher.run(stdout=outfile, stderr=outfile)
 
     def run(self, test_name):
         self._app_conf.write()
