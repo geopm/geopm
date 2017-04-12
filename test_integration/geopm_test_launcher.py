@@ -46,6 +46,7 @@ sys.path.append(os.path.join(
                 os.path.dirname(
                 os.path.realpath(__file__))), 'scripts'))
 
+import geopm_io
 import geopm_launcher
 from geopm_launcher import resource_manager
 
