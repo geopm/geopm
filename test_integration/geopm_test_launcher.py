@@ -94,8 +94,7 @@ class TestLauncher(object):
         self._app_conf.write()
         self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:
-            outfile.write(str(datetime.datetime.now()) + '\n\n' )
-            outfile.write(str(self) + '\n\n')
+            outfile.write(str(datetime.datetime.now()) + '\n')
             outfile.flush()
             script_dir = os.path.dirname(os.path.realpath(__file__))
             # Using libtool causes sporadic issues with the Intel toolchain.
