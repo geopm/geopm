@@ -1,0 +1,168 @@
+geopm_launcher(1) -- geopm application launch wrapper
+======================================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmsrun` [_srun-options_] [_OPTIONS_] executable [_exec-args_]
+
+`geopmaprun` [_aprun-options_] [_OPTIONS_] executable [_exec-args_]
+
+`GEOPM_RM`=_ALPS_|_SLURM_ `geopm_launcher.py` [_rm-options_] [_OPTIONS_] executable [_exec-args_]
+
+## DESCRIPTION
+The geopm launcher enables users to launch the geopm runtime with
+a simple command line interface extension to the resource
+manager's underlying job launch mechanism deployed on their
+system.  The currently supported job launch mechanisms are `srun`
+from the SLURM package and `aprun` from the ALPS package.  The
+geopm package installs the geopmsrun and geopmaprun executables
+which are symbolic links to the geopm_launcher.py script.  This
+script extends the job launch application with geopm specific
+flags.  All application launch options accepted by the underlying
+application (e.g. srun or aprun) can be passed to the geopm launch
+wrapper with the exception of CPU affinity related options.  The
+wrapper script reinterprets the command line to set environment
+variables and pass modified options to the underlying job launch
+application.  The reinterpreted command line is echoed to standard
+output by the script before execution.  The wrapper sets
+environment variables used by geopm which are described
+in **geopm(7)**, sets process CPU affinity to meet the requirements
+of GEOPM and extends the allocation to have reserved CPUs and
+extra processes as required by the GEOPM runtime.
+
+## OPTIONS
+
+* `--geopm-ctl` _process_|_pthread_|_application_:
+  Use geopm runtime and launch geopm with one of three
+  methods: `process`, `pthread` or `application`.  The
+  "process" method allocates one extra MPI process per node
+  for the GEOPM controller.  The "pthread" method spawns a
+  thread from one MPI process per node to run the GEOPM
+  controller.  The application method launches the
+  **geopmctl(1)** application in the background which connects
+  to the primary application.  If this option is not
+  specified, the launcher script simply passes the command
+  line arguements to the system application launcher.
+
+* `--geopm-policy` policy:
+  <br>GEOPM policy file or shared memory region.  See
+      **geopmpolicy(1)** for more information about how to create
+      this input file and **geopm_policy(3)** to learn about
+      creating the shared memory region.  If the option begins
+      with a leading "/" character with no other occurance of the
+      "/" character, it is interpreted as a shared memory key,
+      otherwise it is interpreted as a path to a GEOPM json policy
+      file.
+
+* `--geopm-report` file:
+  <br> The GEOPM report output file describing the profiling
+       information collected by GEOPM.  This file is generated at
+       the conclusion of the run if this option is given.  The
+       report contains information about runtimes, MPI usage, and
+       power consumption.  The report is broken down by region if
+       the application has been annotated with the GEOPM region
+       interface.
+
+* `--geopm-trace` path:
+  <br> The base name of the trace files generatated if this option
+       is specified.  One trace file is generated for each compute
+       node used by the application containing a pipe delimited
+       ASCII table describing a time series of measurements made
+       by the GEOPM runtime.  The path is extended with the host
+       name of the node for each created file.  This feature is
+       primarily a debugging tool, and will not scale to large
+       node counts due to file system issues.
+
+* `--geopm-shmkey` key:
+  <br> Specifiy a special prefix to be used with all of the shared
+       memory keys generated by the GEOPM runtime.  This is useful
+       for avoiding collisions with keys that were not properly
+       cleaned up.  The default key prefix is "geopm-shm".
+
+* `--geopm-timeout` sec:
+  <br> Time in seconds that the application should wait for the
+       GEOPM controller to connect over shared memory.  The
+       default value is 30 seconds.
+
+* `--geopm-plugin` path:
+  <br> Enables GEOPM to search for plugins in places other than
+       the default location.  The option is a ':' separated list
+       of directories to search.
+
+* `--geopm-debug-attach` rank:
+  <br> Enables a serial debugger such as gdb to attach to a job
+       when the geopm PMPI wrappers are enabled.  If set to a
+       numerical value the associated rank will be trapped in
+       MPI_Init() until a debugger is attached and the local
+       variable "cont" is set to a non-zero value.  If set, but
+       not to a numerical value then all ranks are trapped.  The
+       runtime will print a message explaining the hostname and
+       process ID that the debugger should attach to.
+
+* `--geopm-barrier`:
+  <br> Enables a node local MPI_Barrier() at time of calling
+       `geopm_region_enter`() or `geopm_region_exit`() for all
+       application ranks that share a node.  Since the geopm
+       controller only considers a region to be entered when all
+       ranks on a node have entered the region, enabling this
+       feature forces control throughout all of the time every
+       rank spends in a region.  This feature is primarily used
+       for debugging purposes.  WARNING: If all regions marked in
+       the application are not entered synchronously by all ranks
+       on a node then enabling this feature will cause a deadlock
+       and the application will hang.
+
+* `--geopm-preload`:
+  <br> Use LD_PRELOAD to link libgeopm.so at runtime.  This can be
+       used to enable the GEOPM runtime when an application has not
+       been compiled against libgeopm.so.
+
+## ENVIRONMENT
+The `GEOPM_RM` environment variable can be used to select which
+underlying resource manager to use.  Valid values are "SLURM" and
+"ALPS".
+
+## COPYRIGHT
+Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_omp(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmctl(1)**,
+**geopmkey(1)**
