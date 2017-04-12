@@ -357,6 +357,8 @@ class SrunLauncher(Launcher):
             self.job_name = opts.job_name
         if self.node_list is None:
             self.node_list = opts.node_list
+        elif type(self.node_list) is list:
+            self.node_list = ' '.join(self.node_list)
 
         # Check required arguements
         if self.num_rank is None:

@@ -118,10 +118,14 @@ class TestLauncher(object):
         return Trace(self._trace_path)
 
     def get_idle_nodes(self):
-        return ''
+        argv = ['dummy', 'true']
+        launcher = geopm_launcher.factory(argv, 1, 1)
+        return launcher.get_idle_nodes()
 
     def get_alloc_nodes(self):
-        return ''
+        argv = ['dummy', 'true']
+        launcher = geopm_launcher.factory(argv, 1, 1)
+        return launcher.get_alloc_nodes()
 
     def write_log(self, test_name, message):
         with open(test_name + '.log', 'a') as outfile:

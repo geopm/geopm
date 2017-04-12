@@ -113,23 +113,26 @@ class TestIntegration(unittest.TestCase):
         alloc_nodes = launcher.get_alloc_nodes()
         launcher.write_log(name, 'Idle nodes : {nodes}'.format(nodes=idle_nodes))
         launcher.write_log(name, 'Alloc\'d  nodes : {nodes}'.format(nodes=alloc_nodes))
-        for n in idle_nodes_copy:
-            launcher.set_node_list(n.split()) # Hack to convert string to list
+        node_names = []
+        reports = {}
+        for nn in idle_nodes_copy:
+            launcher.set_node_list(nn.split()) # Hack to convert string to list
             try:
                 launcher.run(name)
+                node_names += nn.split()
+                oo = geopm_io.AppOutput(report_path)
+                reports[nn] = oo.get_report(nn)
             except subprocess.CalledProcessError as e:
                 if e.returncode == 1 and n not in launcher.get_idle_nodes():
-                    launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=n))
-                    idle_nodes.remove(n)
+                    launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=nn))
+                    idle_nodes.remove(nn)
                 else:
                     launcher.write_log(name, 'Return code = {code}'.format(code=e.returncode))
                     raise e
 
-        self._output = geopm_io.AppOutput(report_path)
-        node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), len(idle_nodes))
         for nn in node_names:
-            report = self._output.get_report(nn)
+            report = reports[nn]
             self.assertNotEqual(0, len(report))
             self.assertNear(delay, report['sleep'].get_runtime())
             self.assertGreater(report.get_runtime(), report['sleep'].get_runtime())
