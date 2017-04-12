@@ -309,6 +309,7 @@ namespace geopm
         }
         check_mpi(MPI_Comm_free(&comm_cart));
 
+        m_level.resize(m_num_level);
         if (m_global_policy) {
             m_num_level++;
         }
