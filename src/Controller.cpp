@@ -908,9 +908,31 @@ namespace geopm
                << "\tmpi-runtime (sec): " << m_mpi_agg_time << std::endl
                << "\tthrottle time (%): " << (double)m_throttle_count / (double)m_sample_count * 100.0 << std::endl;
 
-        std::ostringstream proc_str;
-        proc_str << "/proc/" << (int)getpid() <<  "/status";
-        std::ifstream proc_stream(proc_str.str());
+        std::ostringstream proc_path;
+        char status_buffer[8192];
+        status_buffer[8191] = '\0';
+        proc_path << "/proc/" << (int)getpid() <<  "/status";
+
+        int fd = open(proc_path.str().c_str(), O_RDONLY);
+        if (fd == -1) {
+            throw Exception("Controller::generate_report(): Unable to open " + proc_path.str(),
+                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        ssize_t num_read = read(fd, status_buffer, 8191);
+        if (num_read == -1) {
+            throw Exception("Controller::generate_report(): Unable to read " + proc_path.str(),
+                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        status_buffer[num_read] = '\0';
+
+        int err = close(fd);
+        if (err) {
+            throw Exception("Controller::generate_report(): Unable to close " + proc_path.str(),
+                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        std::istringstream proc_stream(status_buffer);
         std::string line;
         std::string max_memory;
         const std::string key("VmHWM:");
@@ -924,7 +946,6 @@ namespace geopm
                 }
             }
         }
-        proc_stream.close();
         if (!max_memory.size()) {
             throw Exception("Controller::generate_report(): Unable to get memory overhead from /proc",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
