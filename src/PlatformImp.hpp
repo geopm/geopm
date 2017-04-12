@@ -338,6 +338,7 @@ namespace geopm
             struct m_msr_batch_array m_batch;
             uint64_t m_trigger_offset;
             uint64_t m_trigger_value;
+            bool m_is_initialized;
 
         private:
             void build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name);

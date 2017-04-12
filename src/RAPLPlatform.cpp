@@ -72,8 +72,6 @@ namespace geopm
 
     void RAPLPlatform::initialize(void)
     {
-        m_imp->initialize();
-
         m_num_cpu = m_imp->num_hw_cpu();
         m_num_package = m_imp->num_package();
         m_num_tile = m_imp->num_tile();

@@ -67,6 +67,7 @@ namespace geopm
         , m_batch({0, NULL})
         , m_trigger_offset(0)
         , m_trigger_value(0)
+        , m_is_initialized(false)
         , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
@@ -89,6 +90,7 @@ namespace geopm
         , m_batch({0, NULL})
         , m_trigger_offset(0)
         , m_trigger_value(0)
+        , m_is_initialized(false)
         , M_MSR_SAVE_FILE_PATH("/tmp/geopm-msr-initial-vals-XXXXXX")
     {
 
@@ -117,6 +119,7 @@ namespace geopm
         , m_trigger_offset(other.m_trigger_offset)
         , m_trigger_value(other.m_trigger_value)
         , m_msr_save_file_path(other.m_msr_save_file_path)
+        , m_is_initialized(other.m_is_initalized)
         , M_MSR_SAVE_FILE_PATH(other.M_MSR_SAVE_FILE_PATH)
     {
         // Copy C string for m_msr_path
@@ -144,15 +147,15 @@ namespace geopm
 
     void PlatformImp::initialize()
     {
-        parse_hw_topology();
-
-        for (int i = 0; i < m_num_logical_cpu; i++) {
-            msr_open(i);
+        if (!m_is_initialized) {
+            parse_hw_topology();
+            for (int i = 0; i < m_num_logical_cpu; i++) {
+                msr_open(i);
+            }
+            save_msr_state(M_MSR_SAVE_FILE_PATH.c_str());
+            msr_initialize();
+            m_is_initialized = true;
         }
-
-        save_msr_state(M_MSR_SAVE_FILE_PATH.c_str());
-
-        msr_initialize();
     }
 
     int PlatformImp::num_package(void) const
