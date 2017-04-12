@@ -220,6 +220,7 @@ class Launcher(object):
         argv_mod.extend(self.argv)
         echo = []
         if self.config is not None:
+            echo.append('OMP_NUM_THREADS={}'.format(self.cpu_per_rank))
             echo.append(self.config.__str__())
         echo.extend(argv_mod)
         echo = '\n' + ' '.join(echo) + '\n\n'
