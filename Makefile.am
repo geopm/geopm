@@ -76,19 +76,25 @@ install-fortran:
 endif
 endif
 
+ronn_man = man/geopm.7 \
+           man/geopmctl.1 \
+           man/geopm_ctl_c.3 \
+           man/geopm_error.3 \
+           man/geopm_fortran.3 \
+           man/geopmkey.1 \
+           man/geopm_launcher.1 \
+           man/geopm_omp.3 \
+           man/geopmpolicy.1 \
+           man/geopm_policy_c.3 \
+           man/geopm_prof_c.3 \
+           man/geopm_version.3 \
+           # end
 
-dist_man_MANS = man/geopm.7 \
-                man/geopmctl.1 \
-                man/geopm_ctl_c.3 \
-                man/geopm_error.3 \
-                man/geopm_fortran.3 \
-                man/geopmkey.1 \
-                man/geopm_omp.3 \
-                man/geopmpolicy.1 \
-                man/geopm_policy_c.3 \
-                man/geopm_prof_c.3 \
-                man/geopm_version.3 \
+dist_man_MANS = man/geopmaprun.1 \
+                man/geopmsrun.1 \
+                $(ronn_man) \
                 # end
+
 
 dist_doc_DATA = README \
                 COPYING \
@@ -122,6 +128,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
              ronn/geopmkey.1.ronn \
+             ronn/geopm_launcher.1.ronn \
              ronn/geopm_omp.3.ronn \
              ronn/geopmpolicy.1.ronn \
              ronn/geopm_policy_c.3.ronn \
@@ -396,7 +403,7 @@ ruby/bin/ronn:
 	gem install ronn -i ruby
 	if [ ! -f $@ ]; then pushd ruby/bin && ln -s ronn.ruby* ronn && popd; fi
 
-$(dist_man_MANS): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
+$(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	mkdir -p man
 	export GEM_PATH=`readlink -f $(top_srcdir)/ruby`:$$GEM_PATH && \
 	cd ronn && \
@@ -412,15 +419,23 @@ gh-pages: doxygen $(dist_man_MANS)
 	mkdir -p gh-pages/man
 	cp -rf dox/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
+	cp ronn/geopm_launcher.html gh-pages/man/geopmaprun.html
+	cp ronn/geopm_launcher.html gh-pages/man/geopmsrun.html
 
 else
 
 BUILT_SOURCES =
 
-$(dist_man_MANS): man/%: ronn/%.ronn
+$(ronn_man): man/%: ronn/%.ronn
 	mkdir -p man
 	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 endif
+
+man/geopmsrun.1: man/geopm_launcher.1
+	cp $^ $@
+
+man/geopmaprun.1: man/geopm_launcher.1
+	cp $^ $@
 
 # INCLUDES
 check_PROGRAMS =
