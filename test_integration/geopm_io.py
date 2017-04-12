@@ -42,7 +42,7 @@ class AppOutput(object):
         self._reports = {}
         self._traces = {}
         self._all_paths = []
-        self._all_paths.extend(report_path)
+        self._all_paths.append(report_path)
 
         # Create a dict of <NODE_NAME> : <REPORT_OBJ>
         rr_size = os.stat(report_path).st_size
