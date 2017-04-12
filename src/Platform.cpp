@@ -128,6 +128,7 @@ namespace geopm
     {
         m_imp = platform_imp;
         if (do_initialize) {
+            m_imp->initialize();
             initialize();
         }
     }

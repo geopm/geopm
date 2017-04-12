@@ -342,6 +342,7 @@ namespace geopm
         private:
             void build_msr_save_string(std::ofstream &save_file, int device_type, int device_index, std::string name);
             std::string m_msr_save_file_path;
+            bool m_is_initialized;
 
             ///Constants
             const std::string M_MSR_SAVE_FILE_PATH;
