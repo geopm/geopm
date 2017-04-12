@@ -153,6 +153,7 @@ class Config(object):
         self.debug_attach = opts.debug_attach
         self.barrier = opts.barrier
         self.preload = opts.preload
+        self.cpu_per_rank = None
 
     def __repr__(self):
         return ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
@@ -185,10 +186,15 @@ class Config(object):
             result['LD_PRELOAD'] = ':'.join((ll for ll in
                                    ('libgeopm.so', os.getenv('LD_PRELOAD'))
                                    if ll is not None))
+        if self.cpu_per_rank:
+            result['OMP_NUM_THREADS'] = self.cpu_per_rank
         return result
 
     def unparsed(self):
         return self.args
+
+    def set_cpu_per_rank(self, cpu_per_rank):
+        self.cpu_per_rank = str(cpu_per_rank)
 
 class Launcher(object):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
@@ -220,6 +226,7 @@ class Launcher(object):
         argv_mod.extend(self.argv)
         echo = []
         if self.config is not None:
+            self.config.set_cpu_per_rank(self.cpu_per_rank)
             echo.append(self.config.__str__())
         echo.extend(argv_mod)
         echo = '\n' + ' '.join(echo) + '\n\n'
@@ -242,10 +249,6 @@ class Launcher(object):
         result = dict(os.environ)
         if self.config is not None:
             result.update(self.config.environ())
-            if ('OMP_NUM_THREADS' not in result and
-               self.cpu_per_rank is not None):
-               result['OMP_NUM_THREADS'] = str(self.cpu_per_rank)
-
         return result
 
     def mod_alloc(self):
