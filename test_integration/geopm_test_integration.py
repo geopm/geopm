@@ -40,7 +40,7 @@ import pandas
 import collections
 
 import geopm_test_launcher
-import geopm_io
+from geopm_test_launcher import geopm_io
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
