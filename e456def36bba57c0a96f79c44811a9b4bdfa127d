@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0709fd8c_65899ceb",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-12T20:28:51Z",
+      "side": 1,
+      "message": "I want to make sure I\u0027m understanding this bit:  you\u0027re clearing out the top 32 bits because that\u0027s where the hint information is stored, and you need to do a lookup on the actual region ID below?\n\nIt would be great if we had a comment somewhere about how this all works.",
+      "range": {
+        "startLine": 602,
+        "startChar": 24,
+        "endLine": 602,
+        "endChar": 54
+      },
+      "revId": "e456def36bba57c0a96f79c44811a9b4bdfa127d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dca77da3_3ab30970",
+        "filename": "src/geopm.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-12T20:28:51Z",
+      "side": 1,
+      "message": "Is there a reason hints were implemented this way as opposed to something like a decorator pattern on the Region object?  I realize we\u0027d need C API passthroughs for something like that...\n\nModifying the region ID seems kludgy to me.",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 2
+      },
+      "revId": "e456def36bba57c0a96f79c44811a9b4bdfa127d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
