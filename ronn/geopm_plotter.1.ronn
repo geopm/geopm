@@ -1,0 +1,132 @@
+geopm_plotter(1) -- geopm plotting application
+==============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopm_plotter`  [_OPTIONS_]
+
+## DESCRIPTION
+Used to produce plots and other analysis files from report and/or trace files.
+The PATH argument is the input path to be searched for report/trace files.
+
+## OPTIONS
+
+* `-h`, `--help`:
+  show help message and exit.
+
+* `-r`, `--report_base` _REPORT_BASE_:
+  The base report string to be searched. (default: _report_)
+
+* `-t`, `--trace_base` _TRACE_BASE_:
+  The base trace string to be searched. (default: _trace_)
+
+* `-p`, `--plot_type` _barplot_|_boxplot_:
+  The type of plot to be generated (default: _barplot_).  Multiple plots can
+  be specified by providing a comma seperated list (e.g. -p barplot,boxplot).
+
+* `-s`, `--shell`:
+  Drop to a python shell after plotting.  This will also display an interactive plot
+  using the default Matplotlib backend.
+
+* `-c`, `--csv`:
+  Generate CSV files for the plotted data.
+
+* `--normalize`:
+  Normalize the data that is plotted.
+
+* `-o`, `--output_types` _svg_|_png_|_pdf_|_eps_|_ps_:
+  The file type(s) for the plot file output. Multiple file types can
+  be created simultaniously if a comma separated list of types is
+  provided (e.g. -o svg,eps,png). (default: _svg_)
+
+*  `-n`, `--profile_name` _PROFILE_NAME_:
+  Name of the profile to be used in file names / plot titles.
+  (default: _'Test Data'_)
+
+* `-m`, `--misc_text` _MISC_TEXT_:
+  Text to be appended to the plot title.
+
+* `-v`, `--verbose`:
+  Print debugging information.
+
+* `--speedup`:
+  When user requests barplots, plot the speedup instead of the raw data
+  value.
+
+* `--ref_version` _VERSION_:
+  Use this version string as the reference dataset to compare the target against.
+
+* `--ref_profile_name` _PROFILE_NAME_:
+  Use this profile name as the reference dataset to compare the target against.
+
+* `--ref_plugin` _PLUGIN_NAME_:
+  Use this leaf decider plugin as the reference dataset to compare the target
+  against. (default: _power_governing_)
+
+* `--tgt_version` _VERSION_:
+  Use this version string as the target dataset to compare the reference against.
+
+* `--tgt_name` _PROFILE_NAME_:
+  Use this profile name as the target dataset to compare the reference against.
+
+* `--tgt_plugin` _PLUGIN_NAME_:
+  Use this leaf decider plugin as the target dataset to compare the reference
+  against. (default: _power_balancing_)
+
+* `--datatype` _runtime_|_energy_|_frequency_|_count_:
+  The datatype to be plotted. Only used for report file plots presently. (default: _runtime_)
+
+## ENVIRONMENT
+
+* `DISPLAY`:
+Because the geopm_plotter relies on Matplotlib backends for creating plots,
+you may have to manually set this variable for proper functionality even if you
+are not displaying the interactive plot with `-s`.  E.g.:
+
+    DISPLAY=:0 ./geopm_plotter.py -v data
+
+## COPYRIGHT
+Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_launcher(1)**,
+**geopm_omp(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_version(3)**,
+**geopmctl(1)**,
+**geopmkey(1)**

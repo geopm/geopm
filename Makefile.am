@@ -46,11 +46,11 @@ if ENABLE_MPI
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
 
-install-exec-hook: install-fortran install-launcher
+install-exec-hook: install-fortran install-python
 
 else
 
-install-exec-hook: install-launcher
+install-exec-hook: install-python
 
 endif
 endif
@@ -84,6 +84,7 @@ ronn_man = man/geopm.7 \
            man/geopmkey.1 \
            man/geopm_launcher.1 \
            man/geopm_omp.3 \
+           man/geopm_plotter.1 \
            man/geopmpolicy.1 \
            man/geopm_policy_c.3 \
            man/geopm_prof_c.3 \
@@ -130,6 +131,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopmkey.1.ronn \
              ronn/geopm_launcher.1.ronn \
              ronn/geopm_omp.3.ronn \
+             ronn/geopm_plotter.1.ronn \
              ronn/geopmpolicy.1.ronn \
              ronn/geopm_policy_c.3.ronn \
              ronn/geopm_prof_c.3.ronn \
