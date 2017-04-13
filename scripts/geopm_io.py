@@ -37,20 +37,43 @@ import pandas
 import fnmatch
 
 class AppOutput(object):
-    def __init__(self, report_path, trace_base=None):
+    def __init__(self, report_base, trace_base=None):
         self._reports = {}
+        self._reports_df = pandas.DataFrame()
         self._traces = {}
         self._all_paths = []
-        self._all_paths.append(report_path)
+        self._reports_df_list = []
+        self._report_indexes = {}
 
-        # Create a dict of <NODE_NAME> : <REPORT_OBJ>
-        rr_size = os.stat(report_path).st_size
-        rr = Report(report_path)
-        self._reports[rr.get_node_name()] = rr
-        while (rr.get_last_offset() != rr_size):
-            rr = Report(report_path, rr.get_last_offset())
-            if rr.get_node_name() is not None:
-                self._reports[rr.get_node_name()] = rr
+        dir_name = os.path.dirname(report_base) if os.path.dirname(report_base) else '.'
+        report_pattern = os.path.basename(report_base)
+        report_files = [ff for ff in os.listdir(dir_name)
+                        if fnmatch.fnmatch(ff, '*' + report_pattern + '*')]
+
+        # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
+        for rf in report_files:
+            rp = os.path.join(dir_name, rf)
+            self._all_paths.append(rp)
+
+            # Parse the first report
+            rr_size = os.stat(rp).st_size
+            rr = Report(rp)
+            self.add_report_df(rr)
+            self._reports[rr.get_node_name()] = rr
+
+            # Parse the remaining reports in this file
+            while (rr.get_last_offset() != rr_size):
+                rr = Report(rp, rr.get_last_offset())
+                if rr.get_node_name() is not None:
+                    self.add_report_df(rr)
+                    self._reports[rr.get_node_name()] = rr
+            Report.reset_vars() # If we've reached the end of a report, reset the static vars
+
+        self._reports_df = pandas.concat(self._reports_df_list)
+        self._reports_df = self._reports_df.sort_index(ascending=True)
+
+        # TODO : How am I going to determine the index for the trace files if none of the decider information
+        #        is available?
 
         if trace_base:
             trace_paths = [ff for ff in os.listdir('.')
@@ -67,6 +90,30 @@ class AppOutput(object):
             except OSError:
                 pass
 
+    def add_report_df(self, rr):
+        # Build and index the DF
+        rdf = pandas.DataFrame(rr).T.drop('name', 1)
+        numeric_cols = ['count', 'energy', 'frequency', 'mpi_runtime', 'runtime']
+        rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
+        # Add extra index info
+        base_index = (rr.get_version(), os.path.basename(rr.get_name()), rr.get_power_budget(), rr.get_tree_decider(),
+                      rr.get_leaf_decider(), rr.get_node_name())
+        if base_index not in self._report_indexes.keys():
+            self._report_indexes[base_index] = 1
+        else:
+            self._report_indexes[base_index] += 1
+
+        itl = []
+        il = rdf.index.tolist() # Region names
+        for region in il:
+            iteration = self._report_indexes[base_index]
+            itl += [(rr.get_version(), os.path.basename(rr.get_name()), rr.get_power_budget(), rr.get_tree_decider(),
+                     rr.get_leaf_decider(), iteration, rr.get_node_name(), region)]
+        mi = pandas.MultiIndex.from_tuples(itl, names=['version', 'name', 'power_budget', 'tree_decider',
+                                                       'leaf_decider', 'iteration', 'node_name', 'region'])
+        rdf = rdf.set_index(mi)
+        self._reports_df_list.append(rdf)
+
     def get_node_names(self):
         return self._reports.keys()
 
@@ -76,14 +123,33 @@ class AppOutput(object):
     def get_trace(self, node_name):
         return self._traces[node_name]
 
+    def get_report_df(self):
+        return self._reports_df
+
 
 class Report(dict):
+    _version = None
+    _name = None
+    _mode = None
+    _tree_decider = None
+    _leaf_decider = None
+    _power_budget = None
+
+    @staticmethod
+    def reset_vars():
+        (Report._version, Report._name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._power_budget) = \
+            None, None, None, None, None, None
+
     def __init__(self, report_path, offset=0):
         super(Report, self).__init__()
         self._path = report_path
         self._offset = offset
         self._version = None
         self._name = None
+        self._mode = None
+        self._tree_decider = None
+        self._leaf_decider = None
+        self._power_budget = None
         self._total_runtime = None
         self._total_energy = None
         self._total_ignore_runtime = None
@@ -102,10 +168,26 @@ class Report(dict):
                     match = re.search(r'^##### geopm (\S+) #####$', line)
                     if match is not None:
                         self._version = match.group(1)
-                if self._name is None:
+                elif self._name is None:
                     match = re.search(r'^Profile: (\S+)$', line)
                     if match is not None:
                         self._name = match.group(1)
+                elif self._mode is None:
+                    match = re.search(r'^Policy Mode: (\S+)$', line)
+                    if match is not None:
+                        self._mode = match.group(1)
+                elif self._tree_decider is None:
+                    match = re.search(r'^Tree Decider: (\S+)$', line)
+                    if match is not None:
+                        self._tree_decider = match.group(1)
+                elif self._leaf_decider is None:
+                    match = re.search(r'^Leaf Decider: (\S+)$', line)
+                    if match is not None:
+                        self._leaf_decider = match.group(1)
+                elif self._power_budget is None:
+                    match = re.search(r'^Power Budget: (\S+)$', line)
+                    if match is not None:
+                        self._power_budget = int(match.group(1))
                 if self._node_name is None:
                     match = re.search(r'^Host: (\S+)$', line)
                     if match is not None:
@@ -136,7 +218,8 @@ class Report(dict):
                     if match is not None:
                         count = float(match.group(1))
                         self[region_name] = Region(region_name, region_id, runtime, energy, frequency, mpi_runtime, count)
-                        (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None
+                        (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = \
+                            None, None, None, None, None, None, None
                 if not found_totals:
                     match = re.search(r'^Application Totals:$', line)
                     if match is not None:
@@ -161,6 +244,44 @@ class Report(dict):
 
                 line = fid.readline()
             self._offset = fid.tell()
+
+        # Check static vars to see if they were parsed.  if not, use the Report vals
+        if self._version is None and Report._version:
+            self._version = Report._version
+        elif self._version:
+            Report._version = self._version
+        else:
+            raise SyntaxError('Unable to parse version information from report!')
+        if self._name is None and Report._name:
+            self._name = Report._name
+        elif self._name:
+            Report._name = self._name
+        else:
+            raise SyntaxError('Unable to parse name information from report!')
+        if self._mode is None and Report._mode:
+            self._mode = Report._mode
+        elif self._mode:
+            Report._mode = self._mode
+        else:
+            raise SyntaxError('Unable to parse mode information from report!')
+        if self._tree_decider is None and Report._tree_decider:
+            self._tree_decider = Report._tree_decider
+        elif self._tree_decider:
+            Report._tree_decider = self._tree_decider
+        else:
+            raise SyntaxError('Unable to parse tree_decider information from report!')
+        if self._leaf_decider is None and Report._leaf_decider:
+            self._leaf_decider = Report._leaf_decider
+        elif self._leaf_decider:
+            Report._leaf_decider = self._leaf_decider
+        else:
+            raise SyntaxError('Unable to parse leaf_decider information from report!')
+        if self._power_budget is None and Report._power_budget:
+            self._power_budget = Report._power_budget
+        elif self._power_budget:
+            Report._power_budget = self._power_budget
+        else:
+            raise SyntaxError('Unable to parse power_budget information from report!')
 
         if (len(line) != 0 and (region_name is not None or not found_totals or
             None in (self._total_runtime, self._total_energy, self._total_ignore_runtime, self._total_mpi_runtime))):
@@ -193,16 +314,29 @@ class Report(dict):
     def get_last_offset(self):
         return self._offset
 
+    def get_mode(self):
+        return self._mode
 
-class Region(object):
+    def get_tree_decider(self):
+        return self._tree_decider
+
+    def get_leaf_decider(self):
+        return self._leaf_decider
+
+    def get_power_budget(self):
+        return self._power_budget
+
+
+class Region(dict):
     def __init__(self, name, rid, runtime, energy, frequency, mpi_runtime, count):
-        self._name = name
-        self._id = rid
-        self._runtime = runtime
-        self._energy = energy
-        self._frequency = frequency
-        self._mpi_runtime = mpi_runtime
-        self._count = count
+        super(Region, self).__init__()
+        self['name'] = name
+        self['id'] = rid
+        self['runtime'] = float(runtime)
+        self['energy'] = float(energy)
+        self['frequency'] = float(frequency)
+        self['mpi_runtime'] = float(mpi_runtime)
+        self['count'] = int(count)
 
     def __repr__(self):
         template = """\
@@ -213,37 +347,37 @@ class Region(object):
   mpi-runtime : {mpi_runtime}
   count       : {count}
 """
-        return template.format(name=self._name,
-                               rid=self._id,
-                               runtime=self._runtime,
-                               energy=self._energy,
-                               frequency=self._frequency,
-                               mpi_runtime=self._mpi_runtime,
-                               count=self._count)
+        return template.format(name=self['name'],
+                               rid=self['id'],
+                               runtime=self['runtime'],
+                               energy=self['energy'],
+                               frequency=self['frequency'],
+                               mpi_runtime=self['mpi_runtime'],
+                               count=self['count'])
 
     def __str__(self):
         return self.__repr__()
 
     def get_name(self):
-        return self._name
+        return self['name']
 
     def get_id(self):
-        return self._id
+        return self['id']
 
     def get_runtime(self):
-        return self._runtime
+        return self['runtime']
 
     def get_energy(self):
-        return self._energy
+        return self['energy']
 
     def get_frequency(self):
-        return self._frequency
+        return self['frequency']
 
     def get_mpi_runtime(self):
-        return self._mpi_runtime
+        return self['mpi_runtime']
 
     def get_count(self):
-        return self._count
+        return self['count']
 
 
 class Trace(object):
