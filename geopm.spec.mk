@@ -48,7 +48,7 @@ Summary: Global Extensible Open Power Manager
 Name: geopm
 Version: $(version)
 Release: $(release)
-License: See COPYING
+License: BSD-3-Clause
 Group: System Environment/Libraries
 Vendor: Intel Corporation
 URL: http://geopm.github.io/geopm
