@@ -214,9 +214,6 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
 %doc %{docdir}/VERSION
-%dir %{_mandir}/man1
-%dir %{_mandir}/man3
-%dir %{_mandir}/man7
 %doc %{_mandir}/man1/geopmctl.1.gz
 %doc %{_mandir}/man1/geopmkey.1.gz
 %doc %{_mandir}/man1/geopmpolicy.1.gz
