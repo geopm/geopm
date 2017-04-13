@@ -16,6 +16,24 @@
       "revId": "66cab75fa397ad3f6d3b38b141d77f9103b276ba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72f37def_e9b73d8d",
+        "filename": "src/Region.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-04-13T22:22:44Z",
+      "side": 0,
+      "message": "They should use the\ngeopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t rid)\nmethod along with the Region::identifier().",
+      "parentUuid": "f7fd4013_db4166b4",
+      "revId": "66cab75fa397ad3f6d3b38b141d77f9103b276ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
