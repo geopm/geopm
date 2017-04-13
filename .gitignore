@@ -72,6 +72,8 @@
 /ronn/*.html
 /ruby/
 /man/*
+/scripts/data
+/scripts/figures
 /src/*.lo
 /src/*.o
 /stamp-h1
