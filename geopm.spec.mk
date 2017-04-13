@@ -206,10 +206,14 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_libexecdir}/geopm/geopm_launcher.py
 %exclude %{_libexecdir}/geopm/geopm_launcher.pyc
 %exclude %{_libexecdir}/geopm/geopm_launcher.pyo
+%{_libexecdir}/geopm/geopm_plotter.py
+%exclude %{_libexecdir}/geopm/geopm_plotter.pyc
+%exclude %{_libexecdir}/geopm/geopm_plotter.pyo
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
 %{_bindir}/geopmsrun
 %{_bindir}/geopmaprun
+%{_bindir}/geopmplotter
 %dir %{docdir}
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
@@ -218,6 +222,7 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %doc %{_mandir}/man1/geopmkey.1.gz
 %doc %{_mandir}/man1/geopmpolicy.1.gz
 %doc %{_mandir}/man1/geopm_launcher.1.gz
+%doc %{_mandir}/man1/geopm_plotter.1.gz
 %doc %{_mandir}/man1/geopmaprun.1.gz
 %doc %{_mandir}/man1/geopmsrun.1.gz
 %doc %{_mandir}/man3/geopm_ctl_c.3.gz
