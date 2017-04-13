@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7fd4013_db4166b4",
+        "filename": "src/Region.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T21:41:46Z",
+      "side": 0,
+      "message": "Is the decider expected to get the hint by examining the bits returned by Region::identifier()?  Is there a method or function to do that?",
+      "revId": "66cab75fa397ad3f6d3b38b141d77f9103b276ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

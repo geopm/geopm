@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "432f0ede_880aafc1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T21:41:46Z",
+      "side": 1,
+      "message": "Need a comment about the changed enum name interface here.",
+      "revId": "3c73d72b82ac1755c2864e8d34c7b0466e6785ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a8439c1_b31fdb9a",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T21:41:46Z",
+      "side": 1,
+      "message": "line break would make this easier on the eyes.",
+      "revId": "3c73d72b82ac1755c2864e8d34c7b0466e6785ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6f7553a_6c2c9aa0",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T21:41:46Z",
+      "side": 1,
+      "message": "another line break here would be good.",
+      "revId": "3c73d72b82ac1755c2864e8d34c7b0466e6785ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "beb08414_4cd1d55e",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T21:41:46Z",
+      "side": 1,
+      "message": "policy_hint -\u003e hint?",
+      "revId": "3c73d72b82ac1755c2864e8d34c7b0466e6785ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
