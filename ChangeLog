@@ -28,7 +28,7 @@
 - Added junit xml output from unit tests.
 - Added energy hardware counter update sample triggering (reduce latency and jitter).
 - Added memory buffering for trace object, buffer size is hardcoded to 128 MB (should be configurable).
-- Added rpmbuild --nocheck support (%check definition in spec file).
+- Added rpmbuild --nocheck support (check definition in spec file).
 - Added minimal documentation about CPU affinity requirements.
 - Added an example that will print affinity of MPI processes and OpenMP threads.
 - Added a stability fix for power calculation that will be made more robust.
