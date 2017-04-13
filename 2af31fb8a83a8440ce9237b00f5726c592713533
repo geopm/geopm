@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e93e994_09b51281",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T03:35:33Z",
+      "side": 1,
+      "message": "Another good check would be that the fraction of 3 sigma outliers is not too large.  I.e. check that we didn\u0027t trim more than 5% of the data (in a normal distribution we would trim 0.3%).",
+      "revId": "2af31fb8a83a8440ce9237b00f5726c592713533",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
