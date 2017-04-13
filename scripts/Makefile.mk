@@ -35,6 +35,7 @@ bindir ?= $(prefix)/bin
 libexecdir ?= $(exec_prefix)/libexec
 
 EXTRA_DIST += scripts/geopm_launcher.py \
+              scripts/geopm_plotter.py \
               scripts/geopm_io.py
 
 install-launcher:
