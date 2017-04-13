@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24df591c_ca380ac4",
+        "filename": "test_integration/geopm_io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T15:40:27Z",
+      "side": 0,
+      "message": "self._all_paths.append(report_path) ?",
+      "revId": "a42341d8683b6805367e2925dd95eba4bd005709",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
