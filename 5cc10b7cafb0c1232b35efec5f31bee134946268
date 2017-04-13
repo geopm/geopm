@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05905e70_dadb9f98",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-13T22:40:11Z",
+      "side": 1,
+      "message": "Are we still calling these policy hints?",
+      "range": {
+        "startLine": 417,
+        "startChar": 19,
+        "endLine": 417,
+        "endChar": 30
+      },
+      "revId": "5cc10b7cafb0c1232b35efec5f31bee134946268",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
