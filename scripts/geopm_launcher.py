@@ -200,6 +200,8 @@ class Launcher(object):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         self.default_handler = signal.getsignal(signal.SIGINT)
+        self.num_rank = num_rank
+        self.num_node = num_node
         try:
             self.config = Config(argv)
             self.argv = self.config.unparsed()
@@ -273,9 +275,9 @@ class Launcher(object):
 
     def mpiexec_argv(self):
         result = []
+        result.extend(self.num_node_option())
+        result.extend(self.num_rank_option())
         if self.config is not None:
-            result.extend(self.num_node_option())
-            result.extend(self.num_rank_option())
             result.extend(self.affinity_option())
             result.extend(self.timeout_option())
             result.extend(self.time_limit_option())
