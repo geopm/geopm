@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa89bd03_bfbacd82",
+        "filename": "scripts/geopm_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-13T03:31:10Z",
+      "side": 1,
+      "message": "Don\u0027t think we need to set them again here.  Line 208 and 209 can be deleted.",
+      "revId": "4ebc878fc1dac08dd8f23b09259e325cc28d90a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
