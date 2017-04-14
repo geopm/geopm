@@ -419,8 +419,8 @@ gh-pages: doxygen $(dist_man_MANS)
 	mkdir -p gh-pages/man
 	cp -rf dox/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
-	cp ronn/geopm_launcher.html gh-pages/man/geopmaprun.html
-	cp ronn/geopm_launcher.html gh-pages/man/geopmsrun.html
+	cp ronn/geopm_launcher.1.html gh-pages/man/geopmaprun.1.html
+	cp ronn/geopm_launcher.1.html gh-pages/man/geopmsrun.1.html
 
 else
 
@@ -433,9 +433,11 @@ endif
 
 man/geopmsrun.1: man/geopm_launcher.1
 	cp $^ $@
+	cp $^.html $@.html
 
 man/geopmaprun.1: man/geopm_launcher.1
 	cp $^ $@
+	cp $^.html $@.html
 
 # INCLUDES
 check_PROGRAMS =
