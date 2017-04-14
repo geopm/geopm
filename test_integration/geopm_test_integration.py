@@ -123,7 +123,7 @@ class TestIntegration(unittest.TestCase):
                 oo = geopm_io.AppOutput(report_path)
                 reports[nn] = oo.get_report(nn)
             except subprocess.CalledProcessError as e:
-                if e.returncode == 1 and n not in launcher.get_idle_nodes():
+                if e.returncode == 1 and nn not in launcher.get_idle_nodes():
                     launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=nn))
                     idle_nodes.remove(nn)
                 else:
@@ -545,7 +545,7 @@ class TestIntegration(unittest.TestCase):
             # out the next line and do NOT run on the BSP. This will require modifications to the launcher or manual testing.
             size_orig = len(delta_t)
             delta_t = delta_t[(delta_t - delta_t.mean()) < 3*delta_t.std()] # Only keep samples within 3 stds of the mean
-            self.assertGreater(0.04, 1 - (float(len(delta_t)) / size_orig))
+            self.assertGreater(0.06, 1 - (float(len(delta_t)) / size_orig))
             self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
     def test_mpi_runtimes(self):
