@@ -39,7 +39,7 @@ geopm_prof_c(3) -- geopm application profiling structure
 
   * `int geopm_prof_region(`:
     `const char *`_region_name_, <br>
-    `long` _policy_hint_, <br>
+    `uint64_t` _hint_, <br>
     `uint64_t *`_region_id_);
 
   * `int geopm_prof_enter(`:
@@ -99,7 +99,7 @@ through an outer loop in the application, the "epoch".
 
   * `geopm_prof_region`():
     registers an application region.  The _region_name_ and
-    _policy_hint_ are input parameters, and the _region_id_ is output.
+    _hint_ are input parameters, and the _region_id_ is output.
     The _region_id_ can be used with `geopm_prof_enter`(),
     `geopm_prof_exit`(), `geopm_prof_progress`(), and
     `geopm_tprof_progress`() to referrence the region.  If the region
@@ -107,12 +107,14 @@ through an outer loop in the application, the "epoch".
     set the _region_id_ but the state associated with the region is
     unmodified.  The _region_name_ is used to determine the output
     _region_id_ and is also displayed in the profiling report to
-    identify the region.  The _policy_hint_ is one of the values given
-    by the geopm_prof_hint_e enum defined in _geopm_policy.h_ which
+    identify the region.  The _hint_ is one of the values given
+    by the geopm_region_hint_e enum defined in _geopm.h_ which
     determines the initial control settings.  The following hints are
-    supported: `GEOPM_POLICY_HINT_UNKNOWN`,
-    `GEOPM_POLICY_HINT_COMPUTE`, `GEOPM_POLICY_HINT_MEMORY`,
-    `GEOPM_POLICY_HINT_NETWORK`.
+    supported: `GEOPM_REGION_HINT_UNKNOWN`,
+    `GEOPM_REGION_HINT_COMPUTE`, `GEOPM_REGION_HINT_MEMORY`,
+    `GEOPM_REGION_HINT_NETWORK`, `GEOPM_REGION_HINT_IO`,
+    `GEOPM_REGION_HINT_SERIAL`, `GEOPM_REGION_HINT_PARALLEL`,
+    `GEOPM_REGION_HINT_IGNORE`.
 
   * `geopm_prof_enter`():
     is called by the compute application to mark the beginning of the
@@ -224,7 +226,7 @@ through an outer loop in the application, the "epoch".
             err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
         }
         if (!err) {
-            err = geopm_prof_region("loop_0", GEOPM_POLICY_HINT_UNKNOWN, &region_id);
+            err = geopm_prof_region("loop_0", GEOPM_REGION_HINT_UNKNOWN, &region_id);
         }
         MPI_Barrier(MPI_COMM_WORLD);
         if (!err) {

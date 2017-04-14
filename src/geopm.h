@@ -78,7 +78,7 @@ int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
 int geopm_prof_init(void);
 
 int geopm_prof_region(const char *region_name,
-                      long policy_hint,
+                      uint64_t hint,
                       uint64_t *region_id);
 
 int geopm_prof_enter(uint64_t region_id);

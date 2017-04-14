@@ -86,7 +86,7 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_region(const char *region_name, long hint, uint64_t *region_id)
+    int geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id)
     {
         int err = 0;
         try {

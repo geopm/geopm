@@ -34,14 +34,14 @@ module geopm
     use, intrinsic :: ISO_C_BINDING
     implicit none
 
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_UNKNOWN = lshift(1, 63)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_COMPUTE = lshift(1, 62)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_MEMORY =  lshift(1, 61)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_NETWORK = lshift(1, 60)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IO =      lshift(1, 59)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_SERIAL =  lshift(1, 58)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_PARALL =  lshift(1, 57)
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IGNORE =  lshift(1, 56)
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_UNKNOWN = 4294967296
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_COMPUTE = 8589934592
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_MEMORY =  17179869184
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_NETWORK = 34359738368
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IO =      68719476736
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_SERIAL =  137438953472
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_PARALL =  274877906944
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IGNORE =  549755813888
 
     interface
         !!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -103,11 +103,11 @@ module geopm
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         !> @brief Fortran interface to geopm_prof_region C function.
-        integer(kind=c_int) function geopm_prof_region(region_name, policy_hint, region_id) bind(C)
+        integer(kind=c_int) function geopm_prof_region(region_name, hint, region_id) bind(C)
             import
             implicit none
             character(kind=c_char), intent(in) :: region_name(*)
-            integer(kind=c_int), value, intent(in) :: policy_hint
+            integer(kind=c_int64_t), value, intent(in) :: hint
             integer(kind=c_int64_t), intent(out) :: region_id
         end function geopm_prof_region
 
