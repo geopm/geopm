@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85a0730e_a586845d",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-14T17:29:36Z",
+      "side": 1,
+      "message": "Is there any chance we\u0027ll read 8KiB worth of the proc file and not find \"VmHWM:\"?  Just wondering if we should try to keep reading if we didn\u0027t find it.",
+      "range": {
+        "startLine": 957,
+        "startChar": 8,
+        "endLine": 957,
+        "endChar": 57
+      },
+      "revId": "134921b12e349d86339fb5646bea7010d6ac4718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
