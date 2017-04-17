@@ -520,7 +520,7 @@ class TestIntegration(unittest.TestCase):
         big_o = 10.0
         region = 'dgemm-progress'
         max_mean = 0.01 # 10 millisecond max sample period
-        max_nstd = 0.1 # 10% normalized standard deviation (std / mean)
+        max_nstd = 0.2 # 10% normalized standard deviation (std / mean)
         app_conf = geopm_io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
