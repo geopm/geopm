@@ -265,6 +265,26 @@ class Launcher(object):
     def int_handler(self, signum, frame):
         return self.default_handler(signum, frame)
 
+    def init_topo(self):
+        # Figure out the number of CPUs per rank leaving one for the
+        # OS and one (potentially, may/may not be use depending on pmpi_ctl)
+        # for the controller.
+        argv = ['dummy', 'lscpu']
+        launcher = geopm_launcher.factory(argv, 1, 1)
+        ostream = StringIO.StringIO()
+        launcher.run(stdout=ostream)
+        out = ostream.getvalue()
+        cpu_tpc_core_socket = [int(line.split(':')[1])
+                               for line in out.splitlines()
+                               if line.find('CPUS(s):') == 0 or
+                                  line.find('Thread(s) per core:') == 0 or
+                                  line.find('Core(s) per socket:') == 0 or
+                                  line.find('Socket(s):') == 0]
+        self.num_linux_cpu = cpu_tpc_core_socket[0]
+        self.thread_per_core = cpu_tpc_core_socket[1]
+        self.core_per_socket = cpu_tpc_core_socket[2]
+        self.num_socket = cpu_tpc_core_socket[3]
+
     def parse_alloc(self):
         raise NotImplementedError('Launcher.parse_alloc() undefined in the base class')
 
@@ -320,6 +340,7 @@ class SrunLauncher(Launcher):
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, host_file)
+        self.init_topo()
 
     def int_handler(self, signum, frame):
         """
@@ -384,24 +405,28 @@ class SrunLauncher(Launcher):
             raise NotImplementedError('Launch with geopmctl not supported')
         result = []
         pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = pid.communicate()
+        help_msg, err = pid.communicate()
 
-        if out.find('--cpu_bind') != -1:
+        if help_msg.find('--cpu_bind') != -1:
             result.append('--cpu_bind')
-            mask_list = []
-            if self.config.ctl == 'process':
-                mask_list.append('0x1')
-                binary_mask = self.cpu_per_rank * '1' + '0'
-            elif self.config.ctl == 'pthread':
-                binary_mask = (self.cpu_per_rank + 1) * '1'
-            for ii in range(self.num_app_mask):
-                hex_mask = '0x{:x}'.format(int(binary_mask, 2))
-                mask_list.append(hex_mask)
-                if ii == 0 and self.config.ctl == 'pthread':
+            mask_zero = '0' * self.num_linux_cpu
+            if (self.num_app_mask <= self.core_per_socket):
+                mask_list = []
+                if self.config.ctl == 'process':
+                    mask_list.append('0x1')
                     binary_mask = self.cpu_per_rank * '1' + '0'
-                binary_mask = binary_mask + self.cpu_per_rank * '0'
-            result.append('v,mask_cpu:' + ','.join(mask_list))
-        elif out.find('--mpibind') != -1:
+                elif self.config.ctl == 'pthread':
+                    binary_mask = (self.cpu_per_rank + 1) * '1'
+                for ii in range(self.num_app_mask):
+                    hex_mask = '0x{:x}'.format(int(binary_mask, 2))
+                    mask_list.append(hex_mask)
+                    if ii == 0 and self.config.ctl == 'pthread':
+                        binary_mask = self.cpu_per_rank * '1' + '0'
+                    binary_mask = binary_mask + self.cpu_per_rank * '0'
+                result.append('v,mask_cpu:' + ','.join(mask_list))
+            else:
+                raise RuntimeError('Affinity mask feature does not support hyperthreading or multi-socket.')
+        elif help_msg.find('--mpibind') != -1:
             result.append('--mpibind=vv.on')
 
         return result
@@ -452,6 +477,7 @@ class AprunLauncher(Launcher):
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, host_file)
+        self.init_topo()
 
     def environ(self):
         result = super(AprunLauncher, self).environ()
@@ -510,14 +536,17 @@ class AprunLauncher(Launcher):
         if self.config.ctl == 'application':
             raise NotImplementedError('Launch with geopmctl not supported')
         result = ['--cpu-binding']
-        mask_list = []
-        off_start = 1
-        if self.config.ctl == 'process':
-            mask_list.append('0')
-        mask_list.extend(['{0}-{1}'.format(off, off + self.cpu_per_rank - 1)
-                          for off in range(off_start, self.cpu_per_rank * self.num_app_mask +
-                                           off_start, self.cpu_per_rank)])
-        result.append(':'.join(mask_list))
+        if self.num_app_mask <= self.core_per_socket:
+            mask_list = []
+            off_start = 1
+            if self.config.ctl == 'process':
+                mask_list.append('0')
+            mask_list.extend(['{0}-{1}'.format(off, off + self.cpu_per_rank - 1)
+                              for off in range(off_start, self.cpu_per_rank * self.num_app_mask +
+                                               off_start, self.cpu_per_rank)])
+            result.append(':'.join(mask_list))
+        else:
+            raise RuntimeError('Affinity mask feature does not support hyperthreading or multi-socket.')
         return result
 
     def time_limit_option(self):
