@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa70cb94_ca6e8eea",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-17T20:29:21Z",
+      "side": 1,
+      "message": "I probably won\u0027t actually need the mode for anything I have now.  I can rip this all out if needed.",
+      "range": {
+        "startLine": 1042,
+        "startChar": 4,
+        "endLine": 1042,
+        "endChar": 61
+      },
+      "revId": "7575068f2aa0c1fef93c38e0dac0a11df0a2dfb9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
