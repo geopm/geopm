@@ -104,6 +104,9 @@ namespace geopm
             /// @return String reference containing the description
             ///         of the requested platform
             const std::string &platform() const;
+            /// @brief Get the string representation of the mode
+            /// @return String containing the description of the mode
+            std::string mode_string() const;
             /// @brief Get a policy message from the policy object
             /// @param [out] policy_message structure to be filled in
             void policy_message(struct geopm_policy_message_s &policy_message);
@@ -217,4 +220,7 @@ namespace geopm
     };
 
 }
+
+std::ostream& operator<<(std::ostream &os, const geopm::GlobalPolicy *obj);
+
 #endif

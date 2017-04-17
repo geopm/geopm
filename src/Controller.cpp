@@ -907,7 +907,8 @@ namespace geopm
         if (!m_ppn1_rank) {
             master_report.open(report_name.c_str(), std::ios_base::out);
             master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
-            master_report << "Profile: " << profile_name << std::endl << std::endl;
+            master_report << "Profile: " << profile_name << std::endl;
+            master_report << m_global_policy << std::endl;
         }
         gethostname(hostname, NAME_MAX);
         report << "Host: " << hostname << std::endl;

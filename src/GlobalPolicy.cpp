@@ -1008,4 +1008,40 @@ namespace geopm
                 throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         };
     }
+
+    std::string GlobalPolicy::mode_string() const
+    {
+        switch (m_mode) {
+            case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
+                return "TDP_BALANCE_STATIC";
+            case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
+                return "FREQ_UNIFORM_STATIC";
+            case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
+                return "FREQ_HYBRID_STATIC";
+            case GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC:
+                return "PERF_BALANCE_DYNAMIC";
+            case GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC:
+                return "FREQ_UNIFORM_DYNAMIC";
+            case GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC:
+                return "FREQ_HYBRID_DYNAMIC";
+            case GEOPM_POLICY_MODE_STATIC:
+                return "STATIC";
+            case GEOPM_POLICY_MODE_DYNAMIC:
+                return "DYNAMIC";
+            case GEOPM_POLICY_MODE_SHUTDOWN:
+                return "SHUTDOWN";
+            default:
+                throw Exception("GlobalPolicy: Unable to convert invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+
+}
+
+std::ostream& operator<<(std::ostream &os, const geopm::GlobalPolicy *obj)
+{
+    os << "Policy Mode: " << obj->mode_string() << std::endl;
+    os << "Tree Decider: " << obj->tree_decider() << std::endl;
+    os << "Leaf Decider: " << obj->leaf_decider() << std::endl;
+    os << "Power Budget: " << obj->budget_watts() << std::endl;
+    return os;
 }
