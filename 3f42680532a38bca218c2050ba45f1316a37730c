@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbf94504_a66c6b09",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-19T18:55:21Z",
+      "side": 1,
+      "message": ", m_shmkey_env(\"/geopm-shm-\" + std::to_string(geteuid()))",
+      "revId": "3f42680532a38bca218c2050ba45f1316a37730c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c892911_8d3eb1d9",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-19T18:55:21Z",
+      "side": 1,
+      "message": "I was thinking we would put this as the default value.  If the user has specified a prefix, let them worry about it being unique.  \n\nOn the other hand, I don\u0027t see any issue with this solution since we always extend the key anyway with our own string.\n\nBTW, we should probably enforce that this environment variable begins with a \u0027/\u0027 and has no other slashes in the string.",
+      "revId": "3f42680532a38bca218c2050ba45f1316a37730c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
