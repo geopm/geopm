@@ -400,6 +400,7 @@ class Launcher(object):
         result = []
         result.extend(self.num_node_option())
         result.extend(self.num_rank_option())
+        result.extend(self.cpu_per_rank_option())
         result.extend(self.affinity_option())
         result.extend(self.timeout_option())
         result.extend(self.time_limit_option())
@@ -413,6 +414,9 @@ class Launcher(object):
 
     def num_rank_option(self):
         raise NotImplementedError('Launcher.num_rank_option() undefined in the base class')
+
+    def cpu_per_rank_option(self):
+        return []
 
     def affinity_option(self):
         return []
@@ -494,6 +498,12 @@ class SrunLauncher(Launcher):
 
     def num_rank_option(self):
         return ['-n', str(self.num_rank)]
+
+    def cpu_per_rank_option(self):
+        result = []
+        if not self.is_geopm_enabled and self.cpu_per_rank is not None:
+            result = ['-c', str(self.cpu_per_rank)]
+        return result
 
     def affinity_option(self):
         result = []
@@ -612,6 +622,12 @@ class AprunLauncher(Launcher):
             result = []
         else:
             result = ['-n', str(self.num_rank)]
+        return result
+
+    def cpu_per_rank_option(self):
+        result = []
+        if not self.is_geopm_enabled and self.cpu_per_rank is not None:
+            result = ['-d', str(self.cpu_per_rank)]
         return result
 
     def affinity_option(self):
