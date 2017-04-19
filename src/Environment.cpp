@@ -35,6 +35,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <string>
+#include <unistd.h>
 
 #include "geopm_env.h"
 #include "Exception.hpp"
@@ -106,6 +107,7 @@ namespace geopm
         (void)get_env("GEOPM_REPORT", m_report_env);
         (void)get_env("GEOPM_POLICY", m_policy_env);
         (void)get_env("GEOPM_SHMKEY", m_shmkey_env);
+        m_shmkey_env += "-" + std::to_string(geteuid());
         m_do_trace = get_env("GEOPM_TRACE", m_trace_env);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path_env);
         if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report_env.size()) {
