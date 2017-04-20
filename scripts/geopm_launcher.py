@@ -41,7 +41,7 @@ GEOPM options:
       --geopm-trace=path      create geopm trace files with base name "path"
       --geopm-shmkey=key      use shared memory keys for geopm starting with
                               "key"
-      --geopm-timeout=sec     appliation waits "sec" seconds for handshake
+      --geopm-timeout=sec     application waits "sec" seconds for handshake
                               with geopm
       --geopm-plugin=path     look for geopm plugins in "path", a : separated
                               list of directories
@@ -63,6 +63,11 @@ import StringIO
 import itertools
 
 def resource_manager():
+    """
+    Heuristic to determine the resource manager used on the system.
+    Returns either "SLURM" or "ALPS", otherwise a LookupError is
+    raised.
+    """
     slurm_hosts = ['mr-fusion']
     alps_hosts = ['theta']
 
@@ -72,25 +77,25 @@ def resource_manager():
         hostname = socket.gethostname()
 
         if sys.argv[0].endswith('srun'):
-            result = "SLURM"
+            result = 'SLURM'
         elif sys.argv[0].endswith('aprun'):
-            result = "ALPS"
+            result = 'ALPS'
         elif any(hostname.startswith(word) for word in slurm_hosts):
-            result = "SLURM"
+            result = 'SLURM'
         elif any(hostname.startswith(word) for word in alps_hosts):
-            result = "ALPS"
+            result = 'ALPS'
         else:
             try:
                 exec_str = 'srun --version'
                 subprocess.check_call(exec_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                 sys.stderr.write('Warning: GEOPM_RM undefined and unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
-                result = "SLURM"
+                result = 'SLURM'
             except subprocess.CalledProcessError:
                 try:
                     exec_str = 'aprun --version'
                     subprocess.check_call(exec_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                     sys.stderr.write("Warning: GEOPM_RM undefined and unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
-                    result = "ALPS"
+                    result = 'ALPS'
                 except subprocess.CalledProcessError:
                     raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable to "SLURM" or "ALPS"')
 
@@ -98,11 +103,15 @@ def resource_manager():
 
 def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
+    """
+    Factory that returns a Launcher object.  Class selection is based
+    on return value of the geopm_launcher.resource_manager() function.
+    """
     rm = resource_manager()
-    if rm == "SLURM":
+    if rm == 'SLURM':
         return SrunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
                             time_limit, job_name, node_list, host_file)
-    elif rm == "ALPS":
+    elif rm == 'ALPS':
         return AprunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
                              time_limit, job_name, node_list, host_file)
 
@@ -113,8 +122,12 @@ class PassThroughError(Exception):
 
 class SubsetOptionParser(optparse.OptionParser):
     """
-    Parse a subset of comand line arguments and prepend unrecognized
-    arguments to positional arguments.  Disable help and version message.
+    OptionParser derived object that will parse a subset of command
+    line arguments and prepend unrecognized arguments to positional
+    arguments.  Disable help and version message features of the
+    OptionParser, these will be handled by the underlying job
+    launcher.  GEOPM command line option help is appended to the job
+    launcher's help message.
     """
     def _process_args(self, largs, rargs, values):
         while rargs:
@@ -130,28 +143,55 @@ class SubsetOptionParser(optparse.OptionParser):
         pass
 
 def int_ceil_div(aa, bb):
+    """
+    Shortcut for the ceiling of the ratio of two integers.
+    """
     return int(math.ceil(float(aa) / float(bb)))
 
 def range_str(values):
+    """
+    Take an iterable object containing integers and return a string of
+    comma separated values and ranges given by a dash.
+    Example:
+
+    >>> geopm_launcher.range_str({1, 2, 3, 5, 7, 9, 10})
+    '1-3,5,7,9-10'
+    """
     result = []
+    # Turn iterable into a sorted list.
     values = list(values)
     values.sort()
-    for a, b in itertools.groupby(enumerate(values), lambda(x, y): y - x):
-        b = list(b)
-        begin = b[0][1]
-        end = b[-1][1]
+    # Group values with equal delta compared the sequence from zero to
+    # N, these are sequential.
+    for aa, bb in itertools.groupby(enumerate(values), lambda(xx, yy): yy - xx):
+        bb = list(bb)
+        # The range is from the smallest to the largest in the group.
+        begin = bb[0][1]
+        end = bb[-1][1]
+        # If the group is of size one, the value has no neighbors
         if begin == end:
            result.append(str(begin))
+        # Otherwise create a range from the smallest to the largest
         else:
            result.append('{}-{}'.format(begin, end))
+    # Return a comma separated list
     return ','.join(result)
 
 class Config(object):
+    """
+    GEOPM configuration object.  Used to interpret command line
+    arguments to set GEOPM related environment variables.
+    """
     def __init__(self, argv):
+        """
+        Parse subset of command line arguments to create the GEOPM
+        object. See geopm_launcher.__doc__ for information about the
+        options.
+        """
         self.ctl = None
         if not any(aa.startswith('--geopm-ctl') for aa in argv):
             raise PassThroughError('The --geopm-ctl flag is not specified.')
-        # Parse the subset of arguements used by geopm
+        # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
         parser.add_option('--geopm-ctl', dest='ctl', nargs=1, type='string')
         parser.add_option('--geopm-policy', dest='policy', nargs=1, type='string')
@@ -182,13 +222,25 @@ class Config(object):
         self.cpu_per_rank = None
 
     def __repr__(self):
+        """
+        String describing environment variables controlled by the
+        configuration object.
+        """
         return ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
                          for (kk, vv) in self.environ().iteritems()])
 
     def __str__(self):
+        """
+        String describing environment variables controlled by the
+        configuration object.
+        """
         return self.__repr__()
 
     def environ(self):
+        """
+        Dictionary describing the environment variables controlled by the
+        configuration object.
+        """
         result = {'LD_DYNAMIC_WEAK':'true'}
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
@@ -203,7 +255,7 @@ class Config(object):
         if self.timeout:
             result['GEOPM_PROFILE_TIMEOUT'] = self.timeout
         if self.plugin:
-            result['GEOPM_PLUGIN_PATH'] = self.timeout
+            result['GEOPM_PLUGIN_PATH'] = self.plugin
         if self.debug_attach:
             result['GEOPM_DEBUG_ATTACH'] = self.debug_attach
         if self.barrier:
@@ -212,19 +264,37 @@ class Config(object):
             result['LD_PRELOAD'] = ':'.join((ll for ll in
                                    ('libgeopm.so', os.getenv('LD_PRELOAD'))
                                    if ll is not None))
-        if self.cpu_per_rank:
-            result['OMP_NUM_THREADS'] = self.cpu_per_rank
+        if self.omp_num_threads:
+            result['OMP_NUM_THREADS'] = self.omp_num_threads
         return result
 
     def unparsed(self):
+        """
+        All command line arguments that are not used to configure GEOPM.
+        """
         return self.unparsed_argv
 
-    def set_cpu_per_rank(self, cpu_per_rank):
-        self.cpu_per_rank = str(cpu_per_rank)
+    def set_omp_num_threads(self, omp_num_threads):
+        """
+        Control the OMP_NUM_THREADS environment variable.
+        """
+        self.omp_num_threads = str(omp_num_threads)
 
 class Launcher(object):
+    """
+    Abstract base class for MPI job launch application abstraction.
+    Defines common methods used by all Launcher objects.
+    """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
+        """
+        Constructor takes the command line options passed to the job
+        launch application along with optional override values for
+        command line options.  These override values enable the
+        creation of an abstract launcher while specifying command line
+        options without knowledge of the specific command line flags
+        used to control the values.
+        """
         self.rank_per_node = None
         self.default_handler = signal.getsignal(signal.SIGINT)
         self.num_rank = num_rank
@@ -237,7 +307,7 @@ class Launcher(object):
         except PassThroughError:
             self.config = None
             self.is_geopm_enabled = False
-        self.parse_alloc()
+        self.parse_mpiexec_argv()
 
         # Override values if they are passed in construction call
         if num_rank is not None:
@@ -283,12 +353,16 @@ class Launcher(object):
                 self.rank_per_node += 1
 
     def run(self, stdout=sys.stdout, stderr=sys.stderr):
-        argv_mod = self.mpiexec()
+        """
+        Execute the command given to constructor with modified command
+        line options and environment variables.
+        """
+        argv_mod = [self.mpiexec()]
         argv_mod.extend(self.mpiexec_argv())
         argv_mod.extend(self.argv)
         echo = []
-        if self.config is not None:
-            self.config.set_cpu_per_rank(self.cpu_per_rank)
+        if self.is_geopm_enabled:
+            self.config.set_omp_num_threads(self.cpu_per_rank)
             echo.append(self.config.__str__())
         echo.extend(argv_mod)
         echo = '\n' + ' '.join(echo) + '\n\n'
@@ -311,15 +385,28 @@ class Launcher(object):
             raise subprocess.CalledProcessError(pid.returncode, argv_mod)
 
     def environ(self):
+        """
+        Returns the modified environment dictionary updated with GEOPM
+        specific values.
+        """
         result = dict(os.environ)
-        if self.config is not None:
+        if self.is_geopm_enabled:
             result.update(self.config.environ())
         return result
 
     def int_handler(self, signum, frame):
+        """
+        This interface enables specialized signal handling.  If not
+        overridden by derived class, then the default signal handler
+        is used.
+        """
         return self.default_handler(signum, frame)
 
     def init_topo(self):
+        """
+        Determine the topology of the compute nodes that the job will be
+        launched on.  This is used to inform CPU affinity assignment.
+        """
         argv = ['dummy', 'lscpu']
         launcher = factory(argv, 1, 1)
         ostream = StringIO.StringIO()
@@ -338,11 +425,13 @@ class Launcher(object):
 
     def affinity_list(self):
         """
-        Returns a list of integer sets.  The list is over MPI ranks on
-        a node from lowest to highest rank.  The process for each MPI
-        rank is restricted to the Linux CPUs enumerated in the set.
+        Returns CPU affinity prescription as a list of integer sets.  The
+        list is over MPI ranks on a node from lowest to highest rank.
+        The process for each MPI rank is restricted to the Linux CPUs
+        enumerated in the set.  The output from this function is used
+        by the derived class's affinity_option() method to set CPU
+        affinities.
         """
-
         if self.config.ctl == 'application':
             raise NotImplementedError('Launch with geopmctl not supported')
         result = []
@@ -357,17 +446,20 @@ class Launcher(object):
             sys.stderr.write("Warning: User requested all cores for application, GEOPM controller will share a core with the application.\n")
             off = 0
             if self.thread_per_core != app_thread_per_core:
-                # run controller on the lowest hyperthread that is not occupied by the application
+                # run controller on the lowest hyperthread that is not
+                # occupied by the application
                 geopm_ctl_cpu = core_per_node * app_thread_per_core
             else:
                 # Oversubscribe Linux CPU 0, no better solution
                 geopm_ctl_cpu = 0
         elif app_cpu_per_node // app_thread_per_core == core_per_node - 1:
-            # Application requested all but one core, run the controller on Linux CPU 0
+            # Application requested all but one core, run the
+            # controller on Linux CPU 0
             off = 1
             geopm_ctl_cpu = 0
         else:
-            # Application not using at least two cores, leave one for OS and use the other for the controller
+            # Application not using at least two cores, leave one for
+            # OS and use the other for the controller
             off = 2
             geopm_ctl_cpu = 1
 
@@ -390,13 +482,24 @@ class Launcher(object):
                 off = cpu_per_socket * socket
         return result
 
-    def parse_alloc(self):
-        raise NotImplementedError('Launcher.parse_alloc() undefined in the base class')
+    def parse_mpiexec_argv(self):
+        """
+        Parse command line options accepted by the underlying job launch
+        application.
+        """
+        raise NotImplementedError('Launcher.parse_mpiexec_argv() undefined in the base class')
 
     def mpiexec(self):
+        """
+        Returns the name/path to the job launch application.
+        """
         raise NotImplementedError('Launcher.mpiexec() undefined in the base class')
 
     def mpiexec_argv(self):
+        """
+        Returns a list of command line options for underlying job launch
+        application that reflect the state of the Launcher object.
+        """
         result = []
         result.extend(self.num_node_option())
         result.extend(self.num_rank_option())
@@ -410,42 +513,93 @@ class Launcher(object):
         return result
 
     def num_node_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        number of compute nodes.
+        """
         raise NotImplementedError('Launcher.num_node_option() undefined in the base class')
 
     def num_rank_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        number of MPI processes or "ranks".
+        """
         raise NotImplementedError('Launcher.num_rank_option() undefined in the base class')
 
     def cpu_per_rank_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        number of Linux CPUs reserved for each MPI process.
+        """
         return []
 
     def affinity_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        the CPU affinity for each MPI process on a compute node.
+        """
         return []
 
     def timeout_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        length of time to wait for a job to start before aborting.
+        """
         return []
 
     def time_limit_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        maximum time that a job is allowed to run.
+        """
         return []
 
     def job_name_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        name associated with the job for scheduler tracking purposes.
+        """
         return []
 
     def node_list_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        names of the compute nodes for the job to run on.
+        """
         return []
 
     def host_file_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        file containing the names of the compute nodes for the job to
+        run on.
+        """
         return []
 
     def get_idle_nodes(self):
+        """
+        Returns a list of the names of compute nodes that are currently
+        available to run jobs.
+        """
         raise NotImplementedError('Launcher.get_idle_nodes() undefined in the base class')
 
     def get_alloc_nodes(self):
+        """
+        Returns a list of the names of compute nodes that have been
+        reserved by a scheduler for current job context.
+        """
         raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
 
-
 class SrunLauncher(Launcher):
+    """
+    Launcher derived object for use with the SLURM job launch
+    application srun.
+    """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
+        """
+        Pass through to Launcher constructor.
+        """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, host_file)
 
@@ -457,8 +611,11 @@ class SrunLauncher(Launcher):
         """
         sys.stderr.write("srun: interrupt (one more within 1 sec to abort)\n")
 
-    def parse_alloc(self):
-        # Parse the subset of arguements used by geopm
+    def parse_mpiexec_argv(self):
+        """
+        Parse the subset of srun command line arguments used or
+        manipulated by GEOPM.
+        """
         parser = SubsetOptionParser()
         parser.add_option('-n', '--ntasks', dest='num_rank', nargs=1, type='int')
         parser.add_option('-N', '--nodes', dest='num_node', nargs=1, type='int')
@@ -491,21 +648,38 @@ class SrunLauncher(Launcher):
             raise SyntaxError('The option --cpu_bind must not be specified, this is controlled by geopm_srun.')
 
     def mpiexec(self):
-        return ['srun']
+        """
+        Returns 'srun', the name of the SLURM MPI job launch application.
+        """
+        return 'srun'
 
     def num_node_option(self):
+        """
+        Returns a list containing the -N option for srun.
+        """
         return ['-N', str(self.num_node)]
 
     def num_rank_option(self):
+        """
+        Returns a list containing the -n option for srun.
+        """
         return ['-n', str(self.num_rank)]
 
     def cpu_per_rank_option(self):
+        """
+        Returns a list containing the -c option for srun.
+        """
         result = []
         if not self.is_geopm_enabled and self.cpu_per_rank is not None:
             result = ['-c', str(self.cpu_per_rank)]
         return result
 
     def affinity_option(self):
+        """
+        Returns a list containing the --cpu_bind or --mpibind option for
+        srun depending on which SLURM plugin is loaded.  If neither
+        plugin is loaded it returns an empty list.
+        """
         result = []
         if self.is_geopm_enabled:
             aff_list = self.affinity_list()
@@ -529,6 +703,9 @@ class SrunLauncher(Launcher):
         return result
 
     def timeout_option(self):
+        """
+        Returns a list containing the -I option for srun.
+        """
         if self.timeout is None:
            result = []
         else:
@@ -536,6 +713,9 @@ class SrunLauncher(Launcher):
         return result
 
     def time_limit_option(self):
+        """
+        Returns a list containing the -t option for srun.
+        """
         if self.time_limit is None:
             result = []
         else:
@@ -543,6 +723,9 @@ class SrunLauncher(Launcher):
         return result
 
     def job_name_option(self):
+        """
+        Returns a list containing the -J option for srun.
+        """
         if self.job_name is None:
             result = []
         else:
@@ -550,6 +733,9 @@ class SrunLauncher(Launcher):
         return result
 
     def node_list_option(self):
+        """
+        Returns a list containing the -w option for srun.
+        """
         if (self.node_list is not None and
             self.host_file is not None and
             self.node_list != self.host_file):
@@ -564,24 +750,53 @@ class SrunLauncher(Launcher):
         return result
 
     def get_idle_nodes(self):
+
+        raise NotImplementedError('Launcher.get_idle_nodes() undefined in the base class')
+
+    def get_alloc_nodes(self):
+        raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
+
+    def get_idle_nodes(self):
+        """
+        Returns a list of the names of compute nodes that are currently
+        available to run jobs using the sinfo command.
+        """
         return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
 
     def get_alloc_nodes(self):
+        """
+        Returns a list of the names of compute nodes that have been
+        reserved by a scheduler for current job context using the
+        sinfo command.
+
+        """
         return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
 
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
+        """
+        Pass through to Launcher constructor.
+        """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, host_file)
 
     def environ(self):
+        """
+        Pass through to Launcher.environ().  Additionally the KMP_AFFINITY
+        environment variable is set to 'disabled' to avoid bad
+        interactions between aprun and the Intel OpenMP runtime for
+        thread CPU affinity assignment.
+        """
         result = super(AprunLauncher, self).environ()
         result['KMP_AFFINITY'] = 'disabled'
         return result
 
-    def parse_alloc(self):
-        # Parse the subset of arguements used by geopm
+    def parse_mpiexec_argv(self):
+        """
+        Parse the subset of aprun command line arguments used or
+        manipulated by GEOPM.
+        """
         parser = SubsetOptionParser()
         parser.add_option('-n', '--pes', dest='num_rank', nargs=1, type='int')
         parser.add_option('-N', '--pes-per-node', dest='rank_per_node', nargs=1, type='int')
@@ -608,9 +823,16 @@ class AprunLauncher(Launcher):
             raise SyntaxError('The options --cpu-binding or -cc must not be specified, this is controlled by geopm_launcher.')
 
     def mpiexec(self):
-        return ['aprun']
+        """
+        Returns 'aprun', the name of the ALPS MPI job launch application.
+        """
+        return 'aprun'
 
     def num_node_option(self):
+        """
+        Returns a list containing the -N option for aprun.  Must be
+        combined with the -n option to determine the number of nodes.
+        """
         if self.num_rank is None or self.num_node is None:
             result = []
         else:
@@ -618,6 +840,9 @@ class AprunLauncher(Launcher):
         return result
 
     def num_rank_option(self):
+        """
+        Returns a list containing the -n option for aprun.
+        """
         if self.num_rank is None:
             result = []
         else:
@@ -625,12 +850,18 @@ class AprunLauncher(Launcher):
         return result
 
     def cpu_per_rank_option(self):
+        """
+        Returns a list containing the -d option for aprun.
+        """
         result = []
         if not self.is_geopm_enabled and self.cpu_per_rank is not None:
             result = ['-d', str(self.cpu_per_rank)]
         return result
 
     def affinity_option(self):
+        """
+        Returns the --cpu-binding option for aprun.
+        """
         result = []
         if self.is_geopm_enabled:
             result.append('--cpu-binding')
@@ -640,6 +871,9 @@ class AprunLauncher(Launcher):
         return result
 
     def time_limit_option(self):
+        """
+        Returns a list containing the -t option for aprun.
+        """
         if self.time_limit is None:
             result = []
         else:
@@ -647,6 +881,9 @@ class AprunLauncher(Launcher):
         return result
 
     def node_list_option(self):
+        """
+        Returns a list containing the -L option for aprun.
+        """
         if self.node_list is None:
             result = []
         else:
@@ -654,6 +891,9 @@ class AprunLauncher(Launcher):
         return result
 
     def host_file_option(self):
+        """
+        Returns a list containing the -l option for aprun.
+        """
         if self.host_file is None:
             result = []
         else:
@@ -662,21 +902,34 @@ class AprunLauncher(Launcher):
 
 
 def main():
-    launcher = factory(sys.argv)
-    launcher.run()
-
-if __name__ == '__main__':
+    """
+    Main routine when geopm_launcher.py is called as an executable.
+    This function creates a launcher from the factory and calls the
+    run method.  If help was requested on the command line then help
+    from the underlying application launcher is printed and the help
+    for the GEOPM extensions are appended.  Returns -1 and prints an
+    error message if an error occurs.  If the GEOPM_DEBUG environment
+    variable is set and an error occurs a complete stack trace will be
+    printed.
+    """
     err = 0
     try:
-        main()
+        launcher = factory(sys.argv)
+        launcher.run()
         # Print geopm help if it appears that documentation was requested
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
         if '--help' in sys.argv or '-h' in sys.argv:
             sys.stdout.write(__doc__)
-
     except Exception as e:
+        # If GEOPM_DEBUG environment variable is defined print stack trace.
+        if os.getenv('GEOPM_DEBUG'):
+            raise
         sys.stderr.write("<geopm_launcher> {err}\n".format(err=e))
         err = -1
+    return err
+
+if __name__ == '__main__':
+    err = main()
     sys.exit(err)
