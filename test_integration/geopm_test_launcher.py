@@ -51,7 +51,7 @@ from geopm_launcher import resource_manager
 
 class TestLauncher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
-                 trace_path=None, host_file=None, time_limit=None, region_barrier=False):
+                 trace_path=None, host_file=None, time_limit=600, region_barrier=False):
         self._app_conf = app_conf
         self._ctl_conf = ctl_conf
         self._report_path = report_path
