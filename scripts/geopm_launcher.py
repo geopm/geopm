@@ -63,6 +63,12 @@ import StringIO
 import itertools
 
 def resource_manager():
+    """
+    Heuristic to determine the resource manager used on the system.
+    Returns either "SLURM" or "ALPS", otherwise a LookupError is
+    raised.
+
+    """
     slurm_hosts = ['mr-fusion']
     alps_hosts = ['theta']
 
@@ -98,6 +104,10 @@ def resource_manager():
 
 def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
+    """
+    Factory that returns a Launcher object.  Class selection is based
+    on return value of the geopm_launcher.resource_manager() function.
+    """
     rm = resource_manager()
     if rm == "SLURM":
         return SrunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
@@ -113,8 +123,12 @@ class PassThroughError(Exception):
 
 class SubsetOptionParser(optparse.OptionParser):
     """
-    Parse a subset of comand line arguments and prepend unrecognized
-    arguments to positional arguments.  Disable help and version message.
+    OptionParser derived object that will parse a subset of comand
+    line arguments and prepend unrecognized arguments to positional
+    arguments.  Disable help and version message features of the
+    OptionParser, these will be handled by the underlying job
+    launcher.  GEOPM command line option help is appended to the job
+    launcher's help message.
     """
     def _process_args(self, largs, rargs, values):
         while rargs:
@@ -130,24 +144,50 @@ class SubsetOptionParser(optparse.OptionParser):
         pass
 
 def int_ceil_div(aa, bb):
+    """
+    Shortcut for the ceiling of the ratio of two integers.
+    """
     return int(math.ceil(float(aa) / float(bb)))
 
 def range_str(values):
+    """
+    Take an iterable object containing integers and return a string of
+    comma separated values and ranges given by a dash.
+    Example:
+
+    >>> geopm_launcher.range_str({1, 2, 3, 5, 7, 9, 10})
+    '1-3,5,7,9-10'
+    """
     result = []
+    # Turn iterable into a sorted list.
     values = list(values)
     values.sort()
-    for a, b in itertools.groupby(enumerate(values), lambda(x, y): y - x):
-        b = list(b)
-        begin = b[0][1]
-        end = b[-1][1]
+    # Group values with equal delta compared the sequence from zero to
+    # N, these are sequential.
+    for aa, bb in itertools.groupby(enumerate(values), lambda(xx, yy): yy - xx):
+        bb = list(bb)
+        # The range is from the smallest to the largest in the group.
+        begin = bb[0][1]
+        end = bb[-1][1]
+        # If the group is of size one, the value has no neighbors
         if begin == end:
            result.append(str(begin))
+        # Otherwise create a range from the smallest to the largest
         else:
            result.append('{}-{}'.format(begin, end))
+    # Return a comma separated list
     return ','.join(result)
 
 class Config(object):
+    """
+    GEOPM configuration object.
+    """
     def __init__(self, argv):
+        """
+        Parse subset of command line arguments to create the GEOPM
+        object. See geopm_launcher.__DOC__ for information about the
+        options.
+        """
         self.ctl = None
         if not any(aa.startswith('--geopm-ctl') for aa in argv):
             raise PassThroughError('The --geopm-ctl flag is not specified.')
@@ -182,13 +222,25 @@ class Config(object):
         self.cpu_per_rank = None
 
     def __repr__(self):
+        """
+        String describing environment variables controlled by the
+        configuration object.
+        """
         return ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
                          for (kk, vv) in self.environ().iteritems()])
 
     def __str__(self):
+        """
+        String describing environment variables controlled by the
+        configuration object.
+        """
         return self.__repr__()
 
     def environ(self):
+        """
+        Dictionary describing the environment variables controlled by the
+        configuration object.
+        """
         result = {'LD_DYNAMIC_WEAK':'true'}
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
@@ -203,7 +255,7 @@ class Config(object):
         if self.timeout:
             result['GEOPM_PROFILE_TIMEOUT'] = self.timeout
         if self.plugin:
-            result['GEOPM_PLUGIN_PATH'] = self.timeout
+            result['GEOPM_PLUGIN_PATH'] = self.plugin
         if self.debug_attach:
             result['GEOPM_DEBUG_ATTACH'] = self.debug_attach
         if self.barrier:
@@ -212,15 +264,21 @@ class Config(object):
             result['LD_PRELOAD'] = ':'.join((ll for ll in
                                    ('libgeopm.so', os.getenv('LD_PRELOAD'))
                                    if ll is not None))
-        if self.cpu_per_rank:
-            result['OMP_NUM_THREADS'] = self.cpu_per_rank
+        if self.omp_num_threads:
+            result['OMP_NUM_THREADS'] = self.omp_num_threads
         return result
 
     def unparsed(self):
+        """
+        All command line arguements that are not used to configure GEOPM.
+        """
         return self.unparsed_argv
 
-    def set_cpu_per_rank(self, cpu_per_rank):
-        self.cpu_per_rank = str(cpu_per_rank)
+    def set_omp_num_threads(self, omp_num_threads):
+        """
+        Control the OMP_NUM_THREADS environment variable.
+        """
+        self.omp_num_threads = str(omp_num_threads)
 
 class Launcher(object):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
@@ -287,8 +345,8 @@ class Launcher(object):
         argv_mod.extend(self.mpiexec_argv())
         argv_mod.extend(self.argv)
         echo = []
-        if self.config is not None:
-            self.config.set_cpu_per_rank(self.cpu_per_rank)
+        if self.is_geopm_enabled:
+            self.config.set_omp_num_threads(self.cpu_per_rank)
             echo.append(self.config.__str__())
         echo.extend(argv_mod)
         echo = '\n' + ' '.join(echo) + '\n\n'
