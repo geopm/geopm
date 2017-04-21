@@ -646,7 +646,10 @@ class SrunLauncher(Launcher):
                 self.num_node = int_ceil_div(self.num_rank, self.rank_per_node)
         self.cpu_per_rank = opts.cpu_per_rank
         self.timeout = opts.timeout
-        self.time_limit = opts.time_limit
+        self.time_limit = None
+        if opts.time_limit is not None:
+            # time limit in minutes, convert to seconds
+            self.time_limit = opts.time_limit * 60
         self.job_name = opts.job_name
         self.node_list = opts.node_list # Note this may also be the host file
         self.host_file = None
@@ -717,7 +720,8 @@ class SrunLauncher(Launcher):
         if self.time_limit is None:
             result = []
         else:
-            result = ['-t', str(self.time_limit)]
+            # Time limit option exepcts minutes, covert from seconds
+            result = ['-t', str(int_ceil_div(self.time_limit, 60))]
         return result
 
     def job_name_option(self):
@@ -812,6 +816,10 @@ class AprunLauncher(Launcher):
         self.cpu_per_rank = opts.cpu_per_rank
         self.timeout = None
         self.time_limit = opts.time_limit
+        # Alps time limit is Linux CPU time per process.  Normalize by
+        # dividing by CPU per process.
+        if self.cpu_per_rank is not None:
+            self.time_limit = int_ceil_div(self.time_limit, self.cpu_per_rank)
         self.node_list = opts.node_list
         self.host_file = opts.host_file
 
@@ -866,7 +874,9 @@ class AprunLauncher(Launcher):
         if self.time_limit is None:
             result = []
         else:
-            result = ['-t', str(self.time_limit)]
+            # Mulitply by Linux CPU per process due to aprun
+            # definition of time limit.
+            result = ['-t', str(self.time_limit * self.cpu_per_rank)]
         return result
 
     def node_list_option(self):
