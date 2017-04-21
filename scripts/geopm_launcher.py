@@ -87,13 +87,15 @@ def resource_manager():
         else:
             try:
                 exec_str = 'srun --version'
-                subprocess.check_call(exec_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                subprocess.check_call(exec_str, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE, shell=True)
                 sys.stderr.write('Warning: GEOPM_RM undefined and unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
                 result = 'SLURM'
             except subprocess.CalledProcessError:
                 try:
                     exec_str = 'aprun --version'
-                    subprocess.check_call(exec_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    subprocess.check_call(exec_str, stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE, shell=True)
                     sys.stderr.write("Warning: GEOPM_RM undefined and unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
                     result = 'ALPS'
                 except subprocess.CalledProcessError:
@@ -204,7 +206,7 @@ class Config(object):
         parser.add_option('--geopm-barrier', dest='barrier', action='store_true', default=False)
         parser.add_option('--geopm-preload', dest='preload', action='store_true', default=False)
 
-        opts, self.unparsed_argv = parser.parse_args(argv)
+        opts, self.argv_unparsed = parser.parse_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
             raise SyntaxError('--geopm-ctl must be one of: "process", "pthread", or "application"')
@@ -270,9 +272,9 @@ class Config(object):
 
     def unparsed(self):
         """
-        All command line arguments that are not used to configure GEOPM.
+        All command line arguments except those used to configure GEOPM.
         """
-        return self.unparsed_argv
+        return self.argv_unparsed
 
     def set_omp_num_threads(self, omp_num_threads):
         """
@@ -300,34 +302,45 @@ class Launcher(object):
         self.num_rank = num_rank
         self.num_node = num_node
         self.argv = argv
+        self.argv_unparsed = argv
         try:
             self.config = Config(argv)
             self.is_geopm_enabled = True
-            self.argv = self.config.unparsed()
+            self.is_override_enabled = True
+            self.argv_unparsed = self.config.unparsed()
         except PassThroughError:
             self.config = None
             self.is_geopm_enabled = False
+            self.is_override_enabled = False
         self.parse_mpiexec_argv()
 
         # Override values if they are passed in construction call
         if num_rank is not None:
+            self.is_override_enabled = True
             self.num_rank = num_rank
         if num_node is not None:
+            self.is_override_enabled = True
             self.num_node = num_node
         if cpu_per_rank is not None:
+            self.is_override_enabled = True
             self.cpu_per_rank = cpu_per_rank
         if timeout is not None:
+            self.is_override_enabled = True
             self.timeout = timeout
         if time_limit is not None:
+            self.is_override_enabled = True
             self.time_limit = time_limit
         if job_name is not None:
+            self.is_override_enabled = True
             self.job_name = job_name
         if node_list is not None:
+            self.is_override_enabled = True
             if type(node_list) is list:
                 self.node_list = ' '.join(node_list)
             else:
                 self.node_list = node_list
         if host_file is not None:
+            self.is_override_enabled = True
             self.host_file = host_file
 
         # Calculate derived values
@@ -358,8 +371,11 @@ class Launcher(object):
         line options and environment variables.
         """
         argv_mod = [self.mpiexec()]
-        argv_mod.extend(self.mpiexec_argv())
-        argv_mod.extend(self.argv)
+        if self.is_override_enabled:
+            argv_mod.extend(self.mpiexec_argv())
+            argv_mod.extend(self.argv_unparsed)
+        else:
+            argv_mod.extend(self.argv)
         echo = []
         if self.is_geopm_enabled:
             self.config.set_omp_num_threads(self.cpu_per_rank)
@@ -503,7 +519,6 @@ class Launcher(object):
         result = []
         result.extend(self.num_node_option())
         result.extend(self.num_rank_option())
-        result.extend(self.cpu_per_rank_option())
         result.extend(self.affinity_option())
         result.extend(self.timeout_option())
         result.extend(self.time_limit_option())
@@ -525,13 +540,6 @@ class Launcher(object):
         number of MPI processes or "ranks".
         """
         raise NotImplementedError('Launcher.num_rank_option() undefined in the base class')
-
-    def cpu_per_rank_option(self):
-        """
-        Returns a list containing the command line options specifying the
-        number of Linux CPUs reserved for each MPI process.
-        """
-        return []
 
     def affinity_option(self):
         """
@@ -626,7 +634,7 @@ class SrunLauncher(Launcher):
         parser.add_option('-w', '--nodelist', dest='node_list', nargs=1, type='string')
         parser.add_option('--ntasks-per-node', dest='rank_per_node', nargs=1, type='int')
 
-        opts, self.argv = parser.parse_args(self.argv)
+        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
 
         self.num_rank = opts.num_rank
         self.num_node = opts.num_node
@@ -665,15 +673,6 @@ class SrunLauncher(Launcher):
         """
         return ['-n', str(self.num_rank)]
 
-    def cpu_per_rank_option(self):
-        """
-        Returns a list containing the -c option for srun.
-        """
-        result = []
-        if not self.is_geopm_enabled and self.cpu_per_rank is not None:
-            result = ['-c', str(self.cpu_per_rank)]
-        return result
-
     def affinity_option(self):
         """
         Returns a list containing the --cpu_bind or --mpibind option for
@@ -685,7 +684,6 @@ class SrunLauncher(Launcher):
             aff_list = self.affinity_list()
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             help_msg, err = pid.communicate()
-
             if help_msg.find('--cpu_bind') != -1:
                 num_mask = len(aff_list)
                 mask_zero = ['0' for ii in range(self.num_linux_cpu)]
@@ -805,7 +803,7 @@ class AprunLauncher(Launcher):
         parser.add_option('-L', '--node-list', dest='node_list', nargs=1, type='string')
         parser.add_option('-l', '--node-list-file', dest='host_file', nargs=1, type='string')
 
-        opts, self.argv = parser.parse_args(self.argv)
+        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
 
         self.num_rank = opts.num_rank
         self.rank_per_node = opts.rank_per_node
@@ -847,15 +845,6 @@ class AprunLauncher(Launcher):
             result = []
         else:
             result = ['-n', str(self.num_rank)]
-        return result
-
-    def cpu_per_rank_option(self):
-        """
-        Returns a list containing the -d option for aprun.
-        """
-        result = []
-        if not self.is_geopm_enabled and self.cpu_per_rank is not None:
-            result = ['-d', str(self.cpu_per_rank)]
         return result
 
     def affinity_option(self):
