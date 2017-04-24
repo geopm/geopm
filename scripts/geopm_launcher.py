@@ -298,7 +298,8 @@ class Launcher(object):
         used to control the values.
         """
         self.rank_per_node = None
-        self.default_handler = signal.getsignal(signal.SIGINT)
+        self.default_handler_int = signal.getsignal(signal.SIGINT)
+        self.default_handler_hup = signal.getsignal(signal.SIGHUP)
         self.num_rank = num_rank
         self.num_node = num_node
         self.argv = argv
@@ -385,6 +386,7 @@ class Launcher(object):
         stdout.write(echo)
         stdout.flush()
         signal.signal(signal.SIGINT, self.int_handler)
+        signal.signal(signal.SIGHUP, self.hup_handler)
         argv_mod = ' '.join(argv_mod)
         if 'fileno' in dir(stdout) and 'fileno' in dir(stderr):
             pid = subprocess.Popen(argv_mod, env=self.environ(),
@@ -396,7 +398,8 @@ class Launcher(object):
             stdout_str, stderr_str = pid.communicate()
             stdout.write(stdout_str)
             stderr.write(stderr_str)
-        signal.signal(signal.SIGINT, self.default_handler)
+        signal.signal(signal.SIGINT, self.default_handler_int)
+        signal.signal(signal.SIGHUP, self.default_handler_hup)
         if pid.returncode:
             raise subprocess.CalledProcessError(pid.returncode, argv_mod)
 
@@ -417,6 +420,14 @@ class Launcher(object):
         is used.
         """
         return self.default_handler(signum, frame)
+
+    def hup_handler(self, signum, frame):
+        """
+        This interface enables specialized signal handling.  If not
+        overridden by derived class, then the default signal handler
+        is used.
+        """
+        return self.default_handler_hup(signum, frame)
 
     def init_topo(self):
         """
@@ -618,6 +629,17 @@ class SrunLauncher(Launcher):
         job.
         """
         sys.stderr.write("srun: interrupt (one more within 1 sec to abort)\n")
+
+    def hup_handler(self, signum, frame):
+        """
+        Handles hangup signals by cancelling jobs that have the same name and user
+        as the currently executing script.
+        """
+        if self.job_name is not None:
+            cmd = 'squeue -u {} -h -o "%i" -n {}'.format(os.getlogin(), self.job_name)
+            jid_list = subprocess.check_output(cmd, shell=True).splitlines()
+            for jobid in jid_list:
+                subprocess.check_output(['scancel', jobid])
 
     def parse_mpiexec_argv(self):
         """

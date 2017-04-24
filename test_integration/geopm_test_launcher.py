@@ -33,10 +33,7 @@
 
 import os
 import sys
-import socket
-import subprocess
 import datetime
-import signal
 import StringIO
 import math
 
