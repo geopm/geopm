@@ -221,7 +221,7 @@ class Config(object):
         self.debug_attach = opts.debug_attach
         self.barrier = opts.barrier
         self.preload = opts.preload
-        self.cpu_per_rank = None
+        self.omp_num_threads = None
 
     def __repr__(self):
         """
