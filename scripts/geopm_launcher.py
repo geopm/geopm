@@ -372,7 +372,7 @@ class Launcher(object):
         """
         argv_mod = [self.mpiexec()]
         if self.is_override_enabled:
-            argv_mod.extend(self.mpiexec_argv())
+            argv_mod.extend(self.mpiexec_argv(False))
             argv_mod.extend(self.argv_unparsed)
         else:
             argv_mod.extend(self.argv)
@@ -386,19 +386,48 @@ class Launcher(object):
         stdout.flush()
         signal.signal(signal.SIGINT, self.int_handler)
         argv_mod = ' '.join(argv_mod)
+        if self.is_geopm_enabled and self.config.ctl == 'application':
+            geopm_argv = [self.mpiexec()]
+            geopm_argv.extend(self.mpiexec_argv(True))
+            geopm_argv.append('geopmctl')
+            if self.config.policy:
+                geopm_argv.extend(['-c', self.config.policy])
+            if self.config.shmkey:
+                geopm_argv.extend(['-s', self.config.shmkey])
+            geopm_argv = ' '.join(geopm_argv)
+            is_geopmctl = True
+        else:
+            is_geopmctl = False
+
         if 'fileno' in dir(stdout) and 'fileno' in dir(stderr):
+            if is_geopmctl:
+                geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
+                                             stdout=stdout, stderr=stderr, shell=True)
             pid = subprocess.Popen(argv_mod, env=self.environ(),
                                    stdout=stdout, stderr=stderr, shell=True)
             pid.communicate()
+            if is_geopmctl:
+                geopm_pid.communicate()
         else:
+            if is_geopmctl:
+                geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
+                                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
             pid = subprocess.Popen(argv_mod, env=self.environ(),
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             stdout_str, stderr_str = pid.communicate()
             stdout.write(stdout_str)
             stderr.write(stderr_str)
+            if is_geopmctl:
+                stdout_str, stderr_str = geopm_pid.communicate()
+                stdout.write(stdout_str)
+                stderr.write(stderr_str)
+
         signal.signal(signal.SIGINT, self.default_handler)
         if pid.returncode:
             raise subprocess.CalledProcessError(pid.returncode, argv_mod)
+        if is_geopmctl and geopm_pid.returncode:
+            raise subprocess.CalledProcessError(geopm_pid.returncode, geopm_argv)
 
     def environ(self):
         """
@@ -439,7 +468,7 @@ class Launcher(object):
         self.core_per_socket = cpu_tpc_core_socket[2]
         self.num_socket = cpu_tpc_core_socket[3]
 
-    def affinity_list(self):
+    def affinity_list(self, is_geopmctl):
         """
         Returns CPU affinity prescription as a list of integer sets.  The
         list is over MPI ranks on a node from lowest to highest rank.
@@ -448,8 +477,6 @@ class Launcher(object):
         by the derived class's affinity_option() method to set CPU
         affinities.
         """
-        if self.config.ctl == 'application':
-            raise NotImplementedError('Launch with geopmctl not supported')
         result = []
         app_cpu_per_node = self.num_app_mask * self.cpu_per_rank
         core_per_node = self.core_per_socket * self.num_socket
@@ -479,23 +506,25 @@ class Launcher(object):
             off = 2
             geopm_ctl_cpu = 1
 
-        if self.config.ctl == 'process':
+        if self.config.ctl == 'process' or is_geopmctl:
             result.append({geopm_ctl_cpu})
 
-        socket = 0
-        for rank in range(self.num_app_mask):
-            rank_mask = set()
-            if rank == 0 and self.config.ctl == 'pthread':
-                rank_mask.add(geopm_ctl_cpu)
-            for thread in range(self.cpu_per_rank):
-                rank_mask.add(off)
-                for hthread in range(1, app_thread_per_core):
-                    rank_mask.add(off + hthread * core_per_node)
-                off += 1
-            result.append(rank_mask)
-            if rank != 0 and rank % rank_per_socket == 0:
-                socket += 1
-                off = cpu_per_socket * socket
+        if not is_geopmctl:
+            socket = 0
+            for rank in range(self.num_app_mask):
+                rank_mask = set()
+                if rank == 0 and self.config.ctl == 'pthread':
+                   rank_mask.add(geopm_ctl_cpu)
+                for thread in range(self.cpu_per_rank):
+                    rank_mask.add(off)
+                    for hthread in range(1, app_thread_per_core):
+                        rank_mask.add(off + hthread * core_per_node)
+                    off += 1
+                result.append(rank_mask)
+                if rank != 0 and rank % rank_per_socket == 0:
+                    socket += 1
+                    off = cpu_per_socket * socket
+
         return result
 
     def parse_mpiexec_argv(self):
@@ -511,15 +540,15 @@ class Launcher(object):
         """
         raise NotImplementedError('Launcher.mpiexec() undefined in the base class')
 
-    def mpiexec_argv(self):
+    def mpiexec_argv(self, is_geopmctl):
         """
         Returns a list of command line options for underlying job launch
         application that reflect the state of the Launcher object.
         """
         result = []
         result.extend(self.num_node_option())
-        result.extend(self.num_rank_option())
-        result.extend(self.affinity_option())
+        result.extend(self.num_rank_option(is_geopmctl))
+        result.extend(self.affinity_option(is_geopmctl))
         result.extend(self.timeout_option())
         result.extend(self.time_limit_option())
         result.extend(self.job_name_option())
@@ -534,14 +563,22 @@ class Launcher(object):
         """
         raise NotImplementedError('Launcher.num_node_option() undefined in the base class')
 
-    def num_rank_option(self):
+    def num_rank_option(self, is_geopmctl):
         """
-        Returns a list containing the command line options specifying the
+        Returns a list containing the -n option which is defined in the
+        MPI standard for all job launch applications to specify the
         number of MPI processes or "ranks".
         """
-        raise NotImplementedError('Launcher.num_rank_option() undefined in the base class')
+        result = []
+        if self.num_node is not None and self.num_rank is not None:
+            result.append('-n')
+            if is_geopmctl:
+                result.append(str(self.num_node))
+            else:
+                result.append(str(self.num_rank))
+        return result
 
-    def affinity_option(self):
+    def affinity_option(self, is_geopmctl):
         """
         Returns a list containing the command line options specifying the
         the CPU affinity for each MPI process on a compute node.
@@ -670,13 +707,7 @@ class SrunLauncher(Launcher):
         """
         return ['-N', str(self.num_node)]
 
-    def num_rank_option(self):
-        """
-        Returns a list containing the -n option for srun.
-        """
-        return ['-n', str(self.num_rank)]
-
-    def affinity_option(self):
+    def affinity_option(self, is_geopmctl):
         """
         Returns a list containing the --cpu_bind or --mpibind option for
         srun depending on which SLURM plugin is loaded.  If neither
@@ -684,7 +715,7 @@ class SrunLauncher(Launcher):
         """
         result = []
         if self.is_geopm_enabled:
-            aff_list = self.affinity_list()
+            aff_list = self.affinity_list(is_geopmctl)
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             help_msg, err = pid.communicate()
             if help_msg.find('--cpu_bind') != -1:
@@ -845,24 +876,14 @@ class AprunLauncher(Launcher):
             result = ['-N', str(int_ceil_div(self.num_rank, self.num_node))]
         return result
 
-    def num_rank_option(self):
-        """
-        Returns a list containing the -n option for aprun.
-        """
-        if self.num_rank is None:
-            result = []
-        else:
-            result = ['-n', str(self.num_rank)]
-        return result
-
-    def affinity_option(self):
+    def affinity_option(self, is_geopmctl):
         """
         Returns the --cpu-binding option for aprun.
         """
         result = []
         if self.is_geopm_enabled:
             result.append('--cpu-binding')
-            aff_list = self.affinity_list()
+            aff_list = self.affinity_list(is_geopmctl)
             mask_list = [range_str(cpu_set) for cpu_set in aff_list]
             result.append(':'.join(mask_list))
         return result
