@@ -240,6 +240,27 @@ with geopm, and these must be disabled.  We suggest the following:
 and adding "intel_pstate=disable" to the kernel command line through
 grub2.
 
+### GEOPM MPI LAUNCH WRAPPER
+The GEOPM package installs two commands: "geopmsrun" and "geopmaprun"
+which are wrappers for the MPI launch commands "srun" and "aprun"
+respectively.  These wrappers enable exactly the same command line
+interface as the underlying launch command, but the wrapper extends
+the interface with GEOPM specific options.  When the "--geopm-ctl"
+option is passed to the wrapper it will launch the GEOPM runtime with
+your application while enforcing the GEOPM requirements by
+manipulating the options passed to the underlying launch command
+("srun" or "aprun").  This includes handling the CPU affinity
+requirements and getting the GEOPM control process on each node up and
+ready to connect to the main compute application.  The wrapper is
+documented in the geopm_launcher(1) man page which is also installed
+as the geopmsrun(1) and geopmaprun(1) man pages.
+
+If your system uses an MPI launch command other than "srun" or "aprun"
+then affinity requirements must be enforced by the user.  Also, please
+consult the geopm(7) man page for documentation of the environment
+variables used by the GEOPM runtime that are otherwise controlled by
+the wrapper script.
+
 ### CPU AFFINITY REQUIREMENTS
 The GEOPM runtime requires that each MPI process of the application
 under control is affinitized to distinct CPUs.  This is a strict
