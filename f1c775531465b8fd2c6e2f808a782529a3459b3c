@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "674a266a_7bf36eac",
+        "filename": "scripts/.gitignore",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-26T22:00:35Z",
+      "side": 1,
+      "message": "Why not just add this to the base .gitignore prefixed by /scripts/?",
+      "revId": "f1c775531465b8fd2c6e2f808a782529a3459b3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b979725_faaa4c44",
         "filename": "scripts/geopm_io.py",
         "patchSetId": 2
@@ -19,6 +36,23 @@
         "endLine": 43,
         "endChar": 34
       },
+      "revId": "f1c775531465b8fd2c6e2f808a782529a3459b3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7968ac17_6a4289a5",
+        "filename": "scripts/geopm_io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-26T22:00:35Z",
+      "side": 1,
+      "message": "Why make it a dict?",
       "revId": "f1c775531465b8fd2c6e2f808a782529a3459b3c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
