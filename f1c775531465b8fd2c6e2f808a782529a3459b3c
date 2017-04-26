@@ -42,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "0f8183ef_4e4e674c",
+        "filename": "scripts/geopm_io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-26T22:55:26Z",
+      "side": 1,
+      "message": "Use the Report._* values only to assign to self._* if no value was parsed.  If a value is parsed, at the end of the parser assign to Report._* for future use.",
+      "revId": "f1c775531465b8fd2c6e2f808a782529a3459b3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7968ac17_6a4289a5",
         "filename": "scripts/geopm_io.py",
         "patchSetId": 2
