@@ -59,6 +59,29 @@
     },
     {
       "key": {
+        "uuid": "c939ae78_cc1ecb11",
+        "filename": "scripts/geopm_io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-26T22:55:40Z",
+      "side": 1,
+      "message": "If I didn\u0027t find the version, name, deciders, etc. when I get to this point, use the \"defaults\" stored in the class.",
+      "range": {
+        "startLine": 239,
+        "startChar": 24,
+        "endLine": 239,
+        "endChar": 50
+      },
+      "revId": "f1c775531465b8fd2c6e2f808a782529a3459b3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7968ac17_6a4289a5",
         "filename": "scripts/geopm_io.py",
         "patchSetId": 2
