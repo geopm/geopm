@@ -480,7 +480,9 @@ class Launcher(object):
         result = []
         app_cpu_per_node = self.num_app_mask * self.cpu_per_rank
         core_per_node = self.core_per_socket * self.num_socket
-        app_thread_per_core = int_ceil_div(app_cpu_per_node, core_per_node)
+        if app_cpu_per_node % core_per_node != 0:
+            raise RuntimeError('Cores cannot be shared between MPI ranks')
+        app_thread_per_core = app_cpu_per_node // core_per_node
         rank_per_socket = self.num_app_mask // self.num_socket
 
         if app_cpu_per_node > self.num_linux_cpu:
