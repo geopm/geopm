@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b979725_faaa4c44",
+        "filename": "scripts/geopm_io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-04-26T00:13:33Z",
+      "side": 1,
+      "message": "The following changes setup code necessary for handling a pile of reports based on the \"report_base\" pattern.  It still works for a specific file name.",
+      "range": {
+        "startLine": 43,
+        "startChar": 30,
+        "endLine": 43,
+        "endChar": 34
+      },
+      "revId": "f1c775531465b8fd2c6e2f808a782529a3459b3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
