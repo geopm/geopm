@@ -246,6 +246,8 @@ class Config(object):
         result = {'LD_DYNAMIC_WEAK':'true'}
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
+        if self.ctl == 'application' and not self.report and not self.trace:
+            result['GEOPM_PROFILE'] = 'true'
         if self.policy:
             result['GEOPM_POLICY'] = self.policy
         if self.report:
@@ -268,6 +270,7 @@ class Config(object):
                                    if ll is not None))
         if self.omp_num_threads:
             result['OMP_NUM_THREADS'] = self.omp_num_threads
+
         return result
 
     def unparsed(self):
@@ -480,7 +483,9 @@ class Launcher(object):
         result = []
         app_cpu_per_node = self.num_app_mask * self.cpu_per_rank
         core_per_node = self.core_per_socket * self.num_socket
-        app_thread_per_core = int_ceil_div(app_cpu_per_node, core_per_node)
+        if app_cpu_per_node % core_per_node != 0:
+            raise RuntimeError('Cores cannot be shared between MPI ranks')
+        app_thread_per_core = app_cpu_per_node // core_per_node
         rank_per_socket = self.num_app_mask // self.num_socket
 
         if app_cpu_per_node > self.num_linux_cpu:
@@ -647,6 +652,10 @@ class SrunLauncher(Launcher):
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, host_file)
+        if (self.is_geopm_enabled and
+            self.config.ctl == 'application' and
+            os.getenv('SLURM_NNODES') != str(self.num_node)):
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
     def int_handler(self, signum, frame):
         """
@@ -813,6 +822,8 @@ class AprunLauncher(Launcher):
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, host_file)
+        if self.is_geopm_enabled and self.config.ctl == 'application':
+            raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
 
     def environ(self):
         """
