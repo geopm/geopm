@@ -647,6 +647,10 @@ class SrunLauncher(Launcher):
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, host_file)
+        if (self.is_geopm_enabled and
+            self.config.ctl == 'application' and
+            int(os.getenv('SLURM_NNODE')) != self.num_node):
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
     def int_handler(self, signum, frame):
         """
@@ -813,6 +817,8 @@ class AprunLauncher(Launcher):
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, host_file)
+        if self.is_geopm_enabled and self.config.ctl == 'application':
+            raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
 
     def environ(self):
         """
