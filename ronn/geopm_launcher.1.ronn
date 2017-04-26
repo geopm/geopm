@@ -63,16 +63,29 @@ extra processes as required by the GEOPM runtime.
 ## OPTIONS
 
 * `--geopm-ctl` _process_|_pthread_|_application_:
-  Use GEOPM runtime and launch GEOPM with one of three
-  methods: "process", "pthread" or "application".  The
-  "process" method allocates one extra MPI process per node
-  for the GEOPM controller.  The "pthread" method spawns a
-  thread from one MPI process per node to run the GEOPM
-  controller.  The application method launches the
-  **geopmctl(1)** application in the background which connects
-  to the primary application.  If this option is not
-  specified, the launcher script simply passes the command
-  line arguments to the system application launcher.
+
+  Use GEOPM runtime and launch GEOPM with one of three methods:
+  _process_, _pthread_ or _application_.  The _process_ method
+  allocates one extra MPI process per node for the GEOPM controller.
+  The _pthread_ method spawns a thread from one MPI process per node
+  to run the GEOPM controller.  The _application_ method launches the
+  **geopmctl(1)** application in the background which connects to the
+  primary compute application.  The "process" method can be used in
+  the widest variety of cases, but some systems require that each MPI
+  process be assigned the same number of CPUs which may waste
+  resources by assigning more than one CPU to the GEOPM controller
+  process.  The "pthread" option requires support for
+  MPI_THREAD_MULTIPLE which is not enabled at many sites and on some
+  systems affinitizing one extra CPU to the MPI process that threads
+  out the controller may be not be possible resulting in running the
+  GEOPM controller on the same CPU as the main compute application.
+  The "application" method of launch is not compatible with `aprun`
+  and with `srun` the call must be made inside of an existing
+  allocation made with salloc or sbatch and the command must request
+  all of the compute nodes assigned to the allocation. Note: if the
+  `--geopm-ctl` option is not specified the launcher script simply
+  passes all command line arguments to the system application launcher
+  without modification.
 
 * `--geopm-policy` policy:
   GEOPM policy file or shared memory region.  See **geopmpolicy(1)**
