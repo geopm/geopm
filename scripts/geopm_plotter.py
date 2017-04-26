@@ -100,6 +100,66 @@ class ReportConfig(Config):
         self.max_drop = max_drop
 
 
+def generate_boxplot(report_df, config):
+    idx = pandas.IndexSlice
+    df = pandas.DataFrame()
+
+    normalization_factor = 1
+    if config.external:
+        # This is the min of the means of all the iterations for datatype per power budget (i.e. rightmost governing bar)
+        normalization_factor = report_df.loc[idx[config.min_drop:config.max_drop, :, 'power_governing', :, :, 'epoch'],
+                                                 config.datatype].groupby(level='power_budget').mean().min()
+
+    for decider, decider_df in report_df.groupby(level='leaf_decider'):
+        f, ax = plt.subplots()
+
+        data_df = decider_df.loc[idx[config.min_drop:config.max_drop, :, :, :, :, 'epoch'], config.datatype]
+        data_df /= normalization_factor
+        grouped = data_df.groupby(level='power_budget')
+        lines = pandas.tools.plotting.boxplot_frame_groupby(grouped, subplots=False, showmeans=True, whis='range',
+                                                            ax=ax, return_type='both')
+
+        ylabel = config.datatype.title()
+        if config.external:
+            ylabel = 'Normalized {}'.format(ylabel)
+        else:
+            units_label = config.units.get(config.datatype)
+            ylabel = '{}{}'.format(ylabel, ' {}'.format(units_label) if units_label else '')
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel('Per-Node Socket+DRAM Power Limit (W)')
+
+        plt.title('{} {} Boxplot{}'.format(config.name, config.datatype.title(), config.misc_text), y=1.06)
+        plt.suptitle(decider.title().replace('_', ' ') + ' Plugin', x=0.54, y=0.90, ha='center')
+        plt.margins(0.02, 0.01)
+        plt.axis('tight')
+        plt.tight_layout()
+
+        # Match the y-axis limits to the bar plot for easier comparison
+        ymax = report_df.loc[idx[config.min_drop:config.max_drop, :, :, :, :, 'epoch'], config.datatype].max()
+        ymax = ymax + ymax * 0.1
+        ax.set_ylim(0, ymax)
+
+        # Write data/plot files
+        file_name = '{}_{}_{}_boxplot'.format(config.name.lower().replace(' ', '_'), config.datatype, decider)
+        if config.verbose:
+            sys.stdout.write('Writing:\n')
+        if config.write_csv:
+            full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
+            grouped.describe().to_csv(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+        for ext in config.output_types:
+            full_path = os.path.join(config.output_dir, '{}.{}'.format(file_name, ext))
+            plt.savefig(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+        if config.show:
+            plt.show(block=config.block)
+
+        if config.shell:
+            code.interact(local=dict(globals(), **locals()))
+
 def generate_barplot(report_df, config):
     idx = pandas.IndexSlice
     df = pandas.DataFrame()
@@ -187,7 +247,7 @@ def generate_barplot(report_df, config):
     ax.set_ylabel(ylabel)
     ax.grid(axis='y', linestyle='--', color='black')
 
-    plt.title('{} Runtime Comparison{}'.format(config.name, config.misc_text), y=1.02)
+    plt.title('{} {} Comparison{}'.format(config.name, config.datatype.title(), config.misc_text), y=1.02)
     plt.margins(0.02, 0.01)
     plt.axis('tight')
     plt.legend(shadow=True, fancybox=True, fontsize=config.legend_fontsize, loc='best').set_zorder(11)
@@ -201,7 +261,7 @@ def generate_barplot(report_df, config):
         ax.set_ylim(0, ymax)
 
     # Write data/plot files
-    file_name = '{}_{}_comparison'.format(config.name.lower().replace(' ', '_'), config.datatype) 
+    file_name = '{}_{}_comparison'.format(config.name.lower().replace(' ', '_'), config.datatype)
     if config.speedup:
         file_name += '_speeudp'
     if config.verbose:
@@ -227,6 +287,7 @@ def main(argv):
 
     plots = {
         'barplot' : generate_barplot,
+        'boxplot' : generate_boxplot,
     }
 
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so help text wraps properly

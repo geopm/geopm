@@ -183,7 +183,7 @@ class Report(dict):
                 elif Report._power_budget is None:
                     match = re.search(r'^Power Budget: (\S+)$', line)
                     if match is not None:
-                        Report._power_budget = match.group(1)
+                        Report._power_budget = int(match.group(1))
                 if self._node_name is None:
                     match = re.search(r'^Host: (\S+)$', line)
                     if match is not None:
