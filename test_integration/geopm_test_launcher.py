@@ -95,7 +95,8 @@ class TestLauncher(object):
             exec_path = os.path.join(script_dir, '.libs', 'geopm_test_integration')
             argv = ['dummy', '--geopm-ctl', self._pmpi_ctl,
                              '--geopm-policy', self._ctl_conf.get_path(),
-                             '--geopm-report', self._report_path]
+                             '--geopm-report', self._report_path,
+                             '--geopm-profile', test_name]
             if self._trace_path is not None:
                 argv.extend(['--geopm-trace', self._trace_path])
             if self._region_barrier:
