@@ -206,6 +206,12 @@ will print a subset of the fields in the trace file called
     `GEOPM_PMPI_CTL` is set to "process" or "pthread" geopm profiling
     will be enabled.
 
+  * `GEOPM_PROFILE_NAME`:
+    If set, will override the profile name to the value specified.  The
+    default profile name is the name of the compute application
+    executable.  The profile name is printed in the report and trace and
+    can be used to index the report and trace data during post-processing.
+
   * `GEOPM_PROFILE_TIMEOUT`:
     If set, will enable changing of the geopm profiler timeout.  The
     value is in seconds and represents the amount of time any application
