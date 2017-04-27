@@ -325,7 +325,7 @@ AC_SUBST([MPI_FLIBS])
 
 
 [LDFLAGS_SAVE="$LDFLAGS"]
-[LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
+[LDFLAGS="$EXTRA_LDFLAGS $MPI_LDFLAGS $LDFLAGS"]
 [CFLAGS_SAVE="$CFLAGS"]
 [CFLAGS="$EXTRA_CFLAGS $CFLAGS"]
 [CXXFLAGS_SAVE="$CXXFLAGS"]
@@ -444,6 +444,21 @@ AC_COMPILE_IFELSE([
     AC_DEFINE([GEOPM_MPI_CONST], [], [MPI interfaces do not use const qualifier.])
     AC_DEFINE([GEOPM_MPI_CONST_CAST(t)], [const_cast<t>], [MPI interfaces do not use const qualifier.])
 ])
+
+if test "x$enable_fortran" = "x1"; then
+#    if test "$FC" = "gfortran"; then
+#        [EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -DGEOPM_FORTRAN_VALUE_TRUE=1"]
+#    elif test "$FC" = "ifort"; then
+#        [EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -DGEOPM_FORTRAN_VALUE_TRUE=-1"]
+#    fi
+[LDFLAGS+="$MPI_LDFLAGS"]
+AC_MSG_CHECKING([for OpenMPI MPI symbols])
+AC_CHECK_LIB([mpi], [mpi_fortran_bottom],
+             [AC_DEFINE([GEOPM_OMPI_BOTTOM], [],
+             [MPI_BOTTOM using OpenMPI symbols.])],[], [])
+AC_CHECK_LIB([mpi], [mpi_fortran_bottom], [AM_CONDITIONAL([ENABLE_FORTRAN_WRAPPERS], [false])],
+             [AM_CONDITIONAL([ENABLE_FORTRAN_WRAPPERS], [true])], [])
+fi
 
 [CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
 AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])

@@ -62,6 +62,7 @@ include_HEADERS = src/geopm.h \
                   src/geopm_message.h \
                   src/geopm_version.h \
                   src/geopm_plugin.h \
+                  src/geopm_fortran_strings.h \
                   # end
 
 if ENABLE_MPI
@@ -182,10 +183,15 @@ if ENABLE_MPI
     libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CFLAGS)
+    libgeopm_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
 
     geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
+
+if ENABLE_FORTRAN
+    libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
+endif
 endif
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
@@ -197,7 +203,7 @@ if ENABLE_MPI
     libgeopm_la_LIBADD = $(MPI_CLIBS)
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
 if ENABLE_FORTRAN
-    libgeopmfort_la_LIBADD = libgeopm.la
+    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
 endif
 
@@ -325,6 +331,8 @@ if ENABLE_MPI
                           src/XeonPlatformImp.hpp \
                           src/geopm_ctl_spawn.c \
                           src/geopm_error.h \
+                          src/geopm_fortran_mpi_wrappers.c \
+                          src/geopm_fortran_strings.c \
                           src/geopm_hash.c \
                           src/geopm_hash.h \
                           src/geopm_omp.c \
@@ -343,6 +351,7 @@ if ENABLE_MPI
                           # end
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90
+    libgeopm_la_SOURCES += src/geopm_fortran_int_2_logical.f90
 endif
 
     geopmctl_SOURCES = src/geopmctl_main.c \
@@ -374,7 +383,7 @@ distclean-local-ruby:
 # FORTRAN MODULE TARGET
 if ENABLE_FORTRAN
 geopm.mod: src/geopm.f90
-	$(FC) $(AM_FCFLAGS) $(FCFLAGS) -c $(FCFLAGS_f90) $<
+	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
 endif
 
 # RPM TARGET
@@ -441,6 +450,7 @@ man/geopmaprun.1: man/geopm_launcher.1
 check_PROGRAMS =
 check_LTLIBRARIES =
 noinst_PROGRAMS =
+noinst_LTLIBRARIES =
 TESTS =
 
 include test/Makefile.mk
