@@ -22,6 +22,30 @@
       "revId": "223468408d6f3e768abc86ce0589447a57f6b2d7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f740b22f_5b618602",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-27T17:20:20Z",
+      "side": 1,
+      "message": "Nope, without the rename this is what happens...",
+      "parentUuid": "78cc9084_d4bfd940",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 65
+      },
+      "revId": "223468408d6f3e768abc86ce0589447a57f6b2d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
