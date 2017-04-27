@@ -39,6 +39,7 @@
 /geopmpolicy
 /geopm.o
 /geopm.mod
+/geopm_logical.mod
 /geopm*.spec
 /geopm*.tar.gz
 /gh-pages/
@@ -49,6 +50,7 @@
 /gtest-1.7.0.zip
 /gtest-all.o
 /install-sh
+/keyvals.mod
 /*.la
 /libgmock.a
 /libgtest.a
@@ -89,6 +91,20 @@
 /test/*.trs
 /test/plugin/*.lo
 /test/plugin/*.o
+/test/fortran/*f90
+!/test/fortran/*.f90
+/test/fortran/get_elem_d
+/test/fortran/get_elem_u
+/test/fortran/indtype
+/test/fortran/kinds
+/test/fortran/sizeof
+/test/fortran/sizeof2
+/test/fortran/spawnargvf03
+/test/fortran/spawnmultf03
+/test/fortran/structf
+/test/fortran/*.lo
+/test/fortran/*.o
+/test/fortran/fortran_links/*
 /test_integration/geopm_test_integration
 /test_integration/geopm_test_integration.pyc
 /test_integration/test_loop_output.log

@@ -60,6 +60,7 @@ src/geopm_omp.h
 src/geopm_plugin.c
 src/geopm_plugin.h
 src/geopm_pmpi.c
+src/geopm_pmpi_fortran.c
 src/geopm_policy.h
 src/geopmpolicy_main.c
 src/geopm_message.c
@@ -144,6 +145,8 @@ test/RegionTest.cpp
 test/PolicyTest.cpp
 test/BalancingDeciderTest.cpp
 test/GoverningDeciderTest.cpp
+test/fortran/Makefile.mk
+test/fortran/fortran_test.sh
 test_integration/Makefile.mk
 test_integration/geopm_launcher_test.py
 test_integration/geopm_test_integration.py

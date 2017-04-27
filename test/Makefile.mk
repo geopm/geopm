@@ -238,6 +238,7 @@ if GEOPM_DISABLE_NULL_PTR
 endif
 endif
 
+
 # Target for building test programs.
 checkprogs: $(check_PROGRAMS) $(GTEST_TESTS) $(check_LTLIBRARIES)
 .PHONY: checkprogs
@@ -257,3 +258,4 @@ clean-local-script-links:
 
 include test/googletest.mk
 include test/plugin/Makefile.mk
+include test/fortran/Makefile.mk
