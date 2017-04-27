@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "979a2f72_f6fad1ae",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-04-27T15:32:54Z",
+      "side": 1,
+      "message": "Misspelling trype -\u003e type",
+      "revId": "7aea4a7e419fb8e74877aced59dabdad4469675f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
