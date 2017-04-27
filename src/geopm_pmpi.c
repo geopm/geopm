@@ -45,6 +45,8 @@
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static int g_is_geopm_pmpi_prof_enabled = 0;
 static MPI_Comm G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
+static MPI_Fint G_GEOPM_COMM_WORLD_SWAP_F = 0;
+static MPI_Fint G_GEOPM_COMM_WORLD_F = 0;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
 static struct geopm_ctl_c *g_ctl = NULL;
 static pthread_t g_ctl_thread;
@@ -83,7 +85,13 @@ static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 }
 #endif
 
-static inline void geopm_mpi_region_enter(uint64_t func_rid)
+MPI_Fint geopm_swap_comm_world_f(MPI_Fint comm)
+{
+    return comm != G_GEOPM_COMM_WORLD_F ?
+           comm : G_GEOPM_COMM_WORLD_SWAP_F;
+}
+
+void geopm_mpi_region_enter(uint64_t func_rid)
 {
     if (g_is_geopm_pmpi_prof_enabled) {
         if (func_rid) {
@@ -93,7 +101,7 @@ static inline void geopm_mpi_region_enter(uint64_t func_rid)
     }
 }
 
-static inline void geopm_mpi_region_exit(uint64_t func_rid)
+void geopm_mpi_region_exit(uint64_t func_rid)
 {
     if (g_is_geopm_pmpi_prof_enabled) {
         geopm_prof_exit(GEOPM_REGION_ID_MPI);
@@ -103,7 +111,7 @@ static inline void geopm_mpi_region_exit(uint64_t func_rid)
     }
 }
 
-static inline uint64_t geopm_mpi_func_rid(const char *func_name)
+uint64_t geopm_mpi_func_rid(const char *func_name)
 {
     uint64_t result = 0;
     if (g_is_geopm_pmpi_prof_enabled) {
@@ -142,6 +150,8 @@ static int geopm_pmpi_init(const char *exec_name)
             }
             else {
                 G_GEOPM_COMM_WORLD_SWAP = tmp_comm;
+                G_GEOPM_COMM_WORLD_SWAP_F = PMPI_Comm_c2f(G_GEOPM_COMM_WORLD_SWAP);
+                G_GEOPM_COMM_WORLD_F = PMPI_Comm_c2f(MPI_COMM_WORLD);
             }
             if (!err && is_ctl) {
                 int ctl_rank;

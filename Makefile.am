@@ -111,9 +111,13 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.md \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
+             copying_headers/header.BSD3-ompi \
+             copying_headers/header.BSD3-mvapich2 \
              copying_headers/header.NAS \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.BSD3-intel \
+             copying_headers/MANIFEST.BSD3-ompi \
+             copying_headers/MANIFEST.BSD3-mvapich2 \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.NAS \
              copying_headers/test-license \
@@ -188,6 +192,12 @@ if ENABLE_MPI
     geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
+
+if ENABLE_FORTRAN
+    libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
+    libgeopmfort_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
+endif
 endif
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
@@ -199,7 +209,7 @@ if ENABLE_MPI
     libgeopm_la_LIBADD = $(MPI_CLIBS)
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
 if ENABLE_FORTRAN
-    libgeopmfort_la_LIBADD = libgeopm.la
+    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
 endif
 
@@ -344,7 +354,9 @@ if ENABLE_MPI
                           src/geopm_version.h \
                           # end
 if ENABLE_FORTRAN
-    libgeopmfort_la_SOURCES = src/geopm.f90
+    libgeopmfort_la_SOURCES = src/geopm.f90 \
+                              src/geopm_pmpi_fortran.c \
+                              #end
 endif
 
     geopmctl_SOURCES = src/geopmctl_main.c \
@@ -376,7 +388,7 @@ distclean-local-ruby:
 # FORTRAN MODULE TARGET
 if ENABLE_FORTRAN
 geopm.mod: src/geopm.f90
-	$(FC) $(AM_FCFLAGS) $(FCFLAGS) -c $(FCFLAGS_f90) $<
+	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
 endif
 
 # RPM TARGET
@@ -443,6 +455,7 @@ man/geopmaprun.1: man/geopm_launcher.1
 check_PROGRAMS =
 check_LTLIBRARIES =
 noinst_PROGRAMS =
+noinst_LTLIBRARIES =
 TESTS =
 
 include test/Makefile.mk
