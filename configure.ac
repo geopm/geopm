@@ -428,6 +428,7 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
 ])
 
+AM_CONDITIONAL([HAVE_GFORTRAN], [test ! -z "$FC" && $FC --version | grep GCC > /dev/null])
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
 AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
@@ -468,8 +469,13 @@ AC_COMPILE_IFELSE([
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Werror"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Werror"]
-[EXTRA_FFLAGS="$EXTRA_FFLAGS -Wall -Werror -fno-range-check"]
-[EXTRA_FCFLAGS="$EXTRA_FCFLAGS -Wall -Werror -fno-range-check"]
+if test ! -z "$FC" && $FC --version | grep GCC > /dev/null; then
+[EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
+[EXTRA_FCFLAGS="$EXTRA_FCFLAGS -fno-range-check"]
+else
+[EXTRA_FFLAGS="$EXTRA_FFLAGS"]
+[EXTRA_FCFLAGS="$EXTRA_FCFLAGS"]
+fi
 
 [AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
 [AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
