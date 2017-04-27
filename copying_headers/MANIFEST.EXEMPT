@@ -15,7 +15,7 @@ doc/geopm-plugin-guide.tex
 doc/leaf-figure.pdf
 doc/tree-figure.pdf
 dox/Doxyfile
-examples/README
+examples/README.md
 examples/amg2013/README
 examples/comd/README
 examples/fft/README
