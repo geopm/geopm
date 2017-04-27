@@ -65,7 +65,7 @@ static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_messa
 
 static geopm::Profile &geopm_default_prof(void)
 {
-    static geopm::Profile default_prof(std::string(program_invocation_name), MPI_COMM_WORLD);
+    static geopm::Profile default_prof(geopm_env_name(), MPI_COMM_WORLD);
     return default_prof;
 }
 

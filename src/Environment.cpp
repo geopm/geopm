@@ -43,7 +43,7 @@
 
 namespace geopm
 {
-    /// @brief Environment class encapuslaes all functionality related to
+    /// @brief Environment class encapsulates all functionality related to
     /// dealing with runtime environment variables.
     class Environment
     {
@@ -55,6 +55,7 @@ namespace geopm
             const char *shmkey(void) const;
             const char *trace(void) const;
             const char *plugin_path(void) const;
+            const char *name(void) const;
             int report_verbosity(void) const;
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
@@ -71,6 +72,7 @@ namespace geopm
             std::string m_shmkey_env;
             std::string m_trace_env;
             std::string m_plugin_path_env;
+            std::string m_name_env;
             int m_report_verbosity;
             int m_pmpi_ctl;
             bool m_do_region_barrier;
@@ -93,6 +95,7 @@ namespace geopm
         , m_shmkey_env("/geopm-shm")
         , m_trace_env("")
         , m_plugin_path_env("")
+        , m_name_env(std::string(program_invocation_name))
         , m_report_verbosity(0)
         , m_pmpi_ctl(GEOPM_PMPI_CTL_NONE)
         , m_do_region_barrier(false)
@@ -110,6 +113,7 @@ namespace geopm
         m_shmkey_env += "-" + std::to_string(geteuid());
         m_do_trace = get_env("GEOPM_TRACE", m_trace_env);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path_env);
+        (void)get_env("GEOPM_APP_NAME", m_name_env);
         if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report_env.size()) {
             m_report_verbosity = 1;
         }
@@ -193,6 +197,11 @@ namespace geopm
         return m_plugin_path_env.c_str();
     }
 
+    const char *Environment::name(void) const
+    {
+        return m_name_env.c_str();
+    }
+
     int Environment::report_verbosity(void) const
     {
         return m_report_verbosity;
@@ -254,6 +263,11 @@ extern "C"
     const char *geopm_env_plugin_path(void)
     {
         return geopm::environment().plugin_path();
+    }
+
+    const char *geopm_env_name(void)
+    {
+        return geopm::environment().name();
     }
 
     const char *geopm_env_report(void)
