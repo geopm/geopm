@@ -175,7 +175,7 @@ void MPIInterfaceTest::reset()
     // Reset globals in geopm_pmpi.c
     g_is_geopm_pmpi_ctl_enabled = 0;
     g_is_geopm_pmpi_prof_enabled = 0;
-    G_GEOPM_COMM_WORLD_SWAP = MPI_COMM_WORLD;
+    g_geopm_comm_world_swap = MPI_COMM_WORLD;
     g_ppn1_comm = MPI_COMM_NULL;
     g_ctl = NULL;
 
@@ -210,11 +210,11 @@ TEST_F(MPIInterfaceTest, geopm_api)
     MPI_Comm_dup(MPI_COMM_WORLD, &comm);
     result = geopm_swap_comm_world(comm);
     EXPECT_EQ(result, comm);
-    EXPECT_NE(G_GEOPM_COMM_WORLD_SWAP, result);
+    EXPECT_NE(g_geopm_comm_world_swap, result);
 
     comm = MPI_COMM_WORLD;
     result = geopm_swap_comm_world(comm);
-    EXPECT_EQ(G_GEOPM_COMM_WORLD_SWAP, result);
+    EXPECT_EQ(g_geopm_comm_world_swap, result);
     reset();
 
     geopm_pmpi_prof_enable(1);
