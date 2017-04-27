@@ -39,13 +39,7 @@ import datetime
 import signal
 import StringIO
 import math
-
-# Add ../scripts to the python path
-sys.path.append(os.path.join(
-                os.path.dirname(
-                os.path.dirname(
-                os.path.realpath(__file__))), 'scripts'))
-
+import geopm_test_path
 import geopm_launcher
 from geopm_launcher import resource_manager
 
