@@ -39,6 +39,8 @@ GEOPM options:
                               region "pol"
       --geopm-report=path     create geopm report files with base name "path"
       --geopm-trace=path      create geopm trace files with base name "path"
+      --geopm-profile=name    set the name of the profile in the report and
+                              trace to "name"
       --geopm-shmkey=key      use shared memory keys for geopm starting with
                               "key"
       --geopm-timeout=sec     application waits "sec" seconds for handshake
@@ -199,6 +201,7 @@ class Config(object):
         parser.add_option('--geopm-policy', dest='policy', nargs=1, type='string')
         parser.add_option('--geopm-report', dest='report', nargs=1, type='string')
         parser.add_option('--geopm-trace', dest='trace', nargs=1, type='string')
+        parser.add_option('--geopm-profile', dest='profile', nargs=1, type='string')
         parser.add_option('--geopm-shmkey', dest='shmkey', nargs=1, type='string')
         parser.add_option('--geopm-timeout', dest='timeout', nargs=1, type='string')
         parser.add_option('--geopm-plugin', dest='plugin', nargs=1, type='string')
@@ -215,6 +218,7 @@ class Config(object):
         self.policy = opts.policy
         self.report = opts.report
         self.trace = opts.trace
+        self.profile = opts.profile
         self.shmkey = opts.shmkey
         self.timeout = opts.timeout
         self.plugin = opts.plugin
@@ -246,8 +250,12 @@ class Config(object):
         result = {'LD_DYNAMIC_WEAK':'true'}
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
-        if self.ctl == 'application' and not self.report and not self.trace:
-            result['GEOPM_PROFILE'] = 'true'
+        if self.profile:
+            result['GEOPM_PROFILE'] = self.profile
+        elif len(self.argv_unparsed):
+            result['GEOPM_PROFILE'] = self.argv_unparsed[0]
+        else:
+            result['GEOPM_PROFILE'] = 'geopm-profile'
         if self.policy:
             result['GEOPM_POLICY'] = self.policy
         if self.report:
