@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17d3de31_e28a1acd",
+        "filename": "src/geopm_fortran_mpi_wrappers.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-27T18:43:17Z",
+      "side": 1,
+      "message": "Do these macros ($COPYRIGHT$ and $HEADER$) need some expansion?",
+      "revId": "86d33eef7fb555b9871b39335188d82d2d95b7f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74abec7b_0e15a838",
+        "filename": "src/geopm_fortran_strings.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-27T18:43:17Z",
+      "side": 1,
+      "message": "yuck no brackets.",
+      "revId": "86d33eef7fb555b9871b39335188d82d2d95b7f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "916cd320_1ae23af0",
+        "filename": "src/geopm_fortran_strings.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-27T18:43:17Z",
+      "side": 1,
+      "message": "Looks in dire need of a trip through astyle.",
+      "revId": "86d33eef7fb555b9871b39335188d82d2d95b7f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
