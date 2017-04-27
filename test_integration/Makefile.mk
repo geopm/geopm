@@ -57,5 +57,6 @@ EXTRA_DIST += test_integration/geopm_test_integration.py \
               test_integration/geopm_io.py \
               test_integration/geopm_test_launcher.py \
               test_integration/geopm_test_loop.sh \
+              test_integration/geopm_test_path.py \
               test_integration/README.md \
               # end
