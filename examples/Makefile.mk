@@ -29,7 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += examples/README \
+EXTRA_DIST += examples/README.md \
               examples/example_policy.json \
               examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch \
               examples/amg2013/README \
@@ -61,14 +61,7 @@ examples_geopmhash_SOURCES = examples/geopmhash.c
 examples_geopmhash_LDADD = libgeopmpolicy.la
 
 if ENABLE_MPI
-    noinst_PROGRAMS += examples/geopm_ctl_single \
-                       examples/timed_region \
-                       # end
-    examples_geopm_ctl_single_SOURCES = examples/geopm_ctl_single.cpp
-    examples_geopm_ctl_single_LDADD = libgeopm.la $(MPI_CXXLIBS)
-    examples_geopm_ctl_single_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    examples_geopm_ctl_single_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    examples_geopm_ctl_single_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    noinst_PROGRAMS += examples/timed_region
     examples_timed_region_SOURCES = examples/timed_region.cpp
     examples_timed_region_LDADD = libgeopm.la $(MPI_CXXLIBS)
     examples_timed_region_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
