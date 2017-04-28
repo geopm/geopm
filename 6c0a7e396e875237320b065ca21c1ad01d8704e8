@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49ad54cc_0f7c7cee",
+        "filename": "scripts/geopm_launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-28T05:48:34Z",
+      "side": 1,
+      "message": "Steve, is this the restriction you are expecting for the algorithm below to be correct?",
+      "revId": "6c0a7e396e875237320b065ca21c1ad01d8704e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
