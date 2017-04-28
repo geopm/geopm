@@ -483,11 +483,20 @@ class Launcher(object):
         result = []
         app_cpu_per_node = self.num_app_mask * self.cpu_per_rank
         core_per_node = self.core_per_socket * self.num_socket
-        if app_cpu_per_node > core_per_node and app_cpu_per_node % core_per_node != 0:
-            raise RuntimeError('Cores cannot be shared between MPI ranks')
-        app_thread_per_core = int_ceil_div(app_cpu_per_node, core_per_node)
         rank_per_socket = self.num_app_mask // self.num_socket
+        cpu_per_socket = self.num_linux_cpu // self.num_socket
 
+        app_thread_per_core = 1
+        if app_cpu_per_node > core_per_node:
+            app_thread_per_core = 2
+            while app_thread_per_core <= self.thread_per_core:
+               if (app_cpu_per_node % app_thread_per_core == 0 and
+                   app_cpu_per_node // app_thread_per_core <= core_per_node):
+                   break
+               app_thread_per_core += 1
+
+        if app_thread_per_core > self.thread_per_core:
+            raise RuntimeError('Cores cannot be shared between MPI ranks')
         if app_cpu_per_node > self.num_linux_cpu:
             raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
         if app_cpu_per_node % core_per_node == 0:
@@ -520,15 +529,15 @@ class Launcher(object):
                 rank_mask = set()
                 if rank == 0 and self.config.ctl == 'pthread':
                    rank_mask.add(geopm_ctl_cpu)
-                for thread in range(self.cpu_per_rank):
+                for thread in range(self.cpu_per_rank // app_thread_per_core):
                     rank_mask.add(off)
                     for hthread in range(1, app_thread_per_core):
                         rank_mask.add(off + hthread * core_per_node)
                     off += 1
                 result.append(rank_mask)
-                if rank != 0 and rank % rank_per_socket == 0:
+                if rank != 0 and (rank + 1) % rank_per_socket == 0:
                     socket += 1
-                    off = cpu_per_socket * socket
+                    off = self.core_per_socket * socket
 
         return result
 
