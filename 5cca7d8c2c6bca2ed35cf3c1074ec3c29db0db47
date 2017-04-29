@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45c902da_78c97c85",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-29T01:20:53Z",
+      "side": 1,
+      "message": "Don\u0027t need std::string() C++ string creation, it will just force an temporary copy.",
+      "revId": "5cca7d8c2c6bca2ed35cf3c1074ec3c29db0db47",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
