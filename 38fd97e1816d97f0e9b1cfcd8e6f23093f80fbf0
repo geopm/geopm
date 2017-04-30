@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c5a44f7_f8a72df0",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-04-30T16:42:07Z",
+      "side": 1,
+      "message": "I think we should just use the value of GEOPM_PROFILE for the profile name and ditch GEOPM_PROFILE_NAME.  This would avoid introducing a new environment variable and actually use the value of the existing variable rather than just check existence.",
+      "revId": "38fd97e1816d97f0e9b1cfcd8e6f23093f80fbf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
