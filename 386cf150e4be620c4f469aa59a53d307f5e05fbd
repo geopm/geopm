@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3a2aef6_45c89310",
+        "filename": "ronn/geopm_plotter.1.ronn",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-01T21:07:46Z",
+      "side": 1,
+      "message": "not posix complient",
+      "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7604675a_2ad1f4da",
+        "filename": "ronn/geopm_plotter.1.ronn",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-01T21:07:46Z",
+      "side": 1,
+      "message": "--ref_profile_name?",
+      "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a01f68da_adbdc88e",
+        "filename": "ronn/geopm_plotter.1.ronn",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-01T21:07:46Z",
+      "side": 1,
+      "message": "--tgt_profile_name?",
+      "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "637cdd69_d692f53c",
+        "filename": "scripts/geopm_io.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-01T21:07:46Z",
+      "side": 1,
+      "message": "if not report_base:\n    report_base \u003d \u0027*report*\u0027\nelse:\n    report_base +\u003d \u0027*\u0027",
+      "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82b09805_5cae308e",
+        "filename": "scripts/geopm_io.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-01T21:07:46Z",
+      "side": 1,
+      "message": "Make the index its own object and encapsulate the interation count in that object?",
+      "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
