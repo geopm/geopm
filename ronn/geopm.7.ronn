@@ -199,18 +199,13 @@ will print a subset of the fields in the trace file called
     documented above.
 
   * `GEOPM_PROFILE`:
-    If set, will enable geopm profiling.  Only required when running
-    the controller with the geopmctl application and no report or
-    trace is being generated.  If `GEOPM_REPORT`, or `GEOPM_TRACE` are
-    set then geopm profiling will be enabled.  Also if
-    `GEOPM_PMPI_CTL` is set to "process" or "pthread" geopm profiling
-    will be enabled.
-
-  * `GEOPM_PROFILE_NAME`:
-    If set, will override the profile name to the value specified.  The
-    default profile name is the name of the compute application
-    executable.  The profile name is printed in the report and trace and
-    can be used to index the report and trace data during post-processing.
+    If set, will override the profile name to the value specified.
+    The default profile name is the name of the compute application
+    executable.  The profile name is printed in the report and trace
+    and can be used to index the report and trace data during
+    post-processing.  This option is required when running the
+    controller with the geopmctl application and no report or trace is
+    being generated.
 
   * `GEOPM_PROFILE_TIMEOUT`:
     If set, will enable changing of the geopm profiler timeout.  The
