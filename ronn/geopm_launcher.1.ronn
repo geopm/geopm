@@ -63,7 +63,6 @@ extra processes as required by the GEOPM runtime.
 ## OPTIONS
 
 * `--geopm-ctl` _process_|_pthread_|_application_:
-
   Use GEOPM runtime and launch GEOPM with one of three methods:
   _process_, _pthread_ or _application_.  The _process_ method
   allocates one extra MPI process per node for the GEOPM controller.
@@ -112,6 +111,10 @@ extra processes as required by the GEOPM runtime.
   The path is extended with the host name of the node for each created
   file.  This feature is primarily a debugging tool, and will not
   scale to large node counts due to file system issues.
+
+* `--geopm-profile` name:
+  The name of the profile which is printed in the report and trace
+  files.  This name can be used to index the data in post-processing.
 
 * `--geopm-shmkey` key:
   Specify a special prefix to be used with all of the shared memory
