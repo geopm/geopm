@@ -84,6 +84,29 @@
       "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5567b9e8_7cf25e81",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-01T21:19:58Z",
+      "side": 1,
+      "message": "Undo this, make POSIX compliant.",
+      "range": {
+        "startLine": 331,
+        "startChar": 41,
+        "endLine": 331,
+        "endChar": 61
+      },
+      "revId": "386cf150e4be620c4f469aa59a53d307f5e05fbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
