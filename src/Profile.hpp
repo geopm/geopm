@@ -80,6 +80,54 @@ struct geopm_ctl_message_s {
 
 namespace geopm
 {
+
+    class ProfileBase
+    {
+        public:
+            ProfileBase() {}
+            ProfileBase(const ProfileBase &other) {}
+            virtual ~ProfileBase() {}
+            virtual uint64_t region(const std::string region_name, long hint) = 0;
+            virtual void enter(uint64_t region_id) = 0;
+            virtual void exit(uint64_t region_id) = 0;
+            virtual void progress(uint64_t region_id, double fraction) = 0;
+            virtual void epoch(void) = 0;
+            virtual void disable(const std::string feature_name) = 0;
+            virtual void shutdown(void) = 0;
+    };
+
+    class ProfileRankSamplerBase
+    {
+        public:
+            ProfileRankSamplerBase() {}
+            ProfileRankSamplerBase(const ProfileRankSamplerBase &other) {}
+            virtual ~ProfileRankSamplerBase() {}
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) = 0;
+            virtual size_t capacity(void) = 0;
+            virtual bool name_fill(std::set<std::string> &name_set) = 0;
+            virtual void report_name(std::string &report_str) = 0;
+            virtual void profile_name(std::string &prof_str) = 0;
+    };
+
+    class ProfileSamplerBase
+    {
+        public:
+            ProfileSamplerBase() {}
+            ProfileSamplerBase(const ProfileSamplerBase &other) {}
+            virtual ~ProfileSamplerBase() {}
+            virtual size_t capacity(void) = 0;
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) = 0;
+            virtual bool do_shutdown(void) = 0;
+            virtual bool do_report(void) = 0;
+            virtual void region_names(void) = 0;
+            virtual void initialize(int &rank_per_node) = 0;
+            virtual void cpu_rank(std::vector<int> &cpu_rank) = 0;
+            virtual void name_set(std::set<std::string> &region_name) = 0;
+            virtual void report_name(std::string &report_str) = 0;
+            virtual void profile_name(std::string &prof_str) = 0;
+    };
+
+
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///
@@ -115,7 +163,7 @@ namespace geopm
     /// for use with the geopm_prof_c structure and are named
     /// accordingly.  The geopm_prof_c structure is an opaque
     /// reference to the Profile class.
-    class Profile
+    class Profile : public ProfileBase
     {
         public:
             /// @brief Profile constructor.
@@ -325,7 +373,7 @@ namespace geopm
     /// The ProfileRankSampler is the runtime side interface to the shared
     /// memory region for a single rank of the application. It can retrieve
     /// samples from the shared hash table for that rank.
-    class ProfileRankSampler
+    class ProfileRankSampler : public ProfileRankSamplerBase
     {
         public:
             /// @brief ProfileRankSampler constructor.
@@ -364,14 +412,6 @@ namespace geopm
             /// @return The maximum number of samples that can possibly
             ///         be returned.
             size_t capacity(void);
-            /// @brief Print out a detailed post-runtime report.
-            ///
-            /// Handshakes with the application process to retrieve region
-            /// names and prints a report of per region statistics of the
-            /// runtime characteristics of that region.
-            ///
-            /// @param [in] file_desc File descriptor to write the report out to.
-            void report(std::ofstream &file_desc);
             /// @brief Retrieve region names from the application process.
             ///
             /// Coordinates with the application process to retrieve the
@@ -411,7 +451,7 @@ namespace geopm
     /// on a single compute node. It is also the interface to the shared
     /// memory region used to coordinate between the geopm runtime and
     /// the MPI application.
-    class ProfileSampler
+    class ProfileSampler : public ProfileSamplerBase
     {
         public:
             /// @brief ProfileSampler constructor.
@@ -423,7 +463,7 @@ namespace geopm
             ///        be created for each application rank.
             ProfileSampler(size_t table_size);
             /// @brief ProfileSampler destructor.
-            virtual ~ProfileSampler(void);
+            virtual ~ProfileSampler();
             /// @brief Retrieve the maximum capacity of all the per-rank
             ///        hash tables.
             ///

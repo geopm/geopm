@@ -65,9 +65,18 @@ namespace geopm
         GEOPM_DOMAIN_TILE,
     };
 
+    class PlatformTopologyBase
+    {
+        public:
+            PlatformTopologyBase() {}
+            PlatformTopologyBase(const PlatformTopologyBase &other) {}
+            virtual ~PlatformTopologyBase() {}
+            virtual int num_domain(int domain_type) const = 0;
+    };
+
     /// @brief This class is a wrapper around hwloc. It holds the topology of
     /// hardware resources of the platform.
-    class PlatformTopology
+    class PlatformTopology : public PlatformTopologyBase
     {
         public:
             /// @brief Default constructor initializes and builds

@@ -40,11 +40,44 @@
 
 namespace geopm
 {
+    class PlatformBase
+    {
+        public:
+            PlatformBase() {}
+            virtual ~PlatformBase() {}
+            virtual void set_implementation(PlatformImp* platform_imp, bool do_initialize) = 0;
+            virtual int num_domain(void) const = 0;
+            virtual void name(std::string &plat_name) const = 0;
+            virtual void tdp_limit(double percentage) const = 0;
+            virtual void manual_frequency(int frequency, int num_cpu_max_perf, int affinity) const = 0;
+            virtual void save_msr_state(const char *path) const = 0;
+            virtual void restore_msr_state(const char *path) const = 0;
+            virtual void write_msr_whitelist(FILE *file_desc) const = 0;
+            virtual void revert_msr_state(void) const = 0;
+            virtual int control_domain(void) = 0;
+            virtual size_t capacity(void) = 0;
+            virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values) = 0;
+            virtual bool model_supported(int platform_id, const std::string &description) const = 0;
+            virtual void enforce_policy(uint64_t region_id, Policy &policy) const = 0;
+            virtual void bound(double &upper_bound, double &lower_bound) = 0;
+            virtual const PlatformTopology *topology(void) const = 0;
+            virtual void init_transform(const std::vector<int> &cpu_rank) = 0;
+            virtual int num_control_domain(void) const = 0;
+            virtual double control_latency_ms(void) const = 0;
+            virtual double throttle_limit_mhz(void) const = 0;
+            virtual bool is_updated(void) = 0;
+            virtual void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
+                                             const std::vector<double> &aligned_data,
+                                             std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
+    };
+
+
+
     /// @brief This class provides an abstraction of specific functionality
     /// and attributes of classes of hardware implementations. It holds
     /// the implementation of the specific hardware platform and knows how
     /// to interact with it.
-    class Platform
+    class Platform : public PlatformBase
     {
         public:
             /// @brief Default constructor.

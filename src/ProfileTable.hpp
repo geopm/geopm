@@ -41,6 +41,20 @@
 
 namespace geopm
 {
+    class ProfileTableBase
+    {
+        public:
+            ProfileTableBase() {}
+            virtual ~ProfileTableBase() {}
+            virtual uint64_t key(const std::string &name) = 0;
+            virtual void insert(uint64_t key, const struct geopm_prof_message_s &value) = 0;
+            virtual size_t capacity(void) const = 0;
+            virtual size_t size(void) const = 0;
+            virtual void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length) = 0;
+            virtual bool name_fill(size_t header_offset) = 0;
+            virtual bool name_set(size_t header_offset, std::set<std::string> &name) = 0;
+    };
+
     /// @brief Container for multi-threaded or multi-process
     ///        producer consumer data exchange.
     ///
@@ -60,7 +74,7 @@ namespace geopm
     /// inter-process shared memory.  See the geopm::SharedMemory
     /// class for information on usage with POSIX inter-process shared
     /// memory.
-    class ProfileTable
+    class ProfileTable : public ProfileTableBase
     {
         public:
             /// @brief Constructor for the ProfileTable.
