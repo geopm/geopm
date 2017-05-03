@@ -316,7 +316,7 @@ namespace geopm
         ,m_out_config(out_config)
         ,m_mode(GEOPM_POLICY_MODE_STATIC)
         ,m_power_budget_watts(-1)
-        ,m_flags(0)
+        ,m_flags(NULL)
         ,m_tree_decider("none")
         ,m_leaf_decider("none")
         ,m_platform("rapl")
@@ -328,6 +328,7 @@ namespace geopm
         int shm_id;
         int err = 0;
 
+        m_flags = new PolicyFlags(0);
         if (!m_out_config.empty()) {
             m_do_write = true;
             if (m_out_config[0] == '/' && m_out_config.find_last_of('/') == 0) {
@@ -424,6 +425,7 @@ namespace geopm
 #endif
             }
         }
+        delete m_flags;
     }
 
     int GlobalPolicy::mode(void) const
@@ -433,12 +435,12 @@ namespace geopm
 
     int GlobalPolicy::frequency_mhz(void) const
     {
-        return m_flags.frequency_mhz();;
+        return m_flags->frequency_mhz();;
     }
 
     int GlobalPolicy::tdp_percent(void) const
     {
-        return m_flags.tdp_percent();
+        return m_flags->tdp_percent();
     }
 
     int GlobalPolicy::budget_watts(void) const
@@ -448,17 +450,17 @@ namespace geopm
 
     int GlobalPolicy::affinity(void) const
     {
-        return m_flags.affinity();;
+        return m_flags->affinity();;
     }
 
     int GlobalPolicy::goal(void) const
     {
-        return m_flags.goal();
+        return m_flags->goal();
     }
 
     int GlobalPolicy::num_max_perf(void) const
     {
-        return m_flags.num_max_perf();
+        return m_flags->num_max_perf();
     }
 
     const std::string &GlobalPolicy::tree_decider() const
@@ -483,7 +485,7 @@ namespace geopm
         }
         policy_message.mode = m_mode;
         policy_message.power_budget = m_power_budget_watts;
-        policy_message.flags = m_flags.flags();
+        policy_message.flags = m_flags->flags();
     }
 
     void GlobalPolicy::mode(int mode)
@@ -493,12 +495,12 @@ namespace geopm
 
     void GlobalPolicy::frequency_mhz(int frequency)
     {
-        m_flags.frequency_mhz(frequency);
+        m_flags->frequency_mhz(frequency);
     }
 
     void GlobalPolicy::tdp_percent(int percentage)
     {
-        m_flags.tdp_percent(percentage);
+        m_flags->tdp_percent(percentage);
     }
 
     void GlobalPolicy::budget_watts(int budget)
@@ -508,17 +510,17 @@ namespace geopm
 
     void GlobalPolicy::affinity(int affinity)
     {
-        m_flags.affinity(affinity);;
+        m_flags->affinity(affinity);;
     }
 
     void GlobalPolicy::goal(int geo_goal)
     {
-        m_flags.goal(geo_goal);
+        m_flags->goal(geo_goal);
     }
 
     void GlobalPolicy::num_max_perf(int num_big_cores)
     {
-        m_flags.num_max_perf(num_big_cores);
+        m_flags->num_max_perf(num_big_cores);
     }
 
     void GlobalPolicy::tree_decider(const std::string &description)
@@ -817,7 +819,7 @@ namespace geopm
         }
         m_mode = m_policy_shmem_in->policy.mode;
         m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
-        m_flags.flags(m_policy_shmem_in->policy.flags);
+        m_flags->flags(m_policy_shmem_in->policy.flags);
         m_tree_decider = m_policy_shmem_in->plugin.tree_decider;
         m_leaf_decider = m_policy_shmem_in->plugin.leaf_decider;
         m_platform = m_policy_shmem_in->plugin.platform;
@@ -963,7 +965,7 @@ namespace geopm
         }
         m_policy_shmem_out->policy.mode = m_mode;
         m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
-        m_policy_shmem_out->policy.flags = m_flags.flags();
+        m_policy_shmem_out->policy.flags = m_flags->flags();
         m_policy_shmem_out->plugin.tree_decider[NAME_MAX - 1] = '\0';
         strncpy(m_policy_shmem_out->plugin.tree_decider, m_tree_decider.c_str(), NAME_MAX - 1);
         m_policy_shmem_out->plugin.leaf_decider[NAME_MAX - 1] = '\0';

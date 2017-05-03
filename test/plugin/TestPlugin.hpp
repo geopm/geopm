@@ -46,7 +46,7 @@ class DumbDecider : public Decider
         DumbDecider();
         virtual ~DumbDecider();
         virtual Decider *clone() const;
-        virtual bool update_policy(Region &curr_region, Policy &curr_policy);
+        virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
         virtual bool decider_supported(const std::string &descripton);
         virtual const std::string& name(void) const;
     protected:
@@ -62,7 +62,7 @@ class DumbPlatform : public Platform
         virtual void initialize(void);
         virtual void sample(std::vector<struct geopm_msr_message_s> &msr_msg);
         virtual bool model_supported(int platfrom_id, const std::string &description) const;
-        virtual void enforce_policy(uint64_t region_id, Policy &policy) const;
+        virtual void enforce_policy(uint64_t region_id, IPolicy &policy) const;
         virtual int control_domain(void);
         virtual void bound(double &upper_bound, double &lower_bound);
     protected:

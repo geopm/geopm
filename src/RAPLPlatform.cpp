@@ -231,7 +231,7 @@ namespace geopm
         }
     }
 
-    void RAPLPlatform::enforce_policy(uint64_t region_id, Policy &policy) const
+    void RAPLPlatform::enforce_policy(uint64_t region_id, IPolicy &policy) const
     {
         int control_type;
         std::vector<double> target(m_num_energy_domain);

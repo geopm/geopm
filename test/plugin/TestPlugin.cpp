@@ -92,7 +92,7 @@ const std::string& DumbDecider::name(void) const
     return m_name;
 }
 
-bool DumbDecider::update_policy(Region &curr_region, Policy &curr_policy)
+bool DumbDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
 {
     return false;
 }
@@ -123,7 +123,7 @@ bool DumbPlatform::model_supported(int platform_id, const std::string &descripti
     return false;
 }
 
-void DumbPlatform::enforce_policy(uint64_t region_id, Policy &policy) const
+void DumbPlatform::enforce_policy(uint64_t region_id, IPolicy &policy) const
 {
 
 }

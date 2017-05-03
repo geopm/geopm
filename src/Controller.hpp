@@ -98,7 +98,7 @@ namespace geopm
             ///
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
-            Controller(GlobalPolicy *global_policy, MPI_Comm comm);
+            Controller(IGlobalPolicy *global_policy, MPI_Comm comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
             /// @brief Run control algorithm.
@@ -177,22 +177,22 @@ namespace geopm
             bool m_is_node_root;
             int m_max_fanout;
             std::vector<int> m_fan_out;
-            const GlobalPolicy *m_global_policy;
-            TreeCommunicatorBase *m_tree_comm;
-            std::vector<Decider *> m_tree_decider;
-            Decider *m_leaf_decider;
+            const IGlobalPolicy *m_global_policy;
+            ITreeCommunicator *m_tree_comm;
+            std::vector<IDecider *> m_tree_decider;
+            IDecider *m_leaf_decider;
             DeciderFactory *m_decider_factory;
             PlatformFactory *m_platform_factory;
             Platform *m_platform;
-            ProfileSampler *m_sampler;
-            SampleRegulator *m_sample_regulator;
-            Tracer *m_tracer;
+            IProfileSampler *m_sampler;
+            ISampleRegulator *m_sample_regulator;
+            ITracer *m_tracer;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             std::vector<struct geopm_msr_message_s> m_msr_sample;
             std::vector<struct geopm_telemetry_message_s> m_telemetry_sample;
             // Per level vector of maps from region identifier to region object
-            std::vector<std::map <uint64_t, Region *> > m_region;
-            std::vector<Policy *> m_policy;
+            std::vector<std::map <uint64_t, IRegion *> > m_region;
+            std::vector<IPolicy *> m_policy;
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
             std::vector<struct geopm_sample_message_s> m_last_sample_msg;
             std::vector<uint64_t> m_region_id;

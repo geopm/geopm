@@ -79,7 +79,7 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Decider object has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider, void *dl_ptr);
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr);
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Platform object has been created. */
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform, void *dl_ptr);

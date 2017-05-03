@@ -45,26 +45,20 @@ namespace geopm
     /// The CircularBuffer container implements a fixed size buffer. Once
     /// at capacity, any new insertions cause the oldest entry to be dropped.
     template <class type>
-    class CircularBuffer
+    class ICircularBuffer
     {
         public:
-            /// @brief Constructor for the CircularBuffer template.
-            ///
-            /// Creates an empty circular buffer with a set capacity.
-            ///
-            /// @param [in] size Requested capacity for the buffer.
-            CircularBuffer(unsigned int size);
-            /// @brief CircularBuffer destructor, virtual
-            virtual ~CircularBuffer();
+            ICircularBuffer() {}
+            virtual ~ICircularBuffer() {}
             /// @brief Re-size the circular buffer.
             ///
             /// Resets the capacity of the circular buffer without
             /// modifying it's current contents.
             ///
             /// @param [in] size Requested capacity for the buffer.
-            void set_capacity(const unsigned int size);
+            virtual void set_capacity(const unsigned int size) = 0;
             /// @brief Clears all entries from the buffer.
-            void clear(void);
+            virtual void clear(void) = 0;
             /// @brief Size of the buffer contents.
             ///
             /// Returns the number of items in the buffer. This
@@ -72,14 +66,14 @@ namespace geopm
             /// capacity of the buffer.
             //
             /// @return Size of the buffer contents.
-            int size(void) const;
+            virtual int size(void) const = 0;
             /// @brief Capacity of the buffer.
             ///
             /// Returns the current size of the circular buffer at
             /// the time of the call.
             ///
             /// @return Capacity of the buffer.
-            int capacity(void) const;
+            virtual int capacity(void) const = 0;
             /// @brief Insert a value into the buffer.
             ///
             /// If the buffer is not full, the new value is simply
@@ -89,7 +83,7 @@ namespace geopm
             /// at the end of the buffer.
             ///
             /// @param [in] value The value to be inserted.
-            void insert(const type value);
+            virtual void insert(const type value) = 0;
             /// @brief Returns a constant refernce to the value from the buffer.
             ///
             /// Accesses the contents of the circular buffer
@@ -103,6 +97,30 @@ namespace geopm
             /// @param [in] index Buffer index to retrieve.
             ///
             /// @return Value from the specified buffer index.
+            virtual const type& value(const unsigned int index) const = 0;
+    };
+
+    /// @brief Templated container for a circular buffer implementation.
+    ///
+    /// The CircularBuffer container implements a fixed size buffer. Once
+    /// at capacity, any new insertions cause the oldest entry to be dropped.
+    template <class type>
+    class CircularBuffer : public ICircularBuffer <type>
+    {
+        public:
+            /// @brief Constructor for the CircularBuffer template.
+            ///
+            /// Creates an empty circular buffer with a set capacity.
+            ///
+            /// @param [in] size Requested capacity for the buffer.
+            CircularBuffer(unsigned int size);
+            /// @brief CircularBuffer destructor, virtual
+            virtual ~CircularBuffer();
+            void set_capacity(const unsigned int size);
+            void clear(void);
+            int size(void) const;
+            int capacity(void) const;
+            void insert(const type value);
             const type& value(const unsigned int index) const;
         protected:
             /// @brief Vector holding the buffer data.
