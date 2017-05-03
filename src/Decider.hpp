@@ -45,16 +45,16 @@ namespace geopm
     /// which controls power/frequency within a single node. The second is a tree
     /// decider ehich controls power/frequency across a set of nodes that are direct
     /// decendants of it in the geopm tree hierarchy.
-    class Decider
+    class IDecider
     {
         public:
             /// @brief Decider default constructor.
-            Decider();
-            Decider(const Decider &other);
+            IDecider() {}
+            IDecider(const IDecider &other) {}
             /// @brief Decider destructor, virtual.
-            virtual ~Decider();
+            virtual ~IDecider() {}
             /// @brief return a pointer of the derived class, virtual.
-            virtual Decider *clone() const = 0;
+            virtual IDecider *clone() const = 0;
             ///@brief Return the upper and lower control bounds.
             /// For a power based control, this will be the upper and lower
             /// power bounds of a single tree node below the current one. For
@@ -65,16 +65,31 @@ namespace geopm
             ///
             /// @param [in] lower_bound The lower control bound.
             ///
-            virtual void bound(double upper_bound, double lower_bound);
+            virtual void bound(double upper_bound, double lower_bound) = 0;
             /// @brief Updates the power split among power control domains when
             /// recieving a new global budget, vitual.
-            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy);
+            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) = 0;
             /// @brief Calculate a new power policy for the region based on telemery data, virtual.
-            virtual bool update_policy(Region &curr_region, Policy &curr_policy) = 0;
+            virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
             /// @brief Return true if th edescription string matches capabilities of decider, virtual.
             virtual bool decider_supported(const std::string &descripton) = 0;
             /// @brief Return the name of the decider, virtual.
             virtual const std::string& name(void) const = 0;
+    };
+
+    class Decider : public IDecider
+    {
+        public:
+            Decider();
+            Decider(const Decider &other);
+            virtual ~Decider();
+            virtual IDecider *clone() const = 0;
+            virtual void bound(double upper_bound, double lower_bound);
+            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy);
+            virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
+            virtual bool decider_supported(const std::string &descripton) = 0;
+            virtual const std::string& name(void) const = 0;
+        protected:
             /// @brief Save the last known power budget
             double m_last_power_budget;
             /// @brief The upper control bound;

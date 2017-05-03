@@ -50,7 +50,112 @@ namespace geopm
     /// defined for use with the geopm_policy_c structure and are
     /// named accordingly.  The geopm_policy_c structure is an opaque
     /// reference to the geopm::GlobalPolicy class.
-    class GlobalPolicy
+    class IGlobalPolicy
+    {
+        public:
+            IGlobalPolicy() {}
+            /// @brief GlobalPolicy destructor
+            virtual ~IGlobalPolicy() {}
+            /// @brief Get the policy power mode
+            /// @return geopm_policy_mode_e power mode
+            virtual int mode(void) const = 0;
+            /// @brief Get the policy frequency
+            /// @return frequency in MHz
+            virtual int frequency_mhz(void) const = 0;
+            /// @brief Get the policy TDP percentage
+            /// @return TDP (thermal design power) percentage between 0-100
+            virtual int tdp_percent(void) const = 0;
+            /// @brief Get the policy power budget
+            /// @return power budget in watts
+            virtual int budget_watts(void) const = 0;
+            /// @brief Get the policy affinity. This is the cores that we
+            /// will dynamically control. One of
+            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
+            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
+            /// @return enum power affinity
+            virtual int affinity(void) const = 0;
+            /// @brief Get the policy power goal, One of
+            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
+            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
+            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
+            /// @return enum power goal
+            virtual int goal(void) const = 0;
+            /// @brief Get the number of 'big' cores
+            /// @return number of cores where we will run
+            ///         unconstrained power.
+            virtual int num_max_perf(void) const = 0;
+            /// @brief Get the TreeDecider description
+            /// @return String reference containing the description
+            ///         of the requested tree decider
+            virtual const std::string &tree_decider() const = 0;
+            /// @brief Get the LeafDecider description
+            /// @return String reference containing the description
+            ///         of the requested leaf decider
+            virtual const std::string &leaf_decider() const = 0;
+            /// @brief Get the Platform description
+            /// @return String reference containing the description
+            ///         of the requested platform
+            virtual const std::string &platform() const = 0;
+            /// @brief Get the string representation of the mode
+            /// @return String containing the description of the mode
+            virtual std::string mode_string() const = 0;
+            /// @brief Get a policy message from the policy object
+            /// @param [out] policy_message structure to be filled in
+            virtual void policy_message(struct geopm_policy_message_s &policy_message) = 0;
+            /// @brief Set the policy power mode
+            /// @param [in] mode geopm_policy_mode_e power mode
+            virtual void mode(int mode) = 0;
+            /// @brief Set the policy frequency
+            /// @param [in] frequency frequency in MHz
+            virtual void frequency_mhz(int frequency) = 0;
+            /// @brief Set the policy TDP percentage
+            /// @param [in] percentage TDP percentage between 0-100
+            virtual void tdp_percent(int percentage) = 0;
+            /// @brief Set the policy power budget
+            /// @param [in] budget power budget in watts
+            virtual void budget_watts(int budget) = 0;
+            /// @brief Set the policy affinity. This is the cores that we
+            /// will dynamically control. One of
+            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
+            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
+            /// @param [in] cpu_affinity enum power affinity
+            virtual void affinity(int cpu_affinity) = 0;
+            /// @brief Set the policy power goal. One of
+            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
+            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
+            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
+            /// @param [in] geo_goal enum power goal
+            virtual void goal(int geo_goal) = 0;
+            /// @brief Set the number of 'big' cores
+            /// @param [in] num_big_cores of cores where we will run
+            ///        unconstrained power.
+            virtual void num_max_perf(int num_big_cores) = 0;
+            /// @brief Set the requested TreeDecider
+            /// @param [in] Set the description string for the
+            ///             requested tree decider.
+            virtual void tree_decider(const std::string &description) = 0;
+            /// @brief Set the requested LeafDecider
+            /// @param [in] Set the description string for the
+            ///             requested leaf decider.
+            virtual void leaf_decider(const std::string &description) = 0;
+            /// @brief Set the requested Platform
+            /// @param [in] Set the description string for the
+            ///             requested platform.
+            virtual void platform(const std::string &description) = 0;
+            /// @brief Write out a policy file from the current state
+            virtual void write(void) = 0;
+            /// @brief Read in a policy file and set our current state
+            virtual void read(void) = 0;
+            /// @brief Enforce one of the static modes:
+            /// GEOPM_MODE_TDP_BALANCE_STATIC,
+            /// GEOPM_MODE_FREQ_UNIFORM_STATIC, or
+            /// GEOPM_MODE_FREQ_HYBRID_STATIC
+            virtual void enforce_static_mode() = 0;
+            /// @brief Return the header describing the current policy
+            virtual std::string header(void) const = 0;
+    };
+
+    class GlobalPolicy : public IGlobalPolicy
     {
         public:
             /// @brief GlobalPolicy constructor. Only one of in_config or
@@ -64,102 +169,31 @@ namespace geopm
             GlobalPolicy(const std::string in_config, const std::string out_config);
             /// @brief GlobalPolicy destructor
             virtual ~GlobalPolicy();
-            /// @brief Get the policy power mode
-            /// @return geopm_policy_mode_e power mode
             int mode(void) const;
-            /// @brief Get the policy frequency
-            /// @return frequency in MHz
             int frequency_mhz(void) const;
-            /// @brief Get the policy TDP percentage
-            /// @return TDP (thermal design power) percentage between 0-100
             int tdp_percent(void) const;
-            /// @brief Get the policy power budget
-            /// @return power budget in watts
             int budget_watts(void) const;
-            /// @brief Get the policy affinity. This is the cores that we
-            /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
-            /// @return enum power affinity
             int affinity(void) const;
-            /// @brief Get the policy power goal, One of
-            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
-            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
-            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
-            /// @return enum power goal
             int goal(void) const;
-            /// @brief Get the number of 'big' cores
-            /// @return number of cores where we will run
-            ///         unconstrained power.
             int num_max_perf(void) const;
-            /// @brief Get the TreeDecider description
-            /// @return String reference containing the description
-            ///         of the requested tree decider
             const std::string &tree_decider() const;
-            /// @brief Get the LeafDecider description
-            /// @return String reference containing the description
-            ///         of the requested leaf decider
             const std::string &leaf_decider() const;
-            /// @brief Get the Platform description
-            /// @return String reference containing the description
-            ///         of the requested platform
             const std::string &platform() const;
-            /// @brief Get the string representation of the mode
-            /// @return String containing the description of the mode
             std::string mode_string() const;
-            /// @brief Get a policy message from the policy object
-            /// @param [out] policy_message structure to be filled in
             void policy_message(struct geopm_policy_message_s &policy_message);
-            /// @brief Set the policy power mode
-            /// @param [in] mode geopm_policy_mode_e power mode
             void mode(int mode);
-            /// @brief Set the policy frequency
-            /// @param [in] frequency frequency in MHz
             void frequency_mhz(int frequency);
-            /// @brief Set the policy TDP percentage
-            /// @param [in] percentage TDP percentage between 0-100
             void tdp_percent(int percentage);
-            /// @brief Set the policy power budget
-            /// @param [in] budget power budget in watts
             void budget_watts(int budget);
-            /// @brief Set the policy affinity. This is the cores that we
-            /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
-            /// @param [in] cpu_affinity enum power affinity
             void affinity(int cpu_affinity);
-            /// @brief Set the policy power goal. One of
-            /// GEOPM_FLAGS_GOAL_CPU_EFFICIENCY,
-            /// GEOPM_FLAGS_GOAL_NETWORK_EFFICIENCY, or
-            /// GEOPM_FLAGS_GOAL_MEMORY_EFFICIENCY
-            /// @param [in] geo_goal enum power goal
             void goal(int geo_goal);
-            /// @brief Set the number of 'big' cores
-            /// @param [in] num_big_cores of cores where we will run
-            ///        unconstrained power.
             void num_max_perf(int num_big_cores);
-            /// @brief Set the requested TreeDecider
-            /// @param [in] Set the description string for the
-            ///             requested tree decider.
             void tree_decider(const std::string &description);
-            /// @brief Set the requested LeafDecider
-            /// @param [in] Set the description string for the
-            ///             requested leaf decider.
             void leaf_decider(const std::string &description);
-            /// @brief Set the requested Platform
-            /// @param [in] Set the description string for the
-            ///             requested platform.
             void platform(const std::string &description);
-            /// @brief Write out a policy file from the current state
             void write(void);
-            /// @brief Read in a policy file and set our current state
             void read(void);
-            /// @brief Enforce one of the static modes:
-            /// GEOPM_MODE_TDP_BALANCE_STATIC,
-            /// GEOPM_MODE_FREQ_UNIFORM_STATIC, or
-            /// GEOPM_MODE_FREQ_HYBRID_STATIC
             void enforce_static_mode();
-            /// @brief Return the header describing the current policy
             std::string header(void) const;
         protected:
             /// @brief Structure intended to be shared between
@@ -200,7 +234,7 @@ namespace geopm
             int m_power_budget_watts;
             /// @brief flags encapsulates frequency, number of 'big'cpus,
             /// 'small' core affinity, TDP percentage, and power goal
-            PolicyFlags m_flags;
+            IPolicyFlags *m_flags;
             /// @brief description string for selecting the tree decider
             std::string m_tree_decider;
             /// @brief description string for selecting the leaf decider

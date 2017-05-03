@@ -67,7 +67,20 @@ namespace geopm
 
     /// @brief This class is a wrapper around hwloc. It holds the topology of
     /// hardware resources of the platform.
-    class PlatformTopology
+    class IPlatformTopology
+    {
+        public:
+            IPlatformTopology() {}
+            IPlatformTopology(const IPlatformTopology &other) {}
+            virtual ~IPlatformTopology() {}
+            /// @brief Retrieve the count of a specific hwloc resource type.
+            /// @param [in] domain_type Enum of type domain_type_e representing the
+            /// type of resource to query.
+            /// @return Count of the specified resource type.
+            virtual int num_domain(int domain_type) const = 0;
+    };
+
+    class PlatformTopology : public IPlatformTopology
     {
         public:
             /// @brief Default constructor initializes and builds
@@ -76,10 +89,6 @@ namespace geopm
             PlatformTopology(const PlatformTopology &other);
             /// @brief Default destructor destroys the hwloc tree.
             virtual ~PlatformTopology();
-            /// @brief Retrieve the count of a specific hwloc resource type.
-            /// @param [in] domain_type Enum of type domain_type_e representing the
-            /// type of resource to query.
-            /// @return Count of the specified resource type.
             virtual int num_domain(int domain_type) const;
         private:
             virtual hwloc_obj_type_t hwloc_domain(int domain_type) const;

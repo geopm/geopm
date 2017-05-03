@@ -43,7 +43,7 @@ class BalancingDeciderTest: public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
-        geopm::Decider *m_balancer;
+        geopm::IDecider *m_balancer;
         geopm::PolicyFlags *m_flags;
         geopm::Policy *m_policy;
         geopm::Region *m_region;
@@ -119,7 +119,7 @@ TEST_F(BalancingDeciderTest, name)
 
 TEST_F(BalancingDeciderTest, clone)
 {
-    geopm::Decider *cloned = m_balancer->clone();
+    geopm::IDecider *cloned = m_balancer->clone();
     EXPECT_TRUE(std::string("power_balancing") == cloned->name());
     delete cloned;
 }

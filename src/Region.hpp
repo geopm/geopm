@@ -44,25 +44,15 @@ namespace geopm
 {
     /// @brief This class encapsulates all recorded data for a
     ///        specific application execution region.
-    class Region
+    class IRegion
     {
         public:
-            enum m_const_e {
-                // If number of samples stored is large, we need to
-                // modify the derivative method to just use the last
-                // few samples.
-                M_NUM_SAMPLE_HISTORY = 8,
-            };
-            /// @brief Default constructor.
-            /// @param [in] identifier Unique 64 bit region identifier.
-            /// @param [in] num_domain Number of control domains.
-            Region(uint64_t identifier, int num_domain, int level);
-            /// @brief Default destructor.
-            virtual ~Region();
+            IRegion() {}
+            virtual ~IRegion() {}
             /// @brief Record an entry into the region.
-            void entry(void);
+            virtual void entry(void) = 0;
             /// @brief Return the number of entries into the region.
-            int num_entry(void);
+            virtual int num_entry(void) = 0;
             /// @brief Insert signal data into internal buffers
             ///
             /// Inserts hw telemetry and per-domain application data into the
@@ -70,32 +60,32 @@ namespace geopm
             /// level objects.
             ///
             /// @param [in] A vector of telemetry samples to be inserted.
-            void insert(std::vector<struct geopm_telemetry_message_s> &telemetry);
+            virtual void insert(std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
             /// @brief Insert signal data into internal buffers
             ///
             /// Inserts aggregated sample message and data into the internal buffers
             /// for the region. This API is used by tree level objects.
             ///
             /// @param [in] A vector of sample messages to be inserted.
-            void insert(const std::vector<struct geopm_sample_message_s> &sample);
+            virtual void insert(const std::vector<struct geopm_sample_message_s> &sample) = 0;
             /// @brief Clear data from internal buffers
             ///
             /// Clears aggregated data from the internal buffers.
-            void clear(void);
+            virtual void clear(void) = 0;
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.
-            uint64_t identifier(void) const;
+            virtual uint64_t identifier(void) const = 0;
             /// @brief Add increment amount to the total time spent in MPI calls
             //  during this region.
             //  @param [in] mpi_increment_amout Value to add to the MPI time total.
-            void increment_mpi_time(double mpi_increment_amount);
+            virtual void increment_mpi_time(double mpi_increment_amount) = 0;
             /// @brief Return an aggregated sample to send up the tree.
             /// Called once this region has converged to send a sample
             /// up to the next level of the tree.
             /// @param [out] Sample message structure to fill in.
-            void sample_message(struct geopm_sample_message_s &sample);
-            /// Returns the latest value
-            double signal(int domain_idx, int signal_type);
+            virtual void sample_message(struct geopm_sample_message_s &sample) = 0;
+            /// @brief Returns the latest value
+            virtual double signal(int domain_idx, int signal_type) = 0;
             /// @brief Retrieve the number of valid samples for a domain of control.
             ///
             /// Get the number of valid samples  for a given domain of control and
@@ -112,7 +102,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             /// @return The number of valid samples.
-            int num_sample(int domain_idx, int signal_type) const;
+            virtual int num_sample(int domain_idx, int signal_type) const = 0;
             /// @brief Retrieve the mean signal value for a domain of control.
             ///
             /// Get the mean signal value for a given domain of control and
@@ -128,7 +118,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             /// @return The mean signal value.
-            double mean(int domain_idx, int signal_type) const;
+            virtual double mean(int domain_idx, int signal_type) const = 0;
             /// @brief Retrieve the median signal value for a domain of control.
             ///
             /// Get the median signal value for a given domain of control and
@@ -144,7 +134,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             /// @return The median signal value.
-            double median(int domain_idx, int signal_type) const;
+            virtual double median(int domain_idx, int signal_type) const = 0;
             /// @brief Retrieve the standard deviation of the signal values for a domain of control.
             ///
             /// Get the standard deviation of the signal values for a given domain of
@@ -160,7 +150,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             /// @return The standard deviation of the signal values.
-            double std_deviation(int domain_idx, int signal_type) const;
+            virtual double std_deviation(int domain_idx, int signal_type) const = 0;
             /// @brief Retrieve the min signal value for a domain of control.
             ///
             /// Get the min signal value for a given domain of control and
@@ -176,7 +166,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             /// @return The min signal value.
-            double min(int domain_idx, int signal_type) const;
+            virtual double min(int domain_idx, int signal_type) const = 0;
             /// @brief Retrieve the max signal value for a domain of control.
             ///
             /// Get the max signal value for a given domain of control and
@@ -192,7 +182,7 @@ namespace geopm
             ///        geopm_message.h.
             ///
             /// @return The max signal value.
-            double max(int domain_idx, int signal_type) const;
+            virtual double max(int domain_idx, int signal_type) const = 0;
             /// @brief Retrieve the derivative of the signal values for a domain of control.
             ///
             /// Get the derivative of the signal values for a given domain of control and
@@ -209,7 +199,7 @@ namespace geopm
             ///
             /// @return If there are 2 valid samples then return he derivative of the
             /// signal values, else return NAN.
-            double derivative(int domain_idx, int signal_type);
+            virtual double derivative(int domain_idx, int signal_type) = 0;
             /// @brief Integrate a signal over time.
             ///
             /// Computes the integral of the signal over the interval
@@ -225,6 +215,41 @@ namespace geopm
             ///        enumerated in geopm_signal_type_e in
             ///        geopm_message.h.
             ///
+            virtual double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const = 0;
+            virtual void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const = 0;
+    };
+
+    class Region : public IRegion
+    {
+        public:
+            enum m_const_e {
+                // If number of samples stored is large, we need to
+                // modify the derivative method to just use the last
+                // few samples.
+                M_NUM_SAMPLE_HISTORY = 8,
+            };
+            /// @brief Default constructor.
+            /// @param [in] identifier Unique 64 bit region identifier.
+            /// @param [in] num_domain Number of control domains.
+            Region(uint64_t identifier, int num_domain, int level);
+            /// @brief Default destructor.
+            virtual ~Region();
+            void entry(void);
+            int num_entry(void);
+            void insert(std::vector<struct geopm_telemetry_message_s> &telemetry);
+            void insert(const std::vector<struct geopm_sample_message_s> &sample);
+            void clear(void);
+            uint64_t identifier(void) const;
+            void increment_mpi_time(double mpi_increment_amount);
+            void sample_message(struct geopm_sample_message_s &sample);
+            double signal(int domain_idx, int signal_type);
+            int num_sample(int domain_idx, int signal_type) const;
+            double mean(int domain_idx, int signal_type) const;
+            double median(int domain_idx, int signal_type) const;
+            double std_deviation(int domain_idx, int signal_type) const;
+            double min(int domain_idx, int signal_type) const;
+            double max(int domain_idx, int signal_type) const;
+            double derivative(int domain_idx, int signal_type);
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
             void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const;
         protected:
@@ -274,9 +299,9 @@ namespace geopm
             /// @brief Holder for sample data calculated after a domain exits a region.
             std::vector<struct geopm_sample_message_s> m_domain_sample;
             /// @brief Circular buffer is over time, vector is indexed over both domains and signals.
-            CircularBuffer<std::vector<double> > m_domain_buffer;
+            ICircularBuffer<std::vector<double> > *m_domain_buffer;
             /// @brief time stamp for each entry in the m_domain_buffer.
-            CircularBuffer<struct geopm_time_s> m_time_buffer;
+            ICircularBuffer<struct geopm_time_s> *m_time_buffer;
             /// @brief the number of valid samples per domain and signal type.
             std::vector<int> m_valid_entries;
             /// @brief the current minimum signal value per domain and signal type.

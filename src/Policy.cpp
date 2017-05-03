@@ -74,11 +74,12 @@ namespace geopm
     };
 
     Policy::Policy(int num_domain)
-        : m_policy_flags(0)
+        : m_policy_flags(NULL)
         , m_num_domain(num_domain)
     {
         //Add the default unmarked region
         (void) region_policy(GEOPM_REGION_ID_EPOCH);
+        m_policy_flags = new PolicyFlags(0);
     }
 
     Policy::~Policy()
@@ -86,6 +87,7 @@ namespace geopm
         for (auto it = m_region_policy.begin(); it != m_region_policy.end(); ++it) {
             delete (*it).second;
         }
+        delete m_policy_flags;
     }
 
     int Policy::num_domain(void)
@@ -137,7 +139,7 @@ namespace geopm
 
     void Policy::policy_flags(unsigned long flags)
     {
-        m_policy_flags.flags(flags);
+        m_policy_flags->flags(flags);
     }
 
     void Policy::target_updated(uint64_t region_id, std::map <int, double> &target)
@@ -162,27 +164,27 @@ namespace geopm
 
     int Policy::frequency_mhz(void) const
     {
-        return m_policy_flags.frequency_mhz();;
+        return m_policy_flags->frequency_mhz();;
     }
 
     int Policy::tdp_percent(void) const
     {
-        return m_policy_flags.tdp_percent();
+        return m_policy_flags->tdp_percent();
     }
 
     int Policy::affinity(void) const
     {
-        return m_policy_flags.affinity();;
+        return m_policy_flags->affinity();;
     }
 
     int Policy::goal(void) const
     {
-        return m_policy_flags.goal();
+        return m_policy_flags->goal();
     }
 
     int Policy::num_max_perf(void) const
     {
-        return m_policy_flags.num_max_perf();
+        return m_policy_flags->num_max_perf();
     }
 
     void Policy::target_valid(uint64_t region_id, std::map<int, double> &target)

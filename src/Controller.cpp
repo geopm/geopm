@@ -85,9 +85,10 @@ extern "C"
         try {
             if (policy_config) {
                 std::string policy_config_str(policy_config);
-                geopm::GlobalPolicy policy(policy_config_str, "");
-                geopm::Controller ctl(&policy, MPI_COMM_WORLD);
+                geopm::IGlobalPolicy *policy = new geopm::GlobalPolicy(policy_config_str, "");
+                geopm::Controller ctl(policy, MPI_COMM_WORLD);
                 err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+                delete policy;
             }
             //The null case is for all nodes except rank 0.
             //These controllers should assume their policy from the master.
@@ -106,7 +107,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::GlobalPolicy *global_policy = (geopm::GlobalPolicy *)policy;
+            geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
             *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
         }
         catch (...) {
@@ -176,7 +177,7 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(GlobalPolicy *global_policy, MPI_Comm comm)
+    Controller::Controller(IGlobalPolicy *global_policy, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
         , m_global_policy(global_policy)
@@ -284,7 +285,7 @@ namespace geopm
             m_region.resize(num_level);
             m_policy.resize(num_level);
             m_tree_decider.resize(num_level);
-            std::fill(m_tree_decider.begin(), m_tree_decider.end(), (Decider *)NULL);
+            std::fill(m_tree_decider.begin(), m_tree_decider.end(), (IDecider *)NULL);
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
             m_is_epoch_changed.resize(num_level);
@@ -849,8 +850,8 @@ namespace geopm
                                                  level)));
             it = tmp_it.first;
         }
-        Region *curr_region = (*it).second;
-        Policy *curr_policy = m_policy[level];
+        IRegion *curr_region = (*it).second;
+        IPolicy *curr_policy = m_policy[level];
         curr_region->insert(m_telemetry_sample);
 
         if (geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, m_region_id_all) &&
