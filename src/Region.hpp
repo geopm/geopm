@@ -42,9 +42,34 @@
 
 namespace geopm
 {
+    class RegionBase
+    {
+        public:
+            RegionBase() {}
+            virtual ~RegionBase() {}
+            virtual void entry(void) = 0;
+            virtual int num_entry(void) = 0;
+            virtual void insert(std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
+            virtual void insert(const std::vector<struct geopm_sample_message_s> &sample) = 0;
+            virtual void clear(void) = 0;
+            virtual uint64_t identifier(void) const = 0;
+            virtual void increment_mpi_time(double mpi_increment_amount) = 0;
+            virtual void sample_message(struct geopm_sample_message_s &sample) = 0;
+            virtual double signal(int domain_idx, int signal_type) = 0;
+            virtual int num_sample(int domain_idx, int signal_type) const = 0;
+            virtual double mean(int domain_idx, int signal_type) const = 0;
+            virtual double median(int domain_idx, int signal_type) const = 0;
+            virtual double std_deviation(int domain_idx, int signal_type) const = 0;
+            virtual double min(int domain_idx, int signal_type) const = 0;
+            virtual double max(int domain_idx, int signal_type) const = 0;
+            virtual double derivative(int domain_idx, int signal_type) = 0;
+            virtual double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const = 0;
+            virtual void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const = 0;
+    };
+
     /// @brief This class encapsulates all recorded data for a
     ///        specific application execution region.
-    class Region
+    class Region : public RegionBase
     {
         public:
             enum m_const_e {

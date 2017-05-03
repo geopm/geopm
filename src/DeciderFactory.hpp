@@ -40,6 +40,16 @@
 
 namespace geopm
 {
+    class DeciderFactoryBase
+    {
+        public:
+            DeciderFactoryBase() {}
+            DeciderFactoryBase(const DeciderFactoryBase &other) {}
+            virtual ~DeciderFactoryBase() {}
+            virtual Decider *decider(const std::string &description) = 0;
+            virtual void register_decider(Decider *decider, void *dl_ptr) = 0;
+    };
+
     /// @brief Factory object managing decider objects.
     ///
     /// The DeciderFactory manages all instances of Decider objects. During
@@ -48,7 +58,7 @@ namespace geopm
     /// themselves with the factory. The factory returns an appropriate Decider object
     /// when queried with a description string. The factory deletes all Decider objects
     /// on destruction.
-    class DeciderFactory
+    class DeciderFactory : public DeciderFactoryBase
     {
         public:
             /// @brief DeciderFactory default constructor.

@@ -42,11 +42,38 @@
 
 namespace geopm
 {
-
     class RegionPolicy;
 
+    class PolicyBase
+    {
+        public:
+            PolicyBase() {}
+            virtual ~PolicyBase() {}
+            virtual int num_domain(void) = 0;
+            virtual void region_id(std::vector<uint64_t> &region_id) = 0;
+            virtual void update(uint64_t region_id, int domain_idx, double target) = 0;
+            virtual void update(uint64_t region_id, const std::vector<double> &target) = 0;
+            virtual void mode(int new_mode) = 0;
+            virtual void policy_flags(unsigned long new_flags) = 0;
+            virtual void target(uint64_t region_id, std::vector<double> &target) = 0;
+            virtual void target(uint64_t region_id, int domain, double &target) = 0;
+            virtual int mode(void) const = 0;
+            virtual int frequency_mhz(void) const = 0;
+            virtual int tdp_percent(void) const = 0;
+            virtual int affinity(void) const = 0;
+            virtual int goal(void) const = 0;
+            virtual int num_max_perf(void) const = 0;
+            virtual void target_updated(uint64_t region_id, std::map<int, double> &target) = 0; // map from domain index to updated target value
+            virtual void target_valid(uint64_t region_id, std::map<int, double> &target) = 0;
+            virtual void policy_message(uint64_t region_id,
+                                        const struct geopm_policy_message_s &parent_msg,
+                                        std::vector<struct geopm_policy_message_s> &child_msg) = 0;
+            virtual void is_converged(uint64_t region_id, bool converged_state) = 0;
+            virtual bool is_converged(uint64_t region_id) = 0;
+    };
+
     /// @brief Class defines the per-domain power settings and policy state.
-    class Policy
+    class Policy : public PolicyBase
     {
         public:
             /// @brief Policy constructor.

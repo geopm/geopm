@@ -48,21 +48,11 @@ namespace geopm
     class TreeCommunicatorLevel;
     class GlobalPolicy;
 
-    /// @brief Class which enables inter-process communication for
-    ///        geopm.
-    ///
-    /// The TreeCommunicator is used by the Controller to facilitate
-    /// inter-node communication for passing samples up and policies
-    /// down the control hierarchy.  It leverages MPI to obtain
-    /// topology information to optimize communication pattern, and
-    /// for non-blocking communication calls.
-
     class TreeCommunicatorBase
     {
         public:
             TreeCommunicatorBase() {}
             TreeCommunicatorBase(const TreeCommunicatorBase &other) {}
-            /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicatorBase() {}
             virtual int num_level(void) const = 0;
             virtual int root_level(void) const = 0;
@@ -75,6 +65,14 @@ namespace geopm
             virtual size_t overhead_send(void) = 0;
     };
 
+    /// @brief Class which enables inter-process communication for
+    ///        geopm.
+    ///
+    /// The TreeCommunicator is used by the Controller to facilitate
+    /// inter-node communication for passing samples up and policies
+    /// down the control hierarchy.  It leverages MPI to obtain
+    /// topology information to optimize communication pattern, and
+    /// for non-blocking communication calls.
     class TreeCommunicator : public TreeCommunicatorBase
     {
         public:

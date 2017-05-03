@@ -38,8 +38,31 @@
 
 namespace geopm
 {
+    class SharedMemoryBase
+    {
+        public:
+            SharedMemoryBase() {}
+            SharedMemoryBase(const SharedMemoryBase &other) {}
+            virtual ~SharedMemoryBase() {}
+            virtual void *pointer(void) = 0;
+            virtual std::string key(void) = 0;
+            virtual size_t size(void) = 0;
+    };
+
+    class SharedMemoryUserBase
+    {
+        public:
+            SharedMemoryUserBase() {}
+            SharedMemoryUserBase(const SharedMemoryUserBase &other) {}
+            virtual ~SharedMemoryUserBase() {}
+            virtual void *pointer(void) = 0;
+            virtual std::string key(void) = 0;
+            virtual size_t size(void) = 0;
+            virtual void unlink(void) = 0;
+    };
+
     /// This class encapsulates the creation of inter-process shared memory.
-    class SharedMemory
+    class SharedMemory : public SharedMemoryBase
     {
         public:
             /// Constructor takes a key and a size and creates a inter-process
@@ -66,7 +89,7 @@ namespace geopm
     };
 
     /// This class encapsulates attaching to inter-process shared memory.
-    class SharedMemoryUser
+    class SharedMemoryUser : public SharedMemoryUserBase
     {
         public:
             /// Constructor takes a key and attempts to attach to a

@@ -42,6 +42,22 @@
 
 namespace geopm
 {
+    class SampleRegulatorBase
+    {
+        public:
+            SampleRegulatorBase() {}
+            SampleRegulatorBase(const SampleRegulatorBase &other) {}
+            virtual ~SampleRegulatorBase() {}
+            virtual void operator () (const struct geopm_time_s &platform_sample_time,
+                                      std::vector<double>::const_iterator platform_sample_begin,
+                                      std::vector<double>::const_iterator platform_sample_end,
+                                      std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                                      std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
+                                      std::vector<double> &aligned_signal,
+                                      std::vector<uint64_t> &region_id) = 0;
+            virtual const std::map<int, int> &rank_idx_map(void) const = 0;
+    };
+
     /// @brief Class merges Platform and Profile time series data.
     ///
     /// The SampleRegulator class is a functor used by the Controller
@@ -71,7 +87,7 @@ namespace geopm
     /// operator () method is broken down into four steps, each
     /// represented by a private method, this enables individual
     /// testing of each step.
-    class SampleRegulator
+    class SampleRegulator : public SampleRegulatorBase
     {
         public:
             /// @brief SampleRegulator constructor.
