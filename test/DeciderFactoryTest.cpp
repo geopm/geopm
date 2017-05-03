@@ -54,7 +54,7 @@ TEST_F(DeciderFactoryTest, decider_register)
 {
     geopm::DeciderFactory factory;
     std::string dname("power_governing");
-    geopm::Decider *d = factory.decider(dname);
+    geopm::IDecider *d = factory.decider(dname);
     ASSERT_FALSE(d == NULL);
 
     std::string ans = d->name();
@@ -67,7 +67,7 @@ TEST_F(DeciderFactoryTest, decider_register)
 TEST_F(DeciderFactoryTest, no_supported_decider)
 {
     geopm::DeciderFactory factory;
-    geopm::Decider* d = NULL;
+    geopm::IDecider* d = NULL;
     int thrown = 0;
     try {
         d = factory.decider("doesntexist");

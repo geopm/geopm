@@ -80,6 +80,7 @@ struct geopm_ctl_message_s {
 
 namespace geopm
 {
+
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///
@@ -115,7 +116,133 @@ namespace geopm
     /// for use with the geopm_prof_c structure and are named
     /// accordingly.  The geopm_prof_c structure is an opaque
     /// reference to the Profile class.
-    class Profile
+    class IProfile
+    {
+        public:
+            IProfile() {}
+            IProfile(const IProfile &other) {}
+            virtual ~IProfile() {}
+            /// @brief Register a region of code to be profiled.
+            ///
+            /// The statistics gathered for each region are aggregated
+            /// in the final report, and the power policy will be
+            /// determined distinctly for each region.  The
+            /// registration of a region is idempotent, and the first
+            /// call will have more overhead than subsequent
+            /// attempts to re-register the same region.
+            ///
+            /// @param [in] region_name Unique name that identifies
+            ///        the region being profiled.  This name will be
+            ///        printed next to the region statistics in the
+            ///        report.
+            ///
+            /// @param [in] hint Value from the
+            ///        #geopm_hint_e structure which is used to
+            ///        derive a starting policy before the application
+            ///        has been profiled.
+            ///
+            /// @return Returns the region_id which is a unique
+            ///         identifier derived from the region_name.  This
+            ///         value is passed to Profile::enter(),
+            ///         Profile::exit(), Profile::progress and
+            ///         Profile::sample() to associate these calls with
+            ///         the registered region.
+            virtual uint64_t region(const std::string region_name, long hint) = 0;
+            /// @brief Mark a region entry point.
+            ///
+            /// Called to denote the beginning of region of code that
+            /// was assigned the region_id when it was registered.
+            /// Nesting of regions is not supported: calls to this
+            /// method from within a region previously entered but not
+            /// yet exited are silently ignored.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
+            virtual void enter(uint64_t region_id) = 0;
+            /// @brief Mark a region exit point.
+            ///
+            /// Called to denote the end of a region of code that was
+            /// assigned the region_id when it was registered.
+            /// Nesting of regions is not supported: calls to this
+            /// method that are not exiting from the oldest unclosed
+            /// entry point with the same region_id are silently
+            /// ignored.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
+            virtual void exit(uint64_t region_id) = 0;
+            /// @brief Signal fractional progress through a region.
+            ///
+            /// Signals the fractional amount of work completed within
+            /// the phase.  This normalized progress reporting is used
+            /// to identify processes that are closer or further away
+            /// from completion, and resources can be shifted to those
+            /// processes which are further behind.  Calls to this
+            /// method from within a nested region are ignored.
+            ///
+            /// @param [in] region_id The identifier returned by
+            ///        Profile::region() when the region was
+            ///        registered.
+            ///
+            /// @param [in] fraction The fractional progress
+            ///        normalized to be between 0.0 and 1.0 (zero on
+            ///        entry one on completion).
+            virtual void progress(uint64_t region_id, double fraction) = 0;
+            /// @brief Signal pass through outer loop.
+            ///
+            /// Called once for each pass through the outer most
+            /// computational loop executed by the application.  This
+            /// function call should occur exactly once in the
+            /// application source at the beginning of the loop that
+            /// encapsulates the primary computational region of the
+            /// application.
+            virtual void epoch(void) = 0;
+            /// @brief Disable a data collection feature.
+            ///
+            /// Called at application start up to disable a profiling
+            /// feature.  By default all profiling features available
+            /// on the system are enabled.  The set of all possible
+            /// values for feature_name are: "instr", "flop" and
+            /// "joules".
+            virtual void disable(const std::string feature_name) = 0;
+            virtual void shutdown(void) = 0;
+    };
+
+    class IProfileRankSampler
+    {
+        public:
+            IProfileRankSampler() {}
+            IProfileRankSampler(const IProfileRankSampler &other) {}
+            virtual ~IProfileRankSampler() {}
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) = 0;
+            virtual size_t capacity(void) = 0;
+            virtual bool name_fill(std::set<std::string> &name_set) = 0;
+            virtual void report_name(std::string &report_str) = 0;
+            virtual void profile_name(std::string &prof_str) = 0;
+    };
+
+    class IProfileSampler
+    {
+        public:
+            IProfileSampler() {}
+            IProfileSampler(const IProfileSampler &other) {}
+            virtual ~IProfileSampler() {}
+            virtual size_t capacity(void) = 0;
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) = 0;
+            virtual bool do_shutdown(void) = 0;
+            virtual bool do_report(void) = 0;
+            virtual void region_names(void) = 0;
+            virtual void initialize(int &rank_per_node) = 0;
+            virtual void cpu_rank(std::vector<int> &cpu_rank) = 0;
+            virtual void name_set(std::set<std::string> &region_name) = 0;
+            virtual void report_name(std::string &report_str) = 0;
+            virtual void profile_name(std::string &prof_str) = 0;
+    };
+
+
+    class Profile : public IProfile
     {
         public:
             /// @brief Profile constructor.
@@ -146,90 +273,11 @@ namespace geopm
             Profile(const std::string prof_name, MPI_Comm comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
-            /// @brief Register a region of code to be profiled.
-            ///
-            /// The statistics gathered for each region are aggregated
-            /// in the final report, and the power policy will be
-            /// determined distinctly for each region.  The
-            /// registration of a region is idempotent, and the first
-            /// call will have more overhead than subsequent
-            /// attempts to re-register the same region.
-            ///
-            /// @param [in] region_name Unique name that identifies
-            ///        the region being profiled.  This name will be
-            ///        printed next to the region statistics in the
-            ///        report.
-            ///
-            /// @param [in] hint Value from the
-            ///        #geopm_hint_e structure which is used to
-            ///        derive a starting policy before the application
-            ///        has been profiled.
-            ///
-            /// @return Returns the region_id which is a unique
-            ///         identifier derived from the region_name.  This
-            ///         value is passed to Profile::enter(),
-            ///         Profile::exit(), Profile::progress and
-            ///         Profile::sample() to associate these calls with
-            ///         the registered region.
             uint64_t region(const std::string region_name, long hint);
-            /// @brief Mark a region entry point.
-            ///
-            /// Called to denote the beginning of region of code that
-            /// was assigned the region_id when it was registered.
-            /// Nesting of regions is not supported: calls to this
-            /// method from within a region previously entered but not
-            /// yet exited are silently ignored.
-            ///
-            /// @param [in] region_id The identifier returned by
-            ///        Profile::region() when the region was
-            ///        registered.
             void enter(uint64_t region_id);
-            /// @brief Mark a region exit point.
-            ///
-            /// Called to denote the end of a region of code that was
-            /// assigned the region_id when it was registered.
-            /// Nesting of regions is not supported: calls to this
-            /// method that are not exiting from the oldest unclosed
-            /// entry point with the same region_id are silently
-            /// ignored.
-            ///
-            /// @param [in] region_id The identifier returned by
-            ///        Profile::region() when the region was
-            ///        registered.
             void exit(uint64_t region_id);
-            /// @brief Signal fractional progress through a region.
-            ///
-            /// Signals the fractional amount of work completed within
-            /// the phase.  This normalized progress reporting is used
-            /// to identify processes that are closer or further away
-            /// from completion, and resources can be shifted to those
-            /// processes which are further behind.  Calls to this
-            /// method from within a nested region are ignored.
-            ///
-            /// @param [in] region_id The identifier returned by
-            ///        Profile::region() when the region was
-            ///        registered.
-            ///
-            /// @param [in] fraction The fractional progress
-            ///        normalized to be between 0.0 and 1.0 (zero on
-            ///        entry one on completion).
             void progress(uint64_t region_id, double fraction);
-            /// @brief Signal pass through outer loop.
-            ///
-            /// Called once for each pass through the outer most
-            /// computational loop executed by the application.  This
-            /// function call should occur exactly once in the
-            /// application source at the beginning of the loop that
-            /// encapsulates the primary computational region of the
-            /// application.
             void epoch(void);
-            /// @brief Disable a data collection feature.
-            ///
-            /// Called at application start up to disable a profiling
-            /// feature.  By default all profiling features available
-            /// on the system are enabled.  The set of all possible
-            /// values for feature_name are: "instr", "flop" and
-            /// "joules".
             void disable(const std::string feature_name);
             void shutdown(void);
         protected:
@@ -287,18 +335,18 @@ namespace geopm
             void *m_table_buffer;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
-            SharedMemoryUser *m_ctl_shmem;
+            ISharedMemoryUser *m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
             struct geopm_ctl_message_s *m_ctl_msg;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
-            SharedMemoryUser *m_table_shmem;
+            ISharedMemoryUser *m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            ProfileTable *m_table;
-            SampleScheduler m_scheduler;
+            IProfileTable *m_table;
+            ISampleScheduler *m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;
@@ -325,7 +373,7 @@ namespace geopm
     /// The ProfileRankSampler is the runtime side interface to the shared
     /// memory region for a single rank of the application. It can retrieve
     /// samples from the shared hash table for that rank.
-    class ProfileRankSampler
+    class ProfileRankSampler : public IProfileRankSampler
     {
         public:
             /// @brief ProfileRankSampler constructor.
@@ -364,14 +412,6 @@ namespace geopm
             /// @return The maximum number of samples that can possibly
             ///         be returned.
             size_t capacity(void);
-            /// @brief Print out a detailed post-runtime report.
-            ///
-            /// Handshakes with the application process to retrieve region
-            /// names and prints a report of per region statistics of the
-            /// runtime characteristics of that region.
-            ///
-            /// @param [in] file_desc File descriptor to write the report out to.
-            void report(std::ofstream &file_desc);
             /// @brief Retrieve region names from the application process.
             ///
             /// Coordinates with the application process to retrieve the
@@ -386,9 +426,9 @@ namespace geopm
         protected:
             /// Holds the shared memory region used for sampling from the
             /// application process.
-            SharedMemory m_table_shmem;
+            ISharedMemory *m_table_shmem;
             /// The hash table which stores application process samples.
-            ProfileTable m_table;
+            IProfileTable *m_table;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
@@ -411,7 +451,7 @@ namespace geopm
     /// on a single compute node. It is also the interface to the shared
     /// memory region used to coordinate between the geopm runtime and
     /// the MPI application.
-    class ProfileSampler
+    class ProfileSampler : public IProfileSampler
     {
         public:
             /// @brief ProfileSampler constructor.
@@ -423,7 +463,7 @@ namespace geopm
             ///        be created for each application rank.
             ProfileSampler(size_t table_size);
             /// @brief ProfileSampler destructor.
-            virtual ~ProfileSampler(void);
+            virtual ~ProfileSampler();
             /// @brief Retrieve the maximum capacity of all the per-rank
             ///        hash tables.
             ///
@@ -485,13 +525,13 @@ namespace geopm
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
-            SharedMemory *m_ctl_shmem;
+            ISharedMemory *m_ctl_shmem;
             /// Pointer to the control structure used for application coordination
             /// and control.
             struct geopm_ctl_message_s *m_ctl_msg;
             /// List of per-rank samplers for each MPI application rank running
             /// on the local compute node.
-            std::forward_list<ProfileRankSampler *> m_rank_sampler;
+            std::forward_list<IProfileRankSampler *> m_rank_sampler;
             /// Size of the hash tables to create for each MPI application rank
             /// running on the local compute node..
             const size_t m_table_size;

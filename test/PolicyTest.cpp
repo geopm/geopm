@@ -42,7 +42,7 @@ class PolicyTest: public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
-        geopm::Policy *m_policy;
+        geopm::IPolicy *m_policy;
         geopm::PolicyFlags* m_flags;
         struct geopm_policy_message_s m_policy_message;
         const int m_num_domain = 8;

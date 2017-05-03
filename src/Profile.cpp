@@ -230,7 +230,7 @@ namespace geopm
         , m_ctl_msg(NULL)
         , m_table_shmem(NULL)
         , m_table(NULL)
-        , m_scheduler(0.01)
+        , m_scheduler(NULL)
         , m_shm_comm(MPI_COMM_NULL)
         , m_rank(0)
         , m_shm_rank(0)
@@ -248,6 +248,7 @@ namespace geopm
 #endif
         int shm_num_rank = 0;
 
+        m_scheduler = new SampleScheduler(0.01);
         MPI_Comm_rank(comm, &m_rank);
         geopm_comm_split_shared(comm, "prof", &m_shm_comm);
         PMPI_Comm_rank(m_shm_comm, &m_shm_rank);
@@ -364,6 +365,7 @@ namespace geopm
         delete m_table;
         delete m_table_shmem;
         delete m_ctl_shmem;
+        delete m_scheduler;
     }
 
     void Profile::shutdown(void)
@@ -504,7 +506,7 @@ namespace geopm
             m_progress = 1.0;
             sample();
             m_curr_region_id = 0;
-            m_scheduler.clear();
+            m_scheduler->clear();
             if (geopm_region_id_is_mpi(region_id)) {
                 m_curr_region_id = m_parent_region;
                 m_progress = m_parent_progress;
@@ -536,10 +538,10 @@ namespace geopm
 
         if (m_num_enter == 1 && m_curr_region_id == region_id &&
             fraction > 0.0 && fraction < 1.0 &&
-            m_scheduler.do_sample()) {
+            m_scheduler->do_sample()) {
             m_progress = fraction;
             sample();
-            m_scheduler.record_exit();
+            m_scheduler->record_exit();
         }
 
 #ifdef GEOPM_OVERHEAD
@@ -907,27 +909,29 @@ namespace geopm
     }
 
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
-        : m_table_shmem(SharedMemory(shm_key, table_size))
-        , m_table(ProfileTable(m_table_shmem.size(), m_table_shmem.pointer()))
+        : m_table_shmem(NULL)
+        , m_table(NULL)
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
-
+        m_table_shmem = new SharedMemory(shm_key, table_size);
+        m_table = new ProfileTable(m_table_shmem->size(), m_table_shmem->pointer());
     }
 
     ProfileRankSampler::~ProfileRankSampler()
     {
-
+        delete m_table;
+        delete m_table_shmem;
     }
 
     size_t ProfileRankSampler::capacity(void)
     {
-        return m_table.capacity();
+        return m_table->capacity();
     }
 
     void ProfileRankSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
-        m_table.dump(content_begin, length);
+        m_table->dump(content_begin, length);
         std::stable_sort(content_begin, content_begin + length, geopm_prof_compare);
     }
 
@@ -937,12 +941,12 @@ namespace geopm
 
         if (!m_is_name_finished) {
             if (name_set.empty()) {
-                m_report_name = (char *)m_table_shmem.pointer();
+                m_report_name = (char *)m_table_shmem->pointer();
                 header_offset += m_report_name.length() + 1;
-                m_prof_name = (char *)m_table_shmem.pointer() + header_offset;
+                m_prof_name = (char *)m_table_shmem->pointer() + header_offset;
                 header_offset += m_prof_name.length() + 1;
             }
-            m_is_name_finished = m_table.name_set(header_offset, name_set);
+            m_is_name_finished = m_table->name_set(header_offset, name_set);
         }
 
         return m_is_name_finished;
