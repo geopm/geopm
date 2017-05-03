@@ -39,61 +39,80 @@ namespace geopm
 {
     /// @brief PolicyFlags class encapsulated functioality around packing and unpacking
     /// policy settings into/from a 64 bit integer.
-    class PolicyFlags
+    class IPolicyFlags
     {
         public:
-            PolicyFlags(long int flags);
-            /// @brief GlobalPolicy destructor
-            virtual ~PolicyFlags();
+            IPolicyFlags() {}
+            virtual ~IPolicyFlags() {}
             /// @brief Get the encoded flags
             /// @return Integer representation of flags
-            unsigned long flags(void) const;
+            virtual unsigned long flags(void) const = 0;
             /// @brief Get the policy frequency
             /// @return frequency in MHz
-            int frequency_mhz(void) const;
+            virtual int frequency_mhz(void) const = 0;
             /// @brief Get the policy TDP percentage
             /// @return TDP (thermal design power) percentage between 0-100
-            int tdp_percent(void) const;
+            virtual int tdp_percent(void) const = 0;
             /// @brief Get the policy affinity. This is the cores that we
             /// will dynamically control. One of
             /// GEOPM_AFFINITY_SCATTER or
             /// GEOPM_AFFINITY_COMPACT.
             /// @return enum power affinity
-            int affinity(void) const;
+            virtual int affinity(void) const = 0;
             /// @brief Get the policy power goal, One of
             /// GEOPM_GOAL_CPU_EFFICIENCY,
             /// GEOPM_GOAL_NETWORK_EFFICIENCY, or
             /// GEOPM_GOAL_MEMORY_EFFICIENCY
             /// @return enum power goal
-            int goal(void) const;
+            virtual int goal(void) const = 0;
             /// @brief Get the number of 'big' cores
             /// @return number of cores where we will run
             ///         unconstrained power.
-            int num_max_perf(void) const;
+            virtual int num_max_perf(void) const = 0;
             /// @brief Set the encodoed flags
             /// @param [in] flags Integer representation of flags
-            void flags(unsigned long flags);
+            virtual void flags(unsigned long flags) = 0;
             /// @brief Set the policy frequency
             /// @param [in] frequency frequency in MHz
-            void frequency_mhz(int frequency);
+            virtual void frequency_mhz(int frequency) = 0;
             /// @brief Set the policy TDP percentage
             /// @param [in] percentage TDP percentage between 0-100
-            void tdp_percent(int percentage);
+            virtual void tdp_percent(int percentage) = 0;
             /// @brief Set the policy affinity. This is the cores that we
             /// will dynamically control. One of
             /// GEOPM_AFFINITY_SCATTER or
             /// GEOPM_AFFINITY_COMPACT.
             /// @param [in] cpu_affinity enum power affinity
-            void affinity(int cpu_affinity);
+            virtual void affinity(int cpu_affinity) = 0;
             /// @brief Set the policy power goal. One of
             /// GEOPM_GOAL_CPU_EFFICIENCY,
             /// GEOPM_GOAL_NETWORK_EFFICIENCY, or
             /// GEOPM_GOAL_MEMORY_EFFICIENCY
             /// @param [in] geo_goal enum power goal
-            void goal(int geo_goal);
+            virtual void goal(int geo_goal) = 0;
             /// @brief Set the number of 'big' cores
             /// @param [in] num_big_cores of cores where we will run
             ///        unconstrained power.
+            virtual void num_max_perf(int num_big_cores) = 0;
+    };
+
+    class PolicyFlags : public IPolicyFlags
+    {
+        public:
+            PolicyFlags(long int flags);
+            /// @brief GlobalPolicy destructor
+            virtual ~PolicyFlags();
+            unsigned long flags(void) const;
+            int frequency_mhz(void) const;
+            int tdp_percent(void) const;
+            int affinity(void) const;
+            int goal(void) const;
+            int num_max_perf(void) const;
+            void flags(unsigned long flags);
+            void frequency_mhz(int frequency);
+            void tdp_percent(int percentage);
+            void affinity(int cpu_affinity);
+            void goal(int geo_goal);
             void num_max_perf(int num_big_cores);
         protected:
             /// @brief Encapsulates power policy information as a
