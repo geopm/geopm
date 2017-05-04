@@ -83,7 +83,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
@@ -208,7 +208,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
 
@@ -246,7 +246,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
 
@@ -343,7 +343,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
@@ -429,7 +429,7 @@ class TestIntegration(unittest.TestCase):
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         all_power_data = {}
@@ -490,7 +490,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
 
@@ -531,7 +531,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
 
@@ -566,7 +566,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
@@ -597,7 +597,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm_io.AppOutput(report_path, trace_path)
+        self._output = geopm_io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
