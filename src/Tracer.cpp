@@ -45,8 +45,9 @@
 
 namespace geopm
 {
-    Tracer::Tracer()
-        : m_is_trace_enabled(false)
+    Tracer::Tracer(std::string header)
+        : m_header(header)
+        , m_is_trace_enabled(false)
         , m_do_header(true)
         , m_buffer_limit(134217728) // 128 MiB
         , m_time_zero({{0, 0}})
@@ -59,8 +60,9 @@ namespace geopm
             if (err) {
                 throw Exception("Tracer::Tracer() gethostname() failed", err, __FILE__, __LINE__);
             }
+            m_hostname = hostname;
             std::ostringstream output_path;
-            output_path << geopm_env_trace() << "-" << hostname;
+            output_path << geopm_env_trace() << "-" << m_hostname;
             m_stream.open(output_path.str());
             m_buffer << std::setprecision(16);
             m_is_trace_enabled = true;
@@ -79,6 +81,9 @@ namespace geopm
     {
         if (m_is_trace_enabled && telemetry.size()) {
             if (m_do_header) {
+                // Write the GlobalPolicy information first
+                m_buffer << m_header;
+                m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << std::endl;
                 m_buffer << "region_id | seconds | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
                     m_buffer << "pkg_energy-" << i << " | "

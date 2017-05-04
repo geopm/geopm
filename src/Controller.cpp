@@ -346,10 +346,30 @@ namespace geopm
                 }
             }
 
-            // Synchronize the ranks so time zero is uniform.
+            // Barrier to ensure all ProfileSamplers are created at the same time.
             MPI_Barrier(m_ppn1_comm);
-            m_tracer = new Tracer();
             m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
+
+            std::string profile_name;
+            m_sampler->profile_name(profile_name);
+
+            // Prepare and send the Global Policy header to every node so that the trace files contain the
+            // correct data.
+            std::string header;
+            if (!m_ppn1_rank) {
+                header = m_global_policy->header(profile_name);
+            }
+            int header_size = header.length() + 1;
+            MPI_Bcast(&header_size, 1, MPI_INT, 0, m_ppn1_comm);
+            std::vector<char> header_vec(header_size);
+            if (!m_ppn1_rank) {
+                std::copy(header.begin(), header.end(), header_vec.begin());
+                header_vec[header_size - 1] = '\0';
+            }
+            // The broadcast will also synchronize the ranks so time zero is uniform.
+            MPI_Bcast(header_vec.data(), header_size, MPI_CHAR, 0, m_ppn1_comm);
+
+            m_tracer = new Tracer(header_vec.data());
         }
     }
 

@@ -34,61 +34,85 @@ import os
 import json
 import re
 import pandas
-import fnmatch
+import glob
+import json
+import sys
+from natsort import natsorted
 
 class AppOutput(object):
-    def __init__(self, report_base, trace_base=None):
+    def __init__(self, report_glob='*.report', trace_glob=None, dir_name='.', verbose=False):
         self._reports = {}
         self._reports_df = pandas.DataFrame()
         self._traces = {}
+        self._traces_df = pandas.DataFrame()
         self._all_paths = []
         self._reports_df_list = []
+        self._traces_df_list = []
         self._index_tracker = IndexTracker()
 
-        dir_name = os.path.dirname(report_base) if os.path.dirname(report_base) else '.'
-        report_pattern = os.path.basename(report_base)
-        if not report_pattern:
-            report_pattern = '*report*'
-        else:
-            report_pattern += '*'
-        report_files = [ff for ff in os.listdir(dir_name)
-                        if fnmatch.fnmatch(ff, report_pattern)]
+        report_glob = os.path.join(dir_name, report_glob)
+        report_files = natsorted(glob.glob(report_glob))
+        self._all_paths.extend(report_files)
 
         if len(report_files) == 0:
-            raise RuntimeError('No report files found with pattern {} in directory {}.'.format(report_pattern, dir_name))
+            raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
 
         # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
+        if verbose:
+            sys.stdout.write('Parsing reports...')
+            sys.stdout.flush()
         for rf in report_files:
-            rp = os.path.join(dir_name, rf)
-            self._all_paths.append(rp)
-
             # Parse the first report
-            rr_size = os.stat(rp).st_size
-            rr = Report(rp)
+            rr_size = os.stat(rf).st_size
+            rr = Report(rf)
             self.add_report_df(rr)
             self._reports[rr.get_node_name()] = rr
 
             # Parse the remaining reports in this file
             while (rr.get_last_offset() != rr_size):
-                rr = Report(rp, rr.get_last_offset())
+                rr = Report(rf, rr.get_last_offset())
                 if rr.get_node_name() is not None:
                     self.add_report_df(rr)
                     self._reports[rr.get_node_name()] = rr
+                    if verbose:
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
             Report.reset_vars() # If we've reached the end of a report, reset the static vars
+        if verbose:
+            sys.stdout.write(' Done.\n')
+            sys.stdout.flush()
 
         self._reports_df = pandas.concat(self._reports_df_list)
         self._reports_df = self._reports_df.sort_index(ascending=True)
 
-        # TODO : How am I going to determine the index for the trace files if none of the decider information
-        #        is available?
-
-        if trace_base:
-            trace_paths = [ff for ff in os.listdir('.')
-                           if fnmatch.fnmatch(ff, trace_base + '*')]
+        if trace_glob == '':
+            trace_glob = '*.trace-*'
+        if trace_glob:
+            trace_glob = os.path.join(dir_name, trace_glob)
+            self._index_tracker.reset()
+            trace_paths = natsorted(glob.glob(trace_glob))
             self._all_paths.extend(trace_paths)
             # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
-            self._traces = {tt.get_node_name(): tt.get_df() for tt in
-                            [Trace(tp) for tp in trace_paths]}
+            fileno = 1
+            for tp in trace_paths:
+                if verbose:
+                    sys.stdout.write('Parsing trace file {} of {}... \r'.format(fileno, len(trace_paths)))
+                    sys.stdout.flush()
+                fileno += 1
+                tt = Trace(tp)
+                self._traces[tt.get_node_name()] = tt.get_df() # Basic dict assumes one node per trace
+                self.add_trace_df(tt) # Handles multiple traces per node
+            if verbose:
+                sys.stdout.write('\nDone.\n')
+                sys.stdout.flush()
+            if verbose:
+                sys.stdout.write('Creating combined traces DF... ')
+                sys.stdout.flush()
+            self._traces_df = pandas.concat(self._traces_df_list)
+            self._traces_df = self._traces_df.sort_index(ascending=True)
+            if verbose:
+                sys.stdout.write('Done.\n')
+                sys.stdout.flush()
 
     def remove_files(self):
         for ff in self._all_paths:
@@ -107,6 +131,11 @@ class AppOutput(object):
         rdf = rdf.set_index(self._index_tracker.get_multiindex(rr))
         self._reports_df_list.append(rdf)
 
+    def add_trace_df(self, tt):
+        tdf = tt.get_df()
+        tdf = tdf.set_index(self._index_tracker.get_multiindex(tt))
+        self._traces_df_list.append(tdf)
+
     def get_node_names(self):
         return self._reports.keys()
 
@@ -119,6 +148,9 @@ class AppOutput(object):
     def get_report_df(self):
         return self._reports_df
 
+    def get_trace_df(self):
+        return self._traces_df
+
 
 class IndexTracker(object):
     """
@@ -128,45 +160,56 @@ class IndexTracker(object):
     (<GEOPM_VERSION>, <PROFILE_NAME>, <POWER_BUDGET> , <TREE_DECIDER>, <LEAF_DECIDER>, <NODE_NAME>)
     """
     def __init__ (self):
-        self._reports = {}
+        self._run_outputs = {}
 
-    def _check_increment(self, report):
+    def _check_increment(self, run_output):
         """
-        Checks to see if the current report has been seen before.  If so, the count is incremented.  Otherwise it is
+        Checks to see if the current run_output has been seen before.  If so, the count is incremented.  Otherwise it is
         stored as 1.
         """
-        index = (report.get_version(), os.path.basename(report.get_name()), report.get_power_budget(),
-                 report.get_tree_decider(), report.get_leaf_decider(), report.get_node_name())
+        index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()), run_output.get_power_budget(),
+                 run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_node_name())
 
-        if index not in self._reports.keys():
-            self._reports[index] = 1
+        if index not in self._run_outputs.keys():
+            self._run_outputs[index] = 1
         else:
-            self._reports[index] += 1
+            self._run_outputs[index] += 1
 
-    def _get_base_index(self, report):
+    def _get_base_index(self, run_output):
         """
-        Takes a report as input, and returns the unique tuple to identify this report in the DataFrame.  Note that
+        Takes a run_output as input, and returns the unique tuple to identify this run_output in the DataFrame.  Note that
         this method appends the current experiment iteration to the end of the returned tuple.  E.g.:
         >>> self._index_tracker.get_base_index(rr)
         ('0.1.1+dev365gfcda929', 'geopm_test_integration', 170, 'static_policy', 'power_balancing', 'mr-fusion2', 1)
         """
-        key = (report.get_version(), os.path.basename(report.get_name()), report.get_power_budget(),
-               report.get_tree_decider(), report.get_leaf_decider(), report.get_node_name())
+        key = (run_output.get_version(), os.path.basename(run_output.get_profile_name()), run_output.get_power_budget(),
+               run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_node_name())
 
-        return key + (self._reports[key], )
+        return key + (self._run_outputs[key], )
 
-    def get_multiindex(self, report):
+    def get_multiindex(self, run_output):
         """
-        Returns a multiindex from this report.  Used in DataFrame construction.
+        Returns a multiindex from this run_output.  Used in DataFrame construction.
         """
-        self._check_increment(report)
+        self._check_increment(run_output)
 
         itl = []
-        for region in sorted(report.keys()): # Pandas sorts the keys when a DF is created
-            itl.append(self._get_base_index(report) + (region, )) # Append region to the existing tuple
-        mi = pandas.MultiIndex.from_tuples(itl, names=['version', 'name', 'power_budget', 'tree_decider',
-                                                       'leaf_decider', 'node_name', 'iteration', 'region'])
+        index_names = ['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'node_name', 'iteration']
+
+        if type(run_output) is Report:
+            index_names.append('region')
+            for region in sorted(run_output.keys()): # Pandas sorts the keys when a DF is created
+                itl.append(self._get_base_index(run_output) + (region, )) # Append region to the existing tuple
+        else: # Trace file index
+            index_names.append('index')
+            for ii in range(len(run_output.get_df())): # Append the integer index to the DataFrame index
+                itl.append(self._get_base_index(run_output) + (ii, ))
+
+        mi = pandas.MultiIndex.from_tuples(itl, names=index_names)
         return mi
+
+    def reset(self):
+        self._run_outputs = {}
 
 
 class Report(dict):
@@ -179,7 +222,7 @@ class Report(dict):
 
     @staticmethod
     def reset_vars():
-        (Report._version, Report._name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._power_budget) = \
+        (Report._version, Report._profile_name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._power_budget) = \
             None, None, None, None, None, None
 
     def __init__(self, report_path, offset=0):
@@ -187,7 +230,7 @@ class Report(dict):
         self._path = report_path
         self._offset = offset
         self._version = None
-        self._name = None
+        self._profile_name = None
         self._mode = None
         self._tree_decider = None
         self._leaf_decider = None
@@ -210,10 +253,10 @@ class Report(dict):
                     match = re.search(r'^##### geopm (\S+) #####$', line)
                     if match is not None:
                         self._version = match.group(1)
-                elif self._name is None:
+                elif self._profile_name is None:
                     match = re.search(r'^Profile: (\S+)$', line)
                     if match is not None:
-                        self._name = match.group(1)
+                        self._profile_name = match.group(1)
                 elif self._mode is None:
                     match = re.search(r'^Policy Mode: (\S+)$', line)
                     if match is not None:
@@ -294,10 +337,10 @@ class Report(dict):
             Report._version = self._version
         else:
             raise SyntaxError('Unable to parse version information from report!')
-        if self._name is None and Report._name:
-            self._name = Report._name
-        elif self._name:
-            Report._name = self._name
+        if self._profile_name is None and Report._profile_name:
+            self._profile_name = Report._profile_name
+        elif self._profile_name:
+            Report._profile_name = self._profile_name
         else:
             raise SyntaxError('Unable to parse name information from report!')
         if self._mode is None and Report._mode:
@@ -329,8 +372,8 @@ class Report(dict):
             None in (self._total_runtime, self._total_energy, self._total_ignore_runtime, self._total_mpi_runtime))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
-    def get_name(self):
-        return self._name
+    def get_profile_name(self):
+        return self._profile_name
 
     def get_version(self):
         return self._version
@@ -425,10 +468,16 @@ class Region(dict):
 class Trace(object):
     def __init__(self, trace_path):
         self._path = trace_path
-        self._df = pandas.read_table(trace_path, '|', dtype={'region_id ' : str})
+        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id ' : str})
         self._df.columns = list(map(str.strip, self._df[:0])) # Strip whitespace from column names
         self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip) # Strip whitespace from region ID's
-        self._node_name = trace_path.split('.trace-')[-1]
+        self._version = None
+        self._profile_name = None
+        self._power_budget = None
+        self._tree_decider = None
+        self._leaf_decider = None
+        self._node_name = None
+        self._parse_header(trace_path)
 
     def __repr__(self):
         return self._df.__repr__()
@@ -442,8 +491,47 @@ class Trace(object):
     def __getitem__(self, key):
         return self._df.__getitem__(key)
 
+    def _parse_header(self, trace_path):
+        done = False
+        out = []
+        with open(trace_path) as fid:
+            while not done:
+                ll = fid.readline()
+                if ll.startswith('#'):
+                    out.append(ll[1:])
+                else:
+                    done = True
+        out.insert(0, '{')
+        out.append('}')
+        json_str = ''.join(out)
+        dd = json.loads(json_str)
+        try:
+            self._version = dd['geopm_version']
+            self._profile_name = dd['profile_name']
+            self._power_budget = dd['power_budget']
+            self._tree_decider = dd['tree_decider']
+            self._leaf_decider = dd['leaf_decider']
+            self._node_name = dd['node_name']
+        except KeyError:
+            raise SyntaxError('Trace file header could not be parsed!')
+
     def get_df(self):
         return self._df
+
+    def get_version(self):
+        return self._version
+
+    def get_profile_name(self):
+        return self._profile_name
+
+    def get_tree_decider(self):
+        return self._tree_decider
+
+    def get_leaf_decider(self):
+        return self._leaf_decider
+
+    def get_power_budget(self):
+        return self._power_budget
 
     def get_node_name(self):
         return self._node_name
