@@ -48,6 +48,8 @@
 #include "GlobalPolicy.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
+#include "geopm_version.h"
+#include "geopm_env.h"
 #include "config.h"
 
 extern "C"
@@ -1033,6 +1035,18 @@ namespace geopm
             default:
                 throw Exception("GlobalPolicy: Unable to convert invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+    }
+
+    std::string GlobalPolicy::header() const
+    {
+        std::ostringstream header_stream;
+        header_stream << "# \"geopm_version\" : \"" << geopm_version() << "\"," << std::endl
+                      << "# \"profile_name\" : \"" << geopm_env_profile() << "\"," << std::endl
+                      << "# \"power_budget\" : " << budget_watts() << "," << std::endl
+                      << "# \"tree_decider\" : \"" << tree_decider() << "\"," << std::endl
+                      << "# \"leaf_decider\" : \"" << leaf_decider() << "\"," << std::endl;
+
+        return header_stream.str();
     }
 
 }

@@ -55,9 +55,9 @@ If _PATH_ is not provided, the current working directory is used.
   that begin with _TRACE_BASE_ will be selected and interpred as trace files.  If this option
   is not specified then all files with the ".trace" extension in _PATH_ are selected.
 
-* `-p`, `--plot_type` _barplot_|_boxplot_:
+* `-p`, `--plot_type` _bar_|_box_|_power_|_epoch_|_freq_:
   The type of plot to be generated (default: _barplot_).  Multiple plots can
-  be specified by providing a comma seperated list (e.g. -p barplot,boxplot).
+  be specified by providing a comma seperated list (e.g. -p bar,box).
 
 * `-s`, `--shell`:
   Drop to a python shell after plotting.  This will also display an interactive plot
@@ -85,7 +85,7 @@ If _PATH_ is not provided, the current working directory is used.
   Print debugging information.
 
 * `--speedup`:
-  When user requests barplots, plot the speedup instead of the raw data
+  When a user requests barplots, plot the speedup instead of the raw data
   value.
 
 * `--ref_version` _VERSION_:
@@ -95,7 +95,7 @@ If _PATH_ is not provided, the current working directory is used.
   Use this profile name as the reference dataset to compare the target against.
 
 * `--ref_plugin` _PLUGIN_NAME_:
-  Use this leaf decider plugin as the reference dataset to compare the target
+  Use this tree decider plugin as the reference dataset to compare the target
   against. (default: _power_governing_)
 
 * `--tgt_version` _VERSION_:
@@ -105,11 +105,20 @@ If _PATH_ is not provided, the current working directory is used.
   Use this profile name as the target dataset to compare the reference against.
 
 * `--tgt_plugin` _PLUGIN_NAME_:
-  Use this leaf decider plugin as the target dataset to compare the reference
+  Use this tree decider plugin as the target dataset to compare the reference
   against. (default: _power_balancing_)
 
 * `--datatype` _runtime_|_energy_|_frequency_|_count_:
   The datatype to be plotted. Only used for report file plots presently. (default: _runtime_)
+
+* `--smooth` _NUM_SAMPLES_:
+  Perform a _NUM_SAMPLES_ moving average on on the Y-axis data. Only used for
+  trace file plots presently. (default: 1)
+
+* `--analyze`:
+  Perform a basic analysis of the data plotted. This only applies to the following plots:
+
+  * _power_: Plot the power cap and the aggregate power for all the nodes.
 
 ## ENVIRONMENT
 

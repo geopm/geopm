@@ -159,6 +159,8 @@ namespace geopm
             /// GEOPM_MODE_FREQ_UNIFORM_STATIC, or
             /// GEOPM_MODE_FREQ_HYBRID_STATIC
             void enforce_static_mode();
+            /// @brief Return the header describing the current policy
+            std::string header() const;
         protected:
             /// @brief Structure intended to be shared between
             /// the resource manager and the geopm
