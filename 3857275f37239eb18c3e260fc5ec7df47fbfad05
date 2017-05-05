@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9536c76a_c368b609",
+        "filename": "ronn/geopmplotter.1.ronn",
+        "patchSetId": 20
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-05T13:57:11Z",
+      "side": 1,
+      "message": "PATH is not in the SYNOPSIS anymore.",
+      "revId": "3857275f37239eb18c3e260fc5ec7df47fbfad05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
