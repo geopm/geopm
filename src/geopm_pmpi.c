@@ -83,18 +83,36 @@ static MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
 }
 #endif
 
-static inline void geopm_mpi_region_enter()
+static inline void geopm_mpi_region_enter(uint64_t func_rid)
 {
     if (g_is_geopm_pmpi_prof_enabled) {
+        if (func_rid) {
+            geopm_prof_enter(func_rid);
+        }
         geopm_prof_enter(GEOPM_REGION_ID_MPI);
     }
 }
 
-static inline void geopm_mpi_region_exit(void)
+static inline void geopm_mpi_region_exit(uint64_t func_rid)
 {
     if (g_is_geopm_pmpi_prof_enabled) {
         geopm_prof_exit(GEOPM_REGION_ID_MPI);
+        if (func_rid) {
+            geopm_prof_exit(func_rid);
+        }
     }
+}
+
+static inline uint64_t geopm_mpi_func_rid(const char *func_name)
+{
+    uint64_t result = 0;
+    if (g_is_geopm_pmpi_prof_enabled) {
+       int err = geopm_prof_region(func_name, GEOPM_REGION_HINT_NETWORK, &result);
+       if (err) {
+           result = 0;
+       }
+    }
+    return result;
 }
 
 static int geopm_pmpi_init(const char *exec_name)
@@ -271,10 +289,16 @@ int MPI_Finalize(void)
 int MPI_Allgather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
 
-    geopm_mpi_region_enter();
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Allgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -282,10 +306,15 @@ int MPI_Allgather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sen
 int MPI_Allgatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST int displs[], MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Allgatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -293,10 +322,15 @@ int MPI_Allgatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype se
 int MPI_Allreduce(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Allreduce(sendbuf, recvbuf, count, datatype, op, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -304,10 +338,15 @@ int MPI_Allreduce(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_D
 int MPI_Alltoall(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -315,10 +354,15 @@ int MPI_Alltoall(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype send
 int MPI_Alltoallv(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[], GEOPM_MPI_CONST int sdispls[], MPI_Datatype sendtype, void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST int rdispls[], MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Alltoallv(sendbuf, sendcounts,sdispls, sendtype, recvbuf, recvcounts, rdispls, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -326,10 +370,15 @@ int MPI_Alltoallv(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[
 int MPI_Alltoallw(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[], GEOPM_MPI_CONST int sdispls[], GEOPM_MPI_CONST MPI_Datatype sendtypes[], void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST int rdispls[], GEOPM_MPI_CONST MPI_Datatype recvtypes[], MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Alltoallw(sendbuf, sendcounts, sdispls, sendtypes, recvbuf, recvcounts, rdispls, recvtypes, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -337,10 +386,15 @@ int MPI_Alltoallw(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[
 int MPI_Barrier(MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Barrier(geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -348,10 +402,15 @@ int MPI_Barrier(MPI_Comm comm)
 int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Bcast(buffer, count, datatype, root, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -359,10 +418,15 @@ int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm
 int MPI_Bsend(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Bsend(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -370,10 +434,15 @@ int MPI_Bsend(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int d
 int MPI_Bsend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Bsend_init(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm), request);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -381,10 +450,15 @@ int MPI_Bsend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, 
 int MPI_Gather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Gather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -392,10 +466,15 @@ int MPI_Gather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendty
 int MPI_Gatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST int displs[], MPI_Datatype recvtype, int root, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Gatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, root, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -404,10 +483,15 @@ int MPI_Gatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendt
 int MPI_Neighbor_allgather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Neighbor_allgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -415,10 +499,15 @@ int MPI_Neighbor_allgather(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Dat
 int MPI_Neighbor_allgatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST int displs[], MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Neighbor_allgatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -426,10 +515,15 @@ int MPI_Neighbor_allgatherv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Da
 int MPI_Neighbor_alltoall(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Neighbor_alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -437,10 +531,15 @@ int MPI_Neighbor_alltoall(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Data
 int MPI_Neighbor_alltoallv(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[], GEOPM_MPI_CONST int sdispls[], MPI_Datatype sendtype, void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST int rdispls[], MPI_Datatype recvtype, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Neighbor_alltoallv(sendbuf, sendcounts, sdispls, sendtype, recvbuf, recvcounts, rdispls, recvtype, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -448,10 +547,15 @@ int MPI_Neighbor_alltoallv(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int se
 int MPI_Neighbor_alltoallw(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[], GEOPM_MPI_CONST MPI_Aint sdispls[], GEOPM_MPI_CONST MPI_Datatype sendtypes[], void *recvbuf, GEOPM_MPI_CONST int recvcounts[], GEOPM_MPI_CONST MPI_Aint rdispls[], GEOPM_MPI_CONST MPI_Datatype recvtypes[], MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Neighbor_alltoallw(sendbuf, sendcounts, sdispls, sendtypes, recvbuf, recvcounts, rdispls, recvtypes, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -460,10 +564,15 @@ int MPI_Neighbor_alltoallw(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int se
 int MPI_Reduce(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -471,10 +580,15 @@ int MPI_Reduce(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Data
 int MPI_Reduce_scatter(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, GEOPM_MPI_CONST int recvcounts[], MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Reduce_scatter(sendbuf, recvbuf, recvcounts, datatype, op, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -483,10 +597,15 @@ int MPI_Reduce_scatter(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, GEOPM_MPI_C
 int MPI_Reduce_scatter_block(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int recvcount, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Reduce_scatter_block(sendbuf, recvbuf, recvcount, datatype, op, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -495,10 +614,15 @@ int MPI_Reduce_scatter_block(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int r
 int MPI_Rsend(GEOPM_MPI_CONST void *ibuf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Rsend(ibuf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -506,10 +630,15 @@ int MPI_Rsend(GEOPM_MPI_CONST void *ibuf, int count, MPI_Datatype datatype, int 
 int MPI_Rsend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Rsend_init(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm), request);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -519,10 +648,15 @@ int MPI_Rsend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, 
 int MPI_Scan(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Scan(sendbuf, recvbuf, count, datatype, op, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -530,10 +664,15 @@ int MPI_Scan(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Dataty
 int MPI_Scatter(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Scatter(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -541,10 +680,15 @@ int MPI_Scatter(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendt
 int MPI_Scatterv(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[], GEOPM_MPI_CONST int displs[], MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Scatterv(sendbuf, sendcounts, displs, sendtype, recvbuf, recvcount, recvtype, root, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -553,10 +697,15 @@ int MPI_Scatterv(GEOPM_MPI_CONST void *sendbuf, GEOPM_MPI_CONST int sendcounts[]
 int MPI_Waitall(int count, MPI_Request array_of_requests[], MPI_Status *array_of_statuses)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Waitall(count, array_of_requests, array_of_statuses);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -564,10 +713,15 @@ int MPI_Waitall(int count, MPI_Request array_of_requests[], MPI_Status *array_of
 int MPI_Waitany(int count, MPI_Request array_of_requests[], int *index, MPI_Status *status)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Waitany(count, array_of_requests, index, status);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -575,10 +729,15 @@ int MPI_Waitany(int count, MPI_Request array_of_requests[], int *index, MPI_Stat
 int MPI_Wait(MPI_Request *request, MPI_Status *status)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Wait(request, status);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -586,10 +745,15 @@ int MPI_Wait(MPI_Request *request, MPI_Status *status)
 int MPI_Waitsome(int incount, MPI_Request array_of_requests[], int *outcount, int array_of_indices[], MPI_Status array_of_statuses[])
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Waitsome(incount, array_of_requests, outcount, array_of_indices, array_of_statuses);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -880,10 +1044,15 @@ int MPI_Comm_test_inter(MPI_Comm comm, int *flag)
 int MPI_Exscan(GEOPM_MPI_CONST void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Exscan(sendbuf, recvbuf, count, datatype, op, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -1044,10 +1213,15 @@ int MPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source, int t
 int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Recv(buf, count, datatype, source, tag, geopm_swap_comm_world(comm), status);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -1092,10 +1266,15 @@ int MPI_Send_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, i
 int MPI_Send(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err =  PMPI_Send(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -1103,10 +1282,15 @@ int MPI_Send(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int de
 int MPI_Sendrecv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype sendtype, int dest, int sendtag, void *recvbuf, int recvcount, MPI_Datatype recvtype, int source, int recvtag, MPI_Comm comm, MPI_Status *status)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf, recvcount, recvtype, source, recvtag, geopm_swap_comm_world(comm), status);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -1114,10 +1298,15 @@ int MPI_Sendrecv(GEOPM_MPI_CONST void *sendbuf, int sendcount, MPI_Datatype send
 int MPI_Sendrecv_replace(void * buf, int count, MPI_Datatype datatype, int dest, int sendtag, int source, int recvtag, MPI_Comm comm, MPI_Status *status)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Sendrecv_replace(buf, count, datatype, dest, sendtag, source, recvtag, geopm_swap_comm_world(comm), status);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }
@@ -1130,10 +1319,15 @@ int MPI_Ssend_init(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, 
 int MPI_Ssend(GEOPM_MPI_CONST void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
     int err = 0;
-
-    geopm_mpi_region_enter();
+    static unsigned is_once = 1;
+    static uint64_t func_rid = 0;
+    if (is_once) {
+        func_rid = geopm_mpi_func_rid(__func__);
+        is_once = 0;
+    }
+    geopm_mpi_region_enter(func_rid);
     err = PMPI_Ssend(buf, count, datatype, dest, tag, geopm_swap_comm_world(comm));
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(func_rid);
 
     return err;
 }

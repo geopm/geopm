@@ -218,7 +218,7 @@ TEST_F(MPIInterfaceTest, geopm_api)
     reset();
 
     geopm_pmpi_prof_enable(1);
-    geopm_mpi_region_enter();
+    geopm_mpi_region_enter(0);
     EXPECT_EQ(GEOPM_REGION_ID_MPI, g_test_curr_region_enter_id);
     EXPECT_EQ(1, g_test_curr_region_enter_count);
     EXPECT_EQ((uint64_t)0, g_test_curr_region_exit_id);
@@ -226,7 +226,7 @@ TEST_F(MPIInterfaceTest, geopm_api)
     reset();
 
     geopm_pmpi_prof_enable(1);
-    geopm_mpi_region_exit();
+    geopm_mpi_region_exit(0);
     EXPECT_EQ(GEOPM_REGION_ID_MPI, g_test_curr_region_exit_id);
     EXPECT_EQ(1, g_test_curr_region_exit_count);
     EXPECT_EQ((uint64_t)0, g_test_curr_region_enter_id);
