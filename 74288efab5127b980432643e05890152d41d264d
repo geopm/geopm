@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "973dee5f_1500dd1e",
+        "filename": "test/MPIInterfaceTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-09T01:12:23Z",
+      "side": 1,
+      "message": "Not sure how, but this is blowing up testing in Travis:\n\nhttps://travis-ci.org/cmcantalupo/geopm/builds/230179059\n\nWorks fine on my virtual box and on mr-fusion.",
+      "revId": "74288efab5127b980432643e05890152d41d264d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
