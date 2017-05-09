@@ -604,6 +604,42 @@ class TestIntegration(unittest.TestCase):
             rr = self._output.get_report(nn)
             self.assertEqual(rr['ignore'].get_runtime(), rr.get_ignore_runtime())
 
+    def test_unmarked_ompt(self):
+        name = 'test_unmarked_ompt'
+        report_path = name + '.report'
+        num_node = 4
+        num_rank = 16
+        app_conf = geopm_io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('stream-unmarked', 1.0)
+        app_conf.append_region('dgemm-unmarked', 1.0)
+        app_conf.append_region('all2all-unmarked', 1.0)
+        ctl_conf = geopm_io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        self._output = geopm_io.AppOutput(report_path)
+        node_names = self._output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+        stream_id = None
+        for nn in node_names:
+            rr = self._output.get_report(nn)
+            region_names = rr.keys()
+            stream_region = [key for key in region_names if key.startswith('OMPT-geopm_test_integration-')]
+            self.assertEqual(1, len(stream_region))
+            stream_region = stream_region[0]
+            self.assertEqual(1, rr[stream_region].get_count())
+            if stream_id:
+                self.assertEqual(stream_id, rr[stream_region].get_id())
+            else:
+                stream_id = rr[stream_region].get_id()
+            ompt_regions = [key for key in region_names if key.startswith('OMPT-')]
+            self.assertLessEqual(2, len(ompt_regions));
+            self.assertTrue(('MPI_Alltoall' in rr));
+
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
         """

@@ -70,7 +70,7 @@ if ENABLE_FORTRAN
 all-local: geopm.mod
 
 install-fortran:
-	$(INSTALL) -d  $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
+	$(INSTALL) -d $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 
 endif
@@ -343,6 +343,12 @@ if ENABLE_MPI
                           src/geopm_version.c \
                           src/geopm_version.h \
                           # end
+if ENABLE_OMPT
+    libgeopm_la_SOURCES += src/OMPT.cpp \
+                           src/OMPT.hpp \
+                           #end
+endif
+
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90
 endif

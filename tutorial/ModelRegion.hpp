@@ -45,6 +45,11 @@ namespace geopm
             virtual ~ModelRegionBase();
             std::string name(void);
             double big_o(void);
+            virtual int region(void);
+            virtual void region_enter(void);
+            virtual void region_exit(void);
+            virtual void loop_enter(uint64_t iteration);
+            virtual void loop_exit(void);
             virtual void big_o(double big_o_in) = 0;
             virtual void run(void) = 0;
         protected:
@@ -55,13 +60,15 @@ namespace geopm
             uint64_t m_region_id;
             bool m_do_imbalance;
             bool m_do_progress;
+            bool m_do_unmarked;
             uint64_t m_loop_count;
+            double m_norm;
     };
 
     class SleepModelRegion : public ModelRegionBase
     {
         public:
-            SleepModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            SleepModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~SleepModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -73,7 +80,7 @@ namespace geopm
     {
         friend class NestedModelRegion;
         public:
-            SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~SpinModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -84,7 +91,7 @@ namespace geopm
     class DGEMMModelRegion : public ModelRegionBase
     {
         public:
-            DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~DGEMMModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -99,7 +106,7 @@ namespace geopm
     class StreamModelRegion : public ModelRegionBase
     {
         public:
-            StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~StreamModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -115,7 +122,7 @@ namespace geopm
     {
         friend class NestedModelRegion;
         public:
-            All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~All2allModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -131,7 +138,7 @@ namespace geopm
     class NestedModelRegion : public ModelRegionBase
     {
         public:
-            NestedModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            NestedModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~NestedModelRegion();
             void big_o(double big_o);
             void run(void);
@@ -143,7 +150,7 @@ namespace geopm
     class IgnoreModelRegion : public ModelRegionBase
     {
         public:
-            IgnoreModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress);
+            IgnoreModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~IgnoreModelRegion();
             void big_o(double big_o);
             void run(void);
