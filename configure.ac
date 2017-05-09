@@ -161,7 +161,6 @@ AC_SUBST([enable_overhead])
 AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
-
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
 if test "x$with_mpi_bin" != x; then
@@ -375,6 +374,10 @@ AC_CHECK_HEADER([json-c/json.h], [], [
     exit -1])
 
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
+AC_CHECK_HEADER([ompt.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [ompt.h is available]) [enable_ompt="1"]], [enable_ompt="0"])
+
+AC_SUBST([enable_ompt])
+AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
@@ -536,4 +539,5 @@ AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([doc                : ${enable_doc}])
+AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([===============================================================================])
