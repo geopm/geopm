@@ -247,25 +247,21 @@ TEST_F(MPIInterfaceTest, mpi_api)
     int junk = 0;
     int size;
     EXPECT_EQ(0, MPI_Comm_size(MPI_COMM_WORLD, &size));
-    int zeros[size];
-    memset(zeros, 0, size * sizeof(int));
-    char sbuf[size];
+    std::vector<int> zeros(size);
+    std::fill(zeros.begin(), zeros.end(), 0);
+    char sbuf[MPI_MAX_OBJECT_NAME];
     char *dbuf;
     char **ddbuf;
     MPI_Request req;
     MPI_Info info = MPI_INFO_NULL;
     MPI_Group group;
     MPI_Comm comm;
-
-    MPI_Datatype dtypes[size];
-    for (int i = 0; i < size; i++)
-    {
-        dtypes[i] = MPI_UNSIGNED;
-    }
-    MPI_Aint aint = 0;;
-    MPI_Request reqs[size];
+    std::vector<MPI_Datatype> dtypes(size);
+    std::fill(dtypes.begin(), dtypes.end(), MPI_UNSIGNED);
+    MPI_Aint aint = 0;
+    std::vector<MPI_Request> reqs(size);
     MPI_Status status;
-    MPI_Status statuses[size];
+    std::vector<MPI_Status> statuses(size);
     MPI_File fh;
     MPI_Win win;
 #ifdef GEOPM_ENABLE_MPI3
@@ -278,7 +274,7 @@ TEST_F(MPIInterfaceTest, mpi_api)
     EXPECT_EQ(0, MPI_Allgather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Allgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Allgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
     EXPECT_EQ(0, MPI_Allreduce(NULL, NULL, 0, MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD));
@@ -287,10 +283,10 @@ TEST_F(MPIInterfaceTest, mpi_api)
     EXPECT_EQ(0, MPI_Alltoall(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Alltoallv(&junk, zeros, zeros, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Alltoallv(&junk, zeros.data(), zeros.data(), MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Alltoallw(&junk, zeros, zeros, dtypes, NULL, zeros, zeros, dtypes, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Alltoallw(&junk, zeros.data(), zeros.data(), dtypes.data(), NULL, zeros.data(), zeros.data(), dtypes.data(), MPI_COMM_WORLD));
     mpi_prof_check();
 
     EXPECT_EQ(0, MPI_Barrier(MPI_COMM_WORLD));
@@ -308,30 +304,30 @@ TEST_F(MPIInterfaceTest, mpi_api)
     EXPECT_EQ(0, MPI_Gather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Gatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, 0, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Gatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, 0, MPI_COMM_WORLD));
     mpi_prof_check();
 
 #ifdef GEOPM_ENABLE_MPI3
     EXPECT_EQ(0, MPI_Neighbor_allgather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Neighbor_allgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Neighbor_allgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
     EXPECT_EQ(0, MPI_Neighbor_alltoall(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Neighbor_alltoallv(NULL, zeros, zeros, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Neighbor_alltoallv(NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Neighbor_alltoallw(NULL, zeros, aints, dtypes, NULL, zeros, aints, dtypes, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Neighbor_alltoallw(NULL, zeros.data(), aints, dtypes.data(), NULL, zeros.data(), aints, dtypes.data(), MPI_COMM_WORLD));
     mpi_prof_check();
 #endif
 
     EXPECT_EQ(0, MPI_Reduce(NULL, NULL, 0, MPI_UNSIGNED, MPI_MIN, 0, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Reduce_scatter(NULL, NULL, zeros, MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Reduce_scatter(NULL, NULL, zeros.data(), MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD));
     mpi_prof_check();
 
 #ifdef GEOPM_ENABLE_MPI3
@@ -351,39 +347,39 @@ TEST_F(MPIInterfaceTest, mpi_api)
     EXPECT_EQ(0, MPI_Scatter(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Scatterv(NULL, zeros, zeros, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD));
+    EXPECT_EQ(0, MPI_Scatterv(NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Waitall(0, reqs, &status));
+    EXPECT_EQ(0, MPI_Waitall(0, reqs.data(), &status));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Waitany(0, reqs, &junk, &status));
+    EXPECT_EQ(0, MPI_Waitany(0, reqs.data(), &junk, &status));
     mpi_prof_check();
 
     EXPECT_EQ(0, MPI_Wait(&req, &status));
     mpi_prof_check();
 
-    EXPECT_EQ(0, MPI_Waitsome(0, reqs, &junk, zeros, statuses));
+    EXPECT_EQ(0, MPI_Waitsome(0, reqs.data(), &junk, zeros.data(), statuses.data()));
     mpi_prof_check();
 
 #ifdef GEOPM_ENABLE_MPI3
     EXPECT_EQ(0, MPI_Iallgather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Iallgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Iallgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Iallreduce(NULL, NULL, 0, MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Ialltoall(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Ialltoallv(&junk, zeros, zeros, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Ialltoallw(&junk, zeros, zeros, dtypes, NULL, zeros, zeros, dtypes, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Ialltoallv(&junk, zeros.data(), zeros.data(), MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Ialltoallw(&junk, zeros.data(), zeros.data(), dtypes.data(), NULL, zeros.data(), zeros.data(), dtypes.data(), MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Ibarrier(MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Ibcast(NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
 #endif
 
-    EXPECT_EQ(0, MPI_Cart_coords(MPI_COMM_WORLD, 0, 0, zeros));
-    EXPECT_EQ(0, MPI_Cart_create(MPI_COMM_WORLD, 0, zeros, zeros, 0, &comm));
-    EXPECT_EQ(0, MPI_Cart_get(MPI_COMM_WORLD, 0, zeros, zeros, zeros));
-    EXPECT_EQ(0, MPI_Cart_map(MPI_COMM_WORLD, 0, zeros, zeros, &junk));
-    EXPECT_EQ(0, MPI_Cart_rank(MPI_COMM_WORLD, zeros, &junk));
+    EXPECT_EQ(0, MPI_Cart_coords(MPI_COMM_WORLD, 0, 0, zeros.data()));
+    EXPECT_EQ(0, MPI_Cart_create(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), 0, &comm));
+    EXPECT_EQ(0, MPI_Cart_get(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), zeros.data()));
+    EXPECT_EQ(0, MPI_Cart_map(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), &junk));
+    EXPECT_EQ(0, MPI_Cart_rank(MPI_COMM_WORLD, zeros.data(), &junk));
     EXPECT_EQ(0, MPI_Cart_shift(MPI_COMM_WORLD, 0, 0, &junk, &junk));
-    EXPECT_EQ(0, MPI_Cart_sub(MPI_COMM_WORLD, zeros, &comm));
+    EXPECT_EQ(0, MPI_Cart_sub(MPI_COMM_WORLD, zeros.data(), &comm));
     EXPECT_EQ(0, MPI_Cartdim_get(MPI_COMM_WORLD, &junk));
     EXPECT_EQ(0, MPI_Comm_accept(sbuf, info, 0, MPI_COMM_WORLD, &comm));
     // TODO Figure out how to test c2f
@@ -412,9 +408,9 @@ TEST_F(MPIInterfaceTest, mpi_api)
     EXPECT_EQ(0, MPI_Comm_get_attr(MPI_COMM_WORLD, 0, NULL, &junk));
 
 #ifdef GEOPM_ENABLE_MPI3
-    EXPECT_EQ(0, MPI_Dist_graph_create(MPI_COMM_WORLD, 0, zeros, zeros, zeros, zeros, info, 0, &comm));
-    EXPECT_EQ(0, MPI_Dist_graph_create_adjacent(comm, 0, zeros, zeros, 0, zeros, zeros, info, 0, &comm));
-    EXPECT_EQ(0, MPI_Dist_graph_neighbors(MPI_COMM_WORLD, 0, zeros, zeros, 0, zeros, zeros));
+    EXPECT_EQ(0, MPI_Dist_graph_create(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), zeros.data(), zeros.data(), info, 0, &comm));
+    EXPECT_EQ(0, MPI_Dist_graph_create_adjacent(comm, 0, zeros.data(), zeros.data(), 0, zeros.data(), zeros.data(), info, 0, &comm));
+    EXPECT_EQ(0, MPI_Dist_graph_neighbors(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), 0, zeros.data(), zeros.data()));
     EXPECT_EQ(0, MPI_Dist_graph_neighbors_count(MPI_COMM_WORLD, &junk, &junk, &junk));
 #endif
 
@@ -440,8 +436,8 @@ TEST_F(MPIInterfaceTest, mpi_api)
 
     EXPECT_EQ(0, MPI_Comm_set_name(MPI_COMM_WORLD, sbuf));
     EXPECT_EQ(0, MPI_Comm_size(MPI_COMM_WORLD, &junk));
-    EXPECT_EQ(0, MPI_Comm_spawn(sbuf, &dbuf, 0, info, 0, MPI_COMM_WORLD, &comm, zeros));
-    EXPECT_EQ(0, MPI_Comm_spawn_multiple(0, &dbuf, &ddbuf, zeros, &info, 0, MPI_COMM_WORLD, &comm, zeros));
+    EXPECT_EQ(0, MPI_Comm_spawn(sbuf, &dbuf, 0, info, 0, MPI_COMM_WORLD, &comm, zeros.data()));
+    EXPECT_EQ(0, MPI_Comm_spawn_multiple(0, &dbuf, &ddbuf, zeros.data(), &info, 0, MPI_COMM_WORLD, &comm, zeros.data()));
     EXPECT_EQ(0, MPI_Comm_split(MPI_COMM_WORLD, 0, 0, &comm));
 
 #ifdef GEOPM_ENABLE_MPI3
@@ -458,15 +454,15 @@ TEST_F(MPIInterfaceTest, mpi_api)
 
 #ifdef GEOPM_ENABLE_MPI3
     EXPECT_EQ(0, MPI_Igather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Igatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Igatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
 #endif
 
-    EXPECT_EQ(0, MPI_Graph_create(MPI_COMM_WORLD, 0, zeros, zeros, 0, &comm));
-    EXPECT_EQ(0, MPI_Graph_get(MPI_COMM_WORLD, 0, 0, zeros, zeros));
-    EXPECT_EQ(0, MPI_Graph_map(MPI_COMM_WORLD, 0, zeros, zeros, &junk));
+    EXPECT_EQ(0, MPI_Graph_create(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), 0, &comm));
+    EXPECT_EQ(0, MPI_Graph_get(MPI_COMM_WORLD, 0, 0, zeros.data(), zeros.data()));
+    EXPECT_EQ(0, MPI_Graph_map(MPI_COMM_WORLD, 0, zeros.data(), zeros.data(), &junk));
     EXPECT_EQ(0, MPI_Graph_neighbors_count(MPI_COMM_WORLD, 0, &junk));
-    EXPECT_EQ(0, MPI_Graph_neighbors(MPI_COMM_WORLD, 0, 0, zeros));
-    EXPECT_EQ(0, MPI_Graphdims_get(MPI_COMM_WORLD, zeros, zeros));
+    EXPECT_EQ(0, MPI_Graph_neighbors(MPI_COMM_WORLD, 0, 0, zeros.data()));
+    EXPECT_EQ(0, MPI_Graphdims_get(MPI_COMM_WORLD, zeros.data(), zeros.data()));
     EXPECT_EQ(0, MPI_Ibsend(NULL, 0, MPI_UNSIGNED, 0, 0, MPI_COMM_WORLD, &req));
 
 #ifdef GEOPM_ENABLE_MPI3
@@ -484,10 +480,10 @@ TEST_F(MPIInterfaceTest, mpi_api)
 #ifdef GEOPM_ENABLE_MPI3
     EXPECT_EQ(0, MPI_Mprobe(0, 0, MPI_COMM_WORLD, &message, &status));
     EXPECT_EQ(0, MPI_Ineighbor_allgather(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Ineighbor_allgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Ineighbor_allgatherv(NULL, 0, MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Ineighbor_alltoall(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Ineighbor_alltoallv(NULL, zeros, zeros, MPI_UNSIGNED, NULL, zeros, zeros, MPI_UNSIGNED, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Ineighbor_alltoallw(NULL, zeros, aints, dtypes, NULL, zeros, aints, dtypes, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Ineighbor_alltoallv(NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Ineighbor_alltoallw(NULL, zeros.data(), aints, dtypes.data(), NULL, zeros.data(), aints, dtypes.data(), MPI_COMM_WORLD, &req));
 #endif
 
     EXPECT_EQ(0, MPI_Pack(NULL, 0, MPI_UNSIGNED, NULL, 0, &junk, MPI_COMM_WORLD));
@@ -498,11 +494,11 @@ TEST_F(MPIInterfaceTest, mpi_api)
 
 #ifdef GEOPM_ENABLE_MPI3
     EXPECT_EQ(0, MPI_Ireduce(NULL, NULL, 0, MPI_UNSIGNED, MPI_MIN, 0, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Ireduce_scatter(NULL, NULL, zeros, MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Ireduce_scatter(NULL, NULL, zeros.data(), MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Ireduce_scatter_block(NULL, NULL, 0, MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Iscan(NULL, NULL, 0, MPI_UNSIGNED, MPI_MIN, MPI_COMM_WORLD, &req));
     EXPECT_EQ(0, MPI_Iscatter(NULL, 0, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
-    EXPECT_EQ(0, MPI_Iscatterv(NULL, zeros, zeros, MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
+    EXPECT_EQ(0, MPI_Iscatterv(NULL, zeros.data(), zeros.data(), MPI_UNSIGNED, NULL, 0, MPI_UNSIGNED, 0, MPI_COMM_WORLD, &req));
 #endif
 
     EXPECT_EQ(0, MPI_Send_init(NULL, 0, MPI_UNSIGNED, 0, 0, MPI_COMM_WORLD, &req));
