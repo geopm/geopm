@@ -131,7 +131,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
-              # end
+              #end
 
 if ENABLE_MPI
 GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
