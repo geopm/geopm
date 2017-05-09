@@ -29,12 +29,59 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+#include <sched.h>
+#include <stdint.h>
 #include "geopm_omp.h"
 #include "geopm_error.h"
 #include "config.h"
 
 #ifdef _OPENMP
 #include <omp.h>
+
+#ifdef GEOPM_HAS_OMPT
+#include "geopm.h"
+#include <ompt.h>
+
+static void on_ompt_event_parallel_begin(ompt_task_id_t parent_task_id, ompt_frame_t *parent_task_frame,
+                                         ompt_parallel_id_t parallel_id, uint32_t requested_team_size,
+                                         void *parallel_function, ompt_invoker_t invoker)
+{
+     uint64_t region_id;
+     char parallel_id_str[NAME_MAX];
+     snprintf(parallel_id_str, NAME_MAX, "0x%llx", (unsigned long long)(parallel_id));
+     geopm_prof_region(parallel_id_str, GEOPM_REGION_HINT_UNKNOWN, &region_id);
+     geopm_prof_enter(region_id);
+}
+
+static void on_ompt_event_parallel_end(ompt_parallel_id_t parallel_id, ompt_task_id_t task_id,
+                                       ompt_invoker_t invoker)
+{
+     uint64_t region_id;
+     char parallel_id_str[NAME_MAX];
+     snprintf(parallel_id_str, NAME_MAX, "0x%llx", (unsigned long long)(parallel_id));
+     geopm_prof_region(parallel_id_str, GEOPM_REGION_HINT_UNKNOWN, &region_id);
+     geopm_prof_exit(region_id);
+}
+
+
+void ompt_initialize(ompt_function_lookup_t lookup, const char *runtime_version, unsigned int ompt_version)
+{
+    ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
+    ompt_set_callback(ompt_event_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
+    ompt_set_callback(ompt_event_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+
+}
+
+ompt_initialize_t ompt_tool()
+{
+    return &ompt_initialize;
+}
+
+#endif // OMPT available
 
 int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
 {
