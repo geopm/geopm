@@ -178,3 +178,5 @@ tutorial/tutorial_build_intel.sh
 tutorial/tutorial_build_gnu.sh
 tutorial/tutorial_region.c
 tutorial/tutorial_region.h
+ompt-parallel-id-test/Makefile
+ompt-parallel-id-test/test-parallel-id.c
