@@ -39,50 +39,10 @@
 
 #include "geopm_env.h"
 #include "Exception.hpp"
-
+#include "Environment.hpp"
 
 namespace geopm
 {
-    /// @brief Environment class encapsulates all functionality related to
-    /// dealing with runtime environment variables.
-    class Environment
-    {
-        public:
-            Environment();
-            virtual ~Environment();
-            const char *report(void) const;
-            const char *policy(void) const;
-            const char *shmkey(void) const;
-            const char *trace(void) const;
-            const char *plugin_path(void) const;
-            const char *profile(void) const;
-            int report_verbosity(void) const;
-            int pmpi_ctl(void) const;
-            int do_region_barrier(void) const;
-            int do_trace(void) const;
-            int do_ignore_affinity() const;
-            int do_profile() const;
-            int profile_timeout(void) const;
-            int debug_attach(void) const;
-        private:
-            bool get_env(const char *name, std::string &env_string) const;
-            bool get_env(const char *name, int &value) const;
-            std::string m_report;
-            std::string m_policy;
-            std::string m_shmkey;
-            std::string m_trace;
-            std::string m_plugin_path;
-            std::string m_profile;
-            int m_report_verbosity;
-            int m_pmpi_ctl;
-            bool m_do_region_barrier;
-            bool m_do_trace;
-            bool m_do_ignore_affinity;
-            bool m_do_profile;
-            int m_profile_timeout;
-            int m_debug_attach;
-    };
-
     static const Environment &environment(void)
     {
         static const Environment instance;
