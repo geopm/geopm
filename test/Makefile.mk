@@ -131,6 +131,10 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
+              test/gtest_links/SharedMemoryTest.invalid_construction \
+              test/gtest_links/SharedMemoryTest.share_data \
+              test/gtest_links/EnvironmentTest.construction0 \
+              test/gtest_links/EnvironmentTest.construction1 \
               # end
 
 if ENABLE_MPI
@@ -183,6 +187,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockPlatform.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
+                          test/SharedMemoryTest.cpp \
+                          test/EnvironmentTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
