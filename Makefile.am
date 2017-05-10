@@ -209,6 +209,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Decider.hpp \
                             src/DeciderFactory.cpp \
                             src/DeciderFactory.hpp \
+                            src/Environment.hpp \
                             src/Environment.cpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
