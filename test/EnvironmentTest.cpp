@@ -55,5 +55,9 @@ void EnvironmentTest::TearDown()
 TEST_F(EnvironmentTest, dummy)
 {
     EXPECT_EQ(0, 1);// test will fail, testing test source add
+    //  need to test:
+    //  get_env with name NULL
+    //  get_env with name longer than NAME_MAX
+    //  the above 2 have a string and int second param imps that need be tested
 }
 

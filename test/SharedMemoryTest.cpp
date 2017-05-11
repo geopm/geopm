@@ -34,6 +34,7 @@
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
+#include "geopm_env.h"
 #include "Exception.hpp"
 #include "SharedMemory.hpp"
 
@@ -42,18 +43,62 @@ class SharedMemoryTest : public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
+        std::string m_shm_key;
+        size_t m_size;
+        geopm::SharedMemory *m_shmem;
+        geopm::SharedMemoryUser *m_shmem_u;
 };
 
 void SharedMemoryTest ::SetUp()
 {
+    m_shmem = NULL;
+    m_shmem_u = NULL;
+    m_shm_key = geopm_env_shmkey();
+    m_shm_key += "-shmem_test-";
+    m_shm_key += std::to_string(getpid());
+    m_size = sizeof(size_t);
+    try {
+        m_shmem = new geopm::SharedMemory(m_shm_key, m_size);
+        m_shmem_u = new geopm::SharedMemoryUser(m_shm_key, 1); // 1 second timeout
+        // if 1 second timeout constructor worked so should this, just throw away instance
+        // warning, will spin for INT_MAX seconds if there is a failure...
+        delete new geopm::SharedMemoryUser(m_shm_key);
+    }
+    catch (geopm::Exception e) {
+        TearDown();
+        ASSERT_TRUE(false);
+    }
 }
 
 void SharedMemoryTest ::TearDown()
 {
+    if (m_shmem_u) {
+        m_shmem_u->unlink();
+        delete m_shmem_u;
+        m_shmem_u = NULL;
+    }
+    if (m_shmem) {
+        delete m_shmem;
+        m_shmem = NULL;
+    }
 }
 
-TEST_F(SharedMemoryTest , dummy)
+TEST_F(SharedMemoryTest , invalid_construction)
 {
-    EXPECT_EQ(0, 1);// test will fail, testing test source add
+    m_shm_key += "-invalid_construction";
+    EXPECT_THROW((new geopm::SharedMemory(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
+    EXPECT_THROW((new geopm::SharedMemoryUser(m_shm_key, 1)), geopm::Exception);
+    EXPECT_THROW((new geopm::SharedMemory("", m_size)), geopm::Exception);  // invalid key
+    EXPECT_THROW((new geopm::SharedMemoryUser("", 1)), geopm::Exception);
+}
+
+TEST_F(SharedMemoryTest , share_data)
+{
+    size_t shared_data = 0xDEADBEEFCAFED00D;
+    void *alias1 = m_shmem->pointer();
+    void *alias2 = m_shmem_u->pointer();
+    memcpy(alias1, &shared_data, m_size);
+    EXPECT_EQ(memcmp(alias1, &shared_data, m_size), 0);
+    EXPECT_EQ(memcmp(alias1, alias2, m_size), 0);
 }
 
