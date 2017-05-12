@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14c7fd3d_625e18b7",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-05-12T22:41:16Z",
+      "side": 1,
+      "message": "Please give feedback on test names.",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 62
+      },
+      "revId": "12e2a8a1da3880637d5b1c4f38888eb814c6dbfc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
