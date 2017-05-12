@@ -133,6 +133,8 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
+              test/gtest_links/EnvironmentTest.construction0 \
+              test/gtest_links/EnvironmentTest.construction1 \
               # end
 
 if ENABLE_MPI
