@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3b08d0c_a6c0effb",
+        "filename": "ronn/geopmplotter.1.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-12T22:13:47Z",
+      "side": 1,
+      "message": "This doesn\u0027t work.  Will fix.",
+      "range": {
+        "startLine": 121,
+        "startChar": 2,
+        "endLine": 121,
+        "endChar": 3
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "655f951e_078ef065",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-12T22:13:47Z",
+      "side": 1,
+      "message": "I\u0027m not exactly thrilled about these naked functions, but I don\u0027t know where else to put them.  They don\u0027t really belong in a class because they don\u0027t have any state.",
+      "range": {
+        "startLine": 453,
+        "startChar": 0,
+        "endLine": 453,
+        "endChar": 48
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "478f4255_1951a5f4",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-12T22:13:47Z",
+      "side": 1,
+      "message": "Same issue as above function.  They both only pertain to the trace plots presently, but don\u0027t have any state to keep track of.  I can jam them all up in the TraceConfig object, but they\u0027re more or less static functions.",
+      "range": {
+        "startLine": 494,
+        "startChar": 0,
+        "endLine": 494,
+        "endChar": 35
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
