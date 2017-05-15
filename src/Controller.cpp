@@ -55,6 +55,7 @@
 #include "geopm_hash.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
+#include "OMPT.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -953,6 +954,7 @@ namespace geopm
                 }
             }
             if ((*it).second->num_entry() || region_id == GEOPM_REGION_ID_UNMARKED) {
+                ompt_pretty_name(name);
                 (*it).second->report(report, name, m_rank_per_node);
             }
         }

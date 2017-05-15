@@ -30,28 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <string>
-#include <map>
+#ifndef OMPT_HPP_INCLUDE
+#define OMPT_HPP_INCLUDE
 
 namespace geopm
 {
-    class OMPT
-    {
-        public:
-            OMPT();
-            OMPT(const std::string &map_path);
-            virtual ~OMPT();
-            uint64_t region_id(void *parallel_function);
-            void region_name(void *parallel_function, std::string &name);
-        private:
-            /// Map from <virtual_address, is_end> pair representing
-            /// half of a virtual address range to the object file
-            /// asigned to the address range.
-            std::map<std::pair<size_t, bool>, std::string> m_range_object_map;
-            /// Map from function address to geopm region ID
-            std::map<size_t, uint64_t> m_function_region_id_map;
-     };
-
-    OMPT &ompt(void);
+    /// Convert function-address into function-name in region name
+    /// reported by OMPT.  If OMPT is not enabled, this function is a
+    /// pass through.
+    void ompt_pretty_name(std::string &name);
 }
+
+#endif
