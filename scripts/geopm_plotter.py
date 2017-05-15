@@ -131,6 +131,7 @@ class Config(object):
         plt.style.use(style)
         plt.rcParams.update({'figure.figsize': self.fig_size})
         plt.rcParams.update({'font.size': self.fontsize})
+        plt.rcParams.update({'figure.autolayout': True})
 
 
 class ReportConfig(Config):
@@ -146,9 +147,8 @@ class ReportConfig(Config):
         fig_size: A 2-tuple of ints for the (X, Y) size of the plotted figure in inches.
         fontsize: The int size of the font for text in the plot.
         legend_fontsize: The size of the font in the legend.
-
         **kwargs: Arbitrary additional overrides for the Config object.
-        units (dict of str): The keys are report datatypes and the values are the Y-axis label.
+        units: The keys are report datatypes and the values are the Y-axis label.
     """
     def __init__(self, speedup=False, yspan = 0.5,                                         # New args for this class
                  datatype='runtime', fig_size=(6.3, 4.8), fontsize=14, legend_fontsize=14, # Base class args to override
@@ -194,7 +194,7 @@ class TraceConfig(Config):
         """Creates a dictionary of uniform names for node names present in the node list.
 
         Args:
-            node_list (list of str): The list of node names for the current experiment.
+            node_list: The list of node names for the current experiment.
 
         Returns:
             dict: The keys are the experiment node names with the uniform names as values.
@@ -216,9 +216,9 @@ def generate_box_plot(report_df, config):
     It is optionally normalized by the min of the means for the reference profile name, version, and plugin.
 
     Args:
-        report_df (pandas.DataFrame): The multiindexed DataFrame with all the report data parsed from the
+        report_df: The multiindexed DataFrame with all the report data parsed from the
             AppOutput class.
-        config (ReportConfig): The ReportConfig object specifying the plotting and analysis parameters.
+        config: The ReportConfig object specifying the plotting and analysis parameters.
 
     Todo:
         * Allow for a single plugin to be plotted (e.g. only a target)?
@@ -295,9 +295,9 @@ def generate_bar_plot(report_df, config):
     optionally normalized by the min of the means of the reference data.
 
     Args:
-        report_df (pandas.DataFrame): The multiindexed DataFrame with all the report data parsed from the
+        report_df: The multiindexed DataFrame with all the report data parsed from the
             AppOutput class.
-        config (ReportConfig): The config object specifying the plotting and analysis parameters.
+        config: The config object specifying the plotting and analysis parameters.
 
     Todo:
         * Allow for a single plugin to be plotted (e.g. only a target)?
@@ -442,9 +442,9 @@ def diff_df(trace_df, column_regex, epoch=True):
     useful data.
 
     Args:
-        trace_df (pandas.DataFrame): The multiindexed DataFrame created by the AppOutput class.
-        column_regex (str): A string representing the regex search pattern for the column names to diff.
-        epoch (bool): A flag to set whether or not to focus solely on epoch regions.
+        trace_df: The multiindexed DataFrame created by the AppOutput class.
+        column_regex: A string representing the regex search pattern for the column names to diff.
+        epoch: A flag to set whether or not to focus solely on epoch regions.
 
     Returns:
         pandas.DataFrame: With the diffed columns specified by 'column_regex, and an 'elapsed_time' column.
@@ -484,7 +484,7 @@ def get_median_df(diffed_trace_df):
     input DataFrames with a single iteration, the single iteration is returned.
 
     Args:
-        diffed_trace_df (pandas.DataFrame): The multiindexed DataFrame with 'elapsed_time' calculated in
+        diffed_trace_df: The multiindexed DataFrame with 'elapsed_time' calculated in
             diff_df() with 1 or more experiment iterations.
 
     Returns:
@@ -505,9 +505,9 @@ def generate_power_plot(trace_df, config):
     in the config object will use the uniform node names in the plot's legend.
 
     Args:
-        trace_df (pandas.DataFrame): The multiindexed DataFrame with all the trace data parsed from the
+        trace_df: The multiindexed DataFrame with all the trace data parsed from the
             AppOutput class.
-        config (TraceConfig): The object specifying the plotting and analysis parameters.
+        config: The object specifying the plotting and analysis parameters.
 
     Raises:
         SyntaxError: If the reference or target plugin was not found in the DataFrame.
@@ -536,7 +536,7 @@ def generate_power_plot(trace_df, config):
 
     # Select only the data we care about
     diffed_df = diffed_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                                  config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin, :, :, :, :],]
+                                  config.min_drop:config.max_drop, :, :, :, :, :],]
 
     # Do not include node_name, iteration or index in the groupby clause; The median iteration is extracted and used
     # below for every node togther in a group.  The index must be preserved to ensure the DFs stay in order.
@@ -643,7 +643,127 @@ def generate_power_plot(trace_df, config):
 
 
 def generate_epoch_plot(trace_df, config):
-    raise NotImplementedError
+    """Plots the max elapsed time for the nodes at each sample.
+
+    This function will plot the maximum elapsed time for all nodes present in the trace file for each sample.
+    Specifying the 'analyze' option till adjust the Y-axis bounds to filter out outliers.
+
+    Args:
+        trace_df: The multiindexed DataFrame with all the trace data parsed from the
+            AppOutput class.
+        config: The object specifying the plotting and analysis parameters.
+
+    Raises:
+        SyntaxError: If the reference or target plugin was not found in the DataFrame.
+
+    Todo:
+        * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
+            minor error for especially long running apps.
+    """
+    idx = pandas.IndexSlice
+    decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
+    if config.ref_plugin not in decider_list:
+        raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(config.ref_plugin))
+    if config.tgt_plugin == 'None': # Allows for plotting all parsed plugins
+        config.tgt_plugin = None
+    elif config.tgt_plugin not in decider_list:
+        raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
+
+    diffed_df = diff_df(trace_df, ' ') # Pass a space in the regex to select no additional columns beyond time.
+
+    # Select only the data we care about
+    diffed_df = diffed_df.loc[idx[:, :, config.min_drop:config.max_drop],]
+
+    # Group by power budget
+    for (version, name, power_budget), df in diffed_df.groupby(level=['version', 'name', 'power_budget']):
+
+        f, ax = plt.subplots()
+
+        reference_df = df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
+                                  :, config.ref_plugin:config.ref_plugin],]
+        reference_median_df = get_median_df(reference_df)
+        reference_max_time_df = reference_median_df.unstack(level=['node_name']).max(axis=1)
+
+        target_df = df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                               :, config.tgt_plugin:config.tgt_plugin],]
+        target_median_df = get_median_df(target_df)
+        target_max_time_df = target_median_df.unstack(level=['node_name']).max(axis=1)
+
+        if config.normalize:
+            normalization_factor = max(reference_max_time_df.max(), target_max_time_df.max())
+            reference_max_time_df /= normalization_factor
+            target_max_time_df /= normalization_factor
+
+        plt.plot(numpy.arange(float(len(reference_max_time_df))) / len(reference_max_time_df) * 100,
+                 reference_max_time_df.rolling(window=config.smooth, center=True).mean(),
+                 label=config.ref_plugin.replace('_', ' ').title(),
+                 color='blue',
+                 linewidth=1.5)
+
+        plt.plot(numpy.arange(float(len(target_max_time_df))) / len(target_max_time_df) * 100,
+                 target_max_time_df.rolling(window=config.smooth, center=True).mean(),
+                 label=config.tgt_plugin.replace('_', ' ').title(),
+                 color='cyan',
+                 linewidth=1.5)
+
+        ax.set_xlabel('Iteration # (Normalized)')
+        if config.normalize:
+            ylabel = 'Normalized Elapsed Time'
+        else:
+            ylabel = 'Max Elapsed Time (s)'
+        if config.smooth > 1:
+            ylabel += ' Smoothed'
+        ax.set_ylabel(ylabel)
+
+        plt.title('{} Critical Path Iteration Loop Time\n@ {}W{}'.format(config.profile_name, power_budget,
+                                                                         config.misc_text), y=1.02)
+        plt.legend(shadow=True, fancybox=True, loc='best', fontsize=14).set_zorder(11)
+        plt.tight_layout()
+
+        if config.analyze:
+            # Set the ylim from 90% of the 25th percentile to 110% of the 75th percentile
+            lower_ylim = min(target_max_time_df.quantile(.25), reference_max_time_df.quantile(.25))
+            lower_ylim *= 0.9
+            upper_ylim =  max(target_max_time_df.quantile(.75), reference_max_time_df.quantile(.75))
+            upper_ylim *= 1.1
+            ax.set_ylim(lower_ylim, upper_ylim)
+
+        # Write data/plot files
+        file_name = '{}_iteration_loop_time_{}'.format(config.profile_name.lower().replace(' ', '_'), power_budget)
+        if config.verbose:
+            sys.stdout.write('Writing:\n')
+
+        if config.write_csv:
+            full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
+            diffed_df.to_csv(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+        if config.analyze:
+            full_path = os.path.join(config.output_dir, '{}_stats.txt'.format(file_name))
+            with open(full_path, 'w') as fd:
+                fd.write('Reference ({}) time statistics -\n\n{}'.format(config.ref_plugin,
+                        reference_median_df.unstack(level=['node_name']).describe()))
+                fd.write('\n\nReference ({}) Aggregate (max) time statistics -\n\n{}'.format(config.ref_plugin,
+                        reference_median_df.unstack(level=['node_name']).mean(axis=1).describe()))
+                fd.write('\n\nTarget ({}) time statistics -\n\n{}'.format(config.tgt_plugin,
+                        target_median_df.unstack(level=['node_name']).describe()))
+                fd.write('\n\nTarget ({}) Aggregate (max) time statistics -\n\n{}'.format(config.tgt_plugin,
+                         target_median_df.unstack(level=['node_name']).mean(axis=1).describe()))
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+        for ext in config.output_types:
+            full_path = os.path.join(config.output_dir, '{}.{}'.format(file_name, ext))
+            plt.savefig(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+        if config.show:
+            plt.show(block=config.block)
+
+        if config.shell:
+            code.interact(local=dict(globals(), **locals()))
 
 
 def generate_freq_plot(trace_df, config):
