@@ -344,9 +344,7 @@ if ENABLE_MPI
                           src/geopm_version.h \
                           # end
 if ENABLE_OMPT
-    libgeopm_la_SOURCES += src/OMPT.cpp \
-                           src/OMPT.hpp \
-                           #end
+    libgeopm_la_SOURCES += src/OMPT.cpp
 endif
 
 if ENABLE_FORTRAN
