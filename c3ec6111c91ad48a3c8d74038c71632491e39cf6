@@ -25,6 +25,75 @@
     },
     {
       "key": {
+        "uuid": "d1876b08_1c381d27",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Drop?",
+      "range": {
+        "startLine": 65,
+        "startChar": 21,
+        "endLine": 65,
+        "endChar": 26
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f12706de_c26ed1dc",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Remove me",
+      "range": {
+        "startLine": 74,
+        "startChar": 34,
+        "endLine": 74,
+        "endChar": 48
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a201e47b_abc0ea20",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Remove me",
+      "range": {
+        "startLine": 75,
+        "startChar": 23,
+        "endLine": 75,
+        "endChar": 37
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "655f951e_078ef065",
         "filename": "scripts/geopm_plotter.py",
         "patchSetId": 1
@@ -64,6 +133,121 @@
         "startChar": 0,
         "endLine": 494,
         "endChar": 35
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e41881a3_eee89dd0",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Create doTrace bool for farther down?",
+      "range": {
+        "startLine": 748,
+        "startChar": 7,
+        "endLine": 748,
+        "endChar": 18
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e97db23_ebba96e3",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Comment on wth is going on here.",
+      "range": {
+        "startLine": 779,
+        "startChar": 8,
+        "endLine": 779,
+        "endChar": 22
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce9276d7_f7902aa7",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Comment on making sure all the ProfileSamplers are created simultaneously.",
+      "range": {
+        "startLine": 350,
+        "startChar": 12,
+        "endLine": 350,
+        "endChar": 37
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c8ab0b9_0d11e863",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Comment on time synchronization here.",
+      "range": {
+        "startLine": 369,
+        "startChar": 12,
+        "endLine": 369,
+        "endChar": 21
+      },
+      "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f8e0ef2_b3575795",
+        "filename": "src/GlobalPolicy.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-15T18:59:55Z",
+      "side": 1,
+      "message": "Pass the profile name into this function and remove the env header.",
+      "range": {
+        "startLine": 163,
+        "startChar": 24,
+        "endLine": 163,
+        "endChar": 32
       },
       "revId": "c3ec6111c91ad48a3c8d74038c71632491e39cf6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
