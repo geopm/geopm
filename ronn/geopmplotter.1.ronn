@@ -116,9 +116,11 @@ If _PATH_ is not provided, the current working directory is used.
   trace file plots presently. (default: 1)
 
 * `--analyze`:
-  Perform a basic analysis of the data plotted. This only applies to the following plots:
+  Perform a basic analysis of the data plotted and save the statistics to a file.
+  This only applies to the following plots:
 
     _power_: Plot the power cap and the aggregate power for all the nodes.
+    _epoch_: Adjust the Y-axis bounds to drop outlier data.
 
 * `--min_drop` _BUDGET_WATTS_:
   The minimum power budget for data to be included in the plot.  All data below this threshold
