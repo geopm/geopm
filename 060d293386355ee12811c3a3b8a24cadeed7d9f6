@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "332ad0b3_9e44bf8a",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-15T18:03:19Z",
+      "side": 1,
+      "message": "Undo please",
+      "revId": "060d293386355ee12811c3a3b8a24cadeed7d9f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9e575e5_37fea989",
+        "filename": "src/Environment.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-15T18:03:19Z",
+      "side": 1,
+      "message": "Put this back in the source file, don\u0027t expose the singleton.",
+      "revId": "060d293386355ee12811c3a3b8a24cadeed7d9f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9b8b334_6733b52a",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-15T18:03:19Z",
+      "side": 1,
+      "message": "Please use C++ std::string constructs where possible.",
+      "revId": "060d293386355ee12811c3a3b8a24cadeed7d9f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "106bfc71_160b6c94",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-15T18:03:19Z",
+      "side": 1,
+      "message": "Use EXPECT_EQ with C++ std::string rather than strcmp().",
+      "revId": "060d293386355ee12811c3a3b8a24cadeed7d9f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
