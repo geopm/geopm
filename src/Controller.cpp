@@ -175,6 +175,8 @@ extern "C"
 
 namespace geopm
 {
+    extern void ompt_pretty_name(std::string &name);
+
     Controller::Controller(GlobalPolicy *global_policy, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
@@ -953,6 +955,7 @@ namespace geopm
                 }
             }
             if ((*it).second->num_entry() || region_id == GEOPM_REGION_ID_UNMARKED) {
+                ompt_pretty_name(name);
                 (*it).second->report(report, name, m_rank_per_node);
             }
         }
