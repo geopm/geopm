@@ -604,6 +604,14 @@ class TestIntegration(unittest.TestCase):
             rr = self._output.get_report(nn)
             self.assertEqual(rr['ignore'].get_runtime(), rr.get_ignore_runtime())
 
+    @unittest.skipUnless([True for line in
+                          open(os.path.join(
+                               os.path.dirname(
+                               os.path.dirname(
+                               os.path.realpath(__file__))),
+                               'config.h'))
+                          if line.startswith('#define GEOPM_ENABLE_OMPT')],
+    "Configure with --enable-ompt to enable this test.")
     def test_unmarked_ompt(self):
         name = 'test_unmarked_ompt'
         report_path = name + '.report'
@@ -625,20 +633,22 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         stream_id = None
+        stream_name = '[OMPT]geopm_test_integration:geopm::StreamModelRegion::run()'
         for nn in node_names:
             rr = self._output.get_report(nn)
             region_names = rr.keys()
-            stream_region = [key for key in region_names if key.startswith('OMPT-geopm_test_integration-')]
-            self.assertEqual(1, len(stream_region))
-            stream_region = stream_region[0]
-            self.assertEqual(1, rr[stream_region].get_count())
+            self.assertTrue(stream_name in rr)
+            stream_region = rr[stream_name]
+            self.assertEqual(1, stream_region.get_count())
             if stream_id:
-                self.assertEqual(stream_id, rr[stream_region].get_id())
+                self.assertEqual(stream_id, stream_region.get_id())
             else:
-                stream_id = rr[stream_region].get_id()
-            ompt_regions = [key for key in region_names if key.startswith('OMPT-')]
+                stream_id = stream_region.get_id()
+            ompt_regions = [key for key in region_names if key.startswith('[OMPT]')]
             self.assertLessEqual(2, len(ompt_regions));
             self.assertTrue(('MPI_Alltoall' in rr));
+            gemm_region = [key for key in region_names if key.find('gemm') != -1 or key.find('GEMM') != -1]
+            self.assertLessEqual(1, len(gemm_region))
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
