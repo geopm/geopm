@@ -287,6 +287,7 @@ if ENABLE_MPI
                           src/GlobalPolicy.hpp \
                           src/KNLPlatformImp.cpp \
                           src/KNLPlatformImp.hpp \
+                          src/OMPT.cpp \
                           src/Platform.cpp \
                           src/PlatformFactory.cpp \
                           src/PlatformFactory.hpp \
@@ -343,12 +344,6 @@ if ENABLE_MPI
                           src/geopm_version.c \
                           src/geopm_version.h \
                           # end
-if ENABLE_OMPT
-    libgeopm_la_SOURCES += src/OMPT.cpp \
-                           src/OMPT.hpp \
-                           #end
-endif
-
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90
 endif

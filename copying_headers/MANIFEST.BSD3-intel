@@ -74,7 +74,6 @@ src/GlobalPolicy.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
 src/OMPT.cpp
-src/OMPT.hpp
 src/Platform.cpp
 src/PlatformFactory.cpp
 src/PlatformFactory.hpp
