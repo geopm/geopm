@@ -34,6 +34,7 @@ import os
 import json
 import re
 import pandas
+import numpy
 import glob
 import json
 import sys
@@ -59,13 +60,25 @@ class AppOutput(object):
             raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
 
         # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
-        if verbose:
-            sys.stdout.write('Parsing reports...')
-            sys.stdout.flush()
+        files = 0
+        filesize = 0
+        for rf in report_files: # Get report count for verbose progress
+            filesize += os.stat(rf).st_size
+            with open(rf, 'r') as fid:
+                for line in fid:
+                    if re.findall(r'Host:', line):
+                        files += 1
+
+        filesize = '{}KiB'.format(filesize/1024)
+        fileno = 1
         for rf in report_files:
             # Parse the first report
             rr_size = os.stat(rf).st_size
             rr = Report(rf)
+            if verbose:
+                sys.stdout.write('\rParsing report file {} of {} ({}).. '.format(fileno, files, filesize))
+                sys.stdout.flush()
+            fileno += 1
             self.add_report_df(rr)
             self._reports[rr.get_node_name()] = rr
 
@@ -76,15 +89,22 @@ class AppOutput(object):
                     self.add_report_df(rr)
                     self._reports[rr.get_node_name()] = rr
                     if verbose:
-                        sys.stdout.write('.')
+                        sys.stdout.write('\rParsing report file {} of {} ({})... '.format(fileno, files, filesize))
                         sys.stdout.flush()
+                    fileno += 1
             Report.reset_vars() # If we've reached the end of a report, reset the static vars
         if verbose:
-            sys.stdout.write(' Done.\n')
+            sys.stdout.write('Done.\n')
             sys.stdout.flush()
 
+        if verbose:
+            sys.stdout.write('Creating combined reports DF... ')
+            sys.stdout.flush()
         self._reports_df = pandas.concat(self._reports_df_list)
         self._reports_df = self._reports_df.sort_index(ascending=True)
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
 
         if trace_glob == '':
             trace_glob = '*trace-*'
@@ -95,16 +115,20 @@ class AppOutput(object):
             self._all_paths.extend(trace_paths)
             # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
             fileno = 1
+            filesize = 0
+            for tp in trace_paths: # Get size of all trace files
+                filesize += os.stat(tp).st_size
+            filesize = '{}MiB'.format(filesize/1024/1024)
             for tp in trace_paths:
                 if verbose:
-                    sys.stdout.write('Parsing trace file {} of {}... \r'.format(fileno, len(trace_paths)))
+                    sys.stdout.write('\rParsing trace file {} of {} ({})... '.format(fileno, len(trace_paths), filesize))
                     sys.stdout.flush()
                 fileno += 1
                 tt = Trace(tp)
                 self._traces[tt.get_node_name()] = tt.get_df() # Basic dict assumes one node per trace
                 self.add_trace_df(tt) # Handles multiple traces per node
             if verbose:
-                sys.stdout.write('\nDone.\n')
+                sys.stdout.write('Done.\n')
                 sys.stdout.flush()
             if verbose:
                 sys.stdout.write('Creating combined traces DF... ')
@@ -536,6 +560,83 @@ class Trace(object):
 
     def get_node_name(self):
         return self._node_name
+
+    @staticmethod
+    def diff_df(trace_df, column_regex, epoch=True):
+        """Diff the DataFrame.
+
+        Since the counters in the trace files are monotonically increasing, a diff must be performed to extract the
+        useful data.
+
+        Args:
+            trace_df: The multiindexed DataFrame created by the AppOutput class.
+            column_regex: A string representing the regex search pattern for the column names to diff.
+            epoch: A flag to set whether or not to focus solely on epoch regions.
+
+        Returns:
+            pandas.DataFrame: With the diffed columns specified by 'column_regex, and an 'elapsed_time' column.
+
+        Todo:
+            * Should I drop everything before the first epoch if 'epoch' is false?
+        """
+        epoch_rid = '9223372036854775808'
+
+        if epoch:
+            tmp_df = trace_df.loc[trace_df['region_id'] == epoch_rid]
+        else:
+            tmp_df = trace_df
+
+        filtered_df = tmp_df.filter(regex=column_regex)
+        filtered_df['elapsed_time'] = tmp_df['seconds']
+        filtered_df = filtered_df.diff()
+        # The following drops all 0's and the negative sample when traversing between 2 trace files.
+        filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
+
+        # Reset 'index' to be 0 to the length of the unique trace files
+        traces_list = []
+        for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
+            filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider',
+                                       'node_name', 'iteration']):
+            df = df.reset_index(level='index')
+            df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
+            df = df.set_index('index', append=True)
+            traces_list.append(df)
+
+        return pandas.concat(traces_list)
+
+    @staticmethod
+    def get_median_df(trace_df, column_regex, config):
+        """Extract the median experiment iteration.
+
+        This logic calculates the sum of elapsed times for all of the experiment iterations for all nodes in
+        that iteration.  It then extracts the DataFrame for the iteration that is closest to the median.  For
+        input DataFrames with a single iteration, the single iteration is returned.
+
+        Args:
+            trace_df: The multiindexed DataFrame created by the AppOutput class.
+            column_regex: A string representing the regex search pattern for the column names to diff.
+            config: The TraceConfig object being used presently.
+
+        Returns:
+            pandas.DataFrame: Containing a single experiment iteration.
+        """
+        diffed_trace_df = Trace.diff_df(trace_df, column_regex)
+
+        idx = pandas.IndexSlice
+        et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
+        median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
+        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, median_index],]
+        if config.verbose:
+            median_df_index = []
+            median_df_index.append(median_df.index.get_level_values('version').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('name').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('power_budget').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('tree_decider').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('leaf_decider').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])
+            sys.stdout.write('Median DF index = ({})...\n'.format(' '.join(str(s) for s in median_df_index)))
+            sys.stdout.flush()
+        return median_df
 
 
 class AppConf(object):

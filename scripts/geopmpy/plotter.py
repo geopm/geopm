@@ -88,8 +88,8 @@ class Config(object):
                  output_dir='figures', write_csv=False, output_types=['svg'], verbose=False,
                  style='classic', fig_size=None, fontsize=None, legend_fontsize=None, show=False, shell=False,
                  min_drop=0, max_drop=999,
-                 ref_version=None, ref_profile_name=None, ref_plugin='static_policy',
-                 tgt_version=None, tgt_profile_name=None, tgt_plugin='power_balancing'):
+                 ref_version=None, ref_profile_name=None, ref_plugin=None,
+                 tgt_version=None, tgt_profile_name=None, tgt_plugin=None):
         # Custom params
         self.profile_name = profile_name
         self.misc_text = ' - {}'.format(misc_text) if misc_text else ''
@@ -132,6 +132,13 @@ class Config(object):
         plt.rcParams.update({'font.size': self.fontsize})
         plt.rcParams.update({'figure.autolayout': True})
 
+    def check_plugins(self, df):
+        decider_list = df.index.get_level_values('tree_decider').unique().tolist()
+        if self.ref_plugin is not None and self.ref_plugin not in decider_list:
+            raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(self.ref_plugin))
+        if self.tgt_plugin is not None and self.tgt_plugin not in decider_list:
+            raise SyntaxError('Target plugin {} not found in report dataframe!'.format(self.tgt_plugin))
+
 
 class ReportConfig(Config):
     """The configuration for plots based on report data.
@@ -153,8 +160,7 @@ class ReportConfig(Config):
                  datatype='runtime', fig_size=(6.3, 4.8), fontsize=14, legend_fontsize=14, # Base class args to override
                  **kwargs):                                                                # User overridden args
         super(ReportConfig, self).__init__(datatype=datatype, fig_size=fig_size, fontsize=fontsize,
-                                           legend_fontsize=legend_fontsize,
-                                           **kwargs)
+                                           legend_fontsize=legend_fontsize, **kwargs)
         self.speedup = speedup
         self.yspan = yspan
         self.units = {
@@ -173,19 +179,24 @@ class TraceConfig(Config):
         legend_label_spacing: The float spacing between legend labels.
         smooth: The number of samples to use in a moving average for the plotted Y-axis data.
         analyze: Flag to control whether basic analysis data is also plotted.
+        base_clock: The base clock frequency for the CPU used in the data.
+        focus_node: The node to highlight during per-node plots.
         fig_size: A 2-tuple of ints for the (X, Y) size of the plotted figure in inches.
         fontsize: The int size of the font for text in the plot.
         legend_fontsize: The size of the font in the legend.
         **kwargs: Arbitrary additional overrides for the Config object.
     """
-    def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False,            # New args for this class
-                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                      # Base class args to override
-                 **kwargs):                                                             # User overridden args
+    def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False, base_clock=None, # New args for this class
+                 focus_node=None,                                                             # New args for this class
+                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                            # Base class args to override
+                 **kwargs):                                                                   # User overridden args
         super(TraceConfig, self).__init__(fig_size=fig_size, fontsize=fontsize, legend_fontsize=legend_fontsize,
-                                           **kwargs)
+                                          **kwargs)
         self.legend_label_spacing = legend_label_spacing
         self.smooth = smooth
         self.analyze = analyze
+        self.base_clock = base_clock
+        self.focus_node = focus_node
 
         plt.rcParams.update({'legend.labelspacing': self.legend_label_spacing})
 
@@ -218,10 +229,8 @@ def generate_box_plot(report_df, config):
         report_df: The multiindexed DataFrame with all the report data parsed from the
             AppOutput class.
         config: The ReportConfig object specifying the plotting and analysis parameters.
-
-    Todo:
-        * Allow for a single plugin to be plotted (e.g. only a target)?
     """
+    config.check_plugins(report_df)
     idx = pandas.IndexSlice
     df = pandas.DataFrame()
 
@@ -232,6 +241,10 @@ def generate_box_plot(report_df, config):
                                                  config.ref_profile_name:config.ref_profile_name,
                                                  config.min_drop:config.max_drop, config.ref_plugin, :, :, :, 'epoch'],
                                              config.datatype].groupby(level='power_budget').mean().min()
+
+    # Select only the data we care about
+    report_df = report_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                                config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
 
     for decider, decider_df in report_df.groupby(level='tree_decider'):
         f, ax = plt.subplots()
@@ -253,7 +266,7 @@ def generate_box_plot(report_df, config):
         ax.set_xlabel('Per-Node Socket+DRAM Power Limit (W)')
 
         plt.title('{} {} Boxplot{}'.format(config.profile_name, config.datatype.title(), config.misc_text), y=1.06)
-        plt.suptitle(decider.title().replace('_', ' ') + ' Plugin', x=0.54, y=0.90, ha='center')
+        plt.suptitle(decider.title().replace('_', ' ') + ' Plugin', x=0.54, y=0.91, ha='center')
         plt.margins(0.02, 0.01)
         plt.axis('tight')
         plt.tight_layout()
@@ -278,12 +291,15 @@ def generate_box_plot(report_df, config):
             plt.savefig(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.flush()
 
         if config.show:
             plt.show(block=config.block)
 
         if config.shell:
             code.interact(local=dict(globals(), **locals()))
+
+        plt.close()
 
 
 def generate_bar_plot(report_df, config):
@@ -301,14 +317,19 @@ def generate_bar_plot(report_df, config):
     Todo:
         * Allow for a single plugin to be plotted (e.g. only a target)?
     """
+    if config.ref_plugin is None:
+        config.ref_plugin = 'static_policy'
+        sys.stdout.write('WARNING: No reference plugin set.  Use "--ref_plugin" to override.  ' +
+                         'Assuming "static_policy".\n')
+    if config.tgt_plugin is None:
+        config.tgt_plugin = 'power_balancing'
+        sys.stdout.write('WARNING: No target plugin set.  Use "--tgt_plugin" to override.  ' +
+                         'Assuming "power_balancing".\n')
+    sys.stdout.flush()
+
+    config.check_plugins(report_df)
     idx = pandas.IndexSlice
     df = pandas.DataFrame()
-
-    decider_list = report_df.index.get_level_values('tree_decider').unique().tolist()
-    if config.ref_plugin not in decider_list:
-        raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(config.ref_plugin))
-    if config.tgt_plugin not in decider_list:
-        raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
 
     reference_g = report_df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
                                     config.min_drop:config.max_drop, config.ref_plugin, :, :, :, 'epoch'],
@@ -426,6 +447,7 @@ def generate_bar_plot(report_df, config):
         plt.savefig(full_path)
         if config.verbose:
             sys.stdout.write('    {}\n'.format(full_path))
+    sys.stdout.flush()
 
     if config.show:
         plt.show(block=config.block)
@@ -433,67 +455,7 @@ def generate_bar_plot(report_df, config):
     if config.shell:
         code.interact(local=dict(globals(), **locals()))
 
-
-def diff_df(trace_df, column_regex, epoch=True):
-    """Diff the DataFrame.
-
-    Since the counters in the trace files are monotonically increasing, a diff must be performed to extract the
-    useful data.
-
-    Args:
-        trace_df: The multiindexed DataFrame created by the AppOutput class.
-        column_regex: A string representing the regex search pattern for the column names to diff.
-        epoch: A flag to set whether or not to focus solely on epoch regions.
-
-    Returns:
-        pandas.DataFrame: With the diffed columns specified by 'column_regex, and an 'elapsed_time' column.
-
-    Todo:
-        * Should I drop everything before the first epoch if 'epoch' is false?
-    """
-    epoch_rid = '9223372036854775808'
-
-    if epoch:
-        tmp_df = trace_df.loc[trace_df['region_id'] == epoch_rid]
-    else:
-        tmp_df = trace_df
-
-    filtered_df = tmp_df.filter(regex=column_regex)
-    filtered_df['elapsed_time'] = tmp_df['seconds']
-    filtered_df = filtered_df.diff()
-    filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
-
-    # Reset 'index' to be 0 to the length of the unique trace files
-    traces_list = []
-    for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
-        filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'node_name', 'iteration']):
-        df = df.reset_index(level='index')
-        df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
-        df = df.set_index('index', append=True)
-        traces_list.append(df)
-
-    return pandas.concat(traces_list)
-
-
-def get_median_df(diffed_trace_df):
-    """Extract the median experiment iteration.
-
-    This logic calculates the sum of elapsed times for all of the experiment iterations for all nodes in
-    that iteration.  It then extracts the DataFrame for the iteration that is closest to the median.  For
-    input DataFrames with a single iteration, the single iteration is returned.
-
-    Args:
-        diffed_trace_df: The multiindexed DataFrame with 'elapsed_time' calculated in
-            diff_df() with 1 or more experiment iterations.
-
-    Returns:
-        pandas.DataFrame: Containing a single experiment iteration.
-    """
-    idx = pandas.IndexSlice
-    et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
-    median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
-    median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, median_index],]
-    return median_df
+    plt.close()
 
 
 def generate_power_plot(trace_df, config):
@@ -515,32 +477,27 @@ def generate_power_plot(trace_df, config):
         * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
             minor error for especially long running apps.
     """
+    config.check_plugins(trace_df)
     idx = pandas.IndexSlice
     decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
-    if config.ref_plugin not in decider_list:
-        raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(config.ref_plugin))
-    if config.tgt_plugin == 'None': # Allows for plotting all parsed plugins
-        config.tgt_plugin = None
-    elif config.tgt_plugin not in decider_list:
-        raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
-
-    diffed_df = diff_df(trace_df, 'energy')
-
-    # Calculate power from the diffed counters
-    pkg_energy_cols = [s for s in diffed_df.keys() if 'pkg_energy' in s]
-    dram_energy_cols = [s for s in diffed_df.keys() if 'dram_energy' in s]
-    diffed_df['socket_power'] = diffed_df[pkg_energy_cols].sum(axis=1) / diffed_df['elapsed_time']
-    diffed_df['dram_power'] = diffed_df[dram_energy_cols].sum(axis=1) / diffed_df['elapsed_time']
-    diffed_df['combined_power'] = diffed_df['socket_power'] + diffed_df['dram_power']
 
     # Select only the data we care about
-    diffed_df = diffed_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                                  config.min_drop:config.max_drop, :, :, :, :, :],]
+    trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                                config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
 
     # Do not include node_name, iteration or index in the groupby clause; The median iteration is extracted and used
     # below for every node togther in a group.  The index must be preserved to ensure the DFs stay in order.
     for (version, name, power_budget, tree_decider, leaf_decider), df in \
-        diffed_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
+        trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
+
+        # Diff the energy counters and determine the median iteration (if multiple runs)
+        median_df = geopmpy.io.Trace.get_median_df(df, 'energy', config)
+        # Calculate power from the diffed counters
+        pkg_energy_cols = [s for s in median_df.keys() if 'pkg_energy' in s]
+        dram_energy_cols = [s for s in median_df.keys() if 'dram_energy' in s]
+        median_df['socket_power'] = median_df[pkg_energy_cols].sum(axis=1) / median_df['elapsed_time']
+        median_df['dram_power'] = median_df[dram_energy_cols].sum(axis=1) / median_df['elapsed_time']
+        median_df['combined_power'] = median_df['socket_power'] + median_df['dram_power']
 
         # Begin plot setup
         node_names = df.index.get_level_values('node_name').unique().tolist()
@@ -549,23 +506,10 @@ def generate_power_plot(trace_df, config):
         plt.rc('axes', prop_cycle=(cycler('color', colors)))
         f, ax = plt.subplots()
 
-        median_df = get_median_df(df) # Determing the median iteration (if multiple runs)
+        for node_name in natsorted(node_names):
+            node_df = median_df.loc[idx[:, :, :, :, :, node_name],]
 
-        if config.verbose:
-            median_df_index = []
-            median_df_index.append(median_df.index.get_level_values('version').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('name').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('power_budget').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('tree_decider').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('leaf_decider').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])
-
-            sys.stdout.write('Plotting {}...\n'.format(' '.join(str(s) for s in median_df_index)))
-
-        for node_name in node_names:
-            node_df = median_df.loc[idx[:, :, :, :, :, node_name, :, :],]
-
-            if node_name == 'mr-fusion8':
+            if node_name == config.focus_node:
                 plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
                          node_df['combined_power'].rolling(window=config.smooth, center=True).mean(),
                          label=node_dict[node_name],
@@ -583,8 +527,9 @@ def generate_power_plot(trace_df, config):
                      label='Combined Average',
                      color='aqua',
                      linewidth=2.0,
-                     path_effects=[pe.Stroke(linewidth=4, foreground='black'), pe.Normal()])
-            plt.axhline(power_budget, linewidth=2, color='blue', label='Cap')
+                     path_effects=[pe.Stroke(linewidth=4, foreground='black'), pe.Normal()],
+                     zorder=11)
+            plt.axhline(power_budget, linewidth=2, color='blue', label='Cap', zorder=11)
 
         ax.set_xlabel('Iteration # (Normalized)')
         ylabel = 'Socket+DRAM Power (W)'
@@ -621,7 +566,7 @@ def generate_power_plot(trace_df, config):
         if config.analyze:
             full_path = os.path.join(config.output_dir, '{}_stats.txt'.format(file_name))
             with open(full_path, 'w') as fd:
-                for node_name, node_data in median_df.groupby(level='node_name'):
+                for node_name, node_data in natsorted(median_df.groupby(level='node_name')):
                     fd.write('{} ({}) statistics -\n\n{}\n\n'.format(node_name, node_dict[node_name], node_data.describe()))
                 fd.write('Aggregate (mean) power statistics -\n\n{}'.format(
                          median_df['combined_power'].unstack(level=['node_name']).mean(axis=1).describe()))
@@ -633,6 +578,7 @@ def generate_power_plot(trace_df, config):
             plt.savefig(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.flush()
 
         if config.show:
             plt.show(block=config.block)
@@ -640,12 +586,15 @@ def generate_power_plot(trace_df, config):
         if config.shell:
             code.interact(local=dict(globals(), **locals()))
 
+        plt.close()
+
 
 def generate_epoch_plot(trace_df, config):
     """Plots the max elapsed time for the nodes at each sample.
 
     This function will plot the maximum elapsed time for all nodes present in the trace file for each sample.
-    Specifying the 'analyze' option till adjust the Y-axis bounds to filter out outliers.
+    Specifying the 'analyze' option till adjust the Y-axis bounds to filter out outliers.  Set '--ref_plugin'
+    and '--tgt_plugin' config parameters to the same plugin name to plot a single plugin.
 
     Args:
         trace_df: The multiindexed DataFrame with all the trace data parsed from the
@@ -659,33 +608,34 @@ def generate_epoch_plot(trace_df, config):
         * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
             minor error for especially long running apps.
     """
+    if config.ref_plugin is None:
+        config.ref_plugin = 'static_policy'
+        sys.stdout.write('WARNING: No reference plugin set.  Use "--ref_plugin" to override.  ' +
+                         'Assuming "static_policy".\n')
+    if config.tgt_plugin is None:
+        config.tgt_plugin = 'power_balancing'
+        sys.stdout.write('WARNING: No target plugin set.  Use "--tgt_plugin" to override.  ' +
+                         'Assuming "power_balancing".\n')
+    sys.stdout.flush()
+
+    config.check_plugins(trace_df)
     idx = pandas.IndexSlice
     decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
-    if config.ref_plugin not in decider_list:
-        raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(config.ref_plugin))
-    if config.tgt_plugin == 'None': # Allows for plotting all parsed plugins
-        config.tgt_plugin = None
-    elif config.tgt_plugin not in decider_list:
-        raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
-
-    diffed_df = diff_df(trace_df, ' ') # Pass a space in the regex to select no additional columns beyond time.
 
     # Select only the data we care about
-    diffed_df = diffed_df.loc[idx[:, :, config.min_drop:config.max_drop],]
+    trace_df = trace_df.loc[idx[config.ref_version:config.tgt_version, config.ref_profile_name:config.tgt_profile_name,
+                                config.min_drop:config.max_drop],]
 
     # Group by power budget
-    for (version, name, power_budget), df in diffed_df.groupby(level=['version', 'name', 'power_budget']):
-
-        f, ax = plt.subplots()
-
+    for (version, name, power_budget), df in trace_df.groupby(level=['version', 'name', 'power_budget']):
         reference_df = df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
-                                  :, config.ref_plugin:config.ref_plugin],]
-        reference_median_df = get_median_df(reference_df)
+                                  :, config.ref_plugin],]
+        reference_median_df = geopmpy.io.Trace.get_median_df(reference_df, ' ', config)
         reference_max_time_df = reference_median_df.unstack(level=['node_name']).max(axis=1)
 
         target_df = df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                               :, config.tgt_plugin:config.tgt_plugin],]
-        target_median_df = get_median_df(target_df)
+                               :, config.tgt_plugin],]
+        target_median_df = geopmpy.io.Trace.get_median_df(target_df, ' ', config)
         target_max_time_df = target_median_df.unstack(level=['node_name']).max(axis=1)
 
         if config.normalize:
@@ -693,17 +643,19 @@ def generate_epoch_plot(trace_df, config):
             reference_max_time_df /= normalization_factor
             target_max_time_df /= normalization_factor
 
+        f, ax = plt.subplots()
         plt.plot(numpy.arange(float(len(reference_max_time_df))) / len(reference_max_time_df) * 100,
                  reference_max_time_df.rolling(window=config.smooth, center=True).mean(),
                  label=config.ref_plugin.replace('_', ' ').title(),
                  color='blue',
                  linewidth=1.5)
 
-        plt.plot(numpy.arange(float(len(target_max_time_df))) / len(target_max_time_df) * 100,
-                 target_max_time_df.rolling(window=config.smooth, center=True).mean(),
-                 label=config.tgt_plugin.replace('_', ' ').title(),
-                 color='cyan',
-                 linewidth=1.5)
+        if config.ref_plugin != config.tgt_plugin: # Do not plot the second line if there is no second plugin
+            plt.plot(numpy.arange(float(len(target_max_time_df))) / len(target_max_time_df) * 100,
+                     target_max_time_df.rolling(window=config.smooth, center=True).mean(),
+                     label=config.tgt_plugin.replace('_', ' ').title(),
+                     color='cyan',
+                     linewidth=1.5)
 
         ax.set_xlabel('Iteration # (Normalized)')
         if config.normalize:
@@ -733,8 +685,12 @@ def generate_epoch_plot(trace_df, config):
             sys.stdout.write('Writing:\n')
 
         if config.write_csv:
-            full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
-            diffed_df.to_csv(full_path)
+            full_path = os.path.join(config.output_dir, '{}_reference.csv'.format(file_name))
+            reference_median_df.to_csv(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+            full_path = os.path.join(config.output_dir, '{}_target.csv'.format(file_name))
+            target_median_df.to_csv(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
 
@@ -757,6 +713,7 @@ def generate_epoch_plot(trace_df, config):
             plt.savefig(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.flush()
 
         if config.show:
             plt.show(block=config.block)
@@ -764,15 +721,137 @@ def generate_epoch_plot(trace_df, config):
         if config.shell:
             code.interact(local=dict(globals(), **locals()))
 
+        plt.close()
+
 
 def generate_freq_plot(trace_df, config):
-    raise NotImplementedError
+    """Plots the per sample frequency per node per socket.
+
+    This function will plot the frequency of each socket on each node per sample.  It plots the sockets as seperate
+    files denoted '...socket_0.svg', '...socket_1.svg', etc.  Specifying the 'analyze' option in the config object
+    will also include a statistics print out of the data used in the plot.  Specifying the 'normalize' option will
+    use uniform node names in the plot legend.  Setting the 'config.base_clock' parameter in the config object will
+    convert the Y-axis to frequency in GHz as opposed to % of sticker frequency.
+
+    Args:
+        trace_df: The multiindexed DataFrame with all the trace data parsed from the
+            AppOutput class.
+        config: The object specifying the plotting and analysis parameters.
+
+    Raises:
+        SyntaxError: If the reference or target plugin was not found in the DataFrame.
+
+    Todo:
+        * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
+            minor error for especially long running apps.
+    """
+    config.check_plugins(trace_df)
+    idx = pandas.IndexSlice
+    decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
+
+    # Select only the data we care about
+    trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                                config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
+
+    for (version, name, power_budget, tree_decider, leaf_decider), df in \
+        trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
+        # Get the diffed CLK counters, then determine the median iteration (if multiple runs)
+        median_df = geopmpy.io.Trace.get_median_df(df, 'clk', config)
+
+        # Begin plot setup
+        node_names = df.index.get_level_values('node_name').unique().tolist()
+        node_dict = config.get_node_dict(node_names)
+        colors = [plt.get_cmap('plasma')(1. * i/len(node_names)) for i in range(len(node_names))]
+        plt.rc('axes', prop_cycle=(cycler('color', colors)))
+        f, ax = plt.subplots()
+
+        clk_unhalted_core_cols = [s for s in median_df.keys() if 'clk_unhalted_core' in s]
+        clk_unhalted_ref_cols = [s for s in median_df.keys() if 'clk_unhalted_ref' in s]
+
+        for c, r in zip(clk_unhalted_core_cols, clk_unhalted_ref_cols): # Loop once per socket
+            frequency_data = median_df[c] / median_df[r]
+            if config.base_clock:
+                frequency_data *= config.base_clock
+            else:
+                frequency_data *= 100 # Convert from fraction of sticker to % of sticker
+
+            for node_name in natsorted(node_names):
+                node_data = frequency_data.loc[idx[:, :, :, :, :, node_name],]
+
+                if node_name == config.focus_node:
+                    plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
+                             node_data.rolling(window=config.smooth, center=True).mean(),
+                             label=node_dict[node_name],
+                             color='red',
+                             path_effects=[pe.Stroke(linewidth=3, foreground='black'), pe.Normal()],
+                             zorder=10)
+                else:
+                    plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
+                             node_data.rolling(window=config.smooth, center=True).mean(),
+                             label=node_dict[node_name])
+
+            ax.set_xlabel('Iteration # (Normalized)')
+            if config.base_clock:
+                ylabel = 'Frequency (GHz)'
+            else:
+                ylabel = '% of Sticker Frequency'
+            if config.smooth > 1:
+                ylabel += ' Smoothed'
+            ax.set_ylabel(ylabel)
+
+            plt.title('{} Iteration Frequency\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
+
+            ncol = int(math.ceil(float(len(node_names))/4))
+            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+                                shadow=True, fancybox=True, fontsize=config.legend_fontsize)
+            for l in legend.legendHandles:
+                l.set_linewidth(2.0)
+            legend.set_zorder(11)
+            plt.tight_layout()
+
+            ax.set_ylim(0, ax.get_ylim()[1] * 1.1)
+
+            # Write data/plot files
+            file_name = '{}_frequency_{}_{}_socket_{}'.format(config.profile_name.lower().replace(' ', '_'),
+                                                              power_budget, tree_decider, clk_unhalted_core_cols.index(c))
+            if config.verbose:
+                sys.stdout.write('Writing:\n')
+
+            if config.write_csv:
+                full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
+                frequency_data.unstack(level=['node_name']).to_csv(full_path)
+                if config.verbose:
+                    sys.stdout.write('    {}\n'.format(full_path))
+
+            if config.analyze:
+                full_path = os.path.join(config.output_dir, '{}_stats.txt'.format(file_name))
+                with open(full_path, 'w') as fd:
+                    for node_name, node_data in natsorted(frequency_data.groupby(level='node_name')):
+                        fd.write('{} ({}) frequency statistics -\n\n{}\n\n'.format(node_name, node_dict[node_name], node_data.describe()))
+                if config.verbose:
+                    sys.stdout.write('    {}\n'.format(full_path))
+
+            for ext in config.output_types:
+                full_path = os.path.join(config.output_dir, '{}.{}'.format(file_name, ext))
+                plt.savefig(full_path)
+                if config.verbose:
+                    sys.stdout.write('    {}\n'.format(full_path))
+            sys.stdout.flush()
+
+            if config.show:
+                plt.show(block=config.block)
+
+            if config.shell:
+                code.interact(local=dict(globals(), **locals()))
+
+            plt.close()
 
 
 def main(argv):
+    plots = [s.split('_')[1] for s in globals() if 'generate_' in s]
     trace_plots = {'power', 'epoch', 'freq'}
 
-    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so help text wraps properly
+    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so text wraps
     pandas.set_option('display.width', int(os.environ['COLUMNS']))               # Same tweak for Pandas
 
     parser = argparse.ArgumentParser(description=__doc__,
@@ -787,7 +866,7 @@ def main(argv):
                         help='the base trace string to be searched.',
                         action='store', default='')
     parser.add_argument('-p', '--plot_types',
-                        help='the type of plot to be generated.',
+                        help='the type of plot to be generated. (e.g. {})'.format(','.join(plots)),
                         action='store', default='bar', type=lambda s : s.split(','))
     parser.add_argument('-s', '--shell',
                         help='drop to a Python shell after plotting.',
@@ -798,7 +877,10 @@ def main(argv):
     parser.add_argument('--normalize',
                         help='normalize the data that is plotted',
                         action='store_true')
-    parser.add_argument('-o', '--output_types',
+    parser.add_argument('-o', '--output_dir',
+                        help='the output directory for the generated files',
+                        action='store', default='figures')
+    parser.add_argument('-O', '--output_types',
                         help='the file type(s) for the plot file output (e.g. svg,png,eps).',
                         action='store', default='svg', type=lambda s : s.split(','))
     parser.add_argument('-n', '--profile_name',
@@ -821,7 +903,7 @@ def main(argv):
                         action='store', metavar='PROFILE_NAME')
     parser.add_argument('--ref_plugin',
                         help='use this tree decider plugin as the reference to compare against.',
-                        action='store', default='static_policy', metavar='PLUGIN_NAME')
+                        action='store', metavar='PLUGIN_NAME')
     parser.add_argument('--tgt_version',
                         help='use this version as the target for analysis (to compare against the ref-plugin.',
                         action='store', metavar='VERSION')
@@ -831,7 +913,7 @@ def main(argv):
     parser.add_argument('--tgt_plugin',
                         help='use this tree decider plugin as the target for analysis (to compare against \
                         the ref-plugin).',
-                        action='store', default='power_balancing', metavar='PLUGIN_NAME')
+                        action='store', metavar='PLUGIN_NAME')
     parser.add_argument('--datatype',
                         help='the datatype to be plotted.',
                         action='store', default='runtime')
@@ -847,6 +929,12 @@ def main(argv):
     parser.add_argument('--max_drop',
                         help='Maximum power budget to include in the plot.',
                         action='store', metavar='BUDGET_WATTS', type=int, default=999)
+    parser.add_argument('--base_clock',
+                        help='Set the base clock frequency (i.e. max non-turbo) for frequency related plots.',
+                        action='store', metavar='FREQ_GHZ', type=float)
+    parser.add_argument('--focus_node',
+                        help='Node to highlight in red during per-node plots.',
+                        action='store', metavar='NODE_NAME')
 
     args = parser.parse_args(argv)
 
@@ -873,30 +961,33 @@ def main(argv):
             raise SyntaxError('Multiple profile names detected! Please provide the -n option to specify the profile name!')
         profile_name = profile_name_list[0]
 
-    report_config = ReportConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text, normalize=args.normalize,
-                                 write_csv=args.csv, output_types=args.output_types, verbose=args.verbose,
-                                 speedup=args.speedup, datatype=args.datatype, min_drop=args.min_drop, max_drop=args.max_drop,
-                                 ref_version=args.ref_version, ref_profile_name=args.ref_profile_name, ref_plugin=args.ref_plugin,
-                                 tgt_version=args.tgt_version, tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
+    report_config = ReportConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
+                                 output_dir=args.output_dir, normalize=args.normalize, write_csv=args.csv,
+                                 output_types=args.output_types, verbose=args.verbose, speedup=args.speedup,
+                                 datatype=args.datatype, min_drop=args.min_drop, max_drop=args.max_drop,
+                                 ref_version=args.ref_version, ref_profile_name=args.ref_profile_name,
+                                 ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
+                                 tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
 
     if trace_plots.intersection(args.plot_types):
         trace_config = TraceConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
-                                   normalize=args.normalize, write_csv=args.csv, output_types=args.output_types,
-                                   verbose=args.verbose, smooth=args.smooth, analyze=args.analyze, min_drop=args.min_drop,
-                                   max_drop=args.max_drop, ref_version=args.ref_version, ref_profile_name=args.ref_profile_name,
+                                   output_dir=args.output_dir, normalize=args.normalize, write_csv=args.csv,
+                                   output_types=args.output_types, verbose=args.verbose, smooth=args.smooth,
+                                   analyze=args.analyze, min_drop=args.min_drop, max_drop=args.max_drop,
+                                   ref_version=args.ref_version, base_clock=args.base_clock,
+                                   ref_profile_name=args.ref_profile_name,
                                    ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
-                                   tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
+                                   tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin,
+                                   focus_node=args.focus_node)
 
     for plot in args.plot_types:
         # This tries to create the name of the plot function based on what was parsed in args.plot_types.  If it exists in
         # the global namespace, it can be called through the namespace.
         plot_func_name = 'generate_{}_plot'.format(plot)
-        try:
-            if plot in trace_plots:
-                globals()[plot_func_name](app_output.get_trace_df(), trace_config)
-            else:
-                globals()[plot_func_name](app_output.get_report_df(), report_config)
-        except KeyError:
-            raise KeyError('Invalid plot type "{}"!'.format(plot))
-
+        if plot_func_name not in globals():
+            raise KeyError('Invalid plot type "{}"!  Valid plots are {}.'.format(plot, ', '.join(plots)))
+        if plot in trace_plots:
+            globals()[plot_func_name](app_output.get_trace_df(), trace_config)
+        else:
+            globals()[plot_func_name](app_output.get_report_df(), report_config)
 
