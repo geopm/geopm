@@ -174,19 +174,24 @@ class TraceConfig(Config):
         legend_label_spacing: The float spacing between legend labels.
         smooth: The number of samples to use in a moving average for the plotted Y-axis data.
         analyze: Flag to control whether basic analysis data is also plotted.
+        base_clock: The base clock frequency for the architecture in the data.
+        focus_node: The node to highlight during per-node plots.
         fig_size: A 2-tuple of ints for the (X, Y) size of the plotted figure in inches.
         fontsize: The int size of the font for text in the plot.
         legend_fontsize: The size of the font in the legend.
         **kwargs: Arbitrary additional overrides for the Config object.
     """
-    def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False,            # New args for this class
-                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                      # Base class args to override
-                 **kwargs):                                                             # User overridden args
+    def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False, base_clock=1.3, # New args for this class
+                 focus_node=None,                                                            # New args for this class
+                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                           # Base class args to override
+                 **kwargs):                                                                  # User overridden args
         super(TraceConfig, self).__init__(fig_size=fig_size, fontsize=fontsize, legend_fontsize=legend_fontsize,
                                            **kwargs)
         self.legend_label_spacing = legend_label_spacing
         self.smooth = smooth
         self.analyze = analyze
+        self.base_clock = base_clock
+        self.focus_node = focus_node
 
         plt.rcParams.update({'legend.labelspacing': self.legend_label_spacing})
 
@@ -207,6 +212,79 @@ class TraceConfig(Config):
             else:
                 node_dict[name] = name
         return node_dict
+
+
+    def diff_df(self, trace_df, column_regex, epoch=True):
+        """Diff the DataFrame.
+
+        Since the counters in the trace files are monotonically increasing, a diff must be performed to extract the
+        useful data.
+
+        Args:
+            trace_df: The multiindexed DataFrame created by the AppOutput class.
+            column_regex: A string representing the regex search pattern for the column names to diff.
+            epoch: A flag to set whether or not to focus solely on epoch regions.
+
+        Returns:
+            pandas.DataFrame: With the diffed columns specified by 'column_regex, and an 'elapsed_time' column.
+
+        Todo:
+            * Should I drop everything before the first epoch if 'epoch' is false?
+        """
+        epoch_rid = '9223372036854775808'
+
+        if epoch:
+            tmp_df = trace_df.loc[trace_df['region_id'] == epoch_rid]
+        else:
+            tmp_df = trace_df
+
+        filtered_df = tmp_df.filter(regex=column_regex)
+        filtered_df['elapsed_time'] = tmp_df['seconds']
+        filtered_df = filtered_df.diff()
+        filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
+
+        # Reset 'index' to be 0 to the length of the unique trace files
+        traces_list = []
+        for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
+            filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider',
+                                       'node_name', 'iteration']):
+            df = df.reset_index(level='index')
+            df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
+            df = df.set_index('index', append=True)
+            traces_list.append(df)
+
+        return pandas.concat(traces_list)
+
+
+    def get_median_df(self, diffed_trace_df):
+        """Extract the median experiment iteration.
+
+        This logic calculates the sum of elapsed times for all of the experiment iterations for all nodes in
+        that iteration.  It then extracts the DataFrame for the iteration that is closest to the median.  For
+        input DataFrames with a single iteration, the single iteration is returned.
+
+        Args:
+            diffed_trace_df: The multiindexed DataFrame with 'elapsed_time' calculated in
+                diff_df() with 1 or more experiment iterations.
+
+        Returns:
+            pandas.DataFrame: Containing a single experiment iteration.
+        """
+        idx = pandas.IndexSlice
+        et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
+        median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
+        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, median_index],]
+        if self.verbose:
+            median_df_index = []
+            median_df_index.append(median_df.index.get_level_values('version').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('name').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('power_budget').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('tree_decider').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('leaf_decider').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])
+            sys.stdout.write('Median DF index = ({})...\n'.format(' '.join(str(s) for s in median_df_index)))
+            sys.stdout.flush()
+        return median_df
 
 
 def generate_box_plot(report_df, config):
@@ -279,6 +357,7 @@ def generate_box_plot(report_df, config):
             plt.savefig(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.flush()
 
         if config.show:
             plt.show(block=config.block)
@@ -427,74 +506,13 @@ def generate_bar_plot(report_df, config):
         plt.savefig(full_path)
         if config.verbose:
             sys.stdout.write('    {}\n'.format(full_path))
+    sys.stdout.flush()
 
     if config.show:
         plt.show(block=config.block)
 
     if config.shell:
         code.interact(local=dict(globals(), **locals()))
-
-
-def diff_df(trace_df, column_regex, epoch=True):
-    """Diff the DataFrame.
-
-    Since the counters in the trace files are monotonically increasing, a diff must be performed to extract the
-    useful data.
-
-    Args:
-        trace_df: The multiindexed DataFrame created by the AppOutput class.
-        column_regex: A string representing the regex search pattern for the column names to diff.
-        epoch: A flag to set whether or not to focus solely on epoch regions.
-
-    Returns:
-        pandas.DataFrame: With the diffed columns specified by 'column_regex, and an 'elapsed_time' column.
-
-    Todo:
-        * Should I drop everything before the first epoch if 'epoch' is false?
-    """
-    epoch_rid = '9223372036854775808'
-
-    if epoch:
-        tmp_df = trace_df.loc[trace_df['region_id'] == epoch_rid]
-    else:
-        tmp_df = trace_df
-
-    filtered_df = tmp_df.filter(regex=column_regex)
-    filtered_df['elapsed_time'] = tmp_df['seconds']
-    filtered_df = filtered_df.diff()
-    filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
-
-    # Reset 'index' to be 0 to the length of the unique trace files
-    traces_list = []
-    for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
-        filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'node_name', 'iteration']):
-        df = df.reset_index(level='index')
-        df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
-        df = df.set_index('index', append=True)
-        traces_list.append(df)
-
-    return pandas.concat(traces_list)
-
-
-def get_median_df(diffed_trace_df):
-    """Extract the median experiment iteration.
-
-    This logic calculates the sum of elapsed times for all of the experiment iterations for all nodes in
-    that iteration.  It then extracts the DataFrame for the iteration that is closest to the median.  For
-    input DataFrames with a single iteration, the single iteration is returned.
-
-    Args:
-        diffed_trace_df: The multiindexed DataFrame with 'elapsed_time' calculated in
-            diff_df() with 1 or more experiment iterations.
-
-    Returns:
-        pandas.DataFrame: Containing a single experiment iteration.
-    """
-    idx = pandas.IndexSlice
-    et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
-    median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
-    median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, median_index],]
-    return median_df
 
 
 def generate_power_plot(trace_df, config):
@@ -525,7 +543,7 @@ def generate_power_plot(trace_df, config):
     elif config.tgt_plugin not in decider_list:
         raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
 
-    diffed_df = diff_df(trace_df, 'energy')
+    diffed_df = config.diff_df(trace_df, 'energy')
 
     # Calculate power from the diffed counters
     pkg_energy_cols = [s for s in diffed_df.keys() if 'pkg_energy' in s]
@@ -536,7 +554,7 @@ def generate_power_plot(trace_df, config):
 
     # Select only the data we care about
     diffed_df = diffed_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                                  config.min_drop:config.max_drop, :, :, :, :, :],]
+                                  config.min_drop:config.max_drop],]
 
     # Do not include node_name, iteration or index in the groupby clause; The median iteration is extracted and used
     # below for every node togther in a group.  The index must be preserved to ensure the DFs stay in order.
@@ -550,23 +568,12 @@ def generate_power_plot(trace_df, config):
         plt.rc('axes', prop_cycle=(cycler('color', colors)))
         f, ax = plt.subplots()
 
-        median_df = get_median_df(df) # Determing the median iteration (if multiple runs)
-
-        if config.verbose:
-            median_df_index = []
-            median_df_index.append(median_df.index.get_level_values('version').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('name').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('power_budget').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('tree_decider').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('leaf_decider').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])
-
-            sys.stdout.write('Plotting {}...\n'.format(' '.join(str(s) for s in median_df_index)))
+        median_df = config.get_median_df(df) # Determine the median iteration (if multiple runs)
 
         for node_name in node_names:
-            node_df = median_df.loc[idx[:, :, :, :, :, node_name, :, :],]
+            node_df = median_df.loc[idx[:, :, :, :, :, node_name],]
 
-            if node_name == 'mr-fusion8':
+            if node_name == config.focus_node:
                 plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
                          node_df['combined_power'].rolling(window=config.smooth, center=True).mean(),
                          label=node_dict[node_name],
@@ -584,8 +591,9 @@ def generate_power_plot(trace_df, config):
                      label='Combined Average',
                      color='aqua',
                      linewidth=2.0,
-                     path_effects=[pe.Stroke(linewidth=4, foreground='black'), pe.Normal()])
-            plt.axhline(power_budget, linewidth=2, color='blue', label='Cap')
+                     path_effects=[pe.Stroke(linewidth=4, foreground='black'), pe.Normal()],
+                     zorder=11)
+            plt.axhline(power_budget, linewidth=2, color='blue', label='Cap', zorder=11)
 
         ax.set_xlabel('Iteration # (Normalized)')
         ylabel = 'Socket+DRAM Power (W)'
@@ -634,6 +642,7 @@ def generate_power_plot(trace_df, config):
             plt.savefig(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.flush()
 
         if config.show:
             plt.show(block=config.block)
@@ -669,10 +678,11 @@ def generate_epoch_plot(trace_df, config):
     elif config.tgt_plugin not in decider_list:
         raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
 
-    diffed_df = diff_df(trace_df, ' ') # Pass a space in the regex to select no additional columns beyond time.
+    diffed_df = config.diff_df(trace_df, ' ') # Pass a space in the regex to select no additional columns beyond time.
 
     # Select only the data we care about
-    diffed_df = diffed_df.loc[idx[:, :, config.min_drop:config.max_drop],]
+    diffed_df = diffed_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                                  config.min_drop:config.max_drop],]
 
     # Group by power budget
     for (version, name, power_budget), df in diffed_df.groupby(level=['version', 'name', 'power_budget']):
@@ -681,12 +691,12 @@ def generate_epoch_plot(trace_df, config):
 
         reference_df = df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
                                   :, config.ref_plugin:config.ref_plugin],]
-        reference_median_df = get_median_df(reference_df)
+        reference_median_df = config.get_median_df(reference_df)
         reference_max_time_df = reference_median_df.unstack(level=['node_name']).max(axis=1)
 
         target_df = df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
                                :, config.tgt_plugin:config.tgt_plugin],]
-        target_median_df = get_median_df(target_df)
+        target_median_df = config.get_median_df(target_df)
         target_max_time_df = target_median_df.unstack(level=['node_name']).max(axis=1)
 
         if config.normalize:
@@ -758,6 +768,7 @@ def generate_epoch_plot(trace_df, config):
             plt.savefig(full_path)
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.flush()
 
         if config.show:
             plt.show(block=config.block)
@@ -767,13 +778,139 @@ def generate_epoch_plot(trace_df, config):
 
 
 def generate_freq_plot(trace_df, config):
-    raise NotImplementedError
+    """Plots the per sample frequency per node per socket.
+
+    This function will plot the frequency of each socket on each node per sample.  It plots the sockets as seperate
+    files denoted '...socket_0.svg', '...socket_1.svg', etc.  Specifying the 'analyze' option in the config object
+    will also include a statistics print out of the data used in the plot.  Specifying the 'normalize' option will
+    normalize the data by the 'config.base_clock' parameter in the config object and also use uniform node names
+    in the plot legend.
+
+    Args:
+        trace_df: The multiindexed DataFrame with all the trace data parsed from the
+            AppOutput class.
+        config: The object specifying the plotting and analysis parameters.
+
+    Raises:
+        SyntaxError: If the reference or target plugin was not found in the DataFrame.
+
+    Todo:
+        * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
+            minor error for especially long running apps.
+    """
+    idx = pandas.IndexSlice
+    decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
+    if config.ref_plugin not in decider_list:
+        raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(config.ref_plugin))
+    if config.tgt_plugin == 'None': # Allows for plotting all parsed plugins
+        config.tgt_plugin = None
+    elif config.tgt_plugin not in decider_list:
+        raise SyntaxError('Target plugin {} not found in report dataframe!'.format(config.tgt_plugin))
+
+    diffed_df = config.diff_df(trace_df, 'clk') # Extracts and diffs all the CLK counters
+
+    # Select only the data we care about for version, profile name, and power budget min/max
+    diffed_df = diffed_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                                  config.min_drop:config.max_drop],]
+
+    for (version, name, power_budget, tree_decider, leaf_decider), df in \
+        diffed_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
+
+        # Begin plot setup
+        node_names = df.index.get_level_values('node_name').unique().tolist()
+        node_dict = config.get_node_dict(node_names)
+        colors = [plt.get_cmap('plasma')(1. * i/len(node_names)) for i in range(len(node_names))]
+        plt.rc('axes', prop_cycle=(cycler('color', colors)))
+        f, ax = plt.subplots()
+
+        median_df = config.get_median_df(df) # Determine the median iteration (if multiple runs)
+
+        clk_unhalted_core_cols = [s for s in median_df.keys() if 'clk_unhalted_core' in s]
+        clk_unhalted_ref_cols = [s for s in median_df.keys() if 'clk_unhalted_ref' in s]
+
+        for c, r in zip(clk_unhalted_core_cols, clk_unhalted_ref_cols): # Loop once per socket
+            frequency_data = median_df[c] / median_df[r] * config.base_clock
+
+            if config.normalize:
+                frequency_data /= config.base_clock
+
+            for node_name in node_names:
+                node_data = frequency_data.loc[idx[:, :, :, :, :, node_name],]
+
+                if node_name == config.focus_node:
+                    plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
+                             node_data.rolling(window=config.smooth, center=True).mean(),
+                             label=node_dict[node_name],
+                             color='red',
+                             path_effects=[pe.Stroke(linewidth=3, foreground='black'), pe.Normal()],
+                             zorder=10)
+                else:
+                    plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
+                             node_data.rolling(window=config.smooth, center=True).mean(),
+                             label=node_dict[node_name])
+
+            ax.set_xlabel('Iteration # (Normalized)')
+            if config.normalize:
+                ylabel = 'Normalized Frequency'
+            else:
+                ylabel = 'Frequency (GHz)'
+            if config.smooth > 1:
+                ylabel += ' Smoothed'
+            ax.set_ylabel(ylabel)
+
+            plt.title('{} Iteration Frequency\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
+
+            ncol = int(math.ceil(float(len(node_names))/4))
+            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+                                shadow=True, fancybox=True, fontsize=config.legend_fontsize)
+            for l in legend.legendHandles:
+                l.set_linewidth(2.0)
+            legend.set_zorder(11)
+            plt.tight_layout()
+
+            if config.normalize:
+                ax.set_ylim(0, 1.2)
+            else:
+                ax.set_ylim(0, ax.get_ylim()[1])
+
+            # Write data/plot files
+            file_name = '{}_frequency_{}_{}_socket_{}'.format(config.profile_name.lower().replace(' ', '_'),
+                                                              power_budget, tree_decider, clk_unhalted_core_cols.index(c))
+            if config.verbose:
+                sys.stdout.write('Writing:\n')
+
+            if config.write_csv:
+                full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
+                frequency_data.unstack(level=['node_name']).to_csv(full_path)
+                if config.verbose:
+                    sys.stdout.write('    {}\n'.format(full_path))
+
+            if config.analyze:
+                full_path = os.path.join(config.output_dir, '{}_stats.txt'.format(file_name))
+                with open(full_path, 'w') as fd:
+                    for node_name, node_data in frequency_data.groupby(level='node_name'):
+                        fd.write('{} ({}) frequency statistics -\n\n{}\n\n'.format(node_name, node_dict[node_name], node_data.describe()))
+                if config.verbose:
+                    sys.stdout.write('    {}\n'.format(full_path))
+
+            for ext in config.output_types:
+                full_path = os.path.join(config.output_dir, '{}.{}'.format(file_name, ext))
+                plt.savefig(full_path)
+                if config.verbose:
+                    sys.stdout.write('    {}\n'.format(full_path))
+            sys.stdout.flush()
+
+            if config.show:
+                plt.show(block=config.block)
+
+            if config.shell:
+                code.interact(local=dict(globals(), **locals()))
 
 
 def main(argv):
     trace_plots = {'power', 'epoch', 'freq'}
 
-    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so help text wraps properly
+    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so text wraps
     pandas.set_option('display.width', int(os.environ['COLUMNS']))               # Same tweak for Pandas
 
     parser = argparse.ArgumentParser(description=__doc__,
@@ -848,6 +985,12 @@ def main(argv):
     parser.add_argument('--max_drop',
                         help='Maximum power budget to include in the plot.',
                         action='store', metavar='BUDGET_WATTS', type=int, default=999)
+    parser.add_argument('--base_clock',
+                        help='Set the base clock frequency (i.e. max non-turbo) for frequency related plots.',
+                        action='store', metavar='FREQ_GHZ', type=float, default=1.3)
+    parser.add_argument('--focus_node',
+                        help='Node to highlight in red during per-node plots.',
+                        action='store', metavar='NODE_NAME')
 
     args = parser.parse_args(argv)
 
@@ -874,19 +1017,23 @@ def main(argv):
             raise SyntaxError('Multiple profile names detected! Please provide the -n option to specify the profile name!')
         profile_name = profile_name_list[0]
 
-    report_config = ReportConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text, normalize=args.normalize,
-                                 write_csv=args.csv, output_types=args.output_types, verbose=args.verbose,
-                                 speedup=args.speedup, datatype=args.datatype, min_drop=args.min_drop, max_drop=args.max_drop,
-                                 ref_version=args.ref_version, ref_profile_name=args.ref_profile_name, ref_plugin=args.ref_plugin,
-                                 tgt_version=args.tgt_version, tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
+    report_config = ReportConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
+                                 normalize=args.normalize, write_csv=args.csv, output_types=args.output_types,
+                                 verbose=args.verbose, speedup=args.speedup, datatype=args.datatype,
+                                 min_drop=args.min_drop, max_drop=args.max_drop,
+                                 ref_version=args.ref_version, ref_profile_name=args.ref_profile_name,
+                                 ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
+                                 tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
 
     if trace_plots.intersection(args.plot_types):
         trace_config = TraceConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
                                    normalize=args.normalize, write_csv=args.csv, output_types=args.output_types,
                                    verbose=args.verbose, smooth=args.smooth, analyze=args.analyze, min_drop=args.min_drop,
-                                   max_drop=args.max_drop, ref_version=args.ref_version, ref_profile_name=args.ref_profile_name,
+                                   max_drop=args.max_drop, ref_version=args.ref_version, base_clock=args.base_clock,
+                                   ref_profile_name=args.ref_profile_name,
                                    ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
-                                   tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
+                                   tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin,
+                                   focus_node=args.focus_node)
 
     for plot in args.plot_types:
         # This tries to create the name of the plot function based on what was parsed in args.plot_types.  If it exists in
