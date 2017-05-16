@@ -113,14 +113,14 @@ If _PATH_ is not provided, the current working directory is used.
 
 * `--smooth` _NUM_SAMPLES_:
   Perform a _NUM_SAMPLES_ moving average on on the Y-axis data. Only used for
-  trace file plots presently. (default: 1)
+  trace file plots presently. (default: _1_)
 
 * `--analyze`:
   Perform a basic analysis of the data plotted and save the statistics to a file.
-  This only applies to the following plots:
+  This applies to all trace plots, and additionally does the following to these specific plots:
 
-    _power_: Plot the power cap and the aggregate power for all the nodes.
-    _epoch_: Adjust the Y-axis bounds to drop outlier data.
+  _power_: Plot the power cap and the aggregate power for all the nodes.<br>
+  _epoch_: Adjust the Y-axis bounds to drop outlier data.
 
 * `--min_drop` _BUDGET_WATTS_:
   The minimum power budget for data to be included in the plot.  All data below this threshold
@@ -129,6 +129,15 @@ If _PATH_ is not provided, the current working directory is used.
 * `--max_drop` _BUDGET_WATTS_:
   The maximum power budget for data to be included in the plot.  All data above this threshold
   will be dropped.
+
+* `--base_clock` _FREQ_GHZ_:
+  The base clock frequency in GHz to be used when making calculations from the CLK counter data.
+  (default: _1.3_)
+
+* `--focus_node` _NODE_NAME_:
+  The name of a node to focus on when generating per node plots.  This node's data will be highlighted
+  in red and will be drawn on top the other nodes.  Analysis data will still be drawn on top of this
+  line if enabled with `--analyze`.
 
 ## ENVIRONMENT
 
