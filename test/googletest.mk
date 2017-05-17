@@ -37,9 +37,9 @@ DISTCLEANFILES += $(googlemock)/VERSION \
                   $(googlemock_archive) \
                   # end
 
-dist: googlemock_archive_check
+dist-googletest: googlemock_archive_check
 check-am: libgmock.a libgtest.a
-clean-local: clean-local-gmock
+clean-local-googletest: clean-local-gmock
 
 googlemock_version = 1.7.0
 googlemock = gmock-$(googlemock_version)
