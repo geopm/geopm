@@ -42,22 +42,6 @@
 
 namespace geopm
 {
-    class SampleRegulatorBase
-    {
-        public:
-            SampleRegulatorBase() {}
-            SampleRegulatorBase(const SampleRegulatorBase &other) {}
-            virtual ~SampleRegulatorBase() {}
-            virtual void operator () (const struct geopm_time_s &platform_sample_time,
-                                      std::vector<double>::const_iterator platform_sample_begin,
-                                      std::vector<double>::const_iterator platform_sample_end,
-                                      std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                      std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                                      std::vector<double> &aligned_signal,
-                                      std::vector<uint64_t> &region_id) = 0;
-            virtual const std::map<int, int> &rank_idx_map(void) const = 0;
-    };
-
     /// @brief Class merges Platform and Profile time series data.
     ///
     /// The SampleRegulator class is a functor used by the Controller
@@ -87,24 +71,12 @@ namespace geopm
     /// operator () method is broken down into four steps, each
     /// represented by a private method, this enables individual
     /// testing of each step.
-    class SampleRegulator : public SampleRegulatorBase
+    class SampleRegulatorBase
     {
         public:
-            /// @brief SampleRegulator constructor.
-            ///
-            /// Creates data structures used for mapping rank reported
-            /// in the profile message to the node local rank which is
-            /// used to index intermediate vectors used in the
-            /// computation.
-            ///
-            /// @param [in] cpu_rank A vector of length total number
-            /// of CPUs which gives the MPI rank running on each CPU.
-            /// Note that each rank may run on multiple CPUs but it is
-            /// assumed that each CPU is allocated to a specific MPI
-            /// rank.
-            SampleRegulator(const std::vector<int> &cpu_rank);
-            /// @brief SampleRegulator destructor, virtual.
-            virtual ~SampleRegulator();
+            SampleRegulatorBase() {}
+            SampleRegulatorBase(const SampleRegulatorBase &other) {}
+            virtual ~SampleRegulatorBase() {}
             /// @brief The parenthesis operator which implements the
             /// SampleRegulator functor.
             ///
@@ -141,6 +113,34 @@ namespace geopm
             /// geopm_telemetry_message_s structures which are in
             /// the order of the domains of control defined in a
             /// Policy object.
+            virtual void operator () (const struct geopm_time_s &platform_sample_time,
+                                      std::vector<double>::const_iterator platform_sample_begin,
+                                      std::vector<double>::const_iterator platform_sample_end,
+                                      std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                                      std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
+                                      std::vector<double> &aligned_signal,
+                                      std::vector<uint64_t> &region_id) = 0;
+            virtual const std::map<int, int> &rank_idx_map(void) const = 0;
+    };
+
+    class SampleRegulator : public SampleRegulatorBase
+    {
+        public:
+            /// @brief SampleRegulator constructor.
+            ///
+            /// Creates data structures used for mapping rank reported
+            /// in the profile message to the node local rank which is
+            /// used to index intermediate vectors used in the
+            /// computation.
+            ///
+            /// @param [in] cpu_rank A vector of length total number
+            /// of CPUs which gives the MPI rank running on each CPU.
+            /// Note that each rank may run on multiple CPUs but it is
+            /// assumed that each CPU is allocated to a specific MPI
+            /// rank.
+            SampleRegulator(const std::vector<int> &cpu_rank);
+            /// @brief SampleRegulator destructor, virtual.
+            virtual ~SampleRegulator();
             void operator () (const struct geopm_time_s &platform_sample_time,
                               std::vector<double>::const_iterator platform_sample_begin,
                               std::vector<double>::const_iterator platform_sample_end,

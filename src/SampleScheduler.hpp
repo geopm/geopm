@@ -38,6 +38,8 @@
 
 namespace geopm
 {
+    /// @brief SampleSchecduler class encapsulates functionality to schedule and
+    /// regulate the frequency of application profile samples.
     class SampleSchedulerBase
     {
         public:
@@ -48,8 +50,6 @@ namespace geopm
             virtual void clear(void) = 0;
     };
 
-    /// @brief SampleSchecduler class encapsulates functionality to schedule and
-    /// regulate the frequency of application profile samples.
     class SampleScheduler : public SampleSchedulerBase
     {
         public:

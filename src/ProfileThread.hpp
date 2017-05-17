@@ -42,6 +42,8 @@
 
 namespace geopm
 {
+    /// @brief ProfileThread class encapsulates helper functions to report
+    /// per rank profile data within threaded loops.
     class ProfileThreadBase
     {
         public:
@@ -51,8 +53,6 @@ namespace geopm
             virtual void increment(Profile &prof, uint64_t region_id, int thread_idx) = 0;
     };
 
-    /// @brief ProfileThread class encapsulates helper functions to report
-    /// per rank profile data within threaded loops.
     class ProfileThread : public ProfileThreadBase
     {
         public:
