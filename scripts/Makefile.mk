@@ -39,9 +39,9 @@ EXTRA_DIST += scripts/geopm_launcher.py \
               scripts/geopm_io.py
 
 install-python:
-	$(INSTALL) -d $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) scripts/geopm_launcher.py $(DESTDIR)$(libexecdir)/geopm
-	ln -sf $(libexecdir)/geopm/geopm_launcher.py $(DESTDIR)$(bindir)/geopmsrun
-	ln -sf $(libexecdir)/geopm/geopm_launcher.py $(DESTDIR)$(bindir)/geopmaprun
-	$(INSTALL) scripts/geopm_plotter.py $(DESTDIR)$(libexecdir)/geopm
-	ln -sf $(libexecdir)/geopm/geopm_plotter.py $(DESTDIR)$(bindir)/geopmplotter
+	$(INSTALL) -d $(DESTDIR)$(libexecdir)/geopm/geopm
+	$(INSTALL) scripts/geopm_launcher.py $(DESTDIR)$(libexecdir)/geopm/geopm
+	ln -sf $(libexecdir)/geopm/geopm/geopm_launcher.py $(DESTDIR)$(bindir)/geopmsrun
+	ln -sf $(libexecdir)/geopm/geopm/geopm_launcher.py $(DESTDIR)$(bindir)/geopmaprun
+	$(INSTALL) scripts/geopm_plotter.py $(DESTDIR)$(libexecdir)/geopm/geopm
+	ln -sf $(libexecdir)/geopm/geopm/geopm_plotter.py $(DESTDIR)$(bindir)/geopmplotter
