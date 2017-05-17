@@ -112,7 +112,6 @@ namespace geopm
     {
         std::ifstream maps_stream(map_path);
         while (maps_stream.good()) {
-           int err = 0;
            std::string line;
            std::getline(maps_stream, line);
            if (line.length() == 0) {
