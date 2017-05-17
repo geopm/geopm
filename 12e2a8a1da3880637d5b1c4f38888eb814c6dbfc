@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e96d1969_16a93e47",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-05-17T20:14:56Z",
+      "side": 1,
+      "message": "Chris?",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 22
+      },
+      "revId": "12e2a8a1da3880637d5b1c4f38888eb814c6dbfc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14c7fd3d_625e18b7",
         "filename": "test/Makefile.mk",
         "patchSetId": 2
