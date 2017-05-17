@@ -234,6 +234,7 @@ fi
 AC_SUBST([enable_doc])
 AM_CONDITIONAL([ENABLE_DOC], [test "x$enable_doc" = "x1"])
 
+
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
 AC_LANG_PUSH([C++])
@@ -375,23 +376,26 @@ AC_CHECK_HEADER([json-c/json.h], [], [
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
 AC_CHECK_HEADER([ompt.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [ompt.h is available]) [has_ompt="1"]], [has_ompt="0"])
 
-
 AC_ARG_ENABLE([ompt],
   [AS_HELP_STRING([--enable-ompt], [Use OpenMP Tool interface])],
-[if test "x$enable_openmp" = "x0" || test "x$has_ompt" = "x0" || test "x$enable_ompt" = "xno" ; then
+[if test "x$enable_ompt" = "xno"; then
   enable_ompt="0"
 else
+  if test "x$enable_openmp" = "x0"; then
+      enable_ompt="0"
+      echo "Warning: opmt requested, but openmp not found"
+  fi
   enable_ompt="1"
 fi
 ],
-[enable_ompt="0"]
+[enable_ompt="$has_ompt"]
 )
 
 if test "x$enable_ompt" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_OMPT], [ ], [Enables OpenMP Tool callbacks.])
 fi
 AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
-
+AM_CONDITIONAL([HAS_OMPT], [test "x$has_ompt" = "x1"])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
