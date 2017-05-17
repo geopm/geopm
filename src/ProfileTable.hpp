@@ -41,20 +41,6 @@
 
 namespace geopm
 {
-    class ProfileTableBase
-    {
-        public:
-            ProfileTableBase() {}
-            virtual ~ProfileTableBase() {}
-            virtual uint64_t key(const std::string &name) = 0;
-            virtual void insert(uint64_t key, const struct geopm_prof_message_s &value) = 0;
-            virtual size_t capacity(void) const = 0;
-            virtual size_t size(void) const = 0;
-            virtual void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length) = 0;
-            virtual bool name_fill(size_t header_offset) = 0;
-            virtual bool name_set(size_t header_offset, std::set<std::string> &name) = 0;
-    };
-
     /// @brief Container for multi-threaded or multi-process
     ///        producer consumer data exchange.
     ///
@@ -74,23 +60,11 @@ namespace geopm
     /// inter-process shared memory.  See the geopm::SharedMemory
     /// class for information on usage with POSIX inter-process shared
     /// memory.
-    class ProfileTable : public ProfileTableBase
+    class ProfileTableBase
     {
         public:
-            /// @brief Constructor for the ProfileTable.
-            ///
-            /// The memory that is used by the container is provided
-            /// at construction time.  There are other ancillary data
-            /// associated with the structure which are dynamic, but
-            /// the data container is of fixed size.
-            ///
-            /// @param size [in] The length of the buffer in bytes.
-            ///
-            /// @param buffer [in] Pointer to beginning of virtual
-            ///        address range used for storing the data.
-            ProfileTable(size_t size, void *buffer);
-            /// ProfileTable destructor, virtual.
-            virtual ~ProfileTable();
+            ProfileTableBase() {}
+            virtual ~ProfileTableBase() {}
             /// @brief Hash the name string into a random 64 bit
             ///        integer.
             ///
@@ -102,7 +76,7 @@ namespace geopm
             ///
             /// @param [in] name String which is to be mapped to the
             ///        key.
-            uint64_t key(const std::string &name);
+            virtual uint64_t key(const std::string &name) = 0;
             /// @brief Insert a value into the table.
             ///
             /// Once the name has been registered with a call to key()
@@ -122,7 +96,7 @@ namespace geopm
             ///
             /// @return Returns the 64 bit hash used to reference the
             ///         name in other ProfileTable methods.
-            void insert(uint64_t key, const struct geopm_prof_message_s &value);
+            virtual void insert(uint64_t key, const struct geopm_prof_message_s &value) = 0;
             /// @brief Maximum number of entries the table can hold.
             ///
             /// Returns the upper bound on the number of values that
@@ -136,8 +110,8 @@ namespace geopm
             ///
             /// @return The maximum number of entries the table can
             ///         hold.
-            size_t capacity(void) const;
-            size_t size(void) const;
+            virtual size_t capacity(void) const = 0;
+            virtual size_t size(void) const = 0;
             /// @brief Copy all table entries into a vector and delete
             ///        all entries.
             ///
@@ -155,7 +129,7 @@ namespace geopm
             ///
             /// @param [out] length The number of entries copied into
             ///        the content vector.
-            void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length);
+            virtual void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length) = 0;
             /// @brief Called by the producer to pass names to the
             ///        consumer.
             ///
@@ -174,7 +148,7 @@ namespace geopm
             ///
             /// @param [in] header_offset Offset in bytes to where the
             ///        name values will start in the buffer.
-            bool name_fill(size_t header_offset);
+            virtual bool name_fill(size_t header_offset) = 0;
             /// @brief Called by the consumer to receive the names
             ///        that hash to the keys.
             ///
@@ -195,6 +169,32 @@ namespace geopm
             ///
             /// @param [out] name Set of names read from output of the
             ///        producer's call to name_fill().
+            virtual bool name_set(size_t header_offset, std::set<std::string> &name) = 0;
+    };
+
+    class ProfileTable : public ProfileTableBase
+    {
+        public:
+            /// @brief Constructor for the ProfileTable.
+            ///
+            /// The memory that is used by the container is provided
+            /// at construction time.  There are other ancillary data
+            /// associated with the structure which are dynamic, but
+            /// the data container is of fixed size.
+            ///
+            /// @param size [in] The length of the buffer in bytes.
+            ///
+            /// @param buffer [in] Pointer to beginning of virtual
+            ///        address range used for storing the data.
+            ProfileTable(size_t size, void *buffer);
+            /// ProfileTable destructor, virtual.
+            virtual ~ProfileTable();
+            uint64_t key(const std::string &name);
+            void insert(uint64_t key, const struct geopm_prof_message_s &value);
+            size_t capacity(void) const;
+            size_t size(void) const;
+            void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length);
+            bool name_fill(size_t header_offset);
             bool name_set(size_t header_offset, std::set<std::string> &name);
         protected:
             virtual bool sticky(const struct geopm_prof_message_s &value);
