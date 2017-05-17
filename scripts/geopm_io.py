@@ -40,7 +40,7 @@ import sys
 from natsort import natsorted
 
 class AppOutput(object):
-    def __init__(self, report_glob='*.report', trace_glob=None, dir_name='.', verbose=False):
+    def __init__(self, report_glob='*report', trace_glob=None, dir_name='.', verbose=False):
         self._reports = {}
         self._reports_df = pandas.DataFrame()
         self._traces = {}
@@ -86,7 +86,7 @@ class AppOutput(object):
         self._reports_df = self._reports_df.sort_index(ascending=True)
 
         if trace_glob == '':
-            trace_glob = '*.trace-*'
+            trace_glob = '*trace-*'
         if trace_glob:
             trace_glob = os.path.join(dir_name, trace_glob)
             self._index_tracker.reset()

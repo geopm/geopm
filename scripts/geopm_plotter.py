@@ -150,7 +150,7 @@ class ReportConfig(Config):
         **kwargs: Arbitrary additional overrides for the Config object.
         units: The keys are report datatypes and the values are the Y-axis label.
     """
-    def __init__(self, speedup=False, yspan = 0.5,                                         # New args for this class
+    def __init__(self, speedup=False, yspan = 0.35,                                        # New args for this class
                  datatype='runtime', fig_size=(6.3, 4.8), fontsize=14, legend_fontsize=14, # Base class args to override
                  **kwargs):                                                                # User overridden args
         super(ReportConfig, self).__init__(datatype=datatype, fig_size=fig_size, fontsize=fontsize,
@@ -852,13 +852,13 @@ def main(argv):
     args = parser.parse_args(argv)
 
     if not args.report_base:
-        report_glob = '*.report'
+        report_glob = '*report'
     else:
         report_glob = args.report_base + '*'
 
     if trace_plots.intersection(args.plot_types):
         if not args.trace_base:
-            trace_glob = '*.trace-*'
+            trace_glob = '*trace-*'
         else:
             trace_glob = args.trace_base + '*'
     else:
