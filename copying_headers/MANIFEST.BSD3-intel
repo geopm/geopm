@@ -26,6 +26,7 @@ examples/qbox/0001-Adding-geopm-markup-for-qbox.patch
 examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch
 geopm.spec.mk
 Makefile.am
+openmp.mk
 plugin/BalancingDecider.cpp
 plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp

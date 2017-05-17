@@ -42,18 +42,20 @@ nodist_include_HEADERS =
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
     bin_PROGRAMS += geopmctl
-
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
-
-install-exec-hook: install-fortran install-python
-
-else
-
-install-exec-hook: install-python
-
 endif
 endif
+
+if !ENABLE_FORTRAN
+install-fortran:
+	-
+endif
+
+
+install-exec-hook: install-python install-fortran install-openmp
+dist: dist-googletest dist-openmp
+
 
 include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
@@ -202,8 +204,8 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
-    libgeopm_la_LIBADD = $(MPI_CLIBS)
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
+    libgeopm_la_LIBADD = $(MPI_CLIBS)
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
@@ -368,7 +370,7 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc
+clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc clean-local-googletest clean-local-openmp
 
 distclean-local: distclean-local-ruby
 
@@ -412,9 +414,9 @@ geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 ruby/bin/ronn:
 	mkdir -p ruby/bin; \
 	which ronn >& /dev/null && \
-	ln -s `which ronn` ruby/bin/ronn || \
+	ln -sf `which ronn` ruby/bin/ronn || \
 	gem install ronn -i ruby
-	if [ ! -f $@ ]; then pushd ruby/bin && ln -s ronn.ruby* ronn && popd; fi
+	if [ ! -f $@ ]; then pushd ruby/bin && ln -sf ronn.ruby* ronn && popd; fi
 
 $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	mkdir -p man
@@ -463,5 +465,6 @@ include examples/Makefile.mk
 include plugin/Makefile.mk
 include doc/Makefile.mk
 include scripts/Makefile.mk
+include openmp.mk
 
 .PHONY: clean-local clean-local-coverage clean-local-man distclean-local rpm doxygen gh_pages
