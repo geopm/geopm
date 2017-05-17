@@ -42,18 +42,28 @@ nodist_include_HEADERS =
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
     bin_PROGRAMS += geopmctl
-
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
-
-install-exec-hook: install-fortran install-python
-
-else
-
-install-exec-hook: install-python
-
 endif
 endif
+
+if ! ENABLE_FORTRAN
+install-fortran:
+	-
+endif
+
+if ! ENABLE_OMPT
+install-openmp:
+	-
+dist-openmp:
+	-
+clean-local-openmp:
+	-
+endif
+
+install-exec-hook: install-python install-fortran install-openmp
+dist: dist-googletest dist-openmp
+
 
 include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
@@ -196,12 +206,20 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
-    libgeopm_la_LIBADD = $(MPI_CLIBS)
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
+    libgeopm_la_LIBADD = $(MPI_CLIBS)
+if ENABLE_OMPT
+if ! HAS_OMPT
+    libgeopm_la_LIBADD += openmp/lib/libiomp5.so
+endif
+endif
+
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la
 endif
 endif
+
+
 
 # SOURCE LISTS FOR EACH TARGET
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
@@ -358,7 +376,7 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc
+clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc clean-local-googletest clean-local-openmp
 
 distclean-local: distclean-local-ruby
 
@@ -452,5 +470,11 @@ include examples/Makefile.mk
 include plugin/Makefile.mk
 include doc/Makefile.mk
 include scripts/Makefile.mk
+
+if ENABLE_OMPT
+
+include openmp.mk
+
+endif
 
 .PHONY: clean-local clean-local-coverage clean-local-man distclean-local rpm doxygen gh_pages
