@@ -145,13 +145,13 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
-            --disable-fortran --disable-doc
+            --disable-fortran --disable-doc --enable-ompt
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
-            --disable-fortran --disable-doc
+            --disable-fortran --disable-doc --enable-ompt
 %endif
 
 %{__make}
@@ -203,12 +203,16 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_libdir}/geopm/libgeopmpi_balancing.so.0
 %{_libdir}/geopm/libgeopmpi_balancing.so
 %dir %{_libexecdir}/geopm
-%{_libexecdir}/geopm/geopm_launcher.py
-%exclude %{_libexecdir}/geopm/geopm_launcher.pyc
-%exclude %{_libexecdir}/geopm/geopm_launcher.pyo
-%{_libexecdir}/geopm/geopm_plotter.py
-%exclude %{_libexecdir}/geopm/geopm_plotter.pyc
-%exclude %{_libexecdir}/geopm/geopm_plotter.pyo
+%dir %{_libexecdir}/geopm/geopm
+%dir %{_libexecdir}/geopm/openmp
+%{_libexecdir}/geopm/geopm/geopm_launcher.py
+%exclude %{_libexecdir}/geopm/geopm/geopm_launcher.pyc
+%exclude %{_libexecdir}/geopm/geopm/geopm_launcher.pyo
+%{_libexecdir}/geopm/geopm/geopm_plotter.py
+%exclude %{_libexecdir}/geopm/geopm/geopm_plotter.pyc
+%exclude %{_libexecdir}/geopm/geopm/geopm_plotter.pyo
+%{_libexecdir}/geopm/openmp/lib/libiomp5.so
+%{_libexecdir}/geopm/openmp/lib/libomp.so
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
 %{_bindir}/geopmsrun
