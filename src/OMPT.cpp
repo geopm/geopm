@@ -59,7 +59,6 @@ namespace geopm
 
 #else // GEOPM_ENABLE_OMPT defined
 
-#include <omp.h>
 #include <ompt.h>
 
 extern "C"
@@ -112,7 +111,6 @@ namespace geopm
     {
         std::ifstream maps_stream(map_path);
         while (maps_stream.good()) {
-           int err = 0;
            std::string line;
            std::getline(maps_stream, line);
            if (line.length() == 0) {
