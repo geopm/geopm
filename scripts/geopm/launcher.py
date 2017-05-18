@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #  Copyright (c) 2015, 2016, 2017, Intel Corporation
 #
@@ -63,6 +62,8 @@ import math
 import signal
 import StringIO
 import itertools
+
+from geopm import __version__
 
 def resource_manager():
     """
@@ -985,6 +986,11 @@ def main():
     printed.
     """
     err = 0
+    version_str = """\
+GEOPM version {}
+Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+""".format(__version__)
+
     try:
         launcher = factory(sys.argv)
         launcher.run()
@@ -994,6 +1000,8 @@ def main():
         # of the run.
         if '--help' in sys.argv or '-h' in sys.argv:
             sys.stdout.write(__doc__)
+        if '--version' in sys.argv:
+            sys.stdout.write(version_str)
     except Exception as e:
         # If GEOPM_DEBUG environment variable is defined print stack trace.
         if os.getenv('GEOPM_DEBUG'):
@@ -1002,6 +1010,3 @@ def main():
         err = -1
     return err
 
-if __name__ == '__main__':
-    err = main()
-    sys.exit(err)
