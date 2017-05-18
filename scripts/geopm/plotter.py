@@ -53,7 +53,7 @@ import matplotlib.patheffects as pe
 from natsort import natsorted
 from cycler import cycler
 
-import geopm_io
+import geopm.io
 
 
 class Config(object):
@@ -864,7 +864,7 @@ def main(argv):
     else:
         trace_glob = None
 
-    app_output = geopm_io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+    app_output = geopm.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
 
     if args.profile_name:
         profile_name = args.profile_name
