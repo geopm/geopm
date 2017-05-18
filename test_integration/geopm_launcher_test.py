@@ -33,9 +33,9 @@
 
 import unittest
 import geopm_test_path
-import geopm_launcher
+import geopm.launcher
 
-class TestAffinityLauncher(geopm_launcher.Launcher):
+class TestAffinityLauncher(geopm.launcher.Launcher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank):
         super(TestAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
 
