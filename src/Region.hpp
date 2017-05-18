@@ -293,6 +293,7 @@ namespace geopm
             std::vector<bool> m_is_entered;
             int m_derivative_num_fit;
             double m_mpi_time;
+            double m_last_runtime;
     };
 }
 

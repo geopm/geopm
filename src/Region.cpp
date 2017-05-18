@@ -64,6 +64,7 @@ namespace geopm
         , m_is_entered(m_num_domain, false)
         , m_derivative_num_fit(0)
         , m_mpi_time(0.0)
+        , m_last_runtime(0.0)
     {
 
     }
@@ -103,6 +104,12 @@ namespace geopm
             }
 #endif
             update_domain_sample(*it, domain_idx);
+            // If we exited, we need to insert runtime in to the region's buffer
+            if (m_entry_telemetry[domain_idx].region_id != GEOPM_REGION_ID_UNDEFINED &&
+                is_telemetry_exit((*it), domain_idx)) {
+                m_last_runtime = m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+            }
+            (*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = m_last_runtime;
             update_signal_matrix((*it).signal, domain_idx);
             update_valid_entries(*it, domain_idx);
             update_stats((*it).signal, domain_idx);
