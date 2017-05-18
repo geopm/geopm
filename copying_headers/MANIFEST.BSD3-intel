@@ -32,9 +32,14 @@ plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
-scripts/geopm_io.py
-scripts/geopm_launcher.py
-scripts/geopm_plotter.py
+scripts/geopm/io.py
+scripts/geopm/launcher.py
+scripts/geopm/plotter.py
+scripts/geopm/__init__.py
+scripts/geopmsrun
+scripts/geopmaprun
+scripts/geopmplotter
+scripts/setup.py
 scripts/Makefile.mk
 src/CircularBuffer.hpp
 src/Comm.hpp
