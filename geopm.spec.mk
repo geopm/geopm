@@ -204,13 +204,16 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_libdir}/geopm/libgeopmpi_balancing.so
 %dir %{_libexecdir}/geopm
 %dir %{_libexecdir}/geopm/geopm
-%dir %{_libexecdir}/geopm/openmp
 %{_libexecdir}/geopm/geopm/geopm_launcher.py
 %exclude %{_libexecdir}/geopm/geopm/geopm_launcher.pyc
 %exclude %{_libexecdir}/geopm/geopm/geopm_launcher.pyo
 %{_libexecdir}/geopm/geopm/geopm_plotter.py
 %exclude %{_libexecdir}/geopm/geopm/geopm_plotter.pyc
 %exclude %{_libexecdir}/geopm/geopm/geopm_plotter.pyo
+%{_libexecdir}/geopm/geopm/geopm_io.py
+%exclude %{_libexecdir}/geopm/geopm/geopm_io.pyc
+%exclude %{_libexecdir}/geopm/geopm/geopm_io.pyo
+%dir %{_libexecdir}/geopm/openmp
 %{_libexecdir}/geopm/openmp/lib/libiomp5.so
 %{_libexecdir}/geopm/openmp/lib/libomp.so
 %{_bindir}/geopmpolicy

@@ -45,3 +45,4 @@ install-python:
 	ln -sf $(libexecdir)/geopm/geopm/geopm_launcher.py $(DESTDIR)$(bindir)/geopmaprun
 	$(INSTALL) scripts/geopm_plotter.py $(DESTDIR)$(libexecdir)/geopm/geopm
 	ln -sf $(libexecdir)/geopm/geopm/geopm_plotter.py $(DESTDIR)$(bindir)/geopmplotter
+	$(INSTALL) scripts/geopm_io.py $(DESTDIR)$(libexecdir)/geopm/geopm
