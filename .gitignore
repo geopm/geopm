@@ -73,6 +73,9 @@
 /ruby/
 /man/*
 /scripts/data
+/scripts/geopm/version.py
+/scripts/COPYING
+/scripts/README
 /scripts/figures
 /src/*.lo
 /src/*.o
