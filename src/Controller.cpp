@@ -351,14 +351,11 @@ namespace geopm
             MPI_Barrier(m_ppn1_comm);
             m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
 
-            std::string profile_name;
-            m_sampler->profile_name(profile_name);
-
             // Prepare and send the Global Policy header to every node so that the trace files contain the
             // correct data.
             std::string header;
             if (!m_ppn1_rank) {
-                header = m_global_policy->header(profile_name);
+                header = m_global_policy->header();
             }
             int header_size = header.length() + 1;
             MPI_Bcast(&header_size, 1, MPI_INT, 0, m_ppn1_comm);
