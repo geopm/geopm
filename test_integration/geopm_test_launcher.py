@@ -40,8 +40,8 @@ import StringIO
 import math
 
 import geopm_test_path
-import geopm_launcher
-from geopm_launcher import resource_manager
+import geopm.launcher
+from geopm.launcher import resource_manager
 
 class TestLauncher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
@@ -78,7 +78,7 @@ class TestLauncher(object):
     def check_run(self, test_name):
         with open(test_name + '.log', 'a') as outfile:
             argv = ['dummy', 'true']
-            launcher = geopm_launcher.factory(argv, self._num_rank, self._num_node,
+            launcher = geopm.launcher.factory(argv, self._num_rank, self._num_node,
                                               self._cpu_per_rank, self._timeout,
                                               self._time_limit, self._job_name,
                                               self._node_list, self._host_file)
@@ -102,7 +102,7 @@ class TestLauncher(object):
             if self._region_barrier:
                 argv.append('--geopm-barrier')
             argv.extend([exec_path, '--verbose', self._app_conf.get_path()])
-            launcher = geopm_launcher.factory(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+            launcher = geopm.launcher.factory(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                               self._time_limit, test_name, self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
@@ -114,12 +114,12 @@ class TestLauncher(object):
 
     def get_idle_nodes(self):
         argv = ['dummy', 'true']
-        launcher = geopm_launcher.factory(argv, 1, 1)
+        launcher = geopm.launcher.factory(argv, 1, 1)
         return launcher.get_idle_nodes()
 
     def get_alloc_nodes(self):
         argv = ['dummy', 'true']
-        launcher = geopm_launcher.factory(argv, 1, 1)
+        launcher = geopm.launcher.factory(argv, 1, 1)
         return launcher.get_alloc_nodes()
 
     def write_log(self, test_name, message):
@@ -131,7 +131,7 @@ class TestLauncher(object):
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
         argv = ['dummy', 'lscpu']
-        launcher = geopm_launcher.factory(argv, 1, 1)
+        launcher = geopm.launcher.factory(argv, 1, 1)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
