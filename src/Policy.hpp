@@ -45,11 +45,11 @@ namespace geopm
     class RegionPolicy;
 
     /// @brief Class defines the per-domain power settings and policy state.
-    class PolicyBase
+    class IPolicy
     {
         public:
-            PolicyBase() {}
-            virtual ~PolicyBase() {}
+            IPolicy() {}
+            virtual ~IPolicy() {}
             /// @brief Get number of control domains for the policy.
             /// @returns number of domains under control.
             virtual int num_domain(void) = 0;
@@ -103,7 +103,7 @@ namespace geopm
             virtual bool is_converged(uint64_t region_id) = 0;
     };
 
-    class Policy : public PolicyBase
+    class Policy : public IPolicy
     {
         public:
             /// @brief Policy constructor.
@@ -133,7 +133,7 @@ namespace geopm
             void is_converged(uint64_t region_id, bool converged_state);
             bool is_converged(uint64_t region_id);
         protected:
-            PolicyFlags m_policy_flags;
+            IPolicyFlags *m_policy_flags;
             RegionPolicy *region_policy(uint64_t region_id);
             int m_num_domain;
             int m_mode;

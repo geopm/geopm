@@ -46,7 +46,7 @@ namespace geopm
 
     class TreeCommunicatorRoot;
     class TreeCommunicatorLevel;
-    class GlobalPolicy;
+    class IGlobalPolicy;
 
     /// @brief Class which enables inter-process communication for
     ///        geopm.
@@ -56,12 +56,12 @@ namespace geopm
     /// down the control hierarchy.  It leverages MPI to obtain
     /// topology information to optimize communication pattern, and
     /// for non-blocking communication calls.
-    class TreeCommunicatorBase
+    class ITreeCommunicator
     {
         public:
-            TreeCommunicatorBase() {}
-            TreeCommunicatorBase(const TreeCommunicatorBase &other) {}
-            virtual ~TreeCommunicatorBase() {}
+            ITreeCommunicator() {}
+            ITreeCommunicator(const ITreeCommunicator &other) {}
+            virtual ~ITreeCommunicator() {}
             /// @brief The number of levels for calling process.
             ///
             /// Each of the processes in the communicator passed at
@@ -168,7 +168,7 @@ namespace geopm
             virtual size_t overhead_send(void) = 0;
     };
 
-    class TreeCommunicator : public TreeCommunicatorBase
+    class TreeCommunicator : public ITreeCommunicator
     {
         public:
             /// @brief TreeCommunicator constructor.
@@ -196,7 +196,7 @@ namespace geopm
             ///
             /// @param [in] comm All ranks in MPI communicator
             ///        participate in the tree.
-            TreeCommunicator(const std::vector<int> &fan_out, GlobalPolicy *global_policy, const MPI_Comm &comm);
+            TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm);
             TreeCommunicator(const TreeCommunicator &other);
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicator();
@@ -230,12 +230,12 @@ namespace geopm
             /// leaf to root
             std::vector<int> m_fan_out;
             /// GlobalPolicy object defining the policy
-            GlobalPolicy *m_global_policy;
+            IGlobalPolicy *m_global_policy;
             /// Intermediate levels
             std::vector<TreeCommunicatorLevel *> m_level;
     };
 
-    class SingleTreeCommunicator : public TreeCommunicatorBase
+    class SingleTreeCommunicator : public ITreeCommunicator
     {
         public:
             /// @brief SingleTreeCommunicator constructor.
@@ -245,7 +245,7 @@ namespace geopm
             ///
             /// @param [in] global_policy Determines the policy for
             ///        the run.
-            SingleTreeCommunicator(GlobalPolicy *global_policy);
+            SingleTreeCommunicator(IGlobalPolicy *global_policy);
             SingleTreeCommunicator(const SingleTreeCommunicator &other);
             virtual ~SingleTreeCommunicator();
             int num_level(void) const;
@@ -258,7 +258,7 @@ namespace geopm
             void get_policy(int level, struct geopm_policy_message_s &policy);
             size_t overhead_send(void);
         protected:
-            GlobalPolicy *m_policy;
+            IGlobalPolicy *m_policy;
             struct geopm_sample_message_s m_sample;
     };
 

@@ -71,12 +71,12 @@ namespace geopm
     /// operator () method is broken down into four steps, each
     /// represented by a private method, this enables individual
     /// testing of each step.
-    class SampleRegulatorBase
+    class ISampleRegulator
     {
         public:
-            SampleRegulatorBase() {}
-            SampleRegulatorBase(const SampleRegulatorBase &other) {}
-            virtual ~SampleRegulatorBase() {}
+            ISampleRegulator() {}
+            ISampleRegulator(const ISampleRegulator &other) {}
+            virtual ~ISampleRegulator() {}
             /// @brief The parenthesis operator which implements the
             /// SampleRegulator functor.
             ///
@@ -123,7 +123,7 @@ namespace geopm
             virtual const std::map<int, int> &rank_idx_map(void) const = 0;
     };
 
-    class SampleRegulator : public SampleRegulatorBase
+    class SampleRegulator : public ISampleRegulator
     {
         public:
             /// @brief SampleRegulator constructor.
@@ -183,7 +183,7 @@ namespace geopm
             std::vector<uint64_t> m_region_id;
             /// @brief Per rank record of last profile samples in
             /// m_region_id_prev
-            std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_prev;
+            std::vector<ICircularBuffer<struct m_rank_sample_s> *> m_rank_sample_prev;
             /// @brief The platform sample time.
             struct geopm_time_s m_aligned_time;
             /// @brief Vector to multiply with signal_domain_matrix to

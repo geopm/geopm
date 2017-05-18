@@ -54,7 +54,7 @@ namespace geopm
             virtual bool model_supported(int platform_id, const std::string &description) const;
             virtual size_t capacity(void);
             virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values);
-            virtual void enforce_policy(uint64_t region_id, Policy &policy) const;
+            virtual void enforce_policy(uint64_t region_id, IPolicy &policy) const;
             virtual void bound(double &upper_bound, double &lower_bound);
         protected:
             /// @brief structure to hold buffer indicies for platform signals.

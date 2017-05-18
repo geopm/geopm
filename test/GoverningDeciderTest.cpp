@@ -46,7 +46,7 @@ class GoverningDeciderTest: public :: testing :: Test
     void SetUp();
     void TearDown();
     void run_param_case(double budget, double pkg_power, double dram_power, int num_sockets);
-    geopm::Decider *m_decider;
+    geopm::IDecider *m_decider;
     geopm::DeciderFactory *m_fact;
 };
 
@@ -83,7 +83,7 @@ TEST_F(GoverningDeciderTest, name)
 
 TEST_F(GoverningDeciderTest, clone)
 {
-    geopm::Decider *cloned = m_decider->clone();
+    geopm::IDecider *cloned = m_decider->clone();
     EXPECT_TRUE(std::string("power_governing") == cloned->name());
     delete cloned;
 }

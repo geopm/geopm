@@ -105,8 +105,8 @@ TEST_F(SampleRegulatorTest, insert_profile)
     sample_expect.runtime = 0.0;
     sample_expect.progress = 0.1;
     for (int i = 0; i != 4; ++i) {
-        ASSERT_EQ(m_rank_sample_prev[i].size(), 2);
-        sample = m_rank_sample_prev[i].value(0);
+        ASSERT_EQ(m_rank_sample_prev[i]->size(), 2);
+        sample = m_rank_sample_prev[i]->value(0);
         ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&(sample_expect.timestamp), &(sample.timestamp)));
         ASSERT_DOUBLE_EQ(sample_expect.progress, sample.progress);
         ASSERT_DOUBLE_EQ(sample_expect.runtime, sample.runtime);
@@ -116,7 +116,7 @@ TEST_F(SampleRegulatorTest, insert_profile)
     sample_expect.progress = 0.2;
     sample_expect.runtime = 0.0;
     for (int i = 0; i != 4; ++i) {
-        sample = m_rank_sample_prev[i].value(1);
+        sample = m_rank_sample_prev[i]->value(1);
         ASSERT_DOUBLE_EQ(0.0, geopm_time_diff(&(sample_expect.timestamp), &(sample.timestamp)));
         ASSERT_DOUBLE_EQ(sample_expect.progress, sample.progress);
         ASSERT_DOUBLE_EQ(sample_expect.runtime, sample.runtime);

@@ -44,22 +44,22 @@ namespace geopm
 {
     /// @brief ProfileThread class encapsulates helper functions to report
     /// per rank profile data within threaded loops.
-    class ProfileThreadBase
+    class IProfileThread
     {
         public:
-            ProfileThreadBase() {}
-            ProfileThreadBase(const ProfileThreadBase &other) {}
-            virtual ~ProfileThreadBase() {}
-            virtual void increment(Profile &prof, uint64_t region_id, int thread_idx) = 0;
+            IProfileThread() {}
+            IProfileThread(const IProfileThread &other) {}
+            virtual ~IProfileThread() {}
+            virtual void increment(IProfile &prof, uint64_t region_id, int thread_idx) = 0;
     };
 
-    class ProfileThread : public ProfileThreadBase
+    class ProfileThread : public IProfileThread
     {
         public:
             ProfileThread(int num_thread, size_t num_iter);
             ProfileThread(int num_thread, size_t num_iter, size_t chunk_size);
             virtual ~ProfileThread();
-            void increment(Profile &prof, uint64_t region_id, int thread_idx);
+            void increment(IProfile &prof, uint64_t region_id, int thread_idx);
         protected:
             const size_t m_num_iter;
             const int m_num_thread;

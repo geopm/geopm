@@ -44,7 +44,7 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void
 
     try {
         if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
-            geopm::Decider *decider = new geopm::BalancingDecider;
+            geopm::IDecider *decider = new geopm::BalancingDecider;
             geopm_factory_register(factory, decider, dl_ptr);
         }
     }
@@ -98,9 +98,9 @@ namespace geopm
 
     }
 
-    Decider *BalancingDecider::clone(void) const
+    IDecider *BalancingDecider::clone(void) const
     {
-        return (Decider*)(new BalancingDecider(*this));
+        return (IDecider*)(new BalancingDecider(*this));
     }
 
     bool BalancingDecider::decider_supported(const std::string &description)
@@ -119,7 +119,7 @@ namespace geopm
         m_lower_bound = lower_bound * M_GUARD_BAND;
     }
 
-    bool BalancingDecider::update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy)
+    bool BalancingDecider::update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy)
     {
         bool result = false;
         if (policy_msg.power_budget != m_last_power_budget) {
@@ -147,7 +147,7 @@ namespace geopm
         return result;
     }
 
-    bool BalancingDecider::update_policy(Region &curr_region, Policy &curr_policy)
+    bool BalancingDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
         bool is_updated = false;
 
