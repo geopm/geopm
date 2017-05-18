@@ -43,7 +43,7 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void
 
     try {
         if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
-            geopm::Decider *decider = new geopm::GoverningDecider;
+            geopm::IDecider *decider = new geopm::GoverningDecider;
             geopm_factory_register(factory, decider, dl_ptr);
         }
     }
@@ -82,9 +82,9 @@ namespace geopm
 
     }
 
-    Decider *GoverningDecider::clone(void) const
+    IDecider *GoverningDecider::clone(void) const
     {
-        return (Decider*)(new GoverningDecider(*this));
+        return (IDecider*)(new GoverningDecider(*this));
     }
 
     bool GoverningDecider::decider_supported(const std::string &description)
@@ -97,7 +97,7 @@ namespace geopm
         return m_name;
     }
 
-    bool GoverningDecider::update_policy(const struct geopm_policy_message_s &policy_msg, Policy &curr_policy)
+    bool GoverningDecider::update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy)
     {
         bool result = false;
         if (policy_msg.power_budget != m_last_power_budget) {
@@ -129,7 +129,7 @@ namespace geopm
         return result;
     }
 
-    bool GoverningDecider::update_policy(Region &curr_region, Policy &curr_policy)
+    bool GoverningDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
         static const double GUARD_BAND = 0.02;
         bool is_target_updated = false;

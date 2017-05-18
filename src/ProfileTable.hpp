@@ -60,11 +60,11 @@ namespace geopm
     /// inter-process shared memory.  See the geopm::SharedMemory
     /// class for information on usage with POSIX inter-process shared
     /// memory.
-    class ProfileTableBase
+    class IProfileTable
     {
         public:
-            ProfileTableBase() {}
-            virtual ~ProfileTableBase() {}
+            IProfileTable() {}
+            virtual ~IProfileTable() {}
             /// @brief Hash the name string into a random 64 bit
             ///        integer.
             ///
@@ -172,7 +172,7 @@ namespace geopm
             virtual bool name_set(size_t header_offset, std::set<std::string> &name) = 0;
     };
 
-    class ProfileTable : public ProfileTableBase
+    class ProfileTable : public IProfileTable
     {
         public:
             /// @brief Constructor for the ProfileTable.

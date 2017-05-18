@@ -67,12 +67,12 @@ namespace geopm
 
     /// @brief This class is a wrapper around hwloc. It holds the topology of
     /// hardware resources of the platform.
-    class PlatformTopologyBase
+    class IPlatformTopology
     {
         public:
-            PlatformTopologyBase() {}
-            PlatformTopologyBase(const PlatformTopologyBase &other) {}
-            virtual ~PlatformTopologyBase() {}
+            IPlatformTopology() {}
+            IPlatformTopology(const IPlatformTopology &other) {}
+            virtual ~IPlatformTopology() {}
             /// @brief Retrieve the count of a specific hwloc resource type.
             /// @param [in] domain_type Enum of type domain_type_e representing the
             /// type of resource to query.
@@ -80,7 +80,7 @@ namespace geopm
             virtual int num_domain(int domain_type) const = 0;
     };
 
-    class PlatformTopology : public PlatformTopologyBase
+    class PlatformTopology : public IPlatformTopology
     {
         public:
             /// @brief Default constructor initializes and builds

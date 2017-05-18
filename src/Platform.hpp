@@ -40,11 +40,11 @@
 
 namespace geopm
 {
-    class PlatformBase
+    class IPlatform
     {
         public:
-            PlatformBase() {}
-            virtual ~PlatformBase() {}
+            IPlatform() {}
+            virtual ~IPlatform() {}
             /// @brief Set our member variable pointing to a PlatformImp object.
             /// @param [in] platform_imp A PlatformImp object that is compatible
             ///        with this platform and the underlying hardware.
@@ -104,7 +104,7 @@ namespace geopm
             /// freq_hybrid_static.
             /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.
-            virtual void enforce_policy(uint64_t region_id, Policy &policy) const = 0;
+            virtual void enforce_policy(uint64_t region_id, IPolicy &policy) const = 0;
             /// @brief Return the upper and lower bounds of the control.
             ///
             /// For a RAPL platform this would be the package power limit,
@@ -161,7 +161,7 @@ namespace geopm
     /// and attributes of classes of hardware implementations. It holds
     /// the implementation of the specific hardware platform and knows how
     /// to interact with it.
-    class Platform : public PlatformBase
+    class Platform : public IPlatform
     {
         public:
             /// @brief Default constructor.
@@ -184,7 +184,7 @@ namespace geopm
             virtual size_t capacity(void) = 0;
             virtual void sample(std::vector<struct geopm_msr_message_s> &msr_values) = 0;
             virtual bool model_supported(int platform_id, const std::string &description) const = 0;
-            virtual void enforce_policy(uint64_t region_id, Policy &policy) const = 0;
+            virtual void enforce_policy(uint64_t region_id, IPolicy &policy) const = 0;
             virtual void bound(double &upper_bound, double &lower_bound) = 0;
             const PlatformTopology *topology(void) const;
             void init_transform(const std::vector<int> &cpu_rank);

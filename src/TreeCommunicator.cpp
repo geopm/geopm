@@ -254,7 +254,7 @@ namespace geopm
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, GlobalPolicy *global_policy, const MPI_Comm &comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm)
         : m_num_node(0)
         , m_fan_out(fan_out)
         , m_global_policy(global_policy)
@@ -327,7 +327,7 @@ namespace geopm
     }
 
     TreeCommunicator::TreeCommunicator(const TreeCommunicator &other)
-        : TreeCommunicatorBase(other)
+        : ITreeCommunicator(other)
         , m_num_level(other.m_num_level)
         , m_num_node(other.m_num_node)
         , m_fan_out(other.m_fan_out)
@@ -614,7 +614,7 @@ namespace geopm
         }
     }
 
-    SingleTreeCommunicator::SingleTreeCommunicator(GlobalPolicy *global_policy)
+    SingleTreeCommunicator::SingleTreeCommunicator(IGlobalPolicy *global_policy)
         : m_policy(global_policy)
         , m_sample(GEOPM_SAMPLE_INVALID)
     {

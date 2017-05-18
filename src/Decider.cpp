@@ -65,7 +65,7 @@ namespace geopm
         m_lower_bound = lower_bound;
     }
 
-    bool Decider::update_policy(const struct geopm_policy_message_s &policy, Policy &curr_policy)
+    bool Decider::update_policy(const struct geopm_policy_message_s &policy, IPolicy &curr_policy)
     {
         bool result = false;
         if (policy.power_budget != m_last_power_budget) {

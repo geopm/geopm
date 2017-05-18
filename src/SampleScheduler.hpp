@@ -40,17 +40,17 @@ namespace geopm
 {
     /// @brief SampleSchecduler class encapsulates functionality to schedule and
     /// regulate the frequency of application profile samples.
-    class SampleSchedulerBase
+    class ISampleScheduler
     {
         public:
-            SampleSchedulerBase() {}
-            virtual ~SampleSchedulerBase() {}
+            ISampleScheduler() {}
+            virtual ~ISampleScheduler() {}
             virtual bool do_sample(void) = 0;
             virtual void record_exit(void) = 0;
             virtual void clear(void) = 0;
     };
 
-    class SampleScheduler : public SampleSchedulerBase
+    class SampleScheduler : public ISampleScheduler
     {
         public:
             SampleScheduler(double overhead_frac);

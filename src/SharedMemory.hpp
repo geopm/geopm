@@ -39,12 +39,12 @@
 namespace geopm
 {
     /// @brief This class encapsulates the creation of inter-process shared memory.
-    class SharedMemoryBase
+    class ISharedMemory
     {
         public:
-            SharedMemoryBase() {}
-            SharedMemoryBase(const SharedMemoryBase &other) {}
-            virtual ~SharedMemoryBase() {}
+            ISharedMemory() {}
+            ISharedMemory(const ISharedMemory &other) {}
+            virtual ~ISharedMemory() {}
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
             virtual void *pointer(void) = 0;
@@ -55,19 +55,19 @@ namespace geopm
     };
 
     /// @brief This class encapsulates attaching to inter-process shared memory.
-    class SharedMemoryUserBase
+    class ISharedMemoryUser
     {
         public:
-            SharedMemoryUserBase() {}
-            SharedMemoryUserBase(const SharedMemoryUserBase &other) {}
-            virtual ~SharedMemoryUserBase() {}
+            ISharedMemoryUser() {}
+            ISharedMemoryUser(const ISharedMemoryUser &other) {}
+            virtual ~ISharedMemoryUser() {}
             virtual void *pointer(void) = 0;
             virtual std::string key(void) = 0;
             virtual size_t size(void) = 0;
             virtual void unlink(void) = 0;
     };
 
-    class SharedMemory : public SharedMemoryBase
+    class SharedMemory : public ISharedMemory
     {
         public:
             /// @brief Constructor takes a key and a size and creates a inter-process
@@ -93,7 +93,7 @@ namespace geopm
             void *m_ptr;
     };
 
-    class SharedMemoryUser : public SharedMemoryUserBase
+    class SharedMemoryUser : public ISharedMemoryUser
     {
         public:
             /// Constructor takes a key and attempts to attach to a

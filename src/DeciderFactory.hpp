@@ -48,12 +48,12 @@ namespace geopm
     /// themselves with the factory. The factory returns an appropriate Decider object
     /// when queried with a description string. The factory deletes all Decider objects
     /// on destruction.
-    class DeciderFactoryBase
+    class IDeciderFactory
     {
         public:
-            DeciderFactoryBase() {}
-            DeciderFactoryBase(const DeciderFactoryBase &other) {}
-            virtual ~DeciderFactoryBase() {}
+            IDeciderFactory() {}
+            IDeciderFactory(const IDeciderFactory &other) {}
+            virtual ~IDeciderFactory() {}
             /// @brief Returns an abstract Decider pointer to a concrete decider.
             ///
             /// The concrete Decider is specific to the description string
@@ -63,16 +63,16 @@ namespace geopm
             ///
             /// @param [in] description The descrition string corresponding
             /// to the desired Decider.
-            virtual Decider *decider(const std::string &description) = 0;
+            virtual IDecider *decider(const std::string &description) = 0;
             /// @brief Concrete Deciders register with the factory through this API.
             ///
             /// @param [in] decider The unique_ptr to a Decider object
             /// assures that the object cannot be destroyed before it
             /// is copied.
-            virtual void register_decider(Decider *decider, void *dl_ptr) = 0;
+            virtual void register_decider(IDecider *decider, void *dl_ptr) = 0;
     };
 
-    class DeciderFactory : public DeciderFactoryBase
+    class DeciderFactory : public IDeciderFactory
     {
         public:
             /// @brief DeciderFactory default constructor.
@@ -85,14 +85,14 @@ namespace geopm
             /// @param [in] decider The unique_ptr to a Decider object
             ///             assures that the object cannot be destroyed before
             ///             it is copied.
-            DeciderFactory(Decider *decider);
+            DeciderFactory(IDecider *decider);
             /// @brief DeciderFactory destructor, virtual.
             virtual ~DeciderFactory();
-            Decider *decider(const std::string &description);
-            void register_decider(Decider *decider, void *dl_ptr);
+            IDecider *decider(const std::string &description);
+            void register_decider(IDecider *decider, void *dl_ptr);
         private:
             // @brief Holds all registered concrete Decider instances
-            std::list<Decider*> m_decider_list;
+            std::list<IDecider*> m_decider_list;
             std::list<void *> m_dl_ptr_list;
     };
 

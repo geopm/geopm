@@ -40,30 +40,47 @@ namespace geopm
 {
     /// @brief RegionPolicy class encapsulated functionality for policy accounting
     /// at the per-rank level.
-    class RegionPolicy
+    class IRegionPolicy
     {
         public:
-            RegionPolicy(int num_domain);
-            virtual ~RegionPolicy();
-            void update(int domain_idx, double target);
-            void update(const std::vector<double> &target);
-            void target(std::vector<double> &target);
-            void target(int domain_idx, double &target);
-            void target_updated(std::map<int, double> &target); // map from domain index to updated target value
-            void target_valid(std::map<int, double> &target);
-            void policy_message(const struct geopm_policy_message_s &parent_msg,
-                                std::vector<struct geopm_policy_message_s> &message);
+            IRegionPolicy() {}
+            virtual ~IRegionPolicy() {}
+            virtual void update(int domain_idx, double target) = 0;
+            virtual void update(const std::vector<double> &target) = 0;
+            virtual void target(std::vector<double> &target) = 0;
+            virtual void target(int domain_idx, double &target) = 0;
+            virtual void target_updated(std::map<int, double> &target) = 0; // map from domain index to updated target value
+            virtual void target_valid(std::map<int, double> &target) = 0;
+            virtual void policy_message(const struct geopm_policy_message_s &parent_msg,
+                                std::vector<struct geopm_policy_message_s> &message) = 0;
             /// @brief Set the convergence state.
             /// Called by the decision algorithm when it has determined
             /// whether or not the power policy enforcement has converged
             /// to an acceptance state.
-            void is_converged(bool converged_state);
+            virtual void is_converged(bool converged_state) = 0;
             /// @brief Have we converged for this region.
             /// Set by he decision algorithm when it has determined
             /// that the power policy enforcement has converged to an
             /// acceptance state.
             /// @return true if converged else false.
-            bool is_converged(void);
+            virtual bool is_converged(void) = 0;
+    };
+
+    class RegionPolicy : public IRegionPolicy
+    {
+        public:
+            RegionPolicy(int num_domain);
+            virtual ~RegionPolicy();
+            virtual void update(int domain_idx, double target);
+            virtual void update(const std::vector<double> &target);
+            virtual void target(std::vector<double> &target);
+            virtual void target(int domain_idx, double &target);
+            virtual void target_updated(std::map<int, double> &target); // map from domain index to updated target value
+            virtual void target_valid(std::map<int, double> &target);
+            virtual void policy_message(const struct geopm_policy_message_s &parent_msg,
+                                std::vector<struct geopm_policy_message_s> &message);
+            virtual void is_converged(bool converged_state);
+            virtual bool is_converged(void);
         protected:
             const double m_invalid_target;
             const int m_num_domain;
@@ -74,9 +91,10 @@ namespace geopm
     };
 
     Policy::Policy(int num_domain)
-        : m_policy_flags(0)
+        : m_policy_flags(NULL)
         , m_num_domain(num_domain)
     {
+        m_policy_flags = new PolicyFlags(0);
         //Add the default unmarked region
         (void) region_policy(GEOPM_REGION_ID_EPOCH);
     }
@@ -86,6 +104,7 @@ namespace geopm
         for (auto it = m_region_policy.begin(); it != m_region_policy.end(); ++it) {
             delete (*it).second;
         }
+        delete m_policy_flags;
     }
 
     int Policy::num_domain(void)
@@ -93,13 +112,13 @@ namespace geopm
         return m_num_domain;
     }
 
-    RegionPolicy *Policy::region_policy(uint64_t region_id)
+    IRegionPolicy *Policy::region_policy(uint64_t region_id)
     {
-        RegionPolicy *result = NULL;
+        IRegionPolicy *result = NULL;
         auto result_it = m_region_policy.find(region_id);
         if (result_it == m_region_policy.end()) {
             result = new RegionPolicy(m_num_domain);
-            m_region_policy.insert(std::pair<uint64_t, RegionPolicy *>(region_id, result));
+            m_region_policy.insert(std::pair<uint64_t, IRegionPolicy *>(region_id, result));
             // Give the new region the global power targets
             std::vector<double> budget(m_num_domain);
             target(GEOPM_REGION_ID_EPOCH, budget);
@@ -137,7 +156,7 @@ namespace geopm
 
     void Policy::policy_flags(unsigned long flags)
     {
-        m_policy_flags.flags(flags);
+        m_policy_flags->flags(flags);
     }
 
     void Policy::target_updated(uint64_t region_id, std::map <int, double> &target)
@@ -162,27 +181,27 @@ namespace geopm
 
     int Policy::frequency_mhz(void) const
     {
-        return m_policy_flags.frequency_mhz();;
+        return m_policy_flags->frequency_mhz();;
     }
 
     int Policy::tdp_percent(void) const
     {
-        return m_policy_flags.tdp_percent();
+        return m_policy_flags->tdp_percent();
     }
 
     int Policy::affinity(void) const
     {
-        return m_policy_flags.affinity();;
+        return m_policy_flags->affinity();;
     }
 
     int Policy::goal(void) const
     {
-        return m_policy_flags.goal();
+        return m_policy_flags->goal();
     }
 
     int Policy::num_max_perf(void) const
     {
-        return m_policy_flags.num_max_perf();
+        return m_policy_flags->num_max_perf();
     }
 
     void Policy::target_valid(uint64_t region_id, std::map<int, double> &target)

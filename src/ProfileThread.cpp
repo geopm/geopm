@@ -94,7 +94,7 @@ namespace geopm
         free(m_progress);
     }
 
-    void ProfileThread::increment(Profile &prof, uint64_t region_id, int thread_idx)
+    void ProfileThread::increment(IProfile &prof, uint64_t region_id, int thread_idx)
     {
         ++m_progress[m_stride * thread_idx];
         if (!thread_idx) {

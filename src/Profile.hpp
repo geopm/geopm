@@ -116,12 +116,12 @@ namespace geopm
     /// for use with the geopm_prof_c structure and are named
     /// accordingly.  The geopm_prof_c structure is an opaque
     /// reference to the Profile class.
-    class ProfileBase
+    class IProfile
     {
         public:
-            ProfileBase() {}
-            ProfileBase(const ProfileBase &other) {}
-            virtual ~ProfileBase() {}
+            IProfile() {}
+            IProfile(const IProfile &other) {}
+            virtual ~IProfile() {}
             /// @brief Register a region of code to be profiled.
             ///
             /// The statistics gathered for each region are aggregated
@@ -210,12 +210,12 @@ namespace geopm
             virtual void shutdown(void) = 0;
     };
 
-    class ProfileRankSamplerBase
+    class IProfileRankSampler
     {
         public:
-            ProfileRankSamplerBase() {}
-            ProfileRankSamplerBase(const ProfileRankSamplerBase &other) {}
-            virtual ~ProfileRankSamplerBase() {}
+            IProfileRankSampler() {}
+            IProfileRankSampler(const IProfileRankSampler &other) {}
+            virtual ~IProfileRankSampler() {}
             virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) = 0;
             virtual size_t capacity(void) = 0;
             virtual bool name_fill(std::set<std::string> &name_set) = 0;
@@ -223,12 +223,12 @@ namespace geopm
             virtual void profile_name(std::string &prof_str) = 0;
     };
 
-    class ProfileSamplerBase
+    class IProfileSampler
     {
         public:
-            ProfileSamplerBase() {}
-            ProfileSamplerBase(const ProfileSamplerBase &other) {}
-            virtual ~ProfileSamplerBase() {}
+            IProfileSampler() {}
+            IProfileSampler(const IProfileSampler &other) {}
+            virtual ~IProfileSampler() {}
             virtual size_t capacity(void) = 0;
             virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) = 0;
             virtual bool do_shutdown(void) = 0;
@@ -242,7 +242,7 @@ namespace geopm
     };
 
 
-    class Profile : public ProfileBase
+    class Profile : public IProfile
     {
         public:
             /// @brief Profile constructor.
@@ -335,18 +335,18 @@ namespace geopm
             void *m_table_buffer;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
-            SharedMemoryUser *m_ctl_shmem;
+            ISharedMemoryUser *m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
             struct geopm_ctl_message_s *m_ctl_msg;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
-            SharedMemoryUser *m_table_shmem;
+            ISharedMemoryUser *m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            ProfileTable *m_table;
-            SampleScheduler m_scheduler;
+            IProfileTable *m_table;
+            ISampleScheduler *m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;
@@ -373,7 +373,7 @@ namespace geopm
     /// The ProfileRankSampler is the runtime side interface to the shared
     /// memory region for a single rank of the application. It can retrieve
     /// samples from the shared hash table for that rank.
-    class ProfileRankSampler : public ProfileRankSamplerBase
+    class ProfileRankSampler : public IProfileRankSampler
     {
         public:
             /// @brief ProfileRankSampler constructor.
@@ -426,9 +426,9 @@ namespace geopm
         protected:
             /// Holds the shared memory region used for sampling from the
             /// application process.
-            SharedMemory m_table_shmem;
+            ISharedMemory *m_table_shmem;
             /// The hash table which stores application process samples.
-            ProfileTable m_table;
+            IProfileTable *m_table;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
@@ -451,7 +451,7 @@ namespace geopm
     /// on a single compute node. It is also the interface to the shared
     /// memory region used to coordinate between the geopm runtime and
     /// the MPI application.
-    class ProfileSampler : public ProfileSamplerBase
+    class ProfileSampler : public IProfileSampler
     {
         public:
             /// @brief ProfileSampler constructor.
@@ -525,13 +525,13 @@ namespace geopm
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
-            SharedMemory *m_ctl_shmem;
+            ISharedMemory *m_ctl_shmem;
             /// Pointer to the control structure used for application coordination
             /// and control.
             struct geopm_ctl_message_s *m_ctl_msg;
             /// List of per-rank samplers for each MPI application rank running
             /// on the local compute node.
-            std::forward_list<ProfileRankSampler *> m_rank_sampler;
+            std::forward_list<IProfileRankSampler *> m_rank_sampler;
             /// Size of the hash tables to create for each MPI application rank
             /// running on the local compute node..
             const size_t m_table_size;

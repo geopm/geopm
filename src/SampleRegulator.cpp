@@ -52,14 +52,16 @@ namespace geopm
             ++i;
         }
         for (int i = 0; i < m_num_rank; ++i) {
-            m_rank_sample_prev.emplace_back(M_INTERP_TYPE_LINEAR); // two samples are required for linear interpolation
+            m_rank_sample_prev.emplace_back(new CircularBuffer<struct m_rank_sample_s>(M_INTERP_TYPE_LINEAR)); // two samples are required for linear interpolation
         }
         m_region_id.resize(m_num_rank, GEOPM_REGION_ID_UNMARKED);
     }
 
     SampleRegulator::~SampleRegulator()
     {
-
+        for (int i = 0; i < m_num_rank; ++i) {
+            m_rank_sample_prev.pop_back();
+        }
     }
 
     void SampleRegulator::operator () (const struct geopm_time_s &platform_sample_time,
@@ -103,7 +105,7 @@ namespace geopm
                     // segfault with bad profile sample data
                     size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second;
                     if ((*it).second.region_id != m_region_id[rank_idx]) {
-                        m_rank_sample_prev[rank_idx].clear();
+                        m_rank_sample_prev[rank_idx]->clear();
                     }
                     if (rank_sample.progress == 1.0) {
                         m_region_id[rank_idx] = GEOPM_REGION_ID_UNMARKED;
@@ -111,7 +113,7 @@ namespace geopm
                     else {
                         m_region_id[rank_idx] = (*it).second.region_id;
                     }
-                    m_rank_sample_prev[rank_idx].insert(rank_sample);
+                    m_rank_sample_prev[rank_idx]->insert(rank_sample);
                 }
             }
         }
@@ -138,7 +140,7 @@ namespace geopm
         geopm_time_s timestamp_prev[2];
         m_aligned_time = timestamp;
         for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
-            switch((*it).size()) {
+            switch((*it)->size()) {
                 case M_INTERP_TYPE_NONE:
                     // if there is no data, set progress to zero and mark invalid by setting runtime to -1
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = 0.0;
@@ -146,31 +148,31 @@ namespace geopm
                     break;
                 case M_INTERP_TYPE_NEAREST:
                     // if there is only one sample insert it directly
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = (*it).value(0).progress;
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = (*it).value(0).runtime; /// @todo runtime is not set by application, this is uninitialized memory
+                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = (*it)->value(0).progress;
+                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = (*it)->value(0).runtime; /// @todo runtime is not set by application, this is uninitialized memory
                     break;
                 case M_INTERP_TYPE_LINEAR:
                     // if there are two samples, extrapolate to the given timestamp
-                    timestamp_prev[0] = (*it).value(0).timestamp;
-                    timestamp_prev[1] = (*it).value(1).timestamp;
+                    timestamp_prev[0] = (*it)->value(0).timestamp;
+                    timestamp_prev[1] = (*it)->value(1).timestamp;
                     delta = geopm_time_diff(timestamp_prev + 1, &timestamp);
                     factor = 1.0 / geopm_time_diff(timestamp_prev, timestamp_prev + 1);
-                    dsdt = ((*it).value(1).progress - (*it).value(0).progress) * factor;
+                    dsdt = ((*it)->value(1).progress - (*it)->value(0).progress) * factor;
                     dsdt = dsdt > 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
-                    if ((*it).value(1).progress == 1.0) {
+                    if ((*it)->value(1).progress == 1.0) {
                         progress = 1.0;
                     }
-                    else if ((*it).value(0).progress == 0.0) {
+                    else if ((*it)->value(0).progress == 0.0) {
                         progress = 0.0;
                     }
                     else {
-                        progress = (*it).value(1).progress + dsdt * delta;
+                        progress = (*it)->value(1).progress + dsdt * delta;
                         progress = progress >= 0.0 ? progress : 1e-9;
                         progress = progress <= 1.0 ? progress : 1 - 1e-9;
                     }
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
-                    dsdt = ((*it).value(1).runtime - (*it).value(0).runtime) * factor;
-                    runtime = (*it).value(1).runtime + dsdt * delta; /// @todo runtime is not set by application, this is uninitialized memory
+                    dsdt = ((*it)->value(1).runtime - (*it)->value(0).runtime) * factor;
+                    runtime = (*it)->value(1).runtime + dsdt * delta; /// @todo runtime is not set by application, this is uninitialized memory
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = runtime;
                     break;
                 default:
