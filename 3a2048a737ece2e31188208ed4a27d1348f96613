@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dfa601d_796b0936",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-18T18:19:57Z",
+      "side": 1,
+      "message": "Default to none.",
+      "range": {
+        "startLine": 184,
+        "startChar": 77,
+        "endLine": 184,
+        "endChar": 91
+      },
+      "revId": "3a2048a737ece2e31188208ed4a27d1348f96613",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb971a29_e0213687",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-18T18:19:57Z",
+      "side": 1,
+      "message": "Call diff_df from this func?\n\nMove this all to geopm_io.py, Tracer()?",
+      "range": {
+        "startLine": 259,
+        "startChar": 8,
+        "endLine": 259,
+        "endChar": 21
+      },
+      "revId": "3a2048a737ece2e31188208ed4a27d1348f96613",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "841419b8_418a8f8d",
+        "filename": "scripts/geopm_plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-18T18:19:57Z",
+      "side": 1,
+      "message": "If base_clock is none, make this all % of sticker.",
+      "range": {
+        "startLine": 832,
+        "startChar": 59,
+        "endLine": 832,
+        "endChar": 76
+      },
+      "revId": "3a2048a737ece2e31188208ed4a27d1348f96613",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
