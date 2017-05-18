@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "939114c1_9645cd63",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-18T18:25:34Z",
+      "side": 1,
+      "message": "Move m_tracer down into the connect() call, after m_sampler is initialized.  Preserve the old logic.",
+      "range": {
+        "startLine": 368,
+        "startChar": 12,
+        "endLine": 368,
+        "endChar": 53
+      },
+      "revId": "9c8ad3f05b55cc3a06f2bf2280c3d6a30c5ba7f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
