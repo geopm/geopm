@@ -103,6 +103,11 @@ namespace geopm
             }
 #endif
             update_domain_sample(*it, domain_idx);
+            // If we exited, we need to insert runtime in to the region's buffer
+            if (m_entry_telemetry[domain_idx].region_id != GEOPM_REGION_ID_UNDEFINED &&
+                is_telemetry_exit((*it), domain_idx)) {
+                (*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = m_domain_sample[domain_idx].signal[GEOPM_SAMPLE_TYPE_RUNTIME];
+            }
             update_signal_matrix((*it).signal, domain_idx);
             update_valid_entries(*it, domain_idx);
             update_stats((*it).signal, domain_idx);
