@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,32 +31,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# If the VERSION file does not exist, then create it based on git
-# describe or if not in a git repo just set VERSION to 0.0.0.
-if [ ! -f VERSION ]; then
-    if git describe --long > /dev/null; then
-        sha=$(git describe --long | awk -F- '{print $(NF)}')
-        release=$(git describe --long | awk -F- '{print $(NF-1)}')
-        version=$(git describe --long | sed -e "s|\(.*\)-$release-$sha|\1|" -e "s|-|+|g" -e "s|^v||")
-        if [ "${release}" != "0" ]; then
-            version=${version}+dev${release}${sha}
-        fi
-    else
-        echo "WARNING:  VERSION file does not exist and git describe failed, setting verison to 0.0.0" 2>&1
-        version=0.0.0
-    fi
-    echo $version > VERSION
-    echo "__version__ = '$version'" > scripts/geopm/version.py
-fi
+"""
+The geopm python package with four modules: launcher, io plotter and version.
+"""
+__all__ = ['launcher', 'io', 'plotter', 'version']
 
-if [ ! -f MANIFEST ]; then
-    if [ -f .git/config ]; then
-        git ls-tree --full-tree -r HEAD | awk '{print $4}' | sort > MANIFEST
-    else
-        echo "WARNING: MANIFEST file does not exist and working directory is not a git repository, creating with find" 2>&1
-        find . -type f | sed 's|^\./||' | sort > MANIFEST
-    fi
-fi
+from geopm.version import __version__
 
-mkdir -p m4
-autoreconf -i -f
+from geopm import launcher
+try:
+    from geopm import io
+    from geopm import plotter
+except ImportError:
+    import sys
+    sys.stderr.write("Warning: The geopm python module is unable to import geopm.io or geopm.plotter\n.")

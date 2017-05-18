@@ -42,6 +42,7 @@ ronn/geopm_launcher.1.ronn
 ronn/geopmplotter.1.ronn
 ronn/header.txt
 ronn/index.txt
+scripts/MANIFEST.in
 test/default_policy.json
 test/invalid_policy.json
 test_integration/README.md

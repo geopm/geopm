@@ -145,13 +145,13 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
-            --disable-fortran --disable-doc --enable-ompt
+            --disable-fortran --disable-doc
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
-            --disable-fortran --disable-doc --enable-ompt
+            --disable-fortran --disable-doc
 %endif
 
 %{__make}
@@ -204,15 +204,27 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_libdir}/geopm/libgeopmpi_balancing.so
 %dir %{_libexecdir}/geopm
 %dir %{_libexecdir}/geopm/geopm
-%dir %{_libexecdir}/geopm/openmp
-%{_libexecdir}/geopm/geopm/geopm_launcher.py
-%exclude %{_libexecdir}/geopm/geopm/geopm_launcher.pyc
-%exclude %{_libexecdir}/geopm/geopm/geopm_launcher.pyo
-%{_libexecdir}/geopm/geopm/geopm_plotter.py
-%exclude %{_libexecdir}/geopm/geopm/geopm_plotter.pyc
-%exclude %{_libexecdir}/geopm/geopm/geopm_plotter.pyo
-%{_libexecdir}/geopm/openmp/lib/libiomp5.so
-%{_libexecdir}/geopm/openmp/lib/libomp.so
+%{_libexecdir}/geopm/geopm/launcher.py
+%exclude %{_libexecdir}/geopm/geopm/launcher.pyc
+%exclude %{_libexecdir}/geopm/geopm/launcher.pyo
+%{_libexecdir}/geopm/geopm/plotter.py
+%exclude %{_libexecdir}/geopm/geopm/plotter.pyc
+%exclude %{_libexecdir}/geopm/geopm/plotter.pyo
+%{_libexecdir}/geopm/geopm/io.py
+%exclude %{_libexecdir}/geopm/geopm/io.pyc
+%exclude %{_libexecdir}/geopm/geopm/io.pyo
+%{_libexecdir}/geopm/geopm/__init__.py
+%exclude %{_libexecdir}/geopm/geopm/__init__.pyc
+%exclude %{_libexecdir}/geopm/geopm/__init__.pyo
+%{_libexecdir}/geopm/setup.py
+%exclude %{_libexecdir}/geopm/setup.pyc
+%exclude %{_libexecdir}/geopm/setup.pyo
+%{_libexecdir}/geopm/MANIFEST.in
+%{_libexecdir}/geopm/README
+%{_libexecdir}/geopm/COPYING
+%{_libexecdir}/geopm/geopmsrun
+%{_libexecdir}/geopm/geopmaprun
+%{_libexecdir}/geopm/geopmplotter
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
 %{_bindir}/geopmsrun
