@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21f59a5a_999a8e03",
+        "filename": "configure.ac",
+        "patchSetId": 6
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T19:18:36Z",
+      "side": 1,
+      "message": "add message or error condition if opmt is requested but header can\u0027t be found.",
+      "revId": "11e2d3a9c3aebe0071d073e4a861ca541bf9312b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92f7720e_186169ca",
+        "filename": "src/OMPT.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T19:18:36Z",
+      "side": 1,
+      "message": "Put in OMPT.hpp header that just got deleted?",
+      "revId": "11e2d3a9c3aebe0071d073e4a861ca541bf9312b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3ea65ea_d884615e",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T19:18:36Z",
+      "side": 1,
+      "message": "use .lower() method",
+      "revId": "11e2d3a9c3aebe0071d073e4a861ca541bf9312b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
