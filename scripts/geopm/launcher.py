@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #  Copyright (c) 2015, 2016, 2017, Intel Corporation
 #
@@ -1002,6 +1001,3 @@ def main():
         err = -1
     return err
 
-if __name__ == '__main__':
-    err = main()
-    sys.exit(err)
