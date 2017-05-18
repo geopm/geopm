@@ -44,11 +44,11 @@ namespace geopm
 {
     /// @brief This class encapsulates all recorded data for a
     ///        specific application execution region.
-    class RegionBase
+    class IRegion
     {
         public:
-            RegionBase() {}
-            virtual ~RegionBase() {}
+            IRegion() {}
+            virtual ~IRegion() {}
             /// @brief Record an entry into the region.
             virtual void entry(void) = 0;
             /// @brief Return the number of entries into the region.
@@ -219,7 +219,7 @@ namespace geopm
             virtual void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const = 0;
     };
 
-    class Region : public RegionBase
+    class Region : public IRegion
     {
         public:
             enum m_const_e {
@@ -299,9 +299,9 @@ namespace geopm
             /// @brief Holder for sample data calculated after a domain exits a region.
             std::vector<struct geopm_sample_message_s> m_domain_sample;
             /// @brief Circular buffer is over time, vector is indexed over both domains and signals.
-            CircularBuffer<std::vector<double> > m_domain_buffer;
+            ICircularBuffer<std::vector<double> > *m_domain_buffer;
             /// @brief time stamp for each entry in the m_domain_buffer.
-            CircularBuffer<struct geopm_time_s> m_time_buffer;
+            ICircularBuffer<struct geopm_time_s> *m_time_buffer;
             /// @brief the number of valid samples per domain and signal type.
             std::vector<int> m_valid_entries;
             /// @brief the current minimum signal value per domain and signal type.

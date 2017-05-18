@@ -44,17 +44,17 @@
 namespace geopm
 {
     /// @brief Abstract base class for the Tracer object defines the interface.
-    class TracerBase
+    class ITracer
     {
         public:
-            TracerBase() {}
-            virtual ~TracerBase() {}
+            ITracer() {}
+            virtual ~ITracer() {}
             virtual void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) = 0;
             virtual void update(const struct geopm_policy_message_s &policy) = 0;
     };
 
     /// @brief Class used to write a trace of the telemetry and policy.
-    class Tracer : public TracerBase
+    class Tracer : public ITracer
     {
         public:
             /// @brief Tracer constructor.

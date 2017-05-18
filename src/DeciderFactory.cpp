@@ -44,7 +44,7 @@
 #include "config.h"
 
 
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::Decider *decider, void *dl_ptr)
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr)
 {
     geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
     if (fact_obj == NULL) {
@@ -63,7 +63,7 @@ namespace geopm
         register_decider(new StaticPolicyDecider(), NULL);
     }
 
-    DeciderFactory::DeciderFactory(Decider *decider)
+    DeciderFactory::DeciderFactory(IDecider *decider)
     {
         register_decider(decider, NULL);
     }
@@ -79,9 +79,9 @@ namespace geopm
         }
     }
 
-    Decider* DeciderFactory::decider(const std::string &description)
+    IDecider* DeciderFactory::decider(const std::string &description)
     {
-        Decider *result = NULL;
+        IDecider *result = NULL;
         for (auto it = m_decider_list.begin(); it != m_decider_list.end(); ++it) {
             if (*it != NULL &&
                 (*it)->decider_supported(description)) {
@@ -99,7 +99,7 @@ namespace geopm
         return result;
     }
 
-    void DeciderFactory::register_decider(Decider *decider, void *dl_ptr)
+    void DeciderFactory::register_decider(IDecider *decider, void *dl_ptr)
     {
         m_decider_list.push_back(decider);
         if (dl_ptr) {

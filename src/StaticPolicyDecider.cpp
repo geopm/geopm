@@ -53,9 +53,9 @@ namespace geopm
 
     }
 
-    Decider *StaticPolicyDecider::clone(void) const
+    IDecider *StaticPolicyDecider::clone(void) const
     {
-        return (Decider*)(new StaticPolicyDecider(*this));
+        return (new StaticPolicyDecider(*this));
     }
 
     bool StaticPolicyDecider::decider_supported(const std::string &description)
@@ -68,7 +68,7 @@ namespace geopm
         return m_name;
     }
 
-    bool StaticPolicyDecider::update_policy(Region &curr_region, Policy &curr_policy)
+    bool StaticPolicyDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
         return false;
     }
