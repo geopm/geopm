@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01bf65c4_3411fa58",
+        "filename": "copying_headers/MANIFEST.BSD3-intel",
+        "patchSetId": 9
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T17:55:25Z",
+      "side": 1,
+      "message": "fortran_test.sh -\u003e geopm_fortran_test.sh",
+      "revId": "e41badb3ea3090e4d952553dbf6d913d2d6d2475",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4913dc79_e1321d4f",
+        "filename": "src/geopm_pmpi_fortran.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T17:55:25Z",
+      "side": 1,
+      "message": "put these definitions in a geopm_pmpi.h header along with the macro.",
+      "revId": "e41badb3ea3090e4d952553dbf6d913d2d6d2475",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c90c314f_2b147cd9",
+        "filename": "src/geopm_pmpi_fortran.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T17:55:25Z",
+      "side": 1,
+      "message": "Call this by the MPI_Allgather() and make the function static.  Then add an extra extern function pointer.",
+      "revId": "e41badb3ea3090e4d952553dbf6d913d2d6d2475",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8457b5a_e1d4d08f",
+        "filename": "test/fortran/Makefile.mk",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-18T17:55:25Z",
+      "side": 1,
+      "message": "get rid of tabs",
+      "revId": "e41badb3ea3090e4d952553dbf6d913d2d6d2475",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
