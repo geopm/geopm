@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0db6f5b_fd83c685",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-19T16:50:50Z",
+      "side": 1,
+      "message": "You forgot to add this to the patch.",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "0ec6b1214aeda9a4c51acd4ea9697d4c86eea5ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6edc32d9_630fe7b2",
+        "filename": "src/geopm_pmpi_fortran.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-19T16:50:50Z",
+      "side": 1,
+      "message": "Not in current patch set.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 23
+      },
+      "revId": "0ec6b1214aeda9a4c51acd4ea9697d4c86eea5ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
