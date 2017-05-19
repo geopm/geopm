@@ -250,14 +250,6 @@ class Config(object):
         configuration object.
         """
         result = {'LD_DYNAMIC_WEAK':'true'}
-        libdir = os.path.join(
-                 os.path.dirname(
-                 os.path.dirname(
-                 os.path.realpath(__file__))), 'openmp/lib')
-        if os.path.exists(libdir):
-            result['LD_LIBRARY_PATH'] = ':'.join((ll for ll in
-                                        (libdir, os.getenv('LD_LIBRARY_PATH'))
-                                        if ll is not None))
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
         if self.profile:
