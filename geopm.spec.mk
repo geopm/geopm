@@ -68,6 +68,7 @@ BuildRequires: json-c-devel
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif
+BuildRequires: python-devel
 
 Prefix: %{_prefix}
 
@@ -107,6 +108,7 @@ features of libgeopmpolicy are available through the geopmpolicy application
 including support for static control.
 
 %prep
+%autosetup -n geopm-%{version}
 
 %setup
 
@@ -116,26 +118,16 @@ Group: Development/Libraries
 Requires: geopm
 
 %description devel
+Development package for GEOPM.
 
-Development package for GEOPM.  Global Extensible Open Power Manager is
-a hierarchical control system for optimizing power policy in a
-power-constrained MPI job to increase performance.  It is designed to
-coordinate power policy and performance across all of the compute nodes
-hosting one MPI job on a portion of a distributed computing system.  The root
-of the control hierarchy tree can communicate through shared memory with the
-system resource management daemon to extend the hierarchy above the individual
-MPI job level and enable management of system power resources for multiple MPI
-jobs and multiple users by the system resource manager.  The geopm package
-provides the libgeopm library the libgeopmpolicy library and the geopmctl
-application.  The libgeopm library can be called within MPI applications to
-enable application feedback for informing the control decisions.  If
-modification of the target application is not desired then the geopmctl
-application can be run concurrently with the target application.  In this
-case, target application feedback is inferred by querying the hardware through
-Model Specific Registers (MSRs).  With either method (libgeopm or geopmctl),
-the control hierarchy tree writes processor power policy through MSRs to enact
-policy decisions.  The libgeopmpolicy library is used by a resource manager to
-set energy policy control parameters for MPI jobs.
+%package -n python-geopm
+Summary: Global Extensible Open Power Manager - python
+Group: System Environment/Libraries
+Requires: geopm
+%{?python_provide:%python_provide python-geopm}
+
+%description -n python-geopm
+Python package for GEOPM.
 
 %build
 test -f configure || ./autogen.sh
@@ -202,44 +194,14 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_libdir}/geopm/libgeopmpi_balancing.so.0.0.0
 %{_libdir}/geopm/libgeopmpi_balancing.so.0
 %{_libdir}/geopm/libgeopmpi_balancing.so
-%dir %{_libexecdir}/geopm
-%dir %{_libexecdir}/geopm/geopm
-%{_libexecdir}/geopm/geopm/launcher.py
-%exclude %{_libexecdir}/geopm/geopm/launcher.pyc
-%exclude %{_libexecdir}/geopm/geopm/launcher.pyo
-%{_libexecdir}/geopm/geopm/plotter.py
-%exclude %{_libexecdir}/geopm/geopm/plotter.pyc
-%exclude %{_libexecdir}/geopm/geopm/plotter.pyo
-%{_libexecdir}/geopm/geopm/io.py
-%exclude %{_libexecdir}/geopm/geopm/io.pyc
-%exclude %{_libexecdir}/geopm/geopm/io.pyo
-%{_libexecdir}/geopm/geopm/__init__.py
-%exclude %{_libexecdir}/geopm/geopm/__init__.pyc
-%exclude %{_libexecdir}/geopm/geopm/__init__.pyo
-%{_libexecdir}/geopm/setup.py
-%exclude %{_libexecdir}/geopm/setup.pyc
-%exclude %{_libexecdir}/geopm/setup.pyo
-%{_libexecdir}/geopm/MANIFEST.in
-%{_libexecdir}/geopm/README
-%{_libexecdir}/geopm/COPYING
-%{_libexecdir}/geopm/geopmsrun
-%{_libexecdir}/geopm/geopmaprun
-%{_libexecdir}/geopm/geopmplotter
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
-%{_bindir}/geopmsrun
-%{_bindir}/geopmaprun
-%{_bindir}/geopmplotter
 %dir %{docdir}
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
 %doc %{docdir}/VERSION
 %doc %{_mandir}/man1/geopmctl.1.gz
 %doc %{_mandir}/man1/geopmpolicy.1.gz
-%doc %{_mandir}/man1/geopm_launcher.1.gz
-%doc %{_mandir}/man1/geopmplotter.1.gz
-%doc %{_mandir}/man1/geopmaprun.1.gz
-%doc %{_mandir}/man1/geopmsrun.1.gz
 %doc %{_mandir}/man3/geopm_ctl_c.3.gz
 %doc %{_mandir}/man3/geopm_error.3.gz
 %doc %{_mandir}/man3/geopm_fortran.3.gz
@@ -258,6 +220,18 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_includedir}/geopm_message.h
 %{_includedir}/geopm_version.h
 %{_includedir}/geopm_plugin.h
+
+%files -n python-geopm
+%license COPYING
+%doc README
+%{python_sitelib}/*
+%{_bindir}/geopmsrun
+%{_bindir}/geopmaprun
+%{_bindir}/geopmplotter
+%doc %{_mandir}/man1/geopm_launcher.1.gz
+%doc %{_mandir}/man1/geopmsrun.1.gz
+%doc %{_mandir}/man1/geopmplotter.1.gz
+%doc %{_mandir}/man1/geopmaprun.1.gz
 
 %changelog
 endef
