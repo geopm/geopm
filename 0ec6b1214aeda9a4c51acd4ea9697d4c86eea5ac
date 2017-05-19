@@ -45,6 +45,23 @@
       "revId": "0ec6b1214aeda9a4c51acd4ea9697d4c86eea5ac",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ee21a17_b990a96f",
+        "filename": "src/geopm_pmpi_fortran.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-19T18:15:27Z",
+      "side": 1,
+      "message": "Name this guy FMPI_Allgather, then you can use FUNC + 1 for the name in the macro (no need for strncpy in macro).",
+      "revId": "0ec6b1214aeda9a4c51acd4ea9697d4c86eea5ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
