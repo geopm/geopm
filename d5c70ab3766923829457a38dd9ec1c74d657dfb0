@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd91c515_46cae440",
+        "filename": "src/OMPT.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-19T23:35:53Z",
+      "side": 1,
+      "message": "This is just a paranoia check right?  You\u0027re only replacing the handler for SIGCHLD, so this should never be anything but that.\n\nBut if it is different, is there anything you can do about it?",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 29
+      },
+      "revId": "d5c70ab3766923829457a38dd9ec1c74d657dfb0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e364964e_1607af3f",
+        "filename": "src/OMPT.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-19T23:35:53Z",
+      "side": 1,
+      "message": "@brief?",
+      "revId": "d5c70ab3766923829457a38dd9ec1c74d657dfb0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
