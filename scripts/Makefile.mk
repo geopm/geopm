@@ -47,19 +47,4 @@ EXTRA_DIST += scripts/geopm/launcher.py \
               # end
 
 install-python:
-	$(INSTALL) -d $(DESTDIR)$(libexecdir)/geopm/geopm
-	$(INSTALL) -m 644 scripts/geopm/launcher.py $(DESTDIR)$(libexecdir)/geopm/geopm
-	$(INSTALL) -m 644 scripts/geopm/plotter.py $(DESTDIR)$(libexecdir)/geopm/geopm
-	$(INSTALL) -m 644 scripts/geopm/io.py $(DESTDIR)$(libexecdir)/geopm/geopm
-	$(INSTALL) -m 644 scripts/geopm/version.py $(DESTDIR)$(libexecdir)/geopm/geopm
-	$(INSTALL) -m 644 scripts/geopm/__init__.py $(DESTDIR)$(libexecdir)/geopm/geopm
-	$(INSTALL) scripts/setup.py $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) scripts/geopmsrun $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) scripts/geopmaprun $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) scripts/geopmplotter $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) -m 644 scripts/MANIFEST.in $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) -m 644 README $(DESTDIR)$(libexecdir)/geopm
-	$(INSTALL) -m 644 COPYING $(DESTDIR)$(libexecdir)/geopm
-	ln -sf $(libexecdir)/geopm/geopmsrun $(DESTDIR)$(bindir)/geopmsrun
-	ln -sf $(libexecdir)/geopm/geopmaprun $(DESTDIR)$(bindir)/geopmaprun
-	ln -sf $(libexecdir)/geopm/geopmplotter $(DESTDIR)$(bindir)/geopmplotter
+	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
