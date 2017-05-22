@@ -121,13 +121,13 @@ Requires: geopm
 %description devel
 Development package for GEOPM.
 
-%package -n python-geopm
+%package -n python-geopmpy
 Summary: Global Extensible Open Power Manager - python
 Group: System Environment/Libraries
 Requires: geopm
-%{?python_provide:%python_provide python-geopm}
+%{?python_provide:%python_provide python-geopmpy}
 
-%description -n python-geopm
+%description -n python-geopmpy
 Python package for GEOPM.
 
 %build
@@ -227,9 +227,7 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %doc %{_mandir}/man1/geopmplotter.1.gz
 %doc %{_mandir}/man1/geopmaprun.1.gz
 
-%files -n python-geopm
-%license COPYING
-%doc README
+%files -n python-geopmpy
 %{python_sitelib}/*
 %{_bindir}/geopmsrun
 %{_bindir}/geopmaprun
