@@ -90,5 +90,6 @@ setup(name='geopmpy',
       author_email='christopher.m.cantalupo@intel.com',
       packages=['geopmpy'],
       scripts=scripts,
+      test_suite='test',
       classifiers=classifiers,
       install_requires=install_requires)

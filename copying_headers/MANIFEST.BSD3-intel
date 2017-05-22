@@ -41,6 +41,9 @@ scripts/geopmaprun
 scripts/geopmplotter
 scripts/setup.py
 scripts/Makefile.mk
+scripts/test/__init__.py
+scripts/test/test_launcher.py
+scripts/test/test_path.py
 src/CircularBuffer.hpp
 src/Comm.hpp
 src/Controller.cpp
@@ -160,7 +163,6 @@ test/EnvironmentTest.cpp
 test/fortran/Makefile.mk
 test/fortran/geopm_fortran_test.sh
 test_integration/Makefile.mk
-test_integration/geopm_launcher_test.py
 test_integration/geopm_test_integration.py
 test_integration/geopm_test_launcher.py
 test_integration/geopm_test_path.py
