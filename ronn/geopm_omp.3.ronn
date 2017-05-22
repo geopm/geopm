@@ -74,7 +74,6 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopmplotter(1)**,
 **geopmctl(1)**,
 **geopmpolicy(1)**,
-**geopmkey(1)**,
 **CPU_SET(3)**,
 **pthread_setaffinity_np(3)**,
 **pthread_attr_setaffinity_np(3)**

@@ -37,7 +37,6 @@ ronn/geopm_policy_c.3.ronn
 ronn/geopm_prof_c.3.ronn
 ronn/geopm_version.3.ronn
 ronn/geopmctl.1.ronn
-ronn/geopmkey.1.ronn
 ronn/geopmpolicy.1.ronn
 ronn/geopm_launcher.1.ronn
 ronn/geopmplotter.1.ronn
