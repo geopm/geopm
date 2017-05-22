@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 
-enum geomp_error_e {
+enum geopm_error_e {
     GEOPM_ERROR_RUNTIME = -1,
     GEOPM_ERROR_LOGIC = -2,
     GEOPM_ERROR_INVALID = -3,
