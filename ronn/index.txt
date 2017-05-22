@@ -31,7 +31,6 @@
 
 #geopm pages
 geopm(7)            geopm.7
-geopmkey(1)         geopmkey.1
 geopm_ctl_c(3)      geopm_ctl_c.3
 geopm_error(3)      geopm_error.3
 geopm_fortran(3)    geopm_fortran.3

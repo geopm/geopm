@@ -136,4 +136,3 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopmplotter(1)**,
 **geopmctl(1)**,
 **geopmpolicy(1)**
-**geopmkey(1)**,
