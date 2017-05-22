@@ -45,7 +45,7 @@ if [ ! -f VERSION ]; then
         version=0.0.0
     fi
     echo $version > VERSION
-    echo "__version__ = '$version'" > scripts/geopm/version.py
+    echo "__version__ = '$version'" > scripts/geopmpy/version.py
 fi
 
 if [ ! -f MANIFEST ]; then

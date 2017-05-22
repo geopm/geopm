@@ -52,8 +52,8 @@ import matplotlib.patheffects as pe
 from natsort import natsorted
 from cycler import cycler
 
-from geopm import __version__
-import geopm.io
+from geopmpy import __version__
+import geopmpy.io
 
 class Config(object):
     """The base class for plot configuration objects.
@@ -863,7 +863,7 @@ def main(argv):
     else:
         trace_glob = None
 
-    app_output = geopm.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+    app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
 
     if args.profile_name:
         profile_name = args.profile_name

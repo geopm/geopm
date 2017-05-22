@@ -32,8 +32,8 @@
 #
 
 import sys
-import geopm.launcher
+import geopmpy.launcher
 
 if __name__ == '__main__':
-    err = geopm.launcher.main()
+    err = geopmpy.launcher.main()
     sys.exit(err)

@@ -36,12 +36,5 @@ The geopm python package with four modules: launcher, io plotter and version.
 """
 __all__ = ['launcher', 'io', 'plotter', 'version']
 
-from geopm.version import __version__
+from geopmpy.version import __version__
 
-from geopm import launcher
-try:
-    from geopm import io
-    from geopm import plotter
-except ImportError:
-    import sys
-    sys.stderr.write("Warning: The geopm python module is unable to import geopm.io or geopm.plotter\n.")

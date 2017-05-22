@@ -40,7 +40,7 @@ import pandas
 import collections
 
 import geopm_test_launcher
-import geopm.io
+import geopmpy.io
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
@@ -73,17 +73,17 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
@@ -99,10 +99,10 @@ class TestIntegration(unittest.TestCase):
         num_node=1
         num_rank=1
         delay = 1.0
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
@@ -120,7 +120,7 @@ class TestIntegration(unittest.TestCase):
             try:
                 launcher.run(name)
                 node_names += nn.split()
-                oo = geopm.io.AppOutput(report_path)
+                oo = geopmpy.io.AppOutput(report_path)
                 reports[nn] = oo.get_report(nn)
             except subprocess.CalledProcessError as e:
                 if e.returncode == 1 and nn not in launcher.get_idle_nodes():
@@ -144,16 +144,16 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 5
         delay = 3.0
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm.io.AppOutput(report_path)
+        self._output = geopmpy.io.AppOutput(report_path)
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
@@ -168,17 +168,17 @@ class TestIntegration(unittest.TestCase):
         num_rank = 1
         delay = 1.0
         loop_count = 2
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('nested-progress', delay)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm.io.AppOutput(report_path)
+        self._output = geopmpy.io.AppOutput(report_path)
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
@@ -196,19 +196,19 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
 
@@ -235,18 +235,18 @@ class TestIntegration(unittest.TestCase):
         num_node = 4
         num_rank = 16
         loop_count = 500
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
 
@@ -307,16 +307,16 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         delay = 3.0
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep-progress', delay)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm.io.AppOutput(report_path)
+        self._output = geopmpy.io.AppOutput(report_path)
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
@@ -333,17 +333,17 @@ class TestIntegration(unittest.TestCase):
         num_rank = 4
         delay = 0.01
         loop_count = 100
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('spin', delay)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
@@ -371,12 +371,12 @@ class TestIntegration(unittest.TestCase):
         num_node = 2
         loop_count = 100
 
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
         app_conf.set_loop_count(loop_count)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, time_limit=900)
 
@@ -395,7 +395,7 @@ class TestIntegration(unittest.TestCase):
             if check_successful:
                 launcher.write_log(name, 'About to run on {} nodes.'.format(num_node))
                 launcher.run(name)
-                self._output = geopm.io.AppOutput(report_path)
+                self._output = geopmpy.io.AppOutput(report_path)
                 node_names = self._output.get_node_names()
                 self.assertEqual(len(node_names), num_node)
                 for nn in node_names:
@@ -416,12 +416,12 @@ class TestIntegration(unittest.TestCase):
         num_node = 4
         num_rank = 16
         loop_count = 500
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
         self._options['power_budget'] = 150
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
         launcher.set_num_node(num_node)
@@ -429,7 +429,7 @@ class TestIntegration(unittest.TestCase):
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         all_power_data = {}
@@ -478,19 +478,19 @@ class TestIntegration(unittest.TestCase):
         num_rank = 16
         loop_count = 100
         big_o = 0.01
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm-progress', big_o)
         app_conf.append_region('spin-progress', 0.01)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
 
@@ -521,17 +521,17 @@ class TestIntegration(unittest.TestCase):
         region = 'dgemm-progress'
         max_mean = 0.01 # 10 millisecond max sample period
         max_nstd = 0.1 # 10% normalized standard deviation (std / mean)
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region(region, big_o)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
 
@@ -554,19 +554,19 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
@@ -585,19 +585,19 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('ignore', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
@@ -617,19 +617,19 @@ class TestIntegration(unittest.TestCase):
         report_path = name + '.report'
         num_node = 4
         num_rank = 16
-        app_conf = geopm.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('stream-unmarked', 1.0)
         app_conf.append_region('dgemm-unmarked', 1.0)
         app_conf.append_region('all2all-unmarked', 1.0)
-        ctl_conf = geopm.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopm.io.AppOutput(report_path)
+        self._output = geopmpy.io.AppOutput(report_path)
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         stream_id = None
