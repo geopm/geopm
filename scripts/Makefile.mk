@@ -34,17 +34,22 @@ exec_prefix ?= $(prefix)
 bindir ?= $(prefix)/bin
 libexecdir ?= $(exec_prefix)/libexec
 
-EXTRA_DIST += scripts/geopm/launcher.py \
-              scripts/geopm/plotter.py \
-              scripts/geopm/io.py \
-              scripts/geopm/version.py \
-              scripts/geopm/__init__.py \
+EXTRA_DIST += scripts/geopmpy/launcher.py \
+              scripts/geopmpy/plotter.py \
+              scripts/geopmpy/io.py \
+              scripts/geopmpy/version.py \
+              scripts/geopmpy/__init__.py \
               scripts/geopmaprun \
               scripts/geopmsrun \
               scripts/geopmplotter \
               scripts/setup.py \
               scripts/MANIFEST.in \
               # end
+
+DISTCLEANFILES += scripts/VERSION \
+                  scripts/COPYING \
+                  scripts/AUTHORS \
+                  #end
 
 install-python:
 	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)

@@ -32,10 +32,10 @@ plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
-scripts/geopm/io.py
-scripts/geopm/launcher.py
-scripts/geopm/plotter.py
-scripts/geopm/__init__.py
+scripts/geopmpy/io.py
+scripts/geopmpy/launcher.py
+scripts/geopmpy/plotter.py
+scripts/geopmpy/__init__.py
 scripts/geopmsrun
 scripts/geopmaprun
 scripts/geopmplotter

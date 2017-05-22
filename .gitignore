@@ -77,6 +77,11 @@
 /scripts/COPYING
 /scripts/README
 /scripts/figures
+/scripts/AUTHORS
+/scripts/build/*
+/scripts/dist/*
+/scripts/geopmpy.egg-info/*
+/scripts/geopmpy/version.py
 /src/*.lo
 /src/*.o
 /stamp-h1
