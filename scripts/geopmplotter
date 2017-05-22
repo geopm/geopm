@@ -33,11 +33,11 @@
 
 import sys
 import traceback
-import geopm.plotter
+import geopmpy.plotter
 
 if __name__ == '__main__':
   try:
-    geopm.plotter.main(sys.argv[1:])
+    geopmpy.plotter.main(sys.argv[1:])
   except Exception as e:
     sys.stdout.write('\n   ERROR: {}\n\n'.format(e))
     traceback.print_exc()

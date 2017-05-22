@@ -38,7 +38,7 @@ import glob
 import json
 import sys
 from natsort import natsorted
-from geopm import __version__
+from geopmpy import __version__
 
 class AppOutput(object):
     def __init__(self, report_glob='*report', trace_glob=None, dir_name='.', verbose=False):
