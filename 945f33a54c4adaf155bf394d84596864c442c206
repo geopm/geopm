@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b0dc5a9_c1ade231",
+        "filename": "geopm.spec.mk",
+        "patchSetId": 14
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-22T22:42:05Z",
+      "side": 1,
+      "message": "this is removed in a later commit.",
+      "revId": "945f33a54c4adaf155bf394d84596864c442c206",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d342844b_57843233",
+        "filename": "geopm.spec.mk",
+        "patchSetId": 14
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-22T22:42:05Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "945f33a54c4adaf155bf394d84596864c442c206",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3dfd2ddc_19a617fd",
+        "filename": "scripts/geopm_launcher.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-22T22:42:05Z",
+      "side": 1,
+      "message": "Removed in later commit.",
+      "revId": "945f33a54c4adaf155bf394d84596864c442c206",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
