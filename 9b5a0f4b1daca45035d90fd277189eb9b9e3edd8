@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cf360fe_c37b1ccb",
+        "filename": "scripts/geopm_launcher.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-22T18:02:02Z",
+      "side": 1,
+      "message": "this is removed in a subsequent patch.  Ended up here after a bad rebase.",
+      "revId": "9b5a0f4b1daca45035d90fd277189eb9b9e3edd8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
