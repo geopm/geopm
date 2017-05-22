@@ -64,7 +64,7 @@ import StringIO
 import itertools
 import glob
 
-from geopm import __version__
+from geopmpy import __version__
 
 def resource_manager():
     """

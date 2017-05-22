@@ -44,8 +44,8 @@ if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
 
 try:
     # use excfile rather than import so that setup.py can be executed
-    # on a system missing dependencies required to import geopm.
-    execfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geopm/version.py'))
+    # on a system missing dependencies required to import geopmpy.
+    execfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geopmpy/version.py'))
 except IOError:
     sys.stderr.write('WARNING:  geopm/version.py not found, setting version to 0.0.0\n')
     __version__ = '0.0.0'
@@ -54,6 +54,8 @@ if not os.path.exists('COPYING'):
     shutil.copyfile('../COPYING', 'COPYING')
 if not os.path.exists('README'):
     shutil.copyfile('../README', 'README')
+if not os.path.exists('AUTHORS'):
+    shutil.copyfile('../AUTHORS', 'AUTHORS')
 
 long_description = """\
 The python front end to the GEOPM runtime.  Includes scripts for
@@ -77,7 +79,7 @@ install_requires = ['pandas',
                     'natsort',
                     'cycler']
 
-setup(name='geopm',
+setup(name='geopmpy',
       version=__version__,
       description='GEOPM - Global Extensible Open Power Manager',
       long_description=long_description,
@@ -86,7 +88,7 @@ setup(name='geopm',
       license='BSD-3-Clause',
       author='Christopher Cantalupo',
       author_email='christopher.m.cantalupo@intel.com',
-      packages=['geopm'],
+      packages=['geopmpy'],
       scripts=scripts,
       classifiers=classifiers,
       install_requires=install_requires)
