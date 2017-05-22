@@ -1,3 +1,4 @@
+#
 #  Copyright (c) 2015, 2016, 2017, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,27 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-prefix ?= /usr
-exec_prefix ?= $(prefix)
-bindir ?= $(prefix)/bin
-libexecdir ?= $(exec_prefix)/libexec
+import sys
+import os
 
-EXTRA_DIST += scripts/geopmpy/launcher.py \
-              scripts/geopmpy/plotter.py \
-              scripts/geopmpy/io.py \
-              scripts/geopmpy/version.py \
-              scripts/geopmpy/__init__.py \
-              scripts/geopmaprun \
-              scripts/geopmsrun \
-              scripts/geopmplotter \
-              scripts/setup.py \
-              scripts/MANIFEST.in \
-              scripts/test/test_launcher.py \
-              scripts/test/test_path.py \
-              scripts/test/__init__.py \
-              # end
+def modify_path():
+    scripts_dir = os.path.dirname(
+                  os.path.dirname(
+                  os.path.realpath(__file__)))
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
 
-TESTS += scripts/test/test_launcher.py
-
-install-python:
-	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
+modify_path()
