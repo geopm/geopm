@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c02a9789_815edcab",
+        "filename": "scripts/geopm/launcher.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-22T22:47:09Z",
+      "side": 0,
+      "message": "This fixes error introduced in earlier commit.",
+      "revId": "3371c30602f013406438c4da76de3be9629321e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
