@@ -245,8 +245,8 @@ endif
 endif
 
 # Target for building test programs.
-checkprogs: $(check_PROGRAMS) $(GTEST_TESTS) $(check_LTLIBRARIES)
-.PHONY: checkprogs
+gtest-checkprogs: $(GTEST_TESTS)
+.PHONY: gtest-checkprogs
 
 $(GTEST_TESTS): test/gtest_links/%:
 	mkdir -p test/gtest_links

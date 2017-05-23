@@ -444,6 +444,8 @@ man/geopmaprun.1: man/geopm_launcher.1
 	cp $^ $@
 	cp ronn/geopm_launcher.1.html ronn/geopmsrun.1.html
 
+checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+
 # INCLUDES
 check_PROGRAMS =
 check_LTLIBRARIES =

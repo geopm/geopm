@@ -42,8 +42,9 @@ scripts/geopmplotter
 scripts/setup.py
 scripts/Makefile.mk
 scripts/test/__init__.py
-scripts/test/test_launcher.py
-scripts/test/test_path.py
+scripts/test/TestAffinity.py
+scripts/test/context.py
+scripts/test/geopmpy_test.sh
 src/CircularBuffer.hpp
 src/Comm.hpp
 src/Controller.cpp

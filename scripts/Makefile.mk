@@ -44,12 +44,35 @@ EXTRA_DIST += scripts/geopmpy/launcher.py \
               scripts/geopmplotter \
               scripts/setup.py \
               scripts/MANIFEST.in \
-              scripts/test/test_launcher.py \
-              scripts/test/test_path.py \
+              scripts/test/TestAffinity.py \
+              scripts/test/context.py \
               scripts/test/__init__.py \
+              scripts/test/geopmpy_test.sh
               # end
 
-TESTS += scripts/test/test_launcher.py
+PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_1 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_2 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_3 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_4 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_5 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_6 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_7 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_8 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_9 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_10 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_11 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_12 \
+               # end
+
+TESTS += $(PYTEST_TESTS)
+
+pytest-checkprogs: $(PYTEST_TESTS)
+.PHONY: pytest-checkprogs
+
+$(PYTEST_TESTS): scripts/test/pytest_links/%:
+	mkdir -p scripts/test/pytest_links
+	ln -s ../geopmpy_test.sh $@
 
 install-python:
 	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
