@@ -1,162 +1,18 @@
 BACKLOG
 =======
 
+We no longer maintain a fully copy of the backlog in this file.
 
-BUGS
-----
+GITHUB ISSUES
+-------------
+Features and issues are generally tracked with github issues:
 
-geopmpolicy-whitelist-root
-    - "geopmpolicy -w" requires root access, but output is only a
-      function of cpuid (2015-10-12).
+https://github.com/geopm/geopm/issues
 
-geopmpolicy-extra-obj
-    - There are many objects compiled into libgeopmpolicy which are
-      not needed (2015-10-30).
+DOXYGEN ISSUES
+--------------
+There are also some issues and bugs which are tracked with doxygen
+comments.  These should have a tracking github issue as well.
 
-out-of-place-testing
-    - Building out of place works correctly, but testing out of place
-      does not, gtest links are broken and the license header check
-      does not work (2015-10-30).
-
-policy-hint-ignored
-    - Policy hint is being entirely ignored.  Should be stored in the
-      state of the region and inform the decider (2016-05-06).
-
-no-app-runtime
-    - The SampleRegulator attempts to interpolate runtime from the
-      data returned by the application.  The application does not
-      provide runtime information, and the runtime is only needed
-      after the region has completed (2016-05-06).
-
-runtime-decider-change
-    - The Policy object enables the deciders to be chaged during
-      runtime, but the Controller does not switch the deciders during
-      runtime if the Policy changes.  The code should at least throw
-      an error if the Policy's decider is changed during runtime
-      (2016-06-17).
-
-ONGOING ENHANCEMENTS
---------------------
-
-extend-unit-tests
-    - Test coverage is too low.  Need to expand unit testing to
-      increase coverage. (2015-12-14)
-
-improve-documentation
-    - Add detail to doxygen comments where @brief descriptions are all
-      that is provided.  Unify documentation style. (2015-12-14)
-
-fix-klocwork-issues
-    - Fix all critical and error level issues exposed by static source
-      code analysis with klocwork (2016-11-03).
-
-HIGH PRIORITY ENHANCEMENTS
---------------------------
-
-resource-manager-integration
-    - Look into integration with SLURM, PBS-pro, Torque and COBALT
-      (2016-05-06).
-
-cpu-frequency-platform
-    - To enable deciders that use CPU frequency for control need to
-      implement a Platform plugin with right granularity of
-      measurement and control (2015-2-1).
-
-enable-telemetry-extension
-    - Currently collecting a limited set of hardware telemetry.  Some
-      decision algorithms will want to sample other signals, and we
-      need to make signal inclusion more easily extensible
-      (2016-05-06).
-
-enhance-profiling-support
-    - Enable more hardware telemetry to be recorded to the trace and
-      final report produced by the geopm profiler (2016-05-20).
-
-change-scheduler-scope
-    - Change the use of the SampleScheduler to account for the overhead
-      introduced by ProfileThread interface (tprof), not just the
-      overhead from the Profile interface (2016-05-06).
-
-profile-wo-runtime
-    - Add feature to geopmpolicy so that it can create a report when
-      run before and after an application completes.  This can be
-      implemented by differencing performance counter values read at
-      application completion and comparison with values stored to disk
-      prior to application start up.
-
-enable-geopm-profiling
-    - Enable performance profiling of the geopm code itself.
-      Determine the overhead the run-time requires and enable
-      reporting at different levels of granularity. (2015-12-14)
-
-investigate-powerapi-integration
-    - Look into how geopm might integrate with Sandia's
-      PowerAPI. (2015-12-14)
-
-collect-bmc-data
-    - Collect out of band data at a low sample rate and interpolate
-      results. Find a way to get access to this data on the compute
-      cores, especially when CPU doesn't have access to out of band
-      network supporting BMC data. (2015-12-14)
-
-enable-cpu-granularity
-    - Investigate enabling the decider to set policies per-CPU and the
-      platform to give the decider data at per-CPU resolution.  The
-      platform would provide an abstraction that maps the hardware
-      domains of control and observation granularity to appear to be
-      per-CPU (2016-05-06).
-
-enable-rm-signal-abnormal
-    - In an emergency power situation where the resource manager has
-      interfered with power limits by a mechanism other than geopm,
-      enable the resource manager to signal this to the geopm runtime.
-      This signal can be used to ignore measurements made while other
-      power management systems are interfering. (2016-05-13)
-
-application-data-aliasing
-    - If the application is calling into the profile APIs at a rate
-      faster than the controller is sampling counters, the
-      interpolation done by the controller can dilute the application
-      data fidelity through aliasing (2016-10-31).
-
-per-region-mpi-accounting
-    - Report out MPI time for each region, total application MPI time,
-      and total application MPI time outside of user defined regions
-      (2016-10-31).
-
-ompt-callback-region
-    - Use the OpenMP "omp_t" callbacks to mark regions in the
-      application (2016-07-15).
-
-check-linux-cpu-governor
-    - Make sure that no Linux CPU governor is running that will
-      conflict with GEO (2016-05-19).
-
-LOW PRIORITY ENHANCEMENTS
--------------------------
-
-generate-aggregated-report
-    - Currently one report file per compute node, aggregate data based
-      on depth parameter passed to the Profile::print()
-      method. (2015-12-14)
-
-gui-report-explorer
-    - Write a post-processing application to enable exploration of
-      generated report data. This is a nice to have feature, and may
-      be especially useful for debug purposes, but is a low priority.
-      (2015-12-14)
-
-enable-automatic-profiling
-    - Provide interface for algorithms attempting to do automatic
-      detection of application regions and progress through analysis
-      of hardware events. This is a stretch goal: although the data
-      required will be collected, designing the interface to provide
-      it to an outside agent may break designs for
-      encapsulation. (2015-12-14)
-
-dox-fortran-c-confusion
-    - The doxygen generated developer documentation web pages are
-      confusing the fortran and C interface documentation:
-      http://geopm.github.io/geopm/dox/annotated.html
-      http://geopm.github.io/geopm/dox/interfacegeopm_1_1geopm__prof__create.html
-      (2016-05-30)
+https://geopm.github.io/geopm/dox/todo.html
+https://geopm.github.io/geopm/dox/bug.html
