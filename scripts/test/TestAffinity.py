@@ -32,7 +32,7 @@
 #
 
 import unittest
-import test_path
+import context
 import geopmpy.launcher
 
 class TestAffinityLauncher(geopmpy.launcher.Launcher):

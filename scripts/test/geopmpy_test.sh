@@ -1,4 +1,4 @@
-#
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,5 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-__all__ = ['context', 'TestAffinity']
+test_name=`basename $0`
+dir_name=`dirname $0`
+test_class=$(echo $test_name | awk -F. '{print $1}')
 
+python $dir_name/../$test_class.py --verbose $test_name >& $dir_name/$test_name.log

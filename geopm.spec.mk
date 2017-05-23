@@ -108,7 +108,6 @@ features of libgeopmpolicy are available through the geopmpolicy application
 including support for static control.
 
 %prep
-%autosetup -n geopm-%{version}
 
 %setup
 
