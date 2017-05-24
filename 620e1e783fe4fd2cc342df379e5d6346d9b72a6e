@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00980d1e_fc4664fd",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-24T23:56:14Z",
+      "side": 1,
+      "message": "Think we need to document the use of the empty string as distinct from the None input.  In general the io module is in desperate need of __doc__ strings.  I will add it to the backlog.",
+      "revId": "620e1e783fe4fd2cc342df379e5d6346d9b72a6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
