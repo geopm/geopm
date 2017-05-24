@@ -12,7 +12,6 @@ copying_headers/MANIFEST.BSD3-mvapich2
 copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.NAS
 copying_headers/header.NAS
-copying_headers/test-license
 doc/geopm-plugin-guide.tex
 doc/leaf-figure.pdf
 doc/tree-figure.pdf

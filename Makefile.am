@@ -120,6 +120,7 @@ EXTRA_DIST = .gitignore \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.NAS \
              copying_headers/test-license \
+             copying_headers/test-dist \
              dox/Doxyfile \
              geopm.spec.mk \
              geopm-$(VERSION).spec \

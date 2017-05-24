@@ -2,6 +2,8 @@
 .travis_obs.sh
 autogen.sh
 configure.ac
+copying_headers/test-license
+copying_headers/test-dist
 doc/Makefile.mk
 examples/geopmhash.c
 examples/geopm_platform_supported.cpp
