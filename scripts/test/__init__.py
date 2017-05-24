@@ -30,5 +30,5 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-__all__ = ['context', 'TestAffinity']
+__all__ = ['geopm_context', 'TestAffinity']
 

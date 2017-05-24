@@ -45,7 +45,7 @@ EXTRA_DIST += scripts/geopmpy/launcher.py \
               scripts/setup.py \
               scripts/MANIFEST.in \
               scripts/test/TestAffinity.py \
-              scripts/test/context.py \
+              scripts/test/geopm_context.py \
               scripts/test/__init__.py \
               scripts/test/geopmpy_test.sh
               # end
