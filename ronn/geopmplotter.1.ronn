@@ -56,12 +56,11 @@ If _PATH_ is not provided, the current working directory is used.
   is not specified then all files with the ".trace" extension in _PATH_ are selected.
 
 * `-p`, `--plot_type` _bar_|_box_|_power_|_epoch_|_freq_:
-  The type of plot to be generated (default: _barplot_).  Multiple plots can
+  The type of plot to be generated (default: _bar_).  Multiple plots can
   be specified by providing a comma seperated list (e.g. -p bar,box).
 
 * `-s`, `--shell`:
-  Drop to a python shell after plotting.  This will also display an interactive plot
-  using the default Matplotlib backend.
+  Drop to a python shell after plotting.  Useful for data analysis.
 
 * `-c`, `--csv`:
   Generate CSV files for the plotted data.
@@ -70,7 +69,7 @@ If _PATH_ is not provided, the current working directory is used.
   Normalize the data that is plotted.  For per-node plots this will also use uniform node
   names in the legend.
 
-* `-o`, `--output_dir`:
+* `-o`, `--output_dir` _OUTPUT_DIR_:
   The output directory where files generated from the plotter will go. (default: _figures_)
 
 * `-O`, `--output_types` _svg_|_png_|_pdf_|_eps_|_ps_:
@@ -142,14 +141,27 @@ If _PATH_ is not provided, the current working directory is used.
   in red and will be drawn on top the other nodes.  Analysis data will still be drawn on top of this
   line if enabled with `--analyze`.
 
+* `--show`:
+  This will display an interactive plot using the default Matplotlib backend.
+
 ## ENVIRONMENT
 
 * `DISPLAY`:
-Because the geopm_plotter relies on Matplotlib backends for creating plots,
-you may have to manually set this variable for proper functionality even if you
-are not displaying the interactive plot with `-s`.  E.g.:
+  Because the geopm_plotter relies on Matplotlib backends for creating plots,
+  you may have to manually set this variable for proper functionality even if you
+  are not displaying the interactive plot with `-s`.  E.g.:
 
-    DISPLAY=:0 ./geopm_plotter.py -v data
+  DISPLAY=:0 ./geopm_plotter.py -v data
+
+* `MPLBACKEND`:
+  As an alternative to the above, you can set your backend to 'Agg' using either:
+
+  MPLBACKEND='Agg' ./geopm_plotter.py -v data
+
+  Or you may make the change permenantly in your matplotlibrc file  as
+  described here: _https://matplotlib.org/faq/usage_faq.html#what-is-a-backend_.
+
+Using either of these options will prevent `--show` from working properly.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
@@ -164,4 +176,4 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmctl(1)**,
+**geopmctl(1)**

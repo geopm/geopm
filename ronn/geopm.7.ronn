@@ -203,9 +203,10 @@ will print a subset of the fields in the trace file called
     The default profile name is the name of the compute application
     executable.  The profile name is printed in the report and trace
     and can be used to index the report and trace data during
-    post-processing.  This option is required when running the
-    controller with the geopmctl application and no report or trace is
-    being generated.
+    post-processing.  When launching the geopm runtime with the geopmctl
+    application, this variable must be set in the environment for
+    the compute application and the geopmctl application.  The value
+    of the variable must be the same in both contexts.
 
   * `GEOPM_PROFILE_TIMEOUT`:
     If set, will enable changing of the geopm profiler timeout.  The
