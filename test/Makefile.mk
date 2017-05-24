@@ -246,7 +246,8 @@ endif
 
 # Target for building test programs.
 gtest-checkprogs: $(GTEST_TESTS)
-.PHONY: gtest-checkprogs
+
+PHONY_TARGETS += gtest-checkprogs
 
 $(GTEST_TESTS): test/gtest_links/%:
 	mkdir -p test/gtest_links
@@ -256,10 +257,10 @@ coverage: check
 	lcov --no-external --capture --directory src --directory plugin --output-file coverage.info --rc lcov_branch_coverage=1
 	genhtml coverage.info --output-directory coverage --rc lcov_branch_coverage=1
 
-clean-local: clean-local-script-links
-
-clean-local-script-links:
+clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
+
+CLEAN_LOCAL_TARGETS += clean-local-gtest-script-links
 
 include test/googletest.mk
 include test/plugin/Makefile.mk

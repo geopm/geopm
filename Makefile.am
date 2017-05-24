@@ -369,7 +369,15 @@ endif
 CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
-clean-local: clean-local-coverage clean-local-man clean-local-fortran clean-local-doc clean-local-googletest clean-local-openmp
+CLEAN_LOCAL_TARGETS= clean-local-coverage \
+                     clean-local-man \
+                     clean-local-fortran \
+                     clean-local-doc \
+                     clean-local-googletest \
+                     clean-local-openmp \
+                     #end
+
+clean-local: $(CLEAN_LOCAL_TARGETS)
 
 distclean-local: distclean-local-ruby
 
@@ -451,7 +459,7 @@ man/geopmaprun.1: man/geopm_launcher.1
 	cp $^ $@
 	cp ronn/geopm_launcher.1.html ronn/geopmsrun.1.html
 
-checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: fortran-checkprogs gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
 # INCLUDES
 check_PROGRAMS =
@@ -459,6 +467,15 @@ check_LTLIBRARIES =
 noinst_PROGRAMS =
 noinst_LTLIBRARIES =
 TESTS =
+
+PHONY_TARGETS = clean-local \
+                clean-local-coverage \
+                clean-local-man \
+                distclean-local \
+                rpm \
+                doxygen \
+                gh_pages \
+                #end
 
 include test/Makefile.mk
 include test_integration/Makefile.mk
@@ -468,4 +485,4 @@ include doc/Makefile.mk
 include scripts/Makefile.mk
 include openmp.mk
 
-.PHONY: clean-local clean-local-coverage clean-local-man distclean-local rpm doxygen gh_pages
+.PHONY: $(PHONY_TARGETS)

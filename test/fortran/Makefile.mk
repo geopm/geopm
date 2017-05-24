@@ -227,16 +227,28 @@ FORTRAN_COMMON = test/fortran/mpitest.h \
                  test/fortran/mtestf90.f90 \
                  #end
 
+EXTRA_DIST += test/fortran/geopm_fortran_test.sh \
+              #end
+
+# Target for building test programs.
+fortran-checkprogs: $(FORTRAN_TESTS) $(FORTRAN_LINKS)
+
+PHONY_TARGETS += fortran-checkprogs
+
 $(FORTRAN_LINKS): test/fortran/fortran_links/%:
 	mkdir -p test/fortran/fortran_links
 	ln -s ../geopm_fortran_test.sh $@
+
+clean-local-fortran-script-links:
+	rm -f test/fortran/fortran_links/*
+
+CLEAN_LOCAL_TARGETS += clean-local-fortran-script-links
 
 libmtest_la_SOURCES = $(FORTRAN_COMMON)
 libmtest_la_CPPFLAGS = $(AM_CPPFLAGS)
 libmtest_la_CFLAGS = -c $(AM_CFLAGS) $(MPI_CFLAGS)
 libmtest_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
 libmtest_la_FCFLAGS = -c $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
-libmtest_la_DEPENDENCIES = $(FORTRAN_LINKS)
 test_fortran_allctypesf90_SOURCES = test/fortran/allctypesf90.f90
 test_fortran_allctypesf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
 test_fortran_allctypesf90_LDADD = libmtest.la $(MPI_FLIBS)

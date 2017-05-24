@@ -64,7 +64,6 @@ googlemock_archive_check: $(googlemock_archive)
 	    exit -1; \
 	fi
 	@echo '[ PASSED ] googlemock_archive_check'
-.PHONY: googlemock_archive_check
 
 $(googlemock)/VERSION: $(googlemock_archive)
 	@if [ ! -s $^ ]; then \
@@ -99,4 +98,5 @@ libgtest.a: $(googlemock)/VERSION
 
 clean-local-gmock:
 	rm -rf libgtest.a libgmock.a $(googlemock)
-.PHONY: clean-local-gmock
+
+PHONY_TARGETS += googlemock_archive_check clean-local-gmock

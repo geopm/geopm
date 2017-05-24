@@ -68,11 +68,17 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
 TESTS += $(PYTEST_TESTS)
 
 pytest-checkprogs: $(PYTEST_TESTS)
-.PHONY: pytest-checkprogs
+
+PHONY_TARGETS += pytest-checkprogs
 
 $(PYTEST_TESTS): scripts/test/pytest_links/%:
 	mkdir -p scripts/test/pytest_links
 	ln -s ../geopmpy_test.sh $@
+
+clean-local-pytest-script-links:
+	rm -f scripts/test/pytest_links/*
+
+CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links
 
 install-python:
 	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
