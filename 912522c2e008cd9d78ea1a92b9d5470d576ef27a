@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63b08426_9ad431d0",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-24T22:25:12Z",
+      "side": 1,
+      "message": "This block did not change.  All that was modified was the indentation.  Seems like gerrit is confused.",
+      "range": {
+        "startLine": 80,
+        "startChar": 16,
+        "endLine": 100,
+        "endChar": 43
+      },
+      "revId": "912522c2e008cd9d78ea1a92b9d5470d576ef27a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
