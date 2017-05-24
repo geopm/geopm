@@ -204,6 +204,8 @@ FORTRAN_TESTS = test/fortran/allctypesf90 \
                 test/fortran/greqf90 \
                 #end
 
+EXTRA_DIST += test/fortran/geopm_fortran_test.sh \
+              #end
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
@@ -226,9 +228,6 @@ FORTRAN_COMMON = test/fortran/mpitest.h \
                  test/fortran/dummyf90.f90 \
                  test/fortran/mtestf90.f90 \
                  #end
-
-EXTRA_DIST += test/fortran/geopm_fortran_test.sh \
-              #end
 
 # Target for building test programs.
 fortran-checkprogs: $(FORTRAN_TESTS) $(FORTRAN_LINKS)
@@ -507,6 +506,11 @@ test_fortran_winscale2f90_LDADD = libmtest.la $(MPI_FLIBS)
 test_fortran_wtimef90_SOURCES = test/fortran/wtimef90.f90
 test_fortran_wtimef90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
 test_fortran_wtimef90_LDADD = libmtest.la $(MPI_FLIBS)
-
+else
+# Target for building test programs.
+fortran-checkprogs:
 endif
+else
+# Target for building test programs.
+fortran-checkprogs:
 endif
