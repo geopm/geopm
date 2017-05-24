@@ -29,6 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+EXTRA_DIST += test/fortran/geopm_fortran_test.sh
+
 FORTRAN_LINKS = test/fortran/fortran_links/allctypesf90 \
                 test/fortran/fortran_links/allocmemf90 \
                 test/fortran/fortran_links/allpairf90 \
