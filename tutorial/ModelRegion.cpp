@@ -147,13 +147,18 @@ namespace geopm
         m_norm = 1.0 / m_loop_count;
     }
 
-    int ModelRegionBase::region(void)
+    int ModelRegionBase::region(uint64_t hint)
     {
         int err = 0;
         if (!m_do_unmarked) {
-            err = geopm_prof_region(m_name.c_str(), GEOPM_REGION_HINT_UNKNOWN, &m_region_id);
+            err = geopm_prof_region(m_name.c_str(), hint, &m_region_id);
         }
         return err;
+    }
+
+    int ModelRegionBase::region(void)
+    {
+        return region(GEOPM_REGION_HINT_UNKNOWN);
     }
 
     void ModelRegionBase::region_enter(void)
@@ -308,7 +313,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegionBase::region(GEOPM_REGION_HINT_COMPUTE);
         if (err) {
             throw Exception("DGEMMModelRegion::DGEMMModelRegion()",
                             err, __FILE__, __LINE__);
@@ -397,7 +402,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegionBase::region(GEOPM_REGION_HINT_MEMORY);
         if (err) {
             throw Exception("StreamModelRegion::StreamModelRegion()",
                             err, __FILE__, __LINE__);
@@ -478,7 +483,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegionBase::region(GEOPM_REGION_HINT_NETWORK);
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
@@ -688,7 +693,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegionBase::region(GEOPM_REGION_HINT_IGNORE);
         if (err) {
             throw Exception("IgnoreModelRegion::IgnoreModelRegion()",
                             err, __FILE__, __LINE__);

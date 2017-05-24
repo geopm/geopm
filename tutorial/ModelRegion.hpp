@@ -46,6 +46,7 @@ namespace geopm
             std::string name(void);
             double big_o(void);
             virtual int region(void);
+            virtual int region(uint64_t hint);
             virtual void region_enter(void);
             virtual void region_exit(void);
             virtual void loop_enter(uint64_t iteration);
