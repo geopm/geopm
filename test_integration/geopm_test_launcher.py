@@ -39,7 +39,7 @@ import signal
 import StringIO
 import math
 
-import geopm_test_path
+import geopm_context
 import geopmpy.launcher
 from geopmpy.launcher import resource_manager
 
