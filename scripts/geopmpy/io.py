@@ -42,7 +42,7 @@ from natsort import natsorted
 from geopmpy import __version__
 
 class AppOutput(object):
-    def __init__(self, report_glob='*report', trace_glob=None, dir_name='.', verbose=False):
+    def __init__(self, report_glob=None, trace_glob=None, dir_name='.', verbose=False):
         self._reports = {}
         self._reports_df = pandas.DataFrame()
         self._traces = {}
@@ -52,59 +52,62 @@ class AppOutput(object):
         self._traces_df_list = []
         self._index_tracker = IndexTracker()
 
-        report_glob = os.path.join(dir_name, report_glob)
-        report_files = natsorted(glob.glob(report_glob))
-        self._all_paths.extend(report_files)
+        if report_glob == '':
+            report_glob = '*report-*'
+        if report_glob:
+            report_glob = os.path.join(dir_name, report_glob)
+            report_files = natsorted(glob.glob(report_glob))
+            self._all_paths.extend(report_files)
 
-        if len(report_files) == 0:
-            raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
+            if len(report_files) == 0:
+                raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
 
-        # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
-        files = 0
-        filesize = 0
-        for rf in report_files: # Get report count for verbose progress
-            filesize += os.stat(rf).st_size
-            with open(rf, 'r') as fid:
-                for line in fid:
-                    if re.findall(r'Host:', line):
-                        files += 1
+            # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
+            files = 0
+            filesize = 0
+            for rf in report_files: # Get report count for verbose progress
+                filesize += os.stat(rf).st_size
+                with open(rf, 'r') as fid:
+                    for line in fid:
+                        if re.findall(r'Host:', line):
+                            files += 1
 
-        filesize = '{}KiB'.format(filesize/1024)
-        fileno = 1
-        for rf in report_files:
-            # Parse the first report
-            rr_size = os.stat(rf).st_size
-            rr = Report(rf)
+            filesize = '{}KiB'.format(filesize/1024)
+            fileno = 1
+            for rf in report_files:
+                # Parse the first report
+                rr_size = os.stat(rf).st_size
+                rr = Report(rf)
+                if verbose:
+                    sys.stdout.write('\rParsing report file {} of {} ({}).. '.format(fileno, files, filesize))
+                    sys.stdout.flush()
+                fileno += 1
+                self.add_report_df(rr)
+                self._reports[rr.get_node_name()] = rr
+
+                # Parse the remaining reports in this file
+                while (rr.get_last_offset() != rr_size):
+                    rr = Report(rf, rr.get_last_offset())
+                    if rr.get_node_name() is not None:
+                        self.add_report_df(rr)
+                        self._reports[rr.get_node_name()] = rr
+                        if verbose:
+                            sys.stdout.write('\rParsing report file {} of {} ({})... '.format(fileno, files, filesize))
+                            sys.stdout.flush()
+                        fileno += 1
+                Report.reset_vars() # If we've reached the end of a report, reset the static vars
             if verbose:
-                sys.stdout.write('\rParsing report file {} of {} ({}).. '.format(fileno, files, filesize))
+                sys.stdout.write('Done.\n')
                 sys.stdout.flush()
-            fileno += 1
-            self.add_report_df(rr)
-            self._reports[rr.get_node_name()] = rr
 
-            # Parse the remaining reports in this file
-            while (rr.get_last_offset() != rr_size):
-                rr = Report(rf, rr.get_last_offset())
-                if rr.get_node_name() is not None:
-                    self.add_report_df(rr)
-                    self._reports[rr.get_node_name()] = rr
-                    if verbose:
-                        sys.stdout.write('\rParsing report file {} of {} ({})... '.format(fileno, files, filesize))
-                        sys.stdout.flush()
-                    fileno += 1
-            Report.reset_vars() # If we've reached the end of a report, reset the static vars
-        if verbose:
-            sys.stdout.write('Done.\n')
-            sys.stdout.flush()
-
-        if verbose:
-            sys.stdout.write('Creating combined reports DF... ')
-            sys.stdout.flush()
-        self._reports_df = pandas.concat(self._reports_df_list)
-        self._reports_df = self._reports_df.sort_index(ascending=True)
-        if verbose:
-            sys.stdout.write('Done.\n')
-            sys.stdout.flush()
+            if verbose:
+                sys.stdout.write('Creating combined reports DF... ')
+                sys.stdout.flush()
+            self._reports_df = pandas.concat(self._reports_df_list)
+            self._reports_df = self._reports_df.sort_index(ascending=True)
+            if verbose:
+                sys.stdout.write('Done.\n')
+                sys.stdout.flush()
 
         if trace_glob == '':
             trace_glob = '*trace-*'

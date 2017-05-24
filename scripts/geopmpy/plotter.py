@@ -124,7 +124,6 @@ class Config(object):
             self.block=True
 
         if self.shell:
-            self.show = True
             self.block = False
 
         plt.style.use(style)
@@ -848,7 +847,7 @@ def generate_freq_plot(trace_df, config):
 
 
 def main(argv):
-    plots = [s.split('_')[1] for s in globals() if 'generate_' in s]
+    report_plots = {'box', 'bar'}
     trace_plots = {'power', 'epoch', 'freq'}
 
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so text wraps
@@ -866,7 +865,7 @@ def main(argv):
                         help='the base trace string to be searched.',
                         action='store', default='')
     parser.add_argument('-p', '--plot_types',
-                        help='the type of plot to be generated. (e.g. {})'.format(','.join(plots)),
+                        help='the type of plot to be generated. (e.g. {})'.format(','.join(report_plots | trace_plots)),
                         action='store', default='bar', type=lambda s : s.split(','))
     parser.add_argument('-s', '--shell',
                         help='drop to a Python shell after plotting.',
@@ -935,13 +934,20 @@ def main(argv):
     parser.add_argument('--focus_node',
                         help='Node to highlight in red during per-node plots.',
                         action='store', metavar='NODE_NAME')
+    parser.add_argument('--show',
+                        help='show an interactive plot of the data',
+                        action='store_true')
+    parser.add_argument('--version', action='version', version=__version__)
 
     args = parser.parse_args(argv)
 
-    if not args.report_base:
-        report_glob = '*report'
+    if report_plots.intersection(args.plot_types):
+        if not args.report_base:
+            report_glob = '*report'
+        else:
+            report_glob = args.report_base + '*'
     else:
-        report_glob = args.report_base + '*'
+        report_glob = None
 
     if trace_plots.intersection(args.plot_types):
         if not args.trace_base:
@@ -956,7 +962,13 @@ def main(argv):
     if args.profile_name:
         profile_name = args.profile_name
     else:
-        profile_name_list = app_output.get_report_df().index.get_level_values('name').unique()
+        if report_glob is not None:
+            profile_name_list = app_output.get_report_df().index.get_level_values('name').unique()
+        elif trace_glob is not None:
+            profile_name_list = app_output.get_trace_df().index.get_level_values('name').unique()
+        else:
+            raise SyntaxError('No glob pattern specified.')
+
         if len(profile_name_list) > 1:
             raise SyntaxError('Multiple profile names detected! Please provide the -n option to specify the profile name!')
         profile_name = profile_name_list[0]
@@ -967,7 +979,7 @@ def main(argv):
                                  datatype=args.datatype, min_drop=args.min_drop, max_drop=args.max_drop,
                                  ref_version=args.ref_version, ref_profile_name=args.ref_profile_name,
                                  ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
-                                 tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin)
+                                 tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin, show=args.show)
 
     if trace_plots.intersection(args.plot_types):
         trace_config = TraceConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
@@ -978,7 +990,7 @@ def main(argv):
                                    ref_profile_name=args.ref_profile_name,
                                    ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
                                    tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin,
-                                   focus_node=args.focus_node)
+                                   focus_node=args.focus_node, show=args.show)
 
     for plot in args.plot_types:
         # This tries to create the name of the plot function based on what was parsed in args.plot_types.  If it exists in

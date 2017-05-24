@@ -205,7 +205,9 @@ will print a subset of the fields in the trace file called
     and can be used to index the report and trace data during
     post-processing.  This option is required when running the
     controller with the geopmctl application and no report or trace is
-    being generated.
+    being generated.  If the geopmctl application is used to run the
+    controller, GEOPM_PROFILE must be set to the same value for both
+    the workload application the geopmctl application.
 
   * `GEOPM_PROFILE_TIMEOUT`:
     If set, will enable changing of the geopm profiler timeout.  The
