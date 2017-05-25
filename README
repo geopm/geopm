@@ -252,8 +252,7 @@ manipulating the options passed to the underlying launch command
 ("srun" or "aprun").  This includes handling the CPU affinity
 requirements and getting the GEOPM control process on each node up and
 ready to connect to the main compute application.  The wrapper is
-documented in the geopm_launcher(1) man page which is also installed
-as the geopmsrun(1) and geopmaprun(1) man pages.
+documented in the geopmsrun(1) and geopmaprun(1) man pages.
 
 If your system uses an MPI launch command other than "srun" or "aprun"
 then affinity requirements must be enforced by the user.  Also, please
