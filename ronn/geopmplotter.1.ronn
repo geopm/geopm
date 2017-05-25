@@ -147,16 +147,16 @@ If _PATH_ is not provided, the current working directory is used.
 ## ENVIRONMENT
 
 * `DISPLAY`:
-  Because the geopm_plotter relies on Matplotlib backends for creating plots,
+  Because the geopmplotter relies on Matplotlib backends for creating plots,
   you may have to manually set this variable for proper functionality even if you
   are not displaying the interactive plot with `-s`.  E.g.:
 
-  DISPLAY=:0 ./geopm_plotter.py -v data
+  DISPLAY=:0 ./geopmplotter -v data
 
 * `MPLBACKEND`:
   As an alternative to the above, you can set your backend to 'Agg' using either:
 
-  MPLBACKEND='Agg' ./geopm_plotter.py -v data
+  MPLBACKEND='Agg' ./geopmplotter -v data
 
   Or you may make the change permenantly in your matplotlibrc file  as
   described here: _https://matplotlib.org/faq/usage_faq.html#what-is-a-backend_.
