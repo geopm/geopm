@@ -41,7 +41,7 @@ geopm_version(3)    geopm_version.3
 geopmctl(1)         geopmctl.1
 geopmpolicy(1)      geopmpolicy.1
 geopmpy_launcher(1) geopmpy_launcher.1
-geopmsrun(1)        geompsrun.1
+geopmsrun(1)        geopmsrun.1
 geopmaprun(1)       geopmaprun.1
 geopmplotter(1)     geopmplotter.1
 

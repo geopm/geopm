@@ -154,7 +154,7 @@ int main(int argc, char **argv)
             return_code = -1;
         }
         if (error_codes[i] >= 0) {
-            fprintf(stderr, "Error: <%s> Value for geomp error code is non-negative\n", argv[0]);
+            fprintf(stderr, "Error: <%s> Value for geopm error code is non-negative\n", argv[0]);
             return_code = -2;
         }
         if (strstr(message, "<geopm> Unknown error:") == message ||

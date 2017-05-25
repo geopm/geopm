@@ -458,7 +458,7 @@ man/geopmsrun.1: man/geopmpy_launcher.1
 
 man/geopmaprun.1: man/geopmpy_launcher.1
 	cp $^ $@
-	cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html
+	cp ronn/geopmpy_launcher.1.html ronn/geopmaprun.1.html
 
 checkprogs: fortran-checkprogs gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
