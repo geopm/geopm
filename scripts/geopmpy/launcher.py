@@ -111,7 +111,7 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
     """
     Factory that returns a Launcher object.  Class selection is based
-    on return value of the geopm_launcher.resource_manager() function.
+    on return value of the geopmpy.launcher.resource_manager() function.
     """
     rm = resource_manager()
     if rm == 'SLURM':
@@ -160,7 +160,7 @@ def range_str(values):
     comma separated values and ranges given by a dash.
     Example:
 
-    >>> geopm_launcher.range_str({1, 2, 3, 5, 7, 9, 10})
+    >>> geopmpy.launcher.range_str({1, 2, 3, 5, 7, 9, 10})
     '1-3,5,7,9-10'
     """
     result = []
@@ -191,7 +191,7 @@ class Config(object):
     def __init__(self, argv):
         """
         Parse subset of command line arguments to create the GEOPM
-        object. See geopm_launcher.__doc__ for information about the
+        object. See geopmpy.launcher.__doc__ for information about the
         options.
         """
         self.ctl = None
@@ -914,7 +914,7 @@ class AprunLauncher(Launcher):
         if (self.is_geopm_enabled and
             any(aa.startswith('--cpu-binding') or
             aa.startswith('-cc') for aa in self.argv)):
-            raise SyntaxError('The options --cpu-binding or -cc must not be specified, this is controlled by geopm_launcher.')
+            raise SyntaxError('The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
 
     def mpiexec(self):
         """
@@ -980,14 +980,15 @@ class AprunLauncher(Launcher):
 
 def main():
     """
-    Main routine when geopm_launcher.py is called as an executable.
-    This function creates a launcher from the factory and calls the
-    run method.  If help was requested on the command line then help
-    from the underlying application launcher is printed and the help
-    for the GEOPM extensions are appended.  Returns -1 and prints an
-    error message if an error occurs.  If the GEOPM_DEBUG environment
-    variable is set and an error occurs a complete stack trace will be
-    printed.
+    Main routine used by wrapper executables like geopmsrun and
+    geopmaprun.  This function creates a launcher from the factory and
+    calls the run method.  If help was requested on the command line
+    then help from the underlying application launcher is printed and
+    the help for the GEOPM extensions are appended.  Returns -1 and
+    prints an error message if an error occurs.  If the GEOPM_DEBUG
+    environment variable is set and an error occurs a complete stack
+    trace will be printed.
+
     """
     err = 0
     version_str = """\
@@ -1010,7 +1011,7 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
         # If GEOPM_DEBUG environment variable is defined print stack trace.
         if os.getenv('GEOPM_DEBUG'):
             raise
-        sys.stderr.write("<geopm_launcher> {err}\n".format(err=e))
+        sys.stderr.write("<geopmpy.launcher> {err}\n".format(err=e))
         err = -1
     return err
 

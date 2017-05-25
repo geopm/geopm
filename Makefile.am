@@ -83,7 +83,7 @@ ronn_man = man/geopm.7 \
            man/geopm_ctl_c.3 \
            man/geopm_error.3 \
            man/geopm_fortran.3 \
-           man/geopm_launcher.1 \
+           man/geopmpy_launcher.1 \
            man/geopm_omp.3 \
            man/geopmplotter.1 \
            man/geopmpolicy.1 \
@@ -132,7 +132,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_ctl_c.3.ronn \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
-             ronn/geopm_launcher.1.ronn \
+             ronn/geopmpy_launcher.1.ronn \
              ronn/geopm_omp.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/geopmpolicy.1.ronn \
@@ -452,13 +452,13 @@ $(ronn_man): man/%: ronn/%.ronn
 	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 endif
 
-man/geopmsrun.1: man/geopm_launcher.1
+man/geopmsrun.1: man/geopmpy_launcher.1
 	cp $^ $@
-	cp ronn/geopm_launcher.1.html ronn/geopmsrun.1.html
+	cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html
 
-man/geopmaprun.1: man/geopm_launcher.1
+man/geopmaprun.1: man/geopmpy_launcher.1
 	cp $^ $@
-	cp ronn/geopm_launcher.1.html ronn/geopmsrun.1.html
+	cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html
 
 checkprogs: fortran-checkprogs gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 

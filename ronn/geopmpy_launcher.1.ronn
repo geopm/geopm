@@ -1,4 +1,4 @@
-geopm_launcher(1) -- geopm application launch wrapper
+geopmpy_launcher(1) -- geopm application launch wrapper
 ======================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
@@ -37,28 +37,26 @@ geopm_launcher(1) -- geopm application launch wrapper
 
 `geopmaprun` [_aprun-options_] [_OPTIONS_] executable [_exec-args_]
 
-`GEOPM_RM`=_ALPS_|_SLURM_ `geopm_launcher.py` [_rm-options_] [_OPTIONS_] executable [_exec-args_]
-
 ## DESCRIPTION
-The GEOPM launcher enables users to launch the GEOPM runtime with
-a simple command line interface extension to the resource
-manager's underlying job launch mechanism deployed on their
-system.  The currently supported job launch mechanisms are `srun`
-from the SLURM package and `aprun` from the ALPS package.  The
-GEOPM package installs the `geopmsrun` and `geopmaprun` executables
-which are symbolic links to the geopm_launcher.py script.  This
-script extends the job launch application with GEOPM specific
-flags.  All application launch options accepted by the underlying
-application (e.g. `srun` or `aprun`) can be passed to the GEOPM launch
-wrapper with the exception of CPU affinity related options.  The
-wrapper script reinterprets the command line to set environment
-variables and pass modified options to the underlying job launch
-application.  The reinterpreted command line is echoed to standard
-output by the script before execution.  The wrapper sets
-environment variables used by GEOPM which are described
-in **geopm(7)**, sets process CPU affinity to meet the requirements
-of GEOPM and extends the allocation to have reserved CPUs and
-extra processes as required by the GEOPM runtime.
+The GEOPM launcher enables users to launch the GEOPM runtime with a
+simple command line interface extension to the resource manager's
+underlying job launch mechanism deployed on their system.  The
+currently supported job launch mechanisms are `srun` from the SLURM
+package and `aprun` from the ALPS package.  The GEOPM package installs
+the `geopmsrun` and `geopmaprun` executables which run the
+geopmpy.launcher.main() method in the geopmpy python package.  These
+interfaces extend the resource manager's job launch application with
+GEOPM specific flags.  All application launch options accepted by the
+underlying application (e.g. `srun` or `aprun`) can be passed to the
+GEOPM launch wrapper with the exception of CPU affinity related
+options.  The wrapper script reinterprets the command line to set
+environment variables and pass modified options to the underlying job
+launch application.  The reinterpreted command line is echoed to
+standard output by the script before execution.  The wrapper sets
+environment variables used by GEOPM which are described in
+**geopm(7)**, sets process CPU affinity to meet the requirements of
+GEOPM and extends the allocation to have reserved CPUs and extra
+processes as required by the GEOPM runtime.
 
 ## OPTIONS
 
