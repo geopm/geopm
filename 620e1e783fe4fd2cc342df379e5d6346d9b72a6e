@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f942a6d4_fe20b0d0",
+        "filename": "ronn/geopmplotter.1.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-25T16:45:25Z",
+      "side": 1,
+      "message": "need to purge references to geopm_plotter from the documentation.  This script no longer exists.",
+      "revId": "620e1e783fe4fd2cc342df379e5d6346d9b72a6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00980d1e_fc4664fd",
         "filename": "scripts/geopmpy/io.py",
         "patchSetId": 3
