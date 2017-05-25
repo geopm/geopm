@@ -254,11 +254,12 @@ will print a subset of the fields in the trace file called
     with this environment variable set.
 
   * `GEOPM_RM`:
-    Used by job launch wrapper (geopm_launcher.py) to select resource
-    manager to use for job launch.  Accepted options are "SLURM" or
-    "ALPS".  If not set the script will attempt to determine the
-    resource manager based on your PATH and hostname.  This variable
-    is also used by the integration tests.
+    Used by job launch wrapper (geopmsrun or geopmaprun) to override
+    the resource manager to use for job launch.  Accepted options are
+    "SLURM" or "ALPS".  If not set the script will attempt to
+    determine the resource manager based on the executable name, your
+    PATH and hostname.  This variable is also used by the integration
+    tests.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
@@ -271,7 +272,6 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopm_launcher(1)**,
 **geopmsrun(1)**,
 **geopmaprun(1)**,
 **geopmplotter(1)**,

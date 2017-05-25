@@ -167,6 +167,7 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.a
 rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.la
 rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.a
 rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
+rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 
 %clean
 
@@ -225,7 +226,6 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
 %{_bindir}/geopmsrun
 %{_bindir}/geopmaprun
 %{_bindir}/geopmplotter
-%doc %{_mandir}/man1/geopm_launcher.1.gz
 %doc %{_mandir}/man1/geopmsrun.1.gz
 %doc %{_mandir}/man1/geopmplotter.1.gz
 %doc %{_mandir}/man1/geopmaprun.1.gz
