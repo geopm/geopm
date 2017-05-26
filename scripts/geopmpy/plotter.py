@@ -187,7 +187,7 @@ class TraceConfig(Config):
     """
     def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False, base_clock=None, # New args for this class
                  focus_node=None,                                                             # New args for this class
-                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                            # Base class args to override
+                 fig_size=(7, 6), fontsize=16, legend_fontsize=9,                             # Base class args to override
                  **kwargs):                                                                   # User overridden args
         super(TraceConfig, self).__init__(fig_size=fig_size, fontsize=fontsize, legend_fontsize=legend_fontsize,
                                           **kwargs)
@@ -538,12 +538,7 @@ def generate_power_plot(trace_df, config):
 
         plt.title('{} Iteration Power\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-        num_nodes = len(node_names)
-        if config.analyze:
-            num_nodes += 2 # Add 2 node spots for the cap and combined average
-        ncol = int(math.ceil(float(num_nodes)/4))
-
-        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=4,
                             shadow=True, fancybox=True, fontsize=config.legend_fontsize)
         for l in legend.legendHandles:
             l.set_linewidth(2.0)
@@ -559,6 +554,11 @@ def generate_power_plot(trace_df, config):
         if config.write_csv:
             full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
             median_df.to_csv(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+            full_path = os.path.join(config.output_dir, '{}_mean_node_power.csv'.format(file_name))
+            median_df.groupby(level='node_name')['combined_power'].mean().sort_values().to_csv(full_path, header=['combined_power_mean'])
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
 
@@ -800,8 +800,7 @@ def generate_freq_plot(trace_df, config):
 
             plt.title('{} Iteration Frequency\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-            ncol = int(math.ceil(float(len(node_names))/4))
-            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=4,
                                 shadow=True, fancybox=True, fontsize=config.legend_fontsize)
             for l in legend.legendHandles:
                 l.set_linewidth(2.0)
