@@ -33,6 +33,24 @@
       "revId": "4858d28880876848ca8ebf6ee6fe39532c3b51ab",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06ca5ae5_87b6b511",
+        "filename": "src/SampleRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-05-26T04:50:28Z",
+      "side": 1,
+      "message": "Yes, I did look into the emplace_back API and was aware of it internally doing the \"newing\" but SampleRegulator.hpp:186 we changed the type this container  is expecting the the interface type (ICircularBuffer), and you cannot \"new\" that abstract class.  How do we tell emplace_back the real type we want instaciated? Thanks for the note, I\u0027ll look into it further.  Do we need to change the vector add API we use such that we explicitly do the new?",
+      "parentUuid": "ebe2d803_7d77ab5a",
+      "revId": "4858d28880876848ca8ebf6ee6fe39532c3b51ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
