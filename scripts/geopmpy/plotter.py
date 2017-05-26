@@ -131,12 +131,17 @@ class Config(object):
         plt.rcParams.update({'font.size': self.fontsize})
         plt.rcParams.update({'figure.autolayout': True})
 
-    def check_plugins(self, df):
+    def check_plugins(self, df, ref_plugin=None, tgt_plugin=None):
+        if ref_plugin is None:
+            ref_plugin = self.ref_plugin
+        if tgt_plugin is None:
+            tgt_plugin = self.tgt_plugin
+
         decider_list = df.index.get_level_values('tree_decider').unique().tolist()
-        if self.ref_plugin is not None and self.ref_plugin not in decider_list:
-            raise SyntaxError('Reference plugin {} not found in report dataframe!'.format(self.ref_plugin))
-        if self.tgt_plugin is not None and self.tgt_plugin not in decider_list:
-            raise SyntaxError('Target plugin {} not found in report dataframe!'.format(self.tgt_plugin))
+        if ref_plugin is not None and ref_plugin not in decider_list:
+            raise SyntaxError('Reference plugin {} not found in dataframe!'.format(ref_plugin))
+        if tgt_plugin is not None and tgt_plugin not in decider_list:
+            raise SyntaxError('Target plugin {} not found in dataframe!'.format(tgt_plugin))
 
 
 class ReportConfig(Config):
@@ -187,7 +192,7 @@ class TraceConfig(Config):
     """
     def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False, base_clock=None, # New args for this class
                  focus_node=None,                                                             # New args for this class
-                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                            # Base class args to override
+                 fig_size=(7, 6), fontsize=16, legend_fontsize=9,                             # Base class args to override
                  **kwargs):                                                                   # User overridden args
         super(TraceConfig, self).__init__(fig_size=fig_size, fontsize=fontsize, legend_fontsize=legend_fontsize,
                                           **kwargs)
@@ -424,7 +429,14 @@ def generate_bar_plot(report_df, config):
     plt.tight_layout()
 
     if config.speedup:
-        ax.set_ylim(1 - config.yspan, 1 + config.yspan)
+        # Check yspan before setting to ensure span is > speedup
+        abs_max_val = max(abs(df['target_mean'].max()), abs(df['target_mean'].min()))
+        abs_max_val = abs(abs_max_val - 1)
+        if abs_max_val  > config.yspan:
+            yspan = abs_max_val * 1.1
+        else:
+            yspan = config.yspan
+        ax.set_ylim(1 - yspan, 1 + yspan)
     else:
         ymax = ax.get_ylim()[1]
         ymax *= 1.1
@@ -538,12 +550,7 @@ def generate_power_plot(trace_df, config):
 
         plt.title('{} Iteration Power\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-        num_nodes = len(node_names)
-        if config.analyze:
-            num_nodes += 2 # Add 2 node spots for the cap and combined average
-        ncol = int(math.ceil(float(num_nodes)/4))
-
-        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=4,
                             shadow=True, fancybox=True, fontsize=config.legend_fontsize)
         for l in legend.legendHandles:
             l.set_linewidth(2.0)
@@ -559,6 +566,11 @@ def generate_power_plot(trace_df, config):
         if config.write_csv:
             full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
             median_df.to_csv(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+            full_path = os.path.join(config.output_dir, '{}_mean_node_power.csv'.format(file_name))
+            median_df.groupby(level='node_name')['combined_power'].mean().sort_values().to_csv(full_path, header=['combined_power_mean'])
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
 
@@ -608,16 +620,21 @@ def generate_epoch_plot(trace_df, config):
             minor error for especially long running apps.
     """
     if config.ref_plugin is None:
-        config.ref_plugin = 'static_policy'
+        ref_plugin = 'static_policy'
         sys.stdout.write('WARNING: No reference plugin set.  Use "--ref_plugin" to override.  ' +
                          'Assuming "static_policy".\n')
+    else:
+        ref_plugin = config.ref_plugin
+
     if config.tgt_plugin is None:
-        config.tgt_plugin = 'power_balancing'
+        tgt_plugin = 'power_balancing'
         sys.stdout.write('WARNING: No target plugin set.  Use "--tgt_plugin" to override.  ' +
                          'Assuming "power_balancing".\n')
+    else:
+        tgt_plugin = config.tgt_plugin
     sys.stdout.flush()
 
-    config.check_plugins(trace_df)
+    config.check_plugins(trace_df, ref_plugin=ref_plugin, tgt_plugin=tgt_plugin)
     idx = pandas.IndexSlice
     decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
@@ -628,12 +645,12 @@ def generate_epoch_plot(trace_df, config):
     # Group by power budget
     for (version, name, power_budget), df in trace_df.groupby(level=['version', 'name', 'power_budget']):
         reference_df = df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
-                                  :, config.ref_plugin],]
+                                  :, ref_plugin],]
         reference_median_df = geopmpy.io.Trace.get_median_df(reference_df, ' ', config)
         reference_max_time_df = reference_median_df.unstack(level=['node_name']).max(axis=1)
 
         target_df = df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                               :, config.tgt_plugin],]
+                               :, tgt_plugin],]
         target_median_df = geopmpy.io.Trace.get_median_df(target_df, ' ', config)
         target_max_time_df = target_median_df.unstack(level=['node_name']).max(axis=1)
 
@@ -645,14 +662,14 @@ def generate_epoch_plot(trace_df, config):
         f, ax = plt.subplots()
         plt.plot(numpy.arange(float(len(reference_max_time_df))) / len(reference_max_time_df) * 100,
                  reference_max_time_df.rolling(window=config.smooth, center=True).mean(),
-                 label=config.ref_plugin.replace('_', ' ').title(),
+                 label=ref_plugin.replace('_', ' ').title(),
                  color='blue',
                  linewidth=1.5)
 
-        if config.ref_plugin != config.tgt_plugin: # Do not plot the second line if there is no second plugin
+        if ref_plugin != tgt_plugin: # Do not plot the second line if there is no second plugin
             plt.plot(numpy.arange(float(len(target_max_time_df))) / len(target_max_time_df) * 100,
                      target_max_time_df.rolling(window=config.smooth, center=True).mean(),
-                     label=config.tgt_plugin.replace('_', ' ').title(),
+                     label=tgt_plugin.replace('_', ' ').title(),
                      color='cyan',
                      linewidth=1.5)
 
@@ -696,13 +713,13 @@ def generate_epoch_plot(trace_df, config):
         if config.analyze:
             full_path = os.path.join(config.output_dir, '{}_stats.txt'.format(file_name))
             with open(full_path, 'w') as fd:
-                fd.write('Reference ({}) time statistics -\n\n{}'.format(config.ref_plugin,
+                fd.write('Reference ({}) time statistics -\n\n{}'.format(ref_plugin,
                         reference_median_df.unstack(level=['node_name']).describe()))
-                fd.write('\n\nReference ({}) Aggregate (max) time statistics -\n\n{}'.format(config.ref_plugin,
+                fd.write('\n\nReference ({}) Aggregate (max) time statistics -\n\n{}'.format(ref_plugin,
                         reference_median_df.unstack(level=['node_name']).mean(axis=1).describe()))
-                fd.write('\n\nTarget ({}) time statistics -\n\n{}'.format(config.tgt_plugin,
+                fd.write('\n\nTarget ({}) time statistics -\n\n{}'.format(tgt_plugin,
                         target_median_df.unstack(level=['node_name']).describe()))
-                fd.write('\n\nTarget ({}) Aggregate (max) time statistics -\n\n{}'.format(config.tgt_plugin,
+                fd.write('\n\nTarget ({}) Aggregate (max) time statistics -\n\n{}'.format(tgt_plugin,
                          target_median_df.unstack(level=['node_name']).mean(axis=1).describe()))
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
@@ -800,8 +817,7 @@ def generate_freq_plot(trace_df, config):
 
             plt.title('{} Iteration Frequency\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-            ncol = int(math.ceil(float(len(node_names))/4))
-            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=4,
                                 shadow=True, fancybox=True, fontsize=config.legend_fontsize)
             for l in legend.legendHandles:
                 l.set_linewidth(2.0)
@@ -857,7 +873,7 @@ def main(argv):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('data_path', metavar='PATH',
                         help='the input path to be searched for report/trace files.',
-                        action='store', default='.')
+                        action='store', default='.', nargs='?')
     parser.add_argument('-r', '--report_base',
                         help='the base report string to be searched.',
                         action='store', default='')
@@ -924,7 +940,7 @@ def main(argv):
                         action='store_true')
     parser.add_argument('--min_drop',
                         help='Minimum power budget to include in the plot.',
-                        action='store', metavar='BUDGET_WATTS', type=int, default=1)
+                        action='store', metavar='BUDGET_WATTS', type=int, default=-999)
     parser.add_argument('--max_drop',
                         help='Maximum power budget to include in the plot.',
                         action='store', metavar='BUDGET_WATTS', type=int, default=999)
