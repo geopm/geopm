@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ff6aab44_072ad9c2",
+        "filename": "src/Policy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-05-26T14:53:06Z",
+      "side": 1,
+      "message": "I agree, my logic was that APIs used by Policy exposed the type, but these are protected/internal so you are right no need.",
+      "parentUuid": "c98d25cf_8885ba7d",
+      "revId": "4858d28880876848ca8ebf6ee6fe39532c3b51ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebe2d803_7d77ab5a",
         "filename": "src/SampleRegulator.cpp",
         "patchSetId": 1
