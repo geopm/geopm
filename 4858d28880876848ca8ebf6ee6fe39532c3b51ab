@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c98d25cf_8885ba7d",
+        "filename": "src/Policy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-26T01:36:21Z",
+      "side": 1,
+      "message": "Since RegionPolicy is a local class used only within the Policy.cpp compilation unit I\u0027m not sure we need to define the interface (IRegionPolicy) for this class at all. It doesn\u0027t seem to be used.  Also don\u0027t convert RegionPolicy to virtual.",
+      "revId": "4858d28880876848ca8ebf6ee6fe39532c3b51ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebe2d803_7d77ab5a",
+        "filename": "src/SampleRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-05-26T01:36:21Z",
+      "side": 1,
+      "message": "emplace_back() is specifically for newing in place.  I don\u0027t understand the changes to this file.",
+      "revId": "4858d28880876848ca8ebf6ee6fe39532c3b51ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
