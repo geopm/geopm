@@ -32,6 +32,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <mpi.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -574,12 +575,6 @@ static void FMPI_File_open(MPI_Fint *comm, char *filename, MPI_Fint *amode, MPI_
     pmpi_file_open_(&comm_swap, filename, amode, info, fh, ierr, name_len);
 }
 
-/* MPI_FINALIZE Fortran wrappers */
-static void FMPI_Finalize(MPI_Fint *ierr)
-{
-    *ierr = MPI_Finalize();
-}
-
 /* MPI_GATHER Fortran wrappers */
 static void FMPI_Gather(MPI_Fint *sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *recvbuf, MPI_Fint *recvcount, MPI_Fint *recvtype, MPI_Fint *root, MPI_Fint *comm, MPI_Fint *ierr)
 {
@@ -776,14 +771,6 @@ void Init(MPI_Fint *ierr)
     int argc = 0;
     char** argv = NULL;
     *ierr = MPI_Init(&argc, &argv);
-}
-
-/* MPI_INIT_THREAD Fortran wrappers */
-static void FMPI_Init_thread(MPI_Fint *required, MPI_Fint *provided, MPI_Fint *ierr)
-{
-    int argc = 0;
-    char** argv = NULL;
-    *ierr = MPI_Init_thread(&argc, &argv, *required, provided);
 }
 
 /* MPI_INTERCOMM_CREATE Fortran wrappers */
