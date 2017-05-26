@@ -35,6 +35,7 @@ GEOPM Plotter - Used to produce plots and other analysis files from report and/o
 
 import sys
 import os
+import copy
 import subprocess
 import traceback
 import argparse
@@ -187,7 +188,7 @@ class TraceConfig(Config):
     """
     def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False, base_clock=None, # New args for this class
                  focus_node=None,                                                             # New args for this class
-                 fig_size=(7, 6), fontsize=16, legend_fontsize=12,                            # Base class args to override
+                 fig_size=(7, 6), fontsize=16, legend_fontsize=9,                             # Base class args to override
                  **kwargs):                                                                   # User overridden args
         super(TraceConfig, self).__init__(fig_size=fig_size, fontsize=fontsize, legend_fontsize=legend_fontsize,
                                           **kwargs)
@@ -424,7 +425,14 @@ def generate_bar_plot(report_df, config):
     plt.tight_layout()
 
     if config.speedup:
-        ax.set_ylim(1 - config.yspan, 1 + config.yspan)
+        # Check yspan before setting to ensure span is > speedup
+        abs_max_val = max(abs(df['target_mean'].max()), abs(df['target_mean'].min()))
+        abs_max_val = abs(abs_max_val - 1)
+        if abs_max_val  > config.yspan:
+            yspan = abs_max_val * 1.1
+        else:
+            yspan = config.yspan
+        ax.set_ylim(1 - yspan, 1 + yspan)
     else:
         ymax = ax.get_ylim()[1]
         ymax *= 1.1
@@ -538,12 +546,7 @@ def generate_power_plot(trace_df, config):
 
         plt.title('{} Iteration Power\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-        num_nodes = len(node_names)
-        if config.analyze:
-            num_nodes += 2 # Add 2 node spots for the cap and combined average
-        ncol = int(math.ceil(float(num_nodes)/4))
-
-        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=4,
                             shadow=True, fancybox=True, fontsize=config.legend_fontsize)
         for l in legend.legendHandles:
             l.set_linewidth(2.0)
@@ -559,6 +562,11 @@ def generate_power_plot(trace_df, config):
         if config.write_csv:
             full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
             median_df.to_csv(full_path)
+            if config.verbose:
+                sys.stdout.write('    {}\n'.format(full_path))
+
+            full_path = os.path.join(config.output_dir, '{}_mean_node_power.csv'.format(file_name))
+            median_df.groupby(level='node_name')['combined_power'].mean().sort_values().to_csv(full_path, header=['combined_power_mean'])
             if config.verbose:
                 sys.stdout.write('    {}\n'.format(full_path))
 
@@ -800,8 +808,7 @@ def generate_freq_plot(trace_df, config):
 
             plt.title('{} Iteration Frequency\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-            ncol = int(math.ceil(float(len(node_names))/4))
-            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=ncol,
+            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5,0], ncol=4,
                                 shadow=True, fancybox=True, fontsize=config.legend_fontsize)
             for l in legend.legendHandles:
                 l.set_linewidth(2.0)
@@ -857,7 +864,7 @@ def main(argv):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('data_path', metavar='PATH',
                         help='the input path to be searched for report/trace files.',
-                        action='store', default='.')
+                        action='store', default='.', nargs='?')
     parser.add_argument('-r', '--report_base',
                         help='the base report string to be searched.',
                         action='store', default='')
@@ -924,7 +931,7 @@ def main(argv):
                         action='store_true')
     parser.add_argument('--min_drop',
                         help='Minimum power budget to include in the plot.',
-                        action='store', metavar='BUDGET_WATTS', type=int, default=1)
+                        action='store', metavar='BUDGET_WATTS', type=int, default=-999)
     parser.add_argument('--max_drop',
                         help='Maximum power budget to include in the plot.',
                         action='store', metavar='BUDGET_WATTS', type=int, default=999)
@@ -999,7 +1006,7 @@ def main(argv):
         if plot_func_name not in globals():
             raise KeyError('Invalid plot type "{}"!  Valid plots are {}.'.format(plot, ', '.join(plots)))
         if plot in trace_plots:
-            globals()[plot_func_name](app_output.get_trace_df(), trace_config)
+            globals()[plot_func_name](app_output.get_trace_df(), copy.deepcopy(trace_config))
         else:
-            globals()[plot_func_name](app_output.get_report_df(), report_config)
+            globals()[plot_func_name](app_output.get_report_df(), copy.deepcopy(report_config))
 
