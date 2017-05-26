@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include "geopm_pmpi.h"
 #include "config.h"
@@ -771,7 +772,7 @@ static void FMPI_Ineighbor_alltoallw(MPI_Fint *sendbuf, MPI_Fint *sendcounts, MP
 }
 
 /* MPI_INIT Fortran wrappers */
-void Init(MPI_Fint *ierr)
+void FMPI_Init(MPI_Fint *ierr)
 {
     int argc = 0;
     char** argv = NULL;
@@ -1311,6 +1312,22 @@ void MPI_DIST_GRAPH_NEIGHBORS(MPI_Fint* comm, MPI_Fint* maxindegree, MPI_Fint* s
     FMPI_Dist_graph_neighbors(comm, maxindegree, sources, sourceweights, maxoutdegree, destinations, destweights, ierr);
 }
 
+void mpi_finalize(MPI_Fint* ierr) {
+    FMPI_Finalize(ierr);
+}
+
+void mpi_finalize_(MPI_Fint* ierr) {
+    FMPI_Finalize(ierr);
+}
+
+void mpi_finalize__(MPI_Fint* ierr) {
+    FMPI_Finalize(ierr);
+}
+
+void MPI_FINALIZE(MPI_Fint* ierr) {
+    FMPI_Finalize(ierr);
+}
+
 void mpi_iallgather(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr) {
     FMPI_Iallgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, request, ierr);
 }
@@ -1501,6 +1518,38 @@ void mpi_improbe__(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* fl
 
 void MPI_IMPROBE(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag, MPI_Fint* message, MPI_Fint* status, MPI_Fint* ierr) {
     FMPI_Improbe(source, tag, comm, flag, message, status, ierr);
+}
+
+void mpi_init(MPI_Fint* ierr) {
+    FMPI_Init(ierr);
+}
+
+void mpi_init_(MPI_Fint* ierr) {
+    FMPI_Init(ierr);
+}
+
+void mpi_init__(MPI_Fint* ierr) {
+    FMPI_Init(ierr);
+}
+
+void MPI_INIT(MPI_Fint* ierr) {
+    FMPI_Init(ierr);
+}
+
+void mpi_init_thread(MPI_Fint *required, MPI_Fint *provided, MPI_Fint *ierr) {
+    FMPI_Init_thread(required, provided, ierr);
+}
+
+void mpi_init_thread_(MPI_Fint *required, MPI_Fint *provided, MPI_Fint *ierr) {
+    FMPI_Init_thread(required, provided, ierr);
+}
+
+void mpi_init_thread__(MPI_Fint *required, MPI_Fint *provided, MPI_Fint *ierr) {
+    FMPI_Init_thread(required, provided, ierr);
+}
+
+void MPI_INIT_THREAD(MPI_Fint *required, MPI_Fint *provided, MPI_Fint *ierr) {
+    FMPI_Init_thread(required, provided, ierr);
 }
 
 void mpi_iprobe(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag, MPI_Fint* status, MPI_Fint* ierr) {
