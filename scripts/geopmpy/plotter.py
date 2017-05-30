@@ -38,6 +38,7 @@ import os
 import subprocess
 import traceback
 import argparse
+import cPickle as pickle
 import math
 from pkg_resources import parse_version
 import pandas
@@ -139,9 +140,9 @@ class Config(object):
 
         decider_list = df.index.get_level_values('tree_decider').unique().tolist()
         if ref_plugin is not None and ref_plugin not in decider_list:
-            raise SyntaxError('Reference plugin {} not found in dataframe!'.format(ref_plugin))
+            raise LookupError('Reference plugin {} not found in dataframe!'.format(ref_plugin))
         if tgt_plugin is not None and tgt_plugin not in decider_list:
-            raise SyntaxError('Target plugin {} not found in dataframe!'.format(tgt_plugin))
+            raise LookupError('Target plugin {} not found in dataframe!'.format(tgt_plugin))
 
 
 class ReportConfig(Config):
@@ -482,7 +483,7 @@ def generate_power_plot(trace_df, config):
         config: The object specifying the plotting and analysis parameters.
 
     Raises:
-        SyntaxError: If the reference or target plugin was not found in the DataFrame.
+        LookupError: If the reference or target plugin was not found in the DataFrame.
 
     Todo:
         * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
@@ -493,11 +494,20 @@ def generate_power_plot(trace_df, config):
     decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
     # Select only the data we care about
+    if config.verbose:
+        sys.stdout.write('Filtering data...\n')
+        sys.stdout.flush()
     trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
                                 config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
 
+    if len(trace_df) == 0:
+        raise LookupError('No data remains after filtering.  Please check your datasets and filtering options.')
+
     # Do not include node_name, iteration or index in the groupby clause; The median iteration is extracted and used
     # below for every node togther in a group.  The index must be preserved to ensure the DFs stay in order.
+    if config.verbose:
+        sys.stdout.write('Grouping data...\n')
+        sys.stdout.flush()
     for (version, name, power_budget, tree_decider, leaf_decider), df in \
         trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
 
@@ -613,7 +623,7 @@ def generate_epoch_plot(trace_df, config):
         config: The object specifying the plotting and analysis parameters.
 
     Raises:
-        SyntaxError: If the reference or target plugin was not found in the DataFrame.
+        LookupError: If the reference or target plugin was not found in the DataFrame.
 
     Todo:
         * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
@@ -639,10 +649,19 @@ def generate_epoch_plot(trace_df, config):
     decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
     # Select only the data we care about
+    if config.verbose:
+        sys.stdout.write('Filtering data...\n')
+        sys.stdout.flush()
     trace_df = trace_df.loc[idx[config.ref_version:config.tgt_version, config.ref_profile_name:config.tgt_profile_name,
                                 config.min_drop:config.max_drop],]
 
+    if len(trace_df) == 0:
+        raise LookupError('No data remains after filtering.  Please check your datasets and filtering options.')
+
     # Group by power budget
+    if config.verbose:
+        sys.stdout.write('Grouping data...\n')
+        sys.stdout.flush()
     for (version, name, power_budget), df in trace_df.groupby(level=['version', 'name', 'power_budget']):
         reference_df = df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
                                   :, ref_plugin],]
@@ -755,7 +774,7 @@ def generate_freq_plot(trace_df, config):
         config: The object specifying the plotting and analysis parameters.
 
     Raises:
-        SyntaxError: If the reference or target plugin was not found in the DataFrame.
+        LookupError: If the reference or target plugin was not found in the DataFrame.
 
     Todo:
         * Resample the median_df to ensure all nodes have the same number of samples.  This can be a source of
@@ -766,9 +785,18 @@ def generate_freq_plot(trace_df, config):
     decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
     # Select only the data we care about
+    if config.verbose:
+        sys.stdout.write('Filtering data...\n')
+        sys.stdout.flush()
     trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
                                 config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
 
+    if len(trace_df) == 0:
+        raise LookupError('No data remains after filtering.  Please check your datasets and filtering options.')
+
+    if config.verbose:
+        sys.stdout.write('Grouping data...\n')
+        sys.stdout.flush()
     for (version, name, power_budget, tree_decider, leaf_decider), df in \
         trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
         # Get the diffed CLK counters, then determine the median iteration (if multiple runs)
@@ -953,6 +981,9 @@ def main(argv):
     parser.add_argument('--show',
                         help='show an interactive plot of the data',
                         action='store_true')
+    parser.add_argument('--cache',
+                        help='Load or save the data parsed in cache files prefixed with FILE_NAME.',
+                        action='store', metavar='FILE_NAME')
     parser.add_argument('--version', action='version', version=__version__)
 
     args = parser.parse_args(argv)
@@ -973,20 +1004,58 @@ def main(argv):
     else:
         trace_glob = None
 
-    app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+    report_df=None
+    trace_df=None
+    app_output=None
+    if args.cache:
+        if args.verbose:
+            sys.stdout.write('Trying to load {} caches... '.format(args.cache))
+            sys.stdout.flush()
+        try:
+            report_df = pickle.load(open(args.cache + '_report.p', 'rb'))
+            if trace_plots.intersection(args.plot_types):
+                trace_df = pickle.load(open(args.cache + '_trace.p', 'rb'))
+        except IOError:
+            sys.stderr.write('WARNING: File {cache}_report.p or {cache}_trace.p failed to load! '.format(cache=args.cache))
+        if args.verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+    if report_df is None and trace_df is None:
+        app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+        if args.cache:
+            # Save app_output in cache file
+            if args.verbose:
+                sys.stdout.write('Saving parsed data to {} cache... '.format(args.cache))
+                sys.stdout.flush()
+            app_output.get_report_df().to_pickle(args.cache + '_report.p')
+            if trace_plots.intersection(args.plot_types):
+                app_output.get_trace_df().to_pickle(args.cache + '_trace.p')
+            if args.verbose:
+                sys.stdout.write('Done.\n')
+                sys.stdout.flush()
+
+    if report_df is None:
+        report_df = app_output.get_report_df()
+    if len(report_df) == 0:
+        raise LookupError('No report data in cache.  Tried to load {}_report.p.'.format(args.cache))
+    if trace_df is None and trace_plots.intersection(args.plot_types):
+        if app_output is None:
+            raise LookupError('No trace cache available.  Tried to load {}_trace.p.'.format(args.cache))
+        trace_df = app_output.get_trace_df()
 
     if args.profile_name:
         profile_name = args.profile_name
     else:
         if report_glob is not None:
-            profile_name_list = app_output.get_report_df().index.get_level_values('name').unique()
+            profile_name_list = report_df.index.get_level_values('name').unique()
         elif trace_glob is not None:
-            profile_name_list = app_output.get_trace_df().index.get_level_values('name').unique()
+            profile_name_list = trace_df.index.get_level_values('name').unique()
         else:
-            raise SyntaxError('No glob pattern specified.')
+            raise LookupError('No glob pattern specified.')
 
         if len(profile_name_list) > 1:
-            raise SyntaxError('Multiple profile names detected! Please provide the -n option to specify the profile name!')
+            raise LookupError('Multiple profile names detected! Please provide the -n option to specify the profile name!')
         profile_name = profile_name_list[0]
 
     report_config = ReportConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
@@ -1015,7 +1084,11 @@ def main(argv):
         if plot_func_name not in globals():
             raise KeyError('Invalid plot type "{}"!  Valid plots are {}.'.format(plot, ', '.join(plots)))
         if plot in trace_plots:
-            globals()[plot_func_name](app_output.get_trace_df(), trace_config)
+            if trace_df is None or len(trace_df) == 0:
+                raise LookupError('No data present for the requested trace plot.')
+            globals()[plot_func_name](trace_df, trace_config)
         else:
-            globals()[plot_func_name](app_output.get_report_df(), report_config)
+            if len(report_df) == 0:
+                raise LookupError('No data present for the requested report plot.')
+            globals()[plot_func_name](report_df, report_config)
 
