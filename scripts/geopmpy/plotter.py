@@ -39,6 +39,7 @@ import copy
 import subprocess
 import traceback
 import argparse
+import cPickle as pickle
 import math
 from pkg_resources import parse_version
 import pandas
@@ -492,6 +493,9 @@ def generate_power_plot(trace_df, config):
     trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
                                 config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
 
+    if len(trace_df) == 0:
+        raise SyntaxError('No data remains after filtering.  Please check your datasets and filtering options.')
+
     # Do not include node_name, iteration or index in the groupby clause; The median iteration is extracted and used
     # below for every node togther in a group.  The index must be preserved to ensure the DFs stay in order.
     for (version, name, power_budget, tree_decider, leaf_decider), df in \
@@ -633,6 +637,9 @@ def generate_epoch_plot(trace_df, config):
     trace_df = trace_df.loc[idx[config.ref_version:config.tgt_version, config.ref_profile_name:config.tgt_profile_name,
                                 config.min_drop:config.max_drop],]
 
+    if len(trace_df) == 0:
+        raise SyntaxError('No data remains after filtering.  Please check your datasets and filtering options.')
+
     # Group by power budget
     for (version, name, power_budget), df in trace_df.groupby(level=['version', 'name', 'power_budget']):
         reference_df = df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
@@ -759,6 +766,9 @@ def generate_freq_plot(trace_df, config):
     # Select only the data we care about
     trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
                                 config.min_drop:config.max_drop, config.tgt_plugin:config.tgt_plugin],]
+
+    if len(trace_df) == 0:
+        raise SyntaxError('No data remains after filtering.  Please check your datasets and filtering options.')
 
     for (version, name, power_budget, tree_decider, leaf_decider), df in \
         trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
@@ -944,6 +954,9 @@ def main(argv):
     parser.add_argument('--show',
                         help='show an interactive plot of the data',
                         action='store_true')
+    parser.add_argument('--cache',
+                        help='Load or save the data parsed in cache files prefixed with FILE_NAME.',
+                        action='store', metavar='FILE_NAME')
     parser.add_argument('--version', action='version', version=__version__)
 
     args = parser.parse_args(argv)
@@ -964,15 +977,47 @@ def main(argv):
     else:
         trace_glob = None
 
-    app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+    report_df=None
+    trace_df=None
+    if args.cache:
+        if args.verbose:
+            sys.stdout.write('Trying to load {} caches... '.format(args.cache))
+            sys.stdout.flush()
+        try:
+            report_df = pickle.load(open(args.cache + '_report.p', 'rb'))
+            trace_df = pickle.load(open(args.cache + '_trace.p', 'rb'))
+        except IOError:
+            sys.stdout.write('ERROR: File {cache}_report.p or {cache}_trace.p failed to load! '.format(cache=args.cache))
+            sys.stdout.flush()
+        if args.verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+    if report_df is None and trace_df is None:
+        app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+        if args.cache:
+            # Save app_output in cache file
+            if args.verbose:
+                sys.stdout.write('Saving parsed data to {} cache... '.format(args.cache))
+                sys.stdout.flush()
+            app_output.get_report_df().to_pickle(args.cache + '_report.p')
+            app_output.get_trace_df().to_pickle(args.cache + '_trace.p')
+            if args.verbose:
+                sys.stdout.write('Done.\n')
+                sys.stdout.flush()
+
+    if report_df is None:
+        report_df = app_output.get_report_df()
+    if trace_df is None:
+        trace_df = app_output.get_trace_df()
 
     if args.profile_name:
         profile_name = args.profile_name
     else:
         if report_glob is not None:
-            profile_name_list = app_output.get_report_df().index.get_level_values('name').unique()
+            profile_name_list = report_df.index.get_level_values('name').unique()
         elif trace_glob is not None:
-            profile_name_list = app_output.get_trace_df().index.get_level_values('name').unique()
+            profile_name_list = trace_df.index.get_level_values('name').unique()
         else:
             raise SyntaxError('No glob pattern specified.')
 
@@ -1006,7 +1051,11 @@ def main(argv):
         if plot_func_name not in globals():
             raise KeyError('Invalid plot type "{}"!  Valid plots are {}.'.format(plot, ', '.join(plots)))
         if plot in trace_plots:
-            globals()[plot_func_name](app_output.get_trace_df(), copy.deepcopy(trace_config))
+            if len(trace_df) == 0:
+                raise SyntaxError('No data present for the requested trace plot.')
+            globals()[plot_func_name](trace_df, copy.deepcopy(trace_config))
         else:
-            globals()[plot_func_name](app_output.get_report_df(), copy.deepcopy(report_config))
+            if len(report_df) == 0:
+                raise SyntaxError('No data present for the requested report plot.')
+            globals()[plot_func_name](report_df, copy.deepcopy(report_config))
 
