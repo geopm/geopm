@@ -144,6 +144,18 @@ If _PATH_ is not provided, the current working directory is used.
 * `--show`:
   This will display an interactive plot using the default Matplotlib backend.
 
+* `--cache` _FILE_NAME_:
+  Use _FILE_NAME_ as the prefix for data cache files to try to load.  If no files are found, data will
+  be parsed as usual and cache files will be written in the CWD afterwards.  Note that since the caches
+  are created from the parsed data and data is only parsed on an as needed basis depending on the requested
+  plot, you must request plots requiring both report data (e.g. bar) and trace data (e.g. power) to parse
+  all of the data in the _PATH_.  When used properly this drastically speeds up the time taken
+  to create plots.
+
+  WARNING: If the data used to generate the cache files changes, you must manually delete the
+  corresponding .p files.  That is, if _FILE_NAME_ is 'data', remove data_report.p and data_trace.p from
+  the CWD.
+
 ## ENVIRONMENT
 
 * `DISPLAY  `:
