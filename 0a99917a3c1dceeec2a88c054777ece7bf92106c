@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b58e9354_c32ce089",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-05-30T17:42:36Z",
+      "side": 1,
+      "message": "I\u0027m assuming there\u0027s some sort of issue using the initializer list with a concrete type trying to set an interface type that makes this all necessary?  I\u0027ve seen this change in a few of the other files and was just surprised it has to be this way.",
+      "range": {
+        "startLine": 319,
+        "startChar": 17,
+        "endLine": 319,
+        "endChar": 21
+      },
+      "revId": "0a99917a3c1dceeec2a88c054777ece7bf92106c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
