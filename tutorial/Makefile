@@ -37,37 +37,43 @@ CXX = g++
 MPICC = mpicc
 MPICXX = mpicxx
 
+CFLAGS = -std=gnu11 -g
+CXXFLAGS = --std=gnu++11 -g
+LDPATH = -L$(GEOPM_PREFIX)/lib
+
+INCLUDES = -I$(GEOPM_PREFIX)/include
+
 all: $(TUTORIAL_BIN)
 
 tutorial_0.o: tutorial_0.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_0: tutorial_0.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
+	$(MPICC) $^ $(LDFLAGS) -lrt -o $@
 
 tutorial_1.o: tutorial_1.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) -c $^ $(CFLAGS) $(INCLUDES) -o $@
 
 tutorial_1: tutorial_1.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
+	$(MPICC) $^ $(LDFLAGS) -lrt -lm -o $@
 
 tutorial_2.o: tutorial_2.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) -c $^ $(CFLAGS) $(INCLUDES) -o $@
 
 tutorial_2: tutorial_2.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICC) $^ $(LDFLAGS) $(LDPATH) -fopenmp -lgeopm -lrt -lm -o $@
 
 tutorial_3.o: tutorial_3.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) -c $^ $(CFLAGS) $(INCLUDES) -o $@
 
 tutorial_3: tutorial_3.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICC) $^ $(LDFLAGS) $(LDPATH) -fopenmp -lgeopm -lrt -lm -o $@
 
 tutorial_4.o: tutorial_4.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) -c $^ $(CFLAGS) $(INCLUDES) -o $@
 
 tutorial_4: tutorial_4.o imbalancer.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
+	$(MPICC) $^ $(LDFLAGS) $(LDPATH) -fopenmp -lgeopm -lstdc++ -lrt -lm -o $@
 
 tutorial_5.o: tutorial_5.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
