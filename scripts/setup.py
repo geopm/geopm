@@ -75,8 +75,9 @@ classifiers = ['Development Status :: 2 - Pre-Alpha',
                'Topic :: System :: Hardware :: Symmetric Multi-processing',
                'Topic :: System :: Power (UPS)']
 
-install_requires = ['pandas',
+install_requires = ['pandas>=0.19.2',
                     'natsort',
+                    'matplotlib',
                     'cycler']
 
 setup(name='geopmpy',
@@ -86,10 +87,10 @@ setup(name='geopmpy',
       url='https://geopm.github.io/geopm',
       download_url='http://download.opensuse.org/repositories/home:/cmcantalupo:/geopm/',
       license='BSD-3-Clause',
-      author='Christopher Cantalupo',
-      author_email='christopher.m.cantalupo@intel.com',
+      author='Christopher Cantalupo <christopher.m.cantalupo@intel.com>, Brad Geltz <brad.geltz@intel.com>',
       packages=['geopmpy'],
       scripts=scripts,
       test_suite='test',
       classifiers=classifiers,
-      install_requires=install_requires)
+      install_requires=install_requires,
+      python_requires='>=2.7,<3')
