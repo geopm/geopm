@@ -29,28 +29,14 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-"""\
-GEOPM options:
-      --geopm-ctl=ctl         use geopm runtime and launch geopm with the
-                              "ctl" method, one of "process", "pthread" or
-                              "application"
-      --geopm-policy=pol      use the geopm policy file or shared memory
-                              region "pol"
-      --geopm-report=path     create geopm report files with base name "path"
-      --geopm-trace=path      create geopm trace files with base name "path"
-      --geopm-profile=name    set the name of the profile in the report and
-                              trace to "name"
-      --geopm-shmkey=key      use shared memory keys for geopm starting with
-                              "key"
-      --geopm-timeout=sec     application waits "sec" seconds for handshake
-                              with geopm
-      --geopm-plugin=path     look for geopm plugins in "path", a : separated
-                              list of directories
-      --geopm-debug-attach=rk attach serial debugger to rank "rk"
-      --geopm-barrier         apply node local barriers when application enters
-                              or exits a geopm region
-      --geopm-preload         use LD_PRELOAD to link libgeopm.so at runtime
 
+"""This module provides a way to launch MPI applications using the
+GEOPM runtime by wrapping the call to the system MPI application
+launcher.  The module currently supports wrapping the SLURM 'srun'
+command and the ALPS 'aprun' command.  The primary use of this module
+is through the geopmlauncher(1) command line executable which calls
+the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
+page for details about the command line interface.
 """
 
 import sys
@@ -996,6 +982,30 @@ GEOPM version {}
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 """.format(__version__)
 
+    help_str = """\
+GEOPM options:
+      --geopm-ctl=ctl         use geopm runtime and launch geopm with the
+                              "ctl" method, one of "process", "pthread" or
+                              "application"
+      --geopm-policy=pol      use the geopm policy file or shared memory
+                              region "pol"
+      --geopm-report=path     create geopm report files with base name "path"
+      --geopm-trace=path      create geopm trace files with base name "path"
+      --geopm-profile=name    set the name of the profile in the report and
+                              trace to "name"
+      --geopm-shmkey=key      use shared memory keys for geopm starting with
+                              "key"
+      --geopm-timeout=sec     application waits "sec" seconds for handshake
+                              with geopm
+      --geopm-plugin=path     look for geopm plugins in "path", a : separated
+                              list of directories
+      --geopm-debug-attach=rk attach serial debugger to rank "rk"
+      --geopm-barrier         apply node local barriers when application enters
+                              or exits a geopm region
+      --geopm-preload         use LD_PRELOAD to link libgeopm.so at runtime
+
+"""
+
     try:
         launcher = factory(sys.argv)
         launcher.run()
@@ -1004,7 +1014,7 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
         # cases there will be an extraneous help text printed at the end
         # of the run.
         if '--help' in sys.argv or '-h' in sys.argv:
-            sys.stdout.write(__doc__)
+            sys.stdout.write(help_str)
         if '--version' in sys.argv:
             sys.stdout.write(version_str)
     except Exception as e:
@@ -1014,4 +1024,3 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
         sys.stderr.write("<geopmpy.launcher> {err}\n".format(err=e))
         err = -1
     return err
-
