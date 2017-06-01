@@ -79,47 +79,70 @@ the environment variables `GEOPM_REPORT` and `GEOPM_TRACE`, see
 description below.
 
 ## LAUNCHING THE RUNTIME
-There are many ways to launch the geopm runtime programatically (see
-**geopm_ctl_c(3)**), or by command line (see
-**geopmctl(1)**). Alternatively the PMPI interposition by geopm
-enables the geopm runtime to be launched implicitly by the MPI
-runtime.  This launch method is enabled by the `GEOPM_PMPI_CTL`
-environment variable documented below.  The PMPI method for launching
-the geopm runtime is a simple way to get started using geopm and is
-recommended for first time users.
+
+The recommended methods for launching the geopm runtime are the job
+launch wrapper scripts **geopmsrun(1)** and **geopmaprun(1)**.  See
+these man pages for details about the command line interface.  If your
+system does not support `aprun` or `srun` for job launch, please make
+a change request for support for the job launch method used on your
+system at the github issues page:
+
+https://github.com/geopm/geopm/issues
+
+Also, consider porting your job launch command into the
+geopmpy.launcher module and submitting a change request as described
+in CONTRIBUTING.md.
+
+If the job launch application is not supported by the geopmpy.launcher
+the recommended method is to use the environment variables described
+in this man page including the `GEOPM_PMPI_CTL` environment variable.
+If using the "application" launch method then the **geopmctl(1)**
+application should be launched in parallel.
+
+There are legacy methods for launching the runtime programatically.
+These are documented in **geopm_ctl_c(3)**, but are under
+consideration for deprecation and not recommended.
 
 ## INTERPRETING THE REPORT
 If the `GEOPM_REPORT` environment variable is set then a report will
-be generated.  In the current implementation there is a separate
-report file for each compute node.  These report files give
-information about runtime and energy use for each region marked in the
-code.  Additionally time spent in calls to MPI is reported.  In the
-future the report will be aggregated to a single file and may contain
-more data describing the application.
+be generated.  There is one report file generated for each run.  This
+file has a header that describes the geopm version and the policies
+that were used during the run.  This is followed by a breakdown first
+by compute node host name and then by each compute region.  The report
+file gives information about runtime and energy use for each
+identified code region.  Additionally time spent in calls to MPI is
+reported.  In the future the report may contain more data describing
+the application.
 
 It is important to note that per-region accounting in the report
 includes only time spent in the region by all MPI ranks concurrently
 on each compute node.  During the time when two ranks on a compute
 node are not in the same marked region, the data collected is
-attributed to code not marked to be within a region.  See the
+attributed to the "unmarked" code region.  See the
 `GEOPM_REGION_BARRIER` environment variable for more information about
 debugging issues related region synchronicity.  In the future the
 scope of this requirement may change from all ranks on a node to all
 ranks running within the same domain of control.
 
 ## INTERPRETING THE TRACE
+
 If the `GEOPM_TRACE` environment variable is set (see below) then a
 trace file with time ordered information about the application runtime
 is generated.  A separate trace file is generated for each compute
 node and each file is a pipe (the `|` character) delimited ASCII
-table. The first row of the file gives a description of each field.  A
-simple method for selecting fields from the trace file is with the
+table. The file begins with a header that is marked by lines that
+start with the `#` character.  The header contains information about
+the geopm version and the policy that was used during the run.
+
+The first row following the header gives a description of each field.
+A simple method for selecting fields from the trace file is with the
 `awk` command:
 
-    $ awk -F\| '{print $1, $2, $11}' < geopm_trace-host0
+    $ grep -v '^#' geopm.trace-host0 | awk -F\| '{print $1, $2, $11}'
 
 will print a subset of the fields in the trace file called
-"geopm_trace-host0".
+"geopm.trace-host0".
+
 
 ## ENVIRONMENT
 
@@ -139,7 +162,7 @@ will print a subset of the fields in the trace file called
     is destroyed.  The value of the variable determines the name of
     file generated.  The report contains a summary of performance and
     power aggregated over the program execution time and split out by
-    each region.
+    host compute node and each code region.
 
   * `GEOPM_REPORT_VERBOSITY`:
     Determines the level of detail included in the report.  Currently
@@ -152,10 +175,10 @@ will print a subset of the fields in the trace file called
   * `GEOPM_TRACE`:
     Enables geopm tracing capability.  Setting this variable enables
     the creation of a trace output file. The value of the variable is
-    used as the base of the output trace file path.  Currently one
-    trace file is generated per compute node.  The file names of each
-    trace are constructed by appending the node's hostname to base
-    name given by the environment variable (separated by a '-').
+    used as the base of the output trace file path.  One trace file is
+    generated per compute node.  The file names of each trace are
+    constructed by appending the node's hostname to base name given by
+    the environment variable (separated by a '-').
 
   * `GEOPM_SHMKEY`:
     Override the default shared memory key base.  The shared memory
