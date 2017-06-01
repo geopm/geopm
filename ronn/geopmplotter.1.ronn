@@ -168,9 +168,66 @@ If _PATH_ is not provided, the current working directory is used.
   MPLBACKEND='Agg' ./geopmplotter -v data
 
   Or you may make the change permenantly in your matplotlibrc file  as
-  described here: _https://matplotlib.org/faq/usage_faq.html#what-is-a-backend_.
+  described here:<br>
+  _https://matplotlib.org/faq/usage_faq.html#what-is-a-backend_.
 
 Using either of these options will prevent `--show` from working properly.
+
+## EXAMPLES
+  Once the geopmpy modules are installed, you can invoke this utility directly from
+  the command line.  You can either run the utility from inside a directory containing
+  data, or from a remote directory.  Some examples follow:
+
+  Running the utility from the CWD plot the bar and box plots for the current dataset.
+  By default, this assumes you have data utilizing the "static_policy" and "power_balancing"
+  plugins.  The verbose flag is added to show progress when parsing or plotting.
+
+    geopmplotter -vp box,bar
+
+  Plot the epoch loop time comparison, frequency, and power plots.  Note that this will
+  parse all the trace files present in the CWD.  This could take a considerable amount
+  of time for a large dataset.  Similar to the bar plot, the epoch plot assumes the
+  data contains output from both the "static_policy" and "power_balancing" plugins.
+
+    geopmplotter -vp epoch,freq,power
+
+  To plot a single plugin, use the `--ref_plugin` and `--tgt_plugin` options:
+
+    geopmplotter -vp epoch --ref_plugin static_policy --tgt_plugin static_policy
+
+  Plot the trace based plots, though only parsing a subset of the trace files.  In this
+  instance, the trace files are named based on the global power budget that was set
+  at the beginning of the run (e.g. 160-...-trace-<NODENAME>).  This can be significantly
+  faster to parse for large datasets.
+
+    geopmplotter -vp epoch,freq,power -t "160*trace"
+
+  The `--cache` flag can be used to save any parsed data into a Pickle file for expedited
+  data loading on subsequent runs.  Since the plotter will only parse data based on the
+  requested plots, to parse and cache all the report and trace data you must request a set
+  of plots that require both types of files.  Presently the reports are needed for the bar
+  and box plots while all other plots are based on the trace data.  The following requests
+  the bar and frequency plots, and saves the parsed data in all_report.p and all_trace.p.
+
+    geopmplotter -vp bar,freq --cache all
+
+  If all_report.p or all_trace.p exist, they will be loaded and used.  Otherwise, the data
+  will be parsed as usual and then saved in these files.  Utilizing the cache will dramatically
+  speed up the time needed to create plots.  If you need to reparse your data, remove these
+  files.
+
+  Plot everything utilizing the cache.
+
+    geopmplotter -vp box,bar,epoch,freq,power --cache all
+
+  Plot the speedup bar plot from 190W to 210W utilizing the cache.
+
+    geopmplotter -vp bar --speedup --min_drop 190 --max_drop 210 --cache all
+
+  Use `--analyze` with the power plot to include the aggregate power and the power cap
+  line.
+
+    geopmplotter -vp power --cache all --analyze
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
