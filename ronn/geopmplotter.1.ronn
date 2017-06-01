@@ -146,7 +146,7 @@ If _PATH_ is not provided, the current working directory is used.
 
 ## ENVIRONMENT
 
-* `DISPLAY`:
+* `DISPLAY  `:
   Because the geopmplotter relies on Matplotlib backends for creating plots,
   you may have to manually set this variable for proper functionality even if you
   are not displaying the interactive plot with `-s`.  E.g.:
