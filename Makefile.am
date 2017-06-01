@@ -83,6 +83,7 @@ ronn_man = man/geopm.7 \
            man/geopm_ctl_c.3 \
            man/geopm_error.3 \
            man/geopm_fortran.3 \
+           man/geopmpy.7 \
            man/geopmpy_launcher.1 \
            man/geopm_omp.3 \
            man/geopmplotter.1 \
@@ -128,6 +129,7 @@ EXTRA_DIST = .gitignore \
              MANIFEST \
              README.md \
              ronn/geopm.7.ronn \
+             ronn/geopmpy.7.ronn \
              ronn/geopmctl.1.ronn \
              ronn/geopm_ctl_c.3.ronn \
              ronn/geopm_error.3.ronn \

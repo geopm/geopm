@@ -229,6 +229,7 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %doc %{_mandir}/man1/geopmsrun.1.gz
 %doc %{_mandir}/man1/geopmplotter.1.gz
 %doc %{_mandir}/man1/geopmaprun.1.gz
+%doc %{_mandir}/man7/geopmpy.7.gz
 
 %changelog
 endef
