@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75497638_00d4ceba",
+        "filename": "scripts/setup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-05T17:26:37Z",
+      "side": 1,
+      "message": "https://bugs.python.org/msg93286\n\nRest of that discussion is here: https://bugs.python.org/issue6992.\n\nI\u0027d like to do a test upload of this to PyPI and see how it handles the combined author field.",
+      "range": {
+        "startLine": 90,
+        "startChar": 6,
+        "endLine": 90,
+        "endChar": 107
+      },
+      "revId": "502ae3c12dd6a7903f9721bf79f54a6247600369",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
