@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f5a3733_2585aad9",
+        "filename": "ronn/geopmpy.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-05T17:34:06Z",
+      "side": 1,
+      "message": "OR (in between these two commands)",
+      "revId": "3c84f8a7b823dce57d80896de6af2f5aadb09f45",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
