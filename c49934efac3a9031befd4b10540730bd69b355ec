@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42247889_c8f6f1ba",
+        "filename": "ronn/geopmplotter.1.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-05T17:28:07Z",
+      "side": 1,
+      "message": "By putting some extra spaces here the bug of this field overlapping slightly with the content text is alleviated.  This is just a workaround.",
+      "revId": "c49934efac3a9031befd4b10540730bd69b355ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
