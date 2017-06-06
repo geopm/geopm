@@ -34,7 +34,6 @@
 #define _DARWIN_C_SOURCE
 #include <sys/types.h>
 #include <sys/sysctl.h>
-const char *program_invocation_name = "geopm_profile";
 #endif
 
 #include <algorithm>
