@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb222976_9242591b",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-06-06T23:26:18Z",
+      "side": 1,
+      "message": "0.01 not 0.1 !!",
+      "revId": "c1755ee8afa945e17d86973a08db5b48f4a84629",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
