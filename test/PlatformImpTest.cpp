@@ -271,7 +271,6 @@ TestPlatformImp2::TestPlatformImp2()
 
     std::vector<std::string> msr_list = {
         "PKG_POWER_LIMIT",
-        "PP0_POWER_LIMIT",
         "DRAM_POWER_LIMIT",
         "PERF_FIXED_CTR_CTRL",
         "PERF_GLOBAL_CTRL",
@@ -354,7 +353,6 @@ static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_m
 {
     static const std::map<std::string, std::pair<off_t, unsigned long> > msr_map({
         {"PKG_POWER_LIMIT",      {0,   0xDFFFFFFFFFFFFFFF}},
-        {"PP0_POWER_LIMIT",      {64,  0xDFFFFFFFFFFFFFFF}},
         {"DRAM_POWER_LIMIT",     {128, 0xDFFFFFFFFFFFFFFF}},
         {"PERF_FIXED_CTR_CTRL",  {192, 0xDFFFFFFFFFFFFFFF}},
         {"PERF_GLOBAL_CTRL",     {256, 0xDFFFFFFFFFFFFFFF}},
@@ -812,8 +810,6 @@ TEST_F(PlatformImpTest2, msr_restore_modified_value)
     for (unsigned int i = 0; i < NUM_PACKAGE; i++) {
         value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
         EXPECT_EQ(value, 0xDEADBEEF00000000);
-        value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
-        EXPECT_EQ(value, 0xDEADBEEF00000001);
         value = m_platform2->msr_read(geopm::GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
         EXPECT_EQ(value, 0xDEADBEEF00000002);
     }
