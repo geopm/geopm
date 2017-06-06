@@ -76,7 +76,6 @@ enumeration:
 \begin{verbatim}
     enum geopm_telemetry_type_e {
         GEOPM_TELEMETRY_TYPE_PKG_ENERGY,
-        GEOPM_TELEMETRY_TYPE_PP0_ENERGY,
         GEOPM_TELEMETRY_TYPE_DRAM_ENERGY,
         GEOPM_TELEMETRY_TYPE_FREQUENCY,
         GEOPM_TELEMETRY_TYPE_INST_RETIRED,
@@ -408,14 +407,6 @@ sockets:
             msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
             msr_values[count].domain_index = i;
             msr_values[count].timestamp = time;
-            msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_PP0_ENERGY;
-            msr_values[count].signal =
-            m_imp->read_signal(GEOPM_DOMAIN_PACKAGE, i,
-                               GEOPM_TELEMETRY_TYPE_PP0_ENERGY);
-            count++;
-            msr_values[count].domain_type = GEOPM_DOMAIN_PACKAGE;
-            msr_values[count].domain_index = i;
-            msr_values[count].timestamp = time;
             msr_values[count].signal_type = GEOPM_TELEMETRY_TYPE_DRAM_ENERGY;
             msr_values[count].signal =
                 m_imp->read_signal(GEOPM_DOMAIN_PACKAGE, i,
@@ -539,14 +530,6 @@ general there should be a case handler for each
                                      (double)msr_read(device_type,
                                                       device_index,
                                                       m_signal_msr_offset[0]));
-                value *= m_energy_units;
-                break;
-            case GEOPM_TELEMETRY_TYPE_PP0_ENERGY:
-                offset_idx = device_index * m_num_package_signal + 1;
-                value = msr_overflow(offset_idx, 32,
-                                     (double)msr_read(device_type,
-                                                      device_index,
-                                                      m_signal_msr_offset[1]));
                 value *= m_energy_units;
                 break;
             case GEOPM_TELEMETRY_TYPE_DRAM_ENERGY:

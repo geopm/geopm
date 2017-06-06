@@ -145,7 +145,7 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_PMPI_CTL", m_pmpi_ctl_str.c_str(), 1);
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     //setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
-    m_profile = program_invocation_name;
+//    m_profile = program_invocation_name;
 
     EXPECT_EQ(strcmp(m_policy.c_str(), geopm_env_policy()), 0);
     EXPECT_EQ(strcmp((m_shmkey + "-" + std::to_string(geteuid())).c_str(), geopm_env_shmkey()), 0);

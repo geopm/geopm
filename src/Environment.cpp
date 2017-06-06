@@ -135,7 +135,7 @@ namespace geopm
             m_do_profile = true;
         }
         if (m_do_profile && !m_profile.length()) {
-            m_profile = program_invocation_name;
+            //m_profile = program_invocation_name;
         }
     }
 

@@ -52,8 +52,6 @@ namespace geopm
         , m_power_units_inv(0.0)
         , m_min_pkg_watts(1)
         , m_max_pkg_watts(100)
-        , m_min_pp0_watts(1)
-        , m_max_pp0_watts(100)
         , m_min_dram_watts(1)
         , m_max_dram_watts(100)
         , m_signal_msr_offset(M_LLC_VICTIMS)
@@ -84,8 +82,6 @@ namespace geopm
         , m_power_units_inv(other.m_power_units_inv)
         , m_min_pkg_watts(other.m_min_pkg_watts)
         , m_max_pkg_watts(other.m_max_pkg_watts)
-        , m_min_pp0_watts(other.m_min_pp0_watts)
-        , m_max_pp0_watts(other.m_max_pp0_watts)
         , m_min_dram_watts(other.m_min_dram_watts)
         , m_max_dram_watts(other.m_max_dram_watts)
         , m_signal_msr_offset(other.m_signal_msr_offset)
@@ -641,8 +637,6 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
-        m_min_pp0_watts = m_min_pkg_watts;
-        m_max_pp0_watts = m_max_pkg_watts;
     }
 
     void XeonPlatformImp::cbo_counters_init()
@@ -733,8 +727,6 @@ namespace geopm
             {"PKG_POWER_LIMIT",         {0x0610, 0x00ffffff00ffffff}},
             {"PKG_ENERGY_STATUS",       {0x0611, 0x0000000000000000}},
             {"PKG_POWER_INFO",          {0x0614, 0x0000000000000000}},
-            {"PP0_POWER_LIMIT",         {0x0638, 0x0000000000ffffff}},
-            {"PP0_ENERGY_STATUS",       {0x0639, 0x0000000000000000}},
             {"DRAM_POWER_LIMIT",        {0x0618, 0x0000000000ffffff}},
             {"DRAM_ENERGY_STATUS",      {0x0619, 0x0000000000000000}},
             {"DRAM_PERF_STATUS",        {0x061B, 0x0000000000000000}},
@@ -863,8 +855,6 @@ namespace geopm
             {"PKG_POWER_LIMIT",         {0x0610, 0x00ffffff00ffffff}},
             {"PKG_ENERGY_STATUS",       {0x0611, 0x0000000000000000}},
             {"PKG_POWER_INFO",          {0x0614, 0x0000000000000000}},
-            {"PP0_POWER_LIMIT",         {0x0638, 0x0000000000ffffff}},
-            {"PP0_ENERGY_STATUS",       {0x0639, 0x0000000000000000}},
             {"DRAM_POWER_LIMIT",        {0x0618, 0x0000000000ffffff}},
             {"DRAM_ENERGY_STATUS",      {0x0619, 0x0000000000000000}},
             {"DRAM_PERF_STATUS",        {0x061B, 0x0000000000000000}},
