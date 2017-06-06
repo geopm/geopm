@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66f37643_21e05846",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T19:12:58Z",
+      "side": 1,
+      "message": "nix",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 6
+      },
+      "revId": "02950a39e43004179b0f4c429430fd9be735aa4e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c83967cf_66cad017",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T19:12:58Z",
+      "side": 1,
+      "message": "extern",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 6
+      },
+      "revId": "02950a39e43004179b0f4c429430fd9be735aa4e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90205c4b_acf41f47",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T19:12:58Z",
+      "side": 1,
+      "message": "nix",
+      "range": {
+        "startLine": 35,
+        "startChar": 42,
+        "endLine": 35,
+        "endChar": 61
+      },
+      "revId": "02950a39e43004179b0f4c429430fd9be735aa4e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
