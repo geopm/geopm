@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f51d7d69_6a866221",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T18:34:14Z",
+      "side": 1,
+      "message": "LookupError",
+      "range": {
+        "startLine": 771,
+        "startChar": 14,
+        "endLine": 771,
+        "endChar": 25
+      },
+      "revId": "5002bbfec41753b0fec671de9907ce9f7c364136",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e4c8264_0a8ecf7c",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T18:34:14Z",
+      "side": 1,
+      "message": "stderr",
+      "range": {
+        "startLine": 990,
+        "startChar": 16,
+        "endLine": 990,
+        "endChar": 22
+      },
+      "revId": "5002bbfec41753b0fec671de9907ce9f7c364136",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3989e41e_df317a2b",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T18:34:14Z",
+      "side": 1,
+      "message": "Warning.",
+      "range": {
+        "startLine": 990,
+        "startChar": 30,
+        "endLine": 990,
+        "endChar": 35
+      },
+      "revId": "5002bbfec41753b0fec671de9907ce9f7c364136",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ace8c00_8efdf113",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T18:34:14Z",
+      "side": 1,
+      "message": "Can be integrated above?",
+      "range": {
+        "startLine": 1009,
+        "startChar": 4,
+        "endLine": 1012,
+        "endChar": 44
+      },
+      "revId": "5002bbfec41753b0fec671de9907ce9f7c364136",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
