@@ -96,7 +96,6 @@ class ShmemFreqPlatformImp : public PlatformImp
         const double m_cpu_freq_max;
         const double m_pkg_power_max;
         const double m_dram_power_max;
-        const double m_pp0_power_max;
         const double m_inst_ratio;
         const double m_llc_ratio;
         const double m_cpu_freq_start;
