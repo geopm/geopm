@@ -132,7 +132,6 @@ namespace geopm
             /// signals are expected as follows: ///
             /// per socket signals               ///
             ///     PKG_ENERGY                   ///
-            ///     PP0_ENERGY                   ///
             ///     DRAM_ENERGY                  ///
             /// followed by per cpu signals      ///
             ///     FREQUENCY                    ///

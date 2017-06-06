@@ -479,7 +479,6 @@ namespace geopm
         //per package state
         for (int i = 0; i < niter; i++) {
             build_msr_save_string(save_file, GEOPM_DOMAIN_PACKAGE, i, "PKG_POWER_LIMIT");
-            build_msr_save_string(save_file, GEOPM_DOMAIN_PACKAGE, i, "PP0_POWER_LIMIT");
             build_msr_save_string(save_file, GEOPM_DOMAIN_PACKAGE, i, "DRAM_POWER_LIMIT");
         }
 

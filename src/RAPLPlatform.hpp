@@ -61,8 +61,6 @@ namespace geopm
             struct m_buffer_index_s {
                 int package0_pkg_energy;
                 int package1_pkg_energy;
-                int package0_pp0_energy;
-                int package1_pp0_energy;
                 int package0_dram_energy;
                 int package1_dram_energy;
                 int inst_retired_any_base;
