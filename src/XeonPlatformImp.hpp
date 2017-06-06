@@ -95,10 +95,6 @@ namespace geopm
             double m_min_pkg_watts;
             /// @brief Maximum value for package (CPU) power read from RAPL.
             double m_max_pkg_watts;
-            /// @brief Minimum value for power plane 0 (pkg+dram) read from RAPL.
-            double m_min_pp0_watts;
-            /// @brief Maximum value for power plane 0 (pkg+dram) read from RAPL.
-            double m_max_pp0_watts;
             /// @brief Minimum value for DRAM power read from RAPL.
             double m_min_dram_watts;
             /// @brief Maximum value for DRAM power read from RAPL.
