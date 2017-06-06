@@ -30,6 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+static const char *program_invocation_name = "geopm_profile";
+#endif
+
 #include <stdlib.h>
 #include <iostream>
 
