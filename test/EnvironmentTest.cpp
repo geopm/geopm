@@ -30,6 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+extern const char *program_invocation_name;
+#endif
+
 #include <stdlib.h>
 #include <iostream>
 
