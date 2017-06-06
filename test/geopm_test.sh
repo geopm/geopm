@@ -53,6 +53,13 @@ if [[ ! $test_name =~ ^MPI ]]; then
         fi
     fi
 
+    # Skipped on Mac because the implementation is lax about invalid shmem construction
+    if [[ $test_name == SharedMemoryTest.invalid_construction ]]; then
+        if  [[ $(uname) == Darwin ]]; then
+            run_test=false
+        fi
+    fi
+
     if [ "$run_test" == "true" ]; then
         # This is not an MPI test, run geopm_test
         LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $dir_name/../.libs/geopm_test \
