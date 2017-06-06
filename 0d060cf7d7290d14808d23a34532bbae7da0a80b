@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5de5f35_fae6ae1b",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1009,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-06-06T18:17:50Z",
+      "side": 1,
+      "message": "Bad Panda.",
+      "range": {
+        "startLine": 1009,
+        "startChar": 65,
+        "endLine": 1009,
+        "endChar": 78
+      },
+      "revId": "0d060cf7d7290d14808d23a34532bbae7da0a80b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
