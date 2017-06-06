@@ -53,8 +53,7 @@ void SharedMemoryTest ::SetUp()
 {
     m_shmem = NULL;
     m_shmem_u = NULL;
-    m_shm_key = geopm_env_shmkey();
-    m_shm_key += "-shmem_test-";
+    m_shm_key += "/geopm_test-";
     m_shm_key += std::to_string(getpid());
     m_size = sizeof(size_t);
     try {
