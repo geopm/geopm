@@ -1053,7 +1053,7 @@ namespace geopm
 
 }
 
-std::ostream& operator<<(std::ostream &os, const geopm::GlobalPolicy *obj)
+std::ostream& operator<<(std::ostream &os, const geopm::IGlobalPolicy *obj)
 {
     os << "Policy Mode: " << obj->mode_string() << std::endl;
     os << "Tree Decider: " << obj->tree_decider() << std::endl;
