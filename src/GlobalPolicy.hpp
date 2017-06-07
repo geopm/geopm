@@ -257,6 +257,6 @@ namespace geopm
 
 }
 
-std::ostream& operator<<(std::ostream &os, const geopm::GlobalPolicy *obj);
+std::ostream& operator<<(std::ostream &os, const geopm::IGlobalPolicy *obj);
 
 #endif
