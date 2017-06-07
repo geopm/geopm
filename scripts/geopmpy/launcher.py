@@ -267,15 +267,21 @@ class Config(object):
 
         # Add geopm installed OpenMP library to LD_LIBRARY_PATH if it
         # is present.
+        libdir = []
         path = os.path.realpath(__file__)
         index = path.rfind('/lib')
         if index != -1:
             libdir = glob.glob(path[:index] + '/lib*/geopm/openmp/lib')
-            if len(libdir) == 1:
-                result['LD_LIBRARY_PATH'] = ':'.join((ll for ll in
-                                            (libdir[0], os.getenv('LD_LIBRARY_PATH'))
-                                            if ll is not None))
-
+        else:
+            # If we are working from the source repo look for the local copy of OpenMP
+            index = path.rfind('/scripts')
+            if index != -1:
+                libdir = glob.glob(path[:index] + '/openmp/lib')
+        if len(libdir) == 1:
+            # Avoid putting the CWD in the path if the path is not currently set
+            result['LD_LIBRARY_PATH'] = ':'.join((ll for ll in
+                                                  (libdir[0], os.getenv('LD_LIBRARY_PATH'))
+                                                  if ll is not None))
         return result
 
     def unparsed(self):
