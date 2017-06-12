@@ -323,12 +323,6 @@ test_fortran_commnamef90_LDADD = libmtest.la $(MPI_FLIBS)
 test_fortran_createf90_SOURCES = test/fortran/createf90.f90
 test_fortran_createf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
 test_fortran_createf90_LDADD = libmtest.la $(MPI_FLIBS)
-test_fortran_dgraph_unwgtf90_SOURCES = test/fortran/dgraph_unwgtf90.f90
-test_fortran_dgraph_unwgtf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
-test_fortran_dgraph_unwgtf90_LDADD = libmtest.la $(MPI_FLIBS)
-test_fortran_dgraph_wgtf90_SOURCES = test/fortran/dgraph_wgtf90.f90
-test_fortran_dgraph_wgtf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
-test_fortran_dgraph_wgtf90_LDADD = libmtest.la $(MPI_FLIBS)
 test_fortran_exscanf90_SOURCES = test/fortran/exscanf90.f90
 test_fortran_exscanf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
 test_fortran_exscanf90_LDADD = libmtest.la $(MPI_FLIBS)
@@ -506,6 +500,14 @@ test_fortran_winscale2f90_LDADD = libmtest.la $(MPI_FLIBS)
 test_fortran_wtimef90_SOURCES = test/fortran/wtimef90.f90
 test_fortran_wtimef90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
 test_fortran_wtimef90_LDADD = libmtest.la $(MPI_FLIBS)
+if GEOPM_ENABLE_MPI3
+test_fortran_dgraph_unwgtf90_SOURCES = test/fortran/dgraph_unwgtf90.f90
+test_fortran_dgraph_unwgtf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
+test_fortran_dgraph_unwgtf90_LDADD = libmtest.la $(MPI_FLIBS)
+test_fortran_dgraph_wgtf90_SOURCES = test/fortran/dgraph_wgtf90.f90
+test_fortran_dgraph_wgtf90_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
+test_fortran_dgraph_wgtf90_LDADD = libmtest.la $(MPI_FLIBS)
+endif
 else
 # Target for building test programs.
 fortran-checkprogs:

@@ -462,10 +462,12 @@ AC_COMPILE_IFELSE([
     AC_DEFINE([GEOPM_MPI_CONST], [const], [MPI interfaces use const qualifier.])
     AC_DEFINE([GEOPM_MPI_CONST_CAST(t)], [], [MPI interfaces use const qualifier.])
     AC_DEFINE([GEOPM_ENABLE_MPI3], [], [MPI-3 support enabled.])
+    AM_CONDITIONAL([GEOPM_ENABLE_MPI3], [true])
 ],[
     AC_MSG_RESULT(no)
     AC_DEFINE([GEOPM_MPI_CONST], [], [MPI interfaces do not use const qualifier.])
     AC_DEFINE([GEOPM_MPI_CONST_CAST(t)], [const_cast<t>], [MPI interfaces do not use const qualifier.])
+    AM_CONDITIONAL([GEOPM_ENABLE_MPI3], [false])
 ])
 
 [CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
