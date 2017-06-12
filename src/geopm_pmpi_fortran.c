@@ -44,6 +44,7 @@
 /* MPI FORTRAN extern definitions */
 #ifdef GEOPM_ENABLE_MPI3
 extern void pmpi_comm_create_group_(MPI_Fint* comm, MPI_Fint* group, MPI_Fint* tag, MPI_Fint* newcomm, MPI_Fint* ierr);
+extern void pmpi_comm_dup_with_info_(MPI_Fint* comm, MPI_Fint* info, MPI_Fint* newcomm, MPI_Fint* ierr);
 extern void pmpi_comm_get_info_(MPI_Fint* comm, MPI_Fint* info_used, MPI_Fint* ierr);
 extern void pmpi_comm_idup_(MPI_Fint* comm, MPI_Fint* newcomm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_comm_set_info_(MPI_Fint* comm, MPI_Fint* info, MPI_Fint* ierr);
@@ -64,13 +65,18 @@ extern void pmpi_iexscan_(MPI_Fint* sendbuf, MPI_Fint* recvbuf, MPI_Fint* count,
 extern void pmpi_igather_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* root, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_igatherv_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Fint* displs, MPI_Fint* recvtype, MPI_Fint* root, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_improbe_(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag, MPI_Fint* message, MPI_Fint* status, MPI_Fint* ierr);
-extern void pmpi_iprobe_(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag, MPI_Fint* status, MPI_Fint* ierr);
+extern void pmpi_ineighbor_allgather_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
+extern void pmpi_ineighbor_allgatherv_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Fint* displs, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
+extern void pmpi_ineighbor_alltoall_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
+extern void pmpi_ineighbor_alltoallv_(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Fint* sdispls, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Fint* rdispls, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
+extern void pmpi_ineighbor_alltoallw_(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Aint* sdispls, MPI_Fint* sendtypes, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Aint* rdispls, MPI_Fint* recvtypes, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_ireduce_(MPI_Fint* sendbuf, MPI_Fint* recvbuf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* op, MPI_Fint* root, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_ireduce_scatter_block_(MPI_Fint* sendbuf, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* datatype, MPI_Fint* op, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_ireduce_scatter_(MPI_Fint* sendbuf, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Fint* datatype, MPI_Fint* op, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_iscan_(MPI_Fint* sendbuf, MPI_Fint* recvbuf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* op, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_iscatter_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* root, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_iscatterv_(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Fint* displs, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* root, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
+extern void pmpi_mprobe_(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *message, MPI_Fint *status, MPI_Fint *ierr);
 extern void pmpi_neighbor_allgather_(MPI_Fint *sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *recvbuf, MPI_Fint *recvcount, MPI_Fint *recvtype, MPI_Fint *comm, MPI_Fint *ierr);
 extern void pmpi_neighbor_allgatherv_(MPI_Fint *sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *recvbuf, MPI_Fint *recvcounts, MPI_Fint *displs, MPI_Fint *recvtype, MPI_Fint *comm, MPI_Fint *ierr);
 extern void pmpi_neighbor_alltoall_(MPI_Fint *sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *recvbuf, MPI_Fint *recvcount, MPI_Fint *recvtype, MPI_Fint *comm, MPI_Fint *ierr);
@@ -106,7 +112,6 @@ extern void pmpi_comm_connect_(char* port_name, MPI_Fint* info, MPI_Fint* root, 
 extern void pmpi_comm_create_(MPI_Fint* comm, MPI_Fint* group, MPI_Fint* newcomm, MPI_Fint* ierr);
 extern void pmpi_comm_delete_attr_(MPI_Fint* comm, MPI_Fint* comm_keyval, MPI_Fint* ierr);
 extern void pmpi_comm_dup(MPI_Fint* comm, MPI_Fint* newcomm, MPI_Fint* ierr);
-extern void pmpi_comm_dup_with_info_(MPI_Fint* comm, MPI_Fint* info, MPI_Fint* newcomm, MPI_Fint* ierr);
 extern void pmpi_comm_get_attr_(MPI_Fint* comm, MPI_Fint* comm_keyval, MPI_Fint* attribute_val, MPI_Fint* flag, MPI_Fint* ierr);
 extern void pmpi_comm_get_errhandler_(MPI_Fint* comm, MPI_Fint* erhandler, MPI_Fint* ierr);
 extern void pmpi_comm_get_name_(MPI_Fint* comm, char* comm_name, MPI_Fint* resultlen, MPI_Fint* ierr, MPI_Fint name_len);
@@ -133,19 +138,14 @@ extern void pmpi_graph_map_(MPI_Fint* comm, MPI_Fint* nnodes, MPI_Fint* index, M
 extern void pmpi_graph_neighbors_count_(MPI_Fint* comm, MPI_Fint* rank, MPI_Fint* nneighbors, MPI_Fint* ierr);
 extern void pmpi_graph_neighbors_(MPI_Fint* comm, MPI_Fint* rank, MPI_Fint* maxneighbors, MPI_Fint* neighbors, MPI_Fint* ierr);
 extern void pmpi_ibsend_(MPI_Fint* buf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* dest, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
-extern void pmpi_ineighbor_allgather_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
-extern void pmpi_ineighbor_allgatherv_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Fint* displs, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
-extern void pmpi_ineighbor_alltoall_(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
-extern void pmpi_ineighbor_alltoallv_(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Fint* sdispls, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Fint* rdispls, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
-extern void pmpi_ineighbor_alltoallw_(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Aint* sdispls, MPI_Fint* sendtypes, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Aint* rdispls, MPI_Fint* recvtypes, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_intercomm_create_(MPI_Fint* local_comm, MPI_Fint* local_leader, MPI_Fint* bridge_comm, MPI_Fint* remote_leader, MPI_Fint* tag, MPI_Fint* newintercomm, MPI_Fint* ierr);
 extern void pmpi_intercomm_merge_(MPI_Fint* intercomm, MPI_Fint* high, MPI_Fint* newintercomm, MPI_Fint* ierr);
+extern void pmpi_iprobe_(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag, MPI_Fint* status, MPI_Fint* ierr);
 extern void pmpi_irecv_(MPI_Fint* buf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_irsend_(MPI_Fint* buf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* dest, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_isend_(MPI_Fint* buf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* dest, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr);
 extern void pmpi_comm_get_parent_(MPI_Fint *parent, MPI_Fint *ierr);
 extern void pmpi_issend_(MPI_Fint *buf, MPI_Fint *count, MPI_Fint *datatype, MPI_Fint *dest, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *request, MPI_Fint *ierr);
-extern void pmpi_mprobe_(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *message, MPI_Fint *status, MPI_Fint *ierr);
 extern void pmpi_pack_(MPI_Fint *inbuf, MPI_Fint *incount, MPI_Fint *datatype, MPI_Fint *outbuf, MPI_Fint *outsize, MPI_Fint *position, MPI_Fint *comm, MPI_Fint *ierr);
 extern void pmpi_pack_size_(MPI_Fint *incount, MPI_Fint *datatype, MPI_Fint *comm, MPI_Fint *size, MPI_Fint *ierr);
 extern void pmpi_probe_(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *status, MPI_Fint *ierr);
@@ -377,12 +377,14 @@ static void FMPI_Comm_dup(MPI_Fint *comm, MPI_Fint *newcomm, MPI_Fint *ierr)
     pmpi_comm_dup(&comm_swap, newcomm, ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 /* MPI_COMM_DUP_WITH_INFO Fortran wrappers */
 static void FMPI_Comm_dup_with_info(MPI_Fint *comm, MPI_Fint *info, MPI_Fint *newcomm, MPI_Fint *ierr)
 {
     MPI_Fint comm_swap = geopm_swap_comm_world_f(*comm);
     pmpi_comm_dup_with_info_(&comm_swap, info, newcomm, ierr);
 }
+#endif
 
 /* MPI_COMM_GET_ATTR Fortran wrappers */
 static void FMPI_Comm_get_attr(MPI_Fint *comm, MPI_Fint *comm_keyval, MPI_Fint *attribute_val, MPI_Fint *flag, MPI_Fint *ierr)
@@ -734,7 +736,6 @@ static void FMPI_Improbe(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fi
     MPI_Fint comm_swap = geopm_swap_comm_world_f(*comm);
     pmpi_improbe_(source, tag, &comm_swap, flag, message, status, ierr);
 }
-#endif
 
 /* MPI_INEIGHBOR_ALLGATHER Fortran wrappers */
 static void FMPI_Ineighbor_allgather(MPI_Fint *sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *recvbuf, MPI_Fint *recvcount, MPI_Fint *recvtype, MPI_Fint *comm, MPI_Fint *request, MPI_Fint *ierr)
@@ -770,6 +771,7 @@ static void FMPI_Ineighbor_alltoallw(MPI_Fint *sendbuf, MPI_Fint *sendcounts, MP
     MPI_Fint comm_swap = geopm_swap_comm_world_f(*comm);
     pmpi_ineighbor_alltoallw_(sendbuf, sendcounts, sdispls, sendtypes, recvbuf, recvcounts, rdispls, recvtypes, &comm_swap, request, ierr);
 }
+#endif
 
 /* MPI_INIT Fortran wrappers */
 void FMPI_Init(MPI_Fint *ierr)
@@ -802,14 +804,12 @@ MPI_Fint intercomm_swap = geopm_swap_comm_world_f(*intercomm);
     pmpi_intercomm_merge_(&intercomm_swap, high, newintercomm, ierr);
 }
 
-#ifdef GEOPM_ENABLE_MPI3
 /* MPI_IPROBE Fortran wrappers */
 static void FMPI_Iprobe(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *flag, MPI_Fint *status, MPI_Fint *ierr)
 {
     MPI_Fint comm_swap = geopm_swap_comm_world_f(*comm);
     pmpi_iprobe_(source, tag, &comm_swap, flag, status, ierr);
 }
-#endif
 
 /* MPI_IRECV Fortran wrappers */
 static void FMPI_Irecv(MPI_Fint *buf, MPI_Fint *count, MPI_Fint *datatype, MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *request, MPI_Fint *ierr)
@@ -885,6 +885,7 @@ static void FMPI_Issend(MPI_Fint *buf, MPI_Fint *count, MPI_Fint *datatype, MPI_
     pmpi_issend_(buf, count, datatype, dest, tag, &comm_swap, request, ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 /* MPI_MPROBE Fortran wrappers */
 static void FMPI_Mprobe(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *message, MPI_Fint *status, MPI_Fint *ierr)
 {
@@ -892,7 +893,6 @@ static void FMPI_Mprobe(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fin
     pmpi_mprobe_(source, tag, &comm_swap, message, status, ierr);
 }
 
-#ifdef GEOPM_ENABLE_MPI3
 /* MPI_NEIGHBOR_ALLGATHER Fortran wrappers */
 static void FMPI_Neighbor_allgather(MPI_Fint *sendbuf, MPI_Fint *sendcount, MPI_Fint *sendtype, MPI_Fint *recvbuf, MPI_Fint *recvcount, MPI_Fint *recvtype, MPI_Fint *comm, MPI_Fint *ierr)
 {
@@ -1311,6 +1311,7 @@ void mpi_dist_graph_neighbors__(MPI_Fint* comm, MPI_Fint* maxindegree, MPI_Fint*
 void MPI_DIST_GRAPH_NEIGHBORS(MPI_Fint* comm, MPI_Fint* maxindegree, MPI_Fint* sources, MPI_Fint* sourceweights, MPI_Fint* maxoutdegree, MPI_Fint* destinations, MPI_Fint* destweights, MPI_Fint* ierr) {
     FMPI_Dist_graph_neighbors(comm, maxindegree, sources, sourceweights, maxoutdegree, destinations, destweights, ierr);
 }
+#endif
 
 void mpi_finalize(MPI_Fint* ierr) {
     FMPI_Finalize(ierr);
@@ -1328,6 +1329,7 @@ void MPI_FINALIZE(MPI_Fint* ierr) {
     FMPI_Finalize(ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 void mpi_iallgather(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr) {
     FMPI_Iallgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, request, ierr);
 }
@@ -1519,6 +1521,7 @@ void mpi_improbe__(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* fl
 void MPI_IMPROBE(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag, MPI_Fint* message, MPI_Fint* status, MPI_Fint* ierr) {
     FMPI_Improbe(source, tag, comm, flag, message, status, ierr);
 }
+#endif
 
 void mpi_init(MPI_Fint* ierr) {
     FMPI_Init(ierr);
@@ -1568,6 +1571,7 @@ void MPI_IPROBE(MPI_Fint* source, MPI_Fint* tag, MPI_Fint* comm, MPI_Fint* flag,
     FMPI_Iprobe(source, tag, comm, flag, status, ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 void mpi_ireduce(MPI_Fint* sendbuf, MPI_Fint* recvbuf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* op, MPI_Fint* root, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr) {
     FMPI_Ireduce(sendbuf, recvbuf, count, datatype, op, root, comm, request, ierr);
 }
@@ -2208,6 +2212,7 @@ void MPI_COMM_DUP(MPI_Fint* comm, MPI_Fint* newcomm, MPI_Fint* ierr) {
     FMPI_Comm_dup(comm, newcomm, ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 void mpi_comm_dup_with_info(MPI_Fint* comm, MPI_Fint* info, MPI_Fint* newcomm, MPI_Fint* ierr) {
     FMPI_Comm_dup_with_info(comm, info, newcomm, ierr);
 }
@@ -2223,6 +2228,7 @@ void mpi_comm_dup_with_info__(MPI_Fint* comm, MPI_Fint* info, MPI_Fint* newcomm,
 void MPI_COMM_DUP_WITH_INFO(MPI_Fint* comm, MPI_Fint* info, MPI_Fint* newcomm, MPI_Fint* ierr) {
     FMPI_Comm_dup_with_info(comm, info, newcomm, ierr);
 }
+#endif
 
 void mpi_comm_get_attr(MPI_Fint* comm, MPI_Fint* comm_keyval, MPI_Fint* attribute_val, MPI_Fint* flag, MPI_Fint* ierr) {
     FMPI_Comm_get_attr(comm, comm_keyval, attribute_val, flag, ierr);
@@ -2640,6 +2646,7 @@ void MPI_IBSEND(MPI_Fint* buf, MPI_Fint* count, MPI_Fint* datatype, MPI_Fint* de
     FMPI_Ibsend(buf, count, datatype, dest, tag, comm, request, ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 void mpi_ineighbor_allgather(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr) {
     FMPI_Ineighbor_allgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, request, ierr);
 }
@@ -2719,6 +2726,7 @@ void mpi_ineighbor_alltoallw__(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Aint
 void MPI_INEIGHBOR_ALLTOALLW(MPI_Fint* sendbuf, MPI_Fint* sendcounts, MPI_Aint* sdispls, MPI_Fint* sendtypes, MPI_Fint* recvbuf, MPI_Fint* recvcounts, MPI_Aint* rdispls, MPI_Fint* recvtypes, MPI_Fint* comm, MPI_Fint* request, MPI_Fint* ierr) {
     FMPI_Ineighbor_alltoallw(sendbuf, sendcounts, sdispls, sendtypes, recvbuf, recvcounts, rdispls, recvtypes, comm, request, ierr);
 }
+#endif
 
 void mpi_intercomm_create(MPI_Fint* local_comm, MPI_Fint* local_leader, MPI_Fint* bridge_comm, MPI_Fint* remote_leader, MPI_Fint* tag, MPI_Fint* newintercomm, MPI_Fint* ierr) {
     FMPI_Intercomm_create(local_comm, local_leader, bridge_comm, remote_leader, tag, newintercomm, ierr);
@@ -2832,6 +2840,7 @@ void MPI_ISSEND(MPI_Fint *buf, MPI_Fint *count, MPI_Fint *datatype, MPI_Fint *de
     FMPI_Issend(buf, count, datatype, dest, tag, comm, request, ierr);
 }
 
+#ifdef GEOPM_ENABLE_MPI3
 void mpi_mprobe(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *message, MPI_Fint *status, MPI_Fint *ierr) {
     FMPI_Mprobe(source, tag, comm, message, status, ierr);
 }
@@ -2847,6 +2856,7 @@ void mpi_mprobe__(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *mes
 void MPI_MPROBE(MPI_Fint *source, MPI_Fint *tag, MPI_Fint *comm, MPI_Fint *message, MPI_Fint *status, MPI_Fint *ierr) {
     FMPI_Mprobe(source, tag, comm, message, status, ierr);
 }
+#endif
 
 void mpi_pack(MPI_Fint *inbuf, MPI_Fint *incount, MPI_Fint *datatype, MPI_Fint *outbuf, MPI_Fint *outsize, MPI_Fint *position, MPI_Fint *comm, MPI_Fint *ierr) {
     FMPI_Pack(inbuf, incount, datatype, outbuf, outsize, position, comm, ierr);
