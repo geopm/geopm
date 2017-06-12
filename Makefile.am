@@ -123,8 +123,8 @@ EXTRA_DIST = .gitignore \
              copying_headers/test-license \
              copying_headers/test-dist \
              dox/Doxyfile \
-             geopm.spec.mk \
-             geopm-$(VERSION).spec \
+             geopm.spec.in \
+             geopm.spec \
              Makefile.am \
              MANIFEST \
              README.md \
@@ -369,7 +369,6 @@ endif
 endif
 
 # CLEAN TARGETS
-CLEANFILES = geopm-$(VERSION).spec
 DISTCLEANFILES = VERSION MANIFEST
 
 CLEAN_LOCAL_TARGETS= clean-local-coverage \
@@ -403,11 +402,9 @@ geopm.mod: src/geopm.f90
 endif
 
 # RPM TARGET
-geopm-$(VERSION).spec:
-	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
-
 rpm: dist
-	$(MAKE) version="$(VERSION)" -f geopm.spec.mk $@
+	cp geopm-$(VERSION).tar.gz geopm.tar.gz
+	rpmbuild $(rpmbuild_flags) geopm.tar.gz -ta
 
 if ENABLE_DOC
 
