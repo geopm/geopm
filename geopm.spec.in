@@ -28,26 +28,10 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-# targets for building rpm
-version ?= 0.0.0
-release ?= 1
-
-rpm: geopm-$(version).tar.gz
-	cp geopm-$(version).tar.gz geopm.tar.gz
-	rpmbuild $(rpmbuild_flags) $^ -ta
-
-geopm-$(version).spec:
-	@echo "$$geopm_spec" > $@
-	cat ChangeLog >> $@
-
-.PHONY: rpm
-
-define geopm_spec
 Summary: Global Extensible Open Power Manager
 Name: geopm
-Version: $(version)
-Release: $(release)
+Version: @VERSION@
+Release: 1
 License: BSD-3-Clause
 Group: System Environment/Libraries
 Vendor: Intel Corporation
@@ -232,6 +216,4 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %doc %{_mandir}/man7/geopmpy.7.gz
 
 %changelog
-endef
-
-export geopm_spec
+@CHANGELOG@

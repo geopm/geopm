@@ -37,7 +37,7 @@ if [ -f VERSION ]; then
     version=$(cat VERSION)
 fi
 
-spec_file=geopm-${version}.spec
+spec_file=geopm.spec
 source_file=geopm-${version}.tar.gz
 obs_url=https://api.opensuse.org
 

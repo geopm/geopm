@@ -510,7 +510,10 @@ AC_SUBST([AM_FFLAGS])
 AC_SUBST([AM_FCFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
-AC_CONFIG_FILES([Makefile])
+AC_SUBST_FILE([CHANGELOG])
+CHANGELOG=ChangeLog
+
+AC_CONFIG_FILES([Makefile geopm.spec])
 AC_OUTPUT
 
 # ============================================================================
