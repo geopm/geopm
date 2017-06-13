@@ -342,7 +342,8 @@ namespace geopm
                                        (GEOPM_REGION_ID_EPOCH,
                                         new Region(GEOPM_REGION_ID_EPOCH,
                                                    num_domain,
-                                                   level)));
+                                                   level,
+                                                   NULL)));
                 if (m_tree_comm->level_size(level) > m_max_fanout) {
                     m_max_fanout = m_tree_comm->level_size(level);
                 }
@@ -632,7 +633,8 @@ namespace geopm
                                           std::pair<uint64_t, Region *> (map_id,
                                                   new Region(base_region_id,
                                                              m_platform->num_control_domain(),
-                                                             level)));
+                                                             level,
+                                                             m_sampler->tprof_table())));
                         region_it = tmp_it.first;
                     }
                     (*region_it).second->increment_mpi_time(region_mpi_time);
@@ -672,7 +674,8 @@ namespace geopm
                                                   std::pair<uint64_t, Region *> (map_id,
                                                           new Region((*sample_it).second.region_id,
                                                                      m_platform->num_control_domain(),
-                                                                     level)));
+                                                                     level,
+                                                                     m_sampler->tprof_table())));
                                 region_it = tmp_it.first;
                             }
                             (*region_it).second->entry();
@@ -847,7 +850,8 @@ namespace geopm
                               std::pair<uint64_t, Region *> (map_id,
                                       new Region(m_region_id_all,
                                                  m_platform->num_control_domain(),
-                                                 level)));
+                                                 level,
+                                                 m_sampler->tprof_table())));
             it = tmp_it.first;
         }
         IRegion *curr_region = (*it).second;
