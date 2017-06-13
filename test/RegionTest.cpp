@@ -56,10 +56,10 @@ void RegionTest::SetUp()
 
     geopm_time(&m_time);
 
-    m_leaf_region = new geopm::Region(42, 2, 0);
-    m_two_point_region = new geopm::Region(42, 2, 0);
-    m_measured_region = new geopm::Region(42, 2, 0);
-    m_tree_region = new geopm::Region(42, 8, 1);
+    m_leaf_region = new geopm::Region(42, 2, 0, NULL);
+    m_two_point_region = new geopm::Region(42, 2, 0, NULL);
+    m_measured_region = new geopm::Region(42, 2, 0, NULL);
+    m_tree_region = new geopm::Region(42, 8, 1, NULL);
 
     std::vector<struct geopm_telemetry_message_s> telemetry(2);
     std::vector<struct geopm_sample_message_s> sample(8);

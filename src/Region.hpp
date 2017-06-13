@@ -39,6 +39,7 @@
 
 #include "Policy.hpp"
 #include "CircularBuffer.hpp"
+#include "ProfileThread.hpp"
 
 namespace geopm
 {
@@ -217,6 +218,7 @@ namespace geopm
             ///
             virtual double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const = 0;
             virtual void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const = 0;
+            virtual void thread_progress(std::vector<double> &progress) = 0;
     };
 
     class Region : public IRegion
@@ -231,7 +233,7 @@ namespace geopm
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.
             /// @param [in] num_domain Number of control domains.
-            Region(uint64_t identifier, int num_domain, int level);
+            Region(uint64_t identifier, int num_domain, int level, IProfileThreadTable *tprof_table);
             /// @brief Default destructor.
             virtual ~Region();
             void entry(void);
@@ -252,6 +254,7 @@ namespace geopm
             double derivative(int domain_idx, int signal_type);
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
             void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const;
+            void thread_progress(std::vector<double> &progress);
         protected:
             /// @brief Bound testing of input parameters.
             ///
@@ -318,6 +321,7 @@ namespace geopm
             std::vector<bool> m_is_entered;
             int m_derivative_num_fit;
             double m_mpi_time;
+            IProfileThreadTable *m_tprof_table;
     };
 }
 
