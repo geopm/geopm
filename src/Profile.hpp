@@ -45,6 +45,7 @@
 #include "SharedMemory.hpp"
 #include "ProfileTable.hpp"
 #include "SampleScheduler.hpp"
+#include "ProfileThread.hpp"
 
 /// @brief Enum encompassing application and
 /// geopm runtime state.
@@ -239,6 +240,7 @@ namespace geopm
             virtual void name_set(std::set<std::string> &region_name) = 0;
             virtual void report_name(std::string &report_str) = 0;
             virtual void profile_name(std::string &prof_str) = 0;
+            virtual IProfileThreadTable *tprof_table(void) = 0;
     };
 
 
@@ -280,6 +282,7 @@ namespace geopm
             void epoch(void);
             void disable(const std::string feature_name);
             void shutdown(void);
+            IProfileThreadTable *tprof_table(void);
         protected:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
@@ -346,6 +349,8 @@ namespace geopm
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
             IProfileTable *m_table;
+            ISharedMemoryUser *m_tprof_shmem;
+            IProfileThreadTable *m_tprof_table;
             const double M_OVERHEAD_FRAC;
             ISampleScheduler *m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
@@ -424,12 +429,15 @@ namespace geopm
             bool name_fill(std::set<std::string> &name_set);
             void report_name(std::string &report_str);
             void profile_name(std::string &prof_str);
+            IProfileThreadTable *tprof_table(void);
         protected:
             /// Holds the shared memory region used for sampling from the
             /// application process.
             ISharedMemory *m_table_shmem;
             /// The hash table which stores application process samples.
             IProfileTable *m_table;
+            ISharedMemory *m_tprof_shmem;
+            IProfileThreadTable *m_tprof_table;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
@@ -523,6 +531,7 @@ namespace geopm
             void name_set(std::set<std::string> &region_name);
             void report_name(std::string &report_str);
             void profile_name(std::string &prof_str);
+            IProfileThreadTable *tprof_table(void);
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
@@ -540,6 +549,9 @@ namespace geopm
             std::string m_report_name;
             std::string m_profile_name;
             bool m_do_report;
+            ISharedMemory *m_tprof_shmem;
+            IProfileThreadTable *m_tprof_table;
+
     };
 }
 
