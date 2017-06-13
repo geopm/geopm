@@ -49,7 +49,7 @@ module geopm
         !!!!!!!!!!!!!!!!!!!!!!!!!!
 
         !> @brief Fortran interface to geopm_ctl_create C function.
-        integer(kind=c_int) function geopm_ctl_create(policy, comm, ctl) bind(C, name="geopm_ctl_create_f")
+        integer(kind=c_int) function geopm_ctl_init(policy, comm, ctl) bind(C, name="geopm_ctl_create_f")
             import
             implicit none
             type(c_ptr), value, intent(in) :: policy
@@ -146,30 +146,27 @@ module geopm
             character(kind=c_char), intent(in) :: feature_name(*)
         end function geopm_prof_disable
 
-        !> @brief Fortran interface to geopm_tprof_create C function.
-        integer(kind=c_int) function geopm_tprof_create(num_thread, num_iter, chunk_size, tprof) bind(C)
+        !> @brief Fortran interface to geopm_tprof_reset_loop C function.
+        integer(kind=c_int) function geopm_tprof_reset_loop(num_thread, thread_idx, num_iter, chunk_size) bind(C)
             import
             implicit none
             integer(kind=c_int), value, intent(in) :: num_thread
+            integer(kind=c_int), value, intent(in) :: thread_idx
             integer(kind=c_size_t), value, intent(in) :: num_iter
             integer(kind=c_size_t), value, intent(in) :: chunk_size
-            type(c_ptr), intent(out) :: tprof
         end function geopm_tprof_create
 
-        !> @brief Fortran interface to geopm_tprof_destroy C function.
-        integer(kind=c_int) function geopm_tprof_destroy(tprof) bind(C)
+        !> @brief Fortran interface to geopm_tprof_reset C function.
+        integer(kind=c_int) function geopm_tprof_reset(num_work_unit) bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: tprof
-        end function geopm_tprof_destroy
+            integer(kind=c_uint32_t), value, intent(in) :: num_work_unit
+        end function geopm_tprof_create
 
         !> @brief Fortran interface to geopm_tprof_increment C function.
-        integer(kind=c_int) function geopm_tprof_increment(tprof, region_id, thread_idx) bind(C)
+        integer(kind=c_int) function geopm_tprof_increment() bind(C)
             import
             implicit none
-            type(c_ptr), value, intent(in) :: tprof
-            integer(kind=c_int64_t), value, intent(in) :: region_id
-            integer(kind=c_int), value, intent(in) :: thread_idx
         end function geopm_tprof_increment
 
     end interface

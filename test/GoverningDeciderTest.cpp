@@ -111,7 +111,7 @@ TEST_F(GoverningDeciderTest, 2_socket_over_budget)
 void GoverningDeciderTest::run_param_case(double budget, double pkg_power, double dram_power, int num_domain)
 {
     const int region_id = 1;
-    geopm::Region region(region_id, num_domain, 0);
+    geopm::Region region(region_id, num_domain, 0, NULL);
     geopm::Policy policy(num_domain);
 
     struct geopm_policy_message_s policy_msg = {GEOPM_POLICY_MODE_DYNAMIC, 0, 1, budget};

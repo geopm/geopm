@@ -64,9 +64,8 @@ static int run_something(void)
     int err = 0;
     struct geopm_ctl_c *ctl;
     struct geopm_policy_c *policy;
-    struct geopm_tprof_c *tprof;
     double x = 0;
-    int num_thread, thread_idx, i, num_iter = 1000000, iter_per_step = 100, chunk_size = 128;
+    int num_thread, i, num_iter = 1000000, iter_per_step = 100, chunk_size = 128;
     int step_counter = 0;
     uint64_t region_id;
 
@@ -98,9 +97,6 @@ static int run_something(void)
         err = geopm_ctl_create(policy, MPI_COMM_WORLD, &ctl);
     }
     if (!err) {
-        err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof); 
-    }
-    if (!err) {
         err = geopm_ctl_step(ctl);
     }
     if (!err) {
@@ -109,11 +105,13 @@ static int run_something(void)
     if (!err) {
         #pragma omp parallel default(shared) private(i)
         {
-            thread_idx = omp_get_thread_num();
+            uint32_t thread_idx = omp_get_thread_num();
+            (void)geopm_tprof_reset_loop(num_thread, thread_idx, num_iter, chunk_size);
+
             #pragma omp for schedule(static, chunk_size)
             for (i = 0; i < num_iter; ++i) {
                 x += do_something(i);
-                geopm_tprof_increment(tprof, region_id, thread_idx);
+                geopm_tprof_increment();
                 if (!thread_idx) {
                     step_counter++;
                     if (step_counter == iter_per_step) {

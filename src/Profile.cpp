@@ -169,11 +169,30 @@ extern "C"
         return err;
     }
 
-    int geopm_tprof_create(int num_thread, size_t num_iter, size_t chunk_size, struct geopm_tprof_c **tprof)
+    int geopm_tprof_reset(uint32_t num_work_unit)
     {
         int err = 0;
         try {
-            *tprof = (struct geopm_tprof_c *)(new geopm::ProfileThread(num_thread, num_iter, chunk_size));
+            geopm_default_prof().tprof_table()->reset(num_work_unit);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+
+    }
+
+    int geopm_tprof_reset_loop(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
+    {
+        int err = 0;
+        try {
+            geopm::IProfileThreadTable *table_ptr = geopm_default_prof().tprof_table();
+            if (chunk_size) {
+                table_ptr->reset(num_thread, thread_idx, num_iter, chunk_size);
+            }
+            else {
+                table_ptr->reset(num_thread, thread_idx, num_iter);
+            }
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -181,15 +200,11 @@ extern "C"
         return err;
     }
 
-    int geopm_tprof_destroy(struct geopm_tprof_c *tprof)
+    int geopm_tprof_increment(void)
     {
         int err = 0;
         try {
-            geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
-            if (tprof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            delete tprof_obj;
+            geopm_default_prof().tprof_table()->increment();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -197,21 +212,6 @@ extern "C"
         return err;
     }
 
-    int geopm_tprof_increment(struct geopm_tprof_c *tprof, uint64_t region_id, int thread_idx)
-    {
-        int err = 0;
-        try {
-            geopm::ProfileThread *tprof_obj = (geopm::ProfileThread *)(tprof);
-            if (tprof_obj == NULL) {
-                throw geopm::Exception(GEOPM_ERROR_PROF_NULL, __FILE__, __LINE__);
-            }
-            tprof_obj->increment(geopm_default_prof(), region_id, thread_idx);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
 }
 
 namespace geopm
@@ -229,6 +229,8 @@ namespace geopm
         , m_ctl_msg(NULL)
         , m_table_shmem(NULL)
         , m_table(NULL)
+        , m_tprof_shmem(NULL)
+        , m_tprof_table(NULL)
         , M_OVERHEAD_FRAC(0.01)
         , m_scheduler(NULL)
         , m_shm_comm(MPI_COMM_NULL)
@@ -343,6 +345,14 @@ namespace geopm
 
         m_table_buffer = m_table_shmem->pointer();
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
+
+        m_tprof_shmem = new SharedMemoryUser(key + "-tprof", 3.0);
+        PMPI_Barrier(m_shm_comm);
+        if (!m_shm_rank) {
+            m_tprof_shmem->unlink();
+        }
+        m_tprof_table = new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer());
+
         PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_ctl_msg->app_status = GEOPM_STATUS_SAMPLE_BEGIN;
@@ -361,6 +371,8 @@ namespace geopm
     Profile::~Profile()
     {
         shutdown();
+        delete m_tprof_table;
+        delete m_tprof_shmem;
         delete m_table;
         delete m_table_shmem;
         delete m_ctl_shmem;
@@ -449,17 +461,21 @@ namespace geopm
             m_progress = 0.0;
             sample();
         }
-        // Allow nesting of one MPI region within a non-mpi region
-        else if (m_curr_region_id &&
-                 !geopm_region_id_is_mpi(m_curr_region_id) &&
-                 geopm_region_id_is_mpi(region_id)) {
-            m_parent_num_enter = m_num_enter;
-            m_num_enter = 0;
-            m_parent_region = m_curr_region_id;
-            m_parent_progress = m_progress;
-            m_curr_region_id = geopm_region_id_set_mpi(m_curr_region_id);
-            m_progress = 0.0;
-            sample();
+        else
+        {
+            m_tprof_table->enable(false);
+            // Allow nesting of one MPI region within a non-mpi region
+            if (m_curr_region_id &&
+                !geopm_region_id_is_mpi(m_curr_region_id) &&
+                geopm_region_id_is_mpi(region_id)) {
+                m_parent_num_enter = m_num_enter;
+                m_num_enter = 0;
+                m_parent_region = m_curr_region_id;
+                m_parent_progress = m_progress;
+                m_curr_region_id = geopm_region_id_set_mpi(m_curr_region_id);
+                m_progress = 0.0;
+                sample();
+            }
         }
         // keep track of number of entries to account for nesting
         if (m_curr_region_id == region_id ||
@@ -493,6 +509,10 @@ namespace geopm
              geopm_region_id_is_mpi(region_id))) {
             --m_num_enter;
         }
+        if (m_num_enter == 1) {
+            m_tprof_table->enable(true);
+        }
+
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
             if (!geopm_region_id_is_mpi(region_id) &&
@@ -735,20 +755,36 @@ namespace geopm
         hwloc_topology_destroy(topology);
     }
 
+    IProfileThreadTable *Profile::tprof_table(void)
+    {
+        return m_tprof_table;
+    }
+
+
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 
     ProfileSampler::ProfileSampler(size_t table_size)
         : m_table_size(table_size)
         , m_do_report(false)
+        , m_tprof_shmem(NULL)
+        , m_tprof_table(NULL)
     {
-        std::string key(geopm_env_shmkey());
-        key += "-sample";
-        m_ctl_shmem = new SharedMemory(key, table_size);
+        std::string sample_key(geopm_env_shmkey());
+        sample_key += "-sample";
+        m_ctl_shmem = new SharedMemory(sample_key, table_size);
         m_ctl_msg = (struct geopm_ctl_message_s *)m_ctl_shmem->pointer();
+
+        std::string tprof_key(geopm_env_shmkey());
+        tprof_key += "-tprof";
+        size_t tprof_size = 64 * ProfileThreadTable::num_cpu_s();
+        m_tprof_shmem = new SharedMemory(tprof_key, tprof_size);
+        m_tprof_table = new ProfileThreadTable(tprof_size, m_tprof_shmem->pointer());
     }
 
     ProfileSampler::~ProfileSampler(void)
     {
+        delete m_tprof_table;
+        delete m_tprof_shmem;
         for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
             delete (*it);
         }
@@ -907,6 +943,11 @@ namespace geopm
         prof_str = m_profile_name;
     }
 
+    IProfileThreadTable *ProfileSampler::tprof_table(void)
+    {
+        return m_tprof_table;
+    }
+
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
         : m_table_shmem(NULL)
         , m_table(NULL)
@@ -960,4 +1001,5 @@ namespace geopm
     {
         prof_str = m_prof_name;
     }
+
 }

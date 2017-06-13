@@ -29,94 +29,143 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 
 #include <string.h>
 #include <float.h>
+#include <unistd.h>
 
-#include "geopm.h"
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
 
 namespace geopm
 {
-    ProfileThread::ProfileThread(int num_thread, size_t num_iter, size_t chunk_size)
-        : m_num_iter(num_iter)
-        , m_num_thread(num_thread)
-        , m_chunk_size(chunk_size)
-        , m_stride(64 / sizeof(uint32_t)) // 64 byte cache line
-        , m_progress(NULL)
-        , m_norm(m_chunk_size ? m_num_thread : 1)
+    ProfileThreadTable::ProfileThreadTable(size_t buffer_size, void *buffer)
+        : m_buffer((uint32_t *)buffer)
+        , m_num_cpu(num_cpu())
+        , m_stride(64 / sizeof(uint32_t))
     {
-        if (num_iter == 0 || num_thread <= 0) {
-            throw Exception("ProfileThread(): invalid arguments", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        // Using array with posix_memalign rather than alignas()
-        int err = posix_memalign((void**)(&m_progress), 64, num_thread * m_stride * sizeof(uint32_t));
-        if (err) {
-            throw Exception("ProfileThread(): could not allocate m_progress vector", err, __FILE__, __LINE__);
-        }
-        memset(m_progress, 0, num_thread * m_stride * sizeof(uint32_t));
-
-        // Calculate the norm: the inverse number of iterations
-        // assigned to each thread
-        if (chunk_size) {
-            size_t num_chunk = m_num_iter / m_chunk_size;
-            size_t unchunked = m_num_iter % m_chunk_size;
-            size_t min_it = m_chunk_size * (num_chunk / m_num_thread);
-            int last_full_thread = num_chunk % m_num_thread;
-            for (int i = 0; i < m_num_thread; ++i) {
-                m_norm[i] = (double) min_it;
-                if (i < last_full_thread) {
-                    m_norm[i] += (double) chunk_size;
-                }
-                else if (i == last_full_thread) {
-                    m_norm[i] += (double) unchunked;
-                }
-                if (m_norm[i]) {
-                    m_norm[i] = 1.0 / m_norm[i];
-                }
-            }
-        }
-        else {
-            m_norm[0] = 1.0 / m_num_iter;
+        if (buffer_size < 64 * m_num_cpu) {
+            throw Exception("ProfileThreadTable: provided buffer too small",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    ProfileThread::ProfileThread(int num_thread, size_t num_iter)
-        : ProfileThread(num_iter, num_thread, 0)
+    ProfileThreadTable::ProfileThreadTable(const ProfileThreadTable &other)
+        : m_buffer(other.m_buffer)
+        , m_num_cpu(other.m_num_cpu)
+        , m_stride(other.m_stride)
+        , m_is_enabled(true)
     {
 
     }
 
-    ProfileThread::~ProfileThread()
+    ProfileThreadTable::~ProfileThreadTable()
     {
-        free(m_progress);
+
     }
 
-    void ProfileThread::increment(IProfile &prof, uint64_t region_id, int thread_idx)
+    int ProfileThreadTable::num_cpu(void)
     {
-        ++m_progress[m_stride * thread_idx];
-        if (!thread_idx) {
-            double result;
+        return m_num_cpu;
+    }
 
-            if (m_chunk_size) {
-                result = DBL_MAX;
-                for (int j = 0; j != m_num_thread; ++j) {
-                    if (m_norm[j]) {
-                        double tmp = m_progress[j * m_stride] * m_norm[j];
-                        result =  tmp < result ? tmp : result;
-                    }
-                }
-            }
-            else {
-                result = 0.0;
-                for (int j = 0; j != m_num_thread; ++j) {
-                    result += m_progress[j * m_stride];
-                }
-                result *= m_norm[0];
-            }
-            prof.progress(region_id, result);
+    int ProfileThreadTable::num_cpu_s(void)
+    {
+#ifdef _SC_NPROCESSORS_ONLN
+        uint32_t result = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+        uint32_t result = 1;
+        size_t len = sizeof(result);
+        sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
+#endif
+        return result;
+    }
+
+    void ProfileThreadTable::enable(bool is_enabled)
+    {
+        m_is_enabled = is_enabled;
+    }
+
+    void ProfileThreadTable::reset(const uint32_t num_work_unit)
+    {
+        if (!m_is_enabled) {
+            return;
         }
+        m_buffer[cpu_idx() * m_stride] = 0;
+        m_buffer[cpu_idx() * m_stride + 1] = num_work_unit;
+    }
+
+    void ProfileThreadTable::reset(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
+    {
+        if (!m_is_enabled) {
+            return;
+        }
+        std::vector<uint32_t> num_work_unit(num_thread);
+        std::fill(num_work_unit.begin(), num_work_unit.end(), 0);
+
+        size_t num_chunk = num_iter / chunk_size;
+        size_t unchunked = num_iter % chunk_size;
+        size_t min_unit = chunk_size * (num_chunk / num_thread);
+        int last_full_thread = num_chunk % num_thread;
+        for (int thread_idx = 0; thread_idx < num_thread; ++thread_idx) {
+            num_work_unit[thread_idx] = min_unit;
+            if (thread_idx < last_full_thread) {
+                num_work_unit[thread_idx] += chunk_size;
+            }
+            else if (thread_idx == last_full_thread) {
+                num_work_unit[thread_idx] += unchunked;
+            }
+        }
+        reset(num_work_unit[thread_idx]);
+    }
+
+    void ProfileThreadTable::reset(int num_thread, int thread_idx, size_t num_iter)
+    {
+        if (!m_is_enabled) {
+            return;
+        }
+        std::vector<uint32_t> num_work_unit(num_thread);
+        std::fill(num_work_unit.begin(), num_work_unit.end(), num_iter / num_thread);
+        for (int thread_idx = 0; thread_idx < (int)(num_iter % num_thread); ++thread_idx) {
+            ++num_work_unit[thread_idx];
+        }
+        reset(num_work_unit[thread_idx]);
+    }
+
+    void ProfileThreadTable::increment(void)
+    {
+        if (!m_is_enabled) {
+            return;
+        }
+        ++m_buffer[cpu_idx() * m_stride];
+    }
+
+    void ProfileThreadTable::dump(std::vector<double> &progress)
+    {
+        double numer;
+        uint32_t denom;
+        for (uint32_t cpu = 0; cpu < m_num_cpu; ++cpu) {
+            numer = (double)m_buffer[cpu * m_stride];
+            denom = m_buffer[cpu * m_stride + 1];
+            progress[cpu] = denom ? numer / denom : -1.0;
+        }
+    }
+
+    int ProfileThreadTable::cpu_idx(void)
+    {
+        static thread_local int result = -1;
+        if (result == -1) {
+            result = sched_getcpu();
+            if (result >= num_cpu_s()) {
+                throw Exception("Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
+        return result;
     }
 }
