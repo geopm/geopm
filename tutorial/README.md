@@ -146,7 +146,7 @@ arbitrarily by a race if the configuration file is not present.
 5. Using the progress interface
 -------------------------------
 A computational application may make use of the geopm_prof_progress()
-or the geopm_tprof_progress() interfaces to report fractional progress
+or the geopm_tprof_post() interfaces to report fractional progress
 through a region to the controller.  These interfaces are documented
 in the geopm_prof_c(3) man page.  In tutorial 5 we modify the stream
 region to send progress updates though either the threaded or

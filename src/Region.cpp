@@ -42,7 +42,7 @@
 
 namespace geopm
 {
-    Region::Region(uint64_t identifier, int num_domain, int level)
+    Region::Region(uint64_t identifier, int num_domain, int level, IProfileThreadTable *tprof_table)
         : m_identifier(identifier)
         , m_num_domain(num_domain)
         , m_level(level)
@@ -64,6 +64,7 @@ namespace geopm
         , m_is_entered(m_num_domain, false)
         , m_derivative_num_fit(0)
         , m_mpi_time(0.0)
+        , m_tprof_table(tprof_table)
     {
         m_domain_buffer = new CircularBuffer<std::vector<double> >(M_NUM_SAMPLE_HISTORY);
         m_time_buffer = new CircularBuffer<struct geopm_time_s>(M_NUM_SAMPLE_HISTORY);
@@ -318,6 +319,14 @@ namespace geopm
             count = (double)m_num_entry / num_rank_per_node;
         }
         string_stream << "\tcount: " << count << std::endl;
+    }
+
+    void Region::thread_progress(std::vector<double> &progress)
+    {
+        if (m_tprof_table) {
+            progress.resize(m_tprof_table->num_cpu());
+            m_tprof_table->dump(progress);
+        }
     }
 
     // Protected function definitions
