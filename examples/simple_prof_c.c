@@ -48,9 +48,7 @@ int main(int argc, char **argv)
     int rank = 0;
     int num_iter = 100000000;
     double sum = 0.0;
-    struct geopm_tprof_c *tprof = NULL;
     int num_thread = 0;
-    int thread_idx = 0 ;
     uint64_t region_id = 0;
 
     err = MPI_Init(&argc, &argv);
@@ -63,7 +61,7 @@ int main(int argc, char **argv)
         if (num_iter % num_thread) {
             ++chunk_size;
         }
-        err = geopm_tprof_create(num_thread, num_iter, chunk_size, &tprof);
+        err = geopm_tprof_reset(num_thread, num_iter, chunk_size, NULL);
     }
     if (!err) {
         err = geopm_prof_region("loop_0", GEOPM_REGION_HINT_UNKNOWN, &region_id);
@@ -73,13 +71,12 @@ int main(int argc, char **argv)
         err = geopm_prof_enter(region_id);
     }
     if (!err) {
-#pragma omp parallel default(shared) private(thread_idx, index)
+#pragma omp parallel default(shared) private(index)
 {
-        thread_idx = omp_get_thread_num();
 #pragma omp for reduction(+:sum) schedule(static, chunk_size)
         for (index = 0; index < num_iter; ++index) {
             sum += (double)index;
-            geopm_tprof_increment(tprof, region_id, thread_idx);
+            geopm_tprof_increment();
         }
 }
         err = geopm_prof_exit(region_id);

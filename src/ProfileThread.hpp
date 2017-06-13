@@ -38,35 +38,43 @@
 #include <stdint.h>
 #include <vector>
 
-#include "Profile.hpp"
-
 namespace geopm
 {
-    /// @brief ProfileThread class encapsulates helper functions to report
-    /// per rank profile data within threaded loops.
-    class IProfileThread
+    class IProfileThreadTable
     {
         public:
-            IProfileThread() {}
-            IProfileThread(const IProfileThread &other) {}
-            virtual ~IProfileThread() {}
-            virtual void increment(IProfile &prof, uint64_t region_id, int thread_idx) = 0;
+            IProfileThreadTable() {}
+            IProfileThreadTable(const IProfileThreadTable &other) {}
+            virtual ~IProfileThreadTable() {}
+            virtual void enable(bool is_enabled) = 0;
+            virtual void reset(int num_thread, size_t num_iter) = 0;
+            virtual void reset(int num_thread, size_t num_iter, size_t chunk_size) = 0;
+            virtual void reset(const std::vector<uint32_t> &num_work_unit) = 0;
+            virtual void increment(void) = 0;
+            virtual void dump(std::vector<double> &progress) = 0;
+            virtual int num_cpu(void) = 0;
     };
 
-    class ProfileThread : public IProfileThread
+    class ProfileThreadTable : public IProfileThreadTable
     {
         public:
-            ProfileThread(int num_thread, size_t num_iter);
-            ProfileThread(int num_thread, size_t num_iter, size_t chunk_size);
-            virtual ~ProfileThread();
-            void increment(IProfile &prof, uint64_t region_id, int thread_idx);
-        protected:
-            const size_t m_num_iter;
-            const int m_num_thread;
-            const size_t m_chunk_size;
-            const size_t m_stride;
-            uint32_t *m_progress;
-            std::vector<double> m_norm;
+            ProfileThreadTable(size_t buffer_size, void *buffer);
+            ProfileThreadTable(const ProfileThreadTable &other);
+            virtual ~ProfileThreadTable();
+            void enable(bool is_enabled);
+            void reset(int num_thread, size_t num_iter);
+            void reset(int num_thread, size_t num_iter, size_t chunk_size);
+            void reset(const std::vector<uint32_t> &num_work_unit);
+            void increment(void);
+            void dump(std::vector<double> &progress);
+            int num_cpu(void);
+            static int num_cpu_s(void);
+        private:
+            static int cpu_idx(void);
+            uint32_t *m_buffer;
+            uint32_t m_num_cpu;
+            size_t m_stride;
+            bool m_is_enabled;
     };
 }
 

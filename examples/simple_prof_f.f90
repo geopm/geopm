@@ -43,7 +43,6 @@ integer, external :: omp_get_thread_num, omp_get_num_threads
 integer :: ierr
 integer :: index
 real(kind=c_double) :: sum
-type(c_ptr) :: tprof
 integer(8) :: region_id
 integer :: rank
 integer(4) :: num_thread
@@ -61,13 +60,13 @@ sum = 0
 !$omp parallel
     num_thread = omp_get_num_threads()
 !$omp end parallel
-    ierr = geopm_tprof_create(num_thread, num_iter, chunk_size, tprof)
+    ierr = geopm_tprof_reset(num_thread, num_iter, chunk_size, c_null_ptr)
 !$omp parallel default(shared) private(thread_idx)
     thread_idx = omp_get_thread_num()
 !$omp do schedule(static, chunk_size)
     do index = 1, int(num_iter)
         sum = sum + index
-        ierr = geopm_tprof_increment(tprof, region_id, thread_idx)
+        ierr = geopm_tprof_increment()
     end do
 !$omp end do
 !$omp end parallel
