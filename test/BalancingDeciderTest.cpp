@@ -63,7 +63,7 @@ void BalancingDeciderTest::SetUp()
     m_balancer = m_fact->decider("power_balancing");
     m_flags = new geopm::PolicyFlags(0);
     m_policy = new geopm::Policy(m_num_domain);
-    m_region = new geopm::Region(GEOPM_REGION_ID_EPOCH, m_num_domain, 1);
+    m_region = new geopm::Region(GEOPM_REGION_ID_EPOCH, m_num_domain, 1, NULL);
 
     m_flags->frequency_mhz(1200);
     m_flags->tdp_percent(90);
