@@ -306,7 +306,6 @@
       integer(8) num_it
       integer(8) chunk_size
       integer num_thread
-      type(c_ptr) :: tprof
 !$omp parallel
       num_thread = omp_get_num_threads()
 !$omp end parallel
@@ -317,10 +316,10 @@
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_EVOLVE'//c_null_char, &
                                GEOPM_REGION_HINT_UNKNOWN, region_id)
-      ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,tid)
       tid = omp_get_thread_num()
+      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
       do k = 1, d3
          do j = 1, d2
@@ -329,12 +328,11 @@
                u1(i,j,k) = u0(i,j,k)
             end do
          end do
-         ierr = geopm_tprof_increment(tprof, region_id, tid)
+         ierr = geopm_tprof_post()
       end do
 !$omp end do
 !$omp end parallel
       ierr = geopm_prof_exit(region_id)
-      ierr = geopm_tprof_destroy(tprof)
       return
       end
 
@@ -793,7 +791,6 @@
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer(8) region_id, num_it, chunk_size
       integer num_thread
-      type(c_ptr) ::tprof
 !$omp parallel
       num_thread = omp_get_num_threads()
 !$omp end parallel
@@ -819,10 +816,10 @@
          end if
          ierr = geopm_prof_region(c_char_'AT_PHASE_INDEXMAP_1'//c_null_char, &
                                  GEOPM_REGION_HINT_UNKNOWN, region_id)
-         ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
+         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
          do i = 1, dims(1,3)
             ii =  mod(i+xstart(3)-2+nx/2, nx) - nx/2
@@ -835,12 +832,11 @@
                   twiddle(i,j,k) = dexp(ap*dfloat(kk*kk+ij2))
                end do
             end do
-            ierr = geopm_tprof_increment(tprof, region_id, tid)
+            ierr = geopm_tprof_post()
          end do
 !$omp end do
 !$omp end parallel
          ierr = geopm_prof_exit(region_id)
-         ierr = geopm_tprof_destroy(tprof)
 !         call MPI_Barrier(node_comm, ierr)
       else if (layout_type .eq. layout_1d) then ! zxy layout
          num_it = dims(2,3)
@@ -850,10 +846,10 @@
          end if
          ierr = geopm_prof_region(c_char_'AT_PHASE_INDEXMAP_2'//c_null_char, &
                                   GEOPM_REGION_HINT_UNKNOWN, region_id)
-         ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
+         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
          do i = 1,dims(2,3)
             ii =  mod(i+xstart(3)-2+nx/2, nx) - nx/2
@@ -866,12 +862,11 @@
                   twiddle(k,i,j) = dexp(ap*dfloat(kk*kk+ij2))
                end do
             end do
-            ierr = geopm_tprof_increment(tprof, region_id, tid)
+            ierr = geopm_tprof_post()
          end do
 !$omp end do
 !$omp end parallel
          ierr = geopm_prof_exit(region_id)
-         ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       else if (layout_type .eq. layout_2d) then ! zxy layout
          num_it = dims(2,3)
@@ -881,10 +876,10 @@
          end if
          ierr = geopm_prof_region(c_char_'AT_PHASE_INDEXMAP_3'//c_null_char, &
                                  GEOPM_REGION_HINT_UNKNOWN, region_id)
-         ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
+         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
          do i = 1,dims(2,3)
             ii =  mod(i+xstart(3)-2+nx/2, nx) - nx/2
@@ -897,12 +892,11 @@
                   twiddle(k,i,j) = dexp(ap*dfloat(kk*kk+ij2))
                end do
             end do
-            ierr = geopm_tprof_increment(tprof, region_id, tid)
+            ierr = geopm_tprof_post()
          end do
 !$omp end do
 !$omp end parallel
          ierr = geopm_prof_exit(region_id)
-         ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       else
          print *, ' Unknown layout type ', layout_type
@@ -1093,7 +1087,6 @@
       integer(8) num_it
       integer(8) chunk_size
       integer num_thread
-      type(c_ptr) :: tprof
 !$omp parallel
       num_thread = omp_get_num_threads()
 !$omp end parallel
@@ -1113,10 +1106,10 @@
          ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_1_2'//c_null_char, &
                                  GEOPM_REGION_HINT_UNKNOWN, region_id)
       endif
-      ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,jj,tid,y)
       tid = omp_get_thread_num()
+      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
       do k = 1, d3
          do jj = 0, d2 - fftblock, fftblock
@@ -1140,12 +1133,11 @@
             enddo
             if (timers_enabled) call timer_stop(T_fftcopy)
          enddo
-         ierr = geopm_tprof_increment(tprof, region_id, tid)
+         ierr = geopm_tprof_post()
       enddo
 !$omp end do
 !$omp end parallel
       ierr = geopm_prof_exit(region_id)
-      ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       return
       end
@@ -1176,7 +1168,6 @@
       integer(8) num_it
       integer(8) chunk_size
       integer num_thread
-      type(c_ptr) :: tprof
 
       logd2 = ilog2(d2)
 
@@ -1190,11 +1181,11 @@
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_2'//c_null_char, &
                               GEOPM_REGION_HINT_UNKNOWN, region_id)
-      ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
       ierr = geopm_prof_enter(region_id)
 
 !$omp parallel default(shared) private(i,j,k,ii,y,tid)
       tid = omp_get_thread_num()
+      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
       do k = 1, d3
         do ii = 0, d1 - fftblock, fftblock
@@ -1218,12 +1209,11 @@
            enddo
            if (timers_enabled) call timer_stop(T_fftcopy)
         enddo
-        ierr = geopm_tprof_increment(tprof, region_id, tid)
+        ierr = geopm_tprof_post()
       enddo
 !$omp end do
 !$omp end parallel
       ierr = geopm_prof_exit(region_id)
-      ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       return
       end
@@ -1254,7 +1244,6 @@
       integer(8) num_it
       integer(8) chunk_size
       integer num_thread
-      type(c_ptr) :: tprof
 
       logd3 = ilog2(d3)
 
@@ -1268,10 +1257,10 @@
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_3'//c_null_char, &
                               GEOPM_REGION_HINT_UNKNOWN, region_id)
-      ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,y, tid)
       tid = omp_get_thread_num()
+      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
       do j = 1, d2
         do ii = 0, d1 - fftblock, fftblock
@@ -1295,12 +1284,11 @@
            enddo
            if (timers_enabled) call timer_stop(T_fftcopy)
         enddo
-        ierr = geopm_tprof_increment(tprof, region_id, tid)
+        ierr = geopm_tprof_post()
       enddo
 !$omp end do
 !$omp end parallel
       ierr = geopm_prof_exit(region_id)
-      ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       return
       end
@@ -1568,7 +1556,6 @@
       integer(8) num_it
       integer(8) chunk_size
       integer num_thread
-      type(c_ptr) :: tprof
 !$omp parallel
       num_thread = omp_get_num_threads()
 !$omp end parallel
@@ -1606,10 +1593,10 @@
 
       ierr = geopm_prof_region(c_char_'AT_PHASE_TRANS_1'//c_null_char, &
                                GEOPM_REGION_HINT_UNKNOWN, region_id)
-      ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,ii,jj,z,tid)
          tid = omp_get_thread_num()
+         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
          do j = 0, n2-1, transblock
             do i = 0, n1-1, transblock
@@ -1629,12 +1616,11 @@
                   end do
                end do
             end do
-            ierr = geopm_tprof_increment(tprof, region_id, tid)
+            ierr = geopm_tprof_post()
          end do
 !$omp end do
 !$omp end parallel
          ierr = geopm_prof_exit(region_id)
-         ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       endif
       if (timers_enabled) call timer_stop(T_transxzloc)
@@ -1701,7 +1687,6 @@
       integer(8) num_it
       integer(8) chunk_size
       integer num_thread
-      type(c_ptr) :: tprof
 !$omp parallel
       num_thread = omp_get_num_threads()
 !$omp end parallel
@@ -1712,12 +1697,12 @@
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_TRANS_2'//c_null_char, &
                               GEOPM_REGION_HINT_UNKNOWN, region_id)
-      ierr = geopm_tprof_create(num_thread, num_it, chunk_size, tprof)
       ierr = geopm_prof_enter(region_id)
 
       if (timers_enabled) call timer_start(T_transxzfin)
 !$omp parallel default(shared) private(i,j,p,ioff,tid)
       tid = omp_get_thread_num()
+      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
 !$omp do schedule(static, chunk_size)
       do p = 0, np2-1
          ioff = p*n2
@@ -1726,12 +1711,11 @@
                xout(i+ioff, j) = xin(i, j, p)
             end do
          end do
-         ierr = geopm_tprof_increment(tprof, region_id, tid)
+         ierr = geopm_tprof_post()
       end do
 !$omp end do
 !$omp end parallel
       ierr = geopm_prof_exit(region_id)
-      ierr = geopm_tprof_destroy(tprof)
 !      call MPI_Barrier(node_comm, ierr)
       if (timers_enabled) call timer_stop(T_transxzfin)
       return

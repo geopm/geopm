@@ -58,19 +58,15 @@ geopm_prof_c(3) -- geopm application profiling structure
   * `int geopm_prof_disable(`:
     `const char *`_feature_name_);
 
-  * `int geopm_tprof_create(`:
+  * `int geopm_tprof_reset(`:
+    `uint32_t _num_work_unit_);
+
+  * `int geopm_tprof_reset_loop(`:
     `int` _num_thread_, <br>
     `size_t` _num_iter_, <br>
-    `size_t` _chunk_size_, <br>
-    `struct geopm_tprof_c **`_tprof_);
+    `size_t` _chunk_size_);
 
-  * `int geopm_tprof_destroy(`:
-    `struct geopm_tprof_c *`_tprof_);
-
-  * `int geopm_tprof_increment(`:
-    `struct geopm_tprof_c *`_tprof_, <br>
-    `uint64_t` _region_id_, <br>
-    `int` _thread_idx_);
+  * `int geopm_tprof_increment();`
 
 ## DESCRIPTION
 The functions described here enable application feedback to the
@@ -98,23 +94,21 @@ scales than the regions provide.  This is done by marking iterations
 through an outer loop in the application, the "epoch".
 
   * `geopm_prof_region`():
-    registers an application region.  The _region_name_ and
-    _hint_ are input parameters, and the _region_id_ is output.
-    The _region_id_ can be used with `geopm_prof_enter`(),
-    `geopm_prof_exit`(), `geopm_prof_progress`(), and
-    `geopm_tprof_progress`() to referrence the region.  If the region
+    registers an application region.  The _region_name_ and _hint_ are
+    input parameters, and the _region_id_ is output.  The _region_id_
+    can be used with `geopm_prof_enter`(), `geopm_prof_exit`(), and
+    `geopm_prof_progress`() to referrence the region.  If the region
     name has been previously registered, a call to this function will
     set the _region_id_ but the state associated with the region is
     unmodified.  The _region_name_ is used to determine the output
     _region_id_ and is also displayed in the profiling report to
-    identify the region.  The _hint_ is one of the values given
-    by the geopm_region_hint_e enum defined in _geopm.h_ which
-    determines the initial control settings.  The following hints are
-    supported: `GEOPM_REGION_HINT_UNKNOWN`,
-    `GEOPM_REGION_HINT_COMPUTE`, `GEOPM_REGION_HINT_MEMORY`,
-    `GEOPM_REGION_HINT_NETWORK`, `GEOPM_REGION_HINT_IO`,
-    `GEOPM_REGION_HINT_SERIAL`, `GEOPM_REGION_HINT_PARALLEL`,
-    `GEOPM_REGION_HINT_IGNORE`.
+    identify the region.  The _hint_ is one of the values given by the
+    geopm_region_hint_e enum defined in _geopm.h_ which determines the
+    initial control settings.  The following hints are supported:
+    `GEOPM_REGION_HINT_UNKNOWN`, `GEOPM_REGION_HINT_COMPUTE`,
+    `GEOPM_REGION_HINT_MEMORY`, `GEOPM_REGION_HINT_NETWORK`,
+    `GEOPM_REGION_HINT_IO`, `GEOPM_REGION_HINT_SERIAL`,
+    `GEOPM_REGION_HINT_PARALLEL`, `GEOPM_REGION_HINT_IGNORE`.
 
   * `geopm_prof_enter`():
     is called by the compute application to mark the beginning of the
@@ -155,19 +149,24 @@ through an outer loop in the application, the "epoch".
     "instr", "flop", and "joules".  This API is not currently
     implemented.
 
-  * `geopm_tprof_create`():
-    creates a thread profiling object, _tprof_, which extends the
-    functionality of the profiling interface to report progress within
-    threaded regions.  The interface assumes a fixed number of
-    threads, _num_thread_, which are performing work sharing on a list
-    of tasks _num_iter_ long (e.g. an omp parallel for loop with
-    _num_iter_ loops).  In the specific case of an OpenMP for loop
-    statically scheduled with a chunk size then the _chunk_size_
-    arguement can be specified to be non-zero and the work
-    distribution amung threads is explicitly calculated while the
+  * `geopm_tprof_init`():
+
+    resets the thread profile table which extends the functionality of
+    the profiling interface to report progress within threaded
+    regions.  This should be called by one thread to set up the table
+    prior to entering a thread parallel region.  The interface assumes
+    a fixed number of threads, _num_thread_, which are performing work
+    sharing on a list of tasks _num_iter_ long (e.g. an omp parallel
+    for loop with _num_iter_ loops).  In the specific case of an
+    OpenMP for loop statically scheduled with a chunk size then the
+    _chunk_size_ argument can be specified to be non-zero and the work
+    distribution among threads is explicitly calculated while the
     minimum progress of any thread is reported.  In all other
     threading models _chunk_size_ should be specified to be zero and
-    progress is aggregated and the mean progress is reported.
+    progress is aggregated and the mean progress is reported.  The
+    _num_work_units_ array can be used to exactly specify the number
+    of work units that each thread will be tasked with, and if this is
+    specified the _num_iter_ and _chunk_size_ arguments are ignored.
 
   * `geopm_tprof_destroy`():
     releases all resources associated with the _tprof_ object.  The
@@ -175,7 +174,7 @@ through an outer loop in the application, the "epoch".
     entry into a thread parallel region: the _tprof_ object cannot be
     reused.
 
-  * `geopm_tprof_increment`():
+  * `geopm_tprof_post`():
     is called after a thread has completed each work unit to report
     progress.  The _tprof_ thread profiling object is passed as the
     first argument. The region identifier returned by
