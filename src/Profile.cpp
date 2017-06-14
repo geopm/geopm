@@ -339,9 +339,8 @@ namespace geopm
         table_shm_key << key <<  "-"  << m_rank;
         m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
         PMPI_Barrier(m_shm_comm);
-        if (!m_shm_rank) {
-            m_table_shmem->unlink();
-        }
+        m_table_shmem->unlink();
+
         m_table_buffer = m_table_shmem->pointer();
         m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
         PMPI_Barrier(m_shm_comm);
