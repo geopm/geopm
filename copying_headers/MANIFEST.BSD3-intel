@@ -31,6 +31,8 @@ Makefile.am
 openmp.mk
 plugin/BalancingDecider.cpp
 plugin/BalancingDecider.hpp
+plugin/CPUBalancingDecider.cpp
+plugin/CPUBalancingDecider.hpp
 plugin/GoverningDecider.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
