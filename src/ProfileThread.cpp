@@ -84,7 +84,7 @@ namespace geopm
     }
 
     ProfileThread::ProfileThread(int num_thread, size_t num_iter)
-        : ProfileThread(num_iter, num_thread, 0)
+        : ProfileThread(num_thread, num_iter, 0)
     {
 
     }
