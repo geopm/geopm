@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e93e9daa_d69a790b",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1004,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-06-16T18:43:28Z",
+      "side": 1,
+      "message": "fancy new blank line?",
+      "revId": "cd52e04b6cd176be76c2b07c9d8275acacf2f902",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a4d1a83_50ffdc9c",
+        "filename": "src/ProfileThread.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-06-16T18:43:28Z",
+      "side": 1,
+      "message": "prepend \"ProfileThread::cpu_idx():\" to exception string?",
+      "revId": "cd52e04b6cd176be76c2b07c9d8275acacf2f902",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
