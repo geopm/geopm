@@ -235,7 +235,8 @@ class Config(object):
         Dictionary describing the environment variables controlled by the
         configuration object.
         """
-        result = {'LD_DYNAMIC_WEAK':'true'}
+        result = {'LD_DYNAMIC_WEAK':'true',
+                  'OMP_PROC_BIND':'true'}
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
         if self.profile:
