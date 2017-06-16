@@ -54,8 +54,8 @@ openmp_sha1 = 827a825f29b98e19a12e9b714681e61643636bb4
 openmp_so = openmp-$(openmp_version).src/runtime/src/libomp.so
 
 $(openmp_archive):
-	wget --timeout=5 $(openmp_url) || \
-	curl --connect-timeout 5 -O $(openmp_url) || \
+	wget --timeout=20 $(openmp_url) || \
+	curl --connect-timeout 20 -O $(openmp_url) || \
 	echo "Warning: Unable to download OpenMP archive" 2>&1 && \
 	touch $@
 
