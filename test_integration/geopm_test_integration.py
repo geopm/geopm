@@ -507,6 +507,8 @@ class TestIntegration(unittest.TestCase):
                 launcher.write_log(name, '{}'.format(negative_progress))
                 self.assertEqual(0, len(negative_progress))
 
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
     def test_sample_rate(self):
         """
         Check that sample rate is regular and fast.
