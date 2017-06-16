@@ -49,8 +49,8 @@ googlemock_url = http://pkgs.fedoraproject.org/repo/pkgs/gmock/gmock-1.7.0.zip/0
 googlemock_sha1 = f9d9dd882a25f4069ed9ee48e70aff1b53e3c5a5
 
 $(googlemock_archive):
-	wget --timeout=5 $(googlemock_url) || \
-	curl --connect-timeout 5 -O $(googlemock_url) || \
+	wget --timeout=20 $(googlemock_url) || \
+	curl --connect-timeout 20 -O $(googlemock_url) || \
 	echo "Warning: Unable to download gmock archive" 2>&1 && \
 	touch $(googlemock_archive)
 
