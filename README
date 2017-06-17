@@ -7,14 +7,15 @@ SEE COPYING FILE FOR LICENSE INFORMATION.
 
 LAST UPDATE
 -----------
-2017 April 3
+2017 June 17
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 Steve Sylvester <steve.s.sylvester@intel.com>
 
-WEB PAGE
---------
-http://geopm.github.io/geopm
+WEB PAGES
+---------
+http://geopm.github.io/geopm <br>
+http://geopm.github.io/geopm/man/geopm.7.html
 
 SUMMARY
 -------
@@ -135,6 +136,18 @@ dev branch on github (depending on which "BRANCH" was selected when
 the zypper repository was added:
 
     sudo zypper update geopm # For headers update geopm-devel
+
+PYTHON INSTALL
+--------------
+The GEOPM python tools are packaged in the RPMs described above, but
+they are also available from PYPI as the `geopmpy` package.  For
+example to install the geopmpy package into your home directory run
+the following command:
+
+    pip install --user geopmpy
+
+Note this installs only the GEOPM python tools and does not install
+the full GEOPM runtime.
 
 BUILD REQUIREMENTS
 ------------------
@@ -300,65 +313,19 @@ processes.
 
 STATUS
 ------
-This software is pre-alpha quality and is provided for collaborative
-purposes.  We are very interested in feedback from the community.  The
-static modes are supported by geopmpolicy and libgeopmpolicy.  The MPI
-runtime support of geopmctl and libgeopm is complete.  Basic profiling
-features like creating reports and traces are complete.  See TODO file
-for more information on forthcoming work.
-
-Test coverage is incomplete.  The line coverage results from gcov as
-reported by gcovr for a recent build are below:
-
-**GCC Code Coverage Report**
-
-**Directories: src, plugin**
-
-File                     |   Lines  |     Exec   |     Cover
------------------------- | -------- | ---------- | ---------
-CircularBuffer.hpp       |   27     |     25     |     93%
-Controller.cpp           |   462    |     351    |     76%
-Decider.cpp              |   21     |     21     |     100%
-Decider.hpp              |   1      |     1      |     100%
-DeciderFactory.cpp       |   34     |     30     |     88%
-Environment.cpp          |   72     |     62     |     86%
-Exception.cpp            |   127    |     97     |     76%
-Exception.hpp            |   1      |     0      |     0%
-GlobalPolicy.cpp         |   574    |     456    |     79%
-KNLPlatformImp.cpp       |   335    |     245    |     73%
-Platform.cpp             |   148    |     80     |     54%
-PlatformFactory.cpp      |   78     |     63     |     80%
-PlatformImp.cpp          |   224    |     197    |     88%
-PlatformTopology.cpp     |   33     |     29     |     88%
-Policy.cpp               |   130    |     130    |     100%
-PolicyFlags.cpp          |   78     |     67     |     86%
-Profile.cpp              |   431    |     356    |     88%
-ProfileThread.cpp        |   45     |     0      |     0%
-RAPLPlatform.cpp         |   149    |     136    |     91%
-Region.cpp               |   267    |     260    |     97%
-SampleRegulator.cpp      |   77     |     76     |     99%
-SampleScheduler.cpp      |   39     |     35     |     90%
-SharedMemory.cpp         |   101    |     65     |     64%
-SignalHandler.cpp        |   57     |     53     |     93%
-StaticPolicyDecider.cpp  |   13     |     11     |     85%
-StaticPolicyDecider.hpp  |   1      |     1      |     100%
-Tracer.cpp               |   39     |     14     |     36%
-TreeCommunicator.cpp     |   286    |     250    |     87%
-XeonPlatformImp.cpp      |   353    |     245    |     69%
-geopm_ctl_spawn.c        |   2      |     0      |     0%
-geopm_hash.c             |   13     |     13     |     100%
-geopm_hash.h             |   2      |     2      |     100%
-geopm_message.c          |   16     |     8      |     50%
-geopm_omp.c              |   11     |     0      |     0%
-geopm_plugin.c           |   37     |     34     |     92%
-geopm_pmpi.c             |   479    |     105    |     22%
-geopm_time.h             |   19     |     17     |     90%
-geopm_version.c          |   2      |     2      |     100%
-BalancingDecider.cpp     |   102    |     75     |     74%
-BalancingDecider.hpp     |   1      |     1      |     100%
-GoverningDecider.cpp     |   88     |     17     |     19%
-GoverningDecider.hpp     |   1      |     1      |     100%
-TOTAL                    |   4994   |     3631   |     73%
+This software is alpha versioned and is provided for early adopters
+and collaborative development.  We are very interested in feedback
+from the community.  The runtime implements the infrastructure and
+basic features targeted for GEOPM version 1.0.  We do not anticipate
+changes to application facing interfaces of our libraries or the
+command line interfaces of our executables until after version 1.0.
+Before the beta release we will change the way signals and controls
+are interfaced to decider plugins.  These changes will enable easier
+and more efficient extension of signals and controls as well as
+support for multiple domain definitions where signals and controls
+pertain.  We will also be expanding our integration test feature
+coverage, and our unit test line coverage before beta release.  See
+TODO file for links to descriptions of forthcoming work.
 
 ACKNOWLEDGMENTS
 ---------------
