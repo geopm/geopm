@@ -93,26 +93,22 @@ geopm_fortran(3) -- geopm fortran interface
    `type(c_ptr), value, intent(in) ::` _prof_ <br>
    `character(kind=c_char), intent(in) ::` _feature_name_`(*)`
 
- * `integer(kind=c_int) function geopm_tprof_create(`_num_thread_`,` _num_iter_`,` _chunk_size_`,` _tprof_`)`:
+ * `integer(kind=c_int) function geopm_tprof_init_loop(`_num_thread_`,`_thread_idx_`,`_num_iter_`, `_chunk_size_`)`:
    `integer(kind=c_int), value, intent(in) ::` _num_thread_ <br>
+   `integer(kind=c_int), value, intent(in) ::` _thread_idx_ <br>
    `integer(kind=c_size_t), value, intent(in) ::` _num_iter_ <br>
-   `integer(kind=c_size_t), value, intent(in) ::` _chunk_size_ <br>
-   `type(c_ptr), intent(out) ::` _tprof_
+   `integer(kind=c_size_t), value, intent(in) ::` _chunk_size_
 
- * `integer(kind=c_int) function geopm_tprof_destroy(`_tprof_`)`:
-   `type(c_ptr), value, intent(in) ::` _tprof_
+ * `integer(kind=c_int) function geopm_tprof_init(`_num_work_unit_`)`:
+   `integer(kind=c_int32_t), value, intent(in) ::` _num_work_unit_ <br>
 
- * `integer(kind=c_int) function geopm_tprof_increment(`_tprof_`,` _prof_`,` _region_id_`,` _thread_idx_`)`:
-   `type(c_ptr), value, intent(in) ::` _tprof_ <br>
-   `type(c_ptr), value, intent(in) ::` _prof_ <br>
-   `integer(kind=c_int64_t), value, intent(in) ::` _region_id_ <br>
-   `integer(kind=c_int), value, intent(in) ::` _thread_idx_
+ * `integer(kind=c_int) function geopm_tprof_post()`:
 
 
 ## DESCRIPTION
 This is the Fortran interface to the geopm library.  The documentation
 for each function can found in the associated man page for the C
-interface.  If the `--disable-fortran` flag is passed to the geopm
+interface.  If the `--disable-fortran` configure flag is passed to the geopm
 build then the Fortran interface will not be enabled.
 
 Currently most of these Fortran functions call directly through to the
@@ -122,11 +118,6 @@ important to wrap the Fortran string with `char_c_` and
 `//c_null_char` when passing to as follows:
 
 `ierr = geopm_prof_create(c_char_'profile_name'//c_null_char, c_char_''//c_null_char, MPI_COMM_WORLD, prof)`
-
-When using the default profile object pass the `c_null_ptr` for
-the profile:
-
-`ierr = geopm_prof_enter(c_null_ptr, region_id)`
 
 For interfaces that accept of return a MPI communicator, the
 translation of the communicator from Fortran to C is done
