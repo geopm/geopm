@@ -77,12 +77,30 @@ of power resources.  The report and trace generation are controlled by
 the environment variables `GEOPM_REPORT` and `GEOPM_TRACE`, see
 description below.
 
+## INTEGRATION WITH OMPT
+When the OpenMP runtime compiled with GEOPM supports the OMPT
+interface GEOPM will use the OMPT callbacks wrap OpenMP parallel
+regions with calls to `geopm_prof_enter()` and `geopm_prof_exit()`.
+In this way any OpenMP parallel region not within another application
+defined region will be reported to the GEOPM runtime.  This will
+appear in the report as a region name beginning with "[OMPT]" and
+referencing the object file and function name containing the OpenMP
+parallel region e.g.
+
+`[OMPT]tutorial_6:geopm::StreamModelRegion::run()`
+
+To expressly enable this feature pass the `--enable-ompt` configure
+flag at GEOPM build time.  This will build and install the LLVM OpenMP
+runtime configured to support OMPT if the default OpenMP runtime does
+not support the OMPT callbacks.  Note that your compiler must be
+compatible with the LLVM OpenMP ABI for extending it in this way.
+
 ## LAUNCHING THE RUNTIME
 The recommended methods for launching the geopm runtime are the job
 launch wrapper scripts **geopmsrun(1)** and **geopmaprun(1)**.  See
 these man pages for details about the command line interface.  If your
 system does not support `aprun` or `srun` for job launch, please make
-a change request for support for the job launch method used on your
+a change request for support of the job launch method used on your
 system at the github issues page:
 
 https://github.com/geopm/geopm/issues
@@ -98,8 +116,16 @@ If using the "application" launch method then the **geopmctl(1)**
 application should be launched in parallel.
 
 There are legacy methods for launching the runtime programatically.
-These are documented in **geopm_ctl_c(3)**, but are under
-consideration for deprecation and not recommended.
+These are documented in **geopm_ctl_c(3)**, but are deprecated as an
+application facing interface because their use within an application
+is incompatible with the GEOPM launcher script.
+
+## PLOTTING REPORT AND TRACE DATA
+Please see the **geopmplotter(1)** man page for information about the
+data analysis tools available for visualizing the data contained in
+the GEOPM report and trace files.  The report file is intended to be
+human readable, and the trace file format can be easily parsed by a
+wide variety of analysis applications.
 
 ## INTERPRETING THE REPORT
 If the `GEOPM_REPORT` environment variable is set then a report will
@@ -142,6 +168,15 @@ will print a subset of the fields in the trace file called
 
 
 ## ENVIRONMENT
+When using the launcher wrapper scripts **geopmsrun(1)** or
+**geopmaprun(1)**, the interface to the GEOPM runtime is controlled
+exclusively by the launcher command line options.  The launcher script
+sets the environment variables described in this section according to
+the options specified on the command line.  Direct use of these
+environment variables is only recommended when launching the GEOPM
+runtime without **geopmsrun(1)** or **geopmaprun(1)**.  The one
+exception is `GEOPM_RM` which can be used to control the resource
+manager selected by the wrapper script.
 
   * `LD_DYNAMIC_WEAK`:
     When dynamically linking an application to libgeopm for any
@@ -160,14 +195,6 @@ will print a subset of the fields in the trace file called
     file generated.  The report contains a summary of performance and
     power aggregated over the program execution time and split out by
     host compute node and each code region.
-
-  * `GEOPM_REPORT_VERBOSITY`:
-    Determines the level of detail included in the report.  Currently
-    this feature is not supported and a single report file is
-    generated for each compute node.  In the future the information
-    from all nodes will be aggregated into a single report file and
-    the verbosity level determines how much the per node data is
-    retained in the report.
 
   * `GEOPM_TRACE`:
     Enables geopm tracing capability.  Setting this variable enables
