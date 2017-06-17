@@ -1,3 +1,85 @@
+* Mon Jun 19 2017 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.3.0
+- GEOPM alpha release!
+- Modified implementations and interfaces:
+- Added job launch wrapper script which simplifies GEOPM runtime launch.
+- Added plotting support for visual analysis of report and trace data.
+- Added python package: geopmpy for supporting python infrastructure (job launch/plotting).
+- Added support for OMPT integration with the OpenMP runtime to mark GEOPM region entry and exit.
+- Added support for PMPI interface use in fortran applications enabling full support for fortran applications.
+- Added support to profile individual MPI functions as distinct regions.
+- Added support for transmission of region hints from the application to the controller.
+- Removed MPI_Pcontrol() interface for wrapping geopm_prof_*() interfaces.
+- Removed geopm_ctl_spawn() interface.
+- Removed geopm_prof_disable() interface.
+- Changed to single aggregated report file per run instead of one per node.
+- Changed the geopm_tprof_*() interfaces for thread progress.
+- Changed GEOPM classes to derive from a pure virtual interface base class.
+- Changed RPM build from RPM makefile in favor of geopm.spec.in/configure.
+- Changed the report and trace file format to have headers with meta-data.
+- Changed how the GEOPM_PROFILE environment variable is used: now dictates the profile name.
+- Changed geopm_ctl_c interface to no longer be application facing.
+- Changed requirement for power plane 0 controls: MSR no longer used/needed.
+- Changed all application hints from *POLICY_HINT* to *REGION_HINT*.
+- Changed build time wget/curl timeout periods to be longer.
+- Updated features:
+- Added support for per-cpu progress reporting from application.
+- Added hint to ignore time spent in a region such that ignored region times are subtracted from epoch times.
+- Added policy information to report.
+- Added user id to shmkey prefix to avoid permissions issues with stale keys.
+- Added man page for the geopmpy python package, geopmsrun and geopmaprun.
+- Added documentation for new features and interface changes.
+- Added cache file support to plotter.
+- Added interface to Region object to get per-cpu progress.
+- Added feature to track mpi runtime per region and print in the report.
+- Added feature to treat unmarked code as a real region.
+- Added support to resolve OMPT function address to a name in report.
+- Added support launcher keeping controller off of Linux CPU 0 if possible.
+- Added support for hyper-threads and multi socket system affinity support in launcher.
+- Added significant rework of Environment class to avoid security issues.
+- Added geopm_env_debug_attach() API.
+- Added region hint support in the ModelRegion wrappers for integration tests.
+- Added mvapich2 fortran90 test suite for testing GEOPM fortran interfaces.
+- Added autotools make check support for python unit tests.
+- Added standard PIP packaging of the geopmpy python package and posting on PYPI.
+- Added build infrastructure for support for LLVM OpenMP runtime with OMPT enabled.
+- Updated and extended integration tests:
+- Added support for using launcher wrapper within integration tests.
+- Added integration test for OMPT and MPI automatic region detection.
+- Added better support for the integration test looping script.
+- Added integration test job timeouts.
+- Added proper clean up of reports when a test passes.
+- Added setting of OMP_NUM_THREADS when running integration test.
+- Added test to compare the regions detected in the trace to the report.
+- Added integration test for MPI timing.
+- Updated unit tests:
+- Added unit tests for the Environment and SharedMemory classes.
+- Added python unit test for affinity settings in the launcher script.
+- Added support for edge cases in unit tests.
+- Bug fixes:
+- Fixed geopmpolicy to generate a whitelist file without requiring root.
+- Fixed critical security issues from static analysis.
+- Fixed missing symbol wrappers for init and finalize MPI fortran functions.
+- Fixed buffer overflow in MPI API test.
+- Fixed missing resize of m_level to the active number of levels per node in the TreeCommunicator.
+- Fixed issue where gfortran does not support bit shift operations of more that 32 bits.
+- Fixed shared memory cleanup at attach time.
+- Fixed issue where PlatformImp was initialized twice.
+- Fixed reporting of unmarked regions.
+- Fixed bugs in plotter.
+- Fixed const issue with MPI-2/MPI-3 interface definitions.
+- Fixed big-o scaling for all2all ModelRegion.
+- Fixed integration tests for unmarked regions.
+- Fixed test_progress_exit integration test.
+- Fixed standard directory specificiation in the spec file
+- Fixed test_sample_rate integration test.
+- Fixed check_run issue in scaling integration test.
+- Fixed integration tests and unit tests to handle the new node-combined report with header format.
+- Fixed launcher to check for srun affinity plugins before using them.
+- Fixed fortran configure test for MPI-3 support.
+- Fixed gfortran test to work with ubuntu.
+- Fixed mac compile issues.
+- Fixed fortran test makefile.
+- Fixed documentation to remove all references to geopmkey.
 * Wed Apr 05 2017 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.2.3
 - Fixed broken OBS build of version 0.2.2.
 - Fixed broken integration test for region timing.
