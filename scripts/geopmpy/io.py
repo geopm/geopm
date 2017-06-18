@@ -47,10 +47,10 @@ from geopmpy import __version__
 class AppOutput(object):
     """The container class for all report and trace related data.
 
-    This class holds the relevent objects for parsing and indexing all data that is output from GEOPM.  This object
+    This class holds the relevant objects for parsing and indexing all data that is output from GEOPM.  This object
     can be created with a report glob string, a trace glob string, or both that will be used to search dir_name for
     the relevant files.  If files are found their data will be parsed into objects for easy data access.  Additionally
-    a Pandas DataFrame is constructed containing all of the report data and a seperate DataFrame containing all of the
+    a Pandas DataFrame is constructed containing all of the report data and a separate DataFrame containing all of the
     trace data.  These DataFrames are indexed based on the version of GEOPM found in the files, the profile name,
     global power budget set for the run, the tree and leaf deciders used, and the number of times that particular
     configuration has been seen by the parser (i.e. experiment iteration).
@@ -212,7 +212,7 @@ class AppOutput(object):
         return self._reports.keys()
 
     def get_report(self, node_name):
-        """Getter for the current Report object in the _reports Dictonary.
+        """Getter for the current Report object in the _reports Dictionary.
 
         Note that this is only useful for a single experiment's dataset.  The _reports dictionary is populated
         from every report file that was globbed, so if you have multiple iterations of an experiment the last

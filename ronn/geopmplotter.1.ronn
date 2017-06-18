@@ -52,12 +52,12 @@ If _PATH_ is not provided, the current working directory is used.
 
 * `-t`, `--trace_base` _TRACE_BASE_:
   The base trace string to be searched. All files that are located in the _PATH_ directory
-  that begin with _TRACE_BASE_ will be selected and interpred as trace files.  If this option
+  that begin with _TRACE_BASE_ will be selected and interpreted as trace files.  If this option
   is not specified then all files with the ".trace" extension in _PATH_ are selected.
 
 * `-p`, `--plot_type` _bar_|_box_|_power_|_epoch_|_freq_:
   The type of plot to be generated (default: _bar_).  Multiple plots can
-  be specified by providing a comma seperated list (e.g. -p bar,box).
+  be specified by providing a comma separated list (e.g. -p bar,box).
 
 * `-s`, `--shell`:
   Drop to a python shell after plotting.  Useful for data analysis.
@@ -74,7 +74,7 @@ If _PATH_ is not provided, the current working directory is used.
 
 * `-O`, `--output_types` _svg_|_png_|_pdf_|_eps_|_ps_:
   The file type(s) for the plot file output. Multiple file types can
-  be created simultaniously if a comma separated list of types is
+  be created simultaneously if a comma separated list of types is
   provided (e.g. -o svg,eps,png). (default: _svg_)
 
 *  `-n`, `--profile_name` _PROFILE_NAME_:
@@ -170,7 +170,7 @@ If _PATH_ is not provided, the current working directory is used.
 
   MPLBACKEND='Agg' ./geopmplotter -v data
 
-  Or you may make the change permenantly in your matplotlibrc file  as
+  Or you may make the change permanently in your matplotlibrc file  as
   described here:<br>
   _https://matplotlib.org/faq/usage_faq.html#what-is-a-backend_.
 
@@ -216,7 +216,7 @@ Using either of these options will prevent `--show` from working properly.
 
   If all_report.p or all_trace.p exist, they will be loaded and used.  Otherwise, the data
   will be parsed as usual and then saved in these files.  Utilizing the cache will dramatically
-  speed up the time needed to create plots.  If you need to reparse your data, remove these
+  speed up the time needed to create plots.  If you need to re-parse your data, remove these
   files.
 
   Plot everything utilizing the cache.

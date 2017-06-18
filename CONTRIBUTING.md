@@ -126,6 +126,6 @@ Introducing a new file requires a license comment in its header with a
 corresponding copying_headers/header.* file.  The new file path must
 be listed in the corresponding copying_headers/MANIFEST.* file.  This
 can be tested by running the copying_headers/test_license script after
-commiting the new file to git, removing the geopm/MANIFEST file and
+committing the new file to git, removing the geopm/MANIFEST file and
 running the autogen.sh script.  Files for which a license comment is
 not appropriate should be listed in copying_headers/MANIFEST.EXEMPT.
