@@ -91,13 +91,6 @@ module geopm
 !        end function geopm_ctl_pthread
 
 
-        !> @brief Fortran interface to geopm_ctl_spawn C function.
-        integer(kind=c_int) function geopm_ctl_spawn(ctl) bind(C)
-            import
-            implicit none
-            type(c_ptr), value, intent(in) :: ctl
-        end function geopm_ctl_spawn
-
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
         !! APPLICATION PROFILING !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!

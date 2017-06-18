@@ -67,8 +67,6 @@ int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                       const pthread_attr_t *attr,
                       pthread_t *thread);
 
-int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
-
 /*****************/
 /* MPI COMM APIS */
 /*****************/
