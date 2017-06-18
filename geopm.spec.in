@@ -198,8 +198,8 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/geopm.h
+%{_includedir}/geopm_ctl.h
 %{_includedir}/geopm_error.h
-%{_includedir}/geopm_mpi_pcontrol.h
 %{_includedir}/geopm_policy.h
 %{_includedir}/geopm_message.h
 %{_includedir}/geopm_version.h
