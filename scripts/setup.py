@@ -65,7 +65,7 @@ scripts = ['geopmsrun',
            'geopmaprun',
            'geopmplotter']
 
-classifiers = ['Development Status :: 2 - Pre-Alpha',
+classifiers = ['Development Status :: 3 - Alpha',
                'License :: OSI Approved :: BSD License',
                'Operating System :: POSIX :: Linux',
                'Natural Language :: English',
