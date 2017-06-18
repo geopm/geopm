@@ -146,18 +146,6 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_disable(const char *feature_name)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().disable(std::string(feature_name));
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
     int geopm_prof_shutdown(void)
     {
         int err = 0;
@@ -627,15 +615,6 @@ namespace geopm
         m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
 #endif
 
-    }
-
-    void Profile::disable(const std::string feature_name)
-    {
-        if (!m_is_enabled) {
-            return;
-        }
-
-        throw geopm::Exception("Profile::disable()", GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void Profile::print(const std::string file_name, int depth)
