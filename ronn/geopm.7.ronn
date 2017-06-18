@@ -115,7 +115,7 @@ in this man page including the `GEOPM_PMPI_CTL` environment variable.
 If using the "application" launch method then the **geopmctl(1)**
 application should be launched in parallel.
 
-There are legacy methods for launching the runtime programatically.
+There are legacy methods for launching the runtime programmatically.
 These are documented in **geopm_ctl_c(3)**, but are deprecated as an
 application facing interface because their use within an application
 is incompatible with the GEOPM launcher script.
