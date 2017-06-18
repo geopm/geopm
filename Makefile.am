@@ -343,7 +343,6 @@ if ENABLE_MPI
                           src/XeonPlatformImp.hpp \
                           src/geopm.h \
                           src/geopm_ctl.h \
-                          src/geopm_ctl_spawn.c \
                           src/geopm_error.h \
                           src/geopm_hash.c \
                           src/geopm_hash.h \
