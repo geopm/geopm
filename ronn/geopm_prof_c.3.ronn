@@ -55,9 +55,6 @@ geopm_prof_c(3) -- geopm application profiling structure
   * `int geopm_prof_epoch(`:
     `void);
 
-  * `int geopm_prof_disable(`:
-    `const char *`_feature_name_);
-
   * `int geopm_tprof_init(`:
     `uint32_t _num_work_unit_);
 
@@ -142,13 +139,6 @@ through an outer loop in the application, the "epoch".
     is nested inside of another loop which is also marked.  It is
     important to note that this call acts as a barrier between ranks
     running within the same compute node.
-
-  * `geopm_prof_disable`():
-    is called at application start up to disable a profiling feature.
-    By default all profiling features available on the system are
-    enabled.  The set of all possible values for _feature_name_ are:
-    "instr", "flop", and "joules".  This API is not currently
-    implemented.
 
   * `geopm_tprof_init`():
     resets the thread profile table which extends the functionality of

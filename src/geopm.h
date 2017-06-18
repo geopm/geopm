@@ -33,8 +33,6 @@
 #ifndef GEOPM_H_INCLUDE
 #define GEOPM_H_INCLUDE
 
-#include <mpi.h>
-#include <stdio.h>
 #include <stdint.h>
 
 #include "geopm_policy.h"
@@ -74,8 +72,6 @@ int geopm_prof_progress(uint64_t region_id,
                         double fraction);
 
 int geopm_prof_epoch(void);
-
-int geopm_prof_disable(const char *feature_name);
 
 int geopm_prof_shutdown(void);
 
