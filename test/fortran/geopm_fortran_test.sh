@@ -32,6 +32,9 @@
 
 test_name=`basename $0`
 dir_name=`dirname $0`
+base_dir=$(realpath $dir_name/../../..)
+
+export LD_LIBRARY_PATH=$base_dir/.libs:$base_dir/openmp/lib:$LD_LIBRARY_PATH
 
 # Determine the wrapper for running MPI jobs
 if [ "$MPIEXEC" ]; then

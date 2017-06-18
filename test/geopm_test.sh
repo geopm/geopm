@@ -39,6 +39,10 @@ test_name=`basename $0`
 dir_name=`dirname $0`
 run_test=true
 xml_dir=$dir_name
+base_dir=$dir_name/../..
+
+export LD_LIBRARY_PATH=$base_dir/.libs:$base_dir/openmp/lib:$LD_LIBRARY_PATH
+
 if [[ $GTEST_XML_DIR ]]; then
     xml_dir=$GTEST_XML_DIR
 fi
@@ -62,7 +66,7 @@ if [[ ! $test_name =~ ^MPI ]]; then
 
     if [ "$run_test" == "true" ]; then
         # This is not an MPI test, run geopm_test
-        LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $dir_name/../.libs/geopm_test \
+        $dir_name/../.libs/geopm_test \
             --gtest_filter=$test_name --gtest_output=xml:$xml_dir/$test_name.xml >& $dir_name/$test_name.log
         err=$?
     fi
@@ -153,7 +157,7 @@ else
         if [[ $test_name =~ ^MPIInterface ]]; then
             exec_name=geopm_mpi_test_api
         fi
-        LD_LIBRARY_PATH=$dir_name/../../.libs:$LD_LIBRARY_PATH $mpiexec -n $num_proc \
+        $mpiexec -n $num_proc \
             $dir_name/../.libs/$exec_name --gtest_filter=$test_name \
             --gtest_output=xml:$xml_dir/$test_name.xml>& $dir_name/$test_name.log
         err=$?
