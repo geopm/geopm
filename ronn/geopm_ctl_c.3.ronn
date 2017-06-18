@@ -56,20 +56,15 @@ geopm_ctl_c(3) -- geopm power controller structure
     `const pthread_attr_t *`_attr_, <br>
     `pthread_t *`_thread_);
 
-  * `int geopm_ctl_spawn(`:
-    `struct geopm_ctl_c *`_ctl_);
-
 ## DESCRIPTION
 The geopm_ctl_c structure is used to launch or step the global
 extensible open power manager algorithm.  There are several ways to
 enable control: explicit stepping of the control algorithm by the
 application under control, running the control algorithm as a distinct
-processes from the application under control, running the control
+processes from the application under control, or running the control
 algorithm as a separate pthread owned by the application process under
-control, or the application under control can spawn a new MPI
-communicator that runs the control algorithm in conjunction with its
-own distinct MPI_COMM_WORLD.  Each of these methods has different
-requirements and trade offs.
+control.  Each of these methods has different requirements and trade
+offs.
 
   * `geopm_ctl_create`():
     creates a geopm_ctl_c object, _ctl_ which is an opaque structure
@@ -105,14 +100,6 @@ requirements and trade offs.
     calling `geopm_ctl_step`() in a loop.  With this method of launch
     the supporting MPI implementation must be enabled for
     `MPI_THREAD_MULTIPLE` using `MPI_Init_thread`().
-
-  * `geopm_ctl_spawn`():
-    use `MPI_Comm_spawn`() to spawn a new communicator with one
-    process per compute node.  The geopmctl application will be
-    spawned on this communicator and will run until the application
-    signals shutdown.  This is equivalent to calling
-    `geopm_ctl_step`() in a loop.  Requires a system that supports
-    `MPI_Comm_Spawn`().
 
 ## ERRORS
 All functions described on this man page return an error code.  See
