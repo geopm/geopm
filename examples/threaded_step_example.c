@@ -43,6 +43,7 @@
 #include <fcntl.h>
 
 #include "geopm.h"
+#include "geopm_ctl.h"
 #include "geopm_policy.h"
 
 #ifndef NAME_MAX

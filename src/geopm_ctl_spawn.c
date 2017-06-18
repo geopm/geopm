@@ -34,6 +34,7 @@
 #include <mpi.h>
 
 #include "geopm.h"
+#include "geopm_ctl.h"
 #include "geopm_policy.h"
 #include "config.h"
 
