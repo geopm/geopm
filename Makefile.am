@@ -60,7 +60,6 @@ dist: dist-googletest dist-openmp
 include_HEADERS = src/geopm.h \
                   src/geopm_ctl.h \
                   src/geopm_error.h \
-                  src/geopm_mpi_pcontrol.h \
                   src/geopm_policy.h \
                   src/geopm_message.h \
                   src/geopm_version.h \
@@ -260,6 +259,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Tracer.hpp \
                             src/XeonPlatformImp.cpp \
                             src/XeonPlatformImp.hpp \
+                            src/geopm.h \
+                            src/geopm_ctl.h \
                             src/geopm_env.h \
                             src/geopm_error.h \
                             src/geopm_hash.c \
@@ -340,6 +341,8 @@ if ENABLE_MPI
                           src/TreeCommunicator.hpp \
                           src/XeonPlatformImp.cpp \
                           src/XeonPlatformImp.hpp \
+                          src/geopm.h \
+                          src/geopm_ctl.h \
                           src/geopm_ctl_spawn.c \
                           src/geopm_error.h \
                           src/geopm_hash.c \
@@ -348,7 +351,6 @@ if ENABLE_MPI
                           src/geopm_omp.h \
                           src/geopm_message.c \
                           src/geopm_message.h \
-                          src/geopm_mpi_pcontrol.h \
                           src/geopm_plugin.c \
                           src/geopm_plugin.h \
                           src/geopm_pmpi.h \
