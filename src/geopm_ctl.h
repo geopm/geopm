@@ -30,52 +30,55 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef GEOPM_CTL_H_INCLUDE
+#define GEOPM_CTL_H_INCLUDE
+
 #include <mpi.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <pthread.h>
 
-#include "geopm.h"
-#include "geopm_time.h"
+#include "geopm_policy.h"
 
-int main(int argc, char**argv)
-{
-    uint64_t region_id[3];
-    struct geopm_time_s start, curr;
-    double timeout = 0;
-    int rank;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+/* Opaque structure which is a handle for a geopm::Controller object. */
+struct geopm_ctl_c;
 
-    geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]);
-    geopm_prof_enter(region_id[0]);
-    geopm_time(&start);
-    while (timeout < 1.0) {
-        geopm_time(&curr);
-        timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(region_id[2], timeout/1.0);
-    }
-    geopm_prof_exit(region_id[0]);
+/************************/
+/* OBJECT INSTANTIATION */
+/************************/
+int geopm_ctl_create(struct geopm_policy_c *policy,
+                     MPI_Comm comm,
+                     struct geopm_ctl_c **ctl);
 
-    geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]);
-    geopm_prof_enter(region_id[1]);
-    geopm_time(&start);
-    while (timeout < 2.0) {
-        geopm_time(&curr);
-        timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(region_id[2], timeout/2.0);
-    }
-    geopm_prof_exit(region_id[1]);
+int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 
-    geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]);
-    geopm_prof_enter(region_id[2]);
-    geopm_time(&start);
-    while (timeout < 3.0) {
-        geopm_time(&curr);
-        timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(region_id[2], timeout/3.0);
-    }
-    geopm_prof_exit(region_id[2]);
+/********************/
+/* POWER MANAGEMENT */
+/********************/
+int geopm_ctl_step(struct geopm_ctl_c *ctl);
 
-    MPI_Finalize();
+int geopm_ctl_run(struct geopm_ctl_c *ctl);
 
-    return 0;
+int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
+                      const pthread_attr_t *attr,
+                      pthread_t *thread);
+
+int geopm_ctl_spawn(struct geopm_ctl_c *ctl);
+
+/*****************/
+/* MPI COMM APIS */
+/*****************/
+int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm);
+
+int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm);
+
+int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm);
+
+#ifdef __cplusplus
 }
+#endif
+#endif

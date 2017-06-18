@@ -67,6 +67,7 @@ src/geopm_hash.c
 src/geopm_hash.h
 src/geopm.f90
 src/geopm.h
+src/geopm_ctl.h
 src/geopm_mpi_pcontrol.h
 src/geopm_omp.c
 src/geopm_omp.h

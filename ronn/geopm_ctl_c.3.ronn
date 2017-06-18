@@ -33,7 +33,7 @@ geopm_ctl_c(3) -- geopm power controller structure
 
 ## SYNOPSIS
 
-**\#include [<geopm.h>](https://github.com/geopm/geopm/blob/dev/src/geopm.h)**
+**\#include [<geopm_ctl.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_ctl.h)**
 
 `Link with -lgeopm`
 
