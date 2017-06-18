@@ -46,6 +46,7 @@
 #include <sys/time.h>
 #include <unistd.h> //sysconf, _SC_PROCESSORS_ONLN
 #include <time.h>
+#include <mpi.h>
 
 #include "geopm.h"
 #include "geopm_time.h"

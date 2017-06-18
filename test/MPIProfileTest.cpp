@@ -45,6 +45,7 @@
 
 #include "gtest/gtest.h"
 #include "geopm.h"
+#include "geopm_ctl.h"
 #include "geopm_env.h"
 #include "Profile.hpp"
 #include "SharedMemory.hpp"

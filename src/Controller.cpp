@@ -50,6 +50,7 @@
 #include <unistd.h>
 
 #include "geopm.h"
+#include "geopm_ctl.h"
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
 #include "geopm_hash.h"

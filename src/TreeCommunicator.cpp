@@ -48,6 +48,7 @@
 #include "TreeCommunicator.hpp"
 #include "GlobalPolicy.hpp"
 #include "SharedMemory.hpp"
+#include "geopm_ctl.h"
 #include "geopm_message.h"
 #include "geopm_env.h"
 #include "config.h"
