@@ -200,14 +200,6 @@ namespace geopm
             /// encapsulates the primary computational region of the
             /// application.
             virtual void epoch(void) = 0;
-            /// @brief Disable a data collection feature.
-            ///
-            /// Called at application start up to disable a profiling
-            /// feature.  By default all profiling features available
-            /// on the system are enabled.  The set of all possible
-            /// values for feature_name are: "instr", "flop" and
-            /// "joules".
-            virtual void disable(const std::string feature_name) = 0;
             virtual void shutdown(void) = 0;
     };
 
@@ -280,7 +272,6 @@ namespace geopm
             void exit(uint64_t region_id);
             void progress(uint64_t region_id, double fraction);
             void epoch(void);
-            void disable(const std::string feature_name);
             void shutdown(void);
             IProfileThreadTable *tprof_table(void);
         protected:

@@ -139,13 +139,6 @@ module geopm
             implicit none
         end function geopm_prof_epoch
 
-        !> @brief Fortran interface to geopm_prof_disable C function.
-        integer(kind=c_int) function geopm_prof_disable(feature_name) bind(C)
-            import
-            implicit none
-            character(kind=c_char), intent(in) :: feature_name(*)
-        end function geopm_prof_disable
-
         !> @brief Fortran interface to geopm_tprof_init_loop C function.
         integer(kind=c_int) function geopm_tprof_init_loop(num_thread, thread_idx, num_iter, chunk_size) bind(C)
             import
