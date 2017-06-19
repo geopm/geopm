@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e6d35f8_9e6b4de2",
+        "filename": "plugin/GoverningDecider.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-06-19T17:14:19Z",
+      "side": 1,
+      "message": "Why not all protected?",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "aa80d97dbc63639118ff8f50187562c7973ddca7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
