@@ -92,6 +92,60 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace(nn)
             self.assertNotEqual(0, len(trace))
 
+    def test_report_and_trace_generation_pthread(self):
+        name = 'test_report_and_trace_generation_pthread'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', 1.0)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_pmpi_ctl('pthread')
+        launcher.run(name)
+
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+        for nn in node_names:
+            report = self._output.get_report(nn)
+            self.assertNotEqual(0, len(report))
+            trace = self._output.get_trace(nn)
+            self.assertNotEqual(0, len(trace))
+
+
+    def test_report_and_trace_generation_application(self):
+        name = 'test_report_and_trace_generation_application'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 4
+        num_rank = 16
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', 1.0)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_pmpi_ctl('application')
+        launcher.run(name)
+
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+        for nn in node_names:
+            report = self._output.get_report(nn)
+            self.assertNotEqual(0, len(report))
+            trace = self._output.get_trace(nn)
+            self.assertNotEqual(0, len(trace))
+
+
     @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
