@@ -49,6 +49,7 @@ import signal
 import StringIO
 import itertools
 import glob
+import re
 
 from geopmpy import __version__
 
@@ -121,13 +122,37 @@ class SubsetOptionParser(optparse.OptionParser):
     launcher.  GEOPM command line option help is appended to the job
     launcher's help message.
     """
-    def _process_args(self, largs, rargs, values):
-        while rargs:
-            try:
-                optparse.OptionParser._process_args(self, largs, rargs, values)
-            except (optparse.BadOptionError, optparse.AmbiguousOptionError) as e:
-                largs.append(e.opt_str)
+    def parse_args(self, argv):
+        argv_filt = self._filter_argv(argv)
+        opts, unparsed = optparse.OptionParser.parse_args(self, argv_filt)
+        unfiltered = [aa for aa in argv if aa not in argv_filt]
+        unfiltered.extend(unparsed)
+        return opts, unfiltered
 
+    def _filter_argv(self, argv):
+         argv_filt = []
+         idx = 0
+         while idx < len(argv):
+             is_found = False
+             for option in self._get_all_options():
+                 for opt in option._long_opts:
+                     if not is_found and argv[idx] == opt and idx < len(argv) - 1:
+                         argv_filt.extend([argv[idx], argv[idx + 1]])
+                         idx += 1
+                         is_found = True
+                     elif not is_found and re.match(r'{opt}=\w*'.format(opt=opt), argv[idx]):
+                         argv_filt.append(argv[idx])
+                         is_found = True
+                 for opt in option._short_opts:
+                     if not is_found and argv[idx] == opt and idx < len(argv) - 1:
+                         argv_filt.extend([argv[idx], argv[idx + 1]])
+                         idx += 1
+                         is_found = True
+                     elif not is_found and re.match(r'{opt}\w*'.format(opt=opt), argv[idx]):
+                         argv_filt.append(argv[idx])
+                         is_found = True
+             idx += 1
+         return argv_filt
     def _add_help_option(self):
         pass
 
