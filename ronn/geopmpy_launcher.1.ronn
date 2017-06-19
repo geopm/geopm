@@ -33,9 +33,9 @@ geopmpy_launcher(1) -- geopm application launch wrapper
 
 ## SYNOPSIS
 
-`geopmsrun` [_srun-options_] [_OPTIONS_] executable [_exec-args_]
+`geopmsrun` [_srun-options_] [_OPTIONS_] `--` executable [_exec-args_]
 
-`geopmaprun` [_aprun-options_] [_OPTIONS_] executable [_exec-args_]
+`geopmaprun` [_aprun-options_] [_OPTIONS_] `--` executable [_exec-args_]
 
 ## DESCRIPTION
 The GEOPM launcher enables users to launch the GEOPM runtime with a
@@ -47,8 +47,8 @@ the `geopmsrun` and `geopmaprun` executables which run the
 geopmpy.launcher.main() method in the geopmpy python package.  These
 interfaces extend the resource manager's job launch application with
 GEOPM specific flags.  All application launch options accepted by the
-underlying application (e.g. `srun` or `aprun`) can be passed to the
-GEOPM launch wrapper with the exception of CPU affinity related
+underlying launch application (e.g. `srun` or `aprun`) can be passed
+to the GEOPM launch wrapper with the exception of CPU affinity related
 options.  The wrapper script reinterprets the command line to set
 environment variables and pass modified options to the underlying job
 launch application.  The reinterpreted command line is echoed to
@@ -57,6 +57,12 @@ environment variables used by GEOPM which are described in
 **geopm(7)**, sets process CPU affinity to meet the requirements of
 GEOPM and extends the allocation to have reserved CPUs and extra
 processes as required by the GEOPM runtime.
+
+Note: the primary compute executable and its command line options must
+appear at the end of the command line and be preceded by two dashes:
+`--`. The GEOPM launcher will stop parsing arguments following the `--`
+sequence and pass the arguments that follow unaltered while removing
+the first `--` from the command line.
 
 ## OPTIONS
 
@@ -155,6 +161,18 @@ processes as required by the GEOPM runtime.
   Use LD_PRELOAD to link libgeopm.so at runtime.  This can be used to
   enable the GEOPM runtime when an application has not been compiled
   against libgeopm.so.
+
+## EXAMPLES
+
+Use geopmsrun to launch the geopm tutorial6 on two nodes using 32
+application MPI process each with four threads:
+
+    geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
+
+Use geopomaprun to launch the miniFE executable with the same
+configuration:
+
+    geopmaprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
 
 ## ENVIRONMENT
 The `GEOPM_RM` environment variable can be used to select which

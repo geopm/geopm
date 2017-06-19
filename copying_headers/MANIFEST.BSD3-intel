@@ -45,6 +45,7 @@ scripts/setup.py
 scripts/Makefile.mk
 scripts/test/__init__.py
 scripts/test/TestAffinity.py
+scripts/test/TestSubsetOptionParser.py
 scripts/test/geopm_context.py
 scripts/test/geopmpy_test.sh
 src/CircularBuffer.hpp
