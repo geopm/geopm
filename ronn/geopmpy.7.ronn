@@ -65,7 +65,7 @@ extracting specific data.  See the in-file docstrings for more info.
   of the "--prefix" path.  See the [ENVIRONMENT][] section for more information on
   how to setup this configuration.
 
-  * `Via PyPI (not yet implemented)`:
+  * `Via PyPI`:
     The geopmpy package can be installed via pip from PyPI with:
 
       sudo pip install geopmpy<br><br>
