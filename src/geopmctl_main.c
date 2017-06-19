@@ -57,7 +57,6 @@ int main(int argc, char **argv)
     int err_mpi = 0;
     char error_str[MPI_MAX_ERROR_STRING] = {0};
     char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
-    char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *policy_ptr = NULL;
     char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
@@ -106,14 +105,11 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    while (!err0 && (opt = getopt(argc, argv, "c:k:s:")) != -1) {
+    while (!err0 && (opt = getopt(argc, argv, "c:s:")) != -1) {
         arg_ptr = NULL;
         switch (opt) {
             case 'c':
                 arg_ptr = policy_config;
-                break;
-            case 'k':
-                arg_ptr = policy_key;
                 break;
             case 's':
                 arg_ptr = sample_key;
@@ -156,19 +152,9 @@ int main(int argc, char **argv)
     }
 
 
-    if (!err0 &&
-        strlen(policy_config) != 0 &&
-        strlen(policy_key) != 0) {
-        err0 = EINVAL;
-        fprintf(stderr, "Error: %s either -c and -k cannot both be specified\n", argv[0]);
-    }
-
     if (!err0 && !my_rank) {
         if (policy_config[0]) {
             printf("    Policy config: %s\n", policy_config);
-        }
-        if (policy_key[0]) {
-            printf("    Policy key:    %s\n", policy_key);
         }
         if (sample_key[0]) {
             printf("    Sample key:    %s\n", sample_key);
@@ -177,29 +163,33 @@ int main(int argc, char **argv)
     }
 
     if (!err0) {
-        if (strlen(policy_config)) {
-            policy_ptr = policy_config;
-        }
-        else if (strlen(policy_key)) {
-            policy_ptr = policy_key;
-        }
-        else {
-            /* reusing the policy_config buffer to pass environment variables */
-            strncpy(policy_config, geopm_env_policy(),GEOPMCTL_STRING_LENGTH-1);
-            policy_ptr = policy_config;
-        }
+        policy_ptr = NULL;
         if (!my_rank) {
+            if (strlen(policy_config)) {
+                policy_ptr = policy_config;
+            }
+            else if (strlen(geopm_env_policy()) {
+                /* reusing the policy_config buffer to pass environment variables */
+                /// @fixme: check for overflow rather than just truncate.
+                strncpy(policy_config, geopm_env_policy(), GEOPMCTL_STRING_LENGTH - 1);
+                policy_ptr = policy_config;
+            }
+            else {
+                fprintf(stderr, "Error: Parameter -c not given and GEOPM_POLICY environment variable not set\n");
+                fprintf(stderr, usage, argv[0]);
+                err0 = EINVAL;
+            }
+        }
+        if (!err0) {
             err0 = geopmctl_main(policy_ptr, sample_key);
         }
-        else {
-            err0 = geopmctl_main(NULL, sample_key);
-        }
-        if (err0) {
-            geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
-            fprintf(stderr, "Error: %s\n", error_str);
-        }
     }
-
-    PMPI_Finalize();
+    if (err0) {
+        geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
+        fprintf(stderr, "Error: %s\n", error_str);
+    }
+    if (!err_mpi) {
+        PMPI_Finalize();
+    }
     return err0;
 }
