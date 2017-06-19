@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02c3b4c8_ab67ed88",
+        "filename": "ChangeLog",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-06-19T16:42:49Z",
+      "side": 1,
+      "message": "setting",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 15
+      },
+      "revId": "fd4e905e1ef3b1569e49de20251ade5fd350c151",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
