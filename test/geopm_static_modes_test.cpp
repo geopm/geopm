@@ -29,6 +29,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -38,7 +42,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "geopm_omp.h"
+#include "geopm_sched.h"
 
 #include "XeonPlatformImp.hpp"
 

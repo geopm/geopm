@@ -30,6 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifndef __linux__
 /// @brief cpuset definition for non-linux platforms.
 typedef struct cpu_set_t {
@@ -62,4 +67,12 @@ static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
 #define _GNU_SOURCE
 #endif
 #include <sched.h>
+#endif
+
+int geopm_num_cpu(void);
+
+int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp);
+
+#ifdef __cplusplus
+}
 #endif

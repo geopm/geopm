@@ -29,7 +29,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #ifdef __APPLE__
 #define _DARWIN_C_SOURCE
 #include <sys/types.h>
@@ -47,7 +49,6 @@
 
 #include "geopm.h"
 #include "geopm_ctl.h"
-#include "geopm_sched.h"
 #include "geopm_message.h"
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
@@ -56,6 +57,7 @@
 #include "Exception.hpp"
 #include "geopm_env.h"
 #include "ProfileTable.hpp"
+#include "geopm_sched.h"
 #include "config.h"
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
@@ -758,7 +760,7 @@ namespace geopm
 
         std::string tprof_key(geopm_env_shmkey());
         tprof_key += "-tprof";
-        size_t tprof_size = 64 * ProfileThreadTable::num_cpu_s();
+        size_t tprof_size = 64 * geopm_num_cpu();
         m_tprof_shmem = new SharedMemory(tprof_key, tprof_size);
         m_tprof_table = new ProfileThreadTable(tprof_size, m_tprof_shmem->pointer());
     }
@@ -807,13 +809,7 @@ namespace geopm
 
     void ProfileSampler::cpu_rank(std::vector<int> &cpu_rank)
     {
-#ifdef _SC_NPROCESSORS_ONLN
-        uint32_t num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
-#else
-        uint32_t num_cpu = 1;
-        size_t len = sizeof(num_cpu);
-        sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &num_cpu, &len, NULL, 0);
-#endif
+        uint32_t num_cpu = geopm_num_cpu();
         cpu_rank.resize(num_cpu);
         if (num_cpu > GEOPM_MAX_NUM_CPU) {
             throw Exception("ProfileSampler::cpu_rank: Number of online CPUs is greater than GEOPM_MAX_NUM_CPU", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
