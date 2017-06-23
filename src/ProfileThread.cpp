@@ -29,16 +29,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE
-#include <sys/types.h>
-#include <sys/sysctl.h>
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
 #endif
-
 #include <string.h>
 #include <float.h>
 #include <unistd.h>
 
+#include "geopm_sched.h"
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
 
@@ -46,7 +44,7 @@ namespace geopm
 {
     ProfileThreadTable::ProfileThreadTable(size_t buffer_size, void *buffer)
         : m_buffer((uint32_t *)buffer)
-        , m_num_cpu(num_cpu_s())
+        , m_num_cpu(geopm_sched_num_cpu())
         , m_stride(64 / sizeof(uint32_t))
     {
         if (buffer_size < 64 * m_num_cpu) {
@@ -72,18 +70,6 @@ namespace geopm
     int ProfileThreadTable::num_cpu(void)
     {
         return m_num_cpu;
-    }
-
-    int ProfileThreadTable::num_cpu_s(void)
-    {
-#ifdef _SC_NPROCESSORS_ONLN
-        uint32_t result = sysconf(_SC_NPROCESSORS_ONLN);
-#else
-        uint32_t result = 1;
-        size_t len = sizeof(result);
-        sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
-#endif
-        return result;
     }
 
     void ProfileThreadTable::enable(bool is_enabled)
@@ -161,7 +147,7 @@ namespace geopm
         static thread_local int result = -1;
         if (result == -1) {
             result = sched_getcpu();
-            if (result >= num_cpu_s()) {
+            if (result >= geopm_sched_num_cpu()) {
                 throw Exception("ProfileThreadTable::cpu_idx(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }

@@ -68,7 +68,6 @@ namespace geopm
             void post(void);
             void dump(std::vector<double> &progress);
             int num_cpu(void);
-            static int num_cpu_s(void);
         private:
             static int cpu_idx(void);
             uint32_t *m_buffer;
