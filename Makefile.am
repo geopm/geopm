@@ -85,7 +85,7 @@ ronn_man = man/geopm.7 \
            man/geopm_fortran.3 \
            man/geopmpy.7 \
            man/geopmpy_launcher.1 \
-           man/geopm_omp.3 \
+           man/geopm_sched.3 \
            man/geopmplotter.1 \
            man/geopmpolicy.1 \
            man/geopm_policy_c.3 \
@@ -135,7 +135,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
              ronn/geopmpy_launcher.1.ronn \
-             ronn/geopm_omp.3.ronn \
+             ronn/geopm_sched.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/geopmpolicy.1.ronn \
              ronn/geopm_policy_c.3.ronn \
@@ -267,12 +267,11 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/geopm_hash.h \
                             src/geopm_message.c \
                             src/geopm_message.h \
-                            src/geopm_omp.c \
-                            src/geopm_omp.h \
                             src/geopm_plugin.c \
                             src/geopm_plugin.h \
                             src/geopm_policy.h \
                             src/geopm_time.h \
+                            src/geopm_sched.c \
                             src/geopm_sched.h \
                             src/geopm_signal_handler.h \
                             src/geopm_version.c \
@@ -346,8 +345,6 @@ if ENABLE_MPI
                           src/geopm_error.h \
                           src/geopm_hash.c \
                           src/geopm_hash.h \
-                          src/geopm_omp.c \
-                          src/geopm_omp.h \
                           src/geopm_message.c \
                           src/geopm_message.h \
                           src/geopm_plugin.c \
@@ -355,6 +352,7 @@ if ENABLE_MPI
                           src/geopm_pmpi.h \
                           src/geopm_pmpi.c \
                           src/geopm_signal_handler.h \
+                          src/geopm_sched.c \
                           src/geopm_sched.h \
                           src/geopm_time.h \
                           src/geopm_version.c \
