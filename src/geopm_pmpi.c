@@ -29,7 +29,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
@@ -42,6 +44,7 @@
 #include "geopm_message.h"
 #include "geopm_env.h"
 #include "geopm_pmpi.h"
+#include "geopm_sched.h"
 #include "config.h"
 
 static int g_is_geopm_pmpi_ctl_enabled = 0;
@@ -176,6 +179,9 @@ static int geopm_pmpi_init(const char *exec_name)
             g_is_geopm_pmpi_ctl_enabled = 1;
 
             int mpi_thread_level;
+            pthread_attr_t thread_attr;
+            int num_cpu = geopm_sched_num_cpu();
+            cpu_set_t *cpu_set = CPU_ALLOC(num_cpu);
 
             if (!err) {
                 err = PMPI_Query_thread(&mpi_thread_level);
@@ -196,9 +202,22 @@ static int geopm_pmpi_init(const char *exec_name)
                     err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
                 }
                 if (!err) {
-                    err = geopm_ctl_pthread(g_ctl, NULL, &g_ctl_thread);
+                    err = pthread_attr_init(&thread_attr);
+                }
+                if (!err) {
+                    err =  geopm_sched_woomp(num_cpu, cpu_set);
+                }
+                if (!err) {
+                    err = pthread_attr_setaffinity_np(&thread_attr, 8 * num_cpu, cpu_set);
+                }
+                if (!err) {
+                    err = geopm_ctl_pthread(g_ctl, &thread_attr, &g_ctl_thread);
+                }
+                if (!err) {
+                    err = pthread_attr_destroy(&thread_attr);
                 }
             }
+            CPU_FREE(cpu_set);
         }
         if (!err && geopm_env_do_profile()) {
             geopm_prof_init();

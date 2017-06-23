@@ -29,19 +29,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "geopm_omp.h"
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
+#include <stdint.h>
+#include <unistd.h>
+
+#include "geopm_sched.h"
 #include "geopm_error.h"
 #include "config.h"
 
 #ifdef _OPENMP
 #include <omp.h>
+#endif
 
-int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
+int geopm_sched_num_cpu(void)
+{
+#ifdef _SC_NPROCESSORS_ONLN
+    uint32_t result = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+    uint32_t result = 1;
+    size_t len = sizeof(result);
+    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
+#endif
+    return result;
+}
+
+int geopm_sched_woomp(int num_cpu, cpu_set_t *no_omp)
 {
     int err = 0;
     for (int i = 0; i < num_cpu; ++i) {
         CPU_SET(i, no_omp);
     }
+#ifdef _OPENMP
     #pragma omp parallel default(shared)
     {
         #pragma omp critical
@@ -56,13 +83,13 @@ int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
             }
         } /* end pragma omp critical */
     } /* end pragma omp parallel */
+#endif
+    if (CPU_COUNT(no_omp) == 0) {
+        /* If all CPUs are used by the OpenMP gang, then leave the
+	   mask open and allow the Linux scheduler to choose. */
+        for (int i = 0; i < num_cpu; ++i) {
+            CPU_SET(i, no_omp);
+        }
+    }
     return err;
 }
-#else
-
-int geopm_no_omp_cpu(int num_cpu, cpu_set_t *no_omp)
-{
-    return GEOPM_ERROR_OPENMP_UNSUPPORTED;
-}
-
-#endif
