@@ -60,6 +60,7 @@ src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
 src/geopmctl_main.c
+src/geopm_sched.c
 src/geopm_sched.h
 src/geopm_env.h
 src/geopm_error.h
@@ -68,8 +69,6 @@ src/geopm_hash.h
 src/geopm.f90
 src/geopm.h
 src/geopm_ctl.h
-src/geopm_omp.c
-src/geopm_omp.h
 src/geopm_plugin.c
 src/geopm_plugin.h
 src/geopm_pmpi.c
