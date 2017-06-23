@@ -1,5 +1,5 @@
-geopm_omp.h(3) -- geopm interface for OpenMP
-============================================
+geopm_sched.h(3) -- geopm interface with Linux scheduler
+========================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
 [//]: # ()
@@ -32,30 +32,41 @@ geopm_omp.h(3) -- geopm interface for OpenMP
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## SYNOPSIS
-**\#include [<geopm_omp.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_omp.h)**
+**\#include [<geopm_sched.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_sched.h)**
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `int geopm_no_omp_cpu(`:
-    `int` _num_cpu_, <br>
-    `cpu_set_t *`_no_omp_);
+  * `int geopm_sched_num_cpu(void)`;
+
+  * `int geopm_sched_woomp(`:
+     `int` _num_cpu_, <br>
+     `cpu_set_t *`_woomp_);
 
 ## DESCRIPTION
-The _geopm_omp.h_ header defines geopm interfaces for interacting with
-the OpenMP runtime environment.  This set of interfaces will grow in
+The _geopm_sched.h_ header defines geopm interfaces for interacting with
+the linux scheduler.  This set of interfaces may grow in
 the future.
 
-  * `geopm_no_omp_cpu`():
-    sets the **CPU_SET(3)** given by _no_omp_ such that it includes
-    all CPUs not used in an OpenMP parallel region.  This cpu mask can
-    be used with **pthread_attr_setaffinity_np(3)** to modify the
-    attributes passed to `geopm_ctl_pthread`() so that the pthread
-    created is affinitized to CPUs that do not have an OpenMP thread
-    affinity.  The mask generated when OpenMP threads are not
-    statically affinitized is unreliable.  The _no_omp_ mask is zeroed
-    and an error code is returned when all online CPUs have an OpenMP
-    thread affinity.  The _num_cpu_ parameter specifies size of the
-    CPU_SET in terms of number of CPUs.
+  * `geopm_sched_num_cpu`():
+    Returns the number of online logical CPUs on the system.
+
+  * `geopm_sched_woomp`():
+    sets the **CPU_SET(3)** given by _woomp_ such that it includes all
+    CPUs not used in an OpenMP parallel region but available to the
+    calling thread.  If there are no CPU's that are part of the mask
+    returned by **sched_getaffinity(2)** but not affinitized by an
+    OpenMP thread then the returned mask will have all bits set,
+    allowing the Linux scheduler to dynamically affinitize the thread.
+    The cpu mask _woomp_ that is created by this function can be used
+    with **pthread_attr_setaffinity_np(3)** to modify the attributes
+    passed to `geopm_ctl_pthread`() so that the pthread created is
+    affinitized to CPUs that do not have an OpenMP thread affinity.
+    The mask generated when OpenMP threads are not statically
+    affinitized is unreliable (i.e. use OMP_PROC_BIND environment
+    variable).  The _num_cpu_ parameter specifies size of the CPU_SET
+    in terms of number of CPUs.  If an error occurs a non-zero error
+    number is returned. See **geopm_error(3)** for a full description
+    of the error numbers and how to convert them to strings.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
@@ -77,3 +88,4 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **CPU_SET(3)**,
 **pthread_setaffinity_np(3)**,
 **pthread_attr_setaffinity_np(3)**
+**sched_getaffinity(2)**
