@@ -446,15 +446,6 @@ gh-pages: doxygen $(dist_man_MANS)
 	cp -rf dox/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
 
-else
-
-BUILT_SOURCES =
-
-$(ronn_man): man/%: ronn/%.ronn
-	mkdir -p man
-	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
-endif
-
 man/geopmsrun.1: man/geopmpy_launcher.1
 	cp $^ $@
 	cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html
@@ -462,6 +453,18 @@ man/geopmsrun.1: man/geopmpy_launcher.1
 man/geopmaprun.1: man/geopmpy_launcher.1
 	cp $^ $@
 	cp ronn/geopmpy_launcher.1.html ronn/geopmaprun.1.html
+
+else
+
+BUILT_SOURCES =
+
+$(ronn_man): man/%: ronn/%.ronn
+	mkdir -p man
+	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
+
+man/geopmsrun.1:
+man/geopmaprun.1:
+endif
 
 checkprogs: fortran-checkprogs gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
