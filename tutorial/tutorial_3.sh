@@ -31,22 +31,76 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+set err=0
 source tutorial_env.sh
 
-LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
-LD_DYNAMIC_WEAK=true \
-GEOPM_PMPI_CTL=process \
-GEOPM_REPORT=tutorial_3_governed_report \
-GEOPM_TRACE=tutorial_3_governed_trace \
-GEOPM_POLICY=tutorial_governed_policy.json \
-./tutorial_3
+export PATH=$GEOPM_BINDIR:$PATH
+export PYTHONPATH=$GEOPMPY_PKGDIR:$PYTHONPATH
+export LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH
 
-LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH \
-LD_DYNAMIC_WEAK=true \
-GEOPM_PMPI_CTL=process \
-GEOPM_REPORT=tutorial_3_balanced_report \
-GEOPM_TRACE=tutorial_3_balanced_trace \
-GEOPM_POLICY=tutorial_balanced_policy.json \
-./tutorial_3
+# Run on 2 nodes
+# with 8 MPI ranks
+# launch geopm controller as an MPI process
+# create a report file
+# create trace files
+if [ "$GEOPM_RM" == "SLURM" ]; then
+    # Use GEOPM launcher wrapper script with SLURM's srun
+    geopmsrun  -N 2 \
+               -n 8 \
+               --geopm-ctl=process \
+               --geopm-report=tutorial_3_governed_report \
+               --geopm-trace=tutorial_3_governed_trace \
+               --geopm-policy=tutorial_governed_policy.json \
+               -- ./tutorial_3 \
+    && \
+    geopmsrun  -N 2 \
+               -n 8 \
+               --geopm-ctl=process \
+               --geopm-report=tutorial_3_balanced_report \
+               --geopm-trace=tutorial_3_balanced_trace \
+               --geopm-policy=tutorial_balanced_policy.json \
+               -- ./tutorial_3
+    err=$?
 
-#
+elif [ "$GEOPM_RM" == "ALPS" ]; then
+    # Use GEOPM launcher wrapper script with ALPS's aprun
+    geopmaprun -N 4 \
+               -n 8 \
+               --geopm-ctl=process \
+               --geopm-report=tutorial_3_governed_report \
+               --geopm-trace=tutorial_3_governed_trace \
+               --geopm-policy=tutorial_governed_policy.json \
+               -- ./tutorial_3 \
+    && \
+    geopmaprun -N 4 \
+               -n 8 \
+               --geopm-ctl=process \
+               --geopm-report=tutorial_3_balanced_report \
+               --geopm-trace=tutorial_3_balanced_trace \
+               --geopm-policy=tutorial_balanced_policy.json \
+               -- ./tutorial_3
+    err=$?
+elif [ $MPIEXEC ]; then
+    LD_DYNAMIC_WEAK=true \
+    GEOPM_PMPI_CTL=process \
+    GEOPM_REPORT=tutorial_3_governed_report \
+    GEOPM_TRACE=tutorial_3_governed_trace \
+    GEOPM_POLICY=tutorial_governed_policy.json \
+    $MPIEXEC ./tutorial_3
+    && \
+    LD_DYNAMIC_WEAK=true \
+    GEOPM_PMPI_CTL=process \
+    GEOPM_REPORT=tutorial_3_balanced_report \
+    GEOPM_TRACE=tutorial_3_balanced_trace \
+    GEOPM_POLICY=tutorial_balanced_policy.json \
+    $MPIEXEC ./tutorial_3
+    err=$?
+else
+    echo "Error: tutorial_3.sh: set GEOPM_RM to 'SLURM' or 'ALPS'." 2>&1
+    echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
+    echo "       a command that will launch an MPI job on your system" 2>&1
+    echo "       using 2 nodes and 10 processes." 2>&1
+    err=1
+fi
+
+exit $err
