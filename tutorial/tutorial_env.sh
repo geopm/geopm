@@ -39,9 +39,25 @@ if [ ! "$GEOPM_PREFIX" ]; then
     GEOPM_PREFIX=$HOME/build/geopm
 fi
 
+# GEOPM_RM: The resource manager to use to launch jobs.
+# Options are either 'ALPS' or 'SLURM'.
+if [ ! "$GEOPM_RM" ]; then
+    GEOPM_RM='SLURM'
+fi
+
+# GEOPM_BINDIR: Diretory containing libgeopm.so.
+if [ ! "$GEOPM_BINDIR" ]; then
+    GEOPM_BINDIR=$GEOPM_PREFIX/bin
+fi
+
 # GEOPM_LIBDIR: Diretory containing libgeopm.so.
 if [ ! "$GEOPM_LIBDIR" ]; then
     GEOPM_LIBDIR=$GEOPM_PREFIX/lib
+fi
+
+# GEOPMPY_PKGDIR: Diretory containing .
+if [ ! "$GEOPMPY_PKGDIR" ]; then
+    GEOPMPY_PKGDIR=$GEOPM_PREFIX/lib/python2.7/site-packages
 fi
 
 # GEOPM_INCLUDEDIR: Directory containing geopm.h.
