@@ -297,11 +297,10 @@ static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double sca
         (void)geopm_tprof_post();
     }
 #pragma omp for
-        for (size_t j = 0; j < num_remain; ++j) {
-            a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];
-        }
-}
+    for (size_t j = 0; j < num_remain; ++j) {
+        a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];
     }
+}
 
     return err;
 }
