@@ -30,42 +30,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_CTL_H_INCLUDE
-#define GEOPM_CTL_H_INCLUDE
+#ifndef GEOPM_COMM_SPLIT_H_INCLUDE
+#define GEOPM_COMM_SPLIT_H_INCLUDE
 
-#include <stdio.h>
-#include <stdint.h>
-#include <pthread.h>
-
-#include "geopm_policy.h"
+#ifndef GEOPM_TEST
+#include <mpi.h>
+#else
+typedef int MPI_Comm;
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/*****************/
+/* MPI COMM APIS */
+/*****************/
+int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm);
 
-/* Opaque structure which is a handle for a geopm::Controller object. */
-struct geopm_ctl_c;
+int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm);
 
-/************************/
-/* OBJECT INSTANTIATION */
-/************************/
-int geopm_ctl_create(struct geopm_policy_c *policy,
-                     struct geopm_ctl_c **ctl);
-
-int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
-
-/********************/
-/* POWER MANAGEMENT */
-/********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_run(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
-                      const pthread_attr_t *attr,
-                      pthread_t *thread);
-
+int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm);
 #ifdef __cplusplus
 }
+
 #endif
 #endif
