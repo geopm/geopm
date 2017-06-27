@@ -123,6 +123,9 @@ extern "C"
             case GEOPM_ERROR_ENVIRONMENT:
                 strncpy(msg, "<geopm> Unset or invalid environment variable", size);
                 break;
+            case GEOPM_ERROR_COMM_UNSUPPORTED:
+                strncpy(msg, "<geopm> Communication implementation not supported", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);
