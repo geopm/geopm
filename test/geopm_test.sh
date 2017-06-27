@@ -35,6 +35,8 @@ unset GEOPM_POLICY
 unset GEOPM_REPORT
 unset GEOPM_TRACE
 
+export GEOPM_PLUGIN_PATH=.libs
+
 test_name=`basename $0`
 dir_name=`dirname $0`
 run_test=true
@@ -126,6 +128,8 @@ else
     if [[ $test_name =~ ^MPIProfile ||
           $test_name =~ ^MPIController ]] &&
         [[ ! $test_name =~ noctl ]]; then
+       #fixed hang observed in MPI tests
+       sleep 1
        export GEOPM_PMPI_CTL=process
        export GEOPM_REPORT=geopm_report
 
