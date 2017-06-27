@@ -63,6 +63,7 @@ enum geopm_error_e {
     GEOPM_ERROR_TOO_MANY_COLLISIONS = -21,
     GEOPM_ERROR_AFFINITY = -22,
     GEOPM_ERROR_ENVIRONMENT = -23,
+    GEOPM_ERROR_COMM_UNSUPPORTED = -24,
 };
 
 /* Convert error number into an error message */
