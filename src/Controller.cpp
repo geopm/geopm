@@ -223,6 +223,10 @@ namespace geopm
             struct geopm_plugin_description_s plugin_desc;
             geopm_error_destroy_shmem();
             check_mpi(MPI_Comm_rank(m_ppn1_comm, &m_ppn1_rank));
+            if (m_ppn1_rank == 0 && m_global_policy == NULL) {
+                throw Exception("Root of control tree does not have a valid global policy pointer",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             if (!m_ppn1_rank) { // We are the root of the tree
                 plugin_desc.tree_decider[NAME_MAX - 1] = '\0';
                 plugin_desc.leaf_decider[NAME_MAX - 1] = '\0';
