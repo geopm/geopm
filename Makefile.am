@@ -289,6 +289,10 @@ if ENABLE_MPI
     libgeopm_la_SOURCES = src/CircularBuffer.hpp \
                           src/Controller.cpp \
                           src/Controller.hpp \
+                          src/Comm.hpp \
+                          src/Comm.cpp \
+                          src/MPIComm.hpp \
+                          src/MPIComm.cpp \
                           src/Decider.cpp \
                           src/Decider.hpp \
                           src/DeciderFactory.cpp \
@@ -342,6 +346,7 @@ if ENABLE_MPI
                           src/XeonPlatformImp.hpp \
                           src/geopm.h \
                           src/geopm_ctl.h \
+                          src/geopm_comm.h \
                           src/geopm_error.h \
                           src/geopm_hash.c \
                           src/geopm_hash.h \

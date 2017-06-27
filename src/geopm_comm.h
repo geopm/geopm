@@ -30,46 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_ERROR_H_INCLUDE
-#define GEOPM_ERROR_H_INCLUDE
+#ifndef GEOPM_COMM_H_INCLUDE
+#define GEOPM_COMM_H_INCLUDE
 
-#include <stdlib.h>
+#ifndef GEOPM_TEST
+#include <mpi.h>
+#else
+typedef int MPI_Comm;
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-enum geopm_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-    GEOPM_ERROR_POLICY_NULL = -4,
-    GEOPM_ERROR_FILE_PARSE = -5,
-    GEOPM_ERROR_LEVEL_RANGE = -6,
-    GEOPM_ERROR_CTL_COMM = -7,
-    GEOPM_ERROR_SAMPLE_INCOMPLETE = -8,
-    GEOPM_ERROR_POLICY_UNKNOWN = -9,
-    GEOPM_ERROR_NOT_IMPLEMENTED = -10,
-    GEOPM_ERROR_NOT_TESTED = -11,
-    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -12,
-    GEOPM_ERROR_MSR_OPEN = -13,
-    GEOPM_ERROR_MSR_READ = -14,
-    GEOPM_ERROR_MSR_WRITE = -15,
-    GEOPM_ERROR_OPENMP_UNSUPPORTED = -16,
-    GEOPM_ERROR_PROF_NULL = -17,
-    GEOPM_ERROR_DECIDER_UNSUPPORTED = -18,
-    GEOPM_ERROR_FACTORY_NULL = -19,
-    GEOPM_ERROR_SHUTDOWN = -20,
-    GEOPM_ERROR_TOO_MANY_COLLISIONS = -21,
-    GEOPM_ERROR_AFFINITY = -22,
-    GEOPM_ERROR_ENVIRONMENT = -23,
-    GEOPM_ERROR_COMM_UNSUPPORTED = -24,
-};
-
-/* Convert error number into an error message */
-void geopm_error_message(int err, char *msg, size_t size);
-
+int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm);
+int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm);
+int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm);
 #ifdef __cplusplus
 }
+
 #endif
 #endif
