@@ -30,42 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_CTL_H_INCLUDE
-#define GEOPM_CTL_H_INCLUDE
+#include "Comm.hpp"
+#include "geopm_message.h"
+#include "ProfileThread.hpp"
+#include "ProfileSampler.hpp"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <pthread.h>
-
-#include "geopm_policy.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Opaque structure which is a handle for a geopm::Controller object. */
-struct geopm_ctl_c;
-
-/************************/
-/* OBJECT INSTANTIATION */
-/************************/
-int geopm_ctl_create(struct geopm_policy_c *policy,
-                     struct geopm_ctl_c **ctl);
-
-int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
-
-/********************/
-/* POWER MANAGEMENT */
-/********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_run(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
-                      const pthread_attr_t *attr,
-                      pthread_t *thread);
-
-#ifdef __cplusplus
-}
-#endif
-#endif
+class MockProfileSampler : public geopm::IProfileSampler {
+    public:
+        MOCK_METHOD0(capacity,
+            size_t (void));
+        MOCK_METHOD3(sample,
+            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, geopm::IComm *comm));
+        MOCK_METHOD0(do_shutdown,
+            bool (void));
+        MOCK_METHOD0(do_report,
+            bool (void));
+        MOCK_METHOD0(region_names,
+            void (void));
+        MOCK_METHOD1(initialize,
+            void (int &rank_per_node));
+        MOCK_METHOD1(cpu_rank,
+            void (std::vector<int> &cpu_rank));
+        MOCK_METHOD1(name_set,
+            void (std::set<std::string> &region_name));
+        MOCK_METHOD1(report_name,
+            void (std::string &report_str));
+        MOCK_METHOD1(profile_name,
+            void (std::string &prof_str));
+        MOCK_METHOD0(tprof_table,
+            geopm::IProfileThreadTable *(void));
+};

@@ -40,6 +40,7 @@
 
 #include "geopm.h"
 #include "geopm_ctl.h"
+#include "geopm_mpi_comm.h"
 #include "geopm_error.h"
 #include "geopm_message.h"
 #include "geopm_env.h"
@@ -55,6 +56,7 @@ static MPI_Fint g_geopm_comm_world_f = 0;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
 static struct geopm_ctl_c *g_ctl = NULL;
 static pthread_t g_ctl_thread;
+static int g_ctl_thread_valid = 0;
 
 /* To be used only in Profile.cpp */
 void geopm_pmpi_prof_enable(int do_profile)
@@ -168,7 +170,7 @@ static int geopm_pmpi_init(const char *exec_name)
                     }
                 }
                 if (!err) {
-                    err = geopm_ctl_create(policy, g_geopm_comm_world_swap, &g_ctl);
+                    err = geopm_ctl_create(policy, &g_ctl);
                 }
                 if (!err) {
                     err = geopm_ctl_run(g_ctl);
@@ -193,39 +195,38 @@ static int geopm_pmpi_init(const char *exec_name)
             if (!err && mpi_thread_level < MPI_THREAD_MULTIPLE) {
                 err = GEOPM_ERROR_LOGIC;
             }
-            if (!err) {
-                err = geopm_comm_split_ppn1(MPI_COMM_WORLD, "pmpi", &g_ppn1_comm);
+            if (!err && !rank) {
+                err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
             }
-            if (!err && g_ppn1_comm != MPI_COMM_NULL) {
-                int ppn1_rank;
-                err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
-                if (!err && !ppn1_rank) {
-                    err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
-                }
-                if (!err) {
-                    err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
-                }
+            if (!err) {
+                err = geopm_ctl_create(policy, &g_ctl);
+            }
 #ifndef __APPLE__
-                if (!err) {
-                    err = pthread_attr_init(&thread_attr);
+            if (!err) {
+                err = pthread_attr_init(&thread_attr);
+            }
+            if (!err) {
+                err = geopm_sched_woomp(num_cpu, cpu_set);
+            }
+            if (!err) {
+                err = pthread_attr_setaffinity_np(&thread_attr, CPU_ALLOC_SIZE(num_cpu), cpu_set);
+            }
+            if (!err) {
+                err = geopm_ctl_pthread(g_ctl, &thread_attr, &g_ctl_thread);
+                if (err == GEOPM_ERROR_CTL_COMM) {
+                    err = 0;
                 }
-                if (!err) {
-                    err = geopm_sched_woomp(num_cpu, cpu_set);
+                else if (!err) {
+                    g_ctl_thread_valid = 1;
                 }
-                if (!err) {
-                    err = pthread_attr_setaffinity_np(&thread_attr, CPU_ALLOC_SIZE(num_cpu), cpu_set);
-                }
-                if (!err) {
-                    err = geopm_ctl_pthread(g_ctl, &thread_attr, &g_ctl_thread);
-                }
+            }
 #else
-                if (!err) {
-                    err = geopm_ctl_pthread(g_ctl, NULL, &g_ctl_thread);
-                }
+            if (!err) {
+                err = geopm_ctl_pthread(g_ctl, NULL, &g_ctl_thread);
+            }
 #endif
-                if (!err) {
-                    err = pthread_attr_destroy(&thread_attr);
-                }
+            if (!err) {
+                err = pthread_attr_destroy(&thread_attr);
             }
 #ifndef __APPLE__
             CPU_FREE(cpu_set);
@@ -255,7 +256,7 @@ static int geopm_pmpi_finalize(void)
         err = geopm_prof_shutdown();
     }
 
-    if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+    if (g_ctl_thread_valid) {
         void *return_val;
         err = pthread_join(g_ctl_thread, &return_val);
         err = err ? err : ((long)return_val);
