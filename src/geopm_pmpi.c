@@ -160,6 +160,9 @@ static int geopm_pmpi_init(const char *exec_name)
                 err = PMPI_Comm_rank(g_geopm_comm_world_swap, &ctl_rank);
                 if (!err && !ctl_rank) {
                     err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
+                    if (!err && policy == NULL) {
+                        err = GEOPM_ERROR_POLICY_NULL;
+                    }
                 }
                 if (!err) {
                     err = geopm_ctl_create(policy, g_geopm_comm_world_swap, &g_ctl);
