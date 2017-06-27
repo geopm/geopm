@@ -43,7 +43,6 @@
 #include "StaticPolicyDecider.hpp"
 #include "config.h"
 
-
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr)
 {
     geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);

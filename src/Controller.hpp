@@ -36,7 +36,6 @@
 #include <vector>
 #include <string>
 #include <stack>
-#include <mpi.h>
 
 #include "SampleRegulator.hpp"
 #include "TreeCommunicator.hpp"
@@ -45,10 +44,11 @@
 #include "Region.hpp"
 #include "GlobalPolicy.hpp"
 #include "Profile.hpp"
+#include "ProfileSampler.hpp"
 #include "Tracer.hpp"
 #include "geopm_time.h"
 #include "geopm_plugin.h"
-
+#include "Comm.hpp"
 
 namespace geopm
 {
@@ -98,9 +98,11 @@ namespace geopm
             ///
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
-            Controller(IGlobalPolicy *global_policy, MPI_Comm comm);
+            Controller(IGlobalPolicy *global_policy, const IComm *comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
+            /// @brief Returns true if Controller is valid.
+            bool is_node_root(void);
             /// @brief Run control algorithm.
             ///
             /// Steps the control algorithm continuously until the
@@ -217,7 +219,7 @@ namespace geopm
             std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
-            MPI_Comm m_ppn1_comm;
+            IComm *m_ppn1_comm;
             int m_ppn1_rank;
     };
 }

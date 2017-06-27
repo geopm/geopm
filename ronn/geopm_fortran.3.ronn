@@ -37,17 +37,13 @@ geopm_fortran(3) -- geopm fortran interface
 
 `Link with -lgeopmfort`
 
- * `integer(kind=c_int) function geopm_ctl_create(`_policy_`,` _shm_key_`,` _comm_`,` _ctl_):
+ * `integer(kind=c_int) function geopm_ctl_create(`_policy_`,` _shm_key_`,` _ctl_`)`:
    `type(c_ptr), value, intent(in) ::` _policy_ <br>
    `character(kind=c_char), intent(in) ::` _sample_key_`(*)` <br>
-   `integer(kind=c_int), value, intent(in) ::` _comm_ <br>
    `type(c_ptr), intent(out) ::` _ctl_
 
  * `integer(kind=c_int) function geopm_ctl_destroy(`_ctl_`)`:
    `type(c_ptr), value, intent(in) ::` _ctl_ <br>
-
- * `integer(kind=c_int) function geopm_ctl_step(`_ctl_`)`:
-   `type(c_ptr), value, intent(in) ::` _ctl_
 
  * `integer(kind=c_int) function geopm_ctl_run(`_ctl_`)`:
    `type(c_ptr), value, intent(in) ::` _ctl_
@@ -64,7 +60,7 @@ geopm_fortran(3) -- geopm fortran interface
  * `integer(kind=c_int) function geopm_prof_default(`_prof_`)`:
    `type(c_ptr), value, intent(in) ::` _prof_
 
- * `integer(kind=c_int) function geopm_prof_region(`_prof_`,` _region_name_`,` _policy_hint_`,` _region_id_):
+ * `integer(kind=c_int) function geopm_prof_region(`_prof_`,` _region_name_`,` _policy_hint_`,` _region_id_`)`:
    `type(c_ptr), value, intent(in) ::` _prof_ <br>
    `character(kind=c_char), intent(in) ::` _region_name_`(*)` <br>
    `integer(kind=c_int), value, intent(in) ::` _policy_hint_ <br>
@@ -110,9 +106,9 @@ be taken when passing strings to the Fortran interface.  It is
 important to wrap the Fortran string with `char_c_` and
 `//c_null_char` when passing to as follows:
 
-`ierr = geopm_prof_create(c_char_'profile_name'//c_null_char, c_char_''//c_null_char, MPI_COMM_WORLD, prof)`
+`ierr = geopm_prof_create(c_char_'profile_name'//c_null_char, c_char_''//c_null_char, prof)`
 
-For interfaces that accept of return a MPI communicator, the
+For interfaces that accept or return an MPI communicator, the
 translation of the communicator from Fortran to C is done
 transparently.  In the future similar techniques may be used for
 converting Fortran strings.
