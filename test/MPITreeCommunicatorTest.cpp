@@ -44,6 +44,7 @@
 #include "GlobalPolicy.hpp"
 #include "geopm_policy.h"
 #include "Exception.hpp"
+#include "MPIComm.hpp"
 
 #ifndef NAME_MAX
 #define NAME_MAX 256
@@ -78,7 +79,9 @@ MPITreeCommunicatorTest::MPITreeCommunicatorTest()
         m_polctl->write();
     }
 
-    m_tcomm = new geopm::TreeCommunicator(factor, m_polctl, MPI_COMM_WORLD);
+    geopm::IComm *tmp_comm = new geopm::MPIComm();
+    m_tcomm = new geopm::TreeCommunicator(factor, m_polctl, tmp_comm);
+    delete tmp_comm;
 }
 
 

@@ -38,7 +38,6 @@
 #include <list>
 #include <forward_list>
 #include <fstream>
-#include <mpi.h>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
@@ -46,6 +45,7 @@
 #include "ProfileTable.hpp"
 #include "SampleScheduler.hpp"
 #include "ProfileThread.hpp"
+#include "Comm.hpp"
 
 /// @brief Enum encompassing application and
 /// geopm runtime state.
@@ -223,7 +223,7 @@ namespace geopm
             IProfileSampler(const IProfileSampler &other) {}
             virtual ~IProfileSampler() {}
             virtual size_t capacity(void) = 0;
-            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) = 0;
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, IComm *comm) = 0;
             virtual bool do_shutdown(void) = 0;
             virtual bool do_report(void) = 0;
             virtual void region_names(void) = 0;
@@ -264,7 +264,7 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, MPI_Comm comm);
+            Profile(const std::string prof_name, IComm *comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint);
@@ -349,7 +349,7 @@ namespace geopm
             std::list<int> m_cpu_list;
             /// @brief Communicator consisting of the root rank on each
             ///        compute node.
-            MPI_Comm m_shm_comm;
+            IComm *m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
             /// @brief The process's rank in m_shm_comm.
@@ -482,7 +482,7 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, IComm *comm);
             /// @brief Check if the application is shutting down.
             ///
             /// Queries the control shared memory region to test if the
