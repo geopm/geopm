@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "707424c5_add287fe",
+        "filename": "Makefile.am",
+        "patchSetId": 2
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-06-29T21:59:10Z",
+      "side": 0,
+      "message": "if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html; fi",
+      "revId": "0da80764c7fb15a6708d40b89f1d9ef6bbbba127",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b801b02_e00243e2",
+        "filename": "Makefile.am",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-06-29T21:59:10Z",
+      "side": 0,
+      "message": "Same here",
+      "revId": "0da80764c7fb15a6708d40b89f1d9ef6bbbba127",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
