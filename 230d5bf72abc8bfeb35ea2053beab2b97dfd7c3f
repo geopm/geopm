@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecb8572a_01a2006d",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-06-29T21:33:33Z",
+      "side": 1,
+      "message": "Look into configure time check for MPI_THREAD_MULTIPLE",
+      "revId": "230d5bf72abc8bfeb35ea2053beab2b97dfd7c3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
