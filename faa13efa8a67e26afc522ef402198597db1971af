@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f059f30_bb03a866",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-06-29T21:30:18Z",
+      "side": 1,
+      "message": "8 * num_cpu -\u003e CPU_ALLOC_SIZE(num_cpu)",
+      "revId": "faa13efa8a67e26afc522ef402198597db1971af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e56d3517_6144bc9b",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-06-29T21:30:18Z",
+      "side": 1,
+      "message": "8 * num_cpu -\u003e CPU_ALLOC_SIZE(num_cpu)",
+      "revId": "faa13efa8a67e26afc522ef402198597db1971af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
