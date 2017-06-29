@@ -36,7 +36,6 @@ GEOPM Plotter - Used to produce plots and other analysis files from report and/o
 import sys
 import os
 import subprocess
-import traceback
 import argparse
 import cPickle as pickle
 import math
@@ -491,7 +490,6 @@ def generate_power_plot(trace_df, config):
     """
     config.check_plugins(trace_df)
     idx = pandas.IndexSlice
-    decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
     # Select only the data we care about
     if config.verbose:
@@ -646,7 +644,6 @@ def generate_epoch_plot(trace_df, config):
 
     config.check_plugins(trace_df, ref_plugin=ref_plugin, tgt_plugin=tgt_plugin)
     idx = pandas.IndexSlice
-    decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
     # Select only the data we care about
     if config.verbose:
@@ -782,7 +779,6 @@ def generate_freq_plot(trace_df, config):
     """
     config.check_plugins(trace_df)
     idx = pandas.IndexSlice
-    decider_list = trace_df.index.get_level_values('tree_decider').unique().tolist()
 
     # Select only the data we care about
     if config.verbose:
