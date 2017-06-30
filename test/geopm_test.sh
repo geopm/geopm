@@ -140,7 +140,7 @@ else
            num_proc=$(($num_proc + $num_node))
        fi
 
-       if ! ./examples/geopm_platform_supported; then
+       if ! $mpiexec ./examples/.libs/geopm_platform_supported; then
           run_test=false
        fi
     fi
