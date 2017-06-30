@@ -51,21 +51,21 @@
 #include <omp.h>
 #endif
 
+#ifndef __APPLE__
+
 int geopm_sched_num_cpu(void)
 {
-#ifdef _SC_NPROCESSORS_ONLN
-    uint32_t result = sysconf(_SC_NPROCESSORS_ONLN);
-#else
-    uint32_t result = 1;
-    size_t len = sizeof(result);
-    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
-#endif
-    return result;
+    return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
-int geopm_sched_woomp(int num_cpu, cpu_set_t *no_omp)
+int geopm_sched_get_cpu(void)
 {
-    int err = sched_getaffinity(0, CPU_ALLOC_SIZE(num_cpu), no_omp);
+    return sched_getcpu();
+}
+
+int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
+{
+    int err = sched_getaffinity(0, CPU_ALLOC_SIZE(num_cpu), woomp);
     if (err && errno) {
         err = errno;
     }
@@ -78,7 +78,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *no_omp)
         int cpu_index = sched_getcpu();
         if (cpu_index < num_cpu)
         {
-            CPU_CLR(cpu_index, no_omp);
+            CPU_CLR(cpu_index, woomp);
         }
         else {
             err = GEOPM_ERROR_LOGIC;
@@ -87,12 +87,45 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *no_omp)
 } /* end pragma omp parallel */
 #endif
     }
-    if (CPU_COUNT(no_omp) == 0) {
+    if (CPU_COUNT(woomp) == 0) {
         /* If all CPUs are used by the OpenMP gang, then leave the
 	   mask open and allow the Linux scheduler to choose. */
         for (int i = 0; i < num_cpu; ++i) {
-            CPU_SET(i, no_omp);
+            CPU_SET(i, woomp);
         }
     }
     return err;
 }
+
+#else
+
+int geopm_sched_num_cpu(void)
+{
+    uint32_t result = 1;
+    size_t len = sizeof(result);
+    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
+    return result;
+}
+
+
+int geopm_sched_get_cpu(void)
+{
+    int result = -1;
+    uint32_t cpu_info[4];
+    __cpuid(cpu_info, 1);
+    // Check APIC
+    if (cpu_info[3] & (1 << 9)) {
+        result = (int)(cpu_info[1] >> 24);
+    }
+    return result;
+}
+
+int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
+{
+    for (int i = 0; i < num_cpu; ++i) {
+        CPU_SET(i, woomp);
+    }
+    return 0;
+}
+
+#endif

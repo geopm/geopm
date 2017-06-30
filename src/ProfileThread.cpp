@@ -146,7 +146,7 @@ namespace geopm
     {
         static thread_local int result = -1;
         if (result == -1) {
-            result = sched_getcpu();
+            result = geopm_sched_get_cpu();
             if (result >= geopm_sched_num_cpu()) {
                 throw Exception("ProfileThreadTable::cpu_idx(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
