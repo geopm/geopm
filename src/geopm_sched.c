@@ -51,17 +51,46 @@
 #include <omp.h>
 #endif
 
+#ifdef _SC_NPROCESSORS_ONLN
+
 int geopm_sched_num_cpu(void)
 {
-#ifdef _SC_NPROCESSORS_ONLN
-    uint32_t result = sysconf(_SC_NPROCESSORS_ONLN);
+    return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
 #else
+
+int geopm_sched_num_cpu(void)
+{
     uint32_t result = 1;
     size_t len = sizeof(result);
     sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
-#endif
     return result;
 }
+#endif
+
+#ifndef __APPLE__
+
+int geopm_sched_get_cpu(void)
+{
+    return sched_get_cpu();
+}
+
+#else
+
+int geopm_sched_get_cpu(void)
+{
+    int result = -1;
+    int cpu_info[4];
+    __cpuid(cpu_info, 1);
+    // Check APIC
+    if (cpu_info[3] & (1 << 9)) {
+        result = cpu_info[1] >> 24;
+    }
+    return result;
+}
+
+#endif
 
 int geopm_sched_woomp(int num_cpu, cpu_set_t *no_omp)
 {
