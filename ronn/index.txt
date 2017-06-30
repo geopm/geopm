@@ -51,6 +51,7 @@ CPU_SET(3)                      http://linux.die.net/man/3/cpu_set
 pthread_attr_setaffinity_np(3)  http://linux.die.net/man/3/pthread_attr_setaffinity_np
 pthread_setaffinity_np(3)       http://linux.die.net/man/3/pthread_setaffinity_np
 sched_getaffinity(2)            http://linux.die.net/man/2/sched_getaffinity
+sched_getcpu(3)                 http://linux.die.net/man/3/sched_getcpu
 errno(3)                        http://linux.die.net/man/3/errno
 git-describe(1)                 http://linux.die.net/man/1/git-describe
 ld.so(8)                        http://linux.die.net/man/8/ld.so

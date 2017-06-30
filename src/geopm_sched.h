@@ -71,6 +71,8 @@ static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
 
 int geopm_sched_num_cpu(void);
 
+int geopm_sched_get_cpu(void);
+
 int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp);
 
 #ifdef __cplusplus

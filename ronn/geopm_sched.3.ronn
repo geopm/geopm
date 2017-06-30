@@ -38,6 +38,8 @@ geopm_sched.h(3) -- geopm interface with Linux scheduler
 
   * `int geopm_sched_num_cpu(void)`;
 
+  * `int geopm_sched_get_cpu(void)`;
+
   * `int geopm_sched_woomp(`:
      `int` _num_cpu_, <br>
      `cpu_set_t *`_woomp_);
@@ -49,6 +51,9 @@ the future.
 
   * `geopm_sched_num_cpu`():
     Returns the number of online logical CPUs on the system.
+
+  * `geopm_sched_num_cpu`():
+    Returns the logical CPU index that the calling thread is executing on.
 
   * `geopm_sched_woomp`():
     sets the **CPU_SET(3)** given by _woomp_ such that it includes all
@@ -89,3 +94,4 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **pthread_setaffinity_np(3)**,
 **pthread_attr_setaffinity_np(3)**
 **sched_getaffinity(2)**
+**sched_getcpu(3)**

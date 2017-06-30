@@ -144,9 +144,13 @@ namespace geopm
 
     int ProfileThreadTable::cpu_idx(void)
     {
+#ifndef __APPLE__
         static thread_local int result = -1;
+#else
+        static __thread int result = -1;
+#endif
         if (result == -1) {
-            result = sched_getcpu();
+            result = geopm_sched_get_cpu();
             if (result >= geopm_sched_num_cpu()) {
                 throw Exception("ProfileThreadTable::cpu_idx(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
