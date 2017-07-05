@@ -37,6 +37,7 @@ plugin/Makefile.mk
 scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
 scripts/geopmpy/plotter.py
+scripts/geopmpy/version.py.in
 scripts/geopmpy/__init__.py
 scripts/geopmsrun
 scripts/geopmaprun

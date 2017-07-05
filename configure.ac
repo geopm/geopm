@@ -515,7 +515,7 @@ AC_SUBST([AM_LDFLAGS])
 AC_SUBST_FILE([CHANGELOG])
 CHANGELOG=ChangeLog
 
-AC_CONFIG_FILES([Makefile geopm.spec])
+AC_CONFIG_FILES([Makefile geopm.spec scripts/geopmpy/version.py])
 AC_OUTPUT
 
 # ============================================================================
