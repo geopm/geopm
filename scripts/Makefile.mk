@@ -63,6 +63,11 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_10 \
                scripts/test/pytest_links/TestAffinity.test_affinity_11 \
                scripts/test/pytest_links/TestAffinity.test_affinity_12 \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_all_param_unknown \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_arg_overlap \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_no_arg_overlap \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_no_arg \
                # end
 
 TESTS += $(PYTEST_TESTS)
