@@ -382,6 +382,8 @@ class Launcher(object):
             self.is_override_enabled = False
         self.parse_mpiexec_argv()
 
+        is_cpu_per_rank_override = False
+
         # Override values if they are passed in construction call
         if num_rank is not None:
             self.is_override_enabled = True
@@ -391,6 +393,7 @@ class Launcher(object):
             self.num_node = num_node
         if cpu_per_rank is not None:
             self.is_override_enabled = True
+            is_cpu_per_rank_override = True
             self.cpu_per_rank = cpu_per_rank
         if timeout is not None:
             self.is_override_enabled = True
@@ -429,6 +432,10 @@ class Launcher(object):
             if self.num_node is None:
                 raise SyntaxError('Number of nodes must be specified.')
             self.init_topo()
+            if not is_cpu_per_rank_override and self.cpu_per_rank == 1:
+                self.cpu_per_rank = (self.num_linux_cpu - 1) // self.rank_per_node
+                if self.cpu_per_rank == 0:
+                    self.cpu_per_rank = 1
             if self.config.get_ctl() == 'process':
                 self.num_rank += self.num_node
                 self.rank_per_node += 1
