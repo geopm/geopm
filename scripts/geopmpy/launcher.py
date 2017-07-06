@@ -429,6 +429,10 @@ class Launcher(object):
             if self.num_node is None:
                 raise SyntaxError('Number of nodes must be specified.')
             self.init_topo()
+            if self.cpu_per_rank == 1:
+                self.cpu_per_rank = (self.num_linux_cpu - 1) // self.rank_per_node
+                if self.cpu_per_rank == 0:
+                    self.cpu_per_rank = 1
             if self.config.get_ctl() == 'process':
                 self.num_rank += self.num_node
                 self.rank_per_node += 1
