@@ -505,6 +505,19 @@ namespace geopm
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
                 m_tree_decider[level]->update_policy(policy_msg, *(m_policy[level]));
                 m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, policy_msg, child_policy_msg);
+                if (level != m_tree_comm->num_level() - 1) {
+                    double max_budget = m_policy[level + 1].budget;
+                    double budget = 0;
+                    std::vector<double> target(m_policy->num_domain());
+                    m_policy[level]->target(GEOPM_REGION_ID_EPOCH, target) = 0;
+                    for (auto it = target.begin(); it != target.end(); ++it) {
+                        budget += *it;
+                    }
+                    if (budget > max_budget) {
+                        throw Exception("Sum of child budgets is greater than parent budget",
+                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    }
+                }
                 m_tree_comm->send_policy(level - 1, child_policy_msg);
                 m_last_policy_msg[level] = policy_msg;
             }
