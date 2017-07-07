@@ -183,7 +183,6 @@ namespace geopm
         , m_max_fanout(0)
         , m_global_policy(global_policy)
         , m_tree_comm(NULL)
-        , m_leaf_decider(NULL)
         , m_decider_factory(NULL)
         , m_platform_factory(NULL)
         , m_platform(NULL)
@@ -289,8 +288,8 @@ namespace geopm
             int num_level = m_tree_comm->num_level();
             m_region.resize(num_level);
             m_policy.resize(num_level);
-            m_tree_decider.resize(num_level);
-            std::fill(m_tree_decider.begin(), m_tree_decider.end(), (IDecider *)NULL);
+            m_decider.resize(num_level);
+            std::fill(m_decider.begin(), m_decider.end(), (IDecider *)NULL);
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
             m_is_epoch_changed.resize(num_level);
@@ -317,41 +316,38 @@ namespace geopm
             m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
             m_decider_factory = new DeciderFactory;
-            m_leaf_decider = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
-            m_leaf_decider->bound(upper_bound, lower_bound);
+            m_decider[0] = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
+            m_decider[0]->bound(upper_bound, lower_bound);
 
-            int num_domain;
-            for (int level = 0; level < num_level; ++level) {
-                if (level == 0) {
-                    num_domain = m_platform->num_control_domain();
-                    m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
-                }
-                else {
-                    num_domain = m_tree_comm->level_size(level - 1);
+            int num_domain = m_platform->num_control_domain();
+            m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
+            m_policy[0] = new Policy(num_domain);
+            m_region[0].insert(std::pair<uint64_t, Region *>
+                               (GEOPM_REGION_ID_EPOCH,
+                                new Region(GEOPM_REGION_ID_EPOCH,
+                                           num_domain,
+                                           0,
+                                           NULL)));
+
+            num_domain = m_tree_comm->level_size(0);
+            m_max_fanout = num_domain;
+            for (int level = 1; level < num_level; ++level) {
+                upper_bound *= num_domain;
+                lower_bound *= num_domain;
+
+                m_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
+                m_decider[level]->bound(upper_bound, lower_bound);
+                num_domain = m_tree_comm->level_size(level);
+                if (num_domain > m_max_fanout) {
+                    m_max_fanout = num_domain;
                 }
                 m_policy[level] = new Policy(num_domain);
-                if (m_platform->control_domain() == GEOPM_CONTROL_DOMAIN_POWER && level == 1) {
-                    upper_bound *= m_platform->num_control_domain();
-                    lower_bound *= m_platform->num_control_domain();
-                    if (level > 1) {
-                        int i = level - 1;
-                        while (i >= 0) {
-                            upper_bound *= m_tree_comm->level_size(i);
-                            --i;
-                        }
-                    }
-                }
-                m_tree_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
-                m_tree_decider[level]->bound(upper_bound, lower_bound);
                 m_region[level].insert(std::pair<uint64_t, Region *>
                                        (GEOPM_REGION_ID_EPOCH,
                                         new Region(GEOPM_REGION_ID_EPOCH,
                                                    num_domain,
                                                    level,
                                                    NULL)));
-                if (m_tree_comm->level_size(level) > m_max_fanout) {
-                    m_max_fanout = m_tree_comm->level_size(level);
-                }
             }
 
             // Barrier to ensure all ProfileSamplers are created at the same time.
@@ -397,10 +393,9 @@ namespace geopm
             }
             delete m_policy[level];
         }
-        for (auto it = m_tree_decider.begin(); it != m_tree_decider.end(); ++it) {
+        for (auto it = m_decider.begin(); it != m_decider.end(); ++it) {
             delete (*it);
         }
-        delete m_leaf_decider;
         delete m_decider_factory;
         delete m_platform_factory;
         delete m_tree_comm;
@@ -512,7 +507,7 @@ namespace geopm
         m_tree_comm->get_policy(level, policy_msg);
         for (; policy_msg.mode != GEOPM_POLICY_MODE_SHUTDOWN && level != 0; --level) {
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
-                m_tree_decider[level]->update_policy(policy_msg, *(m_policy[level]));
+                m_decider[level]->update_policy(policy_msg, *(m_policy[level]));
                 m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, policy_msg, child_policy_msg);
                 m_tree_comm->send_policy(level - 1, child_policy_msg);
                 m_last_policy_msg[level] = policy_msg;
@@ -525,7 +520,7 @@ namespace geopm
         else {
             // update the leaf level (0)
             if (!geopm_is_policy_equal(&policy_msg, &(m_last_policy_msg[level]))) {
-                m_leaf_decider->update_policy(policy_msg, *(m_policy[level]));
+                m_decider[0]->update_policy(policy_msg, *(m_policy[level]));
                 m_last_policy_msg[level] = policy_msg;
                 m_tracer->update(policy_msg);
             }
@@ -551,7 +546,7 @@ namespace geopm
                     // use .begin() because map has only one entry
                     auto it = m_region[level].begin();
                     (*it).second->insert(child_sample);
-                    if (m_tree_decider[level]->update_policy(*((*it).second), *(m_policy[level]))) {
+                    if (m_decider[level]->update_policy(*((*it).second), *(m_policy[level]))) {
                         m_policy[level]->policy_message(GEOPM_REGION_ID_EPOCH, m_last_policy_msg[level], child_policy_msg);
                         m_tree_comm->send_policy(level - 1, child_policy_msg);
                     }
@@ -878,7 +873,7 @@ namespace geopm
         }
         if (do_control &&
             !geopm_region_id_is_epoch(m_region_id_all) &&
-            m_leaf_decider->update_policy(*curr_region, *curr_policy) == true) {
+            m_decider[0]->update_policy(*curr_region, *curr_policy) == true) {
             m_platform->enforce_policy(m_region_id_all, *curr_policy);
         }
     }
