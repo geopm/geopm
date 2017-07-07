@@ -179,8 +179,7 @@ namespace geopm
             std::vector<int> m_fan_out;
             const IGlobalPolicy *m_global_policy;
             ITreeCommunicator *m_tree_comm;
-            std::vector<IDecider *> m_tree_decider;
-            IDecider *m_leaf_decider;
+            std::vector<IDecider *> m_decider;
             DeciderFactory *m_decider_factory;
             PlatformFactory *m_platform_factory;
             Platform *m_platform;
