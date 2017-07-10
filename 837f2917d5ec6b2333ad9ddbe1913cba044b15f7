@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5e42f99_f34436d3",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-07-10T23:56:50Z",
+      "side": 1,
+      "message": "Ok, as stated in the commit message and seen in the code below the leaf decider is implicitly that at level 0 (makes sense).  Are we sure we don\u0027t need to resize to num_level + 1 to accommodate this?  Where in legacy the resize did not take into account this leaf decider?  Possibly a dumb question...",
+      "range": {
+        "startLine": 291,
+        "startChar": 12,
+        "endLine": 291,
+        "endChar": 40
+      },
+      "revId": "837f2917d5ec6b2333ad9ddbe1913cba044b15f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
