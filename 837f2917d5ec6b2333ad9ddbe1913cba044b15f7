@@ -22,6 +22,30 @@
       "revId": "837f2917d5ec6b2333ad9ddbe1913cba044b15f7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dab41f44_f72dbb93",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-11T20:26:49Z",
+      "side": 1,
+      "message": "Its not a dumb question, just the previous implementation was dumb.  It used to always have a null pointer at index 0 of the m_tree_decider vector.",
+      "parentUuid": "f5e42f99_f34436d3",
+      "range": {
+        "startLine": 291,
+        "startChar": 12,
+        "endLine": 291,
+        "endChar": 40
+      },
+      "revId": "837f2917d5ec6b2333ad9ddbe1913cba044b15f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
