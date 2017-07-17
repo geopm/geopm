@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "adcd2565_aa8e40c3",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-07-17T18:39:51Z",
+      "side": 1,
+      "message": "Can probably be re-factored / simplified.\n\nLine 163 is trying to go by socket.",
+      "range": {
+        "startLine": 162,
+        "startChar": 11,
+        "endLine": 164,
+        "endChar": 66
+      },
+      "revId": "f771644aba7845ee3c31b59733ed8caeaa33225b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0778c423_d49eec27",
         "filename": "src/TelemetryConfig.hpp",
         "patchSetId": 1
