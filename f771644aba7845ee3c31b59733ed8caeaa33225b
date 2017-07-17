@@ -71,6 +71,57 @@
     },
     {
       "key": {
+        "uuid": "f304cb1c_fefaabdf",
+        "filename": "src/Policy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-07-17T22:22:23Z",
+      "side": 1,
+      "message": "SHOULD BE NULL",
+      "revId": "f771644aba7845ee3c31b59733ed8caeaa33225b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c76c3163_b081d5b3",
+        "filename": "src/Region.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-07-17T22:22:23Z",
+      "side": 1,
+      "message": "should be !zero",
+      "revId": "f771644aba7845ee3c31b59733ed8caeaa33225b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d6a4e95_abe564e4",
+        "filename": "src/TelemetryConfig.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1009286
+      },
+      "writtenOn": "2017-07-17T22:22:23Z",
+      "side": 1,
+      "message": "Don\u0027t throw, return zero.",
+      "revId": "f771644aba7845ee3c31b59733ed8caeaa33225b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0778c423_d49eec27",
         "filename": "src/TelemetryConfig.hpp",
         "patchSetId": 1
