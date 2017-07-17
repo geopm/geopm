@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "566e3751_560b6669",
+        "filename": "src/RAPLPlatform.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-17T18:19:07Z",
+      "side": 0,
+      "message": "RAPLPlatform -\u003e IntelPlatform?",
+      "range": {
+        "startLine": 45,
+        "startChar": 10,
+        "endLine": 45,
+        "endChar": 22
+      },
+      "revId": "8ef6c1ef4023f7b904317376efdf6aba999b413f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
