@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9da00ddb_34a06d6d",
+        "filename": "src/geopm_message.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-17T17:54:05Z",
+      "side": 1,
+      "message": "GEOPM_DOMAIN_SIGNAL_ENERGY \u003d 256,",
+      "revId": "f771644aba7845ee3c31b59733ed8caeaa33225b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
