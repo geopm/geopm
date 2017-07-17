@@ -39,8 +39,11 @@
 #include <sys/sysctl.h>
 #endif
 
+#include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <errno.h>
 
 #include "geopm_sched.h"
@@ -63,11 +66,66 @@ int geopm_sched_get_cpu(void)
     return sched_getcpu();
 }
 
+static pthread_once_t g_proc_cpuset_once = PTHREAD_ONCE_INIT;
+static cpu_set_t *g_proc_cpuset = NULL;
+static void *geopm_proc_cpuset_pthread(void *arg)
+{
+    void *result = NULL;
+    int err = sched_getaffinity(0, CPU_ALLOC_SIZE(geopm_sched_num_cpu()), g_proc_cpuset);
+    if (err) {
+        result = (void *)(size_t)(errno ? errno : GEOPM_ERROR_RUNTIME);
+    }
+    return result;
+}
+
+static void geopm_proc_cpuset_once(void)
+{
+    int err = 0;
+    int num_cpu = geopm_sched_num_cpu();
+    pthread_t tid;
+    pthread_attr_t attr;
+
+    g_proc_cpuset = CPU_ALLOC(num_cpu);
+    if (g_proc_cpuset == NULL) {
+        err = ENOMEM;
+    }
+    if (!err) {
+        for (int i = 0; i < num_cpu; ++i) {
+            CPU_SET(i, g_proc_cpuset);
+        }
+    }
+    if (!err) {
+        err = pthread_attr_init(&attr);
+    }
+    if (!err) {
+        err = pthread_attr_setaffinity_np(&attr, CPU_ALLOC_SIZE(num_cpu), g_proc_cpuset);
+    }
+    if (!err) {
+        err = pthread_create(&tid, &attr, geopm_proc_cpuset_pthread, NULL);
+    }
+    if (!err) {
+        void *result = NULL;
+        err = pthread_join(tid, &result);
+        if (!err && result) {
+            err = (int)(size_t)result;
+        }
+    }
+    if (err && err != ENOMEM)
+    {
+        for (int i = 0; i < num_cpu; ++i) {
+            CPU_SET(i, g_proc_cpuset);
+        }
+    }
+    if (!err) {
+        err = pthread_attr_destroy(&attr);
+    }
+}
+
 int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
 {
-    int err = sched_getaffinity(0, CPU_ALLOC_SIZE(num_cpu), woomp);
-    if (err && errno) {
-        err = errno;
+    int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
+    if (!err) {
+        memcpy(woomp, g_proc_cpuset, CPU_ALLOC_SIZE(num_cpu));
     }
     if (!err) {
 #ifdef _OPENMP
@@ -76,12 +134,12 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
 #pragma omp critical
 {
         int cpu_index = sched_getcpu();
-        if (cpu_index < num_cpu)
+        if (cpu_index != -1 && cpu_index < num_cpu)
         {
             CPU_CLR(cpu_index, woomp);
         }
         else {
-            err = GEOPM_ERROR_LOGIC;
+            err = errno ? errno : GEOPM_ERROR_LOGIC;
         }
 } /* end pragma omp critical */
 } /* end pragma omp parallel */
