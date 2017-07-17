@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "034300bc_6e185225",
+        "filename": "src/KNLPlatformImp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-07-17T19:59:17Z",
+      "side": 1,
+      "message": "Candidate for potential extract refactor.  There are a few one offs here (i.e. bandwidth) that are special per platform.  The bulk of this can probably be pulled into the base class.",
+      "range": {
+        "startLine": 246,
+        "startChar": 1,
+        "endLine": 246,
+        "endChar": 70
+      },
+      "revId": "f771644aba7845ee3c31b59733ed8caeaa33225b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0778c423_d49eec27",
         "filename": "src/TelemetryConfig.hpp",
         "patchSetId": 1
