@@ -90,7 +90,7 @@ def resource_manager():
                     sys.stderr.write("Warning: GEOPM_RM undefined and unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
                     result = 'ALPS'
                 except subprocess.CalledProcessError:
-                    raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable to "SLURM" or "ALPS"')
+                    raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable')
 
     return result;
 
@@ -101,12 +101,16 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     on return value of the geopmpy.launcher.resource_manager() function.
     """
     rm = resource_manager()
-    if rm == 'SLURM':
+    if rm == 'SLURM' or rm == 'SrunLauncher':
         return SrunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
                             time_limit, job_name, node_list, host_file)
-    elif rm == 'ALPS':
+    elif rm == 'ALPS' or rm == 'AprunLauncher':
         return AprunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
                              time_limit, job_name, node_list, host_file)
+    elif rm == 'IMPI' or rm == 'IMPIExecLauncher':
+        return IMPIExecLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
+                                time_limit, job_name, node_list, host_file)
+
 
 class PassThroughError(Exception):
     """
@@ -365,6 +369,7 @@ class Launcher(object):
         options without knowledge of the specific command line flags
         used to control the values.
         """
+        self.environ_ext = dict()
         self.rank_per_node = None
         self.default_handler = signal.getsignal(signal.SIGINT)
         self.num_rank = num_rank
@@ -455,6 +460,8 @@ class Launcher(object):
         if self.is_geopm_enabled:
             self.config.set_omp_num_threads(self.cpu_per_rank)
             echo.append(str(self.config))
+            for it in self.environ_ext.iteritems():
+                echo.append('{}={}'.format(it[0], it[1]))
         echo.extend(argv_mod)
         echo = '\n' + ' '.join(echo) + '\n\n'
         stdout.write(echo)
@@ -511,6 +518,7 @@ class Launcher(object):
         """
         result = dict(os.environ)
         if self.is_geopm_enabled:
+            result.update(self.environ_ext)
             result.update(self.config.environ())
         return result
 
@@ -873,18 +881,11 @@ class SrunLauncher(Launcher):
         return result
 
     def get_idle_nodes(self):
-
-        raise NotImplementedError('Launcher.get_idle_nodes() undefined in the base class')
-
-    def get_alloc_nodes(self):
-        raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
-
-    def get_idle_nodes(self):
         """
         Returns a list of the names of compute nodes that are currently
         available to run jobs using the sinfo command.
         """
-        return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).splitlines()
+        return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
 
     def get_alloc_nodes(self):
         """
@@ -894,6 +895,119 @@ class SrunLauncher(Launcher):
 
         """
         return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
+
+
+class IMPIExecLauncher(Launcher):
+    """
+    Launcher derived object for use with the Intel MPI job launch
+    application mpiexec.
+    """
+    def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
+                 time_limit=None, job_name=None, node_list=None, host_file=None):
+        """
+        Pass through to Launcher constructor.
+        """
+        super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
+                                              time_limit, job_name, node_list, host_file)
+        self.is_slurm_enabled = False
+        if os.getenv('SLURM_NNODES'):
+            self.is_slurm_enabled = True
+        if (self.is_geopm_enabled and
+            self.is_slurm_enabled and
+            self.config.get_ctl() == 'application' and
+            os.getenv('SLURM_NNODES') != str(self.num_node)):
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+
+    def mpiexec(self):
+        """
+        Returns 'mpiexec', the name of the Intel MPI job launch application.
+        """
+        return 'mpiexec'
+
+    def parse_mpiexec_argv(self):
+        """
+        Parse the subset of srun command line arguments used or
+        manipulated by GEOPM.
+        """
+        parser = SubsetOptionParser()
+        parser.add_option('-n', dest='num_rank', nargs=1, type='int')
+
+        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
+
+        self.num_rank = opts.num_rank
+        self.num_node = None
+        self.cpu_per_rank = None
+        self.timeout = None
+        self.time_limit = None
+        self.job_name = None
+        self.node_list = None
+        self.host_file = None
+
+    def num_node_option(self):
+        return []
+
+    def affinity_option(self, is_geopmctl):
+        if self.is_geopm_enabled:
+            aff_list = self.affinity_list(is_geopmctl)
+            num_mask = len(aff_list)
+            mask_zero = ['0' for ii in range(self.num_linux_cpu)]
+            mask_list = []
+            for cpu_set in aff_list:
+                mask = list(mask_zero)
+                for cpu in cpu_set:
+                    mask[self.num_linux_cpu - 1 - cpu] = '1'
+                mask = '0x{:x}'.format(int(''.join(mask), 2))
+                mask_list.append(mask)
+            self.environ_ext['I_MPI_PIN_DOMAIN'] = '[{}]'.format(','.join(mask_list))
+        return []
+
+    def timeout_option(self):
+        return []
+
+    def time_limit_option(self):
+        return []
+
+    def job_name_option(self):
+        return []
+
+    def node_list_option(self):
+        """
+        Returns a list containing the -w option for srun.
+        """
+        if (self.node_list is not None and
+            self.host_file is not None and
+            self.node_list != self.host_file):
+            raise SyntaxError('Node list and host name cannot both be specified.')
+
+        if self.node_list is None and self.host_file is None:
+            result = []
+        elif self.node_list is not None:
+            result = ['-hosts', self.node_list]
+        elif self.host_file is not None:
+            result = ['-f', self.host_file]
+        return result
+
+    def get_idle_nodes(self):
+        """
+        Returns a list of the names of compute nodes that are currently
+        available to run jobs using the sinfo command.
+        """
+        if self.is_slurm_enabled:
+            return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).splitlines()
+        else:
+            raise NotImplementedError('Idle nodes feature requires use with SLURM')
+
+    def get_alloc_nodes(self):
+        """
+        Returns a list of the names of compute nodes that have been
+        reserved by a scheduler for current job context using the
+        sinfo command.
+
+        """
+        if self.is_slurm_enabled:
+            return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
+        else:
+            raise NotImplementedError('Idle nodes feature requires use with SLURM')
 
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
