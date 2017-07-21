@@ -176,8 +176,11 @@ configuration:
 
 ## ENVIRONMENT
 The `GEOPM_RM` environment variable can be used to select which
-underlying resource manager to use.  Valid values are "SLURM" and
-"ALPS".
+underlying resource manager to use.  Valid values are "SLURM", "ALPS"
+and "IMPI".  Additionally the python Launcher object may be selected
+by name through this environment variable.  Currently supported python
+Launcher objects are "SrunLauncher", "AprunLauncher" and
+"IMPIExecLauncher".
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
