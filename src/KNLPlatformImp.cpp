@@ -547,7 +547,7 @@ namespace geopm
 
         pkg_time_window_y = pkg_time_window_y << 17;
         pkg_time_window_z = pkg_time_window_z << 22;
-        m_pkg_power_limit_static = (tmp & 0x00FFFFFF00FF0000) | pkg_time_window_y | pkg_time_window_z;
+        m_pkg_power_limit_static = (tmp & 0xFFFFFFFFFF000000) | pkg_time_window_y | pkg_time_window_z;
         // enable pl1 limits
         m_pkg_power_limit_static = m_pkg_power_limit_static | (0x3 << 15);
 
