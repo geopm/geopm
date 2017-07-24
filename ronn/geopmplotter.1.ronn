@@ -79,7 +79,7 @@ If _PATH_ is not provided, the current working directory is used.
 
 *  `-n`, `--profile_name` _PROFILE_NAME_:
   Name of the profile to be used in file names / plot titles.
-  (default: _'Test Data'_)
+  (default: _"Test Data"_)
 
 * `-m`, `--misc_text` _MISC_TEXT_:
   Text to be appended to the plot title.
@@ -146,14 +146,12 @@ If _PATH_ is not provided, the current working directory is used.
 
 * `--cache` _FILE_NAME_:
   Use _FILE_NAME_ as the prefix for data cache files to try to load.  If no files are found, data will
-  be parsed as usual and cache files will be written in the CWD afterwards.  Note that since the caches
-  are created from the parsed data and data is only parsed on an as needed basis depending on the requested
-  plot, you must request plots requiring both report data (e.g. bar) and trace data (e.g. power) to parse
-  all of the data in the _PATH_.  When used properly this drastically speeds up the time taken
-  to create plots.
+  be parsed and cache files will be written in the CWD.  Glob patterns for report and trace files will
+  be ignored if the cache files do not exist.  In this case, all available reports and traces will be
+  parsed.  When used properly this drastically speeds up the time taken to create plots.
 
   WARNING: If the data used to generate the cache files changes, you must manually delete the
-  corresponding .p files.  That is, if _FILE_NAME_ is 'data', remove data_report.p and data_trace.p from
+  corresponding .p files.  That is, if _FILE_NAME_ is "data", remove data_report.p and data_trace.p from
   the CWD.
 
 ## ENVIRONMENT
@@ -163,12 +161,12 @@ If _PATH_ is not provided, the current working directory is used.
   you may have to manually set this variable for proper functionality even if you
   are not displaying the interactive plot with `-s`.  E.g.:
 
-  DISPLAY=:0 ./geopmplotter -v data
+  DISPLAY=:0 geopmplotter -v data
 
 * `MPLBACKEND`:
-  As an alternative to the above, you can set your backend to 'Agg' using either:
+  As an alternative to the above, you can set your backend to "Agg" using either:
 
-  MPLBACKEND='Agg' ./geopmplotter -v data
+  MPLBACKEND="Agg" geopmplotter -v data
 
   Or you may make the change permanently in your matplotlibrc file  as
   described here:<br>

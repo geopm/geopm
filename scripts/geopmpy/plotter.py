@@ -984,17 +984,19 @@ def main(argv):
 
     args = parser.parse_args(argv)
 
+    all_reports_glob = '*report'
     if report_plots.intersection(args.plot_types):
         if not args.report_base:
-            report_glob = '*report'
+            report_glob = all_reports_glob
         else:
             report_glob = args.report_base + '*'
     else:
         report_glob = None
 
+    all_traces_glob = '*trace-*'
     if trace_plots.intersection(args.plot_types):
         if not args.trace_base:
-            trace_glob = '*trace-*'
+            trace_glob = all_traces_glob
         else:
             trace_glob = args.trace_base + '*'
     else:
@@ -1003,12 +1005,14 @@ def main(argv):
     report_df=None
     trace_df=None
     app_output=None
-    if args.cache:
+
+    if args.cache: # If you want the use the cache, only try to load what is needed.
         if args.verbose:
             sys.stdout.write('Trying to load {} caches... '.format(args.cache))
             sys.stdout.flush()
         try:
-            report_df = pickle.load(open(args.cache + '_report.p', 'rb'))
+            if report_plots.intersection(args.plot_types):
+                report_df = pickle.load(open(args.cache + '_report.p', 'rb'))
             if trace_plots.intersection(args.plot_types):
                 trace_df = pickle.load(open(args.cache + '_trace.p', 'rb'))
         except IOError:
@@ -1017,28 +1021,29 @@ def main(argv):
             sys.stdout.write('Done.\n')
             sys.stdout.flush()
 
+    # If we did NOT use the cache, parse based on the plot requested
+    # If we DID use the cache but nothing was parsed above, build the cache from all the things.
     if report_df is None and trace_df is None:
-        app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
-        if args.cache:
+        if args.cache: # Parse everything, regardless of what was requested.
+            app_output = geopmpy.io.AppOutput(all_reports_glob, all_traces_glob, args.data_path, args.verbose)
             # Save app_output in cache file
             if args.verbose:
                 sys.stdout.write('Saving parsed data to {} cache... '.format(args.cache))
                 sys.stdout.flush()
             app_output.get_report_df().to_pickle(args.cache + '_report.p')
-            if trace_plots.intersection(args.plot_types):
-                app_output.get_trace_df().to_pickle(args.cache + '_trace.p')
+            app_output.get_trace_df().to_pickle(args.cache + '_trace.p')
             if args.verbose:
                 sys.stdout.write('Done.\n')
                 sys.stdout.flush()
-
-    if report_df is None:
+        else: # Parse only what was requested.
+            app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
         report_df = app_output.get_report_df()
-    if len(report_df) == 0:
-        raise LookupError('No report data in cache.  Tried to load {}_report.p.'.format(args.cache))
-    if trace_df is None and trace_plots.intersection(args.plot_types):
-        if app_output is None:
-            raise LookupError('No trace cache available.  Tried to load {}_trace.p.'.format(args.cache))
         trace_df = app_output.get_trace_df()
+
+    if report_plots.intersection(args.plot_types) and len(report_df) == 0:
+        raise LookupError('No report data parsed.')
+    if trace_plots.intersection(args.plot_types) and len(trace_df) == 0:
+        raise LookupError('No trace data parsed.')
 
     if args.profile_name:
         profile_name = args.profile_name
