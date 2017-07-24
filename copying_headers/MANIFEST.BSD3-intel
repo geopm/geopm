@@ -170,6 +170,11 @@ test_integration/geopm_test_integration.py
 test_integration/geopm_test_launcher.py
 test_integration/geopm_context.py
 test_integration/geopm_test_loop.sh
+test_hw/geopm_time.h
+test_hw/Makefile
+test_hw/rapl_pkg_limit_test.c
+test_hw/test_sweep.sh
+test_hw/rapl_pkg_limit_plot.py
 tracker/track
 tutorial/Imbalancer.cpp
 tutorial/imbalancer.h
