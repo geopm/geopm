@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02db343b_ffe7e51f",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-25T18:12:38Z",
+      "side": 1,
+      "message": "not using srun this is not correct.",
+      "revId": "b89ed8638889f11eac7bf530a86a83a7858d4316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
