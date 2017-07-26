@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2286f582_41ce6864",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-07-26T22:11:01Z",
+      "side": 0,
+      "message": "Thought I already saw similar cleanup in Chris\u0027s mOS patch.",
+      "range": {
+        "startLine": 876,
+        "startChar": 0,
+        "endLine": 882,
+        "endChar": 29
+      },
+      "revId": "0705e61d4a5a9dfd63b118004467a805eb7571eb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
