@@ -873,13 +873,6 @@ class SrunLauncher(Launcher):
         return result
 
     def get_idle_nodes(self):
-
-        raise NotImplementedError('Launcher.get_idle_nodes() undefined in the base class')
-
-    def get_alloc_nodes(self):
-        raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
-
-    def get_idle_nodes(self):
         """
         Returns a list of the names of compute nodes that are currently
         available to run jobs using the sinfo command.
