@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9287c13c_c5af2b4a",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-28T21:40:59Z",
+      "side": 1,
+      "message": "This becomes a member used by by comm_supported() API only?",
+      "revId": "f6a863db89ec498bc6ead7f7ad9aeef6f13fe173",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "201220b8_7fd6ac16",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-28T21:40:59Z",
+      "side": 1,
+      "message": "M_COMM_SPLIT_TYPE_MAX -\u003e M_NUM_COMM_SPLIT_TYPE",
+      "revId": "f6a863db89ec498bc6ead7f7ad9aeef6f13fe173",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66f04f3e_153eb33c",
+        "filename": "src/MPIComm.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-28T21:40:59Z",
+      "side": 1,
+      "message": "members follow methods, put m_comm after the method definition.",
+      "revId": "f6a863db89ec498bc6ead7f7ad9aeef6f13fe173",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12c1ed91_8b48adfe",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-28T21:40:59Z",
+      "side": 1,
+      "message": "Initalize to NULL?",
+      "revId": "f6a863db89ec498bc6ead7f7ad9aeef6f13fe173",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0dd685c0_0a8525a3",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-28T21:40:59Z",
+      "side": 1,
+      "message": "comm-\u003elock_window -\u003e comm-\u003ewindow_lock\ncomm-\u003eunlock_window -\u003e comm-\u003ewindow_unlock",
+      "revId": "f6a863db89ec498bc6ead7f7ad9aeef6f13fe173",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa88fd6e_e1ab135b",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-07-28T21:40:59Z",
+      "side": 1,
+      "message": "m_comm-\u003ecreate_window -\u003e m_comm-\u003ewindow_create",
+      "revId": "f6a863db89ec498bc6ead7f7ad9aeef6f13fe173",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
