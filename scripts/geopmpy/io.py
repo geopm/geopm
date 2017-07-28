@@ -357,7 +357,7 @@ class IndexTracker(object):
         Takes a run_output as input, and returns the unique tuple to
         identify this run_output in the DataFrame.  Note that this
         method appends the current experiment iteration to the end of
-        the returned tuple.  E.g.: 
+        the returned tuple.  E.g.:
 
         >>> self._index_tracker.get_base_index(rr)
         ('0.1.1+dev365gfcda929', 'geopm_test_integration', 170,
@@ -903,7 +903,7 @@ class Trace(object):
             pandas.DataFrame: Containing a single experiment iteration.
 
         """
-        diffed_trace_df = Trace.diff_df(trace_df, column_regex)
+        diffed_trace_df = Trace.diff_df(trace_df, column_regex, config.epoch_only)
 
         idx = pandas.IndexSlice
         et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
