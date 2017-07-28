@@ -191,7 +191,7 @@ class TraceConfig(Config):
         **kwargs: Arbitrary additional overrides for the Config object.
     """
     def __init__(self, legend_label_spacing = 0.15, smooth=1, analyze=False, base_clock=None, # New args for this class
-                 focus_node=None,                                                             # New args for this class
+                 focus_node=None, epoch_only=False,                                           # New args for this class
                  fig_size=(7, 6), fontsize=16, legend_fontsize=9,                             # Base class args to override
                  **kwargs):                                                                   # User overridden args
         super(TraceConfig, self).__init__(fig_size=fig_size, fontsize=fontsize, legend_fontsize=legend_fontsize,
@@ -201,6 +201,7 @@ class TraceConfig(Config):
         self.analyze = analyze
         self.base_clock = base_clock
         self.focus_node = focus_node
+        self.epoch_only = epoch_only
 
         plt.rcParams.update({'legend.labelspacing': self.legend_label_spacing})
 
@@ -567,7 +568,9 @@ def generate_power_plot(trace_df, config):
         ax.set_ylim(ax.get_ylim()[0] * .93, ax.get_ylim()[1])
 
         # Write data/plot files
-        file_name = '{}_power_{}_{}'.format(config.profile_name.lower().replace(' ', '_'), power_budget, tree_decider)
+        region_desc = 'epoch_only' if config.epoch_only else 'all_samples'
+        file_name = '{}_combined_power_{}_{}'.format(config.profile_name.lower().replace(' ', '_'), power_budget,
+                                                     tree_decider, region_desc)
         if config.verbose:
             sys.stdout.write('Writing:\n')
 
@@ -712,7 +715,9 @@ def generate_epoch_plot(trace_df, config):
             ax.set_ylim(lower_ylim, upper_ylim)
 
         # Write data/plot files
-        file_name = '{}_iteration_loop_time_{}'.format(config.profile_name.lower().replace(' ', '_'), power_budget)
+        region_desc = 'epoch_only' if config.epoch_only else 'all_samples'
+        file_name = '{}_iteration_loop_time_{}_{}'.format(config.profile_name.lower().replace(' ', '_'),
+                                                          power_budget, region_desc)
         if config.verbose:
             sys.stdout.write('Writing:\n')
 
@@ -851,8 +856,10 @@ def generate_freq_plot(trace_df, config):
             ax.set_ylim(0, ax.get_ylim()[1] * 1.1)
 
             # Write data/plot files
-            file_name = '{}_frequency_{}_{}_socket_{}'.format(config.profile_name.lower().replace(' ', '_'),
-                                                              power_budget, tree_decider, clk_unhalted_core_cols.index(c))
+            region_desc = 'epoch_only' if config.epoch_only else 'all_samples'
+            file_name = '{}_frequency_{}_{}_socket_{}_{}'.format(config.profile_name.lower().replace(' ', '_'),
+                                                                 power_budget, tree_decider,
+                                                                 clk_unhalted_core_cols.index(c), region_desc)
             if config.verbose:
                 sys.stdout.write('Writing:\n')
 
@@ -974,6 +981,9 @@ def main(argv):
     parser.add_argument('--focus_node',
                         help='Node to highlight in red during per-node plots.',
                         action='store', metavar='NODE_NAME')
+    parser.add_argument('--epoch_only',
+                        help='Only use the epoch region samples for plotting.',
+                        action='store_true')
     parser.add_argument('--show',
                         help='show an interactive plot of the data',
                         action='store_true')
@@ -1076,7 +1086,7 @@ def main(argv):
                                    ref_profile_name=args.ref_profile_name,
                                    ref_plugin=args.ref_plugin, tgt_version=args.tgt_version,
                                    tgt_profile_name=args.tgt_profile_name, tgt_plugin=args.tgt_plugin,
-                                   focus_node=args.focus_node, show=args.show)
+                                   focus_node=args.focus_node, epoch_only=args.epoch_only, show=args.show)
 
     for plot in args.plot_types:
         # This tries to create the name of the plot function based on what was parsed in args.plot_types.  If it exists in
