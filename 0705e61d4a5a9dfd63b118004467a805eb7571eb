@@ -16,6 +16,24 @@
       "revId": "0705e61d4a5a9dfd63b118004467a805eb7571eb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52a17733_6e752212",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-07-31T16:57:48Z",
+      "side": 0,
+      "message": "Is this an API name change request?  reduce_sum -\u003e reduce?",
+      "parentUuid": "d881d932_77861b8d",
+      "revId": "0705e61d4a5a9dfd63b118004467a805eb7571eb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
