@@ -65,6 +65,18 @@ sequence and pass the arguments that follow unaltered while removing
 the first `--` from the command line.
 
 ## OPTIONS
+* `--geopm-rm` rm:
+   Use resource manager "rm" for the underlying launch mechanism.
+   Valid values of "rm" are "SLURM", "ALPS", "IMPI", "SrunLauncher",
+   "AlpsLauncher", or "IMPIExecLauncher".  This command line option
+   overrides other methods of determining the resource manager.  If
+   this option is not provided the environment variable GEOPM_RM is
+   used instead.  If neither of these options are set by the user then
+   the resource manager is inferred by the executable name: geopmsrun
+   implies the SLURM resource manager and geopmaprun implies the ALPS
+   resource manager.  If none of these methods can be used to select
+   the resource manager, the hostname is checked against a list of
+   hosts with known resource managers in use.
 
 * `--geopm-ctl` _process_|_pthread_|_application_:
   Use GEOPM runtime and launch GEOPM with one of three methods:

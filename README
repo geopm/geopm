@@ -267,11 +267,15 @@ requirements and getting the GEOPM control process on each node up and
 ready to connect to the main compute application.  The wrapper is
 documented in the geopmsrun(1) and geopmaprun(1) man pages.
 
-If your system uses an MPI launch command other than "srun" or "aprun"
-then affinity requirements must be enforced by the user.  Also, please
-consult the geopm(7) man page for documentation of the environment
-variables used by the GEOPM runtime that are otherwise controlled by
-the wrapper script.
+If your system uses an MPI launch command other than "srun" or
+"aprun", or if your application requires some specialized use of these
+commands, then check the geopm_aprun(3) / geopm_srun(3) man page
+description of the "--geopm-rm" option which selects from other
+available launch mechanisms.  If the launch mechanism for your system
+is not implemented, then affinity requirements must be enforced by the
+user.  Also, please consult the geopm(7) man page for documentation of
+the environment variables used by the GEOPM runtime that are otherwise
+controlled by the wrapper script.
 
 ### CPU AFFINITY REQUIREMENTS
 The GEOPM runtime requires that each MPI process of the application
