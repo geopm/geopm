@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e9c6957_66c3b123",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "don\u0027t need set",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b9035d3_44d6c799",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "don\u0027t need list",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa5f45cd_5c31d855",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "comment is incorrect.",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2eb39902_67aaa0b1",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "coords should be a const reference",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "334895de_1c7c7781",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "missing some doxygen comments here",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89359204_28715bac",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "isExclusive -\u003e is_exclusive",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "39144200_4bb0ffad",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "comment needs to be moved, and missing dox to be added",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cb42027_03dace0d",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-01T22:58:04Z",
+      "side": 1,
+      "message": "Since these are in the geopm namespace, not sure names need to be prefixed with geopm.  Perhaps geopm::comm_create() instead of geopm_get_comm().",
+      "revId": "367b53d85bd203030cc98ee90db004e2b9ae8988",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
