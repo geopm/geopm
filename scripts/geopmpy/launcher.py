@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 #  Copyright (c) 2015, 2016, 2017, Intel Corporation
 #
@@ -56,13 +57,21 @@ from geopmpy import __version__
 def resource_manager():
     """
     Heuristic to determine the resource manager used on the system.
-    Returns either "SLURM" or "ALPS", otherwise a LookupError is
-    raised.
+    Returns name of resource manager or launcher, otherwise a
+    LookupError is raised.
     """
     slurm_hosts = ['mr-fusion']
     alps_hosts = ['theta']
 
-    result = os.environ.get('GEOPM_RM')
+    result = None
+    for ii in range(1, len(sys.argv)):
+        if sys.argv[ii].startswith('--geopm-rm='):
+            result = sys.argv[ii][len('--geopm-rm='):]
+        elif sys.argv[ii] == '--geopm-rm' and len(sys.argv) > ii + 1:
+            result = sys.argv[ii + 1]
+
+    if not result:
+        result = os.environ.get('GEOPM_RM')
 
     if not result:
         hostname = socket.gethostname()
@@ -80,17 +89,17 @@ def resource_manager():
                 exec_str = 'srun --version'
                 subprocess.check_call(exec_str, stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, shell=True)
-                sys.stderr.write('Warning: GEOPM_RM undefined and unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
+                sys.stderr.write('Warning: --geopm-rm not specified, GEOPM_RM undefined and unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
                 result = 'SLURM'
             except subprocess.CalledProcessError:
                 try:
                     exec_str = 'aprun --version'
                     subprocess.check_call(exec_str, stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE, shell=True)
-                    sys.stderr.write("Warning: GEOPM_RM undefined and unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
+                    sys.stderr.write("Warning: --geopm-rm not specified, GEOPM_RM undefined and unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
                     result = 'ALPS'
                 except subprocess.CalledProcessError:
-                    raise LookupError('Unable to determine resource manager, set GEOPM_RM environment variable')
+                    raise LookupError('Unable to determine resource manager, provide --geopm-rm option or set GEOPM_RM environment variable')
 
     return result;
 
@@ -224,6 +233,7 @@ class Config(object):
             raise PassThroughError('The --geopm-ctl flag is not specified.')
         # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
+        parser.add_option('--geopm-rm', dest='rm', nargs=1, type='string')
         parser.add_option('--geopm-ctl', dest='ctl', nargs=1, type='string')
         parser.add_option('--geopm-policy', dest='policy', nargs=1, type='string')
         parser.add_option('--geopm-report', dest='report', nargs=1, type='string')
@@ -241,6 +251,7 @@ class Config(object):
         if opts.ctl not in ('process', 'pthread', 'application'):
             raise SyntaxError('--geopm-ctl must be one of: "process", "pthread", or "application"')
         # copy opts object into self
+        self.rm = opts.rm
         self.ctl = opts.ctl
         self.policy = opts.policy
         self.report = opts.report
@@ -353,6 +364,13 @@ class Config(object):
         Returns the geopm shared memory key base.
         """
         return self.shmkey
+
+    def check_launcher(self, rm):
+        if not (self.rm is None or rm == self.rm or
+                (rm == 'AprunLauncher' and self.rm == 'ALPS') or
+                (rm == 'SrunLauncher' and self.rm == 'SLURM') or
+                (rm == 'IMPIExecLauncher' and self.rm == 'IMPI')):
+            raise RuntimeError('Launcher mismatch: --geopm-rm command line option has been handled incorrectly.')
 
 class Launcher(object):
     """
@@ -741,6 +759,10 @@ class SrunLauncher(Launcher):
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, host_file)
+
+        if self.config:
+            self.config.check_launcher('SrunLauncher')
+
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
             os.getenv('SLURM_NNODES') != str(self.num_node)):
@@ -909,6 +931,10 @@ class IMPIExecLauncher(Launcher):
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                               time_limit, job_name, node_list, host_file)
+
+        if self.config:
+            self.config.check_launcher('IMPIExecLauncher')
+
         self.is_slurm_enabled = False
         if os.getenv('SLURM_NNODES'):
             self.is_slurm_enabled = True
@@ -1017,6 +1043,10 @@ class AprunLauncher(Launcher):
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, host_file)
+
+        if self.config:
+            self.config.check_launcher('AprunLauncher')
+
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
 
@@ -1147,6 +1177,10 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 
     help_str = """\
 GEOPM options:
+      --geopm-rm=rm           Use resource manager "rm" for the underlying
+                              launch mechanism.  Valid values of "rm" are
+                              "SLURM", "ALPS", "IMPI", "SrunLauncher",
+                              "AlpsLauncher", or "IMPIExecLauncher".
       --geopm-ctl=ctl         use geopm runtime and launch geopm with the
                               "ctl" method, one of "process", "pthread" or
                               "application"
@@ -1187,3 +1221,7 @@ GEOPM options:
         sys.stderr.write("<geopmpy.launcher> {err}\n".format(err=e))
         err = -1
     return err
+
+if __name__ == '__main__':
+    err = main()
+    sys.exit(err)
