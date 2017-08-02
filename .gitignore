@@ -116,7 +116,6 @@
 /test/fortran/fortran_links/*
 /test_integration/geopm_test_integration
 /test_integration/geopm_test_integration.pyc
-/test_integration/test_loop_output.log
 /VERSION
 /doc/*.aux
 /doc/*.bbl

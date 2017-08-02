@@ -884,7 +884,7 @@ class SrunLauncher(Launcher):
         Returns a list of the names of compute nodes that are currently
         available to run jobs using the sinfo command.
         """
-        return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
+        return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).splitlines()
 
     def get_alloc_nodes(self):
         """
