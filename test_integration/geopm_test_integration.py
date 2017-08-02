@@ -118,7 +118,8 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace(nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS", 'ALPS does not support multi-application launch on the same nodes.')
+    @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS",
+                         'ALPS does not support multi-application launch on the same nodes.')
     def test_report_and_trace_generation_application(self):
         name = 'test_report_and_trace_generation_application'
         report_path = name + '.report'
@@ -146,7 +147,8 @@ class TestIntegration(unittest.TestCase):
             self.assertNotEqual(0, len(trace))
 
 
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM", 'FIXME: Requires SLURM for alloc\'d and idle nodes.')
+    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
+                         'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
         report_path = name + '.report'
@@ -281,7 +283,7 @@ class TestIntegration(unittest.TestCase):
                     self.assertNear(trace_elapsed_time, region_data.get_runtime())
 
     @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
-    "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
     def test_region_runtimes(self):
         name = 'test_region_runtime'
         report_path = name + '.report'
@@ -667,7 +669,7 @@ class TestIntegration(unittest.TestCase):
                                os.path.realpath(__file__))),
                                'config.h'))
                           if line.startswith('#define GEOPM_ENABLE_OMPT')],
-    "Configure with --enable-ompt to enable this test.")
+                          "Configure with --enable-ompt to enable this test.")
     def test_unmarked_ompt(self):
         name = 'test_unmarked_ompt'
         report_path = name + '.report'
