@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81e38923_962527d4",
+        "filename": "test_hw/rapl_pkg_limit_test.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-08-04T23:18:32Z",
+      "side": 1,
+      "message": "Collapse.",
+      "range": {
+        "startLine": 322,
+        "startChar": 12,
+        "endLine": 323,
+        "endChar": 52
+      },
+      "revId": "1799b7f69305ec299bcbd70c1ba447972bacf5ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8d9e4f3_ee971f71",
+        "filename": "test_hw/rapl_pkg_limit_test.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-08-04T23:18:32Z",
+      "side": 1,
+      "message": "Reserved for below thingy.",
+      "range": {
+        "startLine": 327,
+        "startChar": 20,
+        "endLine": 327,
+        "endChar": 29
+      },
+      "revId": "1799b7f69305ec299bcbd70c1ba447972bacf5ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
