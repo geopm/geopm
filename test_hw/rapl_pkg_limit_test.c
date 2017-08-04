@@ -107,6 +107,7 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
     int msr_fd[MAX_NUM_SOCKET] = {0};
     double power_used[MAX_NUM_SOCKET] = {0};
     uint64_t save_limit[MAX_NUM_SOCKET] = {0};
+    uint64_t new_limit[MAX_NUM_SOCKET] = {0};
     uint64_t begin_energy[MAX_NUM_SOCKET] = {0};
     uint64_t end_energy[MAX_NUM_SOCKET] = {0};
     FILE *outfile = NULL;
@@ -235,10 +236,15 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
             err = errno ? errno : -1;
         }
         if (!err) {
+            fprintf(outfile, "Initial value socket %d MSR %#05lx PKG_POWER_LIMIT: %#018lx\n",
+                    socket, pkg_power_limit_off, msr_value);
             save_limit[socket] = msr_value;
             /* Write RAPL_PKG_POWER_LIMIT given on command line */
-            msr_value &= 0xFFFFFFFFFFFF0000;
-            msr_value |= 0x000000000000FFFF & (uint64_t)(power_limit / power_units);
+            msr_value &= 0xFFFFFFFFFFFF8000;
+            msr_value |= 0x0000000000007FFF & (uint64_t)(power_limit / power_units);
+            new_limit[socket] = msr_value;
+            fprintf(outfile, "New value socket %d MSR %#05lx PKG_POWER_LIMIT: %#018lx\n",
+                    socket, pkg_power_limit_off, msr_value);
             errno = 0;
             num_byte = pwrite(msr_fd[socket], &msr_value, sizeof(uint64_t), pkg_power_limit_off);
             if (num_byte != sizeof(uint64_t)) {
@@ -305,6 +311,21 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
     }
 
     for (socket = 0; socket < num_socket; ++socket) {
+
+        /* Verify current MSR value matches value written at startup */
+        if (new_limit && msr_fd[socket] > 0) {
+            errno = 0;
+            num_byte = pread(msr_fd[socket], &msr_value, sizeof(uint64_t), pkg_power_limit_off);
+            if (num_byte != sizeof(uint64_t)) {
+                err = errno ? errno : -1;
+            }
+            if (!err && msr_value != new_limit[socket]){
+                fprintf(outfile, "Error: socket %d PKG_POWER_LIMIT MSR %#05lx modified during runtime! "
+                        "(%#018lx != %#018lx)\n",
+                        socket, pkg_power_limit_off, new_limit[socket], msr_value);
+            }
+        }
+
         if (save_limit && msr_fd[socket] > 0) {
             /* Restore original settings */
             pwrite(msr_fd[socket], &save_limit, sizeof(uint64_t), pkg_power_limit_off);
