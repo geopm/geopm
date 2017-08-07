@@ -31,13 +31,19 @@
 #
 
 num_trial=20
-limit_list='90 97 104 111 118 125 132 139 146 153 160 167 174 181 188 195 202 209 216 223 230'
+limit_list=($(seq 90 7 230))
 if which msrsave >& /dev/null; then
     msrsave test_sweep_msrsave.out
 fi
 
-for limit in $limit_list; do
+count=0
+total_runs=$((${#limit_list[@]} * ${num_trial}))
+
+for limit in ${limit_list[@]}; do
     for trial in $(seq $num_trial); do
+        count=$((count+1))
+        echo -ne "Starting run ${count} / ${total_runs} at ${limit} W... "
         ./rapl_pkg_limit_test $limit
+        echo -ne "Done.\n"
     done
 done

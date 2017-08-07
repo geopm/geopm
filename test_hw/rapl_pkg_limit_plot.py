@@ -49,7 +49,7 @@ def rapl_pkg_limit_plot(file_name_prefix):
     for file_name in glob.glob(file_name_prefix + '*.out'):
         limit_key = 'Power limit (Watts): '
         time_key = 'Total time (seconds): '
-        meas_key = 'Average power (Watts): '
+        meas_key = 'Average power '
         limit_list = []
         time_list = []
         meas_list = []
@@ -61,9 +61,16 @@ def rapl_pkg_limit_plot(file_name_prefix):
                     time_list.append(float(line.split(':')[1]))
                 elif line.startswith(meas_key):
                     meas_list.append(float(line.split(':')[1]))
+
         if (len(limit_list) != len(time_list) or
-            len(limit_list) != len(meas_list)):
+            (len(limit_list) != len(meas_list) and len(limit_list) * 2 != len(meas_list))
+           ):
             raise RuntimeError('Failed to parse file {}'.format(file_name))
+
+        # If data is generated from a dual socket system, duplicate the elements in
+        # the limit_list for proper plotting.
+        if len(limit_list) * 2 == len(meas_list):
+            limit_list = [val for val in limit_list for _ in (0, 1)]
 
         limit_uniq = sorted(list(set(limit_list)))
         base_name = os.path.splitext(os.path.basename(file_name))[0]
