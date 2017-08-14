@@ -140,6 +140,22 @@ static void geopm_proc_cpuset_once(void)
     }
 }
 
+int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
+{
+    int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
+    int sched_num_cpu = geopm_sched_num_cpu();
+    if (!err && sched_num_cpu > num_cpu) {
+        err = GEOPM_ERROR_INVALID;
+    }
+    if (!err) {
+        memcpy(proc_cpuset, g_proc_cpuset, CPU_ALLOC_SIZE(sched_num_cpu));
+        for (int i = sched_num_cpu; i < num_cpu; ++i) {
+            CPU_CLR(i, proc_cpuset);
+        }
+    }
+    return err;
+}
+
 int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
 {
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
@@ -202,11 +218,23 @@ int geopm_sched_get_cpu(void)
     return result;
 }
 
-int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
+// On Mac OS just fill in all bits for the cpuset for both the process
+// mask and woomp to get the tests passing.
+static void geopm_cpuset_fill(int num_cpu, cpu_set_t *proc_cpuset)
 {
     for (int i = 0; i < num_cpu; ++i) {
         CPU_SET(i, woomp);
     }
+}
+int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
+{
+    geopm_cpuset_fill(num_cpu, proc_cpuset);
+    return 0;
+}
+
+int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
+{
+    geopm_cpuset_fill(num_cpu, woomp);
     return 0;
 }
 

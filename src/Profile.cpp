@@ -44,7 +44,6 @@
 
 #include <float.h>
 #include <unistd.h>
-#include <hwloc.h>
 #include <errno.h>
 
 #include "geopm.h"
@@ -52,6 +51,7 @@
 #include "geopm_message.h"
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
+#include "geopm_sched.h"
 #include "Profile.hpp"
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
@@ -704,39 +704,20 @@ namespace geopm
             return;
         }
 
-        int err = 0;
-        unsigned int i = 0;
-
-        hwloc_topology_t topology;
-        hwloc_cpuset_t set;
-
-        err = hwloc_topology_init(&topology);
-        if (err) {
-            throw Exception("Profile: unable to initialize hwloc", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        cpu_set_t *proc_cpuset = NULL;
+        int num_cpu = geopm_sched_num_cpu();
+        proc_cpuset = CPU_ALLOC(num_cpu);
+        if (!proc_cpuset) {
+            throw Exception("Profile: unable to allocate process CPU mask",
+                            ENOMEM, __FILE__, __LINE__);
         }
-
-        err = hwloc_topology_load(topology);
-        if (err) {
-            throw Exception("Profile: unable to load topology in hwloc", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-
-        set = hwloc_bitmap_alloc();
-
-        err = hwloc_get_cpubind(topology, set, HWLOC_CPUBIND_PROCESS);
-        if (err) {
-            if (!geopm_env_do_ignore_affinity()) {
-                throw Exception("Profile: unable to get process binding from hwloc, set GEOPM_ERROR_AFFINITY_IGNORE to ignore error", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            m_cpu_list.push_front(0);
-        }
-        else {
-            hwloc_bitmap_foreach_begin(i, set) {
+        geopm_sched_proc_cpuset(num_cpu, proc_cpuset);
+        for (int i = 0; i < num_cpu; ++i) {
+            if (CPU_ISSET(i, proc_cpuset)) {
                 m_cpu_list.push_front(i);
             }
-            hwloc_bitmap_foreach_end();
         }
-        hwloc_bitmap_free(set);
-        hwloc_topology_destroy(topology);
+        free(proc_cpuset);
     }
 
     IProfileThreadTable *Profile::tprof_table(void)
