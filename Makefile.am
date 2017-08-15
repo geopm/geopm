@@ -220,6 +220,8 @@ endif
 
 # SOURCE LISTS FOR EACH TARGET
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
+                            src/ControlMessage.cpp \
+                            src/ControlMessage.hpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
                             src/DeciderFactory.cpp \
@@ -294,6 +296,8 @@ if ENABLE_MPI
     libgeopm_la_SOURCES = src/CircularBuffer.hpp \
                           src/Controller.cpp \
                           src/Controller.hpp \
+                          src/ControlMessage.cpp \
+                          src/ControlMessage.hpp \
                           src/Decider.cpp \
                           src/Decider.hpp \
                           src/DeciderFactory.cpp \
