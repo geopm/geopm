@@ -53,6 +53,8 @@ src/CircularBuffer.hpp
 src/Comm.hpp
 src/Controller.cpp
 src/Controller.hpp
+src/ControlMessage.cpp
+src/ControlMessage.hpp
 src/Decider.cpp
 src/Decider.hpp
 src/DeciderFactory.cpp
