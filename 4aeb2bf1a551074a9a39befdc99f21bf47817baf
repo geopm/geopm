@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f3f51c5_97ca8e47",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-15T21:15:11Z",
+      "side": 1,
+      "message": "Unneeded",
+      "revId": "4aeb2bf1a551074a9a39befdc99f21bf47817baf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3513e50e_fac4aeb6",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-15T21:15:11Z",
+      "side": 1,
+      "message": "Comment the fact that this is just to make tests run on Mac OS.",
+      "revId": "4aeb2bf1a551074a9a39befdc99f21bf47817baf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
