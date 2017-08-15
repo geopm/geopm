@@ -46,38 +46,7 @@
 #include "ProfileTable.hpp"
 #include "SampleScheduler.hpp"
 #include "ProfileThread.hpp"
-
-/// @brief Enum encompassing application and
-/// geopm runtime state.
-enum geopm_status_e {
-    GEOPM_STATUS_UNDEFINED = 0,
-    GEOPM_STATUS_MAP_BEGIN = 1,
-    GEOPM_STATUS_MAP_END = 2,
-    GEOPM_STATUS_SAMPLE_BEGIN = 3,
-    GEOPM_STATUS_SAMPLE_END = 4,
-    GEOPM_STATUS_NAME_BEGIN = 5,
-    GEOPM_STATUS_NAME_LOOP_BEGIN = 6,
-    GEOPM_STATUS_NAME_LOOP_END = 7,
-    GEOPM_STATUS_NAME_END = 8,
-    GEOPM_STATUS_SHUTDOWN = 9,
-};
-
-enum geopm_profile_e {
-    GEOPM_MAX_NUM_CPU = 768
-};
-
-/// @brief Structure intended to be shared between
-/// the geopm runtime and the application in
-/// order to convey status and control information.
-struct geopm_ctl_message_s {
-    /// @brief Status of the geopm runtime.
-    volatile uint32_t ctl_status;
-    /// @brief Status of the application.
-    volatile uint32_t app_status;
-    /// @brief Holds affinities of all application ranks
-    /// on the local compute node.
-    int cpu_rank[GEOPM_MAX_NUM_CPU];
-};
+#include "ControlMessage.hpp"
 
 namespace geopm
 {
@@ -333,7 +302,7 @@ namespace geopm
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
-            struct geopm_ctl_message_s *m_ctl_msg;
+            IControlMessage *m_ctl_msg;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
             ISharedMemoryUser *m_table_shmem;
@@ -529,7 +498,7 @@ namespace geopm
             ISharedMemory *m_ctl_shmem;
             /// Pointer to the control structure used for application coordination
             /// and control.
-            struct geopm_ctl_message_s *m_ctl_msg;
+            IControlMessage *m_ctl_msg;
             /// List of per-rank samplers for each MPI application rank running
             /// on the local compute node.
             std::forward_list<IProfileRankSampler *> m_rank_sampler;
