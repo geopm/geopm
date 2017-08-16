@@ -73,7 +73,7 @@ TEST_F(MPISharedMemoryTest, hello)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
         sm = new geopm::SharedMemory(m_shm_key, 128);
-        strcpy((char *)sm->pointer(), test_string);
+        strncpy((char *)sm->pointer(), test_string, 127);
     }
     MPI_Barrier(MPI_COMM_WORLD);
     if (rank == 1) {
