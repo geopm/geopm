@@ -630,7 +630,13 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             rr = self._output.get_report(nn)
             self.assertEqual(0, rr['unmarked-region'].get_count())
-            self.assertNear(rr['all2all'].get_mpi_runtime(), rr['all2all'].get_runtime())
+            # Since MPI time is is counted if any rank on a node is in
+            # an MPI call, but region time is counted only when all
+            # ranks on a node are in a region, we must use the
+            # unmarked-region time as our error term when comparing
+            # MPI time and all2all time.
+            mpi_epsilon = rr['unmarked-region'].get_runtime() / rr['all2all'].get_mpi_runtime()
+            self.assertNear(rr['all2all'].get_mpi_runtime(), rr['all2all'].get_runtime(), mpi_epsilon)
             self.assertEqual(rr['all2all'].get_mpi_runtime(), rr['epoch'].get_mpi_runtime())
             self.assertEqual(rr['all2all'].get_mpi_runtime(), rr.get_mpi_runtime())
             self.assertEqual(0, rr['unmarked-region'].get_mpi_runtime())
