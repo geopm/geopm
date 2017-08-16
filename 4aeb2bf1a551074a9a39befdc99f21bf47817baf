@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1d4e1367_6763929b",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-16T16:38:33Z",
+      "side": 1,
+      "message": "Actually it is, hwloc.h had included it for us previously.  The strcpy() below uses it.  Changing to strncpy() even though there is a size check to keep static analysis happy.",
+      "parentUuid": "8f3f51c5_97ca8e47",
+      "revId": "4aeb2bf1a551074a9a39befdc99f21bf47817baf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3513e50e_fac4aeb6",
         "filename": "src/geopm_sched.c",
         "patchSetId": 1
