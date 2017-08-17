@@ -130,6 +130,17 @@ fi
 [enable_overhead="0"]
 )
 
+AC_ARG_ENABLE([procfs],
+  [AS_HELP_STRING([--disable-procfs], [Disable use of procfs for use on operating systems other than standard Linux])],
+[if test "x$enable_procfs" = "xno" ; then
+  enable_procfs="0"
+else
+  enable_procfs="1"
+fi
+],
+[enable_procfs="1"]
+)
+
 if test "x$enable_openmp" = "xno" ; then
   enable_openmp="0"
 else
@@ -156,6 +167,11 @@ if test "x$enable_overhead" = "x1" ; then
   AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
 fi
 AC_SUBST([enable_overhead])
+
+if test "x$enable_procfs" = "x1" ; then
+  AC_DEFINE([GEOPM_PROCFS], [ ], [Enables use of procfs for process CPU affinity])
+fi
+AC_SUBST([enable_procfs])
 
 
 AC_SUBST([enable_openmp])
