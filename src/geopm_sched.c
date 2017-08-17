@@ -70,17 +70,58 @@ int geopm_sched_get_cpu(void)
 static pthread_once_t g_proc_cpuset_once = PTHREAD_ONCE_INIT;
 static cpu_set_t *g_proc_cpuset = NULL;
 
-static void geopm_proc_cpuset_once(void)
+/* If /proc/self/status is usable and correct then parse this file to
+   determine the process affinity. */
+#ifdef GEOPM_PROCFS
+
+int geopm_sched_proc_cpuset_helper(int num_cpu, uint32_t *proc_cpuset, FILE *fid)
 {
     const char *key = "Cpus_allowed:";
     const size_t key_len = strlen(key);
+    const int num_read = num_cpu / 32 + (num_cpu % 32 ? 1 : 0);
+    int err = 0;
+    char *line = NULL;
+    size_t line_len = 0;
+
+    int read_idx = 0;
+    while ((getline(&line, &line_len, fid)) != -1) {
+        if (strncmp(line, key, key_len) == 0) {
+            char *line_ptr = line + key_len;
+            for (read_idx = num_read - 1; !err && read_idx >= 0; --read_idx) {
+                int num_match = sscanf(line_ptr, "%x", proc_cpuset + read_idx);
+                if (num_match != 1) {
+                    err = GEOPM_ERROR_RUNTIME;
+                }
+                else {
+                    line_ptr = strchr(line_ptr, ',');
+                    if (read_idx != 0 && line_ptr == NULL) {
+                        err = GEOPM_ERROR_RUNTIME;
+                    }
+                    else {
+                        ++line_ptr;
+                    }
+                }
+            }
+        }
+    }
+    if (line) {
+        free(line);
+    }
+    if (read_idx != -1) {
+        err = GEOPM_ERROR_RUNTIME;
+    }
+    return err;
+}
+
+static void geopm_proc_cpuset_once(void)
+{
+    const char *status_path = "/proc/self/status";
     const int num_cpu = geopm_sched_num_cpu();
     const int num_read = num_cpu / 32 + (num_cpu % 32 ? 1 : 0);
+
     int err = 0;
     uint32_t *proc_cpuset = NULL;
     FILE *fid = NULL;
-    char *line = NULL;
-    size_t line_len = 0;
 
     g_proc_cpuset = CPU_ALLOC(num_cpu);
     if (g_proc_cpuset == NULL) {
@@ -92,40 +133,14 @@ static void geopm_proc_cpuset_once(void)
     }
 
     if (!err) {
-        fid = fopen("/proc/self/status", "r");
+        fid = fopen(status_path, "r");
         if (!fid) {
             err = errno ? errno : GEOPM_ERROR_RUNTIME;
         }
     }
     if (!err) {
-        int read_idx = 0;
-        while ((getline(&line, &line_len, fid)) != -1) {
-            if (strncmp(line, key, key_len) == 0) {
-                char *line_ptr = line + key_len;
-                for (read_idx = 0; !err && read_idx < num_read; ++read_idx) {
-                    int num_match = sscanf(line_ptr, "%x", proc_cpuset + read_idx);
-                    if (num_match != 1) {
-                        err = GEOPM_ERROR_RUNTIME;
-                    }
-                    else {
-                        line_ptr = strchr(line_ptr, ',');
-                        if (read_idx != num_read - 1 && line_ptr == NULL) {
-                            err = GEOPM_ERROR_RUNTIME;
-                        }
-                        else {
-                            ++line_ptr;
-                        }
-                    }
-                }
-            }
-        }
-        if (line) {
-            free(line);
-        }
+        err = geopm_sched_proc_cpuset_helper(num_cpu, proc_cpuset, fid);
         fclose(fid);
-        if (read_idx != num_read) {
-            err = GEOPM_ERROR_RUNTIME;
-        }
     }
     if (!err) {
         memcpy(g_proc_cpuset, proc_cpuset, CPU_ALLOC_SIZE(num_cpu));
@@ -139,6 +154,66 @@ static void geopm_proc_cpuset_once(void)
         free(proc_cpuset);
     }
 }
+
+/* If /proc/self/status is not available spawn a pthread requesting an
+   open affinity mask and then have the thread query the affinity mask
+   enforced by the OS using sched_getaffinity(). */
+#else /* GEOPM_PROCFS */
+
+static void *geopm_proc_cpuset_pthread(void *arg)
+{
+    void *result = NULL;
+    int err = sched_getaffinity(0, CPU_ALLOC_SIZE(geopm_sched_num_cpu()), g_proc_cpuset);
+    if (err) {
+        result = (void *)(size_t)(errno ? errno : GEOPM_ERROR_RUNTIME);
+    }
+    return result;
+}
+
+static void geopm_proc_cpuset_once(void)
+{
+    int err = 0;
+    int num_cpu = geopm_sched_num_cpu();
+    pthread_t tid;
+    pthread_attr_t attr;
+
+    g_proc_cpuset = CPU_ALLOC(num_cpu);
+    if (g_proc_cpuset == NULL) {
+        err = ENOMEM;
+    }
+    if (!err) {
+        for (int i = 0; i < num_cpu; ++i) {
+            CPU_SET(i, g_proc_cpuset);
+        }
+    }
+    if (!err) {
+        err = pthread_attr_init(&attr);
+    }
+    if (!err) {
+        err = pthread_attr_setaffinity_np(&attr, CPU_ALLOC_SIZE(num_cpu), g_proc_cpuset);
+    }
+    if (!err) {
+        err = pthread_create(&tid, &attr, geopm_proc_cpuset_pthread, NULL);
+    }
+    if (!err) {
+        void *result = NULL;
+        err = pthread_join(tid, &result);
+        if (!err && result) {
+            err = (int)(size_t)result;
+        }
+    }
+    if (err && err != ENOMEM)
+    {
+        for (int i = 0; i < num_cpu; ++i) {
+            CPU_SET(i, g_proc_cpuset);
+        }
+    }
+    if (!err) {
+        err = pthread_attr_destroy(&attr);
+    }
+}
+
+#endif /* GEOPM_PROCFS */
 
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
 {
@@ -181,7 +256,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
         }
 } /* end pragma omp critical */
 } /* end pragma omp parallel */
-#endif
+#endif /* _OPENMP */
     }
     if (err || CPU_COUNT(woomp) == 0) {
         /* If all CPUs are used by the OpenMP gang, then leave the
@@ -193,7 +268,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
     return err;
 }
 
-#else
+#else /* __APPLE__ */
 
 void __cpuid(uint32_t*, int);
 
@@ -238,4 +313,4 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
     return 0;
 }
 
-#endif
+#endif /* __APPLE__ */
