@@ -967,27 +967,26 @@ namespace geopm
                << "\tignore-time (sec): " << m_ignore_agg_time << std::endl
                << "\tthrottle time (%): " << (double)m_throttle_count / (double)m_sample_count * 100.0 << std::endl;
 
-        std::ostringstream proc_path;
         char status_buffer[8192];
         status_buffer[8191] = '\0';
-        proc_path << "/proc/" << (int)getpid() <<  "/status";
+        const char *proc_path = "/proc/self/status";
 
-        int fd = open(proc_path.str().c_str(), O_RDONLY);
+        int fd = open(proc_path, O_RDONLY);
         if (fd == -1) {
-            throw Exception("Controller::generate_report(): Unable to open " + proc_path.str(),
+            throw Exception("Controller::generate_report(): Unable to open " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         ssize_t num_read = read(fd, status_buffer, 8191);
         if (num_read == -1) {
-            throw Exception("Controller::generate_report(): Unable to read " + proc_path.str(),
+            throw Exception("Controller::generate_report(): Unable to read " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         status_buffer[num_read] = '\0';
 
         int err = close(fd);
         if (err) {
-            throw Exception("Controller::generate_report(): Unable to close " + proc_path.str(),
+            throw Exception("Controller::generate_report(): Unable to close " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 

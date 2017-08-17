@@ -135,6 +135,14 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/EnvironmentTest.construction0 \
               test/gtest_links/EnvironmentTest.construction1 \
+              test/gtest_links/SchedTest.test_proc_cpuset_0 \
+              test/gtest_links/SchedTest.test_proc_cpuset_1 \
+              test/gtest_links/SchedTest.test_proc_cpuset_2 \
+              test/gtest_links/SchedTest.test_proc_cpuset_3 \
+              test/gtest_links/SchedTest.test_proc_cpuset_4 \
+              test/gtest_links/SchedTest.test_proc_cpuset_5 \
+              test/gtest_links/SchedTest.test_proc_cpuset_6 \
+              test/gtest_links/SchedTest.test_proc_cpuset_7 \
               # end
 
 if ENABLE_MPI
@@ -189,6 +197,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockPlatformTopology.hpp \
                           test/SharedMemoryTest.cpp \
                           test/EnvironmentTest.cpp \
+                          test/SchedTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
