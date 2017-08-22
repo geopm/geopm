@@ -768,6 +768,17 @@ class SrunLauncher(Launcher):
             os.getenv('SLURM_NNODES') != str(self.num_node)):
             raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
+    def environ(self):
+        """
+        Pass through to Launcher.environ().  Additionally the
+        MV2_ENABLE_AFFINITY environment variable is set to '0' to
+        avoid bad interactions between srun and the MVAPICH2 runtime
+        for thread CPU affinity assignment.
+        """
+        result = super(SrunLauncher, self).environ()
+        result['MV2_ENABLE_AFFINITY'] = '0'
+        return result
+
     def int_handler(self, signum, frame):
         """
         This is necessary to prevent the script from dying on the first
