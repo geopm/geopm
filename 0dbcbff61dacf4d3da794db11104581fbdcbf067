@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f3bf9bc_387f67f8",
+        "filename": "configure.ac",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-08-22T18:22:34Z",
+      "side": 1,
+      "message": "Intentional copy/paste from the enable_overhead AC_DEFINE?\n\nYou\u0027re saying this is primarily for getting the high water mark of memory usage which is why this hasn\u0027t changed?  The only other usage is for testing the affinity masks?",
+      "range": {
+        "startLine": 172,
+        "startChar": 34,
+        "endLine": 172,
+        "endChar": 69
+      },
+      "revId": "0dbcbff61dacf4d3da794db11104581fbdcbf067",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51d9c7cd_2e7ecc43",
+        "filename": "test/SchedTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-08-22T18:22:34Z",
+      "side": 1,
+      "message": "Cruft?",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 36
+      },
+      "revId": "0dbcbff61dacf4d3da794db11104581fbdcbf067",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
