@@ -32,6 +32,7 @@
 
 #include "geopm_signal_handler.h"
 #include "ControlMessage.hpp"
+#include "string.h"
 
 namespace geopm
 {
@@ -42,7 +43,7 @@ namespace geopm
         , m_is_writer(is_writer)
         , m_last_status(M_STATUS_UNDEFINED)
     {
-
+        memset(m_ctl_msg, 0, sizeof(geopm_ctl_message_s));
     }
 
     ControlMessage::~ControlMessage()

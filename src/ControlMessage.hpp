@@ -143,7 +143,7 @@ namespace geopm
             bool is_name_begin(void);
             bool is_shutdown(void);
             void loop_begin(void);
-        private:
+        protected:
             int this_status();
             /// @brief Enum encompassing application and
             /// geopm runtime state.
