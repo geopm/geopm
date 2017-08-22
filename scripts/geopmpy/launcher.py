@@ -768,17 +768,6 @@ class SrunLauncher(Launcher):
             os.getenv('SLURM_NNODES') != str(self.num_node)):
             raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
-    def environ(self):
-        """
-        Pass through to Launcher.environ().  Additionally the
-        MV2_ENABLE_AFFINITY environment variable is set to '0' to
-        avoid bad interactions between srun and the MVAPICH2 runtime
-        for thread CPU affinity assignment.
-        """
-        result = super(SrunLauncher, self).environ()
-        result['MV2_ENABLE_AFFINITY'] = '0'
-        return result
-
     def int_handler(self, signum, frame):
         """
         This is necessary to prevent the script from dying on the first
@@ -846,6 +835,10 @@ class SrunLauncher(Launcher):
         """
         result = []
         if self.is_geopm_enabled:
+            # Disable other affinity mechanisms
+            self.environ_ext['KMP_AFFINITY'] = 'disabled'
+            self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+
             aff_list = self.affinity_list(is_geopmctl)
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             help_msg, err = pid.communicate()
@@ -985,6 +978,10 @@ class IMPIExecLauncher(Launcher):
 
     def affinity_option(self, is_geopmctl):
         if self.is_geopm_enabled:
+            # Disable other affinity mechanisms
+            self.environ_ext['KMP_AFFINITY'] = 'disabled'
+            self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+
             aff_list = self.affinity_list(is_geopmctl)
             num_mask = len(aff_list)
             mask_zero = ['0' for ii in range(self.num_linux_cpu)]
@@ -1061,17 +1058,6 @@ class AprunLauncher(Launcher):
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
 
-    def environ(self):
-        """
-        Pass through to Launcher.environ().  Additionally the KMP_AFFINITY
-        environment variable is set to 'disabled' to avoid bad
-        interactions between aprun and the Intel OpenMP runtime for
-        thread CPU affinity assignment.
-        """
-        result = super(AprunLauncher, self).environ()
-        result['KMP_AFFINITY'] = 'disabled'
-        return result
-
     def parse_mpiexec_argv(self):
         """
         Parse the subset of aprun command line arguments used or
@@ -1129,6 +1115,10 @@ class AprunLauncher(Launcher):
         """
         result = []
         if self.is_geopm_enabled:
+            # Disable other affinity mechanisms
+            self.environ_ext['KMP_AFFINITY'] = 'disabled'
+            self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+
             result.append('--cpu-binding')
             aff_list = self.affinity_list(is_geopmctl)
             mask_list = [range_str(cpu_set) for cpu_set in aff_list]
