@@ -143,6 +143,15 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/SchedTest.test_proc_cpuset_5 \
               test/gtest_links/SchedTest.test_proc_cpuset_6 \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
+              test/gtest_links/ControlMessageTest.step \
+              test/gtest_links/ControlMessageTest.wait \
+              test/gtest_links/ControlMessageTest.cpu_rank \
+              test/gtest_links/ControlMessageTest.is_sample_begin \
+              test/gtest_links/ControlMessageTest.is_sample_end \
+              test/gtest_links/ControlMessageTest.is_name_begin \
+              test/gtest_links/ControlMessageTest.is_shutdown \
+              test/gtest_links/ControlMessageTest.loop_begin_0 \
+              test/gtest_links/ControlMessageTest.loop_begin_1 \
               # end
 
 if ENABLE_MPI
@@ -198,6 +207,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/SharedMemoryTest.cpp \
                           test/EnvironmentTest.cpp \
                           test/SchedTest.cpp \
+                          test/ControlMessageTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
