@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdc5afcb_1dbc415a",
+        "filename": "test/MPITreeCommunicatorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-08-23T21:13:10Z",
+      "side": 1,
+      "message": "NO MOCKING HERE",
+      "range": {
+        "startLine": 47,
+        "startChar": 8,
+        "endLine": 47,
+        "endChar": 22
+      },
+      "revId": "0adb68044c1cb85d77777736a04163626b95dd6d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
