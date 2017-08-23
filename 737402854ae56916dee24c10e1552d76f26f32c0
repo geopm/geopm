@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec8dc69c_fc09590f",
+        "filename": "Makefile.am",
+        "patchSetId": 8
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-08-23T00:13:04Z",
+      "side": 1,
+      "message": "Don\u0027t we want these symbols defined in the !ENABLE_MPI binary as well?",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 50
+      },
+      "revId": "737402854ae56916dee24c10e1552d76f26f32c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
