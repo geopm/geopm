@@ -22,6 +22,30 @@
       "revId": "737402854ae56916dee24c10e1552d76f26f32c0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8672f07_8bc4d8e8",
+        "filename": "Makefile.am",
+        "patchSetId": 8
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-08-23T00:46:27Z",
+      "side": 1,
+      "message": "Fixed, thanks.  That would have been more obvious if there were unit tests for this class :(",
+      "parentUuid": "ec8dc69c_fc09590f",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 50
+      },
+      "revId": "737402854ae56916dee24c10e1552d76f26f32c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
