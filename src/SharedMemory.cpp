@@ -44,6 +44,7 @@
 #include "geopm_time.h"
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
+#include "geopm_signal_handler.h"
 #include "config.h"
 
 namespace geopm
@@ -155,6 +156,7 @@ namespace geopm
             geopm_time(&begin_time);
             curr_time = begin_time;
             while (shm_id < 0 && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
+                geopm_signal_handler_check();
                 shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
                 geopm_time(&curr_time);
             }
@@ -165,6 +167,7 @@ namespace geopm
             }
 
             while (!m_size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
+                geopm_signal_handler_check();
                 err = fstat(shm_id, &stat_struct);
                 if (!err) {
                     m_size = stat_struct.st_size;
