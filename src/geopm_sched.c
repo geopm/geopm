@@ -46,6 +46,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 
 #include "geopm_sched.h"
 #include "geopm_error.h"
@@ -87,6 +88,21 @@ int geopm_sched_proc_cpuset_helper(int num_cpu, uint32_t *proc_cpuset, FILE *fid
     while ((getline(&line, &line_len, fid)) != -1) {
         if (strncmp(line, key, key_len) == 0) {
             char *line_ptr = line + key_len;
+            /* On some systems we have seen the mask padded with zeros
+               beyond the number of online CPUs.  Deal with this by
+               skipping extra leading 32 bit masks */
+            int num_comma = 0;
+            char *comma_ptr = line_ptr;
+            while ((comma_ptr = strchr(comma_ptr, ','))) {
+               ++comma_ptr;
+               ++num_comma;
+            }
+            if (num_comma > num_read - 1) {
+                num_comma -= num_read - 1;
+                for (int i = 0; i < num_comma; ++i) {
+                    line_ptr = strchr(line_ptr, ',') + 1;
+                }
+            }
             for (read_idx = num_read - 1; !err && read_idx >= 0; --read_idx) {
                 int num_match = sscanf(line_ptr, "%x", proc_cpuset + read_idx);
                 if (num_match != 1) {
