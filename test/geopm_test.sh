@@ -126,6 +126,8 @@ else
     if [[ $test_name =~ ^MPIProfile ||
           $test_name =~ ^MPIController ]] &&
         [[ ! $test_name =~ noctl ]]; then
+       #fixed hang observed in MPI tests
+       sleep 1
        export GEOPM_PMPI_CTL=process
        export GEOPM_REPORT=geopm_report
 
