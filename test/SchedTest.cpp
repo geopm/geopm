@@ -226,6 +226,29 @@ TEST_F(SchedTest, test_proc_cpuset_7)
     check_cpuset(cpus_allowed, cpus_allowed_vec);
 }
 
+TEST_F(SchedTest, test_proc_cpuset_8)
+{
+    std::string cpus_allowed("   00000000,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff\n");
+    std::ofstream status_file(m_status_path);
+    status_file << m_status_buffer_0;
+    status_file << cpus_allowed;
+    status_file << m_status_buffer_1;
+    status_file.close();
+
+    cpu_set_t *cpu_set = CPU_ALLOC(256);
+    ASSERT_TRUE(cpu_set != NULL);
+    FILE *fid = fopen(m_status_path.c_str(), "r");
+    ASSERT_TRUE(fid != NULL);
+    int err = geopm_sched_proc_cpuset_helper(256, (uint32_t *)cpu_set, fid);
+    ASSERT_TRUE(err == 0);
+    fclose(fid);
+
+    for (int i = 0; i < 256; ++i) {
+        ASSERT_TRUE(CPU_ISSET(i, cpu_set));
+    }
+
+    free(cpu_set);
+}
 
 void SchedTest::check_cpuset(const std::string &cpus_allowed, const std::vector<int> &cpus_allowed_vec)
 {

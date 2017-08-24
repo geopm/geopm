@@ -143,6 +143,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/SchedTest.test_proc_cpuset_5 \
               test/gtest_links/SchedTest.test_proc_cpuset_6 \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
+              test/gtest_links/SchedTest.test_proc_cpuset_8 \
               test/gtest_links/ControlMessageTest.step \
               test/gtest_links/ControlMessageTest.wait \
               test/gtest_links/ControlMessageTest.cpu_rank \
