@@ -44,6 +44,7 @@ import geopmpy.io
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
+        time.sleep(1)
         self.longMessage = True
         self._mode = 'dynamic'
         self._options = {'tree_decider' : 'static_policy',
