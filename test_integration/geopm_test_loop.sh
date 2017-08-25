@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-COUNT=0
+COUNT=5
 LOG_FILE=test_loop_output.log
 
 while [ $? -eq 0 -a ${COUNT} -lt 10 ];
