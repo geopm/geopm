@@ -147,7 +147,6 @@ test/MPIControllerTest.cpp
 test/MPIControllerDeathTest.cpp
 test/MPIInterfaceTest.cpp
 test/MPIProfileTest.cpp
-test/MPISharedMemoryTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/no_omp_cpu.c
 test/PlatformFactoryTest.cpp

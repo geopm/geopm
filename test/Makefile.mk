@@ -133,6 +133,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
+              test/gtest_links/SharedMemoryTest.share_data_ipc \
               test/gtest_links/EnvironmentTest.construction0 \
               test/gtest_links/EnvironmentTest.construction1 \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
@@ -149,7 +150,6 @@ if ENABLE_MPI
 GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
                test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
-               test/gtest_links/MPISharedMemoryTest.hello \
                test/gtest_links/MPIProfileTest.runtime \
                test/gtest_links/MPIProfileTest.progress \
                test/gtest_links/MPIProfileTest.multiple_entries \
@@ -222,7 +222,6 @@ endif
 if ENABLE_MPI
     test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
                                   test/MPITreeCommunicatorTest.cpp \
-                                  test/MPISharedMemoryTest.cpp \
                                   test/MPIProfileTest.cpp \
                                   test/MPIControllerDeathTest.cpp \
                                   # end
