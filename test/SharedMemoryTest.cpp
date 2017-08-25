@@ -43,46 +43,67 @@ class SharedMemoryTest : public :: testing :: Test
     protected:
         void SetUp();
         void TearDown();
+        void config_shmem();
+        void config_shmem_u();
+        void cleanup_shmem();
+        void cleanup_shmem_u();
         std::string m_shm_key;
         size_t m_size;
         geopm::SharedMemory *m_shmem;
         geopm::SharedMemoryUser *m_shmem_u;
 };
 
-void SharedMemoryTest ::SetUp()
+void SharedMemoryTest::SetUp()
 {
-    m_shmem = NULL;
-    m_shmem_u = NULL;
-    m_shm_key += "/geopm_test-";
-    m_shm_key += std::to_string(getpid());
+    m_shm_key = std::string(geopm_env_shmkey()) + "-SharedMemoryTest-" + std::to_string(getpid());
     m_size = sizeof(size_t);
+}
+
+void SharedMemoryTest::TearDown()
+{
+}
+
+void SharedMemoryTest::config_shmem()
+{
     try {
         m_shmem = new geopm::SharedMemory(m_shm_key, m_size);
+    }
+    catch (geopm::Exception e) {
+        ASSERT_TRUE(false);
+    }
+}
+
+void SharedMemoryTest::config_shmem_u()
+{
+    try {
         m_shmem_u = new geopm::SharedMemoryUser(m_shm_key, 1); // 1 second timeout
         // if 1 second timeout constructor worked so should this, just throw away instance
         // warning, will spin for INT_MAX seconds if there is a failure...
         delete new geopm::SharedMemoryUser(m_shm_key);
     }
     catch (geopm::Exception e) {
-        TearDown();
         ASSERT_TRUE(false);
     }
 }
 
-void SharedMemoryTest ::TearDown()
+void SharedMemoryTest::cleanup_shmem()
 {
-    if (m_shmem_u) {
-        m_shmem_u->unlink();
-        delete m_shmem_u;
-        m_shmem_u = NULL;
-    }
     if (m_shmem) {
         delete m_shmem;
         m_shmem = NULL;
     }
 }
 
-TEST_F(SharedMemoryTest , invalid_construction)
+void SharedMemoryTest::cleanup_shmem_u()
+{
+    if (m_shmem_u) {
+        m_shmem_u->unlink();
+        delete m_shmem_u;
+        m_shmem_u = NULL;
+    }
+}
+
+TEST_F(SharedMemoryTest, invalid_construction)
 {
     m_shm_key += "-invalid_construction";
     EXPECT_THROW((new geopm::SharedMemory(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
@@ -91,13 +112,38 @@ TEST_F(SharedMemoryTest , invalid_construction)
     EXPECT_THROW((new geopm::SharedMemoryUser("", 1)), geopm::Exception);
 }
 
-TEST_F(SharedMemoryTest , share_data)
+TEST_F(SharedMemoryTest, share_data)
 {
+    m_shm_key += "-share_data";
+    config_shmem();
+    config_shmem_u();
     size_t shared_data = 0xDEADBEEFCAFED00D;
     void *alias1 = m_shmem->pointer();
     void *alias2 = m_shmem_u->pointer();
     memcpy(alias1, &shared_data, m_size);
     EXPECT_EQ(memcmp(alias1, &shared_data, m_size), 0);
-    EXPECT_EQ(memcmp(alias1, alias2, m_size), 0);
+    EXPECT_EQ(memcmp(alias2, &shared_data, m_size), 0);
+    cleanup_shmem_u();
+    cleanup_shmem();
 }
 
+TEST_F(SharedMemoryTest, share_data_ipc)
+{
+    m_shm_key += "-share_data_ipc";
+    size_t shared_data = 0xDEADBEEFCAFED00D;
+
+    pid_t pid = fork();
+    if (pid) {
+        // parent process
+        config_shmem_u();
+        EXPECT_EQ(memcmp(m_shmem_u->pointer(), &shared_data, m_size), 0);
+        cleanup_shmem_u();
+    } else {
+        // child process
+        config_shmem();
+        memcpy(m_shmem->pointer(), &shared_data, m_size);
+        sleep(1);
+        cleanup_shmem();
+        exit(0);
+    }
+}
