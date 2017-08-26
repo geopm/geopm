@@ -153,6 +153,12 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ControlMessageTest.is_shutdown \
               test/gtest_links/ControlMessageTest.loop_begin_0 \
               test/gtest_links/ControlMessageTest.loop_begin_1 \
+              test/gtest_links/PlatformIOTest.freq_ctl \
+              test/gtest_links/MSRIOTest.read_aligned \
+              test/gtest_links/MSRIOTest.read_unaligned \
+              test/gtest_links/MSRIOTest.write \
+              test/gtest_links/MSRIOTest.read_batch \
+              test/gtest_links/MSRIOTest.write_batch \
               # end
 
 if ENABLE_MPI
@@ -209,6 +215,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/EnvironmentTest.cpp \
                           test/SchedTest.cpp \
                           test/ControlMessageTest.cpp \
+                          test/PlatformIOTest.cpp \
+                          test/MSRIOTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
