@@ -233,10 +233,17 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/GlobalPolicy.hpp \
                             src/KNLPlatformImp.cpp \
                             src/KNLPlatformImp.hpp \
+                            src/MSR.cpp \
+                            src/MSR.hpp \
+                            src/MSRIO.cpp \
+                            src/MSRIO.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
                             src/Platform.cpp \
                             src/Platform.hpp \
+                            src/PlatformIO.cpp \
+                            src/PlatformIO.hpp \
+                            src/PlatformIOInternal.hpp \
                             src/PlatformFactory.cpp \
                             src/PlatformFactory.hpp \
                             src/PlatformTopology.cpp \
@@ -309,6 +316,10 @@ if ENABLE_MPI
                           src/GlobalPolicy.hpp \
                           src/KNLPlatformImp.cpp \
                           src/KNLPlatformImp.hpp \
+                          src/MSR.cpp \
+                          src/MSR.hpp \
+                          src/MSRIO.cpp \
+                          src/MSRIO.hpp \
                           src/OMPT.cpp \
                           src/OMPT.hpp \
                           src/Platform.cpp \
