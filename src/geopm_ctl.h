@@ -67,6 +67,12 @@ int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                       const pthread_attr_t *attr,
                       pthread_t *thread);
 
+/******************************/
+/* DECIDER PLUGIN HELPER APIS */
+/******************************/
+int geopm_ctl_cpu_freq(int cpu_idx,
+                       double freq);
+
 /*****************/
 /* MPI COMM APIS */
 /*****************/
