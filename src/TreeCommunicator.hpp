@@ -38,13 +38,11 @@
 #include <pthread.h>
 
 #include "geopm_message.h"
-#include "GlobalPolicy.hpp"
 
 namespace geopm
 {
     void check_mpi(int err);
 
-    class TreeCommunicatorRoot;
     class TreeCommunicatorLevel;
     class IGlobalPolicy;
 

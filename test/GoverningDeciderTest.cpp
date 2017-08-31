@@ -32,12 +32,15 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <map>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "DeciderFactory.hpp"
 #include "GoverningDecider.hpp"
+#include "Region.hpp"
+#include "Policy.hpp"
 
 
 class GoverningDeciderTest: public :: testing :: Test

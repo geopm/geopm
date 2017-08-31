@@ -32,6 +32,7 @@
 
 #include <hwloc.h>
 
+#include "Policy.hpp"
 #include "Decider.hpp"
 #include "config.h"
 

@@ -36,22 +36,25 @@
 #include <vector>
 #include <string>
 #include <stack>
+#include <map>
 #include <mpi.h>
 
-#include "SampleRegulator.hpp"
-#include "TreeCommunicator.hpp"
-#include "PlatformFactory.hpp"
-#include "DeciderFactory.hpp"
-#include "Region.hpp"
-#include "GlobalPolicy.hpp"
-#include "Profile.hpp"
-#include "Tracer.hpp"
 #include "geopm_time.h"
+#include "geopm_message.h"
 #include "geopm_plugin.h"
-
 
 namespace geopm
 {
+    class ISampleRegulator;
+    class ITreeCommunicator;
+    class PlatformFactory;
+    class DeciderFactory;
+    class IRegion;
+    class IGlobalPolicy;
+    class IProfileSampler;
+    class ITracer;
+    class IPolicy;
+
     /// @brief Class used to launch or step the global extensible
     ///        open power manager algorithm.
     ///

@@ -56,6 +56,13 @@
 #include "geopm_hash.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
+#include "SampleRegulator.hpp"
+#include "TreeCommunicator.hpp"
+#include "PlatformFactory.hpp"
+#include "DeciderFactory.hpp"
+#include "GlobalPolicy.hpp"
+#include "Profile.hpp"
+#include "Tracer.hpp"
 #include "OMPT.hpp"
 #include "config.h"
 
