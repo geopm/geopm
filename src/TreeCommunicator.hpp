@@ -34,15 +34,12 @@
 #define TREECOMMUNICATOR_HPP_INCLUDE
 
 #include <vector>
-#include <pthread.h>
 
 #include "geopm_message.h"
-#include "GlobalPolicy.hpp"
-#include "Comm.hpp"
 
 namespace geopm
 {
-    class TreeCommunicatorRoot;
+
     class TreeCommunicatorLevel;
     class IGlobalPolicy;
 
