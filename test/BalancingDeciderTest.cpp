@@ -37,6 +37,9 @@
 #include "Exception.hpp"
 #include "DeciderFactory.hpp"
 #include "BalancingDecider.hpp"
+#include "PolicyFlags.hpp"
+#include "Policy.hpp"
+#include "Region.hpp"
 
 class BalancingDeciderTest: public :: testing :: Test
 {

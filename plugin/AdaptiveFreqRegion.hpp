@@ -33,9 +33,10 @@
 #ifndef ADAPTIVE_FREQ_REGION_HPP_INCLUDE
 #define ADAPTIVE_FREQ_REGION_HPP_INCLUDE
 
-#include "Region.hpp"
-
 #include <vector>
+
+#include "Region.hpp"
+#include "Exception.hpp"
 
 namespace geopm
 {

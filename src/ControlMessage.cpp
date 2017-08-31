@@ -34,6 +34,8 @@
 #include "ControlMessage.hpp"
 #include "string.h"
 
+#include "config.h"
+
 namespace geopm
 {
 

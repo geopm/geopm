@@ -38,6 +38,8 @@
 #include "Exception.hpp"
 #include "KNLPlatformImp.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     static const std::map<std::string, std::pair<off_t, unsigned long> > &knl_msr_map(void);

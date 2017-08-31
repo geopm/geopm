@@ -74,10 +74,13 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 #ifdef __cplusplus
 }
 
-#include "Decider.hpp"
-#include "Platform.hpp"
-#include "PlatformImp.hpp"
-#include "Comm.hpp"
+namespace geopm
+{
+    class IDecider;
+    class Platform;
+    class PlatformImp;
+    class IComm;
+}
 
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Decider object has been created. */

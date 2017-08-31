@@ -32,13 +32,12 @@
 
 #include <float.h>
 
+#include "geopm_sched.h"
 #include "Exception.hpp"
 #include "Policy.hpp"
 #include "PolicyFlags.hpp"
 #include "PlatformIO.hpp"
-#include "geopm_sched.h"
 #include "PlatformTopology.hpp"
-
 #include "config.h"
 
 namespace geopm

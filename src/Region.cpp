@@ -31,6 +31,7 @@
  */
 
 #include <string.h>
+#include <float.h>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -38,6 +39,9 @@
 #include <sstream>
 
 #include "Region.hpp"
+#include "CircularBuffer.hpp"
+#include "ProfileThread.hpp"
+
 #include "config.h"
 
 namespace geopm

@@ -34,6 +34,7 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
+#include <string.h>
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
