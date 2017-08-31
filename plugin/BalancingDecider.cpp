@@ -30,11 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hwloc.h>
+#include <float.h>
 #include <algorithm>
 
 #include "geopm_message.h"
 #include "geopm_plugin.h"
+#include "Policy.hpp"
+#include "Region.hpp"
 #include "BalancingDecider.hpp"
 #include "Exception.hpp"
 
