@@ -34,6 +34,7 @@
 
 #include "Exception.hpp"
 #include "Policy.hpp"
+#include "PolicyFlags.hpp"
 #include "config.h"
 
 namespace geopm

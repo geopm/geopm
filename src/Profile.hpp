@@ -36,21 +36,21 @@
 #include <stdint.h>
 #include <string>
 #include <list>
-#include <forward_list>
 #include <fstream>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
-#include "ControlMessage.hpp"
-#include "SharedMemory.hpp"
-#include "ProfileTable.hpp"
-#include "SampleScheduler.hpp"
-#include "ProfileThread.hpp"
-#include "ControlMessage.hpp"
-#include "Comm.hpp"
 
 namespace geopm
 {
+    class ISharedMemoryUser;
+    class IControlMessage;
+    class IProfileTable;
+    class IProfileThreadTable;
+    class ISampleScheduler;
+    class IComm;
+
+
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///

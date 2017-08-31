@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "SampleRegulator.hpp"
+#include "CircularBuffer.hpp"
 #include "config.h"
 
 namespace geopm

@@ -37,6 +37,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "DeciderFactory.hpp"
+#include "Decider.hpp"
 
 
 class DeciderFactoryTest: public :: testing :: Test

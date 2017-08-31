@@ -38,7 +38,6 @@
 #include <sys/mman.h>
 #include <stddef.h>
 #include <errno.h>
-#include <pthread.h>
 #include <algorithm>
 #include <fstream>
 #include <system_error>

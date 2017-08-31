@@ -30,11 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hwloc.h>
+#include <float.h>
 #include <cmath>
+#include <map>
+#include <vector>
+
 #include "geopm_message.h"
 #include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
+#include "Policy.hpp"
+#include "Region.hpp"
 #include "Exception.hpp"
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)

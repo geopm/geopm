@@ -33,15 +33,15 @@
 #ifndef PLATFORMFACTORY_HPP_INCLUDE
 #define PLATFORMFACTORY_HPP_INCLUDE
 
-#include <map>
+#include <vector>
 #include <memory>
-
-#include "Platform.hpp"
 
 int geopm_read_cpuid(void);
 
 namespace geopm
 {
+    class Platform;
+    class PlatformImp;
     /// @brief Provides a factory abstraction for creating Platform/PlatformImp pairs
     /// suitable for the specific hardware the runtime is operating on. The
     /// factory also loads plugins at creation to provide extensibility to
