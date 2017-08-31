@@ -31,6 +31,7 @@
  */
 
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <libgen.h>
 #include <iostream>
@@ -55,12 +56,25 @@
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
 #include "geopm_hash.h"
+#include "geopm_plugin.h"
 #include "Controller.hpp"
 #include "Exception.hpp"
+#include "SampleRegulator.hpp"
+#include "TreeCommunicator.hpp"
+#include "Platform.hpp"
+#include "PlatformFactory.hpp"
+#include "PlatformTopology.hpp"
+#include "DeciderFactory.hpp"
+#include "Decider.hpp"
+#include "GlobalPolicy.hpp"
+#include "Policy.hpp"
+#include "ProfileSampler.hpp"
+#include "Tracer.hpp"
+#include "Region.hpp"
 #include "OMPT.hpp"
-#include "config.h"
 #include "Comm.hpp"
-#include "geopm_ctl.h"
+
+#include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
 #include <xmmintrin.h>

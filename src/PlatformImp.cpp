@@ -40,7 +40,6 @@
 #include <unistd.h>
 #include <math.h>
 #include <float.h>
-#include <sys/stat.h>
 
 #include <sstream>
 #include <fstream>

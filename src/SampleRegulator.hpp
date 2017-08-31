@@ -37,11 +37,13 @@
 #include <set>
 #include <map>
 
-#include "CircularBuffer.hpp"
 #include "geopm_message.h"
 
 namespace geopm
 {
+    template <class type>
+    class ICircularBuffer;
+
     /// @brief Class merges Platform and Profile time series data.
     ///
     /// The SampleRegulator class is a functor used by the Controller

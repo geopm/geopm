@@ -38,7 +38,6 @@
 #include <sys/mman.h>
 #include <stddef.h>
 #include <errno.h>
-#include <pthread.h>
 #include <algorithm>
 #include <fstream>
 #include <system_error>
@@ -50,8 +49,9 @@
 #include "geopm_ctl.h"
 #include "geopm_message.h"
 #include "geopm_env.h"
-#include "config.h"
 #include "Comm.hpp"
+
+#include "config.h"
 
 namespace geopm
 {

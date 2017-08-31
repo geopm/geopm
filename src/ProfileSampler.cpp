@@ -39,12 +39,17 @@
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "Profile.hpp"
+#include "ProfileThread.hpp"
+#include "ProfileTable.hpp"
 #include "ProfileSampler.hpp"
+#include "SharedMemory.hpp"
+#include "ControlMessage.hpp"
 #include "Exception.hpp"
 #include "geopm_env.h"
 #include "geopm_sched.h"
-#include "config.h"
 #include "Comm.hpp"
+
+#include "config.h"
 
 const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 

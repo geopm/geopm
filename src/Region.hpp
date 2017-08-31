@@ -37,12 +37,14 @@
 #include <string>
 #include <stack>
 
-#include "Policy.hpp"
-#include "CircularBuffer.hpp"
-#include "ProfileThread.hpp"
+#include "geopm_message.h"
 
 namespace geopm
 {
+    class IProfileThreadTable;
+    template <class type>
+    class ICircularBuffer;
+
     /// @brief This class encapsulates all recorded data for a
     ///        specific application execution region.
     class IRegion

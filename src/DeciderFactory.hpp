@@ -36,10 +36,11 @@
 #include <list>
 #include <memory>
 
-#include "Decider.hpp"
 
 namespace geopm
 {
+    class IDecider;
+
     /// @brief Factory object managing decider objects.
     ///
     /// The DeciderFactory manages all instances of Decider objects. During

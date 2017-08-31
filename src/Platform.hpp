@@ -33,13 +33,17 @@
 #ifndef PLATFORM_HPP_INCLUDE
 #define PLATFORM_HPP_INCLUDE
 
-#include "Region.hpp"
-#include "Policy.hpp"
-#include "PlatformImp.hpp"
+#include <string>
+#include <vector>
+
 #include "geopm_message.h"
 
 namespace geopm
 {
+    class PlatformImp;
+    class PlatformTopology;
+    class IPolicy;
+
     /// @brief This class provides an abstraction of specific functionality
     /// and attributes of classes of hardware implementations. It holds
     /// the implementation of the specific hardware platform and knows how
