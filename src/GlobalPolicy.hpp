@@ -38,6 +38,7 @@
 #include <json-c/json.h>
 
 #include "geopm_plugin.h"
+#include "geopm_message.h"
 #include "PolicyFlags.hpp"
 
 namespace geopm
