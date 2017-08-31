@@ -53,12 +53,14 @@
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
-#include "Profile.hpp"
-#include "ProfileThread.hpp"
-#include "Exception.hpp"
 #include "geopm_env.h"
+#include "Profile.hpp"
 #include "ProfileTable.hpp"
-#include "geopm_sched.h"
+#include "ProfileThread.hpp"
+#include "SampleScheduler.hpp"
+#include "ControlMessage.hpp"
+#include "SharedMemory.hpp"
+#include "Exception.hpp"
 #include "config.h"
 
 static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)

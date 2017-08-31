@@ -39,6 +39,7 @@
 #include "PlatformFactory.hpp"
 #include "MockPlatformImp.hpp"
 #include "MockPlatform.hpp"
+#include "Policy.hpp"
 
 using ::testing::Return;
 using ::testing::Pointee;

@@ -33,12 +33,14 @@
 #ifndef EFFICIENT_FREQ_REGION_HPP_INCLUDE
 #define EFFICIENT_FREQ_REGION_HPP_INCLUDE
 
-#include "Region.hpp"
-
 #include <vector>
+
+#include "geopm_time.h"
 
 namespace geopm
 {
+
+    class IRegion;
 
     /// @brief Holds the performance history of a Region.
     class EfficientFreqRegion

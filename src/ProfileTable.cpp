@@ -34,7 +34,6 @@
 #include <limits.h>
 #include <pthread.h>
 #include <stdint.h>
-#include <stdint.h>
 #include <string.h>
 
 #include <algorithm>
@@ -43,6 +42,9 @@
 #include "geopm_hash.h"
 #include "Exception.hpp"
 #include "ProfileTable.hpp"
+
+#include "config.h"
+
 
 namespace geopm
 {

@@ -31,6 +31,8 @@
  */
 
 #include "EfficientFreqRegion.hpp"
+#include "Region.hpp"
+#include "Exception.hpp"
 
 namespace geopm
 {

@@ -34,22 +34,25 @@
 #define PROFILE_HPP_INCLUDE
 
 #include <stdint.h>
+#include <vector>
 #include <string>
 #include <list>
+#include <set>
 #include <forward_list>
 #include <fstream>
 #include <mpi.h>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
-#include "SharedMemory.hpp"
-#include "ProfileTable.hpp"
-#include "SampleScheduler.hpp"
-#include "ProfileThread.hpp"
-#include "ControlMessage.hpp"
 
 namespace geopm
 {
+    class ISharedMemory;
+    class ISharedMemoryUser;
+    class IControlMessage;
+    class IProfileTable;
+    class IProfileThreadTable;
+    class ISampleScheduler;
 
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.

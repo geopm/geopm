@@ -45,6 +45,7 @@
 #include "geopm_sched.h"
 
 #include "EfficientFreqDecider.hpp"
+#include "Policy.hpp"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 #include "Region.hpp"

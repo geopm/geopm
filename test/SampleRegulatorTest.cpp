@@ -32,6 +32,7 @@
 
 #include "gtest/gtest.h"
 #include "SampleRegulator.hpp"
+#include "CircularBuffer.hpp"
 
 class SampleRegulatorTest : public geopm::SampleRegulator, public testing::Test
 {

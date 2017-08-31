@@ -38,7 +38,8 @@
 #include <memory>
 
 #include "geopm_plugin.h"
-#include "PolicyFlags.hpp"
+#include "geopm_message.h"
+
 
 namespace json11 {
     class Json;
@@ -46,6 +47,8 @@ namespace json11 {
 
 namespace geopm
 {
+    class IPolicyFlags;
+
     /// @brief Encapsulates the power policy that is applied across the
     /// entire MPI job allocation being managed by geopm.
     ///

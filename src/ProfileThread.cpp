@@ -40,6 +40,8 @@
 #include "ProfileThread.hpp"
 #include "Exception.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     ProfileThreadTable::ProfileThreadTable(size_t buffer_size, void *buffer)

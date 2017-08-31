@@ -33,10 +33,15 @@
 #ifndef DECIDER_HPP_INCLUDE
 #define DECIDER_HPP_INCLUDE
 
-#include "Region.hpp"
+#include <string>
+
+#include "geopm_message.h"
 
 namespace geopm
 {
+    class IRegion;
+    class IPolicy;
+
     /// @brief Abstract base class for power/frequency steering algorithms.
     ///
     /// Defines the interfaces for any power/frequency steering algorithms. These

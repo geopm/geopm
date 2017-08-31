@@ -39,7 +39,6 @@
 #include <sstream>
 
 #include <geopm_message.h>
-#include <GlobalPolicy.hpp>
 
 namespace geopm
 {

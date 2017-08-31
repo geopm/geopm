@@ -36,6 +36,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "Policy.hpp"
+#include "PolicyFlags.hpp"
 
 class PolicyTest: public :: testing :: Test
 {

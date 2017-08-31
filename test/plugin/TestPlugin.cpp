@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <float.h>
 #include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "SharedMemory.hpp"

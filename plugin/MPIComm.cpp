@@ -31,8 +31,8 @@
  */
 
 #include <sstream>
-
 #include <map>
+#include <limits.h>
 
 #include "geopm_plugin.h"
 #include "Comm.hpp"

@@ -33,8 +33,6 @@
 #ifndef RAPLPLATFORM_HPP_INCLUDE
 #define RAPLPLATFORM_HPP_INCLUDE
 
-#include "Region.hpp"
-#include "Policy.hpp"
 #include "Platform.hpp"
 
 namespace geopm

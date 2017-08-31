@@ -32,6 +32,8 @@
 
 #include "Exception.hpp"
 #include "RAPLPlatform.hpp"
+#include "PlatformImp.hpp"
+#include "Policy.hpp"
 #include "geopm_message.h"
 #include "geopm_time.h"
 #include "config.h"

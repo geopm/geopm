@@ -38,6 +38,8 @@
 #include "geopm_mpi_comm_split.h"
 #include "Exception.hpp"
 
+#include "config.h"
+
 extern "C"
 {
     static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
