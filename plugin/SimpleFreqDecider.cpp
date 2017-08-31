@@ -44,6 +44,7 @@
 #include "geopm_hash.h"
 #include "geopm_sched.h"
 
+#include "Policy.hpp"
 #include "SimpleFreqDecider.hpp"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"

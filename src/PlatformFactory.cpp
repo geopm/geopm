@@ -38,6 +38,7 @@
 #include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "PlatformFactory.hpp"
+#include "Platform.hpp"
 #include "RAPLPlatform.hpp"
 #include "XeonPlatformImp.hpp"
 #include "KNLPlatformImp.hpp"

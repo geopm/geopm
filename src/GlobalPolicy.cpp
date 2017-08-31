@@ -48,6 +48,7 @@
 #include "GlobalPolicy.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
+#include "PolicyFlags.hpp"
 #include "geopm_version.h"
 #include "geopm_env.h"
 #include "config.h"

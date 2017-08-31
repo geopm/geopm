@@ -35,6 +35,7 @@
 
 #include "AdaptiveFreqRegion.hpp"
 #include "Region.hpp"
+#include "Exception.hpp"
 
 using geopm::AdaptiveFreqRegion;
 

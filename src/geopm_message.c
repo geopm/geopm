@@ -30,10 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_message.h"
-#include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "geopm_message.h"
+#include "config.h"
 
 const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN = {-1, -1, -1, -1.0};
 const struct geopm_sample_message_s GEOPM_SAMPLE_INVALID = {0, {0}};

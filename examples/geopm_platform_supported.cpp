@@ -40,6 +40,7 @@
 
 #include "PlatformFactory.hpp"
 #include "geopm_hash.h"
+#include "geopm_error.h"
 
 
 int main(int argc, char **argv)

@@ -35,7 +35,6 @@
 
 #include <memory>
 
-#include "Decider.hpp"
 #include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
 

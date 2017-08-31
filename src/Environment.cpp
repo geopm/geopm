@@ -45,6 +45,8 @@ const char *program_invocation_name = "geopm_profile";
 #include "geopm_env.h"
 #include "Exception.hpp"
 
+#include "config.h"
+
 
 namespace geopm
 {

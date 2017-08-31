@@ -40,6 +40,7 @@
 #include "gmock/gmock.h"
 #include "geopm_hash.h"
 
+#include "Exception.hpp"
 #include "Decider.hpp"
 #include "SimpleFreqDecider.hpp"
 

@@ -33,6 +33,8 @@
 
 #include "StaticPolicyDecider.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     StaticPolicyDecider::StaticPolicyDecider()

@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Region.hpp"
+
 class MockRegion : public geopm::IRegion {
     public:
         MOCK_METHOD0(entry,

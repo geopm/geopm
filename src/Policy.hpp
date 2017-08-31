@@ -38,11 +38,11 @@
 #include <float.h>
 
 #include "geopm_message.h"
-#include "PolicyFlags.hpp"
 
 namespace geopm
 {
     class RegionPolicy;
+    class IPolicyFlags;
 
     /// @brief Class defines the per-domain power settings and policy state.
     class IPolicy
