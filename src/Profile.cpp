@@ -51,15 +51,19 @@
 #include "geopm_message.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
+#include "geopm_env.h"
 #include "Profile.hpp"
 #include "ProfileSampler.hpp"
-#include "ProfileThread.hpp"
-#include "Exception.hpp"
-#include "geopm_env.h"
 #include "ProfileTable.hpp"
-#include "geopm_sched.h"
-#include "config.h"
+#include "ProfileThread.hpp"
+#include "SampleScheduler.hpp"
+#include "ControlMessage.hpp"
+#include "SharedMemory.hpp"
+#include "Exception.hpp"
 #include "Comm.hpp"
+
+#include "config.h"
+
 
 static geopm::Profile &geopm_default_prof(void)
 {

@@ -33,10 +33,17 @@
 #ifndef PROFILE_SAMPLER_HPP_INCLUDE
 #define PROFILE_SAMPLER_HPP_INCLUDE
 
-#include "ControlMessage.hpp"
+#include <forward_list>
+#include <set>
+#include <vector>
 
 namespace geopm
 {
+    class ISharedMemory;
+    class IProfileTable;
+    class IProfileThreadTable;
+    class IControlMessage;
+
     /// @brief Retrieves sample data from the set of application ranks on ///        a single node.
     ///
     /// The ProfileSampler class is the geopm runtime side interface to

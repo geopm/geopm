@@ -38,11 +38,14 @@
 #include <fstream>
 #include <math.h>
 #include <stdexcept>
+#include <float.h>
 
 #include "Exception.hpp"
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
+#include "PlatformImp.hpp"
 #include "geopm_message.h"
+#include "geopm_policy.h"
 #include "config.h"
 
 extern "C"
