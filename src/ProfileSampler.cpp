@@ -40,6 +40,7 @@
 #include "geopm_signal_handler.h"
 #include "Profile.hpp"
 #include "ProfileSampler.hpp"
+#include "SharedMemory.hpp"
 #include "Exception.hpp"
 #include "geopm_env.h"
 #include "geopm_sched.h"

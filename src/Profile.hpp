@@ -36,7 +36,6 @@
 #include <stdint.h>
 #include <string>
 #include <list>
-#include <forward_list>
 #include <fstream>
 
 #include "geopm_time.h"
