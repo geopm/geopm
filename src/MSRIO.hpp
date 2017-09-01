@@ -49,8 +49,8 @@ namespace geopm
             ///        from.
             /// @param [in] offset The MSR offset to read from.
             /// @return The raw encoded MSR value read.
-            virtual uint64_t read(int cpu_idx,
-                                  uint64_t offset) = 0;
+            virtual uint64_t read_msr(int cpu_idx,
+                                      uint64_t offset) = 0;
             /// @brief Write to a single MSR on a CPU.
             /// @param [in] cpu_idx logical Linux CPU index to write
             ///        to.
@@ -61,10 +61,10 @@ namespace geopm
             ///        write, only bits where the write_mask is set
             ///        will be written, other bits in the MSR will be
             ///        unmodified.
-            virtual void write(int cpu_idx,
-                               uint64_t offset,
-                               uint64_t write_mask,
-                               uint64_t raw_value) = 0;
+            virtual void write_msr(int cpu_idx,
+                                   uint64_t offset,
+                                   uint64_t write_mask,
+                                   uint64_t raw_value) = 0;
             /// @brief initialize internal data stuctures to batch
             ///        read/write from MSRs.
             /// @param [in] read_cpu_idx A vector of logical Linux CPU
@@ -83,7 +83,7 @@ namespace geopm
             ///        will determine the bits of the MSRs to be
             ///        modified when the write_batch() method is s
             ///        called.
-            virtual void batch_config(const std::vector<int> &read_cpu_idx,
+            virtual void config_batch(const std::vector<int> &read_cpu_idx,
                                       const std::vector<uint64_t> &read_offset,
                                       const std::vector<int> &write_cpu_idx,
                                       const std::vector<uint64_t> &write_offset,
@@ -103,33 +103,22 @@ namespace geopm
     class MSRIO : public IMSRIO
     {
         public:
-            MSRIO(int num_cpu, bool is_close_lazy);
+            MSRIO(int num_cpu);
             virtual ~MSRIO();
-            virtual uint64_t read(int cpu_idx,
-                                  uint64_t offset) = 0;
-            virtual void write(int cpu_idx,
-                               uint64_t offset,
-                               uint64_t write_mask,
-                               uint64_t raw_value) = 0;
-            virtual void batch_config(const std::vector<int> &read_cpu_idx,
-                                      const std::vector<uint64_t> &read_offset,
-                                      const std::vector<int> &write_cpu_idx,
-                                      const std::vector<uint64_t> &write_offset,
-                                      const std::vector<uint64_t> &write_mask) = 0;
-            virtual void read_batch(std::vector<uint64_t> &raw_value) = 0;
-            virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
+            uint64_t read_msr(int cpu_idx,
+                              uint64_t offset);
+            void write_msr(int cpu_idx,
+                           uint64_t offset,
+                           uint64_t write_mask,
+                           uint64_t raw_value);
+            void config_batch(const std::vector<int> &read_cpu_idx,
+                              const std::vector<uint64_t> &read_offset,
+                              const std::vector<int> &write_cpu_idx,
+                              const std::vector<uint64_t> &write_offset,
+                              const std::vector<uint64_t> &write_mask);
+            void read_batch(std::vector<uint64_t> &raw_value);
+            void write_batch(const std::vector<uint64_t> &raw_value);
         protected:
-            virtual int file_desc(int cpu_idx);
-            virtual int file_desc_batch(void);
-            virtual void msr_close(int cpu_idx);
-            virtual void msr_close_batch(void);
-
-            enum m_file_desc_e
-            {
-                M_FILE_INVALID = -1,
-                M_FILE_CLOSED = -2,
-            };
-
             struct m_msr_batch_op_s {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
                 uint16_t isrdmsr;  /// @brief In: 0=wrmsr, non-zero=rdmsr
@@ -140,13 +129,25 @@ namespace geopm
             };
 
             struct m_msr_batch_array_s {
-                uint32_t numops;              /// @brief In: # of operations in ops array
-                struct m_msr_batch_op_s *ops;   /// @brief In: Array[numops] of operations
+                uint32_t numops;               /// @brief In: # of operations in ops array
+                struct m_msr_batch_op_s *ops;  /// @brief In: Array[numops] of operations
             };
 
-            int m_num_cpu;
-            bool m_is_close_lazy;
+            virtual int msr_desc(int cpu_idx);
+            virtual int msr_batch_desc(void);
+            virtual void msr_path(int cpu_idx,
+                                  bool is_fallback,
+                                  std::string &path);
+            virtual void msr_batch_path(std::string &path);
+            virtual void open_msr(int cpu_idx);
+            virtual void open_msr_batch(void);
+            virtual void close_msr(int cpu_idx);
+            virtual void close_msr_batch(void);
+            virtual void msr_ioctl(bool is_read);
+
+            const int m_num_cpu;
             std::vector<int> m_file_desc;
+            bool m_is_batch_enabled;
             struct m_msr_batch_array_s m_read_batch;
             struct m_msr_batch_array_s m_write_batch;
             std::vector<struct m_msr_batch_op_s> m_read_batch_op;

@@ -30,291 +30,302 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sstream>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
+#include <sstream>
 #include <map>
 
 #include "Exception.hpp"
 #include "MSRIO.hpp"
+#include "config.h"
 
-#define  GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct MSRIO::m_msr_batch_array)
+#define GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct geopm::MSRIO::m_msr_batch_array_s)
 
-#if 0
 namespace geopm
 {
-    MSRIO::MSRIO(const std::map<std::string, struct m_msr_signal_entry> *signal_map,
-                         const std::map<std::string, std::pair<off_t, uint64_t> > *control_map,
-                         const PlatformTopology &topo)
-        : m_msr_path("")
-        , m_cpu_file_desc(0)
-        , m_msr_batch_desc(-1)
-        , m_is_batch_enabled(false)
-        , m_read_batch({0,NULL})
-        , m_write_batch({0,NULL})
+    MSRIO::MSRIO(int num_cpu)
+        : m_num_cpu(num_cpu)
+        , m_file_desc(num_cpu + 1, -1) // Last file descriptor is for the batch file
+        , m_is_batch_enabled(true)
+        , m_read_batch({0, NULL})
+        , m_write_batch({0, NULL})
         , m_read_batch_op(0)
         , m_write_batch_op(0)
-        , m_num_logical_cpu(0)
-        , m_num_package(0)
-        , m_msr_signal_map_ptr(signal_map)
-        , m_msr_control_map_ptr(control_map)
     {
-        m_num_logical_cpu = topo.num_domain(GEOPM_DOMAIN_CPU);
-        m_num_package = topo.num_domain(GEOPM_DOMAIN_PACKAGE);
-        for (int i = 0; i < m_num_logical_cpu; i++) {
-            msr_open(i);
-        }
+
     }
 
     MSRIO::~MSRIO()
     {
-
+        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+            close_msr(cpu_idx);
+        }
+        close_msr_batch();
     }
 
-    uint64_t MSRIO::offset(const std::string &msr_name)
+    uint64_t MSRIO::read_msr(int cpu_idx,
+                             uint64_t offset)
     {
-        uint64_t off = 0;
-        auto control_it = m_msr_control_map_ptr->find(msr_name);
-        if (control_it != m_msr_control_map_ptr->end()) {
-            off =  (*control_it).second.first;
+        uint64_t result = 0;
+        size_t num_read = pread(msr_desc(cpu_idx), &result, sizeof(result), offset);
+        if (num_read != sizeof(result)) {
+            std::ostringstream err_str;
+            err_str << "MSRIO::read_msr(): pread() failed at offset 0x" << std::hex << offset
+                    << " system error: " << strerror(errno);
+            throw Exception(err_str.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
-        else {
-            auto signal_it = m_msr_signal_map_ptr->find(msr_name);
-            if (signal_it != m_msr_signal_map_ptr->end()) {
-                off = (*signal_it).second.offset;
-            }
-            else {
-                throw Exception("MSRIO::offset(): Invalid MSR name", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
-        return off;
+        return result;
     }
 
-    uint64_t MSRIO::write_mask(const std::string &msr_name)
+    void MSRIO::write_msr(int cpu_idx,
+                          uint64_t offset,
+                          uint64_t write_mask,
+                          uint64_t raw_value)
     {
-        uint64_t mask = 0;
-        auto control_it = m_msr_control_map_ptr->find(msr_name);
-        if (control_it != m_msr_control_map_ptr->end()) {
-            mask =  (*control_it).second.second;
+        if ((raw_value & write_mask) != raw_value) {
+            std::ostringstream err_str;
+            err_str << "MSRIO::write_msr(): raw_value does not obey write_mask, "
+                       "raw_value=0x" << std::hex << raw_value
+                    << " write_mask=0x" << write_mask;
         }
-        else {
-            auto signal_it = m_msr_signal_map_ptr->find(msr_name);
-            if (signal_it != m_msr_signal_map_ptr->end()) {
-                mask = (*signal_it).second.write_mask;
-            }
-            else {
-                throw Exception("MSRIO::offset(): Invalid MSR name", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
-        return mask;
-    }
-
-    uint64_t MSRIO::read(int cpu_id, uint64_t offset)
-    {
-        uint64_t raw_value;
-
-        if (m_cpu_file_desc.size() < (uint64_t)cpu_id) {
-            throw Exception("MSRIO::read(): No file descriptor found for cpu device", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
-        }
-        int rv = pread(m_cpu_file_desc[cpu_id], &raw_value, sizeof(raw_value), offset);
-        if (rv != sizeof(raw_value)) {
-            throw Exception(std::to_string(offset), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
-        }
-
-        return raw_value;
-    }
-
-    void MSRIO::write(int cpu_id, uint64_t offset, uint64_t write_mask, uint64_t raw_value)
-    {
-        uint64_t old_value;
-        uint64_t curr_value;
-
-        curr_value = read(cpu_id, offset);
-        curr_value &= ~write_mask;
-        if (m_cpu_file_desc.size() < (uint64_t)cpu_id) {
-            throw Exception("MSRIO::write(): No file descriptor found for cpu device", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
-        }
-        old_value = raw_value;
-        curr_value &= write_mask;
-        if (curr_value != old_value) {
-            std::ostringstream message;
-            message << "MSR value to be written was modified by the mask! Desired = 0x" << std::hex << old_value
-                    << " After mask = 0x" << std::hex << curr_value;
-            throw Exception(message.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
-        }
-        raw_value |= curr_value;
-
-        int rv = pwrite(m_cpu_file_desc[cpu_id], &raw_value, sizeof(raw_value), offset);
-        if (rv != sizeof(raw_value)) {
-            std::ostringstream ex_str;
-            ex_str << "offset: " << offset << " value: " << raw_value;
-            throw Exception(ex_str.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+        uint64_t write_value = read_msr(cpu_idx, offset);
+        write_value &= ~write_mask;
+        write_value &= raw_value;
+        size_t num_write = pwrite(msr_desc(cpu_idx), &write_value, sizeof(write_value), offset);
+        if (num_write != sizeof(write_value)) {
+            std::ostringstream err_str;
+            err_str << "MSRIO::read_msr(): pwrite() failed at offset 0x" << std::hex << offset
+                    << " system error: " << strerror(errno);
+            throw Exception(err_str.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
         }
     }
 
-    void MSRIO::config_batch_read(const std::vector<int> &cpu, const std::vector<uint64_t> &read_offset)
+    void MSRIO::config_batch(const std::vector<int> &read_cpu_idx,
+                             const std::vector<uint64_t> &read_offset,
+                             const std::vector<int> &write_cpu_idx,
+                             const std::vector<uint64_t> &write_offset,
+                             const std::vector<uint64_t> &write_mask)
     {
-        if (cpu.size() != read_offset.size()) {
-            throw Exception("MSRIO::config_batch_read(): Number of CPUs != Number of offsets", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (read_cpu_idx.size() != read_offset.size() ||
+            write_cpu_idx.size() != write_offset.size() ||
+            write_offset.size() != write_mask.size()) {
+            throw Exception("MSRIO::config_batch(): Input vector length mismatch",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_read_batch_op.resize(cpu.size());
-        auto cpu_it = cpu.begin();
-        auto offset_it = read_offset.begin();
-        for (auto batch_it = m_read_batch_op.begin(); batch_it != m_read_batch_op.end(); ++batch_it) {
-            batch_it->cpu = (*cpu_it);
-            batch_it->isrdmsr = 1;
-            batch_it->err = 0;
-            batch_it->msr = (*offset_it);
-            batch_it->msrdata = 0;
-            batch_it->wmask = 0;
+        m_read_batch_op.resize(read_cpu_idx.size());
+        {
+            auto cpu_it = read_cpu_idx.begin();
+            auto offset_it = read_offset.begin();
+            for (auto batch_it = m_read_batch_op.begin();
+                 batch_it != m_read_batch_op.end();
+                 ++batch_it, ++cpu_it, ++offset_it) {
+                batch_it->cpu = *cpu_it;
+                batch_it->isrdmsr = 1;
+                batch_it->err = 0;
+                batch_it->msr = *offset_it;
+                batch_it->msrdata = 0;
+                batch_it->wmask = 0;
+             }
         }
         m_read_batch.numops = m_read_batch_op.size();
         m_read_batch.ops = m_read_batch_op.data();
-    }
 
-    void MSRIO::config_batch_write(const std::vector<int> &cpu, const std::vector<uint64_t> &write_offset, const std::vector<uint64_t> &write_mask)
-    {
-        if (cpu.size() != write_offset.size() ||
-            cpu.size() != write_mask.size()) {
-            throw Exception("MSRIO::config_batch_write(): Number of CPUs, number of offsets, and number of masks do not match", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        m_write_batch_op.resize(cpu.size());
-        auto cpu_it = cpu.begin();
-        auto offset_it = write_offset.begin();
-        auto mask_it = write_mask.begin();
-        for (auto batch_it = m_write_batch_op.begin(); batch_it != m_write_batch_op.end(); ++batch_it) {
-            batch_it->cpu = (*cpu_it);
-            batch_it->isrdmsr = 0;
-            batch_it->err = 0;
-            batch_it->msr = (*offset_it);
-            batch_it->msrdata = 0;
-            batch_it->wmask = (*mask_it);
+        m_write_batch_op.resize(write_cpu_idx.size());
+        {
+            auto cpu_it = write_cpu_idx.begin();
+            auto offset_it = write_offset.begin();
+            auto mask_it = write_mask.begin();
+            for (auto batch_it = m_write_batch_op.begin();
+                 batch_it != m_write_batch_op.end();
+                 ++batch_it, ++cpu_it, ++offset_it, ++mask_it) {
+                batch_it->cpu = *cpu_it;
+                batch_it->isrdmsr = 0;
+                batch_it->err = 0;
+                batch_it->msr = *offset_it;
+                batch_it->msrdata = 0;
+                batch_it->wmask = *mask_it;
+            }
         }
         m_write_batch.numops = m_write_batch_op.size();
         m_write_batch.ops = m_write_batch_op.data();
     }
 
+    void MSRIO::msr_ioctl(bool is_read)
+    {
+        struct m_msr_batch_array_s *batch_ptr = is_read ? &m_read_batch : &m_write_batch;
+        int err = ioctl(msr_batch_desc(), GEOPM_IOC_MSR_BATCH, batch_ptr);
+        if (err) {
+            std::ostringstream err_str;
+            err_str << "MSRIO::read_ioctl(): call to ioctl() for /dev/cpu/msr_batch failed: "
+                    << " system error: " << strerror(errno);
+            throw Exception(err_str.str(), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
+        }
+        for (uint32_t batch_idx = 0; batch_idx != m_write_batch.numops; ++batch_idx) {
+            if (m_write_batch.ops[batch_idx].err) {
+                std::ostringstream err_str;
+                err_str << "MSRIO::msr_ioctl(): operation failed at offset 0x"
+                        << std::hex << m_write_batch.ops[batch_idx].msr
+                        << " system error: " << strerror(m_write_batch.ops[batch_idx].err);
+                throw Exception(err_str.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+            }
+        }
+    }
+
     void MSRIO::read_batch(std::vector<uint64_t> &raw_value)
     {
-        if (m_is_batch_enabled) {
-            int rv = ioctl(m_msr_batch_desc, X86_IOC_MSR_BATCH, &m_read_batch);
-            if (rv) {
-                throw Exception("MSRIO::read_batch():Read from /dev/cpu/msr_batch failed", GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
-            }
-        }
-        else {
-            for (unsigned i = 0; i < m_read_batch.numops; ++i) {
-                m_read_batch.ops[i].msrdata =
-                    read(m_read_batch.ops[i].cpu, m_read_batch.ops[i].msr);
-            }
-        }
-        raw_value.clear();
         if (raw_value.size() < m_read_batch.numops) {
             raw_value.resize(m_read_batch.numops);
         }
-        int batch_idx = 0;
-        for (auto raw_it = raw_value.begin(); raw_it != raw_value.end(); ++raw_it) {
-            (*raw_it) = m_read_batch.ops[batch_idx++].msrdata;
+        open_msr_batch();
+        if (m_is_batch_enabled) {
+            msr_ioctl(true);
+            uint32_t batch_idx = 0;
+            for (auto raw_it = raw_value.begin();
+                 batch_idx != m_read_batch.numops;
+                 ++raw_it, ++batch_idx) {
+                *raw_it = m_read_batch.ops[batch_idx].msrdata;
+            }
+        }
+        else {
+            uint32_t batch_idx = 0;
+            for (auto raw_it = raw_value.begin();
+                 batch_idx != m_read_batch.numops;
+                 ++raw_it, ++batch_idx) {
+                *raw_it = read_msr(m_read_batch_op[batch_idx].cpu,
+                                   m_read_batch_op[batch_idx].msr);
+            }
         }
     }
 
     void MSRIO::write_batch(const std::vector<uint64_t> &raw_value)
     {
-        if (raw_value.size() != m_write_batch.numops) {
-            throw Exception("MSRIO::write_batch(): Number of values does not equal number of controls", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+        if (raw_value.size() < m_write_batch.numops) {
+            throw Exception("MSRIO::write_batch(): input vector smaller than configured number of operations",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int batch_idx = 0;
-        for (auto raw_it = raw_value.begin(); raw_it != raw_value.end(); ++raw_it) {
-            m_write_batch.ops[batch_idx++].msrdata = (*raw_it);
-        }
+        open_msr_batch();
         if (m_is_batch_enabled) {
-            int rv = ioctl(m_msr_batch_desc, X86_IOC_MSR_BATCH, &m_write_batch);
-            if (rv) {
-                throw Exception("MSRIO::write_batch(): Write to /dev/cpu/msr_batch failed", GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+            uint32_t batch_idx = 0;
+            for (auto raw_it = raw_value.begin();
+                 batch_idx != m_write_batch.numops;
+                 ++raw_it, ++batch_idx) {
+                m_write_batch.ops[batch_idx].msrdata = *raw_it;
             }
+            msr_ioctl(false);
         }
         else {
-            for (unsigned i = 0; i < m_write_batch.numops; ++i) {
-                write(m_write_batch.ops[i].cpu, m_write_batch.ops[i].msr,
-                          m_write_batch.ops[i].wmask, m_write_batch.ops[i].msrdata);
+            uint32_t batch_idx = 0;
+            for (auto raw_it = raw_value.begin();
+                 batch_idx != m_write_batch.numops;
+                 ++raw_it, ++batch_idx) {
+                write_msr(m_write_batch_op[batch_idx].cpu,
+                          m_write_batch_op[batch_idx].msr,
+                          m_write_batch_op[batch_idx].wmask,
+                          *raw_it);
             }
         }
     }
 
-    void MSRIO::descriptor_path(int cpu_num)
+    int MSRIO::msr_desc(int cpu_idx)
     {
-        struct stat s;
-        int err;
-
-        // check for the msr-safe driver
-        err = stat("/dev/cpu/0/msr_safe", &s);
-        if (err == 0) {
-            snprintf(m_msr_path, NAME_MAX, "/dev/cpu/%d/msr_safe", cpu_num);
-            //check for batch support
-            m_msr_batch_desc = open("/dev/cpu/msr_batch", O_RDWR);
-            if (m_msr_batch_desc != -1) {
-                m_is_batch_enabled = true;
-            }
-            return;
+        if (cpu_idx < 0 || cpu_idx > m_num_cpu) {
+            std::ostringstream err_str;
+            err_str << "MSRIO: cpu_idx=" << cpu_idx
+                    << " out of range, num_cpu=" << m_num_cpu;
+            throw Exception(err_str.str(),GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        // fallback to the default msr driver
-        err = stat("/dev/cpu/0/msr", &s);
-        if (err == 0) {
-            snprintf(m_msr_path, NAME_MAX, "/dev/cpu/%d/msr", cpu_num);
-            return;
-        }
-
-        throw Exception("checked /dev/cpu/0/msr and /dev/cpu/0/msr_safe", GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
+        open_msr(cpu_idx);
+        return m_file_desc[cpu_idx];
     }
 
-    void MSRIO::msr_open(int cpu)
+    int MSRIO::msr_batch_desc()
     {
-        int fd;
-
-        descriptor_path(cpu);
-        fd = open(m_msr_path, O_RDWR);
-        //report errors
-        if (fd < 0) {
-            char error_string[NAME_MAX];
-            if (errno == ENXIO || errno == ENOENT) {
-                snprintf(error_string, NAME_MAX, "device %s does not exist", m_msr_path);
-            }
-            else if (errno == EPERM || errno == EACCES) {
-                snprintf(error_string, NAME_MAX, "permission denied opening device %s", m_msr_path);
-            }
-            else {
-                snprintf(error_string, NAME_MAX, "system error opening cpu device %s", m_msr_path);
-            }
-            throw Exception(error_string, GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
-
-            return;
-        }
-        //all is good, save handle
-        m_cpu_file_desc.push_back(fd);
+        return m_file_desc[m_num_cpu];
     }
 
-    void MSRIO::msr_close(int cpu)
+    void MSRIO::msr_path(int cpu_idx,
+                         bool is_fallback,
+                         std::string &path)
     {
-        if (m_cpu_file_desc.size() > (size_t)cpu &&
-            m_cpu_file_desc[cpu] >= 0) {
-            int rv = close(m_cpu_file_desc[cpu]);
-            //mark as invalid
-            m_cpu_file_desc[cpu] = -1;
+        std::ostringstream msr_path;
+        msr_path << "/dev/cpu/" << cpu_idx;
+        if (!is_fallback) {
+            msr_path << "/msr_safe";
+        }
+        else {
+            msr_path << "/msr";
+        }
+        path = msr_path.str();
+    }
 
-            //check for errors
-            if (rv < 0) {
-                throw Exception("system error closing cpu device", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    void MSRIO::msr_batch_path(std::string &path)
+    {
+        path = "/dev/cpu/msr_batch";
+    }
+
+    void MSRIO::open_msr(int cpu_idx)
+    {
+        if (m_file_desc[cpu_idx] == -1) {
+            std::string path;
+            msr_path(cpu_idx, false, path);
+            m_file_desc[cpu_idx] = open(path.c_str(), O_RDWR);
+            if (m_file_desc[cpu_idx] == -1) {
+                errno = 0;
+                msr_path(cpu_idx, true, path);
+                m_file_desc[cpu_idx] = open(path.c_str(), O_RDWR);
+                if (m_file_desc[cpu_idx] == -1) {
+                    std::ostringstream err_str;
+                    err_str << "MSRIO::open_msr(): Failed to open \"" << path << "\": "
+                            << "system error: " << strerror(errno);
+                    throw Exception(err_str.str(), GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
+                }
             }
+        }
+        struct stat stat_buffer;
+        int err = fstat(m_file_desc[cpu_idx], &stat_buffer);
+        if (err) {
+            throw Exception("MSRIO::open_msr(): file descritor invalid",
+                            GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
         }
     }
 
-    size_t MSRIO::num_raw_signal(void)
+    void MSRIO::open_msr_batch(void)
     {
-        return m_read_batch.numops;
+        if (m_is_batch_enabled && m_file_desc[m_num_cpu] == -1) {
+            std::string path;
+            msr_batch_path(path);
+            m_file_desc[m_num_cpu] = open(path.c_str(), O_RDWR);
+            if (m_file_desc[m_num_cpu] == -1) {
+                m_is_batch_enabled = false;
+            }
+        }
+        if (m_is_batch_enabled) {
+            struct stat stat_buffer;
+            int err = fstat(m_file_desc[m_num_cpu], &stat_buffer);
+            if (err) {
+                throw Exception("MSRIO::open_msr_batch(): file descritor invalid",
+                                GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
+            }
+        }
+    }
+
+    void MSRIO::close_msr(int cpu_idx)
+    {
+        if (m_file_desc[cpu_idx] != -1) {
+            (void)close(m_file_desc[cpu_idx]);
+            m_file_desc[cpu_idx] = -1;
+        }
+    }
+
+    void MSRIO::close_msr_batch(void)
+    {
+        if (m_file_desc[m_num_cpu] != -1) {
+            (void)close(m_file_desc[m_num_cpu]);
+            m_file_desc[m_num_cpu] = -1;
+        }
     }
 }
-#endif
