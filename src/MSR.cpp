@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "MSR.hpp"
+#include "PlatformTopology.hpp"
 #include "Exception.hpp"
 
 #define  GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct MSRIO::m_msr_batch_array)
@@ -95,5 +96,113 @@ namespace geopm
     uint64_t MSREncode::mask(void)
     {
         return m_mask;
+    }
+
+    MSR::MSR(uint64_t offset,
+             const std::string &msr_name,
+             const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
+             const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control)
+        : m_offset(offset)
+        , m_name(msr_name)
+        , m_signal_encode(signal.size(), NULL)
+        , m_control_encode(control.size())
+        , m_domain_type(GEOPM_DOMAIN_CPU)
+    {
+        int idx = 0;
+        for (auto it = signal.begin(); it != signal.end(); ++it, ++idx) {
+            m_signal_map.insert(std::pair<std::string, int>((*it).first, idx));
+            m_signal_encode[idx] = new MSREncode((*it).second);
+        }
+        idx = 0;
+        for (auto it = control.begin(); it != control.end(); ++it, ++idx) {
+            m_control_map.insert(std::pair<std::string, int>((*it).first, idx));
+            m_control_encode[idx] = new MSREncode((*it).second);
+        }
+
+        if (m_name.compare(0, strlen("PKG_"), "PKG_") == 0) {
+            m_domain_type = GEOPM_DOMAIN_PACKAGE;
+        }
+        else if (m_name.compare(0, strlen("DRAM_"), "DRAM_") == 0) {
+            m_domain_type = GEOPM_DOMAIN_BOARD_MEMORY;
+        }
+    }
+
+    MSR::~MSR()
+    {
+        for (auto it = m_control_encode.rbegin(); it != m_control_encode.rend(); ++it) {
+            delete (*it);
+        }
+        for (auto it = m_signal_encode.rbegin(); it != m_signal_encode.rend(); ++it) {
+            delete (*it);
+        }
+    }
+
+    void MSR::name(std::string &msr_name) const
+    {
+        msr_name = m_name;
+    }
+
+    uint64_t MSR::offset(void) const
+    {
+        return m_offset;
+    }
+
+    int MSR::num_signal(void) const
+    {
+        return m_signal_encode.size();
+    }
+
+    int MSR::num_control(void) const
+    {
+        return m_control_encode.size();
+    }
+
+    int MSR::signal_index(std::string name) const
+    {
+        int result = -1;
+        auto it = m_signal_map.find(name);
+        if (it != m_signal_map.end()) {
+            result = (*it).second;
+        }
+        return result;
+    }
+
+    int MSR::control_index(std::string name) const
+    {
+        int result = -1;
+        auto it = m_control_map.find(name);
+        if (it != m_control_map.end()) {
+            result = (*it).second;
+        }
+        return result;
+    }
+
+    double MSR::signal(int signal_idx,
+                       uint64_t field) const
+    {
+        if (signal_idx < 0 || signal_idx >= num_signal()) {
+            throw Exception("MSR::signal(): signal_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_signal_encode[signal_idx]->decode(field);
+    }
+
+    uint64_t MSR::control(int control_idx,
+                          double value,
+                          uint64_t in_field) const
+    {
+        if (control_idx < 0 || control_idx >= num_control()) {
+            throw Exception("MSR::signal(): signal_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        uint64_t result = m_control_encode[control_idx]->encode(value);
+        in_field &= ~(m_control_encode[control_idx]->mask());
+        result &= in_field;
+        return result;
+    }
+
+    int MSR::domain_type(void)
+    {
+        return m_domain_type;
     }
 }

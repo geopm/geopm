@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "PlatformIO.hpp"
 
@@ -71,18 +72,6 @@ namespace geopm
             /// @return The number of contiguous bit fields in the MSR
             ///         that encode controls.
             virtual int num_control(void) const = 0;
-            /// @brief Query the name of a signal bit field.
-            /// @param [in] signal_idx The index of the bit field in
-            ///        range from to 0 to num_signal() - 1.
-            /// @param [out] name The name of a signal bit field.
-            virtual void signal_name(int signal_idx,
-                                     std::string &name) const = 0;
-            /// @brief Query the name of a control bit field.
-            /// @param [in] control_idx The index of the bit field in
-            ///        range from to 0 to num_control() - 1.
-            /// @param [out] name The name of a control bit field.
-            virtual void control_name(int control_idx,
-                                      std::string &name) const = 0;
             /// @brief Query for the signal index given a name.
             /// @param [in] name The name of the signal bit field.
             /// @return Index of the signal queried unless signal name
@@ -186,6 +175,8 @@ namespace geopm
             virtual void map(const std::vector<uint64_t *> &field) = 0;
     };
 
+    class MSREncode;
+
     class MSR : public IMSR
     {
         public:
@@ -208,10 +199,6 @@ namespace geopm
             uint64_t offset(void) const;
             int num_signal(void) const;
             int num_control(void) const;
-            void signal_name(int signal_idx,
-                             std::string &name) const;
-            void control_name(int control_idx,
-                              std::string &name) const;
             int signal_index(std::string name) const;
             int control_index(std::string name) const;
             double signal(int signal_idx,
@@ -220,6 +207,14 @@ namespace geopm
                              double value,
                              uint64_t in_field) const;
             int domain_type(void);
+        protected:
+            uint64_t m_offset;
+            std::string m_name;
+            std::vector<MSREncode *> m_signal_encode;
+            std::vector<MSREncode *> m_control_encode;
+            std::map<std::string, int> m_signal_map;
+            std::map<std::string, int> m_control_map;
+            int m_domain_type;
     };
 
     class MSRSignal : public IMSRSignal
