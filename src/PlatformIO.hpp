@@ -63,7 +63,7 @@ namespace geopm
             /// @brief Get the value of the signal.
             /// @return The value of the parameter measured in SI
             ///         units.
-            virtual double sample(void) = 0;
+            virtual double sample(void) const = 0;
     };
 
     /// @brief Abstract base class describing a control provided by a

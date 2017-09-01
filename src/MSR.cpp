@@ -30,12 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sstream>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sstream>
+#include <algorithm>
+
 #include "MSR.hpp"
 #include "PlatformTopology.hpp"
 #include "Exception.hpp"
@@ -157,6 +159,38 @@ namespace geopm
         return m_control_encode.size();
     }
 
+    void MSR::signal_name(int signal_idx,
+                          std::string &name) const
+    {
+        if (signal_idx < 0 || signal_idx >= num_signal()) {
+            throw Exception("MSR::signal_name(): signal_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        name = "";
+        for (auto it = m_signal_map.begin(); it != m_signal_map.end(); ++it) {
+            if ((*it).second == signal_idx) {
+                name = (*it).first;
+                break;
+            }
+        }
+    }
+
+    void MSR::control_name(int control_idx,
+                           std::string &name) const
+    {
+        if (control_idx < 0 || control_idx >= num_control()) {
+            throw Exception("MSR::control_name(): control_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        name = "";
+        for (auto it = m_control_map.begin(); it != m_control_map.end(); ++it) {
+            if ((*it).second == control_idx) {
+                name = (*it).first;
+                break;
+            }
+        }
+    }
+
     int MSR::signal_index(std::string name) const
     {
         int result = -1;
@@ -205,4 +239,200 @@ namespace geopm
     {
         return m_domain_type;
     }
+
+    MSRSignal::MSRSignal(const IMSR *msr_obj,
+                         int cpu_idx,
+                         int signal_idx)
+    {
+        // Default constructor when no name is provided guesses the
+        // signal name based on the MSR name and the field in that
+        // MSR.  These are separated by a colon.
+        std::ostringstream name;
+        std::string msr_name;
+        std::string msr_signal_name;
+        msr_obj->name(msr_name);
+        msr_obj->signal_name(signal_idx, msr_signal_name);
+        name << msr_name << ":" << msr_signal_name;
+        MSRSignal(msr_obj, cpu_idx, signal_idx, name.str());
+    }
+
+    MSRSignal::MSRSignal(const IMSR *msr_obj,
+                         int cpu_idx,
+                         int signal_idx,
+                         const std::string &name)
+        : MSRSignal(std::vector<IMSRSignal::m_signal_config_s>{IMSRSignal::m_signal_config_s{msr_obj, cpu_idx, signal_idx}}, name)
+    {
+
+    }
+
+    MSRSignal::MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
+                         const std::string &name)
+       : m_config(config)
+       , m_name(name)
+       , m_field_ptr(config.size(), NULL)
+       , m_is_field_mapped(false)
+    {
+
+    }
+
+    MSRSignal::~MSRSignal()
+    {
+
+    }
+
+    void MSRSignal::name(std::string &signal_name) const
+    {
+        signal_name = m_name;
+    }
+
+    int MSRSignal::domain_type(void) const
+    {
+        throw Exception("MSRSignal::domain_type(): not yet implemented",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    int MSRSignal::domain_idx(void) const
+    {
+        throw Exception("MSRSignal::domain_idx(): not yet implemented",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    double MSRSignal::sample(void) const
+    {
+        if (!m_is_field_mapped) {
+            throw Exception("MSRControl::sample(): must call map() method before sample() can be called",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::vector<double> signal_vec(num_msr());
+        auto signal_it = signal_vec.begin();
+        auto field_it = m_field_ptr.begin();
+        for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++signal_it, ++field_it) {
+            *signal_it = (*config_it).msr_obj->signal((*config_it).signal_idx, *(*field_it));
+        }
+        return sample(signal_vec);
+    }
+
+    int MSRSignal::num_msr(void) const
+    {
+       return m_config.size();
+    }
+
+    void MSRSignal::map_field(uint64_t *field)
+    {
+        map_field({field});
+    }
+
+    void MSRSignal::map_field(const std::vector<uint64_t *> &field)
+    {
+        if (field.size() != (size_t)num_msr()) {
+            throw Exception("MSRSignal::map_field() field vector not properly sized",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::copy(field.begin(), field.end(), m_field_ptr.begin());
+        m_is_field_mapped = true;
+    }
+
+    double MSRSignal::sample(const std::vector<double> &per_msr_signal) const
+    {
+        return std::accumulate(per_msr_signal.begin(), per_msr_signal.end(), 0.0);
+    }
+
+    MSRControl::MSRControl(const IMSR *msr_obj,
+                           int cpu_idx,
+                           int control_idx)
+    {
+        // Default constructor when no name is provided guesses the
+        // control name based on the MSR name and the field in that
+        // MSR.  These are separated by a colon.
+        std::ostringstream name;
+        std::string msr_name;
+        std::string msr_control_name;
+        msr_obj->name(msr_name);
+        msr_obj->control_name(control_idx, msr_control_name);
+        name << msr_name << ":" << msr_control_name;
+        MSRControl(msr_obj, cpu_idx, control_idx, name.str());
+    }
+
+    MSRControl::MSRControl(const IMSR *msr_obj,
+                           int cpu_idx,
+                           int control_idx,
+                           const std::string &name)
+        : MSRControl(std::vector<IMSRControl::m_control_config_s>{IMSRControl::m_control_config_s{msr_obj, cpu_idx, control_idx}}, name)
+    {
+
+    }
+
+    MSRControl::MSRControl(const std::vector<struct IMSRControl::m_control_config_s> &config,
+                           const std::string &name)
+       : m_config(config)
+       , m_name(name)
+       , m_field_ptr(config.size(), NULL)
+       , m_is_field_mapped(false)
+    {
+
+    }
+
+    MSRControl::~MSRControl()
+    {
+
+    }
+
+    void MSRControl::name(std::string &name) const
+    {
+        name = m_name;
+    }
+
+    int MSRControl::domain_type(void) const
+    {
+        throw Exception("MSRControl::domain_type(): not yet implemented",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    int MSRControl::domain_idx(void) const
+    {
+        throw Exception("MSRControl::domain_idx(): not yet implemented",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    void MSRControl::adjust(double setting)
+    {
+        if (!m_is_field_mapped) {
+            throw Exception("MSRControl::adjust(): must call map() method before adjust() can be called",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::vector<double> per_msr_setting(num_msr());
+        adjust(setting, per_msr_setting);
+        auto setting_it = per_msr_setting.begin();
+        auto field_it = m_field_ptr.begin();
+        for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++setting_it, ++field_it) {
+            *(*field_it) = (*config_it).msr_obj->control((*config_it).control_idx, *setting_it, *(*field_it));
+        }
+    }
+
+    int MSRControl::num_msr(void) const
+    {
+        return m_config.size();
+    }
+
+    void MSRControl::map_field(uint64_t *field)
+    {
+        map_field({field});
+    }
+
+    void MSRControl::map_field(const std::vector<uint64_t *> &field)
+    {
+        if (field.size() != (size_t)num_msr()) {
+            throw Exception("MSRControl::map_field() field vector not properly sized",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::copy(field.begin(), field.end(), m_field_ptr.begin());
+        m_is_field_mapped = true;
+    }
+
+    void MSRControl::adjust(double setting,
+                            std::vector<double> &per_msr_setting) const
+    {
+        std::fill(per_msr_setting.begin(), per_msr_setting.end(), setting);
+    }
+
 }
