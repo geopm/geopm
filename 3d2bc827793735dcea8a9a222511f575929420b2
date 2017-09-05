@@ -1,0 +1,299 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aff188ae_5c9a4671",
+        "filename": "Makefile.am",
+        "patchSetId": 9
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Why is the .cpp file not camel cased?",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc0edcee_b820d83f",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Dead comment?",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d48c93e5_7ad076e4",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Left over from debug?",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1a9549b_880bd17a",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Indent extern \"C\" blocks.",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c445cfb_b92cae87",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Use is_valid()",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7d3e6eb_6c2d2291",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "check in_comm-\u003eis_valid()",
+      "range": {
+        "startLine": 190,
+        "startChar": 30,
+        "endLine": 190,
+        "endChar": 45
+      },
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e5950b9_78a77d10",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Check for valid comm too.",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec488152_fa609de4",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Call is_valid()?",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6c9ab44_f0c544d1",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "#include \u003climits.h\u003e\n\nif (*in_size_it \u003e INT_MAX)) {\n    throw Exception();\n}",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07c1d8d9_b930bc50",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Move doxygen down and add cart_rank doxygen.",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5611ab26_d6baa368",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "num_nodes -\u003e num_rank (more general)\ndimension.size() is an implied input, add an extra parameter to track this or document that the size of the output vector is important to the interface.  In general we need @param comments for all parameters in these APIs.",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c184c6ec_92ac45a2",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Use \"MPIComm\" not geopm_env_comm() (see comment below).",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2594cb5b_5194c5b0",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Don\u0027t use geomp_env_comm() here, use \"MPIComm\" instead.  The application side must be using MPI.",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b5780f0_828e811d",
+        "filename": "test/CommMPIImpTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Move typedefs above #defines",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "042774e0_d57965d9",
+        "filename": "test/CommMPIImpTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Indent extern \"C\".",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29908f44_8fb28c04",
+        "filename": "test/CommMPIImpTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Remove kruft",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c75a610_931c8891",
+        "filename": "test/CommMPIImpTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T18:48:12Z",
+      "side": 1,
+      "message": "Remove 433-435, duplicates 436.",
+      "revId": "3d2bc827793735dcea8a9a222511f575929420b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
