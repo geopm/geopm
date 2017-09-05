@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a664d63_80ee5367",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T19:01:03Z",
+      "side": 1,
+      "message": "\"Migrated MPISharedMemoryTest to avoid using MPI\"",
+      "revId": "ea02a8ea49c0e5025a14a47a0fac57aadc2d9e37",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6882c942_aa578309",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T19:01:03Z",
+      "side": 1,
+      "message": "Call cleanup_shmem() prior to ASSERT_TRUE(false).  Also consider rethrowing the geopm exception rather than the gtest exception.",
+      "revId": "ea02a8ea49c0e5025a14a47a0fac57aadc2d9e37",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55596726_20000026",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-05T19:01:03Z",
+      "side": 1,
+      "message": "Avoid intermittent failures, and sleep(1) here.",
+      "revId": "ea02a8ea49c0e5025a14a47a0fac57aadc2d9e37",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
