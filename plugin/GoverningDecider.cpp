@@ -32,10 +32,19 @@
 
 #include <hwloc.h>
 #include <cmath>
+#include <signal.h>
+#include <unistd.h>
+
+//#include "geopm.h"
 #include "geopm_message.h"
 #include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
+//#include "geopm_error.h"
+//#include "geopm_time.h"
+//#include "geopm_signal_handler.h"
 #include "Exception.hpp"
+//#include "config.h"
+#include<inttypes.h>
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
@@ -129,16 +138,183 @@ namespace geopm
         return result;
     }
 
+#define HFI_POWER_ACCOUNTING_SUPPORT 1
+
+#ifdef HFI_POWER_ACCOUNTING_SUPPORT
+// Post-Silicon estimates for WFR(STL-1 generation)
+// KNL-f/SKX-F dual port platform running a typical
+// workload
+#define HFI_IDLE_POWER 5.5 // power at 0GBps with no workload
+#define HFI_MAX_POWER 11.9 // power at 100GBps with typical workload 
+#define HFI_MAX_BW_GBPS 100
+#define HFI_MIN_BW_GBPS 0  
+
+#define OPATOOLS_OUT_MAX_LEN 10
+#define NW_LOG_REC_MAX 100
+
+
+    static volatile unsigned g_is_popen_complete = 0;
+    static struct sigaction g_popen_complete_signal_action;
+
+    static void geopm_popen_complete(int signum)
+    {
+       if (signum == SIGCHLD) {
+            g_is_popen_complete = 1;
+       }
+    }
+   
+   
+    static uint64_t get_hfi_byte_cnt()
+    {
+    
+      uint64_t hfi_byte_cnt=0.0;
+
+      g_popen_complete_signal_action.sa_handler = geopm_popen_complete;
+      sigemptyset(&g_popen_complete_signal_action.sa_mask);
+      g_popen_complete_signal_action.sa_flags = 0;
+      struct sigaction save_action;
+
+      int err = sigaction(SIGCHLD, &g_popen_complete_signal_action, &save_action);
+
+      if (!err) {
+
+    	 FILE *opatools_fileptr = popen("opapmaquery 2>&1 | grep \"Xmit Data\" |  awk -F'[[:space:]]*|[(]'  '{print $7}'", "r");
+	 if (opatools_fileptr) {
+	    while (!g_is_popen_complete) {
+	    }
+	    g_is_popen_complete = 0;
+      	    char opatools_dump[OPATOOLS_OUT_MAX_LEN];
+            while (fgets(opatools_dump, OPATOOLS_OUT_MAX_LEN, opatools_fileptr) != NULL) {
+               hfi_byte_cnt = std::stoll(opatools_dump)<<3; // bytes=8*flits
+            }
+            if(pclose(opatools_fileptr)==1) {
+	        printf("Error!!! pclose() failed on opatools\n");
+	    }
+	 }
+	 sigaction(SIGCHLD, &save_action, NULL);						 
+      }
+
+      return hfi_byte_cnt;
+    }
+
+
+    // Linear fit of line with two points corresponding
+    // to idle and typical power numbers for the HFI
+    static inline  double convert_bw_to_dynamic_hfi_power(double observed_bw_gbps)
+    {
+   	return ((observed_bw_gbps-HFI_MIN_BW_GBPS)*(HFI_MAX_POWER-HFI_IDLE_POWER)/
+		(HFI_MAX_BW_GBPS-HFI_MIN_BW_GBPS)
+	       ) + HFI_IDLE_POWER; 
+    }	    
+
+
+    static inline const double get_static_hfi_power()
+    {
+        return HFI_IDLE_POWER;
+    }
+
+
+    static FILE* hfi_report;
+    static char hostname_arr[30];
+    static double get_dynamic_hfi_power()
+    {
+	const uint64_t MAX_COUNTER_VAL = (-1L)>>1;
+
+        static short  is_logfile_open=0;
+        static uint32_t log_cnt=-1;
+
+	struct geopm_time_s hfi_current_timer;
+	static struct geopm_time_s hfi_previous_timer, hfi_start_timer;
+        static double delta_time, hfi_dyn_power;
+
+	static uint64_t hfi_previous_bytes=0x0; 
+	static uint64_t hfi_current_bytes_arr[NW_LOG_REC_MAX], 
+		        delta_bytes_arr[NW_LOG_REC_MAX]; 
+
+	static double delta_time_arr[NW_LOG_REC_MAX],
+	              timestamp_arr[NW_LOG_REC_MAX], 
+	              avg_bandwidth_arr[NW_LOG_REC_MAX], 
+		      hfi_dyn_power_arr[NW_LOG_REC_MAX]; 
+
+
+	if(is_logfile_open==0) {
+	   gethostname(hostname_arr,30);
+           hfi_report = fopen(hostname_arr,"w");
+           fprintf(hfi_report,"#TimeStamp, Inst_Bytes, Power, Delta Bytes, Delta Time, Bandwidth\n"); 
+  	   geopm_time(&hfi_start_timer);	
+  	   geopm_time(&hfi_previous_timer);	
+           is_logfile_open=1;
+        }
+
+  	geopm_time(&hfi_current_timer);	
+	delta_time = geopm_time_diff(&hfi_previous_timer, &hfi_current_timer);
+
+	// should record be logged?
+	if (delta_time >= 0.001) {
+
+	   log_cnt++;
+
+	   // record timestamps
+           timestamp_arr[log_cnt] = geopm_time_diff(&hfi_start_timer, 
+			   			&hfi_current_timer);
+	   delta_time_arr[log_cnt] = delta_time;
+
+	   // get and record HFI counter
+	   hfi_current_bytes_arr[log_cnt] = get_hfi_byte_cnt();
+
+	   // correct any HFI counter overflow errors
+	   if (hfi_current_bytes_arr[log_cnt] < hfi_previous_bytes) { 
+           	delta_bytes_arr[log_cnt] = MAX_COUNTER_VAL -
+			                   hfi_previous_bytes +
+					   hfi_current_bytes_arr[log_cnt];
+	   } else {
+		delta_bytes_arr[log_cnt] = hfi_current_bytes_arr[log_cnt] - 
+					   hfi_previous_bytes;
+	   }
+
+	   // calculate and record bandwidth and HFI _dynamic_ power
+	   avg_bandwidth_arr[log_cnt] = (double)delta_bytes_arr[log_cnt] / 
+		                        delta_time_arr[log_cnt];
+	   hfi_dyn_power = convert_bw_to_dynamic_hfi_power(avg_bandwidth_arr[log_cnt]) - 
+		           HFI_IDLE_POWER;
+	   hfi_dyn_power_arr[log_cnt] = hfi_dyn_power;
+
+	   // bookkeeping for future iterations 
+	   hfi_previous_timer = hfi_current_timer;
+	   hfi_previous_bytes = hfi_current_bytes_arr[log_cnt];
+
+	   // dump records on detecting full buffer
+	   if(log_cnt == NW_LOG_REC_MAX-1) {
+            	for (log_cnt=0; log_cnt<NW_LOG_REC_MAX; log_cnt++) {
+            		fprintf(hfi_report,"%g, %lu, %g, %lu, %g, %g\n", 
+	    	      		           timestamp_arr[log_cnt], 
+	    	      		           hfi_current_bytes_arr[log_cnt], 
+	    	      		           hfi_dyn_power_arr[log_cnt], 
+	    	      		           delta_bytes_arr[log_cnt], 
+	    	      		           delta_time_arr[log_cnt], 
+	    	      		           avg_bandwidth_arr[log_cnt]);
+	    	}
+	    	log_cnt = 0;
+	   }
+	}
+	return hfi_dyn_power;
+    }
+
+#endif /* HFI_POWER_ACCOUNTING_SUPPORT */
+
+
     bool GoverningDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
         static const double GUARD_BAND = 0.02;
         bool is_target_updated = false;
-        const uint64_t region_id = curr_region.identifier();
+        const uint32_t region_id = curr_region.identifier();
+
 
         // If we have enough samples from the current region then update policy.
         if (curr_region.num_sample(0, GEOPM_TELEMETRY_TYPE_PKG_ENERGY) >= m_num_sample) {
             const int num_domain = curr_policy.num_domain();
             std::vector<double> limit(num_domain);
+	    // SJ: "target" --> setting for the policy 
             std::vector<double> target(num_domain);
             std::vector<double> domain_dram_power(num_domain);
             // Get node limit for epoch set by tree decider
@@ -147,13 +323,28 @@ namespace geopm
             curr_policy.target(region_id, target);
 
             // Sum package and dram power over all domains to get total_power
+	    
             double dram_power = 0.0;
             double limit_total = 0.0;
+
+
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 domain_dram_power[domain_idx] = curr_region.derivative(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
                 dram_power += domain_dram_power[domain_idx];
                 limit_total += limit[domain_idx];
             }
+
+#ifdef HFI_POWER_ACCOUNTING_SUPPORT
+	    // Subtract HFI power from the total node power budget
+	    // For now, we are assuming that there is only one HFI per node (a typical
+	    // KNL+WFR,SKX+WFR setup). So, the HFI power isn't split across multiple domains.
+	    
+	    double hfi_power = get_static_hfi_power() + get_dynamic_hfi_power();
+            limit_total -= hfi_power;
+
+#endif /* HFI_POWER_ACCOUNTING_SUPPORT */
+
+
             double upper_limit = m_last_dram_power + (GUARD_BAND * limit_total);
             double lower_limit = m_last_dram_power - (GUARD_BAND * limit_total);
 
@@ -165,6 +356,7 @@ namespace geopm
                     for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                         target[domain_idx] = limit[domain_idx] - domain_dram_power[domain_idx];
                     }
+		    // set a new target value for region_id
                     curr_policy.update(region_id, target);
                     is_target_updated = true;
                 }
