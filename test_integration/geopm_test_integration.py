@@ -38,9 +38,15 @@ import fnmatch
 import time
 import pandas
 import collections
+import random
 
 import geopm_test_launcher
 import geopmpy.io
+
+from natsort import natsorted
+
+# FIXME
+import code
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
@@ -716,6 +722,121 @@ class TestIntegration(unittest.TestCase):
             self.assertTrue(('MPI_Alltoall' in rr));
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
+
+    def sort_by_efficiency(self, node_list):
+        """
+        Run a short test on the given nodes to deretmine their efficiency.
+        Return the node list sorted from least efficient to most efficient.
+        """
+        name = 'test_node_efficiency'
+        report_path = name + '.report'
+        num_node = len(node_list)
+        num_rank = 16
+        loop_count = 100
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm', 4.0)
+        app_conf.set_loop_count(loop_count)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_node_list(','.join(node_list))
+        launcher.run(name)
+        self._output = geopmpy.io.AppOutput(report_path)
+        report_df = self._output.get_report_df()
+        idx = pandas.IndexSlice
+        sorted_nodes = report_df.loc[idx[:, :, :, :, :, :, :, 'dgemm'], 'runtime'].reset_index('node_name').reset_index(drop=True).sort_values('runtime', ascending=False)['node_name'].values.tolist()
+
+        return sorted_nodes
+
+    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
+                         'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    def test_power_balancer(self):
+        # Configure the run for the static policy plugin first
+        name = 'test_power_balancer'
+        report_path = name + '_static_policy_plugin.report'
+        trace_path = name + '_static_policy_plugin.trace'
+        num_node = 4
+        num_rank = 16
+        loop_count = 100
+
+        # Get nodes to do imbalance
+        # idle_nodes = natsorted(geopm_test_launcher.TestLauncher.get_idle_nodes())
+        # random_nodes = random.sample(idle_nodes, num_node)
+        # random_nodes = ['mr-fusion5', 'mr-fusion8', 'mr-fusion11', 'mr-fusion3']
+        # random_nodes = self.sort_by_efficiency(random_nodes)
+        random_nodes = ['mr-fusion8', 'mr-fusion11', 'mr-fusion5', 'mr-fusion3']
+
+
+        app_conf = geopmpy.io.AppConf('test_power_balancing_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm-imbalance', 160.0)
+        # app_conf.append_region('all2all', 0.01)
+        app_conf.append_imbalance(random_nodes[0], 0.1)
+        app_conf.append_imbalance(random_nodes[1], 0.2)
+        app_conf.set_loop_count(loop_count)
+
+        # Adjust ctl conf options
+        self._options['power_budget'] = 150
+        self._options['tree_decider'] = 'static_policy'
+
+        ctl_conf = geopmpy.io.CtlConf(name + '_static_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900, region_barrier=True)
+        # launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_node_list(','.join(random_nodes))
+        launcher.run(name)
+
+        # Configure the run for the power balancing plugin second
+        report_path = name + '_power_balancing_plugin.report'
+        trace_path = name + '_power_balancing_plugin.trace'
+        self._options['tree_decider'] = 'power_balancing'
+        ctl_conf = geopmpy.io.CtlConf(name + '_balancer_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900, region_barrier=True)
+        # launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_node_list(','.join(random_nodes))
+        launcher.run(name)
+
+        # Gather the data from both runs
+        self._output = geopmpy.io.AppOutput('*plugin.report', '*plugin.trace*')
+        idx = pandas.IndexSlice
+
+        report_df = self._output.get_report_df()
+        static_policy_epoch_df = report_df.loc[idx[:, :, :, 'static_policy', :, :, :, 'epoch'], ]
+        power_balancing_epoch_df = report_df.loc[idx[:, :, :, 'power_balancing', :, :, :, 'epoch'], ]
+
+        print 'Nodes = {}'.format(random_nodes)
+        print '\nStatic policy runtime = {}\nPower balancer runtime = {}\n'.format(
+              static_policy_epoch_df['runtime'].mean(),
+              power_balancing_epoch_df['runtime'].mean())
+        print 'Speedup = {}\n'.format(static_policy_epoch_df['runtime'].mean() / power_balancing_epoch_df['runtime'].mean())
+        # print 'App Conf = {}'.format(app_conf)
+        print '-' * 30
+
+        self.assertGreater(static_policy_epoch_df['runtime'].mean(), power_balancing_epoch_df['runtime'].mean())
+
+        # Print basic statistics about the epoch region in both runs to the log
+        # launcher.write_log(name, 'Static Policy\n{}'.format('-' * 30))
+        # launcher.write_log(name, '{}\n{}'.format(
+        #                    'Region \'epoch\' runtime status :',
+        #                    static_policy_epoch_df['runtime'].describe()))
+
+        # launcher.write_log(name, 'Power Balancing\n{}'.format('-' * 30))
+        # launcher.write_log(name, '{}\n{}'.format(
+        #                    'Region \'epoch\' runtime status :',
+        #                    power_balancing_epoch_df['runtime'].describe()))
+
+
+        # code.interact(local=dict(globals(), **locals()))
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
