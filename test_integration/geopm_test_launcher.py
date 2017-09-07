@@ -112,12 +112,14 @@ class TestLauncher(object):
     def get_trace(self):
         return Trace(self._trace_path)
 
-    def get_idle_nodes(self):
+    @staticmethod
+    def get_idle_nodes():
         argv = ['dummy', 'true']
         launcher = geopmpy.launcher.factory(argv, 1, 1)
         return launcher.get_idle_nodes()
 
-    def get_alloc_nodes(self):
+    @staticmethod
+    def get_alloc_nodes():
         argv = ['dummy', 'true']
         launcher = geopmpy.launcher.factory(argv, 1, 1)
         return launcher.get_alloc_nodes()
