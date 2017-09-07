@@ -911,7 +911,7 @@ class SrunLauncher(Launcher):
         Returns a list of the names of compute nodes that are currently
         available to run jobs using the sinfo command.
         """
-        return subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()
+        return list(set(subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()))
 
     def get_alloc_nodes(self):
         """
@@ -920,7 +920,7 @@ class SrunLauncher(Launcher):
         sinfo command.
 
         """
-        return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
+        return list(set(subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()))
 
 
 class IMPIExecLauncher(Launcher):
