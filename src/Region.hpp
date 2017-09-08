@@ -76,9 +76,12 @@ namespace geopm
             /// @brief Retrieve the unique region identifier.
             /// @return 64 bit region identifier.
             virtual uint64_t identifier(void) const = 0;
+            /// @brief Retrieve the region hint.
+            /// @return Hint based on geopm_region_hint_e enums.
+            virtual uint64_t hint(void) const = 0;
             /// @brief Add increment amount to the total time spent in MPI calls
-            //  during this region.
-            //  @param [in] mpi_increment_amout Value to add to the MPI time total.
+            /// during this region.
+            /// @param [in] mpi_increment_amout Value to add to the MPI time total.
             virtual void increment_mpi_time(double mpi_increment_amount) = 0;
             /// @brief Return an aggregated sample to send up the tree.
             /// Called once this region has converged to send a sample
@@ -242,6 +245,7 @@ namespace geopm
             void insert(const std::vector<struct geopm_sample_message_s> &sample);
             void clear(void);
             uint64_t identifier(void) const;
+            uint64_t hint(void) const;
             void increment_mpi_time(double mpi_increment_amount);
             void sample_message(struct geopm_sample_message_s &sample);
             double signal(int domain_idx, int signal_type);
