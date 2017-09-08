@@ -181,6 +181,11 @@ namespace geopm
         return m_identifier;
     }
 
+    uint64_t Region::hint(void) const
+    {
+        return (m_identifier & 0xffffffff00000000ULL);
+    }
+
     void Region::sample_message(struct geopm_sample_message_s &sample)
     {
         sample = m_curr_sample;
