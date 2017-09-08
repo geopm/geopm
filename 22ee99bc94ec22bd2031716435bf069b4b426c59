@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b0dc84e_4970d716",
+        "filename": "ronn/geopm_ctl_c.3.ronn",
+        "patchSetId": 11
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-08T18:36:07Z",
+      "side": 1,
+      "message": "delete this interface from the doc.",
+      "revId": "22ee99bc94ec22bd2031716435bf069b4b426c59",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e68cd1db_37dc4470",
+        "filename": "ronn/geopm_ctl_c.3.ronn",
+        "patchSetId": 11
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-08T18:36:07Z",
+      "side": 1,
+      "message": "just launch, no longer used to step.",
+      "revId": "22ee99bc94ec22bd2031716435bf069b4b426c59",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
