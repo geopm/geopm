@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "be8285eb_c88be72e",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-08T18:56:27Z",
+      "side": 1,
+      "message": "just drop the try/catch and put a comment that the test will fail it the constructor throws",
+      "parentUuid": "6882c942_aa578309",
+      "revId": "ea02a8ea49c0e5025a14a47a0fac57aadc2d9e37",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55596726_20000026",
         "filename": "test/SharedMemoryTest.cpp",
         "patchSetId": 5
@@ -47,6 +65,24 @@
       "writtenOn": "2017-09-05T19:01:03Z",
       "side": 1,
       "message": "Avoid intermittent failures, and sleep(1) here.",
+      "revId": "ea02a8ea49c0e5025a14a47a0fac57aadc2d9e37",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6777a0b1_3e7da994",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-08T18:56:27Z",
+      "side": 1,
+      "message": "Never mind this is handled by the timeout.",
+      "parentUuid": "55596726_20000026",
       "revId": "ea02a8ea49c0e5025a14a47a0fac57aadc2d9e37",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
