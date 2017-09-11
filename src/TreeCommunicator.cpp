@@ -92,7 +92,7 @@ namespace geopm
             int m_size;
             int m_rank;
             struct geopm_sample_message_s *m_sample_mailbox;
-            volatile struct geopm_policy_message_s m_policy_mailbox;
+            struct geopm_policy_message_s *m_policy_mailbox;
             size_t m_sample_window;
             size_t m_policy_window;
             size_t m_overhead_send;
@@ -287,7 +287,7 @@ namespace geopm
         , m_size(0)
         , m_rank(0)
         , m_sample_mailbox(NULL)
-        , m_policy_mailbox(GEOPM_POLICY_UNKNOWN)
+        , m_policy_mailbox(NULL)
         , m_sample_window(0)
         , m_policy_window(0)
         , m_overhead_send(0)
@@ -310,12 +310,12 @@ namespace geopm
         , m_overhead_send(other.m_overhead_send)
         , m_last_policy(other.m_last_policy)
     {
-        m_policy_mailbox.mode = other.m_policy_mailbox.mode;
-        m_policy_mailbox.flags = other.m_policy_mailbox.flags;
-        m_policy_mailbox.num_sample = other.m_policy_mailbox.num_sample;
-        m_policy_mailbox.power_budget = other.m_policy_mailbox.power_budget;
-        m_comm = other.m_comm->split();
         create_window();
+        m_policy_mailbox->mode = other.m_policy_mailbox->mode;
+        m_policy_mailbox->flags = other.m_policy_mailbox->flags;
+        m_policy_mailbox->num_sample = other.m_policy_mailbox->num_sample;
+        m_policy_mailbox->power_budget = other.m_policy_mailbox->power_budget;
+        m_comm = other.m_comm->split();
         std::copy(other.m_sample_mailbox, other.m_sample_mailbox + m_size, m_sample_mailbox);
     }
 
@@ -329,6 +329,9 @@ namespace geopm
         }
         // Destroy policy window
         m_comm->window_destroy(m_policy_window);
+        if (m_policy_mailbox) {
+            m_comm->free_mem(m_policy_mailbox);
+        }
         // Destroy the comm
         delete m_comm;
     }
@@ -367,11 +370,11 @@ namespace geopm
     {
         if (m_rank) {
             m_comm->window_lock(m_policy_window, false, m_rank, 0);
-            policy = *((struct geopm_policy_message_s*)(&m_policy_mailbox));
+            policy = *m_policy_mailbox;
             m_comm->window_unlock(m_policy_window, m_rank);
         }
         else {
-            policy = *((struct geopm_policy_message_s *)(&m_policy_mailbox));
+            policy = *m_policy_mailbox;
         }
 
         if (geopm_is_policy_equal(&policy, &GEOPM_POLICY_UNKNOWN)) {
@@ -401,7 +404,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 
-        *((struct geopm_policy_message_s *)(&m_policy_mailbox)) = policy[0];
+        *m_policy_mailbox = policy[0];
         m_last_policy[0] = policy[0];
         size_t msg_size = sizeof(struct geopm_policy_message_s);
         int child_rank = 1;
@@ -433,8 +436,10 @@ namespace geopm
     {
         // Create policy window
         size_t msg_size = sizeof(struct geopm_policy_message_s);
+        m_comm->alloc_mem(msg_size, (void **)(&m_policy_mailbox));
+        *m_policy_mailbox = GEOPM_POLICY_UNKNOWN;
         if (m_rank) {
-            m_policy_window = m_comm->window_create(msg_size, (void *)(&m_policy_mailbox));
+            m_policy_window = m_comm->window_create(msg_size, (void *)(m_policy_mailbox));
         }
         else {
             m_policy_window = m_comm->window_create(0, NULL);
