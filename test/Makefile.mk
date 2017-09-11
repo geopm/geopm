@@ -214,6 +214,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/GoverningDecider.hpp \
                           test/GoverningDeciderTest.cpp \
                           test/MockComm.hpp \
+                          test/MockPlatform.hpp \
                           test/MockGlobalPolicy.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
