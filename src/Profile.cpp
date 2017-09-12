@@ -102,11 +102,22 @@ namespace geopm
         m_scheduler = std::unique_ptr<ISampleScheduler>(new SampleScheduler(M_OVERHEAD_FRAC));
         init_prof_comm(std::move(comm), shm_num_rank);
         init_ctl_shm(sample_key);
-        init_ctl_msg();
-        init_cpu_list();
-        init_cpu_affinity(shm_num_rank);
-        init_tprof_table(tprof_key);
-        init_table(sample_key);
+        try {
+            init_ctl_msg();
+            init_cpu_list();
+            init_cpu_affinity(shm_num_rank);
+            init_tprof_table(tprof_key);
+            init_table(sample_key);
+        }
+        catch (Exception ex) {
+            if (ex.err_value() != GEOPM_ERROR_RUNTIME) {
+                throw ex;
+            }
+            if (!m_rank) {
+                std::cerr << "Warning: <geopm> Controller handshake failed, running without geopm." << std::endl;
+            }
+            m_is_enabled = false;
+        }
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
         geopm_time(&overhead_exit);
