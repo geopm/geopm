@@ -47,7 +47,7 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(const char *policy_path, const char *sample_key);
+int geopmctl_main(const char *policy_path);
 
 int main(int argc, char **argv)
 {
@@ -59,12 +59,10 @@ int main(int argc, char **argv)
     char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *policy_ptr = NULL;
-    char sample_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
     const char *usage = "    %s [--help] [--version]\n"
                         "              -c policy_config\n"
-                        "              [-s sample_key]\n"
                         "\n"
                         "DESCRIPTION\n"
                         "       The geopmctl application runs concurrently with a computational MPI\n"
@@ -84,13 +82,6 @@ int main(int argc, char **argv)
                         "              be created with the geopm_policy_c(3) interface or the geopmpol‐\n"
                         "              icy(3) application.\n"
                         "\n"
-                        "       -s sample_key\n"
-                        "              POSIX shared memory key referencing memory  written  to  by  the\n"
-                        "              compute  application  to  provide  the geopmctl application with\n"
-                        "              performance profile information. See geopm_ctl_c(3) for informa‐\n"
-                        "              tion  on  how to create the sample shared memory region for pro‐\n"
-                        "              file feedback.\n"
-                        "\n"
                         "    Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
@@ -106,7 +97,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    while (!err0 && (opt = getopt(argc, argv, "c:k:s:")) != -1) {
+    while (!err0 && (opt = getopt(argc, argv, "c:k:")) != -1) {
         arg_ptr = NULL;
         switch (opt) {
             case 'c':
@@ -114,9 +105,6 @@ int main(int argc, char **argv)
                 break;
             case 'k':
                 arg_ptr = policy_key;
-                break;
-            case 's':
-                arg_ptr = sample_key;
                 break;
             default:
                 fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
@@ -170,9 +158,6 @@ int main(int argc, char **argv)
         if (policy_key[0]) {
             printf("    Policy key:    %s\n", policy_key);
         }
-        if (sample_key[0]) {
-            printf("    Sample key:    %s\n", sample_key);
-        }
         printf("\n");
     }
 
@@ -189,10 +174,10 @@ int main(int argc, char **argv)
             policy_ptr = policy_config;
         }
         if (!my_rank) {
-            err0 = geopmctl_main(policy_ptr, sample_key);
+            err0 = geopmctl_main(policy_ptr);
         }
         else {
-            err0 = geopmctl_main(NULL, sample_key);
+            err0 = geopmctl_main(NULL);
         }
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);

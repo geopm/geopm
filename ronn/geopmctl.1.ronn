@@ -34,8 +34,7 @@ geopmctl(1) -- geopm runtime mpi application
 ## SYNOPSIS
 
   * `geopmctl` [`--help`] [`--version`]:
-    `-c` policy_config <br>
-    [`-s` sample_key]
+    `-c` policy_config
 
 ## DESCRIPTION
     The geopmctl application runs concurrently with a computational MPI
@@ -54,13 +53,6 @@ geopmctl(1) -- geopm runtime mpi application
     Policy configuration file or POSIX shared memory key which may be
     created with the **geopm_policy_c(3)** interface or the
     **geopmpolicy(3)** application.
-
-  * `-s` sample_key:
-    POSIX shared memory key referencing memory written to by the compute
-    application to provide the geopmctl application with performance profile
-    information.  See
-    **geopm_ctl_c(3)** for information on how to create the sample shared
-    memory region for profile feedback.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
