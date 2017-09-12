@@ -268,87 +268,98 @@ namespace geopm
             m_ctl_shmem->unlink();
         }
 
-        m_ctl_msg = new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
+        try {
+            m_ctl_msg = new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
 
-        init_cpu_list();
+            init_cpu_list();
 
-        m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+            m_shm_comm->barrier();
+            m_ctl_msg->step();
+            m_ctl_msg->wait();
 
-        for (int i = 0 ; i < shm_num_rank; ++i) {
-            if (i == m_shm_rank) {
-                if (i == 0) {
-                    for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
-                        m_ctl_msg->cpu_rank(i, -1);
+            for (int i = 0 ; i < shm_num_rank; ++i) {
+                if (i == m_shm_rank) {
+                    if (i == 0) {
+                        for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
+                            m_ctl_msg->cpu_rank(i, -1);
+                        }
+                        for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
+                            m_ctl_msg->cpu_rank(*it, m_rank);
+                        }
                     }
-                    for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
-                        m_ctl_msg->cpu_rank(*it, m_rank);
+                    else {
+                        for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
+                            if (m_ctl_msg->cpu_rank(*it) != -1) {
+                                m_ctl_msg->cpu_rank(*it, -2);
+                            }
+                            else {
+                                m_ctl_msg->cpu_rank(*it, m_rank);
+                            }
+                        }
                     }
                 }
-                else {
-                    for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
-                        if (m_ctl_msg->cpu_rank(*it) != -1) {
-                            m_ctl_msg->cpu_rank(*it, -2);
+                m_shm_comm->barrier();
+            }
+
+            if (!m_shm_rank) {
+                for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
+                    if (m_ctl_msg->cpu_rank(i) == -2) {
+                        if (geopm_env_do_ignore_affinity()) {
+                            for (int j = 0; j < shm_num_rank; ++j) {
+                                m_ctl_msg->cpu_rank(j, j);
+                            }
+                            break;
                         }
                         else {
-                            m_ctl_msg->cpu_rank(*it, m_rank);
+                            throw Exception("Profile: set GEOPM_ERROR_AFFINITY_IGNORE to ignore error", GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
                         }
                     }
                 }
             }
             m_shm_comm->barrier();
-        }
+            m_ctl_msg->step();
+            m_ctl_msg->wait();
 
-        if (!m_shm_rank) {
-            for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
-                if (m_ctl_msg->cpu_rank(i) == -2) {
-                    if (geopm_env_do_ignore_affinity()) {
-                        for (int j = 0; j < shm_num_rank; ++j) {
-                            m_ctl_msg->cpu_rank(j, j);
-                        }
-                        break;
-                    }
-                    else {
-                        throw Exception("Profile: set GEOPM_ERROR_AFFINITY_IGNORE to ignore error", GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
-                    }
-                }
+            std::ostringstream table_shm_key;
+            table_shm_key << key <<  "-"  << m_rank;
+            m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
+            m_shm_comm->barrier();
+            if (!m_shm_rank) {
+                m_table_shmem->unlink();
             }
-        }
-        m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+            m_shm_comm->barrier();
 
-        std::ostringstream table_shm_key;
-        table_shm_key << key <<  "-"  << m_rank;
-        m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
-        m_shm_comm->barrier();
-        if (!m_shm_rank) {
-            m_table_shmem->unlink();
-        }
-        m_shm_comm->barrier();
+            m_table_buffer = m_table_shmem->pointer();
+            m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
 
-        m_table_buffer = m_table_shmem->pointer();
-        m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
+            std::string tprof_key(geopm_env_shmkey());
+            tprof_key += "-tprof";
+            m_tprof_shmem = new SharedMemoryUser(tprof_key, 3.0);
+            m_shm_comm->barrier();
+            if (!m_shm_rank) {
+                m_tprof_shmem->unlink();
+            }
+            m_tprof_table = new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer());
 
-        std::string tprof_key(geopm_env_shmkey());
-        tprof_key += "-tprof";
-        m_tprof_shmem = new SharedMemoryUser(tprof_key, 3.0);
-        m_shm_comm->barrier();
-        if (!m_shm_rank) {
-            m_tprof_shmem->unlink();
-        }
-        m_tprof_table = new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer());
-
-        m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
-        geopm_pmpi_prof_enable(1);
+            m_shm_comm->barrier();
+            m_ctl_msg->step();
+            m_ctl_msg->wait();
+            geopm_pmpi_prof_enable(1);
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time_startup = geopm_time_diff(&overhead_entry, &overhead_exit);
+            struct geopm_time_s overhead_exit;
+            geopm_time(&overhead_exit);
+            m_overhead_time_startup = geopm_time_diff(&overhead_entry, &overhead_exit);
 #endif
+        }
+        catch (Exception ex) {
+            if (ex.err_value() != GEOPM_ERROR_RUNTIME) {
+                throw ex;
+            }
+            if (!m_rank) {
+                std::cerr << "Warning: <geopm> Controller handshake failed, running without geopm." << std::endl;
+            }
+            m_is_enabled = false;
+        }
     }
 
     Profile::~Profile()
