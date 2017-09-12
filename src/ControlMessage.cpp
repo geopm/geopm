@@ -33,6 +33,7 @@
 #include "geopm_signal_handler.h"
 #include "ControlMessage.hpp"
 #include "string.h"
+#include "Exception.hpp"
 
 namespace geopm
 {
@@ -51,7 +52,7 @@ namespace geopm
 
     }
 
-    void ControlMessage::step()
+    void ControlMessage::step(void)
     {
         if (m_is_ctl && m_ctl_msg->ctl_status != M_STATUS_SHUTDOWN) {
             m_ctl_msg->ctl_status++;
@@ -61,13 +62,27 @@ namespace geopm
         }
     }
 
-    void ControlMessage::wait()
+    void ControlMessage::wait(void)
     {
         if (m_last_status != M_STATUS_SHUTDOWN) {
             ++m_last_status;
         }
         while (this_status() != m_last_status) {
             geopm_signal_handler_check();
+            if (this_status() == M_STATUS_ABORT) {
+                throw Exception("ControlMessage::wait(): Abort sent through control message",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+    }
+
+    void ControlMessage::abort(void)
+    {
+        if (m_is_ctl) {
+            m_ctl_msg->ctl_status = M_STATUS_ABORT;
+        }
+        else {
+            m_ctl_msg->app_status = M_STATUS_ABORT;
         }
     }
 
