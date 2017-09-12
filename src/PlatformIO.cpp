@@ -78,7 +78,7 @@ namespace geopm
     PlatformIO::PlatformIO()
         : m_num_cpu(geopm_sched_num_cpu())
         , m_is_active(false)
-        , m_msrio(new MSRIO)
+        , m_msrio(NULL)
     {
         init_msr();
     }
@@ -186,6 +186,9 @@ namespace geopm
 
     void PlatformIO::activate_msr(void)
     {
+        if (!m_msrio) {
+            m_msrio = new MSRIO;
+        }
         m_msrio->config_batch(m_msr_read_cpu_idx, m_msr_read_offset,
                               m_msr_write_cpu_idx, m_msr_write_offset, m_msr_write_mask);
         m_msr_read_field.resize(m_msr_read_cpu_idx.size());
@@ -286,7 +289,6 @@ namespace geopm
         register_msr_control("IA32_PERF_CTL:ENABLE");
         /// @todo Fill in all other known MSR signals and controls.
     }
-
 
     void PlatformIO::register_msr_signal(const std::string &signal_name)
     {
