@@ -105,6 +105,11 @@ namespace geopm
             m_rank_sampler.push_front(new ProfileRankSampler(shm_key.str(), m_table_size));
         }
         rank_per_node = rank_set.size();
+        if (rank_per_node == 0) {
+            m_ctl_msg->abort();
+            throw Exception("ProfileSampler::initialize(): Application ranks were not list as running on any CPUs.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
         m_ctl_msg->step();
         m_ctl_msg->wait();
         m_ctl_msg->step();

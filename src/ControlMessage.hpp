@@ -67,6 +67,7 @@ namespace geopm
             /// @brief Wait for message that other side has advanced
             /// to next phase in runtime.
             virtual void wait(void) = 0;
+            virtual void abort(void) = 0;
             /// @brief Set the rank running on a logical CPU.
             ///
             /// @param [in] cpu_idx Linux logical CPU index.
@@ -134,8 +135,9 @@ namespace geopm
             ControlMessage(struct geopm_ctl_message_s *ctl_msg, bool is_ctl, bool is_writer);
             /// @brief ControlMessage virtual destructor
             virtual ~ControlMessage();
-            void step();
-            void wait();
+            void step(void);
+            void wait(void);
+            void abort(void);
             void cpu_rank(int cpu_idx, int rank);
             int cpu_rank(int cpu_idx);
             bool is_sample_begin(void);
@@ -148,6 +150,7 @@ namespace geopm
             /// @brief Enum encompassing application and
             /// geopm runtime state.
             enum m_status_e {
+                M_STATUS_ABORT = -1,
                 M_STATUS_UNDEFINED = 0,
                 M_STATUS_MAP_BEGIN = 1,
                 M_STATUS_MAP_END = 2,
