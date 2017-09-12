@@ -67,6 +67,7 @@ namespace geopm
             /// @brief Wait for message that other side has advanced
             /// to next phase in runtime.
             virtual void wait(void) = 0;
+            virtual void abort(void) = 0;
             /// @brief Set the rank running on a logical CPU.
             ///
             /// @param [in] cpu_idx Linux logical CPU index.
@@ -136,6 +137,7 @@ namespace geopm
             virtual ~ControlMessage();
             void step() override;
             void wait() override;
+            void abort(void) override;
             void cpu_rank(int cpu_idx, int rank) override;
             int cpu_rank(int cpu_idx) override;
             bool is_sample_begin(void) override;
@@ -158,6 +160,7 @@ namespace geopm
                 M_STATUS_NAME_LOOP_END = 7,
                 M_STATUS_NAME_END = 8,
                 M_STATUS_SHUTDOWN = 9,
+                M_STATUS_ABORT = 9999,
             };
             struct geopm_ctl_message_s *m_ctl_msg;
             bool m_is_ctl;
