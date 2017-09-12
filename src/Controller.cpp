@@ -541,7 +541,7 @@ namespace geopm
         std::vector<struct geopm_policy_message_s> child_policy_msg(m_max_fanout);
         std::vector<struct geopm_sample_message_s> sample_msg(m_tree_comm->num_level());
         std::vector<struct geopm_telemetry_message_s> epoch_telemetry_sample(m_telemetry_sample.size());
-        size_t length;
+        size_t length = 0;
 
         std::fill(sample_msg.begin(), sample_msg.end(), GEOPM_SAMPLE_INVALID);
 
