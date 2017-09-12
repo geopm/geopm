@@ -406,6 +406,18 @@ namespace geopm
         delete m_sample_regulator;
     }
 
+    Controller::Controller(const Controller &other)
+    {
+        throw Exception("Controller cannot be coppied",
+                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+    }
+
+    void Controller::operator=(const Controller &other)
+    {
+        throw Exception("Controller cannot be assigned",
+                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+    }
+
     bool Controller::is_node_root(void)
     {
         return m_is_node_root;

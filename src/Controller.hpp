@@ -99,6 +99,8 @@ namespace geopm
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
             Controller(IGlobalPolicy *global_policy, const IComm *comm);
+            Controller(const Controller &other);
+            void operator=(const Controller &other);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
             /// @brief Returns true if Controller is valid.
