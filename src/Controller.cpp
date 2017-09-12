@@ -987,6 +987,7 @@ namespace geopm
 
         ssize_t num_read = read(fd, status_buffer, 8191);
         if (num_read == -1) {
+            (void)close(fd);
             throw Exception("Controller::generate_report(): Unable to read " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
