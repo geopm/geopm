@@ -320,18 +320,6 @@ namespace geopm
             m_ctl_msg->step();
             m_ctl_msg->wait();
 
-            std::ostringstream table_shm_key;
-            table_shm_key << key <<  "-"  << m_rank;
-            m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
-            m_shm_comm->barrier();
-            if (!m_shm_rank) {
-                m_table_shmem->unlink();
-            }
-            m_shm_comm->barrier();
-
-            m_table_buffer = m_table_shmem->pointer();
-            m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
-
             std::string tprof_key(geopm_env_shmkey());
             tprof_key += "-tprof";
             m_tprof_shmem = new SharedMemoryUser(tprof_key, 3.0);
@@ -340,6 +328,15 @@ namespace geopm
                 m_tprof_shmem->unlink();
             }
             m_tprof_table = new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer());
+
+            std::ostringstream table_shm_key;
+            table_shm_key << key <<  "-"  << m_rank;
+            m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
+            m_shm_comm->barrier();
+            m_table_shmem->unlink();
+
+            m_table_buffer = m_table_shmem->pointer();
+            m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
 
             m_shm_comm->barrier();
             m_ctl_msg->step();
