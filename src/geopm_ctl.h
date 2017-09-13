@@ -33,6 +33,7 @@
 #ifndef GEOPM_CTL_H_INCLUDE
 #define GEOPM_CTL_H_INCLUDE
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
@@ -50,6 +51,7 @@ struct geopm_ctl_c;
 /* OBJECT INSTANTIATION */
 /************************/
 int geopm_ctl_create(struct geopm_policy_c *policy,
+                     MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 
 int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
@@ -57,11 +59,22 @@ int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 /********************/
 /* POWER MANAGEMENT */
 /********************/
+int geopm_ctl_step(struct geopm_ctl_c *ctl);
+
 int geopm_ctl_run(struct geopm_ctl_c *ctl);
 
 int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                       const pthread_attr_t *attr,
                       pthread_t *thread);
+
+/*****************/
+/* MPI COMM APIS */
+/*****************/
+int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm);
+
+int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm);
+
+int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm);
 
 #ifdef __cplusplus
 }

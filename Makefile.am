@@ -192,7 +192,7 @@ TUTORIAL_DIST = tutorial/Imbalancer.cpp \
 if ENABLE_MPI
     libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
+    libgeopm_la_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
     geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
@@ -222,10 +222,6 @@ endif
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
-                            src/Controller.cpp \
-                            src/Controller.hpp \
-                            src/Comm.hpp \
-                            src/Comm.cpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
                             src/DeciderFactory.cpp \
@@ -237,8 +233,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/GlobalPolicy.hpp \
                             src/KNLPlatformImp.cpp \
                             src/KNLPlatformImp.hpp \
-                            src/OMPT.cpp \
-                            src/OMPT.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
                             src/Platform.cpp \
@@ -251,8 +245,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Policy.hpp \
                             src/PolicyFlags.cpp \
                             src/PolicyFlags.hpp \
-                            src/ProfileSampler.cpp \
-                            src/ProfileSampler.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
                             src/ProfileThread.cpp \
@@ -272,8 +264,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/StaticPolicyDecider.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
-                            src/TreeCommunicator.cpp \
-                            src/TreeCommunicator.hpp \
                             src/XeonPlatformImp.cpp \
                             src/XeonPlatformImp.hpp \
                             src/geopm.h \
@@ -308,8 +298,6 @@ if ENABLE_MPI
                           src/Controller.hpp \
                           src/ControlMessage.cpp \
                           src/ControlMessage.hpp \
-                          src/Comm.hpp \
-                          src/Comm.cpp \
                           src/Decider.cpp \
                           src/Decider.hpp \
                           src/DeciderFactory.cpp \
@@ -337,8 +325,6 @@ if ENABLE_MPI
                           src/PolicyFlags.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
-                          src/ProfileSampler.cpp \
-                          src/ProfileSampler.hpp \
                           src/ProfileTable.cpp \
                           src/ProfileTable.hpp \
                           src/ProfileThread.cpp \
@@ -365,8 +351,6 @@ if ENABLE_MPI
                           src/XeonPlatformImp.hpp \
                           src/geopm.h \
                           src/geopm_ctl.h \
-                          src/geopm_mpi_comm_split.h \
-                          src/MPICommSplit.cpp \
                           src/geopm_error.h \
                           src/geopm_hash.c \
                           src/geopm_hash.h \

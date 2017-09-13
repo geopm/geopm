@@ -50,7 +50,6 @@
 #include <unistd.h>
 
 #include "geopm.h"
-#include "geopm_env.h"
 #include "geopm_ctl.h"
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
@@ -59,8 +58,6 @@
 #include "Exception.hpp"
 #include "OMPT.hpp"
 #include "config.h"
-#include "Comm.hpp"
-#include "geopm_ctl.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
 #include <xmmintrin.h>
@@ -82,6 +79,7 @@ extern "C"
         return (void *)err;
     }
 
+
     int geopmctl_main(const char *policy_config)
     {
         int err = 0;
@@ -89,16 +87,14 @@ extern "C"
             if (policy_config) {
                 std::string policy_config_str(policy_config);
                 geopm::IGlobalPolicy *policy = new geopm::GlobalPolicy(policy_config_str, "");
-                const geopm::IComm *tmp_comm = geopm::geopm_get_comm(geopm_env_comm());
-                geopm::Controller ctl(policy, tmp_comm);
+                geopm::Controller ctl(policy, MPI_COMM_WORLD);
                 err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
                 delete policy;
             }
             //The null case is for all nodes except rank 0.
             //These controllers should assume their policy from the master.
             else {
-                const geopm::IComm *tmp_comm = geopm::geopm_get_comm(geopm_env_comm());
-                geopm::Controller ctl(NULL, tmp_comm);
+                geopm::Controller ctl(NULL, MPI_COMM_WORLD);
                 err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
             }
         }
@@ -108,13 +104,12 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create(struct geopm_policy_c *policy, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
         try {
             geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
-            const geopm::IComm *tmp_comm = geopm::geopm_get_comm(geopm_env_comm());
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, tmp_comm));
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -122,9 +117,9 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create_f(struct geopm_policy_c *policy, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
     {
-        return geopm_ctl_create(policy, ctl);
+        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
     }
 
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
@@ -153,7 +148,18 @@ extern "C"
         }
         return err;
     }
-
+    int geopm_ctl_step(struct geopm_ctl_c *ctl)
+    {
+        int err = 0;
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+        try {
+            ctl_obj->step();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
     int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                           const pthread_attr_t *attr,
                           pthread_t *thread)
@@ -161,12 +167,7 @@ extern "C"
         long err = 0;
         geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
         try {
-            if (ctl_obj->is_node_root()) {
-                ctl_obj->pthread(attr, thread);
-            }
-            else {
-                err = GEOPM_ERROR_CTL_COMM;
-            }
+            ctl_obj->pthread(attr, thread);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -177,7 +178,7 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(IGlobalPolicy *global_policy, const IComm *comm)
+    Controller::Controller(IGlobalPolicy *global_policy, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
         , m_global_policy(global_policy)
@@ -205,18 +206,22 @@ namespace geopm
         , m_throttle_limit_mhz(0.0)
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
-        , m_ppn1_comm(NULL)
+        , m_ppn1_comm(MPI_COMM_NULL)
         , m_ppn1_rank(-1)
     {
+        int err = 0;
         int num_nodes = 0;
 
-        m_ppn1_comm = comm->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
+        err = geopm_comm_split_ppn1(comm, "ctl", &m_ppn1_comm);
+        if (err) {
+            throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
+        }
         // Only the root rank on each node will have a fully initialized controller
-        if (m_ppn1_comm->num_rank()) {
+        if (m_ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
             struct geopm_plugin_description_s plugin_desc;
             geopm_error_destroy_shmem();
-            m_ppn1_rank = m_ppn1_comm->rank();
+            check_mpi(MPI_Comm_rank(m_ppn1_comm, &m_ppn1_rank));
             if (m_ppn1_rank == 0 && m_global_policy == NULL) {
                 throw Exception("Root of control tree does not have a valid global policy pointer",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -252,9 +257,9 @@ namespace geopm
                         throw Exception("Controller::Controller(): Invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
-            m_ppn1_comm->broadcast(&plugin_desc, sizeof(plugin_desc), 0);
+            check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, m_ppn1_comm));
 
-            num_nodes = m_ppn1_comm->num_rank();
+            check_mpi(MPI_Comm_size(m_ppn1_comm, &num_nodes));
 
             if (num_nodes > 1) {
                 int num_fan_out = 1;
@@ -265,7 +270,7 @@ namespace geopm
                     ++num_fan_out;
                     fan_out.resize(num_fan_out);
                     std::fill(fan_out.begin(), fan_out.end(), 0);
-                    m_ppn1_comm->dimension_create(num_nodes, fan_out);
+                    check_mpi(MPI_Dims_create(num_nodes, num_fan_out, fan_out.data()));
                 }
 
                 if (num_fan_out > 1 && fan_out[num_fan_out - 1] == 1) {
@@ -345,7 +350,7 @@ namespace geopm
             }
 
             // Barrier to ensure all ProfileSamplers are created at the same time.
-            m_ppn1_comm->barrier();
+            MPI_Barrier(m_ppn1_comm);
             m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
 
             // Prepare and send the Global Policy header to every node so that the trace files contain the
@@ -355,14 +360,14 @@ namespace geopm
                 header = m_global_policy->header();
             }
             int header_size = header.length() + 1;
-            m_ppn1_comm->broadcast(&header_size, sizeof(header_size), 0);
+            MPI_Bcast(&header_size, 1, MPI_INT, 0, m_ppn1_comm);
             std::vector<char> header_vec(header_size);
             if (!m_ppn1_rank) {
                 std::copy(header.begin(), header.end(), header_vec.begin());
                 header_vec[header_size - 1] = '\0';
             }
             // The broadcast will also synchronize the ranks so time zero is uniform.
-            m_ppn1_comm->broadcast(header_vec.data(), header_size, 0);
+            MPI_Bcast(header_vec.data(), header_size, MPI_CHAR, 0, m_ppn1_comm);
 
             m_tracer = new Tracer(header_vec.data());
         }
@@ -375,9 +380,9 @@ namespace geopm
         }
 
         m_do_shutdown = true;
-        if (m_ppn1_comm != NULL) {
-            m_ppn1_comm->barrier();
-            delete m_ppn1_comm;
+        if (m_ppn1_comm != MPI_COMM_NULL) {
+            MPI_Barrier(m_ppn1_comm);
+            MPI_Comm_free(&m_ppn1_comm);
         }
 
         delete m_tracer;
@@ -397,10 +402,6 @@ namespace geopm
         delete m_sample_regulator;
     }
 
-    bool Controller::is_node_root(void)
-    {
-        return m_is_node_root;
-    }
 
     void Controller::connect(void)
     {
@@ -793,7 +794,7 @@ namespace geopm
             }
         }
         if (m_do_shutdown) {
-            m_ppn1_comm->barrier();
+            MPI_Barrier(m_ppn1_comm);
             if (m_sampler->do_report()) {
                 generate_report();
             }
@@ -1011,20 +1012,22 @@ namespace geopm
         report << "\tgeopmctl network BW (B/sec): " << m_tree_comm->overhead_send() / total_runtime << std::endl << std::endl;
 
         report.seekp(0, std::ios::end);
-        size_t buffer_size = (size_t) report.tellp();
+        int buffer_size = report.tellp();
         report.seekp(0, std::ios::beg);
         std::vector<char> report_buffer;
-        std::vector<size_t> buffer_size_array;
-        std::vector<off_t> buffer_displacement;
+        std::vector<int> buffer_size_array;
+        std::vector<int> buffer_displacement;
         int num_ranks;
-        num_ranks = m_ppn1_comm->num_rank();
+        MPI_Comm_size(m_ppn1_comm, &num_ranks);
         buffer_size_array.resize(num_ranks);
         buffer_displacement.resize(num_ranks);
 
-        m_ppn1_comm->gather(&buffer_size, sizeof(size_t), buffer_size_array.data(), sizeof(size_t), 0);
+        MPI_Gather(&buffer_size, 1, MPI_INT,
+                   buffer_size_array.data(), 1, MPI_INT,
+                   0, m_ppn1_comm);
 
         if (!m_ppn1_rank) {
-            size_t full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
+            int full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
             report_buffer.resize(full_report_size);
             buffer_displacement[0] = 0;
             for (int i = 1; i < num_ranks; ++i) {
@@ -1032,8 +1035,9 @@ namespace geopm
             }
         }
 
-        m_ppn1_comm->gatherv((void *) (report.str().data()), sizeof(char) * buffer_size,
-                (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
+        MPI_Gatherv(GEOPM_MPI_CONST_CAST(char*)(report.str().data()), buffer_size, MPI_CHAR,
+                    report_buffer.data(), buffer_size_array.data(), buffer_displacement.data(), MPI_CHAR,
+                    0, m_ppn1_comm);
 
         if (!m_ppn1_rank) {
             report_buffer.back() = '\0';

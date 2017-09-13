@@ -34,14 +34,16 @@
 #define TREECOMMUNICATOR_HPP_INCLUDE
 
 #include <vector>
+#include <mpi.h>
 #include <pthread.h>
 
 #include "geopm_message.h"
 #include "GlobalPolicy.hpp"
-#include "Comm.hpp"
 
 namespace geopm
 {
+    void check_mpi(int err);
+
     class TreeCommunicatorRoot;
     class TreeCommunicatorLevel;
     class IGlobalPolicy;
@@ -194,7 +196,7 @@ namespace geopm
             ///
             /// @param [in] comm All ranks in MPI communicator
             ///        participate in the tree.
-            TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const IComm *comm);
+            TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm);
             TreeCommunicator(const TreeCommunicator &other);
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicator();
@@ -210,7 +212,7 @@ namespace geopm
         protected:
             /// @brief Constructor helper to instantiate
             ///        sub-communicators.
-            void comm_create(const IComm *comm);
+            void comm_create(const MPI_Comm &comm);
             /// @brief Constructor helper to instantiate the level
             ///        specific objects.
             void level_create(void);

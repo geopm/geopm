@@ -167,4 +167,5 @@ namespace geopm
     };
 
 }
+
 #endif

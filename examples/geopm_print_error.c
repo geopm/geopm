@@ -68,7 +68,6 @@ int main(int argc, char **argv)
         GEOPM_ERROR_TOO_MANY_COLLISIONS,
         GEOPM_ERROR_AFFINITY,
         GEOPM_ERROR_ENVIRONMENT,
-        GEOPM_ERROR_COMM_UNSUPPORTED,
     };
 
     const char *error_names[] = {
@@ -95,7 +94,6 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_TOO_MANY_COLLISIONS",
         "GEOPM_ERROR_AFFINITY",
         "GEOPM_ERROR_ENVIRONMENT",
-        "GEOPM_ERROR_COMM_UNSUPPORTED",
     };
 
     enum format_type_e {
