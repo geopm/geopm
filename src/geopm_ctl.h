@@ -60,8 +60,6 @@ int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 /********************/
 /* POWER MANAGEMENT */
 /********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
-
 int geopm_ctl_run(struct geopm_ctl_c *ctl);
 
 int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
