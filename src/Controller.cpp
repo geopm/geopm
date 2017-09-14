@@ -148,18 +148,7 @@ extern "C"
         }
         return err;
     }
-    int geopm_ctl_step(struct geopm_ctl_c *ctl)
-    {
-        int err = 0;
-        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
-        try {
-            ctl_obj->step();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
+
     int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                           const pthread_attr_t *attr,
                           pthread_t *thread)

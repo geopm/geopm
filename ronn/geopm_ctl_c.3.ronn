@@ -45,9 +45,6 @@ geopm_ctl_c(3) -- geopm power controller structure
   * `int geopm_ctl_destroy(`:
     `struct geopm_ctl_c *`_ctl_);
 
-  * `int geopm_ctl_step(`:
-    `struct geopm_ctl_c *`_ctl_);
-
   * `int geopm_ctl_run(`:
     `struct geopm_ctl_c *`_ctl_);
 
@@ -57,7 +54,7 @@ geopm_ctl_c(3) -- geopm power controller structure
     `pthread_t *`_thread_);
 
 ## DESCRIPTION
-The geopm_ctl_c structure is used to launch or step the global
+The geopm_ctl_c structure is used to launch the global
 extensible open power manager algorithm.  There are several ways to
 enable control: explicit stepping of the control algorithm by the
 application under control, running the control algorithm as a distinct
@@ -80,24 +77,13 @@ offs.
     destroys all resources associated with the _ctl_ structure which
     allocated by a previous call to `geopm_ctl_create`().
 
-  * `geopm_ctl_step`():
-    is called to execute one step in the hierarchical control
-    algorithm by the application process.  The call is a blocking call
-    for those processes that are the lowest MPI rank on the compute
-    node and a no-op for those that are not.  A call to this function
-    sends samples up the tree, then policies down the tree, and
-    finally if the policy has been changed for the node of the calling
-    process then the policy is enforced by writing MSR values.
-
   * `geopm_ctl_run`():
-    steps the control algorithm continuously until the application
-    signals shutdown.  This is equivalent to calling
-    `geopm_ctl_step`() in a loop.
+    runs the control algorithm continuously until the application
+    signals shutdown.
 
   * `geopm_ctl_pthread`():
     creates a POSIX thread running the control algorithm continuously
-    until the application signals shutdown.  This is equivalent to
-    calling `geopm_ctl_step`() in a loop.  With this method of launch
+    until the application signals shutdown.  With this method of launch
     the supporting MPI implementation must be enabled for
     `MPI_THREAD_MULTIPLE` using `MPI_Init_thread`().
 

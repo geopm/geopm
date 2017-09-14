@@ -14,7 +14,6 @@ examples/simple_prof_c.c
 examples/simple_prof_f.f90
 examples/synthetic_benchmark.cpp
 examples/synthetic_benchmark.hpp
-examples/threaded_step_example.c
 examples/timed_region.cpp
 examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch
 examples/fft/Makefile.mk
