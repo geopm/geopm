@@ -50,6 +50,7 @@ enum geopm_plugin_type_e {
     GEOPM_PLUGIN_TYPE_DECIDER,
     GEOPM_PLUGIN_TYPE_PLATFORM,
     GEOPM_PLUGIN_TYPE_PLATFORM_IMP,
+    GEOPM_PLUGIN_TYPE_COMM,
     GEOPM_NUM_PLUGIN_TYPE
 };
 
@@ -76,6 +77,7 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 #include "Decider.hpp"
 #include "Platform.hpp"
 #include "PlatformImp.hpp"
+#include "Comm.hpp"
 
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Decider object has been created. */
@@ -86,6 +88,8 @@ void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *pl
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the PlatformImp object has been created. */
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform, void *dl_ptr);
-
+/// @brief Called within the implementation of geopm_plugin_register()
+///        once implementations of IComm interface has been created. */
+void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr);
 #endif
 #endif

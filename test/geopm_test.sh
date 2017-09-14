@@ -35,6 +35,8 @@ unset GEOPM_POLICY
 unset GEOPM_REPORT
 unset GEOPM_TRACE
 
+export GEOPM_PLUGIN_PATH=.libs
+
 test_name=`basename $0`
 dir_name=`dirname $0`
 run_test=true

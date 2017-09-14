@@ -93,6 +93,7 @@
 /test/geopm_print_error
 /test/geopm_static_modes_test
 /test/geopm_test
+/test/gtest_links
 /test/gtest_links/*
 /test/*.log
 /test/*.o
