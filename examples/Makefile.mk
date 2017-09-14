@@ -85,8 +85,7 @@ endif
 if ENABLE_MPI
 if ENABLE_OPENMP
 if ENABLE_SCHED
-    noinst_PROGRAMS += examples/threaded_step \
-                       examples/simple_prof_c \
+    noinst_PROGRAMS += examples/simple_prof_c \
                        #end
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
     examples_simple_prof_c_LDADD = libgeopm.la $(MPI_CXXLIBS)
@@ -107,11 +106,6 @@ if ENABLE_FORTRAN
     examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
     examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS) $(OPENMP_CFLAGS)
 endif
-    examples_threaded_step_SOURCES = examples/threaded_step_example.c
-    examples_threaded_step_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
-    examples_threaded_step_LDADD = libgeopm.la $(MPI_CXXLIBS)
-    examples_threaded_step_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(OPENMP_CFLAGS)
-    examples_threaded_step_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
 endif
 endif
 endif
