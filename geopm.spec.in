@@ -151,6 +151,8 @@ rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.a
 rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.la
 rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.a
 rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
+rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_mpi.a
+rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_mpi.la
 rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 
 %clean
@@ -178,6 +180,9 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_libdir}/geopm/libgeopmpi_balancing.so.0.0.0
 %{_libdir}/geopm/libgeopmpi_balancing.so.0
 %{_libdir}/geopm/libgeopmpi_balancing.so
+%{_libdir}/geopm/libgeopmpi_mpi.so.0.0.0
+%{_libdir}/geopm/libgeopmpi_mpi.so.0
+%{_libdir}/geopm/libgeopmpi_mpi.so
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
 %dir %{docdir}

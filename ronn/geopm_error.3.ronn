@@ -126,6 +126,9 @@ The system error numbers are documented in the **errno(3)** man page.
   * `GEOPM_ERROR_ENVIRONMENT = -23`:
     Unset or invalid environment variable
 
+  * `GEOPM_ERROR_COMM_UNSUPPORTED = -24`:
+    Communication implementation not supported
+
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 

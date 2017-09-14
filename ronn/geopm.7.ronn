@@ -309,6 +309,15 @@ manager selected by the wrapper script.
     PATH and hostname.  This variable is also used by the integration
     tests.
 
+  * `GEOPM_COMM`:
+    Used to select the plugin description string for communication.
+    The communication plugin is used by the Controller for all
+    communication between Controllers running on different nodes.
+    The only installed communication plugin uses MPI and the
+    description string is "MPIComm".  The user may wish to implement
+    other communication mechanisms, please refer to the GEOPM Plugin
+    Developer's Guide for detailed information.
+
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 
