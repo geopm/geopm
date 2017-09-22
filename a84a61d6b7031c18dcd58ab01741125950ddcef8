@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d9c1722_ee9f3f02",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-09-22T19:15:04Z",
+      "side": 1,
+      "message": "Put this sentence in a future looking tense:\n\nIn the future the communiation plugin will be used by the Controller...",
+      "range": {
+        "startLine": 314,
+        "startChar": 4,
+        "endLine": 315,
+        "endChar": 65
+      },
+      "revId": "a84a61d6b7031c18dcd58ab01741125950ddcef8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
