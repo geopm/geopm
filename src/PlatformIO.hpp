@@ -63,6 +63,13 @@ namespace geopm
             /// @return The value of the parameter measured in SI
             ///         units.
             virtual double sample(void) const = 0;
+            /// @brief Format the value of the signal into a printable
+            ///        form including units.
+            /// @param sample output of a previous call to the
+            ///        sample() method.
+            /// @return Printable version of the signal suited for
+            ///         output in a log file.
+            virtual std::string log(double sample) const = 0;
     };
 
     /// @brief Abstract base class describing a control provided by a
@@ -132,23 +139,30 @@ namespace geopm
             virtual void clear(void) = 0;
             /// @brief Sample a single signal that has been pushed on
             ///        to the signal stack.
-            /// @param [in] signal_idx index returned by previous call
+            /// @param [in] signal_idx index returned by a previous call
             ///        to push_signal() method.
             virtual double sample(int signal_idx) = 0;
+            /// @brief Format the value of the signal into a printable
+            ///        form including units.
+            /// @param signal_idx index returned by a previous call
+            ///        to push_signal() method.
+            /// @return Printable version of the signal suited for
+            ///         output in a log file.
+            virtual std::string log(int signal_idx, double sample) = 0;
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.
-            /// @param [in] control_idx index returned by previous call
+            /// @param [in] control_idx index returned by a previous call
             ///        to push_control() method.
             virtual void adjust(int control_idx,
                                 double setting) = 0;
-            /// @brief Measure the signals specified by a previous
+            /// @brief Measure the signals specified by the previous
             ///        call to the config() method.
             /// @param [out] signal Vector of signal values measured
             ///        from the platform in SI units.  The order of
             ///        these signals is determined by the previous
             ///        call to the config() method.
             virtual void sample(std::vector<double> &signal) = 0;
-            /// @brief Set values of controls specified by a previous
+            /// @brief Set values of controls specified by the previous
             ///        calls to push_control().
             /// @brief [in] control_idx Index of control to be
             ///        adjusted.
