@@ -55,15 +55,27 @@ namespace geopm
             struct m_encode_s {
                 int begin_bit;  /// First bit of the field, inclusive.
                 int end_bit;    /// Last bit of the field, exclusive.
-                int function;   /// One of the m_function_e enum values.
-                double scalar;  /// Scale factor to convert integer field to SI units.
+                int domain;     /// Domain over which the MSR is shared (geopm_domain_type_e).
+                int function;   /// Function which converts the bit field into an integer to be scaled (m_function_e).
+                int units;      /// Scalar converts the integer output of function into units (m_units_e).
+                double scalar;  /// Scale factor to convert integer output of function to SI units.
             };
+
             enum m_function_e {
                 M_FUNCTION_SCALE,
                 M_FUNCTION_LOG_HALF,          // 2.0 ^ -X
                 M_FUNCTION_7_BIT_FLOAT_4,     // 2 ^ Y * (1.0 + Z / 4.0) : Y in [0:5), Z in [5:7)
                 M_FUNCTION_7_BIT_FLOAT_10,    // 2 ^ Y * (1.0 + Z / 10.0) : Y in [0:5), Z in [5:7)
             };
+
+            enum m_units_e {
+                M_UNITS_NONE,
+                M_UNITS_SECONDS,
+                M_UNITS_HZ,
+                M_UNITS_WATTS,
+                M_UNITS_JULES,
+            };
+
             IMSR() {}
             virtual ~IMSR() {}
             /// @brief Query the name of the MSR.
