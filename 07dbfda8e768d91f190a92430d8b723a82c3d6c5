@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cdc8536_cd942eb2",
+        "filename": "src/MSR.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-09-26T22:46:08Z",
+      "side": 1,
+      "message": "JOULES",
+      "range": {
+        "startLine": 76,
+        "startChar": 16,
+        "endLine": 76,
+        "endChar": 29
+      },
+      "revId": "07dbfda8e768d91f190a92430d8b723a82c3d6c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
