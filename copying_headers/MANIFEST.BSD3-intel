@@ -184,6 +184,7 @@ test_integration/Makefile.mk
 test/Makefile.mk
 test/MockComm.hpp
 test/MockGlobalPolicy.hpp
+test/MockMSRIO.hpp
 test/MockPlatform.hpp
 test/MockPlatformImp.hpp
 test/MockPlatformTopology.hpp
@@ -194,6 +195,7 @@ test/MPIInterfaceTest.cpp
 test/MPIProfileTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/MSRIOTest.cpp
+test/MSRTest.cpp
 test/no_omp_cpu.c
 test/PlatformFactoryTest.cpp
 test/PlatformIOTest.cpp
