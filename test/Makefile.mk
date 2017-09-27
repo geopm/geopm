@@ -172,6 +172,9 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOTest.write \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.write_batch \
+              test/gtest_links/MSRTest.MSR \
+              test/gtest_links/MSRTest.MSRSignal \
+              test/gtest_links/MSRTest.MSRControl \
               # end
 
 if ENABLE_MPI
@@ -221,6 +224,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/GoverningDecider.hpp \
                           test/GoverningDeciderTest.cpp \
                           test/MockComm.hpp \
+                          test/MockMSRIO.hpp \
                           test/MockPlatform.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockGlobalPolicy.hpp \
@@ -233,6 +237,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/CommMPIImpTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/MSRIOTest.cpp \
+                          test/MSRTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

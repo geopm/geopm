@@ -435,7 +435,7 @@ namespace geopm
 
     void MSRSignal::map_field(const uint64_t *field)
     {
-        map_field({field});
+        map_field(std::vector<const uint64_t *> {field});
     }
 
     void MSRSignal::map_field(const std::vector<const uint64_t *> &field)
@@ -551,7 +551,7 @@ namespace geopm
 
     void MSRControl::map_field(uint64_t *field, uint64_t *mask)
     {
-        map_field({field}, {mask});
+        map_field(std::vector<uint64_t *> {field}, std::vector<uint64_t *> {mask});
     }
 
     void MSRControl::map_field(const std::vector<uint64_t *> &field, const std::vector<uint64_t *> &mask)
