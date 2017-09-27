@@ -483,7 +483,7 @@ namespace geopm
     {
         static const MSR instance[] = {
             MSR("PERF_STATUS", 0x198,
-                {{"FREQ", {
+                {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -493,14 +493,14 @@ namespace geopm
                 {}),
             MSR("PERF_CTL", 0x199,
                 {},
-                {{"FREQ", {
+                {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_HZ,
                       .scalar    = 1e8}},
-                 {"ENABLE", {
+                 {"ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 33,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -508,21 +508,21 @@ namespace geopm
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}}}),
             MSR("PKG_RAPL_UNIT", 0x606,
-                {{"POWER", {
+                {{"POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 4,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_LOG_HALF,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 8.0}}, // Signal is 1.0 because the units should be 0.125 Watts
-                 {"ENERGY", {
+                 {"ENERGY", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 13,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_LOG_HALF,
                       .units     = IMSR::M_UNITS_JOULES,
                       .scalar    = 1.6384e4}}, // Signal is 1.0 because the units should be 6.103515625e-05 Joules.
-                 {"TIME", {
+                 {"TIME", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 20,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -532,63 +532,63 @@ namespace geopm
                 {}),
             MSR("PKG_POWER_LIMIT", 0x610,
                 {},
-                {{"SOFT_POWER_LIMIT", {
+                {{"SOFT_POWER_LIMIT", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 15,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"SOFT_LIMIT_ENABLE", {
+                 {"SOFT_LIMIT_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 15,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"SOFT_CLAMP_ENABLE", {
+                 {"SOFT_CLAMP_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 17,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"SOFT_TIME_WINDOW", {
+                 {"SOFT_TIME_WINDOW", (struct IMSR::m_encode_s) {
                       .begin_bit = 17,
                       .end_bit   = 24,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
                       .scalar    = 9.765625e-05}},
-                 {"HARD_POWER_LIMIT", {
+                 {"HARD_POWER_LIMIT", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 47,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"HARD_LIMIT_ENABLE", {
+                 {"HARD_LIMIT_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 47,
                       .end_bit   = 48,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"HARD_CLAMP_ENABLE", {
+                 {"HARD_CLAMP_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 48,
                       .end_bit   = 49,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"HARD_TIME_WINDOW", {
+                 {"HARD_TIME_WINDOW", (struct IMSR::m_encode_s) {
                       .begin_bit = 49,
                       .end_bit   = 56,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
                       .scalar    = 9.765625e-05}},
-                 {"LOCK", {
+                 {"LOCK", (struct IMSR::m_encode_s) {
                       .begin_bit = 63,
                       .end_bit   = 64,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -596,7 +596,7 @@ namespace geopm
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}}}),
             MSR("PKG_ENERGY_STATUS", 0x611,
-                {{"ENERGY", {
+                {{"ENERGY", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 32,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -605,28 +605,28 @@ namespace geopm
                       .scalar    = 6.103515625e-05}}},
                 {}),
             MSR("PKG_POWER_INFO", 0x614,
-                {{"THERMAL_SPEC_POWER", {
+                {{"THERMAL_SPEC_POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 15,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"MIN_POWER", {
+                 {"MIN_POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 31,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"MAX_POWER", {
+                 {"MAX_POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 47,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"MAX_TIME_WINDOW", {
+                 {"MAX_TIME_WINDOW", (struct IMSR::m_encode_s) {
                       .begin_bit = 48,
                       .end_bit   = 55,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -636,28 +636,28 @@ namespace geopm
                 {}),
             MSR("DRAM_POWER_LIMIT", 0x618,
                 {},
-                {{"POWER_LIMIT", {
+                {{"POWER_LIMIT", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 15,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"ENABLE", {
+                 {"ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 15,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"TIME_WINDOW", {
+                 {"TIME_WINDOW", (struct IMSR::m_encode_s) {
                       .begin_bit = 17,
                       .end_bit   = 24,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
                       .scalar    = 9.765625e-05}},
-                 {"LOCK", {
+                 {"LOCK", (struct IMSR::m_encode_s) {
                       .begin_bit = 31,
                       .end_bit   = 32,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
@@ -665,7 +665,7 @@ namespace geopm
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}}}),
             MSR("DRAM_ENERGY_STATUS", 0x619,
-                {{"ENERGY", {
+                {{"ENERGY", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 32,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
@@ -674,7 +674,7 @@ namespace geopm
                       .scalar    = 6.103515625e-05}}},
                 {}),
             MSR("DRAM_PERF_STATUS", 0x61B,
-                {{"THROTTLE_TIME", {
+                {{"THROTTLE_TIME", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 32,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
@@ -683,28 +683,28 @@ namespace geopm
                       .scalar    = 9.765625e-05}}},
                 {}),
             MSR("DRAM_POWER_INFO", 0x61C,
-                {{"THERMAL_SPEC_POWER", {
+                {{"THERMAL_SPEC_POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 15,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"MIN_POWER", {
+                 {"MIN_POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 31,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"MAX_POWER", {
+                 {"MAX_POWER", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 47,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"MAX_TIME_WINDOW", { // Not correctly documented in SDM, this description is correct.
+                 {"MAX_TIME_WINDOW", (struct IMSR::m_encode_s) { // Not correctly documented in SDM, this description is correct.
                       .begin_bit = 48,
                       .end_bit   = 55,
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
@@ -714,63 +714,63 @@ namespace geopm
                 {}),
             MSR("PERF_FIXED_CTR_CTRL", 0x38D,
                 {},
-                {{"EN0_OS", {
+                {{"EN0_OS", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 1,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN0_USR", {
+                 {"EN0_USR", (struct IMSR::m_encode_s) {
                       .begin_bit = 1,
                       .end_bit   = 2,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN0_PMI", {
+                 {"EN0_PMI", (struct IMSR::m_encode_s) {
                       .begin_bit = 3,
                       .end_bit   = 4,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN1_OS", {
+                 {"EN1_OS", (struct IMSR::m_encode_s) {
                       .begin_bit = 4,
                       .end_bit   = 5,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN1_USR", {
+                 {"EN1_USR", (struct IMSR::m_encode_s) {
                       .begin_bit = 5,
                       .end_bit   = 6,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN1_PMI", {
+                 {"EN1_PMI", (struct IMSR::m_encode_s) {
                       .begin_bit = 7,
                       .end_bit   = 8,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN2_OS", {
+                 {"EN2_OS", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 9,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN2_USR", {
+                 {"EN2_USR", (struct IMSR::m_encode_s) {
                       .begin_bit = 9,
                       .end_bit   = 10,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN2_PMI", {
+                 {"EN2_PMI", (struct IMSR::m_encode_s) {
                       .begin_bit = 11,
                       .end_bit   = 12,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
@@ -779,35 +779,35 @@ namespace geopm
                       .scalar    = 1.0}}}),
             MSR("PERF_GLOBAL_CTRL", 0x38F,
                 {},
-                {{"EN_PMC0", {
+                {{"EN_PMC0", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 1,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN_PMC1", {
+                 {"EN_PMC1", (struct IMSR::m_encode_s) {
                       .begin_bit = 1,
                       .end_bit   = 2,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN_FIXED_CTR0", {
+                 {"EN_FIXED_CTR0", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 33,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN_FIXED_CTR1", {
+                 {"EN_FIXED_CTR1", (struct IMSR::m_encode_s) {
                       .begin_bit = 33,
                       .end_bit   = 34,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"EN_FIXED_CTR2", {
+                 {"EN_FIXED_CTR2", (struct IMSR::m_encode_s) {
                       .begin_bit = 34,
                       .end_bit   = 35,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
@@ -816,35 +816,35 @@ namespace geopm
                       .scalar    = 1.0}}}),
             MSR("PERF_GLOBAL_OVF_CTRL", 0x390,
                 {},
-                {{"CLEAR_OVF_PMC0", {
+                {{"CLEAR_OVF_PMC0", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 1,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"CLEAR_OVF_PMC1", {
+                 {"CLEAR_OVF_PMC1", (struct IMSR::m_encode_s) {
                       .begin_bit = 1,
                       .end_bit   = 2,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"CLEAR_OVF_FIXED_CTR0", {
+                 {"CLEAR_OVF_FIXED_CTR0", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 33,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"CLEAR_OVF_FIXED_CTR1", {
+                 {"CLEAR_OVF_FIXED_CTR1", (struct IMSR::m_encode_s) {
                       .begin_bit = 33,
                       .end_bit   = 34,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"CLEAR_OVF_FIXED_CTR2", {
+                 {"CLEAR_OVF_FIXED_CTR2", (struct IMSR::m_encode_s) {
                       .begin_bit = 34,
                       .end_bit   = 35,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
@@ -852,7 +852,7 @@ namespace geopm
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}}}),
             MSR("PERF_FIXED_CTR0", 0x309,
-                {{"INST_RETIRED_ANY", {
+                {{"INST_RETIRED_ANY", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 64,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
@@ -861,7 +861,7 @@ namespace geopm
                       .scalar    = 1.0}}},
                 {}),
             MSR("PERF_FIXED_CTR1", 0x30A,
-                {{"CPU_CLK_UNHALTED_THREAD", {
+                {{"CPU_CLK_UNHALTED_THREAD", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 64,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
@@ -870,7 +870,7 @@ namespace geopm
                       .scalar    = 1.0}}},
                 {}),
             MSR("PERF_FIXED_CTR2", 0x30B,
-                {{"CPU_CLK_UNHALTED_REF_TSC", {
+                {{"CPU_CLK_UNHALTED_REF_TSC", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 64,
                       .domain    = IPlatformIO::M_DOMAIN_CPU,
@@ -888,7 +888,7 @@ namespace geopm
     {
         static const MSR instance[] = {
             MSR("PERF_STATUS", 0x198,
-                {{"FREQ", {
+                {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -898,14 +898,14 @@ namespace geopm
                 {}),
             MSR("PERF_CTL", 0x199,
                 {},
-                {{"FREQ", {
+                {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_HZ,
                       .scalar    = 1e8}},
-                 {"ENABLE", {
+                 {"ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 33,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -922,7 +922,7 @@ namespace geopm
     {
         static const MSR instance[] = {
             MSR("PERF_STATUS", 0x198,
-                {{"FREQ", {
+                {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
@@ -932,14 +932,14 @@ namespace geopm
                 {}),
             MSR("PERF_CTL", 0x199,
                 {},
-                {{"FREQ", {
+                {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_HZ,
                       .scalar    = 1e8}},
-                 {"ENABLE", {
+                 {"ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 33,
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
