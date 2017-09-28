@@ -40,63 +40,6 @@
 
 namespace geopm
 {
-    /// @brief Abstract base class describing a signal provided by a
-    /// platform that can be sampled.
-    class ISignal
-    {
-        public:
-            ISignal() {}
-            virtual ~ISignal() {}
-            /// @brief Get the signal parameter name.
-            /// @param [out] signal_name The name of the feature
-            ///        being measured.
-            virtual std::string name(void) const = 0;
-            /// @brief Get the type of the domain under measurement.
-            /// @return One of the values from the geopm_domain_type_e
-            ///         enum described in PlatformTopology.hpp.
-            virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the domain under measurement.
-            /// @return The index of the domain within the set of
-            ///        domains of the same type on the platform.
-            virtual int domain_idx(void) const = 0;
-            /// @brief Get the value of the signal.
-            /// @return The value of the parameter measured in SI
-            ///         units.
-            virtual double sample(void) const = 0;
-            /// @brief Format the value of the signal into a printable
-            ///        form including units.
-            /// @param sample output of a previous call to the
-            ///        sample() method.
-            /// @return Printable version of the signal suited for
-            ///         output in a log file.
-            virtual std::string log(double sample) const = 0;
-    };
-
-    /// @brief Abstract base class describing a control provided by a
-    /// platform that can be adjusted.
-    class IControl
-    {
-        public:
-            IControl() {}
-            virtual ~IControl() {}
-            /// @brief Get the control parameter name.
-            /// @param [out] control_name The name of the feature
-            ///        under control.
-            virtual std::string name(void) const = 0;
-            /// @brief Get the type of the domain under control.
-            /// @return One of the values from the geopm_domain_type_e
-            ///         enum described in PlatformTopology.hpp.
-            virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the domain under control.
-            /// @return The index of the domain within the set of
-            ///        domains of the same type on the platform.
-            virtual int domain_idx(void) const = 0;
-            /// @brief Set the value for the control.
-            /// @param [in] setting value in SI units of the parameter
-            ///        controlled by the object.
-            virtual void adjust(double setting) = 0;
-    };
-
     /// @brief Class which is a collection of all valid control and
     /// signal objects for a platform
     class IPlatformIO
@@ -211,6 +154,63 @@ namespace geopm
     };
 
     IPlatformIO &platform_io(void);
+
+    /// @brief Abstract base class describing a signal provided by a
+    /// platform that can be sampled.
+    class ISignal
+    {
+        public:
+            ISignal() {}
+            virtual ~ISignal() {}
+            /// @brief Get the signal parameter name.
+            /// @param [out] signal_name The name of the feature
+            ///        being measured.
+            virtual std::string name(void) const = 0;
+            /// @brief Get the type of the domain under measurement.
+            /// @return One of the values from the IPlatformIO::m_domain_e
+            ///         enum described in PlatformTopology.hpp.
+            virtual int domain_type(void) const = 0;
+            /// @brief Get the index of the domain under measurement.
+            /// @return The index of the domain within the set of
+            ///        domains of the same type on the platform.
+            virtual int domain_idx(void) const = 0;
+            /// @brief Get the value of the signal.
+            /// @return The value of the parameter measured in SI
+            ///         units.
+            virtual double sample(void) const = 0;
+            /// @brief Format the value of the signal into a printable
+            ///        form including units.
+            /// @param sample output of a previous call to the
+            ///        sample() method.
+            /// @return Printable version of the signal suited for
+            ///         output in a log file.
+            virtual std::string log(double sample) const = 0;
+    };
+
+    /// @brief Abstract base class describing a control provided by a
+    /// platform that can be adjusted.
+    class IControl
+    {
+        public:
+            IControl() {}
+            virtual ~IControl() {}
+            /// @brief Get the control parameter name.
+            /// @param [out] control_name The name of the feature
+            ///        under control.
+            virtual std::string name(void) const = 0;
+            /// @brief Get the type of the domain under control.
+            /// @return One of the values from the geopm_domain_type_e
+            ///         enum described in PlatformTopology.hpp.
+            virtual int domain_type(void) const = 0;
+            /// @brief Get the index of the domain under control.
+            /// @return The index of the domain within the set of
+            ///        domains of the same type on the platform.
+            virtual int domain_idx(void) const = 0;
+            /// @brief Set the value for the control.
+            /// @param [in] setting value in SI units of the parameter
+            ///        controlled by the object.
+            virtual void adjust(double setting) = 0;
+    };
 
 }
 
