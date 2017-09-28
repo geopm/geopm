@@ -108,6 +108,7 @@ namespace geopm
                 std::vector<uint64_t> offset;
                 msr_sig->offset(offset);
                 for (int i = 0; i < msr_sig->num_msr(); ++i) {
+                    m_msr_read_signal_idx.push_back(result);
                     m_msr_read_cpu_idx.push_back(cpu_idx);
                     m_msr_read_offset.push_back(offset[i]);
                 }
@@ -151,6 +152,7 @@ namespace geopm
                 msr_ctl->offset(offset);
                 msr_ctl->mask(mask);
                 for (int i = 0; i < msr_ctl->num_msr(); ++i) {
+                    m_msr_write_control_idx.push_back(result);
                     m_msr_write_cpu_idx.push_back(cpu_idx);
                     m_msr_write_offset.push_back(offset[i]);
                     m_msr_write_mask.push_back(mask[i]);
@@ -235,15 +237,45 @@ namespace geopm
 
     double PlatformIO::sample(int signal_idx)
     {
-        throw Exception("PlatformIO::sample(int): Not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (!m_is_active) {
+            activate();
+        }
+
+        auto field_it = m_msr_read_field.begin();
+        auto cpu_it = m_msr_read_cpu_idx.begin();
+        auto off_it = m_msr_read_offset.begin();
+        for (auto &this_signal_idx : m_msr_read_signal_idx) {
+            if (this_signal_idx == signal_idx) {
+                *field_it = m_msrio->read_msr(*cpu_it, *off_it);
+            }
+            ++field_it;
+            ++cpu_it;
+            ++off_it;
+        }
+        return m_active_signal[signal_idx]->sample();
     }
 
     void PlatformIO::adjust(int control_idx,
                             double setting)
     {
-        throw Exception("PlatformIO::adjust(int): Not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (!m_is_active) {
+            activate();
+        }
+        m_active_control[control_idx]->adjust(setting);
+
+        auto field_it = m_msr_write_field.begin();
+        auto cpu_it = m_msr_write_cpu_idx.begin();
+        auto off_it = m_msr_write_offset.begin();
+        auto mask_it = m_msr_write_mask.begin();
+        for (auto &this_control_idx : m_msr_write_control_idx) {
+            if (this_control_idx == control_idx) {
+                m_msrio->write_msr(*cpu_it, *off_it, *mask_it, *field_it);
+            }
+            ++field_it;
+            ++cpu_it;
+            ++off_it;
+            ++mask_it;
+        }
     }
 
     void PlatformIO::sample(std::vector<double> &signal)
