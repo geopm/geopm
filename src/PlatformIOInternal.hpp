@@ -130,11 +130,15 @@ namespace geopm
             std::map<std::string, std::vector<IControl *> > m_name_cpu_control_map;
             std::vector<ISignal *> m_active_signal;
             std::vector<IControl *> m_active_control;
+            // Vectors are over MSRs for all active signals
             std::vector<uint64_t> m_msr_read_field;
-            std::vector<uint64_t> m_msr_write_field;
-            std::vector<int> m_msr_read_cpu_idx;
+            std::vector<int>      m_msr_read_signal_idx;
+            std::vector<int>      m_msr_read_cpu_idx;
             std::vector<uint64_t> m_msr_read_offset;
-            std::vector<int> m_msr_write_cpu_idx;
+            // Vectors are over MSRs for all active controls
+            std::vector<uint64_t> m_msr_write_field;
+            std::vector<int>      m_msr_write_control_idx;
+            std::vector<int>      m_msr_write_cpu_idx;
             std::vector<uint64_t> m_msr_write_offset;
             std::vector<uint64_t> m_msr_write_mask;
     };
