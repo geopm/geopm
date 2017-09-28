@@ -109,6 +109,8 @@ namespace geopm
             if (msr_sig) {
                 std::vector<uint64_t> offset;
                 msr_sig->offset(offset);
+                m_msr_read_signal_off.push_back(m_msr_read_cpu_idx.size());
+                m_msr_read_signal_len.push_back(msr_sig->num_msr());
                 for (int i = 0; i < msr_sig->num_msr(); ++i) {
                     m_msr_read_cpu_idx.push_back(cpu_idx);
                     m_msr_read_offset.push_back(offset[i]);
@@ -152,6 +154,8 @@ namespace geopm
                 std::vector<uint64_t> mask;
                 msr_ctl->offset(offset);
                 msr_ctl->mask(mask);
+                m_msr_write_control_off.push_back(m_msr_write_cpu_idx.size());
+                m_msr_write_control_len.push_back(msr_ctl->num_msr());
                 for (int i = 0; i < msr_ctl->num_msr(); ++i) {
                     m_msr_write_cpu_idx.push_back(cpu_idx);
                     m_msr_write_offset.push_back(offset[i]);
@@ -237,15 +241,51 @@ namespace geopm
 
     double PlatformIO::sample(int signal_idx)
     {
-        throw Exception("PlatformIO::sample(int): Not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (signal_idx < 0 || (unsigned)signal_idx >= m_active_signal.size()) {
+            throw Exception("PlatformIO::sample() signal_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (!m_is_active) {
+            activate();
+        }
+
+        auto field_it = m_msr_read_field.begin() + m_msr_read_signal_off[signal_idx];
+        auto cpu_it = m_msr_read_cpu_idx.begin() + m_msr_read_signal_off[signal_idx];
+        auto off_it = m_msr_read_offset.begin() + m_msr_read_signal_off[signal_idx];
+        for (int i = 0; i < m_msr_read_signal_len[signal_idx]; ++i) {
+            *field_it = m_msrio->read_msr(*cpu_it, *off_it);
+            ++field_it;
+            ++cpu_it;
+            ++off_it;
+        }
+        return m_active_signal[signal_idx]->sample();
     }
 
     void PlatformIO::adjust(int control_idx,
                             double setting)
     {
-        throw Exception("PlatformIO::adjust(int): Not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (control_idx < 0 || (unsigned)control_idx >= m_active_control.size()) {
+            throw Exception("PlatformIO::adjust() control_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (!m_is_active) {
+            activate();
+        }
+        m_active_control[control_idx]->adjust(setting);
+
+        auto field_it = m_msr_write_field.begin() + m_msr_write_control_off[control_idx];
+        auto cpu_it = m_msr_write_cpu_idx.begin() + m_msr_write_control_off[control_idx];
+        auto off_it = m_msr_write_offset.begin() + m_msr_write_control_off[control_idx];
+        auto mask_it = m_msr_write_mask.begin() + m_msr_write_control_off[control_idx];
+        for (int i = 0; i < m_msr_write_control_len[control_idx]; ++i) {
+            m_msrio->write_msr(*cpu_it, *off_it, *mask_it, *field_it);
+            ++field_it;
+            ++cpu_it;
+            ++off_it;
+            ++mask_it;
+        }
     }
 
     void PlatformIO::sample(std::vector<double> &signal)
