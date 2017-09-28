@@ -99,7 +99,7 @@ index 876f4ad..38a2582 100644
  
 +#ifndef NO_GEOPM
 +        uint64_t R_ID;
-+        geopm_prof_region( "PHASE_MATVEC", 0, &R_ID);
++        geopm_prof_region( "PHASE_MATVEC", GEOPM_REGION_HINT_COMPUTE, &R_ID);
 +        geopm_prof_enter( R_ID);
 +#endif
          #pragma omp parallel for
@@ -121,7 +121,7 @@ index 876f4ad..38a2582 100644
  
 +#ifndef NO_GEOPM
 +  uint64_t R_ID;
-+  geopm_prof_region( "PHASE_MATVEC", 0, &R_ID);
++  geopm_prof_region( "PHASE_MATVEC", GEOPM_REGION_HINT_COMPUTE, &R_ID);
 +  geopm_prof_enter( R_ID);
 +#endif
    #pragma omp parallel for
@@ -158,7 +158,7 @@ index cdf9b15..9dee368 100644
  
 +#ifndef NO_GEOPM
 +  uint64_t R_ID;
-+  geopm_prof_region( "PHASE_WAXPBY", 0, &R_ID);
++  geopm_prof_region( "PHASE_WAXPBY", GEOPM_REGION_HINT_MEMORY, &R_ID);
 +  geopm_prof_enter( R_ID);
 +#endif
    if(beta == 0.0) {
@@ -180,7 +180,7 @@ index cdf9b15..9dee368 100644
  
 +#ifndef NO_GEOPM
 +  uint64_t R_ID;
-+  geopm_prof_region( "PHASE_DOT", 0, &R_ID);
++  geopm_prof_region( "PHASE_DOT", GEOPM_REGION_HINT_MEMORY, &R_ID);
 +  geopm_prof_enter( R_ID);
 +#endif
    #pragma omp parallel for reduction(+:result)
