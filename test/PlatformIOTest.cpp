@@ -37,6 +37,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sstream>
+#include <fstream>
+#include <string>
+#include <map>
 #include "gtest/gtest.h"
 
 #include "geopm_sched.h"
@@ -162,6 +165,63 @@ void PlatformIOTest::SetUp()
 void PlatformIOTest::TearDown()
 {
     delete m_platform_io;
+}
+
+TEST_F(PlatformIOTest, whitelist)
+{
+    std::ifstream file("legacy_whitelist.out");
+    std::string line;
+    uint64_t offset;
+    uint64_t  mask;
+    std::string comment;
+    std::map<uint64_t, uint64_t> legacy_map;
+    std::map<uint64_t, uint64_t> curr_map;
+    std::cerr << std::setfill('0') << std::hex;
+    while (std::getline(file, line)) {
+        if (line.compare(0, 1, "#") == 0) continue;
+        std::string tmp;
+        size_t sz;
+        std::istringstream iss(line);
+        iss >> tmp;
+        offset = std::stoull(tmp, &sz, 16);
+        iss >> tmp;
+        mask = std::stoull(tmp, &sz, 16);
+        iss >> comment;// #
+        iss >> comment;// comment
+        legacy_map[offset] = mask;
+    }
+
+    std::string whitelist = m_platform_io->msr_whitelist();
+    std::istringstream iss(whitelist);
+    std::getline(iss, line);// throw away title line
+    while (std::getline(iss, line)) {
+        std::string tmp;
+        size_t sz;
+        std::istringstream iss(line);
+        iss >> tmp;
+        offset = std::stoull(tmp, &sz, 16);
+        iss >> tmp;
+        mask = std::stoull(tmp, &sz, 16);
+        iss >> comment;// #
+        iss >> comment;// comment
+        curr_map[offset] = mask;
+    }
+
+    for (auto it = curr_map.begin(); it != curr_map.end(); ++it) {
+        offset = it->first;
+        mask = it->second;
+        auto leg_it = legacy_map.find(offset);
+        //uint64_t leg_off = leg_it->first;
+        uint64_t leg_mask = leg_it->second;
+        if (leg_it == legacy_map.end()) {
+            //not found error
+            if (!mask) {
+                EXPECT_TRUE(false) << std::setfill('0') << std::hex << "new read offset 0x" << std::setw(8) << offset << " introduced";
+            }
+        }
+        EXPECT_EQ(mask, mask & leg_mask) << std::setfill('0') << std::hex << "offset 0x" << std::setw(8) << offset << "write mask change detected, from 0x"
+            << std::setw(16) << leg_mask << " to 0x" << mask << " bitwise AND yields 0x" << (mask & leg_mask);
+    }
 }
 
 TEST_F(PlatformIOTest, freq_ctl)

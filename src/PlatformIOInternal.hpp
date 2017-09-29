@@ -61,7 +61,6 @@ namespace geopm
             std::string msr_whitelist(void);
             std::string msr_whitelist(int cpuid);
 
-       protected:
             enum m_cpuid_e {
                 M_CPUID_SNB = 0x62D,
                 M_CPUID_IVT = 0x63E,
@@ -70,6 +69,7 @@ namespace geopm
                 M_CPUID_KNL = 0x657,
             };
 
+       protected:
             virtual int cpuid(void);
             virtual void init(void);
             /// @brief Register all signals and controls for the MSR

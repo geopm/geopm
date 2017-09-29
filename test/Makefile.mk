@@ -166,6 +166,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/CommMPIImpTest.mpi_barrier \
               test/gtest_links/CommMPIImpTest.mpi_win_ops \
               test/gtest_links/PlatformIOTest.freq_ctl \
+              test/gtest_links/PlatformIOTest.whitelist \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_unaligned \
               test/gtest_links/MSRIOTest.write \

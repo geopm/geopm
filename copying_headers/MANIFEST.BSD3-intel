@@ -27,6 +27,7 @@ examples/threaded_step_example.c
 geopm.spec.in
 Makefile.am
 openmp.mk
+legacy_whitelist.out
 plugin/BalancingDecider.cpp
 plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
