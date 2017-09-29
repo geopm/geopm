@@ -132,20 +132,26 @@ namespace geopm
             case IMSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
                 // Y in bits [0:5) and Z in bits [5:7)
-                value *= m_inverse;
-                uint64_t yy = (uint64_t)std::log2(value);
-                uint64_t zz = (uint64_t)(4.0 * (value / (1 << yy) - 1.0));
-                if ((yy && (yy >> 5) != 0) ||
-                    (zz && (zz >> 2) != 0)) {
-                    throw Exception("MSR::encode(): integer overflow in M_FUNCTION_7_BIT_FLOAT datatype encoding",
-                                    EOVERFLOW, __FILE__, __LINE__);
+                if (value > 0) {
+                    value *= m_inverse;
+                    uint64_t yy = (uint64_t)std::log2(value);
+                    uint64_t zz = (uint64_t)(4.0 * (value / (1 << yy) - 1.0));
+                    if ((yy && (yy >> 5) != 0) ||
+                            (zz && (zz >> 2) != 0)) {
+                        throw Exception("MSR::encode(): integer overflow in M_FUNCTION_7_BIT_FLOAT datatype encoding",
+                                EOVERFLOW, __FILE__, __LINE__);
+                    }
+                    value_inferred = (1 << yy) * (1.0 + (zz / 4.0));
+                    if ((value - value_inferred) > (value  * 0.25)) {
+                        throw Exception("MSR::encode(): inferred value from encoded value is inaccurate",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    }
+                    result = yy | (zz << 5);
                 }
-                value_inferred = (1 << yy) * (1.0 + (zz / 4.0)) * m_scalar;
-                if ((value - value_inferred) > (value  * 0.25)) {
-                    throw Exception("MSR::encode(): inferred value from encoded value is inaccurate",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                else {
+                    throw Exception("MSR::encode(): input value <= 0 for M_FUNCTION_7_BIT_FLOAT",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
-                result = yy | (zz << 5);
                 break;
         }
         result = (result << m_shift) & m_mask;
