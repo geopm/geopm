@@ -32,6 +32,7 @@
 
 #include <cpuid.h>
 #include <sstream>
+#include <iomanip>
 #include <cmath>
 
 #include "geopm_sched.h"
@@ -50,6 +51,7 @@ namespace geopm
     static const MSR *knl_msr(size_t &num_msr);
     static const MSR *hsx_msr(size_t &num_msr);
     static const MSR *snb_msr(size_t &num_msr);
+    static const MSR *get_msr_arr(int cpu_id, size_t &num_msr);
 
     IPlatformIO &platform_io(void)
     {
@@ -279,24 +281,8 @@ namespace geopm
 
     void PlatformIO::init_msr(void)
     {
-        const MSR *msr_arr = NULL;
         size_t num_msr = 0;
-        switch (cpuid()) {
-            case M_CPUID_KNL:
-                msr_arr = knl_msr(num_msr);
-                break;
-            case M_CPUID_HSX:
-            case M_CPUID_BDX:
-                msr_arr = hsx_msr(num_msr);
-                break;
-            case M_CPUID_SNB:
-            case M_CPUID_IVT:
-                msr_arr = snb_msr(num_msr);
-                break;
-            default:
-                throw Exception("platform_io(): Unsupported CPUID",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+        const MSR *msr_arr = get_msr_arr(cpuid(), num_msr);
         for (const MSR *msr_ptr = msr_arr;
              msr_ptr != msr_arr + num_msr;
              ++msr_ptr) {
@@ -469,14 +455,39 @@ namespace geopm
 
     std::string PlatformIO::msr_whitelist(void)
     {
-        throw Exception("PlatformIO::msr_whitelist(): Not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return msr_whitelist(cpuid());
     }
 
     std::string PlatformIO::msr_whitelist(int cpuid)
     {
-        throw Exception("PlatformIO::msr_whitelist(): Not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        size_t num_msr = 0;
+        const MSR *msr_arr = get_msr_arr(cpuid, num_msr);
+        std::ostringstream whitelist;
+        whitelist << "# MSR        Write Mask           # Comment" << std::endl;
+        whitelist << std::setfill('0') << std::hex;
+        for (size_t idx = 0; idx < num_msr; idx++) {
+            std::string msr_name = msr_arr[idx].name();
+            uint64_t msr_offset = msr_arr[idx].offset();
+            size_t num_signals = msr_arr[idx].num_signal();
+            size_t num_controls = msr_arr[idx].num_control();
+            uint64_t write_mask = 0;
+
+            if (!num_signals && !num_controls) {
+                std::ostringstream err_str;
+                err_str << "PlatformIO::msr_whitelist(): invalid msr";
+                throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+
+            if (num_controls) {
+                for (size_t cidx = 0; cidx < num_controls; cidx++) {
+                    uint64_t idx_field = 0, idx_mask = 0;
+                    msr_arr[idx].control(cidx, 0, idx_field, idx_mask);
+                    write_mask |= idx_mask;
+                }
+            }
+            whitelist << "0x" << std::setw(8) << msr_offset << "   0x" << std::setw(16) << write_mask << "   # \"" << msr_name << "\"" << std::endl;
+        }
+        return whitelist.str();
     }
 
     static const MSR *knl_msr(size_t &num_msr)
@@ -528,7 +539,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_LOG_HALF,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 1.024e3}}}, // Signal is 1.0 because the units should be 9.765625e-05 seconds.
+                      .scalar    = 1.024e3}}}, // Signal is 1.0 because the units should be 9.765625e-04 seconds.
                 {}),
             MSR("PKG_POWER_LIMIT", 0x610,
                 {},
@@ -559,7 +570,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 9.765625e-05}},
+                      .scalar    = 9.765625e-04}},
                  {"HARD_POWER_LIMIT", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 47,
@@ -587,14 +598,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 9.765625e-05}},
-                 {"LOCK", (struct IMSR::m_encode_s) {
-                      .begin_bit = 63,
-                      .end_bit   = 64,
-                      .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
-                      .function  = IMSR::M_FUNCTION_SCALE,
-                      .units     = IMSR::M_UNITS_NONE,
-                      .scalar    = 1.0}}}),
+                      .scalar    = 9.765625e-04}}}),
             MSR("PKG_ENERGY_STATUS", 0x611,
                 {{"ENERGY", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
@@ -632,7 +636,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 9.765625e-05}}},
+                      .scalar    = 9.765625e-04}}},
                 {}),
             MSR("DRAM_POWER_LIMIT", 0x618,
                 {},
@@ -656,14 +660,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 9.765625e-05}},
-                 {"LOCK", (struct IMSR::m_encode_s) {
-                      .begin_bit = 31,
-                      .end_bit   = 32,
-                      .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
-                      .function  = IMSR::M_FUNCTION_SCALE,
-                      .units     = IMSR::M_UNITS_NONE,
-                      .scalar    = 1.0}}}),
+                      .scalar    = 9.765625e-04}}}),
             MSR("DRAM_ENERGY_STATUS", 0x619,
                 {{"ENERGY", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
@@ -680,7 +677,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 9.765625e-05}}},
+                      .scalar    = 9.765625e-04}}},
                 {}),
             MSR("DRAM_POWER_INFO", 0x61C,
                 {{"THERMAL_SPEC_POWER", (struct IMSR::m_encode_s) {
@@ -710,7 +707,7 @@ namespace geopm
                       .domain    = IPlatformIO::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 9.765625e-05}}},
+                      .scalar    = 9.765625e-04}}},
                 {}),
             MSR("PERF_FIXED_CTR_CTRL", 0x38D,
                 {},
@@ -950,5 +947,28 @@ namespace geopm
         };
         num_msr = sizeof(instance) / sizeof(MSR);
         return instance;
+    }
+
+    static const MSR *get_msr_arr(int cpu_id, size_t &num_msr)
+    {
+        const MSR *msr_arr = NULL;
+        num_msr = 0;
+        switch (cpu_id) {
+            case PlatformIO::M_CPUID_KNL:
+                msr_arr = knl_msr(num_msr);
+                break;
+            case PlatformIO::M_CPUID_HSX:
+            case PlatformIO::M_CPUID_BDX:
+                msr_arr = hsx_msr(num_msr);
+                break;
+            case PlatformIO::M_CPUID_SNB:
+            case PlatformIO::M_CPUID_IVT:
+                msr_arr = snb_msr(num_msr);
+                break;
+            default:
+                throw Exception("platform_io(): Unsupported CPUID",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return msr_arr;
     }
 }

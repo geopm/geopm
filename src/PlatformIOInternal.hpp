@@ -41,6 +41,14 @@ namespace geopm
     class PlatformIO : public IPlatformIO
     {
         public:
+            enum m_cpuid_e {
+                M_CPUID_SNB = 0x62D,
+                M_CPUID_IVT = 0x63E,
+                M_CPUID_HSX = 0x63F,
+                M_CPUID_BDX = 0x64F,
+                M_CPUID_KNL = 0x657,
+            };
+
             /// @brief Constructor for the PlatformIO class.
             PlatformIO();
             /// @brief Virtual destructor for the PlatformIO class.
@@ -62,14 +70,6 @@ namespace geopm
             std::string msr_whitelist(int cpuid);
 
        protected:
-            enum m_cpuid_e {
-                M_CPUID_SNB = 0x62D,
-                M_CPUID_IVT = 0x63E,
-                M_CPUID_HSX = 0x63F,
-                M_CPUID_BDX = 0x64F,
-                M_CPUID_KNL = 0x657,
-            };
-
             virtual int cpuid(void);
             virtual void init(void);
             /// @brief Register all signals and controls for the MSR
