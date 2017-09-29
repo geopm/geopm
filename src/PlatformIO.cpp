@@ -287,11 +287,15 @@ namespace geopm
              msr_ptr != msr_arr + num_msr;
              ++msr_ptr) {
             m_name_msr_map.insert(std::pair<std::string, const IMSR *>(msr_ptr->name(), msr_ptr));
+            for (int idx = 0; idx < msr_ptr->num_signal(); idx++) {
+                std::string signal_name = msr_ptr->signal_name(idx);
+                register_msr_signal(msr_ptr->name() + ":" + signal_name);
+            }
+            for (int idx = 0; idx < msr_ptr->num_control(); idx++) {
+                std::string control_name = msr_ptr->control_name(idx);
+                register_msr_control(msr_ptr->name() + ":" + control_name);
+            }
         }
-
-        register_msr_control("PERF_CTL:FREQ");
-        register_msr_control("PERF_CTL:ENABLE");
-        /// @todo Fill in all other known MSR signals and controls.
     }
 
     void PlatformIO::register_msr_signal(const std::string &signal_name)
