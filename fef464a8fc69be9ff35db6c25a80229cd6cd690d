@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71bf2d02_a24116b0",
+        "filename": "src/MSR.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-10-02T21:43:02Z",
+      "side": 1,
+      "message": "Is it impossible for value to be zero?  If that\u0027s not possible with the 7_BIT_FLOAT, maybe we should be throwing on value not being set properly instead of swallowing this error.",
+      "range": {
+        "startLine": 135,
+        "startChar": 16,
+        "endLine": 135,
+        "endChar": 28
+      },
+      "revId": "fef464a8fc69be9ff35db6c25a80229cd6cd690d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b85f23a5_578cf047",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-10-02T21:43:02Z",
+      "side": 1,
+      "message": "I see Chris\u0027s love of whitespace is making the rounds...",
+      "revId": "fef464a8fc69be9ff35db6c25a80229cd6cd690d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
