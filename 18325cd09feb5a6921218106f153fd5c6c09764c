@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0695791c_4ddd479d",
+        "filename": "legacy_whitelist.out",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T21:13:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8793f0e1_581b1cc1",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb604532_d05b0734",
         "filename": "src/PlatformIO.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-02T20:51:11Z",
       "side": 1,
       "message": "Initialize idx_field, since it is passed by reference.",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7182b02_38a2c6d7",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T21:13:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb604532_d05b0734",
       "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d83dc247_6495107f",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T21:13:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e0e033a_de4f8e44",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec12fa28_0fc641c2",
         "filename": "src/PlatformIOInternal.hpp",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-10-02T20:51:11Z",
       "side": 1,
       "message": "Move enum to top of public section.",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22d6b37f_9f2f8540",
+        "filename": "src/PlatformIOInternal.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T21:13:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec12fa28_0fc641c2",
       "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b239235a_3f8222e6",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T21:13:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44fe8041_dd45c974",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abf55185_fdc97b9d",
         "filename": "test/PlatformIOTest.cpp",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2017-10-02T20:51:11Z",
       "side": 1,
       "message": "remove kruft",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76af0192_e3a379cb",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T21:13:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abf55185_fdc97b9d",
       "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
