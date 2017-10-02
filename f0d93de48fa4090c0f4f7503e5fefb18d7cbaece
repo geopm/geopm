@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1769ff6_007cc279",
+        "filename": "test/MSRTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-02T18:20:36Z",
+      "side": 1,
+      "message": "... delete... not free...",
+      "range": {
+        "startLine": 135,
+        "startChar": 7,
+        "endLine": 135,
+        "endChar": 32
+      },
+      "revId": "f0d93de48fa4090c0f4f7503e5fefb18d7cbaece",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
