@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8793f0e1_581b1cc1",
+        "filename": "legacy_whitelist.out",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-02T20:51:11Z",
+      "side": 1,
+      "message": "Since this is for testing, lets put this in the geopm/test directory.",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb604532_d05b0734",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-02T20:51:11Z",
+      "side": 1,
+      "message": "Initialize idx_field, since it is passed by reference.",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e0e033a_de4f8e44",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-02T20:51:11Z",
+      "side": 1,
+      "message": "6 -\u003e 0 ?",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec12fa28_0fc641c2",
+        "filename": "src/PlatformIOInternal.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-02T20:51:11Z",
+      "side": 1,
+      "message": "Move enum to top of public section.",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44fe8041_dd45c974",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-02T20:51:11Z",
+      "side": 1,
+      "message": "move file to test directory.",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abf55185_fdc97b9d",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-02T20:51:11Z",
+      "side": 1,
+      "message": "remove kruft",
+      "revId": "18325cd09feb5a6921218106f153fd5c6c09764c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
