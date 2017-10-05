@@ -176,7 +176,6 @@ TEST_F(PlatformIOTest, whitelist)
     std::string comment;
     std::map<uint64_t, uint64_t> legacy_map;
     std::map<uint64_t, uint64_t> curr_map;
-    std::cerr << std::setfill('0') << std::hex;
     while (std::getline(file, line)) {
         if (line.compare(0, 1, "#") == 0) continue;
         std::string tmp;
@@ -211,13 +210,14 @@ TEST_F(PlatformIOTest, whitelist)
         offset = it->first;
         mask = it->second;
         auto leg_it = legacy_map.find(offset);
-        uint64_t leg_mask = leg_it->second;
         if (leg_it == legacy_map.end()) {
             //not found error
             if (!mask) {
                 EXPECT_TRUE(false) << std::setfill('0') << std::hex << "new read offset 0x" << std::setw(8) << offset << " introduced";
             }
+            continue;
         }
+        uint64_t leg_mask = leg_it->second;
         EXPECT_EQ(mask, mask & leg_mask) << std::setfill('0') << std::hex << "offset 0x" << std::setw(8) << offset << "write mask change detected, from 0x"
             << std::setw(16) << leg_mask << " to 0x" << mask << " bitwise AND yields 0x" << (mask & leg_mask);
     }

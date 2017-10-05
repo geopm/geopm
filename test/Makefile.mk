@@ -204,6 +204,7 @@ EXTRA_DIST += test/geopm_test.sh \
               test/no_omp_cpu.c \
               test/default_policy.json \
               test/invalid_policy.json \
+              test/legacy_whitelist.out \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \
