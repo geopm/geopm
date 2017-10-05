@@ -273,6 +273,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/SignalHandler.cpp \
                             src/StaticPolicyDecider.cpp \
                             src/StaticPolicyDecider.hpp \
+                            src/TimeSignal.cpp \
+                            src/TimeSignal.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/XeonPlatformImp.cpp \
@@ -362,6 +364,8 @@ if ENABLE_MPI
                           src/SignalHandler.cpp \
                           src/StaticPolicyDecider.cpp \
                           src/StaticPolicyDecider.hpp \
+                          src/TimeSignal.cpp \
+                          src/TimeSignal.hpp \
                           src/Tracer.cpp \
                           src/Tracer.hpp \
                           src/geopm_env.h \
