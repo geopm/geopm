@@ -134,6 +134,8 @@ src/SharedMemory.hpp
 src/SignalHandler.cpp
 src/StaticPolicyDecider.cpp
 src/StaticPolicyDecider.hpp
+src/TimeSignal.cpp
+src/TimeSignal.hpp
 src/Tracer.cpp
 src/Tracer.hpp
 src/TreeCommunicator.cpp

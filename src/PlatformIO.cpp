@@ -39,6 +39,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformIOInternal.hpp"
 #include "PlatformTopology.hpp"
+#include "TimeSignal.hpp"
 
 #include "MSR.hpp"
 #include "MSRIO.hpp"
@@ -104,7 +105,12 @@ namespace geopm
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it != m_name_cpu_signal_map.end()) {
             result = m_active_signal.size();
-            m_active_signal.push_back((*ncsm_it).second[cpu_idx]);
+            if ((*ncsm_it).second.size() == 1) {
+                m_active_signal.push_back((*ncsm_it).second[0]);
+            }
+            else {
+                m_active_signal.push_back((*ncsm_it).second[cpu_idx]);
+            }
             IMSRSignal *msr_sig = dynamic_cast<IMSRSignal *>(m_active_signal.back());
             if (msr_sig) {
                 std::vector<uint64_t> offset;
@@ -115,6 +121,10 @@ namespace geopm
                     m_msr_read_cpu_idx.push_back(cpu_idx);
                     m_msr_read_offset.push_back(offset[i]);
                 }
+            }
+            else {
+                m_msr_read_signal_off.push_back(0);
+                m_msr_read_signal_len.push_back(0);
             }
         }
         else {
@@ -162,6 +172,11 @@ namespace geopm
                     m_msr_write_mask.push_back(mask[i]);
                 }
             }
+            else {
+                m_msr_write_control_off.push_back(0);
+                m_msr_write_control_len.push_back(0);
+            }
+
         }
         else {
             std::ostringstream err_str;
@@ -187,6 +202,7 @@ namespace geopm
 
     void PlatformIO::init(void)
     {
+        init_time();
         init_msr();
         m_is_init = true;
     }
@@ -250,14 +266,16 @@ namespace geopm
             activate();
         }
 
-        auto field_it = m_msr_read_field.begin() + m_msr_read_signal_off[signal_idx];
-        auto cpu_it = m_msr_read_cpu_idx.begin() + m_msr_read_signal_off[signal_idx];
-        auto off_it = m_msr_read_offset.begin() + m_msr_read_signal_off[signal_idx];
-        for (int i = 0; i < m_msr_read_signal_len[signal_idx]; ++i) {
-            *field_it = m_msrio->read_msr(*cpu_it, *off_it);
-            ++field_it;
-            ++cpu_it;
-            ++off_it;
+        if (m_msr_read_signal_len[signal_idx] != 0) {
+            auto field_it = m_msr_read_field.begin() + m_msr_read_signal_off[signal_idx];
+            auto cpu_it = m_msr_read_cpu_idx.begin() + m_msr_read_signal_off[signal_idx];
+            auto off_it = m_msr_read_offset.begin() + m_msr_read_signal_off[signal_idx];
+            for (int i = 0; i < m_msr_read_signal_len[signal_idx]; ++i) {
+                *field_it = m_msrio->read_msr(*cpu_it, *off_it);
+                ++field_it;
+                ++cpu_it;
+                ++off_it;
+            }
         }
         return m_active_signal[signal_idx]->sample();
     }
@@ -275,16 +293,18 @@ namespace geopm
         }
         m_active_control[control_idx]->adjust(setting);
 
-        auto field_it = m_msr_write_field.begin() + m_msr_write_control_off[control_idx];
-        auto cpu_it = m_msr_write_cpu_idx.begin() + m_msr_write_control_off[control_idx];
-        auto off_it = m_msr_write_offset.begin() + m_msr_write_control_off[control_idx];
-        auto mask_it = m_msr_write_mask.begin() + m_msr_write_control_off[control_idx];
-        for (int i = 0; i < m_msr_write_control_len[control_idx]; ++i) {
-            m_msrio->write_msr(*cpu_it, *off_it, *mask_it, *field_it);
-            ++field_it;
-            ++cpu_it;
-            ++off_it;
-            ++mask_it;
+        if (m_msr_write_control_len[control_idx] != 0) {
+            auto field_it = m_msr_write_field.begin() + m_msr_write_control_off[control_idx];
+            auto cpu_it = m_msr_write_cpu_idx.begin() + m_msr_write_control_off[control_idx];
+            auto off_it = m_msr_write_offset.begin() + m_msr_write_control_off[control_idx];
+            auto mask_it = m_msr_write_mask.begin() + m_msr_write_control_off[control_idx];
+            for (int i = 0; i < m_msr_write_control_len[control_idx]; ++i) {
+                m_msrio->write_msr(*cpu_it, *off_it, *mask_it, *field_it);
+                ++field_it;
+                ++cpu_it;
+                ++off_it;
+                ++mask_it;
+            }
         }
     }
 
@@ -293,7 +313,9 @@ namespace geopm
         if (!m_is_active) {
             activate();
         }
-        m_msrio->read_batch(m_msr_read_field);
+        if (m_msr_read_field.size()) {
+            m_msrio->read_batch(m_msr_read_field);
+        }
         signal.resize(m_active_signal.size());
         auto sig_it = signal.begin();
         for (auto &as : m_active_signal) {
@@ -316,7 +338,9 @@ namespace geopm
             ac->adjust(*set_it);
             ++set_it;
         }
-        m_msrio->write_batch(m_msr_write_field);
+        if (m_msr_write_field.size()) {
+            m_msrio->write_batch(m_msr_write_field);
+        }
     }
 
     void PlatformIO::init_msr(void)
@@ -333,6 +357,25 @@ namespace geopm
             for (int idx = 0; idx < msr_ptr->num_control(); idx++) {
                 register_msr_control(msr_ptr->name() + ":" + msr_ptr->control_name(idx));
             }
+        }
+    }
+
+    void PlatformIO::init_time(void)
+    {
+        // Insert the signal name with an empty vector into the map
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<ISignal *> >("TIME", {}));
+        // Get reference to the per-cpu signal vector
+        std::vector <ISignal *> &signal = (*(ins_ret.first)).second;
+        // Check to see if the signal name has already been registered
+        if (!ins_ret.second) {
+            if (signal.size() != 1 ||
+                dynamic_cast<TimeSignal *>(signal[0]) == NULL) {
+                throw Exception("PlatformIO::init_time() class other than TimeSignal registered as the TIME signal.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
+        else {
+            signal = {new TimeSignal()};
         }
     }
 

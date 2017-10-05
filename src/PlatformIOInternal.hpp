@@ -72,6 +72,7 @@ namespace geopm
        protected:
             virtual int cpuid(void);
             virtual void init(void);
+            virtual void init_time(void);
             /// @brief Register all signals and controls for the MSR
             ///        interface.
             virtual void init_msr(void);
