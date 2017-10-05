@@ -67,7 +67,7 @@ class MSRTest : public :: testing :: Test
         std::vector<int> m_unit_types;
 
         // signals config
-        const int M_NUM_SIGNALS = 3;
+        const size_t M_NUM_SIGNALS = 3;
         std::vector<std::pair<std::string, struct IMSR::m_encode_s> > m_signals;
         std::vector<std::string> m_signal_names;
         std::vector<int> m_sig_begin_bits;
@@ -77,7 +77,7 @@ class MSRTest : public :: testing :: Test
         std::vector<double> m_expected_sig_values;
 
         // controls config
-        const int M_NUM_CONTROLS = 3;
+        const size_t M_NUM_CONTROLS = 3;
         std::vector<std::pair<std::string, struct IMSR::m_encode_s> > m_controls;
         std::vector<std::string> m_control_names;
         std::vector<int> m_con_begin_bits;
@@ -89,7 +89,7 @@ class MSRTest : public :: testing :: Test
 
         // MSR
         std::vector<std::string> m_msr_names;
-        std::vector<int> m_msr_offsets;
+        std::vector<uint64_t> m_msr_offsets;
         std::vector<const IMSR *> m_msrs;
 };
 
@@ -137,7 +137,7 @@ void MSRTest::ConfigSignals()
     ASSERT_EQ(M_NUM_SIGNALS, m_expected_sig_values.size());
 
     m_signals.resize(M_NUM_SIGNALS);
-    for (int idx = 0; idx < M_NUM_SIGNALS; idx++) {
+    for (size_t idx = 0; idx < M_NUM_SIGNALS; idx++) {
                  m_signals[idx] = std::pair<std::string, struct IMSR::m_encode_s>
                      (m_signal_names[idx], (struct IMSR::m_encode_s) {
                                            .begin_bit = m_sig_begin_bits[idx],
@@ -166,7 +166,7 @@ void MSRTest::ConfigControls()
     ASSERT_EQ(M_NUM_CONTROLS, m_expected_con_fields.size());
 
     m_controls.resize(M_NUM_CONTROLS);
-    for (int idx = 0; idx < M_NUM_CONTROLS; idx++) {
+    for (size_t idx = 0; idx < M_NUM_CONTROLS; idx++) {
                  m_controls[idx] = std::pair<std::string, struct IMSR::m_encode_s>
                      (m_control_names[idx], (struct IMSR::m_encode_s) {
                                            .begin_bit = m_con_begin_bits[idx],
