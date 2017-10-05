@@ -39,6 +39,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformIOInternal.hpp"
 #include "PlatformTopology.hpp"
+#include "TimeSignal.hpp"
 
 #include "MSR.hpp"
 #include "MSRIO.hpp"
@@ -104,7 +105,12 @@ namespace geopm
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it != m_name_cpu_signal_map.end()) {
             result = m_active_signal.size();
-            m_active_signal.push_back((*ncsm_it).second[cpu_idx]);
+            if ((*ncsm_it).second.size() == 1) {
+                m_active_signal.push_back((*ncsm_it).second[0]);
+            }
+            else {
+                m_active_signal.push_back((*ncsm_it).second[cpu_idx]);
+            }
             IMSRSignal *msr_sig = dynamic_cast<IMSRSignal *>(m_active_signal.back());
             if (msr_sig) {
                 std::vector<uint64_t> offset;
@@ -187,6 +193,7 @@ namespace geopm
 
     void PlatformIO::init(void)
     {
+        init_time();
         init_msr();
         m_is_init = true;
     }
@@ -333,6 +340,25 @@ namespace geopm
             for (int idx = 0; idx < msr_ptr->num_control(); idx++) {
                 register_msr_control(msr_ptr->name() + ":" + msr_ptr->control_name(idx));
             }
+        }
+    }
+
+    void PlatformIO::init_time(void)
+    {
+        // Insert the signal name with an empty vector into the map
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<ISignal *> >("TIME", {}));
+        // Get reference to the per-cpu signal vector
+        std::vector <ISignal *> &signal = (*(ins_ret.first)).second;
+        // Check to see if the signal name has already been registered
+        if (!ins_ret.second) {
+            if (signal.size() != 1 ||
+                dynamic_cast<TimeSignal *>(signal[0]) == NULL) {
+                throw Exception("PlatformIO::init_time() class other than TimeSignal registered as the TIME signal.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
+        else {
+            signal = {new TimeSignal()};
         }
     }
 
