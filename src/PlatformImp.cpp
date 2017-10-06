@@ -363,15 +363,15 @@ namespace geopm
         fd = open(m_msr_path, O_RDWR);
         //report errors
         if (fd < 0) {
-            char error_string[NAME_MAX];
+            char error_string[2 * NAME_MAX];
             if (errno == ENXIO || errno == ENOENT) {
-                snprintf(error_string, NAME_MAX, "device %s does not exist", m_msr_path);
+                snprintf(error_string, 2 * NAME_MAX, "device %s does not exist", m_msr_path);
             }
             else if (errno == EPERM || errno == EACCES) {
-                snprintf(error_string, NAME_MAX, "permission denied opening device %s", m_msr_path);
+                snprintf(error_string, 2 * NAME_MAX, "permission denied opening device %s", m_msr_path);
             }
             else {
-                snprintf(error_string, NAME_MAX, "system error opening cpu device %s", m_msr_path);
+                snprintf(error_string, 2 * NAME_MAX, "system error opening cpu device %s", m_msr_path);
             }
             throw Exception(error_string, GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
 
