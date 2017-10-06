@@ -25,6 +25,7 @@ examples/synthetic_benchmark.hpp
 examples/timed_region.cpp
 examples/threaded_step_example.c
 geopm.spec.in
+geopm-ohpc.spec.in
 Makefile.am
 openmp.mk
 test/legacy_whitelist.out
