@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "895becbc_1285df44",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1012543
+      },
+      "writtenOn": "2017-10-06T22:37:15Z",
+      "side": 1,
+      "message": "would prefer\n\n%if 0%{?sles_version} || 0%{?suse_version}",
+      "revId": "6aa5bd4167ca792951a50df4a62334d0da79cbe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e6de297_833689d4",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1012543
+      },
+      "writtenOn": "2017-10-06T22:37:15Z",
+      "side": 1,
+      "message": "alphabetize",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 27
+      },
+      "revId": "6aa5bd4167ca792951a50df4a62334d0da79cbe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b6a7db4_da6c955a",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1012543
+      },
+      "writtenOn": "2017-10-06T22:37:15Z",
+      "side": 1,
+      "message": "OHPC convention is\n\nDocDir:    %{OHPC_PUB}/doc/contrib",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 6
+      },
+      "revId": "6aa5bd4167ca792951a50df4a62334d0da79cbe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f846185_5b39d106",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1012543
+      },
+      "writtenOn": "2017-10-06T22:37:15Z",
+      "side": 1,
+      "message": "no longer required",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 24
+      },
+      "revId": "6aa5bd4167ca792951a50df4a62334d0da79cbe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09f318cf_ebf96e7f",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1012543
+      },
+      "writtenOn": "2017-10-06T22:37:15Z",
+      "side": 1,
+      "message": "ldconfig doesn\u0027t look in /opt -- safe to omit",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 14
+      },
+      "revId": "6aa5bd4167ca792951a50df4a62334d0da79cbe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9022c042_b87822e9",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1012543
+      },
+      "writtenOn": "2017-10-06T22:37:15Z",
+      "side": 1,
+      "message": "remove this-- OHPC_PUB is sufficient",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 12
+      },
+      "revId": "6aa5bd4167ca792951a50df4a62334d0da79cbe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
