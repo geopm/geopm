@@ -129,6 +129,7 @@ EXTRA_DIST = .gitignore \
              geopm.spec \
              Makefile.am \
              MANIFEST \
+             ohpc-submission.md \
              README.md \
              ronn/geopm.7.ronn \
              ronn/geopmpy.7.ronn \
