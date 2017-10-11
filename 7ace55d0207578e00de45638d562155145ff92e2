@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6e4a95c_66a6c293",
+        "filename": "test/plugin/TestPluginApp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-11T21:40:52Z",
+      "side": 1,
+      "message": "Why this syntax instead of -\u003e ?",
+      "range": {
+        "startLine": 87,
+        "startChar": 21,
+        "endLine": 87,
+        "endChar": 27
+      },
+      "revId": "7ace55d0207578e00de45638d562155145ff92e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
