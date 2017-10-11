@@ -56,7 +56,6 @@ int main(int argc, char **argv)
     double progress, time_delta, clock_freq;
     struct geopm_time_s last_time;
     struct geopm_time_s curr_time;
-    struct geopm_prof_message_s message;
 
     setenv("GEOPM_POLICY", policy_name, 1);
     setenv("GEOPM_REPORT", report_name, 1);
@@ -82,8 +81,10 @@ int main(int argc, char **argv)
         geopm_time(&curr_time);
         time_delta = geopm_time_diff(&last_time, &curr_time);
         /// @todo: Lost find method.
-        /// message = table.find(local_rank);
-        clock_freq = message.progress;
+        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator it;
+        size_t len;
+        table.dump(it, len);
+        clock_freq = (*it).second.progress;
         num_clock += time_delta * clock_freq;
         progress = (double)num_clock / (double)clock_req;
         progress = progress <= 1.0 ? progress : 1.0;
