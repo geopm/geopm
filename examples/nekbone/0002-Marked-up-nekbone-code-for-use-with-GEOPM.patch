@@ -316,33 +316,34 @@ diff --git a/test/example1/makefile b/test/example1/makefile
 index 0c4f938..06c35b9 100644
 --- a/test/example1/makefile
 +++ b/test/example1/makefile
-@@ -1,21 +1,21 @@
+@@ -1,21 +1,22 @@
 -### makefile automatically created by makenek 07/07/2016 22:54:57 ###
 +### makefile automatically created by makenek 08/02/2016 13:51:36 ###
  BINNAME=nekbone
 -CASENAME:=
 -CASEDIR:=/nfshome/tspelce/apps/nekbone-2.3.4_ss/test/example1
 -S:=/nfshome/tspelce/apps/nekbone-2.3.4_ss/src
++GEOPM_DIR?=$(HOME)/build/geopm
 +CASENAME:=ex1
-+CASEDIR:=/home/sssylves/repos/p3_power_management-applications/nekbone-2.3.4_ss/test/example1
-+S:=/home/sssylves/repos/p3_power_management-applications/nekbone-2.3.4_ss/src
++CASEDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
++S:=$(shell dirname $(CASEDIR) | sed 's|/test|/src|')
  J:=$S/jl
  OPT_INCDIR:=./
  OBJDIR=obj
  IFMPI:=true
 -F77:=mpiifort -qopenmp
 -CC:=mpiicc -qopenmp
-+F77:=mpifort -qopenmp -I/home/sssylves/build/geopm/lib/ifort/modules/geopm-x86_64/
++F77:=mpifort -qopenmp -I$(GEOPM_DIR)/lib/ifort/modules/geopm-x86_64/
 +CC:=mpicc -qopenmp
  P:=-r8 -fpconstant -fpp
  PPPO=
  PPS= PTRSIZE8 MPI LONGINT8 UNDERSCORE GLOBAL_LONG_LONG
 -G:=-xMIC-AVX512 
-+G:=-xMIC-AVX512 -DGEOPM -I/home/sssylves/build/geopm/include
++G:=-xMIC-AVX512 -DGEOPM -I$(GEOPM_DIR)/include
  OPT_FLAGS_STD=
  USR:=
 -USR_LFLAGS:=
-+USR_LFLAGS:=-L/home/sssylves/build/geopm/lib -lgeopmfort -lgeopm
++USR_LFLAGS:=-L$(GEOPM_DIR)/lib -lgeopmfort -lgeopm
  
  ################################################################################
  
@@ -384,7 +385,7 @@ index 60db3e7..73676c4 100755
  if [ ${TargetARCH} == 'SNB' ]; then
  GFLAGS=-xAVX
  fi
-@@ -56,15 +69,18 @@ fi
+@@ -56,16 +69,18 @@ fi
  #       a makefile_usr.inc has to be provided containing the build rules 
  #USR="foo.o"
  
@@ -393,7 +394,7 @@ index 60db3e7..73676c4 100755
  # linking flags
  #USR_LFLAGS="-lhugetlbfs"
  #USR_LFLAGS="-L/usr/lib/ -lfoo"
-+USR_LFLAGS="-L/home/sssylves/build/geopm/lib -lgeopmfort -lgeopm"
++USR_LFLAGS="-L$(GEOPM_DIR)/lib -lgeopmfort -lgeopm"
  
  # generic compiler flags
  #G="-g"
