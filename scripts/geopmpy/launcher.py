@@ -961,11 +961,22 @@ class IMPIExecLauncher(Launcher):
         """
         parser = SubsetOptionParser()
         parser.add_option('-n', dest='num_rank', nargs=1, type='int')
+        parser.add_option('--hosts', dest='node_list', nargs=1, type='int')
+        parser.add_option('-f', '--hostfile', dest='host_file', nargs=1, type='int')
 
         opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
 
         self.num_rank = opts.num_rank
-        self.num_node = None
+        if self.node_list:
+            self.num_node = len(self.node_list.split(','))
+        elif self.host_file:
+            with open(self.host_file) as fid:
+                self.num_node = 0
+                for line in fid.readlines():
+                    if not (line.startswith('#') or len(line) == 0):
+                        self.num_node += 1
+        else:
+            self.num_node = None
         self.cpu_per_rank = None
         self.timeout = None
         self.time_limit = None
@@ -1016,7 +1027,7 @@ class IMPIExecLauncher(Launcher):
         if self.node_list is None and self.host_file is None:
             result = []
         elif self.node_list is not None:
-            result = ['-hosts', self.node_list]
+            result = ['--hosts', self.node_list]
         elif self.host_file is not None:
             result = ['-f', self.host_file]
         return result
