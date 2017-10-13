@@ -126,13 +126,14 @@ TEST_F(SharedMemoryTest, share_data_ipc)
     if (pid) {
         // parent process
         config_shmem_u();
+        sleep(1);
         EXPECT_EQ(memcmp(m_shmem_u->pointer(), &shared_data, m_size), 0);
         cleanup_shmem_u();
     } else {
         // child process
         config_shmem();
         memcpy(m_shmem->pointer(), &shared_data, m_size);
-        sleep(1);
+        sleep(2);
         cleanup_shmem();
         exit(0);
     }
