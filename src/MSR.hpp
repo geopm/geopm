@@ -73,6 +73,7 @@ namespace geopm
                 M_UNITS_HZ,
                 M_UNITS_WATTS,
                 M_UNITS_JOULES,
+                M_UNITS_CELSIUS,
             };
 
             IMSR() {}
