@@ -30,41 +30,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GOVERNING_DECIDER_HPP_INCLUDE
-#define GOVERNING_DECIDER_HPP_INCLUDE
+#ifndef SIMPLE_FREQ_DECIDER_HPP_INCLUDE
+#define SIMPLE_FREQ_DECIDER_HPP_INCLUDE
 
 #include "Decider.hpp"
 #include "geopm_plugin.h"
-#include <map>
+#include "GoverningDecider.hpp"
 
 namespace geopm
 {
-    /// @brief Simple implementation of a power governing leaf decider.
+
+    /// @brief Simple implementation of a binary frequency decider.
     ///
-    /// The governing decider uses the RAPL energy readings for each RAPL domain
-    /// of control to distribute the given per-node power budget while staying under
-    /// a given power cap. Each domain (ex: socket) subtracts the used DRAM power
-    /// from the total power budget and gives the remainder to the package (cores).
-    class GoverningDecider : public Decider
+    /// This frequency decider uses the geopm_hint interface to determine
+    /// wether we are in a compute or memory bound region and choose
+    /// the maximum frequency and a fraction of the minimal possible frequency
+    /// repsectively.
+    ///
+    /// This is a leaf decider.
+
+    class SimpleFreqDecider : public GoverningDecider
     {
         public:
-            /// @ brief GoverningDecider default constructor.
-            GoverningDecider();
-            GoverningDecider(const GoverningDecider &other);
-            /// @ brief GoverningDecider destructor, virtual.
-            virtual ~GoverningDecider();
+            /// @ brief SimpleFreqDecider default constructor.
+            SimpleFreqDecider();
+            SimpleFreqDecider(const SimpleFreqDecider &other);
+            /// @brief SimpleFreqDecider destructor, virtual.
+            virtual ~SimpleFreqDecider();
             virtual IDecider *clone(void) const;
-            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy);
+            // @brief Actual method altering GoverningDecider behavior
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
-            virtual bool decider_supported(const std::string &descripton);
-            virtual const std::string& name(void) const;
-        protected:
-            std::string m_name;
-            const unsigned m_min_num_converged;
-            double m_last_power_budget;
-            double m_last_dram_power;
-            const int m_num_sample;
-            std::map<uint64_t, unsigned> m_num_converged;
+        private:
+            double cpu_freq_sticker(void);
+            double cpu_freq_min(void);
+            double cpu_freq_max(void);
+            const std::string m_cpu_info_path;
+            const std::string m_cpu_freq_min_path;
+            const std::string m_cpu_freq_max_path;
+            void parse_env_map();
+            double m_last_freq;
+            const double m_freq_min;
+            const double m_freq_max;
+            const double m_freq_step;
+            const unsigned int m_num_cores;
+            std::map<uint64_t, double> m_rid_freq_map;
     };
 }
 

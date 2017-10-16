@@ -131,6 +131,11 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
+              test/gtest_links/SimpleFreqDeciderTest.map \
+              test/gtest_links/SimpleFreqDeciderTest.decider_is_supported \
+              test/gtest_links/SimpleFreqDeciderTest.name \
+              test/gtest_links/SimpleFreqDeciderTest.clone \
+              test/gtest_links/SimpleFreqDeciderTest.hint \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
@@ -224,6 +229,10 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/BalancingDeciderTest.cpp \
                           plugin/GoverningDecider.hpp \
                           test/GoverningDeciderTest.cpp \
+                          plugin/SimpleFreqDecider.hpp \
+                          test/MockRegion.hpp \
+                          test/MockPolicy.hpp \
+                          test/SimpleFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockMSRIO.hpp \
                           test/MockPlatform.hpp \
