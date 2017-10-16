@@ -38,9 +38,13 @@ import fnmatch
 import time
 import pandas
 import collections
+import random
+from natsort import natsorted
 
 import geopm_test_launcher
 import geopmpy.io
+
+import code # FIXME
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
@@ -716,6 +720,112 @@ class TestIntegration(unittest.TestCase):
             self.assertTrue(('MPI_Alltoall' in rr));
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
+
+    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
+                         'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
+    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
+                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    def test_plugin_simple_freq(self):
+        """
+        """
+        name = 'test_plugin_simple_freq'
+        num_node = 1
+        num_rank = 4
+        loop_count = 50
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('dgemm', 8.0)
+        app_conf.append_region('stream', 1.5)
+
+        # Get an idle node;  Necessary to ensure all the runs happen on the same node
+        # idle_nodes = natsorted(geopm_test_launcher.TestLauncher.get_idle_nodes())
+        # random_nodes = random.sample(idle_nodes, num_node)
+        random_nodes = ['mr-fusion3']
+
+        # Setup the static policy run
+        report_path = name + '_static_policy_plugin.report'
+        trace_path = name + '_static_policy_plugin.trace'
+        self._options['power_budget'] = 250 # Run at TDP to ensure RAPL does not win.
+        # self._options['leaf_decider'] = 'static_policy'
+        ctl_conf = geopmpy.io.CtlConf(name + '_static_policy_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900, region_barrier=True, performance=True)
+        launcher.write_log(name, '\nCtl config -\n{}'.format(ctl_conf))
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_node_list(','.join(random_nodes))
+        launcher.run(name)
+
+        # Setup the simple freq run
+        report_path = name + '_simple_freq_plugin.report'
+        trace_path = name + '_simple_freq_plugin.trace'
+        self._options['leaf_decider'] = 'simple_freq'
+        ctl_conf = geopmpy.io.CtlConf(name + '_simple_freq_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900, region_barrier=True, performance=True)
+        launcher.write_log(name, '\nCtl config -\n{}'.format(ctl_conf))
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.set_node_list(','.join(random_nodes))
+        launcher.run(name)
+
+        # Gather the output from both runs
+        self._output = geopmpy.io.AppOutput('*plugin.report', '*plugin.trace*')
+        idx = pandas.IndexSlice
+        report_df = self._output.get_report_df()
+        trace_df = self._output.get_trace_df()
+
+        # Get the report data for the epoch regions from each plugin
+        power_governing_df = report_df.loc[idx[:, :, :, :, 'power_governing', :, :, 'epoch'], ]
+        simple_freq_df = report_df.loc[idx[:, :, :, :, 'simple_freq', :, :, 'epoch'], ]
+        power_governing_df = power_governing_df.reset_index(drop=True)
+        simple_freq_df = simple_freq_df.reset_index(drop=True)
+
+        # Write report stats to the log
+        launcher.write_log(name, '\nApp config -\n{}'.format(app_conf))
+        launcher.write_log(name, 'Power Governing leaf decider -\n{}'.format(power_governing_df.T))
+        launcher.write_log(name, 'Simple Freq decider -\n{}'.format(simple_freq_df.T))
+
+        # TODO - Remove these prints to stdout before merge
+        print
+        print 'Node list : {}'.format(random_nodes)
+        print '{}'.format(app_conf)
+        print 'Power Governing leaf decider :\n{}\n'.format(power_governing_df.T)
+        print 'Simple Freq decider :\n{}\n'.format(simple_freq_df.T)
+
+        # Write ratios of the energy and runtime
+        energy_savings = (power_governing_df['energy'] - simple_freq_df['energy']) / power_governing_df['energy']
+        runtime_savings = (power_governing_df['runtime'] - simple_freq_df['runtime']) / power_governing_df['runtime']
+
+        launcher.write_log(name, 'Energy savings ratio = {}'.format(energy_savings.item()))
+        launcher.write_log(name, 'Runtime savings ratio = {}'.format(runtime_savings.item()))
+        print 'Energy savings ratio = {}'.format(energy_savings.item())
+        print 'Runtime savings ratio = {}\n'.format(runtime_savings.item())
+
+        ###############################################################################################
+        # Get the trace data for each of the plugins
+        power_governing_trace_df = trace_df.loc[idx[:, :, :, :, 'power_governing', :, :], ]
+        simple_freq_trace_df = trace_df.loc[idx[:, :, :, :, 'simple_freq', :, :], ]
+
+        # Drop the multiindex to make the df more readable
+        power_governing_trace_df = power_governing_trace_df.reset_index(drop=True)
+        simple_freq_trace_df = simple_freq_trace_df.reset_index(drop=True)
+
+        dgemm_samples_governing = power_governing_trace_df.loc[power_governing_trace_df['region_id'] == '11396693813']
+        stream_samples_governing = power_governing_trace_df.loc[power_governing_trace_df['region_id'] == '20779751936']
+
+        dgemm_samples_freq = simple_freq_trace_df.loc[simple_freq_trace_df['region_id'] == '11396693813']
+        stream_samples_freq = simple_freq_trace_df.loc[simple_freq_trace_df['region_id'] == '20779751936']
+
+        # TODO - Remove these prints to stdout before merge
+        print 'Power governing DGEMM unique frequency values : {}'.format(dgemm_samples_governing['frequency-0'].unique())
+        print 'Power governing stream unique frequency values : {}'.format(stream_samples_governing['frequency-0'].unique())
+        print 'Simple freq DGEMM unique frequency values : {}'.format(dgemm_samples_freq['frequency-0'].unique())
+        print 'Simple freq stream unique frequency values : {}'.format(stream_samples_freq['frequency-0'].unique())
+
+        print '=' * 60
+        # code.interact(local=dict(globals(), **locals()))
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
