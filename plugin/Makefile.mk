@@ -47,6 +47,13 @@ libgeopmpi_balancing_la_SOURCES = plugin/BalancingDecider.cpp \
                                   plugin/BalancingDecider.hpp \
                                   # end
 
+pkglib_LTLIBRARIES += libgeopmpi_simplefreq.la
+libgeopmpi_simplefreq_la_SOURCES = plugin/SimpleFreqDecider.cpp \
+                                   plugin/SimpleFreqDecider.hpp \
+                                   # end
+
+libgeopmpi_simplefreq_la_LIBADD = libgeopmpi_governing.la
+
 # -module required to force .so generation of plugin.
 if ENABLE_MPI
 libgeopmpi_mpi_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
@@ -55,3 +62,4 @@ libgeopmpi_mpi_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -module
 endif
 libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) -module
 libgeopmpi_balancing_la_LDFLAGS = $(AM_LDFLAGS) -module
+libgeopmpi_simplefreq_la_LDFLAGS = $(AM_LDFLAGS) -module
