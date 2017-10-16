@@ -92,11 +92,17 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
                     if (plugin != NULL) {
                         register_func = (int (*)(int, struct geopm_factory_c *, void *)) dlsym(plugin, "geopm_plugin_register");
                         if (register_func != NULL) {
-                            register_func(plugin_type, factory, plugin);
+                            err = register_func(plugin_type, factory, plugin);
                         }
                         else {
                             dlclose(plugin);
                         }
+                    }
+                    else {
+                        err = -1;
+#ifdef GEOPM_DEBUG
+                        fprintf(stderr,"Error dlopen(): %s\n", dlerror());
+#endif
                     }
                 }
             }
