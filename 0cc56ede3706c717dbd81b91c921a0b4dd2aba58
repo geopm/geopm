@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0ecef25_34002e60",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-16T22:12:57Z",
+      "side": 1,
+      "message": "Would it be overkill to get rid of the sleeps altogether (not confident that they permanently fix the issue) and use signals between the process for synchronization?  I can work on the patch if you think it\u0027s a good idea.",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 5
+      },
+      "revId": "0cc56ede3706c717dbd81b91c921a0b4dd2aba58",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
