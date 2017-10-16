@@ -45,7 +45,7 @@ from geopmpy.launcher import resource_manager
 
 class TestLauncher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
-                 trace_path=None, host_file=None, time_limit=600, region_barrier=False):
+                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False):
         self._app_conf = app_conf
         self._ctl_conf = ctl_conf
         self._report_path = report_path
@@ -53,6 +53,7 @@ class TestLauncher(object):
         self._host_file = host_file
         self._time_limit = time_limit
         self._region_barrier = region_barrier
+        self._performance = performance
         self._node_list = None
         self._pmpi_ctl = 'process'
         self._job_name = 'geopm_int_test'
@@ -137,14 +138,22 @@ class TestLauncher(object):
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
-        core_socket = [int(line.split(':')[1])
+        cpu_thread_core_socket = [int(line.split(':')[1])
                        for line in out.splitlines()
-                       if line.find('Core(s) per socket:') == 0 or
+                       if line.find('CPU(s):') == 0 or
+                          line.find('Thread(s) per core:') == 0 or
+                          line.find('Core(s) per socket:') == 0 or
                           line.find('Socket(s):') == 0]
-        # Mulitply num core per socket by num socket and remove one
-        # CPU for BSP to calculate number of CPU for application.
-        # Don't use hyper-threads.
-        self._num_cpu = core_socket[0] * core_socket[1] - 1
+        if self._performance == True:
+            # Mulitply num core per socket by num sockets, subtract 1, then multiply by threads per core.
+            # Remove one CPU for BSP to calculate number of CPU for application.
+            # Use hyper-threads.
+            self._num_cpu = ((cpu_thread_core_socket[2] * cpu_thread_core_socket[3]) - 1) * cpu_thread_core_socket[1]
+        else:
+            # Mulitply num core per socket by num socket and remove one
+            # CPU for BSP to calculate number of CPU for application.
+            # Don't use hyper-threads.
+            self._num_cpu = cpu_thread_core_socket[0] * cpu_thread_core_socket[3] - 1
 
     def set_cpu_per_rank(self):
         try:
