@@ -143,16 +143,8 @@ MPIEXEC=/usr/lib64/openmpi/bin/mpiexec %{__make} check || \
 
 %install
 %{__make} DESTDIR=%{buildroot} install
-rm -f %{buildroot}/%{_libdir}/libgeopm.a
-rm -f %{buildroot}/%{_libdir}/libgeopm.la
-rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.a
-rm -f %{buildroot}/%{_libdir}/libgeopmpolicy.la
-rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.a
-rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_balancing.la
-rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.a
-rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_governing.la
-rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_mpi.a
-rm -f %{buildroot}/%{_libdir}/geopm/libgeopmpi_mpi.la
+rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
+        find %{buildroot}/%{_libdir} -name '*.la')
 rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 
 %clean
@@ -180,6 +172,9 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_libdir}/geopm/libgeopmpi_balancing.so.0.0.0
 %{_libdir}/geopm/libgeopmpi_balancing.so.0
 %{_libdir}/geopm/libgeopmpi_balancing.so
+%{_libdir}/geopm/libgeopmpi_simplefreq.so.0.0.0
+%{_libdir}/geopm/libgeopmpi_simplefreq.so.0
+%{_libdir}/geopm/libgeopmpi_simplefreq.so
 %{_libdir}/geopm/libgeopmpi_mpi.so.0.0.0
 %{_libdir}/geopm/libgeopmpi_mpi.so.0
 %{_libdir}/geopm/libgeopmpi_mpi.so
