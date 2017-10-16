@@ -887,8 +887,8 @@ def generate_freq_plot(trace_df, config):
 
 
 def main(argv):
-    report_plots = {'box', 'bar'}
-    trace_plots = {'power', 'epoch', 'freq'}
+    report_plots = {'debug', 'box', 'bar'}
+    trace_plots = {'debug', 'power', 'epoch', 'freq'}
 
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split() # Ensures COLUMNS is set so text wraps
     pandas.set_option('display.width', int(os.environ['COLUMNS']))               # Same tweak for Pandas
@@ -1082,8 +1082,13 @@ def main(argv):
         # This tries to create the name of the plot function based on what was parsed in args.plot_types.  If it exists in
         # the global namespace, it can be called through the namespace.
         plot_func_name = 'generate_{}_plot'.format(plot)
-        if plot_func_name not in globals():
+
+        if plot == 'debug':
+            banner='Report data in report_df; Trace data in trace_df.'
+            code.interact(banner=banner, local=dict(globals(), **locals()))
+        elif plot_func_name not in globals():
             raise KeyError('Invalid plot type "{}"!  Valid plots are {}.'.format(plot, ', '.join(plots)))
+
         if plot in trace_plots:
             if trace_df is None or len(trace_df) == 0:
                 raise LookupError('No data present for the requested trace plot.')
