@@ -315,7 +315,7 @@
           chunk_size = 1
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_EVOLVE'//c_null_char, &
-                               GEOPM_REGION_HINT_UNKNOWN, region_id)
+                               GEOPM_REGION_HINT_MEMORY, region_id)
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,tid)
       tid = omp_get_thread_num()
@@ -815,7 +815,7 @@
              chunk_size = 1
          end if
          ierr = geopm_prof_region(c_char_'AT_PHASE_INDEXMAP_1'//c_null_char, &
-                                 GEOPM_REGION_HINT_UNKNOWN, region_id)
+                                 GEOPM_REGION_HINT_COMPUTE, region_id)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
@@ -845,7 +845,7 @@
              chunk_size = 1
          end if
          ierr = geopm_prof_region(c_char_'AT_PHASE_INDEXMAP_2'//c_null_char, &
-                                  GEOPM_REGION_HINT_UNKNOWN, region_id)
+                                  GEOPM_REGION_HINT_COMPUTE, region_id)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
@@ -875,7 +875,7 @@
              chunk_size = 1
          end if
          ierr = geopm_prof_region(c_char_'AT_PHASE_INDEXMAP_3'//c_null_char, &
-                                 GEOPM_REGION_HINT_UNKNOWN, region_id)
+                                 GEOPM_REGION_HINT_COMPUTE, region_id)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
@@ -1101,10 +1101,10 @@
 
       if (pswitch .eq. 0) then
          ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_1'//c_null_char, &
-                                 GEOPM_REGION_HINT_UNKNOWN, region_id)
+                                 GEOPM_REGION_HINT_COMPUTE, region_id)
       else
          ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_1_2'//c_null_char, &
-                                 GEOPM_REGION_HINT_UNKNOWN, region_id)
+                                 GEOPM_REGION_HINT_COMPUTE, region_id)
       endif
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,jj,tid,y)
@@ -1180,7 +1180,7 @@
           chunk_size = 1
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_2'//c_null_char, &
-                              GEOPM_REGION_HINT_UNKNOWN, region_id)
+                              GEOPM_REGION_HINT_COMPUTE, region_id)
       ierr = geopm_prof_enter(region_id)
 
 !$omp parallel default(shared) private(i,j,k,ii,y,tid)
@@ -1256,7 +1256,7 @@
           chunk_size = 1
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_FFT_3'//c_null_char, &
-                              GEOPM_REGION_HINT_UNKNOWN, region_id)
+                              GEOPM_REGION_HINT_COMPUTE, region_id)
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,y, tid)
       tid = omp_get_thread_num()
@@ -1592,7 +1592,7 @@
       end if
 
       ierr = geopm_prof_region(c_char_'AT_PHASE_TRANS_1'//c_null_char, &
-                               GEOPM_REGION_HINT_UNKNOWN, region_id)
+                               GEOPM_REGION_HINT_MEMORY, region_id)
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,ii,jj,z,tid)
          tid = omp_get_thread_num()
@@ -1651,7 +1651,7 @@
       integer(8) region_id
 
       ierr = geopm_prof_region(c_char_'AT_PHASE_MPI_ATA_1'//c_null_char, &
-                              GEOPM_REGION_HINT_UNKNOWN, region_id)
+                              GEOPM_REGION_HINT_NETWORK, region_id)
       ierr = geopm_prof_enter(region_id)
       if (timers_enabled) call timer_start(T_transxzglo)
       call mpi_alltoall(xin, ntdivnp_i/np, dc_type, &
@@ -1696,7 +1696,7 @@
           chunk_size = 1
       end if
       ierr = geopm_prof_region(c_char_'AT_PHASE_TRANS_2'//c_null_char, &
-                              GEOPM_REGION_HINT_UNKNOWN, region_id)
+                              GEOPM_REGION_HINT_MEMORY, region_id)
       ierr = geopm_prof_enter(region_id)
 
       if (timers_enabled) call timer_start(T_transxzfin)
@@ -1846,7 +1846,7 @@
 ! do transpose among all  processes with same 1-coord (me1)
 !---------------------------------------------------------------------
       ierr = geopm_prof_region(c_char_'AT_PHASE_MPI_ATA_2'//c_null_char, &
-                               GEOPM_REGION_HINT_UNKNOWN, region_id)
+                               GEOPM_REGION_HINT_NETWORK, region_id)
       ierr = geopm_prof_enter(region_id)
       if (timers_enabled)call timer_start(T_transxzglo)
       call mpi_alltoall(xin, d1*d2*d3/np2, dc_type, &
@@ -1995,7 +1995,7 @@
 ! do transpose among all processes with same 1-coord (me1)
 !---------------------------------------------------------------------
       ierr = geopm_prof_region(c_char_'AT_PHASE_MPI_ATA_3'//c_null_char, &
-                              GEOPM_REGION_HINT_UNKNOWN, region_id)
+                              GEOPM_REGION_HINT_NETWORK, region_id)
       ierr = geopm_prof_enter(region_id)
       if (timers_enabled) call timer_start(T_transxyglo)
       call mpi_alltoall(xin, d1*d2*d3/np1, dc_type, &
