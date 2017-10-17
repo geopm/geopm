@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36144cbb_86f63f2f",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-10-17T01:26:14Z",
+      "side": 1,
+      "message": "Nit, move this up under plugin/SimpleFreq...",
+      "range": {
+        "startLine": 235,
+        "startChar": 26,
+        "endLine": 235,
+        "endChar": 56
+      },
+      "revId": "fb62dc3a2907335e65633770e2939caf5d4a5a78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
