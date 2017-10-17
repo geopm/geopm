@@ -74,6 +74,7 @@ BuildRequires: automake
 BuildRequires: hwloc-devel
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
+BuildRequires: ohpc-buildroot
 BuildRequires: python
 BuildRequires: python-devel
 BuildRequires: unzip
@@ -87,7 +88,6 @@ BuildRequires: json-c-devel
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif
-
 
 %description
 Global Extensible Open Power Manager (GEOPM) is an extensible power
@@ -126,7 +126,8 @@ including support for static control.
 %ohpc_setup_compiler
 test -f configure || ./autogen.sh
 ./configure --prefix=%{install_path} \
-            --disable-fortran --disable-doc || cat config.log
+            --disable-fortran --disable-doc \
+            || cat config.log
 %{__make}
 
 
