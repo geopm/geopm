@@ -74,6 +74,7 @@ BuildRequires: automake
 BuildRequires: hwloc-devel
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
+BuildRequires: ohpc-buildroot
 BuildRequires: python
 BuildRequires: python-devel
 BuildRequires: unzip
@@ -87,7 +88,6 @@ BuildRequires: json-c-devel
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif
-
 
 %description
 Global Extensible Open Power Manager (GEOPM) is an extensible power
@@ -104,7 +104,7 @@ global application performance within a power bound.  The root of the control
 hierarchy tree can communicate through shared memory with the system resource
 management daemon to extend the hierarchy above the individual MPI job level
 and enable management of system power resources for multiple MPI jobs and
-multiple users by the system resource manager.  The geopm package provides the
+multiple users by the system resource manager.  The GEOPM package provides the
 libgeopm library, the libgeopmpolicy library, the geopmctl application and the
 geopmpolicy application.  The libgeopm library can be called within MPI
 applications to enable application feedback for informing the control
@@ -126,7 +126,8 @@ including support for static control.
 %ohpc_setup_compiler
 test -f configure || ./autogen.sh
 ./configure --prefix=%{install_path} \
-            --disable-fortran --disable-doc || cat config.log
+            --disable-fortran --disable-doc \
+            || cat config.log
 %{__make}
 
 
