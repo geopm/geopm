@@ -455,8 +455,8 @@ class Launcher(object):
             if self.num_node is None:
                 raise SyntaxError('Number of nodes must be specified.')
             self.init_topo()
-            if not is_cpu_per_rank_override and self.cpu_per_rank == 1:
-                self.cpu_per_rank = (self.num_linux_cpu - 1) // self.rank_per_node
+            if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
+                self.cpu_per_rank = (self.num_linux_cpu - self.thread_per_core) // self.rank_per_node
                 if self.cpu_per_rank == 0:
                     self.cpu_per_rank = 1
             if self.config.get_ctl() == 'process':
@@ -579,15 +579,20 @@ class Launcher(object):
         affinities.
         """
         result = []
+        # The number of application logical CPUs per compute node.
         app_cpu_per_node = self.num_app_mask * self.cpu_per_rank
+        # Total number of cores per node
         core_per_node = self.core_per_socket * self.num_socket
+        # Number of application ranks per socket (floored)
         rank_per_socket = self.num_app_mask // self.num_socket
+        # Number of logical CPUs per socket
         cpu_per_socket = self.num_linux_cpu // self.num_socket
 
+        # Try one thread per core first
         app_thread_per_core = 1
         if app_cpu_per_node > core_per_node:
             app_thread_per_core = 2
-            while app_thread_per_core <= self.thread_per_core:
+            while app_thread_per_core < self.thread_per_core:
                if (app_cpu_per_node % app_thread_per_core == 0 and
                    app_cpu_per_node // app_thread_per_core <= core_per_node):
                    break
