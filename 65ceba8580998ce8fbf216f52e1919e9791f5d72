@@ -22,6 +22,30 @@
       "revId": "65ceba8580998ce8fbf216f52e1919e9791f5d72",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "306aaa03_2785da18",
+        "filename": "examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-17T16:50:43Z",
+      "side": 1,
+      "message": "If we expect the end user to rely on the generated version, why are we patching it?",
+      "parentUuid": "58a8c8a3_3881d016",
+      "range": {
+        "startLine": 318,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 28
+      },
+      "revId": "65ceba8580998ce8fbf216f52e1919e9791f5d72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
