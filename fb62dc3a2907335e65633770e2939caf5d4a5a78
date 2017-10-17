@@ -22,6 +22,30 @@
       "revId": "fb62dc3a2907335e65633770e2939caf5d4a5a78",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3bfb59aa_5bc24e6b",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-17T17:02:55Z",
+      "side": 1,
+      "message": "All of the other deciders (which reside in plugin dir) have their respective tests in the test dir.  I understand the nit but is it worth moving all the decider (and now MPI imp plugin) tests to the plugin dir?",
+      "parentUuid": "36144cbb_86f63f2f",
+      "range": {
+        "startLine": 235,
+        "startChar": 26,
+        "endLine": 235,
+        "endChar": 56
+      },
+      "revId": "fb62dc3a2907335e65633770e2939caf5d4a5a78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
