@@ -22,6 +22,30 @@
       "revId": "7ace55d0207578e00de45638d562155145ff92e2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b06d06e_10a59189",
+        "filename": "test/plugin/TestPluginApp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-10-17T18:19:14Z",
+      "side": 1,
+      "message": "Iterators don\u0027t override the arrow operator unfortunately (Chris, Brandon).",
+      "parentUuid": "c6e4a95c_66a6c293",
+      "range": {
+        "startLine": 87,
+        "startChar": 21,
+        "endLine": 87,
+        "endChar": 27
+      },
+      "revId": "7ace55d0207578e00de45638d562155145ff92e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
