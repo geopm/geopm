@@ -148,9 +148,8 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
 
-    if (!err) {
-        err = MPI_Finalize();
-    }
+    int err_fin = MPI_Finalize();
+    err = err ? err : err_fin;
 
     return err;
 }
