@@ -114,12 +114,7 @@ int main(int argc, char **argv)
 "\n"
 "\n";
 
-    err = MPI_Init(&argc, &argv);
-    if (!err) {
-        err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    }
-
-    if (!err && argc > 1) {
+    if (argc > 1) {
         if (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
             strncmp(argv[1], "-h", strlen("-h")) == 0) {
             if (!rank) {
@@ -139,6 +134,10 @@ int main(int argc, char **argv)
         }
     }
 
+    err = MPI_Init(&argc, &argv);
+    if (!err) {
+        err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    }
     if (!err) {
         err = geopm_prof_region("model-init", GEOPM_REGION_HINT_UNKNOWN, &init_rid);
     }
@@ -166,13 +165,14 @@ int main(int argc, char **argv)
             app.run();
         }
     }
-    if (!err) {
-        err = MPI_Finalize();
-    }
     if (err) {
         char err_msg[NAME_MAX];
         geopm_error_message(err, err_msg, NAME_MAX);
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
+
+    int err_fin = MPI_Finalize();
+    err = err ? err : err_fin;
+
     return err;
 }
