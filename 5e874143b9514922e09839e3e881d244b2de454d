@@ -16,6 +16,24 @@
       "revId": "5e874143b9514922e09839e3e881d244b2de454d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98436fa9_ee660a65",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-18T21:32:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8373e904_8c2af706",
+      "revId": "5e874143b9514922e09839e3e881d244b2de454d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
