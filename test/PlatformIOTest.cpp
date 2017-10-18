@@ -261,7 +261,7 @@ TEST_F(PlatformIOTest, time_signal)
     double time_0 = m_platform_io->sample(idx);
     sleep(1);
     double time_1 = m_platform_io->sample(idx);
-    EXPECT_LT(1, time_1 - time_0);
+    EXPECT_NEAR(1, time_1 - time_0, 0.1);
     EXPECT_LE(0, time_0);
     EXPECT_LE(0, time_1);
 }
