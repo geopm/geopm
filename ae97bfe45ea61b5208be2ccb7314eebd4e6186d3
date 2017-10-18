@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e3ad49c_ae27c4f0",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-18T21:49:09Z",
+      "side": 1,
+      "message": "I don\u0027t love the early return.",
+      "revId": "ae97bfe45ea61b5208be2ccb7314eebd4e6186d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
