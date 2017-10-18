@@ -79,9 +79,9 @@ int main(int argc, char **argv)
         printf("Completed loop.                    \n");
         fflush(stdout);
     }
-    if (!err) {
-        err = MPI_Finalize();
-    }
+
+    int err_fin = MPI_Finalize();
+    err = err ? err : err_fin;
 
     return err;
 }

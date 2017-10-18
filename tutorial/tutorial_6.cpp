@@ -119,13 +119,13 @@ int main(int argc, char **argv)
         err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     }
 
-    if (!err && argc > 1) {
+    if (argc > 1) {
         if (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
             strncmp(argv[1], "-h", strlen("-h")) == 0) {
             if (!rank) {
                 printf(usage, argv[0], argv[0]);
             }
-            return 0;
+            return MPI_Finalize();
         }
         int offset = 1;
         if (strncmp(argv[1], "--verbose", strlen("--verbose")) == 0) {
@@ -166,13 +166,14 @@ int main(int argc, char **argv)
             app.run();
         }
     }
-    if (!err) {
-        err = MPI_Finalize();
-    }
     if (err) {
         char err_msg[NAME_MAX];
         geopm_error_message(err, err_msg, NAME_MAX);
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
+
+    int err_fin = MPI_Finalize();
+    err = err ? err : err_fin;
+
     return err;
 }
