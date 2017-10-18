@@ -97,9 +97,9 @@ int main(int argc, char **argv)
     if (!err) {
         err = tutorial_dgemm_static(0.0, 0);
     }
-    if (!err) {
-        err = MPI_Finalize();
-    }
+
+    int err_fin = MPI_Finalize();
+    err = err ? err : err_fin;
 
     return err;
 }
