@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8373e904_8c2af706",
+        "filename": "tutorial/tutorial_6.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-10-18T21:25:50Z",
+      "side": 1,
+      "message": "rank is uninitilized.",
+      "revId": "5e874143b9514922e09839e3e881d244b2de454d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
