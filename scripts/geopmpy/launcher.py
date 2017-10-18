@@ -230,6 +230,8 @@ class Config(object):
         """
         self.ctl = None
         if not any(aa.startswith('--geopm-ctl') for aa in argv):
+            if any (aa.startswith('--geopm-') for aa in argv):
+                raise RuntimeError('Some GEOPM options have been provided but --geopm-ctl has not.')
             raise PassThroughError('The --geopm-ctl flag is not specified.')
         # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
