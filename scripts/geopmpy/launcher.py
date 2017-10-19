@@ -593,7 +593,8 @@ class Launcher(object):
                    break
                app_thread_per_core += 1
 
-        if app_thread_per_core > self.thread_per_core:
+        if (app_thread_per_core > self.thread_per_core or
+            self.num_app_mask > core_per_node):
             raise RuntimeError('Cores cannot be shared between MPI ranks')
         if app_cpu_per_node > self.num_linux_cpu:
             raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
