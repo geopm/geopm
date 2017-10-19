@@ -65,10 +65,6 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
         obs_proj=home:bgeltz
         obs_pkg=geopm
         do_obs=true
-    elif [ "$TRAVIS_REPO_SLUG" == "sssylvester/geopm" ]; then
-        obs_proj=home:sssylvester
-        obs_pkg=geopm
-        do_obs=true
     fi
 
 fi
