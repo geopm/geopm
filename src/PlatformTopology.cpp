@@ -132,6 +132,6 @@ namespace geopm
             ex_str << "PlatformTopology::num_domain: Domain type unknown: "  << domain_type;
             throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return (*it).second;
+        return it->second;
     }
 }

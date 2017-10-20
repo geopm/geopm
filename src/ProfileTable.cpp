@@ -303,10 +303,10 @@ namespace geopm
         size_t buffer_remain = m_buffer_size - header_offset - 1;
         char *buffer_ptr = (char *)m_table + header_offset;
         while (m_key_map_last != m_key_map.end() &&
-               buffer_remain > (*m_key_map_last).first.length()) {
-            strncpy(buffer_ptr, (*m_key_map_last).first.c_str(), buffer_remain);
-            buffer_remain -= (*m_key_map_last).first.length() + 1;
-            buffer_ptr += (*m_key_map_last).first.length() + 1;
+               buffer_remain > m_key_map_last->first.length()) {
+            strncpy(buffer_ptr, m_key_map_last->first.c_str(), buffer_remain);
+            buffer_remain -= m_key_map_last->first.length() + 1;
+            buffer_ptr += m_key_map_last->first.length() + 1;
             ++m_key_map_last;
         }
         memset(buffer_ptr, 0, buffer_remain);
