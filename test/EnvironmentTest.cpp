@@ -119,7 +119,7 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
 
     EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
-    EXPECT_EQ(m_shmkey + "-" + std::to_string(geteuid()), std::string(geopm_env_shmkey()));
+    EXPECT_EQ(m_shmkey, std::string(geopm_env_shmkey()));
     EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
     EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
     EXPECT_EQ(m_report, std::string(geopm_env_report()));
@@ -138,7 +138,6 @@ TEST_F(EnvironmentTest, construction1)
 {
     setenv("GEOPM_REPORT", m_report.c_str(), 1);
     setenv("GEOPM_POLICY", m_policy.c_str(), 1);
-    setenv("GEOPM_SHMKEY", m_shmkey.c_str(), 1);
     setenv("GEOPM_TRACE", m_trace.c_str(), 1);
     setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
     setenv("GEOPM_REPORT_VERBOSITY", std::to_string(m_report_verbosity).c_str(), 1);
@@ -153,7 +152,7 @@ TEST_F(EnvironmentTest, construction1)
     m_profile = program_invocation_name;
 
     EXPECT_EQ(strcmp(m_policy.c_str(), geopm_env_policy()), 0);
-    EXPECT_EQ(strcmp((m_shmkey + "-" + std::to_string(geteuid())).c_str(), geopm_env_shmkey()), 0);
+    EXPECT_EQ(strcmp(("geopm-shm-" + std::to_string(geteuid())).c_str(), geopm_env_shmkey()), 0);
     EXPECT_EQ(strcmp(m_trace.c_str(), geopm_env_trace()), 0);
     EXPECT_EQ(strcmp(m_plugin_path.c_str(), geopm_env_plugin_path()), 0);
     EXPECT_EQ(strcmp(m_report.c_str(), geopm_env_report()), 0);
