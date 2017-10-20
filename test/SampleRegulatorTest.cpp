@@ -182,9 +182,9 @@ TEST_F(SampleRegulatorTest, align_profile)
     m_test_prof.resize(4);
     geopm_time_add(m_test_sample_time + 1, 8.0, &platform_time);
     for (auto it = m_test_prof.begin(); it != m_test_prof.end(); ++it) {
-        ++(*it).second.region_id; // enter new region on all ranks
-        (*it).second.progress = 0.4;
-        (*it).second.timestamp = platform_time;
+        ++(it->second.region_id); // enter new region on all ranks
+        it->second.progress = 0.4;
+        it->second.timestamp = platform_time;
     }
     insert(m_test_prof.begin(), m_test_prof.end());
     geopm_time_add(m_test_sample_time + 1, 9.0, &platform_time);
