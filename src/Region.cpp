@@ -97,19 +97,19 @@ namespace geopm
         unsigned domain_idx = 0;
         for (auto it = telemetry.begin(); it != telemetry.end(); ++it, ++domain_idx) {
 #ifdef GEOPM_DEBUG
-            if (geopm_time_diff(&((*it).timestamp), &(telemetry[0].timestamp)) != 0.0) {
+            if (geopm_time_diff(&(it->timestamp), &(telemetry[0].timestamp)) != 0.0) {
                 throw Exception("Region::insert(): input telemetry vector has non-uniform timestamp values", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            if ((*it).region_id != m_identifier) {
+            if (it->region_id != m_identifier) {
                 std::ostringstream ex_str;
-                ex_str << "Region::insert(): input telemetry vector wrong region id, expecting: "  << m_identifier  << ", recieved: " << (*it).region_id;
+                ex_str << "Region::insert(): input telemetry vector wrong region id, expecting: "  << m_identifier  << ", recieved: " << it->region_id;
                 throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 #endif
             update_domain_sample(*it, domain_idx);
-            update_signal_matrix((*it).signal, domain_idx);
+            update_signal_matrix(it->signal, domain_idx);
             update_valid_entries(*it, domain_idx);
-            update_stats((*it).signal, domain_idx);
+            update_stats(it->signal, domain_idx);
         }
         m_domain_buffer->insert(m_signal_matrix);
         // If all ranks have exited the region update current sample
@@ -149,8 +149,8 @@ namespace geopm
 
         auto it = sample.begin();
         for (size_t domain_idx = 0; domain_idx != m_num_domain; ++domain_idx, ++it) {
-            update_signal_matrix((*it).signal, domain_idx);
-            update_stats((*it).signal, domain_idx);
+            update_signal_matrix(it->signal, domain_idx);
+            update_stats(it->signal, domain_idx);
         }
         m_domain_buffer->insert(m_signal_matrix);
     }

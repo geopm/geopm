@@ -95,23 +95,23 @@ namespace geopm
     {
         if (prof_sample_begin != prof_sample_end) {
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
-                if (!geopm_region_id_is_epoch((*it).second.region_id) &&
-                    (*it).second.region_id != GEOPM_REGION_ID_UNMARKED) {
+                if (!geopm_region_id_is_epoch(it->second.region_id) &&
+                    it->second.region_id != GEOPM_REGION_ID_UNMARKED) {
                     struct m_rank_sample_s rank_sample;
-                    rank_sample.timestamp = (*it).second.timestamp;
-                    rank_sample.progress = (*it).second.progress;
+                    rank_sample.timestamp = it->second.timestamp;
+                    rank_sample.progress = it->second.progress;
                     rank_sample.runtime = 0.0;
                     // Dereference of find result below will
                     // segfault with bad profile sample data
-                    size_t rank_idx = (*(m_rank_idx_map.find((*it).second.rank))).second;
-                    if ((*it).second.region_id != m_region_id[rank_idx]) {
+                    size_t rank_idx = (*(m_rank_idx_map.find(it->second.rank))).second;
+                    if (it->second.region_id != m_region_id[rank_idx]) {
                         m_rank_sample_prev[rank_idx]->clear();
                     }
                     if (rank_sample.progress == 1.0) {
                         m_region_id[rank_idx] = GEOPM_REGION_ID_UNMARKED;
                     }
                     else {
-                        m_region_id[rank_idx] = (*it).second.region_id;
+                        m_region_id[rank_idx] = it->second.region_id;
                     }
                     m_rank_sample_prev[rank_idx]->insert(rank_sample);
                 }

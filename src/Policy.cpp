@@ -91,7 +91,7 @@ namespace geopm
     Policy::~Policy()
     {
         for (auto it = m_region_policy.begin(); it != m_region_policy.end(); ++it) {
-            delete (*it).second;
+            delete it->second;
         }
         delete m_policy_flags;
     }
@@ -114,7 +114,7 @@ namespace geopm
             update(region_id, budget);
         }
         else {
-            result = (*result_it).second;
+            result = result_it->second;
         }
         return result;
     }
@@ -124,7 +124,7 @@ namespace geopm
         region_id.resize(m_region_policy.size());
         auto vector_it = region_id.begin();
         for (auto map_it = m_region_policy.begin(); map_it != m_region_policy.end(); ++map_it, ++vector_it) {
-            *vector_it = (*map_it).first;
+            *vector_it = map_it->first;
         }
     }
 
