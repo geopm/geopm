@@ -84,7 +84,7 @@ int main(int argc, char **argv)
         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator it;
         size_t len;
         table.dump(it, len);
-        clock_freq = (*it).second.progress;
+        clock_freq = it->second.progress;
         num_clock += time_delta * clock_freq;
         progress = (double)num_clock / (double)clock_req;
         progress = progress <= 1.0 ? progress : 1.0;

@@ -744,7 +744,7 @@ TEST_F(MSRIOTest, read_batch)
             read_cpu_idx.push_back(ci);
             read_offset.push_back(oi);
             uint64_t result;
-            memcpy(&result, (*wi).data(), 8);
+            memcpy(&result, wi->data(), 8);
             expected.push_back(result);
             ++wi;
         }
@@ -803,7 +803,7 @@ TEST_F(MSRIOTest, write_batch)
     for (auto &ci : cpu_idx) {
         auto wi = end_words.begin();
         for (auto oi : offsets) {
-            EXPECT_EQ(0, memcmp(m_msrio->msr_space_ptr(ci, oi), (*wi).c_str(), 8));
+            EXPECT_EQ(0, memcmp(m_msrio->msr_space_ptr(ci, oi), wi->c_str(), 8));
             ++wi;
         }
     }

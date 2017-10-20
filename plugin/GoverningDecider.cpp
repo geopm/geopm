@@ -110,8 +110,8 @@ namespace geopm
             for (auto region = region_id.begin(); region != region_id.end(); ++region) {
                 curr_policy.update((*region), domain_budget);
                 auto it = m_num_converged.lower_bound((*region));
-                if (it != m_num_converged.end() && (*it).first == (*region)) {
-                    (*it).second = 0;
+                if (it != m_num_converged.end() && it->first == (*region)) {
+                    it->second = 0;
                 }
                 else {
                     it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>((*region), 0));
@@ -175,8 +175,8 @@ namespace geopm
                         // state (since policy is not currently in a
                         // converged state).
                         auto it = m_num_converged.lower_bound(region_id);
-                        if (it != m_num_converged.end() && (*it).first == region_id) {
-                            (*it).second = 0;
+                        if (it != m_num_converged.end() && it->first == region_id) {
+                            it->second = 0;
                         }
                         else {
                             it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 0));
@@ -189,19 +189,19 @@ namespace geopm
                         // number of samples under budget since last
                         // last convergence or last overage.
                         auto it = m_num_converged.lower_bound(region_id);
-                        if (it != m_num_converged.end() && (*it).first == region_id) {
-                            ++(*it).second;
+                        if (it != m_num_converged.end() && it->first == region_id) {
+                            ++(it->second);
                         }
                         else {
                             it = m_num_converged.insert(it, std::pair<uint64_t, unsigned>(region_id, 1));
                         }
-                        if ((*it).second >= m_min_num_converged) {
+                        if (it->second >= m_min_num_converged) {
                             // If we have observed m_min_num_converged
                             // samples in a row under budget set the
                             // region to the "converged" state and
                             // reset the counter.
                             curr_policy.is_converged(region_id, true);
-                            (*it).second = 0;
+                            it->second = 0;
                         }
                     }
                 }
