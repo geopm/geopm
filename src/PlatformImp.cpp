@@ -316,7 +316,7 @@ namespace geopm
         if (it == m_msr_map_ptr->end()) {
             throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return (*it).second.first;
+        return it->second.first;
     }
 
     unsigned long PlatformImp::msr_mask(std::string msr_name)
@@ -325,7 +325,7 @@ namespace geopm
         if (it == m_msr_map_ptr->end()) {
             throw Exception("MSR string not found in offset map", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return (*it).second.second;
+        return it->second.second;
     }
 
     void PlatformImp::msr_path(int cpu_num)

@@ -220,13 +220,13 @@ namespace geopm
 
         int idx = 0;
         for (auto it = signal.begin(); it != signal.end(); ++it, ++idx) {
-            m_signal_map.insert(std::pair<std::string, int>((*it).first, idx));
-            m_signal_encode[idx] = new MSREncode((*it).second);
+            m_signal_map.insert(std::pair<std::string, int>(it->first, idx));
+            m_signal_encode[idx] = new MSREncode(it->second);
         }
         idx = 0;
         for (auto it = control.begin(); it != control.end(); ++it, ++idx) {
-            m_control_map.insert(std::pair<std::string, int>((*it).first, idx));
-            m_control_encode[idx] = new MSREncode((*it).second);
+            m_control_map.insert(std::pair<std::string, int>(it->first, idx));
+            m_control_encode[idx] = new MSREncode(it->second);
         }
 
         if (m_name.compare(0, strlen("PKG_"), "PKG_") == 0) {
@@ -281,8 +281,8 @@ namespace geopm
         }
         std::string result = "";
         for (auto it = m_signal_map.begin(); it != m_signal_map.end(); ++it) {
-            if ((*it).second == signal_idx) {
-                result = (*it).first;
+            if (it->second == signal_idx) {
+                result = it->first;
                 break;
             }
         }
@@ -297,8 +297,8 @@ namespace geopm
         }
         std::string result = "";
         for (auto it = m_control_map.begin(); it != m_control_map.end(); ++it) {
-            if ((*it).second == control_idx) {
-                result = (*it).first;
+            if (it->second == control_idx) {
+                result = it->first;
                 break;
             }
         }
@@ -310,7 +310,7 @@ namespace geopm
         int result = -1;
         auto it = m_signal_map.find(name);
         if (it != m_signal_map.end()) {
-            result = (*it).second;
+            result = it->second;
         }
         return result;
     }
@@ -320,7 +320,7 @@ namespace geopm
         int result = -1;
         auto it = m_control_map.find(name);
         if (it != m_control_map.end()) {
-            result = (*it).second;
+            result = it->second;
         }
         return result;
     }
@@ -413,7 +413,7 @@ namespace geopm
         auto signal_it = signal_vec.begin();
         auto field_it = m_field_ptr.begin();
         for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++signal_it, ++field_it) {
-            *signal_it = (*config_it).msr_obj->signal((*config_it).signal_idx, *(*field_it));
+            *signal_it = config_it->msr_obj->signal(config_it->signal_idx, *(*field_it));
         }
         return sample(signal_vec);
     }
@@ -519,7 +519,7 @@ namespace geopm
         auto field_it = m_field_ptr.begin();
         auto mask_it = m_mask_ptr.begin();
         for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++field_it, ++mask_it) {
-            (*config_it).msr_obj->control((*config_it).control_idx, setting, *(*field_it), *(*mask_it));
+            config_it->msr_obj->control(config_it->control_idx, setting, *(*field_it), *(*mask_it));
         }
     }
 

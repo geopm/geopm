@@ -105,11 +105,11 @@ namespace geopm
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it != m_name_cpu_signal_map.end()) {
             result = m_active_signal.size();
-            if ((*ncsm_it).second.size() == 1) {
-                m_active_signal.push_back((*ncsm_it).second[0]);
+            if (ncsm_it->second.size() == 1) {
+                m_active_signal.push_back(ncsm_it->second[0]);
             }
             else {
-                m_active_signal.push_back((*ncsm_it).second[cpu_idx]);
+                m_active_signal.push_back(ncsm_it->second[cpu_idx]);
             }
             IMSRSignal *msr_sig = dynamic_cast<IMSRSignal *>(m_active_signal.back());
             if (msr_sig) {
@@ -157,7 +157,7 @@ namespace geopm
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it != m_name_cpu_control_map.end()) {
             result = m_active_control.size();
-            m_active_control.push_back((*nccm_it).second[cpu_idx]);
+            m_active_control.push_back(nccm_it->second[cpu_idx]);
             IMSRControl *msr_ctl = dynamic_cast<IMSRControl *>(m_active_control.back());
             if (msr_ctl) {
                 std::vector<uint64_t> offset;
@@ -423,7 +423,7 @@ namespace geopm
                 throw Exception("PlatformIO::register_msr_signal(): msr_name could not be found",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            sc.msr_obj = (*name_msr_it).second;
+            sc.msr_obj = name_msr_it->second;
             sc.signal_idx = sc.msr_obj->signal_index(field_name[field_idx]);
             if (sc.signal_idx == -1) {
                 throw Exception("PlatformIO::register_msr_signal(): field_name could not be found",
@@ -483,7 +483,7 @@ namespace geopm
                 throw Exception("PlatformIO::register_msr_control(): msr_name could not be found",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            sc.msr_obj = (*name_msr_it).second;
+            sc.msr_obj = name_msr_it->second;
             sc.control_idx = sc.msr_obj->control_index(field_name[field_idx]);
             if (sc.control_idx == -1) {
                 throw Exception("PlatformIO::register_msr_control(): field_name could not be found",

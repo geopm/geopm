@@ -103,7 +103,7 @@ namespace geopm
                      << geopm_time_diff(&m_time_zero, &(telemetry[0].timestamp)) << " | ";
             for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
                 for (int i = 0; i != GEOPM_NUM_TELEMETRY_TYPE; ++i) {
-                    m_buffer << (*it).signal[i] << " | ";
+                    m_buffer << it->signal[i] << " | ";
                 }
             }
             m_buffer << m_policy.mode << " | "

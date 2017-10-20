@@ -155,7 +155,7 @@ namespace geopm
         uint64_t result = GEOPM_REGION_ID_UNDEFINED;
         auto it = m_function_region_id_map.find((size_t)parallel_function);
         if (m_function_region_id_map.end() != it) {
-            result = (*it).second;
+            result = it->second;
         }
         else {
             std::string rn;
@@ -179,11 +179,11 @@ namespace geopm
         --it_min;
         if (it_max != m_range_object_map.end() &&
             it_max != m_range_object_map.begin() &&
-            false == (*it_min).first.second &&
-            true == (*it_max).first.second) {
-            size_t offset = (size_t)parallel_function - (size_t)((*it_min).first.first);
+            false == it_min->first.second &&
+            true == it_max->first.second) {
+            size_t offset = (size_t)parallel_function - (size_t)(it_min->first.first);
             std::ostringstream name_stream;
-            name_stream << "[OMPT]" << (*it_min).second << ":0x" << std::setfill('0') << std::setw(16) << std::hex << offset;
+            name_stream << "[OMPT]" << it_min->second << ":0x" << std::setfill('0') << std::setw(16) << std::hex << offset;
             name = name_stream.str();
         }
     }
