@@ -100,7 +100,7 @@ namespace geopm
         : m_report("")
         , m_comm("MPIComm")
         , m_policy("")
-        , m_shmkey("/geopm-shm")
+        , m_shmkey("/geopm-shm-" + std::to_string(geteuid()))
         , m_trace("")
         , m_plugin_path("")
         , m_profile("")
@@ -119,7 +119,6 @@ namespace geopm
         (void)get_env("GEOPM_COMM", m_comm);
         (void)get_env("GEOPM_POLICY", m_policy);
         (void)get_env("GEOPM_SHMKEY", m_shmkey);
-        m_shmkey += "-" + std::to_string(geteuid());
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
         if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report.size()) {
