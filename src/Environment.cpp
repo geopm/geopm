@@ -119,6 +119,9 @@ namespace geopm
         (void)get_env("GEOPM_COMM", m_comm);
         (void)get_env("GEOPM_POLICY", m_policy);
         (void)get_env("GEOPM_SHMKEY", m_shmkey);
+        if (m_shmkey[0] != '/') {
+            m_shmkey = "/" + m_shmkey;
+        }
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
         if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report.size()) {

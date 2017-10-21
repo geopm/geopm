@@ -119,7 +119,7 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
 
     EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
-    EXPECT_EQ(m_shmkey, std::string(geopm_env_shmkey()));
+    EXPECT_EQ("/" + m_shmkey, std::string(geopm_env_shmkey()));
     EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
     EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
     EXPECT_EQ(m_report, std::string(geopm_env_report()));
@@ -151,12 +151,13 @@ TEST_F(EnvironmentTest, construction1)
     //setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
     m_profile = program_invocation_name;
 
-    EXPECT_EQ(strcmp(m_policy.c_str(), geopm_env_policy()), 0);
-    EXPECT_EQ(strcmp(("geopm-shm-" + std::to_string(geteuid())).c_str(), geopm_env_shmkey()), 0);
-    EXPECT_EQ(strcmp(m_trace.c_str(), geopm_env_trace()), 0);
-    EXPECT_EQ(strcmp(m_plugin_path.c_str(), geopm_env_plugin_path()), 0);
-    EXPECT_EQ(strcmp(m_report.c_str(), geopm_env_report()), 0);
-    EXPECT_EQ(strcmp(m_profile.c_str(), geopm_env_profile()), 0);
+    std::string default_shmkey("/geopm-shm-" + std::to_string(geteuid()));
+    EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
+    EXPECT_EQ(default_shmkey, std::string(geopm_env_shmkey()));
+    EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
+    EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
+    EXPECT_EQ(m_report, std::string(geopm_env_report()));
+    EXPECT_EQ(m_profile, std::string(geopm_env_profile()));
     EXPECT_EQ(m_report_verbosity, geopm_env_report_verbosity());
     EXPECT_EQ(m_pmpi_ctl, geopm_env_pmpi_ctl());
     EXPECT_EQ(0, geopm_env_do_region_barrier());
