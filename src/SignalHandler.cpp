@@ -72,7 +72,7 @@ namespace geopm
         : m_signals({SIGHUP, SIGINT, SIGQUIT, SIGILL,
                      SIGTRAP, SIGABRT, SIGFPE, SIGUSR1,
                      SIGSEGV, SIGUSR2, SIGPIPE, SIGALRM,
-                     SIGTERM, SIGCHLD, SIGCONT, SIGTSTP,
+                     SIGTERM, SIGCONT, SIGTSTP,
                      SIGTTIN, SIGTTOU})
         , m_old_action(m_signals.size())
     {
