@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "add6e8c9_8eee29f5",
+        "filename": "doc/geopm-plugin-guide.tex",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T20:20:56Z",
+      "side": 1,
+      "message": "integral() is missing from sample code; should I add it?",
+      "revId": "9818c9ee3d50e72e1e5f2d064acb286ef38580ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2617f50d_3dc068ac",
+        "filename": "doc/geopm-plugin-guide.tex",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T20:20:56Z",
+      "side": 1,
+      "message": "control_domain() and bound() are pure virtual but missing from list below",
+      "revId": "9818c9ee3d50e72e1e5f2d064acb286ef38580ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2920644_83d993e1",
+        "filename": "doc/geopm-plugin-guide.tex",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T20:20:56Z",
+      "side": 1,
+      "message": "M_BDX_ID and M_KNL_ID are missing from the list below",
+      "revId": "9818c9ee3d50e72e1e5f2d064acb286ef38580ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
