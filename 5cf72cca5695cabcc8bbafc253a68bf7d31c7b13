@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "770216ae_dca79277",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T22:21:52Z",
+      "side": 1,
+      "message": "-",
+      "range": {
+        "startLine": 355,
+        "startChar": 19,
+        "endLine": 355,
+        "endChar": 20
+      },
+      "revId": "5cf72cca5695cabcc8bbafc253a68bf7d31c7b13",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3521c08_2f414173",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T22:21:52Z",
+      "side": 1,
+      "message": "Should be with the \u003e\u003e\u003e ?",
+      "revId": "5cf72cca5695cabcc8bbafc253a68bf7d31c7b13",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87292cc3_e037d442",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T22:21:52Z",
+      "side": 1,
+      "message": "its",
+      "range": {
+        "startLine": 431,
+        "startChar": 58,
+        "endLine": 431,
+        "endChar": 62
+      },
+      "revId": "5cf72cca5695cabcc8bbafc253a68bf7d31c7b13",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edfcca78_8cccea0d",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T22:21:52Z",
+      "side": 1,
+      "message": "uniquely-identifying",
+      "range": {
+        "startLine": 722,
+        "startChar": 37,
+        "endLine": 722,
+        "endChar": 56
+      },
+      "revId": "5cf72cca5695cabcc8bbafc253a68bf7d31c7b13",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6eb18d5_2d4a433d",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-10-26T22:21:52Z",
+      "side": 1,
+      "message": "affects",
+      "range": {
+        "startLine": 971,
+        "startChar": 63,
+        "endLine": 972,
+        "endChar": 26
+      },
+      "revId": "5cf72cca5695cabcc8bbafc253a68bf7d31c7b13",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
