@@ -666,25 +666,17 @@ TEST_F(MSRIOTest, read_aligned)
     uint64_t field;
     char *space_ptr;
 
-    field = m_msrio->read_msr(0, 0);
-    ASSERT_EQ(0, memcmp(&field, "absolute", 8));
-    space_ptr = m_msrio->msr_space_ptr(0, 0);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
+    for (int cpu_idx = 0; cpu_idx < geopm_sched_num_cpu(); ++cpu_idx) {
+        field = m_msrio->read_msr(cpu_idx, 0);
+        ASSERT_EQ(0, memcmp(&field, "absolute", 8));
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 0);
+        ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
 
-    field = m_msrio->read_msr(0, 1600);
-    ASSERT_EQ(0, memcmp(&field, "fraction", 8));
-    space_ptr = m_msrio->msr_space_ptr(0, 1600);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
-
-    field = m_msrio->read_msr(1, 0);
-    ASSERT_EQ(0, memcmp(&field, "absolute", 8));
-    space_ptr = m_msrio->msr_space_ptr(1, 0);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
-
-    field = m_msrio->read_msr(1, 1600);
-    ASSERT_EQ(0, memcmp(&field, "fraction", 8));
-    space_ptr = m_msrio->msr_space_ptr(1, 1600);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
+        field = m_msrio->read_msr(cpu_idx, 1600);
+        ASSERT_EQ(0, memcmp(&field, "fraction", 8));
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1600);
+        ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
+    }
 }
 
 TEST_F(MSRIOTest, read_unaligned)
@@ -692,25 +684,17 @@ TEST_F(MSRIOTest, read_unaligned)
     uint64_t field;
     char *space_ptr;
 
-    field = m_msrio->read_msr(0, 4);
-    ASSERT_EQ(0, memcmp(&field, "luteabst", 8));
-    space_ptr = m_msrio->msr_space_ptr(0, 4);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
+    for (int cpu_idx = 0; cpu_idx < geopm_sched_num_cpu(); ++cpu_idx) {
+        field = m_msrio->read_msr(cpu_idx, 4);
+        ASSERT_EQ(0, memcmp(&field, "luteabst", 8));
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 4);
+        ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
 
-    field = m_msrio->read_msr(0, 1604);
-    ASSERT_EQ(0, memcmp(&field, "tionfran", 8));
-    space_ptr = m_msrio->msr_space_ptr(0, 1604);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
-
-    field = m_msrio->read_msr(1, 4);
-    ASSERT_EQ(0, memcmp(&field, "luteabst", 8));
-    space_ptr = m_msrio->msr_space_ptr(1, 4);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
-
-    field = m_msrio->read_msr(1, 1604);
-    ASSERT_EQ(0, memcmp(&field, "tionfran", 8));
-    space_ptr = m_msrio->msr_space_ptr(1, 1604);
-    ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
+        field = m_msrio->read_msr(cpu_idx, 1604);
+        ASSERT_EQ(0, memcmp(&field, "tionfran", 8));
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1604);
+        ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
+    }
 }
 
 TEST_F(MSRIOTest, write)
@@ -718,30 +702,35 @@ TEST_F(MSRIOTest, write)
     uint64_t field;
     char *space_ptr;
 
-    memcpy(&field, "etul\0\0\0\0", 8);
-    m_msrio->write_msr(0, 0, field, 0x00000000FFFFFFFF);
-    space_ptr = m_msrio->msr_space_ptr(0, 0);
-    ASSERT_EQ(0, memcmp(space_ptr, "etullute", 8));
+    for (int cpu_idx = 0; cpu_idx < geopm_sched_num_cpu(); ++cpu_idx) {
+        memcpy(&field, "etul\0\0\0\0", 8);
+        m_msrio->write_msr(cpu_idx, 0, field, 0x00000000FFFFFFFF);
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 0);
+        ASSERT_EQ(0, memcmp(space_ptr, "etullute", 8));
 
-    memcpy(&field, "\0\0\0\0osba", 8);
-    m_msrio->write_msr(0, 0, field, 0xFFFFFFFF00000000);
-    space_ptr = m_msrio->msr_space_ptr(0, 0);
-    ASSERT_EQ(0, memcmp(space_ptr, "etulosba", 8));
+        memcpy(&field, "\0\0\0\0osba", 8);
+        m_msrio->write_msr(cpu_idx, 0, field, 0xFFFFFFFF00000000);
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 0);
+        ASSERT_EQ(0, memcmp(space_ptr, "etulosba", 8));
 
-    memcpy(&field, "noit\0\0\0\0", 8);
-    m_msrio->write_msr(0, 1600, field, 0x00000000FFFFFFFF);
-    space_ptr = m_msrio->msr_space_ptr(0, 1600);
-    ASSERT_EQ(0, memcmp(space_ptr, "noittion", 8));
+        memcpy(&field, "noit\0\0\0\0", 8);
+        m_msrio->write_msr(cpu_idx, 1600, field, 0x00000000FFFFFFFF);
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1600);
+        ASSERT_EQ(0, memcmp(space_ptr, "noittion", 8));
 
-    memcpy(&field, "\0\0\0\0carf", 8);
-    m_msrio->write_msr(0, 1600, field, 0xFFFFFFFF00000000);
-    space_ptr = m_msrio->msr_space_ptr(0, 1600);
-    ASSERT_EQ(0, memcmp(space_ptr, "noitcarf", 8));
+        memcpy(&field, "\0\0\0\0carf", 8);
+        m_msrio->write_msr(cpu_idx, 1600, field, 0xFFFFFFFF00000000);
+        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1600);
+        ASSERT_EQ(0, memcmp(space_ptr, "noitcarf", 8));
+    }
 }
 
 TEST_F(MSRIOTest, read_batch)
 {
-    std::vector<int> cpu_idx {0, 1};
+    std::vector<int> cpu_idx;
+    for (int i = 0; i < geopm_sched_num_cpu(); ++i) {
+        cpu_idx.push_back(i);
+    }
     std::vector<std::string> words {"software", "engineer", "document", "everyday",
                                     "modeling", "standout", "patience", "goodwill"};
     std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
@@ -768,7 +757,10 @@ TEST_F(MSRIOTest, read_batch)
 
 TEST_F(MSRIOTest, write_batch)
 {
-    std::vector<int> cpu_idx {0, 1};
+    std::vector<int> cpu_idx;
+    for (int i = 0; i < geopm_sched_num_cpu(); ++i) {
+        cpu_idx.push_back(i);
+    }
     std::vector<std::string> begin_words {"software", "engineer", "document", "everyday",
                                           "modeling", "standout", "patience", "goodwill"};
     std::vector<std::string> end_words   {"HARDware", "BEgineRX", "Mocument", "everyWay",
