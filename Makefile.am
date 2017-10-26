@@ -498,7 +498,7 @@ man/geopmaprun.1: man/geopmpy_launcher.1
 	cp $^ $@
 	if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmaprun.1.html; fi
 
-checkprogs: fortran-checkprogs gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
 # INCLUDES
 check_PROGRAMS =

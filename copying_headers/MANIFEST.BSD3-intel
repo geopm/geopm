@@ -154,10 +154,6 @@ test/DeciderFactoryTest.cpp
 test/EnvironmentTest.cpp
 test/EnvironmentTest.cpp
 test/ExceptionTest.cpp
-test/fortran/geopm_fortran_test.sh
-test/fortran/geopm_fortran_test.sh
-test/fortran/Makefile.mk
-test/fortran/Makefile.mk
 test/geopm_mpi_test.cpp
 test/geopm_static_modes_test.cpp
 test/geopm_static_modes_test.sh
