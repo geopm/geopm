@@ -27,8 +27,8 @@
 Global Extensible Open Power Manager (GEOPM) is an extensible
 power management framework targeting high performance computing. The
 library can be extended to support new control algorithms and new
-hardware power management features. The GEOPM package provides built
-in features ranging from static management of power policy for each
+hardware power management features. The GEOPM package provides built-in
+features ranging from static management of power policy for each
 individual compute node, to dynamic coordination of power policy and
 performance across all of the compute nodes hosting one MPI job on a
 portion of a distributed computing system. The dynamic coordination is
@@ -39,40 +39,41 @@ as new hardware platforms or new power management features.
 \end{abstract}
 
 \section{Implementing new control algorithms}
-GEOPM supports two levels of control algorithms; A leaf control
+GEOPM supports two levels of control algorithms: a leaf control
 algorithm that manages power within a single node, and a tree control
-algorithm that manages power between nodes. Internally these are known
+algorithm that manages power between nodes. Internally, these are known
 as tree deciders and leaf deciders.
 
 \section{Leaf Deciders}
 \begin{figure} [H]
   \centering
-  \includegraphics[width=0.5\textwidth]{leaf-figure}
+  \includegraphics[clip, trim=5cm 8cm 5cm 8cm, width=0.5\textwidth]{leaf-figure}
   \caption{Leaf decider data collection}
   \label{fig:leaf}
 \end{figure}
 
-As seen if figure \ref{fig:leaf}, event counters and energy meters are
-collected from the platform and application data such as runtime and
+As seen in Figure \ref{fig:leaf}, event counters and energy meters are
+collected from the platform while application data such as runtime and
 progress are collected from the individual application ranks on the
 node. This data is aggregated for each application region, where a
 region is a subset of the application runtime that has uniform
-computation characteristics. These characteristics include how compute
-bound, memory bound, or network bound the region is. The leaf decider
+computation characteristics. These characteristics include how
+compute-bound, memory-bound, or network-bound the region is. The leaf decider
 makes power decisions on a region by region basis. The leaf decider
 then uses this data to set new power policies for the domains of
-control on the particular hardware platform. For example, If the
+control on the particular hardware platform. For example, if the
 method of control is power capping then the domain of control would be
 the finest granularity hardware component with RAPL power
 controls. For current Xeon platforms based on Haswell, that would be
 at the socket level. If the method of control is frequency, then on
 current Xeon platforms based on Haswell, that would be at the CPU
 level. This data is abstracted away from the decider. It merely has
-per domain of control statistics the it can use to set a power policy
+per domain control statistics that it can use to set a power policy
 for the same set of domains. The current set of signals available to
 the leaf decider are captured in the \verb#geopm_telemetry_type_e#
 enumeration:
 
+% geopm_message.h
 \begin{verbatim}
     enum geopm_telemetry_type_e {
         GEOPM_TELEMETRY_TYPE_PKG_ENERGY,
@@ -81,7 +82,7 @@ enumeration:
         GEOPM_TELEMETRY_TYPE_INST_RETIRED,
         GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE,
         GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF,
-        GEOPM_TELEMETRY_TYPE_LLC_VICTIMS,
+        GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH,
         GEOPM_TELEMETRY_TYPE_PROGRESS,
         GEOPM_TELEMETRY_TYPE_RUNTIME,
         GEOPM_NUM_TELEMETRY_TYPE // Signal counter, must be last
@@ -91,17 +92,17 @@ enumeration:
 \section{Tree Deciders}
 \begin{figure} [H]
   \centering
-  \includegraphics[width=0.5\textwidth]{tree-figure}
-  \caption{Data collection andn power budget flow at the tree level}
+  \includegraphics[clip, trim=5cm 8cm 5cm 8cm, width=0.5\textwidth]{tree-figure}
+  \caption{Data collection and power budget flow at the tree level}
   \label{fig:tree}
 \end{figure}
 
-At the tree level, as can be seen in figure \ref{fig:tree}, The domain
+At the tree level, as can be seen in Figure \ref{fig:tree}, the domain
 of control is always the number of nodes which are direct children of
 the node in question. Data at the leaf level is aggregated and sent up
-the tree to the parent. That parent and it’s siblings have tree
-deciders which use the aggregated data to create and send power
-budgets back down to the leaf nodes. The parent and it’s sibling also
+the tree to the parent. That parent and its siblings have tree
+deciders, which use the aggregated data to create and send power
+budgets back down to the leaf nodes. The parent and its siblings also
 aggregate their data and send it up to the next level of the tree
 where the same thing happens. This continues all the way to the root
 of the tree. At any point in the tree the power budget is the
@@ -109,27 +110,31 @@ aggregated budget for all leaf nodes in the nodes subtree. The current
 set of signals available to the leaf decider are captured in the
 \verb#geopm_sample_type_e# enumeration:
 
+% geopm_message.h
 \begin{verbatim}
     enum geopm_sample_type_e {
         GEOPM_SAMPLE_TYPE_RUNTIME,
         GEOPM_SAMPLE_TYPE_ENERGY,
-        GEOPM_SAMPLE_TYPE_FREQUENCY,
+        GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER,
+        GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM,
         GEOPM_NUM_SAMPLE_TYPE // Sample counter, must be last
     };
 \end{verbatim}
 
 \section{Plugin Registration}
 Every plugin must export a C function that allows the plugin to
-register itself with the GEO runtime.
+register itself with the GEOPM runtime.
 
+% signature in geopm_plugin.h
 \begin{verbatim}
-    int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
+    int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory,
+                              void *dl_ptr)
     {
         int err = 0;
         try {
             if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
                 geopm::Decider *decider = new geopm::CustomDecider;
-                geopm_factory_register(factory, decider);
+                geopm_factory_register(factory, decider, dl_ptr);
             }
         }
         catch(...) {
@@ -138,14 +143,15 @@ register itself with the GEO runtime.
         return err;
     }
 \end{verbatim}
-The function checks if it is the type being looked for, and if it is,
-it creates an instance itself and registers it with the passed in
+The function checks if it is the requested type, and if so,
+it creates an instance of the plugin class and registers it with the passed-in
 factory. In this example the plugin class is called
 \verb#CustomDecider#.
 
 \section{Extending geopm::Decider base class}
-The \verb#geopm:Decider# class has a number of pure virtual methods
+The \verb#geopm::Decider# class has a number of pure virtual methods
 that must be overridden by the derived plugin class.
+% Decider.hpp
 \begin{verbatim}
     virtual Decider *clone() const = 0;
     virtual const std::string& name(void) const = 0;
@@ -153,7 +159,7 @@ that must be overridden by the derived plugin class.
     virtual bool update_policy(Region &curr_region, Policy &curr_policy) = 0;
 \end{verbatim}
 The \verb#clone# method simply returns a copy of an instance of the
-class. This is for the internal use of the geopm runtime.
+class. This is for the internal use of the GEOPM runtime.
 \begin{verbatim}
     Decider *CustomDecider::clone(void) const
     {
@@ -193,6 +199,7 @@ telemetry data for the current region as well as a \verb#Policy#
 object which holds the current policy for all regions at this level of
 the tree. The \verb#Region# object can be queried for telemetry for
 each domain of control through the following methods:
+% Region.hpp - integral?
 \begin{verbatim}
     double signal(int domain_idx, int signal_type);
     int num_sample(int domain_idx, int signal_type) const;
@@ -206,13 +213,13 @@ each domain of control through the following methods:
 All of these APIs take in a domain index, where the total number of
 domains can be queried from the \verb#Policy# object. The second
 parameter is the signal type on which to operate. At the leaf they are
-\verb#geopm_telemetry_type_e# enums and for the tree that are
+\verb#geopm_telemetry_type_e# enums and for the tree they are
 \verb#geopm_sample_type_e enums#.  The signal function returns the
 last recorded value of the requested signal type.  The
 \verb#num_sample# returns the number of samples used to calculate the
 values returned by the rest of the functions.  The rest of the
 functions return the statistical value described by the function name
-over some number of samples.  As a leaf level example, to get the
+over some number of samples.  As a leaf-level example, to get the
 derivative of package power over the first domain of control:
 \begin{verbatim}
     bool CustomDecider::update_policy(Region &curr_region, Policy &curr_policy)
@@ -235,17 +242,18 @@ control:
 After the statistics are used to calculate new power budgets or
 frequencies for each domain of control, the new budgets are applied to
 the policy object using either of the APIs:
+% Policy.hpp
 \begin{verbatim}
     void update(uint64_t region_id, int domain_idx, double target);
     void update(uint64_t region_id, const std::vector<double> &target);
 \end{verbatim}
-The \verb#update_policy# function should return true if the policy was
+The Decider's \verb#update_policy# function should return true if the policy was
 modified for any domain of control and false if no modifications were
-made. This signals the geopm runtime to apply the new budgets.  When
+made. This signals the GEOPM runtime to apply the new budgets.  When
 the algorithm reaches a state when it has figured out the best policy
 for the current region for the current power budget, the decider must
-mark the region as converged. This lets the geopm runtime know that it
-may send aggregated sample data up the tree to the parent, whom then
+mark the region as converged. This lets the GEOPM runtime know that it
+may send aggregated sample data up the tree to the parent, who then
 may send an updated power budget back down. This is done using the
 \verb#Policy# object API:
 \begin{verbatim}
@@ -259,9 +267,9 @@ by the plugin:
 \end{verbatim}
 It is similar to the pure virtual \verb#update_policy#, except that it
 takes in a \verb#geopm_policy_message_s# structure instead of a Region
-object. The function gets called by the geopm runtime when it receives
+object. The function gets called by the GEOPM runtime when it receives
 a new power policy message from its parent. At the root of the tree
-the parent would be a power aware scheduler/resource manager. The
+the parent would be a power-aware scheduler/resource manager. The
 default implementation simply splits the new budget evenly among all
 the domains of control, however different deciders could implement
 different methods of splitting the budget. One example is to split the
@@ -274,22 +282,22 @@ the total budget for all domains of control. It should be saved off as
 state for use in the pure virtual version of \verb#update_policy#.
 
 \section{Implementing new platform plugins}
-The geopm package can be extended to run on new hardware platforms or
+The GEOPM package can be extended to run on new hardware platforms or
 support new power management features by creating \verb#Platform# and
 \verb#PlatformImp# plugins. A \verb#PlatformImp# plugin implements the
 fine details of a specific hardware platform. In the case of an Intel
-platform, it encodes things such as the offsets of certain model
-specific registers, as well as the topology and capabilities of that
+platform, it encodes things such as the offsets of certain model-specific
+registers, as well as the topology and capabilities of that
 platform. A \verb#Platform# plugin is an abstraction of the
 \verb#PlatformImp# interface and is focused on methods of control that
 may be supported by many different \verb#PlatformImp# objects. As an
-example geopm has a built-in \verb#RAPLPlatform# object which
+example, GEOPM has a built-in \verb#RAPLPlatform# object which
 abstracts the power limiting functionality of Running Average Power
-Limiting (RAPL) functionality as well as performance counter access
-across may different hardware platforms. The \verb#PlatformImp#
-objects built in to geopm include \verb#IVTPlatformImp# which supports
-Sandy Bridge and Ivy Town based Xeon systems and a
-\verb#HSXPlatformImp# that supports Haswell based Xeon systems. From
+Limiting (RAPL) as well as performance counter access
+across many different hardware platforms. The \verb#PlatformImp#
+objects built into GEOPM include \verb#IVTPlatformImp#, which supports
+Sandy Bridge- and Ivy Town-based Xeon systems, and a
+\verb#HSXPlatformImp#, which supports Haswell-based Xeon systems. From
 the other perspective a \verb#FreqPlatform# plugin could be created
 that modifies frequencies instead of RAPL power. It could use the same
 \verb#PlatformImp# objects as the \verb#RAPLPlatform# class without
@@ -297,11 +305,13 @@ modifying them.
 
 \section{Plugin Registration}
 The plugin registration for a \verb#Platform# or \verb#PlatformImp# is
-similar to the \verb#Decider# version. In fact you can implement
+similar to the \verb#Decider# version. In fact, you can implement
 several plugins within the same file and have a single registration
 function:
+% test/plugin/TestPlugin.cpp
 \begin{verbatim}
-    int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory)
+    int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory,
+                              void *dl_ptr)
     {
         int err = 0;
         Decider *decider = NULL;
@@ -311,15 +321,15 @@ function:
             switch (plugin_type) {
                 case GEOPM_PLUGIN_TYPE_DECIDER:
                     decider = new CustomDecider;
-                    geopm_factory_register(factory, decider);
+                    geopm_factory_register(factory, decider, dl_ptr);
                     break;
                 case GEOPM_PLUGIN_TYPE_PLATFORM:
                     platform = new CustomPlatform;
-                    geopm_factory_register(factory, platform);
+                    geopm_factory_register(factory, platform, dl_ptr);
                     break;
                 case GEOPM_PLUGIN_TYPE_PLATFORM_IMP:
                     platform_imp = new CustomPlatformImp;
-                    geopm_factory_register(factory, platform_imp);
+                    geopm_factory_register(factory, platform_imp, dl_ptr);
                     break;
             }
         }
@@ -333,28 +343,30 @@ function:
 \section{Extending geopm::Platform base class}
 To extend the \verb#geopm::Platform# class, you must override the
 following pure virtual functions:
+% Platform.hpp - also need control_domain(), bound()?
 \begin{verbatim}
     virtual  bool model_supported(int platform_id, const std::string &description)
-    const =  0;
+    const = 0;
     virtual  size_t capacity(void) = 0;
     virtual  void sample(std::vector<struct geopm_msr_message_s> &msr_values) = 0;
     virtual  void enforce_policy(uint64_t region_id, Policy &policy) const = 0;
 \end{verbatim}
 The \verb#model_supported# function is the mechanism used by the
-runtime to choose a specific platform. A hardware identifier id as
+runtime to choose a specific platform. A hardware identifier as
 well as a description string are passed in by the runtime.  The plugin
 uses these as well as any other available information in order to
 decide if it sufficiently supports the requested functionality as well
-as the underlying hardware. The geopm runtime uses the cpuid
+as the underlying hardware. The GEOPM runtime uses the cpuid
 instruction to get the hardware platform ID and sends it in as the
-first parameter. The passed in description string comes from the
-global power policy. For example the built in \verb#RAPLPlatform#
+first parameter. The passed-in description string comes from the
+global power policy. For example, the built-in \verb#RAPLPlatform#
 class is implemented as follows:
+% RAPLPlatform.cpp - add other models?
 \begin{verbatim}
     const int M_SNB_ID = 0x62D; // SandyBridge E
     const int M_IVT_ID = 0x63E; // IvyTown E
     const int M_HSX_ID = 0x63F; // Haswell E
-    const std::string m_description(“rapl”);
+    const std::string m_description("rapl");
     bool RAPLPlatform::model_supported(int platform_id,
                                        const std::string
                                        &description) const
@@ -369,12 +381,12 @@ The \verb#capacity# method returns the number of signals that will be
 returned when the sample method is called. This lets the caller
 pre-size the vector that will hold the data. For the
 \verb#RAPLPlatform# it returns 3 signals per socket and 4 signals per
-cpu and is implemented as follows:
+CPU and is implemented as follows:
 \begin{verbatim}
     size_t RAPLPlatform::capacity(void)
     {
-          return m_imp->num_package() * m_imp->num_package_signal() +
-                   m_imp->num_logical_cpu() * m_imp->num_cpu_signal();
+        return m_imp->num_domain(m_imp->power_control_domain()) *
+            (m_imp->num_energy_signal() + m_imp->num_counter_signal());
     }
 \end{verbatim}
 The \verb#m_imp# is a pointer to a \verb#PlatformImp# instance which
@@ -439,7 +451,7 @@ For the RAPLPlatform to set new power budgets for package level power:
     }
 \end{verbatim}
 \section{Extending geopm::PlatformImp base class}
-To extend the geopm::PlatformImp class, you must override the
+To extend the \verb#geopm::PlatformImp class#, you must override the
 following pure virtual functions:
 \begin{verbatim}
     virtual std::string platform_name(void) = 0;
@@ -460,7 +472,7 @@ A string description should be created for each plugin. The string
 should be unique among all \verb#PlatformImp# plugins. If not unique
 then the first instance will be chosen at runtime. For example:
 \begin{verbatim}
-    const std::string m_name("Haswell E”);
+    const std::string m_name("Haswell E");
 \end{verbatim}
 The \verb#platform_name# method simply returns the string name of the
 platform.
@@ -475,9 +487,10 @@ to choose a specific platform implementation. A hardware identifier is
 passed in by the runtime. The plugin uses this as well as any other
 available information in order to decide if it sufficiently supports
 the requested functionality as well as the underlying hardware. The
-geopm runtime uses the cpuid instruction to get the hardware platform
-id and sends it in as the first parameter. For example the built in
+GEOPM runtime uses the cpuid instruction to get the hardware platform
+id and sends it in as the first parameter. For example, the built-in
 \verb#HSXPlatform# class is implemented as follows:
+% XeonPlatformImp.cpp; impl in Xeon base class
 \begin{verbatim}
     const in m_platform_id = 0x63F; // Haswell E
     bool HSXPlatformImp::model_supported(int platform_id)
@@ -492,7 +505,7 @@ this would be clearing out any RAPL power limits.  The
 performance counters or RAPL MSRs that will be needed during runtime.
 The \verb#power_control_domain# method should return a
 \verb#geopm_domain_type_e# enumeration of the finest granularity
-hardware that supports RAPL power limiting, for Haswell, this is at
+hardware that supports RAPL power limiting; for Haswell, this is at
 the package level.
 \begin{verbatim}
     int HSXPlatformImp::power_control_domain(void) const
@@ -502,8 +515,8 @@ the package level.
 \end{verbatim}
 The \verb#frequency_control_domain# method should return a
 \verb#geopm_domain_type_e# enumeration of the finest granularity
-hardware that supports independent frequency scaling, for Haswell,
-this is at the cpu level.
+hardware that supports independent frequency scaling; for Haswell,
+this is at the CPU level.
 \begin{verbatim}
     int HSXPlatformImp::power_control_domain(void) const
     {
@@ -519,7 +532,7 @@ general there should be a case handler for each
 \verb#geopm_telemetry_type_e# enumerated type.
 \begin{verbatim}
     double HSXPlatformImp::read_signal(int device_type, int device_index,
-                                                int signal_type)
+                                       int signal_type)
     {
         double value = 0.0;
         int offset_idx = 0;
@@ -556,7 +569,7 @@ from the underlying hardware control. A \verb#geopm_domain_type_e#
 enum is passed in identifying the device type to query as well as an
 index of which device of that type to query. The second to last
 parameter is the signal type being requested. The last parameter is
-the value to set. In general there should be a case handler for each
+the value to set. In general, there should be a case handler for each
 \verb#geopm_telemetry_type_e# enumerated type that is controllable.
 \begin{verbatim}
     void HSXPlatformImp::write_control(int device_type, int device_index,
@@ -604,7 +617,7 @@ directory. For instance, on Redhat and CentOS plugins are located
 within \verb#/usr/lib64/geopm/#. If you do not have permissions to
 write to that directory, you may place them in another location
 pointed to by the \verb#GEOPM_PLUGIN_PATH# environment variable.  Note
-that plugins are processed before built in classes making it easy to
+that plugins are processed before built-in classes making it easy to
 override defaults with a custom plugin.
 
 \section{Copyright and disclaimer}
