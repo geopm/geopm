@@ -556,7 +556,11 @@ class Launcher(object):
         launched on.  This is used to inform CPU affinity assignment.
         """
         argv = ['dummy', 'lscpu']
-        launcher = factory(argv, 1, 1)
+        # Note that a warning may be emitted by underlying launcher when main application uses more
+        # than one node and the node list is passed.  We should run lscpu on all the nodes in the
+        # allocation and check that the node topology is uniform across all nodes used by the job
+        # instead of just running on one node.
+        launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
