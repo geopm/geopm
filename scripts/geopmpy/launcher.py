@@ -556,7 +556,7 @@ class Launcher(object):
         launched on.  This is used to inform CPU affinity assignment.
         """
         argv = ['dummy', 'lscpu']
-        launcher = factory(argv, 1, 1)
+        launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
