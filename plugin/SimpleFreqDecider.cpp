@@ -31,7 +31,12 @@
  */
 
 #include <hwloc.h>
+#include <stdlib.h>
+#include <cmath>
+
 #include <algorithm>
+#include <fstream>
+#include <string>
 
 #include "geopm.h"
 #include "geopm_message.h"
@@ -42,14 +47,8 @@
 #include "SimpleFreqDecider.hpp"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
-#include <fstream>
-#include <string>
-#include <cmath>
-
 #include "Region.hpp"
-
-#include <iostream>
-#include <stdlib.h>
+#include "AdaptiveFreqRegion.hpp"
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
@@ -85,6 +84,10 @@ namespace geopm
     {
         m_name = "simple_freq";
         parse_env_map();
+        const char* env_freq_adapt_str = getenv("GEOPM_SIMPLE_FREQ_ADAPTIVE");
+        if (env_freq_adapt_str) {
+            m_is_adaptive = true;
+        }
     }
 
     SimpleFreqDecider::SimpleFreqDecider(const SimpleFreqDecider &other)
@@ -98,6 +101,8 @@ namespace geopm
         , m_num_cores(other.m_num_cores)
         , m_last_freq(other.m_last_freq)
         , m_rid_freq_map(other.m_rid_freq_map)
+        , m_is_adaptive(other.m_is_adaptive)
+        , m_region_last(other.m_region_last)
     {
 
     }
@@ -149,15 +154,53 @@ namespace geopm
 
     bool SimpleFreqDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
-        // Never receiving a new policy power budget via geopm_policy_message_s, since we set according to frequencies, not policy.
+        // Never receiving a new policy power budget via geopm_policy_message_s,
+        // since we set according to frequencies, not policy.
         bool is_updated = false;
         is_updated = GoverningDecider::update_policy(curr_region, curr_policy);
-
-        uint64_t rid = curr_region.identifier() & 0x00000000FFFFFFFF;
+        int num_domain = curr_policy.num_domain();
+        auto curr_region_id = curr_region.identifier();
+        uint64_t rid = curr_region_id & 0x00000000FFFFFFFF;
         double freq = m_last_freq;
         auto it = m_rid_freq_map.find(rid);
         if (it != m_rid_freq_map.end()) {
             freq = it->second;
+        }
+        else if (m_is_adaptive) {
+            bool is_region_boundary = m_region_last != nullptr &&
+                m_region_last->identifier() != curr_region_id;
+            if (m_region_last == nullptr || is_region_boundary) {
+                // set the freq for the current region (entry)
+                auto region_it = m_region_map.find(curr_region_id);
+                if (region_it == m_region_map.end()) {
+                    auto tmp = m_region_map.emplace(
+                        curr_region_id,
+                        std::unique_ptr<AdaptiveFreqRegion>(
+                            new AdaptiveFreqRegion(&curr_region, m_freq_min,
+                                                   m_freq_max, m_freq_step,
+                                                   num_domain)));
+                    region_it = tmp.first;
+                }
+                region_it->second->update_entry();
+
+                freq = region_it->second->freq(); // will get set below
+            }
+            if (is_region_boundary) {
+                // update previous region (exit)
+                auto last_region_id = m_region_last->identifier();
+                auto region_it = m_region_map.find(last_region_id);
+                if (region_it == m_region_map.end()) {
+                    auto tmp = m_region_map.emplace(
+                        last_region_id,
+                        std::unique_ptr<AdaptiveFreqRegion>(
+                            new AdaptiveFreqRegion(m_region_last, m_freq_min,
+                                                   m_freq_max, m_freq_step,
+                                                   num_domain)));
+                    region_it = tmp.first;
+                }
+                region_it->second->update_exit();
+            }
+            m_region_last = &curr_region;
         }
         else {
             switch(curr_region.hint()) {
@@ -186,7 +229,6 @@ namespace geopm
 
         if (freq != m_last_freq) {
             std::vector<double> freq_vec(m_num_cores, freq);
-
             curr_policy.ctl_cpu_freq(freq_vec);
             m_last_freq = freq;
         }
@@ -308,4 +350,5 @@ namespace geopm
         }
         return result;
     }
+
 }

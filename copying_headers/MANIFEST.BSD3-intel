@@ -29,6 +29,8 @@ geopm-ohpc.spec.in
 Makefile.am
 openmp.mk
 test/legacy_whitelist.out
+plugin/AdaptiveFreqRegion.cpp
+plugin/AdaptiveFreqRegion.hpp
 plugin/BalancingDecider.cpp
 plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
@@ -145,11 +147,12 @@ src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 src/XeonPlatformImp.cpp
 src/XeonPlatformImp.hpp
-test/ControlMessageTest.cpp
+test/AdaptiveFreqRegionTest.cpp
 test/BalancingDeciderTest.cpp
 test/CircularBufferTest.cpp
 test/CommMPIImpTest.cpp
 test/CommMPIImpTest.cpp
+test/ControlMessageTest.cpp
 test/DeciderFactoryTest.cpp
 test/EnvironmentTest.cpp
 test/EnvironmentTest.cpp
