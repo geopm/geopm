@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54335691_820b54ea",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-10-30T16:42:46Z",
+      "side": 1,
+      "message": "Add blank line between commit message title and body text.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 54
+      },
+      "revId": "40e13bbd426b68dd639deb8545eb30f9d1ab11b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
