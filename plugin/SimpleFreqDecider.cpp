@@ -47,8 +47,8 @@
 #include <cmath>
 
 #include "Region.hpp"
+#include "AdaptiveFreqRegion.hpp"
 
-#include <iostream>
 #include <stdlib.h>
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
@@ -85,6 +85,10 @@ namespace geopm
     {
         m_name = "simple_freq";
         parse_env_map();
+        const char* env_freq_adapt_str = getenv("GEOPM_SIMPLE_FREQ_ADAPTIVE");
+        if (env_freq_adapt_str) {
+            m_is_adaptive = true;
+        }
     }
 
     SimpleFreqDecider::SimpleFreqDecider(const SimpleFreqDecider &other)
@@ -98,6 +102,7 @@ namespace geopm
         , m_num_cores(other.m_num_cores)
         , m_last_freq(other.m_last_freq)
         , m_rid_freq_map(other.m_rid_freq_map)
+        , m_is_adaptive(other.m_is_adaptive)
     {
 
     }
@@ -152,12 +157,46 @@ namespace geopm
         // Never receiving a new policy power budget via geopm_policy_message_s, since we set according to frequencies, not policy.
         bool is_updated = false;
         is_updated = GoverningDecider::update_policy(curr_region, curr_policy);
-
         uint64_t rid = curr_region.identifier() & 0x00000000FFFFFFFF;
         double freq = m_last_freq;
         auto it = m_rid_freq_map.find(rid);
         if (it != m_rid_freq_map.end()) {
             freq = it->second;
+        }
+        else if (m_is_adaptive) {
+            // detect region boundaries
+            if (m_region_last != nullptr &&
+                m_region_last->identifier() != curr_region.identifier()) {
+
+                auto last_region_id = m_region_last->identifier();
+                auto curr_region_id = curr_region.identifier();
+
+                // update previous region
+                {
+                    // try to find region history; add if new
+                    auto region_it = m_region_map.find(last_region_id);
+                    if (region_it == m_region_map.end()) {
+                        auto tmp = m_region_map.emplace(last_region_id,
+                                                        new AdaptiveFreqRegion(m_region_last, m_freq_min, m_freq_max, m_freq_step));
+                        region_it = tmp.first;
+                    }
+
+                    // update freq for this region
+                    region_it->second->update();
+                }
+
+                // set the freq for the current region
+                {
+                    auto region_it = m_region_map.find(curr_region_id);
+                    if (region_it == m_region_map.end()) {
+                        auto tmp = m_region_map.emplace(curr_region_id,
+                                                        new AdaptiveFreqRegion(&curr_region, m_freq_min, m_freq_max, m_freq_step));
+                        region_it = tmp.first;
+                    }
+                    freq = region_it->second->freq(); // will get set below
+                }
+            }
+            m_region_last = &curr_region;
         }
         else {
             switch(curr_region.hint()) {
@@ -308,4 +347,5 @@ namespace geopm
         }
         return result;
     }
+
 }
