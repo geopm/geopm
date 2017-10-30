@@ -39,6 +39,7 @@
 
 namespace geopm
 {
+    class AdaptiveFreqRegion;
 
     /// @brief Simple implementation of a binary frequency decider.
     ///
@@ -74,6 +75,11 @@ namespace geopm
             const unsigned int m_num_cores;
             double m_last_freq;
             std::map<uint64_t, double> m_rid_freq_map;
+            // for adaptive decider
+            bool m_is_adaptive = false;
+            IRegion *m_region_last = nullptr;
+            std::map<uint64_t, AdaptiveFreqRegion*> m_region_map;
+
     };
 }
 
