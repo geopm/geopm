@@ -33,12 +33,15 @@
 #ifndef SIMPLE_FREQ_DECIDER_HPP_INCLUDE
 #define SIMPLE_FREQ_DECIDER_HPP_INCLUDE
 
+#include <memory>
+
 #include "Decider.hpp"
 #include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
 
 namespace geopm
 {
+    class AdaptiveFreqRegion;
 
     /// @brief Simple implementation of a binary frequency decider.
     ///
@@ -74,6 +77,10 @@ namespace geopm
             const unsigned int m_num_cores;
             double m_last_freq;
             std::map<uint64_t, double> m_rid_freq_map;
+            // for adaptive decider
+            bool m_is_adaptive = false;
+            IRegion *m_region_last = nullptr;
+            std::map<uint64_t, std::unique_ptr<AdaptiveFreqRegion>> m_region_map;
     };
 }
 
