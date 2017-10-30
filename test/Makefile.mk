@@ -136,6 +136,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/SimpleFreqDeciderTest.name \
               test/gtest_links/SimpleFreqDeciderTest.clone \
               test/gtest_links/SimpleFreqDeciderTest.hint \
+              test/gtest_links/AdaptiveFreqDeciderTest.adaptive_branch \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
@@ -181,6 +182,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRTest.msr \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.msr_control \
+              test/gtest_links/AdaptiveFreqRegionTest.freq_starts_at_maximum \
+              test/gtest_links/AdaptiveFreqRegionTest.update_ignores_nan_sample \
+              test/gtest_links/AdaptiveFreqRegionTest.only_changes_freq_after_enough_samples \
+              test/gtest_links/AdaptiveFreqRegionTest.freq_does_not_go_below_min \
+              test/gtest_links/AdaptiveFreqRegionTest.freq_does_not_go_above_max \
+              test/gtest_links/AdaptiveFreqRegionTest.bandwidth_decreases_freq_steps_back_up \
+              test/gtest_links/AdaptiveFreqRegionTest.after_too_many_increase_freq_stays_at_higher \
               # end
 
 if ENABLE_MPI
@@ -249,6 +257,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformIOTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
+                          plugin/AdaptiveFreqRegion.hpp \
+                          plugin/AdaptiveFreqRegion.cpp \
+                          test/AdaptiveFreqRegionTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
@@ -259,6 +270,7 @@ test_geopm_test_LDADD = libgtest.a \
 test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
 test_geopm_test_CFLAGS = $(AM_CFLAGS)
 test_geopm_test_CXXFLAGS = $(AM_CXXFLAGS)
+
 if GEOPM_DISABLE_NULL_PTR
     test_geopm_test_CFLAGS += -fno-delete-null-pointer-checks
     test_geopm_test_CXXFLAGS += -fno-delete-null-pointer-checks

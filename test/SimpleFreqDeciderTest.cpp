@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <map>
+#include <memory>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -50,6 +51,8 @@ using  ::testing::_;
 using  ::testing::Invoke;
 using  ::testing::Sequence;
 using  ::testing::Return;
+using geopm::IDecider;
+using geopm::DeciderFactory;
 
 class SimpleFreqDeciderTest: public :: testing :: Test
 {
@@ -186,5 +189,80 @@ TEST_F(SimpleFreqDeciderTest, hint)
 
     for (size_t x = 0; x < m_hints.size(); x++) {
         m_decider->update_policy(*m_mockregion, *m_mockpolicy);
+    }
+}
+
+
+class AdaptiveFreqDeciderTest : public ::testing::Test
+{
+    protected:
+        void SetUp();
+        void TearDown();
+
+        std::unique_ptr<MockRegion> m_mock_region;
+        std::unique_ptr<MockPolicy> m_mock_policy;
+        std::unique_ptr<DeciderFactory> m_fact;
+        std::unique_ptr<IDecider> m_decider;
+};
+
+void AdaptiveFreqDeciderTest::SetUp()
+{
+    int err = unsetenv("GEOPM_SIMPLE_FREQ_RID_MAP");
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(NULL, getenv("GEOPM_SIMPLE_FREQ_RID_MAP"));
+    setenv("GEOPM_SIMPLE_FREQ_ADAPTIVE", "yes", 1);
+
+    m_mock_region = std::unique_ptr<MockRegion>(new MockRegion());
+    m_mock_policy = std::unique_ptr<MockPolicy>(new MockPolicy());
+    m_fact = std::unique_ptr<DeciderFactory>(new DeciderFactory());
+    m_decider = std::unique_ptr<IDecider>(m_fact->decider("simple_freq"));
+}
+
+void AdaptiveFreqDeciderTest::TearDown()
+{
+    unsetenv("GEOPM_SIMPLE_FREQ_ADAPTIVE");
+}
+
+TEST_F(AdaptiveFreqDeciderTest, adaptive_branch)
+{
+    {
+        // should not be called if we hit the adaptive branch
+        EXPECT_CALL(*m_mock_region, hint()).Times(0);
+
+        EXPECT_CALL(*m_mock_policy, ctl_cpu_freq(_));
+        EXPECT_CALL(*m_mock_region, num_sample(_, _));
+        EXPECT_CALL(*m_mock_region, identifier()).Times(2);
+
+        m_decider->update_policy(*m_mock_region, *m_mock_policy);
+    }
+
+    {
+        EXPECT_CALL(*m_mock_region, hint()).Times(0);
+        EXPECT_CALL(*m_mock_policy, ctl_cpu_freq(_));
+        EXPECT_CALL(*m_mock_region, num_sample(_, _));
+
+        // upon second update, previous region will not be null
+        // and it will check the region id
+        EXPECT_CALL(*m_mock_region, identifier()).Times(4);
+
+        m_decider->update_policy(*m_mock_region, *m_mock_policy);
+    }
+
+    {
+        EXPECT_CALL(*m_mock_region, hint()).Times(0);
+        EXPECT_CALL(*m_mock_policy, ctl_cpu_freq(_));
+        EXPECT_CALL(*m_mock_region, num_sample(_, _));
+
+        // cause a transition to a new region
+        EXPECT_CALL(*m_mock_region, identifier()).Times(6)
+            .WillOnce(Return(1))
+            .WillOnce(Return(2))
+            .WillOnce(Return(3))
+            .WillOnce(Return(4))
+            .WillRepeatedly(Return(5));
+
+        EXPECT_CALL(*m_mock_region, derivative(_, _));
+
+        m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
 }
