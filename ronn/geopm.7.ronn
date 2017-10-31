@@ -401,6 +401,13 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
     The runtime will print a message explaining the hostname and
     process ID that the debugger should attach to.
 
+  * `GEOPM_EXEC_WRAPPER`:
+    Configure string for DDT to attach to a job being run by the
+    launcher.  May work with other debuggers.  DDT example:
+
+    `$ export GEOPM_EXEC_WRAPPER="$PATH_TO_DDT_CLIENT_BIN --ddtsessionfile \
+                                  $PATH_TO_DDT_CLIENT_SESSION_FILE"`
+
   * `GEOPM_REGION_BARRIER`:
     Enables a node local MPI_Barrier() at time of calling
     `geopm_region_enter`() or `geopm_region_exit`() for all

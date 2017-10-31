@@ -14,6 +14,7 @@ copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.MIT-dropbox
 copying_headers/MANIFEST.NAS
+debug.sh
 dox/Doxyfile
 examples/amg2013/README
 examples/comd/README
@@ -26,6 +27,9 @@ examples/nekbone/README
 examples/qbox/README
 examples/README.md
 geopm-ohpc.spec.in
+.gitignore
+.gdbinit.geopm
+.gdbinit.geopm.local
 .gitignore
 MANIFEST
 pull_request_template.md
@@ -69,3 +73,4 @@ tutorial/agent/agent_tutorial_config.json
 tutorial/agent/example_policy.json
 tutorial/agent/README.md
 tutorial/iogroup/README.md
+test.sh
