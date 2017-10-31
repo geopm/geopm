@@ -38,6 +38,8 @@
 /examples/geopm_platform_supported
 *.gcda
 *.gcno
+.gdbinit.geopm.local
+geopm.gdb.log
 /geopmagent
 /geopmbench
 /geopmctl
