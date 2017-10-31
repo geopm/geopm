@@ -153,6 +153,9 @@ class SubsetOptionParser(optparse.OptionParser):
         while idx < len(argv):
             if argv[idx] == '--':
                 unfiltered.extend(argv[idx:])
+                geopm_ddbg = os.getenv('GEOPM_EXEC_WRAPPER','')
+                if geopm_ddbg not in unfiltered:
+                    unfiltered.insert(1, geopm_ddbg)
                 break
             is_found = False
             for option in self._get_all_options():
