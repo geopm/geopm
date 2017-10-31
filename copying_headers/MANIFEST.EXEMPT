@@ -15,11 +15,15 @@ copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.MIT-dropbox
 copying_headers/MANIFEST.NAS
+<<<<<<< HEAD
 copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl
 copying_headers/header.MIT-dropbox
 copying_headers/header.NAS
 dox-public/Doxyfile.in
+=======
+debug.sh
+>>>>>>> 5c49a92... GEOPM debug harness start.
 dox/Doxyfile
 examples/README.md
 examples/amg/README
@@ -31,7 +35,14 @@ examples/minife/README
 examples/nekbone/README
 examples/qbox/README
 geopm-ohpc.spec.in
+<<<<<<< HEAD
 geopm-theta.spec.in
+=======
+.gitignore
+.gdbinit.geopm
+.gdbinit.geopm.local
+MANIFEST
+>>>>>>> 5c49a92... GEOPM debug harness start.
 pull_request_template.md
 ronn/GEOPM_CXX_MAN_Agent.3.ronn
 ronn/GEOPM_CXX_MAN_Agg.3.ronn
@@ -98,7 +109,11 @@ tutorial/agent/README.md
 tutorial/agent/agent_tutorial_config.json
 tutorial/agent/example_policy.json
 tutorial/iogroup/README.md
+<<<<<<< HEAD
 tutorial/plugin_load/README.md
 tutorial/tutorial_6_config.json
 tutorial/tutorial_balanced_policy.json
 tutorial/tutorial_governed_policy.json
+=======
+test.sh
+>>>>>>> 5c49a92... GEOPM debug harness start.

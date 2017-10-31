@@ -196,8 +196,14 @@ dist_doc_DATA = COPYING \
                 VERSION \
                 # end
 
+<<<<<<< HEAD
 EXTRA_DIST = $(TUTORIAL_DIST) \
              .gitignore \
+=======
+EXTRA_DIST = .gitignore \
+             .gdbinit.geopm \
+             .gdbinit.geopm.local \
+>>>>>>> 5c49a92... GEOPM debug harness start.
              .travis.yml \
              .travis_obs.sh \
              CODE_OF_CONDUCT.md \
@@ -221,8 +227,12 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/header.MIT-dropbox \
              copying_headers/header.NAS \
              copying_headers/test-dist \
+<<<<<<< HEAD
              copying_headers/test-license \
              dox-public/Doxyfile.in \
+=======
+             debug.sh \
+>>>>>>> 5c49a92... GEOPM debug harness start.
              dox/Doxyfile \
              geopm-ohpc.spec \
              geopm-ohpc.spec.in \
@@ -295,7 +305,12 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              test_hw/geopm_time.h \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
+<<<<<<< HEAD
              test_hw/rapl_pkg_limit_test.c \
+=======
+             test.sh \
+             geopm-tutorial.tar.gz \
+>>>>>>> 5c49a92... GEOPM debug harness start.
              # end
 
 TUTORIAL_DIST = tutorial/Makefile \

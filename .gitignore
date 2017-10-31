@@ -59,6 +59,8 @@
 /geopm*.tar.gz
 /geopm.mod
 /geopm.o
+.gdbinit.geopm.local
+*.log
 /geopmagent
 /geopmbench
 /geopmctl
