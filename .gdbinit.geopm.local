@@ -1,0 +1,17 @@
+# this file will be marked ignored in the repo
+# to prevent unintentional commits regarding the
+# debug session specific triage sections.
+
+source .gdbinit.geopm
+
+# triage config
+b PluginFactory.hpp:56
+commands
+bt
+list
+end
+
+# triage
+unit_test CpuinfoIOGroupTest.parse_cpu_info0
+
+
