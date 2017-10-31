@@ -109,6 +109,8 @@ dist_doc_DATA = README \
                 # end
 
 EXTRA_DIST = .gitignore \
+             .gdbinit.geopm \
+             .gdbinit.geopm.local \
              .travis.yml \
              .travis_obs.sh \
              autogen.sh \
@@ -129,6 +131,7 @@ EXTRA_DIST = .gitignore \
              copying_headers/MANIFEST.NAS \
              copying_headers/test-license \
              copying_headers/test-dist \
+             debug.sh \
              dox/Doxyfile \
              geopm-ohpc.spec.in \
              geopm-ohpc.spec \
@@ -165,6 +168,7 @@ EXTRA_DIST = .gitignore \
              test_hw/rapl_pkg_limit_test.c \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
+             test.sh \
              geopm-tutorial.tar.gz \
              # end
 
