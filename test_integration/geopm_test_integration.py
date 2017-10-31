@@ -788,7 +788,7 @@ class TestIntegration(unittest.TestCase):
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path,
                                                     time_limit=900, region_barrier=True, performance=True)
         launcher.write_log(name, '\nCtl config -\n{}'.format(ctl_conf))
-        launcher.write_log(name, '\nBaseline frequency: {}'.format(optimal_freq['epoch'])
+        launcher.write_log(name, '\nBaseline frequency: {}'.format(optimal_freq['epoch']))
         launcher.write_log(name, '\nFrequency map: {}'.format(os.environ['GEOPM_SIMPLE_FREQ_RID_MAP']))
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
