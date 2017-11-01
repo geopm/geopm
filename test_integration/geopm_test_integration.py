@@ -737,8 +737,17 @@ class TestIntegration(unittest.TestCase):
 
         # Setup the static policy run
         step_freq = 100e6
-        min_freq = 1.2e9
-        max_freq = 2.3e9
+        try:
+            with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq") as fid:
+                min_freq = 1e3 * float(fid.readline())
+        except IOError:
+            max_freq = 1.2e9
+        try:
+            with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") as fid:
+                max_freq = 1e3 * float(fid.readline())
+        except IOError:
+            max_freq = 2.3e9
+
         num_step = 1 + int((max_freq - min_freq) / step_freq)
         freq_sweep = [step_freq * ss + min_freq for ss in range(num_step)]
         freq_sweep.reverse()
@@ -750,7 +759,7 @@ class TestIntegration(unittest.TestCase):
         ctl_conf = geopmpy.io.CtlConf(name + '.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
 
-        margin = 0.05
+        margin = 0.1
         optimal_freq = dict()
         min_runtime = dict()
         is_once = True
