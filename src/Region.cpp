@@ -364,6 +364,20 @@ namespace geopm
         return result;
     }
 
+    struct geopm_time_s Region::time_buffer_value(int buffer_idx)
+    {
+        struct geopm_time_s result{};
+        // If buffer index is negative then wrap around
+        if (buffer_idx < 0) {
+            buffer_idx += m_time_buffer->size();
+        }
+        if (buffer_idx >= 0 && buffer_idx < m_time_buffer->size()) {
+            result = m_time_buffer->value(buffer_idx);
+        }
+        return result;
+    }
+
+
     bool Region::is_telemetry_entry(const struct geopm_telemetry_message_s &telemetry, int domain_idx)
     {
         bool result = telemetry.signal[GEOPM_TELEMETRY_TYPE_PROGRESS] == 0.0 && // We are entering the region
@@ -515,6 +529,11 @@ namespace geopm
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_ENERGY] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_ENERGY];
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER];
         m_agg_stats.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM] += m_curr_sample.signal[GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM];
+    }
+
+    struct geopm_time_s Region::telemetry_timestamp(size_t sample_idx)
+    {
+        return time_buffer_value(sample_idx);
     }
 
 }

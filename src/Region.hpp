@@ -222,6 +222,8 @@ namespace geopm
             virtual double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const = 0;
             virtual void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const = 0;
             virtual void thread_progress(std::vector<double> &progress) = 0;
+            /// @brief Return the timestamp of the sample at a given index.
+            virtual struct geopm_time_s telemetry_timestamp(size_t sample_idx) = 0;
     };
 
     class Region : public IRegion
@@ -259,6 +261,7 @@ namespace geopm
             double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
             void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const;
             void thread_progress(std::vector<double> &progress);
+            struct geopm_time_s telemetry_timestamp(size_t sample_idx) override;
         protected:
             /// @brief Bound testing of input parameters.
             ///
@@ -282,6 +285,7 @@ namespace geopm
             ///
             void check_bounds(int domain_idx, int signal_type, const char *file, int line) const;
             double domain_buffer_value(int buffer_idx, int domain_idx, int signal_type);
+            geopm_time_s time_buffer_value(int buffer_idx);
             bool is_telemetry_entry(const struct geopm_telemetry_message_s &telemetry, int domain_idx);
             bool is_telemetry_exit(const struct geopm_telemetry_message_s &telemetry, int domain_idx);
             void update_domain_sample(const struct geopm_telemetry_message_s &telemetry, int domain_idx);

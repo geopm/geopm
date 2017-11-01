@@ -72,4 +72,6 @@ class MockRegion : public geopm::IRegion {
                 void(std::ostringstream &string_stream, const std::string &name, int rank_per_node));
         MOCK_METHOD1(thread_progress,
                 void(std::vector<double> &progress));
+        MOCK_METHOD1(telemetry_timestamp,
+                struct geopm_time_s(size_t sample_idx));
 };

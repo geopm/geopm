@@ -101,6 +101,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/RegionTest.negative_region_invalid \
               test/gtest_links/RegionTest.negative_signal_invalid \
               test/gtest_links/RegionTest.negative_signal_derivative_tree \
+              test/gtest_links/RegionTest.telemetry_timestamp \
               test/gtest_links/SampleRegulatorTest.insert_platform \
               test/gtest_links/SampleRegulatorTest.insert_profile \
               test/gtest_links/SampleRegulatorTest.align_profile \
