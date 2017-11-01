@@ -562,3 +562,27 @@ TEST_F(RegionTest, negative_signal_derivative_tree)
     }
     EXPECT_EQ(GEOPM_ERROR_NOT_IMPLEMENTED, thrown);
 }
+
+TEST_F(RegionTest, telemetry_timestamp)
+{
+    int count = 8;
+    std::vector<struct geopm_time_s> expected_time(count);
+    for (int i = 0; i < count; ++i) {
+        std::vector<struct geopm_telemetry_message_s> telemetry(2);
+        telemetry[0].region_id = 42;
+        telemetry[1].region_id = 42;
+        struct timespec ts { .tv_sec = i*10 };
+        geopm_time_s mytime { .t = ts };
+        telemetry[0].timestamp = mytime;
+        telemetry[1].timestamp = mytime;
+        expected_time[i] = mytime;
+        m_leaf_region->insert(telemetry);
+    }
+
+    for (int i = 0; i < count; ++i) {
+        EXPECT_EQ(expected_time[i].t.tv_sec,
+                  m_leaf_region->telemetry_timestamp(i).t.tv_sec);
+    }
+    EXPECT_EQ(expected_time[count-1].t.tv_sec,
+              m_leaf_region->telemetry_timestamp(-1).t.tv_sec);
+}
