@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edf3f8f3_c5740246",
+        "filename": "plugin/AdaptiveFreqRegion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-02T22:05:23Z",
+      "side": 1,
+      "message": "Coding style difference:\n    assert vs. check and exception throw\n    comparing pointer to nullptr vs NULL",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 36
+      },
+      "revId": "bc1b9590476405169d4f056dd43db3226c026846",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3082bfc_3cbdb1d2",
+        "filename": "plugin/AdaptiveFreqRegion.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-02T22:05:23Z",
+      "side": 1,
+      "message": "const member names should be ALL CAPS.",
+      "range": {
+        "startLine": 57,
+        "startChar": 1,
+        "endLine": 70,
+        "endChar": 63
+      },
+      "revId": "bc1b9590476405169d4f056dd43db3226c026846",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
