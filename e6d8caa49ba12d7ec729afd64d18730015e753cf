@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "956ac25c_37d81704",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "-",
+      "range": {
+        "startLine": 15,
+        "startChar": 59,
+        "endLine": 15,
+        "endChar": 60
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e1f499c_e3c9157b",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "extra word",
+      "range": {
+        "startLine": 50,
+        "startChar": 50,
+        "endLine": 50,
+        "endChar": 52
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d3377ae_ea45e260",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "development effort?",
+      "range": {
+        "startLine": 54,
+        "startChar": 10,
+        "endLine": 54,
+        "endChar": 21
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6abfc536_cc0fdfb0",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "throughout",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3f0a5c2_d4c9da48",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": ",",
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdf64581_167453e1",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "at-scale",
+      "range": {
+        "startLine": 65,
+        "startChar": 63,
+        "endLine": 66,
+        "endChar": 5
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "96197588_1f5a5655",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "extra word",
+      "range": {
+        "startLine": 66,
+        "startChar": 6,
+        "endLine": 66,
+        "endChar": 11
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "255833ae_9e19d376",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "supercomputer",
+      "range": {
+        "startLine": 191,
+        "startChar": 54,
+        "endLine": 191,
+        "endChar": 68
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "147c4304_0a4ae677",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": "targets",
+      "range": {
+        "startLine": 196,
+        "startChar": 20,
+        "endLine": 196,
+        "endChar": 34
+      },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc0f96f1_a3b910fb",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-02T16:50:28Z",
+      "side": 1,
+      "message": ",",
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
