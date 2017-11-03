@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa7b90e0_b1397375",
+        "filename": "plugin/AdaptiveFreqRegion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-03T01:41:30Z",
+      "side": 1,
+      "message": "nullptr shouldn\u0027t hurt anything as long as we support C++11; it\u0027s more typesafe. \n\nI will change this assert to throw a GEOPM_ERROR_LOGIC",
+      "parentUuid": "edf3f8f3_c5740246",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 36
+      },
+      "revId": "bc1b9590476405169d4f056dd43db3226c026846",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3082bfc_3cbdb1d2",
         "filename": "plugin/AdaptiveFreqRegion.hpp",
         "patchSetId": 2
