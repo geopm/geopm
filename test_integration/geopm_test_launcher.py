@@ -153,7 +153,7 @@ class TestLauncher(object):
             # Mulitply num core per socket by num socket and remove one
             # CPU for BSP to calculate number of CPU for application.
             # Don't use hyper-threads.
-            self._num_cpu = cpu_thread_core_socket[0] * cpu_thread_core_socket[3] - 1
+            self._num_cpu = cpu_thread_core_socket[2] * cpu_thread_core_socket[3] - 1
 
     def set_cpu_per_rank(self):
         try:
