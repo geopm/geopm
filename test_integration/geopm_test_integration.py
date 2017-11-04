@@ -44,6 +44,44 @@ from natsort import natsorted
 import geopm_test_launcher
 import geopmpy.io
 
+def skip_unless_run_long_tests():
+    if 'GEOPM_RUN_LONG_TESTS' not in os.environ:
+        return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    return lambda func: func
+
+def skip_unless_cpufreq():
+    try:
+        os.stat("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")
+        os.stat("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+    except OSError:
+        return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
+    return lambda func: func
+
+def skip_unless_platform_bdx():
+    with open('/proc/cpuinfo') as fid:
+        for line in fid.readlines():
+            if line.startswith('cpu family\t:'):
+                fam = int(line.split(':')[1])
+            if line.startswith('model\t\t:'):
+                mod = int(line.split(':')[1])
+    if fam != 6 or mod != 45:
+        return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
+    return lambda func: func
+
+def skip_unless_config_enable(feature):
+    path = os.path.join(
+           os.path.dirname(
+           os.path.dirname(
+           os.path.realpath(__file__))),
+           'config.log')
+    with open(path) as fid:
+        for line in fid.readlines():
+            if line.startswith("enable_{}='0'".format(feature)):
+                return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
+            elif line.startswith("enable_{}='1'".format(feature)):
+                break
+    return lambda func: func
+
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
@@ -284,8 +322,7 @@ class TestIntegration(unittest.TestCase):
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     self.assertNear(trace_elapsed_time, region_data.get_runtime())
 
-    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
-                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    @skip_unless_run_long_tests()
     def test_region_runtimes(self):
         name = 'test_region_runtime'
         report_path = name + '.report'
@@ -412,8 +449,7 @@ class TestIntegration(unittest.TestCase):
 
         # TODO Trace file parsing + analysis
 
-    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
-                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    @skip_unless_run_long_tests()
     def test_scaling(self):
         """
         This test will start at ${num_node} nodes and ranks.  It will then calls check_run() to
@@ -465,8 +501,7 @@ class TestIntegration(unittest.TestCase):
                 num_node *= 2
                 self._output.remove_files()
 
-    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
-                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    @skip_unless_run_long_tests()
     def test_power_consumption(self):
         name = 'test_power_consumption'
         report_path = name + '.report'
@@ -568,8 +603,7 @@ class TestIntegration(unittest.TestCase):
                     launcher.write_log(name, '{}'.format(negative_progress))
                     self.assertEqual(0, len(negative_progress))
 
-    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
-                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    @skip_unless_run_long_tests()
     def test_sample_rate(self):
         """
         Check that sample rate is regular and fast.
@@ -673,14 +707,7 @@ class TestIntegration(unittest.TestCase):
             rr = self._output.get_report(nn)
             self.assertEqual(rr['ignore'].get_runtime(), rr.get_ignore_runtime())
 
-    @unittest.skipUnless([True for line in
-                          open(os.path.join(
-                               os.path.dirname(
-                               os.path.dirname(
-                               os.path.realpath(__file__))),
-                               'config.h'))
-                          if line.startswith('#define GEOPM_ENABLE_OMPT')],
-                          "Configure with --enable-ompt to enable this test.")
+    @skip_unless_config_enable('ompt')
     def test_unmarked_ompt(self):
         name = 'test_unmarked_ompt'
         report_path = name + '.report'
@@ -719,8 +746,8 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
-    @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
-                         "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    @skip_unless_run_long_tests()
+    @skip_unless_platform_bdx()
     def test_plugin_simple_freq(self):
         """
         """
