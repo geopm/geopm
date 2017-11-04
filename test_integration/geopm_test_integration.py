@@ -44,6 +44,44 @@ from natsort import natsorted
 import geopm_test_launcher
 import geopmpy.io
 
+def skip_unless_run_long_tests():
+    if 'GEOPM_RUN_LONG_TESTS' not in os.environ:
+        return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    return lambda func: func
+
+def skip_unless_cpufreq():
+    try:
+        os.stat("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")
+        os.stat("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+    except OSError:
+        return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
+    return lambda func: func
+
+def skip_unless_platform_bdx():
+    with open('/proc/cpuinfo') as fid:
+        for line in fid.readlines():
+            if line.startswith('cpu family\t:'):
+                fam = int(line.split(':')[1])
+            if line.startswith('model\t\t:'):
+                mod = int(line.split(':')[1])
+    if fam != 6 or mod != 45:
+        return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
+    return lambda func: func
+
+def skip_unless_config_enable(feature):
+    path = os.path.join(
+           os.path.dirname(
+           os.path.dirname(
+           os.path.realpath(__file__))),
+           'config.log')
+    with open(path) as fid:
+        for line in fid.readlines():
+            if line.startswith("enable_{}='0'".format(feature)):
+                return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
+            elif line.startswith("enable_{}='1'".format(feature)):
+                break
+    return lambda func: func
+
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
