@@ -128,6 +128,8 @@ src/RAPLPlatform.cpp
 src/RAPLPlatform.hpp
 src/Region.cpp
 src/Region.hpp
+src/RuntimeRegulator.cpp
+src/RuntimeRegulator.hpp
 src/SampleRegulator.cpp
 src/SampleRegulator.hpp
 src/SampleScheduler.cpp
@@ -162,6 +164,7 @@ test/geopm_test.sh
 test/GlobalPolicyTest.cpp
 test/googletest.mk
 test/GoverningDeciderTest.cpp
+test/RuntimeRegulatorTest.cpp
 test_hw/geopm_time.h
 test_hw/geopm_time.h
 test_hw/Makefile

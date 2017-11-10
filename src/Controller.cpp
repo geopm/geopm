@@ -57,6 +57,7 @@
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "OMPT.hpp"
+#include "RuntimeRegulator.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -614,6 +615,21 @@ namespace geopm
                         }
                         (*sample_it).second.region_id = GEOPM_REGION_ID_UNMARKED;
                     }
+                    else {
+                        base_region_id = (*sample_it).second.region_id;
+                        if (!geopm_region_id_is_epoch(base_region_id)) {
+                            if ((*sample_it).second.progress == 0.0 &&
+                                    !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
+                                RuntimeRegulator rtr(m_rank_per_node);
+                                auto rid_it = m_rid_regulator_map.emplace(base_region_id, rtr); // TODO std::piecewise_construct and std::make_pair
+                                rid_it.first->second.record_entry(local_rank, (*sample_it).second.timestamp);
+                            }
+                            else if ((*sample_it).second.progress == 1.0 &&
+                                    !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
+                                m_rid_regulator_map[base_region_id].record_exit(local_rank, (*sample_it).second.timestamp);
+                            }
+                        }
+                    }
                     if (geopm_region_id_is_epoch((*sample_it).second.region_id)) {
                         is_epoch_begun = true;
                     }
@@ -623,9 +639,8 @@ namespace geopm
                     uint64_t map_id = base_region_id;
                     // Regular user region keys are only the least significant 32 bits of the region id,
                     // so clear the top 32 bits before the find.
-                    if (map_id != GEOPM_REGION_ID_UNMARKED && map_id != GEOPM_REGION_ID_EPOCH) {
-                        map_id = (map_id << 32) >> 32;
-                    }
+                    map_id = geopm_region_id_hash(map_id);
+
                     auto region_it = m_region[level].find(map_id);
                     if (region_it == m_region[level].end()) {
                         auto tmp_it = m_region[level].insert(
@@ -664,9 +679,8 @@ namespace geopm
                             uint64_t map_id = (*sample_it).second.region_id;
                             // Regular user region keys are only the least significant 32 bits of the region id,
                             // so clear the top 32 bits before the find.
-                            if (map_id != GEOPM_REGION_ID_UNMARKED && map_id != GEOPM_REGION_ID_EPOCH) {
-                                map_id = (map_id << 32) >> 32;
-                            }
+                            map_id = geopm_region_id_hash(map_id);
+
                             auto region_it = m_region[level].find(map_id);
                             if (region_it == m_region[level].end()) {
                                 auto tmp_it = m_region[level].insert(
@@ -692,6 +706,8 @@ namespace geopm
                                                   aligned_signal,
                                                   m_region_id);
                             m_platform->transform_rank_data(m_region_id_all, m_msr_sample[0].timestamp, aligned_signal, epoch_telemetry_sample);
+                            // epoch not recorded in map
+                            //m_rid_regulator_map[epoch_telemetry_sample[0].region_id].insert_runtime_signal(epoch_telemetry_sample);
                             is_epoch_found = true;
                             m_region_id_all = region_id_all_tmp;
                         }
@@ -704,7 +720,6 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       aligned_signal,
                                       m_region_id);
-
                 // Determine if all ranks were last sampled from the same region
                 uint64_t region_id_all = m_region_id[0];
                 for (auto it = m_region_id.begin(); it != m_region_id.end(); ++it) {
@@ -715,6 +730,7 @@ namespace geopm
                 }
 
                 m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
+                m_rid_regulator_map[geopm_region_id_unset_mpi(m_telemetry_sample[0].region_id)].insert_runtime_signal(m_telemetry_sample);
 
                 // First entry into any region
                 if (m_region_id_all == GEOPM_REGION_ID_UNDEFINED && region_id_all != m_region_id_all) {
@@ -823,8 +839,8 @@ namespace geopm
         for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
             (*it).region_id = m_region_id_all;
             (*it).signal[GEOPM_TELEMETRY_TYPE_PROGRESS] = progress;
-            (*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = 0.0;
         }
+        m_rid_regulator_map[geopm_region_id_unset_mpi(m_telemetry_sample[0].region_id)].insert_runtime_signal(m_telemetry_sample);
     }
 
     void Controller::update_region(void)
@@ -840,9 +856,8 @@ namespace geopm
         uint64_t map_id = m_region_id_all;
         // Regular user region keys are only the least significant 32 bits of the region id,
         // so clear the top 32 bits before the find.
-        if (map_id != GEOPM_REGION_ID_UNMARKED && map_id != GEOPM_REGION_ID_EPOCH) {
-            map_id = (map_id << 32) >> 32;
-        }
+        map_id = geopm_region_id_hash(map_id);
+
         auto it = m_region[level].find(map_id);
         if (it == m_region[level].end()) {
             auto tmp_it = m_region[level].insert(

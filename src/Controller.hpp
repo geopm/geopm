@@ -48,6 +48,7 @@
 #include "Tracer.hpp"
 #include "geopm_time.h"
 #include "geopm_plugin.h"
+#include "RuntimeRegulator.hpp"
 
 
 namespace geopm
@@ -219,6 +220,7 @@ namespace geopm
             double m_counter_energy_start;
             MPI_Comm m_ppn1_comm;
             int m_ppn1_rank;
+            std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
     };
 }
 

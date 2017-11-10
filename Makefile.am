@@ -262,6 +262,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
                             src/Region.hpp \
+                            src/RuntimeRegulator.cpp \
+                            src/RuntimeRegulator.hpp \
                             src/SampleRegulator.cpp \
                             src/SampleRegulator.hpp \
                             src/SampleScheduler.cpp \
@@ -353,6 +355,8 @@ if ENABLE_MPI
                           src/RAPLPlatform.hpp \
                           src/Region.cpp \
                           src/Region.hpp \
+                          src/RuntimeRegulator.cpp \
+                          src/RuntimeRegulator.hpp \
                           src/SampleRegulator.cpp \
                           src/SampleRegulator.hpp \
                           src/SampleScheduler.cpp \
