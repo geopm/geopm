@@ -252,10 +252,12 @@ class TestIntegration(unittest.TestCase):
         name = 'test_trace_runtimes'
         report_path = name + '.report'
         trace_path = name + '.trace'
-        num_node = 4
-        num_rank = 16
+        num_node = 1 #4
+        num_rank = 4 #16
+        loop_count = 2
         app_conf = geopmpy.io.AppConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
@@ -282,6 +284,7 @@ class TestIntegration(unittest.TestCase):
                 if region_name != 'unmarked-region' and region_data.get_runtime() != 0:
                     trace_data = tt.get_group((region_data.get_id()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
+                    print('grouping by region_id: {} and comparing trace runtime {}: to region runtime: {}'.format(region_data.get_id(), trace_elapsed_time, region_data.get_runtime()))
                     self.assertNear(trace_elapsed_time, region_data.get_runtime())
 
     @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
