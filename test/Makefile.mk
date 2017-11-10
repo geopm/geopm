@@ -182,6 +182,11 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRTest.msr \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.msr_control \
+              test/gtest_links/RuntimeRegulatorTest.exceptions \
+              test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
+              test/gtest_links/RuntimeRegulatorTest.all_reenter \
+              test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
+              test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               # end
 
 if ENABLE_MPI
@@ -250,6 +255,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformIOTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
+                          test/RuntimeRegulatorTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

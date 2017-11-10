@@ -69,6 +69,21 @@ class TestIntegration(unittest.TestCase):
         if abs((a - b) / a) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
 
+    def create_progress_df(self, df):
+        # Build a df with only the first region entry and the exit.
+        last_index = 0
+        filtered_df = pandas.DataFrame()
+        row_list = []
+        progress_1s = df['progress-0'].loc[ df['progress-0'] == 1 ]
+        for index, junk in progress_1s.iteritems():
+            row = df.loc[last_index:index].head(1)
+            row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
+            row = df.loc[last_index:index].tail(1)
+            row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
+            last_index = index + 1 # Set the next starting index to be one past where we are
+        filtered_df = pandas.concat(row_list)
+        return filtered_df
+
     def test_report_and_trace_generation(self):
         name = 'test_report_and_trace_generation'
         report_path = name + '.report'
@@ -283,6 +298,53 @@ class TestIntegration(unittest.TestCase):
                     trace_data = tt.get_group((region_data.get_id()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     self.assertNear(trace_elapsed_time, region_data.get_runtime())
+
+    def test_runtime_regulator(self):
+        name = 'test_runtime_regulator'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 1
+        num_rank = 4
+        loop_count = 20
+        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        sleep_big_o = 1.0
+        spin_big_o = 0.5
+        expected_region_runtime = {'spin' : spin_big_o, 'sleep': sleep_big_o}
+        app_conf.append_region('sleep', sleep_big_o)
+        app_conf.append_region('spin', spin_big_o)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, region_barrier=True)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+
+        for nn in node_names:
+            report = self._output.get_report(nn)
+            trace = self._output.get_trace(nn)
+            self.assertNear(trace.iloc[-1]['seconds'], report.get_runtime())
+
+            tt = trace.set_index(['region_id'], append=True)
+            tt = tt.groupby(level=['region_id'])
+
+            for region_name, region_data in report.iteritems():
+                if region_name not in ['unmarked-region', 'model-init', 'epoch'] and region_data.get_runtime() != 0:
+                    trace_data = tt.get_group((region_data.get_id()))
+                    filtered_df = self.create_progress_df(trace_data.reset_index('region_id', drop=True))
+                    first_time = False
+                    average_runtime = 0
+                    for index, df in filtered_df.iterrows():
+                        if df['progress-0'] == 1:
+                            self.assertNear(df['runtime-0'], expected_region_runtime[region_name], epsilon=0.001)
+                            first_time = True
+                        if first_time == True and df['progress-0'] == 0:
+                            self.assertNear(df['runtime-0'], expected_region_runtime[region_name], epsilon=0.001)
 
     @unittest.skipUnless(os.getenv('GEOPM_RUN_LONG_TESTS') is not None,
                          "Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
