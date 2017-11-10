@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "d23874da_91597b0f",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1012881
+      },
+      "writtenOn": "2017-11-10T17:35:48Z",
+      "side": 1,
+      "message": "other hardware interfaces on non-x86 platforms.",
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e1f499c_e3c9157b",
         "filename": "ohpc-submission.md",
         "patchSetId": 5
@@ -157,6 +174,40 @@
     },
     {
       "key": {
+        "uuid": "aef5a710_d61e8537",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012881
+      },
+      "writtenOn": "2017-11-10T17:35:48Z",
+      "side": 1,
+      "message": "IBM and the Hartree Centre (omit STFC as that is a funding agency essentially)",
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c02bdb1_22e32038",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1012881
+      },
+      "writtenOn": "2017-11-10T17:35:48Z",
+      "side": 1,
+      "message": "remove significant",
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "255833ae_9e19d376",
         "filename": "ohpc-submission.md",
         "patchSetId": 5
@@ -174,6 +225,23 @@
         "endLine": 191,
         "endChar": 68
       },
+      "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdba583c_b562d7f0",
+        "filename": "ohpc-submission.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1012881
+      },
+      "writtenOn": "2017-11-10T17:35:48Z",
+      "side": 1,
+      "message": "mention that liqwid has recently tested support for msr-safe.",
       "revId": "e6d8caa49ba12d7ec729afd64d18730015e753cf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
