@@ -190,6 +190,11 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/AdaptiveFreqRegionTest.performance_decreases_freq_steps_back_up \
               test/gtest_links/AdaptiveFreqRegionTest.energy_increases_freq_steps_back_up \
               test/gtest_links/AdaptiveFreqRegionTest.after_too_many_increase_freq_stays_at_higher \
+              test/gtest_links/RuntimeRegulatorTest.exceptions \
+              test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
+              test/gtest_links/RuntimeRegulatorTest.all_reenter \
+              test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
+              test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               # end
 
 if ENABLE_MPI
@@ -261,6 +266,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/AdaptiveFreqRegion.hpp \
                           plugin/AdaptiveFreqRegion.cpp \
                           test/AdaptiveFreqRegionTest.cpp \
+                          test/RuntimeRegulatorTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
