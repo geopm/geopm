@@ -57,6 +57,7 @@
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "OMPT.hpp"
+#include "RuntimeRegulator.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -614,6 +615,21 @@ namespace geopm
                         }
                         (*sample_it).second.region_id = GEOPM_REGION_ID_UNMARKED;
                     }
+                    else {
+                        base_region_id = (*sample_it).second.region_id;
+                        if (!geopm_region_id_is_epoch(base_region_id)) {
+                            if ((*sample_it).second.progress == 0.0 &&
+                                    !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
+                                RuntimeRegulator rtr(m_rank_per_node);
+                                m_rid_regulator_map.emplace(base_region_id, rtr);
+                                m_rid_regulator_map[base_region_id].record_entry(local_rank, (*sample_it).second.timestamp);
+                            }
+                            else if ((*sample_it).second.progress == 1.0 &&
+                                    !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
+                                m_rid_regulator_map[base_region_id].record_exit(local_rank, (*sample_it).second.timestamp);
+                            }
+                        }
+                    }
                     if (geopm_region_id_is_epoch((*sample_it).second.region_id)) {
                         is_epoch_begun = true;
                     }
@@ -704,7 +720,6 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       aligned_signal,
                                       m_region_id);
-
                 // Determine if all ranks were last sampled from the same region
                 uint64_t region_id_all = m_region_id[0];
                 for (auto it = m_region_id.begin(); it != m_region_id.end(); ++it) {
@@ -715,6 +730,7 @@ namespace geopm
                 }
 
                 m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
+                m_rid_regulator_map[m_telemetry_sample[0].region_id].insert_runtime_signal(m_telemetry_sample);
 
                 // First entry into any region
                 if (m_region_id_all == GEOPM_REGION_ID_UNDEFINED && region_id_all != m_region_id_all) {
@@ -823,7 +839,6 @@ namespace geopm
         for (auto it = m_telemetry_sample.begin(); it != m_telemetry_sample.end(); ++it) {
             (*it).region_id = m_region_id_all;
             (*it).signal[GEOPM_TELEMETRY_TYPE_PROGRESS] = progress;
-            (*it).signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = 0.0;
         }
     }
 
