@@ -100,7 +100,6 @@ namespace geopm
                     struct m_rank_sample_s rank_sample;
                     rank_sample.timestamp = it->second.timestamp;
                     rank_sample.progress = it->second.progress;
-                    rank_sample.runtime = 0.0;
                     // Dereference of find result below will
                     // segfault with bad profile sample data
                     size_t rank_idx = (*(m_rank_idx_map.find(it->second.rank))).second;
@@ -136,20 +135,16 @@ namespace geopm
         double factor;
         double dsdt;
         double progress;
-        double runtime;
         geopm_time_s timestamp_prev[2];
         m_aligned_time = timestamp;
         for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
             switch((*it)->size()) {
                 case M_INTERP_TYPE_NONE:
-                    // if there is no data, set progress to zero and mark invalid by setting runtime to -1
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = 0.0;
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = -1.0;
                     break;
                 case M_INTERP_TYPE_NEAREST:
                     // if there is only one sample insert it directly
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = (*it)->value(0).progress;
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = (*it)->value(0).runtime; /// @todo runtime is not set by application, this is uninitialized memory
                     break;
                 case M_INTERP_TYPE_LINEAR:
                     // if there are two samples, extrapolate to the given timestamp
@@ -158,7 +153,7 @@ namespace geopm
                     delta = geopm_time_diff(timestamp_prev + 1, &timestamp);
                     factor = 1.0 / geopm_time_diff(timestamp_prev, timestamp_prev + 1);
                     dsdt = ((*it)->value(1).progress - (*it)->value(0).progress) * factor;
-                    dsdt = dsdt > 0.0 ? dsdt : 0.0; // progress and runtime are monotonically increasing
+                    dsdt = dsdt > 0.0 ? dsdt : 0.0; // progress is monotonically increasing
                     if ((*it)->value(1).progress == 1.0) {
                         progress = 1.0;
                     }
@@ -171,9 +166,6 @@ namespace geopm
                         progress = progress <= 1.0 ? progress : 1 - 1e-9;
                     }
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
-                    dsdt = ((*it)->value(1).runtime - (*it)->value(0).runtime) * factor;
-                    runtime = (*it)->value(1).runtime + dsdt * delta; /// @todo runtime is not set by application, this is uninitialized memory
-                    m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i + 1] = runtime;
                     break;
                 default:
                     throw Exception("SampleRegulator::align_prof() CircularBuffer has more than two values", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
