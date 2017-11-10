@@ -66,14 +66,23 @@ static inline int geopm_region_id_is_epoch(uint64_t rid)
     return (rid & GEOPM_REGION_ID_EPOCH) ? 1 : 0;
 }
 
+static inline uint64_t geopm_region_id_hash(uint64_t rid)
+{
+    if (rid != GEOPM_REGION_ID_EPOCH &&
+        rid != GEOPM_REGION_ID_UNMARKED) {
+        rid = ((rid << 32) >> 32);
+    }
+    return rid;
+}
+
 static inline int geopm_region_id_is_nested(uint64_t rid)
 {
-    return (geopm_region_id_is_mpi(rid) && (rid << 32));
+    return (geopm_region_id_is_mpi(rid) && geopm_region_id_hash(rid));
 }
 
 static inline uint64_t geopm_region_id_parent(uint64_t rid)
 {
-    return (geopm_region_id_is_nested(rid) ? ((rid << 32) >> 32) : 0);
+    return (geopm_region_id_is_nested(rid) ? geopm_region_id_hash(rid) : 0);
 }
 
 static inline uint64_t geopm_region_id_set_mpi(uint64_t rid)
