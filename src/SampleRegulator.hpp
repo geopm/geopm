@@ -163,7 +163,6 @@ namespace geopm
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
                 double progress;
-                double runtime;
             };
             enum m_num_rank_signal_e {
                 M_NUM_RANK_SIGNAL = 2,
