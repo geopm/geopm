@@ -42,6 +42,8 @@ plugin/SimpleFreqDecider.cpp
 plugin/SimpleFreqDecider.hpp
 scripts/geopmaprun
 scripts/geopmplotter
+scripts/geopmanalysis
+scripts/geopmpy/analysis.py
 scripts/geopmpy/__init__.py
 scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
@@ -54,6 +56,7 @@ scripts/test/geopm_context.py
 scripts/test/geopmpy_test.sh
 scripts/test/__init__.py
 scripts/test/TestAffinity.py
+scripts/test/TestAnalysis.py
 scripts/test/TestSubsetOptionParser.py
 src/CircularBuffer.hpp
 src/Comm.cpp

@@ -1079,4 +1079,3 @@ options : {options}
                'options' : self._options}
         with open(self._path, 'w') as fid:
             json.dump(obj, fid)
-
