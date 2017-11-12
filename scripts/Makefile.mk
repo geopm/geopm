@@ -34,17 +34,20 @@ exec_prefix ?= $(prefix)
 bindir ?= $(prefix)/bin
 libexecdir ?= $(exec_prefix)/libexec
 
-EXTRA_DIST += scripts/geopmpy/launcher.py \
+EXTRA_DIST += scripts/geopmpy/analysis.py \
+              scripts/geopmpy/launcher.py \
               scripts/geopmpy/plotter.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/version.py \
               scripts/geopmpy/__init__.py \
+              scripts/geopmanalysis \
               scripts/geopmaprun \
               scripts/geopmsrun \
               scripts/geopmplotter \
               scripts/setup.py \
               scripts/MANIFEST.in \
               scripts/test/TestAffinity.py \
+              scripts/test/TestAnalysis.py \
               scripts/test/TestSubsetOptionParser.py \
               scripts/test/geopm_context.py \
               scripts/test/__init__.py \
@@ -64,6 +67,10 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_10 \
                scripts/test/pytest_links/TestAffinity.test_affinity_11 \
                scripts/test/pytest_links/TestAffinity.test_affinity_12 \
+               scripts/test/pytest_links/TestAnalysis.test_region_freq_map \
+               scripts/test/pytest_links/TestAnalysis.test_offline_baseline_comparison_report \
+               scripts/test/pytest_links/TestAnalysis.test_online_baseline_comparison_report \
+               scripts/test/pytest_links/TestAnalysis.test_stream_dgemm_mix_report \
                scripts/test/pytest_links/TestSubsetOptionParser.test_all_param_unknown \
                scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
                scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_arg_overlap \

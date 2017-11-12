@@ -65,6 +65,7 @@
 /Makefile.in
 /MANIFEST
 /missing
+*.pkl
 /plugin/*.lo
 /plugin/*.o
 /ronn/*.1
