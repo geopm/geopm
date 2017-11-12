@@ -42,6 +42,8 @@ plugin/SimpleFreqDecider.cpp
 plugin/SimpleFreqDecider.hpp
 scripts/geopmaprun
 scripts/geopmplotter
+scripts/geopmanalysis
+scripts/geopmpy/analysis.py
 scripts/geopmpy/__init__.py
 scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
