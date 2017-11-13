@@ -113,11 +113,9 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.md \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
-             copying_headers/header.BSD3-mvapich2 \
              copying_headers/header.NAS \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.BSD3-intel \
-             copying_headers/MANIFEST.BSD3-mvapich2 \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.NAS \
              copying_headers/test-license \
