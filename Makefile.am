@@ -439,9 +439,13 @@ geopm.mod: src/geopm.f90
 endif
 
 # RPM TARGET
+rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
-	cp geopm-$(VERSION).tar.gz geopm.tar.gz
-	rpmbuild $(rpmbuild_flags) geopm.tar.gz -ta
+	mkdir -p $(rpm_topdir)/SOURCES
+	mkdir -p $(rpm_topdir)/SPECS
+	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm.tar.gz
+	cp geopm.spec $(rpm_topdir)/SPECS/geopm.spec
+	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm.spec
 
 if ENABLE_DOC
 
