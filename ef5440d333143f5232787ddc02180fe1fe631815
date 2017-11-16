@@ -69,6 +69,24 @@
       "revId": "ef5440d333143f5232787ddc02180fe1fe631815",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5253433_3b0e03fa",
+        "filename": "test/RegionTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-16T15:58:55Z",
+      "side": 1,
+      "message": "We use the comparison operator with std::sort() which requires a less-than comparison function pointer.",
+      "parentUuid": "aa710513_ac8a6b38",
+      "revId": "ef5440d333143f5232787ddc02180fe1fe631815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
