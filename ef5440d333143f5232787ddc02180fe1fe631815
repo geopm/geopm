@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c16ae86e_5dfad244",
+        "filename": "src/Region.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-16T01:35:46Z",
+      "side": 1,
+      "message": "I think the right way to do this in C++ now is just:\n\nstruct geopm_time_s result{}\n\nThat {0} means zero everything is a C construct and in C++ this is interpreted as zero the first element and leave the rest uninitialized.  I believe the empty braces means zero init everything in C++.",
+      "revId": "ef5440d333143f5232787ddc02180fe1fe631815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca388cc4_f3d01671",
+        "filename": "test/RegionTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-16T01:35:46Z",
+      "side": 1,
+      "message": "this will fail to compile on MacOS X.  Can you get by with just using the geopm_time_*() interfaces to interact with the structure rather than assuming the names of its members?",
+      "revId": "ef5440d333143f5232787ddc02180fe1fe631815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
