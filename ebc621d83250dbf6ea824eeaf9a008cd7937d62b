@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f6c0dd2_1d3f3430",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-16T22:33:39Z",
+      "side": 1,
+      "message": "Maybe GEOPM_DDT?  Also need to document this environment variable (though there are others used by the integration tests which are also not documented).",
+      "revId": "ebc621d83250dbf6ea824eeaf9a008cd7937d62b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
