@@ -67,7 +67,7 @@ class AppOutput(object):
         verbose: A bool to control whether verbose output is printed to stdout.
 
     """
-    def __init__(self, report_glob=None, trace_glob=None, dir_name='.', verbose=False):
+    def __init__(self, reports=None, traces=None, dir_name='.', verbose=False):
         self._reports = {}
         self._reports_df = pandas.DataFrame()
         self._traces = {}
@@ -77,32 +77,35 @@ class AppOutput(object):
         self._traces_df_list = []
         self._index_tracker = IndexTracker()
 
-        if report_glob == '':
-            report_glob = '*report-*'
-        if report_glob:
-            report_glob = os.path.join(dir_name, report_glob)
-            report_files = natsorted(glob.glob(report_glob))
-            self._all_paths.extend(report_files)
+        if reports:
+            if type(reports) is str:
+                report_glob = os.path.join(dir_name, reports)
+                report_paths = natsorted(glob.glob(report_glob))
+                if len(report_paths) == 0:
+                    raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
+            elif type(reports) is list:
+                report_paths = [os.path.join(dir_name, path) for path in reports]
+            else:
+                raise TypeError('AppOutput: reports must be a list of paths or a glob pattern')
 
-            if len(report_files) == 0:
-                raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
+            self._all_paths.extend(report_paths)
 
             # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
             files = 0
             filesize = 0
-            for rf in report_files: # Get report count for verbose progress
-                filesize += os.stat(rf).st_size
-                with open(rf, 'r') as fid:
+            for rp in report_paths: # Get report count for verbose progress
+                filesize += os.stat(rp).st_size
+                with open(rp, 'r') as fid:
                     for line in fid:
                         if re.findall(r'Host:', line):
                             files += 1
 
             filesize = '{}KiB'.format(filesize/1024)
             fileno = 1
-            for rf in report_files:
+            for rp in report_paths:
                 # Parse the first report
-                rr_size = os.stat(rf).st_size
-                rr = Report(rf)
+                rr_size = os.stat(rp).st_size
+                rr = Report(rp)
                 if verbose:
                     sys.stdout.write('\rParsing report {} of {} ({}).. '.format(fileno, files, filesize))
                     sys.stdout.flush()
@@ -112,7 +115,7 @@ class AppOutput(object):
 
                 # Parse the remaining reports in this file
                 while (rr.get_last_offset() != rr_size):
-                    rr = Report(rf, rr.get_last_offset())
+                    rr = Report(rp, rr.get_last_offset())
                     if rr.get_node_name() is not None:
                         self.add_report_df(rr)
                         self._reports[rr.get_node_name()] = rr
@@ -134,13 +137,19 @@ class AppOutput(object):
                 sys.stdout.write('Done.\n')
                 sys.stdout.flush()
 
-        if trace_glob == '':
-            trace_glob = '*trace-*'
-        if trace_glob:
-            trace_glob = os.path.join(dir_name, trace_glob)
-            self._index_tracker.reset()
-            trace_paths = natsorted(glob.glob(trace_glob))
+        if traces:
+            if type(traces) is str:
+                trace_glob = os.path.join(dir_name, traces)
+                trace_paths = natsorted(glob.glob(trace_glob))
+                if len(trace_paths) == 0:
+                    raise RuntimeError('No trace files found with pattern {}.'.format(trace_glob))
+            elif type(traces) is list:
+                trace_paths = [os.path.join(dir_name, path) for path in traces]
+            else:
+                raise TypeError('AppOutput: traces must be a list of paths or a glob pattern')
+
             self._all_paths.extend(trace_paths)
+            self._index_tracker.reset()
             # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
             fileno = 1
             filesize = 0
