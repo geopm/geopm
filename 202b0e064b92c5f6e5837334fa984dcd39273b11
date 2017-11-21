@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "881c9ca4_05b045e3",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-21T17:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2d6067a_4002cc51",
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb4c6481_06320ee7",
         "filename": "src/RuntimeRegulator.cpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-11-21T01:32:35Z",
       "side": 1,
       "message": "m_num_entered \u003d\u003d 0 is a bit clearer",
+      "range": {
+        "startLine": 81,
+        "startChar": 12,
+        "endLine": 81,
+        "endChar": 26
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3e3953d_95ac3a3e",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-21T17:30:49Z",
+      "side": 1,
+      "message": "Commonly used elsewhere in the code base so following suit, also taking the slightly less keystroke advantage.",
+      "parentUuid": "bb4c6481_06320ee7",
       "range": {
         "startLine": 81,
         "startChar": 12,
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "e057ac27_59118b58",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-21T17:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fec2d37_7209f491",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 72
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59bcdbb4_9402de70",
         "filename": "test/RuntimeRegulatorTest.cpp",
         "patchSetId": 1
@@ -123,6 +189,30 @@
       "writtenOn": "2017-11-21T01:32:35Z",
       "side": 1,
       "message": "I think this would also be clearer with \u003d\u003d 0",
+      "range": {
+        "startLine": 138,
+        "startChar": 12,
+        "endLine": 138,
+        "endChar": 20
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5bd7dc8_c017719f",
+        "filename": "test/SampleRegulatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-21T17:30:49Z",
+      "side": 1,
+      "message": "Slightly more advanced logic to parse so agreed.",
+      "parentUuid": "403d15eb_fc01bdab",
       "range": {
         "startLine": 138,
         "startChar": 12,
