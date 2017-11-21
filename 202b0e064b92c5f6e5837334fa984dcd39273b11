@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fec2d37_7209f491",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-21T00:41:45Z",
+      "side": 1,
+      "message": "Feedback wanted here, I assume the answer is yes, keep tests out of the geopm namespace.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 72
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
