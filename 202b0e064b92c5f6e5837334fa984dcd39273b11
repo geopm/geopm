@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "d2d6067a_4002cc51",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-21T01:32:35Z",
+      "side": 1,
+      "message": "This could also use resize so you don\u0027t have to repeat the type of the vector.",
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb4c6481_06320ee7",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-21T01:32:35Z",
+      "side": 1,
+      "message": "m_num_entered \u003d\u003d 0 is a bit clearer",
+      "range": {
+        "startLine": 81,
+        "startChar": 12,
+        "endLine": 81,
+        "endChar": 26
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0fec2d37_7209f491",
         "filename": "test/RuntimeRegulatorTest.cpp",
         "patchSetId": 1
@@ -18,6 +58,76 @@
         "startChar": 0,
         "endLine": 39,
         "endChar": 72
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4991e9e3_7afd9bc4",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-21T01:32:35Z",
+      "side": 1,
+      "message": "Makes sense to me; it looks like that\u0027s the case for the other tests.",
+      "parentUuid": "0fec2d37_7209f491",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 72
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59bcdbb4_9402de70",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-21T01:32:35Z",
+      "side": 1,
+      "message": "This could be a named constant in the test class.",
+      "range": {
+        "startLine": 108,
+        "startChar": 46,
+        "endLine": 108,
+        "endChar": 83
+      },
+      "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "403d15eb_fc01bdab",
+        "filename": "test/SampleRegulatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-11-21T01:32:35Z",
+      "side": 1,
+      "message": "I think this would also be clearer with \u003d\u003d 0",
+      "range": {
+        "startLine": 138,
+        "startChar": 12,
+        "endLine": 138,
+        "endChar": 20
       },
       "revId": "202b0e064b92c5f6e5837334fa984dcd39273b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
