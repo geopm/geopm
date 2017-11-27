@@ -47,7 +47,7 @@
 
 namespace geopm
 {
-    /// @brief This class provides a base class for the Xeon processor line.
+    /// @brief This class provides a base class for the Intel(R) Xeon(R) Processor line.
     class XeonPlatformImp : public PlatformImp
     {
         public:
