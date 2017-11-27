@@ -940,7 +940,7 @@ class SrunLauncher(Launcher):
 
 class IMPIExecLauncher(Launcher):
     """
-    Launcher derived object for use with the Intel MPI job launch
+    Launcher derived object for use with the Intel(R) MPI job launch
     application mpiexec.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
