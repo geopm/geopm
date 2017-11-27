@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4771f235_5acf3397",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-27T19:54:32Z",
+      "side": 1,
+      "message": "use the iterator returned by emplace rather than looking up the region_id again:\n\nauto empl_ret \u003d m_rid_regulator_map.emplace(base_region_id, RuntimeRegulator(m_rank_per_node));\nempl_ret.first-\u003erecord_entry(local_rank, (*sample_it).second.timestamp);\n\nAdditional optimizations can be made with the std::piecewise_construct / std::forward_as_tuple to avoid unneeded construction of rtr when key already exists and the copy upon insertion.",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06c72c39_c040a470",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-27T19:54:32Z",
+      "side": 1,
+      "message": "Unset MPI bit of m_telemetry_sample[0].region_id before using it as a key.",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3ff2f22_62d06abd",
+        "filename": "src/RuntimeRegulator.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-11-27T19:54:32Z",
+      "side": 1,
+      "message": "This is a vector over MPI ranks on the node?  Maybe add this to the comment.",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
