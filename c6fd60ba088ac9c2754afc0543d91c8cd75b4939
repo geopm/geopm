@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5cc17283_cca36c6c",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-28T22:55:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4771f235_5acf3397",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06c72c39_c040a470",
         "filename": "src/Controller.cpp",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9917a713_2d2a8859",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-28T22:55:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06c72c39_c040a470",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3ff2f22_62d06abd",
         "filename": "src/RuntimeRegulator.hpp",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-11-27T19:54:32Z",
       "side": 1,
       "message": "This is a vector over MPI ranks on the node?  Maybe add this to the comment.",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44946e12_c565efc5",
+        "filename": "src/RuntimeRegulator.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-11-28T22:55:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3ff2f22_62d06abd",
       "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
