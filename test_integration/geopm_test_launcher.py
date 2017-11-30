@@ -91,9 +91,9 @@ class TestLauncher(object):
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(datetime.datetime.now()) + '\n')
             outfile.flush()
-            script_dir = os.path.dirname(os.path.realpath(__file__))
+            source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
             # Using libtool causes sporadic issues with the Intel toolchain.
-            exec_path = os.path.join(script_dir, '.libs', 'geopm_test_integration')
+            exec_path = os.path.join(source_dir, '.libs', 'geopmbench')
             argv = ['dummy', '--geopm-ctl', self._pmpi_ctl,
                              '--geopm-policy', self._ctl_conf.get_path(),
                              '--geopm-report', self._report_path,

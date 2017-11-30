@@ -922,7 +922,7 @@ class Trace(object):
         return median_df
 
 
-class AppConf(object):
+class BenchConf(object):
     """The application configuration parameters.
 
     Used to hold the config data for the integration test application.
