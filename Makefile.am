@@ -41,7 +41,9 @@ nodist_include_HEADERS =
 
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
-    bin_PROGRAMS += geopmctl
+    bin_PROGRAMS += geopmctl \
+                    geopmbench \
+                    # end
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
 endif
@@ -394,12 +396,35 @@ if ENABLE_MPI
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90 \
                               src/geopm_pmpi_fortran.c \
-                              #end
+                              # end
 endif
 
     geopmctl_SOURCES = src/geopmctl_main.c \
                        src/geopm_version.h \
                        # end
+endif
+
+if ENABLE_MPI
+    geopmbench_SOURCES = tutorial/ModelRegion.hpp \
+                         tutorial/ModelRegion.cpp \
+                         tutorial/ModelApplication.hpp \
+                         tutorial/ModelApplication.cpp \
+                         tutorial/imbalancer.h \
+                         tutorial/Imbalancer.cpp \
+                         tutorial/tutorial_6.cpp \
+                         # end
+
+    geopmbench_LDADD = libgeopm.la $(MPI_CLIBS)
+
+if HAVE_ICPC
+    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mkl -xAVX
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99 -xAVX
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11
+else
+    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mavx
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -std=gnu++11 -mavx
+endif
 
 endif
 
@@ -412,7 +437,7 @@ CLEAN_LOCAL_TARGETS= clean-local-coverage \
                      clean-local-doc \
                      clean-local-googletest \
                      clean-local-openmp \
-                     #end
+                     # end
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
@@ -514,7 +539,7 @@ PHONY_TARGETS = clean-local \
                 rpm \
                 doxygen \
                 gh_pages \
-                #end
+                # end
 
 include test/Makefile.mk
 include test_integration/Makefile.mk

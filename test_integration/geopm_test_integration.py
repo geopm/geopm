@@ -75,7 +75,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -100,7 +100,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -128,7 +128,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -157,7 +157,7 @@ class TestIntegration(unittest.TestCase):
         num_node=1
         num_rank=1
         delay = 1.0
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -202,7 +202,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 5
         delay = 3.0
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -226,7 +226,7 @@ class TestIntegration(unittest.TestCase):
         num_rank = 1
         delay = 1.0
         loop_count = 2
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('nested-progress', delay)
@@ -254,7 +254,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
@@ -293,7 +293,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 4
         num_rank = 16
         loop_count = 500
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
@@ -365,7 +365,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         delay = 3.0
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep-progress', delay)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -391,7 +391,7 @@ class TestIntegration(unittest.TestCase):
         num_rank = 4
         delay = 0.01
         loop_count = 100
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('spin', delay)
@@ -429,7 +429,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 2
         loop_count = 100
 
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
@@ -474,7 +474,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 4
         num_rank = 16
         loop_count = 500
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
@@ -536,7 +536,7 @@ class TestIntegration(unittest.TestCase):
         num_rank = 16
         loop_count = 100
         big_o = 0.1
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm-progress', big_o)
@@ -584,7 +584,7 @@ class TestIntegration(unittest.TestCase):
         region = 'dgemm-progress'
         max_mean = 0.01 # 10 millisecond max sample period
         max_nstd = 0.1 # 10% normalized standard deviation (std / mean)
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region(region, big_o)
@@ -617,7 +617,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
@@ -654,7 +654,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('ignore', 1.0)
         app_conf.append_region('dgemm', 1.0)
@@ -686,7 +686,7 @@ class TestIntegration(unittest.TestCase):
         report_path = name + '.report'
         num_node = 4
         num_rank = 16
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('stream-unmarked', 1.0)
         app_conf.append_region('dgemm-unmarked', 1.0)
@@ -702,7 +702,7 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         stream_id = None
-        stream_name = '[OMPT]geopm_test_integration:geopm::StreamModelRegion::run()'
+        stream_name = '[OMPT]geopmbench:geopm::StreamModelRegion::run()'
         for nn in node_names:
             rr = self._output.get_report(nn)
             region_names = rr.keys()
@@ -729,6 +729,7 @@ class TestIntegration(unittest.TestCase):
         num_rank = 4
         loop_count = 10
         app_conf = geopmpy.io.AppConf(name + '_app.config')
+
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm', 20.25)
