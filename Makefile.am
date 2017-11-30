@@ -148,11 +148,14 @@ EXTRA_DIST = .gitignore \
              TODO \
              tracker/track \
              $(TUTORIAL_DIST) \
-             test_hw/geopm_time.h \
-             test_hw/Makefile \
-             test_hw/rapl_pkg_limit_test.c \
-             test_hw/rapl_pkg_limit_plot.py \
-             test_hw/rapl_pkg_limit_sweep.sh \
+             test_hw/rapl_pkg_limit_test/geopm_time.h \
+             test_hw/rapl_pkg_limit_test/Makefile \
+             test_hw/rapl_pkg_limit_test/rapl_pkg_limit_test.c \
+             test_hw/rapl_pkg_limit_test/rapl_pkg_limit_plot.py \
+             test_hw/rapl_pkg_limit_test/rapl_pkg_limit_sweep.sh \
+             test_hw/freq_change_delay_test/geopm_time.h \
+             test_hw/freq_change_delay_test/Makefile \
+             test_hw/freq_change_delay_test/freq_change_delay_test.cpp \
              geopm-tutorial.tar.gz \
              # end
 
