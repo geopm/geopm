@@ -180,6 +180,7 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_libdir}/geopm/libgeopmpi_mpi.so
 %{_bindir}/geopmpolicy
 %{_bindir}/geopmctl
+%{_bindir}/geopmbench
 %dir %{docdir}
 %doc %{docdir}/README
 %doc %{docdir}/COPYING
