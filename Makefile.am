@@ -200,6 +200,16 @@ if ENABLE_MPI
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
+if HAVE_ICPC
+    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mkl -xAVX
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99 -xAVX
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11
+else
+    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mavx
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -std=gnu++11 -mavx
+endif
+
 if ENABLE_FORTRAN
     libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
     libgeopmfort_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
@@ -213,10 +223,11 @@ libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
-    geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
+    geopmctl_LDADD = $(MPI_CLIBS) libgeopm.la
+    geopmbench_LDADD = $(MPI_CLIBS) libgeopm.la
     libgeopm_la_LIBADD = $(MPI_CLIBS)
 if ENABLE_FORTRAN
-    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
+    libgeopmfort_la_LIBADD = $(MPI_FLIBS) libgeopm.la
 endif
 endif
 
@@ -413,19 +424,6 @@ if ENABLE_MPI
                          tutorial/Imbalancer.cpp \
                          tutorial/tutorial_6.cpp \
                          # end
-
-    geopmbench_LDADD = libgeopm.la $(MPI_CLIBS)
-
-if HAVE_ICPC
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mkl -xAVX
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99 -xAVX
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11
-else
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mavx
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -std=gnu++11 -mavx
-endif
-
 endif
 
 # CLEAN TARGETS
