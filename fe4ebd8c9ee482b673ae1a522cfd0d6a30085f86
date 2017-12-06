@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "532a8f43_0581c798",
+        "filename": "plugin/AdaptiveFreqRegion.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-06T22:41:56Z",
+      "side": 1,
+      "message": "check vs. NULL in other part of code base, should make a team decision for consistency here?",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 52,
+        "endChar": 29
+      },
+      "revId": "fe4ebd8c9ee482b673ae1a522cfd0d6a30085f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c29eb684_33f23856",
+        "filename": "plugin/AdaptiveFreqRegion.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-06T22:41:56Z",
+      "side": 1,
+      "message": "same as {{0, 0}}?  used elsewhere in code base",
+      "range": {
+        "startLine": 68,
+        "startChar": 32,
+        "endLine": 68,
+        "endChar": 34
+      },
+      "revId": "fe4ebd8c9ee482b673ae1a522cfd0d6a30085f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dcab08b_ddff25c0",
+        "filename": "plugin/AdaptiveFreqRegion.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-06T22:41:56Z",
+      "side": 1,
+      "message": "M_NUM_FREQ - 1",
+      "range": {
+        "startLine": 118,
+        "startChar": 34,
+        "endLine": 118,
+        "endChar": 46
+      },
+      "revId": "fe4ebd8c9ee482b673ae1a522cfd0d6a30085f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52ce01a5_98f34c9c",
+        "filename": "plugin/SimpleFreqDecider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-06T22:41:56Z",
+      "side": 1,
+      "message": "Use the RID masking API",
+      "range": {
+        "startLine": 163,
+        "startChar": 23,
+        "endLine": 163,
+        "endChar": 58
+      },
+      "revId": "fe4ebd8c9ee482b673ae1a522cfd0d6a30085f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d3aa02d_84c9a353",
+        "filename": "plugin/SimpleFreqDecider.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-06T22:41:56Z",
+      "side": 1,
+      "message": "Should I use unique_ptr in my map for region runtime patch?",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 83,
+        "endChar": 81
+      },
+      "revId": "fe4ebd8c9ee482b673ae1a522cfd0d6a30085f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
