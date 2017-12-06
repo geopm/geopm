@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11cebcff_0c8d7c6e",
+        "filename": "test_hw/freq_change_delay_test/freq_change_delay_test.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-06T18:50:52Z",
+      "side": 1,
+      "message": "Can this and other cpu vars be local to their respective loops? Any reason they need to share this variable?",
+      "revId": "56d611d67278209a783aaff3dfe242c60cd3706d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
