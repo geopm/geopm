@@ -108,7 +108,7 @@ the first `--` from the command line.
   **geopm_policy(3)** to learn about creating the shared memory
   region.  If the option begins with a leading "/" character with no
   other occurrence of the "/" character, it is interpreted as a shared
-  memory key, otherwise it is interpreted as a path to a GEOPM json
+  memory key, otherwise it is interpreted as a path to a GEOPM JSON
   policy file.
 
 * `--geopm-report` file:
@@ -160,7 +160,7 @@ the first `--` from the command line.
 * `--geopm-barrier`:
   Enables a node local MPI_Barrier() at time of calling
   `geopm_region_enter`() or `geopm_region_exit`() for all application
-  ranks that share a node.  Since the geopm controller only considers
+  ranks that share a node.  Since the GEOPM controller only considers
   a region to be entered when all ranks on a node have entered the
   region, enabling this feature forces control throughout all of the
   time every rank spends in a region.  This feature is primarily used
@@ -176,7 +176,7 @@ the first `--` from the command line.
 
 ## EXAMPLES
 
-Use geopmsrun to launch the geopm tutorial6 on two nodes using 32
+Use geopmsrun to launch the GEOPM tutorial6 on two nodes using 32
 application MPI process each with four threads:
 
     geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
@@ -203,10 +203,12 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_sched(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
+**geopm_sched(3)**,
 **geopm_version(3)**,
-**geopmplotter(1)**,
+**geopmanalysis(1)**,
+**geopmbench(1)**,
 **geopmctl(1)**,
+**geopmplotter(1)**,
 **geopmpolicy(1)**

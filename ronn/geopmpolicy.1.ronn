@@ -57,13 +57,13 @@ The `geopmpolicy` application can be used for five purposes: to create a
 may modify (`-s`), restore the MSR values from a saved state file
 (`-r`), or create a MSR whitelist for the Linux MSR driver (`-w`).
 The geopmpolicy application also respects the standard `--version`
-and `--help` options for printing the geopm version or a brief message
+and `--help` options for printing the GEOPM version or a brief message
 about usage.  The output from using the `-c` option to create a
 configuration file can be used as the input for a subsequent call to
 `geopmpolicy` with the `-e` option, and this file can also be used to
 configure **geopmctl(1)** and the **geopm_ctl_c(3)**  interfaces.  Through
 this use of `geopmpolicy` a resource manager can configure **geopmctl(1)**
-through a plug-in without introducing a linking dependency between geopm and
+through a plug-in without introducing a linking dependency between GEOPM and
 the resource manager (as is required with the **geopm_policy_c(3)**
 interface).  This enables a set of **geopmctl(1)** features which can be
 described through a "mode" selection flag and a "dictionary" flag for
@@ -99,7 +99,7 @@ modifying the behavior of the mode by matching key strings to value strings.
     <br> Create a Linux MSR driver whitelist file for the current platform, if `-f`
     is not specified when using this option, the whitelist will be printed to
     stdout.  This whitelist is the minimum set of MSR register privileges required
-    to enable all geopm functionality.  Enabling user access to these registers
+    to enable all GEOPM functionality.  Enabling user access to these registers
     may have security implications on a multi-user system.  Each line of the
     whitelist output ends with a name describing the register as derived from the
     Intel (R) Software Developer's Manual.  Please cross-reference Intel (R)
@@ -108,7 +108,7 @@ modifying the behavior of the mode by matching key strings to value strings.
 
   * `-m` mode:
     Power management mode, must be one of those described in the [MODES][] section
-    below.  The static modes do not require the geopm runtime to be running
+    below.  The static modes do not require the GEOPM runtime to be running
     concurrently with the primary computational application, where as dynamic
     modes do have a runtime requirement on geopm.
 
@@ -234,11 +234,13 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_sched(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
+**geopm_sched(3)**,
 **geopm_version(3)**,
-**geopmsrun(1)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
 **geopmplotter(1)**,
-**geopmctl(1)**
+**geopmsrun(1)**
