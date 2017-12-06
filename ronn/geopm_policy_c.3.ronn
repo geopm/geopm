@@ -42,65 +42,65 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
   * `int geopm_policy_create(`:
     `const char *`_in_config_, <br>
     `const char *`_out_config_, <br>
-    `struct geopm_policy_c **`_policy_);
+    `struct geopm_policy_c **`_policy_`);`
 
   * `int geopm_policy_destroy(`:
-    `struct geopm_policy_c *`_policy_);
+    `struct geopm_policy_c *`_policy_`);`
 
   * `int geopm_policy_power(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _power_budget_);
+    `int` _power_budget_`);`
 
   * `int geopm_policy_mode(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _mode_);
+    `int` _mode_`);`
 
   * `int geopm_policy_cpu_freq(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _cpu_mhz_);
+    `int` _cpu_mhz_`);`
 
   * `int geopm_policy_full_perf(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _num_cpu_full_perf_);
+    `int` _num_cpu_full_perf_`);`
 
   * `int geopm_policy_tdp_percent(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _percent_);
+    `int` _percent_`);`
 
   * `int geopm_policy_affinity(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _cpu_affinity_);
+    `int` _cpu_affinity_`);`
 
   * `int geopm_policy_goal(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _geo_goal_);
+    `int` _geo_goal_`);`
 
   * `int geopm_policy_tree_decider(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `const char *`_description_);
+    `const char *`_description_`);`
 
   * `int geopm_policy_leaf_decider(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `const char *`_description_);
+    `const char *`_description_`);`
 
   * `int geopm_policy_platform(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `const char *`_description_);
+    `const char *`_description_`);`
 
   * `int geopm_policy_write(`:
-    `const struct geopm_policy_c *`_policy_);
+    `const struct geopm_policy_c *`_policy_`);`
 
   * `int geopm_policy_enforce_static(`:
-    `const struct geopm_policy_c *`_policy_);
+    `const struct geopm_policy_c *`_policy_`);`
 
   * `int geopm_platform_msr_save(`:
-    `const char *`_path_);
+    `const char *`_path_`);`
 
   * `int geopm_platform_msr_restore(`:
-    `const char *`_path_);
+    `const char *`_path_`);`
 
   * `int geopm_platform_msr_whitelist(`:
-    `FILE *`_file_desc_);
+    `FILE *`_file_desc_`);`
 
 ## DESCRIPTION
 The _geopmpolicy_ library is linked by a system resource manager or
@@ -111,11 +111,11 @@ The interface provided by the policy interface enables job policy to
 be enforced statically or dynamically over the compute application
 runtime.  This interface can output a MSR whitelist file for use with
 the Linux MSR driver. For static policy control, this interface can be
-used to create a configuration file that is parsed by the geopm setup
-or geopm runtime.  For dynamic control, a daemon can use this
+used to create a configuration file that is parsed by the GEOPM setup
+or GEOPM runtime.  For dynamic control, a daemon can use this
 interface to create and modify an inter-process shared memory region
 on the compute node hosting the root MPI process of the compute
-application.  The shared memory region is monitored by the geopm
+application.  The shared memory region is monitored by the GEOPM
 runtime to enforce policy across the entire MPI job allocation.  All
 functions described in this man page return an error code on failure
 and zero upon success; see [ERRORS][] section below for details.
@@ -147,7 +147,6 @@ and zero upon success; see [ERRORS][] section below for details.
     drawn by all compute node within the entire MPI job allocation.
 
   * `geopm_policy_mode`():
-
     selects the control _mode_ that will be used by the _policy_. The
     _mode_ can be selected from the enumeration defined in
     _geopm_message.h_ and these options are described in the
@@ -217,7 +216,7 @@ and zero upon success; see [ERRORS][] section below for details.
 
   * `geopm_platform_msr_whitelist`():
     writes a MSR whitelist consisting of all MSR offsets and write
-    masks needed for full operation of geopm power modes. It is
+    masks needed for full operation of GEOPM power modes. It is
     intended to be used with the white-listing feature of the Linux
     MSR driver. The whitelist is written out to _file_desc_ which
     should be a valid file descriptor.
@@ -228,7 +227,7 @@ and zero upon success; see [ERRORS][] section below for details.
 
 ## STATIC MODES
 The modes listed in this section do not have a run time requirement on
-geopm.  They are used to enact a power policy that does not require
+GEOPM.  They are used to enact a power policy that does not require
 power setting changes during application runtime.
 
   * `GEOPM_POLICY_MODE_TDP_BALANCE_STATIC`:
@@ -263,7 +262,7 @@ power setting changes during application runtime.
 ## DYNAMIC MODES
 The modes listed in this section are used to dynamically adapt power
 policy during application runtime and have a run time requirement on
-geopm. In these advanced modes, **geopm(7)** dynamically manages the
+GEOPM. In these advanced modes, **geopm(7)** dynamically manages the
 job to an aggregate power bound while redistributing power among the
 nodes to equalize performance or frequency across nodes, depending on
 the mode.
@@ -271,7 +270,7 @@ the mode.
   * `GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC`:
     In this mode, **geopm(7)** dynamically manages the job to an
     aggregate power bound while leveraging global application
-    awareness to maximize application performance. The geopm runtime
+    awareness to maximize application performance. The GEOPM runtime
     tracks the application's critical path and continually
     redistributes power to steer power to the nodes on the critical
     path and enable them to run at higher performance (if possible);
@@ -344,11 +343,13 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_sched(3)**,
 **geopm_prof_c(3)**,
+**geopm_sched(3)**,
 **geopm_version(3)**,
-**geopmsrun(1)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
-**geopmplotter(1)**,
+**geopmbench(1)**,
 **geopmctl(1)**,
-**geopmpolicy(1)**
+**geopmplotter(1)**,
+**geopmpolicy(1)**,
+**geopmsrun(1)**

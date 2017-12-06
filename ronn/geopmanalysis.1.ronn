@@ -1,0 +1,125 @@
+geopmanalysis(1) -- geopm analysis application
+==============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmanalysis` -t _ANALYSIS_TYPE_ -n _NUM_RANK_ -N _NUM_NODE_ [_OPTIONS_] -- _EXEC_ [_EXEC_ARGS_]
+
+## DESCRIPTION
+Used to run applications and analyze results for specific GEOPM use cases.
+An application must be launched at least once to generate report files. When using
+geopmanalysis to launch applications, it must be run within an allocation to
+ensure that all runs use the same set of nodes. Once all the required reports
+have been generated, the analysis can be rerun without needing an allocation
+using the `--skip-launch` option.
+
+
+## OPTIONS
+
+* `-h`, `--help`:
+  Show help message and exit.
+
+* `-t`, `--analysis_type` _freq_sweep_|_balancer_|_offline_|_online_|_stream_mix_:
+  The type of analysis to perform. _balancer_ analysis is not yet implemented.
+
+* `-n`, `--num_rank` _NUM_RANKS_:
+  Total number of application ranks to launch with.
+
+* `-N`, `--num_node` _NUM_NODES_:
+  Number of compute nodes to launch onto.
+
+* `-o`, `--output_dir` _OUTPUT_DIR_:
+  The output directory for reports, traces, and plots (default: '.').
+
+* `-p`, `--profile_prefix` _PREFIX_:
+  Prefix to prepend to profile name when launching.
+
+* `-l`, `--level` 0|1|2:
+  Controls the level of detail provided in the analysis. <br>
+    level 0: run application and generate reports and traces only <br>
+    level 1: print analysis of report and trace data (default) <br>
+    level 2: create plots from report and trace data
+
+* `-s`, `--skip_launch`:
+  Do not launch jobs, only analyze existing data.
+
+* `--version`:
+  Show the GEOPM version number and exit.
+
+## EXAMPLES
+  Once the geopmpy modules are installed, you can invoke this utility directly from
+  the command line.  You can either run the utility from inside a directory containing
+  data, or from a remote directory.  Some examples follow:
+
+  The _freq_sweep_ analysis type runs the application once at each available frequency
+  on the platform. The reports generated from this analysis can be used for other types
+  of analysis. The output from the frequency sweep is a mapping of the best-fit frequency
+  for each region that saves energy while not letting the runtime increase more than 10%.
+
+    geopmanalysis -n1 -N1 -t freq_sweep -p myprof -o myprof -- ./build/bin/geopmbench config.json
+
+  The _offline_ analysis type runs a frequency sweep (if reports are not already present)
+  to determine the best-fit frequency for each region of the application. Then it runs the
+  application using the SimpleFreqDecider plugin, which uses this mapping to change the
+  frequency when entering each reagion. The _online_ analysis type is similar except that
+  it determines the best-fit frequency through online training.
+
+    geopmanalysis -n1 -N1 -t offline -p myprof -o myprof -- ./build/bin/geopmbench config.json
+
+  The _stream_mix_ analysis type uses the geopmbench application and varies the ratio
+  between the runtimes of the stream and dgemm regions from around 20% stream to around 80%
+  stream. For each ratio, it launches a frequency sweep and the offline and online analysis
+  modes described above. The resulting analysis produces plots comparing the runtime and
+  energy savings of the different plugin modes at each stream mix ratio.
+
+    geopmanalysis -n1 -N1 -t stream_mix -p myprof -o myprof -- ./build/bin/geopmbench config.json
+
+## COPYRIGHT
+Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmpy(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_sched(3)**,
+**geopm_version(3)**,
+**geopmaprun(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
+**geopmplotter(1)**,
+**geopmpolicy(1)**,
+**geopmsrun(1)**

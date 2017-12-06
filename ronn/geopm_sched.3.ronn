@@ -36,16 +36,18 @@ geopm_sched.h(3) -- geopm interface with Linux scheduler
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `int geopm_sched_num_cpu(void)`;
+  * `int geopm_sched_num_cpu(`:
+    `void);`
 
-  * `int geopm_sched_get_cpu(void)`;
+  * `int geopm_sched_get_cpu(`:
+    `void);`
 
   * `int geopm_sched_woomp(`:
-     `int` _num_cpu_, <br>
-     `cpu_set_t *`_woomp_);
+    `int` _num_cpu_, <br>
+    `cpu_set_t *`_woomp_`);`
 
 ## DESCRIPTION
-The _geopm_sched.h_ header defines geopm interfaces for interacting with
+The _geopm_sched.h_ header defines GEOPM interfaces for interacting with
 the linux scheduler.  This set of interfaces may grow in
 the future.
 
@@ -85,13 +87,15 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_version(3)**,
-**geopmsrun(1)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
-**geopmplotter(1)**,
+**geopmbench(1)**,
 **geopmctl(1)**,
+**geopmplotter(1)**,
 **geopmpolicy(1)**,
+**geopmsrun(1)**,
 **CPU_SET(3)**,
 **pthread_setaffinity_np(3)**,
-**pthread_attr_setaffinity_np(3)**
-**sched_getaffinity(2)**
+**pthread_attr_setaffinity_np(3)**,
+**sched_getaffinity(2)**,
 **sched_getcpu(3)**
