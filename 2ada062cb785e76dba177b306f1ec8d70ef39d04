@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "444fee99_9ac38328",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-06T22:19:30Z",
+      "side": 1,
+      "message": "Need to add lambda returns.",
+      "revId": "2ada062cb785e76dba177b306f1ec8d70ef39d04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5f363fb_21f86229",
         "filename": "test_integration/geopm_test_integration.py",
         "patchSetId": 1
@@ -18,6 +35,29 @@
         "startChar": 0,
         "endLine": 71,
         "endChar": 27
+      },
+      "revId": "2ada062cb785e76dba177b306f1ec8d70ef39d04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3be78ae8_589cbd2f",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-06T22:19:30Z",
+      "side": 1,
+      "message": "feature",
+      "range": {
+        "startLine": 78,
+        "startChar": 56,
+        "endLine": 78,
+        "endChar": 63
       },
       "revId": "2ada062cb785e76dba177b306f1ec8d70ef39d04",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
