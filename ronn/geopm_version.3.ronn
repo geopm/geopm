@@ -39,7 +39,7 @@ geopm_version(3) -- geopm library version
 `const char *geopm_version(void);`
 
 ## DESCRIPTION
-    Returns a human readable string describing the version of the geopm library
+    Returns a human readable string describing the version of the GEOPM library
     linked to the calling application.  The form is <MAJOR>.<MINOR>.<HOTFIX> for
     released versions and <MAJOR>.<MINOR>.<HOTFIX>+dev<COUNT>g<HASH> for
     development snapshots.  MAJOR is the major revision number, MINOR is the minor
@@ -57,11 +57,12 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_sched(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
-**geopmsrun(1)**,
+**geopm_sched(3)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
+**geopmbench(1)**,
 **geopmplotter(1)**,
-**geopmctl(1)**,
-**geopmpolicy(1)**
+**geopmpolicy(1)**,
+**geopmsrun(1)**

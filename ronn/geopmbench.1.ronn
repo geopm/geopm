@@ -1,0 +1,140 @@
+geopmbench(1) -- geopm synthetic benchmark application
+======================================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmbench` [_CONFIG_FILE_]
+
+## DESCRIPTION
+The GEOPM model application is provided as an example application
+containing several marked regions with different runtime characteristics.
+It can be used as a synthetic benchmark to test the behavior of plugins to GEOPM,
+or as an integration test of the installation. It is also used in the
+tutorials. The optional configuration passed as_CONFIG_FILE_ can be used to adjust the
+number and type of regions, problem size of each region (referred to as big-o),
+and number of iterations to run the entire application. The big-o value for
+each of the regions is designed such that a big-o of 1.0 will run for about 1 second,
+and scaling the big-o up or down will scale the runtime linearly. The correct
+value varies between platforms, so the big-o should be tuned to achieve the
+desired runtime on a platform. The regions can also be configured to run with imbalance
+on different nodes.
+
+Region names can be one of the following options:
+
+  * _sleep_:
+    Executes clock_nanosleep() for big-o seconds.
+
+  * _spin_:
+    Executes a spin loop for big-o seconds.
+
+  * _dgemm_:
+    Dense matrix-matrix multiply with floating point operations proportional to big-o.
+
+  * _stream_:
+    Executes stream "triad" on a vector with length proportional to big-o.
+
+  * _all2all_:
+    All processes send buffers to all other processes. The time of this operation is
+ proportional to big-o.
+
+  * _nested_:
+    Executes _spin_, _all2all_, and _spin_ regions.
+
+  * _ignore_:
+    Sleeps for a number of seconds equal to the big-o.
+
+Of these regions, _dgemm_ exhibits the most compute-intensive behavior and will be
+sensitive to frequency, while _stream_ is memory-intensive and will be insensitive
+to frequency. _all2all_ represents a network-intensive region.
+
+## EXAMPLES
+
+Use **geopmpy_launcher(1)** to launch geopmbench with a given configuration provided as
+a command line argument:
+
+    geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=bench.report -- geopmbench config.json
+
+The config file is a JSON file containing the loop count and sequence of regions in each loop.
+
+Example configuration JSON string:
+
+ {"loop-count": 10,<br>
+ "region": ["sleep", "stream", "dgemm", "stream", "all2all"],<br>
+ "big-o": [1.0, 1.0, 1.0, 1.0, 1.0]}
+
+The "loop-count" value is an integer that sets the
+number of loops executed.  Each time through the loop
+the regions listed in the "region" array are
+executed.  The "big-o" array gives double precision
+values for each region.
+
+Example configuration JSON string with imbalance:
+
+ {"loop-count": 10,<br>
+ "region": ["sleep", "stream", "dgemm-imbalance", "stream", "all2all"],<br>
+ "big-o": [1.0, 1.0, 1.0, 1.0, 1.0],<br>
+ "hostname": ["compute-node-3", "compute-node-15"],<br>
+ "imbalance": [0.05, 0.15]}
+
+If "-imbalance" is appended to any region name in
+the configuration file and the "hostname" and
+"imbalance" fields are provided then those
+regions will have an injected delay on the hosts
+listed.  In the above example a 5% delay on
+"my-compute-node-3" and a 15% delay on
+"my-compute-node-15" are injected when executing
+the dgemm region.
+
+If "-progress" is appended to any region name in the
+configuration, then progress for the region will be
+reported through the geopm_prof_progress API.
+
+## COPYRIGHT
+Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmpy(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_sched(3)**,
+**geopm_version(3)**,
+**geopmanalysis(1)**,
+**geopmaprun(1)**,
+**geopmctl(1)**,
+**geopmplotter(1)**,
+**geopmpolicy(1)**,
+**geopmsrun(1)**

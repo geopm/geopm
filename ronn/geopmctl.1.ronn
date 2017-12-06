@@ -47,26 +47,29 @@ geopmctl(1) -- geopm runtime mpi application
     <br>Print brief summary of the command line usage information, then exit.
 
   * `--version`:
-    Print version of geopm to standard output, then exit.
+    Print version of GEOPM to standard output, then exit.
 
   * `-c` policy_config:
     Policy configuration file or POSIX shared memory key which may be
     created with the **geopm_policy_c(3)** interface or the
-    **geopmpolicy(3)** application.
+    **geopmpolicy(1)** application.
 
 ## COPYRIGHT
 Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 
+## SEE ALSO
 **geopm(7)**,
 **geopmpy(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_sched(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
+**geopm_sched(3)**,
 **geopm_version(3)**,
-**geopmsrun(1)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
+**geopmbench(1)**,
 **geopmplotter(1)**,
-**geopmpolicy(1)**
+**geopmpolicy(1)**,
+**geopmsrun(1)**
