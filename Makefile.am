@@ -81,17 +81,19 @@ endif
 endif
 
 ronn_man = man/geopm.7 \
+           man/geopmanalysis.1 \
+           man/geopmbench.1 \
            man/geopmctl.1 \
            man/geopm_ctl_c.3 \
            man/geopm_error.3 \
            man/geopm_fortran.3 \
-           man/geopmpy.7 \
-           man/geopmpy_launcher.1 \
-           man/geopm_sched.3 \
            man/geopmplotter.1 \
            man/geopmpolicy.1 \
            man/geopm_policy_c.3 \
            man/geopm_prof_c.3 \
+           man/geopmpy.7 \
+           man/geopmpy_launcher.1 \
+           man/geopm_sched.3 \
            man/geopm_version.3 \
            # end
 
@@ -131,17 +133,19 @@ EXTRA_DIST = .gitignore \
              MANIFEST \
              README.md \
              ronn/geopm.7.ronn \
-             ronn/geopmpy.7.ronn \
+             ronn/geopmanalysis.1.ronn \
+             ronn.geompbench.1.ronn \
              ronn/geopmctl.1.ronn \
              ronn/geopm_ctl_c.3.ronn \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
-             ronn/geopmpy_launcher.1.ronn \
-             ronn/geopm_sched.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/geopmpolicy.1.ronn \
              ronn/geopm_policy_c.3.ronn \
              ronn/geopm_prof_c.3.ronn \
+             ronn/geopmpy.7.ronn \
+             ronn/geopmpy_launcher.1.ronn \
+             ronn/geopm_sched.3.ronn \
              ronn/geopm_version.3.ronn \
              ronn/header.txt \
              ronn/index.txt \
