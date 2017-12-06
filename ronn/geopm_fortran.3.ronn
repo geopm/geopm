@@ -99,26 +99,26 @@ geopm_fortran(3) -- geopm fortran interface
 
 
 ## DESCRIPTION
-This is the Fortran interface to the geopm library.  The documentation
+This is the Fortran interface to the GEOPM library.  The documentation
 for each function can found in the associated man page for the C
 interface.  If the `--disable-fortran` configure flag is passed to the geopm
 build then the Fortran interface will not be enabled.
 
 Currently most of these Fortran functions call directly through to the
-C interface through the ISO C bindings.  For this reason care needs to
+C interface through the ISO C bindings.  For this reason, care needs to
 be taken when passing strings to the Fortran interface.  It is
 important to wrap the Fortran string with `char_c_` and
 `//c_null_char` when passing to as follows:
 
 `ierr = geopm_prof_create(c_char_'profile_name'//c_null_char, c_char_''//c_null_char, MPI_COMM_WORLD, prof)`
 
-For interfaces that accept of return a MPI communicator, the
+For interfaces that accept or return a MPI communicator, the
 translation of the communicator from Fortran to C is done
 transparently.  In the future similar techniques may be used for
 converting Fortran strings.
 
 ## FORTRAN MODULE
-The geopm package installs a Fortran 90 module file which defines
+The GEOPM package installs a Fortran 90 module file which defines
 these interfaces and can be imported with the `use geopm` command.
 The install path for such modules has not been GNU standardized.  We
 install the geopm Fortran 90 module to:
@@ -139,12 +139,14 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopmpy(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
-**geopm_sched(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
+**geopm_sched(3)**,
 **geopm_version(3)**,
-**geopmsrun(1)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
-**geopmplotter(1)**,
+**geopmbench(1)**,
 **geopmctl(1)**,
-**geopmpolicy(1)**
+**geopmplotter(1)**,
+**geopmpolicy(1)**,
+**geopmsrun(1)**
