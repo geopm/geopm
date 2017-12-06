@@ -380,7 +380,7 @@ class Launcher(object):
     Defines common methods used by all Launcher objects.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None):
+                 time_limit=None, job_name=None, node_list=None, host_file=None, partition=None):
         """
         Constructor takes the command line options passed to the job
         launch application along with optional override values for
@@ -438,6 +438,9 @@ class Launcher(object):
         if host_file is not None:
             self.is_override_enabled = True
             self.host_file = host_file
+        if partition is not None:
+            self.is_override_enabled = True
+            self.partition = partition
 
         # Calculate derived values
         if self.rank_per_node is None and self.num_rank and self.num_node:
@@ -681,6 +684,7 @@ class Launcher(object):
         result.extend(self.job_name_option())
         result.extend(self.node_list_option())
         result.extend(self.host_file_option())
+        result.extend(self.partition_option())
         return result
 
     def num_node_option(self):
@@ -748,6 +752,13 @@ class Launcher(object):
         """
         return []
 
+    def partition_option(self):
+        """
+        Returns a list containing the command line options specifiying the
+        compute node partition for the job to run on.
+        """
+        return []
+
     def get_idle_nodes(self):
         """
         Returns a list of the names of compute nodes that are currently
@@ -805,6 +816,7 @@ class SrunLauncher(Launcher):
         parser.add_option('-J', '--job-name', dest='job_name', nargs=1, type='string')
         parser.add_option('-w', '--nodelist', dest='node_list', nargs=1, type='string')
         parser.add_option('--ntasks-per-node', dest='rank_per_node', nargs=1, type='int')
+        parser.add_option('-p', '--partition', dest='partition', nargs=1, type='string')
 
         opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
 
@@ -825,6 +837,7 @@ class SrunLauncher(Launcher):
         self.job_name = opts.job_name
         self.node_list = opts.node_list # Note this may also be the host file
         self.host_file = None
+        self.partition = opts.partition
 
         if (self.is_geopm_enabled and
             any(aa.startswith('--cpu_bind') for aa in self.argv)):
@@ -920,6 +933,14 @@ class SrunLauncher(Launcher):
         elif self.host_file is not None:
             result = ['-w', self.host_file]
         return result
+
+    def partition_option(self):
+        """
+        Returns a list containing the command line options specifiying the
+        compute node partition for the job to run on.
+        """
+        return ['-p', self.partition]
+
 
     def get_idle_nodes(self):
         """
