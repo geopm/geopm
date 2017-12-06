@@ -40,31 +40,32 @@ geopm_prof_c(3) -- geopm application profiling structure
   * `int geopm_prof_region(`:
     `const char *`_region_name_, <br>
     `uint64_t` _hint_, <br>
-    `uint64_t *`_region_id_);
+    `uint64_t *`_region_id_`);`
 
   * `int geopm_prof_enter(`:
-    `uint64_t` _region_id_);
+    `uint64_t` _region_id_`);`
 
   * `int geopm_prof_exit(`:
-    `uint64_t` _region_id_);
+    `uint64_t` _region_id_`);`
 
   * `int geopm_prof_progress(`:
     `uint64_t` _region_id_, <br>
-    `double` _fraction_);
+    `double` _fraction_`);`
 
   * `int geopm_prof_epoch(`:
-    `void);
+    `void);`
 
   * `int geopm_tprof_init(`:
-    `uint32_t _num_work_unit_);
+    `uint32_t` _num_work_unit_`);`
 
   * `int geopm_tprof_init_loop(`:
     `int` _num_thread_, <br>
     `int` _thread_idx_, <br>
     `size_t` _num_iter_, <br>
-    `size_t` _chunk_size_);
+    `size_t` _chunk_size_`);`
 
-  * `int geopm_tprof_post();`
+  * `int geopm_tprof_post(`:
+    `void);`
 
 ## DESCRIPTION
 The functions described here enable application feedback to the
@@ -252,11 +253,13 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_sched(3)**,
 **geopm_policy_c(3)**,
+**geopm_sched(3)**,
 **geopm_version(3)**,
-**geopmsrun(1)**,
+**geopmanalysis(1)**,
 **geopmaprun(1)**,
-**geopmplotter(1)**,
+**geopmbench(1)**,
 **geopmctl(1)**,
-**geopmpolicy(1)**
+**geopmplotter(1)**,
+**geopmpolicy(1)**,
+**geopmsrun(1)**
