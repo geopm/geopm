@@ -108,6 +108,8 @@ src/MSRIO.cpp
 src/MSRIO.hpp
 src/OMPT.cpp
 src/OMPT.hpp
+src/PerfmonInfo.cpp
+src/PerfmonInfo.hpp
 src/Platform.cpp
 src/Platform.hpp
 src/PlatformFactory.cpp
@@ -209,6 +211,7 @@ test/MPITreeCommunicatorTest.cpp
 test/MSRIOTest.cpp
 test/MSRTest.cpp
 test/no_omp_cpu.c
+test/PerfmonInfoTest.cpp
 test/PlatformFactoryTest.cpp
 test/PlatformIOTest.cpp
 test/PlatformImpTest.cpp

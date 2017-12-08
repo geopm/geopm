@@ -256,6 +256,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/MSR.hpp \
                             src/MSRIO.cpp \
                             src/MSRIO.hpp \
+                            src/PerfmonInfo.cpp \
+                            src/PerfmonInfo.hpp \
                             src/PlatformImp.cpp \
                             src/PlatformImp.hpp \
                             src/Platform.cpp \
@@ -347,6 +349,8 @@ if ENABLE_MPI
                           src/MSRIO.hpp \
                           src/OMPT.cpp \
                           src/OMPT.hpp \
+                          src/PerfmonInfo.cpp \
+                          src/PerfmonInfo.hpp \
                           src/Platform.cpp \
                           src/PlatformIO.cpp \
                           src/PlatformIO.hpp \
