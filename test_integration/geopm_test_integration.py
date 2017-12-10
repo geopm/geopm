@@ -755,7 +755,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         loop_count = 10
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
 
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
@@ -858,7 +858,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         loop_count = 60
-        app_conf = geopmpy.io.AppConf(name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm', 20.25)
