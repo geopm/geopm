@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ec91faa7_61e95807",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-11T21:47:01Z",
+      "side": 1,
+      "message": "Will not fix",
+      "parentUuid": "573ac1ab_6fb30351",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "160bf989_3c6a5ffb",
         "filename": "src/RuntimeRegulator.cpp",
         "patchSetId": 2
@@ -100,6 +118,24 @@
       "writtenOn": "2017-12-11T19:11:14Z",
       "side": 1,
       "message": "move this into the initializer list:\n\n, m_runtimes(m_mask_rank_count, std::make_pair((struct geopm_time_s){{0, 0}}, 0))",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b5e4c1d_12a35d77",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-11T21:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "160bf989_3c6a5ffb",
       "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -123,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "0581657d_04ee5730",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-11T21:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81954f5a_1f31af21",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c29475db_b10e7c5d",
         "filename": "src/RuntimeRegulator.cpp",
         "patchSetId": 2
@@ -140,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "21466a35_5571721a",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-11T21:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c29475db_b10e7c5d",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53bcfb3a_660b61e5",
         "filename": "src/RuntimeRegulator.cpp",
         "patchSetId": 2
@@ -151,6 +223,24 @@
       "writtenOn": "2017-12-11T19:11:14Z",
       "side": 1,
       "message": "Make this a doxygen todo:\n\n/// @todo proper domain averaging",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "942fbb2d_9513dfaa",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-11T21:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53bcfb3a_660b61e5",
       "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
