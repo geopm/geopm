@@ -72,6 +72,91 @@
     },
     {
       "key": {
+        "uuid": "573ac1ab_6fb30351",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-11T19:11:14Z",
+      "side": 1,
+      "message": "use unsigned instead of int to avoid range check below.",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "160bf989_3c6a5ffb",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-11T19:11:14Z",
+      "side": 1,
+      "message": "move this into the initializer list:\n\n, m_runtimes(m_mask_rank_count, std::make_pair((struct geopm_time_s){{0, 0}}, 0))",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81954f5a_1f31af21",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-11T19:11:14Z",
+      "side": 1,
+      "message": "Why is the RuntimeRegulator namespace required for the runtime() call?",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c29475db_b10e7c5d",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-11T19:11:14Z",
+      "side": 1,
+      "message": "avoid early return:\n\nif (num_vals) {\n    m_last_avg \u003d sum / num_vals;\n}\nreturn m_last_avg;",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53bcfb3a_660b61e5",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-11T19:11:14Z",
+      "side": 1,
+      "message": "Make this a doxygen todo:\n\n/// @todo proper domain averaging",
+      "revId": "c6fd60ba088ac9c2754afc0543d91c8cd75b4939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3ff2f22_62d06abd",
         "filename": "src/RuntimeRegulator.hpp",
         "patchSetId": 2
