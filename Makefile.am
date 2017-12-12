@@ -498,11 +498,12 @@ $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
 
 # GH_PAGES TARGET
-gh-pages: doxygen $(dist_man_MANS)
+gh-pages: doxygen doc/geopm-plugin-guide.pdf $(dist_man_MANS)
 	mkdir -p gh-pages/dox
 	mkdir -p gh-pages/man
 	cp -rf dox/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
+	cp doc/geopm-plugin-guide.pdf gh-pages/pdf/geopm-plugin-developer-guide.pdf
 
 else
 
