@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1295e30_ffb6d511",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "can this be removed?",
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6b0de02_98780186",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "Is default ctor still needed since the controller is using emplace?",
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b3a9cfb_610117cf",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "You can initialize these in the class declaration and not have to repeat this in both constructors.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 26
+      },
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb126aa8_fbc101e7",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "maybe update_runtime() ?\nThis might make sense as two functions: one to do the update in record_exit, and one to return m_last_avg. If the caller (e.g. insert_runtime_signal) expects it to be updated on demand, it would be clearer to call both instead of the getter doing an update in the background.",
+      "range": {
+        "startLine": 86,
+        "startChar": 29,
+        "endLine": 86,
+        "endChar": 36
+      },
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc5ad05f_67f7c745",
+        "filename": "src/RuntimeRegulator.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "indent after access specifier",
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60002bd5_7dce6b8d",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "BenchConf",
+      "range": {
+        "startLine": 347,
+        "startChar": 30,
+        "endLine": 347,
+        "endChar": 37
+      },
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "993d9df7_ac35abb0",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2017-12-12T01:00:36Z",
+      "side": 1,
+      "message": "BenchConf",
+      "range": {
+        "startLine": 362,
+        "startChar": 34,
+        "endLine": 362,
+        "endChar": 43
+      },
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
