@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95475783_3c8304cc",
+        "filename": "ronn/geopmbench.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-12T19:17:03Z",
+      "side": 1,
+      "message": "You need a space between \"as\" and \"_CONFIG_FILE\".\n\nhttp://kronos.ra.intel.com/~bgeltz/ronn/geopmbench.1.html",
+      "range": {
+        "startLine": 43,
+        "startChar": 45,
+        "endLine": 43,
+        "endChar": 60
+      },
+      "revId": "10dc6f6f676effe3622cff4536b4ced88ca6fe97",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2789bfe_a48371b1",
+        "filename": "ronn/geopmbench.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-12T19:17:03Z",
+      "side": 1,
+      "message": "...on KNL.  Chris tuned this on KNL IIRC.",
+      "range": {
+        "startLine": 46,
+        "startChar": 70,
+        "endLine": 46,
+        "endChar": 84
+      },
+      "revId": "10dc6f6f676effe3622cff4536b4ced88ca6fe97",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
