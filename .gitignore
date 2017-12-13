@@ -35,6 +35,7 @@
 /examples/geopm_platform_supported
 *.gcda
 *.gcno
+/geopmbench
 /geopmctl
 /geopmpolicy
 /geopm.o
