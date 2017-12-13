@@ -178,8 +178,8 @@ class TestIntegration(unittest.TestCase):
 
     @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS",
                          'ALPS does not support multi-application launch on the same nodes.')
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
-                         'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
+    @unittest.skipUnless('SLURM_NODELIST' in os.environ,
+                         'Requires SLURM batch session.')
     def test_report_and_trace_generation_application(self):
         name = 'test_report_and_trace_generation_application'
         report_path = name + '.report'
