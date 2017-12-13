@@ -301,7 +301,6 @@ static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double sca
             a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];
         }
 }
-    }
 
     return err;
 }
