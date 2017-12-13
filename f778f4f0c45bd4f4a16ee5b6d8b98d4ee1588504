@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e098902_d65d79a7",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-13T19:50:05Z",
+      "side": 1,
+      "message": "We need some sort of test or an exception here for when the same region is entered twice.  We don\u0027t expect this normally, but there are a few situations where it is possible with MPI regions in a marked region.\n\nException should be wrapped in #ifdef GEOPM_DEBUG.",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 39
+      },
+      "revId": "f778f4f0c45bd4f4a16ee5b6d8b98d4ee1588504",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43937e98_ce0ea88d",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-13T19:50:05Z",
+      "side": 1,
+      "message": "Needed?",
+      "range": {
+        "startLine": 94,
+        "startChar": 16,
+        "endLine": 94,
+        "endChar": 41
+      },
+      "revId": "f778f4f0c45bd4f4a16ee5b6d8b98d4ee1588504",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0730c6c_e643d34e",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-13T19:50:05Z",
+      "side": 1,
+      "message": "Can be moved outside both ifs?",
+      "range": {
+        "startLine": 97,
+        "startChar": 20,
+        "endLine": 97,
+        "endChar": 37
+      },
+      "revId": "f778f4f0c45bd4f4a16ee5b6d8b98d4ee1588504",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e213f7a1_5655a93e",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-13T19:50:05Z",
+      "side": 1,
+      "message": "Indent to beginning paren.",
+      "range": {
+        "startLine": 174,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 28
+      },
+      "revId": "f778f4f0c45bd4f4a16ee5b6d8b98d4ee1588504",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82b07813_a0b5e972",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-13T19:50:05Z",
+      "side": 1,
+      "message": "Need a test to examine that in addition to the average coming back properly that the other signals are still at their initialized value (i.e. not modified by the average calculation).",
+      "revId": "f778f4f0c45bd4f4a16ee5b6d8b98d4ee1588504",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
