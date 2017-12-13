@@ -82,6 +82,30 @@
     },
     {
       "key": {
+        "uuid": "cb26b60f_7b383333",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-13T18:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb126aa8_fbc101e7",
+      "range": {
+        "startLine": 86,
+        "startChar": 29,
+        "endLine": 86,
+        "endChar": 36
+      },
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc5ad05f_67f7c745",
         "filename": "src/RuntimeRegulator.hpp",
         "patchSetId": 11
@@ -93,6 +117,24 @@
       "writtenOn": "2017-12-12T01:00:36Z",
       "side": 1,
       "message": "indent after access specifier",
+      "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "412271d6_c85edfaf",
+        "filename": "src/RuntimeRegulator.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2017-12-13T18:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc5ad05f_67f7c745",
       "revId": "1d5108ec5deff02f015907f5220f2bdf4231ae93",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
