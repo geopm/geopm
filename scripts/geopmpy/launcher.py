@@ -119,6 +119,9 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     elif rm == 'IMPI' or rm == 'IMPIExecLauncher':
         return IMPIExecLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
+    elif rm == 'SrunTOSSLauncher':
+        return SrunTOSSLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
+                                time_limit, job_name, node_list, host_file)
 
 
 class PassThroughError(Exception):
@@ -484,7 +487,6 @@ class Launcher(object):
             argv_mod.extend(self.argv)
         echo = []
         if self.is_geopm_enabled:
-            self.config.set_omp_num_threads(self.cpu_per_rank)
             echo.append(str(self.config))
             for it in self.environ_ext.iteritems():
                 echo.append('{}={}'.format(it[0], it[1]))
@@ -509,8 +511,14 @@ class Launcher(object):
 
         if 'fileno' in dir(stdout) and 'fileno' in dir(stderr):
             if is_geopmctl:
+                # Need to set OMP_NUM_THREADS to 1 in the env before the run
+                stdout.write("Controller launch config: {}\n".format(geopm_argv))
+                stdout.flush()
+                self.config.set_omp_num_threads(1)
                 geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
                                              stdout=stdout, stderr=stderr, shell=True)
+            if self.is_geopm_enabled:
+                self.config.set_omp_num_threads(self.cpu_per_rank)
             pid = subprocess.Popen(argv_mod, env=self.environ(),
                                    stdout=stdout, stderr=stderr, shell=True)
             pid.communicate()
@@ -518,9 +526,11 @@ class Launcher(object):
                 geopm_pid.communicate()
         else:
             if is_geopmctl:
+                self.config.set_omp_num_threads(1)
                 geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
                                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-
+            if self.is_geopm_enabled:
+                self.config.set_omp_num_threads(self.cpu_per_rank)
             pid = subprocess.Popen(argv_mod, env=self.environ(),
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             stdout_str, stderr_str = pid.communicate()
@@ -651,9 +661,6 @@ class Launcher(object):
                         rank_mask.add(off + hthread * core_per_node)
                     off += 1
                 result.append(rank_mask)
-                if rank != 0 and (rank + 1) % rank_per_socket == 0:
-                    socket += 1
-                    off = self.core_per_socket * socket
 
         return result
 
@@ -857,9 +864,10 @@ class SrunLauncher(Launcher):
 
     def affinity_option(self, is_geopmctl):
         """
-        Returns a list containing the --cpu_bind or --mpibind option for
-        srun depending on which SLURM plugin is loaded.  If neither
-        plugin is loaded it returns an empty list.
+        Returns a list containing the --cpu_bind option for
+        srun.  If the mpibind plugin is supported, it is explicitly
+        disabled so it does not interfere with affinitization.  If
+        the cpu_bind plugin is not detected, an exception is raised.
         """
         result = []
         if self.is_geopm_enabled:
@@ -870,6 +878,8 @@ class SrunLauncher(Launcher):
             aff_list = self.affinity_list(is_geopmctl)
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             help_msg, err = pid.communicate()
+            if help_msg.find('--mpibind') != -1:
+                result.append('--mpibind=off')
             if help_msg.find('--cpu_bind') != -1:
                 num_mask = len(aff_list)
                 mask_zero = ['0' for ii in range(self.num_linux_cpu)]
@@ -882,8 +892,9 @@ class SrunLauncher(Launcher):
                     mask_list.append(mask)
                 result.append('--cpu_bind')
                 result.append('v,mask_cpu:' + ','.join(mask_list))
-            elif help_msg.find('--mpibind') != -1:
-                result.append('--mpibind=vv.on')
+            else:
+                raise RuntimeError('SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
+
         return result
 
     def timeout_option(self):
@@ -957,6 +968,27 @@ class SrunLauncher(Launcher):
 
         """
         return list(set(subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()))
+
+
+class SrunTOSSLauncher(SrunLauncher):
+    """
+    Launcher derived object for use with systems using TOSS and the
+    mpibind plugin from LLNL.
+    """
+    def affinity_option(self, is_geopmctl):
+        """
+        Returns the mpibind option used with SLURM on TOSS.
+        """
+        result = []
+        if self.is_geopm_enabled:
+            # Disable other affinity mechanisms
+            self.environ_ext['KMP_AFFINITY'] = 'disabled'
+            self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+
+            aff_list = self.affinity_list(is_geopmctl)
+            mask_list = [range_str(cpu_set) for cpu_set in aff_list]
+            result.append('--mpibind=v.' + ','.join(mask_list))
+        return result
 
 
 class IMPIExecLauncher(Launcher):
@@ -1219,7 +1251,8 @@ GEOPM options:
       --geopm-rm=rm           Use resource manager "rm" for the underlying
                               launch mechanism.  Valid values of "rm" are
                               "SLURM", "ALPS", "IMPI", "SrunLauncher",
-                              "AlpsLauncher", or "IMPIExecLauncher".
+                              "AlpsLauncher", "IMPIExecLauncher", or
+                              "SrunTOSSLauncher".
       --geopm-ctl=ctl         use geopm runtime and launch geopm with the
                               "ctl" method, one of "process", "pthread" or
                               "application"
