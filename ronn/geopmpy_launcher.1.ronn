@@ -67,12 +67,16 @@ the first `--` from the command line.
 ## OPTIONS
 * `--geopm-rm` rm:
   Use resource manager "rm" for the underlying launch mechanism.
-  Valid values of "rm" are "SLURM", "ALPS", "IMPI", "SrunLauncher",
-  "AlpsLauncher", or "IMPIExecLauncher".  This command line option
-  overrides other methods of determining the resource manager.  If
-  this option is not provided the environment variable GEOPM_RM is
-  used instead.  If neither of these options are set by the user then
-  the resource manager is inferred by the executable name: geopmsrun
+  Valid values of "rm" are "SLURM", "ALPS", or "IMPI".  Additionally
+  the launcher class that supports the resource manager can be
+  selected by name; available launcher classes are "SrunLauncher"
+  (SLURM), "AlpsLauncher" (ALPS), "IMPIExecLauncher" (IMPI), or
+  "SrunTOSSLauncher" (specialization of SLURM for the tri-lab
+  operating system stack).  This command line option overrides other
+  methods of determining the resource manager / launcher.  If this
+  option is not provided the environment variable GEOPM_RM is used
+  instead.  If neither of these options are set by the user then the
+  resource manager is inferred by the executable name: geopmsrun
   implies the SLURM resource manager and geopmaprun implies the ALPS
   resource manager.  If none of these methods can be used to select
   the resource manager, the hostname is checked against a list of
@@ -187,12 +191,11 @@ configuration:
     geopmaprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
 
 ## ENVIRONMENT
+
 The `GEOPM_RM` environment variable can be used to select which
-underlying resource manager to use.  Valid values are "SLURM", "ALPS"
-and "IMPI".  Additionally the python Launcher object may be selected
-by name through this environment variable.  Currently supported python
-Launcher objects are "SrunLauncher", "AprunLauncher" and
-"IMPIExecLauncher".
+underlying resource manager to use.  See documentation for the
+--geopm-rm command line option for valid values.  Note that the
+command line option overrides the environment variable.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
