@@ -140,8 +140,7 @@ class TestAffinity(unittest.TestCase):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'process'], 30, 1, 2)
         actual = launcher.affinity_list(False)
         expect = [{1}]
-        expect.extend([{ii, ii + 44} for ii in range(2, 17)])
-        expect.extend([{ii, ii + 44} for ii in range(22, 37)])
+        expect.extend([{ii, ii + 44} for ii in range(2, 32)])
         self.assertEqual(expect, actual)
 
     def test_affinity_9(self):
