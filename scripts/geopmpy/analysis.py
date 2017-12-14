@@ -740,7 +740,7 @@ Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
         # if launching, must run within an allocation to make sure all runs use
         # the same set of nodes
         if 'SLURM_NNODES' in os.environ:
-             num_node = os.getenv('SLURM_NNODES')
+             num_node = int(os.getenv('SLURM_NNODES'))
         elif 'COBALT_NODEFILE' in os.environ:
              with open(os.getenv('COBALT_NODEFILE')) as fid:
                  num_node = len(fid.readlines())
