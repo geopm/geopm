@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
@@ -64,6 +65,10 @@ namespace geopm
             std::ostringstream output_path;
             output_path << geopm_env_trace() << "-" << m_hostname;
             m_stream.open(output_path.str());
+            if (!m_stream.good()) {
+                std::cerr << "Warning: unable to open trace file '" << output_path.str()
+                          << "': " << strerror(errno) << std::endl;
+            }
             m_buffer << std::setprecision(16);
             m_is_trace_enabled = true;
         }
