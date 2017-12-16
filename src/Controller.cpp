@@ -51,6 +51,7 @@
 
 #include "geopm.h"
 #include "geopm_ctl.h"
+#include "geopm_env.h"
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
 #include "geopm_hash.h"
@@ -257,6 +258,15 @@ namespace geopm
                     default:
                         throw Exception("Controller::Controller(): Invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
+
+                // check if report file can be created
+                std::string report_name = geopm_env_report();
+                std::ofstream test_open(report_name);
+                if (!test_open.good()) {
+                    std::cerr << "Warning: unable to open report file '" << report_name
+                              << "' for writing: " << strerror(errno) << std::endl;
+                }
+                std::remove(report_name.c_str());
             }
             check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, m_ppn1_comm));
 
