@@ -202,7 +202,6 @@ test/MockPolicy.hpp
 test/MockProfileSampler.hpp
 test/MockRegion.hpp
 test/MPIControllerDeathTest.cpp
-test/MPIControllerTest.cpp
 test/MPIInterfaceTest.cpp
 test/MPIProfileTest.cpp
 test/MPITreeCommunicatorTest.cpp

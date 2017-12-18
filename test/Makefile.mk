@@ -219,7 +219,6 @@ TESTS += $(GTEST_TESTS) \
 
 EXTRA_DIST += test/geopm_test.sh \
               test/MPITreeCommunicatorTest.cpp \
-              test/MPIControllerTest.cpp \
               test/MPIInterfaceTest.cpp \
               test/no_omp_cpu.c \
               test/default_policy.json \
