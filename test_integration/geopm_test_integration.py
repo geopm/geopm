@@ -34,22 +34,21 @@ import os
 import sys
 import unittest
 import subprocess
-import fnmatch
 import time
 import pandas
 import collections
-import random
 import socket
-from natsort import natsorted
 
 import geopm_test_launcher
 import geopmpy.io
 import geopmpy.analysis
 
+
 def skip_unless_run_long_tests():
     if 'GEOPM_RUN_LONG_TESTS' not in os.environ:
         return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
     return lambda func: func
+
 
 def skip_unless_cpufreq():
     try:
@@ -58,6 +57,7 @@ def skip_unless_cpufreq():
     except OSError:
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
+
 
 def skip_unless_platform_bdx():
     with open('/proc/cpuinfo') as fid:
@@ -70,11 +70,12 @@ def skip_unless_platform_bdx():
         return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
     return lambda func: func
 
+
 def skip_unless_config_enable(feature):
     path = os.path.join(
            os.path.dirname(
-           os.path.dirname(
-           os.path.realpath(__file__))),
+            os.path.dirname(
+             os.path.realpath(__file__))),
            'config.log')
     with open(path) as fid:
         for line in fid.readlines():
@@ -84,14 +85,15 @@ def skip_unless_config_enable(feature):
                 break
     return lambda func: func
 
+
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
         self._mode = 'dynamic'
-        self._options = {'tree_decider' : 'static_policy',
+        self._options = {'tree_decider': 'static_policy',
                          'leaf_decider': 'power_governing',
-                         'platform' : 'rapl',
-                         'power_budget' : 150}
+                         'platform': 'rapl',
+                         'power_budget': 150}
         self._tmp_files = []
         self._output = None
 
@@ -114,13 +116,13 @@ class TestIntegration(unittest.TestCase):
         last_index = 0
         filtered_df = pandas.DataFrame()
         row_list = []
-        progress_1s = df['progress-0'].loc[ df['progress-0'] == 1 ]
+        progress_1s = df['progress-0'].loc[df['progress-0'] == 1]
         for index, junk in progress_1s.iteritems():
             row = df.loc[last_index:index].head(1)
             row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
             row = df.loc[last_index:index].tail(1)
             row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
-            last_index = index + 1 # Set the next starting index to be one past where we are
+            last_index = index + 1  # Set the next starting index to be one past where we are
         filtered_df = pandas.concat(row_list)
         return filtered_df
 
@@ -206,14 +208,13 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace(nn)
             self.assertNotEqual(0, len(trace))
 
-
     @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
                          'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
         report_path = name + '.report'
-        num_node=1
-        num_rank=1
+        num_node = 1
+        num_rank = 1
         delay = 1.0
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
@@ -223,7 +224,7 @@ class TestIntegration(unittest.TestCase):
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
-        time.sleep(5) # Wait a moment to finish cleaning-up from a previous test
+        time.sleep(5)  # Wait a moment to finish cleaning-up from a previous test
         idle_nodes = launcher.get_idle_nodes()
         idle_nodes_copy = list(idle_nodes)
         alloc_nodes = launcher.get_alloc_nodes()
@@ -232,7 +233,7 @@ class TestIntegration(unittest.TestCase):
         node_names = []
         reports = {}
         for nn in idle_nodes_copy:
-            launcher.set_node_list(nn.split()) # Hack to convert string to list
+            launcher.set_node_list(nn.split())  # Hack to convert string to list
             try:
                 launcher.run(name)
                 node_names += nn.split()
@@ -378,7 +379,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         sleep_big_o = 1.0
         spin_big_o = 0.5
-        expected_region_runtime = {'spin' : spin_big_o, 'sleep': sleep_big_o}
+        expected_region_runtime = {'spin': spin_big_o, 'sleep': sleep_big_o}
         app_conf.append_region('sleep', sleep_big_o)
         app_conf.append_region('spin', spin_big_o)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
@@ -405,12 +406,11 @@ class TestIntegration(unittest.TestCase):
                     trace_data = tt.get_group((region_data.get_id()))
                     filtered_df = self.create_progress_df(trace_data.reset_index('region_id', drop=True))
                     first_time = False
-                    average_runtime = 0
                     for index, df in filtered_df.iterrows():
                         if df['progress-0'] == 1:
                             self.assertNear(df['runtime-0'], expected_region_runtime[region_name], epsilon=0.001)
                             first_time = True
-                        if first_time == True and df['progress-0'] == 0:
+                        if first_time is True and df['progress-0'] == 0:
                             self.assertNear(df['runtime-0'], expected_region_runtime[region_name], epsilon=0.001)
 
     @skip_unless_run_long_tests()
@@ -446,23 +446,23 @@ class TestIntegration(unittest.TestCase):
                 last_index = 0
                 filtered_df = pandas.DataFrame()
                 row_list = []
-                progress_1s = data['progress-0'].loc[ data['progress-0'] == 1 ]
+                progress_1s = data['progress-0'].loc[data['progress-0'] == 1]
                 for index, junk in progress_1s.iteritems():
                     row = data.ix[last_index:index].head(1)
                     row_list += [row[['seconds', 'progress-0']]]
                     row = data.ix[last_index:index].tail(1)
                     row_list += [row[['seconds', 'progress-0']]]
-                    last_index = index[0] + 1 # Set the next starting index to be one past where we are
+                    last_index = index[0] + 1  # Set the next starting index to be one past where we are
                 filtered_df = pandas.concat(row_list)
 
                 filtered_df = filtered_df.diff()
                 # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
                 # case where 1 - 0 = 1 for the progress column.
-                filtered_df = filtered_df.loc[ filtered_df['progress-0'] == 1 ]
+                filtered_df = filtered_df.loc[filtered_df['progress-0'] == 1]
 
                 if len(filtered_df) > 1:
                     launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
-                    .format(nn, region_id, filtered_df['seconds'].describe()))
+                                       .format(nn, region_id, filtered_df['seconds'].describe()))
                     filtered_df['seconds'].describe()
                     region_times[nn][region_id] = filtered_df
 
@@ -619,17 +619,16 @@ class TestIntegration(unittest.TestCase):
         all_power_data = {}
         # Total power consumed will be Socket(s) + DRAM
         for nn in node_names:
-            rr = self._output.get_report(nn)
             tt = self._output.get_trace(nn)
 
-            first_epoch_index = tt.loc[ tt['region_id'] == '9223372036854775808' ][:1].index[0]
-            epoch_dropped_data = tt[first_epoch_index:] # Drop all startup data
+            first_epoch_index = tt.loc[tt['region_id'] == '9223372036854775808'][:1].index[0]
+            epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
             power_data['seconds'] = epoch_dropped_data['seconds']
             power_data = power_data.diff().dropna()
-            power_data.rename(columns={'seconds' : 'elapsed_time'}, inplace=True)
-            power_data = power_data.loc[(power_data != 0).all(axis=1)] # Will drop any row that is all 0's
+            power_data.rename(columns={'seconds': 'elapsed_time'}, inplace=True)
+            power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
             pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
             dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
@@ -678,7 +677,6 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(num_node, len(node_names))
 
         for nn in node_names:
-            rr = self._output.get_report(nn)
             tt = self._output.get_trace(nn)
 
             tt = tt.set_index(['region_id'], append=True)
@@ -689,7 +687,7 @@ class TestIntegration(unittest.TestCase):
                 # Look for changes in progress that are more negative
                 # than can be expected due to extrapolation error.
                 if region_id == 8300189175:
-                    negative_progress =  tmp.loc[ (tmp > -1) & (tmp < -0.1)]
+                    negative_progress = tmp.loc[(tmp > -1) & (tmp < -0.1)]
                     launcher.write_log(name, '{}'.format(negative_progress))
                     self.assertEqual(0, len(negative_progress))
 
@@ -706,8 +704,8 @@ class TestIntegration(unittest.TestCase):
         loop_count = 10
         big_o = 10.0
         region = 'dgemm-progress'
-        max_mean = 0.01 # 10 millisecond max sample period
-        max_nstd = 0.1 # 10% normalized standard deviation (std / mean)
+        max_mean = 0.01  # 10 millisecond max sample period
+        max_nstd = 0.1  # 10% normalized standard deviation (std / mean)
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
@@ -723,15 +721,14 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(num_node, len(node_names))
 
         for nn in node_names:
-            rr = self._output.get_report(nn)
             tt = self._output.get_trace(nn)
             delta_t = tt['seconds'].diff()
-            delta_t = delta_t.loc[ delta_t != 0]
+            delta_t = delta_t.loc[delta_t != 0]
             self.assertGreater(max_mean, delta_t.mean())
             # WARNING : The following line may mask issues in the sampling rate. To do a fine grained analysis, comment
             # out the next line and do NOT run on the BSP. This will require modifications to the launcher or manual testing.
             size_orig = len(delta_t)
-            delta_t = delta_t[(delta_t - delta_t.mean()) < 3*delta_t.std()] # Only keep samples within 3 stds of the mean
+            delta_t = delta_t[(delta_t - delta_t.mean()) < 3*delta_t.std()]  # Only keep samples within 3 stds of the mean
             self.assertGreater(0.06, 1 - (float(len(delta_t)) / size_orig))
             self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
@@ -831,8 +828,8 @@ class TestIntegration(unittest.TestCase):
             else:
                 stream_id = stream_region.get_id()
             ompt_regions = [key for key in region_names if key.startswith('[OMPT]')]
-            self.assertLessEqual(2, len(ompt_regions));
-            self.assertTrue(('MPI_Alltoall' in rr));
+            self.assertLessEqual(2, len(ompt_regions))
+            self.assertTrue(('MPI_Alltoall' in rr))
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
@@ -948,7 +945,6 @@ class TestIntegration(unittest.TestCase):
 
         self.assertLess(0.0, energy_savings_epoch)
         self.assertLess(runtime_savings_epoch, 5.0)
-
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):
