@@ -277,6 +277,30 @@ class TestIntegration(unittest.TestCase):
             self.assertNear(delay, rr['sleep'].get_runtime())
             self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
 
+    def test_runtime_epoch(self):
+        name = 'test_runtime_epoch'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 5
+        delay = 3.0
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', delay)
+        app_conf.append_region('spin', delay)
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+        self._output = geopmpy.io.AppOutput(report_path)
+        node_names = self._output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+        for nn in node_names:
+            rr = self._output.get_report(nn)
+            total_runtime = rr['sleep'].get_runtime() + rr['spin'].get_runtime()
+            self.assertNear(total_runtime, rr['epoch'].get_runtime())
+
     def test_runtime_nested(self):
         name = 'test_runtime_nested'
         report_path = name + '.report'
