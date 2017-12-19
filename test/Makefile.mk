@@ -288,9 +288,9 @@ if ENABLE_MPI
                                   test/MPIControllerDeathTest.cpp \
                                   # end
 
-    test_geopm_mpi_test_api_SOURCES = test/geopm_mpi_test.cpp \
+    test_geopm_mpi_test_api_SOURCES = test/geopm_test.cpp \
                                       test/MPIInterfaceTest.cpp \
-                                  # end
+                                      # end
 
     test_geopm_mpi_test_LDADD = libgtest.a \
                                 libgmock.a \
@@ -298,14 +298,17 @@ if ENABLE_MPI
                                 $(MPI_CXXLIBS) \
                                 # end
 
-    test_geopm_mpi_test_api_LDADD = $(test_geopm_mpi_test_LDADD)
+    test_geopm_mpi_test_api_LDADD = libgtest.a \
+                                    libgmock.a \
+                                    libgeopm.la \
+                                    # end
 
     test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
     test_geopm_mpi_test_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     test_geopm_mpi_test_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-    test_geopm_mpi_test_api_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    test_geopm_mpi_test_api_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    test_geopm_mpi_test_api_CXXFLAGS= $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
+    test_geopm_mpi_test_api_LDFLAGS = $(AM_LDFLAGS)
+    test_geopm_mpi_test_api_CFLAGS = $(AM_CFLAGS)
+    test_geopm_mpi_test_api_CXXFLAGS= $(AM_CXXFLAGS)
 if GEOPM_DISABLE_NULL_PTR
     test_geopm_mpi_test_CFLAGS += -fno-delete-null-pointer-checks
     test_geopm_mpi_test_CXXFLAGS += -fno-delete-null-pointer-checks
