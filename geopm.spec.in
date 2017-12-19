@@ -131,14 +131,17 @@ test -f configure || ./autogen.sh
 
 %{__make}
 
+# We are explicitly requiring the do_check macro rather than relying
+# on the --nocheck rpmbuild CLI option.
+%if 0%{?do_check}
 %check
-
 %if %{defined suse_version}
 MPIEXEC=/usr/lib64/mpi/gcc/openmpi/bin/mpiexec %{__make} check || \
 ( cat test/gtest_links/*.log && cat scripts/test/pytest_links/*.log && false )
 %else
 MPIEXEC=/usr/lib64/openmpi/bin/mpiexec %{__make} check || \
 ( cat test/gtest_links/*.log && cat scripts/test/pytest_links/*.log && false )
+%endif
 %endif
 
 %install
