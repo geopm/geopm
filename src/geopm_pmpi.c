@@ -34,12 +34,15 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
-#include <mpi.h>
 #include <unistd.h>
 #include <stdio.h>
 
-#include "geopm.h"
+#ifndef GEOPM_TEST
+#include <mpi.h>
 #include "geopm_ctl.h"
+#endif
+
+#include "geopm.h"
 #include "geopm_error.h"
 #include "geopm_message.h"
 #include "geopm_env.h"
