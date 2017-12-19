@@ -218,6 +218,7 @@ test/plugin/Makefile.mk
 test/plugin/TestPluginApp.cpp
 test/plugin/TestPlugin.cpp
 test/plugin/TestPlugin.hpp
+test/pmpi_mock.c
 test/PolicyTest.cpp
 test/ProfileTableTest.cpp
 test/RegionTest.cpp
