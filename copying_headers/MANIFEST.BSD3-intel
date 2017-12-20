@@ -201,7 +201,6 @@ test/MockPlatformTopology.hpp
 test/MockPolicy.hpp
 test/MockProfileSampler.hpp
 test/MockRegion.hpp
-test/MPIControllerDeathTest.cpp
 test/MPIInterfaceTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/MSRIOTest.cpp
