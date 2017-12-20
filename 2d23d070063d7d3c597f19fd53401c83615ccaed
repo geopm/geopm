@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d57bb7a_2b2cf804",
+        "filename": "test_integration/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-20T19:50:14Z",
+      "side": 1,
+      "message": "We all want to be number one, but I think this list was intended to be enumerated :)",
+      "revId": "2d23d070063d7d3c597f19fd53401c83615ccaed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e133f54d_d8fec2be",
+        "filename": "test_integration/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-20T19:50:14Z",
+      "side": 1,
+      "message": "maybe break this example into four lines?\n\n    $ git clean -fd\n    $ export GEOPM_KEEP_FILES\u003dtrue\n    $ export GEOPM_RUN_LONG_TESTS\u003dtrue\n    $ ./geopm_test_integration.py -v TestIntegration.test_power_consumption",
+      "revId": "2d23d070063d7d3c597f19fd53401c83615ccaed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
