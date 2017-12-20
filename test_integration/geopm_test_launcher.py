@@ -43,6 +43,7 @@ import geopm_context
 import geopmpy.launcher
 from geopmpy.launcher import resource_manager
 
+
 class TestLauncher(object):
     def __init__(self, app_conf, ctl_conf, report_path,
                  trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False):
@@ -80,9 +81,9 @@ class TestLauncher(object):
         with open(test_name + '.log', 'a') as outfile:
             argv = ['dummy', 'true']
             launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node,
-                                              self._cpu_per_rank, self._timeout,
-                                              self._time_limit, self._job_name,
-                                              self._node_list, self._host_file)
+                                                self._cpu_per_rank, self._timeout,
+                                                self._time_limit, self._job_name,
+                                                self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
     def run(self, test_name):
@@ -104,7 +105,7 @@ class TestLauncher(object):
                 argv.append('--geopm-barrier')
             argv.extend(['--', exec_path, '--verbose', self._app_conf.get_path()])
             launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
-                                              self._time_limit, test_name, self._node_list, self._host_file)
+                                                self._time_limit, test_name, self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
     def get_report(self):
@@ -161,4 +162,3 @@ class TestLauncher(object):
             self._cpu_per_rank = int(math.floor(self._num_cpu / rank_per_node))
         except (AttributeError, TypeError):
             pass
-
