@@ -38,6 +38,9 @@ import time
 import pandas
 import collections
 import socket
+import signal
+import stat
+import datetime
 
 import geopm_test_launcher
 import geopmpy.io
@@ -945,6 +948,77 @@ class TestIntegration(unittest.TestCase):
 
         self.assertLess(0.0, energy_savings_epoch)
         self.assertLess(runtime_savings_epoch, 5.0)
+
+    def test_controller_signal_handling(self):
+        """Check that Controller handles signals and cleans up."""
+        name = 'test_controller_signal_handling'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 1
+        num_rank = 2
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('sleep', 20.0)
+        app_conf.write()
+
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        ctl_conf.write()
+
+        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        exec_path = os.path.join(source_dir, 'geopmbench_with_killer.sh')
+        self._tmp_files.append(exec_path)
+
+        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        app_path = os.path.join(source_dir, '.libs', 'geopmbench')
+        # if not found, use geopmbench from user's PATH
+        if not os.path.exists(app_path):
+            app_path = "geopmbench"
+
+        command = '''#!/bin/bash
+                     {} {} &
+                     pid=$!
+                     sleep 10
+                     kill -s 15 $pid
+                     wait $pid
+                     if ls /dev/shm/geopm_death_test_shmkey* 2> /dev/null ; then
+                         exit 1
+                     else
+                         exit 0
+                     fi
+                  '''.format(app_path, app_conf.get_path())
+
+        with open(exec_path, 'w') as exec_fid:
+            exec_fid.write(command)
+
+        st = os.stat(exec_path)
+        os.chmod(exec_path, st.st_mode | stat.S_IEXEC)
+
+        argv = ['dummy', '--geopm-ctl', "process",
+                '--geopm-policy', ctl_conf.get_path(),
+                '--geopm-report', report_path,
+                '--geopm-trace', trace_path,
+                '--geopm-profile', name,
+                '--geopm-shmkey=geopm_death_test_shmkey',
+                '--', exec_path, app_conf.get_path()]
+
+        logfile_name = name + '.log'
+        self._tmp_files.append(logfile_name)
+        with open(logfile_name, 'a') as outfile:
+            outfile.write(str(datetime.datetime.now()) + '\n')
+            outfile.flush()
+
+            launcher = geopmpy.launcher.factory(argv, num_rank=num_rank, num_node=num_node)
+            launcher.run(stdout=outfile, stderr=outfile)
+
+        message = "Error: <geopm> Runtime error: Signal"
+
+        with open(logfile_name) as infile_fid:
+            found = False
+            for line in infile_fid:
+                if message in line:
+                    found = True
+        self.assertTrue(found, "runtime error message not found in log")
 
     @unittest.skipUnless(False, 'Not implemented')
     def test_variable_end_time(self):

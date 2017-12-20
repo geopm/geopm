@@ -201,7 +201,6 @@ if ENABLE_MPI
 GTEST_TESTS += test/gtest_links/MPITreeCommunicatorTest.hello \
                test/gtest_links/MPITreeCommunicatorTest.send_policy_down \
                test/gtest_links/MPITreeCommunicatorTest.send_sample_up \
-               test/gtest_links/MPIControllerDeathTest.shm_clean_up \
                test/gtest_links/MPIInterfaceTest.geopm_api \
                test/gtest_links/MPIInterfaceTest.mpi_api \
                # end
@@ -285,7 +284,6 @@ endif
 if ENABLE_MPI
     test_geopm_mpi_test_SOURCES = test/geopm_mpi_test.cpp \
                                   test/MPITreeCommunicatorTest.cpp \
-                                  test/MPIControllerDeathTest.cpp \
                                   # end
 
     test_geopm_mpi_test_api_SOURCES = test/geopm_test.cpp \
