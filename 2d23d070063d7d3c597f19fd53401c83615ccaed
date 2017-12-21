@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f2866a09_f0928cbc",
+        "filename": "test_integration/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-21T19:54:36Z",
+      "side": 1,
+      "message": "RTFM n00b:\nhttps://guides.github.com/features/mastering-markdown/\n\n:)\n\nThe markdown parser has special handling for this and automagically fixes the numbers.  Here\u0027s the current rendering of thi:\nhttps://github.com/bgeltz/geopm/tree/bgeltz-dev/test_integration",
+      "parentUuid": "7d57bb7a_2b2cf804",
+      "revId": "2d23d070063d7d3c597f19fd53401c83615ccaed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e133f54d_d8fec2be",
         "filename": "test_integration/README.md",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-20T19:50:14Z",
       "side": 1,
       "message": "maybe break this example into four lines?\n\n    $ git clean -fd\n    $ export GEOPM_KEEP_FILES\u003dtrue\n    $ export GEOPM_RUN_LONG_TESTS\u003dtrue\n    $ ./geopm_test_integration.py -v TestIntegration.test_power_consumption",
+      "revId": "2d23d070063d7d3c597f19fd53401c83615ccaed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc743d29_2cf4c9d3",
+        "filename": "test_integration/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2017-12-21T19:54:36Z",
+      "side": 1,
+      "message": "I prefer to have this as a one-liner that I can copy paste as opposed to 4 separate commands.",
+      "parentUuid": "e133f54d_d8fec2be",
       "revId": "2d23d070063d7d3c597f19fd53401c83615ccaed",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
