@@ -53,7 +53,9 @@ using the `--skip-launch` option.
   The type of analysis to perform. _balancer_ analysis is not yet implemented.
 
 * `-n`, `--num_rank` _NUM_RANKS_:
-  Total number of application ranks to launch with.
+  Total number of application ranks to launch with. Because GEOPM
+  itself requires one rank, this should be one less than the total number
+  of ranks expected.
 
 * `-N`, `--num_node` _NUM_NODES_:
   Number of compute nodes to launch onto.
@@ -62,7 +64,10 @@ using the `--skip-launch` option.
   The output directory for reports, traces, and plots (default: '.').
 
 * `-p`, `--profile_prefix` _PREFIX_:
-  Prefix to prepend to profile name when launching.
+  Prefix to prepend to profile name when launching. Depending on the
+  type of analysis, several profiles will be generated. For example,
+  the freq_sweep analysis appends the frequency for each run to this
+  prefix.
 
 * `-l`, `--level` 0|1|2:
   Controls the level of detail provided in the analysis. <br>
