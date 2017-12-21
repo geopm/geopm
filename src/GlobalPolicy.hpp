@@ -35,6 +35,7 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 #include <json-c/json.h>
 
 #include "geopm_plugin.h"
@@ -234,7 +235,7 @@ namespace geopm
             int m_power_budget_watts;
             /// @brief flags encapsulates frequency, number of 'big'cpus,
             /// 'small' core affinity, TDP percentage, and power goal
-            IPolicyFlags *m_flags;
+            std::unique_ptr<IPolicyFlags> m_flags;
             /// @brief description string for selecting the tree decider
             std::string m_tree_decider;
             /// @brief description string for selecting the leaf decider

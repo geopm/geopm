@@ -312,23 +312,23 @@ extern "C"
 namespace geopm
 {
     GlobalPolicy::GlobalPolicy(std::string in_config, std::string out_config)
-        :m_in_config(in_config)
-        ,m_out_config(out_config)
-        ,m_mode(GEOPM_POLICY_MODE_STATIC)
-        ,m_power_budget_watts(-1)
-        ,m_flags(NULL)
-        ,m_tree_decider("none")
-        ,m_leaf_decider("none")
-        ,m_platform("rapl")
-        ,m_is_shm_in(false)
-        ,m_is_shm_out(false)
-        ,m_do_read(false)
-        ,m_do_write(false)
+        : m_in_config(in_config)
+        , m_out_config(out_config)
+        , m_mode(GEOPM_POLICY_MODE_STATIC)
+        , m_power_budget_watts(-1)
+        , m_flags(nullptr)
+        , m_tree_decider("none")
+        , m_leaf_decider("none")
+        , m_platform("rapl")
+        , m_is_shm_in(false)
+        , m_is_shm_out(false)
+        , m_do_read(false)
+        , m_do_write(false)
     {
         int shm_id;
         int err = 0;
 
-        m_flags = new PolicyFlags(0);
+        m_flags = std::unique_ptr<IPolicyFlags>(new PolicyFlags(0));
         if (!m_out_config.empty()) {
             m_do_write = true;
             if (m_out_config[0] == '/' && m_out_config.find_last_of('/') == 0) {
@@ -425,7 +425,6 @@ namespace geopm
 #endif
             }
         }
-        delete m_flags;
     }
 
     int GlobalPolicy::mode(void) const
@@ -583,6 +582,7 @@ namespace geopm
         type = json_object_get_type(object);
 
         if (type != json_type_object ) {
+            json_object_put(object);
             throw Exception("GlobalPolicy::read(): detected a malformed json config file", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
 
@@ -594,6 +594,7 @@ namespace geopm
                 options_obj = val;
             }
             else {
+                json_object_put(object);
                 throw Exception("GlobalPolicy::read(): unsupported key or malformed json config file", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
@@ -604,6 +605,8 @@ namespace geopm
         if (options_obj != NULL) {
             read_json_options(options_obj);
         }
+
+        json_object_put(object);
         config_file_in.close();
     }
 
@@ -954,6 +957,9 @@ namespace geopm
         std::ofstream config_file_out;
         config_file_out.open(m_out_config.c_str(), std::ifstream::out);
         config_file_out << json_object_to_json_string(policy);
+
+        // options will be freed with policy
+        json_object_put(policy);
         config_file_out.close();
     }
 
