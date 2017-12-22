@@ -40,15 +40,29 @@ import argparse
 import cPickle as pickle
 import math
 from pkg_resources import parse_version
-import pandas
-
-if parse_version(pandas.__version__) < parse_version('0.19.2'):
-    raise ImportError('Pandas version must be >= v0.19.2!')
 
 import numpy
 import code
+
+try:
+    with open(os.devnull, 'w') as FNULL:
+        subprocess.check_call("python -c 'import matplotlib.pyplot'", stdout=FNULL, stderr=FNULL, shell=True)
+except subprocess.CalledProcessError:
+    sys.stderr.write('Warning: Unable to use default matplotlib backend ({}).  For interactive plotting,'
+                     ' please install Tkinter support in the OS.  '
+                     'For more information see: https://matplotlib.org/faq/usage_faq.html#what-is-a-backend\n'
+                     'Trying Agg...\n\n'
+                     .format(os.getenv('MPLBACKEND', 'TkAgg')))
+    import matplotlib
+    matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
+
+import pandas
+if parse_version(pandas.__version__) < parse_version('0.19.2'):
+    raise ImportError('Pandas version must be >= v0.19.2!')
+
 from natsort import natsorted
 from cycler import cycler
 
