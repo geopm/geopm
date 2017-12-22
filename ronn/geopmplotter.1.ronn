@@ -173,6 +173,10 @@ If _PATH_ is not provided, the current working directory is used.
   described here:<br>
   _https://matplotlib.org/faq/usage_faq.html#what-is-a-backend_.
 
+  The plotter will try to use the default backend (TkAgg), and fall back to Agg automatically
+  if the default is not supported.  Additional backends can be used by setting MPLBACKEND
+  in the environment.
+
 Using either of these options will prevent `--show` from working properly.
 
 ## EXAMPLES
