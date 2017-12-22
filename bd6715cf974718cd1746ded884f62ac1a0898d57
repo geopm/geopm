@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0107c579_41d1f003",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-22T22:25:04Z",
+      "side": 1,
+      "message": "Doesn\u0027t this prevent users from running any other backends implementations besides Agg?\n\nWouldn\u0027t the following work better?\n\nimport matplotlib\ntry:\n    import matplotlib.pyplot as plt\nexcept ImportError:\n    sys.stderr.write(\u0027Warning: \u003cgeopmpy.plotter\u003e Unable to use default matplotlib backend, trying Agg\\n\u0027)\n    matplotlib.use(\u0027Agg\u0027)\n    import matplotlib.pyplot as plt",
+      "revId": "bd6715cf974718cd1746ded884f62ac1a0898d57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
