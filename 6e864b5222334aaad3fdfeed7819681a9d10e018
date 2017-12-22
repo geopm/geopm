@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "942d15b9_4ce3c405",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2017-12-22T23:58:03Z",
+      "side": 1,
+      "message": "get rid of echo.  Also the use of \u0027;\u0027 is not really necessary.",
+      "revId": "6e864b5222334aaad3fdfeed7819681a9d10e018",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
