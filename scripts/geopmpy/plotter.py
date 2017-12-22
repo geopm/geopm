@@ -47,6 +47,8 @@ if parse_version(pandas.__version__) < parse_version('0.19.2'):
 
 import numpy
 import code
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 from natsort import natsorted
