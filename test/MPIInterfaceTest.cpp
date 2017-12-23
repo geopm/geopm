@@ -264,21 +264,21 @@ TEST_F(MPIInterfaceTest, mpi_api)
     char sbuf[MPI_MAX_OBJECT_NAME];
     char *dbuf;
     char **ddbuf;
-    MPI_Request req;
+    MPI_Request req = 0;
     MPI_Info info = MPI_INFO_NULL;
-    MPI_Group group;
-    MPI_Comm comm;
+    MPI_Group group = 0;
+    MPI_Comm comm = 0;
     std::vector<MPI_Datatype> dtypes(size);
     std::fill(dtypes.begin(), dtypes.end(), MPI_UNSIGNED);
     MPI_Aint aint = 0;
     std::vector<MPI_Request> reqs(size);
-    MPI_Status status;
+    MPI_Status status = 0;
     std::vector<MPI_Status> statuses(size);
-    MPI_File fh;
-    MPI_Win win;
+    MPI_File fh = 0;
+    MPI_Win win = 0;
 #ifdef GEOPM_ENABLE_MPI3
     MPI_Aint aints[size];
-    MPI_Message message;
+    MPI_Message message = 0;
 #endif
 
     MPI_Comm_group(MPI_COMM_WORLD, &group);
