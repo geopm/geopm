@@ -347,7 +347,8 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('all2all', 1.0)
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path,
+                                                    trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
