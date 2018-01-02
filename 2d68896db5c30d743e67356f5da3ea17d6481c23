@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9ce532d7_7daeb32c",
+        "filename": "test_hw/freq_change_delay_test/Makefile",
+        "patchSetId": 18
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-02T23:38:15Z",
+      "side": 1,
+      "message": "Not sure if it is required.  This Makefile was inherited (copied) from the rapl HW test.  This note prompted me to look up how to set the shell such that you can use shell features in your Makefiles and there is a BKM for that here:\n\nhttps://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets\n\nI\u0027ll test to see if it is needed for the freq_change_del test here and we can talk to Brad once back for input on the legacy test\u0027s shell requirements.",
+      "parentUuid": "07747dc7_847864b3",
+      "revId": "2d68896db5c30d743e67356f5da3ea17d6481c23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5dd0cc04_fa52d3ab",
         "filename": "test_hw/rapl_pkg_limit_test/Makefile",
         "patchSetId": 18
