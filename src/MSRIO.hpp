@@ -55,16 +55,16 @@ namespace geopm
             /// @param [in] cpu_idx logical Linux CPU index to write
             ///        to.
             /// @param [in] offset The MSR offset to write to.
-            /// @param [in] write_mask The mask determines the bits of
-            ///        the MSR that will be modified.
             /// @param [in] raw_value The raw encoded MSR value to
             ///        write, only bits where the write_mask is set
             ///        will be written, other bits in the MSR will be
             ///        unmodified.
+            /// @param [in] write_mask The mask determines the bits of
+            ///        the MSR that will be modified.
             virtual void write_msr(int cpu_idx,
                                    uint64_t offset,
-                                   uint64_t write_mask,
-                                   uint64_t raw_value) = 0;
+                                   uint64_t raw_value,
+                                   uint64_t write_mask) = 0;
             /// @brief initialize internal data stuctures to batch
             ///        read/write from MSRs.
             /// @param [in] read_cpu_idx A vector of logical Linux CPU
