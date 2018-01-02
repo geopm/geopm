@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07747dc7_847864b3",
+        "filename": "test_hw/freq_change_delay_test/Makefile",
+        "patchSetId": 18
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-02T23:10:48Z",
+      "side": 1,
+      "message": "need this?",
+      "revId": "2d68896db5c30d743e67356f5da3ea17d6481c23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5dd0cc04_fa52d3ab",
+        "filename": "test_hw/rapl_pkg_limit_test/Makefile",
+        "patchSetId": 18
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-02T23:10:48Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "2d68896db5c30d743e67356f5da3ea17d6481c23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
