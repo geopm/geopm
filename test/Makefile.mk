@@ -214,6 +214,7 @@ EXTRA_DIST += test/geopm_test.sh \
               test/MPITreeCommunicatorTest.cpp \
               test/MPIInterfaceTest.cpp \
               test/no_omp_cpu.c \
+              test/pmpi_mock.c \
               test/default_policy.json \
               test/invalid_policy.json \
               test/legacy_whitelist.out \
