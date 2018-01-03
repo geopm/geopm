@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "d7576878_010d7328",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013093
+      },
+      "writtenOn": "2018-01-03T20:46:45Z",
+      "side": 1,
+      "message": "Not sure how that happened. My comment was referring to your help printout down near line 1237. My suggestion is to add \"SrunTOSSLauncher\" to the list of --geopm-rm options.",
+      "parentUuid": "b8b43d8c_6049d5e3",
+      "revId": "c6c5590266c1c3b701e3f6a0b2ae7a2c7859562a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8185b521_199f0af9",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 10
