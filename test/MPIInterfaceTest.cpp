@@ -39,7 +39,6 @@
 
 #include "gtest/gtest.h"
 
-#include "geopm_env.h"
 #include "config.h"
 
 extern "C"
