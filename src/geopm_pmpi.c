@@ -41,11 +41,10 @@
 #include <mpi.h>
 #include "geopm_ctl.h"
 #endif
-
 #include "geopm.h"
+#include "geopm_env.h"
 #include "geopm_error.h"
 #include "geopm_message.h"
-#include "geopm_env.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "config.h"
@@ -57,7 +56,9 @@ static MPI_Fint g_geopm_comm_world_swap_f = 0;
 static MPI_Fint g_geopm_comm_world_f = 0;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
 static struct geopm_ctl_c *g_ctl = NULL;
+#ifndef GEOPM_TEST
 static pthread_t g_ctl_thread;
+#endif
 
 /* To be used only in Profile.cpp */
 void geopm_pmpi_prof_enable(int do_profile)
@@ -131,6 +132,7 @@ uint64_t geopm_mpi_func_rid(const char *func_name)
     return result;
 }
 
+#ifndef GEOPM_TEST
 static int geopm_pmpi_init(const char *exec_name)
 {
     int rank;
@@ -280,9 +282,11 @@ static int geopm_pmpi_finalize(void)
     }
     return err;
 }
+#endif
 
 /* Below are the GEOPM PMPI wrappers */
 
+#ifndef GEOPM_TEST
 int MPI_Init(int *argc, char **argv[])
 {
     int err;
@@ -329,6 +333,7 @@ int MPI_Finalize(void)
     int err_final = PMPI_Finalize();
     return err ? err : err_final;
 }
+#endif
 
 /* Replace MPI_COMM_WORLD in all wrappers, but in the following
    blocking calls also profile with default profile */
