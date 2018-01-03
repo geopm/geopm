@@ -55,7 +55,7 @@
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
 #include "geopm_hash.h"
-#include "geopm_plugin.h"
+#include "Comm.hpp"
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "SampleRegulator.hpp"
@@ -223,6 +223,8 @@ namespace geopm
         int err = 0;
         int num_nodes = 0;
 
+        auto ppn1_comm = CommFactory::comm_factory().get_comm(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
+
         err = geopm_comm_split_ppn1(comm, "ctl", &m_ppn1_comm);
         if (err) {
             throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
@@ -301,7 +303,7 @@ namespace geopm
                 }
                 std::reverse(fan_out.begin(), fan_out.end());
 
-                m_tree_comm = new TreeCommunicator(fan_out, global_policy, m_ppn1_comm);
+                m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
             }
             else {
                 m_tree_comm = new SingleTreeCommunicator(global_policy);
