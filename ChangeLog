@@ -1,3 +1,80 @@
+* Fri Jan 12 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.4.0
+- Modified implementations and interfaces:
+- Updated algorithm for choosing CPU affinity in the launcher: fill application CPUs from back to front, and never share physical cores between MPI ranks.
+- Created new abstraction for interfacing with MSRs and more broadly for abstracting hardware IO (PlatformIO, MSRIO, and MSR classes).
+- Application region hints are now properly exposed to the decider.
+- Added geopmanalysis executable to the geopmpy package; this executable runs applications and performs analysis of power and performance based on GEOPM report and trace data.
+- Added geopmbench to the installed binaries; this is simply an installed version of the tutorial_6 executable.
+- Added GEOPM_RM environment variable and --geopm-rm command line option to select geopmpy.launcher's back end resource manager.
+- Updated man pages to include geopmanalysis and geopmbench.
+- Removed handling of SIGCHLD signal in GEOPM runtime (commonly raised in non-error conditions when using popen(3)).
+- Launcher will guess correct number of OpenMP threads if user has not specified.
+- Added warning message at start up if report and trace files will not be created due to permissions issues.
+- Added better error handling to tutorial sources.
+- Added support for geopmctl to be run as a different user than application.
+- Added support for user provided shmkey's that do not begin with '/'.
+- Added error checking in launcher user requests more ranks per node than there are cores per node.
+- Added more robust error checking for command line issues in launcher.
+- Added command line option to launcher to exclude use of hyperthreads: --geopm-disable-hyperthreads.
+- If a plugin fails at registration time, do not bring down the controller; a warning is printed if debug is enabled.
+- Remove -s parameter from geopmctl CLI (was being ignored).
+- Encapsulated use of MPI by GEOPM inside of a class abstraction (IComm), but controller has not been modified to use the new class due to deadlock bug.
+- Encapsulated in a class the handshake interface between the controller and the application across shared memory.
+- General clean up of the geompy.plotter implementation.
+- Added more error checking in Controller.
+- Some fixes for issues exposed by static analysis.
+- Updated features:
+- Added new decider called "simple_freq" that adjusts CPU frequency to save energy with a small impact to performance; name will likely change to "efficient_freq" in the future.
+- Added region runtime reporting to traces and Region objects based on the average execution time of a region by all of the ranks on a node.
+- Added a method to the Region object to give access to the telemetry time stamps to the decider.
+- Added online learning approach to energy efficient frequency decider.
+- Added support to geopmpy.launcher for launching with Intel(R) MPI's mpiexec.
+- Added option to plotter to use all samples or just epoch samples.
+- Modified the tutorials to enable use of the geopmpy launcher.
+- Improved tutorial Makefile to allow user override of GNU Make standard variables.
+- Added an RPM spec file for use with the OpenHPC distribution.
+- Updated and extended integration tests:
+- Moved Controller death test from the unit tests to the integration tests.
+- Added integration tests for pthread an application launch of the controller.
+- Added an isolated hardware test for RAPL power limit functionality.
+- Updated documentation: both man pages and doxygen have been reviewed and cleaned up.
+- Updated unit tests:
+- Added unit test for SubsetOptionParser.
+- Reduced dependence of unit tests on MPI runtime.
+- Removed MPIProfileTest unit test which is covered by integration tests, and not really a unit test.
+- Removed unused MPIControllerTest.
+- Removed MVAPICH2 Fortran tests.
+- Bug fixes:
+- Fixed broken build in tutorials (tutorial_region.c).
+- Fixed faulty argument parsing by the geopmpy launcher.
+- Fixed error reporting when using geopmpy with python 3.x.
+- Fixed issues with affinity when launching the controller as a pthread.
+- Fixed issue in passing power budgets down a multi-level tree.
+- Fixed issue in platform choice when head node architecture differs from the compute nodes.
+- Fixed broken build if --disable-doc configuration option is passed.
+- Fixed decider setup code to correctly propagate power bounds down tree.
+- Fixed the way RAPL time window is set.
+- Fixed the use of cached data by geopmpy.plotter.
+- Fixed integration test issues related to systems with multiple cluster node partitions.
+- Fixed process CPU affinity implementation (don't use hwloc) and added unit tests for this.
+- Fixed potential overflow issue with error messages in PlatformImp.cpp.
+- Fixed race in SharedMemory test.
+- Fixed markup patch for MiniFE.
+- Fixed launcher when user explicitly requests OMP_NUM_THREADS=1.
+- Fixed MPIInterfaceTests so it uses only mocked MPI interfaces, and does not explicitly require MPI.
+- Fixed memory leaks in GlobalPolicy.
+- Fixed linking order of libgeopm and libmpi.
+- Fixed non-performance mode integration test launcher.
+- Fixed issue where libgeopmpolicy had false dependence on OMPT.cpp
+- Fixed rpm Makefile target to avoid the rpmbuild -t option to avoid trying to use the OpenHPC spec file.
+- Fixed issue where platform topology could be determined from nodes other than the ones that run the job.
+- Fixed Intel(R) MPI launcher's use of host files and the --ppn CLI.
+- Fixed incompatibility between MVAPICH2 affinity and srun affinity.
+- Fixed test_progress_exit integration test to account for extrapolation error.
+- Fixed integration test for MPI time accounting.
+- Fixed launcher problem when node is listed in multiple queues by sinfo.
+- Fixed and improved affinity assignment in corner cases.
+- Fixed use of sched_getcpu() for Mac OS X.
 * Mon Jun 19 2017 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.3.0
 - GEOPM alpha release!
 - Modified implementations and interfaces:
