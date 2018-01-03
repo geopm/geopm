@@ -55,7 +55,8 @@
 #include "geopm_version.h"
 #include "geopm_signal_handler.h"
 #include "geopm_hash.h"
-#include "geopm_plugin.h"
+//#include "geopm_plugin.h"
+#include "Comm.hpp"
 #include "Controller.hpp"
 #include "Exception.hpp"
 #include "SampleRegulator.hpp"
@@ -189,6 +190,22 @@ extern "C"
 
 namespace geopm
 {
+    ///////////////////////////////
+    // Helper for MPI exceptions //
+    ///////////////////////////////
+    void check_mpi(int err)
+    {
+        if (err) {
+            char error_str[MPI_MAX_ERROR_STRING];
+            int name_max = MPI_MAX_ERROR_STRING;
+            MPI_Error_string(err, error_str, &name_max);
+            std::ostringstream ex_str;
+            ex_str << "MPI Error: " << error_str;
+            throw Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return;
+    }
+
     Controller::Controller(IGlobalPolicy *global_policy, MPI_Comm comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
@@ -223,6 +240,9 @@ namespace geopm
         int num_nodes = 0;
 
         geopm_plugin_load();
+        //auto tmp_comm = geopm::geopm_get_comm(geopm_env_comm());// should be the same
+        //comm internally as the MPI_Comm passed to this constructor
+        auto ppn1_comm = CommFactory::comm_factory().get_comm(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
 
         err = geopm_comm_split_ppn1(comm, "ctl", &m_ppn1_comm);
         if (err) {
@@ -302,7 +322,7 @@ namespace geopm
                 }
                 std::reverse(fan_out.begin(), fan_out.end());
 
-                m_tree_comm = new TreeCommunicator(fan_out, global_policy, m_ppn1_comm);
+                m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
             }
             else {
                 m_tree_comm = new SingleTreeCommunicator(global_policy);
