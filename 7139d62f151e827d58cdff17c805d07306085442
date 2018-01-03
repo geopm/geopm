@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ddb9acd_47db08eb",
+        "filename": "ChangeLog",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-03T16:09:22Z",
+      "side": 1,
+      "message": ";",
+      "range": {
+        "startLine": 5,
+        "startChar": 55,
+        "endLine": 5,
+        "endChar": 56
+      },
+      "revId": "7139d62f151e827d58cdff17c805d07306085442",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a106b16_c538162f",
+        "filename": "ChangeLog",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-03T16:09:22Z",
+      "side": 1,
+      "message": ";",
+      "range": {
+        "startLine": 6,
+        "startChar": 44,
+        "endLine": 6,
+        "endChar": 45
+      },
+      "revId": "7139d62f151e827d58cdff17c805d07306085442",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55060d6d_5ce051a5",
+        "filename": "ChangeLog",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-03T16:09:22Z",
+      "side": 1,
+      "message": ".",
+      "range": {
+        "startLine": 23,
+        "startChar": 117,
+        "endLine": 23,
+        "endChar": 118
+      },
+      "revId": "7139d62f151e827d58cdff17c805d07306085442",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
