@@ -294,7 +294,7 @@ if ENABLE_MPI
     test_geopm_mpi_test_LDADD = libgtest.a \
                                 libgmock.a \
                                 libgeopm.la \
-                                $(MPI_CXXLIBS) \
+                                $(MPI_CLIBS) \
                                 # end
 
     test_geopm_mpi_test_api_LDADD = libgtest.a \
