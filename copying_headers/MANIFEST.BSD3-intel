@@ -212,7 +212,6 @@ test/MockProfileSampler.hpp
 test/MockRegion.hpp
 test/ModelApplicationTest.cpp
 test/MPIInterfaceTest.cpp
-test/MPITreeCommunicatorTest.cpp
 test/MSRIOTest.cpp
 test/MSRTest.cpp
 test/no_omp_cpu.c
@@ -233,6 +232,7 @@ test/RegionTest.cpp
 test/SampleRegulatorTest.cpp
 test/SchedTest.cpp
 test/SharedMemoryTest.cpp
+test/TreeCommunicatorTest.cpp
 tracker/track
 .travis_obs.sh
 .travis.yml
