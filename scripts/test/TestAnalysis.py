@@ -34,10 +34,15 @@
 import sys
 import unittest
 from collections import defaultdict
-import pandas
-import geopm_context
-import geopmpy.analysis
-
+try:
+    import pandas
+    import geopm_context
+    import geopmpy.analysis
+    g_skip_analysis_test = False
+    g_skip_analysis_ex = None
+except ImportError as ex:
+    g_skip_analysis_test = True
+    g_skip_analysis_ex = "Warning, analysis and plotting requires the pandas and matplotlib modules to be installed\n{}".format(ex)
 
 region_id = {
     'epoch':  '9223372036854775808',
@@ -187,6 +192,8 @@ def get_expected_app_freqs(best_fit):
 
 class TestAnalysis(unittest.TestCase):
     def setUp(self):
+        if g_skip_analysis_test:
+            self.skipTest(g_skip_analysis_ex)
         self._name_prefix = 'prof'
         self._freqs = [1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9]
         self._min_freq = min(self._freqs)
