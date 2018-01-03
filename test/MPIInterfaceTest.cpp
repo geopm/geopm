@@ -39,7 +39,6 @@
 
 #include "gtest/gtest.h"
 
-#include "geopm_env.h"
 #include "config.h"
 
 extern "C"
@@ -247,11 +246,6 @@ TEST_F(MPIInterfaceTest, geopm_api)
 
     // TODO setenv for GEOPM_PMPI_CTL_PROCESS
     // TODO setenv for GEOPM_PMPI_CTL_PTHREAD
-    EXPECT_EQ(0, geopm_pmpi_init(NULL));
-    reset();
-
-    EXPECT_EQ(0, geopm_pmpi_finalize());
-    reset();
 }
 
 TEST_F(MPIInterfaceTest, mpi_api)

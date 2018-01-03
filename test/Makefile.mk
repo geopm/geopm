@@ -299,7 +299,7 @@ if ENABLE_MPI
 
     test_geopm_mpi_test_api_LDADD = libgtest.a \
                                     libgmock.a \
-                                    libgeopm.la \
+                                    libgeopmpolicy.la \
                                     # end
 
     test_geopm_mpi_test_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
