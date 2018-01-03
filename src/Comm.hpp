@@ -33,6 +33,7 @@
 #ifndef COMM_HPP_INCLUDE
 #define COMM_HPP_INCLUDE
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -58,10 +59,10 @@ namespace geopm
             /// @brief Default destructor
             virtual ~IComm() {}
 
-            virtual IComm* split() const = 0;
-            virtual IComm* split(int color, int key) const = 0;
-            virtual IComm* split(const std::string &tag, int split_type) const = 0;
-            virtual IComm* split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const = 0;
+            virtual std::shared_ptr<IComm> split() const = 0;
+            virtual std::shared_ptr<IComm> split(int color, int key) const = 0;
+            virtual std::shared_ptr<IComm> split(const std::string &tag, int split_type) const = 0;
+            virtual std::shared_ptr<IComm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const = 0;
             virtual bool comm_supported(const std::string &description) const = 0;
 
             // Introspection
@@ -200,7 +201,7 @@ namespace geopm
 
     // User must not delete the returned instance from this call,
     // but all IComms created from this instance must be memory managed by
-    const IComm* geopm_get_comm(const std::string &description);
+    const std::unique_ptr<IComm> &geopm_get_comm(const std::string &description);
 }
 
 #endif

@@ -55,16 +55,16 @@ namespace geopm
             static const CommFactory* getInstance();
             /// @brief CommFactory destructor, virtual.
             virtual ~CommFactory();
-            virtual void register_comm_imp(const IComm *in_comm, void *dl_ptr);
-            virtual const IComm *get_comm(const std::string &description) const;
+            virtual void register_comm_imp(std::unique_ptr<IComm> &in_comm, void *dl_ptr);
+            virtual const std::unique_ptr<IComm> &get_comm(const std::string &description) const;
         protected:
             /// @brief CommFactory default constructor.
             CommFactory();
-            std::list<const IComm *> m_comm_imps;
+            std::list<std::unique_ptr<IComm>> m_comm_imps;
             std::list<void *> m_comm_dls;
     };
 
-    const IComm* geopm_get_comm(const std::string &description)
+    const std::unique_ptr<IComm> &geopm_get_comm(const std::string &description)
     {
         return CommFactory::getInstance()->get_comm(description);
     }
@@ -87,17 +87,17 @@ namespace geopm
         }
     }
 
-    void CommFactory::register_comm_imp(const IComm *in_comm, void *dl_ptr)
+    void CommFactory::register_comm_imp(std::unique_ptr<IComm> &in_comm, void *dl_ptr)
     {
-        m_comm_imps.push_back(in_comm);
+        m_comm_imps.push_back(std::move(in_comm));
         if (dl_ptr) {
             m_comm_dls.push_back(dl_ptr);
         }
     }
 
-    const IComm* CommFactory::get_comm(const std::string &description) const
+    const std::unique_ptr<IComm> &CommFactory::get_comm(const std::string &description) const
     {
-        for (auto imp : m_comm_imps) {
+        for (auto &imp : m_comm_imps) {
             if (imp->comm_supported(description)) {
                 return imp;
             }
@@ -106,12 +106,10 @@ namespace geopm
         std::ostringstream ex_str;
         ex_str << "Failure to instantiate Comm type: " << description;
         throw Exception(ex_str.str(), GEOPM_ERROR_COMM_UNSUPPORTED, __FILE__, __LINE__);
-
-        return NULL;
     }
 }
 
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr)
+void geopm_factory_register(struct geopm_factory_c *factory, std::unique_ptr<geopm::IComm> &in_comm, void *dl_ptr)
 {
     geopm::CommFactory *fact_obj = (geopm::CommFactory *)(factory);
     if (fact_obj == NULL) {
