@@ -73,9 +73,6 @@ if [[ ! $test_name =~ ^MPI ]]; then
         err=$?
     fi
 else
-    # This is an MPI test set up environment discover execution
-    # wrappwer and call geopm_mpi_test
-
     # Dynamic weak symbols are required for PMPI integration
     export LD_DYNAMIC_WEAK
 
@@ -111,41 +108,6 @@ else
         echo "Error: MPIEXEC unset, and no alternative found." 2>&1
         exit -1
     fi
-    if [[ $test_name =~ ^MPITreeCommunicator ]] && $mpiexec --version 2>&1 | grep OpenRTE > /dev/null; then
-        # If using OpenMPI, check that version is higher than 1.8.8 so
-        # that MPITreeCommunicator tests don't hang due to issue here:
-        # http://stackoverflow.com/questions/18737545/mpi-with-c-passive-rma-synchronization
-        major=$(mpiexec --version 2>&1 | grep OpenRTE | awk '{print $3}' | awk -F\. '{print $1}')
-        minor=$(mpiexec --version 2>&1 | grep OpenRTE | awk '{print $3}' | awk -F\. '{print $2}')
-        hotfix=$(mpiexec --version 2>&1 | grep OpenRTE | awk '{print $3}' | awk -F\. '{print $3}')
-        padded=$(printf %.3d%.3d%.3d $major $minor $hotfix)
-        if [ "$padded" -lt "001008008" ]; then
-           run_test=false
-        fi
-    fi
-
-    # Enable GEOPM runtime variables for MPIProfile tests
-    if [[ $test_name =~ ^MPIProfile ||
-          $test_name =~ ^MPIController ]] &&
-        [[ ! $test_name =~ noctl ]]; then
-       export GEOPM_PMPI_CTL=process
-       export GEOPM_REPORT=geopm_report
-
-       if [[ $test_name =~ Death ]]; then
-           export GEOPM_DEATH_TESTING=1
-           if [[ "$mpiexec" =~ ^srun ]]; then
-               mpiexec="srun -N 1"
-           fi
-           num_proc=2
-       else
-           # Add a process for controller on each node
-           num_proc=$(($num_proc + $num_node))
-       fi
-
-       if ! $mpiexec ./examples/.libs/geopm_platform_supported; then
-          run_test=false
-       fi
-    fi
 
     if [[ $test_name =~ ^MPIInterface ]]; then
        if [[ "$mpiexec" =~ ^srun ]]; then
@@ -155,27 +117,12 @@ else
     fi
 
     if [ "$run_test" == "true" ]; then
-        exec_name=geopm_mpi_test
         if [[ $test_name =~ ^MPIInterface ]]; then
             exec_name=geopm_mpi_test_api
-        fi
-        $mpiexec -n $num_proc \
-            $dir_name/../.libs/$exec_name --gtest_filter=$test_name \
-            --gtest_output=xml:$xml_dir/$test_name.xml>& $dir_name/$test_name.log
-        err=$?
-
-        # SLURM does not always handle death testing properly. Sometimes
-        # killing an MPI rank will cause srun to return non-zero status,
-        # but not all the time.  When death testing and we get a
-        # non-zero status, check the test log to verify the status.
-        # If the log does not contain the failed message, then it is a
-        # false failure.
-        if [[ $test_name =~ Death ]] && [ $err -eq 1 ]; then
-            if (! grep -Fq "[  FAILED  ]" $dir_name/$test_name.log) &&
-               (grep -Fq "[  PASSED  ] 1 test." $dir_name/$test_name.log); then
-                echo "Overriding SLURM's status based on successful test log."
-                err=0
-            fi
+            $mpiexec -n $num_proc \
+                $dir_name/../.libs/$exec_name --gtest_filter=$test_name \
+                --gtest_output=xml:$xml_dir/$test_name.xml>& $dir_name/$test_name.log
+            err=$?
         fi
     fi
 fi
