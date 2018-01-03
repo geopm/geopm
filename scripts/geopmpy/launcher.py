@@ -890,9 +890,8 @@ class SrunLauncher(Launcher):
         """
         Returns a list containing the -I option for srun.
         """
-        if self.timeout is None:
-           result = []
-        else:
+        result = []
+        if self.timeout is not None:
            result = ['-I' + str(self.timeout)]
         return result
 
@@ -900,9 +899,8 @@ class SrunLauncher(Launcher):
         """
         Returns a list containing the -t option for srun.
         """
-        if self.time_limit is None:
-            result = []
-        else:
+        result = []
+        if self.time_limit is not None:
             # Time limit option exepcts minutes, covert from seconds
             result = ['-t', str(int_ceil_div(self.time_limit, 60))]
         return result
@@ -911,9 +909,9 @@ class SrunLauncher(Launcher):
         """
         Returns a list containing the -J option for srun.
         """
-        if self.job_name is None:
-            result = []
-        else:
+
+        result = []
+        if self.job_name is not None:
             result = ['-J', self.job_name]
         return result
 
@@ -926,9 +924,8 @@ class SrunLauncher(Launcher):
             self.node_list != self.host_file):
             raise SyntaxError('Node list and host name cannot both be specified.')
 
-        if self.node_list is None and self.host_file is None:
-            result = []
-        elif self.node_list is not None:
+        result = []
+        if self.node_list is not None:
             result = ['-w', self.node_list]
         elif self.host_file is not None:
             result = ['-w', self.host_file]
@@ -939,7 +936,10 @@ class SrunLauncher(Launcher):
         Returns a list containing the command line options specifiying the
         compute node partition for the job to run on.
         """
-        return ['-p', self.partition]
+        result = []
+        if self.partition is not None:
+            result = ['-p', self.partition]
+        return result
 
 
     def get_idle_nodes(self):
@@ -1056,9 +1056,8 @@ class IMPIExecLauncher(Launcher):
             self.node_list != self.host_file):
             raise SyntaxError('Node list and host name cannot both be specified.')
 
-        if self.node_list is None and self.host_file is None:
-            result = []
-        elif self.node_list is not None:
+        result = []
+        if self.node_list is not None:
             result = ['--hosts', self.node_list]
         elif self.host_file is not None:
             result = ['-f', self.host_file]
@@ -1146,9 +1145,8 @@ class AprunLauncher(Launcher):
         Returns a list containing the -N option for aprun.  Must be
         combined with the -n option to determine the number of nodes.
         """
-        if self.num_rank is None or self.num_node is None:
-            result = []
-        else:
+        result = []
+        if self.num_rank is not None and self.num_node is not None:
             result = ['-N', str(int_ceil_div(self.num_rank, self.num_node))]
         return result
 
@@ -1172,9 +1170,8 @@ class AprunLauncher(Launcher):
         """
         Returns a list containing the -t option for aprun.
         """
-        if self.time_limit is None:
-            result = []
-        else:
+        result = []
+        if self.time_limit is not None:
             # Mulitply by Linux CPU per process due to aprun
             # definition of time limit.
             result = ['-t', str(self.time_limit * self.cpu_per_rank)]
@@ -1184,9 +1181,8 @@ class AprunLauncher(Launcher):
         """
         Returns a list containing the -L option for aprun.
         """
-        if self.node_list is None:
-            result = []
-        else:
+        result = []
+        if self.node_list is not None:
             result = ['-L', self.node_list]
         return result
 
@@ -1194,9 +1190,8 @@ class AprunLauncher(Launcher):
         """
         Returns a list containing the -l option for aprun.
         """
-        if self.host_file is None:
-            result = []
-        else:
+        result = []
+        if self.host_file is not None:
             result = ['-l', self.host_file]
         return result
 
