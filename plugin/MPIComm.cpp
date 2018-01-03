@@ -31,7 +31,6 @@
  */
 
 #include <sstream>
-
 #include <map>
 
 #include "geopm_plugin.h"
@@ -75,9 +74,9 @@ namespace geopm
         }
     }
 
-    const IComm * MPIComm::get_comm()
+    const IComm *MPIComm::get_comm()
     {
-        static MPIComm const instance;
+        static MPIComm instance;
         return &instance;
     }
 
@@ -174,24 +173,24 @@ namespace geopm
         }
     }
 
-    IComm* MPIComm::split() const
+    std::shared_ptr<IComm> MPIComm::split() const
     {
-        return new MPIComm(this);
+        return std::make_shared<MPIComm> (this);
     }
 
-    IComm* MPIComm::split(int color, int key) const
+    std::shared_ptr<IComm> MPIComm::split(int color, int key) const
     {
-        return new MPIComm(this, color, key);
+        return std::make_shared<MPIComm> (this, color, key);
     }
 
-    IComm* MPIComm::split(const std::string &tag, int split_type) const
+    std::shared_ptr<IComm> MPIComm::split(const std::string &tag, int split_type) const
     {
-        return new MPIComm(this, tag, split_type);
+        return std::make_shared<MPIComm> (this, tag, split_type);
     }
 
-    IComm* MPIComm::split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const
+    std::shared_ptr<IComm> MPIComm::split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const
     {
-        return new MPIComm(this, dimensions, periods, is_reorder);
+        return std::make_shared<MPIComm> (this, dimensions, periods, is_reorder);
     }
 
     bool MPIComm::comm_supported(const std::string &description) const

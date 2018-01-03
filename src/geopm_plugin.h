@@ -78,6 +78,7 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 #include "Platform.hpp"
 #include "PlatformImp.hpp"
 #include "Comm.hpp"
+#include <memory>
 
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Decider object has been created. */
