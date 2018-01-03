@@ -33,6 +33,7 @@
 #ifndef MPICOMM_HPP_INCLUDE
 #define MPICOMM_HPP_INCLUDE
 
+#include <memory>
 #include <set>
 #include <vector>
 #include <string>
@@ -47,14 +48,20 @@ namespace geopm
     {
         public:
             MPIComm();
+            MPIComm(const MPIComm *in_comm);
+            MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder);
+            MPIComm(const MPIComm *in_comm, int color, int key);
+            MPIComm(const MPIComm *in_comm, std::string tag,  bool &is_ctl);
+            MPIComm(const MPIComm *in_comm, std::string tag);
+            MPIComm(const MPIComm *in_comm, std::string tag, int split_type);
             virtual ~MPIComm();
 
-            static const IComm * get_comm();
+            static const IComm *get_comm();
 
-            virtual IComm* split() const;
-            virtual IComm* split(int color, int key) const;
-            virtual IComm* split(const std::string &tag, int split_type) const;
-            virtual IComm* split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const;
+            virtual std::shared_ptr<IComm> split() const;
+            virtual std::shared_ptr<IComm> split(int color, int key) const;
+            virtual std::shared_ptr<IComm> split(const std::string &tag, int split_type) const;
+            virtual std::shared_ptr<IComm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const;
 
             virtual bool comm_supported(const std::string &description) const;
 
@@ -79,12 +86,6 @@ namespace geopm
                     const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const;
             virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const;
         protected:
-            MPIComm(const MPIComm *in_comm);
-            MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder);
-            MPIComm(const MPIComm *in_comm, int color, int key);
-            MPIComm(const MPIComm *in_comm, std::string tag,  bool &is_ctl);
-            MPIComm(const MPIComm *in_comm, std::string tag);
-            MPIComm(const MPIComm *in_comm, std::string tag, int split_type);
             void check_window(size_t window_id) const;
             bool is_valid() const;
             MPI_Comm m_comm;
