@@ -310,6 +310,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/TimeSignal.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
+                            src/TreeCommunicator.cpp \
+                            src/TreeCommunicator.hpp \
                             src/XeonPlatformImp.cpp \
                             src/XeonPlatformImp.hpp \
                             contrib/json11/json11.cpp \
@@ -336,8 +338,6 @@ if ENABLE_MPI
                           src/OMPT.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
-                          src/TreeCommunicator.cpp \
-                          src/TreeCommunicator.hpp \
                           # end
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90 \
