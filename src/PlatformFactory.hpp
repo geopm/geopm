@@ -76,7 +76,7 @@ namespace geopm
             /// throws a std::invalid_argument if no acceptable
             /// Platform/PlatformImp pair is found.
             ///
-            /// @param [in] description The descrition string corresponding
+            /// @param [in] description The description string corresponding
             ///        to the desired Platform.
             ///
             /// @param [in] do_initialize Choose whether or not to initialize
