@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b9d9d9e_fb5fbe1a",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-04T18:53:11Z",
+      "side": 1,
+      "message": "Nix this.",
+      "range": {
+        "startLine": 529,
+        "startChar": 16,
+        "endLine": 529,
+        "endChar": 30
+      },
+      "revId": "081143dc6fa8d2c67902eebb2412f1ea54b9307b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
