@@ -34,6 +34,7 @@ plugin/AdaptiveFreqRegion.hpp
 plugin/BalancingDecider.cpp
 plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
+plugin/GoverningDeciderRegister.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
 plugin/MPIComm.cpp
