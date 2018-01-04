@@ -53,7 +53,7 @@ namespace geopm
             /// @brief Re-size the circular buffer.
             ///
             /// Resets the capacity of the circular buffer without
-            /// modifying it's current contents.
+            /// modifying its current contents.
             ///
             /// @param [in] size Requested capacity for the buffer.
             virtual void set_capacity(const unsigned int size) = 0;
@@ -84,14 +84,14 @@ namespace geopm
             ///
             /// @param [in] value The value to be inserted.
             virtual void insert(const type value) = 0;
-            /// @brief Returns a constant refernce to the value from the buffer.
+            /// @brief Returns a constant reference to the value from the buffer.
             ///
             /// Accesses the contents of the circular buffer
             /// at a particular index. Valid indices range
             /// from 0 to [size-1]. Where size is the number
             /// of valid entries in the buffer. An attempt to
-            /// retrieve a value for an out of bound index a
-            /// geopm::Exception will be thrown with an
+            /// retrieve a value for an out of bound index
+            /// will throw a geopm::Exception with an
             /// error_value() of GEOPM_ERROR_INVALID.
             ///
             /// @param [in] index Buffer index to retrieve.
