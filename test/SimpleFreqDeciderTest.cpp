@@ -207,6 +207,7 @@ class AdaptiveFreqDeciderTest : public ::testing::Test
 
 void AdaptiveFreqDeciderTest::SetUp()
 {
+    setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
     int err = unsetenv("GEOPM_SIMPLE_FREQ_RID_MAP");
     ASSERT_EQ(0, err);
     ASSERT_EQ(NULL, getenv("GEOPM_SIMPLE_FREQ_RID_MAP"));
