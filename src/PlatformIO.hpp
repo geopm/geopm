@@ -96,8 +96,8 @@ namespace geopm
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
-            /// @return Pointer to an IControl object if the requested
-            ///         control is valid, otherwise returns NULL.
+            /// @return Index of the control if the requested
+            ///         control is valid, otherwise returns -1.
             virtual int push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx) = 0;
@@ -108,35 +108,37 @@ namespace geopm
             /// @brief Sample a single signal that has been pushed on
             ///        to the signal stack.
             /// @param [in] signal_idx index returned by a previous call
-            ///        to push_signal() method.
+            ///        to the push_signal() method.
+            /// @return Signal value measured from the platform in SI units.
             virtual double sample(int signal_idx) = 0;
             /// @brief Format the value of the signal into a printable
             ///        form including units.
-            /// @param signal_idx index returned by a previous call
-            ///        to push_signal() method.
+            /// @param [in] signal_idx Index returned by a previous call
+            ///        to the push_signal() method.
+            /// @param [in] sample Value in SI units from a previous
+            ///        call to the sample() method.
             /// @return Printable version of the signal suited for
             ///         output in a log file.
             virtual std::string log(int signal_idx, double sample) = 0;
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.
-            /// @param [in] control_idx index returned by a previous call
-            ///        to push_control() method.
+            /// @param [in] control_idx Index of control to be adjusted
+            ///        returned by a previous call to the push_control() method.
+            /// @param [in] setting Value of control parameter in SI units.
             virtual void adjust(int control_idx,
                                 double setting) = 0;
             /// @brief Measure the signals specified by the previous
-            ///        call to the config() method.
+            ///        call to the push_signal() method.
             /// @param [out] signal Vector of signal values measured
-            ///        from the platform in SI units.  The order of
+            ///        from the platform in SI units. The order of
             ///        these signals is determined by the previous
-            ///        call to the config() method.
+            ///        call to the push_signal() method.
             virtual void sample(std::vector<double> &signal) = 0;
             /// @brief Set values of controls specified by the previous
             ///        calls to push_control().
-            /// @brief [in] control_idx Index of control to be
-            ///        adjusted.
             /// @param [in] setting Vector of control parameter values
             ///        in SI units.  The order of these controls is
-            ///        determined by the previous call to the config()
+            ///        determined by the previous call to the push_control()
             ///        method.
             virtual void adjust(const std::vector<double> &setting) = 0;
             /// @brief Fill string with the msr-safe whitelist file contents
@@ -163,8 +165,7 @@ namespace geopm
             ISignal() {}
             virtual ~ISignal() {}
             /// @brief Get the signal parameter name.
-            /// @param [out] signal_name The name of the feature
-            ///        being measured.
+            /// @return The name of the feature being measured.
             virtual std::string name(void) const = 0;
             /// @brief Get the type of the domain under measurement.
             /// @return One of the values from the IPlatformIO::m_domain_e
@@ -172,7 +173,7 @@ namespace geopm
             virtual int domain_type(void) const = 0;
             /// @brief Get the index of the domain under measurement.
             /// @return The index of the domain within the set of
-            ///        domains of the same type on the platform.
+            ///         domains of the same type on the platform.
             virtual int domain_idx(void) const = 0;
             /// @brief Get the value of the signal.
             /// @return The value of the parameter measured in SI
@@ -180,7 +181,7 @@ namespace geopm
             virtual double sample(void) const = 0;
             /// @brief Format the value of the signal into a printable
             ///        form including units.
-            /// @param sample output of a previous call to the
+            /// @param [in] sample Value from a previous call to the
             ///        sample() method.
             /// @return Printable version of the signal suited for
             ///         output in a log file.
@@ -195,8 +196,7 @@ namespace geopm
             IControl() {}
             virtual ~IControl() {}
             /// @brief Get the control parameter name.
-            /// @param [out] control_name The name of the feature
-            ///        under control.
+            /// @return The name of the feature under control.
             virtual std::string name(void) const = 0;
             /// @brief Get the type of the domain under control.
             /// @return One of the values from the geopm_domain_type_e
@@ -207,7 +207,7 @@ namespace geopm
             ///        domains of the same type on the platform.
             virtual int domain_idx(void) const = 0;
             /// @brief Set the value for the control.
-            /// @param [in] setting value in SI units of the parameter
+            /// @param [in] setting Value in SI units of the parameter
             ///        controlled by the object.
             virtual void adjust(double setting) = 0;
     };
