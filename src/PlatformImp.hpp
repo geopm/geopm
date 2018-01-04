@@ -80,7 +80,8 @@ namespace geopm
         public:
             /// @brief default PlatformImp constructor
             PlatformImp();
-            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency, const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map);
+            PlatformImp(int num_energy_signal, int num_counter_signal, double control_latency,
+                        const std::map<std::string, std::pair<off_t, unsigned long> > *msr_map);
             PlatformImp(const PlatformImp &other);
             /// @brief default PlatformImp destructor
             virtual ~PlatformImp();
@@ -186,7 +187,7 @@ namespace geopm
             /// @return The read and transformed value.
             virtual double read_signal(int device_type, int device_index, int signal_type) = 0;
             /// @brief Batch read multiple signal values.
-            /// @param [in/out] signal_desc A vector of descriptors for each read operation.
+            /// @param [in,out] signal_desc A vector of descriptors for each read operation.
             /// @param [in] is_changed Has the data in the signal_desc changed since the last call?
             ///             This enables the method to reuse the already created data structures
             ///             if the same data is being requested repeatedly. This must be set to
@@ -225,7 +226,7 @@ namespace geopm
             virtual void bound(int control_type, double &upper_bound, double &lower_bound) = 0;
             /// @brief Return the frequency limit where throttling occurs.
             ///
-            /// @return frequency limit where anything <= is considered throttling.
+            /// @return frequency limit below which anything is considered throttling.
             virtual double throttle_limit_mhz(void) const = 0;
             /// @brief Return the path used for the MSR default save file.
             std::string msr_save_file_path(void);
@@ -280,8 +281,8 @@ namespace geopm
             /// @brief Handles the overflow of fixed size counters.
             /// @param [in] signal_idx The index into the overflow offset vector
             ///        for this counter.
-            /// @param [in] The size of the counter.
-            /// @param [in] The value read from the counter.
+            /// @param [in] msr_size The size of the counter.
+            /// @param [in] value The value read from the counter.
             /// @return The value corrected for overflow.
             double msr_overflow(int signal_idx, uint32_t msr_size, uint64_t value);
 
@@ -295,7 +296,7 @@ namespace geopm
             };
 
             struct m_msr_batch_array {
-                uint32_t numops;            /// @brief In: # of operations in ops array
+                uint32_t numops;              /// @brief In: # of operations in ops array
                 struct m_msr_batch_op *ops;   /// @brief In: Array[numops] of operations
             };
 

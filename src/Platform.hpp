@@ -53,7 +53,7 @@ namespace geopm
             /// @param [in] platform_imp A PlatformImp object that is compatible
             ///        with this platform and the underlying hardware.
             /// @param [in] do_initialize Choose whether or not to initialize the Platform.
-            ///        This also initialized the underlying PlatformImp.
+            ///        This also initializes the underlying PlatformImp.
             virtual void set_implementation(PlatformImp* platform_imp, bool do_initialize) = 0;
             /// @brief Retrieve the number of power domains.
             /// @return Number of power domains.
@@ -98,7 +98,7 @@ namespace geopm
             /// @param [in] platform_id Platform identifier specific to the
             ///        underlying hardware. On x86 platforms this can be obtained by
             ///        the cpuid instruction.
-            /// @param [in] A description string that can be used to determine if the
+            /// @param [in] description A description string that can be used to determine if the
             ///        platform can fulfill the requirements of the request.
             /// @return true if this Platform supports platform_id,
             ///         else false.
@@ -106,6 +106,7 @@ namespace geopm
             /// @brief Enforce a static power management mode including
             /// tdp_balance_static, freq_uniform_static, and
             /// freq_hybrid_static.
+            /// @param [in] region_id The ID of the region to target.
             /// @param [in] policy A Policy object containing the policy information
             ///        to be enforced.
             virtual void enforce_policy(uint64_t region_id, IPolicy &policy) const = 0;
@@ -123,24 +124,24 @@ namespace geopm
             /// @return PlatformTopology object containing the current
             ///         topology information.
             virtual const PlatformTopology *topology(void) const = 0;
-            ////////////////////////////////////////
-            /// signals are expected as follows: ///
-            /// per socket signals               ///
-            ///     PKG_ENERGY                   ///
-            ///     DRAM_ENERGY                  ///
-            /// followed by per cpu signals      ///
-            ///     FREQUENCY                    ///
-            ///     INST_RETIRED                 ///
-            ///     CLK_UNHALTED_CORE            ///
-            ///     CLK_UNHALTED_REF             ///
-            ///     LLC_VICTIMS                  ///
-            /// followed by per rank signals     ///
-            ///     PROGRESS                     ///
-            ///     RUNTIME                      ///
-            ////////////////////////////////////////
             /// @brief initialize the signal transformation matrix.
             /// Initialize the matrix that transforms the per package,
             /// per-cpu, and per-rank signals into the domain of control.
+            ////////////////////////////////////////
+            /// signals are expected as follows:
+            /// - per socket signals
+            ///     + PKG_ENERGY
+            ///     + DRAM_ENERGY
+            /// - followed by per cpu signals
+            ///     + FREQUENCY
+            ///     + INST_RETIRED
+            ///     + CLK_UNHALTED_CORE
+            ///     + CLK_UNHALTED_REF
+            ///     + LLC_VICTIMS
+            /// - followed by per rank signals
+            ///     + PROGRESS
+            ///     + RUNTIME
+            /////////////////////////////////////////
             /// @param [in] cpu_rank The mapping from cpu index to rank id.
             virtual void init_transform(const std::vector<int> &cpu_rank) = 0;
             /// @brief Retrieve the number of control domains
@@ -149,7 +150,7 @@ namespace geopm
             virtual double control_latency_ms(void) const = 0;
             /// @brief Return the frequency limit where throttling occurs.
             ///
-            /// @return frequency limit where anything <= is considered throttling.
+            /// @return frequency limit below which anything is considered throttling.
             virtual double throttle_limit_mhz(void) const = 0;
             /// @brief Has the trigger msr of the platform changed value since last call.
             virtual bool is_updated(void) = 0;

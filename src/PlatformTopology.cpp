@@ -90,8 +90,8 @@ namespace geopm
 
     PlatformTopology::~PlatformTopology()
     {
-        /// @todo: This was failing internally on Catalyst. Need to debug.
-        /// Thre is a ptr=malloc(0); free(ptr); in hwloc which alarmed ElectricFence.
+        /// @todo  This was failing internally on Catalyst. Need to debug.
+        /// There is a ptr=malloc(0); free(ptr); in hwloc which alarmed ElectricFence.
         hwloc_topology_destroy(m_topo);
     }
 
@@ -107,7 +107,7 @@ namespace geopm
                 throw ex;
             }
             if (domain_type == GEOPM_DOMAIN_TILE) {
-                /// @todo: This assumes that tiles are just below
+                /// @todo  This assumes that tiles are just below
                 ///        package in hwloc hierarchy.  If tiles are
                 ///        at L2 cache, but processor has an L3 cache,
                 ///        this may not be correct.
