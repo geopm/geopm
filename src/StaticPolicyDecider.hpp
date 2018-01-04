@@ -45,10 +45,10 @@ namespace geopm
     class StaticPolicyDecider : public Decider
     {
         public:
-            /// @ brief StaticPolicyDecider default constructor.
+            /// @brief StaticPolicyDecider default constructor.
             StaticPolicyDecider();
             StaticPolicyDecider(const StaticPolicyDecider &other);
-            /// @ brief StaticPolicyDecider destructor, virtual.
+            /// @brief StaticPolicyDecider destructor, virtual.
             virtual ~StaticPolicyDecider();
             virtual IDecider *clone(void) const;
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);

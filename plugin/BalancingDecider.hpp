@@ -49,7 +49,7 @@ namespace geopm
     class BalancingDecider : public Decider
     {
         public:
-            /// @ brief BalancingDecider default constructor.
+            /// @brief BalancingDecider default constructor.
             BalancingDecider();
             BalancingDecider(const BalancingDecider &other);
             /// @brief BalancinDecider destructor, virtual.

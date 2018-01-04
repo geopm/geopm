@@ -45,23 +45,23 @@ namespace geopm
 
     /// @brief Simple implementation of a binary frequency decider.
     ///
-    /// This frequency decider uses the geopm_hint interface to determine
-    /// wether we are in a compute or memory bound region and choose
+    /// This frequency decider uses the geopm_hint interface or feedback from
+    /// region runtime obtained offline or online to determine
+    /// whether we are in a compute or memory bound region and choose
     /// the maximum frequency and a fraction of the minimal possible frequency
     /// repsectively.
     ///
     /// This is a leaf decider.
-
     class SimpleFreqDecider : public GoverningDecider
     {
         public:
-            /// @ brief SimpleFreqDecider default constructor.
+            /// @brief SimpleFreqDecider default constructor.
             SimpleFreqDecider();
             SimpleFreqDecider(const SimpleFreqDecider &other);
             /// @brief SimpleFreqDecider destructor, virtual.
             virtual ~SimpleFreqDecider();
             virtual IDecider *clone(void) const;
-            /// @brief Actual method altering GoverningDecider behavior
+            /// @brief Actual method altering GoverningDecider behavior.
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
         private:
             double cpu_freq_sticker(void);
