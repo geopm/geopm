@@ -43,7 +43,7 @@ namespace geopm
     /// can be implemented as part of the geopm library or as plugins to be loaded
     /// at runtime. There are two types of deciders. The first is a leaf decider
     /// which controls power/frequency within a single node. The second is a tree
-    /// decider ehich controls power/frequency across a set of nodes that are direct
+    /// decider which controls power/frequency across a set of nodes that are direct
     /// decendants of it in the geopm tree hierarchy.
     class IDecider
     {
@@ -55,7 +55,7 @@ namespace geopm
             virtual ~IDecider() {}
             /// @brief return a pointer of the derived class, virtual.
             virtual IDecider *clone() const = 0;
-            ///@brief Return the upper and lower control bounds.
+            /// @brief Return the upper and lower control bounds.
             /// For a power based control, this will be the upper and lower
             /// power bounds of a single tree node below the current one. For
             /// a frequency based control this will be the p-state bounds of
@@ -67,11 +67,11 @@ namespace geopm
             ///
             virtual void bound(double upper_bound, double lower_bound) = 0;
             /// @brief Updates the power split among power control domains when
-            /// recieving a new global budget, vitual.
+            /// receiving a new global budget, virtual.
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) = 0;
             /// @brief Calculate a new power policy for the region based on telemery data, virtual.
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
-            /// @brief Return true if th edescription string matches capabilities of decider, virtual.
+            /// @brief Return true if the description string matches capabilities of decider, virtual.
             virtual bool decider_supported(const std::string &descripton) = 0;
             /// @brief Return the name of the decider, virtual.
             virtual const std::string& name(void) const = 0;
