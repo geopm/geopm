@@ -68,8 +68,8 @@ namespace geopm
     /// offs.
     ///
     ///
-    /// The Controller is the central execution class for the geopm
-    /// runtime, and interacts with many other geopm classes and
+    /// The Controller is the central execution class for the GEOPM
+    /// runtime, and interacts with many other GEOPM classes and
     /// coordinates their actions.  The controller gathers policy data
     /// from the GlobalPolicy, application profile data from the
     /// Profile (through shared memory), and hardware profile
@@ -88,12 +88,11 @@ namespace geopm
         public:
             /// @brief Controller constructor.
             ///
-            /// The Controller construction requires a reference to a
-            /// GlobalPolicy object, the shared memory key used to
-            /// communicate with the application, and the MPI
+            /// The Controller construction requires a pointer to a
+            /// GlobalPolicy object and the MPI
             /// communicator that the controller is running on.
             ///
-            /// @param [in] global_policy A reference to the
+            /// @param [in] global_policy A pointer to the
             ///        GlobalPolicy object used to configure policy
             ///        for the entire allocation.
             ///
@@ -159,8 +158,8 @@ namespace geopm
             /// @brief Reset system to initial state.
             ///
             /// This will remove the shared memory keys and will reset
-            /// all MSR values that GEO can alter to the value that was
-            /// read at GEO startup.
+            /// all MSR values that GEOPM can alter to the value that was
+            /// read at GEOPM startup.
             void reset(void);
         protected:
             enum m_controller_const_e {
