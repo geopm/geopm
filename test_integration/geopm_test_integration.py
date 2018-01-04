@@ -841,7 +841,8 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
     def test_plugin_simple_freq_offline(self):
-        """Test of the SimpleFreqDecider offline auto mode.
+        """
+        Test of the SimpleFreqDecider offline auto mode.
         """
         name = 'test_plugin_simple_freq_offline'
         loop_count = 10
@@ -898,7 +899,8 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
     def test_plugin_simple_freq_online(self):
-        """Test of the SimpleFreqDecider online auto mode.
+        """
+        Test of the SimpleFreqDecider online auto mode.
         """
         name = 'test_plugin_simple_freq_online'
         loop_count = 10
@@ -951,7 +953,9 @@ class TestIntegration(unittest.TestCase):
         self.assertLess(runtime_savings_epoch, 5.0)
 
     def test_controller_signal_handling(self):
-        """Check that Controller handles signals and cleans up."""
+        """
+        Check that Controller handles signals and cleans up.
+        """
         name = 'test_controller_signal_handling'
         report_path = name + '.report'
         trace_path = name + '.trace'
