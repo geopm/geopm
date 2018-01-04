@@ -48,10 +48,10 @@ namespace geopm
     class GoverningDecider : public Decider
     {
         public:
-            /// @ brief GoverningDecider default constructor.
+            /// @brief GoverningDecider default constructor.
             GoverningDecider();
             GoverningDecider(const GoverningDecider &other);
-            /// @ brief GoverningDecider destructor, virtual.
+            /// @brief GoverningDecider destructor, virtual.
             virtual ~GoverningDecider();
             virtual IDecider *clone(void) const;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy);

@@ -40,10 +40,10 @@
 
 namespace geopm
 {
-    /// @brief Factory object managing decider objects.
+    /// @brief Factory object managing Decider objects.
     ///
     /// The DeciderFactory manages all instances of Decider objects. During
-    /// construction the factory creates instances of all built in Decider classes
+    /// construction the factory creates instances of all built-in Decider classes
     /// as well as any Decider plugins present on the system. All Deciders then register
     /// themselves with the factory. The factory returns an appropriate Decider object
     /// when queried with a description string. The factory deletes all Decider objects
@@ -61,14 +61,13 @@ namespace geopm
             /// throws a std::invalid_argument if no acceptable
             /// Decider is found.
             ///
-            /// @param [in] description The descrition string corresponding
+            /// @param [in] description The description string corresponding
             /// to the desired Decider.
             virtual IDecider *decider(const std::string &description) = 0;
             /// @brief Concrete Deciders register with the factory through this API.
             ///
-            /// @param [in] decider The unique_ptr to a Decider object
-            /// assures that the object cannot be destroyed before it
-            /// is copied.
+            /// @param [in] decider Pointer to a Decider object.
+            /// @param [in] dl_ptr The handle returned by dlopen().
             virtual void register_decider(IDecider *decider, void *dl_ptr) = 0;
     };
 
@@ -77,21 +76,19 @@ namespace geopm
         public:
             /// @brief DeciderFactory default constructor.
             DeciderFactory();
-            /// @brief DeciderFactory Testing constructor.
+            /// @brief DeciderFactory testing constructor.
             ///
             /// This constructor takes in
-            /// a specific Decider object  and does not load plugins.
+            /// a specific Decider object and does not load plugins.
             /// It is intended to be used for testing.
-            /// @param [in] decider The unique_ptr to a Decider object
-            ///             assures that the object cannot be destroyed before
-            ///             it is copied.
+            /// @param [in] decider The pointer to a Decider object.
             DeciderFactory(IDecider *decider);
             /// @brief DeciderFactory destructor, virtual.
             virtual ~DeciderFactory();
             IDecider *decider(const std::string &description);
             void register_decider(IDecider *decider, void *dl_ptr);
         private:
-            // @brief Holds all registered concrete Decider instances
+            /// @brief Holds all registered concrete Decider instances.
             std::list<IDecider*> m_decider_list;
             std::list<void *> m_dl_ptr_list;
     };
