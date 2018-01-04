@@ -39,10 +39,10 @@ enum geopm_ctl_message_e {
 };
 
 /// @brief Structure intended to be shared between
-/// the geopm runtime and the application in
+/// the GEOPM runtime and the application in
 /// order to convey status and control information.
 struct geopm_ctl_message_s {
-    /// @brief Status of the geopm runtime.
+    /// @brief Status of the GEOPM runtime.
     volatile uint32_t ctl_status;
     /// @brief Status of the application.
     volatile uint32_t app_status;
@@ -71,7 +71,7 @@ namespace geopm
             ///
             /// @param [in] cpu_idx Linux logical CPU index.
             ///
-            /// @param [in] MPI rank running on the given CPU.
+            /// @param [in] rank MPI rank running on the given CPU.
             virtual void cpu_rank(int cpu_idx, int rank) = 0;
             /// @brief Get the rank running on a logical CPU.
             ///
@@ -79,25 +79,25 @@ namespace geopm
             ///
             /// @return Returns the MPI rank running on the given CPU.
             virtual int cpu_rank(int cpu_idx) = 0;
-            /// @brief Used by controller to query if application has
+            /// @brief Used by Controller to query if application has
             /// begun sampling.
             ///
             /// @return Returns true if application has begun putting
             /// samples in the table and false otherwise.
             virtual bool is_sample_begin(void) = 0;
-            /// @brief Used by controller to query if application has
+            /// @brief Used by Controller to query if application has
             /// stopped sampling.
             ///
             /// @return Returns true if application has stopped
             /// putting samples in the table and false otherwise.
             virtual bool is_sample_end(void) = 0;
-            /// @brief Used by controller to query if application has
+            /// @brief Used by Controller to query if application has
             /// begun sending region names.
             ///
             /// @return Returns true if application has begun sending
             /// region names across the table and false otherwise.
             virtual bool is_name_begin(void) = 0;
-            /// @brief Used by controller to query if application is
+            /// @brief Used by Controller to query if application is
             /// ready to shutdown.
             ///
             /// @return Returns true if application is ready to
@@ -146,7 +146,7 @@ namespace geopm
         protected:
             int this_status();
             /// @brief Enum encompassing application and
-            /// geopm runtime state.
+            /// GEOPM runtime state.
             enum m_status_e {
                 M_STATUS_UNDEFINED = 0,
                 M_STATUS_MAP_BEGIN = 1,
