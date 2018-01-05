@@ -1,7 +1,7 @@
 geopmanalysis(1) -- geopm analysis application
 ==============================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -112,7 +112,7 @@ using the `--skip-launch` option.
     geopmanalysis -n1 -N1 -t stream_mix -p myprof -o myprof -- ./build/bin/geopmbench config.json
 
 ## COPYRIGHT
-Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
