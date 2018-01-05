@@ -84,25 +84,25 @@ class TestAffinity(unittest.TestCase):
     def test_affinity_0(self):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'process'], 1, 1, 1)
         actual = launcher.affinity_list(False)
-        expect = [{1}, {2}]
+        expect = [{1}, {43}]
         self.assertEqual(expect, actual)
 
     def test_affinity_1(self):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'process'], 2, 1, 4)
         actual = launcher.affinity_list(False)
-        expect = [{1}, {2, 3, 4, 5}, {6, 7, 8, 9}]
+        expect = [{1}, {21, 20, 19, 18}, {43, 42, 41, 40}]
         self.assertEqual(expect, actual)
 
     def test_affinity_2(self):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'pthread'], 2, 1, 4)
         actual = launcher.affinity_list(False)
-        expect = [{1, 2, 3, 4, 5}, {6, 7, 8, 9}]
+        expect = [{1, 21, 20, 19, 18}, {43, 42, 41, 40}]
         self.assertEqual(expect, actual)
 
     def test_affinity_3(self):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'application'], 2, 1, 4)
         actual = launcher.affinity_list(False)
-        expect = [{2, 3, 4, 5}, {6, 7, 8, 9}]
+        expect = [{21, 20, 19, 18}, {43, 42, 41, 40}]
         self.assertEqual(expect, actual)
         actual = launcher.affinity_list(True)
         expect = [{1}]
@@ -133,15 +133,16 @@ class TestAffinity(unittest.TestCase):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'process'], 40, 1, 2)
         actual = launcher.affinity_list(False)
         expect = [{1}]
-        expect.extend([{ii, ii + 44} for ii in range(2, 42)])
+        expect.extend([{ii, ii + 44} for ii in range(2, 22)])
+        expect.extend([{ii, ii + 44} for ii in range(24, 44)])
         self.assertEqual(expect, actual)
 
     def test_affinity_8(self):
         launcher = XeonAffinityLauncher(['--geopm-ctl', 'process'], 30, 1, 2)
         actual = launcher.affinity_list(False)
         expect = [{1}]
-        expect.extend([{ii, ii + 44} for ii in range(2, 17)])
-        expect.extend([{ii, ii + 44} for ii in range(22, 37)])
+        expect.extend([{ii, ii + 44} for ii in range(7, 22)])
+        expect.extend([{ii, ii + 44} for ii in range(29, 44)])
         self.assertEqual(expect, actual)
 
     def test_affinity_9(self):
@@ -162,7 +163,7 @@ class TestAffinity(unittest.TestCase):
         launcher = KNLAffinityLauncher(['--geopm-ctl', 'process'], 48, 1, 3)
         actual = launcher.affinity_list(False)
         expect = [{1}]
-        expect.extend([{ii, ii + 64, ii + 128} for ii in range(2, 50)])
+        expect.extend([{ii, ii + 64, ii + 128} for ii in range(16, 64)])
         self.assertEqual(expect, actual)
 
     def test_affinity_12(self):
@@ -170,6 +171,18 @@ class TestAffinity(unittest.TestCase):
         err_msg = 'Cores cannot be shared between MPI ranks'
         with self.assertRaisesRegexp(RuntimeError, err_msg) as cm:
             launcher.affinity_list(False)
+
+    def test_affinity_13(self):
+        """
+        Here the app is trying to use num_sockets * num_cores - 1 OMP threads.  This should
+        result in the controller getting pinned to core 0's HT, and the app pinned to cores 1-43.
+        Core 0 should be left for the OS.
+        """
+        launcher = XeonAffinityLauncher(['--geopm-ctl', 'process'], 1, 1, 43)
+        actual = launcher.affinity_list(False)
+        expect = [{44}]
+        expect.extend([set(range(1, 44))])
+        self.assertEqual(expect, actual)
 
 if __name__ == '__main__':
     unittest.main()

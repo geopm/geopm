@@ -600,70 +600,83 @@ class Launcher(object):
         by the derived class's affinity_option() method to set CPU
         affinities.
         """
-        result = []
+        app_rank_per_node = self.num_app_mask
+
         # The number of application logical CPUs per compute node.
-        app_cpu_per_node = self.num_app_mask * self.cpu_per_rank
+        app_cpu_per_node = app_rank_per_node * self.cpu_per_rank
         # Total number of cores per node
         core_per_node = self.core_per_socket * self.num_socket
         # Number of application ranks per socket (floored)
-        rank_per_socket = self.num_app_mask // self.num_socket
+        rank_per_socket = app_rank_per_node // self.num_socket
+        rank_per_socket_remainder = app_rank_per_node % self.num_socket
         # Number of logical CPUs per socket
         cpu_per_socket = self.num_linux_cpu // self.num_socket
 
-        # Try one thread per core first
         app_thread_per_core = 1
-        if app_cpu_per_node > core_per_node:
-            app_thread_per_core = 2
-            while app_thread_per_core <= self.thread_per_core:
-               if (app_cpu_per_node % app_thread_per_core == 0 and
-                   app_cpu_per_node // app_thread_per_core <= core_per_node):
-                   break
-               app_thread_per_core += 1
+        while app_thread_per_core * core_per_node < app_cpu_per_node:
+            app_thread_per_core += 1
 
-        if (app_thread_per_core > self.thread_per_core or
-            self.num_app_mask > core_per_node):
+        if app_thread_per_core > self.thread_per_core or app_rank_per_node > core_per_node:
             raise RuntimeError('Cores cannot be shared between MPI ranks')
         if app_cpu_per_node > self.num_linux_cpu:
             raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
-        if app_cpu_per_node % core_per_node == 0:
-            sys.stderr.write("Warning: User requested all cores for application, GEOPM controller will share a core with the application.\n")
-            off = 0
-            if self.thread_per_core != app_thread_per_core:
-                # run controller on the lowest hyperthread that is not
+
+        app_core_per_rank = self.cpu_per_rank // app_thread_per_core
+        if self.cpu_per_rank % app_thread_per_core > 0:
+            app_core_per_rank += 1
+
+        if app_core_per_rank * app_rank_per_node > core_per_node:
+            raise RuntimeError('Cores cannot be shared between MPI ranks')
+
+        result = []
+        core_index = core_per_node - 1
+
+        if rank_per_socket_remainder == 0:
+            socket_boundary = self.core_per_socket * (self.num_socket - 1) # 22
+            for socket in range(self.num_socket - 1, -1, -1):
+                for rank in range(rank_per_socket - 1, -1, -1): # Start assigning ranks to cores from the highest rank/core backwards
+                    base_cores = range(core_index, core_index - app_core_per_rank, -1)
+                    cpu_range = set()
+                    for ht in range(app_thread_per_core):
+                        cpu_range.update({ bc + ht * core_per_node for bc in base_cores })
+
+                    if not is_geopmctl:
+                        result.insert(0, cpu_range)
+                    core_index -= app_core_per_rank
+
+                if not (rank == 0 and socket == 0):
+                    # Do not subtract the socket boundary if we've pinned the last rank on the last socket
+                    core_index = socket_boundary - 1
+
+                socket_boundary -= self.core_per_socket
+        else:
+            for rank in range(app_rank_per_node - 1, -1, -1): # Start assigning ranks to cores from the highest rank/core backwards
+                base_cores = range(core_index, core_index - app_core_per_rank, -1)
+                cpu_range = set()
+                for ht in range(app_thread_per_core):
+                    cpu_range.update({ bc + ht * core_per_node for bc in base_cores })
+                if not is_geopmctl:
+                    result.insert(0, cpu_range)
+                core_index -= app_core_per_rank
+
+        if core_index <= 0:
+            sys.stderr.write("Warning: User requested all cores for application. ")
+            if core_per_node * app_thread_per_core < self.num_linux_cpu:
+                sys.stderr.write("GEOPM controller will share a core with the application.\n")
+                # Run controller on the lowest hyperthread that is not
                 # occupied by the application
                 geopm_ctl_cpu = core_per_node * app_thread_per_core
             else:
+                sys.stderr.write("GEOPM controller will share a core with the OS.\n")
                 # Oversubscribe Linux CPU 0, no better solution
                 geopm_ctl_cpu = 0
-        elif app_cpu_per_node // app_thread_per_core == core_per_node - 1:
-            # Application requested all but one core, run the
-            # controller on Linux CPU 0
-            off = 1
-            geopm_ctl_cpu = 0
         else:
-            # Application not using at least two cores, leave one for
-            # OS and use the other for the controller
-            off = 2
             geopm_ctl_cpu = 1
 
         if self.config.get_ctl() == 'process' or is_geopmctl:
-            result.append({geopm_ctl_cpu})
-
-        if not is_geopmctl:
-            socket = 0
-            for rank in range(self.num_app_mask):
-                rank_mask = set()
-                if rank == 0 and self.config.get_ctl() == 'pthread':
-                   rank_mask.add(geopm_ctl_cpu)
-                for thread in range(self.cpu_per_rank // app_thread_per_core):
-                    rank_mask.add(off)
-                    for hthread in range(1, app_thread_per_core):
-                        rank_mask.add(off + hthread * core_per_node)
-                    off += 1
-                result.append(rank_mask)
-                if rank != 0 and (rank + 1) % rank_per_socket == 0:
-                    socket += 1
-                    off = self.core_per_socket * socket
+            result.insert(0, {geopm_ctl_cpu})
+        elif self.config.get_ctl() == 'pthread':
+            result[0].add(geopm_ctl_cpu)
 
         return result
 
