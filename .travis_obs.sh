@@ -69,6 +69,10 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
         obs_proj=home:dianarg:branches:home:cmcantalupo
         obs_pkg=geopm
         do_obs=true
+    elif [ "$TRAVIS_REPO_SLUG" == "bakerbrandond/geopm" ]; then
+        obs_proj=home:bakerbrandond:branches:home:cmcantalupo
+        obs_pkg=geopm
+        do_obs=true
     fi
 fi
 
