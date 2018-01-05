@@ -3,7 +3,7 @@ From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
 Date: Thu, 10 Nov 2016 11:32:13 -0800
 Subject: [PATCH] Adding geopm markup to CORAL version of miniFE.
 
-#  Copyright (c) 2015, 2016, 2017, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions

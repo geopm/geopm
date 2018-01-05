@@ -1,7 +1,7 @@
 geopm_policy_c(3) -- geopm mpi job policy management structure
 ==============================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -335,7 +335,7 @@ All functions described on this man page return an error code.  See
 to convert them to strings.
 
 ## COPYRIGHT
-Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

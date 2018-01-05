@@ -1,7 +1,7 @@
 geopm_error(3) -- geopm error handling
 ======================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -130,7 +130,7 @@ The system error numbers are documented in the **errno(3)** man page.
     Communication implementation not supported
 
 ## COPYRIGHT
-Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

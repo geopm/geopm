@@ -3,7 +3,7 @@ From: "Geltz, Brad" <brad.geltz@intel.com>
 Date: Wed, 26 Oct 2016 14:42:12 -0700
 Subject: [PATCH 2/3] Marked up MiniFE code for use with GEOPM.
 
-#  Copyright (c) 2015, 2016, 2017, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
