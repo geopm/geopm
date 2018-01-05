@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -82,12 +82,12 @@ int main(int argc, char **argv)
                         "              be created with the geopm_policy_c(3) interface or the geopmpol‐\n"
                         "              icy(3) application.\n"
                         "\n"
-                        "    Copyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.\n"
+                        "    Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
         strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n", geopm_version());
-        printf("\n\nCopyright (C) 2015, 2016, 2017, Intel Corporation. All rights reserved.\n\n");
+        printf("\n\nCopyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (argc > 1 && (
