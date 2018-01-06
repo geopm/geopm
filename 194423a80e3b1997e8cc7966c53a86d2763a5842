@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b7f97f3_267b06fe",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-06T01:34:16Z",
+      "side": 1,
+      "message": "extra whitespace",
+      "revId": "194423a80e3b1997e8cc7966c53a86d2763a5842",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
