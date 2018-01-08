@@ -34,6 +34,24 @@
       "revId": "194423a80e3b1997e8cc7966c53a86d2763a5842",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02ba60a1_49e8ce5f",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-08T19:31:30Z",
+      "side": 1,
+      "message": "There is an extra new line at the start of the file. It\u0027s not a big deal if you don\u0027t want to change it in this patch.",
+      "parentUuid": "8cf38ef6_10975c4d",
+      "revId": "194423a80e3b1997e8cc7966c53a86d2763a5842",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
