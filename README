@@ -303,6 +303,15 @@ processes in all configurations.  Please refer to your site
 documentation about CPU affinity for the best solution on the system
 you are using.
 
+## MPI LIBRARY PATH
+On some systems it has been observed that if the path to libmpi.so is
+not in the LD_LIBRARY_PATH or in the default load library path
+(e.g. /usr/lib64), then the loading of plugins can fail on the
+dlopen(3) call.  In the future we will be changing the way that
+plugins are loaded to leverage library init functions instead of using
+dlopen(3)/dlsym(3).  To work-around this problem, simply add the path
+to libmpi.so to the LD_LIBRARY_PATH environment variable at runtime.
+
 TESTING
 -------
 From within the source code directory, tests can be executed with the
