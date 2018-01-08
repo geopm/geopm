@@ -120,13 +120,13 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
-            --disable-fortran --disable-doc
+            --disable-fortran --disable-doc --enable-debug
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-mpi-bin=%{_libdir}/openmpi/bin \
-            --disable-fortran --disable-doc
+            --disable-fortran --disable-doc --enable-debug
 %endif
 
 %{__make}
