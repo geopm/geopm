@@ -16,6 +16,24 @@
       "revId": "194423a80e3b1997e8cc7966c53a86d2763a5842",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8cf38ef6_10975c4d",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-08T17:48:32Z",
+      "side": 1,
+      "message": "Not sure what you mean is extra here.  The string \"2018,\u003cSPACE\u003e\" should be what was added to match the pattern from previous years.",
+      "parentUuid": "0b7f97f3_267b06fe",
+      "revId": "194423a80e3b1997e8cc7966c53a86d2763a5842",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
