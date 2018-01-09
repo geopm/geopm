@@ -250,15 +250,22 @@ namespace geopm
             std::string line;
             getline(cpuinfo_file, line);
             if (line.find(key) != std::string::npos) {
-                size_t at_pos = line.find("@");
-                size_t ghz_pos = line.find("GHz");
-                if (at_pos != std::string::npos &&
-                        ghz_pos != std::string::npos) {
-                    try {
-                        result = 1e9 * std::stod(line.substr(at_pos + 1, ghz_pos - at_pos));
+                size_t right_pos = line.find("GHz");
+                if (right_pos != std::string::npos) {
+                    std::string ghz_string = line.substr(0, right_pos);
+                    while (ghz_string.size() && ghz_string.back() == ' ') {
+                        ghz_string = ghz_string.substr(ghz_string.size() - 1);
                     }
-                    catch (std::invalid_argument) {
+                    size_t left_pos = ghz_string.rfind(' ');
+                    if (ghz_string.size() &&
+                        left_pos != std::string::npos) {
+                        ghz_string = ghz_string.substr(left_pos);
+                        try {
+                            result = 1e9 * std::stod(ghz_string);
+                        }
+                        catch (std::invalid_argument) {
 
+                        }
                     }
                 }
             }
