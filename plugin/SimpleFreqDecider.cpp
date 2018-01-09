@@ -33,7 +33,7 @@
 #include <hwloc.h>
 #include <stdlib.h>
 #include <cmath>
-
+#include <cctype>
 #include <algorithm>
 #include <fstream>
 #include <string>
@@ -69,13 +69,21 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void
 
 namespace geopm
 {
-    void ctl_cpu_freq(std::vector<double> freq);
-
     SimpleFreqDecider::SimpleFreqDecider()
+        : SimpleFreqDecider("/proc/cpuinfo",
+                            "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
+                            "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+    {
+
+    }
+
+    SimpleFreqDecider::SimpleFreqDecider(const std::string &cpu_info_path,
+                                         const std::string &cpu_freq_min_path,
+                                         const std::string &cpu_freq_max_path)
         : GoverningDecider()
-        , m_cpu_info_path("/proc/cpuinfo")
-        , m_cpu_freq_min_path("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")
-        , m_cpu_freq_max_path("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+        , m_cpu_info_path(cpu_info_path)
+        , m_cpu_freq_min_path(cpu_freq_min_path)
+        , m_cpu_freq_max_path(cpu_freq_max_path)
         , m_freq_min(cpu_freq_min())
         , m_freq_max(cpu_freq_max())
         , m_freq_step(100e6)
@@ -240,7 +248,7 @@ namespace geopm
     double SimpleFreqDecider::cpu_freq_sticker(void)
     {
         double result = NAN;
-        const std::string key = "model name\t:";
+        const std::string key = "model name";
         std::ifstream cpuinfo_file(m_cpu_info_path);
         if (!cpuinfo_file.is_open()) {
             throw Exception("SimpleFreqDecider::cpu_freq_sticker(): unable to open " + m_cpu_info_path,
@@ -248,17 +256,38 @@ namespace geopm
         }
         while (isnan(result) && cpuinfo_file.good()) {
             std::string line;
-            getline(cpuinfo_file, line);
-            if (line.find(key) != std::string::npos) {
-                size_t at_pos = line.find("@");
-                size_t ghz_pos = line.find("GHz");
-                if (at_pos != std::string::npos &&
-                        ghz_pos != std::string::npos) {
-                    try {
-                        result = 1e9 * std::stod(line.substr(at_pos + 1, ghz_pos - at_pos));
+            std::getline(cpuinfo_file, line);
+            if (line.find(key) == 0 && line.find(':') != std::string::npos) {
+                size_t colon_pos = line.find(':');
+                bool match = true;
+                for (size_t pos = key.size(); pos != colon_pos; ++pos) {
+                    if (!std::isspace(line[pos])) {
+                        match = false;
                     }
-                    catch (std::invalid_argument) {
+                }
+                if (!match) {
+                    continue;
+                }
+                std::transform(line.begin(), line.end(), line.begin(), [](unsigned char c){ return std::tolower(c);});
+                std::string unit_str[3] = {"ghz", "mhz","khz"};
+                double unit_factor[3] = {1e9, 1e6, 1e3};
+                for (int unit_idx = 0; unit_idx != 3; ++unit_idx) {
+                    size_t unit_pos = line.find(unit_str[unit_idx]);
+                    if (unit_pos != std::string::npos) {
+                        std::string value_str = line.substr(0, unit_pos);
+                        while (std::isspace(value_str.back())) {
+                            value_str.erase(value_str.size() - 1);
+                        }
+                        size_t space_pos = value_str.rfind(' ');
+                        if (space_pos != std::string::npos) {
+                            value_str = value_str.substr(space_pos);
+                        }
+                        try {
+                            result = unit_factor[unit_idx] * std::stod(value_str);
+                        }
+                        catch (std::invalid_argument) {
 
+                        }
                     }
                 }
             }

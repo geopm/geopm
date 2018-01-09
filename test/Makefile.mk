@@ -238,6 +238,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/GoverningDecider.hpp \
                           test/GoverningDeciderTest.cpp \
                           plugin/SimpleFreqDecider.hpp \
+                          plugin/SimpleFreqDecider.cpp \
+                          plugin/GoverningDecider.cpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
                           test/SimpleFreqDeciderTest.cpp \
