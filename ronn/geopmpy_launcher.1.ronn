@@ -178,6 +178,13 @@ the first `--` from the command line.
   enable the GEOPM runtime when an application has not been compiled
   against libgeopm.so.
 
+* `--geopm-disable-hyperthreads`:
+  Prevent the launcher from trying to use hyperthreads for pinning
+  purposes when attempting to satisfy the MPI ranks / OMP threads
+  configuration specified.  This is done for both the controller and
+  the application.  An error is raised if the launcher cannot satisfy
+  the current request without hyperthreads.
+
 ## EXAMPLES
 
 Use geopmsrun to launch the GEOPM tutorial6 on two nodes using 32
