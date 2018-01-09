@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00b2be9d_7afc017f",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-09T22:53:19Z",
+      "side": 1,
+      "message": "I\u0027m leaving this function as-is for this patch.  I\u0027ve moved the rewrite into a separate patch.",
+      "range": {
+        "startLine": 664,
+        "startChar": 16,
+        "endLine": 666,
+        "endChar": 55
+      },
+      "revId": "c05aa8675e26b98203af5ccae88d5f6a6c1df400",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
