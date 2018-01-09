@@ -56,6 +56,17 @@ class XeonAffinityLauncher(TestAffinityLauncher):
         self.core_per_socket = 22
         self.num_socket = 2
 
+class QuartzAffinityLauncher(TestAffinityLauncher):
+    def __init__(self, argv, num_rank, num_node, cpu_per_rank):
+        argv.append('--geopm-disable-hyperthreads')
+        super(QuartzAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
+
+    def init_topo(self):
+        self.num_linux_cpu = 72
+        self.thread_per_core = 2
+        self.core_per_socket = 18
+        self.num_socket = 2
+
 class KNLAffinityLauncher(TestAffinityLauncher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank):
         super(KNLAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
@@ -182,6 +193,61 @@ class TestAffinity(unittest.TestCase):
         actual = launcher.affinity_list(False)
         expect = [{44}]
         expect.extend([set(range(1, 44))])
+        self.assertEqual(expect, actual)
+
+    def test_affinity_14(self):
+        """
+        The mpibind plugin used on TOSS based systems does not yet support pinning to HTs.  When an
+        app requests num_sockets * num_cores - 1 OMP threads the controller should be pinned to core 0
+        meaning it is shared with the OS.
+        """
+        launcher = QuartzAffinityLauncher(['--geopm-ctl', 'application'], 1, 1, 35)
+        actual = launcher.affinity_list(False)
+        expect = [set(range(1, 36))]
+        self.assertEqual(expect, actual)
+        actual = launcher.affinity_list(True)
+        expect = [{0}]
+        self.assertEqual(expect, actual)
+
+    def test_affinity_15(self):
+        """
+        When the application requests all the physical cores we would normally pin the controller to core
+        0's HT.  Since mpibind does not support HT pinning, oversubscribe core 0.
+        """
+        launcher = QuartzAffinityLauncher(['--geopm-ctl', 'application'], 1, 1, 36)
+        actual = launcher.affinity_list(False)
+        expect = [set(range(0, 36))]
+        self.assertEqual(expect, actual)
+        actual = launcher.affinity_list(True)
+        expect = [{0}]
+        self.assertEqual(expect, actual)
+
+    def test_affinity_16(self):
+        """
+        Similar to test 14, this attempts to utilize 35 execution units (5 ranks * 7 OMP threads).
+        Core 0 should be used for the OS and controller.
+        """
+        launcher = QuartzAffinityLauncher(['--geopm-ctl', 'application'], 5, 1, 7)
+        actual = launcher.affinity_list(False)
+        expect = [{1, 2, 3, 4, 5, 6, 7}, {8, 9, 10, 11, 12, 13, 14}, {15, 16, 17, 18, 19, 20, 21},
+                  {22, 23, 24, 25, 26, 27, 28}, {29, 30, 31, 32, 33, 34, 35}]
+        self.assertEqual(expect, actual)
+        actual = launcher.affinity_list(True)
+        expect = [{0}]
+        self.assertEqual(expect, actual)
+
+    def test_affinity_17(self):
+        """
+        Similar to test 14, this attempts to utilize 35 execution units (7 ranks * 5 OMP threads).
+        Core 0 should be used for the OS and controller.
+        """
+        launcher = QuartzAffinityLauncher(['--geopm-ctl', 'application'], 7, 1, 5)
+        actual = launcher.affinity_list(False)
+        expect = [{1, 2, 3, 4, 5}, {6, 7, 8, 9, 10}, {11, 12, 13, 14, 15}, {16, 17, 18, 19, 20},
+                  {21, 22, 23, 24, 25}, {26, 27, 28, 29, 30}, {31, 32, 33, 34, 35}]
+        self.assertEqual(expect, actual)
+        actual = launcher.affinity_list(True)
+        expect = [{0}]
         self.assertEqual(expect, actual)
 
 if __name__ == '__main__':
