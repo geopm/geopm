@@ -101,7 +101,13 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
                     else {
                         err = -1;
 #ifdef GEOPM_DEBUG
-                        fprintf(stderr,"Error dlopen(): %s\n", dlerror());
+                        const char *dlerr_str = dlerror();
+                        if (dlerr_str) {
+                            fprintf(stderr,"Error dlopen(): %s\n", dlerr_str);
+                        }
+                        else {
+                            fprintf(stderr,"Error dlopen()\n");
+                        }
 #endif
                     }
                 }

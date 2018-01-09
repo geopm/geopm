@@ -61,7 +61,7 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
 
 int main(int argc, char** argv)
 {
-    int opt;
+    int opt = 0;
     int err = 0;
     int exec_mode = 0;
     char file[GEOPMPOLICY_STRING_LENGTH] = {0};
@@ -69,8 +69,8 @@ int main(int argc, char** argv)
     char option_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char copy_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char error_string[GEOPMPOLICY_STRING_LENGTH] = {0};
-    FILE *infile;
-    FILE *outfile;
+    FILE *infile = NULL;
+    FILE *outfile = NULL;
     char *arg_ptr = NULL;
     struct geopm_policy_c *policy = NULL;
 
@@ -230,7 +230,7 @@ int main(int argc, char** argv)
         else {
             //Make sure we are using tempfs to keep these files local to the machine
             if (strncmp(file, "/tmp/", 5)) {
-                if (strlen(file) > (GEOPMPOLICY_STRING_LENGTH - strlen("/tmp/"))) {
+                if (strlen(file) >= (GEOPMPOLICY_STRING_LENGTH - strlen("/tmp/"))) {
                     fprintf(stderr, "Error: Specified file path too long\n");
                     err = EINVAL;
                 }
@@ -246,7 +246,9 @@ int main(int argc, char** argv)
                 }
             }
         }
-        infile = fopen(file, "r");
+        if (!err) {
+            infile = fopen(file, "r");
+        }
         if (infile == NULL) {
             fprintf(stderr, "Error: Cannot open file for reading: %s\n", file);
             err = EINVAL;
@@ -507,4 +509,3 @@ static int _geopm_policy_dict_parse(struct geopm_policy_c *policy, const char *o
 
     return err;
 }
-
