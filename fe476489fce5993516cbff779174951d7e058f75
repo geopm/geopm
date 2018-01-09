@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e18ae2d1_8e5613bf",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-09T23:37:21Z",
+      "side": 1,
+      "message": "suggestion: --geopm-disable-hyperthreads\n-Chris",
+      "range": {
+        "startLine": 253,
+        "startChar": 27,
+        "endLine": 253,
+        "endChar": 48
+      },
+      "revId": "fe476489fce5993516cbff779174951d7e058f75",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d44aba6_69c07e98",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-09T23:37:21Z",
+      "side": 1,
+      "message": "hyperthreads",
+      "range": {
+        "startLine": 1293,
+        "startChar": 54,
+        "endLine": 1293,
+        "endChar": 56
+      },
+      "revId": "fe476489fce5993516cbff779174951d7e058f75",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b72702dd_c7509856",
+        "filename": "scripts/test/TestAffinity.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-09T23:37:21Z",
+      "side": 1,
+      "message": "What\u0027s the difference between this and test 16?",
+      "revId": "fe476489fce5993516cbff779174951d7e058f75",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
