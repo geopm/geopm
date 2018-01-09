@@ -57,16 +57,19 @@ namespace geopm
         public:
             /// @ brief SimpleFreqDecider default constructor.
             SimpleFreqDecider();
+            SimpleFreqDecider(const std::string &cpu_info_path,
+                              const std::string &cpu_freq_min_path,
+                              const std::string &cpu_freq_max_path);
             SimpleFreqDecider(const SimpleFreqDecider &other);
             /// @brief SimpleFreqDecider destructor, virtual.
             virtual ~SimpleFreqDecider();
             virtual IDecider *clone(void) const;
             /// @brief Actual method altering GoverningDecider behavior
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
-        private:
             double cpu_freq_sticker(void);
             double cpu_freq_min(void);
             double cpu_freq_max(void);
+        protected:
             void parse_env_map(void);
             const std::string m_cpu_info_path;
             const std::string m_cpu_freq_min_path;

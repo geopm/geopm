@@ -39,6 +39,7 @@ plugin/GoverningDecider.hpp
 plugin/Makefile.mk
 plugin/MPIComm.cpp
 plugin/MPIComm.hpp
+plugin/MPICommRegister.cpp
 plugin/SimpleFreqDecider.cpp
 plugin/SimpleFreqDecider.hpp
 scripts/geopmaprun
