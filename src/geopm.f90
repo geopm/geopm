@@ -30,6 +30,7 @@
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
+!> @defgroup fortran Fortran interfaces for GEOPM
 module geopm
     use, intrinsic :: ISO_C_BINDING
     implicit none
@@ -48,7 +49,8 @@ module geopm
         !! OBJECT INSTANTIATION !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        !> @brief Fortran interface to geopm_ctl_create C function.
+        !> @brief Fortran interface to @link geopm_ctl.h geopm_ctl_create @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_ctl_create(policy, comm, ctl) bind(C, name="geopm_ctl_create_f")
             import
             implicit none
@@ -57,7 +59,8 @@ module geopm
             type(c_ptr), intent(out) :: ctl
         end function geopm_ctl_create
 
-        !> @brief Fortran interface to geopm_ctl_destroy C function.
+        !> @brief Fortran interface to @link geopm_ctl.h geopm_ctl_destroy @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_ctl_destroy(ctl) bind(C)
             import
             implicit none
@@ -68,14 +71,16 @@ module geopm
         !! POWER MANAGEMENT !!
         !!!!!!!!!!!!!!!!!!!!!!
 
-        !> @brief Fortran interface to geopm_ctl_step C function.
+        !> @brief Fortran interface to @link geopm_ctl.h geopm_ctl_step @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_ctl_step(ctl) bind(C)
             import
             implicit none
             type(c_ptr), value, intent(in) :: ctl
         end function geopm_ctl_step
 
-        !> @brief Fortran interface to geopm_ctl_run C function.
+        !> @brief Fortran interface to @link geopm_ctl.h geopm_ctl_run @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_ctl_run(ctl) bind(C)
             import
             implicit none
@@ -95,7 +100,8 @@ module geopm
         !! APPLICATION PROFILING !!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        !> @brief Fortran interface to geopm_prof_region C function.
+        !> @brief Fortran interface to @link geopm.h geopm_prof_region @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_prof_region(region_name, hint, region_id) bind(C)
             import
             implicit none
@@ -104,21 +110,24 @@ module geopm
             integer(kind=c_int64_t), intent(out) :: region_id
         end function geopm_prof_region
 
-        !> @brief Fortran interface to geopm_prof_enter C function.
+        !> @brief Fortran interface to @link geopm.h geopm_prof_enter @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_prof_enter(region_id) bind(C)
             import
             implicit none
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_enter
 
-        !> @brief Fortran interface to geopm_prof_exit C function.
+        !> @brief Fortran interface to @link geopm.h geopm_prof_exit @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_prof_exit(region_id) bind(C)
             import
             implicit none
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_exit
 
-        !> @brief Fortran interface to geopm_prof_progress C function.
+        !> @brief Fortran interface to @link geopm.h geopm_prof_progress @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_prof_progress(region_id, fraction) bind(C)
             import
             implicit none
@@ -126,13 +135,15 @@ module geopm
             real(kind=c_double), value, intent(in) :: fraction
         end function geopm_prof_progress
 
-        !> @brief Fortran interface to geopm_prof_epoch C function.
+        !> @brief Fortran interface to @link geopm.h geopm_prof_epoch @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_prof_epoch() bind(C)
             import
             implicit none
         end function geopm_prof_epoch
 
-        !> @brief Fortran interface to geopm_tprof_init_loop C function.
+        !> @brief Fortran interface to @link geopm.h geopm_tprof_init_loop @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_tprof_init_loop(num_thread, thread_idx, num_iter, chunk_size) bind(C)
             import
             implicit none
@@ -142,14 +153,16 @@ module geopm
             integer(kind=c_size_t), value, intent(in) :: chunk_size
         end function geopm_tprof_init_loop
 
-        !> @brief Fortran interface to geopm_tprof_init C function.
+        !> @brief Fortran interface to @link geopm.h geopm_tprof_init @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_tprof_init(num_work_unit) bind(C)
             import
             implicit none
             integer(kind=c_int32_t), value, intent(in) :: num_work_unit
         end function geopm_tprof_init
 
-        !> @brief Fortran interface to geopm_tprof_post C function.
+        !> @brief Fortran interface to @link geopm.h geopm_tprof_post @endlink C function.
+        !> @ingroup fortran
         integer(kind=c_int) function geopm_tprof_post() bind(C)
             import
             implicit none
