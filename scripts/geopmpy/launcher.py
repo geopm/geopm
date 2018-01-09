@@ -250,6 +250,7 @@ class Config(object):
         parser.add_option('--geopm-debug-attach', dest='debug_attach', nargs=1, type='string')
         parser.add_option('--geopm-barrier', dest='barrier', action='store_true', default=False)
         parser.add_option('--geopm-preload', dest='preload', action='store_true', default=False)
+        parser.add_option('--geopm-disable-hyperthreads', dest='allow_ht_pinning', action='store_false', default=True)
 
         opts, self.argv_unparsed = parser.parse_args(argv)
         # Error check inputs
@@ -269,6 +270,7 @@ class Config(object):
         self.barrier = opts.barrier
         self.preload = opts.preload
         self.omp_num_threads = None
+        self.allow_ht_pinning = opts.allow_ht_pinning
 
     def __repr__(self):
         """
@@ -618,6 +620,9 @@ class Launcher(object):
 
         if app_thread_per_core > self.thread_per_core or app_rank_per_node > core_per_node:
             raise RuntimeError('Cores cannot be shared between MPI ranks')
+        if not self.config.allow_ht_pinning and app_thread_per_core > 1:
+            raise RuntimeError('Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'
+                               ' --geopm-disable-hyperthreads.')
         if app_cpu_per_node > self.num_linux_cpu:
             raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
 
@@ -661,7 +666,7 @@ class Launcher(object):
 
         if core_index <= 0:
             sys.stderr.write("Warning: User requested all cores for application. ")
-            if core_per_node * app_thread_per_core < self.num_linux_cpu:
+            if self.config.allow_ht_pinning and core_per_node * app_thread_per_core < self.num_linux_cpu:
                 sys.stderr.write("GEOPM controller will share a core with the application.\n")
                 # Run controller on the lowest hyperthread that is not
                 # occupied by the application
@@ -1288,6 +1293,7 @@ GEOPM options:
       --geopm-barrier         apply node local barriers when application enters
                               or exits a geopm region
       --geopm-preload         use LD_PRELOAD to link libgeopm.so at runtime
+      --geopm-disable-hyperthreads   do not allow pinning to HTs
 
 """
 
