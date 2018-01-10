@@ -62,6 +62,24 @@
       "revId": "fe476489fce5993516cbff779174951d7e058f75",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d524c73a_0881c732",
+        "filename": "scripts/test/TestAffinity.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-10T01:27:12Z",
+      "side": 1,
+      "message": "I meant to switch the 5 and 7 around for this test.  Nice catch.",
+      "parentUuid": "b72702dd_c7509856",
+      "revId": "fe476489fce5993516cbff779174951d7e058f75",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
