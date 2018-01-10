@@ -38,16 +38,12 @@
 #include <dirent.h>
 #include <sys/mman.h>
 #include <signal.h>
-
+#include <limits.h>
 
 #include "Exception.hpp"
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "config.h"
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
 
 extern "C"
 {

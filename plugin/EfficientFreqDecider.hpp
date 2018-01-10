@@ -35,12 +35,12 @@
 
 #include <memory>
 
-#include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
 
 namespace geopm
 {
     class EfficientFreqRegion;
+    class IDecider;
 
     /// @brief Energy efficient implementation of a binary frequency decider.
     ///
