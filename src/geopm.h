@@ -34,6 +34,7 @@
 #define GEOPM_H_INCLUDE
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "geopm_policy.h"
 

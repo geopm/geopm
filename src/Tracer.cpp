@@ -35,15 +35,12 @@
 #include <sstream>
 #include <iostream>
 #include <string.h>
+#include <limits.h>
 
 #include "Tracer.hpp"
 #include "Exception.hpp"
 #include "geopm_env.h"
 #include "config.h"
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
 
 namespace geopm
 {
