@@ -43,6 +43,11 @@ extern const char *program_invocation_name;
 #include "geopm_env.h"
 #include "Exception.hpp"
 
+extern "C"
+{
+    void geopm_env_load(void);
+}
+
 class EnvironmentTest: public :: testing :: Test
 {
     protected:
@@ -118,6 +123,8 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
 
+    geopm_env_load();
+
     EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
     EXPECT_EQ("/" + m_shmkey, std::string(geopm_env_shmkey()));
     EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
@@ -150,6 +157,8 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     //setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
     m_profile = program_invocation_name;
+
+    geopm_env_load();
 
     std::string default_shmkey("/geopm-shm-" + std::to_string(geteuid()));
     EXPECT_EQ(m_policy, std::string(geopm_env_policy()));

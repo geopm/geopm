@@ -46,11 +46,13 @@ libgeopmpi_governing_la_SOURCES = plugin/GoverningDecider.cpp \
 
 pkglib_LTLIBRARIES += libgeopmpi_balancing.la
 libgeopmpi_balancing_la_SOURCES = plugin/BalancingDecider.cpp \
+                                  plugin/BalancingDeciderRegister.cpp \
                                   plugin/BalancingDecider.hpp \
                                   # end
 
 pkglib_LTLIBRARIES += libgeopmpi_efficientfreq.la
 libgeopmpi_efficientfreq_la_SOURCES = plugin/EfficientFreqDecider.cpp \
+                                      plugin/EfficientFreqDeciderRegister.cpp \
                                       plugin/EfficientFreqDecider.hpp \
                                       plugin/EfficientFreqRegion.hpp \
                                       plugin/EfficientFreqRegion.cpp \
