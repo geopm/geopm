@@ -40,7 +40,6 @@
 #include "geopm_plugin.h"
 #include "geopm_message.h"
 
-
 namespace json11 {
     class Json;
 }
