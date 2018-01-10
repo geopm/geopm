@@ -31,13 +31,11 @@
  */
 
 #include <stdlib.h>
+#include <limits.h>
+
 #include "mpi.h"
 #include "gtest/gtest.h"
 #include "geopm.h"
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
 
 int main(int argc, char **argv)
 {

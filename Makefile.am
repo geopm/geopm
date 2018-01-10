@@ -299,6 +299,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
                             src/Region.hpp \
+                            src/RuntimeRegister.cpp \
                             src/RuntimeRegulator.cpp \
                             src/RuntimeRegulator.hpp \
                             src/SampleRegulator.cpp \

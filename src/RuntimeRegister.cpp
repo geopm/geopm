@@ -30,14 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "DeciderFactory.hpp"
-#include "GoverningDecider.hpp"
+#include "geopm_plugin.h"
 #include "Exception.hpp"
 
-void __attribute__((constructor)) governing_decider_plugin_init()
+static void __attribute__((constructor)) geopm_runtime_init()
 {
     try {
-        geopm::DeciderFactory::decider_factory().register_decider(new geopm::GoverningDecider);
+        geopm_plugin_load();
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());
