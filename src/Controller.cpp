@@ -71,6 +71,7 @@
 #include "Tracer.hpp"
 #include "Region.hpp"
 #include "OMPT.hpp"
+#include "PlatformIO.hpp"
 #include "RuntimeRegulator.hpp"
 #include "config.h"
 
