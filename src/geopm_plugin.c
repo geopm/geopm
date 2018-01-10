@@ -92,7 +92,12 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
                     if (plugin != NULL) {
                         register_func = (int (*)(int, struct geopm_factory_c *, void *)) dlsym(plugin, "geopm_plugin_register");
                         if (register_func != NULL) {
-                            err = register_func(plugin_type, factory, plugin);
+                            int register_err = register_func(plugin_type, factory, plugin);
+                            if (register_err) {
+#ifdef GEOPM_DEBUG
+                                fprintf(stderr, "Warning: failed to register one or more plugins from %s.\n", file->fts_path);
+#endif
+                            }
                         }
                         else {
                             dlclose(plugin);
