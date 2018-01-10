@@ -36,7 +36,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <limits.h>
 
 #include "gtest/gtest.h"
 #include "TreeCommunicator.hpp"
@@ -44,10 +44,6 @@
 #include "GlobalPolicy.hpp"
 #include "geopm_policy.h"
 #include "Exception.hpp"
-
-#ifndef NAME_MAX
-#define NAME_MAX 256
-#endif
 
 class MPITreeCommunicatorTest: public :: testing :: Test
 {

@@ -31,13 +31,13 @@
  */
 
 #include "DeciderFactory.hpp"
-#include "GoverningDecider.hpp"
+#include "BalancingDecider.hpp"
 #include "Exception.hpp"
 
-void __attribute__((constructor)) governing_decider_plugin_init()
+void __attribute__((constructor)) balancing_decider_plugin_init()
 {
     try {
-        geopm::DeciderFactory::decider_factory().register_decider(new geopm::GoverningDecider);
+        geopm::DeciderFactory::decider_factory().register_decider(new geopm::BalancingDecider);
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());
