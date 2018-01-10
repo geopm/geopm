@@ -33,13 +33,10 @@
 #ifndef KNLPLATFORMIMP_HPP_INCLUDE
 #define KNLPLATFORMIMP_HPP_INCLUDE
 
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
-
 #include <sys/types.h>
 #include <stdint.h>
 #include <vector>
+#include <limits.h>
 #include <map>
 #include <string>
 
