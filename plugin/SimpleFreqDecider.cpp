@@ -40,7 +40,6 @@
 
 #include "geopm.h"
 #include "geopm_message.h"
-#include "geopm_plugin.h"
 #include "geopm_hash.h"
 #include "geopm_sched.h"
 
@@ -49,23 +48,6 @@
 #include "Exception.hpp"
 #include "Region.hpp"
 #include "AdaptiveFreqRegion.hpp"
-
-int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
-{
-    int err = 0;
-
-    try {
-        if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
-            geopm::IDecider *decider = new geopm::SimpleFreqDecider;
-            geopm_factory_register(factory, decider, dl_ptr);
-        }
-    }
-    catch (...) {
-        err = geopm::exception_handler(std::current_exception());
-    }
-
-    return err;
-}
 
 namespace geopm
 {
