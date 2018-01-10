@@ -30,35 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
-#include <iostream>
-
-#include "gtest/gtest.h"
-#include "geopm_error.h"
-#include "geopm_plugin.h"
-#include "Exception.hpp"
 #include "DeciderFactory.hpp"
+#include "SimpleFreqDecider.hpp"
 
-class DeciderFactoryTest: public :: testing :: Test
+static void __attribute__((constructor)) simple_freq_decider_plugin_init()
 {
-    protected:
-        void SetUp();
-};
-
-void DeciderFactoryTest::SetUp()
-{
-}
-
-TEST_F(DeciderFactoryTest, no_supported_decider)
-{
-    geopm::IDecider *d = NULL;
-    int thrown = 0;
-    try {
-        d = geopm::DeciderFactory::decider_factory().decider("doesntexist");
-    }
-    catch (geopm::Exception e) {
-        thrown = e.err_value();
-    }
-    ASSERT_EQ(NULL, d);
-    EXPECT_EQ(GEOPM_ERROR_DECIDER_UNSUPPORTED, thrown);
+    geopm::DeciderFactory::decider_factory().register_decider(new geopm::SimpleFreqDecider);
 }

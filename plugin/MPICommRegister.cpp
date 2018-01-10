@@ -30,27 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_plugin.h"
-#include "Comm.hpp"
 #include "MPIComm.hpp"
-#include "Exception.hpp"
-#include "config.h"
 
-extern "C"
+static void __attribute__((constructor)) mpi_comm_plugin_init()
 {
-    int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
-    {
-        int err = 0;
-
-        try {
-            if (plugin_type == GEOPM_PLUGIN_TYPE_COMM) {
-                geopm_factory_register(factory, geopm::MPIComm::get_comm(), dl_ptr);
-            }
-        }
-        catch(...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-
-        return err;
-    }
+    geopm::CommFactory::comm_factory().register_comm(new geopm::MPIComm);
 }
+
