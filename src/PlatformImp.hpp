@@ -33,13 +33,10 @@
 #ifndef PLATFORMIMP_HPP_INCLUDE
 #define PLATFORMIMP_HPP_INCLUDE
 
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
-
 #include <sys/types.h>
 #include <stdint.h>
 #include <vector>
+#include <limits.h>
 #include <map>
 #include <utility>
 #include <string>
