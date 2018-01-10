@@ -83,7 +83,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
-              test/gtest_links/DeciderFactoryTest.decider_register \
               test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/RegionTest.identifier \
               test/gtest_links/RegionTest.sample_message \
@@ -120,11 +119,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PolicyTest.converged \
               test/gtest_links/PolicyTest.negative_unsized_vector \
               test/gtest_links/PolicyTest.negative_index_oob \
+              test/gtest_links/BalancingDeciderTest.plugin \
               test/gtest_links/BalancingDeciderTest.name \
               test/gtest_links/BalancingDeciderTest.clone \
               test/gtest_links/BalancingDeciderTest.supported \
               test/gtest_links/BalancingDeciderTest.new_policy_message \
               test/gtest_links/BalancingDeciderTest.update_policy \
+              test/gtest_links/GoverningDeciderTest.plugin \
               test/gtest_links/GoverningDeciderTest.decider_is_supported \
               test/gtest_links/GoverningDeciderTest.name \
               test/gtest_links/GoverningDeciderTest.clone \
@@ -132,6 +133,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
+              test/gtest_links/EfficientFreqDeciderTest.plugin \
               test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info0 \
               test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info1 \
               test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info2 \
@@ -248,12 +250,16 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/RegionTest.cpp \
                           test/PolicyTest.cpp \
                           plugin/BalancingDecider.hpp \
+                          plugin/BalancingDecider.cpp \
+                          plugin/BalancingDeciderRegister.cpp \
                           test/BalancingDeciderTest.cpp \
                           plugin/GoverningDecider.hpp \
+                          plugin/GoverningDecider.cpp \
+                          plugin/GoverningDeciderRegister.cpp \
                           test/GoverningDeciderTest.cpp \
                           plugin/EfficientFreqDecider.hpp \
                           plugin/EfficientFreqDecider.cpp \
-                          plugin/GoverningDecider.cpp \
+                          plugin/EfficientFreqDeciderRegister.cpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
                           test/EfficientFreqDeciderTest.cpp \

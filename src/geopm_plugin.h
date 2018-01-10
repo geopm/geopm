@@ -70,7 +70,7 @@ struct geopm_plugin_description_s {
            specified. */
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr);
 
-int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
+int geopm_plugin_load();
 #ifdef __cplusplus
 }
 
