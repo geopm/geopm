@@ -42,7 +42,7 @@
 #include "GoverningDecider.hpp"
 #include "Region.hpp"
 #include "Policy.hpp"
-
+#include "GoverningDeciderRegister.cpp"
 
 class GoverningDeciderTest: public :: testing :: Test
 {
@@ -51,15 +51,11 @@ class GoverningDeciderTest: public :: testing :: Test
     void TearDown();
     void run_param_case(double budget, double pkg_power, double dram_power, int num_sockets);
     geopm::IDecider *m_decider;
-    geopm::DeciderFactory *m_fact;
 };
 
 void GoverningDeciderTest::SetUp()
 {
-    setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
-    m_fact = new geopm::DeciderFactory();
-    m_decider = NULL;
-    m_decider = m_fact->decider("power_governing");
+    m_decider = new geopm::GoverningDecider();
 }
 
 void GoverningDeciderTest::TearDown()
@@ -67,12 +63,15 @@ void GoverningDeciderTest::TearDown()
     if (m_decider) {
         delete m_decider;
     }
-    if (m_fact) {
-        delete m_fact;
-    }
 }
 
 /// @todo: Add test where domains have imbalanced power consumption.
+
+TEST_F(GoverningDeciderTest, plugin)
+{
+    governing_decider_plugin_init();
+    EXPECT_TRUE(std::string("power_governing") == geopm::DeciderFactory::decider_factory().decider("power_governing")->name());
+}
 
 TEST_F(GoverningDeciderTest, decider_is_supported)
 {
