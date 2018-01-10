@@ -36,7 +36,6 @@
 #include <vector>
 
 #include "geopm_message.h"
-#include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
 #include "Policy.hpp"
 #include "Region.hpp"
