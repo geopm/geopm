@@ -34,7 +34,6 @@
 #define BALANCING_DECIDER_HPP_INCLUDE
 
 #include "Decider.hpp"
-#include "geopm_plugin.h"
 
 namespace geopm
 {
