@@ -35,6 +35,7 @@
 #include <fstream>
 #include <system_error>
 #include <sys/stat.h>
+#include <limits.h>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
@@ -44,10 +45,6 @@
 #define NUM_CPU 16
 #define NUM_TILE 4
 #define NUM_PACKAGE 2
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
 
 static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map(void);
 static const std::map<std::string, std::pair<off_t, unsigned long> > &test_msr_map2(void);

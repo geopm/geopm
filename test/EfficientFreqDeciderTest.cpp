@@ -39,9 +39,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_hash.h"
-
 #include "Decider.hpp"
 #include "EfficientFreqDecider.hpp"
+#include "DeciderFactory.hpp"
+#include "EfficientFreqDeciderRegister.cpp"
 
 #include "MockRegion.hpp"
 #include "MockPolicy.hpp"
@@ -112,6 +113,12 @@ void EfficientFreqDeciderTest::TearDown()
     std::remove(cpufreq_min_path.c_str());
     std::remove(cpufreq_max_path.c_str());
     std::remove(cpuinfo_path.c_str());
+}
+
+TEST_F(EfficientFreqDeciderTest, plugin)
+{
+    efficient_freq_decider_plugin_init();
+    EXPECT_TRUE(std::string("efficient_freq") == geopm::DeciderFactory::decider_factory().decider("efficient_freq")->name());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info0)

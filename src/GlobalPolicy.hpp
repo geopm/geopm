@@ -37,7 +37,8 @@
 #include <fstream>
 #include <memory>
 
-#include "geopm_plugin.h"
+#include "geopm.h"
+#include "geopm_message.h"
 #include "PolicyFlags.hpp"
 
 namespace json11 {

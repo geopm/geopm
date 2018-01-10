@@ -29,8 +29,10 @@ geopm-ohpc.spec.in
 Makefile.am
 openmp.mk
 plugin/BalancingDecider.cpp
+plugin/BalancingDeciderRegister.cpp
 plugin/BalancingDecider.hpp
 plugin/EfficientFreqDecider.cpp
+plugin/EfficientFreqDeciderRegister.cpp
 plugin/EfficientFreqDecider.hpp
 plugin/EfficientFreqRegion.cpp
 plugin/EfficientFreqRegion.hpp
@@ -86,8 +88,6 @@ src/geopm_message.c
 src/geopm_message.h
 src/MPICommSplit.cpp
 src/geopm_mpi_comm_split.h
-src/geopm_plugin.c
-src/geopm_plugin.h
 src/geopm_pmpi.c
 src/geopm_pmpi_fortran.c
 src/geopm_pmpi.h
@@ -216,10 +216,6 @@ test/PlatformIOTest.cpp
 test/PlatformImpTest.cpp
 test/PlatformImpTest.cpp
 test/PlatformTopologyTest.cpp
-test/plugin/Makefile.mk
-test/plugin/TestPluginApp.cpp
-test/plugin/TestPlugin.cpp
-test/plugin/TestPlugin.hpp
 test/pmpi_mock.c
 test/PolicyTest.cpp
 test/ProfileTableTest.cpp

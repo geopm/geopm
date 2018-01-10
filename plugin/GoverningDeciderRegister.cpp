@@ -30,23 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm_plugin.h"
+#include "DeciderFactory.hpp"
 #include "GoverningDecider.hpp"
-#include "Exception.hpp"
 
-int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
+static void __attribute__((constructor)) governing_decider_plugin_init()
 {
-    int err = 0;
-
-    try {
-        if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
-            geopm::IDecider *decider = new geopm::GoverningDecider;
-            geopm_factory_register(factory, decider, dl_ptr);
-        }
-    }
-    catch(...) {
-        err = geopm::exception_handler(std::current_exception());
-    }
-
-    return err;
+    geopm::DeciderFactory::decider_factory().register_decider(new geopm::GoverningDecider);
 }
