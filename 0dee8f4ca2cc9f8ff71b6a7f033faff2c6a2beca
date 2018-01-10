@@ -16,6 +16,24 @@
       "revId": "0dee8f4ca2cc9f8ff71b6a7f033faff2c6a2beca",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "047ac8b0_56aff81b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-10T19:56:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdc626e0_71a4bf7a",
+      "revId": "0dee8f4ca2cc9f8ff71b6a7f033faff2c6a2beca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
