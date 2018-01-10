@@ -169,6 +169,7 @@ void RegionTest::SetUp()
 void RegionTest::TearDown()
 {
     delete m_tree_region;
+    delete m_measured_region;
     delete m_two_point_region;
     delete m_leaf_region;
 }
