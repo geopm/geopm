@@ -51,8 +51,6 @@ namespace geopm
     class IDeciderFactory
     {
         public:
-            IDeciderFactory() {}
-            IDeciderFactory(const IDeciderFactory &other) {}
             virtual ~IDeciderFactory() {}
             /// @brief Returns an abstract Decider pointer to a concrete decider.
             ///
@@ -68,12 +66,21 @@ namespace geopm
             ///
             /// @param [in] decider Pointer to a Decider object.
             /// @param [in] dl_ptr The handle returned by dlopen().
-            virtual void register_decider(IDecider *decider, void *dl_ptr) = 0;
+            virtual void register_decider(IDecider *decider) = 0;
+        protected:
+            IDeciderFactory() {}
+            IDeciderFactory(const IDeciderFactory &other) {}
     };
 
     class DeciderFactory : public IDeciderFactory
     {
         public:
+            /// @brief DeciderFactory destructor, virtual.
+            virtual ~DeciderFactory();
+            IDecider *decider(const std::string &description);
+            void register_decider(IDecider *decider);
+            static DeciderFactory &decider_factory();
+        protected:
             /// @brief DeciderFactory default constructor.
             DeciderFactory();
             /// @brief DeciderFactory testing constructor.
@@ -83,16 +90,9 @@ namespace geopm
             /// It is intended to be used for testing.
             /// @param [in] decider The pointer to a Decider object.
             DeciderFactory(IDecider *decider);
-            /// @brief DeciderFactory destructor, virtual.
-            virtual ~DeciderFactory();
-            IDecider *decider(const std::string &description);
-            void register_decider(IDecider *decider, void *dl_ptr);
-        private:
             /// @brief Holds all registered concrete Decider instances.
             std::list<IDecider*> m_decider_list;
-            std::list<void *> m_dl_ptr_list;
     };
 
 }
-
 #endif

@@ -35,9 +35,9 @@
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
+#include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "DeciderFactory.hpp"
-
 
 class DeciderFactoryTest: public :: testing :: Test
 {
@@ -47,30 +47,14 @@ class DeciderFactoryTest: public :: testing :: Test
 
 void DeciderFactoryTest::SetUp()
 {
-    setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
-}
-
-TEST_F(DeciderFactoryTest, decider_register)
-{
-    geopm::DeciderFactory factory;
-    std::string dname("power_governing");
-    geopm::IDecider *d = factory.decider(dname);
-    ASSERT_FALSE(d == NULL);
-
-    std::string ans = d->name();
-    ASSERT_FALSE(ans.empty());
-    EXPECT_EQ(0, ans.compare(dname));
-
-    delete d;
 }
 
 TEST_F(DeciderFactoryTest, no_supported_decider)
 {
-    geopm::DeciderFactory factory;
-    geopm::IDecider* d = NULL;
+    geopm::IDecider *d = NULL;
     int thrown = 0;
     try {
-        d = factory.decider("doesntexist");
+        d = geopm::DeciderFactory::decider_factory().decider("doesntexist");
     }
     catch (geopm::Exception e) {
         thrown = e.err_value();

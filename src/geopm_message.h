@@ -32,6 +32,7 @@
 
 #ifndef GEOPM_MESSAGE_H_INCLUDE
 #define GEOPM_MESSAGE_H_INCLUDE
+#include <limits.h>
 #include <pthread.h>
 #include <stdint.h>
 
@@ -39,10 +40,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
 #endif
 
 // Region id enums go from bit 63 and work their way down.

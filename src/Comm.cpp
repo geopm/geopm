@@ -37,62 +37,29 @@
 #include <dlfcn.h>
 #include <list>
 
-#include "geopm_plugin.h"
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "config.h"
 
 namespace geopm
 {
-    /// @brief Factory object exposing IComm implementation instances.
-    ///
-    /// The CommFactory exposes the constructors for all implementations of the IComm
-    /// pure virtual base class.  The factory, if possible, news an instance of IComm
-    /// and it is the caller's responsibility to delete the object when no longer needed.
-    class CommFactory
-    {
-        public:
-            static const CommFactory* getInstance();
-            /// @brief CommFactory destructor, virtual.
-            virtual ~CommFactory();
-            virtual void register_comm_imp(const IComm *in_comm, void *dl_ptr);
-            virtual const IComm *get_comm(const std::string &description) const;
-        protected:
-            /// @brief CommFactory default constructor.
-            CommFactory();
-            std::list<const IComm *> m_comm_imps;
-            std::list<void *> m_comm_dls;
-    };
-
-    const IComm* geopm_get_comm(const std::string &description)
-    {
-        return CommFactory::getInstance()->get_comm(description);
-    }
-
-    const CommFactory* CommFactory::getInstance()
-    {
-        static CommFactory instance;
-        return &instance;
-    }
-
     CommFactory::CommFactory()
     {
-        geopm_plugin_load(GEOPM_PLUGIN_TYPE_COMM, (struct geopm_factory_c *)this);
     }
 
     CommFactory::~CommFactory()
     {
-        for (auto dl_ptr : m_comm_dls) {
-            dlclose(dl_ptr);
-        }
     }
 
-    void CommFactory::register_comm_imp(const IComm *in_comm, void *dl_ptr)
+    CommFactory &CommFactory::comm_factory()
+    {
+        static CommFactory instance;
+        return instance;
+    }
+
+    void CommFactory::register_comm(const IComm *in_comm)
     {
         m_comm_imps.push_back(in_comm);
-        if (dl_ptr) {
-            m_comm_dls.push_back(dl_ptr);
-        }
     }
 
     const IComm* CommFactory::get_comm(const std::string &description) const
@@ -109,13 +76,4 @@ namespace geopm
 
         return NULL;
     }
-}
-
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr)
-{
-    geopm::CommFactory *fact_obj = (geopm::CommFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    fact_obj->register_comm_imp(in_comm, dl_ptr);
 }
