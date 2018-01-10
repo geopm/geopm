@@ -52,47 +52,34 @@ namespace geopm
     class CommFactory
     {
         public:
-            static const CommFactory* getInstance();
+            static CommFactory &getInstance();
             /// @brief CommFactory destructor, virtual.
             virtual ~CommFactory();
-            virtual void register_comm_imp(const IComm *in_comm, void *dl_ptr);
+            virtual void register_comm_imp(const IComm *in_comm);
             virtual const IComm *get_comm(const std::string &description) const;
         protected:
             /// @brief CommFactory default constructor.
             CommFactory();
             std::list<const IComm *> m_comm_imps;
-            std::list<void *> m_comm_dls;
     };
 
-    const IComm* geopm_get_comm(const std::string &description)
-    {
-        return CommFactory::getInstance()->get_comm(description);
-    }
-
-    const CommFactory* CommFactory::getInstance()
+    CommFactory &CommFactory::getInstance()
     {
         static CommFactory instance;
-        return &instance;
+        return instance;
     }
 
     CommFactory::CommFactory()
     {
-        geopm_plugin_load(GEOPM_PLUGIN_TYPE_COMM, (struct geopm_factory_c *)this);
     }
 
     CommFactory::~CommFactory()
     {
-        for (auto dl_ptr : m_comm_dls) {
-            dlclose(dl_ptr);
-        }
     }
 
-    void CommFactory::register_comm_imp(const IComm *in_comm, void *dl_ptr)
+    void CommFactory::register_comm_imp(const IComm *in_comm)
     {
         m_comm_imps.push_back(in_comm);
-        if (dl_ptr) {
-            m_comm_dls.push_back(dl_ptr);
-        }
     }
 
     const IComm* CommFactory::get_comm(const std::string &description) const
@@ -111,11 +98,13 @@ namespace geopm
     }
 }
 
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr)
+const geopm::IComm *geopm_get_comm(const std::string &description)
 {
-    geopm::CommFactory *fact_obj = (geopm::CommFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    fact_obj->register_comm_imp(in_comm, dl_ptr);
+    return geopm::CommFactory::getInstance().get_comm(description);
 }
+
+void geopm_comm_plugin_register(geopm::IComm *comm)
+{
+    geopm::CommFactory::getInstance().register_comm_imp(comm);
+}
+

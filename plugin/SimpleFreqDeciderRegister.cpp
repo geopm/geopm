@@ -30,40 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_PLUGIN_H_INCLUDE
-#define GEOPM_PLUGIN_H_INCLUDE
+#include "geopm_plugin.h"
+#include "SimpleFreqDecider.hpp"
 
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*! @brief Opaque C structure that is a handle for a specific Factory
-           object. */
-struct geopm_factory_c;
-
-/// @brief Structure holding plugin selection strings.
-struct geopm_plugin_description_s {
-    // @brief tree decider description
-    char tree_decider[NAME_MAX];
-    /// @brief leaf decider description
-    char leaf_decider[NAME_MAX];
-    /// @brief platform description
-    char platform[NAME_MAX];
-};
-#ifdef __cplusplus
+static void __attribute__((constructor)) simple_freq_decider_plugin_init()
+{
+    geopm_decider_plugin_register(new geopm::SimpleFreqDecider);
 }
-
-#include "Decider.hpp"
-#include "Platform.hpp"
-#include "PlatformImp.hpp"
-#include "Comm.hpp"
-
-void geopm_decider_plugin_register(geopm::IDecider *decider);
-void geopm_comm_plugin_register(geopm::IComm *comm);
-
-#endif
-#endif

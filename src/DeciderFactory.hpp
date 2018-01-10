@@ -50,9 +50,10 @@ namespace geopm
     /// on destruction.
     class IDeciderFactory
     {
-        public:
+        protected:
             IDeciderFactory() {}
             IDeciderFactory(const IDeciderFactory &other) {}
+        public:
             virtual ~IDeciderFactory() {}
             /// @brief Returns an abstract Decider pointer to a concrete decider.
             ///
@@ -68,12 +69,12 @@ namespace geopm
             ///
             /// @param [in] decider Pointer to a Decider object.
             /// @param [in] dl_ptr The handle returned by dlopen().
-            virtual void register_decider(IDecider *decider, void *dl_ptr) = 0;
+            virtual void register_decider(IDecider *decider) = 0;
     };
 
     class DeciderFactory : public IDeciderFactory
     {
-        public:
+        protected:
             /// @brief DeciderFactory default constructor.
             DeciderFactory();
             /// @brief DeciderFactory testing constructor.
@@ -83,16 +84,19 @@ namespace geopm
             /// It is intended to be used for testing.
             /// @param [in] decider The pointer to a Decider object.
             DeciderFactory(IDecider *decider);
+        public:
             /// @brief DeciderFactory destructor, virtual.
             virtual ~DeciderFactory();
             IDecider *decider(const std::string &description);
-            void register_decider(IDecider *decider, void *dl_ptr);
+            void register_decider(IDecider *decider);
+            static DeciderFactory &getInstance();
         private:
             /// @brief Holds all registered concrete Decider instances.
             std::list<IDecider*> m_decider_list;
-            std::list<void *> m_dl_ptr_list;
     };
 
 }
+
+geopm::IDeciderFactory &geopm_get_decider_factory();
 
 #endif

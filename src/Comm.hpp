@@ -200,7 +200,7 @@ namespace geopm
 
     // User must not delete the returned instance from this call,
     // but all IComms created from this instance must be memory managed by
-    const IComm* geopm_get_comm(const std::string &description);
+    const IComm *geopm_get_comm(const std::string &description);
 }
 
 #endif

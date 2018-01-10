@@ -37,6 +37,7 @@
 #include "Exception.hpp"
 #include "DeciderFactory.hpp"
 #include "BalancingDecider.hpp"
+#include "BalancingDeciderRegister.cpp"
 
 class BalancingDeciderTest: public :: testing :: Test
 {
@@ -47,20 +48,17 @@ class BalancingDeciderTest: public :: testing :: Test
         geopm::PolicyFlags *m_flags;
         geopm::Policy *m_policy;
         geopm::Region *m_region;
-        geopm::DeciderFactory *m_fact;
         struct geopm_policy_message_s m_policy_message;
         const int m_num_domain = 8;
 };
 
 void BalancingDeciderTest::SetUp()
 {
-    setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
-    m_fact = new geopm::DeciderFactory();
     m_balancer = NULL;
     m_flags = NULL;
     m_policy = NULL;
     m_region = NULL;
-    m_balancer = m_fact->decider("power_balancing");
+    m_balancer = new geopm::BalancingDecider();
     m_flags = new geopm::PolicyFlags(0);
     m_policy = new geopm::Policy(m_num_domain);
     m_region = new geopm::Region(GEOPM_REGION_ID_EPOCH, m_num_domain, 1, NULL);
@@ -107,9 +105,12 @@ void BalancingDeciderTest::TearDown()
     if (m_balancer) {
         delete m_balancer;
     }
-    if (m_fact) {
-        delete m_fact;
-    }
+}
+
+TEST_F(BalancingDeciderTest, plugin)
+{
+    balancing_decider_plugin_init();
+    EXPECT_TRUE(std::string("power_balancing") == geopm_get_decider_factory().decider("power_balancing")->name());
 }
 
 TEST_F(BalancingDeciderTest, name)
