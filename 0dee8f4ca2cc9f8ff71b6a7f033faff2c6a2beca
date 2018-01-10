@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdc626e0_71a4bf7a",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-10T02:11:25Z",
+      "side": 1,
+      "message": "Add doc to man pages, and disable *all* use of hypertheads, not just for controller placement.",
+      "revId": "0dee8f4ca2cc9f8ff71b6a7f033faff2c6a2beca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
