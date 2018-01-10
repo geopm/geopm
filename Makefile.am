@@ -65,7 +65,6 @@ include_HEADERS = src/geopm.h \
                   src/geopm_policy.h \
                   src/geopm_message.h \
                   src/geopm_version.h \
-                  src/geopm_plugin.h \
                   # end
 
 if ENABLE_MPI
@@ -304,8 +303,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/geopm_hash.h \
                             src/geopm_message.c \
                             src/geopm_message.h \
-                            src/geopm_plugin.c \
-                            src/geopm_plugin.h \
                             src/geopm_policy.h \
                             src/geopm_time.h \
                             src/geopm_sched.c \
@@ -401,8 +398,6 @@ if ENABLE_MPI
                           src/geopm_hash.h \
                           src/geopm_message.c \
                           src/geopm_message.h \
-                          src/geopm_plugin.c \
-                          src/geopm_plugin.h \
                           src/geopm_pmpi.h \
                           src/geopm_pmpi.c \
                           src/geopm_signal_handler.h \
