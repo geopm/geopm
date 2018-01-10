@@ -35,6 +35,7 @@
 
 #include <vector>
 #include <string>
+#include <list>
 
 namespace geopm
 {
@@ -198,9 +199,24 @@ namespace geopm
             virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const = 0;
     };
 
-    // User must not delete the returned instance from this call,
-    // but all IComms created from this instance must be memory managed by
-    const IComm* geopm_get_comm(const std::string &description);
+    /// @brief Factory object exposing IComm implementation instances.
+    ///
+    /// The CommFactory exposes the constructors for all implementations of the IComm
+    /// pure virtual base class.  The factory, if possible, news an instance of IComm
+    /// and it is the caller's responsibility to delete the object when no longer needed.
+    class CommFactory
+    {
+        public:
+            static CommFactory &comm_factory();
+            /// @brief CommFactory destructor, virtual.
+            virtual ~CommFactory();
+            virtual void register_comm(const IComm *in_comm);
+            virtual const IComm *get_comm(const std::string &description) const;
+        protected:
+            /// @brief CommFactory default constructor.
+            CommFactory();
+            std::list<const IComm *> m_comm_imps;
+    };
 }
 
 #endif

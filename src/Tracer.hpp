@@ -38,7 +38,7 @@
 #include <vector>
 #include <sstream>
 
-#include <geopm_message.h>
+#include "geopm_message.h"
 
 namespace geopm
 {

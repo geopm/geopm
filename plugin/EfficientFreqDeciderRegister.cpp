@@ -31,13 +31,13 @@
  */
 
 #include "DeciderFactory.hpp"
-#include "GoverningDecider.hpp"
+#include "EfficientFreqDecider.hpp"
 #include "Exception.hpp"
 
-void __attribute__((constructor)) governing_decider_plugin_init()
+void __attribute__((constructor)) efficient_freq_decider_plugin_init()
 {
     try {
-        geopm::DeciderFactory::decider_factory().register_decider(new geopm::GoverningDecider);
+        geopm::DeciderFactory::decider_factory().register_decider(new geopm::EfficientFreqDecider);
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());
