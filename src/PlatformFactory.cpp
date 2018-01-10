@@ -101,8 +101,6 @@ namespace geopm
     PlatformFactory::PlatformFactory()
     {
         // register all the platforms we know about
-        geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM, (struct geopm_factory_c *)this);
-        geopm_plugin_load(GEOPM_PLUGIN_TYPE_PLATFORM_IMP, (struct geopm_factory_c *)this);
         register_platform(std::unique_ptr<Platform>(new RAPLPlatform()));
         register_platform(std::unique_ptr<PlatformImp>(new SNBPlatformImp()));
         register_platform(std::unique_ptr<PlatformImp>(new IVTPlatformImp()));

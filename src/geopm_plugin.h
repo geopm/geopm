@@ -45,15 +45,6 @@ extern "C" {
            object. */
 struct geopm_factory_c;
 
-/*! @brief Enum to select the factory type for C interface. */
-enum geopm_plugin_type_e {
-    GEOPM_PLUGIN_TYPE_DECIDER,
-    GEOPM_PLUGIN_TYPE_PLATFORM,
-    GEOPM_PLUGIN_TYPE_PLATFORM_IMP,
-    GEOPM_PLUGIN_TYPE_COMM,
-    GEOPM_NUM_PLUGIN_TYPE
-};
-
 /// @brief Structure holding plugin selection strings.
 struct geopm_plugin_description_s {
     // @brief tree decider description
@@ -70,7 +61,6 @@ struct geopm_plugin_description_s {
            specified. */
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr);
 
-int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 #ifdef __cplusplus
 }
 
@@ -79,17 +69,8 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory);
 #include "PlatformImp.hpp"
 #include "Comm.hpp"
 
-/// @brief Called within the implementation of geopm_plugin_register()
-///        once the Decider object has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr);
-/// @brief Called within the implementation of geopm_plugin_register()
-///        once the Platform object has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform, void *dl_ptr);
-/// @brief Called within the implementation of geopm_plugin_register()
-///        once the PlatformImp object has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform, void *dl_ptr);
-/// @brief Called within the implementation of geopm_plugin_register()
-///        once implementations of IComm interface has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr);
+void geopm_decider_plugin_register(geopm::IDecider *decider);
+void geopm_comm_plugin_register(geopm::IComm *comm);
+
 #endif
 #endif

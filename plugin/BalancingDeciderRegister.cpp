@@ -31,9 +31,9 @@
  */
 
 #include "geopm_plugin.h"
-#include "GoverningDecider.hpp"
+#include "BalancingDecider.hpp"
 
-static void __attribute__((constructor)) governing_decider_plugin_init()
+static void __attribute__((constructor)) balancing_decider_plugin_init()
 {
-	geopm_decider_plugin_register(new geopm::GoverningDecider);
+	geopm_decider_plugin_register(new geopm::BalancingDecider);
 }

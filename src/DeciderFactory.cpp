@@ -43,13 +43,24 @@
 #include "StaticPolicyDecider.hpp"
 #include "config.h"
 
+
+void geopm_decider_plugin_register(geopm::IDecider *decider)
+{
+	geopm_get_decider_factory().register_decider(decider);
+}
+
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr)
 {
     geopm::DeciderFactory *fact_obj = (geopm::DeciderFactory *)(factory);
     if (fact_obj == NULL) {
         throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
     }
-    fact_obj->register_decider(decider, dl_ptr);
+    fact_obj->register_decider(decider);
+}
+
+geopm::IDeciderFactory &geopm_get_decider_factory()
+{
+	return geopm::DeciderFactory::getInstance();
 }
 
 namespace geopm
@@ -57,28 +68,25 @@ namespace geopm
 
     DeciderFactory::DeciderFactory()
     {
-        int err = 0;
         // register all the deciders we know about
-        err = geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
-        if (err) {
-            throw geopm::Exception(err, __FILE__, __LINE__);
-        }
-        register_decider(new StaticPolicyDecider(), NULL);
+        register_decider(new StaticPolicyDecider());
     }
 
     DeciderFactory::DeciderFactory(IDecider *decider)
     {
-        register_decider(decider, NULL);
+        register_decider(decider);
+    }
+
+    DeciderFactory &DeciderFactory::getInstance()
+    {
+	    static DeciderFactory instance;
+	    return instance;
     }
 
     DeciderFactory::~DeciderFactory()
     {
         for (auto it = m_decider_list.rbegin(); it != m_decider_list.rend(); ++it) {
             delete *it;
-        }
-
-        for (auto it = m_dl_ptr_list.rbegin(); it != m_dl_ptr_list.rend(); ++it) {
-            dlclose(*it);
         }
     }
 
@@ -102,11 +110,8 @@ namespace geopm
         return result;
     }
 
-    void DeciderFactory::register_decider(IDecider *decider, void *dl_ptr)
+    void DeciderFactory::register_decider(IDecider *decider)
     {
         m_decider_list.push_back(decider);
-        if (dl_ptr) {
-            m_dl_ptr_list.push_back(dl_ptr);
-        }
     }
 }

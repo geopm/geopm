@@ -39,9 +39,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_hash.h"
-
 #include "Decider.hpp"
+#include "DeciderFactory.hpp"
 #include "SimpleFreqDecider.hpp"
+#include "SimpleFreqDeciderRegister.cpp"
 
 #include "MockRegion.hpp"
 #include "MockPolicy.hpp"
@@ -112,6 +113,12 @@ void SimpleFreqDeciderTest::TearDown()
     if (m_mockpolicy) {
         delete m_mockpolicy;
     }
+}
+
+TEST_F(SimpleFreqDeciderTest, plugin)
+{
+    simple_freq_decider_plugin_init();
+    EXPECT_TRUE(std::string("simple_freq") == geopm_get_decider_factory().decider("simple_freq")->name());
 }
 
 TEST_F(SimpleFreqDeciderTest, parse_cpu_info0)

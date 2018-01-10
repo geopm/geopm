@@ -32,6 +32,7 @@ test/legacy_whitelist.out
 plugin/AdaptiveFreqRegion.cpp
 plugin/AdaptiveFreqRegion.hpp
 plugin/BalancingDecider.cpp
+plugin/BalancingDeciderRegister.cpp
 plugin/BalancingDecider.hpp
 plugin/GoverningDecider.cpp
 plugin/GoverningDeciderRegister.cpp
@@ -41,6 +42,7 @@ plugin/MPIComm.cpp
 plugin/MPIComm.hpp
 plugin/MPICommRegister.cpp
 plugin/SimpleFreqDecider.cpp
+plugin/SimpleFreqDeciderRegister.cpp
 plugin/SimpleFreqDecider.hpp
 scripts/geopmaprun
 scripts/geopmplotter
@@ -87,7 +89,6 @@ src/geopm_message.c
 src/geopm_message.h
 src/MPICommSplit.cpp
 src/geopm_mpi_comm_split.h
-src/geopm_plugin.c
 src/geopm_plugin.h
 src/geopm_pmpi.c
 src/geopm_pmpi_fortran.c
@@ -215,10 +216,6 @@ test/PlatformTest.cpp
 test/PlatformImpTest.cpp
 test/PlatformTest.cpp
 test/PlatformTopologyTest.cpp
-test/plugin/Makefile.mk
-test/plugin/TestPluginApp.cpp
-test/plugin/TestPlugin.cpp
-test/plugin/TestPlugin.hpp
 test/pmpi_mock.c
 test/PolicyTest.cpp
 test/ProfileTableTest.cpp
