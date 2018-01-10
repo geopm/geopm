@@ -47,7 +47,6 @@
 #include "Profile.hpp"
 #include "Tracer.hpp"
 #include "geopm_time.h"
-#include "geopm_plugin.h"
 #include "RuntimeRegulator.hpp"
 
 
@@ -180,7 +179,6 @@ namespace geopm
             const IGlobalPolicy *m_global_policy;
             ITreeCommunicator *m_tree_comm;
             std::vector<IDecider *> m_decider;
-            DeciderFactory *m_decider_factory;
             PlatformFactory *m_platform_factory;
             Platform *m_platform;
             IProfileSampler *m_sampler;

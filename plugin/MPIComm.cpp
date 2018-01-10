@@ -31,10 +31,9 @@
  */
 
 #include <sstream>
-
+#include <limits.h>
 #include <map>
 
-#include "geopm_plugin.h"
 #include "Comm.hpp"
 #include "MPIComm.hpp"
 #include "Exception.hpp"
@@ -42,7 +41,6 @@
 #include "geopm_env.h"
 #include "geopm_mpi_comm_split.h"
 #include "config.h"
-
 
 namespace geopm
 {

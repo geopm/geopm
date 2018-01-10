@@ -34,12 +34,23 @@
 #define GEOPM_H_INCLUDE
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "geopm_policy.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/// @brief Structure holding plugin selection strings.
+struct geopm_plugin_description_s {
+    // @brief tree decider description
+    char tree_decider[NAME_MAX];
+    /// @brief leaf decider description
+    char leaf_decider[NAME_MAX];
+    /// @brief platform description
+    char platform[NAME_MAX];
+};
+
 
 /****************************/
 /* APPLICATION REGION HINTS */

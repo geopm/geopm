@@ -33,7 +33,6 @@
 #include <hwloc.h>
 #include <cmath>
 #include "geopm_message.h"
-#include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 

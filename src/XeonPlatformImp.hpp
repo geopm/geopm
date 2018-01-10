@@ -36,14 +36,11 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <vector>
+#include <limits.h>
 #include <map>
 #include <string>
 
 #include "PlatformImp.hpp"
-
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
 
 namespace geopm
 {
