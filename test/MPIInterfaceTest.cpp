@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <limits.h>
 
 #include "gtest/gtest.h"
 
@@ -145,10 +146,6 @@ extern "C"
 
 #define GEOPM_TEST
 #include "geopm_pmpi.c"
-
-#ifndef NAME_MAX
-#define NAME_MAX 256
-#endif
 
 class MPIInterfaceTest: public :: testing :: Test
 {

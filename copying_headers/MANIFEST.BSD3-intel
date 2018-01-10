@@ -29,8 +29,10 @@ geopm-ohpc.spec.in
 Makefile.am
 openmp.mk
 plugin/BalancingDecider.cpp
+plugin/BalancingDeciderRegister.cpp
 plugin/BalancingDecider.hpp
 plugin/EfficientFreqDecider.cpp
+plugin/EfficientFreqDeciderRegister.cpp
 plugin/EfficientFreqDecider.hpp
 plugin/EfficientFreqRegion.cpp
 plugin/EfficientFreqRegion.hpp

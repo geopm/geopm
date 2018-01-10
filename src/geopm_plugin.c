@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -46,15 +47,9 @@
 #include "geopm_env.h"
 #include "config.h"
 
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
-
-int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
+static void __attribute__((constructor)) geopm_plugin_load()
 {
     int err = 0;
-    void *plugin;
-    int (*register_func)(int, struct geopm_factory_c *, void *);
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
     FTS *p_fts;
     FTSENT *file;
@@ -62,6 +57,7 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
     char **paths = NULL;
     char *default_path = GEOPM_PLUGIN_PATH;
     char path_env[NAME_MAX] = {0};
+
     if (strlen(geopm_env_plugin_path())) {
         ++num_path;
         strncpy(path_env, geopm_env_plugin_path(), NAME_MAX - 1);
@@ -74,6 +70,9 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
     paths = calloc(num_path + 1, sizeof(char *));
     if (!paths) {
         err = ENOMEM;
+#ifdef GEOPM_DEBUG
+        fprintf(stderr, "Warning: failed to calloc paths.\n");
+#endif
     }
     if (!err) {
         paths[0] = default_path;
@@ -88,31 +87,9 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
                 if (file->fts_info == FTS_F &&
                     (strstr(file->fts_name, ".so") ||
                      strstr(file->fts_name, ".dylib"))) {
-                    plugin = dlopen(file->fts_path, RTLD_LAZY);
-                    if (plugin != NULL) {
-                        register_func = (int (*)(int, struct geopm_factory_c *, void *)) dlsym(plugin, "geopm_plugin_register");
-                        if (register_func != NULL) {
-                            int register_err = register_func(plugin_type, factory, plugin);
-                            if (register_err) {
+                    if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
-                                fprintf(stderr, "Warning: failed to register one or more plugins from %s.\n", file->fts_path);
-#endif
-                            }
-                        }
-                        else {
-                            dlclose(plugin);
-                        }
-                    }
-                    else {
-                        err = -1;
-#ifdef GEOPM_DEBUG
-                        const char *dlerr_str = dlerror();
-                        if (dlerr_str) {
-                            fprintf(stderr,"Error dlopen(): %s\n", dlerr_str);
-                        }
-                        else {
-                            fprintf(stderr,"Error dlopen()\n");
-                        }
+                        fprintf(stderr, "Warning: failed to dlopen plugin %s.\n", file->fts_path);
 #endif
                     }
                 }
@@ -121,6 +98,4 @@ int geopm_plugin_load(int plugin_type, struct geopm_factory_c *factory)
         }
         free(paths);
     }
-
-    return err;
 }
