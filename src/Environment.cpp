@@ -47,7 +47,6 @@ const char *program_invocation_name = "geopm_profile";
 
 #include "config.h"
 
-
 namespace geopm
 {
     /// @brief Environment class encapsulates all functionality related to
@@ -57,6 +56,7 @@ namespace geopm
         public:
             Environment();
             virtual ~Environment();
+            void load(void);
             const char *report(void) const;
             const char *comm(void) const;
             const char *policy(void) const;
@@ -92,29 +92,45 @@ namespace geopm
             int m_debug_attach;
     };
 
-    static const Environment &environment(void)
+    static Environment &test_environment(void)
     {
-        static const Environment instance;
+        static Environment instance;
         return instance;
     }
 
-    Environment::Environment()
-        : m_report("")
-        , m_comm("MPIComm")
-        , m_policy("")
-        , m_shmkey("/geopm-shm-" + std::to_string(geteuid()))
-        , m_trace("")
-        , m_plugin_path("")
-        , m_profile("")
-        , m_report_verbosity(0)
-        , m_pmpi_ctl(GEOPM_PMPI_CTL_NONE)
-        , m_do_region_barrier(false)
-        , m_do_trace(false)
-        , m_do_ignore_affinity(false)
-        , m_do_profile(false)
-        , m_profile_timeout(30)
-        , m_debug_attach(-1)
+    static const Environment &environment(void)
     {
+        return test_environment();
+    }
+
+    Environment::Environment()
+    {
+        load();
+    }
+
+    Environment::~Environment()
+    {
+
+    }
+
+    void Environment::load()
+    {
+        m_report = "";
+        m_comm = "MPIComm";
+        m_policy = "";
+        m_shmkey = "/geopm-shm-" + std::to_string(geteuid());
+        m_trace = "";
+        m_plugin_path = "";
+        m_profile = "";
+        m_report_verbosity = 0;
+        m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
+        m_do_region_barrier = false;
+        m_do_trace = false;
+        m_do_ignore_affinity = false;
+        m_do_profile = false;
+        m_profile_timeout = 30;
+        m_debug_attach = -1;
+
         std::string tmp_str("");
 
         (void)get_env("GEOPM_REPORT", m_report);
@@ -150,11 +166,6 @@ namespace geopm
         if (m_do_profile && !m_profile.length()) {
             m_profile = program_invocation_name;
         }
-    }
-
-    Environment::~Environment()
-    {
-
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
@@ -267,6 +278,11 @@ namespace geopm
 
 extern "C"
 {
+    void geopm_env_load(void)
+    {
+        geopm::test_environment().load();
+    }
+
     const char *geopm_env_policy(void)
     {
         return geopm::environment().policy();

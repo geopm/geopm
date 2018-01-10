@@ -34,7 +34,6 @@
 #define GOVERNING_DECIDER_HPP_INCLUDE
 
 #include "Decider.hpp"
-#include "geopm_plugin.h"
 #include <map>
 
 namespace geopm

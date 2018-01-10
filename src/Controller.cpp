@@ -79,10 +79,6 @@
 #include <xmmintrin.h>
 #endif
 
-#ifndef NAME_MAX
-#define NAME_MAX 1024
-#endif
-
 extern "C"
 {
     static void *geopm_threaded_run(void *args)
@@ -199,7 +195,6 @@ namespace geopm
         , m_max_fanout(0)
         , m_global_policy(global_policy)
         , m_tree_comm(NULL)
-        , m_decider_factory(NULL)
         , m_platform_factory(NULL)
         , m_platform(NULL)
         , m_sampler(NULL)
@@ -342,8 +337,7 @@ namespace geopm
             m_platform->bound(upper_bound, lower_bound);
             m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
-            m_decider_factory = new DeciderFactory;
-            m_decider[0] = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
+            m_decider[0] = DeciderFactory::decider_factory().decider(std::string(plugin_desc.leaf_decider));
             m_decider[0]->bound(upper_bound, lower_bound);
 
             int num_domain = m_platform->num_control_domain();
@@ -366,7 +360,7 @@ namespace geopm
                                                    num_domain,
                                                    level,
                                                    NULL)));
-                m_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
+                m_decider[level] = DeciderFactory::decider_factory().decider(std::string(plugin_desc.tree_decider));
                 m_decider[level]->bound(upper_bound, lower_bound);
                 upper_bound *= num_domain;
                 lower_bound *= num_domain;
@@ -422,7 +416,6 @@ namespace geopm
         for (auto it = m_decider.begin(); it != m_decider.end(); ++it) {
             delete (*it);
         }
-        delete m_decider_factory;
         delete m_platform_factory;
         delete m_tree_comm;
         delete m_sampler;
