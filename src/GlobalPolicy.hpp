@@ -37,9 +37,20 @@
 #include <fstream>
 #include <memory>
 #include <json-c/json.h>
+#include <limits.h>
 
-#include "geopm_plugin.h"
+#include "geopm_message.h"
 #include "PolicyFlags.hpp"
+
+/// @brief Structure holding plugin selection strings.
+struct geopm_plugin_description_s {
+    // @brief tree decider description
+    char tree_decider[NAME_MAX];
+    /// @brief leaf decider description
+    char leaf_decider[NAME_MAX];
+    /// @brief platform description
+    char platform[NAME_MAX];
+};
 
 namespace geopm
 {
