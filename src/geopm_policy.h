@@ -62,7 +62,7 @@ enum geopm_policy_affinity_e {
 };
 
 enum geopm_policy_goal_e {
-    GEOPM_POLICY_GOAL_CPU_EFFICIENCY ,
+    GEOPM_POLICY_GOAL_CPU_EFFICIENCY,
     GEOPM_POLICY_GOAL_NETWORK_EFFICIENCY,
     GEOPM_POLICY_GOAL_MEMORY_EFFICIENCY,
 };

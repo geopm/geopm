@@ -168,7 +168,7 @@ namespace geopm
             ///
             /// @param [in] root Rank of the target for the transmission.
             virtual void gather(const void *send_buf, size_t send_size, void *recv_buf,
-                    size_t recv_size, int root) const = 0;
+                                size_t recv_size, int root) const = 0;
             /// @brief Gather bytes into specified location from all processes
             ///
             /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
@@ -183,7 +183,7 @@ namespace geopm
             ///
             /// @param [in] root Rank of the target for the transmission.
             virtual void gatherv(const void *send_buf, size_t send_size, void *recv_buf,
-                    const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const = 0;
+                                 const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const = 0;
             /// @brief Perform message passing or RMA.
             ///
             /// @param [in] send_buf Starting address of buffer to be transmitted via window.

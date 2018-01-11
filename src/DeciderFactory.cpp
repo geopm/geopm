@@ -60,7 +60,7 @@ namespace geopm
         int err = 0;
         // register all the deciders we know about
         err = geopm_plugin_load(GEOPM_PLUGIN_TYPE_DECIDER, (struct geopm_factory_c *)this);
-        if (err){
+        if (err) {
             throw geopm::Exception(err, __FILE__, __LINE__);
         }
         register_decider(new StaticPolicyDecider(), NULL);

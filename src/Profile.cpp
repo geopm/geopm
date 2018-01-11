@@ -435,8 +435,7 @@ namespace geopm
             m_progress = 0.0;
             sample();
         }
-        else
-        {
+        else {
             m_tprof_table->enable(false);
             // Allow nesting of one MPI region within a non-mpi region
             if (m_curr_region_id &&

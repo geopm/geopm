@@ -75,7 +75,7 @@ extern "C"
             if (!err || (err && errno != ENOENT)) {
                 std::stringstream ex_str;
                 ex_str << "geopm_comm_split_shared(): " << shmem_key.str()
-                    << " already exists and cannot be deleted.";
+                       << " already exists and cannot be deleted.";
                 throw geopm::Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             MPI_Barrier(comm);

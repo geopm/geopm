@@ -223,7 +223,7 @@ namespace geopm
             int err = shm_unlink(m_shm_key.c_str());
             if (err) {
                 std::ostringstream tmp_str;
-                tmp_str << "SharedMemoryUser::unlink() Call to shm_unlink(" << m_shm_key  << ") failed",
+                tmp_str << "SharedMemoryUser::unlink() Call to shm_unlink(" << m_shm_key  << ") failed";
                 throw Exception(tmp_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_is_linked = false;

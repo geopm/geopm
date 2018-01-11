@@ -38,7 +38,8 @@
 
 namespace geopm
 {
-    class RuntimeRegulator {
+    class RuntimeRegulator
+    {
         public:
             RuntimeRegulator(void);
             RuntimeRegulator(int max_rank_count);

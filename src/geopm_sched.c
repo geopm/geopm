@@ -94,8 +94,8 @@ int geopm_sched_proc_cpuset_helper(int num_cpu, uint32_t *proc_cpuset, FILE *fid
             int num_comma = 0;
             char *comma_ptr = line_ptr;
             while ((comma_ptr = strchr(comma_ptr, ','))) {
-               ++comma_ptr;
-               ++num_comma;
+                ++comma_ptr;
+                ++num_comma;
             }
             if (num_comma > num_read - 1) {
                 num_comma -= num_read - 1;
@@ -224,8 +224,7 @@ static void geopm_proc_cpuset_once(void)
             err = (int)(size_t)result;
         }
     }
-    if (err && err != ENOMEM)
-    {
+    if (err && err != ENOMEM) {
         for (int i = 0; i < num_cpu; ++i) {
             CPU_SET(i, g_proc_cpuset);
         }
@@ -269,8 +268,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
 #pragma omp critical
 {
         int cpu_index = sched_getcpu();
-        if (cpu_index != -1 && cpu_index < num_cpu)
-        {
+        if (cpu_index != -1 && cpu_index < num_cpu) {
             CPU_CLR(cpu_index, woomp);
         }
         else {

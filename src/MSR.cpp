@@ -137,20 +137,20 @@ namespace geopm
                     uint64_t yy = (uint64_t)std::log2(value);
                     uint64_t zz = (uint64_t)(4.0 * (value / (1 << yy) - 1.0));
                     if ((yy && (yy >> 5) != 0) ||
-                            (zz && (zz >> 2) != 0)) {
+                        (zz && (zz >> 2) != 0)) {
                         throw Exception("MSR::encode(): integer overflow in M_FUNCTION_7_BIT_FLOAT datatype encoding",
-                                EOVERFLOW, __FILE__, __LINE__);
+                                        EOVERFLOW, __FILE__, __LINE__);
                     }
                     value_inferred = (1 << yy) * (1.0 + (zz / 4.0));
                     if ((value - value_inferred) > (value  * 0.25)) {
                         throw Exception("MSR::encode(): inferred value from encoded value is inaccurate",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                     }
                     result = yy | (zz << 5);
                 }
                 else {
                     throw Exception("MSR::encode(): input value <= 0 for M_FUNCTION_7_BIT_FLOAT",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 break;
         }
@@ -373,10 +373,10 @@ namespace geopm
 
     MSRSignal::MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
                          const std::string &name)
-       : m_config(config)
-       , m_name(name)
-       , m_field_ptr(config.size(), NULL)
-       , m_is_field_mapped(false)
+        : m_config(config)
+        , m_name(name)
+        , m_field_ptr(config.size(), NULL)
+        , m_is_field_mapped(false)
     {
 
     }
@@ -420,7 +420,7 @@ namespace geopm
 
     int MSRSignal::num_msr(void) const
     {
-       return m_config.size();
+        return m_config.size();
     }
 
     void MSRSignal::offset(std::vector<uint64_t> &offset) const
@@ -479,11 +479,11 @@ namespace geopm
 
     MSRControl::MSRControl(const std::vector<struct IMSRControl::m_control_config_s> &config,
                            const std::string &name)
-       : m_config(config)
-       , m_name(name)
-       , m_field_ptr(config.size(), NULL)
-       , m_mask_ptr(config.size(), NULL)
-       , m_is_field_mapped(false)
+        : m_config(config)
+        , m_name(name)
+        , m_field_ptr(config.size(), NULL)
+        , m_mask_ptr(config.size(), NULL)
+        , m_is_field_mapped(false)
     {
 
     }

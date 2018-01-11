@@ -93,7 +93,7 @@ namespace geopm
             std::map<std::pair<size_t, bool>, std::string> m_range_object_map;
             /// Map from function address to geopm region ID
             std::map<size_t, uint64_t> m_function_region_id_map;
-     };
+    };
 
     static OMPT &ompt(void)
     {
@@ -111,37 +111,37 @@ namespace geopm
     {
         std::ifstream maps_stream(map_path);
         while (maps_stream.good()) {
-           std::string line;
-           std::getline(maps_stream, line);
-           if (line.length() == 0) {
-               continue;
-           }
-           size_t addr_begin, addr_end;
-           int n_scan = sscanf(line.c_str(), "%zx-%zx", &addr_begin, &addr_end);
-           if (n_scan != 2) {
-               continue;
-           }
+            std::string line;
+            std::getline(maps_stream, line);
+            if (line.length() == 0) {
+                continue;
+            }
+            size_t addr_begin, addr_end;
+            int n_scan = sscanf(line.c_str(), "%zx-%zx", &addr_begin, &addr_end);
+            if (n_scan != 2) {
+                continue;
+            }
 
-           std::string object;
-           size_t object_loc = line.rfind(' ') + 1;
-           if (object_loc == std::string::npos) {
-               continue;
-           }
-           object = line.substr(object_loc);
-           if (line.find(" r-xp ") != line.find(' ')) {
-               continue;
-           }
-           std::pair<size_t, bool> aa(addr_begin, false);
-           std::pair<size_t, bool> bb(addr_end, true);
-           std::pair<std::pair<size_t, bool>, std::string> cc(aa, object);
-           std::pair<std::pair<size_t, bool>, std::string> dd(bb, object);
-           auto it0 = m_range_object_map.insert(m_range_object_map.begin(), cc);
-           auto it1 = m_range_object_map.insert(it0, dd);
-           ++it0;
-           if (it0 != it1) {
-               throw Exception("Error parsing /proc/self/maps, overlapping address ranges.",
-                               GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-           }
+            std::string object;
+            size_t object_loc = line.rfind(' ') + 1;
+            if (object_loc == std::string::npos) {
+                continue;
+            }
+            object = line.substr(object_loc);
+            if (line.find(" r-xp ") != line.find(' ')) {
+                continue;
+            }
+            std::pair<size_t, bool> aa(addr_begin, false);
+            std::pair<size_t, bool> bb(addr_end, true);
+            std::pair<std::pair<size_t, bool>, std::string> cc(aa, object);
+            std::pair<std::pair<size_t, bool>, std::string> dd(bb, object);
+            auto it0 = m_range_object_map.insert(m_range_object_map.begin(), cc);
+            auto it1 = m_range_object_map.insert(it0, dd);
+            ++it0;
+            if (it0 != it1) {
+                throw Exception("Error parsing /proc/self/maps, overlapping address ranges.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
         }
     }
 
@@ -262,42 +262,48 @@ extern "C"
     static ompt_parallel_id_t g_curr_parallel_id;
     static uint64_t g_curr_region_id = GEOPM_REGION_ID_UNDEFINED;
 
-    static void on_ompt_event_parallel_begin(ompt_task_id_t parent_task_id, ompt_frame_t *parent_task_frame,
-                                             ompt_parallel_id_t parallel_id, uint32_t requested_team_size,
-                                             void *parallel_function, ompt_invoker_t invoker)
-     {
-          if (g_curr_parallel_function != parallel_function) {
-              g_curr_parallel_function = parallel_function;
-              g_curr_parallel_id = parallel_id;
-              g_curr_region_id = geopm::ompt().region_id(parallel_function);
-          }
-          if (g_curr_region_id != GEOPM_REGION_ID_UNDEFINED) {
-              geopm_prof_enter(g_curr_region_id);
-          }
-     }
+    static void on_ompt_event_parallel_begin(ompt_task_id_t parent_task_id,
+                                             ompt_frame_t *parent_task_frame,
+                                             ompt_parallel_id_t parallel_id,
+                                             uint32_t requested_team_size,
+                                             void *parallel_function,
+                                             ompt_invoker_t invoker)
+    {
+        if (g_curr_parallel_function != parallel_function) {
+            g_curr_parallel_function = parallel_function;
+            g_curr_parallel_id = parallel_id;
+            g_curr_region_id = geopm::ompt().region_id(parallel_function);
+        }
+        if (g_curr_region_id != GEOPM_REGION_ID_UNDEFINED) {
+            geopm_prof_enter(g_curr_region_id);
+        }
+    }
 
-     static void on_ompt_event_parallel_end(ompt_parallel_id_t parallel_id, ompt_task_id_t task_id,
-                                            ompt_invoker_t invoker)
-     {
-          if (g_curr_region_id != GEOPM_REGION_ID_UNDEFINED &&
-              g_curr_parallel_id == parallel_id) {
-              geopm_prof_exit(g_curr_region_id);
-          }
-     }
+    static void on_ompt_event_parallel_end(ompt_parallel_id_t parallel_id,
+                                           ompt_task_id_t task_id,
+                                           ompt_invoker_t invoker)
+    {
+        if (g_curr_region_id != GEOPM_REGION_ID_UNDEFINED &&
+            g_curr_parallel_id == parallel_id) {
+            geopm_prof_exit(g_curr_region_id);
+        }
+    }
 
 
-     void ompt_initialize(ompt_function_lookup_t lookup, const char *runtime_version, unsigned int ompt_version)
-     {
-         ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
-         ompt_set_callback(ompt_event_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
-         ompt_set_callback(ompt_event_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+    void ompt_initialize(ompt_function_lookup_t lookup,
+                         const char *runtime_version,
+                         unsigned int ompt_version)
+    {
+        ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
+        ompt_set_callback(ompt_event_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
+        ompt_set_callback(ompt_event_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
 
-     }
+    }
 
-     ompt_initialize_t ompt_tool()
-     {
-         return &ompt_initialize;
-     }
+    ompt_initialize_t ompt_tool()
+    {
+        return &ompt_initialize;
+    }
 }
 
 #endif // GEOPM_ENABLE_OMPT defined

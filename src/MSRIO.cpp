@@ -90,7 +90,7 @@ namespace geopm
         if ((raw_value & write_mask) != raw_value) {
             std::ostringstream err_str;
             err_str << "MSRIO::write_msr(): raw_value does not obey write_mask, "
-                       "raw_value=0x" << std::hex << raw_value
+                    << "raw_value=0x" << std::hex << raw_value
                     << " write_mask=0x" << write_mask;
             throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -131,7 +131,7 @@ namespace geopm
                 batch_it->msr = *offset_it;
                 batch_it->msrdata = 0;
                 batch_it->wmask = 0;
-             }
+            }
         }
         m_read_batch.numops = m_read_batch_op.size();
         m_read_batch.ops = m_read_batch_op.data();

@@ -124,10 +124,10 @@ uint64_t geopm_mpi_func_rid(const char *func_name)
 {
     uint64_t result = 0;
     if (g_is_geopm_pmpi_prof_enabled) {
-       int err = geopm_prof_region(func_name, GEOPM_REGION_HINT_NETWORK, &result);
-       if (err) {
-           result = 0;
-       }
+        int err = geopm_prof_region(func_name, GEOPM_REGION_HINT_NETWORK, &result);
+        if (err) {
+            result = 0;
+        }
     }
     return result;
 }
