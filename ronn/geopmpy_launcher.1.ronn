@@ -204,6 +204,13 @@ underlying resource manager to use.  See documentation for the
 --geopm-rm command line option for valid values.  Note that the
 command line option overrides the environment variable.
 
+The `GEOPM_DISABLE_HT` environment variable can be used to disable
+the usage of hyperthreads for pinning purposes.  This environment
+variable serves the same purpose as the ----geopm-disable-hyperthreads
+command line option.  Any value set to this environment variable
+will disable the usage of hyperthreads regardless of whether or not
+the command line option is used.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
