@@ -192,17 +192,28 @@ application MPI process each with four threads:
 
     geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
 
+    OR
+
+    GEOPM_CTL=process GEOPM_REPORT=tutorial6.report geopmsrun -N 2 -n 32 -c 4 -- ./tutorial6 tutorial6_config.json
+
 Use geopomaprun to launch the miniFE executable with the same
 configuration:
 
     geopmaprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
 
+    OR
+
+    GEOPM_CTL=process GEOPM_REPORT=miniFE.report geopmaprun -N 16 -n 32 --cpus-per-pe 4 -- ./miniFE.x -nx 256 -nz 256
+
 ## ENVIRONMENT
 
-The `GEOPM_RM` environment variable can be used to select which
-underlying resource manager to use.  See documentation for the
---geopm-rm command line option for valid values.  Note that the
-command line option overrides the environment variable.
+Every command line option to the launcher can also be specified as an
+environment variable if desired.  For example, instead of specifying
+`--geopm-rm=IMPI` one can instead set in the environment `GEOPM_RM=IMPI`
+prior to invoking the launcher script.  The environment variables are
+named the same as the command line option but have the hyphens replaced
+with underscores, and are all uppercase.  See the EXAMPLES section for
+for more information.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

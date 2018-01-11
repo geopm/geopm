@@ -304,7 +304,7 @@ manager selected by the wrapper script.
   * `GEOPM_RM`:
     Used by job launch wrapper (geopmsrun or geopmaprun) to override
     the resource manager to use for job launch.  This environment
-    variable serves the same purpose as the --geopm-rm command line
+    variable serves the same purpose as the `--geopm-rm` command line
     option.  The valid values for the variable or command line option
     are detailed in the **geopmsrun(1)** or **geopmaprun(1)** man
     pages.  Note that the command line option overrides what is set in
