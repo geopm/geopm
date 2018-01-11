@@ -270,7 +270,7 @@ class Config(object):
         self.barrier = opts.barrier
         self.preload = opts.preload
         self.omp_num_threads = None
-        self.allow_ht_pinning = opts.allow_ht_pinning
+        self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
 
     def __repr__(self):
         """
