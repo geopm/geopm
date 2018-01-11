@@ -1,6 +1,10 @@
 .gitignore
 AUTHORS
 ChangeLog
+contrib/json11/json11.cpp
+contrib/json11/json11.hpp
+contrib/json11/LICENSE.txt
+contrib/json11/README.md
 CONTRIBUTING.md
 COPYING
 copying_headers/header.BSD3-intel
