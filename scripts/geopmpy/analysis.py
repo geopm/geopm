@@ -682,6 +682,8 @@ geopmanalysis - Used to run applications and analyze results for specific
                         level 1: print analysis of report and trace data (default)
                         level 2: create plots from report and trace data
   -s, --skip_launch     do not launch jobs, only analyze existing data
+  --geopm_ctl           launch type for the GEOPM controller.  Available
+                        GEOPM_CTL values: process, pthread, or application (default 'process')
   --version             show the GEOPM version number and exit
 
 """.format(argv_0=sys.argv[0])
@@ -721,6 +723,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store', nargs='*')
     parser.add_argument('-s', '--skip_launch',
                         action='store_true', default=False)
+    parser.add_argument('--geopm_ctl',
+                        action='store', default='process')
 
     args = parser.parse_args(argv)
     if args.analysis_type not in analysis_type_map:
@@ -751,7 +755,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
         if num_node != args.num_node:
             raise RuntimeError('Launch must be made inside of a job allocation and application must run on all allocated nodes.')
 
-        analysis.launch()
+        analysis.launch(args.geopm_ctl)
 
     if args.level > 0:
         parse_output = analysis.parse()
