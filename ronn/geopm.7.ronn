@@ -321,6 +321,15 @@ manager selected by the wrapper script.
     The user may wish to implement other communication mechanisms, please
     refer to the GEOPM Plugin Developer's Guide for detailed information.
 
+  * `GEOPM_DISABLE_HT`:
+    Used by job launch wrapper (geopmsrun or geopmaprun) to disable
+    the usage of hyperthreads for pinning purposes.  This environment
+    variable serves the same purpose as the ----geopm-disable-hyperthreads
+    command line option.  Any value set to this environment variable
+    will disable the usage of hyperthreads regardless of whether or not
+    the command line option is used.  If not set, the default behavior
+    is to use hyperthreads for pinning.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
