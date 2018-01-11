@@ -199,10 +199,21 @@ configuration:
 
 ## ENVIRONMENT
 
-The `GEOPM_RM` environment variable can be used to select which
-underlying resource manager to use.  See documentation for the
---geopm-rm command line option for valid values.  Note that the
-command line option overrides the environment variable.
+Every command line option to the launcher can also be specified as an
+environment variable if desired (with the exception of `--geopm-ctl`).
+For example, instead of specifying `--geopm-rm=IMPI` one can instead
+set in the environment `GEOPM_RM=IMPI` prior to invoking the launcher
+script.  The environment variables are named the same as the command
+line option but have the hyphens replaced with underscores, and are
+all uppercase.
+
+The usage of `--geopm-ctl` here is slightly different than how the
+controller handles the `GEOPM_PMPI_CTL` environment variable.  In the
+case of this launcher, one can specify _process_, _pthread_, or
+_application_ to the command line arguement.  In the case of
+`GEOPM_PMPI_CTL` one can ONLY specify `process` or `pthread` as
+launching the controller as a seperate application is handled through
+the `geopmctl` binary.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
