@@ -304,7 +304,7 @@ manager selected by the wrapper script.
   * `GEOPM_RM`:
     Used by job launch wrapper (geopmsrun or geopmaprun) to override
     the resource manager to use for job launch.  This environment
-    variable serves the same purpose as the --geopm-rm command line
+    variable serves the same purpose as the `--geopm-rm` command line
     option.  The valid values for the variable or command line option
     are detailed in the **geopmsrun(1)** or **geopmaprun(1)** man
     pages.  Note that the command line option overrides what is set in
@@ -320,6 +320,15 @@ manager selected by the wrapper script.
     communication plugin uses MPI and the description string is "MPIComm".
     The user may wish to implement other communication mechanisms, please
     refer to the GEOPM Plugin Developer's Guide for detailed information.
+
+  * `GEOPM_DISABLE_HT`:
+    Used by job launch wrapper (geopmsrun or geopmaprun) to disable
+    the usage of hyperthreads for pinning purposes.  The default behavior
+    is to use hyperthreads for pinning.  This environment variable serves
+    the same purpose as the `--geopm-disable-hyperthreads` command line
+    option.  If the environment variable is set or the command line option
+    is specified then hyperthreads will be disabled.
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
