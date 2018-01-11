@@ -270,7 +270,7 @@ class Config(object):
         self.barrier = opts.barrier
         self.preload = opts.preload
         self.omp_num_threads = None
-        self.allow_ht_pinning = opts.allow_ht_pinning
+        self.allow_ht_pinning = opts.allow_ht_pinning if not os.environ.get('GEOPM_DISABLE_HT') else False
 
     def __repr__(self):
         """
