@@ -183,6 +183,7 @@ class FreqSweepAnalysis(Analysis):
         for freq in sys_freq_avail():
             profile_name = fixed_freq_name(self._name, freq)
             report_path = os.path.join(self._output_dir, profile_name + '.report')
+            trace_path = os.path.join(self._output_dir, profile_name + '-trace')
             self._report_paths.append(report_path)
             if self._app_argv and not os.path.exists(report_path):
                 os.environ['GEOPM_SIMPLE_FREQ_MIN'] = str(freq)
@@ -190,6 +191,7 @@ class FreqSweepAnalysis(Analysis):
                 argv = ['dummy', '--geopm-ctl', geopm_ctl,
                                  '--geopm-policy', ctl_conf.get_path(),
                                  '--geopm-report', report_path,
+                                 '--geopm-trace', trace_path,
                                  '--geopm-profile', profile_name]
                 if do_geopm_barrier:
                     argv.append('--geopm-barrier')
