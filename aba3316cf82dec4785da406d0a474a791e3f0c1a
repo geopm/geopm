@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df436ba2_c91b69e8",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-11T18:20:36Z",
+      "side": 1,
+      "message": "comma operator FTW\nI think this only worked before because 1) \u003c\u003c has higher precedence than , and 2) we only use that expression for its side effect not its value.",
+      "revId": "aba3316cf82dec4785da406d0a474a791e3f0c1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
