@@ -257,5 +257,15 @@ class TestAffinity(unittest.TestCase):
         with self.assertRaisesRegexp(RuntimeError, err_msg) as cm:
             launcher.affinity_list(False)
 
+    def test_affinity_tutorial_knl(self):
+        launcher = KNLAffinityLauncher(['--geopm-ctl', 'process'], 8, 2, 63)
+        actual = launcher.affinity_list(False)
+        expect = [{jj + 16 * kk
+                   for ii in range(4)
+                       for jj in range(ii * 64, ii * 64 + 16)}
+                  for kk in range(4)]
+        expect.insert(0, {0})
+        self.assertEqual(expect, actual)
+
 if __name__ == '__main__':
     unittest.main()
