@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "132bf443_30428293",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:47:55Z",
+      "side": 1,
+      "message": "DeciderFactory has its own source file.  Not really needed... should update?  Or do you all want the CommFactory to have its own source file?  Also, do we really need factory base classes?  Even though factories are implemented as singletons?",
+      "range": {
+        "startLine": 207,
+        "startChar": 10,
+        "endLine": 207,
+        "endChar": 21
+      },
+      "revId": "7fc8b9e2d00c57da6b019a8972b8b5775ed077fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "060d9ebb_74c19c46",
+        "filename": "src/DeciderFactory.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:47:55Z",
+      "side": 1,
+      "message": "CommFactory implements this as a vector.  Do we care if they are different?  If so, which should we adopt?",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 48
+      },
+      "revId": "7fc8b9e2d00c57da6b019a8972b8b5775ed077fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57238459_1a45f362",
+        "filename": "src/GlobalPolicy.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:47:55Z",
+      "side": 1,
+      "message": "is this an appropriate place for the struct definition?",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 2
+      },
+      "revId": "7fc8b9e2d00c57da6b019a8972b8b5775ed077fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
