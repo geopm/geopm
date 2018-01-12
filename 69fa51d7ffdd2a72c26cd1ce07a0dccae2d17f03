@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "102663a3_c628eafa",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-12T00:57:58Z",
+      "side": 1,
+      "message": "would it work to do:\nopts.allow_ht_pinning and os.environ.get(\u0027GEOPM_DISABLE_HT\u0027) is None",
+      "revId": "69fa51d7ffdd2a72c26cd1ce07a0dccae2d17f03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
