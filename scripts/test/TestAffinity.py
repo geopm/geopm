@@ -178,12 +178,6 @@ class TestAffinity(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_affinity_12(self):
-        launcher = KNLAffinityLauncher(['--geopm-ctl', 'process'], 51, 1, 5)
-        err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg) as cm:
-            launcher.affinity_list(False)
-
-    def test_affinity_13(self):
         """
         Here the app is trying to use num_sockets * num_cores - 1 OMP threads.  This should
         result in the controller getting pinned to core 0's HT, and the app pinned to cores 1-43.
@@ -195,7 +189,7 @@ class TestAffinity(unittest.TestCase):
         expect.extend([set(range(1, 44))])
         self.assertEqual(expect, actual)
 
-    def test_affinity_14(self):
+    def test_affinity_13(self):
         """
         The mpibind plugin used on TOSS based systems does not yet support pinning to HTs.  When an
         app requests num_sockets * num_cores - 1 OMP threads the controller should be pinned to core 0
@@ -209,7 +203,7 @@ class TestAffinity(unittest.TestCase):
         expect = [{0}]
         self.assertEqual(expect, actual)
 
-    def test_affinity_15(self):
+    def test_affinity_14(self):
         """
         When the application requests all the physical cores we would normally pin the controller to core
         0's HT.  Since mpibind does not support HT pinning, oversubscribe core 0.
@@ -222,7 +216,7 @@ class TestAffinity(unittest.TestCase):
         expect = [{0}]
         self.assertEqual(expect, actual)
 
-    def test_affinity_16(self):
+    def test_affinity_15(self):
         """
         Similar to test 14, this attempts to utilize 35 execution units (5 ranks * 7 OMP threads).
         Core 0 should be used for the OS and controller.
@@ -236,7 +230,7 @@ class TestAffinity(unittest.TestCase):
         expect = [{0}]
         self.assertEqual(expect, actual)
 
-    def test_affinity_17(self):
+    def test_affinity_16(self):
         """
         Similar to test 14, this attempts to utilize 35 execution units (7 ranks * 5 OMP threads).
         Core 0 should be used for the OS and controller.
@@ -250,7 +244,7 @@ class TestAffinity(unittest.TestCase):
         expect = [{0}]
         self.assertEqual(expect, actual)
 
-    def test_affinity_18(self):
+    def test_affinity_17(self):
         launcher = QuartzAffinityLauncher(['--geopm-ctl', 'process'], 1, 1, 40)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-disable-hyperthreads.'

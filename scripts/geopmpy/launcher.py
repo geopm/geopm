@@ -627,8 +627,6 @@ class Launcher(object):
             raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
 
         app_core_per_rank = self.cpu_per_rank // app_thread_per_core
-        if self.cpu_per_rank % app_thread_per_core > 0:
-            app_core_per_rank += 1
 
         if app_core_per_rank * app_rank_per_node > core_per_node:
             raise RuntimeError('Cores cannot be shared between MPI ranks')
@@ -637,7 +635,7 @@ class Launcher(object):
         core_index = core_per_node - 1
 
         if rank_per_socket_remainder == 0:
-            socket_boundary = self.core_per_socket * (self.num_socket - 1) # 22
+            socket_boundary = self.core_per_socket * (self.num_socket - 1)
             for socket in range(self.num_socket - 1, -1, -1):
                 for rank in range(rank_per_socket - 1, -1, -1): # Start assigning ranks to cores from the highest rank/core backwards
                     base_cores = range(core_index, core_index - app_core_per_rank, -1)
