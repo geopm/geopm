@@ -96,4 +96,13 @@ ModelRegion.o: ModelRegion.cpp ModelRegion.hpp
 clean:
 	rm -f $(TUTORIAL_BIN) *.o
 
-.PHONY: all clean
+check: all
+	./tutorial1.sh
+	./tutorial2.sh
+	./tutorial3.sh
+	./tutorial4.sh
+	./tutorial5.sh
+	./tutorial6.sh
+	./tutorial7.sh
+
+.PHONY: all clean check
