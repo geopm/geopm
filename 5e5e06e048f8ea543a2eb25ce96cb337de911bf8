@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "af593d41_2143c00a",
+        "filename": "src/DeciderFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:22:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5fed2df_fd7e3ca9",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 1
+      },
+      "revId": "5e5e06e048f8ea543a2eb25ce96cb337de911bf8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a0ab884_f0acc4c9",
         "filename": "src/DeciderFactory.hpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-11T23:45:42Z",
       "side": 1,
       "message": "move protected after public and remove private",
+      "range": {
+        "startLine": 53,
+        "startChar": 8,
+        "endLine": 53,
+        "endChar": 18
+      },
+      "revId": "5e5e06e048f8ea543a2eb25ce96cb337de911bf8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92f354b3_d1528d0e",
+        "filename": "src/DeciderFactory.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:22:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a0ab884_f0acc4c9",
       "range": {
         "startLine": 53,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f1038e82_71fa645e",
+        "filename": "src/geopm_plugin.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:22:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e97027d3_8ccb1659",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 6
+      },
+      "revId": "5e5e06e048f8ea543a2eb25ce96cb337de911bf8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8467eca6_3ed15106",
         "filename": "test/GoverningDeciderTest.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-01-11T23:45:42Z",
       "side": 1,
       "message": "remove this and just call the factory singleton\u0027s registration API directly.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 39
+      },
+      "revId": "5e5e06e048f8ea543a2eb25ce96cb337de911bf8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ae5527c_6feeff91",
+        "filename": "test/GoverningDeciderTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:22:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8467eca6_3ed15106",
       "range": {
         "startLine": 41,
         "startChar": 0,
