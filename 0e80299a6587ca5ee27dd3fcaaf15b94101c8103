@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af61e555_a4bda2b6",
+        "filename": "src/DeciderFactory.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-12T00:24:09Z",
+      "side": 1,
+      "message": "get_decider?",
+      "range": {
+        "startLine": 64,
+        "startChar": 30,
+        "endLine": 64,
+        "endChar": 37
+      },
+      "revId": "0e80299a6587ca5ee27dd3fcaaf15b94101c8103",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
