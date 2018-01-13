@@ -488,9 +488,13 @@ TEST_F(GlobalPolicyTest, invalid_policy)
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
 
-    // tdp_percent must be double
+    // tdp_percent must be integer
     config_stream.open(input_config);
     config_stream << "{\"options\": {\"tdp_percent\": \"percent\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"tdp_percent\": 99.99} }";
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
 
@@ -500,7 +504,7 @@ TEST_F(GlobalPolicyTest, invalid_policy)
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
     config_stream.open(input_config);
-    config_stream << "{\"options\": {\"cpu_mhz\": \"5.5\"} }";
+    config_stream << "{\"options\": {\"cpu_mhz\": 5.5} }";
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
 
@@ -510,7 +514,7 @@ TEST_F(GlobalPolicyTest, invalid_policy)
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
     config_stream.open(input_config);
-    config_stream << "{\"options\": {\"num_cpu_max_perf\": \"5.5\"} }";
+    config_stream << "{\"options\": {\"num_cpu_max_perf\": 5.5} }";
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
 

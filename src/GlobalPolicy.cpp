@@ -43,6 +43,8 @@
 #include <system_error>
 #include <unistd.h>
 
+#include "contrib/json11/json11.hpp"
+
 #include "geopm_policy.h"
 #include "Exception.hpp"
 #include "GlobalPolicy.hpp"
@@ -51,6 +53,8 @@
 #include "geopm_version.h"
 #include "geopm_env.h"
 #include "config.h"
+
+using json11::Json;
 
 extern "C"
 {
@@ -554,22 +558,20 @@ namespace geopm
         std::string value_string;
         std::string key_string;
         std::string err_string;
-        json_object *object;
-        json_object *options_obj = NULL;
-        json_object *mode_obj = NULL;
-        enum json_type type;
         std::ifstream config_file_in;
 
         config_file_in.open(m_in_config, std::ifstream::in);
         if (!config_file_in.is_open()) {
             std::ostringstream ex_str;
-            ex_str << "GlobalPolicy::read(): input configuration file \"" << m_in_config << "\" could not be opened";
+            ex_str << "GlobalPolicy::read(): input configuration file \""
+                   << m_in_config << "\" could not be opened";
             throw Exception(ex_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         config_file_in.seekg(0, std::ios::end);
         size_t file_size = config_file_in.tellg();
         if (file_size <= 0) {
-            throw Exception("GlobalPolicy::read(): input configuration file invalid", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy::read(): input configuration file invalid",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         policy_string.reserve(file_size);
         config_file_in.seekg(0, std::ios::beg);
@@ -577,77 +579,81 @@ namespace geopm
         policy_string.assign((std::istreambuf_iterator<char>(config_file_in)),
                              std::istreambuf_iterator<char>());
 
-        object = json_tokener_parse(policy_string.c_str());
-
-        type = json_object_get_type(object);
-
-        if (type != json_type_object ) {
-            json_object_put(object);
-            throw Exception("GlobalPolicy::read(): detected a malformed json config file", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+        std::string err;
+        Json root = Json::parse(policy_string, err);
+        if (!err.empty() || !root.is_object()) {
+            throw Exception("GlobalPolicy::read(): detected a malformed json config file: " + err,
+                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
 
-        json_object_object_foreach(object, key, val) {
-            if (!strncmp(key, "mode", strlen("mode") + 1)) {
-                mode_obj = val;
+        Json mode_obj;
+        Json options_obj;
+        for (const auto &obj : root.object_items()) {
+            if (obj.first == "mode") {
+                mode_obj = obj.second;
             }
-            else if (!strncmp(key, "options", strlen("options") + 1)) {
-                options_obj = val;
+            else if (obj.first == "options") {
+                options_obj = obj.second;
             }
             else {
-                json_object_put(object);
-                throw Exception("GlobalPolicy::read(): unsupported key or malformed json config file", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::read(): unsupported key or malformed json config file",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
-
-        if (mode_obj != NULL) {
-            read_json_mode(mode_obj);
+        if (!mode_obj.is_null()) {
+            read_json_mode(&mode_obj);
         }
-        if (options_obj != NULL) {
-            read_json_options(options_obj);
+        if (!options_obj.is_null()) {
+            read_json_options(&options_obj);
         }
-
-        json_object_put(object);
         config_file_in.close();
     }
 
-    void GlobalPolicy::read_json_options(json_object *options_obj)
+    void GlobalPolicy::read_json_options(Json *options_obj)
     {
-        std::string key_string;
         std::string value_string;
 
-        if (json_object_get_type(options_obj) != json_type_object) {
-            throw Exception("GlobalPolicy::read(): options expected to be an object type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+        if (!options_obj->is_object()) {
+            throw Exception("GlobalPolicy::read(): options expected to be an object type",
+                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
-        json_object_object_foreach(options_obj, subkey, subval) {
-            key_string = subkey;
+
+        for (const auto &obj : options_obj->object_items()) {
+            std::string key_string = obj.first;
+            Json subval = obj.second;
+
             if (key_string == "tdp_percent") {
-                if (json_object_get_type(subval) == json_type_double) {
-                    tdp_percent(json_object_get_double(subval));
-                }
-                else if (json_object_get_type(subval) == json_type_int) {
-                    tdp_percent(json_object_get_int(subval));
+                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                    tdp_percent(subval.number_value());
                 }
                 else {
-                    throw Exception("GlobalPolicy::read(): tdp_percent expected to be a double type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                    throw Exception("GlobalPolicy::read(): tdp_percent expected to be a double type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
             else if (key_string == "cpu_mhz") {
-                if (json_object_get_type(subval) != json_type_int) {
-                    throw Exception("GlobalPolicy::read(): cpu_mhz expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                    frequency_mhz(subval.number_value());
+                } else {
+                    throw Exception("GlobalPolicy::read(): cpu_mhz expected to be an integer type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                frequency_mhz(json_object_get_int(subval));
             }
             else if (key_string == "num_cpu_max_perf") {
-                if (json_object_get_type(subval) != json_type_int) {
-                    throw Exception("GlobalPolicy::read(): num_cpu_max_perf expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                    num_max_perf(subval.number_value());
                 }
-                num_max_perf(json_object_get_int(subval));
+                else {
+                    throw Exception("GlobalPolicy::read(): num_cpu_max_perf expected to be an integer type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
             }
             else if (key_string == "affinity") {
-                if (json_object_get_type(subval) != json_type_string) {
-                    throw Exception("GlobalPolicy::read(): affinity expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (!subval.is_string()) {
+                    throw Exception("GlobalPolicy::read(): affinity expected to be a string type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                value_string = json_object_get_string(subval);
+                std::string value_string = subval.string_value();
                 if (value_string == "compact") {
                     affinity(GEOPM_POLICY_AFFINITY_COMPACT);
                 }
@@ -661,30 +667,36 @@ namespace geopm
                 }
             }
             else if (key_string == "power_budget") {
-                if (json_object_get_type(subval) != json_type_int) {
-                    throw Exception("GlobalPolicy::read(): power_budget expected to be an integer type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                    budget_watts(subval.number_value());
                 }
-                budget_watts(json_object_get_int(subval));
+                else {
+                    throw Exception("GlobalPolicy::read(): power_budget expected to be an integer type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
             }
             else if (key_string == "tree_decider") {
-                if (json_object_get_type(subval) != json_type_string) {
-                    throw Exception("GlobalPolicy::read(): tree_decider expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (!subval.is_string()) {
+                    throw Exception("GlobalPolicy::read(): tree_decider expected to be a string type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                value_string = json_object_get_string(subval);
+                std::string value_string = subval.string_value();
                 tree_decider(value_string);
             }
             else if (key_string == "leaf_decider") {
-                if (json_object_get_type(subval) != json_type_string) {
-                    throw Exception("GlobalPolicy::read(): leaf_decider expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (!subval.is_string()) {
+                    throw Exception("GlobalPolicy::read(): leaf_decider expected to be a string type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                value_string = json_object_get_string(subval);
+                std::string value_string = subval.string_value();
                 leaf_decider(value_string);
             }
             else if (key_string == "platform") {
-                if (json_object_get_type(subval) != json_type_string) {
-                    throw Exception("GlobalPolicy::read(): platform expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                if (!subval.is_string()) {
+                    throw Exception("GlobalPolicy::read(): platform expected to be a string type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                value_string = json_object_get_string(subval);
+                std::string value_string = subval.string_value();
                 platform(value_string);
             }
             else {
@@ -699,46 +711,56 @@ namespace geopm
     {
         if (m_mode == GEOPM_POLICY_MODE_TDP_BALANCE_STATIC) {
             if (tdp_percent() < 0 || tdp_percent() > 100) {
-                throw Exception("GlobalPolicy::check_valid(): percent tdp must be between 0 and 100", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): percent tdp must be between 0 and 100",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC) {
             if (frequency_mhz() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): frequency is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC) {
             if (frequency_mhz() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): frequency is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): frequency is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             if (num_max_perf() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): number of max perf cpus is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             if (affinity() != GEOPM_POLICY_AFFINITY_COMPACT &&
                 affinity() != GEOPM_POLICY_AFFINITY_SCATTER) {
-                throw Exception("GlobalPolicy::check_valid(): affinity must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): affinity must be set to 'scatter' or 'compact'",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC) {
             if (budget_watts() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): power budget is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC) {
             if (budget_watts() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): power budget is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC) {
             if (budget_watts() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): power budget is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): power budget is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             if (num_max_perf() < 0) {
-                throw Exception("GlobalPolicy::check_valid(): number of max perf cpus is out of bounds", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): number of max perf cpus is out of bounds",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
             if (affinity() != GEOPM_POLICY_AFFINITY_COMPACT &&
                 affinity() != GEOPM_POLICY_AFFINITY_SCATTER) {
-                throw Exception("GlobalPolicy::check_valid(): affiniy must be set to 'scatter' or 'compact'", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): affiniy must be set to 'scatter' or 'compact'",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if ((m_mode == GEOPM_POLICY_MODE_TDP_BALANCE_STATIC ||
@@ -751,7 +773,8 @@ namespace geopm
                 m_tree_decider = "static_policy";
             }
             else {
-                throw Exception("GlobalPolicy::check_valid(): cannot set mode to static unless the deciders are static", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): cannot set mode to static unless the deciders are static",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
         if ((m_mode == GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC ||
@@ -764,7 +787,8 @@ namespace geopm
                 m_tree_decider = "power_balancing";
             }
             else {
-                throw Exception("GlobalPolicy::check_valid(): dynamic mode does not match the required decider", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy::check_valid(): dynamic mode does not match the required decider",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_STATIC &&
@@ -780,13 +804,13 @@ namespace geopm
         }
     }
 
-    void GlobalPolicy::read_json_mode(json_object *mode_obj)
+    void GlobalPolicy::read_json_mode(Json *mode_obj)
     {
-        std::string value_string;
-        if (json_object_get_type(mode_obj) != json_type_string) {
-            throw Exception("GlobalPolicy::read(): mode expected to be a string type", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+        if (!mode_obj->is_string()) {
+            throw Exception("GlobalPolicy::read(): mode expected to be a string type",
+                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
-        value_string = json_object_get_string(mode_obj);
+        std::string value_string = mode_obj->string_value();
         if (value_string == "tdp_balance_static") {
             m_mode = GEOPM_POLICY_MODE_TDP_BALANCE_STATIC;
         }
@@ -821,7 +845,8 @@ namespace geopm
         int err;
         err = pthread_mutex_lock(&(m_policy_shmem_in->lock));
         if (err) {
-            throw Exception("GlobalPolicy::read_shm(): Could not lock shared memory region for root of tree", err, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy::read_shm(): Could not lock shared memory region for root of tree",
+                            err, __FILE__, __LINE__);
         }
         m_mode = m_policy_shmem_in->policy.mode;
         m_power_budget_watts = m_policy_shmem_in->policy.power_budget;
@@ -831,14 +856,16 @@ namespace geopm
         m_platform = m_policy_shmem_in->plugin.platform;
         err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
         if (err) {
-            throw Exception("GlobalPolicy::read(): Could not unlock shared memory region for root of tree", err, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy::read(): Could not unlock shared memory region for root of tree",
+                            err, __FILE__, __LINE__);
         }
     }
 
     void GlobalPolicy::write()
     {
         if (!m_do_write) {
-            throw Exception("GlobalPolicy: invalid operation, out_config not specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy: invalid operation, out_config not specified",
+                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
         check_valid();
         if (m_is_shm_out) {
@@ -851,118 +878,88 @@ namespace geopm
 
     void GlobalPolicy::write_json(void)
     {
-        json_object *policy, *options;
-        std::string affinity_name;
-
-        policy = json_object_new_object();
-        options = json_object_new_object();
+        Json policy;
+        Json options;
 
         switch (m_mode) {
             case GEOPM_POLICY_MODE_SHUTDOWN:
                 break;
             case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("tdp_balance_static"));
-                json_object_object_add(options, "tdp_percent",
-                                       json_object_new_double(tdp_percent()));
+                policy = Json::object {
+                    {"mode", "tdp_balance_static"},
+                    {"options", Json::object {
+                        {"tdp_percent", tdp_percent()}}}};
                 break;
             case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("freq_uniform_static"));
-                json_object_object_add(options, "cpu_mhz",
-                                       json_object_new_int(frequency_mhz()));
+                policy = Json::object {
+                    {"mode", "freq_uniform_static"},
+                    {"options", Json::object {
+                        {"cpu_mhz", frequency_mhz()}}}};
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("freq_hybrid_static"));
-                json_object_object_add(options, "cpu_mhz",
-                                       json_object_new_int(frequency_mhz()));
-                json_object_object_add(options, "num_cpu_max_perf",
-                                       json_object_new_int(num_max_perf()));
-                affinity_string(affinity(), affinity_name);
-                json_object_object_add(options, "affinity",
-                                       json_object_new_string(affinity_name.c_str()));
+                policy = Json::object {
+                    {"mode", "freq_hybrid_static"},
+                    {"options", Json::object {
+                        {"cpu_mhz", frequency_mhz()},
+                        {"num_cpu_max_perf", num_max_perf()},
+                        {"affinity", affinity_string(affinity())}}}};
                 break;
             case GEOPM_POLICY_MODE_PERF_BALANCE_DYNAMIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("perf_balance_dynamic"));
-                json_object_object_add(options, "tree_decider",
-                                       json_object_new_string(m_tree_decider.c_str()));
-                json_object_object_add(options, "leaf_decider",
-                                       json_object_new_string(m_leaf_decider.c_str()));
-                json_object_object_add(options, "platform",
-                                       json_object_new_string(m_platform.c_str()));
-                json_object_object_add(options, "power_budget",
-                                       json_object_new_int(budget_watts()));
+                policy = Json::object {
+                    {"mode", "perf_balance_dynamic"},
+                    {"options", Json::object {
+                        {"tree_decider", m_tree_decider},
+                        {"leaf_decider", m_leaf_decider},
+                        {"platform", m_platform},
+                        {"power_budget", budget_watts()}}}};
                 break;
             case GEOPM_POLICY_MODE_FREQ_UNIFORM_DYNAMIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("freq_uniform_dynamic"));
-                json_object_object_add(options, "tree_decider",
-                                       json_object_new_string(m_tree_decider.c_str()));
-                json_object_object_add(options, "leaf_decider",
-                                       json_object_new_string(m_leaf_decider.c_str()));
-                json_object_object_add(options, "platform",
-                                       json_object_new_string(m_platform.c_str()));
-                json_object_object_add(options, "power_budget",
-                                       json_object_new_int(budget_watts()));
+                policy = Json::object {
+                    {"mode", "freq_uniform_dynamic"},
+                    {"options", Json::object {
+                        {"tree_decider", m_tree_decider},
+                        {"leaf_decider", m_leaf_decider},
+                        {"platform", m_platform},
+                        {"power_budget", budget_watts()}}}};
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_DYNAMIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("freq_hybrid_dynamic"));
-                json_object_object_add(options, "tree_decider",
-                                       json_object_new_string(m_tree_decider.c_str()));
-                json_object_object_add(options, "leaf_decider",
-                                       json_object_new_string(m_leaf_decider.c_str()));
-                json_object_object_add(options, "platform",
-                                       json_object_new_string(m_platform.c_str()));
-                json_object_object_add(options, "power_budget",
-                                       json_object_new_int(budget_watts()));
-                json_object_object_add(options, "num_cpu_max_perf",
-                                       json_object_new_int(num_max_perf()));
-                affinity_string(affinity(), affinity_name);
-                json_object_object_add(options, "affinity",
-                                       json_object_new_string(affinity_name.c_str()));
+                policy = Json::object {
+                    {"mode", "freq_hybrid_dynamic"},
+                    {"options", Json::object {
+                        {"tree_decider", m_tree_decider},
+                        {"leaf_decider", m_leaf_decider},
+                        {"platform", m_platform},
+                        {"power_budget", budget_watts()},
+                        {"num_cpu_max_perf", num_max_perf()},
+                        {"affinity", affinity_string(affinity())}}}};
                 break;
             case GEOPM_POLICY_MODE_STATIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("static"));
-                json_object_object_add(options, "platform",
-                                       json_object_new_string(m_platform.c_str()));
+                policy = Json::object {
+                    {"mode", "static"},
+                    {"options", Json::object {
+                        {"platform", m_platform}}}};
                 break;
             case GEOPM_POLICY_MODE_DYNAMIC:
-                json_object_object_add(policy, "mode",
-                                       json_object_new_string("dynamic"));
-                json_object_object_add(options, "tdp_percent",
-                                       json_object_new_double(tdp_percent()));
-                json_object_object_add(options, "cpu_mhz",
-                                       json_object_new_int(frequency_mhz()));
-                json_object_object_add(options, "num_cpu_max_perf",
-                                       json_object_new_int(num_max_perf()));
-                if (affinity() != GEOPM_POLICY_AFFINITY_INVALID) {
-                    affinity_string(affinity(), affinity_name);
-                    json_object_object_add(options, "affinity",
-                                           json_object_new_string(affinity_name.c_str()));
-                }
-                json_object_object_add(options, "power_budget",
-                                       json_object_new_int(budget_watts()));
-                json_object_object_add(options, "tree_decider",
-                                       json_object_new_string(m_tree_decider.c_str()));
-                json_object_object_add(options, "leaf_decider",
-                                       json_object_new_string(m_leaf_decider.c_str()));
-                json_object_object_add(options, "platform",
-                                       json_object_new_string(m_platform.c_str()));
+                policy = Json::object {
+                    {"mode", "dynamic"},
+                    {"options", Json::object {
+                        {"tdp_percent", tdp_percent()},
+                        {"cpu_mhz", frequency_mhz()},
+                        {"num_cpu_max_perf", num_max_perf()},
+                        {"affinity", affinity_string(affinity())},
+                        {"platform", m_platform},
+                        {"power_budget", budget_watts()},
+                        {"tree_decider", m_tree_decider},
+                        {"leaf_decider", m_leaf_decider}}}};
                 break;
             default:
-                throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy: invalid mode specified",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
-        json_object_object_add(policy, "options", options);
+
         std::ofstream config_file_out;
         config_file_out.open(m_out_config.c_str(), std::ifstream::out);
-        config_file_out << json_object_to_json_string(policy);
-
-        // options will be freed with policy
-        json_object_put(policy);
+        config_file_out << policy.dump();
         config_file_out.close();
     }
 
@@ -970,7 +967,8 @@ namespace geopm
     {
         int err = pthread_mutex_lock(&(m_policy_shmem_out->lock));
         if (err) {
-            throw Exception("GlobalPolicy: Could not lock shared memory region for resource manager", errno, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy: Could not lock shared memory region for resource manager",
+                            errno, __FILE__, __LINE__);
         }
         m_policy_shmem_out->policy.mode = m_mode;
         m_policy_shmem_out->policy.power_budget = m_power_budget_watts;
@@ -983,12 +981,14 @@ namespace geopm
         strncpy(m_policy_shmem_out->plugin.platform, m_platform.c_str(), NAME_MAX - 1);
         err = pthread_mutex_unlock(&(m_policy_shmem_in->lock));
         if (err) {
-            throw Exception("GlobalPolicy: Could not unlock shared memory region for resource manager", errno, __FILE__, __LINE__);
+            throw Exception("GlobalPolicy: Could not unlock shared memory region for resource manager",
+                            errno, __FILE__, __LINE__);
         }
     }
 
-    void GlobalPolicy::affinity_string(int value, std::string &name)
+    std::string GlobalPolicy::affinity_string(int value)
     {
+        std::string name;
         switch (value) {
             case GEOPM_POLICY_AFFINITY_COMPACT:
                 name = "compact";
@@ -997,9 +997,11 @@ namespace geopm
                 name = "scatter";
                 break;
             default:
-                throw Exception("GlobalPolicy: invalid affinity specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy: invalid affinity specified",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 break;
         }
+        return name;
     }
 
     void GlobalPolicy::enforce_static_mode()
@@ -1018,7 +1020,8 @@ namespace geopm
                 platform->manual_frequency(frequency_mhz(), num_max_perf(), affinity());
                 break;
             default:
-                throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy: invalid mode specified",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         };
     }
 
@@ -1044,7 +1047,8 @@ namespace geopm
             case GEOPM_POLICY_MODE_SHUTDOWN:
                 return "SHUTDOWN";
             default:
-                throw Exception("GlobalPolicy: Unable to convert invalid mode", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("GlobalPolicy: Unable to convert invalid mode",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
