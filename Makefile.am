@@ -312,6 +312,8 @@ GEOPM_COMMON_SOURCE = src/CircularBuffer.hpp \
                       src/geopm_time.h \
                       src/geopm_version.c \
                       src/geopm_version.h \
+                      contrib/json11/json11.cpp \
+                      contrib/json11/json11.hpp \
                       # end
 
 # SOURCE LISTS FOR EACH TARGET
