@@ -312,6 +312,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Tracer.hpp \
                             src/XeonPlatformImp.cpp \
                             src/XeonPlatformImp.hpp \
+                            contrib/json11/json11.cpp \
+                            contrib/json11/json11.hpp \
                             # end
 
 geopmpolicy_SOURCES = src/geopmpolicy_main.c \
