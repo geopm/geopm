@@ -55,8 +55,8 @@ namespace geopm
             virtual int tdp_percent(void) const = 0;
             /// @brief Get the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_AFFINITY_SCATTER or
-            /// GEOPM_AFFINITY_COMPACT.
+            /// GEOPM_POLICY_AFFINITY_SCATTER or
+            /// GEOPM_POLICY_AFFINITY_COMPACT.
             /// @return enum power affinity
             virtual int affinity(void) const = 0;
             /// @brief Get the policy power goal, One of
@@ -80,8 +80,8 @@ namespace geopm
             virtual void tdp_percent(int percentage) = 0;
             /// @brief Set the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_AFFINITY_SCATTER or
-            /// GEOPM_AFFINITY_COMPACT.
+            /// GEOPM_POLICY_AFFINITY_SCATTER or
+            /// GEOPM_POLICY_AFFINITY_COMPACT.
             /// @param [in] cpu_affinity enum power affinity
             virtual void affinity(int cpu_affinity) = 0;
             /// @brief Set the policy power goal. One of
