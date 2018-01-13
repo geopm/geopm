@@ -40,7 +40,6 @@
 #include <string>
 #include <sstream>
 #include <numeric>
-#include <json-c/json.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
