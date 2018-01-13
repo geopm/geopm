@@ -36,10 +36,13 @@
 #include <string>
 #include <fstream>
 #include <memory>
-#include <json-c/json.h>
 
 #include "geopm_plugin.h"
 #include "PolicyFlags.hpp"
+
+namespace json11 {
+    class Json;
+}
 
 namespace geopm
 {
@@ -71,8 +74,8 @@ namespace geopm
             virtual int budget_watts(void) const = 0;
             /// @brief Get the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
+            /// GEOPM_POLICY_AFFINITY_SCATTER or
+            /// GEOPM_POLICY_AFFINITY_COMPACT.
             /// @return enum power affinity
             virtual int affinity(void) const = 0;
             /// @brief Get the policy power goal, One of
@@ -117,8 +120,8 @@ namespace geopm
             virtual void budget_watts(int budget) = 0;
             /// @brief Set the policy affinity. This is the cores that we
             /// will dynamically control. One of
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT or
-            /// GEOPM_FLAGS_SMALL_CPU_TOPOLOGY_COMPACT.
+            /// GEOPM_POLICY_AFFINITY_SCATTER or
+            /// GEOPM_POLICY_AFFINITY_COMPACT.
             /// @param [in] cpu_affinity enum power affinity
             virtual void affinity(int cpu_affinity) = 0;
             /// @brief Set the policy power goal. One of
@@ -214,14 +217,14 @@ namespace geopm
                 /// @brief plugin selection strings
                 struct geopm_plugin_description_s plugin;
             };
-            /// @brief Take in an affinity enum and fill in its string representation.
+            /// @brief Take in an affinity enum and return its string representation.
             /// @param [in] value the enum value of the affinity.
-            /// @param [out] name the string representation of the affinity.
-            void affinity_string(int value, std::string &name);
+            /// @return the string representation of the affinity.
+            std::string affinity_string(int value);
             void read_shm(void);
             void read_json(void);
-            void read_json_mode(json_object *mode_obj);
-            void read_json_options(json_object *option_obj);
+            void read_json_mode(json11::Json *mode_obj);
+            void read_json_options(json11::Json *option_obj);
             void write_shm(void);
             void write_json(void);
             void check_valid(void);
