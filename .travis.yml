@@ -41,16 +41,13 @@ git:
 
 before_install:
     - rvm install 2.0.0
-    - wget https://github.com/json-c/json-c/archive/json-c-0.11-20130402.tar.gz
-    - tar xvf json-c-0.11-20130402.tar.gz
-    - cd json-c-json-c-0.11-20130402 && ./configure --prefix=$HOME/build/json && make && make install && cd -
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
     - pip install --user pandas natsort matplotlib
 
 install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --with-json=$HOME/build/json --disable-fortran
+    - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran
 
 script:
     - make

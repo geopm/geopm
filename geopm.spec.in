@@ -44,11 +44,7 @@ BuildRequires: openmpi-devel
 BuildRequires: hwloc-devel
 BuildRequires: unzip
 BuildRequires: libtool
-%if %{defined suse_version}
-BuildRequires: libjson-c-devel
-%else
-BuildRequires: json-c-devel
-%endif
+
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif

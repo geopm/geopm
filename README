@@ -153,20 +153,21 @@ BUILD REQUIREMENTS
 In order to build the geopm package from source, the below
 requirements must be met.
 
-The geopm package requires a compiler that supports the MPI 2.2 and C++11
-standards.  These requirements can be met by using GCC version 4.7 or greater
-and installing the openmpi-devel package version 1.7 or greater on RHEL or
-SLES Linux.  Additionally building the geopm package requires the json-c
-library and the hwloc library. Documentation creation including manpages
-further requires the rubygems package, and the ruby-devel package.
+The geopm package requires a compiler that supports the MPI 2.2 and
+C++11 standards.  These requirements can be met by using GCC version
+4.7 or greater and installing the openmpi-devel package version 1.7 or
+greater on RHEL or SLES Linux.  Additionally building the geopm
+package requires the hwloc library. Documentation creation including
+manpages further requires the rubygems package, and the ruby-devel
+package.
 
 RHEL:
 
-    yum install openmpi-devel json-c-devel hwloc-devel ruby-devel rubygems
+    yum install openmpi-devel hwloc-devel ruby-devel rubygems
 
 SUSE:
 
-    zypper install openmpi-devel libjson-c-devel hwloc-devel ruby-devel rubygems
+    zypper install openmpi-devel hwloc-devel ruby-devel rubygems
 
 Alternatively these can be installed from source, and an alternate MPI
 implementation to OpenMPI can be selected.  See
@@ -222,17 +223,17 @@ RUN REQUIREMENTS
 ----------------
 We are targeting SLES12 and RHEL7 distributions for functional runtime
 support.  There are several runtime requirements that can be obtained
-from those distributions including the OpenMPI implementation of MPI,
-the json-c library, and the hwloc library.  To install follow the
-instructions below for your Linux distribution.
+from those distributions including the OpenMPI implementation of MPI
+and the hwloc library.  To install follow the instructions below for
+your Linux distribution.
 
 RHEL:
 
-    yum install openmpi json-c hwloc
+    yum install openmpi hwloc
 
 SUSE:
 
-    zypper install openmpi libjson-c hwloc
+    zypper install openmpi hwloc
 
 ### MSR DRIVER
 The msr-safe kernel driver must be loaded at runtime to
