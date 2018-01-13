@@ -77,25 +77,6 @@ if test "x$with_hwloc_lib" != x; then
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_hwloc_lib"
 fi
 
-AC_ARG_WITH([json], [AS_HELP_STRING([--with-json=PATH],
-            [specify directory for installed json-c package.])])
-if test "x$with_json" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_json/include"
-  LD_LIBRARY_PATH="$with_json/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_json/lib"
-fi
-AC_ARG_WITH([json-include], [AS_HELP_STRING([--with-json-include=PATH],
-            [specify directory for the installed json-c include files.])])
-if test "x$with_json_include" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_json_include"
-fi
-AC_ARG_WITH([json-lib], [AS_HELP_STRING([--with-json-lib=PATH],
-            [specify directory for installed json-c library])])
-if test "x$with_json_lib" != x; then
-  LIBRARY_PATH="$with_json_lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_json_lib"
-fi
-
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug], [Build debugging code and compile with -O0 -g])],
 [if test "x$enable_debug" = "xno" ; then
@@ -381,12 +362,6 @@ AC_CHECK_LIB([hwloc], [hwloc_topology_dup], [
     AC_DEFINE([GEOPM_HWLOC_HAS_TOPOLOGY_DUP], [1], [hwloc supports hwloc_topology_dup.])], [])
 AC_CHECK_HEADER([hwloc.h], [], [
     echo "missing hwloc.h: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-include"
-    exit -1])
-AC_CHECK_LIB([json-c], [json_tokener_parse], [], [
-    echo "missing libjson-c: <https://github.com/json-c/json-c/wiki> use --with-json or --with-json-lib"
-    exit -1])
-AC_CHECK_HEADER([json-c/json.h], [], [
-    echo "missing json-c/json.h: <https://github.com/json-c/json-c/wiki> use --with-json or --with-json-include"
     exit -1])
 
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])

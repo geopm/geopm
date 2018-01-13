@@ -79,12 +79,6 @@ BuildRequires: python
 BuildRequires: python-devel
 BuildRequires: unzip
 
-%if 0%{?sles_version} || 0%{?suse_version}
-BuildRequires: libjson-c-devel
-%else
-BuildRequires: json-c-devel
-%endif
-
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif
