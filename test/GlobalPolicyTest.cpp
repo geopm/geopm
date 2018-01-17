@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <unistd.h>
-#include <iostream>
+#include <fstream>
 
 #include "gtest/gtest.h"
 #include "geopm_policy.h"
@@ -439,6 +439,7 @@ TEST_F(GlobalPolicyTestShmem, plugin_strings)
 
 TEST_F(GlobalPolicyTest, invalid_policy)
 {
+    // mismatched mode and decider
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     policy->tree_decider("power_balancing");
     policy->leaf_decider("power_governing");
@@ -451,16 +452,127 @@ TEST_F(GlobalPolicyTest, invalid_policy)
     policy->budget_watts(850);
     EXPECT_THROW(policy->write(), geopm::Exception);
     delete policy;
-    EXPECT_THROW(
-    try {
-        policy = new geopm::GlobalPolicy("test/invalid_policy.json", m_path);
-    }
-    catch (geopm::Exception ex)
-    {
-        EXPECT_EQ(GEOPM_ERROR_INVALID, ex.err_value());
-        throw ex;
-    }
-    , geopm::Exception);
+
+    // read invalid file
+    std::string input_config = "test/invalid_policy.json";
+    std::ofstream config_stream(input_config);
+    config_stream << "{ \"mode\": \"perf_balance_dynamic\", "
+                  << "  \"options\": { \"tree_decider\": \"static_policy\", "
+                  << "                 \"leaf_decider\": \"static_policy\", "
+                  << "                 \"platform\": \"rapl\", "
+                  << "                 \"power_budget\": 800 } }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // missing or empty policy file
+    EXPECT_THROW(geopm::GlobalPolicy missing_file(input_config, ""), geopm::Exception);
+    config_stream.open(input_config);
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy empty_file(input_config, ""), geopm::Exception);
+
+    // malformed json file
+    config_stream.open(input_config);
+    config_stream << "{bad json]";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // unknown root key
+    config_stream.open(input_config);
+    config_stream << "{\"unknown\":1}";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // options must be object
+    config_stream.open(input_config);
+    config_stream << "{\"options\":1}";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // tdp_percent must be double
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"tdp_percent\": \"percent\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // cpu_mhz must be integer
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"cpu_mhz\": \"percent\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"cpu_mhz\": \"5.5\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // num_cpu_max_perf must be integer
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"num_cpu_max_perf\": \"number\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"num_cpu_max_perf\": \"5.5\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // affinity must be string
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"affinity\": 12} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // affinity string must be "compact" or "scatter"
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"affinity\": \"unknown\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // power_budget must be integer
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"power_budget\": \"number\"} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"power_budget\": 77.77} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // tree_decider must be string
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"tree_decider\": 12} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // leaf_decider must be string
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"leaf_decider\": 12} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // platform must be string
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"platform\": 12} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // unknown option key
+    config_stream.open(input_config);
+    config_stream << "{\"options\": {\"unknown\": 2} }";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // mode must be string
+    config_stream.open(input_config);
+    config_stream << "{\"mode\": 5}";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    // invalid mode string
+    config_stream.open(input_config);
+    config_stream << "{\"mode\": \"unknown\"}";
+    config_stream.close();
+    EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
+
+    std::remove(input_config.c_str());
 }
 
 TEST_F(GlobalPolicyTest, c_interface)

@@ -4,14 +4,12 @@ ChangeLog
 CONTRIBUTING.md
 COPYING
 copying_headers/header.BSD3-intel
-copying_headers/header.BSD3-mvapich2
 copying_headers/header.BSD3-llnl
+copying_headers/header.NAS
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.BSD3-intel
-copying_headers/MANIFEST.BSD3-mvapich2
 copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.NAS
-copying_headers/header.NAS
 doc/geopm-plugin-guide.tex
 doc/leaf-figure.pdf
 doc/tree-figure.pdf
@@ -48,7 +46,6 @@ ronn/header.txt
 ronn/index.txt
 scripts/MANIFEST.in
 test/default_policy.json
-test/invalid_policy.json
 test_integration/README.md
 TODO
 tutorial/README.md
