@@ -49,14 +49,14 @@ libgeopmpi_balancing_la_SOURCES = plugin/BalancingDecider.cpp \
                                   plugin/BalancingDecider.hpp \
                                   # end
 
-pkglib_LTLIBRARIES += libgeopmpi_simplefreq.la
-libgeopmpi_simplefreq_la_SOURCES = plugin/SimpleFreqDecider.cpp \
-                                   plugin/SimpleFreqDecider.hpp \
-                                   plugin/AdaptiveFreqRegion.hpp \
-                                   plugin/AdaptiveFreqRegion.cpp \
-                                   plugin/GoverningDecider.cpp \
-                                   plugin/GoverningDecider.hpp \
-                                   # end
+pkglib_LTLIBRARIES += libgeopmpi_efficientfreq.la
+libgeopmpi_efficientfreq_la_SOURCES = plugin/EfficientFreqDecider.cpp \
+                                      plugin/EfficientFreqDecider.hpp \
+                                      plugin/EfficientFreqRegion.hpp \
+                                      plugin/EfficientFreqRegion.cpp \
+                                      plugin/GoverningDecider.cpp \
+                                      plugin/GoverningDecider.hpp \
+                                      # end
 
 # -module required to force .so generation of plugin.
 if ENABLE_MPI
@@ -69,5 +69,5 @@ libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) -module
 libgeopmpi_governing_la_LIBADD = libgeopm.la
 libgeopmpi_balancing_la_LDFLAGS = $(AM_LDFLAGS) -module
 libgeopmpi_balancing_la_LIBADD = libgeopm.la
-libgeopmpi_simplefreq_la_LDFLAGS = $(AM_LDFLAGS) -module
-libgeopmpi_simplefreq_la_LIBADD = libgeopm.la
+libgeopmpi_efficientfreq_la_LDFLAGS = $(AM_LDFLAGS) -module
+libgeopmpi_efficientfreq_la_LIBADD = libgeopm.la
