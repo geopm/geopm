@@ -33,10 +33,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "AdaptiveFreqRegion.hpp"
+#include "EfficientFreqRegion.hpp"
 #include "Region.hpp"
 
-using geopm::AdaptiveFreqRegion;
+using geopm::EfficientFreqRegion;
 
 class StubRegion : public geopm::Region
 {
@@ -76,7 +76,7 @@ class StubRegion : public geopm::Region
                 return 1.0;
             }
             else {
-                throw std::runtime_error("AdaptiveFreqRegion used unexpected signal: " +
+                throw std::runtime_error("EfficientFreqRegion used unexpected signal: " +
                                          std::to_string(signal_type));
             }
         }
@@ -88,10 +88,10 @@ class StubRegion : public geopm::Region
         double m_mock_region_energy = 0.0;
 };
 
-class AdaptiveFreqRegionTest : public ::testing::Test
+class EfficientFreqRegionTest : public ::testing::Test
 {
     protected:
-        AdaptiveFreqRegionTest();
+        EfficientFreqRegionTest();
         void SetUp();
         void TearDown();
         double m_freq_min = 1800000000.0;
@@ -101,29 +101,29 @@ class AdaptiveFreqRegionTest : public ::testing::Test
         int m_num_domain = 1;
 
         StubRegion m_region;
-        AdaptiveFreqRegion m_freq_region;
+        EfficientFreqRegion m_freq_region;
 
         void sample_to_set_baseline();
 };
 
-AdaptiveFreqRegionTest::AdaptiveFreqRegionTest()
+EfficientFreqRegionTest::EfficientFreqRegionTest()
     : m_freq_region(&m_region, m_freq_min, m_freq_max, m_freq_step, m_num_domain)
 {
 
 }
 
-void AdaptiveFreqRegionTest::SetUp()
+void EfficientFreqRegionTest::SetUp()
 {
     ASSERT_NE(m_freq_min, m_freq_max);
     ASSERT_NE(0, m_freq_step);
 }
 
-void AdaptiveFreqRegionTest::TearDown()
+void EfficientFreqRegionTest::TearDown()
 {
 
 }
 
-void AdaptiveFreqRegionTest::sample_to_set_baseline()
+void EfficientFreqRegionTest::sample_to_set_baseline()
 {
     // freq stays unchanged for several samples to set target
     for (int i = 0; i < m_base_samples; ++i) {
@@ -134,19 +134,19 @@ void AdaptiveFreqRegionTest::sample_to_set_baseline()
     }
 }
 
-TEST_F(AdaptiveFreqRegionTest, construct_with_null_throws)
+TEST_F(EfficientFreqRegionTest, construct_with_null_throws)
 {
-    ASSERT_THROW(AdaptiveFreqRegion(nullptr, m_freq_min, m_freq_max, m_freq_step,
-                                    m_num_domain),
+    ASSERT_THROW(EfficientFreqRegion(nullptr, m_freq_min, m_freq_max, m_freq_step,
+                                     m_num_domain),
                  geopm::Exception);
 }
 
-TEST_F(AdaptiveFreqRegionTest, freq_starts_at_maximum)
+TEST_F(EfficientFreqRegionTest, freq_starts_at_maximum)
 {
     ASSERT_EQ(m_freq_max, m_freq_region.freq());
 }
 
-TEST_F(AdaptiveFreqRegionTest, update_ignores_nan_sample)
+TEST_F(EfficientFreqRegionTest, update_ignores_nan_sample)
 {
     m_region.set_runtime(NAN);
     sample_to_set_baseline();
@@ -164,7 +164,7 @@ TEST_F(AdaptiveFreqRegionTest, update_ignores_nan_sample)
 
 }
 
-TEST_F(AdaptiveFreqRegionTest, only_changes_freq_after_enough_samples)
+TEST_F(EfficientFreqRegionTest, only_changes_freq_after_enough_samples)
 {
     m_region.set_runtime(2);
     sample_to_set_baseline();
@@ -182,7 +182,7 @@ TEST_F(AdaptiveFreqRegionTest, only_changes_freq_after_enough_samples)
 }
 
 
-TEST_F(AdaptiveFreqRegionTest, freq_does_not_go_below_min)
+TEST_F(EfficientFreqRegionTest, freq_does_not_go_below_min)
 {
     // run more times than the number of frequencies
     size_t num_steps = 5 + (size_t)(ceil((m_freq_max-m_freq_min)/m_freq_step));
@@ -204,7 +204,7 @@ TEST_F(AdaptiveFreqRegionTest, freq_does_not_go_below_min)
 
 }
 
-TEST_F(AdaptiveFreqRegionTest, performance_decreases_freq_steps_back_up)
+TEST_F(EfficientFreqRegionTest, performance_decreases_freq_steps_back_up)
 {
     // 90% target will be 3.3
     m_region.set_runtime(3);
@@ -224,7 +224,7 @@ TEST_F(AdaptiveFreqRegionTest, performance_decreases_freq_steps_back_up)
     }
 }
 
-TEST_F(AdaptiveFreqRegionTest, energy_increases_freq_steps_back_up)
+TEST_F(EfficientFreqRegionTest, energy_increases_freq_steps_back_up)
 {
     m_region.set_runtime(3);
     m_region.set_energy(1);
@@ -244,7 +244,7 @@ TEST_F(AdaptiveFreqRegionTest, energy_increases_freq_steps_back_up)
     }
 }
 
-TEST_F(AdaptiveFreqRegionTest, after_too_many_increase_freq_stays_at_higher)
+TEST_F(EfficientFreqRegionTest, after_too_many_increase_freq_stays_at_higher)
 {
     m_region.set_runtime(3); // 90% target should be 2.7
 

@@ -38,7 +38,6 @@ import time
 import pandas
 import collections
 import socket
-import signal
 import stat
 import datetime
 
@@ -840,11 +839,11 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
-    def test_plugin_simple_freq_offline(self):
+    def test_plugin_efficient_freq_offline(self):
         """
-        Test of the SimpleFreqDecider offline auto mode.
+        Test of the EfficientFreqDecider offline auto mode.
         """
-        name = 'test_plugin_simple_freq_offline'
+        name = 'test_plugin_efficient_freq_offline'
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -898,11 +897,11 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
-    def test_plugin_simple_freq_online(self):
+    def test_plugin_efficient_freq_online(self):
         """
-        Test of the SimpleFreqDecider online auto mode.
+        Test of the EfficientFreqDecider online auto mode.
         """
-        name = 'test_plugin_simple_freq_online'
+        name = 'test_plugin_efficient_freq_online'
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449

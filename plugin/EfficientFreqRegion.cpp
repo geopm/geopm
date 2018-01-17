@@ -30,14 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "AdaptiveFreqRegion.hpp"
+#include "EfficientFreqRegion.hpp"
 
 namespace geopm
 {
 
-    AdaptiveFreqRegion::AdaptiveFreqRegion(geopm::IRegion *region,
-                                           double freq_min, double freq_max,
-                                           double freq_step, int num_domain)
+    EfficientFreqRegion::EfficientFreqRegion(geopm::IRegion *region,
+                                             double freq_min, double freq_max,
+                                             double freq_step, int num_domain)
         : m_region(region)
         , M_NUM_FREQ(1 + (size_t)(ceil((freq_max-freq_min)/freq_step)))
         , m_curr_idx(M_NUM_FREQ - 1)
@@ -50,7 +50,7 @@ namespace geopm
         , m_num_domain(num_domain)
     {
         if (nullptr == region) {
-            throw Exception("AdaptiveFreqRegion(): region cannot be NULL",
+            throw Exception("EfficientFreqRegion(): region cannot be NULL",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         // set up allowed frequency range
@@ -61,7 +61,7 @@ namespace geopm
         }
     }
 
-    double AdaptiveFreqRegion::perf_metric()
+    double EfficientFreqRegion::perf_metric()
     {
         double elapsed = NAN;
         struct geopm_time_s current_time = m_region->telemetry_timestamp(-1);
@@ -73,7 +73,7 @@ namespace geopm
         return elapsed;
     }
 
-    double AdaptiveFreqRegion::energy_metric()
+    double EfficientFreqRegion::energy_metric()
     {
         double total_energy = 0.0;
         for (int domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
@@ -83,19 +83,19 @@ namespace geopm
         return total_energy;
     }
 
-    double AdaptiveFreqRegion::freq(void) const
+    double EfficientFreqRegion::freq(void) const
     {
         return m_allowed_freq[m_curr_idx];
     }
 
-    void AdaptiveFreqRegion::update_entry()
+    void EfficientFreqRegion::update_entry()
     {
         struct geopm_time_s current_time = m_region->telemetry_timestamp(-1);
         m_start_time = current_time;
         m_start_energy = energy_metric();
     }
 
-    void AdaptiveFreqRegion::update_exit()
+    void EfficientFreqRegion::update_exit()
     {
         if (m_is_learning) {
             double perf = perf_metric();

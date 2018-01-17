@@ -44,11 +44,11 @@
 #include "geopm_hash.h"
 #include "geopm_sched.h"
 
-#include "SimpleFreqDecider.hpp"
+#include "EfficientFreqDecider.hpp"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 #include "Region.hpp"
-#include "AdaptiveFreqRegion.hpp"
+#include "EfficientFreqRegion.hpp"
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
@@ -56,7 +56,7 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void
 
     try {
         if (plugin_type == GEOPM_PLUGIN_TYPE_DECIDER) {
-            geopm::IDecider *decider = new geopm::SimpleFreqDecider;
+            geopm::IDecider *decider = new geopm::EfficientFreqDecider;
             geopm_factory_register(factory, decider, dl_ptr);
         }
     }
@@ -69,17 +69,17 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void
 
 namespace geopm
 {
-    SimpleFreqDecider::SimpleFreqDecider()
-        : SimpleFreqDecider("/proc/cpuinfo",
-                            "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
-                            "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+    EfficientFreqDecider::EfficientFreqDecider()
+        : EfficientFreqDecider("/proc/cpuinfo",
+                               "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
+                               "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
     {
 
     }
 
-    SimpleFreqDecider::SimpleFreqDecider(const std::string &cpu_info_path,
-                                         const std::string &cpu_freq_min_path,
-                                         const std::string &cpu_freq_max_path)
+    EfficientFreqDecider::EfficientFreqDecider(const std::string &cpu_info_path,
+                                               const std::string &cpu_freq_min_path,
+                                               const std::string &cpu_freq_max_path)
         : GoverningDecider()
         , m_cpu_info_path(cpu_info_path)
         , m_cpu_freq_min_path(cpu_freq_min_path)
@@ -90,15 +90,15 @@ namespace geopm
         , m_num_cores(geopm_sched_num_cpu())
         , m_last_freq(NAN)
     {
-        m_name = "simple_freq";
+        m_name = "efficient_freq";
         parse_env_map();
-        const char* env_freq_adapt_str = getenv("GEOPM_SIMPLE_FREQ_ADAPTIVE");
+        const char* env_freq_adapt_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
         if (env_freq_adapt_str) {
             m_is_adaptive = true;
         }
     }
 
-    SimpleFreqDecider::SimpleFreqDecider(const SimpleFreqDecider &other)
+    EfficientFreqDecider::EfficientFreqDecider(const EfficientFreqDecider &other)
         : GoverningDecider(other)
         , m_cpu_info_path(other.m_cpu_info_path)
         , m_cpu_freq_min_path(other.m_cpu_freq_min_path)
@@ -115,19 +115,19 @@ namespace geopm
 
     }
 
-    SimpleFreqDecider::~SimpleFreqDecider()
+    EfficientFreqDecider::~EfficientFreqDecider()
     {
 
     }
 
-    IDecider *SimpleFreqDecider::clone(void) const
+    IDecider *EfficientFreqDecider::clone(void) const
     {
-        return (IDecider*)(new SimpleFreqDecider(*this));
+        return (IDecider*)(new EfficientFreqDecider(*this));
     }
 
-    void SimpleFreqDecider::parse_env_map(void)
+    void EfficientFreqDecider::parse_env_map(void)
     {
-        const char* env_freq_rid_map_str = getenv("GEOPM_SIMPLE_FREQ_RID_MAP");
+        const char* env_freq_rid_map_str = getenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
         if (env_freq_rid_map_str) {
             std::string full_str(env_freq_rid_map_str);
             size_t begin_pos = 0;
@@ -160,7 +160,7 @@ namespace geopm
         }
     }
 
-    bool SimpleFreqDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
+    bool EfficientFreqDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     {
         // Never receiving a new policy power budget via geopm_policy_message_s,
         // since we set according to frequencies, not policy.
@@ -183,10 +183,10 @@ namespace geopm
                 if (region_it == m_region_map.end()) {
                     auto tmp = m_region_map.emplace(
                         curr_region_id,
-                        std::unique_ptr<AdaptiveFreqRegion>(
-                            new AdaptiveFreqRegion(&curr_region, m_freq_min,
-                                                   m_freq_max, m_freq_step,
-                                                   num_domain)));
+                        std::unique_ptr<EfficientFreqRegion>(
+                            new EfficientFreqRegion(&curr_region, m_freq_min,
+                                                    m_freq_max, m_freq_step,
+                                                    num_domain)));
                     region_it = tmp.first;
                 }
                 region_it->second->update_entry();
@@ -200,10 +200,10 @@ namespace geopm
                 if (region_it == m_region_map.end()) {
                     auto tmp = m_region_map.emplace(
                         last_region_id,
-                        std::unique_ptr<AdaptiveFreqRegion>(
-                            new AdaptiveFreqRegion(m_region_last, m_freq_min,
-                                                   m_freq_max, m_freq_step,
-                                                   num_domain)));
+                        std::unique_ptr<EfficientFreqRegion>(
+                            new EfficientFreqRegion(m_region_last, m_freq_min,
+                                                    m_freq_max, m_freq_step,
+                                                    num_domain)));
                     region_it = tmp.first;
                 }
                 region_it->second->update_exit();
@@ -245,13 +245,13 @@ namespace geopm
         return is_updated;
     }
 
-    double SimpleFreqDecider::cpu_freq_sticker(void)
+    double EfficientFreqDecider::cpu_freq_sticker(void)
     {
         double result = NAN;
         const std::string key = "model name";
         std::ifstream cpuinfo_file(m_cpu_info_path);
         if (!cpuinfo_file.is_open()) {
-            throw Exception("SimpleFreqDecider::cpu_freq_sticker(): unable to open " + m_cpu_info_path,
+            throw Exception("EfficientFreqDecider::cpu_freq_sticker(): unable to open " + m_cpu_info_path,
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         while (isnan(result) && cpuinfo_file.good()) {
@@ -294,19 +294,19 @@ namespace geopm
         }
         cpuinfo_file.close();
         if (isnan(result)) {
-            throw Exception("SimpleFreqDecider::cpu_freq_sticker(): unable to parse sticker frequency from " + m_cpu_info_path,
+            throw Exception("EfficientFreqDecider::cpu_freq_sticker(): unable to parse sticker frequency from " + m_cpu_info_path,
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return result;
     }
 
-    double SimpleFreqDecider::cpu_freq_min(void)
+    double EfficientFreqDecider::cpu_freq_min(void)
     {
         double result = NAN;
-        const char* env_simple_freq_min = getenv("GEOPM_SIMPLE_FREQ_MIN");
-        if (env_simple_freq_min) {
+        const char* env_efficient_freq_min = getenv("GEOPM_EFFICIENT_FREQ_MIN");
+        if (env_efficient_freq_min) {
             try {
-                result = std::stod(env_simple_freq_min);
+                result = std::stod(env_efficient_freq_min);
             }
             catch (std::invalid_argument) {
 
@@ -334,19 +334,19 @@ namespace geopm
             }
         }
         if (isnan(result)) {
-            throw Exception("SimpleFreqDecider::cpu_freq_min(): unable to parse minimum frequency",
-                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("EfficientFreqDecider::cpu_freq_min(): unable to parse minimum frequency",
+                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return result;
     }
 
-    double SimpleFreqDecider::cpu_freq_max(void)
+    double EfficientFreqDecider::cpu_freq_max(void)
     {
         double result = NAN;
-        const char* env_simple_freq_max = getenv("GEOPM_SIMPLE_FREQ_MAX");
-        if (env_simple_freq_max) {
+        const char* env_efficient_freq_max = getenv("GEOPM_EFFICIENT_FREQ_MAX");
+        if (env_efficient_freq_max) {
             try {
-                result = std::stod(env_simple_freq_max);
+                result = std::stod(env_efficient_freq_max);
             }
             catch (std::invalid_argument) {
 
@@ -374,7 +374,7 @@ namespace geopm
             }
         }
         if (isnan(result)) {
-            throw Exception("SimpleFreqDecider::cpu_freq_max(): unable to parse maximum frequency",
+            throw Exception("EfficientFreqDecider::cpu_freq_max(): unable to parse maximum frequency",
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return result;

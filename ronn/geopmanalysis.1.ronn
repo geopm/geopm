@@ -61,7 +61,7 @@ using the `--skip-launch` option.
   Number of compute nodes to launch onto.  Note that this option is `not` propagated
   to the underlying launch application; for instance if ALPS is the application
   launch backend, this option does not specify the number of ranks per node.
-  
+
 * `-o`, `--output_dir` _OUTPUT_DIR_:
   The output directory for reports, traces, and plots (default: '.').
 
@@ -97,7 +97,7 @@ using the `--skip-launch` option.
 
   The _offline_ analysis type runs a frequency sweep (if reports are not already present)
   to determine the best-fit frequency for each region of the application. Then it runs the
-  application using the SimpleFreqDecider plugin, which uses this mapping to change the
+  application using the EfficientFreqDecider plugin, which uses this mapping to change the
   frequency when entering each reagion. The _online_ analysis type is similar except that
   it determines the best-fit frequency through online training.
 

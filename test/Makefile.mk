@@ -132,12 +132,20 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
-              test/gtest_links/SimpleFreqDeciderTest.map \
-              test/gtest_links/SimpleFreqDeciderTest.decider_is_supported \
-              test/gtest_links/SimpleFreqDeciderTest.name \
-              test/gtest_links/SimpleFreqDeciderTest.clone \
-              test/gtest_links/SimpleFreqDeciderTest.hint \
-              test/gtest_links/AdaptiveFreqDeciderTest.adaptive_branch \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info0 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info1 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info2 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info3 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info4 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info5 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info6 \
+              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_freq \
+              test/gtest_links/EfficientFreqDeciderTest.map \
+              test/gtest_links/EfficientFreqDeciderTest.decider_is_supported \
+              test/gtest_links/EfficientFreqDeciderTest.name \
+              test/gtest_links/EfficientFreqDeciderTest.clone \
+              test/gtest_links/EfficientFreqDeciderTest.hint \
+              test/gtest_links/EfficientFreqDeciderTest.online_mode \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
@@ -183,13 +191,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRTest.msr \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.msr_control \
-              test/gtest_links/AdaptiveFreqRegionTest.freq_starts_at_maximum \
-              test/gtest_links/AdaptiveFreqRegionTest.update_ignores_nan_sample \
-              test/gtest_links/AdaptiveFreqRegionTest.only_changes_freq_after_enough_samples \
-              test/gtest_links/AdaptiveFreqRegionTest.freq_does_not_go_below_min \
-              test/gtest_links/AdaptiveFreqRegionTest.performance_decreases_freq_steps_back_up \
-              test/gtest_links/AdaptiveFreqRegionTest.energy_increases_freq_steps_back_up \
-              test/gtest_links/AdaptiveFreqRegionTest.after_too_many_increase_freq_stays_at_higher \
+              test/gtest_links/EfficientFreqRegionTest.freq_starts_at_maximum \
+              test/gtest_links/EfficientFreqRegionTest.update_ignores_nan_sample \
+              test/gtest_links/EfficientFreqRegionTest.only_changes_freq_after_enough_samples \
+              test/gtest_links/EfficientFreqRegionTest.freq_does_not_go_below_min \
+              test/gtest_links/EfficientFreqRegionTest.performance_decreases_freq_steps_back_up \
+              test/gtest_links/EfficientFreqRegionTest.energy_increases_freq_steps_back_up \
+              test/gtest_links/EfficientFreqRegionTest.after_too_many_increase_freq_stays_at_higher \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
               test/gtest_links/RuntimeRegulatorTest.all_reenter \
@@ -237,12 +245,12 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/BalancingDeciderTest.cpp \
                           plugin/GoverningDecider.hpp \
                           test/GoverningDeciderTest.cpp \
-                          plugin/SimpleFreqDecider.hpp \
-                          plugin/SimpleFreqDecider.cpp \
+                          plugin/EfficientFreqDecider.hpp \
+                          plugin/EfficientFreqDecider.cpp \
                           plugin/GoverningDecider.cpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
-                          test/SimpleFreqDeciderTest.cpp \
+                          test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockMSRIO.hpp \
                           test/MockPlatform.hpp \
@@ -258,9 +266,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformIOTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
-                          plugin/AdaptiveFreqRegion.hpp \
-                          plugin/AdaptiveFreqRegion.cpp \
-                          test/AdaptiveFreqRegionTest.cpp \
+                          plugin/EfficientFreqRegion.hpp \
+                          plugin/EfficientFreqRegion.cpp \
+                          test/EfficientFreqRegionTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
                           # end
 
