@@ -811,6 +811,9 @@ namespace geopm
         else if (value_string == "dynamic") {
             m_mode = GEOPM_POLICY_MODE_DYNAMIC;
         }
+        else {
+            throw Exception("GlobalPolicy: invalid mode specified", GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+        }
     }
 
     void GlobalPolicy::read_shm(void)
