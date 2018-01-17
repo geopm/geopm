@@ -28,7 +28,6 @@ geopm.spec.in
 geopm-ohpc.spec.in
 Makefile.am
 openmp.mk
-test/legacy_whitelist.out
 plugin/AdaptiveFreqRegion.cpp
 plugin/AdaptiveFreqRegion.hpp
 plugin/BalancingDecider.cpp
@@ -193,6 +192,7 @@ test_integration/geopm_test_loop.sh
 test_integration/geopm_test_loop.sh
 test_integration/Makefile.mk
 test_integration/Makefile.mk
+test/legacy_whitelist.out
 test/Makefile.mk
 test/MockComm.hpp
 test/MockGlobalPolicy.hpp
@@ -203,6 +203,7 @@ test/MockPlatformTopology.hpp
 test/MockPolicy.hpp
 test/MockProfileSampler.hpp
 test/MockRegion.hpp
+test/ModelApplicationTest.cpp
 test/MPIInterfaceTest.cpp
 test/MPITreeCommunicatorTest.cpp
 test/MSRIOTest.cpp
@@ -235,6 +236,8 @@ tutorial/imbalancer.h
 tutorial/Makefile
 tutorial/ModelApplication.cpp
 tutorial/ModelApplication.hpp
+tutorial/ModelParse.cpp
+tutorial/ModelParse.hpp
 tutorial/ModelRegion.cpp
 tutorial/ModelRegion.hpp
 tutorial/tutorial_0.c

@@ -30,27 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MODELAPPLICATION_HPP_INCLUDE
-#define MODELAPPLICATION_HPP_INCLUDE
+#ifndef MODELPARSE_HPP_INCLUDE
+#define MODELPARSE_HPP_INCLUDE
 
+#include <string>
 #include <vector>
-
-#include "ModelRegion.hpp"
 
 namespace geopm
 {
-    class ModelApplication
-    {
-        public:
-            ModelApplication(uint64_t loop_count, std::vector<std::string> region_name,
-                             std::vector<double> big_o, int verbosity, int rank);
-            virtual ~ModelApplication();
-            void run(void);
-        protected:
-            uint64_t m_repeat;
-            int m_rank;
-            std::vector<ModelRegionBase *> m_region;
-    };
+    void model_parse_config(const std::string config_path, uint64_t &loop_count,
+                            std::vector<std::string> &region_name, std::vector<double> &big_o);
 
 }
 
