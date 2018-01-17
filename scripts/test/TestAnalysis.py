@@ -32,6 +32,7 @@
 #
 
 import sys
+import os
 import unittest
 from collections import defaultdict
 try:
@@ -131,7 +132,6 @@ def make_mock_report_df(name_prefix, metric, metric_perf):
 def get_expected_baseline_output_df(profile_names, column,
                                     baseline_metric_perf, profile_metric_perf):
     ''' Create dataframe of the savings values expected to be produced by baseline analysis.'''
-    expected_index = profile_names
     expected_cols = [column]
 
     metric_change = defaultdict(float)
@@ -204,6 +204,15 @@ class TestAnalysis(unittest.TestCase):
         self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
         self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
         self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(self._name_prefix, '.', 2, 3, 'args')
+        self._tmp_files = []
+
+    def tearDown(self):
+        if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
+            for ff in self._tmp_files:
+                try:
+                    os.remove(ff)
+                except OSError:
+                    pass
 
     def test_region_freq_map(self):
         best_fit_freq = {'dgemm': self._max_freq, 'stream': self._min_freq, 'epoch': self._mid_freq}
@@ -293,6 +302,7 @@ class TestAnalysis(unittest.TestCase):
         expected_energy_df = pandas.DataFrame()
         for mix_idx in ratio_inds:
             name = self._name_prefix + '_mix_{}'.format(mix_idx)
+            self._tmp_files.append(name + '_app.config')
             sweep_reports = make_mock_sweep_report_df(name, self._freqs,
                                                       best_fit_freq, best_fit_perf,
                                                       'energy', best_fit_metric_perf,

@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ADAPTIVE_FREQ_REGION_HPP_INCLUDE
-#define ADAPTIVE_FREQ_REGION_HPP_INCLUDE
+#ifndef EFFICIENT_FREQ_REGION_HPP_INCLUDE
+#define EFFICIENT_FREQ_REGION_HPP_INCLUDE
 
 #include "Region.hpp"
 
@@ -41,12 +41,12 @@ namespace geopm
 {
 
     /// @brief Holds the performance history of a Region.
-    class AdaptiveFreqRegion
+    class EfficientFreqRegion
     {
         public:
-            AdaptiveFreqRegion(geopm::IRegion *region, double freq_min,
-                               double freq_max, double freq_step, int num_domain);
-            virtual ~AdaptiveFreqRegion() = default;
+            EfficientFreqRegion(geopm::IRegion *region, double freq_min,
+                                double freq_max, double freq_step, int num_domain);
+            virtual ~EfficientFreqRegion() = default;
             double freq(void) const;
             void update_entry(void);
             void update_exit(void);
