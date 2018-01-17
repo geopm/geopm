@@ -29,10 +29,12 @@ geopm-ohpc.spec.in
 Makefile.am
 openmp.mk
 test/legacy_whitelist.out
-plugin/AdaptiveFreqRegion.cpp
-plugin/AdaptiveFreqRegion.hpp
 plugin/BalancingDecider.cpp
 plugin/BalancingDecider.hpp
+plugin/EfficientFreqDecider.cpp
+plugin/EfficientFreqDecider.hpp
+plugin/EfficientFreqRegion.cpp
+plugin/EfficientFreqRegion.hpp
 plugin/GoverningDecider.cpp
 plugin/GoverningDeciderRegister.cpp
 plugin/GoverningDecider.hpp
@@ -40,8 +42,6 @@ plugin/Makefile.mk
 plugin/MPIComm.cpp
 plugin/MPIComm.hpp
 plugin/MPICommRegister.cpp
-plugin/SimpleFreqDecider.cpp
-plugin/SimpleFreqDecider.hpp
 scripts/geopmaprun
 scripts/geopmplotter
 scripts/geopmanalysis
@@ -154,13 +154,14 @@ src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 src/XeonPlatformImp.cpp
 src/XeonPlatformImp.hpp
-test/AdaptiveFreqRegionTest.cpp
 test/BalancingDeciderTest.cpp
 test/CircularBufferTest.cpp
 test/CommMPIImpTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
 test/DeciderFactoryTest.cpp
+test/EfficientFreqDeciderTest.cpp
+test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
 test/EnvironmentTest.cpp
 test/ExceptionTest.cpp
@@ -226,7 +227,6 @@ test/RegionTest.cpp
 test/SampleRegulatorTest.cpp
 test/SchedTest.cpp
 test/SharedMemoryTest.cpp
-test/SimpleFreqDeciderTest.cpp
 tracker/track
 .travis_obs.sh
 .travis.yml
