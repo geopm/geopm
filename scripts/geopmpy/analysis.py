@@ -173,21 +173,21 @@ class FreqSweepAnalysis(Analysis):
                                       'dynamic',
                                       {'power_budget': 400,
                                        'tree_decider': 'static_policy',
-                                       'leaf_decider': 'simple_freq',
+                                       'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
         ctl_conf.write()
-        if 'GEOPM_SIMPLE_FREQ_RID_MAP' in os.environ:
-            del os.environ['GEOPM_SIMPLE_FREQ_RID_MAP']
-        if 'GEOPM_SIMPLE_FREQ_ADAPTIVE' in os.environ:
-            del os.environ['GEOPM_SIMPLE_FREQ_ADAPTIVE']
+        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
+        if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
         for freq in sys_freq_avail():
             profile_name = fixed_freq_name(self._name, freq)
             report_path = os.path.join(self._output_dir, profile_name + '.report')
             trace_path = os.path.join(self._output_dir, profile_name + '-trace')
             self._report_paths.append(report_path)
             if self._app_argv and not os.path.exists(report_path):
-                os.environ['GEOPM_SIMPLE_FREQ_MIN'] = str(freq)
-                os.environ['GEOPM_SIMPLE_FREQ_MAX'] = str(freq)
+                os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(freq)
+                os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(freq)
                 argv = ['dummy', '--geopm-ctl', geopm_ctl,
                                  '--geopm-policy', ctl_conf.get_path(),
                                  '--geopm-report', report_path,
@@ -324,7 +324,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                                       'dynamic',
                                       {'power_budget': 400,
                                        'tree_decider': 'static_policy',
-                                       'leaf_decider': 'simple_freq',
+                                       'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
         ctl_conf.write()
 
@@ -335,9 +335,9 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         region_freq_str = self._sweep_analysis._region_freq_str(process_output)
 
         # Run offline frequency decider
-        os.environ['GEOPM_SIMPLE_FREQ_RID_MAP'] = region_freq_str
-        if 'GEOPM_SIMPLE_FREQ_ADAPTIVE' in os.environ:
-            del os.environ['GEOPM_SIMPLE_FREQ_ADAPTIVE']
+        os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP'] = region_freq_str
+        if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
         profile_name = self._name + '_offline'
         report_path = os.path.join(self._output_dir, profile_name + '.report')
         self._report_paths.append(report_path)
@@ -345,8 +345,8 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         self._min_freq = min(sys_freq_avail())
         self._max_freq = max(sys_freq_avail())
         if self._app_argv and not os.path.exists(report_path):
-            os.environ['GEOPM_SIMPLE_FREQ_MIN'] = str(self._min_freq)
-            os.environ['GEOPM_SIMPLE_FREQ_MAX'] = str(self._max_freq)
+            os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
+            os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
             argv = ['dummy', '--geopm-ctl', geopm_ctl,
                              '--geopm-policy', ctl_conf.get_path(),
                              '--geopm-report', report_path,
@@ -427,7 +427,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
                                       'dynamic',
                                       {'power_budget': 400,
                                        'tree_decider': 'static_policy',
-                                       'leaf_decider': 'simple_freq',
+                                       'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
         ctl_conf.write()
 
@@ -438,9 +438,9 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         region_freq_str = self._sweep_analysis._region_freq_str(process_output)
 
         # Run online frequency decider
-        os.environ['GEOPM_SIMPLE_FREQ_RID_ADAPTIVE'] = 'yes'
-        if 'GEOPM_SIMPLE_FREQ_MAP' in os.environ:
-            del os.environ['GEOPM_SIMPLE_FREQ_MAP']
+        os.environ['GEOPM_EFFICIENT_FREQ_RID_ADAPTIVE'] = 'yes'
+        if 'GEOPM_EFFICIENT_FREQ_MAP' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_MAP']
 
         profile_name = self._name + '_online'
         report_path = os.path.join(self._output_dir, profile_name + '.report')
@@ -449,8 +449,8 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         self._min_freq = min(sys_freq_avail())
         self._max_freq = max(sys_freq_avail())
         if self._app_argv and not os.path.exists(report_path):
-            os.environ['GEOPM_SIMPLE_FREQ_MIN'] = str(self._min_freq)
-            os.environ['GEOPM_SIMPLE_FREQ_MAX'] = str(self._max_freq)
+            os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
+            os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
             argv = ['dummy', '--geopm-ctl', geopm_ctl,
                              '--geopm-policy', ctl_conf.get_path(),
                              '--geopm-report', report_path,
@@ -465,7 +465,6 @@ class OnlineBaselineComparisonAnalysis(Analysis):
             sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
         else:
             raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
-
 
     def find_files(self):
         report_glob = os.path.join(self._output_dir, self._name + '*.report')
@@ -573,7 +572,6 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                                 self._num_node,
                                                                                 app_argv)
 
-
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
             self._sweep_analysis[ratio_idx].launch(geopm_ctl, do_geopm_barrier)
@@ -605,7 +603,6 @@ class StreamDgemmMixAnalysis(Analysis):
             name = self._name + '_mix_{}'.format(ratio_idx)
 
             optimal_freq = self._sweep_analysis[ratio_idx]._region_freq_map(df)
-
 
             freq_temp = [optimal_freq[region]
                          for region in sorted(regions)]
@@ -746,10 +743,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
         # if launching, must run within an allocation to make sure all runs use
         # the same set of nodes
         if 'SLURM_NNODES' in os.environ:
-             num_node = int(os.getenv('SLURM_NNODES'))
+            num_node = int(os.getenv('SLURM_NNODES'))
         elif 'COBALT_NODEFILE' in os.environ:
-             with open(os.getenv('COBALT_NODEFILE')) as fid:
-                 num_node = len(fid.readlines())
+            with open(os.getenv('COBALT_NODEFILE')) as fid:
+                num_node = len(fid.readlines())
         else:
             num_node = -1
         if num_node != args.num_node:

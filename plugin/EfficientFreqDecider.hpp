@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SIMPLE_FREQ_DECIDER_HPP_INCLUDE
-#define SIMPLE_FREQ_DECIDER_HPP_INCLUDE
+#ifndef EFFICIENT_FREQ_DECIDER_HPP_INCLUDE
+#define EFFICIENT_FREQ_DECIDER_HPP_INCLUDE
 
 #include <memory>
 
@@ -41,9 +41,9 @@
 
 namespace geopm
 {
-    class AdaptiveFreqRegion;
+    class EfficientFreqRegion;
 
-    /// @brief Simple implementation of a binary frequency decider.
+    /// @brief Energy efficient implementation of a binary frequency decider.
     ///
     /// This frequency decider uses the geopm_hint interface or feedback from
     /// region runtime obtained offline or online to determine
@@ -52,17 +52,17 @@ namespace geopm
     /// repsectively.
     ///
     /// This is a leaf decider.
-    class SimpleFreqDecider : public GoverningDecider
+    class EfficientFreqDecider : public GoverningDecider
     {
         public:
-            /// @brief SimpleFreqDecider default constructor.
-            SimpleFreqDecider();
-            SimpleFreqDecider(const std::string &cpu_info_path,
-                              const std::string &cpu_freq_min_path,
-                              const std::string &cpu_freq_max_path);
-            SimpleFreqDecider(const SimpleFreqDecider &other);
-            /// @brief SimpleFreqDecider destructor, virtual.
-            virtual ~SimpleFreqDecider();
+            /// @brief EfficientFreqDecider default constructor.
+            EfficientFreqDecider();
+            EfficientFreqDecider(const std::string &cpu_info_path,
+                                 const std::string &cpu_freq_min_path,
+                                 const std::string &cpu_freq_max_path);
+            EfficientFreqDecider(const EfficientFreqDecider &other);
+            /// @brief EfficientFreqDecider destructor, virtual.
+            virtual ~EfficientFreqDecider();
             virtual IDecider *clone(void) const;
             /// @brief Actual method altering GoverningDecider behavior.
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
@@ -80,10 +80,10 @@ namespace geopm
             const unsigned int m_num_cores;
             double m_last_freq;
             std::map<uint64_t, double> m_rid_freq_map;
-            // for adaptive decider
+            // for online adaptive mode
             bool m_is_adaptive = false;
             IRegion *m_region_last = nullptr;
-            std::map<uint64_t, std::unique_ptr<AdaptiveFreqRegion>> m_region_map;
+            std::map<uint64_t, std::unique_ptr<EfficientFreqRegion>> m_region_map;
     };
 }
 
