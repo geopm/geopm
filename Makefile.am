@@ -354,12 +354,14 @@ endif
 endif
 
 if ENABLE_MPI
-    geopmbench_SOURCES = tutorial/ModelRegion.hpp \
-                         tutorial/ModelRegion.cpp \
-                         tutorial/ModelApplication.hpp \
-                         tutorial/ModelApplication.cpp \
-                         tutorial/imbalancer.h \
+    geopmbench_SOURCES = tutorial/imbalancer.h \
                          tutorial/Imbalancer.cpp \
+                         tutorial/ModelApplication.cpp \
+                         tutorial/ModelApplication.hpp \
+                         tutorial/ModelParse.cpp \
+                         tutorial/ModelParse.hpp \
+                         tutorial/ModelRegion.cpp \
+                         tutorial/ModelRegion.hpp \
                          tutorial/tutorial_6.cpp \
                          # end
 endif

@@ -40,6 +40,7 @@
 #include "geopm.h"
 #include "geopm_error.h"
 #include "ModelApplication.hpp"
+#include "ModelParse.hpp"
 
 #ifndef NAME_MAX
 #define NAME_MAX 512
