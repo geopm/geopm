@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c22e257_12cea73e",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-17T21:45:00Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "186a547a0f3e9c2bca4907e4abf5c088ea6f5032",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37c891e2_891a87fc",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-17T21:45:00Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "186a547a0f3e9c2bca4907e4abf5c088ea6f5032",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fca472a_22bb25f7",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-17T21:45:00Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "186a547a0f3e9c2bca4907e4abf5c088ea6f5032",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
