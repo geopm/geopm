@@ -30,10 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cmath>
 #include <unistd.h>
 #include <fstream>
 
-#include <json-c/json.h>
+#include "contrib/json11/json11.hpp"
 
 #include "Exception.hpp"
 #include "ModelParse.hpp"
@@ -43,6 +44,7 @@
 #define NAME_MAX 512
 #endif
 
+using json11::Json;
 
 namespace geopm
 {
@@ -67,23 +69,22 @@ namespace geopm
         config_string.assign(std::istreambuf_iterator<char>(config_stream),
                              std::istreambuf_iterator<char>());
 
-        json_object *object = json_tokener_parse(config_string.c_str());
+        std::string err;
+        Json root = Json::parse(config_string, err);
 
-        enum json_type type = json_object_get_type(object);
-
-        if (type != json_type_object) {
+        if (!err.empty() || !root.is_object()) {
             throw Exception("model_parse_config(): malformed json configuration file",
                             GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
 
         std::vector<std::string> hostname;
         std::vector<double> imbalance;
-        std::string key_string;
-        json_object_object_foreach(object, key, val) {
-            key_string = key;
+        for (const auto &obj : root.object_items()) {
+            std::string key_string = obj.first;
+            Json val = obj.second;
             if (key_string == "loop-count") {
-                if (json_object_get_type(val) == json_type_int) {
-                    loop_count = json_object_get_int(val);
+                if (val.is_number() && floor(val.number_value()) == val.number_value()) {
+                    loop_count = val.number_value();
                 }
                 else {
                     throw Exception("model_parse_config(): loop-count expected to be an integer type",
@@ -91,12 +92,10 @@ namespace geopm
                 }
             }
             else if (key_string == "region") {
-                if (json_object_get_type(val) == json_type_array) {
-                    json_object *region_obj;
-                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
-                        region_obj = json_object_array_get_idx(val, i);
-                        if (json_object_get_type(region_obj) == json_type_string) {
-                            region_name.push_back(json_object_get_string(region_obj));
+                if (val.is_array()) {
+                    for (const auto &region_obj : val.array_items()) {
+                        if (region_obj.is_string()) {
+                            region_name.push_back(region_obj.string_value());
                         }
                         else {
                             throw Exception("model_parse_config(): region array value is not a string type",
@@ -110,12 +109,10 @@ namespace geopm
                 }
             }
             else if (key_string == "big-o") {
-                if (json_object_get_type(val) == json_type_array) {
-                    json_object *big_o_obj;
-                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
-                        big_o_obj = json_object_array_get_idx(val, i);
-                        if (json_object_get_type(big_o_obj) == json_type_double) {
-                            big_o.push_back(json_object_get_double(big_o_obj));
+                if (val.is_array()) {
+                    for (const auto &big_o_obj : val.array_items()) {
+                        if (big_o_obj.is_number()) {
+                            big_o.push_back(big_o_obj.number_value());
                         }
                         else {
                            throw Exception("model_parse_config(): big-o expected to be a double type",
@@ -129,12 +126,10 @@ namespace geopm
                 }
             }
             else if (key_string == "hostname") {
-                if (json_object_get_type(val) == json_type_array) {
-                    json_object *hostname_obj;
-                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
-                        hostname_obj = json_object_array_get_idx(val, i);
-                        if (json_object_get_type(hostname_obj) == json_type_string) {
-                            hostname.push_back(json_object_get_string(hostname_obj));
+                if (val.is_array()) {
+                    for (const auto &hostname_obj : val.array_items()) {
+                        if (hostname_obj.is_string()) {
+                            hostname.push_back(hostname_obj.string_value());
                         }
                         else {
                             throw Exception("model_parse_config(): hostname array value is not a string type",
@@ -148,12 +143,10 @@ namespace geopm
                 }
             }
             else if (key_string == "imbalance") {
-                if (json_object_get_type(val) == json_type_array) {
-                    json_object *imbalance_obj;
-                    for (size_t i = 0; i < (size_t)json_object_array_length(val); ++i) {
-                        imbalance_obj = json_object_array_get_idx(val, i);
-                        if (json_object_get_type(imbalance_obj) == json_type_double) {
-                            imbalance.push_back(json_object_get_double(imbalance_obj));
+                if (val.is_array()) {
+                    for (const auto &imbalance_obj : val.array_items()) {
+                        if (imbalance_obj.is_number()) {
+                            imbalance.push_back(imbalance_obj.number_value());
                         }
                         else {
                            throw Exception("model_parse_config(): imbalance expected to be a double type",
