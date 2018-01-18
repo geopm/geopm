@@ -211,9 +211,7 @@ test/no_omp_cpu.c
 test/PlatformFactoryTest.cpp
 test/PlatformIOTest.cpp
 test/PlatformImpTest.cpp
-test/PlatformTest.cpp
 test/PlatformImpTest.cpp
-test/PlatformTest.cpp
 test/PlatformTopologyTest.cpp
 test/plugin/Makefile.mk
 test/plugin/TestPluginApp.cpp
