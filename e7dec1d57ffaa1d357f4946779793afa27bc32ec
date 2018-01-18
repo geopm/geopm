@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2757e2f8_f24fe9b9",
+        "filename": "copying_headers/MANIFEST.EXEMPT",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-18T23:58:04Z",
+      "side": 1,
+      "message": "the source files (json11.cpp and json11.hpp) should not be listed in MANIFEST.EXEMPT.  We need to add a new header for the dropbox license, and put these files in the associated manifest.",
+      "revId": "e7dec1d57ffaa1d357f4946779793afa27bc32ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
