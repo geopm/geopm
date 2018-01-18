@@ -223,7 +223,6 @@ EXTRA_DIST += test/geopm_test.sh \
 test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformFactoryTest.cpp \
                           test/PlatformImpTest.cpp \
-                          test/PlatformTest.cpp \
                           test/PlatformTopologyTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
