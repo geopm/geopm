@@ -22,6 +22,30 @@
       "revId": "42d8c8ccab0e0e80ffe4b8fdeb3fd326958a06f7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec951788_7edcee3e",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-19T23:24:07Z",
+      "side": 1,
+      "message": "I think this can be 4 spaces. This is what my autoindentation script produced but it seems to get confused by initializer lists sometimes.",
+      "parentUuid": "dc4f8667_9829cee1",
+      "range": {
+        "startLine": 929,
+        "startChar": 21,
+        "endLine": 929,
+        "endChar": 28
+      },
+      "revId": "42d8c8ccab0e0e80ffe4b8fdeb3fd326958a06f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
