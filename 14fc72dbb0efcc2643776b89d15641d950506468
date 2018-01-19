@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4315de5_6a376ba1",
+        "filename": "Makefile.am",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-19T22:10:31Z",
+      "side": 1,
+      "message": "Probabably should be in common sources too.  I intended for libgeopm.so to use a super-set of the files for libgeopmpolicy.so.",
+      "revId": "14fc72dbb0efcc2643776b89d15641d950506468",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2ba80e4_9bc8e7ad",
+        "filename": "Makefile.am",
+        "patchSetId": 3
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-19T22:10:31Z",
+      "side": 1,
+      "message": "Could be\n\nlibgeopm_la_SOURCES \u003d $(libgeopmpolicy_la_SOURCES) \\\n                      ...\n\nBut probably having a separate variable GEOPM_COMMON_SOURCE is clearer.  Automake has a special purpose for variables that end in \"SOURCES\" so I\u0027m not sure we want to tempt the fates by ending this variable with \"SOURCE\" so maybe GEOPM_COMMON_FILES would be better.",
+      "revId": "14fc72dbb0efcc2643776b89d15641d950506468",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
