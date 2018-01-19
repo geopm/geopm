@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "169adcaf_33dca3c5",
+        "filename": "Makefile.am",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-19T22:44:44Z",
+      "side": 1,
+      "message": "This way is fine with me too, as long as we only have to add new files in one place.",
+      "revId": "c7c77cd5c51061d5f62104e45363bc1f848ac5f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
