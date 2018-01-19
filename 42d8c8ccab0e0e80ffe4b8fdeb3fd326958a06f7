@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc4f8667_9829cee1",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-19T22:41:46Z",
+      "side": 1,
+      "message": "why not 4 spaces here?",
+      "range": {
+        "startLine": 929,
+        "startChar": 21,
+        "endLine": 929,
+        "endChar": 28
+      },
+      "revId": "42d8c8ccab0e0e80ffe4b8fdeb3fd326958a06f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
