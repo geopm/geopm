@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5837c40d_b5cf7494",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-19T17:10:15Z",
+      "side": 1,
+      "message": "GEOPM_EFFICIENT_FREQ_ONLINE",
+      "revId": "125ecb470d42c86a93a05accaf9d06ef52765130",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
