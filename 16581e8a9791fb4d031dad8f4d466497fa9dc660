@@ -22,6 +22,30 @@
       "revId": "16581e8a9791fb4d031dad8f4d466497fa9dc660",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbcb889d_d87e566a",
+        "filename": "test/EfficientFreqDeciderTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-22T22:48:29Z",
+      "side": 0,
+      "message": "I think we didn\u0027t notice because this test was not being run with make check (no gtest link).",
+      "parentUuid": "f1015d9f_f6e375fe",
+      "range": {
+        "startLine": 418,
+        "startChar": 4,
+        "endLine": 419,
+        "endChar": 31
+      },
+      "revId": "16581e8a9791fb4d031dad8f4d466497fa9dc660",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
