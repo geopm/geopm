@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1015d9f_f6e375fe",
+        "filename": "test/EfficientFreqDeciderTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-22T22:39:05Z",
+      "side": 0,
+      "message": "Not sure how this test was working before this patch.  As it was, max_stream was never written to.",
+      "range": {
+        "startLine": 418,
+        "startChar": 4,
+        "endLine": 419,
+        "endChar": 31
+      },
+      "revId": "16581e8a9791fb4d031dad8f4d466497fa9dc660",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
