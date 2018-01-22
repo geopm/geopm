@@ -68,7 +68,7 @@ namespace geopm
             void adjust(const std::vector<double> &setting);
             std::string msr_whitelist(void);
             std::string msr_whitelist(int cpuid);
-
+            void control_bound(int signal, double &upper_bound, double &lower_bound) override;
         protected:
             virtual int cpuid(void);
             virtual void init(void);

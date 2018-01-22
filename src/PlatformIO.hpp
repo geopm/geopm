@@ -149,10 +149,19 @@ namespace geopm
             /// @brief Fill string with the msr-safe whitelist file
             ///        contents reflecting all known MSRs for the
             ///        specified platform.
-            /// @param cpuid [in] The CPUID of the platform.
+            /// @param [in] cpuid The CPUID of the platform.
             /// @return String formatted to be written to an msr-safe
             ///         whitelist file.
             virtual std::string msr_whitelist(int cpuid) = 0;
+
+            /// @brief Gets the upper and lower bound for a control.
+            /// @todo Eventually, this should use the control index rather than
+            ///       the telemetry type enum.
+            /// @param [in] control Control to get bounds for.
+            /// @param [out] upper_bound Upper bound of the control.
+            /// @param [out] lower_bound Lower bound of the control.
+            virtual void control_bound(int control, double &upper_bound,
+                                       double &lower_bound) = 0;
     };
 
     IPlatformIO &platform_io(void);

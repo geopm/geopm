@@ -47,6 +47,7 @@
 #include "PlatformIOInternal.hpp"
 #include "MSRIO.hpp"
 #include "Exception.hpp"
+#include "geopm_message.h" // TODO: remove with telemetry type enum
 
 class TestPlatformIO : public geopm::PlatformIO
 {
@@ -264,4 +265,42 @@ TEST_F(PlatformIOTest, time_signal)
     EXPECT_NEAR(1, time_1 - time_0, 0.1);
     EXPECT_LE(0, time_0);
     EXPECT_LE(0, time_1);
+}
+
+// TODO: instead of taking an enum, bound should use a signal/control index
+// which this test can get from pushing signals and controls
+// PKG_ENERGY_STATUS and DRAM_ENERGY_STATUS
+TEST_F(PlatformIOTest, control_bound)
+{
+    double upper_bound = -1, lower_bound = -1;
+
+    TestPlatformIO knl_platform(0x657); // KNL CPUID
+    knl_platform.control_bound(GEOPM_CONTROL_DOMAIN_POWER, upper_bound, lower_bound);
+    EXPECT_DOUBLE_EQ(1, lower_bound);
+    EXPECT_DOUBLE_EQ(100, upper_bound);
+    upper_bound = -1;
+    lower_bound = -1;
+
+    // invalid
+    EXPECT_THROW(knl_platform.control_bound(9999, upper_bound, lower_bound),
+                 geopm::Exception);
+
+    // Xeon platforms
+    std::vector<uint64_t> cpuids {0x62D, 0x63E, 0x63F, 0x64F};
+    for (auto cpuid : cpuids) {
+        TestPlatformIO xeon_platform(cpuid);
+        xeon_platform.control_bound(GEOPM_CONTROL_DOMAIN_POWER, upper_bound, lower_bound);
+        EXPECT_DOUBLE_EQ(1, lower_bound);
+        EXPECT_DOUBLE_EQ(100, upper_bound);
+        upper_bound = -1;
+        lower_bound = -1;
+
+        // invalid
+        EXPECT_THROW(xeon_platform.control_bound(9999, upper_bound, lower_bound),
+                     geopm::Exception);
+    }
+
+    TestPlatformIO unknown_platform(0xFFFF); // other
+    EXPECT_THROW(unknown_platform.control_bound(9999, upper_bound, lower_bound),
+                 geopm::Exception);
 }

@@ -44,6 +44,7 @@
 #include "MSR.hpp"
 #include "MSRIO.hpp"
 #include "Exception.hpp"
+#include "geopm_message.h" // TODO: remove with telemetry type enum
 
 #include "config.h"
 
@@ -574,6 +575,40 @@ namespace geopm
         }
         return whitelist.str();
     }
+
+    void PlatformIO::control_bound(int control, double &upper_bound, double &lower_bound)
+    {
+        switch (cpuid()) { // TODO: temporary until each platform's MSRs have this information
+            case M_CPUID_KNL:
+                if (control == GEOPM_CONTROL_DOMAIN_POWER) {
+                    upper_bound = 100;
+                    lower_bound = 1;
+                }
+                else {
+                    throw Exception("PlatformIO::control_bound(): unknown control type",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                break;
+            case M_CPUID_SNB:
+            case M_CPUID_IVT:
+            case M_CPUID_HSX:
+            case M_CPUID_BDX:
+                if (control == GEOPM_CONTROL_DOMAIN_POWER) {
+                    upper_bound = 100;
+                    lower_bound = 1;
+                }
+                else {
+                    throw Exception("PlatformIO::control_bound(): unknown control type",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                break;
+            default:
+                throw Exception("PlatformIO::control_bound(): platform not implemented",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+    }
+
 
     static const MSR *knl_msr(size_t &num_msr)
     {
