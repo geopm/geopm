@@ -89,6 +89,12 @@ def skip_unless_config_enable(feature):
     return lambda func: func
 
 
+def skip_unless_slurm_batch():
+    if 'SLURM_NODELIST' not in os.environ:
+        return unittest.skip('Requires SLURM batch session.')
+    return lambda func: func
+
+
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
@@ -183,8 +189,7 @@ class TestIntegration(unittest.TestCase):
 
     @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS",
                          'ALPS does not support multi-application launch on the same nodes.')
-    @unittest.skipUnless('SLURM_NODELIST' in os.environ,
-                         'Requires SLURM batch session.')
+    @skip_unless_slurm_batch()
     def test_report_and_trace_generation_application(self):
         name = 'test_report_and_trace_generation_application'
         report_path = name + '.report'
@@ -952,72 +957,46 @@ class TestIntegration(unittest.TestCase):
         self.assertLess(0.0, energy_savings_epoch)
         self.assertLess(runtime_savings_epoch, 5.0)
 
+    @skip_unless_slurm_batch()
     def test_controller_signal_handling(self):
         """
         Check that Controller handles signals and cleans up.
         """
         name = 'test_controller_signal_handling'
         report_path = name + '.report'
-        trace_path = name + '.trace'
-        num_node = 1
-        num_rank = 2
+        num_node = 4
+        num_rank = 8
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
-        app_conf.append_region('sleep', 20.0)
+        app_conf.append_region('sleep', 30.0)
         app_conf.write()
 
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         ctl_conf.write()
 
-        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        exec_path = os.path.join(source_dir, 'geopmbench_with_killer.sh')
-        self._tmp_files.append(exec_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        launcher.set_pmpi_ctl("application")
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
 
-        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        app_path = os.path.join(source_dir, '.libs', 'geopmbench')
-        # if not found, use geopmbench from user's PATH
-        if not os.path.exists(app_path):
-            app_path = "geopmbench"
+        alloc_nodes = launcher.get_alloc_nodes()
 
-        command = '''#!/bin/bash
-                     {} {} &
-                     pid=$!
-                     sleep 10
-                     kill -s 15 $pid
-                     wait $pid
-                     if ls /dev/shm/geopm_death_test_shmkey* 2> /dev/null ; then
-                         exit 1
-                     else
-                         exit 0
-                     fi
-                  '''.format(app_path, app_conf.get_path())
+        kill_proc_list = [subprocess.Popen("ssh {} 'sleep 15; pkill --signal 15 geopmctl; sleep 5; pkill -9 geopmbench'".format(nn),
+                                           shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                          for nn in alloc_nodes]
 
-        with open(exec_path, 'w') as exec_fid:
-            exec_fid.write(command)
+        try:
+            launcher.run(name)
+        except subprocess.CalledProcessError:
+            pass
 
-        st = os.stat(exec_path)
-        os.chmod(exec_path, st.st_mode | stat.S_IEXEC)
-
-        argv = ['dummy', '--geopm-ctl', "process",
-                '--geopm-policy', ctl_conf.get_path(),
-                '--geopm-report', report_path,
-                '--geopm-trace', trace_path,
-                '--geopm-profile', name,
-                '--geopm-shmkey=geopm_death_test_shmkey',
-                '--', exec_path, app_conf.get_path()]
-
-        logfile_name = name + '.log'
-        self._tmp_files.append(logfile_name)
-        with open(logfile_name, 'a') as outfile:
-            outfile.write(str(datetime.datetime.now()) + '\n')
-            outfile.flush()
-
-            launcher = geopmpy.launcher.factory(argv, num_rank=num_rank, num_node=num_node)
-            launcher.run(stdout=outfile, stderr=outfile)
+        for kp in kill_proc_list:
+            kp.communicate()
 
         message = "Error: <geopm> Runtime error: Signal"
 
+        logfile_name = name + '.log'
         with open(logfile_name) as infile_fid:
             found = False
             for line in infile_fid:
