@@ -152,11 +152,6 @@ namespace geopm
             /// @return The number of control domains on the hw platform.
             virtual int num_control_domain(void) const = 0;
             virtual double control_latency_ms(void) const = 0;
-            /// @brief Return the frequency limit where throttling occurs.
-            ///
-            /// @return frequency Value that defines the upper bound of frequencies
-            /// where the processor is considered to be throttled.
-            virtual double throttle_limit_mhz(void) const = 0;
             /// @brief Has the trigger msr of the platform changed value since last call.
             virtual bool is_updated(void) = 0;
             virtual void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
@@ -193,7 +188,6 @@ namespace geopm
             void init_transform(const std::vector<int> &cpu_rank);
             int num_control_domain(void) const;
             double control_latency_ms(void) const;
-            double throttle_limit_mhz(void) const;
             virtual bool is_updated(void);
             void transform_rank_data(uint64_t region_id, const struct geopm_time_s &aligned_time,
                                      const std::vector<double> &aligned_data,

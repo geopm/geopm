@@ -315,11 +315,6 @@ namespace geopm
         return m_imp->control_latency_ms();
     }
 
-    double Platform::throttle_limit_mhz(void) const
-    {
-        return m_imp->throttle_limit_mhz();
-    }
-
     bool Platform::is_updated(void)
     {
         return m_imp->is_updated();

@@ -340,7 +340,7 @@ namespace geopm
             double upper_bound;
             double lower_bound;
             m_platform->bound(upper_bound, lower_bound);
-            m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
+            m_throttle_limit_mhz = platform_io().throttle_limit_mhz();
 
             m_decider_factory = new DeciderFactory;
             m_decider[0] = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
