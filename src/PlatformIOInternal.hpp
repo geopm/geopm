@@ -69,8 +69,9 @@ namespace geopm
             std::string msr_whitelist(void);
             std::string msr_whitelist(int cpuid);
             void control_bound(int signal, double &upper_bound, double &lower_bound) override;
+            double throttle_limit_mhz(void) const override;
         protected:
-            virtual int cpuid(void);
+            virtual int cpuid(void) const;
             virtual void init(void);
             virtual void init_time(void);
             /// @brief Register all signals and controls for the MSR

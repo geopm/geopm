@@ -55,7 +55,7 @@ class TestPlatformIO : public geopm::PlatformIO
         TestPlatformIO(int cpuid);
         virtual ~TestPlatformIO();
     protected:
-        int cpuid(void);
+        int cpuid(void) const override;
 
         int m_cpuid;
 };
@@ -152,7 +152,7 @@ TestPlatformIO::~TestPlatformIO()
 
 }
 
-int TestPlatformIO::cpuid(void)
+int TestPlatformIO::cpuid(void) const
 {
     return m_cpuid;
 }
@@ -303,4 +303,19 @@ TEST_F(PlatformIOTest, control_bound)
     TestPlatformIO unknown_platform(0xFFFF); // other
     EXPECT_THROW(unknown_platform.control_bound(9999, upper_bound, lower_bound),
                  geopm::Exception);
+}
+
+TEST_F(PlatformIOTest, throttle_limit_mhz)
+{
+    TestPlatformIO knl_platform(0x657); // KNL
+    EXPECT_EQ(0.5, knl_platform.throttle_limit_mhz());
+
+    std::vector<uint64_t> cpuids {0x62D, 0x63E, 0x63F, 0x64F};
+    for (auto cpuid : cpuids) {
+        TestPlatformIO xeon_platform(cpuid);
+        EXPECT_EQ(0.5, xeon_platform.throttle_limit_mhz());
+    }
+
+    TestPlatformIO unknown_platform(0xFFFF); // other
+    EXPECT_THROW(unknown_platform.throttle_limit_mhz(), geopm::Exception);
 }

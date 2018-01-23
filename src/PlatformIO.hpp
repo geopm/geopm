@@ -162,6 +162,11 @@ namespace geopm
             /// @param [out] lower_bound Lower bound of the control.
             virtual void control_bound(int control, double &upper_bound,
                                        double &lower_bound) = 0;
+            /// @brief Return the frequency limit where throttling occurs.
+            ///
+            /// @return frequency Value that defines the upper bound of frequencies
+            /// where the processor is considered to be throttled.
+            virtual double throttle_limit_mhz(void) const = 0;
     };
 
     IPlatformIO &platform_io(void);

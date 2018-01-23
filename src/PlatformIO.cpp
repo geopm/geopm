@@ -501,7 +501,7 @@ namespace geopm
         }
     }
 
-    int PlatformIO::cpuid(void)
+    int PlatformIO::cpuid(void) const
     {
         uint32_t key = 1; //processor features
         uint32_t proc_info = 0;
@@ -609,6 +609,25 @@ namespace geopm
 
     }
 
+    double PlatformIO::throttle_limit_mhz(void) const
+    {
+        double limit = -1;
+        switch (cpuid()) {
+            case PlatformIO::M_CPUID_KNL:
+                limit = 0.5;
+                break;
+            case PlatformIO::M_CPUID_HSX:
+            case PlatformIO::M_CPUID_BDX:
+            case PlatformIO::M_CPUID_SNB:
+            case PlatformIO::M_CPUID_IVT:
+                limit = 0.5;
+                break;
+            default:
+                throw Exception("PlatformIO::throttle_limit_mhz(): platform not implemented",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return limit;
+    }
 
     static const MSR *knl_msr(size_t &num_msr)
     {
