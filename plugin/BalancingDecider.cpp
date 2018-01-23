@@ -39,6 +39,7 @@
 #include "Region.hpp"
 #include "BalancingDecider.hpp"
 #include "Exception.hpp"
+#include "PlatformIO.hpp"
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
@@ -77,7 +78,7 @@ namespace geopm
         , m_slope_modifier(3.0)
         , M_GUARD_BAND(1.15)
     {
-
+        update_power_bounds();
     }
 
     BalancingDecider::BalancingDecider(const BalancingDecider &other)
@@ -113,12 +114,6 @@ namespace geopm
     const std::string& BalancingDecider::name(void) const
     {
         return m_name;
-    }
-
-    void BalancingDecider::bound(double upper_bound, double lower_bound)
-    {
-        m_upper_bound = upper_bound / M_GUARD_BAND;
-        m_lower_bound = lower_bound * M_GUARD_BAND;
     }
 
     bool BalancingDecider::update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy)
@@ -235,4 +230,24 @@ namespace geopm
 
         return is_updated;
     }
+
+    void BalancingDecider::update_power_bounds()
+    {
+        // TODO: use index from pushed control
+        int signal = GEOPM_CONTROL_DOMAIN_POWER;
+        platform_io().control_bound(signal, m_upper_bound, m_lower_bound);
+        m_upper_bound *= m_num_leaves;
+        m_lower_bound *= m_num_leaves;
+        m_upper_bound = m_upper_bound / M_GUARD_BAND;
+        m_lower_bound = m_lower_bound * M_GUARD_BAND;
+    }
+
+    void BalancingDecider::hierarchy(size_t num_children, size_t num_leaves)
+    {
+        m_num_children = num_children;
+        m_num_leaves = num_leaves;
+        update_power_bounds();
+    }
+
+
 }

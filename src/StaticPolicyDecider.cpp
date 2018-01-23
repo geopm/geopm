@@ -74,4 +74,10 @@ namespace geopm
     {
         return false;
     }
+
+    void StaticPolicyDecider::hierarchy(size_t num_children, size_t num_leaves)
+    {
+
+    }
+
 }

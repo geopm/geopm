@@ -198,4 +198,9 @@ namespace geopm
 
         return is_target_updated;
     }
+
+    void GoverningDecider::hierarchy(size_t num_children, size_t num_leaves)
+    {
+        // not needed for leaf deciders
+    }
 }

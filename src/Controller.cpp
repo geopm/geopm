@@ -344,7 +344,6 @@ namespace geopm
 
             m_decider_factory = new DeciderFactory;
             m_decider[0] = m_decider_factory->decider(std::string(plugin_desc.leaf_decider));
-            m_decider[0]->bound(upper_bound, lower_bound);
 
             int num_domain = m_platform->num_control_domain();
             m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
@@ -367,9 +366,8 @@ namespace geopm
                                                    level,
                                                    NULL)));
                 m_decider[level] = m_decider_factory->decider(std::string(plugin_desc.tree_decider));
-                m_decider[level]->bound(upper_bound, lower_bound);
-                upper_bound *= num_domain;
-                lower_bound *= num_domain;
+                size_t num_children = 0; // TODO: not currently used; get from tree communicator
+                m_decider[level]->hierarchy(num_children, num_domain);
                 num_domain = m_tree_comm->level_size(level);
                 if (num_domain > m_max_fanout) {
                     m_max_fanout = num_domain;

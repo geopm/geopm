@@ -49,6 +49,7 @@ class DumbDecider : public Decider
         virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
         virtual bool decider_supported(const std::string &descripton);
         virtual const std::string& name(void) const;
+        void hierarchy(size_t num_children, size_t num_leaves) override;
     protected:
         const std::string m_name;
 };
@@ -81,7 +82,7 @@ class ShmemFreqPlatformImp : public PlatformImp
         virtual int frequency_control_domain(void) const;
         virtual int performance_counter_domain(void) const;
         virtual double read_signal(int device_type, int device_idx, int signal_type);
-        virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed); 
+        virtual void batch_read_signal(std::vector<struct geopm_signal_descriptor> &signal_desc, bool is_changed);
         virtual void write_control(int device_type, int device_idx, int signal_type, double value);
         virtual void bound(int control_type, double &upper_bound, double &lower_bound);
         virtual double throttle_limit_mhz(void) const;

@@ -98,6 +98,11 @@ bool DumbDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
     return false;
 }
 
+void DumbDecider::hierarchy(size_t num_children, size_t num_leaves)
+{
+
+}
+
 DumbPlatform::DumbPlatform()
     : m_name("dumb")
 {
@@ -265,4 +270,3 @@ double  ShmemFreqPlatformImp::throttle_limit_mhz(void) const
 {
     return 0.5;
 }
-

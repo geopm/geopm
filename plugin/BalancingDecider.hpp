@@ -55,12 +55,13 @@ namespace geopm
             /// @brief BalancinDecider destructor, virtual.
             virtual ~BalancingDecider();
             virtual IDecider *clone(void) const;
-            virtual void bound(double upper_bound, double lower_bound);
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy);
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
             virtual bool decider_supported(const std::string &descripton);
             virtual const std::string& name(void) const;
+            void hierarchy(size_t num_children, size_t num_leaves) override;
         private:
+            void update_power_bounds();
             const std::string m_name;
             const double m_convergence_target;
             const unsigned m_min_num_converged;
@@ -70,6 +71,8 @@ namespace geopm
             unsigned m_num_out_of_range;
             double m_slope_modifier;
             const double M_GUARD_BAND;
+            size_t m_num_children = 0;
+            size_t m_num_leaves = 1;
     };
 }
 

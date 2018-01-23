@@ -60,12 +60,6 @@ namespace geopm
 
     }
 
-    void Decider::bound(double upper_bound, double lower_bound)
-    {
-        m_upper_bound = upper_bound;
-        m_lower_bound = lower_bound;
-    }
-
     bool Decider::update_policy(const struct geopm_policy_message_s &policy, IPolicy &curr_policy)
     {
         bool result = false;
