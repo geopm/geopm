@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -76,6 +78,8 @@ int geopm_sched_get_cpu(void);
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset);
 
 int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp);
+
+int geopm_sched_popen(const char *cmd, FILE **fid);
 
 #ifdef __cplusplus
 }
