@@ -281,6 +281,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/PlatformIO.cpp \
                             src/PlatformIO.hpp \
                             src/PlatformIOInternal.hpp \
+                            src/PlatformTopo.cpp \
+                            src/PlatformTopo.hpp \
                             src/PlatformTopology.cpp \
                             src/PlatformTopology.hpp \
                             src/Policy.cpp \
