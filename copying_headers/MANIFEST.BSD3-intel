@@ -118,6 +118,8 @@ src/PlatformImp.hpp
 src/PlatformIO.cpp
 src/PlatformIO.hpp
 src/PlatformIOInternal.hpp
+src/PlatformTopo.cpp
+src/PlatformTopo.hpp
 src/PlatformTopology.cpp
 src/PlatformTopology.hpp
 src/Policy.cpp
@@ -215,6 +217,7 @@ test/PlatformFactoryTest.cpp
 test/PlatformIOTest.cpp
 test/PlatformImpTest.cpp
 test/PlatformImpTest.cpp
+test/PlatformTopoTest.cpp
 test/PlatformTopologyTest.cpp
 test/plugin/Makefile.mk
 test/plugin/TestPluginApp.cpp
