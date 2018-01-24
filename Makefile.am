@@ -265,6 +265,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/PlatformIOInternal.hpp \
                             src/PlatformFactory.cpp \
                             src/PlatformFactory.hpp \
+                            src/PlatformTopo.cpp \
+                            src/PlatformTopo.hpp \
                             src/PlatformTopology.cpp \
                             src/PlatformTopology.hpp \
                             src/Policy.cpp \
@@ -356,6 +358,8 @@ if ENABLE_MPI
                           src/Platform.hpp \
                           src/PlatformImp.cpp \
                           src/PlatformImp.hpp \
+                          src/PlatformTopo.cpp \
+                          src/PlatformTopo.hpp \
                           src/PlatformTopology.cpp \
                           src/PlatformTopology.hpp \
                           src/Policy.cpp \
