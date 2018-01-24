@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ccf6d46e_60d6d467",
+        "filename": "src/PlatformIOInternal.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-24T21:46:38Z",
+      "side": 1,
+      "message": "mark as delete rather than implement as throw.",
+      "revId": "ca0d5fc66894f2643f97c2e50f6b2fa5783a7055",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
