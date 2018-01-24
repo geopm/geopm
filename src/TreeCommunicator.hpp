@@ -197,7 +197,6 @@ namespace geopm
             /// @param [in] comm All ranks in MPI communicator
             ///        participate in the tree.
             TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm);
-            TreeCommunicator(const TreeCommunicator &other);
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicator();
             int num_level(void) const;
@@ -232,7 +231,7 @@ namespace geopm
             /// GlobalPolicy object defining the policy
             IGlobalPolicy *m_global_policy;
             /// Intermediate levels
-            std::vector<TreeCommunicatorLevel *> m_level;
+            std::vector<std::unique_ptr<TreeCommunicatorLevel>> m_level;
     };
 
     class SingleTreeCommunicator : public ITreeCommunicator
