@@ -51,26 +51,31 @@ namespace geopm
 
             /// @brief Constructor for the PlatformIO class.
             PlatformIO();
+            PlatformIO(const PlatformIO &other);
             /// @brief Virtual destructor for the PlatformIO class.
             virtual ~PlatformIO();
+            int signal_domain_type(const std::string &signal_name) const;
+            int control_domain_type(const std::string &control_name) const;
             int push_signal(const std::string &signal_name,
                             int domain_type,
                             int domain_idx);
             int push_control(const std::string &control_name,
                              int domain_type,
                              int domain_idx);
+            int num_signal(void) const;
+            int num_control(void) const;
             void clear(void);
             double sample(int signal_idx);
-            std::string log(int signal_idx, double sample);
+            void sample(std::vector<double> &signal);
             void adjust(int control_idx,
                         double setting);
-            void sample(std::vector<double> &signal);
             void adjust(const std::vector<double> &setting);
-            std::string msr_whitelist(void);
-            std::string msr_whitelist(int cpuid);
+            std::string log(int signal_idx, double sample);
+            std::string msr_whitelist(void) const;
+            std::string msr_whitelist(int cpuid) const;
 
-        protected:
-            virtual int cpuid(void);
+       protected:
+            virtual int cpuid(void) const;
             virtual void init(void);
             virtual void init_time(void);
             /// @brief Register all signals and controls for the MSR

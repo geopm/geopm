@@ -36,8 +36,8 @@
 #include "Policy.hpp"
 #include "PolicyFlags.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "geopm_sched.h"
-#include "PlatformTopology.hpp"
 
 #include "config.h"
 
@@ -221,7 +221,7 @@ namespace geopm
         if (m_is_once) {
             size_t num_cpu = geopm_sched_num_cpu();
             for (size_t cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-                platform_io().push_control("PERF_CTL:FREQ", GEOPM_DOMAIN_CPU, cpu_idx);
+                platform_io().push_control("PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_CPU, cpu_idx);
             }
             m_is_once = false;
         }
