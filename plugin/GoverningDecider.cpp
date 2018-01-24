@@ -33,6 +33,7 @@
 #include <hwloc.h>
 #include <cmath>
 #include <signal.h>
+#include <unistd.h>
 
 //#include "geopm.h"
 #include "geopm_message.h"
@@ -43,6 +44,7 @@
 //#include "geopm_signal_handler.h"
 #include "Exception.hpp"
 //#include "config.h"
+#include<inttypes.h>
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
 {
@@ -136,7 +138,7 @@ namespace geopm
         return result;
     }
 
-#define HFI_POWER_ACCOUNTING_SUPPORT 1
+//#define HFI_POWER_ACCOUNTING_SUPPORT 1
 
 #ifdef HFI_POWER_ACCOUNTING_SUPPORT
 // Post-Silicon estimates for WFR(STL-1 generation)
@@ -161,10 +163,10 @@ namespace geopm
     }
    
    
-    static long long int get_hfi_byte_cnt()
+    static uint64_t get_hfi_byte_cnt()
     {
     
-      long long int hfi_byte_cnt=0.0;
+      uint64_t hfi_byte_cnt=0.0;
 
       g_popen_complete_signal_action.sa_handler = geopm_popen_complete;
       sigemptyset(&g_popen_complete_signal_action.sa_mask);
@@ -210,25 +212,49 @@ namespace geopm
         return HFI_IDLE_POWER;
     }
 
+    static FILE* hfi_report;
+    static char hostname_arr[30];
     static double get_dynamic_hfi_power()
     {
-	static struct geopm_time_s hfi_previous_timer;
-	static long long int hfi_previous_bytes;
+	const uint32_t MAX_COUNTER_VAL = (0x0)>>1;
+	static struct geopm_time_s hfi_previous_timer, hfi_previous_timer_overall;
+	static uint32_t hfi_previous_bytes=0x0;
+	static double hfi_dyn_power=0.0;
 
 	struct geopm_time_s hfi_current_timer;
-	long long int hfi_current_bytes;
-	double delta_time, hfi_dyn_power=0.0;
+	uint32_t hfi_current_bytes=0;
+        double delta_time, delta_bytes, delta_time_overall, avg_bandwidth=0.0;
+
+        static int  is_logfile_open=0;
+
+	if(is_logfile_open==0) {
+	   gethostname(hostname_arr,30);
+           hfi_report = fopen(hostname_arr,"w");
+           fprintf(hfi_report,"#TimeStamp, Inst_Bytes, Power, Delta Bytes, Delta Time, Bandwidth\n"); 
+           is_logfile_open=1;
+        }
 
   	geopm_time(&hfi_current_timer);	
 	delta_time = geopm_time_diff(&hfi_previous_timer, &hfi_current_timer);
 
-	if (delta_time > 0) {
-		hfi_current_bytes = get_hfi_byte_cnt();
-		hfi_dyn_power = convert_bw_to_dynamic_hfi_power((hfi_current_bytes-hfi_previous_bytes)/(delta_time))
-			     - HFI_IDLE_POWER;
-		
-		hfi_previous_timer = hfi_current_timer;
-		hfi_previous_bytes = hfi_current_bytes;
+	if (delta_time >= 1) {
+
+	   hfi_current_bytes = get_hfi_byte_cnt();
+
+	   if(hfi_current_bytes<hfi_previous_bytes) 
+	        delta_bytes=(double)(hfi_current_bytes+MAX_COUNTER_VAL-hfi_previous_bytes);
+	   else 
+	        delta_bytes=(double)(hfi_current_bytes-hfi_previous_bytes);
+
+	   avg_bandwidth=(double)delta_bytes/delta_time;
+	   hfi_dyn_power = convert_bw_to_dynamic_hfi_power(avg_bandwidth)- HFI_IDLE_POWER;
+
+           delta_time_overall = geopm_time_diff(&hfi_previous_timer_overall, &hfi_current_timer);
+	   hfi_previous_timer = hfi_current_timer;
+	   hfi_previous_bytes = hfi_current_bytes;
+
+           fprintf(hfi_report,"%f, %d, %f, %f, %f, %f\n", delta_time_overall, 
+			   hfi_current_bytes, hfi_dyn_power, delta_bytes, delta_time, avg_bandwidth);
 	}
 
 	return hfi_dyn_power;
@@ -241,7 +267,7 @@ namespace geopm
     {
         static const double GUARD_BAND = 0.02;
         bool is_target_updated = false;
-        const uint64_t region_id = curr_region.identifier();
+        const uint32_t region_id = curr_region.identifier();
 
 
         // If we have enough samples from the current region then update policy.
@@ -275,7 +301,6 @@ namespace geopm
 	    
 	    double hfi_power = get_static_hfi_power() + get_dynamic_hfi_power();
             limit_total -= hfi_power;
-	    printf("HFI power is %f, limit_total is %f\n",hfi_power, limit_total);
 
 #endif /* HFI_POWER_ACCOUNTING_SUPPORT */
 
