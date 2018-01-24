@@ -89,7 +89,6 @@ namespace geopm
     {
         public:
             TreeCommunicatorLevel(MPI_Comm comm);
-            TreeCommunicatorLevel(const TreeCommunicatorLevel &other);
             ~TreeCommunicatorLevel();
             /// Check sample mailbox for each child and if all are full copy
             /// them into sample and reset values in mailbox, otherwise throw
@@ -131,7 +130,6 @@ namespace geopm
         : m_num_node(0)
         , m_fan_out(fan_out)
         , m_global_policy(global_policy)
-        , m_level(fan_out.size(), NULL)
     {
         int num_level = m_fan_out.size();
         int color, key;
@@ -153,11 +151,8 @@ namespace geopm
         bool is_all_zero = true;
         MPI_Comm level_comm;
         m_num_level = 0;
-        int level = 0;
         int depth = num_level - 1;
-        for (auto level_it = m_level.begin();
-             level_it != m_level.end();
-             ++level_it, ++level, --depth) {
+        for (size_t level = 0; level < m_fan_out.size(); ++level, --depth) {
             if (is_all_zero) {
                 parent_coords[depth] = 0;
                 MPI_Cart_rank(comm_cart, parent_coords.data(), &color);
@@ -173,7 +168,8 @@ namespace geopm
                 ++m_num_level;
                 // TreeCommunicatorLevel will call MPI_Comm_Free on
                 // level_comm in destructor.
-                *level_it = new TreeCommunicatorLevel(level_comm);
+                m_level.push_back(std::move(std::unique_ptr<TreeCommunicatorLevel>
+                                            (new TreeCommunicatorLevel(level_comm))));
             }
 
             if (coords[depth] != 0) {
@@ -199,30 +195,8 @@ namespace geopm
         PMPI_Barrier(comm);
     }
 
-    TreeCommunicator::TreeCommunicator(const TreeCommunicator &other)
-        : ITreeCommunicator(other)
-        , m_num_level(other.m_num_level)
-        , m_num_node(other.m_num_node)
-        , m_fan_out(other.m_fan_out)
-        , m_global_policy(other.m_global_policy)
-        , m_level(other.m_level.size())
-    {
-        auto o_level_it = other.m_level.begin();
-        for (auto level_it = m_level.begin();
-             level_it != m_level.end();
-             ++level_it, ++o_level_it) {
-            *level_it = new TreeCommunicatorLevel(**o_level_it);
-        }
-    }
-
-
     TreeCommunicator::~TreeCommunicator()
     {
-        for (auto level_it = m_level.rbegin();
-             level_it != m_level.rend();
-             ++level_it) {
-            delete *level_it;
-        }
     }
 
     int TreeCommunicator::num_level(void) const
@@ -320,25 +294,6 @@ namespace geopm
             m_last_policy.resize(m_size, GEOPM_POLICY_UNKNOWN);
         }
         create_window();
-    }
-
-    TreeCommunicatorLevel::TreeCommunicatorLevel(const TreeCommunicatorLevel &other)
-        : m_comm(MPI_COMM_NULL)
-        , m_size(other.m_size)
-        , m_rank(other.m_rank)
-        , m_sample_mailbox(NULL)
-        , m_sample_window(MPI_WIN_NULL)
-        , m_policy_window(MPI_WIN_NULL)
-        , m_overhead_send(other.m_overhead_send)
-        , m_last_policy(other.m_last_policy)
-    {
-        MPI_Comm_dup(other.m_comm, &m_comm);
-        create_window();
-        m_policy_mailbox->mode = other.m_policy_mailbox->mode;
-        m_policy_mailbox->flags = other.m_policy_mailbox->flags;
-        m_policy_mailbox->num_sample = other.m_policy_mailbox->num_sample;
-        m_policy_mailbox->power_budget = other.m_policy_mailbox->power_budget;
-        std::copy(other.m_sample_mailbox, other.m_sample_mailbox + m_size, m_sample_mailbox);
     }
 
     TreeCommunicatorLevel::~TreeCommunicatorLevel()
