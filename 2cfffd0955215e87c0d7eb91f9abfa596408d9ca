@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "119b5b9b_9d7cfe63",
+        "filename": "src/GlobalPolicy.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-24T23:53:36Z",
+      "side": 1,
+      "message": "Would geopm.h be a better location for this definition?",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 2
+      },
+      "revId": "2cfffd0955215e87c0d7eb91f9abfa596408d9ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
