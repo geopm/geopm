@@ -146,6 +146,15 @@ namespace geopm
         check_mpi(MPI_Cart_coords(comm_cart, rank_cart, num_level, coords.data()));
         parent_coords = coords;
 
+        if (rank_cart == 0 && m_global_policy == NULL) {
+            throw Exception("process at root of tree communicator has not mapped the control file",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+        }
+        if (rank_cart != 0 && m_global_policy != NULL) {
+            throw Exception("process not at root of tree communicator has mapped the control file",
+                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
+        }
+
         /* Tracks if the rank's coordinate is zero for higher order
            dimensions than the depth */
         bool is_all_zero = true;
@@ -181,15 +190,6 @@ namespace geopm
         m_level.resize(m_num_level);
         if (m_global_policy) {
             m_num_level++;
-        }
-
-        if (rank_cart == 0 && m_global_policy == NULL) {
-            throw Exception("process at root of tree communicator has not mapped the control file",
-                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
-        }
-        if (rank_cart != 0 && m_global_policy != NULL) {
-            throw Exception("process not at root of tree communicator has mapped the control file",
-                            GEOPM_ERROR_CTL_COMM, __FILE__, __LINE__);
         }
 
         PMPI_Barrier(comm);
