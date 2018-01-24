@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b0c6b29_03a44fc7",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T22:29:52Z",
+      "side": 1,
+      "message": "2018",
+      "revId": "02a343665ebcf30a7655cb008637a6743323fc50",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4252adc_a0c3e8f1",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T22:29:52Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "02a343665ebcf30a7655cb008637a6743323fc50",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2e48196_d3031c08",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T22:29:52Z",
+      "side": 1,
+      "message": "this might be able to use std::stoul with base \u003d 16",
+      "range": {
+        "startLine": 241,
+        "startChar": 20,
+        "endLine": 244,
+        "endChar": 30
+      },
+      "revId": "02a343665ebcf30a7655cb008637a6743323fc50",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35061558_cc6fd80a",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T22:29:52Z",
+      "side": 1,
+      "message": "2018",
+      "revId": "02a343665ebcf30a7655cb008637a6743323fc50",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "546e8546_e42ecef5",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T22:29:52Z",
+      "side": 1,
+      "message": "since c++11, you don\u0027t need this space anymore.",
+      "range": {
+        "startLine": 119,
+        "startChar": 59,
+        "endLine": 119,
+        "endChar": 60
+      },
+      "revId": "02a343665ebcf30a7655cb008637a6743323fc50",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82f480a4_97e94647",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T22:29:52Z",
+      "side": 1,
+      "message": "It would be good to have some tests of the parsing errors.",
+      "revId": "02a343665ebcf30a7655cb008637a6743323fc50",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
