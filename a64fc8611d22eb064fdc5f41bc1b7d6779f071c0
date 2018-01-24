@@ -16,6 +16,24 @@
       "revId": "a64fc8611d22eb064fdc5f41bc1b7d6779f071c0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ff228be_ff82faa8",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-24T22:37:39Z",
+      "side": 1,
+      "message": "Yes, but only if the exception is thrown after this line.",
+      "parentUuid": "0fb8b8df_34a2db29",
+      "revId": "a64fc8611d22eb064fdc5f41bc1b7d6779f071c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
