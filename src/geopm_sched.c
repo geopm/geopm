@@ -47,6 +47,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
+#include <signal.h>
 
 #include "geopm_sched.h"
 #include "geopm_error.h"
@@ -55,6 +56,41 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
+static volatile unsigned g_is_popen_complete = 0;
+static struct sigaction g_popen_complete_signal_action;
+
+static void geopm_sched_popen_complete(int signum)
+{
+    if (signum == SIGCHLD) {
+        g_is_popen_complete = 1;
+    }
+}
+
+int geopm_sched_popen(const char *cmd, FILE **fid)
+{
+    int err = 0;
+    *fid = NULL;
+
+    struct sigaction save_action;
+    g_popen_complete_signal_action.sa_handler = geopm_sched_popen_complete;
+    sigemptyset(&g_popen_complete_signal_action.sa_mask);
+    g_popen_complete_signal_action.sa_flags = 0;
+    err = sigaction(SIGCHLD, &g_popen_complete_signal_action, &save_action);
+    if (!err) {
+        *fid = popen(cmd, "r");
+        while (*fid && !g_is_popen_complete) {
+
+        }
+        g_is_popen_complete = 0;
+        sigaction(SIGCHLD, &save_action, NULL);
+    }
+    if (!err && *fid == NULL) {
+        err = errno ? errno : GEOPM_ERROR_RUNTIME;
+    }
+    return err;
+}
+
 
 #ifndef __APPLE__
 
