@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80c178d6_b0684596",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-24T21:16:43Z",
+      "side": 1,
+      "message": "thanks!",
+      "revId": "44322c95ecd0e81ec3d961996b3f0efd050c92e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
