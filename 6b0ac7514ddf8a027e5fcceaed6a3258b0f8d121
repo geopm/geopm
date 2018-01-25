@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "436255dd_b2e5b525",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-25T00:40:24Z",
+      "side": 1,
+      "message": "long line",
+      "revId": "6b0ac7514ddf8a027e5fcceaed6a3258b0f8d121",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
