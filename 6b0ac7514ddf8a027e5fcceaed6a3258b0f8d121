@@ -16,6 +16,24 @@
       "revId": "6b0ac7514ddf8a027e5fcceaed6a3258b0f8d121",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c96b1d04_8c7e8356",
+        "filename": "src/TreeCommunicator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-25T17:34:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "436255dd_b2e5b525",
+      "revId": "6b0ac7514ddf8a027e5fcceaed6a3258b0f8d121",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
