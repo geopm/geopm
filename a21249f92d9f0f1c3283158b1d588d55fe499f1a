@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "910d2c57_b0b982f7",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-25T18:49:46Z",
+      "side": 1,
+      "message": "Better env variable:\n\nGEOPM_EXEC_WRAPPER\n\nand make part of real launcher.  Also document in geopm(7) man page.",
+      "revId": "a21249f92d9f0f1c3283158b1d588d55fe499f1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
