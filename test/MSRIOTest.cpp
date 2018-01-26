@@ -35,6 +35,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 #include <sstream>
 #include <vector>
 #include <string>
@@ -68,30 +69,24 @@ class TestMSRIO : public geopm::MSRIO
 TestMSRIO::TestMSRIO()
     : M_MAX_OFFSET(4096)
     , m_num_cpu(geopm_sched_num_cpu())
-    , m_test_dev_path(m_num_cpu)
-    , m_msr_space(m_num_cpu, NULL)
 {
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-        std::ostringstream path;
-        path << "test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
-        m_test_dev_path[cpu_idx] = path.str();
-    }
-    auto msr_space_it = m_msr_space.begin();
-    for (auto &path : m_test_dev_path) {
-        int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+        char tmp_path[NAME_MAX] = "/tmp/test_msrio_dev_cpu_XXXXXX";
+        int fd = mkstemp(tmp_path);
+        m_test_dev_path.push_back(tmp_path);
+
         int err = ftruncate(fd, M_MAX_OFFSET);
         if (err) {
             throw geopm::Exception("TestMSRIO: ftruncate failed", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         char *msr_space_ptr = (char *)mmap(NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         close(fd);
-        *msr_space_it = msr_space_ptr;
+        m_msr_space.push_back(msr_space_ptr);
         size_t num_field = M_MAX_OFFSET / 8;
         for (size_t field_idx = 0; field_idx < num_field; ++field_idx) {
             std::copy(msr_words()[field_idx], msr_words()[field_idx] + 8, msr_space_ptr);
             msr_space_ptr += 8;
         }
-        ++msr_space_it;
     }
 }
 
