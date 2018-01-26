@@ -31,15 +31,13 @@
  */
 
 #include <stdint.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/mman.h>
-#include <sstream>
-#include <fstream>
 #include <string>
 #include <map>
+#include <fstream>
 #include "gtest/gtest.h"
 
 #include "geopm_sched.h"
@@ -48,16 +46,7 @@
 #include "PlatformTopo.hpp"
 #include "MSRIO.hpp"
 #include "Exception.hpp"
-
-class TestPlatformIO : public geopm::PlatformIO
-{
-    public:
-        TestPlatformIO(int cpuid);
-        virtual ~TestPlatformIO();
-    protected:
-        int cpuid(void) const override;
-        int m_cpuid;
-};
+#include "TestPlatformIO.hpp"
 
 class PlatformIOTest : public :: testing :: Test
 {
@@ -68,97 +57,9 @@ class PlatformIOTest : public :: testing :: Test
         geopm::IPlatformIO *m_platform_io;
 };
 
-namespace geopm
-{
-    class TestPlatformIOMSRIO : public MSRIO
-    {
-        public:
-            TestPlatformIOMSRIO();
-            virtual ~TestPlatformIOMSRIO();
-        protected:
-            void msr_path(int cpu_idx,
-                          bool is_fallback,
-                          std::string &path);
-            void msr_batch_path(std::string &path);
-
-            std::vector<std::string> m_test_dev_path;
-    };
-
-    TestPlatformIOMSRIO::TestPlatformIOMSRIO()
-    {
-        const size_t MAX_OFFSET = 4096;
-        int num_cpu = geopm_sched_num_cpu();
-        for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-            std::ostringstream path;
-            path << "test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
-            m_test_dev_path.push_back(path.str());
-        }
-
-        union field_u {
-            uint64_t field;
-            uint16_t off[4];
-        };
-        union field_u fu;
-        for (auto &path : m_test_dev_path) {
-            int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-            int err = ftruncate(fd, MAX_OFFSET);
-            if (err) {
-                throw Exception("TestMSRIO: ftruncate failed", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            uint64_t *contents = (uint64_t *)mmap(NULL, MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-            close(fd);
-            size_t num_field = MAX_OFFSET / sizeof(uint64_t);
-            for (size_t field_idx = 0; field_idx < num_field; ++field_idx) {
-                uint16_t offset = field_idx * sizeof(uint64_t);
-                for (int off_idx = 0; off_idx < 4; ++off_idx) {
-                   fu.off[off_idx] = offset;
-                }
-                contents[field_idx] = fu.field;
-            }
-            munmap(contents, MAX_OFFSET);
-        }
-    }
-
-    TestPlatformIOMSRIO::~TestPlatformIOMSRIO()
-    {
-        for (auto &path : m_test_dev_path) {
-            unlink(path.c_str());
-        }
-    }
-
-    void TestPlatformIOMSRIO::msr_path(int cpu_idx,
-                             bool is_fallback,
-                             std::string &path)
-    {
-        path = m_test_dev_path[cpu_idx];
-    }
-
-    void TestPlatformIOMSRIO::msr_batch_path(std::string &path)
-    {
-        path = "test_dev_msr_safe";
-    }
-}
-
-
-TestPlatformIO::TestPlatformIO(int cpuid)
-    : m_cpuid(cpuid)
-{
-    m_msrio = new geopm::TestPlatformIOMSRIO;
-}
-
-TestPlatformIO::~TestPlatformIO()
-{
-
-}
-
-int TestPlatformIO::cpuid(void) const
-{
-    return m_cpuid;
-}
-
 void PlatformIOTest::SetUp()
 {
-    m_platform_io = new TestPlatformIO(0x657); // KNL CPUID
+    m_platform_io = new geopm::TestPlatformIO(0x657); // KNL CPUID
 }
 
 void PlatformIOTest::TearDown()
@@ -241,12 +142,14 @@ TEST_F(PlatformIOTest, freq_ctl)
     int idx = m_platform_io->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, idx);
     // Set frequency to 1 GHz
-    m_platform_io->adjust(std::vector<double>{1e9});
+    m_platform_io->adjust(idx, 1e9);
+    m_platform_io->write_control();
     num_read = pread(fd, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0xA00ULL, (value & 0xFF00));
     // Set frequency to 5 GHz
-    m_platform_io->adjust(std::vector<double>{5e9});
+    m_platform_io->adjust(idx, 5e9);
+    m_platform_io->write_control();
     num_read = pread(fd, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x3200ULL, (value & 0xFF00));
@@ -258,8 +161,10 @@ TEST_F(PlatformIOTest, time_signal)
     int idx = m_platform_io->push_signal("TIME", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, idx);
     std::vector<double> sample(1);
+    m_platform_io->read_signal();
     double time_0 = m_platform_io->sample(idx);
     sleep(1);
+    m_platform_io->read_signal();
     double time_1 = m_platform_io->sample(idx);
     EXPECT_NEAR(1, time_1 - time_0, 0.1);
     EXPECT_LE(0, time_0);

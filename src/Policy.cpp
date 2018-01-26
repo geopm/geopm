@@ -214,21 +214,6 @@ namespace geopm
         return region_policy(region_id)->is_converged();
     }
 
-    void Policy::ctl_cpu_freq(std::vector<double> freq)
-    {
-        /// Temporary interface to adjust CPU frequency with the PlatformIO object
-        if (m_is_once) {
-            size_t num_cpu = geopm_sched_num_cpu();
-            for (size_t cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-                platform_io().push_control("PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_CPU, cpu_idx);
-            }
-            m_is_once = false;
-        }
-        platform_io().adjust(freq);
-    }
-
-
-
     RegionPolicy::RegionPolicy(int num_domain)
         : m_invalid_target(-DBL_MAX)
         , m_num_domain(num_domain)
