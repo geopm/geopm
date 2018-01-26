@@ -46,6 +46,7 @@
 #include "geopm_sched.h"
 #include "PlatformIO.hpp"
 #include "PlatformIOInternal.hpp"
+#include "PlatformTopo.hpp"
 #include "MSRIO.hpp"
 #include "Exception.hpp"
 
@@ -56,8 +57,7 @@ class TestPlatformIO : public geopm::PlatformIO
         virtual ~TestPlatformIO();
         std::vector<std::string> m_test_dev_path;
     protected:
-        int cpuid(void);
-
+        int cpuid(void) const override;
         int m_cpuid;
 };
 
@@ -162,7 +162,7 @@ TestPlatformIO::~TestPlatformIO()
 
 }
 
-int TestPlatformIO::cpuid(void)
+int TestPlatformIO::cpuid(void) const
 {
     return m_cpuid;
 }
@@ -249,7 +249,7 @@ TEST_F(PlatformIOTest, freq_ctl)
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x01A001A001A001A0ULL, value);
 
-    int idx = m_platform_io->push_control("PERF_CTL:FREQ", geopm::IPlatformIO::M_DOMAIN_CPU, 0);
+    int idx = m_platform_io->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, idx);
     // Set frequency to 1 GHz
     m_platform_io->adjust(std::vector<double>{1e9});
@@ -266,7 +266,7 @@ TEST_F(PlatformIOTest, freq_ctl)
 
 TEST_F(PlatformIOTest, time_signal)
 {
-    int idx = m_platform_io->push_signal("TIME", geopm::IPlatformIO::M_DOMAIN_CPU, 0);
+    int idx = m_platform_io->push_signal("TIME", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, idx);
     std::vector<double> sample(1);
     double time_0 = m_platform_io->sample(idx);

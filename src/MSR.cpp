@@ -39,10 +39,11 @@
 #include <cmath>
 #include <sstream>
 #include <numeric>
+#include <string.h>
 
 #include "MSR.hpp"
 #include "MSRIO.hpp"
-#include "PlatformTopology.hpp"
+#include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "geopm_sched.h"
 #include "config.h"
@@ -171,7 +172,7 @@ namespace geopm
         , m_offset(offset)
         , m_signal_encode(signal.size(), NULL)
         , m_control_encode(control.size())
-        , m_domain_type(GEOPM_DOMAIN_CPU)
+        , m_domain_type(IPlatformTopo::M_DOMAIN_CPU)
         , m_prog_msr(0)
         , m_prog_field_name(0)
         , m_prog_value(0)
@@ -189,7 +190,7 @@ namespace geopm
         , m_offset(0)
         , m_signal_encode(signal.size(), NULL)
         , m_control_encode(0)
-        , m_domain_type(GEOPM_DOMAIN_CPU)
+        , m_domain_type(IPlatformTopo::M_DOMAIN_CPU)
         , m_prog_msr(prog_msr)
         , m_prog_field_name(prog_field_name)
         , m_prog_value(prog_value)
@@ -230,10 +231,10 @@ namespace geopm
         }
 
         if (m_name.compare(0, strlen("PKG_"), "PKG_") == 0) {
-            m_domain_type = GEOPM_DOMAIN_PACKAGE;
+            m_domain_type = IPlatformTopo::M_DOMAIN_PACKAGE;
         }
         else if (m_name.compare(0, strlen("DRAM_"), "DRAM_") == 0) {
-            m_domain_type = GEOPM_DOMAIN_BOARD_MEMORY;
+            m_domain_type = IPlatformTopo::M_DOMAIN_BOARD_MEMORY;
         }
     }
 
