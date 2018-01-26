@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e25d7cf_f0c23b6f",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-01-26T21:04:20Z",
+      "side": 1,
+      "message": "I\u0027m not sure you need the extra --. Could also be bold if you want.",
+      "range": {
+        "startLine": 327,
+        "startChar": 44,
+        "endLine": 327,
+        "endChar": 74
+      },
+      "revId": "31d4d3a846bcf16600c3ca6ef0e2f87e46b51843",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
