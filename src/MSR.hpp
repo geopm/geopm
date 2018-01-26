@@ -145,8 +145,8 @@ namespace geopm
                                  uint64_t &mask) const = 0;
             /// @brief The type of the domain that the MSR encodes.
             /// @return The domain type that the MSR pertains to as
-            ///         defined in the geopm_domain_type_e enum
-            ///         defined in the PlatformTopology.hpp header.
+            ///         defined in the m_domain_e enum
+            ///         from the PlatformTopo.hpp header.
             virtual int domain_type(void) const = 0;
     };
 
