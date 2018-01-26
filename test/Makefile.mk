@@ -281,6 +281,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           tutorial/ModelParse.cpp \
                           tutorial/Imbalancer.cpp \
                           test/PlatformTopoTest.cpp \
+                          test/TestPlatformIO.cpp \
+                          test/TestPlatformIO.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

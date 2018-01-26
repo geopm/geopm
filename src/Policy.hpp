@@ -101,7 +101,6 @@ namespace geopm
             /// acceptance state.
             /// @return true if converged else false.
             virtual bool is_converged(uint64_t region_id) = 0;
-            virtual void ctl_cpu_freq(std::vector<double> freq) = 0;
     };
 
     class Policy : public IPolicy
@@ -133,7 +132,6 @@ namespace geopm
                                 std::vector<struct geopm_policy_message_s> &child_msg);
             void is_converged(uint64_t region_id, bool converged_state);
             bool is_converged(uint64_t region_id);
-            void ctl_cpu_freq(std::vector<double> freq);
         protected:
             static bool m_is_once;
             IPolicyFlags *m_policy_flags;

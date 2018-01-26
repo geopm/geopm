@@ -89,7 +89,9 @@ namespace geopm
             ///        they have been sampled or adjusted.
             virtual void clear(void) = 0;
             /// @brief Sample a single signal that has been pushed on
-            ///        to the signal stack.
+            ///        to the signal stack.  Must be called after a call
+            ///        to read_signal(void) method which updates the state
+            ///        of all signals.
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
             /// @return Signal value measured from the platform in SI units.
@@ -102,28 +104,36 @@ namespace geopm
             ///        call to the sample() method.
             /// @return Printable version of the signal suited for
             ///         output in a log file.
-            virtual std::string log(int signal_idx, double sample) = 0;
+            virtual std::string log(int signal_idx,
+                                    double sample) = 0;
             /// @brief Adjust a single control that has been pushed on
-            ///        to the control stack.
+            ///        to the control stack.  This control will not
+            ///        take effect until the next call to
+            ///        write_control(void).
             /// @param [in] control_idx Index of control to be adjusted
             ///        returned by a previous call to the push_control() method.
             /// @param [in] setting Value of control parameter in SI units.
             virtual void adjust(int control_idx,
                                 double setting) = 0;
-            /// @brief Measure the signals specified by the previous
-            ///        call to the push_signal() method.
-            /// @param [out] signal Vector of signal values measured
-            ///        from the platform in SI units. The order of
-            ///        these signals is determined by the previous
-            ///        call to the push_signal() method.
-            virtual void sample(std::vector<double> &signal) = 0;
-            /// @brief Set values of controls specified by the previous
-            ///        calls to push_control().
-            /// @param [in] setting Vector of control parameter values
-            ///        in SI units.  The order of these controls is
-            ///        determined by the previous call to the push_control()
-            ///        method.
-            virtual void adjust(const std::vector<double> &setting) = 0;
+            /// @brief Read all pushed signals so that the next call
+            ///        to sample() will reflect the updated data.
+            virtual void read_signal(void) = 0;
+            /// @brief Write all of the pushed controls so that values
+            ///        previously given to adjust() are written to the
+            ///        platform.
+            virtual void write_control(void) = 0;
+            /// @brief Read one signal directly from the platform.
+            ///        Subsequent calls to sample(signal_idx) will
+            ///        reflect this update.
+            /// @return Signal that was read from the platform.
+            virtual double read_signal(int signal_idx) = 0;
+            /// @brief Write one control directly to the platform.
+            ///        Subsequent calls to write_control(void) will
+            ///        also use this value for the control until
+            ///        adjust(signal_idx) is called.  A call to this
+            ///        method will effect the control immediately.
+            virtual void write_control(int control_idx,
+                                       double setting) = 0;
             /// @brief Fill string with the msr-safe whitelist file contents
             ///        reflecting all known MSRs for the current platform.
             /// @return String formatted to be written to
