@@ -36,6 +36,7 @@
 #include <vector>
 #include <mpi.h>
 #include <pthread.h>
+#include <memory>
 
 #include "geopm_message.h"
 
@@ -229,7 +230,7 @@ namespace geopm
             /// GlobalPolicy object defining the policy
             IGlobalPolicy *m_global_policy;
             /// Intermediate levels
-            std::vector<std::unique_ptr<TreeCommunicatorLevel>> m_level;
+            std::vector<std::unique_ptr<TreeCommunicatorLevel> > m_level;
     };
 
     class SingleTreeCommunicator : public ITreeCommunicator
