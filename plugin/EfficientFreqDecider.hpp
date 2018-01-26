@@ -34,6 +34,7 @@
 #define EFFICIENT_FREQ_DECIDER_HPP_INCLUDE
 
 #include <memory>
+#include <vector>
 
 #include "geopm_plugin.h"
 #include "GoverningDecider.hpp"
@@ -76,7 +77,8 @@ namespace geopm
             const double m_freq_min;
             const double m_freq_max;
             const double m_freq_step;
-            const unsigned int m_num_cores;
+            const unsigned int m_num_cpu;
+            std::vector<int> m_control_idx;
             double m_last_freq;
             std::map<uint64_t, double> m_rid_freq_map;
             // for online adaptive mode

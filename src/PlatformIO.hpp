@@ -110,20 +110,13 @@ namespace geopm
             /// @param [in] setting Value of control parameter in SI units.
             virtual void adjust(int control_idx,
                                 double setting) = 0;
-            /// @brief Measure the signals specified by the previous
-            ///        call to the push_signal() method.
-            /// @param [out] signal Vector of signal values measured
-            ///        from the platform in SI units. The order of
-            ///        these signals is determined by the previous
-            ///        call to the push_signal() method.
-            virtual void sample(std::vector<double> &signal) = 0;
-            /// @brief Set values of controls specified by the previous
-            ///        calls to push_control().
-            /// @param [in] setting Vector of control parameter values
-            ///        in SI units.  The order of these controls is
-            ///        determined by the previous call to the push_control()
-            ///        method.
-            virtual void adjust(const std::vector<double> &setting) = 0;
+            /// @brief Read all pushed signals so that data returned
+            ///        by sample() is updated.
+            virtual void read_signal(void) = 0;
+            /// @brief Write all of the pushed controls so that values
+            ///        previously given to adjust() are written to the
+            ///        platform.
+            virtual void write_control(void) = 0;
             /// @brief Fill string with the msr-safe whitelist file contents
             ///        reflecting all known MSRs for the current platform.
             /// @return String formatted to be written to

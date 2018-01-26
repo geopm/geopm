@@ -44,11 +44,13 @@
 #include "geopm_hash.h"
 #include "geopm_sched.h"
 
-#include "EfficientFreqDecider.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "Policy.hpp"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 #include "Region.hpp"
+#include "EfficientFreqDecider.hpp"
 #include "EfficientFreqRegion.hpp"
 
 int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr)
@@ -88,7 +90,7 @@ namespace geopm
         , m_freq_min(cpu_freq_min())
         , m_freq_max(cpu_freq_max())
         , m_freq_step(100e6)
-        , m_num_cores(geopm_sched_num_cpu())
+        , m_num_cpu(geopm_sched_num_cpu())
         , m_last_freq(NAN)
     {
         m_name = "efficient_freq";
@@ -96,6 +98,25 @@ namespace geopm
         const char* env_freq_adapt_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
         if (env_freq_adapt_str) {
             m_is_adaptive = true;
+        }
+
+        uint64_t freq_domain_type = platform_io().control_domain_type("PERF_CTL:FREQ");
+        if (freq_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
+            throw Exception("SimpleFreqDecider: Platform does not support frequency control",
+                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        }
+        uint32_t num_freq_domain = platform_topo().num_domain(freq_domain_type);
+        if (!num_freq_domain) {
+            throw Exception("SimpleFreqDecider: Platform does not support frequency control",
+                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        }
+        for (uint32_t dom_idx = 0; dom_idx != num_freq_domain; ++dom_idx) {
+            int control_idx = platform_io().push_control("PERF_CTL:FREQ", freq_domain_type, dom_idx);
+            if (control_idx < 0) {
+                throw Exception("SimpleFreqDecider: Failed to enable frequency control in the platform.",
+                                GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+            }
+            m_control_idx.push_back(control_idx);
         }
     }
 
@@ -107,7 +128,7 @@ namespace geopm
         , m_freq_min(other.m_freq_min)
         , m_freq_max(other.m_freq_max)
         , m_freq_step(other.m_freq_step)
-        , m_num_cores(other.m_num_cores)
+        , m_num_cpu(other.m_num_cpu)
         , m_last_freq(other.m_last_freq)
         , m_rid_freq_map(other.m_rid_freq_map)
         , m_is_adaptive(other.m_is_adaptive)
@@ -237,8 +258,9 @@ namespace geopm
         }
 
         if (freq != m_last_freq) {
-            std::vector<double> freq_vec(m_num_cores, freq);
-            curr_policy.ctl_cpu_freq(freq_vec);
+            for (auto ctl_idx : m_control_idx) {
+                platform_io().adjust(ctl_idx, freq);
+            }
             m_last_freq = freq;
         }
 
