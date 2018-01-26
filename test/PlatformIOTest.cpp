@@ -90,7 +90,7 @@ namespace geopm
         int num_cpu = geopm_sched_num_cpu();
         for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
             std::ostringstream path;
-            path << "test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
+            path << "/tmp/test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
             m_test_dev_path.push_back(path.str());
         }
 
@@ -224,7 +224,7 @@ TEST_F(PlatformIOTest, whitelist)
 
 TEST_F(PlatformIOTest, freq_ctl)
 {
-    int fd = open("test_msrio_dev_cpu_0_msr_safe",  O_RDWR);
+    int fd = open("/tmp/test_msrio_dev_cpu_0_msr_safe",  O_RDWR);
     ASSERT_NE(-1, fd);
     uint64_t value;
     size_t num_read;

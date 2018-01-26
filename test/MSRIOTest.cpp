@@ -73,7 +73,7 @@ TestMSRIO::TestMSRIO()
 {
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
         std::ostringstream path;
-        path << "test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
+        path << "/tmp/test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
         m_test_dev_path[cpu_idx] = path.str();
     }
     auto msr_space_it = m_msr_space.begin();
