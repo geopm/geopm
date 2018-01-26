@@ -41,6 +41,7 @@
 
 #include "geopm.h"
 #include "geopm_message.h"
+#include "geopm_sched.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "OMPT.hpp"
@@ -60,20 +61,6 @@ namespace geopm
 #else // GEOPM_ENABLE_OMPT defined
 
 #include <ompt.h>
-
-extern "C"
-{
-    static volatile unsigned g_is_popen_complete = 0;
-    static struct sigaction g_popen_complete_signal_action;
-
-    static void geopm_popen_complete(int signum)
-    {
-        if (signum == SIGCHLD) {
-            g_is_popen_complete = 1;
-        }
-    }
-}
-
 
 namespace geopm
 {
@@ -219,32 +206,21 @@ namespace geopm
                         << "rm $tmp_file"
                         << "'";
 
-                g_popen_complete_signal_action.sa_handler = geopm_popen_complete;
-                sigemptyset(&g_popen_complete_signal_action.sa_mask);
-                g_popen_complete_signal_action.sa_flags = 0;
-                struct sigaction save_action;
-                int err = sigaction(SIGCHLD, &g_popen_complete_signal_action, &save_action);
+                char buffer[NAME_MAX] = "FUNCTION_UNKNOWN";
+                FILE *pid;
+                int err = geopm_sched_popen(cmd_str.str().c_str(), &pid);
                 if (!err) {
-                    char buffer[NAME_MAX] = "FUNCTION_UNKNOWN";
-                    FILE *pid = popen(cmd_str.str().c_str(), "r");
-                    if (pid) {
-                        while (!g_is_popen_complete) {
-
-                        }
-                        g_is_popen_complete = 0;
-                        size_t num_read = fread(buffer, 1, NAME_MAX - 1, pid);
-                        if (num_read) {
-                            buffer[num_read -1] = '\0'; // Replace new line with null terminator
-                        }
-                        pclose(pid);
+                    size_t num_read = fread(buffer, 1, NAME_MAX - 1, pid);
+                    if (num_read) {
+                        buffer[num_read -1] = '\0'; // Replace new line with null terminator
                     }
-                    sigaction(SIGCHLD, &save_action, NULL);
+                    (void)pclose(pid);
                     size_t last_slash = obj_name.rfind('/');
                     if (last_slash != std::string::npos) {
                         obj_name = obj_name.substr(last_slash + 1);
                     }
-                    name = "[OMPT]" + obj_name + ":" + std::string(buffer);
                 }
+                name = "[OMPT]" + obj_name + ":" + std::string(buffer);
             }
         }
     }
