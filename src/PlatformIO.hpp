@@ -45,39 +45,17 @@ namespace geopm
     class IPlatformIO
     {
         public:
-            enum m_domain_e {
-                /// @brief Group of MPI processes used for control
-                M_DOMAIN_PROCESS_GROUP,
-                /// @brief Coherent memory domain
-                M_DOMAIN_BOARD,
-                /// @brief Single processor package
-                M_DOMAIN_PACKAGE,
-                /// @brief All CPU's within a package
-                M_DOMAIN_PACKAGE_CORE,
-                /// @brief Everything on package other than the cores
-                M_DOMAIN_PACKAGE_UNCORE,
-                /// @brief Single processing unit
-                M_DOMAIN_CPU,
-                /// @brief Standard off package DIMM (DRAM or NAND)
-                M_DOMAIN_BOARD_MEMORY,
-                /// @brief On package memory (MCDRAM)
-                M_DOMAIN_PACKAGE_MEMORY,
-                /// @brief Network interface controller
-                M_DOMAIN_NIC,
-                /// @brief Software defined grouping of tiles
-                M_DOMAIN_TILE_GROUP,
-                /// @brief Group of CPU's that share a cache
-                M_DOMAIN_TILE,
-            };
-
             IPlatformIO() {}
             virtual ~IPlatformIO() {}
+            /// @brief Query the domain for a named signal.
+            virtual int signal_domain_type(const std::string &signal_name) const = 0;
+            /// @brief Query the domain for a named control.
+            virtual int control_domain_type(const std::string &control_name) const = 0;
             /// @brief Push a signal onto the end of the vector that
             ///        can be sampled.
             /// @param [in] signal_name Name of the signal requested.
             /// @param [in] domain_type One of the values from the
-            ///        geopm_domain_type_e enum described in
-            ///        PlatformTopology.hpp.
+            ///        m_domain_e enum described in PlatformTopo.hpp.
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
@@ -91,8 +69,7 @@ namespace geopm
             ///        can be adjusted.
             /// @param [in] control_name Name of the control requested.
             /// @param [in] domain_type One of the values from the
-            ///        geopm_domain_type_e enum described in
-            ///        PlatformTopology.hpp.
+            ///        m_domain_e enum described in PlatformTopo.hpp.
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
@@ -101,6 +78,12 @@ namespace geopm
             virtual int push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx) = 0;
+            /// @brief Return number of signals that have been pushed
+            ///        since last call to clear().
+            virtual int num_signal(void) const = 0;
+            /// @brief Return number of controls that have been pushed
+            ///        since last call to clear().
+            virtual int num_control(void) const = 0;
             /// @brief Remove all signals and controls.  Must be
             ///        called before pushing signals or controls once
             ///        they have been sampled or adjusted.
@@ -145,14 +128,14 @@ namespace geopm
             ///        reflecting all known MSRs for the current platform.
             /// @return String formatted to be written to
             ///        an msr-safe whitelist file.
-            virtual std::string msr_whitelist(void) = 0;
+            virtual std::string msr_whitelist(void) const = 0;
             /// @brief Fill string with the msr-safe whitelist file
             ///        contents reflecting all known MSRs for the
             ///        specified platform.
             /// @param cpuid [in] The CPUID of the platform.
             /// @return String formatted to be written to an msr-safe
             ///         whitelist file.
-            virtual std::string msr_whitelist(int cpuid) = 0;
+            virtual std::string msr_whitelist(int cpuid) const = 0;
     };
 
     IPlatformIO &platform_io(void);
@@ -168,8 +151,8 @@ namespace geopm
             /// @return The name of the feature being measured.
             virtual std::string name(void) const = 0;
             /// @brief Get the type of the domain under measurement.
-            /// @return One of the values from the IPlatformIO::m_domain_e
-            ///         enum described in PlatformTopology.hpp.
+            /// @return One of the values from the IPlatformTopo::m_domain_e
+            ///         enum described in PlatformTopo.hpp.
             virtual int domain_type(void) const = 0;
             /// @brief Get the index of the domain under measurement.
             /// @return The index of the domain within the set of
@@ -199,8 +182,8 @@ namespace geopm
             /// @return The name of the feature under control.
             virtual std::string name(void) const = 0;
             /// @brief Get the type of the domain under control.
-            /// @return One of the values from the geopm_domain_type_e
-            ///         enum described in PlatformTopology.hpp.
+            /// @return One of the values from the m_domain_e
+            ///         enum described in PlatformTopo.hpp.
             virtual int domain_type(void) const = 0;
             /// @brief Get the index of the domain under control.
             /// @return The index of the domain within the set of
