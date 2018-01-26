@@ -51,7 +51,8 @@ namespace geopm
 
             /// @brief Constructor for the PlatformIO class.
             PlatformIO();
-            PlatformIO(const PlatformIO &other);
+            PlatformIO(const PlatformIO &other) = delete;
+            PlatformIO & operator=(const PlatformIO&) = delete;
             /// @brief Virtual destructor for the PlatformIO class.
             virtual ~PlatformIO();
             int signal_domain_type(const std::string &signal_name) const;
@@ -71,6 +72,9 @@ namespace geopm
                         double setting) override;
             void read_signal(void) override;
             void write_control(void) override;
+            double read_signal(int signal_idx) override;
+            void write_control(int signal_idx,
+                               double setting) override;
             std::string msr_whitelist(void) const override;
             std::string msr_whitelist(int cpuid) const override;
 
@@ -130,8 +134,8 @@ namespace geopm
             const int m_num_cpu;
             bool m_is_init;
             bool m_is_active;
-            bool m_is_read;
-            bool m_is_adjusted;
+            std::vector<bool> m_is_read;
+            std::vector<bool> m_is_adjusted;
             IMSRIO *m_msrio;
             std::map<std::string, const IMSR *> m_name_msr_map;
             std::map<std::string, std::vector<ISignal *> > m_name_cpu_signal_map;
