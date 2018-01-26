@@ -34,6 +34,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <algorithm>
 
 #include "geopm_sched.h"
 #include "PlatformIO.hpp"
@@ -63,22 +64,9 @@ namespace geopm
     PlatformIO::PlatformIO()
         : m_num_cpu(geopm_sched_num_cpu())
         , m_is_init(false)
-        , m_is_active(false)
-        , m_is_read(false)
-        , m_is_adjusted(false)
         , m_msrio(NULL)
     {
 
-    }
-
-    PlatformIO::PlatformIO(const PlatformIO &other)
-        : m_num_cpu(geopm_sched_num_cpu())
-        , m_is_init(false)
-        , m_is_active(false)
-        , m_msrio(NULL)
-    {
-        throw Exception("PlatformIO: singleton class, copy constructor not supported.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     PlatformIO::~PlatformIO()
@@ -129,6 +117,7 @@ namespace geopm
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it != m_name_cpu_signal_map.end()) {
             result = m_active_signal.size();
+            m_is_read.push_back(false);
             if (ncsm_it->second.size() == 1) {
                 m_active_signal.push_back(ncsm_it->second[0]);
             }
@@ -181,6 +170,7 @@ namespace geopm
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it != m_name_cpu_control_map.end()) {
             result = m_active_control.size();
+            m_is_adjusted.push_back(false);
             m_active_control.push_back(nccm_it->second[cpu_idx]);
             IMSRControl *msr_ctl = dynamic_cast<IMSRControl *>(m_active_control.back());
             if (msr_ctl) {
@@ -231,6 +221,8 @@ namespace geopm
         m_msr_write_cpu_idx.resize(0);
         m_msr_write_offset.resize(0);
         m_msr_write_mask.resize(0);
+        m_is_read.resize(0);
+        m_is_adjusted.resize(0);
         m_is_active = false;
     }
 
@@ -291,32 +283,17 @@ namespace geopm
 
     double PlatformIO::sample(int signal_idx)
     {
-        if (signal_idx < 0 || (unsigned)signal_idx >= m_active_signal.size()) {
+        if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("PlatformIO::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
 #ifdef GEOPM_DEBUG
-        if (!m_is_read) {
-            throw Exception("PlatformIO:sample(): sample() called before read().",
+        if (!m_is_read[signal_idx]) {
+            throw Exception("PlatformIO:sample(): sample() called before signal was read.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        if (!m_is_active) {
-            activate();
-        }
-
-        if (m_msr_read_signal_len[signal_idx] != 0) {
-            auto field_it = m_msr_read_field.begin() + m_msr_read_signal_off[signal_idx];
-            auto cpu_it = m_msr_read_cpu_idx.begin() + m_msr_read_signal_off[signal_idx];
-            auto off_it = m_msr_read_offset.begin() + m_msr_read_signal_off[signal_idx];
-            for (int i = 0; i < m_msr_read_signal_len[signal_idx]; ++i) {
-                *field_it = m_msrio->read_msr(*cpu_it, *off_it);
-                ++field_it;
-                ++cpu_it;
-                ++off_it;
-            }
-        }
         return m_active_signal[signal_idx]->sample();
     }
 
@@ -332,12 +309,16 @@ namespace geopm
             activate();
         }
         m_active_control[control_idx]->adjust(setting);
-        m_is_adjusted = true;
+        m_is_adjusted[control_idx] = true;
     }
 
     void PlatformIO::write_control(void)
     {
-        if (m_is_adjusted && m_msr_write_field.size()) {
+        if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it){return !it;})) {
+            throw Exception("PlatformIO::write_control() called before all controls were adjusted",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (m_msr_write_field.size()) {
             m_msrio->write_batch(m_msr_write_field);
         }
     }
@@ -350,7 +331,51 @@ namespace geopm
         if (m_msr_read_field.size()) {
             m_msrio->read_batch(m_msr_read_field);
         }
-        m_is_read = true;
+        std::fill(m_is_read.begin(), m_is_read.end(), true);
+    }
+
+    double PlatformIO::read_signal(int signal_idx)
+    {
+        if (signal_idx < 0 || signal_idx >= num_signal()) {
+            throw Exception("PlatformIO::sample(): signal_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (!m_is_active) {
+            activate();
+        }
+
+        if (m_msr_read_signal_len[signal_idx] != 0) {
+            auto field_it = m_msr_read_field.begin() + m_msr_read_signal_off[signal_idx];
+            auto cpu_it = m_msr_read_cpu_idx.begin() + m_msr_read_signal_off[signal_idx];
+            auto off_it = m_msr_read_offset.begin() + m_msr_read_signal_off[signal_idx];
+            for (int i = 0; i < m_msr_read_signal_len[signal_idx]; ++i) {
+                *field_it = m_msrio->read_msr(*cpu_it, *off_it);
+                ++field_it;
+                ++cpu_it;
+                ++off_it;
+            }
+        }
+        m_is_read[signal_idx] = true;
+        return m_active_signal[signal_idx]->sample();
+    }
+
+    void PlatformIO::write_control(int control_idx, double setting)
+    {
+        adjust(control_idx, setting);
+        if (m_msr_write_control_len[control_idx] != 0) {
+            auto field_it = m_msr_write_field.begin() + m_msr_write_control_off[control_idx];
+            auto cpu_it = m_msr_write_cpu_idx.begin() + m_msr_write_control_off[control_idx];
+            auto off_it = m_msr_write_offset.begin() + m_msr_write_control_off[control_idx];
+            auto mask_it = m_msr_write_mask.begin() + m_msr_write_control_off[control_idx];
+            for (int i = 0; i < m_msr_write_control_len[control_idx]; ++i) {
+                m_msrio->write_msr(*cpu_it, *off_it, *mask_it, *field_it);
+                ++field_it;
+                ++cpu_it;
+                ++off_it;
+                ++mask_it;
+            }
+        }
     }
 
     void PlatformIO::init_msr(void)
