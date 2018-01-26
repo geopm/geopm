@@ -230,6 +230,8 @@ test/RegionTest.cpp
 test/SampleRegulatorTest.cpp
 test/SchedTest.cpp
 test/SharedMemoryTest.cpp
+test/TestPlatformIO.cpp
+test/TestPlatformIO.hpp
 tracker/track
 .travis_obs.sh
 .travis.yml

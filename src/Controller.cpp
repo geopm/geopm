@@ -63,6 +63,7 @@
 #include "Platform.hpp"
 #include "PlatformFactory.hpp"
 #include "PlatformTopology.hpp"
+#include "PlatformIO.hpp"
 #include "Profile.hpp"
 #include "DeciderFactory.hpp"
 #include "Decider.hpp"
@@ -685,6 +686,7 @@ namespace geopm
                     }
                 }
 
+                platform_io().read_signal();
                 m_platform->sample(m_msr_sample);
                 // Insert MSR data into platform sample
                 std::vector<double> platform_sample(m_msr_sample.size());
@@ -914,6 +916,7 @@ namespace geopm
             !geopm_region_id_is_epoch(m_region_id_all) &&
             m_decider[0]->update_policy(*curr_region, *curr_policy) == true) {
             m_platform->enforce_policy(m_region_id_all, *curr_policy);
+            platform_io().write_control();
         }
     }
 
