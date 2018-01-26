@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PlatformTopo.hpp"
 #include "TimeSignal.hpp"
 #include "Exception.hpp"
 
@@ -52,7 +53,7 @@ namespace geopm
 
     int TimeSignal::domain_type(void) const
     {
-        return IPlatformIO::M_DOMAIN_BOARD;
+        return IPlatformTopo::M_DOMAIN_BOARD;
     }
 
     int TimeSignal::domain_idx(void) const

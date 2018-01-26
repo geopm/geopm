@@ -35,7 +35,7 @@
 
 #include "MSR.hpp"
 #include "MockMSRIO.hpp"
-#include "PlatformTopology.hpp"
+#include "PlatformTopo.hpp"
 #include "PlatformIO.hpp"
 #include "Exception.hpp"
 
@@ -51,6 +51,7 @@ using geopm::IMSRSignal;
 using geopm::MSRControl;
 using geopm::IMSRControl;
 using geopm::IPlatformIO;
+using geopm::IPlatformTopo;
 
 class MSRTest : public :: testing :: Test
 {
@@ -96,7 +97,7 @@ class MSRTest : public :: testing :: Test
 void MSRTest::SetUp()
 {
     m_cpu_idx = 0;
-    m_domain_types = {IPlatformIO::M_DOMAIN_CPU, IPlatformIO::M_DOMAIN_CPU, IPlatformIO::M_DOMAIN_CPU};
+    m_domain_types = {IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU};
     m_function_types = {IMSR::M_FUNCTION_SCALE, IMSR::M_FUNCTION_LOG_HALF, IMSR::M_FUNCTION_7_BIT_FLOAT};
     m_unit_types = {IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE};
 

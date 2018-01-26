@@ -32,6 +32,7 @@
 #ifndef TIMESIGNAL_HPP_INCLUDE
 #define TIMESIGNAL_HPP_INCLUDE
 
+#include <string>
 #include "PlatformIO.hpp"
 #include "geopm_time.h"
 
