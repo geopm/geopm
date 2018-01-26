@@ -54,8 +54,7 @@ class TestPlatformIO : public geopm::PlatformIO
         TestPlatformIO(int cpuid);
         virtual ~TestPlatformIO();
     protected:
-        int cpuid(void);
-
+        int cpuid(void) const override;
         int m_cpuid;
 };
 
@@ -151,7 +150,7 @@ TestPlatformIO::~TestPlatformIO()
 
 }
 
-int TestPlatformIO::cpuid(void)
+int TestPlatformIO::cpuid(void) const
 {
     return m_cpuid;
 }
