@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <limits.h>
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -53,6 +54,7 @@ class TestPlatformIO : public geopm::PlatformIO
     public:
         TestPlatformIO(int cpuid);
         virtual ~TestPlatformIO();
+        std::vector<std::string> m_test_dev_path;
     protected:
         int cpuid(void);
 
@@ -73,7 +75,7 @@ namespace geopm
     class TestPlatformIOMSRIO : public MSRIO
     {
         public:
-            TestPlatformIOMSRIO();
+            TestPlatformIOMSRIO(std::vector<std::string> &test_dev_path);
             virtual ~TestPlatformIOMSRIO();
         protected:
             void msr_path(int cpu_idx,
@@ -81,33 +83,41 @@ namespace geopm
                           std::string &path);
             void msr_batch_path(std::string &path);
 
+            const size_t M_MAX_OFFSET;
+            const int m_num_cpu;
             std::vector<std::string> m_test_dev_path;
     };
 
-    TestPlatformIOMSRIO::TestPlatformIOMSRIO()
+    TestPlatformIOMSRIO::TestPlatformIOMSRIO(std::vector<std::string> &test_dev_path)
+       : M_MAX_OFFSET(4096)
+       , m_num_cpu(geopm_sched_num_cpu())
     {
-        const size_t MAX_OFFSET = 4096;
-        int num_cpu = geopm_sched_num_cpu();
-        for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-            std::ostringstream path;
-            path << "test_msrio_dev_cpu_" << cpu_idx << "_msr_safe";
-            m_test_dev_path.push_back(path.str());
-        }
-
         union field_u {
             uint64_t field;
             uint16_t off[4];
         };
         union field_u fu;
-        for (auto &path : m_test_dev_path) {
-            int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-            int err = ftruncate(fd, MAX_OFFSET);
-            if (err) {
-                throw Exception("TestMSRIO: ftruncate failed", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+            char tmp_path[NAME_MAX] = "/tmp/test_platform_io_dev_cpu_XXXXXX";
+            int fd = mkstemp(tmp_path);
+            if (fd == -1) {
+               throw geopm::Exception("TestPlatformIOMSRIO: mkstemp() failed",
+                                      errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            uint64_t *contents = (uint64_t *)mmap(NULL, MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            m_test_dev_path.push_back(tmp_path);
+
+            int err = ftruncate(fd, M_MAX_OFFSET);
+            if (err) {
+                throw Exception("TestPlatformIOMSRIO: ftruncate() failed",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            uint64_t *contents = (uint64_t *)mmap(NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            if (contents == NULL) {
+                throw Exception("TestPlatformIOMSRIO: mmap() failed",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
             close(fd);
-            size_t num_field = MAX_OFFSET / sizeof(uint64_t);
+            size_t num_field = M_MAX_OFFSET / sizeof(uint64_t);
             for (size_t field_idx = 0; field_idx < num_field; ++field_idx) {
                 uint16_t offset = field_idx * sizeof(uint64_t);
                 for (int off_idx = 0; off_idx < 4; ++off_idx) {
@@ -115,8 +125,9 @@ namespace geopm
                 }
                 contents[field_idx] = fu.field;
             }
-            munmap(contents, MAX_OFFSET);
+            munmap(contents, M_MAX_OFFSET);
         }
+        test_dev_path = m_test_dev_path;
     }
 
     TestPlatformIOMSRIO::~TestPlatformIOMSRIO()
@@ -127,8 +138,8 @@ namespace geopm
     }
 
     void TestPlatformIOMSRIO::msr_path(int cpu_idx,
-                             bool is_fallback,
-                             std::string &path)
+                                       bool is_fallback,
+                                       std::string &path)
     {
         path = m_test_dev_path[cpu_idx];
     }
@@ -143,7 +154,7 @@ namespace geopm
 TestPlatformIO::TestPlatformIO(int cpuid)
     : m_cpuid(cpuid)
 {
-    m_msrio = new geopm::TestPlatformIOMSRIO;
+    m_msrio = new geopm::TestPlatformIOMSRIO(m_test_dev_path);
 }
 
 TestPlatformIO::~TestPlatformIO()
@@ -224,7 +235,7 @@ TEST_F(PlatformIOTest, whitelist)
 
 TEST_F(PlatformIOTest, freq_ctl)
 {
-    int fd = open("test_msrio_dev_cpu_0_msr_safe",  O_RDWR);
+    int fd = open(((TestPlatformIO *)m_platform_io)->m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
     uint64_t value;
     size_t num_read;
