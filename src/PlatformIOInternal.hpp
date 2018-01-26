@@ -58,23 +58,23 @@ namespace geopm
             int control_domain_type(const std::string &control_name) const;
             int push_signal(const std::string &signal_name,
                             int domain_type,
-                            int domain_idx);
+                            int domain_idx) override;
             int push_control(const std::string &control_name,
                              int domain_type,
-                             int domain_idx);
-            int num_signal(void) const;
-            int num_control(void) const;
-            void clear(void);
-            double sample(int signal_idx);
-            void sample(std::vector<double> &signal);
+                             int domain_idx) override;
+            int num_signal(void) const override;
+            int num_control(void) const override;
+            void clear(void) override;
+            double sample(int signal_idx) override;
+            std::string log(int signal_idx, double sample) override;
             void adjust(int control_idx,
-                        double setting);
-            void adjust(const std::vector<double> &setting);
-            std::string log(int signal_idx, double sample);
-            std::string msr_whitelist(void) const;
-            std::string msr_whitelist(int cpuid) const;
+                        double setting) override;
+            void read_signal(void) override;
+            void write_control(void) override;
+            std::string msr_whitelist(void) const override;
+            std::string msr_whitelist(int cpuid) const override;
 
-       protected:
+        protected:
             virtual int cpuid(void) const;
             virtual void init(void);
             virtual void init_time(void);
@@ -130,6 +130,8 @@ namespace geopm
             const int m_num_cpu;
             bool m_is_init;
             bool m_is_active;
+            bool m_is_read;
+            bool m_is_adjusted;
             IMSRIO *m_msrio;
             std::map<std::string, const IMSR *> m_name_msr_map;
             std::map<std::string, std::vector<ISignal *> > m_name_cpu_signal_map;
