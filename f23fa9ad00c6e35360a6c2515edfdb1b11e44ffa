@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79edb396_26a9e41f",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T19:23:53Z",
+      "side": 1,
+      "message": "Get rid of all of the text from this section and replace with a description of the 1:1 mapping between geopm environment variables and the launcher command line options.",
+      "revId": "f23fa9ad00c6e35360a6c2515edfdb1b11e44ffa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
