@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b307f43_b9e3ba5b",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T22:05:14Z",
+      "side": 1,
+      "message": "Goes away in next patch.",
+      "revId": "2bd122271c457718cb6b97189637cfedc3be4535",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
