@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "160a5fb7_b19400cd",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T19:03:16Z",
+      "side": 1,
+      "message": "Maybe throw in default case?",
+      "revId": "8450fc9f2ed3576f1100f2307c4a2cc3bbba8022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ce37b57_6846f167",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T19:03:16Z",
+      "side": 1,
+      "message": "Add /// @todo here",
+      "revId": "8450fc9f2ed3576f1100f2307c4a2cc3bbba8022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6aa9676_aacaa39e",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T19:03:16Z",
+      "side": 1,
+      "message": "Add /// @todo here",
+      "revId": "8450fc9f2ed3576f1100f2307c4a2cc3bbba8022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "39d1b99e_548d39f6",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T19:03:16Z",
+      "side": 1,
+      "message": "Get rid of break.",
+      "revId": "8450fc9f2ed3576f1100f2307c4a2cc3bbba8022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4dd2bc1d_482a977a",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-01-29T19:03:16Z",
+      "side": 1,
+      "message": "Use std::stoul instead of stringstream.",
+      "revId": "8450fc9f2ed3576f1100f2307c4a2cc3bbba8022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
