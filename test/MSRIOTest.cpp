@@ -56,8 +56,8 @@ class TestMSRIO : public geopm::MSRIO
     protected:
         void msr_path(int cpu_idx,
                       bool is_fallback,
-                      std::string &path);
-        void msr_batch_path(std::string &path);
+                      std::string &path) override;
+        void msr_batch_path(std::string &path) override;
         const char **msr_words(void) const;
 
         const size_t M_MAX_OFFSET;
@@ -754,6 +754,11 @@ TEST_F(MSRIOTest, read_batch)
         }
     }
     m_msrio->config_batch(read_cpu_idx, read_offset, {}, {}, {});
+
+    for (size_t batch_idx = 0; batch_idx < words.size(); ++batch_idx) {
+        EXPECT_EQ(expected[batch_idx], m_msrio->read_batch(batch_idx));
+    }
+
     std::vector<uint64_t> actual;
     m_msrio->read_batch(actual);
     EXPECT_EQ(expected, actual);
@@ -765,8 +770,8 @@ TEST_F(MSRIOTest, write_batch)
     for (int i = 0; i < geopm_sched_num_cpu(); ++i) {
         cpu_idx.push_back(i);
     }
-    std::vector<std::string> begin_words {"software", "engineer", "document", "everyday",
-                                          "modeling", "standout", "patience", "goodwill"};
+    //                       begin_words {"software", "engineer", "document", "everyday",
+    //                                    "modeling", "standout", "patience", "goodwill"};
     std::vector<std::string> end_words   {"HARDware", "BEgineRX", "Mocument", "everyWay",
                                           "moBIling", "XHandout", "patENTED", "goLdMill"};
 
@@ -802,7 +807,7 @@ TEST_F(MSRIOTest, write_batch)
         }
     }
     m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, write_mask);
-    std::vector<uint64_t> result;
+
     m_msrio->write_batch(write_value);
     for (auto &ci : cpu_idx) {
         auto wi = end_words.begin();
@@ -810,5 +815,60 @@ TEST_F(MSRIOTest, write_batch)
             EXPECT_EQ(0, memcmp(m_msrio->msr_space_ptr(ci, oi), wi->c_str(), 8));
             ++wi;
         }
+    }
+}
+
+TEST_F(MSRIOTest, write_batch_single)
+{
+    std::vector<int> cpu_idx;
+    for (int i = 0; i < geopm_sched_num_cpu(); ++i) {
+        cpu_idx.push_back(i);
+    }
+    //                       begin_words {"software", "engineer", "document", "everyday",
+    //                                    "modeling", "standout", "patience", "goodwill"};
+    std::vector<std::string> end_words   {"HARDware", "BEgineRX", "Mocument", "everyWay",
+                                          "moBIling", "XHandout", "patENTED", "goLdMill"};
+
+    std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
+    std::vector<uint64_t> masks   {0x00000000FFFFFFFF,
+                                   0xFFFF00000000FFFF,
+                                   0x00000000000000FF,
+                                   0x0000FF0000000000,
+                                   0x00000000FFFF0000,
+                                   0x000000000000FFFF,
+                                   0xFFFFFFFFFF000000,
+                                   0x000000FF00FF0000};
+    std::vector<const char *> write_words  {"HARD\0\0\0\0", "BE\0\0\0\0RX", "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0",
+                                            "\0\0BI\0\0\0\0", "XH\0\0\0\0\0\0", "\0\0\0ENTED", "\0\0L\0M\0\0\0"};
+
+    std::vector<int> write_cpu_idx;
+    std::vector<uint64_t> write_offset;
+    std::vector<uint64_t> write_mask;
+    std::vector<uint64_t> write_value;
+
+    for (auto &ci : cpu_idx) {
+        auto wi = write_words.begin();
+        auto mi = masks.begin();
+        for (auto oi : offsets) {
+            write_cpu_idx.push_back(ci);
+            write_offset.push_back(oi);
+            write_mask.push_back(*mi);
+            uint64_t result;
+            memcpy(&result, (*wi), 8);
+            write_value.push_back(result);
+            ++wi;
+            ++mi;
+        }
+    }
+    m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, write_mask);
+
+    for (size_t batch_idx = 0; batch_idx < write_words.size(); ++batch_idx) {
+        m_msrio->write_batch(batch_idx, write_value[batch_idx]);
+    }
+
+    auto wi = end_words.begin();
+    for (auto oi : offsets) {
+        EXPECT_EQ(0, memcmp(m_msrio->msr_space_ptr(0, oi), wi->c_str(), 8));
+        ++wi;
     }
 }
