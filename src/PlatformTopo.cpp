@@ -184,6 +184,10 @@ namespace geopm
                     break;
             }
         }
+        else {
+            throw Exception("PlatformTopo::domain_idx() cpu index (cpu_idx) out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         return result;
     }
 
