@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "259a91e4_c7de432e",
+        "filename": "plugin/BalancingDeciderRegister.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 33,
+        "startChar": 25,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca645e16_c8bd4454",
+        "filename": "plugin/BalancingDeciderRegister.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "Handle exceptions from the balancing decider like the legacy implementation:\nhttp://kronos.ra.intel.com:8080/source/xref/DEV-gerrithub-geopm/src/geopm_plugin.c#98",
+      "range": {
+        "startLine": 38,
+        "startChar": 62,
+        "endLine": 38,
+        "endChar": 89
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "75c884a6_913a4d82",
+        "filename": "plugin/EfficientFreqDeciderRegister.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "Handle these exceptions.",
+      "range": {
+        "startLine": 38,
+        "startChar": 62,
+        "endLine": 38,
+        "endChar": 93
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3bdd61e_a177b59c",
+        "filename": "plugin/GoverningDeciderRegister.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "Same.",
+      "range": {
+        "startLine": 38,
+        "startChar": 62,
+        "endLine": 38,
+        "endChar": 89
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f59f79da_b0f36807",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "Duplicate.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 19
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb7c7465_8d2a35f8",
+        "filename": "plugin/MPICommRegister.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "Same.",
+      "range": {
+        "startLine": 37,
+        "startChar": 53,
+        "endLine": 37,
+        "endChar": 71
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abf99950_b3efcafb",
+        "filename": "test/BalancingDeciderTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "Consider changing this to a forward declaration and the necessary cpp files are listed in the Makefile.",
+      "range": {
+        "startLine": 43,
+        "startChar": 35,
+        "endLine": 43,
+        "endChar": 38
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e672c6a2_6220dbf0",
+        "filename": "test/BalancingDeciderTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T19:13:57Z",
+      "side": 1,
+      "message": "EQ\nAHHHHHHHHHH!",
+      "range": {
+        "startLine": 116,
+        "startChar": 11,
+        "endLine": 116,
+        "endChar": 15
+      },
+      "revId": "44c752642082e6457a450c5849afdfa0375251c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
