@@ -98,6 +98,20 @@ namespace geopm
             /// @param [in] raw_value The raw encoded MSR values to be
             ///        written.
             virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
+            /// @brief Read a single MSR from the set of MSRs
+            ///        configured by a previous call to the
+            ///        batch_config() method.
+            /// @param [in] batch_idx Index into the vector of MSRs
+            ///        that were configured for reading in previous
+            ///        call to config_batch.
+            virtual uint64_t read_batch(int batch_idx) = 0;
+            /// @brief Write a single MSR from the set of MSRs
+            ///        configured by a previous call to the
+            ///        batch_config() method.
+            /// @param [in] batch_idx Index into the vector of MSRs
+            ///        that were configured for writing in previous
+            ///        call to config_batch.
+            virtual void write_batch(int batch_idx, uint64_t raw_value) = 0;
     };
 
     class MSRIO : public IMSRIO
@@ -106,18 +120,20 @@ namespace geopm
             MSRIO();
             virtual ~MSRIO();
             uint64_t read_msr(int cpu_idx,
-                              uint64_t offset);
+                              uint64_t offset) override;
             void write_msr(int cpu_idx,
                            uint64_t offset,
                            uint64_t raw_value,
-                           uint64_t write_mask);
+                           uint64_t write_mask) override;
             void config_batch(const std::vector<int> &read_cpu_idx,
                               const std::vector<uint64_t> &read_offset,
                               const std::vector<int> &write_cpu_idx,
                               const std::vector<uint64_t> &write_offset,
-                              const std::vector<uint64_t> &write_mask);
-            void read_batch(std::vector<uint64_t> &raw_value);
-            void write_batch(const std::vector<uint64_t> &raw_value);
+                              const std::vector<uint64_t> &write_mask) override;
+            void read_batch(std::vector<uint64_t> &raw_value) override;
+            void write_batch(const std::vector<uint64_t> &raw_value) override;
+            uint64_t read_batch(int batch_idx) override;
+            void write_batch(int batch_idx, uint64_t raw_value) override;
         protected:
             struct m_msr_batch_op_s {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
