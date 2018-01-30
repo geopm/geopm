@@ -221,10 +221,10 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
         EXPECT_EQ(cpu_idx, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, cpu_idx));
     }
-    EXPECT_EQ(-1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, 72));
-    EXPECT_EQ(-1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, 90));
-    EXPECT_EQ(-1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, -18));
-    EXPECT_EQ(-1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_INVALID, 0));
+    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, 72), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, 90), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, -18), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_INVALID, 0), geopm::Exception);
 
     std::set<int> cpu_set_node0 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                                    36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53};
