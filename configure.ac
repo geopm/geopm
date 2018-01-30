@@ -461,6 +461,19 @@ AC_COMPILE_IFELSE([
     AM_CONDITIONAL([GEOPM_ENABLE_MPI3], [false])
 ])
 
+[CFLAGS="$CFLAGS -Wall -Werror"]
+AC_MSG_CHECKING([for support for MPI_Comm_split_type])
+AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE(
+        [[#include <mpi.h>
+          int MPI_Comm_split_type(int junk) {return 0;}]])
+],[
+    AC_MSG_RESULT(no)
+],[
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([GEOPM_USE_MPI_COMM_SPLIT_TYPE], [], [MPI_Comm_split_type supported.])
+])
+
 [CFLAGS="$CFLAGS -Wall -Werror -fno-delete-null-pointer-checks"]
 AC_MSG_CHECKING([for support for -fno-delete-null-pointer-checks])
 AC_COMPILE_IFELSE([

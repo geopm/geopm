@@ -37,6 +37,7 @@
 #include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "Exception.hpp"
+#include "TreeCommunicator.hpp"
 
 #include "config.h"
 
@@ -58,6 +59,11 @@ extern "C"
 
     int geopm_comm_split_shared(MPI_Comm comm, const char *tag, MPI_Comm *split_comm)
     {
+#ifdef GEOPM_USE_MPI_COMM_SPLIT_TYPE
+        int rank = -1;
+        geopm::check_mpi(MPI_Comm_rank(comm, &rank));
+        return MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, split_comm);
+#else
         int err = 0;
         struct stat stat_struct;
         try {
@@ -108,6 +114,7 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
+#endif
     }
 
     int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm)
