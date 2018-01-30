@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c615312_4bfbad1a",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 10
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T18:38:12Z",
+      "side": 1,
+      "message": "Put the HT env var description back here.  Everything should be documented here.",
+      "revId": "ad5cde121b7a4c9e82c1bdbd1011e8b0aa3d7aa6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59b44319_df2e15ee",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 10
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-30T18:38:12Z",
+      "side": 1,
+      "message": "GEOPM_CTL does not exist.  It\u0027s the only one that does not.  Explain the subtlety of that in the next block.  Also GEOPM_PMPI_CTL...",
+      "range": {
+        "startLine": 206,
+        "startChar": 4,
+        "endLine": 206,
+        "endChar": 21
+      },
+      "revId": "ad5cde121b7a4c9e82c1bdbd1011e8b0aa3d7aa6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
