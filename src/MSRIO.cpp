@@ -203,6 +203,12 @@ namespace geopm
         }
     }
 
+    uint64_t MSRIO::read_batch(int batch_idx)
+    {
+        return read_msr(m_read_batch_op[batch_idx].cpu,
+                        m_read_batch_op[batch_idx].msr);
+    }
+
     void MSRIO::write_batch(const std::vector<uint64_t> &raw_value)
     {
         if (raw_value.size() < m_write_batch.numops) {
@@ -230,6 +236,14 @@ namespace geopm
                           m_write_batch_op[batch_idx].wmask);
             }
         }
+    }
+
+    void MSRIO::write_batch(int batch_idx, uint64_t raw_value)
+    {
+        write_msr(m_write_batch_op[batch_idx].cpu,
+                  m_write_batch_op[batch_idx].msr,
+                  raw_value,
+                  m_write_batch_op[batch_idx].wmask);
     }
 
     int MSRIO::msr_desc(int cpu_idx)
