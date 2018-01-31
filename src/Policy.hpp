@@ -139,6 +139,7 @@ namespace geopm
             IPolicyFlags *m_policy_flags;
             RegionPolicy *region_policy(uint64_t region_id);
             int m_num_domain;
+            const size_t m_num_cpu;
             int m_mode;
             int m_num_sample;
             std::map<uint64_t, RegionPolicy *> m_region_policy;

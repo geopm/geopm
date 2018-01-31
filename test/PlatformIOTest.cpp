@@ -159,7 +159,7 @@ TestPlatformIO::TestPlatformIO(int cpuid)
 
 TestPlatformIO::~TestPlatformIO()
 {
-
+    // Note that PlatformIO base class destructor will delete m_msrio
 }
 
 int TestPlatformIO::cpuid(void) const
@@ -252,12 +252,21 @@ TEST_F(PlatformIOTest, freq_ctl)
     int idx = m_platform_io->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, idx);
     // Set frequency to 1 GHz
-    m_platform_io->adjust(std::vector<double>{1e9});
+    m_platform_io->adjust(0, 1e9);
+    m_platform_io->write_control();
     num_read = pread(fd, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0xA00ULL, (value & 0xFF00));
     // Set frequency to 5 GHz
-    m_platform_io->adjust(std::vector<double>{5e9});
+    m_platform_io->adjust(0, 5e9);
+    // Calling adjust without calling write_control() should not
+    // change the platform.
+    num_read = pread(fd, &value, sizeof(value), 0x199);
+    EXPECT_EQ(8ULL, num_read);
+    EXPECT_EQ(0xA00ULL, (value & 0xFF00));
+    m_platform_io->write_control();
+    // Now that write_control() been called the value on the platform
+    // should be updated.
     num_read = pread(fd, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x3200ULL, (value & 0xFF00));
@@ -269,8 +278,10 @@ TEST_F(PlatformIOTest, time_signal)
     int idx = m_platform_io->push_signal("TIME", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, idx);
     std::vector<double> sample(1);
+    m_platform_io->read_signal();
     double time_0 = m_platform_io->sample(idx);
     sleep(1);
+    m_platform_io->read_signal();
     double time_1 = m_platform_io->sample(idx);
     EXPECT_NEAR(1, time_1 - time_0, 0.1);
     EXPECT_LE(0, time_0);
