@@ -32,6 +32,7 @@
 
 #include <sstream>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <unistd.h>
 #include "geopm_env.h"
 #include "SharedMemory.hpp"
@@ -114,6 +115,7 @@ extern "C"
             else {
                 color = rank;
                 *((int*)(shmem->pointer())) = color;
+                err = msync(shmem->pointer(), shmem->size(), MS_SYNC);
             }
             MPI_Barrier(comm);
             if (shmem_user) {
