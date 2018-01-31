@@ -37,6 +37,8 @@
 #include "Exception.hpp"
 #include "RuntimeRegulator.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     RuntimeRegulator::RuntimeRegulator()

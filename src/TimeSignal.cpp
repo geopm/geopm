@@ -34,6 +34,8 @@
 #include "TimeSignal.hpp"
 #include "Exception.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     TimeSignal::TimeSignal()
