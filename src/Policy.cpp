@@ -227,9 +227,7 @@ namespace geopm
         for (size_t cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             platform_io().adjust(cpu_idx, freq[cpu_idx]);
         }
-        platform_io().write_control();
     }
-
 
 
     RegionPolicy::RegionPolicy(int num_domain)
