@@ -69,16 +69,6 @@ namespace geopm
 
     }
 
-    PlatformIO::PlatformIO(const PlatformIO &other)
-        : m_num_cpu(geopm_sched_num_cpu())
-        , m_is_init(false)
-        , m_is_active(false)
-        , m_msrio(NULL)
-    {
-        throw Exception("PlatformIO: singleton class, copy constructor not supported.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
     PlatformIO::~PlatformIO()
     {
         for (auto &ncsm : m_name_cpu_signal_map) {
