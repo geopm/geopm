@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1565747b_738789c5",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-31T20:07:53Z",
+      "side": 1,
+      "message": "Consider just returning a reference.",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 17
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e156742_4a2d1826",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-31T20:07:53Z",
+      "side": 1,
+      "message": "Extra space?",
+      "range": {
+        "startLine": 177,
+        "startChar": 40,
+        "endLine": 177,
+        "endChar": 41
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "333650e0_8f70459b",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-31T20:07:53Z",
+      "side": 1,
+      "message": "Move to MPICommSplit.cpp",
+      "range": {
+        "startLine": 196,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 5
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
