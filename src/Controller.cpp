@@ -222,21 +222,15 @@ namespace geopm
         , m_throttle_limit_mhz(0.0)
         , m_app_start_time({{0,0}})
         , m_counter_energy_start(0.0)
-        , m_ppn1_comm(MPI_COMM_NULL)
+        , m_ppn1_comm(comm)
         , m_ppn1_rank(-1)
     {
-        int err = 0;
         int num_nodes = 0;
 
-        err = geopm_comm_split_ppn1(comm, "ctl", &m_ppn1_comm);
-        if (err) {
-            throw geopm::Exception("geopm_comm_split_ppn1()", err, __FILE__, __LINE__);
-        }
         // Only the root rank on each node will have a fully initialized controller
         if (m_ppn1_comm != MPI_COMM_NULL) {
             m_is_node_root = true;
             struct geopm_plugin_description_s plugin_desc;
-            geopm_error_destroy_shmem();
             check_mpi(MPI_Comm_rank(m_ppn1_comm, &m_ppn1_rank));
             if (m_ppn1_rank == 0 && m_global_policy == NULL) {
                 throw Exception("Root of control tree does not have a valid global policy pointer",
