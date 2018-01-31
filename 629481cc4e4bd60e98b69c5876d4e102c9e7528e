@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f534be4d_018b9806",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:58:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1565747b_738789c5",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 17
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e156742_4a2d1826",
         "filename": "plugin/MPIComm.cpp",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-31T20:07:53Z",
       "side": 1,
       "message": "Extra space?",
+      "range": {
+        "startLine": 177,
+        "startChar": 40,
+        "endLine": 177,
+        "endChar": 41
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7915fb1_cef22f03",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:58:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e156742_4a2d1826",
       "range": {
         "startLine": 177,
         "startChar": 40,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4af13be8_079c81ce",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:58:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "333650e0_8f70459b",
+      "range": {
+        "startLine": 196,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 5
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "531379e8_505799c6",
         "filename": "test/TreeCommunicatorTest.cpp",
         "patchSetId": 13
@@ -82,6 +154,30 @@
       "writtenOn": "2018-01-31T21:21:16Z",
       "side": 1,
       "message": "this and other lambdas below could be auto.",
+      "range": {
+        "startLine": 223,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 48
+      },
+      "revId": "629481cc4e4bd60e98b69c5876d4e102c9e7528e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dadb7eae_89bf85b0",
+        "filename": "test/TreeCommunicatorTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:58:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "531379e8_505799c6",
       "range": {
         "startLine": 223,
         "startChar": 4,
