@@ -33,6 +33,8 @@
 #ifndef PLATFORMIOINTERNAL_HPP_INCLUDE
 #define PLATFORMIOINTERNAL_HPP_INCLUDE
 
+#include "PlatformIO.hpp"
+
 namespace geopm
 {
     class IMSR;
@@ -51,7 +53,8 @@ namespace geopm
 
             /// @brief Constructor for the PlatformIO class.
             PlatformIO();
-            PlatformIO(const PlatformIO &other);
+            PlatformIO(const PlatformIO &other) = delete;
+            PlatformIO & operator=(const PlatformIO&) = delete;
             /// @brief Virtual destructor for the PlatformIO class.
             virtual ~PlatformIO();
             int signal_domain_type(const std::string &signal_name) const;
