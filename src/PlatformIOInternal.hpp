@@ -54,25 +54,25 @@ namespace geopm
             PlatformIO(const PlatformIO &other);
             /// @brief Virtual destructor for the PlatformIO class.
             virtual ~PlatformIO();
-            int signal_domain_type(const std::string &signal_name) const;
-            int control_domain_type(const std::string &control_name) const;
+            int signal_domain_type(const std::string &signal_name) const override;
+            int control_domain_type(const std::string &control_name) const override;
             int push_signal(const std::string &signal_name,
                             int domain_type,
-                            int domain_idx);
+                            int domain_idx) override;
             int push_control(const std::string &control_name,
                              int domain_type,
-                             int domain_idx);
-            int num_signal(void) const;
-            int num_control(void) const;
-            void clear(void);
-            double sample(int signal_idx);
-            void sample(std::vector<double> &signal);
+                             int domain_idx) override;
+            int num_signal(void) const override;
+            int num_control(void) const override;
+            void clear(void) override;
+            double sample(int signal_idx) override;
+            void sample(std::vector<double> &signal) override;
             void adjust(int control_idx,
-                        double setting);
-            void adjust(const std::vector<double> &setting);
-            std::string log(int signal_idx, double sample);
-            std::string msr_whitelist(void) const;
-            std::string msr_whitelist(int cpuid) const;
+                        double setting) override;
+            void adjust(const std::vector<double> &setting) override;
+            std::string log(int signal_idx, double sample) override;
+            std::string msr_whitelist(void) const override;
+            std::string msr_whitelist(int cpuid) const override;
 
        protected:
             virtual int cpuid(void) const;

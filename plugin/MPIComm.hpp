@@ -51,33 +51,31 @@ namespace geopm
 
             static const IComm * get_comm();
 
-            virtual IComm* split() const;
-            virtual IComm* split(int color, int key) const;
-            virtual IComm* split(const std::string &tag, int split_type) const;
-            virtual IComm* split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const;
-
-            virtual bool comm_supported(const std::string &description) const;
-
-            virtual int cart_rank(const std::vector<int> &coords) const;
-            virtual int rank(void) const;
-            virtual int num_rank(void) const;
-            virtual void dimension_create(int num_ranks, std::vector<int> &dimension) const;
-            virtual void alloc_mem(size_t size, void **base);
-            virtual void free_mem(void *base);
-            virtual size_t window_create(size_t size, void *base);
-            virtual void window_destroy(size_t window_id);
-            virtual void coordinate(int rank, std::vector<int> &coord) const;
-            virtual void window_lock(size_t window_id, bool is_exclusive, int rank, int assert) const;
-            virtual void window_unlock(size_t window_id, int rank) const;
-            virtual void barrier(void) const;
-            virtual void broadcast(void *buffer, size_t size, int root) const;
-            virtual bool test(bool is_true) const;
-            virtual void reduce_max(double *send_buf, double *recv_buf, size_t count, int root) const;
+            virtual IComm* split() const override;
+            virtual IComm* split(int color, int key) const override;
+            virtual IComm* split(const std::string &tag, int split_type) const override;
+            virtual IComm* split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const override;
+            virtual bool comm_supported(const std::string &description) const override;
+            virtual int cart_rank(const std::vector<int> &coords) const override;
+            virtual int rank(void) const override;
+            virtual int num_rank(void) const override;
+            virtual void dimension_create(int num_ranks, std::vector<int> &dimension) const override;
+            virtual void alloc_mem(size_t size, void **base) override;
+            virtual void free_mem(void *base) override;
+            virtual size_t window_create(size_t size, void *base) override;
+            virtual void window_destroy(size_t window_id) override;
+            virtual void coordinate(int rank, std::vector<int> &coord) const override;
+            virtual void window_lock(size_t window_id, bool is_exclusive, int rank, int assert) const override;
+            virtual void window_unlock(size_t window_id, int rank) const override;
+            virtual void barrier(void) const override;
+            virtual void broadcast(void *buffer, size_t size, int root) const override;
+            virtual bool test(bool is_true) const override;
+            virtual void reduce_max(double *send_buf, double *recv_buf, size_t count, int root) const override;
             virtual void gather(const void *send_buf, size_t send_size, void *recv_buf,
-                    size_t recv_size, int root) const;
+                    size_t recv_size, int root) const override;
             virtual void gatherv(const void *send_buf, size_t send_size, void *recv_buf,
-                    const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const;
-            virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const;
+                    const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const override;
+            virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const override;
         protected:
             MPIComm(const MPIComm *in_comm);
             MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder);

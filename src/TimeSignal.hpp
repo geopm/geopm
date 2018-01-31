@@ -43,11 +43,11 @@ namespace geopm
         public:
             TimeSignal();
             virtual ~TimeSignal();
-            std::string name(void) const;
-            int domain_type(void) const;
-            int domain_idx(void) const;
-            double sample(void) const;
-            std::string log(double sample) const;
+            std::string name(void) const override;
+            int domain_type(void) const override;
+            int domain_idx(void) const override;
+            double sample(void) const override;
+            std::string log(double sample) const override;
         protected:
             struct geopm_time_s m_time_zero;
     };

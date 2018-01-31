@@ -89,8 +89,8 @@ namespace geopm
             Decider(const Decider &other);
             virtual ~Decider();
             virtual IDecider *clone() const = 0;
-            virtual void bound(double upper_bound, double lower_bound);
-            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy);
+            virtual void bound(double upper_bound, double lower_bound) override;
+            virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) override;
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
             virtual bool decider_supported(const std::string &descripton) = 0;
             virtual const std::string& name(void) const = 0;
