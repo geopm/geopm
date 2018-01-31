@@ -160,10 +160,6 @@ namespace geopm
             };
             IMSRSignal() {}
             virtual ~IMSRSignal() {}
-            virtual std::string name(void) const = 0;
-            virtual int domain_type(void) const = 0;
-            virtual int domain_idx(void) const = 0;
-            virtual double sample(void) const = 0;
             /// @brief Get the number of MSRs required to generate the
             ///        signal.
             /// @return number of MSRs.
@@ -183,7 +179,6 @@ namespace geopm
             ///        the raw MSR values that will be referenced when
             ///        measuring the signal.
             virtual void map_field(const std::vector<const uint64_t *> &field) = 0;
-            virtual std::string log(double sample) const = 0;
     };
 
     class IMSRControl : public IControl
@@ -196,10 +191,6 @@ namespace geopm
             };
             IMSRControl() {}
             virtual ~IMSRControl() {}
-            virtual std::string name(void) const = 0;
-            virtual int domain_type(void) const = 0;
-            virtual int domain_idx(void) const = 0;
-            virtual void adjust(double setting) = 0;
             /// @brief Get the number of MSRs required to enforce the
             ///        control.
             /// @return number of MSRs.
@@ -261,24 +252,24 @@ namespace geopm
                 const std::vector<double> &prog_value);
             /// @brief MSR class destructor.
             virtual ~MSR();
-            std::string name(void) const;
+            std::string name(void) const override;
             void program(uint64_t offset,
                          int cpu_idx,
-                         IMSRIO *msrio);
-            uint64_t offset(void) const;
-            int num_signal(void) const;
-            int num_control(void) const;
-            std::string signal_name(int signal_idx) const;
-            std::string control_name(int control_idx) const;
-            int signal_index(const std::string &name) const;
-            int control_index(const std::string &name) const;
+                         IMSRIO *msrio) override;
+            uint64_t offset(void) const override;
+            int num_signal(void) const override;
+            int num_control(void) const override;
+            std::string signal_name(int signal_idx) const override;
+            std::string control_name(int control_idx) const override;
+            int signal_index(const std::string &name) const override;
+            int control_index(const std::string &name) const override;
             double signal(int signal_idx,
-                          uint64_t field) const;
+                          uint64_t field) const override;
             void control(int control_idx,
                          double value,
                          uint64_t &field,
-                         uint64_t &mask) const;
-            int domain_type(void) const;
+                         uint64_t &mask) const override;
+            int domain_type(void) const override;
         protected:
             void init(const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
                       const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control);
@@ -326,15 +317,15 @@ namespace geopm
             MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
                       const std::string &name);
             virtual ~MSRSignal();
-            virtual std::string name(void) const;
-            int domain_type(void) const;
-            int domain_idx(void) const;
-            double sample(void) const;
-            std::string log(double sample) const;
-            int num_msr(void) const;
-            void offset(std::vector<uint64_t> &offset) const;
-            void map_field(const uint64_t *field);
-            void map_field(const std::vector<const uint64_t *> &field);
+            virtual std::string name(void) const override;
+            int domain_type(void) const override;
+            int domain_idx(void) const override;
+            double sample(void) const override;
+            std::string log(double sample) const override;
+            int num_msr(void) const override;
+            void offset(std::vector<uint64_t> &offset) const override;
+            void map_field(const uint64_t *field) override;
+            void map_field(const std::vector<const uint64_t *> &field) override;
         protected:
             /// @brief When constructed with a vector of
             ///        m_signal_config_s structures this method will

@@ -80,8 +80,8 @@ namespace geopm
         protected:
             void msr_path(int cpu_idx,
                           bool is_fallback,
-                          std::string &path);
-            void msr_batch_path(std::string &path);
+                          std::string &path) override;
+            void msr_batch_path(std::string &path) override;
 
             const size_t M_MAX_OFFSET;
             const int m_num_cpu;

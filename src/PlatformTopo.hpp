@@ -102,13 +102,13 @@ namespace geopm
             PlatformTopo();
             PlatformTopo(const std::string &lscpu_file_name);
             virtual ~PlatformTopo();
-            int num_domain(int domain_type) const;
+            int num_domain(int domain_type) const override;
             void domain_cpus(int domain_type,
                              int domain_idx,
-                             std::set<int> &cpu_idx) const;
+                             std::set<int> &cpu_idx) const override;
             int domain_idx(int domain_type,
-                           int cpu_idx) const;
-            int define_cpu_group(const std::vector<int> &cpu_domain_idx);
+                           int cpu_idx) const override;
+            int define_cpu_group(const std::vector<int> &cpu_domain_idx) override;
         protected:
             void lscpu(std::map<std::string, std::string> &lscpu_map);
             void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,

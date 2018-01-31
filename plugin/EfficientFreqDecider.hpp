@@ -62,9 +62,9 @@ namespace geopm
             EfficientFreqDecider(const EfficientFreqDecider &other);
             /// @brief EfficientFreqDecider destructor, virtual.
             virtual ~EfficientFreqDecider();
-            virtual IDecider *clone(void) const;
+            virtual IDecider *clone(void) const override;
             /// @brief Actual method altering GoverningDecider behavior.
-            virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy);
+            virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) override;
             double cpu_freq_sticker(void);
             double cpu_freq_min(void);
             double cpu_freq_max(void);

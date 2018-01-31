@@ -102,18 +102,18 @@ namespace geopm
             PolicyFlags(long int flags);
             /// @brief GlobalPolicy destructor
             virtual ~PolicyFlags();
-            unsigned long flags(void) const;
-            int frequency_mhz(void) const;
-            int tdp_percent(void) const;
-            int affinity(void) const;
-            int goal(void) const;
-            int num_max_perf(void) const;
-            void flags(unsigned long flags);
-            void frequency_mhz(int frequency);
-            void tdp_percent(int percentage);
-            void affinity(int cpu_affinity);
-            void goal(int geo_goal);
-            void num_max_perf(int num_big_cores);
+            unsigned long flags(void) const override;
+            int frequency_mhz(void) const  override;
+            int tdp_percent(void) const override;
+            int affinity(void) const override;
+            int goal(void) const override;
+            int num_max_perf(void) const override;
+            void flags(unsigned long flags) override;
+            void frequency_mhz(int frequency) override;
+            void tdp_percent(int percentage) override;
+            void affinity(int cpu_affinity) override;
+            void goal(int geo_goal) override;
+            void num_max_perf(int num_big_cores) override;
         protected:
             /// @brief Encapsulates power policy information as a
             /// 32-bit bitmask.

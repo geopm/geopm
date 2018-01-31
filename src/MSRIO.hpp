@@ -106,18 +106,18 @@ namespace geopm
             MSRIO();
             virtual ~MSRIO();
             uint64_t read_msr(int cpu_idx,
-                              uint64_t offset);
+                              uint64_t offset) override;
             void write_msr(int cpu_idx,
                            uint64_t offset,
                            uint64_t raw_value,
-                           uint64_t write_mask);
+                           uint64_t write_mask) override;
             void config_batch(const std::vector<int> &read_cpu_idx,
                               const std::vector<uint64_t> &read_offset,
                               const std::vector<int> &write_cpu_idx,
                               const std::vector<uint64_t> &write_offset,
-                              const std::vector<uint64_t> &write_mask);
-            void read_batch(std::vector<uint64_t> &raw_value);
-            void write_batch(const std::vector<uint64_t> &raw_value);
+                              const std::vector<uint64_t> &write_mask) override;
+            void read_batch(std::vector<uint64_t> &raw_value) override;
+            void write_batch(const std::vector<uint64_t> &raw_value) override;
         protected:
             struct m_msr_batch_op_s {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
