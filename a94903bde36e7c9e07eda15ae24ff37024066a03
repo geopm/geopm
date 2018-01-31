@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "811c9358_eaec8ff0",
+        "filename": "plugin/BalancingDeciderRegister.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:28:21Z",
+      "side": 1,
+      "message": "that\u0027s what the exception handler call does",
+      "parentUuid": "d10207d8_160b3b9a",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 14
+      },
+      "revId": "a94903bde36e7c9e07eda15ae24ff37024066a03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d62203bd_e503f3b3",
         "filename": "src/RuntimeRegister.cpp",
         "patchSetId": 23
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-31T19:03:51Z",
       "side": 1,
       "message": "C API.  No need to try/catch.\n\nAlso, try to take the body of plugin_load and put it here.  Then remove geopm_plugin_load.",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 28
+      },
+      "revId": "a94903bde36e7c9e07eda15ae24ff37024066a03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b5e52c6_6d5bfc23",
+        "filename": "src/RuntimeRegister.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:28:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d62203bd_e503f3b3",
       "range": {
         "startLine": 39,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e7d5a7d3_c66058d3",
+        "filename": "src/geopm_plugin.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:28:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea4c3cc6_d717dd70",
+      "range": {
+        "startLine": 49,
+        "startChar": 1,
+        "endLine": 51,
+        "endChar": 6
+      },
+      "revId": "a94903bde36e7c9e07eda15ae24ff37024066a03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb7d221f_c9640958",
         "filename": "src/geopm_plugin.c",
         "patchSetId": 23
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "8733ece3_f1fb6ae6",
+        "filename": "src/geopm_plugin.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:28:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb7d221f_c9640958",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 78,
+        "endChar": 21
+      },
+      "revId": "a94903bde36e7c9e07eda15ae24ff37024066a03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33c0c7b0_ecf66850",
         "filename": "test/BalancingDeciderTest.cpp",
         "patchSetId": 23
@@ -105,6 +201,30 @@
       "writtenOn": "2018-01-31T19:03:51Z",
       "side": 1,
       "message": "This pattern is bad, but it\u0027s not your fault.",
+      "range": {
+        "startLine": 122,
+        "startChar": 4,
+        "endLine": 122,
+        "endChar": 70
+      },
+      "revId": "a94903bde36e7c9e07eda15ae24ff37024066a03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d34e0702_c7dc57df",
+        "filename": "test/BalancingDeciderTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-01-31T21:28:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33c0c7b0_ecf66850",
       "range": {
         "startLine": 122,
         "startChar": 4,
