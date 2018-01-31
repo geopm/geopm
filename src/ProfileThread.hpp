@@ -61,13 +61,13 @@ namespace geopm
             ProfileThreadTable(size_t buffer_size, void *buffer);
             ProfileThreadTable(const ProfileThreadTable &other);
             virtual ~ProfileThreadTable();
-            void enable(bool is_enabled);
-            void init(int num_thread, int thread_idx, size_t num_iter);
-            void init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size);
-            void init(uint32_t num_work_unit);
-            void post(void);
-            void dump(std::vector<double> &progress);
-            int num_cpu(void);
+            void enable(bool is_enabled) override;
+            void init(int num_thread, int thread_idx, size_t num_iter) override;
+            void init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size) override;
+            void init(uint32_t num_work_unit) override;
+            void post(void) override;
+            void dump(std::vector<double> &progress) override;
+            int num_cpu(void) override;
         private:
             static int cpu_idx(void);
             uint32_t *m_buffer;

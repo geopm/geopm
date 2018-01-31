@@ -134,15 +134,15 @@ namespace geopm
             ControlMessage(struct geopm_ctl_message_s *ctl_msg, bool is_ctl, bool is_writer);
             /// @brief ControlMessage virtual destructor
             virtual ~ControlMessage();
-            void step();
-            void wait();
-            void cpu_rank(int cpu_idx, int rank);
-            int cpu_rank(int cpu_idx);
-            bool is_sample_begin(void);
-            bool is_sample_end(void);
-            bool is_name_begin(void);
-            bool is_shutdown(void);
-            void loop_begin(void);
+            void step() override;
+            void wait() override;
+            void cpu_rank(int cpu_idx, int rank) override;
+            int cpu_rank(int cpu_idx) override;
+            bool is_sample_begin(void) override;
+            bool is_sample_end(void) override;
+            bool is_name_begin(void) override;
+            bool is_shutdown(void) override;
+            void loop_begin(void) override;
         protected:
             int this_status();
             /// @brief Enum encompassing application and

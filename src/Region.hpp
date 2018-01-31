@@ -244,26 +244,26 @@ namespace geopm
             Region(uint64_t identifier, int num_domain, int level, IProfileThreadTable *tprof_table);
             /// @brief Default destructor.
             virtual ~Region();
-            void entry(void);
-            int num_entry(void);
-            void insert(std::vector<struct geopm_telemetry_message_s> &telemetry);
-            void insert(const std::vector<struct geopm_sample_message_s> &sample);
-            void clear(void);
-            uint64_t identifier(void) const;
-            uint64_t hint(void) const;
-            void increment_mpi_time(double mpi_increment_amount);
-            void sample_message(struct geopm_sample_message_s &sample);
-            double signal(int domain_idx, int signal_type);
-            int num_sample(int domain_idx, int signal_type) const;
-            double mean(int domain_idx, int signal_type) const;
-            double median(int domain_idx, int signal_type) const;
-            double std_deviation(int domain_idx, int signal_type) const;
-            double min(int domain_idx, int signal_type) const;
-            double max(int domain_idx, int signal_type) const;
-            double derivative(int domain_idx, int signal_type);
-            double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const;
-            void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const;
-            void thread_progress(std::vector<double> &progress);
+            void entry(void) override;
+            int num_entry(void) override;
+            void insert(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
+            void insert(const std::vector<struct geopm_sample_message_s> &sample) override;
+            void clear(void) override;
+            uint64_t identifier(void) const override;
+            uint64_t hint(void) const override;
+            void increment_mpi_time(double mpi_increment_amount) override;
+            void sample_message(struct geopm_sample_message_s &sample) override;
+            double signal(int domain_idx, int signal_type) override;
+            int num_sample(int domain_idx, int signal_type) const override;
+            double mean(int domain_idx, int signal_type) const override;
+            double median(int domain_idx, int signal_type) const override;
+            double std_deviation(int domain_idx, int signal_type) const override;
+            double min(int domain_idx, int signal_type) const override;
+            double max(int domain_idx, int signal_type) const override;
+            double derivative(int domain_idx, int signal_type) override;
+            double integral(int domain_idx, int signal_type, double &delta_time, double &integral) const override;
+            void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const override;
+            void thread_progress(std::vector<double> &progress) override;
             struct geopm_time_s telemetry_timestamp(size_t sample_idx) override;
         protected:
             /// @brief Bound testing of input parameters.

@@ -189,13 +189,13 @@ namespace geopm
             ProfileTable(size_t size, void *buffer);
             /// ProfileTable destructor, virtual.
             virtual ~ProfileTable();
-            uint64_t key(const std::string &name);
-            void insert(uint64_t key, const struct geopm_prof_message_s &value);
-            size_t capacity(void) const;
-            size_t size(void) const;
-            void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length);
-            bool name_fill(size_t header_offset);
-            bool name_set(size_t header_offset, std::set<std::string> &name);
+            uint64_t key(const std::string &name) override;
+            void insert(uint64_t key, const struct geopm_prof_message_s &value) override;
+            size_t capacity(void) const override;
+            size_t size(void) const override;
+            void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length) override;
+            bool name_fill(size_t header_offset) override;
+            bool name_set(size_t header_offset, std::set<std::string> &name) override;
         protected:
             virtual bool sticky(const struct geopm_prof_message_s &value);
             enum {

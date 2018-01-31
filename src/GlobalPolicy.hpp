@@ -176,32 +176,32 @@ namespace geopm
             GlobalPolicy(const std::string in_config, const std::string out_config);
             /// @brief GlobalPolicy destructor
             virtual ~GlobalPolicy();
-            int mode(void) const;
-            int frequency_mhz(void) const;
-            int tdp_percent(void) const;
-            int budget_watts(void) const;
-            int affinity(void) const;
-            int goal(void) const;
-            int num_max_perf(void) const;
-            const std::string &tree_decider() const;
-            const std::string &leaf_decider() const;
-            const std::string &platform() const;
-            std::string mode_string() const;
-            void policy_message(struct geopm_policy_message_s &policy_message);
-            void mode(int mode);
-            void frequency_mhz(int frequency);
-            void tdp_percent(int percentage);
-            void budget_watts(int budget);
-            void affinity(int cpu_affinity);
-            void goal(int geo_goal);
-            void num_max_perf(int num_big_cores);
-            void tree_decider(const std::string &description);
-            void leaf_decider(const std::string &description);
-            void platform(const std::string &description);
-            void write(void);
-            void read(void);
-            void enforce_static_mode();
-            std::string header(void) const;
+            int mode(void) const override;
+            int frequency_mhz(void) const override;
+            int tdp_percent(void) const override;
+            int budget_watts(void) const override;
+            int affinity(void) const override;
+            int goal(void) const override;
+            int num_max_perf(void) const override;
+            const std::string &tree_decider() const override;
+            const std::string &leaf_decider() const override;
+            const std::string &platform() const override;
+            std::string mode_string() const override;
+            void policy_message(struct geopm_policy_message_s &policy_message) override;
+            void mode(int mode) override;
+            void frequency_mhz(int frequency) override;
+            void tdp_percent(int percentage) override;
+            void budget_watts(int budget) override;
+            void affinity(int cpu_affinity) override;
+            void goal(int geo_goal) override;
+            void num_max_perf(int num_big_cores) override;
+            void tree_decider(const std::string &description) override;
+            void leaf_decider(const std::string &description) override;
+            void platform(const std::string &description) override;
+            void write(void) override;
+            void read(void) override;
+            void enforce_static_mode() override;
+            std::string header(void) const override;
         protected:
             /// @brief Structure intended to be shared between
             /// the resource manager and the geopm

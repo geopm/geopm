@@ -239,12 +239,12 @@ namespace geopm
             Profile(const std::string prof_name, MPI_Comm comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
-            uint64_t region(const std::string region_name, long hint);
-            void enter(uint64_t region_id);
-            void exit(uint64_t region_id);
-            void progress(uint64_t region_id, double fraction);
-            void epoch(void);
-            void shutdown(void);
+            uint64_t region(const std::string region_name, long hint) override;
+            void enter(uint64_t region_id) override;
+            void exit(uint64_t region_id) override;
+            void progress(uint64_t region_id, double fraction) override;
+            void epoch(void) override;
+            void shutdown(void) override;
             IProfileThreadTable *tprof_table(void);
         protected:
             enum m_profile_const_e {
@@ -375,12 +375,12 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) override;
             /// @brief Retrieve the maximum capacity of the hash table.
             ///
             /// @return The maximum number of samples that can possibly
             ///         be returned.
-            size_t capacity(void);
+            size_t capacity(void) override;
             /// @brief Retrieve region names from the application process.
             ///
             /// Coordinates with the application process to retrieve the
@@ -389,9 +389,9 @@ namespace geopm
             ///
             /// @return Returns true if finished retrieving names from the
             ///         application, else returns false.
-            bool name_fill(std::set<std::string> &name_set);
-            void report_name(std::string &report_str);
-            void profile_name(std::string &prof_str);
+            bool name_fill(std::set<std::string> &name_set) override;
+            void report_name(std::string &report_str) override;
+            void profile_name(std::string &prof_str) override;
             IProfileThreadTable *tprof_table(void);
         protected:
             /// Holds the shared memory region used for sampling from the
@@ -441,7 +441,7 @@ namespace geopm
             ///
             /// @return The maximum number of samples that can possibly
             ///         be returned.
-            size_t capacity(void);
+            size_t capacity(void) override;
             /// @brief Returns the samples present in all the per-rank
             ///        hash tables.
             ///
@@ -454,7 +454,7 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm);
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) override;
             /// @brief Check if the application is shutting down.
             ///
             /// Queries the control shared memory region to test if the
@@ -462,13 +462,13 @@ namespace geopm
             ///
             /// @return Return true if application is shutting down, else
             ///         returns false.
-            bool do_shutdown(void);
+            bool do_shutdown(void) override;
             /// @brief Generate a post-run report for a single node.
             ///
             /// Generates a post-run report by telling each ProfileRankSampler
             /// to dump its per-region statistics to a file descriptor.
-            bool do_report(void);
-            void region_names(void);
+            bool do_report(void) override;
+            void region_names(void) override;
             /// @brief Initialize shared memory regions.
             ///
             /// Coordinates with the application to initialize shared memory
@@ -477,7 +477,7 @@ namespace geopm
             ///
             /// @param [out] rank_per_node number of mpi ranks
             /// running on the node.
-            void initialize(int &rank_per_node);
+            void initialize(int &rank_per_node) override;
             /// @brief Retrieve a vector to the affinities of all
             ///        application ranks.
             ///
@@ -490,11 +490,11 @@ namespace geopm
             /// @param [out] cpu_rank Vector to be filled with the MPI
             ///        rank for each Linux CPU, set to -1 if no MPI
             ///        rank is affinitized.
-            void cpu_rank(std::vector<int> &cpu_rank);
-            void name_set(std::set<std::string> &region_name);
-            void report_name(std::string &report_str);
-            void profile_name(std::string &prof_str);
-            IProfileThreadTable *tprof_table(void);
+            void cpu_rank(std::vector<int> &cpu_rank) override;
+            void name_set(std::set<std::string> &region_name) override;
+            void report_name(std::string &report_str) override;
+            void profile_name(std::string &prof_str) override;
+            IProfileThreadTable *tprof_table(void) override;
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.

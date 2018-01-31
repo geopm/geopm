@@ -198,15 +198,15 @@ namespace geopm
             TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, const MPI_Comm &comm);
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicator();
-            int num_level(void) const;
-            int root_level(void) const;
-            int level_rank(int level) const;
-            int level_size(int level) const;
-            void send_sample(int level, const struct geopm_sample_message_s &sample);
-            void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy);
-            void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
-            void get_policy(int level, struct geopm_policy_message_s &policy);
-            size_t overhead_send(void);
+            int num_level(void) const override;
+            int root_level(void) const override;
+            int level_rank(int level) const override;
+            int level_size(int level) const override;
+            void send_sample(int level, const struct geopm_sample_message_s &sample) override;
+            void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy) override;
+            void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample) override;
+            void get_policy(int level, struct geopm_policy_message_s &policy) override;
+            size_t overhead_send(void) override;
         protected:
             /// @brief Constructor helper to instantiate
             ///        sub-communicators.
@@ -246,15 +246,15 @@ namespace geopm
             SingleTreeCommunicator(IGlobalPolicy *global_policy);
             SingleTreeCommunicator(const SingleTreeCommunicator &other);
             virtual ~SingleTreeCommunicator();
-            int num_level(void) const;
-            int root_level(void) const;
-            int level_rank(int level) const;
-            int level_size(int level) const;
-            void send_sample(int level, const struct geopm_sample_message_s &sample);
-            void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy);
-            void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample);
-            void get_policy(int level, struct geopm_policy_message_s &policy);
-            size_t overhead_send(void);
+            int num_level(void) const override;
+            int root_level(void) const override;
+            int level_rank(int level) const override;
+            int level_size(int level) const override;
+            void send_sample(int level, const struct geopm_sample_message_s &sample) override;
+            void send_policy(int level, const std::vector<struct geopm_policy_message_s> &policy) override;
+            void get_sample(int level, std::vector<struct geopm_sample_message_s> &sample) override;
+            void get_policy(int level, struct geopm_policy_message_s &policy) override;
+            size_t overhead_send(void) override;
         protected:
             IGlobalPolicy *m_policy;
             struct geopm_sample_message_s m_sample;

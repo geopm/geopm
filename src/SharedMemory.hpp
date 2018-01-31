@@ -79,11 +79,11 @@ namespace geopm
             virtual ~SharedMemory();
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
-            void *pointer(void);
+            void *pointer(void) override;
             /// @brief Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
-            std::string key(void);
-            size_t size(void);
+            std::string key(void) override;
+            size_t size(void) override;
         protected:
             /// @brief Shared memory key for the region.
             std::string m_shm_key;
@@ -111,10 +111,10 @@ namespace geopm
             SharedMemoryUser(const std::string &shm_key);
             /// Destructor detaches from shared memory region.
             virtual ~SharedMemoryUser();
-            void *pointer(void);
-            std::string key(void);
-            size_t size(void);
-            void unlink(void);
+            void *pointer(void) override;
+            std::string key(void) override;
+            size_t size(void) override;
+            void unlink(void) override;
         protected:
             /// Shared memory key for the region.
             std::string m_shm_key;
