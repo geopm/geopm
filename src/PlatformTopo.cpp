@@ -38,6 +38,8 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     IPlatformTopo &platform_topo(void)
