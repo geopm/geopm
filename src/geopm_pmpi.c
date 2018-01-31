@@ -154,6 +154,10 @@ static int geopm_pmpi_init(const char *exec_name)
             g_is_geopm_pmpi_ctl_enabled = 1;
             int is_ctl;
             MPI_Comm tmp_comm;
+            /* Check for the presense of shmem keys that are stale.  Remove if found. */
+            if (rank == 0) {
+                geopm_error_destroy_shmem();
+            }
             err = geopm_comm_split(MPI_COMM_WORLD, "pmpi", &tmp_comm, &is_ctl);
             if (err) {
                 MPI_Abort(MPI_COMM_WORLD, err);
@@ -192,6 +196,10 @@ static int geopm_pmpi_init(const char *exec_name)
             int num_cpu = geopm_sched_num_cpu();
             cpu_set_t *cpu_set = CPU_ALLOC(num_cpu);
 #endif
+            /* Check for the presense of shmem keys that are stale.  Remove if found. */
+            if (rank == 0) {
+                geopm_error_destroy_shmem();
+            }
             if (!err) {
                 err = PMPI_Query_thread(&mpi_thread_level);
             }

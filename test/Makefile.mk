@@ -147,6 +147,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/EfficientFreqDeciderTest.clone \
               test/gtest_links/EfficientFreqDeciderTest.hint \
               test/gtest_links/EfficientFreqDeciderTest.online_mode \
+              test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \

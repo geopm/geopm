@@ -31,6 +31,7 @@
  */
 
 #include <iostream>
+#include <sys/stat.h>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
@@ -91,6 +92,23 @@ void SharedMemoryTest::cleanup_shmem_u()
         delete m_shmem_u;
         m_shmem_u = NULL;
     }
+}
+
+TEST_F(SharedMemoryTest, fd_check)
+{
+    struct stat buf;
+    std::string key_path("/dev/shm");
+    m_shm_key += "-fd_check";
+    key_path += m_shm_key;
+
+    config_shmem();
+    sleep(5);
+    EXPECT_EQ(stat(key_path.c_str(), &buf), 0) << "Something (likely systemd) is removing shmem entries after creation.\n"
+                                               << "See https://superuser.com/a/1179962 for more information.";
+
+    cleanup_shmem();
+    EXPECT_EQ(stat(key_path.c_str(), &buf), -1);
+    EXPECT_EQ(errno, ENOENT);
 }
 
 TEST_F(SharedMemoryTest, invalid_construction)

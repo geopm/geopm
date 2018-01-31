@@ -66,6 +66,14 @@ enum geopm_error_e {
     GEOPM_ERROR_COMM_UNSUPPORTED = -24,
 };
 
+/* Unlinks all shared memory keys in case of error.
+ *
+ * Looks in /dev/shm for any keys starting with "/geopm-shm" or
+ * the GEOPM_SHMKEY environment variable if set.  All matching
+ * keys are unlinked with shm_unlink().
+ */
+void geopm_error_destroy_shmem(void);
+
 /* Convert error number into an error message */
 void geopm_error_message(int err, char *msg, size_t size);
 
