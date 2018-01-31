@@ -69,15 +69,14 @@ namespace geopm
             int num_control(void) const;
             void clear(void);
             double sample(int signal_idx);
-            void sample(std::vector<double> &signal);
-            void adjust(int control_idx,
-                        double setting);
-            void adjust(const std::vector<double> &setting);
             std::string log(int signal_idx, double sample);
+            void adjust(int control_idx, double setting);
+            void read_signal(void) override;
+            void write_control(void) override;
             std::string msr_whitelist(void) const;
             std::string msr_whitelist(int cpuid) const;
 
-       protected:
+        protected:
             virtual int cpuid(void) const;
             virtual void init(void);
             virtual void init_time(void);
@@ -133,6 +132,8 @@ namespace geopm
             const int m_num_cpu;
             bool m_is_init;
             bool m_is_active;
+            std::vector<bool> m_is_read;
+            std::vector<bool> m_is_adjusted;
             IMSRIO *m_msrio;
             std::map<std::string, const IMSR *> m_name_msr_map;
             std::map<std::string, std::vector<ISignal *> > m_name_cpu_signal_map;
