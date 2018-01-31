@@ -705,14 +705,21 @@ namespace geopm
     {
         std::string sample_key(geopm_env_shmkey());
         sample_key += "-sample";
+        std::string sample_key_path("/dev/shm/" + sample_key);
+        // Remove shared memory file if one already exists.
+        (void)unlink(sample_key_path.c_str());
         m_ctl_shmem = new SharedMemory(sample_key, table_size);
         m_ctl_msg = new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true);
 
         std::string tprof_key(geopm_env_shmkey());
         tprof_key += "-tprof";
+        std::string tprof_key_path("/dev/shm/" + tprof_key);
+        // Remove shared memory file if one already exists.
+        (void)unlink(tprof_key_path.c_str());
         size_t tprof_size = 64 * geopm_sched_num_cpu();
         m_tprof_shmem = new SharedMemory(tprof_key, tprof_size);
         m_tprof_table = new ProfileThreadTable(tprof_size, m_tprof_shmem->pointer());
+        errno = 0; // Ignore errors from the unlink calls.
     }
 
     ProfileSampler::~ProfileSampler(void)
@@ -868,6 +875,9 @@ namespace geopm
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
+        std::string key_path("/dev/shm/" + shm_key);
+        (void)unlink(key_path.c_str());
+        errno = 0; // Ignore errors from the unlink call.
         m_table_shmem = new SharedMemory(shm_key, table_size);
         m_table = new ProfileTable(m_table_shmem->size(), m_table_shmem->pointer());
     }

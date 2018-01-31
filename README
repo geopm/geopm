@@ -235,6 +235,16 @@ SUSE:
 
     zypper install openmpi hwloc
 
+### SYSTEMD CONFIGURATION
+In order for GEOPM to properly use shared memory to communicate between the
+Controller and the application, it may be necessary to alter the configuration
+for systemd.  The default behavior of systemd is to clean-up all interprocess
+communication for non-system users.  This causes issues with GEOPM's
+initialization routines for shared memory.  This can be disabled by
+ensuring that `RemoveIPC=no` is set in `/etc/systemd/logind.conf`.  Most
+distributions have this set by default.  More information can be found
+[here](https://superuser.com/a/1179962).
+
 ### MSR DRIVER
 The msr-safe kernel driver must be loaded at runtime to
 support user level read and write of white-listed MSRs.  The source
