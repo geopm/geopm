@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b53e68d_52fcc2f4",
+        "filename": "configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-31T18:35:58Z",
+      "side": 1,
+      "message": "Make a note about why this wonkiness is necessary.",
+      "revId": "04c28f4587a89b4ecfbfdf6cf24e8e527ad667ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e82c18fc_e848709f",
+        "filename": "configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-31T18:35:58Z",
+      "side": 1,
+      "message": "Consider just calling the func.",
+      "range": {
+        "startLine": 468,
+        "startChar": 8,
+        "endLine": 469,
+        "endChar": 58
+      },
+      "revId": "04c28f4587a89b4ecfbfdf6cf24e8e527ad667ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97314c89_51cc8789",
+        "filename": "configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-01-31T18:35:58Z",
+      "side": 1,
+      "message": "This can be removed.",
+      "range": {
+        "startLine": 477,
+        "startChar": 17,
+        "endLine": 477,
+        "endChar": 30
+      },
+      "revId": "04c28f4587a89b4ecfbfdf6cf24e8e527ad667ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
