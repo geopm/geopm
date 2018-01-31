@@ -85,7 +85,8 @@ namespace geopm
             /// @return number of cores where we will run
             ///         unconstrained power.
             virtual int num_max_perf(void) const = 0;
-            virtual void target_updated(uint64_t region_id, std::map<int, double> &target) = 0; // map from domain index to updated target value
+            /// @param [out] target Map from domain index to updated target value
+            virtual void target_updated(uint64_t region_id, std::map<int, double> &target) = 0;
             virtual void target_valid(uint64_t region_id, std::map<int, double> &target) = 0;
             virtual void policy_message(uint64_t region_id,
                                         const struct geopm_policy_message_s &parent_msg,
@@ -112,28 +113,28 @@ namespace geopm
             Policy(int num_domain);
             /// @brief Policy destructor, virtual
             virtual ~Policy();
-            int num_domain(void);
-            void region_id(std::vector<uint64_t> &region_id);
-            void update(uint64_t region_id, int domain_idx, double target);
-            void update(uint64_t region_id, const std::vector<double> &target);
-            void mode(int new_mode);
-            void policy_flags(unsigned long new_flags);
-            void target(uint64_t region_id, std::vector<double> &target);
-            void target(uint64_t region_id, int domain, double &target);
-            int mode(void) const;
-            int frequency_mhz(void) const;
-            int tdp_percent(void) const;
-            int affinity(void) const;
-            int goal(void) const;
-            int num_max_perf(void) const;
-            void target_updated(uint64_t region_id, std::map<int, double> &target); // map from domain index to updated target value
-            void target_valid(uint64_t region_id, std::map<int, double> &target);
+            int num_domain(void) override;
+            void region_id(std::vector<uint64_t> &region_id) override;
+            void update(uint64_t region_id, int domain_idx, double target)  override;
+            void update(uint64_t region_id, const std::vector<double> &target) override;
+            void mode(int new_mode) override;
+            void policy_flags(unsigned long new_flags) override;
+            void target(uint64_t region_id, std::vector<double> &target) override;
+            void target(uint64_t region_id, int domain, double &target) override;
+            int mode(void) const override;
+            int frequency_mhz(void) const override;
+            int tdp_percent(void) const override;
+            int affinity(void) const override;
+            int goal(void) const override;
+            int num_max_perf(void) const override;
+            void target_updated(uint64_t region_id, std::map<int, double> &target) override;
+            void target_valid(uint64_t region_id, std::map<int, double> &target) override;
             void policy_message(uint64_t region_id,
                                 const struct geopm_policy_message_s &parent_msg,
-                                std::vector<struct geopm_policy_message_s> &child_msg);
-            void is_converged(uint64_t region_id, bool converged_state);
-            bool is_converged(uint64_t region_id);
-            void ctl_cpu_freq(std::vector<double> freq);
+                                std::vector<struct geopm_policy_message_s> &child_msg) override;
+            void is_converged(uint64_t region_id, bool converged_state) override;
+            bool is_converged(uint64_t region_id) override;
+            void ctl_cpu_freq(std::vector<double> freq) override;
         protected:
             static bool m_is_once;
             IPolicyFlags *m_policy_flags;

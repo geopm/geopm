@@ -78,8 +78,8 @@ namespace geopm
         public:
             /// @brief DeciderFactory destructor, virtual.
             virtual ~DeciderFactory();
-            IDecider *decider(const std::string &description);
-            void register_decider(IDecider *decider);
+            IDecider *decider(const std::string &description) override;
+            void register_decider(IDecider *decider) override;
             static DeciderFactory &decider_factory();
         protected:
             /// @brief DeciderFactory default constructor.
@@ -91,6 +91,7 @@ namespace geopm
             /// It is intended to be used for testing.
             /// @param [in] decider The pointer to a Decider object.
             DeciderFactory(IDecider *decider);
+        private:
             /// @brief Holds all registered concrete Decider instances.
             std::list<IDecider*> m_decider_list;
     };

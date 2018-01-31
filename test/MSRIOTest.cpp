@@ -56,8 +56,8 @@ class TestMSRIO : public geopm::MSRIO
     protected:
         void msr_path(int cpu_idx,
                       bool is_fallback,
-                      std::string &path);
-        void msr_batch_path(std::string &path);
+                      std::string &path) override;
+        void msr_batch_path(std::string &path) override;
         const char **msr_words(void) const;
 
         const size_t M_MAX_OFFSET;

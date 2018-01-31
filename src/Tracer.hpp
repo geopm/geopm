@@ -60,8 +60,8 @@ namespace geopm
             Tracer(std::string header);
             /// @brief Tracer destructor, virtual.
             virtual ~Tracer();
-            void update(const std::vector <struct geopm_telemetry_message_s> &telemetry);
-            void update(const struct geopm_policy_message_s &policy);
+            void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) override;
+            void update(const struct geopm_policy_message_s &policy) override;
         protected:
             std::string m_header;
             std::string m_hostname;

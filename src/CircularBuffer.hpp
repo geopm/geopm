@@ -116,12 +116,12 @@ namespace geopm
             CircularBuffer(unsigned int size);
             /// @brief CircularBuffer destructor, virtual
             virtual ~CircularBuffer();
-            void set_capacity(const unsigned int size);
-            void clear(void);
-            int size(void) const;
-            int capacity(void) const;
-            void insert(const type value);
-            const type& value(const unsigned int index) const;
+            void set_capacity(const unsigned int size) override;
+            void clear(void) override;
+            int size(void) const override;
+            int capacity(void) const override;
+            void insert(const type value) override;
+            const type& value(const unsigned int index) const override;
         protected:
             /// @brief Vector holding the buffer data.
             std::vector<type> m_buffer;
