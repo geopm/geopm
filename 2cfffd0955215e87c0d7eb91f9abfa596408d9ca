@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "88c7da40_b4633728",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-02-01T18:47:27Z",
+      "side": 1,
+      "message": "Done.  Thanks for the note. This blurb was flat out incorrect.",
+      "parentUuid": "fed220c1_3854e73a",
+      "range": {
+        "startLine": 205,
+        "startChar": 60,
+        "endLine": 205,
+        "endChar": 64
+      },
+      "revId": "2cfffd0955215e87c0d7eb91f9abfa596408d9ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "119b5b9b_9d7cfe63",
         "filename": "src/GlobalPolicy.hpp",
         "patchSetId": 6
