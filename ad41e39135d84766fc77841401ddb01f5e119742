@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0596712a_ff53915b",
+        "filename": "test/geopm_test.sh",
+        "patchSetId": 19
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-01T18:51:26Z",
+      "side": 1,
+      "message": "I think this entire section could be nuked.  It was setting up srun for the MPI tests, which you\u0027re removing.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 2
+      },
+      "revId": "ad41e39135d84766fc77841401ddb01f5e119742",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
