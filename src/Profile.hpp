@@ -40,13 +40,13 @@
 #include <set>
 #include <forward_list>
 #include <fstream>
-#include <mpi.h>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
 
 namespace geopm
 {
+    class IComm;
     class ISharedMemory;
     class ISharedMemoryUser;
     class IControlMessage;
@@ -173,6 +173,7 @@ namespace geopm
             /// application.
             virtual void epoch(void) = 0;
             virtual void shutdown(void) = 0;
+            virtual IProfileThreadTable *tprof_table(void) = 0;
     };
 
     class IProfileRankSampler
@@ -195,7 +196,7 @@ namespace geopm
             IProfileSampler(const IProfileSampler &other) {}
             virtual ~IProfileSampler() {}
             virtual size_t capacity(void) = 0;
-            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) = 0;
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) = 0;
             virtual bool do_shutdown(void) = 0;
             virtual bool do_report(void) = 0;
             virtual void region_names(void) = 0;
@@ -236,7 +237,10 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, MPI_Comm comm);
+            Profile(const std::string prof_name, const IComm *comm);
+            /// @brief Profile constructor for testing facilitation.
+            Profile(const std::string prof_name, IProfileThreadTable *prof_table, ISharedMemoryUser *tprof_shmem, std::unique_ptr<IProfileTable> table, ISharedMemoryUser *table_shmem,
+                    std::unique_ptr<ISampleScheduler> scheduler, std::unique_ptr<IControlMessage> ctl_msg, ISharedMemoryUser *ctl_shmem, std::shared_ptr<IComm> comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint) override;
@@ -245,7 +249,7 @@ namespace geopm
             void progress(uint64_t region_id, double fraction) override;
             void epoch(void) override;
             void shutdown(void) override;
-            IProfileThreadTable *tprof_table(void);
+            IProfileThreadTable *tprof_table(void) override;
         protected:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
@@ -305,23 +309,23 @@ namespace geopm
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
-            IControlMessage *m_ctl_msg;
+            std::unique_ptr<IControlMessage> m_ctl_msg;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
             ISharedMemoryUser *m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            IProfileTable *m_table;
+            std::unique_ptr<IProfileTable> m_table;
             ISharedMemoryUser *m_tprof_shmem;
             IProfileThreadTable *m_tprof_table;
             const double M_OVERHEAD_FRAC;
-            ISampleScheduler *m_scheduler;
+            std::unique_ptr<ISampleScheduler> m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;
             /// @brief Communicator consisting of the root rank on each
             ///        compute node.
-            MPI_Comm m_shm_comm;
+            std::shared_ptr<IComm> m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
             /// @brief The process's rank in m_shm_comm.
@@ -454,7 +458,7 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) override;
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) override;
             /// @brief Check if the application is shutting down.
             ///
             /// Queries the control shared memory region to test if the
