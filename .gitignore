@@ -12,6 +12,8 @@
 /config.status
 /config.sub
 /configure
+/contrib/json11/*.o
+/contrib/json11/*.lo
 /copying_headers/test-license.log
 /copying_headers/test-license.trs
 /coverage/
