@@ -44,6 +44,7 @@ namespace geopm
     class IComm;
     class ISharedMemoryUser;
     class IControlMessage;
+    class IPlatformTopo;
     class IProfileTable;
     class IProfileThreadTable;
     class ISampleScheduler;
@@ -184,13 +185,20 @@ namespace geopm
             ///        profile.  This name will be printed in the
             ///        header of the report.
             ///
-            /// @param [in] table_size Size in bytes of shared memory
-            ///        region that will be used for posting updates.
-            ///        The geopm::Controller is responsible for
-            ///        creating the shared memory region that the
-            ///        Profile object attaches to.  The
-            ///        geopm::Controller is the consumer of the posted
-            ///        data that the Profile produces.
+            /// @param [in] comm The application's MPI communicator.
+            ///        Each rank of this communicator will report to a
+            ///        separate shared memory region.  One
+            ///        geopm::Controller on each compute node will
+            ///        consume the output from each rank running on
+            ///        the compute node.
+            Profile(const std::string &prof_name, std::unique_ptr<IComm> comm);
+            /// @brief Profile testable constructor.
+            ///
+            /// @param [in] prof_name Name associated with the
+            ///        profile.  This name will be printed in the
+            ///        header of the report.
+            ///
+            /// @param [in] key_base Shmem key prefix.
             ///
             /// @param [in] comm The application's MPI communicator.
             ///        Each rank of this communicator will report to a
@@ -198,7 +206,23 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, std::unique_ptr<IComm> comm);
+            ///
+            /// @param [in] ctl_msg Preconstructed ControlMessage instance,
+            ///        bypasses shmem creation.
+            ///
+            /// @param [in] topo Preconstructed PlatformTopo instance,
+            ///        bypasses singleton discovery.
+            ///
+            /// @param [in] ctl_msg Preconstructed ProfileTable instance,
+            ///        bypasses shmem creation.
+            ///
+            /// @param [in] ctl_msg Preconstructed ProfileThreadTable instance,
+            ///        bypasses shmem creation.
+            ///
+            /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
+            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<IComm> comm,
+                    std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                    std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint) override;
@@ -208,14 +232,8 @@ namespace geopm
             void epoch(void) override;
             void shutdown(void) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
-        protected:
-            enum m_profile_const_e {
-                M_PROF_SAMPLE_PERIOD = 1,
-            };
-
             void init_prof_comm(std::unique_ptr<IComm> comm, int &shm_num_rank);
-            void init_ctl_shm(const std::string &sample_key);
-            void init_ctl_msg(void);
+            void init_ctl_msg(const std::string &sample_key);
             /// @brief Fill in rank affinity list.
             ///
             /// Uses hwloc to determine the cpuset the current
@@ -223,10 +241,15 @@ namespace geopm
             /// in a set containing all CPUs we can run on. This is used
             /// to communicate with the geopm runtime the number of ranks
             /// as well as their affinity masks.
-            void init_cpu_list(void);
+            void init_cpu_list(int num_cpu);
             void init_cpu_affinity(int shm_num_rank);
-            void init_tprof_table(const std::string &tprof_key);
+            void init_tprof_table(const std::string &tprof_key, IPlatformTopo &topo);
             void init_table(const std::string &sample_key);
+        protected:
+            enum m_profile_const_e {
+                M_PROF_SAMPLE_PERIOD = 1,
+            };
+
             /// @brief Post profile sample.
             ///
             /// Called to derive a sample based on the profiling
@@ -280,7 +303,6 @@ namespace geopm
             std::unique_ptr<IProfileTable> m_table;
             std::unique_ptr<ISharedMemoryUser> m_tprof_shmem;
             std::shared_ptr<IProfileThreadTable> m_tprof_table;
-            const double M_OVERHEAD_FRAC;
             std::unique_ptr<ISampleScheduler> m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.

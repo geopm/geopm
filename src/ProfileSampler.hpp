@@ -159,6 +159,8 @@ namespace geopm
             bool m_is_name_finished;
     };
 
+    class IPlatformTopo;
+
     /// @brief Retrieves sample data from the set of application ranks on
     ///        a single node.
     ///
@@ -178,6 +180,16 @@ namespace geopm
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
             ProfileSampler(size_t table_size);
+            /// @brief ProfileSampler constructor.
+            ///
+            /// Constructs a shared memory region for coordination between
+            /// the geopm runtime and the MPI application.
+            ///
+            /// @param [in] topo Reference to PlatformTopo singleton.
+            ///
+            /// @param [in] table_size The size of the hash table that will
+            ///        be created for each application rank.
+            ProfileSampler(IPlatformTopo &topo, size_t table_size);
             /// @brief ProfileSampler destructor.
             virtual ~ProfileSampler();
             /// @brief Retrieve the maximum capacity of all the per-rank
