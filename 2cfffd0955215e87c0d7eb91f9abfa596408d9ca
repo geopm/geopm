@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fed220c1_3854e73a",
+        "filename": "src/Comm.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-01T18:20:10Z",
+      "side": 1,
+      "message": "creates",
+      "range": {
+        "startLine": 205,
+        "startChar": 60,
+        "endLine": 205,
+        "endChar": 64
+      },
+      "revId": "2cfffd0955215e87c0d7eb91f9abfa596408d9ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "119b5b9b_9d7cfe63",
         "filename": "src/GlobalPolicy.hpp",
         "patchSetId": 6
