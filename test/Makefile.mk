@@ -231,6 +231,14 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/ProfileTest.config \
+              test/gtest_links/ProfileTest.config_throws \
+              test/gtest_links/ProfileTest.region \
+              test/gtest_links/ProfileTest.enter_exit \
+              test/gtest_links/ProfileTest.progress \
+              test/gtest_links/ProfileTest.epoch \
+              test/gtest_links/ProfileTest.shutdown \
+              test/gtest_links/ProfileTest.tprof_table \
               # end
 
 if ENABLE_MPI
@@ -278,11 +286,17 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockPolicy.hpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
+                          test/MockControlMessage.hpp \
+                          test/MockProfileTable.hpp \
+                          test/MockProfileThreadTable.hpp \
+                          test/MockSampleScheduler.hpp \
                           test/MockPlatform.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockGlobalPolicy.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
+                          test/MockSharedMemory.hpp \
+                          test/MockSharedMemoryUser.hpp \
                           test/SharedMemoryTest.cpp \
                           test/EnvironmentTest.cpp \
                           test/SchedTest.cpp \
@@ -306,6 +320,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/geopm_test.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.hpp \
+                          test/ProfileTest.cpp \
+                          test/ProfileSamplerTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
