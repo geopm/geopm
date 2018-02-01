@@ -30,41 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_CTL_H_INCLUDE
-#define GEOPM_CTL_H_INCLUDE
+#include "ProfileThread.hpp"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <pthread.h>
-
-#include "geopm_policy.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Opaque structure which is a handle for a geopm::Controller object. */
-struct geopm_ctl_c;
-
-/************************/
-/* OBJECT INSTANTIATION */
-/************************/
-int geopm_ctl_create(struct geopm_policy_c *policy,
-                     struct geopm_ctl_c **ctl);
-
-int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
-
-/********************/
-/* POWER MANAGEMENT */
-/********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_run(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
-                      const pthread_attr_t *attr,
-                      pthread_t *thread);
-#ifdef __cplusplus
-}
-#endif
-#endif
+class MockProfileThreadTable : public geopm::IProfileThreadTable {
+    public:
+        MOCK_METHOD1(enable,
+                void (bool is_enabled));
+        MOCK_METHOD3(init,
+                void (int num_thread, int thread_idx, size_t num_iter));
+        MOCK_METHOD4(init,
+                void (int num_thread, int thread_idx, size_t num_iter, size_t chunk_size));
+        MOCK_METHOD1(init,
+                void (uint32_t num_work_unit));
+        MOCK_METHOD0(post,
+                void (void));
+        MOCK_METHOD1(dump,
+                void (std::vector<double> &progress));
+        MOCK_METHOD0(num_cpu,
+                int (void));
+};
