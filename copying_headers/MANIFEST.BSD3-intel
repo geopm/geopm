@@ -72,6 +72,7 @@ src/Decider.cpp
 src/DeciderFactory.cpp
 src/DeciderFactory.hpp
 src/Decider.hpp
+src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
