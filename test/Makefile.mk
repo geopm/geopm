@@ -280,7 +280,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockPlatform.hpp \
-                          test/MockProfileSampler.hpp \
                           test/MockGlobalPolicy.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
