@@ -210,6 +210,37 @@ namespace geopm
 #endif
     }
 
+    Profile::Profile(const std::string prof_name, IProfileThreadTable *prof_table, ISharedMemoryUser *tprof_shmem, std::unique_ptr<IProfileTable> table, ISharedMemoryUser *table_shmem,
+            std::unique_ptr<ISampleScheduler> scheduler, std::unique_ptr<IControlMessage> ctl_msg, ISharedMemoryUser *ctl_shmem, std::shared_ptr<IComm> comm)
+        : m_is_enabled(true)
+        , m_prof_name(prof_name)
+        , m_curr_region_id(0)
+        , m_num_enter(0)
+        , m_num_progress(0)
+        , m_progress(0.0)
+        , m_table_buffer(malloc(1))
+        , m_ctl_shmem(ctl_shmem)
+        , m_ctl_msg(std::move(ctl_msg))
+        , m_table_shmem(table_shmem)
+        , m_table(std::move(table))
+        , m_tprof_shmem(tprof_shmem)
+        , m_tprof_table(prof_table)
+        , M_OVERHEAD_FRAC(0.01)
+        , m_scheduler(std::move(scheduler))
+        , m_shm_comm(comm->split("prof", IComm::M_COMM_SPLIT_TYPE_SHARED))
+        , m_rank(comm->rank())
+        , m_shm_rank(m_shm_comm->rank())
+        , m_is_first_sync(true)
+        , m_parent_region(0)
+        , m_parent_progress(0.0)
+        , m_parent_num_enter(0)
+        , m_overhead_time(0.0)
+        , m_overhead_time_startup(0.0)
+        , m_overhead_time_shutdown(0.0)
+    {
+        init_cpu_list();
+    }
+
     Profile::~Profile()
     {
         shutdown();

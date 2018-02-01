@@ -238,6 +238,9 @@ namespace geopm
             ///        consume the output from each rank running on
             ///        the compute node.
             Profile(const std::string prof_name, const IComm *comm);
+            /// @brief Profile constructor for testing facilitation.
+            Profile(const std::string prof_name, IProfileThreadTable *prof_table, ISharedMemoryUser *tprof_shmem, std::unique_ptr<IProfileTable> table, ISharedMemoryUser *table_shmem,
+                    std::unique_ptr<ISampleScheduler> scheduler, std::unique_ptr<IControlMessage> ctl_msg, ISharedMemoryUser *ctl_shmem, std::shared_ptr<IComm> comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint) override;
