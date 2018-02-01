@@ -95,7 +95,7 @@ static int run_something(void)
         err = geopm_policy_create("profile_policy", "", &policy);
     }
     if (!err) {
-        err = geopm_ctl_create(policy, MPI_COMM_WORLD, &ctl);
+        err = geopm_ctl_create(policy, &ctl);
     }
     if (!err) {
         err = geopm_ctl_step(ctl);
