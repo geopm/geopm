@@ -116,12 +116,12 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create(struct geopm_policy_c *policy, struct geopm_ctl_c **ctl)
     {
         int err = 0;
         try {
             geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, MPI_COMM_WORLD));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -131,7 +131,7 @@ extern "C"
 
     int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
     {
-        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
+        return geopm_ctl_create(policy, ctl);
     }
 
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
@@ -221,7 +221,9 @@ namespace geopm
         , m_ppn1_rank(-1)
     {
         int num_nodes = 0;
-        auto ppn1_comm = CommFactory::comm_factory().get_comm(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
+
+        // TODO initializer list this init
+        m_ppn1_icomm = CommFactory::comm_factory().get_comm(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
 
         // Only the root rank on each node will have a fully initialized controller
         if (m_ppn1_comm != MPI_COMM_NULL) {
@@ -296,7 +298,7 @@ namespace geopm
                 }
                 std::reverse(fan_out.begin(), fan_out.end());
 
-                m_tree_comm = new TreeCommunicator(fan_out, global_policy, ppn1_comm);
+                m_tree_comm = new TreeCommunicator(fan_out, global_policy, m_ppn1_icomm);
             }
             else {
                 m_tree_comm = new SingleTreeCommunicator(global_policy);
@@ -593,7 +595,7 @@ namespace geopm
                 // decider who will create a new per domain policy for
                 // the current region. Then we can enforce the policy
                 // by adjusting RAPL power domain limits.
-                m_sampler->sample(m_prof_sample, length, m_ppn1_comm);
+                m_sampler->sample(m_prof_sample, length, m_ppn1_icomm);
 
                 double region_mpi_time = 0.0;
                 uint64_t base_region_id = 0;
