@@ -30,42 +30,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_CTL_H_INCLUDE
-#define GEOPM_CTL_H_INCLUDE
+#include "ControlMessage.hpp"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <pthread.h>
-
-#include "geopm_policy.h"
-#include "geopm_mpi_comm_split.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Opaque structure which is a handle for a geopm::Controller object. */
-struct geopm_ctl_c;
-
-/************************/
-/* OBJECT INSTANTIATION */
-/************************/
-int geopm_ctl_create(struct geopm_policy_c *policy,
-                     struct geopm_ctl_c **ctl);
-
-int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
-
-/********************/
-/* POWER MANAGEMENT */
-/********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_run(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
-                      const pthread_attr_t *attr,
-                      pthread_t *thread);
-#ifdef __cplusplus
-}
-#endif
-#endif
+class MockControlMessage : public geopm::IControlMessage {
+    public:
+        MOCK_METHOD0(step,
+                void (void));
+        MOCK_METHOD0(wait,
+                void (void));
+        MOCK_METHOD2(cpu_rank,
+                void (int cpu_idx, int rank));
+        MOCK_METHOD1(cpu_rank,
+                int (int cpu_idx));
+        MOCK_METHOD0(is_sample_begin,
+                bool (void));
+        MOCK_METHOD0(is_sample_end,
+                bool (void));
+        MOCK_METHOD0(is_name_begin,
+                bool (void));
+        MOCK_METHOD0(is_shutdown,
+                bool (void));
+        MOCK_METHOD0(loop_begin,
+                void (void));
+};

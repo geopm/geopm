@@ -30,42 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_CTL_H_INCLUDE
-#define GEOPM_CTL_H_INCLUDE
+#include "ProfileTable.hpp"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <pthread.h>
+class MockProfileTable : public geopm::IProfileTable {
+    public:
+        MOCK_METHOD1(key,
+                uint64_t (const std::string &name));
+        MOCK_METHOD2(insert,
+                void (uint64_t key, const struct geopm_prof_message_s &value));
+        MOCK_CONST_METHOD0(capacity,
+                size_t (void));
+        MOCK_CONST_METHOD0(size,
+                size_t (void));
+        MOCK_METHOD2(dump,
+                void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s>>::iterator content,
+                    size_t &length));
+        MOCK_METHOD1(name_fill,
+                bool (size_t header_offset));
+        MOCK_METHOD2(name_set,
+                bool (size_t header_offset, std::set<std::string> &name));
 
-#include "geopm_policy.h"
-#include "geopm_mpi_comm_split.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Opaque structure which is a handle for a geopm::Controller object. */
-struct geopm_ctl_c;
-
-/************************/
-/* OBJECT INSTANTIATION */
-/************************/
-int geopm_ctl_create(struct geopm_policy_c *policy,
-                     struct geopm_ctl_c **ctl);
-
-int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
-
-/********************/
-/* POWER MANAGEMENT */
-/********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_run(struct geopm_ctl_c *ctl);
-
-int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
-                      const pthread_attr_t *attr,
-                      pthread_t *thread);
-#ifdef __cplusplus
-}
-#endif
-#endif
+};
