@@ -72,6 +72,7 @@ src/Decider.cpp
 src/DeciderFactory.cpp
 src/DeciderFactory.hpp
 src/Decider.hpp
+src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
@@ -212,7 +213,6 @@ test/MockPlatform.hpp
 test/MockPlatformImp.hpp
 test/MockPlatformTopology.hpp
 test/MockPolicy.hpp
-test/MockProfileSampler.hpp
 test/MockRegion.hpp
 test/ModelApplicationTest.cpp
 test/MPIInterfaceTest.cpp
