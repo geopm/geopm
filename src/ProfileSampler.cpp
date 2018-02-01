@@ -53,6 +53,7 @@
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
 #include "geopm_env.h"
+#include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
@@ -73,6 +74,11 @@ namespace geopm
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
 
     ProfileSampler::ProfileSampler(size_t table_size)
+        : ProfileSampler(platform_topo(), table_size)
+    {
+    }
+
+    ProfileSampler::ProfileSampler(IPlatformTopo &topo, size_t table_size)
         : m_table_size(table_size)
         , m_do_report(false)
         , m_tprof_shmem(NULL)
@@ -91,9 +97,10 @@ namespace geopm
         std::string tprof_key_path("/dev/shm/" + tprof_key);
         // Remove shared memory file if one already exists.
         (void)unlink(tprof_key_path.c_str());
-        size_t tprof_size = 64 * geopm_sched_num_cpu();
+        int num_cpu = topo.num_domain(IPlatformTopo::M_DOMAIN_CPU);
+        size_t tprof_size = 64 * num_cpu;
         m_tprof_shmem = new SharedMemory(tprof_key, tprof_size);
-        m_tprof_table = new ProfileThreadTable(tprof_size, m_tprof_shmem->pointer());
+        m_tprof_table = new ProfileThreadTable(num_cpu, tprof_size, m_tprof_shmem->pointer());
         errno = 0; // Ignore errors from the unlink calls.
     }
 
