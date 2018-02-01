@@ -228,6 +228,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOGroupTest.control \
               test/gtest_links/MSRIOGroupTest.whitelist \
               test/gtest_links/MSRIOGroupTest.cpuid \
+              test/gtest_links/ProfileTest.hello \
               # end
 
 if ENABLE_MPI
@@ -275,6 +276,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockPolicy.hpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
+                          test/MockControlMessage.hpp \
+                          test/MockProfileTable.hpp \
+                          test/MockSampleScheduler.hpp \
                           test/MockPlatform.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockGlobalPolicy.hpp \
@@ -301,6 +305,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/geopm_test.hpp \
+                          test/ProfileTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

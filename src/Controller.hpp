@@ -222,6 +222,7 @@ namespace geopm
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
             MPI_Comm m_ppn1_comm;
+            std::shared_ptr<IComm> m_ppn1_icomm;
             int m_ppn1_rank;
             std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
     };
