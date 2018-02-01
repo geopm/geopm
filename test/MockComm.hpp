@@ -32,7 +32,8 @@
 
 #include "Comm.hpp"
 
-class MockComm : public geopm::IComm {
+class MockComm : public geopm::IComm
+{
     public:
         MOCK_CONST_METHOD0(split,
             std::shared_ptr<IComm> (void));
