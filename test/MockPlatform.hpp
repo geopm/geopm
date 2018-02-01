@@ -32,7 +32,8 @@
 
 #include "Platform.hpp"
 
-class MockPlatform : public geopm::Platform {
+class MockPlatform : public geopm::Platform
+{
     public:
         MOCK_METHOD0(control_domain,
             int(void));

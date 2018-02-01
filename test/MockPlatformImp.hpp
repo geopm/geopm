@@ -32,7 +32,8 @@
 
 #include "PlatformImp.hpp"
 
-class MockPlatformImp : public geopm::PlatformImp {
+class MockPlatformImp : public geopm::PlatformImp
+{
     public:
         MOCK_CONST_METHOD0(num_package,
             int(void));

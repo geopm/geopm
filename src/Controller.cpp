@@ -358,7 +358,7 @@ namespace geopm
 
             // Barrier to ensure all ProfileSamplers are created at the same time.
             m_ppn1_comm->barrier();
-            m_sampler = new ProfileSampler(M_SHMEM_REGION_SIZE);
+            m_sampler = new ProfileSampler(platform_topo(), M_SHMEM_REGION_SIZE);
 
             // Prepare and send the Global Policy header to every node so that the trace files contain the
             // correct data.

@@ -44,9 +44,9 @@
 
 namespace geopm
 {
-    ProfileThreadTable::ProfileThreadTable(size_t buffer_size, void *buffer)
+    ProfileThreadTable::ProfileThreadTable(int num_cpu, size_t buffer_size, void *buffer)
         : m_buffer((uint32_t *)buffer)
-        , m_num_cpu(geopm_sched_num_cpu())
+        , m_num_cpu(num_cpu)
         , m_stride(64 / sizeof(uint32_t))
     {
         if (buffer_size < 64 * m_num_cpu) {

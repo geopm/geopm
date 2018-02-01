@@ -30,34 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Comm.hpp"
-#include "geopm_message.h"
-#include "ProfileThread.hpp"
-#include "ProfileSampler.hpp"
+#include "ControlMessage.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler
+class MockControlMessage : public geopm::IControlMessage
 {
     public:
-        MOCK_METHOD0(capacity,
-            size_t (void));
-        MOCK_METHOD3(sample,
-            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, geopm::IComm *comm));
-        MOCK_METHOD0(do_shutdown,
-            bool (void));
-        MOCK_METHOD0(do_report,
-            bool (void));
-        MOCK_METHOD0(region_names,
-            void (void));
-        MOCK_METHOD1(initialize,
-            void (int &rank_per_node));
+        MOCK_METHOD0(step,
+                void (void));
+        MOCK_METHOD0(wait,
+                void (void));
+        MOCK_METHOD0(abort,
+                void (void));
+        MOCK_METHOD2(cpu_rank,
+                void (int cpu_idx, int rank));
         MOCK_METHOD1(cpu_rank,
-            void (std::vector<int> &cpu_rank));
-        MOCK_METHOD1(name_set,
-            void (std::set<std::string> &region_name));
-        MOCK_METHOD1(report_name,
-            void (std::string &report_str));
-        MOCK_METHOD1(profile_name,
-            void (std::string &prof_str));
-        MOCK_METHOD0(tprof_table,
-            geopm::IProfileThreadTable *(void));
+                int (int cpu_idx));
+        MOCK_METHOD0(is_sample_begin,
+                bool (void));
+        MOCK_METHOD0(is_sample_end,
+                bool (void));
+        MOCK_METHOD0(is_name_begin,
+                bool (void));
+        MOCK_METHOD0(is_shutdown,
+                bool (void));
+        MOCK_METHOD0(loop_begin,
+                void (void));
 };
