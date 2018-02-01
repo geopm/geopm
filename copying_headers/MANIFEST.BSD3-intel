@@ -199,6 +199,7 @@ test/GlobalPolicyTest.cpp
 test/googletest.mk
 test/GoverningDeciderTest.cpp
 test/legacy_whitelist.out
+test/ProfileTest.cpp
 test/RuntimeRegulatorTest.cpp
 test_hw/geopm_time.h
 test_hw/geopm_time.h
@@ -224,6 +225,8 @@ test/legacy_whitelist.out
 test/Makefile.mk
 test/MockIOGroup.hpp
 test/MockComm.hpp
+test/MockControlMessage.hpp
+test/MockProfileTable.hpp
 test/MockGlobalPolicy.hpp
 test/MockRuntimeRegulator.hpp
 test/MockPlatform.hpp
@@ -235,8 +238,12 @@ test/MockPolicy.hpp
 test/MockProfileIORuntime.hpp
 test/MockProfileIOSample.hpp
 test/MockProfileSampler.hpp
+test/MockProfileThreadTable.hpp
 test/MockRegion.hpp
 test/MockRuntimeRegulator.hpp
+test/MockSharedMemory.hpp
+test/MockSharedMemoryUser.hpp
+test/MockSampleScheduler.hpp
 test/ModelApplicationTest.cpp
 test/MPIInterfaceTest.cpp
 test/MSRIOGroupTest.cpp
