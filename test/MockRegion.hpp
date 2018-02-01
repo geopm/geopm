@@ -32,7 +32,8 @@
 
 #include "Region.hpp"
 
-class MockRegion : public geopm::IRegion {
+class MockRegion : public geopm::IRegion
+{
     public:
         MOCK_METHOD0(entry,
                 void(void));

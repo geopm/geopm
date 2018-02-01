@@ -32,7 +32,8 @@
 
 #include "GlobalPolicy.hpp"
 
-class MockGlobalPolicy : public geopm::IGlobalPolicy {
+class MockGlobalPolicy : public geopm::IGlobalPolicy
+{
     public:
         MOCK_CONST_METHOD0(mode,
             int (void));

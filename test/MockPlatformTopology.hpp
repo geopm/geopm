@@ -32,7 +32,8 @@
 
 #include "PlatformTopology.hpp"
 
-class MockPlatformTopology : public geopm::PlatformTopology {
+class MockPlatformTopology : public geopm::PlatformTopology
+{
     public:
         MOCK_CONST_METHOD1(num_domain,
             int(int domain_type));
