@@ -37,10 +37,9 @@ geopm_fortran(3) -- geopm fortran interface
 
 `Link with -lgeopmfort`
 
- * `integer(kind=c_int) function geopm_ctl_create(`_policy_`,` _shm_key_`,` _comm_`,` _ctl_`)`:
+ * `integer(kind=c_int) function geopm_ctl_create(`_policy_`,` _shm_key_`,` _ctl_`)`:
    `type(c_ptr), value, intent(in) ::` _policy_ <br>
    `character(kind=c_char), intent(in) ::` _sample_key_`(*)` <br>
-   `integer(kind=c_int), value, intent(in) ::` _comm_ <br>
    `type(c_ptr), intent(out) ::` _ctl_
 
  * `integer(kind=c_int) function geopm_ctl_destroy(`_ctl_`)`:
