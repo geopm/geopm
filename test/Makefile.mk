@@ -240,6 +240,16 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
+              test/gtest_links/ProfileTest.config \
+              test/gtest_links/ProfileTest.config_no_ctl_shmem \
+              test/gtest_links/ProfileTest.config_throws_tprof_shmem \
+              test/gtest_links/ProfileTest.config_throws_affinity \
+              test/gtest_links/ProfileTest.region \
+              test/gtest_links/ProfileTest.enter_exit \
+              test/gtest_links/ProfileTest.progress \
+              test/gtest_links/ProfileTest.epoch \
+              test/gtest_links/ProfileTest.shutdown \
+              test/gtest_links/ProfileTest.tprof_table \
               # end
 
 if ENABLE_MPI
@@ -288,11 +298,17 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
+                          test/MockControlMessage.hpp \
+                          test/MockProfileTable.hpp \
+                          test/MockProfileThreadTable.hpp \
+                          test/MockSampleScheduler.hpp \
                           test/MockPlatform.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockGlobalPolicy.hpp \
                           test/MockPlatformImp.hpp \
                           test/MockPlatformTopology.hpp \
+                          test/MockSharedMemory.hpp \
+                          test/MockSharedMemoryUser.hpp \
                           test/SharedMemoryTest.cpp \
                           test/EnvironmentTest.cpp \
                           test/SchedTest.cpp \
@@ -320,6 +336,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/ProfileIOGroupTest.cpp \
                           test/MockProfileIOSample.hpp \
                           test/CombinedSignalTest.cpp \
+                          test/ProfileTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

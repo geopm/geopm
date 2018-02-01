@@ -44,6 +44,7 @@ namespace geopm
     class IComm;
     class ISharedMemoryUser;
     class IControlMessage;
+    class IPlatformTopo;
     class IProfileTable;
     class IProfileThreadTable;
     class ISampleScheduler;
@@ -198,7 +199,13 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, std::unique_ptr<IComm> comm);
+            Profile(const std::string &prof_name, std::unique_ptr<IComm> comm);
+            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<IComm> comm,
+                    std::unique_ptr<ISharedMemoryUser> ctl_shmem, std::unique_ptr<IControlMessage> ctl_msg,
+                    IPlatformTopo &topo,
+                    std::unique_ptr<ISharedMemoryUser> table_shmem, std::unique_ptr<IProfileTable> table,
+                    std::unique_ptr<ISharedMemoryUser> tprof_shmem, std::shared_ptr<IProfileThreadTable> t_table,
+                    std::unique_ptr<ISampleScheduler> scheduler);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint) override;
@@ -208,11 +215,6 @@ namespace geopm
             void epoch(void) override;
             void shutdown(void) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
-        protected:
-            enum m_profile_const_e {
-                M_PROF_SAMPLE_PERIOD = 1,
-            };
-
             void init_prof_comm(std::unique_ptr<IComm> comm, int &shm_num_rank);
             void init_ctl_shm(const std::string &sample_key);
             void init_ctl_msg(void);
@@ -227,6 +229,11 @@ namespace geopm
             void init_cpu_affinity(int shm_num_rank);
             void init_tprof_table(const std::string &tprof_key);
             void init_table(const std::string &sample_key);
+        protected:
+            enum m_profile_const_e {
+                M_PROF_SAMPLE_PERIOD = 1,
+            };
+
             /// @brief Post profile sample.
             ///
             /// Called to derive a sample based on the profiling
@@ -280,7 +287,6 @@ namespace geopm
             std::unique_ptr<IProfileTable> m_table;
             std::unique_ptr<ISharedMemoryUser> m_tprof_shmem;
             std::shared_ptr<IProfileThreadTable> m_tprof_table;
-            const double M_OVERHEAD_FRAC;
             std::unique_ptr<ISampleScheduler> m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
@@ -300,6 +306,7 @@ namespace geopm
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+            size_t m_num_cpu;
     };
 }
 

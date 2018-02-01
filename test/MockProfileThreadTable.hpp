@@ -30,34 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Comm.hpp"
-#include "geopm_message.h"
 #include "ProfileThread.hpp"
-#include "ProfileSampler.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler
+class MockProfileThreadTable : public geopm::IProfileThreadTable
 {
     public:
-        MOCK_METHOD0(capacity,
-            size_t (void));
-        MOCK_METHOD3(sample,
-            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, geopm::IComm *comm));
-        MOCK_METHOD0(do_shutdown,
-            bool (void));
-        MOCK_METHOD0(do_report,
-            bool (void));
-        MOCK_METHOD0(region_names,
-            void (void));
-        MOCK_METHOD1(initialize,
-            void (int &rank_per_node));
-        MOCK_METHOD1(cpu_rank,
-            void (std::vector<int> &cpu_rank));
-        MOCK_METHOD1(name_set,
-            void (std::set<std::string> &region_name));
-        MOCK_METHOD1(report_name,
-            void (std::string &report_str));
-        MOCK_METHOD1(profile_name,
-            void (std::string &prof_str));
-        MOCK_METHOD0(tprof_table,
-            geopm::IProfileThreadTable *(void));
+        MOCK_METHOD1(enable,
+                void (bool is_enabled));
+        MOCK_METHOD3(init,
+                void (int num_thread, int thread_idx, size_t num_iter));
+        MOCK_METHOD4(init,
+                void (int num_thread, int thread_idx, size_t num_iter, size_t chunk_size));
+        MOCK_METHOD1(init,
+                void (uint32_t num_work_unit));
+        MOCK_METHOD0(post,
+                void (void));
+        MOCK_METHOD1(dump,
+                void (std::vector<double> &progress));
+        MOCK_METHOD0(num_cpu,
+                int (void));
 };

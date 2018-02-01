@@ -58,7 +58,7 @@ namespace geopm
     class ProfileThreadTable : public IProfileThreadTable
     {
         public:
-            ProfileThreadTable(size_t buffer_size, void *buffer);
+            ProfileThreadTable(size_t num_cpu, size_t buffer_size, void *buffer);
             ProfileThreadTable(const ProfileThreadTable &other);
             virtual ~ProfileThreadTable();
             void enable(bool is_enabled) override;

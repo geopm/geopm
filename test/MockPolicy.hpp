@@ -32,7 +32,8 @@
 
 #include "Policy.hpp"
 
-class MockPolicy : public geopm::IPolicy {
+class MockPolicy : public geopm::IPolicy
+{
     public:
         MOCK_METHOD0(num_domain,
                 int(void));
