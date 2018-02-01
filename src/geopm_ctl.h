@@ -33,7 +33,6 @@
 #ifndef GEOPM_CTL_H_INCLUDE
 #define GEOPM_CTL_H_INCLUDE
 
-#include <mpi.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
@@ -52,7 +51,6 @@ struct geopm_ctl_c;
 /* OBJECT INSTANTIATION */
 /************************/
 int geopm_ctl_create(struct geopm_policy_c *policy,
-                     MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 
 int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
