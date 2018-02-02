@@ -180,7 +180,7 @@ namespace geopm
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
             /// @param [in] device_index Numbered index of the specified type.
             /// @param [in] signal_type enum signal type of geopm_telemetry_type_e.
-            ///        The signal typr to return.
+            ///        The signal type to return.
             /// @return The read and transformed value.
             virtual double read_signal(int device_type, int device_index, int signal_type) = 0;
             /// @brief Batch read multiple signal values.
@@ -193,7 +193,7 @@ namespace geopm
             /// @brief Transform and write a value to a hw platform control.
             /// Transform a given a control value from the given format to the format
             /// and units expected by the hw platform. Write the transformed value to
-            /// a controll on the hw platform.
+            /// a control on the hw platform.
             /// @param [in] device_type enum device type can be
             ///        one of GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU,
             ///        GEOPM_DOMAIN_TILE, or GEOPM_DOMAIN_BOARD_MEMORY.
@@ -213,7 +213,7 @@ namespace geopm
             /// @brief Return the upper and lower bounds of the control.
             ///
             /// For a RAPL platform this would be the package power limit,
-            /// for a frequency platform tis would be the p-state bounds.
+            /// for a frequency platform this would be the p-state bounds.
             ///
             /// @param [in] control_type The control to get the bounds for.
             ///
