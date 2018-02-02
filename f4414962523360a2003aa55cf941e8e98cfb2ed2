@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ac94a2b_03439c6e",
+        "filename": "test/geopm_test.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-02T18:50:09Z",
+      "side": 1,
+      "message": "exec_name\u003d$dir_name/../.libs/geopm_test\nif [[ $test_name \u003d~ ^MPIInterfaceTest ]]; then\n    exec_name\u003d$dir_name/../.libs/geopm_mpi_test_api\nfi\n$exec_name \\\n    --gtest_filter\u003d...",
+      "revId": "f4414962523360a2003aa55cf941e8e98cfb2ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
