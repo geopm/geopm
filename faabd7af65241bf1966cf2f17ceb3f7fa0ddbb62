@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40b9e3dc_697ad510",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-02T19:02:04Z",
+      "side": 1,
+      "message": "Nuke.",
+      "range": {
+        "startLine": 404,
+        "startChar": 8,
+        "endLine": 407,
+        "endChar": 9
+      },
+      "revId": "faabd7af65241bf1966cf2f17ceb3f7fa0ddbb62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
