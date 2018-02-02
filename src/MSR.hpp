@@ -84,7 +84,7 @@ namespace geopm
             /// @brief Program a counter to provide the MSR.
             /// @param [in] offset The offset to the programmable
             ///        counter MSR that will be read after programming
-            ///        is complete (the value returned by the offest()
+            ///        is complete (the value returned by the offset()
             ///        API).
             /// @param [in] cpu_idx Logical Linux CPU index to be
             ///        programmed.
@@ -229,7 +229,7 @@ namespace geopm
     class MSR : public IMSR
     {
         public:
-            /// @brief Contructor for the MSR class for fixed MSRs.
+            /// @brief Constructor for the MSR class for fixed MSRs.
             /// @param [in] msr_name The name of the MSR.
             /// @param [in] offset The byte offset of the MSR.
             /// @param [in] signal Vector of signal name and encode
@@ -298,7 +298,7 @@ namespace geopm
     class MSRSignal : public IMSRSignal
     {
         public:
-            /// @brief Contructor for the MSRSignal class used when the
+            /// @brief Constructor for the MSRSignal class used when the
             ///        signal is determined by a single bit field in a
             ///        single MSR.
             /// @param [in] msr_obj Pointer to the MSR object
@@ -342,7 +342,7 @@ namespace geopm
             ///        calculate a single sample.
             /// @param [in] per_msr_signal A vector of signals
             ///        measured from each bit field described in the
-            ///        contructor.
+            ///        constructor.
             /// @return The sample derived from the per MSR signals.
             virtual double sample(const std::vector<double> &per_msr_signal) const;
 
@@ -355,7 +355,7 @@ namespace geopm
     class MSRControl : public IMSRControl
     {
         public:
-            /// @brief Contructor for the MSRControl class used when the
+            /// @brief Constructor for the MSRControl class used when the
             ///        control is enforced with a single bit field in a
             ///        single MSR.
             /// @param [in] msr_obj Pointer to the MSR object

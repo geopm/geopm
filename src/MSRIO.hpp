@@ -65,7 +65,7 @@ namespace geopm
                                    uint64_t offset,
                                    uint64_t raw_value,
                                    uint64_t write_mask) = 0;
-            /// @brief initialize internal data stuctures to batch
+            /// @brief initialize internal data structures to batch
             ///        read/write from MSRs.
             /// @param [in] read_cpu_idx A vector of logical Linux CPU
             ///        indicies to read from when read_batch() method

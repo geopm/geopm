@@ -49,7 +49,7 @@ namespace geopm
     /// at runtime. There are two types of deciders. The first is a leaf decider
     /// which controls power/frequency within a single node. The second is a tree
     /// decider which controls power/frequency across a set of nodes that are direct
-    /// decendants of it in the geopm tree hierarchy.
+    /// descendants of it in the geopm tree hierarchy.
     class IDecider
     {
         public:
@@ -74,7 +74,7 @@ namespace geopm
             /// @brief Updates the power split among power control domains when
             /// receiving a new global budget, virtual.
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) = 0;
-            /// @brief Calculate a new power policy for the region based on telemery data, virtual.
+            /// @brief Calculate a new power policy for the region based on telemetry data, virtual.
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
             /// @brief Return true if the description string matches capabilities of decider, virtual.
             virtual bool decider_supported(const std::string &descripton) = 0;

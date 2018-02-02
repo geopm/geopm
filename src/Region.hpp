@@ -84,7 +84,7 @@ namespace geopm
             virtual uint64_t hint(void) const = 0;
             /// @brief Add increment amount to the total time spent in MPI calls
             /// during this region.
-            /// @param [in] mpi_increment_amout Value to add to the MPI time total.
+            /// @param [in] mpi_increment_amount Value to add to the MPI time total.
             virtual void increment_mpi_time(double mpi_increment_amount) = 0;
             /// @brief Return an aggregated sample to send up the tree.
             /// Called once this region has converged to send a sample
@@ -268,7 +268,7 @@ namespace geopm
         protected:
             /// @brief Bound testing of input parameters.
             ///
-            /// Checks the requested domain index and signal type to make sure thay are within
+            /// Checks the requested domain index and signal type to make sure they are within
             /// bounds of our internal data structures. If they are not an exception is thrown.
             ///
             /// @param [in] domain_idx The index to the domain of
@@ -298,15 +298,15 @@ namespace geopm
             void update_curr_sample(void);
             /// @brief Holds a unique 64 bit region identifier.
             const uint64_t m_identifier;
-            /// @brief Numnber of domains reporting to the region.
+            /// @brief Number of domains reporting to the region.
             const unsigned m_num_domain;
             /// @brief The level of the tree where the region resides
             const unsigned m_level;
             /// @brief The number of distinct signal in a single domain.
             int m_num_signal;
-            /// @brief Temporary signal matrix storeage used before insertion.
+            /// @brief Temporary signal matrix storage used before insertion.
             std::vector<double> m_signal_matrix;
-            /// @brief Holder for telemerty state on region entry.
+            /// @brief Holder for telemetry state on region entry.
             std::vector<struct geopm_telemetry_message_s> m_entry_telemetry;
             /// @brief the current sample message to be sent up the tree.
             struct geopm_sample_message_s m_curr_sample;

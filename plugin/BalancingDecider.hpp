@@ -43,7 +43,7 @@ namespace geopm
     /// The balancing decider uses the runtimes of each child node to calculate
     /// ratios of power to give to each node. Nodes that are slower will be given
     /// more power than nodes that are ahead. The sum of the individual node budgets
-    /// will sum to the budget allocated to the level of the heirarchy the decider
+    /// will sum to the budget allocated to the level of the hierarchy the decider
     /// instance is running at.
     class BalancingDecider : public Decider
     {
@@ -51,7 +51,7 @@ namespace geopm
             /// @brief BalancingDecider default constructor.
             BalancingDecider();
             BalancingDecider(const BalancingDecider &other);
-            /// @brief BalancinDecider destructor, virtual.
+            /// @brief BalancingDecider destructor, virtual.
             virtual ~BalancingDecider();
             virtual IDecider *clone(void) const;
             virtual void bound(double upper_bound, double lower_bound);
