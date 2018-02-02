@@ -16,6 +16,24 @@
       "revId": "f4414962523360a2003aa55cf941e8e98cfb2ed2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9cdfe60_91b34a55",
+        "filename": "test/geopm_test.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-02T18:55:43Z",
+      "side": 1,
+      "message": "huh?",
+      "parentUuid": "9ac94a2b_03439c6e",
+      "revId": "f4414962523360a2003aa55cf941e8e98cfb2ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
