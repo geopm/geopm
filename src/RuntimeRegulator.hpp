@@ -50,13 +50,13 @@ namespace geopm
 
         protected:
             void update_average(void);
+            const struct geopm_time_s M_TIME_ZERO;
             enum m_num_rank_signal_e {
                 M_NUM_RANK_SIGNAL = 2,
             };
             int m_max_rank_count;
-            int m_num_entered;
             double m_last_avg;
-            // per CPU vector of last entry and recorded average runtime pairs
+            // per CPU vector of last entry and recorded runtime pairs
             std::vector<std::pair<struct geopm_time_s, double> > m_runtimes;
     };
 }
