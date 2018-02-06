@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69dd2168_c67c3004",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "This won\u0027t work because there\u0027s still no barrier yet between the app and the controller when launching the controller as a separate app.",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 36
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "878f3128_9d74dc41",
+        "filename": "src/MPICommSplit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "Not necessary for in-memory file systems.",
+      "range": {
+        "startLine": 118,
+        "startChar": 16,
+        "endLine": 118,
+        "endChar": 70
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9c962a5_6bb8344d",
+        "filename": "src/geopm_error.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "Nope nope nope.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 37
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf6f5c32_4b64613f",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "No",
+      "range": {
+        "startLine": 157,
+        "startChar": 12,
+        "endLine": 160,
+        "endChar": 13
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b80bc3ce_d2f97d7d",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "No",
+      "range": {
+        "startLine": 199,
+        "startChar": 12,
+        "endLine": 202,
+        "endChar": 13
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "787e5031_14b79255",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "Lookup systemd sleep time.",
+      "range": {
+        "startLine": 105,
+        "startChar": 4,
+        "endLine": 105,
+        "endChar": 13
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f67360a5_4182a182",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-02-06T19:05:50Z",
+      "side": 1,
+      "message": "Update the README to discuss some of this wonkiness.",
+      "range": {
+        "startLine": 107,
+        "startChar": 50,
+        "endLine": 107,
+        "endChar": 110
+      },
+      "revId": "6daf986849b971ace80bded1d91a00786bf2b2e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
