@@ -35,6 +35,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <functional>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
