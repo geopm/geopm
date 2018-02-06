@@ -159,6 +159,7 @@ TEST_F(RuntimeRegulatorTest, all_reenter)
 
 TEST_F(RuntimeRegulatorTest, one_rank_reenter_and_exit)
 {
+    static const double expected_avg = 12.75;
     int y = 1;
     RuntimeRegulator rtr(M_NUM_RANKS);
     int x;
@@ -178,12 +179,12 @@ TEST_F(RuntimeRegulatorTest, one_rank_reenter_and_exit)
     rtr.record_exit(x, m_exit[x][y]);
 
     rtr.insert_runtime_signal(m_telemetry_sample);
-    validate(M_RANK_TIMES[x][y]);
+    validate(expected_avg);
 }
 
 TEST_F(RuntimeRegulatorTest, config_rank_then_workers)
 {
-    static const double expected_avg = 15.0;
+    static const double expected_avg = 12.25;
     int y = 1;
     RuntimeRegulator rtr(M_NUM_RANKS);
     int x = 0;
