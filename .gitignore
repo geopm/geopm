@@ -92,7 +92,6 @@
 /src/*.o
 /stamp-h1
 /test-driver
-/test_plugin_app
 /test/geopm_mpi_test
 /test/geopm_mpi_test_api
 /test/geopm_print_error
@@ -104,8 +103,6 @@
 /test/*.o
 /test-suite.log
 /test/*.trs
-/test/plugin/*.lo
-/test/plugin/*.o
 /test/fortran/*f90
 !/test/fortran/*.f90
 /test/fortran/get_elem_d
