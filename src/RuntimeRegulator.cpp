@@ -31,7 +31,7 @@
  */
 
 #include <vector>
-#include <string>
+#include <string.h>
 #include "geopm_time.h"
 #include "geopm_message.h"
 #include "Exception.hpp"
@@ -42,17 +42,17 @@
 namespace geopm
 {
     RuntimeRegulator::RuntimeRegulator()
-        : m_max_rank_count (0)
-        , m_num_entered (0)
+        : M_TIME_ZERO ((struct geopm_time_s){{0, 0}})
+        , m_max_rank_count (0)
         , m_last_avg (0.0)
     {
     }
 
     RuntimeRegulator::RuntimeRegulator(int max_rank_count)
-        : m_max_rank_count (max_rank_count)
-        , m_num_entered (0)
+        : M_TIME_ZERO ((struct geopm_time_s){{0, 0}})
+        , m_max_rank_count (max_rank_count)
         , m_last_avg (0.0)
-        , m_runtimes(m_max_rank_count, std::make_pair((struct geopm_time_s){{0, 0}}, 0.0))
+        , m_runtimes(m_max_rank_count, std::make_pair(M_TIME_ZERO, 0.0))
     {
         if (m_max_rank_count <= 0) {
             throw Exception("RuntimeRegulator::RuntimeRegulator(): invalid max rank count", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -69,12 +69,11 @@ namespace geopm
             throw Exception("RuntimeRegulator::record_entry(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 #ifdef GEOPM_DEBUG
-        if (m_runtimes[rank].first != (struct geopm_time_s){{0, 0}}) {
+        if (memcmp(&m_runtimes[rank].first, &M_TIME_ZERO, sizeof(struct geopm_time_s)) != 0) {
             throw Exception("RuntimeRegulator::record_entry(): rank re-entry before exit detected", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
         m_runtimes[rank].first = entry_time;
-        ++m_num_entered;
     }
 
     void RuntimeRegulator::record_exit(int rank, struct geopm_time_s exit_time)
@@ -84,10 +83,8 @@ namespace geopm
         }
         double delta = geopm_time_diff(&m_runtimes[rank].first, &exit_time);
         m_runtimes[rank].second = delta;
-        --m_num_entered;
-        if (!m_num_entered) { // if everyone has exited lets update the average runtime
-            update_average();
-        }
+        m_runtimes[rank].first = M_TIME_ZERO; // record exit
+        update_average();
     }
 
     void RuntimeRegulator::update_average()
@@ -98,10 +95,6 @@ namespace geopm
             sum += val.second;
             if (val.second != 0.0) {
                 ++num_vals;
-                // we are recording this ranks time now zero
-                // out to not contaminate next average calculation
-                val.first = (struct geopm_time_s){{0, 0}};
-                val.second = 0.0;
             }
         }
 
