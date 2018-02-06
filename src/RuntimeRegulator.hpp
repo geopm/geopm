@@ -30,11 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RTR_HPP_INCLUDE
-#define RTR_HPP_INCLUDE
+#ifndef RUNTIMEREGULATOR_HPP_INCLUDE
+#define RUNTIMEREGULATOR_HPP_INCLUDE
 
 #include <vector>
 #include <string>
+
+#include "geopm_time.h"
+#include "geopm_message.h"
 
 namespace geopm
 {
@@ -50,13 +53,13 @@ namespace geopm
 
         protected:
             void update_average(void);
+            const struct geopm_time_s M_TIME_ZERO;
             enum m_num_rank_signal_e {
                 M_NUM_RANK_SIGNAL = 2,
             };
             int m_max_rank_count;
-            int m_num_entered;
             double m_last_avg;
-            // per CPU vector of last entry and recorded average runtime pairs
+            // per CPU vector of last entry and recorded runtime pairs
             std::vector<std::pair<struct geopm_time_s, double> > m_runtimes;
     };
 }
