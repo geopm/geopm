@@ -44,25 +44,6 @@
 #include "KNLPlatformImp.hpp"
 #include "config.h"
 
-
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::Platform *platform)
-{
-    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    fact_obj->register_platform(std::unique_ptr<geopm::Platform>(platform));
-}
-
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::PlatformImp *platform)
-{
-    geopm::PlatformFactory *fact_obj = (geopm::PlatformFactory *)(factory);
-    if (fact_obj == NULL) {
-        throw geopm::Exception(GEOPM_ERROR_FACTORY_NULL, __FILE__, __LINE__);
-    }
-    fact_obj->register_platform(std::unique_ptr<geopm::PlatformImp>(platform));
-}
-
 int geopm_read_cpuid(void)
 {
     uint32_t key = 1; //processor features
