@@ -68,7 +68,7 @@ namespace geopm
         if (rank < 0 || rank >= m_max_rank_count) {
             throw Exception("RuntimeRegulator::record_entry(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-#ifdef GEOPM_DEBUG
+#if 0
         if (m_runtimes[rank].first != (struct geopm_time_s){{0, 0}}) {
             throw Exception("RuntimeRegulator::record_entry(): rank re-entry before exit detected", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
