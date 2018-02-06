@@ -624,7 +624,7 @@ namespace geopm
             Json subval = obj.second;
 
             if (key_string == "tdp_percent") {
-                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                if (subval.is_number()) {
                     tdp_percent(subval.number_value());
                 }
                 else {
@@ -633,10 +633,10 @@ namespace geopm
                 }
             }
             else if (key_string == "cpu_mhz") {
-                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                if (subval.is_number()){
                     frequency_mhz(subval.number_value());
                 } else {
-                    throw Exception("GlobalPolicy::read(): cpu_mhz expected to be an integer type",
+                    throw Exception("GlobalPolicy::read(): cpu_mhz expected to be a double type",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
@@ -668,11 +668,11 @@ namespace geopm
                 }
             }
             else if (key_string == "power_budget") {
-                if (subval.is_number() && floor(subval.number_value()) == subval.number_value()) {
+                if (subval.is_number()) {
                     budget_watts(subval.number_value());
                 }
                 else {
-                    throw Exception("GlobalPolicy::read(): power_budget expected to be an integer type",
+                    throw Exception("GlobalPolicy::read(): power_budget expected to be a double type",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
