@@ -63,8 +63,28 @@ here:
 
 https://review.gerrithub.io/#/admin/projects/geopm/geopm
 
-Please refer to the gerrit documentation on how to create review
-request.
+Our process for requesting a patch to be reviewed/merged through
+gerrit is:
+
+1.  The patch owner submits the patch to Gerrit.  Please refer to the
+    gerrit documentation on how to create review request.
+2.  The patch owner marks the patch CR+1 (code review) and V+1
+    (verified) when complete.
+    a.  CR+1 signifies that the code compiles, and the code is
+    sufficient and correct per the patch owner and/or the person
+    scoring it.
+    b.  V+1 signifies the code has been tested/vetted and is ready to
+    be merged per the patch owner and/or the person scoring it.
+    Testing means passes all unit and integration tests before and
+    after this patch was introduced.  In general, the patch owner is
+    the only person that needs to verify the patch, but in some cases,
+    dev team members may explicitly cherry-pick and test a patch on
+    behalf of a submitter.
+3.  Dev team members (NOT the patch owner) review the patch only after
+    #2 is complete.  The last person to review a patch should mark it CR+2
+    instead of +1.  Once the patch has been marked CR+2 and V+1, it can be
+    merged.
+
 
 TEST INSTRUCTIONS
 -----------------
