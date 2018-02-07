@@ -224,6 +224,10 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.read_signal \
               test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
+              test/gtest_links/MSRIOGroupTest.signal \
+              test/gtest_links/MSRIOGroupTest.control \
+              test/gtest_links/MSRIOGroupTest.whitelist \
+              test/gtest_links/MSRIOGroupTest.cpuid \
               # end
 
 if ENABLE_MPI
@@ -296,6 +300,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformTopoTest.cpp \
                           test/TreeCommunicatorTest.cpp \
                           test/TimeIOGroupTest.cpp \
+                          test/MSRIOGroupTest.cpp \
+                          test/geopm_test.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
