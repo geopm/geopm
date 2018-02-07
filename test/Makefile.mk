@@ -275,7 +275,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockPolicy.hpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
-                          test/MockMSRIO.hpp \
                           test/MockPlatform.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockGlobalPolicy.hpp \
