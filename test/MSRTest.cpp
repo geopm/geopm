@@ -34,7 +34,6 @@
 #include "gmock/gmock.h"
 
 #include "MSR.hpp"
-#include "MockMSRIO.hpp"
 #include "PlatformTopo.hpp"
 #include "PlatformIO.hpp"
 #include "Exception.hpp"
@@ -124,12 +123,13 @@ void MSRTest::TearDown()
 void MSRTest::ConfigSignals()
 {
     m_signal_names = {"sig1", "sig2", "sig3"};
-    m_sig_begin_bits = {0, 0, 0};
-    m_sig_end_bits = {8, 32, 64};
-    m_signal_scalars = {1.0, 2.0, 3.0};
+    m_sig_begin_bits = {0, 8, 16};
+    m_sig_end_bits = {8, 16, 23};
+    m_signal_scalars = {1.0, 1.0, 3.0};
     m_signal_field = 144;
-    m_signal_field |= 96 << 8;
-    m_expected_sig_values = {144.0, 131072, 3};
+    m_signal_field |= 2 << 8;
+    m_signal_field |= 0x41 << 16;
+    m_expected_sig_values = {144.0, 0.25, 9.0};
 
     ASSERT_EQ(M_NUM_SIGNALS, m_signal_names.size());
     ASSERT_EQ(M_NUM_SIGNALS, m_sig_begin_bits.size());
