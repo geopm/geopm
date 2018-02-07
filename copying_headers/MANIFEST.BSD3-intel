@@ -211,6 +211,8 @@ test/MockGlobalPolicy.hpp
 test/MockPlatform.hpp
 test/MockPlatformImp.hpp
 test/MockPlatformTopology.hpp
+test/MockPlatformIO.hpp
+test/MockPlatformTopo.hpp
 test/MockPolicy.hpp
 test/MockProfileSampler.hpp
 test/MockRegion.hpp
