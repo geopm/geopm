@@ -251,6 +251,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \
                             src/GlobalPolicy.hpp \
+                            src/IOGroup.hpp \
                             src/geopm.h \
                             src/geopm_ctl.h \
                             src/geopm_env.h \
