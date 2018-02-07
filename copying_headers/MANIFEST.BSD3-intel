@@ -103,6 +103,7 @@ src/geopm_version.c
 src/geopm_version.h
 src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
+src/IOGroup.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
 src/MSR.cpp
