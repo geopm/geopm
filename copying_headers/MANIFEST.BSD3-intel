@@ -210,7 +210,6 @@ test/legacy_whitelist.out
 test/Makefile.mk
 test/MockComm.hpp
 test/MockGlobalPolicy.hpp
-test/MockMSRIO.hpp
 test/MockPlatform.hpp
 test/MockPlatformImp.hpp
 test/MockPlatformTopology.hpp
