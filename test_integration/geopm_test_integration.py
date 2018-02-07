@@ -967,7 +967,7 @@ class TestIntegration(unittest.TestCase):
         num_rank = 8
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
-        app_conf.append_region('sleep', 30.0)
+        app_conf.append_region('sleep', 0.1)
         app_conf.write()
 
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
