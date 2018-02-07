@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bac2f03_90dc6e4b",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-07T00:22:38Z",
+      "side": 1,
+      "message": "Shouldn\u0027t need this include if memcmp() is removed.",
+      "revId": "fd2ff9e4a05c8d3ad9f105d7e307f3d1d3502665",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bc9f3c6_38a57281",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-07T00:22:38Z",
+      "side": 1,
+      "message": "memcmp on structures is bad mkay.",
+      "revId": "fd2ff9e4a05c8d3ad9f105d7e307f3d1d3502665",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "649dcbc0_88765707",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-07T00:22:38Z",
+      "side": 1,
+      "message": "if it is inside of the #ifdef GEOPM_DEBUG then a LOGIC error is correct.  We can either get rid of the ifdef or leave the error type.",
+      "revId": "fd2ff9e4a05c8d3ad9f105d7e307f3d1d3502665",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0453b0df_73a64b14",
+        "filename": "test/RuntimeRegulatorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-07T00:22:38Z",
+      "side": 1,
+      "message": "How is this change related?",
+      "revId": "fd2ff9e4a05c8d3ad9f105d7e307f3d1d3502665",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
