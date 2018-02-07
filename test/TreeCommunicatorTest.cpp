@@ -45,13 +45,91 @@
 #include "Exception.hpp"
 #include "MockComm.hpp"
 
-class MyGlobalPolicy : public MockGlobalPolicy
+using geopm::IComm;
+
+class TCommTestGlobalPolicy : public MockGlobalPolicy
 {
     public:
-        MyGlobalPolicy (struct geopm_policy_message_s pol_mess)
+        TCommTestGlobalPolicy (struct geopm_policy_message_s pol_mess)
         {
             EXPECT_CALL(*this, policy_message(testing::_))
                 .WillRepeatedly(testing::SetArgReferee<0>(pol_mess));
+        }
+};
+
+class TCommTestComm : public MockComm
+{
+    public:
+        void config_ppn1_comm(int ppn1_size, std::shared_ptr<MockComm> cart_comm)
+        {
+            //num_rank, split, barrier
+            EXPECT_CALL(*this, num_rank())
+                .WillRepeatedly(testing::Return(ppn1_size));
+            EXPECT_CALL(*this, split(testing::_, testing::_, testing::Matcher<bool> (testing::_)))
+                .WillOnce(testing::Return(cart_comm));
+            EXPECT_CALL(*this, barrier())
+                .WillRepeatedly(testing::Return());
+        }
+
+        void config_cart_comm(int ppn1_rank, std::vector<std::vector<int>> coordinates,
+                std::vector<int> level_size,
+                std::function<void (size_t, bool, int, int)> win_lock_lambda,
+                std::function<void (const void *, size_t, int, off_t, size_t)> win_put_lambda, bool config_levels = true)
+        {
+            //rank, coordinate, cart_rank, split
+            EXPECT_CALL(*this, rank())
+                .WillOnce(testing::Return(ppn1_rank));
+            EXPECT_CALL(*this, coordinate(testing::_, testing::_))
+                .WillOnce(testing::SetArgReferee<1>(coordinates[ppn1_rank]));
+
+            if (config_levels) {
+                EXPECT_CALL(*this, cart_rank(testing::_))
+                    .WillRepeatedly(testing::Invoke([coordinates] (const std::vector<int> &coords)
+                                {
+                                auto it = std::find(coordinates.begin(), coordinates.end(), coords);
+                                EXPECT_FALSE(it == coordinates.end());
+                                return 0;
+                                }));
+
+                testing::Sequence level_seq;
+                for (size_t level_idx = 0; level_idx < level_size.size(); level_idx++) {
+                    //num_rank, rank, split (copy constr), barrier, window_create/destroy,
+                    //window_lock/unlock/put, alloc/free_mem
+                    std::shared_ptr<MockComm> level_comm = std::make_shared<MockComm>();
+                    EXPECT_CALL(*this, split(testing::Matcher<int> (testing::_), testing::_))
+                        .InSequence(level_seq)
+                        .WillOnce(testing::Return(level_comm));
+                    EXPECT_CALL(*level_comm, barrier())
+                        .WillRepeatedly(testing::Return());
+                    EXPECT_CALL(*level_comm, rank())
+                        .WillOnce(testing::Return(ppn1_rank % level_size[level_idx]));
+                    EXPECT_CALL(*level_comm, num_rank())
+                        .WillRepeatedly(testing::Return(level_size[level_idx]));
+                    EXPECT_CALL(*level_comm, alloc_mem(testing::_, testing::_))
+                        .WillRepeatedly(testing::Invoke([] (size_t size, void **base)
+                                    {
+                                    *base = malloc(size);
+                                    }));
+                    EXPECT_CALL(*level_comm, free_mem(testing::_))
+                        .WillRepeatedly(testing::Invoke([] (void *base)
+                                    {
+                                    free(base);
+                                    }));
+                    EXPECT_CALL(*level_comm, window_create(testing::_, testing::_))
+                        .WillRepeatedly(testing::Invoke([] (size_t size, void *base)
+                                    {
+                                    return (size_t) base;
+                                    }));
+                    EXPECT_CALL(*level_comm, window_destroy(testing::_))
+                        .WillRepeatedly(testing::Return());
+                    EXPECT_CALL(*level_comm, window_lock(testing::_, testing::_, testing::_, testing::_))
+                        .WillRepeatedly(testing::Invoke(win_lock_lambda));
+                    EXPECT_CALL(*level_comm, window_put(testing::_, testing::_, testing::_, testing::_, testing::_))
+                        .WillRepeatedly(testing::Invoke(win_put_lambda));
+                    EXPECT_CALL(*level_comm, window_unlock(testing::_, testing::_))
+                        .WillRepeatedly(testing::Return());
+                }
+            }
         }
 };
 
@@ -63,7 +141,7 @@ class SingleTreeCommunicatorTest : public :: testing :: Test
     protected:
         const std::string m_ctl_path;
         std::shared_ptr<geopm::SingleTreeCommunicator> m_tcomm;
-        std::shared_ptr<MyGlobalPolicy> m_polctl;
+        std::shared_ptr<TCommTestGlobalPolicy> m_polctl;
 };
 
 class TreeCommunicatorTest : public :: testing :: Test
@@ -75,7 +153,7 @@ class TreeCommunicatorTest : public :: testing :: Test
         bool is_root_of_level(int ppn1_rank, int level_idx) const;
         const std::vector<std::vector<int>> m_coordinates;
         std::shared_ptr<geopm::TreeCommunicator> m_tcomm;
-        std::shared_ptr<MyGlobalPolicy> m_polctl;
+        std::shared_ptr<TCommTestGlobalPolicy> m_polctl;
         std::vector<int> m_factor;
         int m_ppn1_size;
         std::vector<int> m_ppn1_rank;
@@ -92,7 +170,7 @@ TreeCommunicatorTest::TreeCommunicatorTest()
     , m_level_size(m_factor)
 {
     struct geopm_policy_message_s start_pol = {GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, 0, 1200, 900};
-    m_polctl = std::make_shared<MyGlobalPolicy>(start_pol);
+    m_polctl = std::make_shared<TCommTestGlobalPolicy>(start_pol);
 }
 
 TreeCommunicatorTest::~TreeCommunicatorTest()
@@ -110,84 +188,12 @@ SingleTreeCommunicatorTest::SingleTreeCommunicatorTest()
     : m_tcomm(nullptr)
 {
     struct geopm_policy_message_s start_pol = {GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, 0, 1200, 900};
-    m_polctl = std::make_shared<MyGlobalPolicy>(start_pol);
+    m_polctl = std::make_shared<TCommTestGlobalPolicy>(start_pol);
 }
 
 
 SingleTreeCommunicatorTest::~SingleTreeCommunicatorTest()
 {
-}
-
-static void config_ppn1_comm(std::shared_ptr<MockComm> ppn1_comm, int ppn1_size, std::shared_ptr<MockComm> cart_comm)
-{
-    //num_rank, split, barrier
-    EXPECT_CALL(*ppn1_comm, num_rank())
-        .WillRepeatedly(testing::Return(ppn1_size));
-    EXPECT_CALL(*ppn1_comm, split(testing::_, testing::_, testing::Matcher<bool> (testing::_)))
-        .WillOnce(testing::Return(cart_comm));
-    EXPECT_CALL(*ppn1_comm, barrier())
-        .WillRepeatedly(testing::Return());
-}
-
-static void config_cart_comm(std::shared_ptr<MockComm> cart_comm, int ppn1_rank, std::vector<std::vector<int>> coordinates,
-                             std::vector<int> level_size,
-                             std::function<void (size_t, bool, int, int)> win_lock_lambda,
-                             std::function<void (const void *, size_t, int, off_t, size_t)> win_put_lambda, bool config_levels = true)
-{
-    //rank, coordinate, cart_rank, split
-    EXPECT_CALL(*cart_comm, rank())
-        .WillOnce(testing::Return(ppn1_rank));
-    EXPECT_CALL(*cart_comm, coordinate(testing::_, testing::_))
-        .WillOnce(testing::SetArgReferee<1>(coordinates[ppn1_rank]));
-
-    if (config_levels) {
-    EXPECT_CALL(*cart_comm, cart_rank(testing::_))
-        .WillRepeatedly(testing::Invoke([coordinates] (const std::vector<int> &coords)
-                    {
-                        auto it = std::find(coordinates.begin(), coordinates.end(), coords);
-                        EXPECT_FALSE(it == coordinates.end());
-                        return 0;
-                    }));
-
-        testing::Sequence level_seq;
-        for (size_t level_idx = 0; level_idx < level_size.size(); level_idx++) {
-            //num_rank, rank, split (copy constr), barrier, window_create/destroy,
-            //window_lock/unlock/put, alloc/free_mem
-            std::shared_ptr<MockComm> level_comm = std::make_shared<MockComm>();
-            EXPECT_CALL(*cart_comm, split(testing::Matcher<int> (testing::_), testing::_))
-                .InSequence(level_seq)
-                .WillOnce(testing::Return(level_comm));
-            EXPECT_CALL(*level_comm, barrier())
-                .WillRepeatedly(testing::Return());
-            EXPECT_CALL(*level_comm, rank())
-                .WillOnce(testing::Return(ppn1_rank % level_size[level_idx]));
-            EXPECT_CALL(*level_comm, num_rank())
-                .WillRepeatedly(testing::Return(level_size[level_idx]));
-            EXPECT_CALL(*level_comm, alloc_mem(testing::_, testing::_))
-                .WillRepeatedly(testing::Invoke([] (size_t size, void **base)
-                            {
-                                *base = malloc(size);
-                            }));
-            EXPECT_CALL(*level_comm, free_mem(testing::_))
-                .WillRepeatedly(testing::Invoke([] (void *base)
-                            {
-                                free(base);
-                            }));
-            EXPECT_CALL(*level_comm, window_create(testing::_, testing::_))
-                .WillRepeatedly(testing::Invoke([] (size_t size, void *base)
-                            {
-                                return (size_t) base;
-                            }));
-            EXPECT_CALL(*level_comm, window_destroy(testing::_))
-                .WillRepeatedly(testing::Return());
-            EXPECT_CALL(*level_comm, window_lock(testing::_, testing::_, testing::_, testing::_))
-                .WillRepeatedly(testing::Invoke(win_lock_lambda));
-            EXPECT_CALL(*level_comm, window_put(testing::_, testing::_, testing::_, testing::_, testing::_))
-                .WillRepeatedly(testing::Invoke(win_put_lambda));
-            EXPECT_CALL(*level_comm, window_unlock(testing::_, testing::_))
-                .WillRepeatedly(testing::Return());
-        }
-    }
 }
 
 TEST_F(SingleTreeCommunicatorTest, hello)
@@ -232,24 +238,24 @@ TEST_F(TreeCommunicatorTest, hello)
 
     for (auto ppn1_rank : m_ppn1_rank) {
         if (ppn1_rank < 2) {
-            std::shared_ptr<MockComm> exp_ppn1_comm = std::make_shared<MockComm>();
-            std::shared_ptr<MockComm> exp_cart_comm = std::make_shared<MockComm>();
-            config_ppn1_comm(exp_ppn1_comm, m_ppn1_size, exp_cart_comm);
-            config_cart_comm(exp_cart_comm, ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda, false);
+            std::shared_ptr<TCommTestComm> ex_ppn1_comm = std::make_shared<TCommTestComm>();
+            std::shared_ptr<TCommTestComm> ex_cart_comm = std::make_shared<TCommTestComm>();
+            ex_ppn1_comm->config_ppn1_comm(m_ppn1_size, ex_cart_comm);
+            ex_cart_comm->config_cart_comm(ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda, false);
             if (!is_root_of_level(ppn1_rank, 0)) {
-                EXPECT_THROW(std::make_shared<geopm::TreeCommunicator>(m_factor, m_polctl.get(), exp_ppn1_comm), geopm::Exception);
+                EXPECT_THROW(std::make_shared<geopm::TreeCommunicator>(m_factor, m_polctl.get(), ex_ppn1_comm), geopm::Exception);
             }
             else {
-                EXPECT_THROW(std::make_shared<geopm::TreeCommunicator>(m_factor, (MyGlobalPolicy *) NULL, exp_ppn1_comm), geopm::Exception);
+                EXPECT_THROW(std::make_shared<geopm::TreeCommunicator>(m_factor, (TCommTestGlobalPolicy *) NULL, ex_ppn1_comm), geopm::Exception);
             }
         }
 
-        std::shared_ptr<MockComm> ppn1_comm = std::make_shared<MockComm>();
-        std::shared_ptr<MockComm> cart_comm = std::make_shared<MockComm>();
-        config_ppn1_comm(ppn1_comm, m_ppn1_size, cart_comm);
-        config_cart_comm(cart_comm, ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda);
+        std::shared_ptr<TCommTestComm> ppn1_comm = std::make_shared<TCommTestComm>();
+        std::shared_ptr<TCommTestComm> cart_comm = std::make_shared<TCommTestComm>();
+        ppn1_comm->config_ppn1_comm(m_ppn1_size, cart_comm);
+        cart_comm->config_cart_comm(ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda);
         if (ppn1_rank) {
-            m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, (MyGlobalPolicy *)NULL, ppn1_comm);
+            m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, (TCommTestGlobalPolicy *)NULL, ppn1_comm);
         }
         else {
             m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, m_polctl.get(), ppn1_comm);
@@ -273,9 +279,9 @@ TEST_F(TreeCommunicatorTest, send_policy_down)
 {
 
     for (auto ppn1_rank : m_ppn1_rank) {
-        std::shared_ptr<MockComm> ppn1_comm = std::make_shared<MockComm>();
-        std::shared_ptr<MockComm> cart_comm = std::make_shared<MockComm>();
-        config_ppn1_comm(ppn1_comm, m_ppn1_size, cart_comm);
+        std::shared_ptr<TCommTestComm> ppn1_comm = std::make_shared<TCommTestComm>();
+        std::shared_ptr<TCommTestComm> cart_comm = std::make_shared<TCommTestComm>();
+        ppn1_comm->config_ppn1_comm(m_ppn1_size, cart_comm);
 
         struct geopm_policy_message_s pol_mess;
         auto win_lock_lambda = [&pol_mess] (size_t window_id, bool is_exclusive, int rank, int assert)
@@ -291,9 +297,9 @@ TEST_F(TreeCommunicatorTest, send_policy_down)
             EXPECT_TRUE(geopm_is_policy_equal(&pol_mess, (const struct geopm_policy_message_s *) send_buf));
             return;
         };
-        config_cart_comm(cart_comm, ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda);
+        cart_comm->config_cart_comm(ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda);
         if (ppn1_rank) {
-            m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, (MyGlobalPolicy *) NULL, ppn1_comm);
+            m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, (TCommTestGlobalPolicy *) NULL, ppn1_comm);
         }
         else {
             m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, m_polctl.get(), ppn1_comm);
@@ -347,9 +353,9 @@ TEST_F(TreeCommunicatorTest, send_sample_up)
     struct geopm_sample_message_s sample_mess;
 
     for (auto ppn1_rank : m_ppn1_rank) {
-        std::shared_ptr<MockComm> ppn1_comm = std::make_shared<MockComm>();
-        std::shared_ptr<MockComm> cart_comm = std::make_shared<MockComm>();
-        config_ppn1_comm(ppn1_comm, m_ppn1_size, cart_comm);
+        std::shared_ptr<TCommTestComm> ppn1_comm = std::make_shared<TCommTestComm>();
+        std::shared_ptr<TCommTestComm> cart_comm = std::make_shared<TCommTestComm>();
+        ppn1_comm->config_ppn1_comm(m_ppn1_size, cart_comm);
         auto win_lock_lambda = [&sample_mess] (size_t window_id, bool is_exclusive, int rank, int assert)
         {
             void *base = (void *) window_id;
@@ -365,9 +371,9 @@ TEST_F(TreeCommunicatorTest, send_sample_up)
             EXPECT_TRUE(geopm_is_sample_equal(&sample_mess, (const geopm_sample_message_s *) send_buf));
             return;
         };
-        config_cart_comm(cart_comm, ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda);
+        cart_comm->config_cart_comm(ppn1_rank, m_coordinates, m_level_size, win_lock_lambda, win_put_lambda);
         if (ppn1_rank) {
-            m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, (MyGlobalPolicy *) NULL, ppn1_comm);
+            m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, (TCommTestGlobalPolicy *) NULL, ppn1_comm);
         }
         else {
             m_tcomm = std::make_shared<geopm::TreeCommunicator>(m_factor, m_polctl.get(), ppn1_comm);
