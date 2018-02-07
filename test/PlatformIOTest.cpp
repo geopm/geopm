@@ -30,249 +30,285 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <limits.h>
-#include <sstream>
-#include <fstream>
+#include <list>
+#include <memory>
 #include <string>
-#include <map>
-#include "gtest/gtest.h"
+#include <algorithm>
 
-#include "geopm_sched.h"
-#include "PlatformIO.hpp"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
+#include "IOGroup.hpp"
 #include "PlatformIOInternal.hpp"
 #include "PlatformTopo.hpp"
-#include "MSRIO.hpp"
 #include "Exception.hpp"
+#include "geopm_test.hpp"
 
-class TestPlatformIO : public geopm::PlatformIO
+using geopm::IOGroup;
+using geopm::PlatformIO;
+using geopm::PlatformTopo;
+
+using ::testing::_;
+using ::testing::Return;
+
+class MockIOGroup : public geopm::IOGroup
 {
     public:
-        TestPlatformIO(int cpuid);
-        virtual ~TestPlatformIO();
-        std::vector<std::string> m_test_dev_path;
+
+        void set_valid_signal_names(std::list<std::string> names) {
+            m_valid_signals = names;
+        }
+        void set_valid_control_names(std::list<std::string> names) {
+            m_valid_controls = names;
+        }
+
+
+        bool is_valid_signal(const std::string &signal_name) override
+        {
+            return std::find(m_valid_signals.begin(),
+                             m_valid_signals.end(),
+                             signal_name) != m_valid_signals.end();
+        }
+        bool is_valid_control(const std::string &control_name) override
+        {
+            return std::find(m_valid_controls.begin(),
+                             m_valid_controls.end(),
+                             control_name) != m_valid_controls.end();
+        }
+        MOCK_METHOD1(signal_domain_type,
+                     int(const std::string &signal_name));
+        MOCK_METHOD1(control_domain_type,
+                     int(const std::string &control_name));
+        MOCK_METHOD3(push_signal,
+                     int(const std::string &signal_name, int domain_type, int domain_idx));
+        MOCK_METHOD3(push_control,
+                     int(const std::string &control_name, int domain_type, int domain_idx));
+        MOCK_METHOD0(read_batch,
+                     void(void));
+        MOCK_METHOD0(write_batch,
+                     void(void));
+        MOCK_METHOD1(sample,
+                     double(int batch_idx));
+        MOCK_METHOD2(adjust,
+                     void(int batch_idx, double setting));
+        MOCK_METHOD3(read_signal,
+                     double(const std::string &signal_name,
+                            int domain_type, int domain_idx));
+        MOCK_METHOD4(write_control,
+            void(const std::string &control_name, int domain_type,
+                 int domain_idx, double setting));
+
     protected:
-        int cpuid(void) const override;
-        int m_cpuid;
+        std::list<std::string> m_valid_signals;
+        std::list<std::string> m_valid_controls;
 };
 
-class PlatformIOTest : public :: testing :: Test
+class PlatformIOTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        void TearDown();
-
-        geopm::IPlatformIO *m_platform_io;
+        std::list<MockIOGroup *> m_iogroup_ptr;
+        std::unique_ptr<PlatformIO> m_platio;
 };
-
-namespace geopm
-{
-    class TestPlatformIOMSRIO : public MSRIO
-    {
-        public:
-            TestPlatformIOMSRIO(std::vector<std::string> &test_dev_path);
-            virtual ~TestPlatformIOMSRIO();
-        protected:
-            void msr_path(int cpu_idx,
-                          bool is_fallback,
-                          std::string &path) override;
-            void msr_batch_path(std::string &path) override;
-
-            const size_t M_MAX_OFFSET;
-            const int m_num_cpu;
-            std::vector<std::string> m_test_dev_path;
-    };
-
-    TestPlatformIOMSRIO::TestPlatformIOMSRIO(std::vector<std::string> &test_dev_path)
-       : M_MAX_OFFSET(4096)
-       , m_num_cpu(geopm_sched_num_cpu())
-    {
-        union field_u {
-            uint64_t field;
-            uint16_t off[4];
-        };
-        union field_u fu;
-        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            char tmp_path[NAME_MAX] = "/tmp/test_platform_io_dev_cpu_XXXXXX";
-            int fd = mkstemp(tmp_path);
-            if (fd == -1) {
-               throw geopm::Exception("TestPlatformIOMSRIO: mkstemp() failed",
-                                      errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            m_test_dev_path.push_back(tmp_path);
-
-            int err = ftruncate(fd, M_MAX_OFFSET);
-            if (err) {
-                throw Exception("TestPlatformIOMSRIO: ftruncate() failed",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            uint64_t *contents = (uint64_t *)mmap(NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-            if (contents == NULL) {
-                throw Exception("TestPlatformIOMSRIO: mmap() failed",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            close(fd);
-            size_t num_field = M_MAX_OFFSET / sizeof(uint64_t);
-            for (size_t field_idx = 0; field_idx < num_field; ++field_idx) {
-                uint16_t offset = field_idx * sizeof(uint64_t);
-                for (int off_idx = 0; off_idx < 4; ++off_idx) {
-                   fu.off[off_idx] = offset;
-                }
-                contents[field_idx] = fu.field;
-            }
-            munmap(contents, M_MAX_OFFSET);
-        }
-        test_dev_path = m_test_dev_path;
-    }
-
-    TestPlatformIOMSRIO::~TestPlatformIOMSRIO()
-    {
-        for (auto &path : m_test_dev_path) {
-            unlink(path.c_str());
-        }
-    }
-
-    void TestPlatformIOMSRIO::msr_path(int cpu_idx,
-                                       bool is_fallback,
-                                       std::string &path)
-    {
-        path = m_test_dev_path[cpu_idx];
-    }
-
-    void TestPlatformIOMSRIO::msr_batch_path(std::string &path)
-    {
-        path = "test_dev_msr_safe";
-    }
-}
-
-
-TestPlatformIO::TestPlatformIO(int cpuid)
-    : m_cpuid(cpuid)
-{
-    m_msrio = new geopm::TestPlatformIOMSRIO(m_test_dev_path);
-}
-
-TestPlatformIO::~TestPlatformIO()
-{
-
-}
-
-int TestPlatformIO::cpuid(void) const
-{
-    return m_cpuid;
-}
 
 void PlatformIOTest::SetUp()
 {
-    m_platform_io = new TestPlatformIO(0x657); // KNL CPUID
+    std::list<std::unique_ptr<IOGroup>> iogroup_list;
+    auto tmp = new MockIOGroup;
+    iogroup_list.emplace_back(tmp);
+    m_iogroup_ptr.push_back(tmp);
+    tmp->set_valid_signal_names({"TIME"});
+    ON_CALL(*tmp, signal_domain_type("TIME"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
+
+    tmp = new MockIOGroup;
+    iogroup_list.emplace_back(tmp);
+    m_iogroup_ptr.push_back(tmp);
+    tmp->set_valid_signal_names({"FREQ", "POWER"});
+    tmp->set_valid_control_names({"FREQ", "POWER"});
+    ON_CALL(*tmp, signal_domain_type("FREQ"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_CPU));
+    ON_CALL(*tmp, control_domain_type("FREQ"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_CPU));
+    ON_CALL(*tmp, signal_domain_type("POWER"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_PACKAGE));
+    ON_CALL(*tmp, control_domain_type("POWER"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_PACKAGE));
+
+    tmp = new MockIOGroup;
+    iogroup_list.emplace_back(tmp);
+    m_iogroup_ptr.push_back(tmp);
+    tmp->set_valid_signal_names({"POWER"});
+    tmp->set_valid_control_names({"POWER"});
+    ON_CALL(*tmp, signal_domain_type("POWER"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
+    ON_CALL(*tmp, control_domain_type("POWER"))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
+
+    m_platio.reset(new PlatformIO(std::move(iogroup_list)));
 }
 
-void PlatformIOTest::TearDown()
+TEST_F(PlatformIOTest, domain_type)
 {
-    delete m_platform_io;
-}
-
-TEST_F(PlatformIOTest, whitelist)
-{
-    std::ifstream file("test/legacy_whitelist.out");
-    std::string line;
-    uint64_t offset;
-    uint64_t  mask;
-    std::string comment;
-    std::map<uint64_t, uint64_t> legacy_map;
-    std::map<uint64_t, uint64_t> curr_map;
-    while (std::getline(file, line)) {
-        if (line.compare(0, 1, "#") == 0) continue;
-        std::string tmp;
-        size_t sz;
-        std::istringstream iss(line);
-        iss >> tmp;
-        offset = std::stoull(tmp, &sz, 16);
-        iss >> tmp;
-        mask = std::stoull(tmp, &sz, 16);
-        iss >> comment;// #
-        iss >> comment;// comment
-        legacy_map[offset] = mask;
-    }
-
-    std::string whitelist = m_platform_io->msr_whitelist();
-    std::istringstream iss(whitelist);
-    std::getline(iss, line);// throw away title line
-    while (std::getline(iss, line)) {
-        std::string tmp;
-        size_t sz;
-        std::istringstream iss(line);
-        iss >> tmp;
-        offset = std::stoull(tmp, &sz, 16);
-        iss >> tmp;
-        mask = std::stoull(tmp, &sz, 16);
-        iss >> comment;// #
-        iss >> comment;// comment
-        curr_map[offset] = mask;
-    }
-
-    for (auto it = curr_map.begin(); it != curr_map.end(); ++it) {
-        offset = it->first;
-        mask = it->second;
-        auto leg_it = legacy_map.find(offset);
-        if (leg_it == legacy_map.end()) {
-            //not found error
-            if (!mask) {
-                EXPECT_TRUE(false) << std::setfill('0') << std::hex << "new read offset 0x" << std::setw(8) << offset << " introduced";
-            }
-            continue;
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("TIME")) {
+            EXPECT_CALL(*it, signal_domain_type("TIME"));
         }
-        uint64_t leg_mask = leg_it->second;
-        EXPECT_EQ(mask, mask & leg_mask) << std::setfill('0') << std::hex << "offset 0x" << std::setw(8) << offset << "write mask change detected, from 0x"
-            << std::setw(16) << leg_mask << " to 0x" << mask << " bitwise AND yields 0x" << (mask & leg_mask);
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, signal_domain_type("FREQ"));
+        }
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, control_domain_type("FREQ"));
+        }
     }
+
+    int domain_type = m_platio->signal_domain_type("TIME");
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD, domain_type);
+    domain_type = m_platio->signal_domain_type("FREQ");
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, domain_type);
+    EXPECT_THROW_MESSAGE(m_platio->signal_domain_type("INVALID"),
+                         GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
+
+    domain_type = m_platio->control_domain_type("FREQ");
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, domain_type);
+    EXPECT_THROW_MESSAGE(m_platio->control_domain_type("INVALID"),
+                         GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
 }
 
-TEST_F(PlatformIOTest, freq_ctl)
+TEST_F(PlatformIOTest, push_signal)
 {
-    int fd = open(((TestPlatformIO *)m_platform_io)->m_test_dev_path[0].c_str(), O_RDWR);
-    ASSERT_NE(-1, fd);
-    uint64_t value;
-    size_t num_read;
-    num_read = pread(fd, &value, sizeof(value), 0x0);
-    EXPECT_EQ(8ULL, num_read);
-    EXPECT_EQ(0x0ULL, value);
-    num_read = pread(fd, &value, sizeof(value), 0x198);
-    EXPECT_EQ(8ULL, num_read);
-    EXPECT_EQ(0x0198019801980198ULL, value);
-    num_read = pread(fd, &value, sizeof(value), 0x1A0);
-    EXPECT_EQ(8ULL, num_read);
-    EXPECT_EQ(0x01A001A001A001A0ULL, value);
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("TIME")) {
+            EXPECT_CALL(*it, push_signal("TIME", _, _));
+        }
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, push_signal("FREQ", _, _));
+        }
+        EXPECT_CALL(*it, read_batch());
+    }
 
-    int idx = m_platform_io->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
-    ASSERT_EQ(0, idx);
-    // Set frequency to 1 GHz
-    m_platform_io->adjust(std::vector<double>{1e9});
-    num_read = pread(fd, &value, sizeof(value), 0x199);
-    EXPECT_EQ(8ULL, num_read);
-    EXPECT_EQ(0xA00ULL, (value & 0xFF00));
-    // Set frequency to 5 GHz
-    m_platform_io->adjust(std::vector<double>{5e9});
-    num_read = pread(fd, &value, sizeof(value), 0x199);
-    EXPECT_EQ(8ULL, num_read);
-    EXPECT_EQ(0x3200ULL, (value & 0xFF00));
-    close(fd);
+    EXPECT_EQ(0, m_platio->num_signal());
+
+    int idx = m_platio->push_signal("FREQ", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(0, idx);
+    idx = m_platio->push_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(1, idx);
+    EXPECT_THROW_MESSAGE(m_platio->push_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+                         GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
+
+
+    EXPECT_EQ(2, m_platio->num_signal());
+
+    m_platio->read_batch();
+
+    EXPECT_THROW_MESSAGE(m_platio->push_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0),
+                         GEOPM_ERROR_INVALID, "pushing signals after");
 }
 
-TEST_F(PlatformIOTest, time_signal)
+TEST_F(PlatformIOTest, push_control)
 {
-    int idx = m_platform_io->push_signal("TIME", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
-    ASSERT_EQ(0, idx);
-    std::vector<double> sample(1);
-    double time_0 = m_platform_io->sample(idx);
-    sleep(1);
-    double time_1 = m_platform_io->sample(idx);
-    EXPECT_NEAR(1, time_1 - time_0, 0.1);
-    EXPECT_LE(0, time_0);
-    EXPECT_LE(0, time_1);
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, push_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0));
+        }
+    }
+
+    EXPECT_EQ(0, m_platio->num_control());
+
+    int idx = m_platio->push_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(0, idx);
+    EXPECT_THROW_MESSAGE(m_platio->push_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+                         GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
+
+    EXPECT_EQ(1, m_platio->num_control());
+}
+
+TEST_F(PlatformIOTest, sample)
+{
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, sample(0)).WillOnce(Return(2e9));
+            EXPECT_CALL(*it, push_signal(_, _, _));
+        }
+        if (it->is_valid_signal("TIME")) {
+            EXPECT_CALL(*it, sample(0)).WillOnce(Return(1.0));
+            EXPECT_CALL(*it, push_signal(_, _, _));
+        }
+        EXPECT_CALL(*it, read_batch());
+    }
+    int freq_idx = m_platio->push_signal("FREQ", PlatformTopo::M_DOMAIN_CPU, 0);
+    int time_idx = m_platio->push_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    m_platio->read_batch();
+    EXPECT_EQ(0, freq_idx);
+    EXPECT_EQ(1, time_idx);
+    double freq = m_platio->sample(freq_idx);
+    EXPECT_DOUBLE_EQ(2e9, freq);
+    double time = m_platio->sample(time_idx);
+    EXPECT_DOUBLE_EQ(1.0, time);
+    EXPECT_THROW_MESSAGE(m_platio->sample(-1), GEOPM_ERROR_INVALID, "signal_idx out of range");
+    EXPECT_THROW_MESSAGE(m_platio->sample(10), GEOPM_ERROR_INVALID, "signal_idx out of range");
+}
+
+TEST_F(PlatformIOTest, adjust)
+{
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, push_control("FREQ", _, _));
+            EXPECT_CALL(*it, adjust(0, 3e9));
+        }
+        EXPECT_CALL(*it, write_batch());
+    }
+    int freq_idx = m_platio->push_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(0, freq_idx);
+    m_platio->adjust(freq_idx, 3e9);
+    m_platio->write_batch();
+    EXPECT_THROW_MESSAGE(m_platio->adjust(-1, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
+    EXPECT_THROW_MESSAGE(m_platio->adjust(10, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
+}
+
+TEST_F(PlatformIOTest, read_signal)
+{
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, read_signal("FREQ", PlatformTopo::M_DOMAIN_CPU, 0)).WillOnce(Return(4e9));
+        }
+        if (it->is_valid_signal("TIME")) {
+            EXPECT_CALL(*it, read_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0)).WillOnce(Return(2.0));
+        }
+        EXPECT_CALL(*it, read_batch()).Times(0);
+    }
+    double freq = m_platio->read_signal("FREQ", PlatformTopo::M_DOMAIN_CPU, 0);
+    double time = m_platio->read_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_DOUBLE_EQ(4e9, freq);
+    EXPECT_DOUBLE_EQ(2.0, time);
+    EXPECT_THROW_MESSAGE(m_platio->read_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+                         GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
+}
+
+TEST_F(PlatformIOTest, write_control)
+{
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, write_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0, 3e9));
+        }
+        EXPECT_CALL(*it, write_batch()).Times(0);
+    }
+    m_platio->write_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0, 3e9);
+    EXPECT_THROW_MESSAGE(m_platio->write_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0, 0.0),
+                         GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
+}
+
+TEST_F(PlatformIOTest, read_signal_override)
+{
+    for (auto &it : m_iogroup_ptr) {
+        EXPECT_CALL(*it, signal_domain_type("POWER"));
+        if (it->signal_domain_type("POWER") == PlatformTopo::M_DOMAIN_BOARD) {
+            EXPECT_CALL(*it, read_signal("POWER", PlatformTopo::M_DOMAIN_CPU, 0)).WillOnce(Return(5e9));
+        }
+        else {
+            EXPECT_CALL(*it, read_signal(_, _, _)).Times(0);
+        }
+    }
+    double freq = m_platio->read_signal("POWER", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_DOUBLE_EQ(5e9, freq);
 }
