@@ -132,7 +132,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
-              test/gtest_links/EfficientFreqDeciderTest.plugin \
               test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info0 \
               test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info1 \
               test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info2 \
@@ -304,6 +303,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/geopm_test.hpp \
+                          test/MockPlatformIO.hpp \
+                          test/MockPlatformTopo.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
