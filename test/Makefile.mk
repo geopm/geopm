@@ -217,6 +217,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TreeCommunicatorTest.hello \
               test/gtest_links/TreeCommunicatorTest.send_policy_down \
               test/gtest_links/TreeCommunicatorTest.send_sample_up \
+              test/gtest_links/TimeIOGroupTest.is_valid \
+              test/gtest_links/TimeIOGroupTest.push \
+              test/gtest_links/TimeIOGroupTest.read_nothing \
+              test/gtest_links/TimeIOGroupTest.sample \
+              test/gtest_links/TimeIOGroupTest.adjust \
+              test/gtest_links/TimeIOGroupTest.read_signal \
+              test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
               # end
 
 if ENABLE_MPI
@@ -288,6 +295,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           tutorial/Imbalancer.cpp \
                           test/PlatformTopoTest.cpp \
                           test/TreeCommunicatorTest.cpp \
+                          test/TimeIOGroupTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
