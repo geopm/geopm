@@ -69,10 +69,4 @@ namespace geopm
         geopm_time(&tt);
         return geopm_time_diff(&m_time_zero, &tt);
     }
-
-    std::string TimeSignal::log(double sample) const
-    {
-        throw Exception("TimeSignal::log() not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
 }
