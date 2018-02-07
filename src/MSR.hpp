@@ -38,8 +38,6 @@
 #include <vector>
 #include <map>
 
-#include "PlatformIO.hpp"
-
 
 namespace geopm
 {
@@ -150,7 +148,7 @@ namespace geopm
             virtual int domain_type(void) const = 0;
     };
 
-    class IMSRSignal : public ISignal
+    class IMSRSignal
     {
         public:
             struct m_signal_config_s {
@@ -181,7 +179,7 @@ namespace geopm
             virtual void map_field(const std::vector<const uint64_t *> &field) = 0;
     };
 
-    class IMSRControl : public IControl
+    class IMSRControl
     {
         public:
             struct m_control_config_s {
@@ -316,12 +314,13 @@ namespace geopm
             ///        used to combine the signals.
             MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
                       const std::string &name);
+            MSRSignal(const MSRSignal &other) = default;
+            MSRSignal &operator=(const MSRSignal &other) = default;
             virtual ~MSRSignal();
-            virtual std::string name(void) const override;
-            int domain_type(void) const override;
-            int domain_idx(void) const override;
-            double sample(void) const override;
-            std::string log(double sample) const override;
+            virtual std::string name(void) const;
+            int domain_type(void) const;
+            int domain_idx(void) const;
+            double sample(void) const;
             int num_msr(void) const override;
             void offset(std::vector<uint64_t> &offset) const override;
             void map_field(const uint64_t *field) override;
@@ -374,6 +373,8 @@ namespace geopm
             ///        control field setting.
             MSRControl(const std::vector<struct IMSRControl::m_control_config_s> &config,
                        const std::string &name);
+            MSRControl(const MSRControl &other) = default;
+            MSRControl &operator=(const MSRControl &other) = default;
             virtual ~MSRControl();
             virtual std::string name(void) const;
             int domain_type(void) const;

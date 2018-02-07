@@ -86,7 +86,9 @@ namespace geopm
         , m_scalar(scalar)
         , m_inverse(1.0 / scalar)
     {
-
+        if ((end_bit - begin_bit) == 64) {
+            m_mask = ~0ULL;
+        }
     }
 
     MSREncode::~MSREncode()
@@ -98,21 +100,25 @@ namespace geopm
     {
         double result = NAN;
         uint64_t sub_field = (field & m_mask) >> m_shift;
+        uint64_t float_y, float_z;
         switch (m_function) {
             case IMSR::M_FUNCTION_SCALE:
                 result = m_scalar * sub_field;
                 break;
             case IMSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X
-                result = m_scalar * (1ULL << sub_field);
+                result = m_scalar / (1ULL << sub_field);
                 break;
             case IMSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
                 // Y in bits [0:5) and Z in bits [5:7)
-                uint64_t yy = sub_field & 0x1F;
-                uint64_t zz = sub_field >> 5;
-                result = m_scalar * (1ULL << yy) * (1.0 + zz / 4.0);
+                float_y = sub_field & 0x1F;
+                float_z = sub_field >> 5;
+                result = m_scalar * (1ULL << float_y) * (1.0 + float_z / 4.0);
                 break;
+           default:
+                throw Exception("MSR::decode(): unimplemented scale function",
+                                GEOPM_ERROR_NOT_IMPLEMENTED,  __FILE__, __LINE__);
         }
         return result;
     }
@@ -121,6 +127,7 @@ namespace geopm
     {
         uint64_t result = 0;
         double value_inferred = 0.0;
+        uint64_t float_y, float_z;
         switch (m_function) {
             case IMSR::M_FUNCTION_SCALE:
                 result = (uint64_t)(m_inverse * value);
@@ -135,25 +142,29 @@ namespace geopm
                 // Y in bits [0:5) and Z in bits [5:7)
                 if (value > 0) {
                     value *= m_inverse;
-                    uint64_t yy = (uint64_t)std::log2(value);
-                    uint64_t zz = (uint64_t)(4.0 * (value / (1 << yy) - 1.0));
-                    if ((yy && (yy >> 5) != 0) ||
-                        (zz && (zz >> 2) != 0)) {
+                    float_y = (uint64_t)std::log2(value);
+                    float_z = (uint64_t)(4.0 * (value / (1 << float_y) - 1.0));
+                    if ((float_y && (float_y >> 5) != 0) ||
+                        (float_z && (float_z >> 2) != 0)) {
                         throw Exception("MSR::encode(): integer overflow in M_FUNCTION_7_BIT_FLOAT datatype encoding",
                                         EOVERFLOW, __FILE__, __LINE__);
                     }
-                    value_inferred = (1 << yy) * (1.0 + (zz / 4.0));
+                    value_inferred = (1 << float_y) * (1.0 + (float_z / 4.0));
                     if ((value - value_inferred) > (value  * 0.25)) {
                         throw Exception("MSR::encode(): inferred value from encoded value is inaccurate",
                                         GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                     }
-                    result = yy | (zz << 5);
+                    result = float_y | (float_z << 5);
                 }
                 else {
                     throw Exception("MSR::encode(): input value <= 0 for M_FUNCTION_7_BIT_FLOAT",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 break;
+           default:
+                throw Exception("MSR::encode(): unimplemented scale function",
+                                GEOPM_ERROR_NOT_IMPLEMENTED,  __FILE__, __LINE__);
+
         }
         result = (result << m_shift) & m_mask;
         return result;
@@ -342,7 +353,7 @@ namespace geopm
                       uint64_t &mask) const
     {
         if (control_idx < 0 || control_idx >= num_control()) {
-            throw Exception("MSR::signal(): signal_idx out of range",
+            throw Exception("MSR::control(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         field = m_control_encode[control_idx]->encode(value);
@@ -452,12 +463,6 @@ namespace geopm
     double MSRSignal::sample(const std::vector<double> &per_msr_signal) const
     {
         return std::accumulate(per_msr_signal.begin(), per_msr_signal.end(), 0.0);
-    }
-
-    std::string MSRSignal::log(double sample) const
-    {
-        throw Exception("MSRSignal::log(): not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     MSRControl::MSRControl(const IMSR *msr_obj,
