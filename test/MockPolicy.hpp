@@ -73,6 +73,4 @@ class MockPolicy : public geopm::IPolicy {
                 void(uint64_t region_id, bool converged_state));
         MOCK_METHOD1(is_converged,
                 bool(uint64_t region_id));
-        MOCK_METHOD1(ctl_cpu_freq,
-                void(std::vector<double> freq));
 };
