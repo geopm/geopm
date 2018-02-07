@@ -34,6 +34,7 @@
 #define EFFICIENT_FREQ_DECIDER_HPP_INCLUDE
 
 #include <memory>
+#include <vector>
 
 #include "GoverningDecider.hpp"
 
@@ -41,6 +42,8 @@ namespace geopm
 {
     class EfficientFreqRegion;
     class IDecider;
+    class IPlatformIO;
+    class IPlatformTopo;
 
     /// @brief Energy efficient implementation of a binary frequency decider.
     ///
@@ -58,7 +61,9 @@ namespace geopm
             EfficientFreqDecider();
             EfficientFreqDecider(const std::string &cpu_info_path,
                                  const std::string &cpu_freq_min_path,
-                                 const std::string &cpu_freq_max_path);
+                                 const std::string &cpu_freq_max_path,
+                                 IPlatformIO *platform_io,
+                                 IPlatformTopo *platform_topo);
             EfficientFreqDecider(const EfficientFreqDecider &other);
             /// @brief EfficientFreqDecider destructor, virtual.
             virtual ~EfficientFreqDecider();
@@ -76,13 +81,16 @@ namespace geopm
             const double m_freq_min;
             const double m_freq_max;
             const double m_freq_step;
-            const unsigned int m_num_cores;
+            const unsigned int m_num_cpu;
+            std::vector<int> m_control_idx;
             double m_last_freq;
             std::map<uint64_t, double> m_rid_freq_map;
             // for online adaptive mode
             bool m_is_adaptive = false;
             IRegion *m_region_last = nullptr;
             std::map<uint64_t, std::unique_ptr<EfficientFreqRegion>> m_region_map;
+            IPlatformIO *m_platform_io;
+            IPlatformTopo *m_platform_topo;
     };
 }
 
