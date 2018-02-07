@@ -106,10 +106,15 @@ src/GlobalPolicy.hpp
 src/IOGroup.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
+src/msr_hsx.cpp
+src/msr_knl.cpp
+src/msr_snb.cpp
 src/MSR.cpp
 src/MSR.hpp
 src/MSRIO.cpp
 src/MSRIO.hpp
+src/MSRIOGroup.cpp
+src/MSRIOGroup.hpp
 src/OMPT.cpp
 src/OMPT.hpp
 src/Platform.cpp
@@ -174,6 +179,7 @@ test/ExceptionTest.cpp
 test/geopm_static_modes_test.cpp
 test/geopm_static_modes_test.sh
 test/geopm_test.cpp
+test/geopm_test.hpp
 test/geopm_test.sh
 test/GlobalPolicyTest.cpp
 test/googletest.mk
@@ -213,6 +219,7 @@ test/MockProfileSampler.hpp
 test/MockRegion.hpp
 test/ModelApplicationTest.cpp
 test/MPIInterfaceTest.cpp
+test/MSRIOGroupTest.cpp
 test/MSRIOTest.cpp
 test/MSRTest.cpp
 test/no_omp_cpu.c
