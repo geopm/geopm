@@ -765,8 +765,8 @@ TEST_F(MSRIOTest, write_batch)
     for (int i = 0; i < geopm_sched_num_cpu(); ++i) {
         cpu_idx.push_back(i);
     }
-    std::vector<std::string> begin_words {"software", "engineer", "document", "everyday",
-                                          "modeling", "standout", "patience", "goodwill"};
+    //                       begin_words {"software", "engineer", "document", "everyday",
+    //                                    "modeling", "standout", "patience", "goodwill"};
     std::vector<std::string> end_words   {"HARDware", "BEgineRX", "Mocument", "everyWay",
                                           "moBIling", "XHandout", "patENTED", "goLdMill"};
 
@@ -802,7 +802,7 @@ TEST_F(MSRIOTest, write_batch)
         }
     }
     m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, write_mask);
-    std::vector<uint64_t> result;
+
     m_msrio->write_batch(write_value);
     for (auto &ci : cpu_idx) {
         auto wi = end_words.begin();
