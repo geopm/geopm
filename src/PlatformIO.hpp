@@ -35,8 +35,6 @@
 
 #include <stdint.h>
 #include <string>
-#include <vector>
-#include <map>
 
 namespace geopm
 {
@@ -78,123 +76,68 @@ namespace geopm
             virtual int push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx) = 0;
-            /// @brief Return number of signals that have been pushed
-            ///        since last call to clear().
+            /// @brief Return number of signals that have been pushed.
             virtual int num_signal(void) const = 0;
-            /// @brief Return number of controls that have been pushed
-            ///        since last call to clear().
+            /// @brief Return number of controls that have been pushed.
             virtual int num_control(void) const = 0;
-            /// @brief Remove all signals and controls.  Must be
-            ///        called before pushing signals or controls once
-            ///        they have been sampled or adjusted.
-            virtual void clear(void) = 0;
             /// @brief Sample a single signal that has been pushed on
-            ///        to the signal stack.
+            ///        to the signal stack.  Must be called after a call
+            ///        to read_signal(void) method which updates the state
+            ///        of all signals.
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
             /// @return Signal value measured from the platform in SI units.
             virtual double sample(int signal_idx) = 0;
-            /// @brief Format the value of the signal into a printable
-            ///        form including units.
-            /// @param [in] signal_idx Index returned by a previous call
-            ///        to the push_signal() method.
-            /// @param [in] sample Value in SI units from a previous
-            ///        call to the sample() method.
-            /// @return Printable version of the signal suited for
-            ///         output in a log file.
-            virtual std::string log(int signal_idx, double sample) = 0;
             /// @brief Adjust a single control that has been pushed on
-            ///        to the control stack.
+            ///        to the control stack.  This control will not
+            ///        take effect until the next call to
+            ///        write_control(void).
             /// @param [in] control_idx Index of control to be adjusted
             ///        returned by a previous call to the push_control() method.
             /// @param [in] setting Value of control parameter in SI units.
             virtual void adjust(int control_idx,
                                 double setting) = 0;
-            /// @brief Measure the signals specified by the previous
-            ///        call to the push_signal() method.
-            /// @param [out] signal Vector of signal values measured
-            ///        from the platform in SI units. The order of
-            ///        these signals is determined by the previous
-            ///        call to the push_signal() method.
-            virtual void sample(std::vector<double> &signal) = 0;
-            /// @brief Set values of controls specified by the previous
-            ///        calls to push_control().
-            /// @param [in] setting Vector of control parameter values
-            ///        in SI units.  The order of these controls is
-            ///        determined by the previous call to the push_control()
-            ///        method.
-            virtual void adjust(const std::vector<double> &setting) = 0;
-            /// @brief Fill string with the msr-safe whitelist file contents
-            ///        reflecting all known MSRs for the current platform.
-            /// @return String formatted to be written to
-            ///        an msr-safe whitelist file.
-            virtual std::string msr_whitelist(void) const = 0;
-            /// @brief Fill string with the msr-safe whitelist file
-            ///        contents reflecting all known MSRs for the
-            ///        specified platform.
-            /// @param cpuid [in] The CPUID of the platform.
-            /// @return String formatted to be written to an msr-safe
-            ///         whitelist file.
-            virtual std::string msr_whitelist(int cpuid) const = 0;
+            /// @brief Read all pushed signals so that the next call
+            ///        to sample() will reflect the updated data.
+            virtual void read_batch(void) = 0;
+            /// @brief Write all of the pushed controls so that values
+            ///        previously given to adjust() are written to the
+            ///        platform.
+            virtual void write_batch(void) = 0;
+            /// @brief Read from platform and interpret into SI units
+            ///        a signal given its name and domain.  Does not
+            ///        modify the values stored by calling
+            ///        read_batch().
+            /// @param [in] signal_name Name of the signal requested.
+            /// @param [in] domain_type One of the values from the
+            ///        PlatformTopo::m_domain_e enum described in
+            ///        PlatformTopo.hpp.
+            /// @param [in] domain_idx The index of the domain within
+            ///        the set of domains of the same type on the
+            ///        platform.
+            /// @return The value in SI units of the signal.
+            virtual double read_signal(const std::string &signal_name,
+                                       int domain_type,
+                                       int domain_idx) = 0;
+            /// @brief Interpret the setting and write setting to the
+            ///        platform.  Does not modify the values stored by
+            ///        calling adjust().
+            /// @param [in] control_name Name of the control requested.
+            /// @param [in] domain_type One of the values from the
+            ///        PlatformTopo::m_domain_e enum described in
+            ///        PlatformTopo.hpp.
+            /// @param [in] domain_idx The index of the domain within
+            ///        the set of domains of the same type on the
+            ///        platform.
+            /// @param [in] setting Value in SI units of the setting
+            ///        for the control.
+            virtual void write_control(const std::string &control_name,
+                                       int domain_type,
+                                       int domain_idx,
+                                       double setting) = 0;
     };
 
     IPlatformIO &platform_io(void);
-
-    /// @brief Abstract base class describing a signal provided by a
-    /// platform that can be sampled.
-    class ISignal
-    {
-        public:
-            ISignal() {}
-            virtual ~ISignal() {}
-            /// @brief Get the signal parameter name.
-            /// @return The name of the feature being measured.
-            virtual std::string name(void) const = 0;
-            /// @brief Get the type of the domain under measurement.
-            /// @return One of the values from the IPlatformTopo::m_domain_e
-            ///         enum described in PlatformTopo.hpp.
-            virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the domain under measurement.
-            /// @return The index of the domain within the set of
-            ///         domains of the same type on the platform.
-            virtual int domain_idx(void) const = 0;
-            /// @brief Get the value of the signal.
-            /// @return The value of the parameter measured in SI
-            ///         units.
-            virtual double sample(void) const = 0;
-            /// @brief Format the value of the signal into a printable
-            ///        form including units.
-            /// @param [in] sample Value from a previous call to the
-            ///        sample() method.
-            /// @return Printable version of the signal suited for
-            ///         output in a log file.
-            virtual std::string log(double sample) const = 0;
-    };
-
-    /// @brief Abstract base class describing a control provided by a
-    /// platform that can be adjusted.
-    class IControl
-    {
-        public:
-            IControl() {}
-            virtual ~IControl() {}
-            /// @brief Get the control parameter name.
-            /// @return The name of the feature under control.
-            virtual std::string name(void) const = 0;
-            /// @brief Get the type of the domain under control.
-            /// @return One of the values from the m_domain_e
-            ///         enum described in PlatformTopo.hpp.
-            virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the domain under control.
-            /// @return The index of the domain within the set of
-            ///        domains of the same type on the platform.
-            virtual int domain_idx(void) const = 0;
-            /// @brief Set the value for the control.
-            /// @param [in] setting Value in SI units of the parameter
-            ///        controlled by the object.
-            virtual void adjust(double setting) = 0;
-    };
-
 }
 
 #endif
