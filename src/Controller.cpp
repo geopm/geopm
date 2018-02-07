@@ -318,16 +318,7 @@ namespace geopm
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform, true);
             m_msr_sample.resize(m_platform->capacity());
-            platform_io().read_batch();
-            m_platform->sample(m_msr_sample);
-            m_app_start_time = m_msr_sample[0].timestamp;
-            for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
-                if (it->domain_type == GEOPM_DOMAIN_PACKAGE &&
-                    (it->signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
-                     it->signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
-                    m_counter_energy_start += it->signal;
-                }
-            }
+
             double upper_bound;
             double lower_bound;
             m_platform->bound(upper_bound, lower_bound);
@@ -363,6 +354,17 @@ namespace geopm
                 num_domain = m_tree_comm->level_size(level);
                 if (num_domain > m_max_fanout) {
                     m_max_fanout = num_domain;
+                }
+            }
+
+            platform_io().read_batch();
+            m_platform->sample(m_msr_sample);
+            m_app_start_time = m_msr_sample[0].timestamp;
+            for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
+                if (it->domain_type == GEOPM_DOMAIN_PACKAGE &&
+                    (it->signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY ||
+                     it->signal_type == GEOPM_TELEMETRY_TYPE_PKG_ENERGY)) {
+                    m_counter_energy_start += it->signal;
                 }
             }
 

@@ -43,11 +43,13 @@
 #include "geopm_hash.h"
 #include "geopm_sched.h"
 
-#include "EfficientFreqDecider.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "Policy.hpp"
 #include "GoverningDecider.hpp"
 #include "Exception.hpp"
 #include "Region.hpp"
+#include "EfficientFreqDecider.hpp"
 #include "EfficientFreqRegion.hpp"
 
 namespace geopm
@@ -55,14 +57,18 @@ namespace geopm
     EfficientFreqDecider::EfficientFreqDecider()
         : EfficientFreqDecider("/proc/cpuinfo",
                                "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
-                               "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+                               "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq",
+                               &platform_io(),
+                               &platform_topo())
     {
 
     }
 
     EfficientFreqDecider::EfficientFreqDecider(const std::string &cpu_info_path,
                                                const std::string &cpu_freq_min_path,
-                                               const std::string &cpu_freq_max_path)
+                                               const std::string &cpu_freq_max_path,
+                                               IPlatformIO *pio,
+                                               IPlatformTopo *ptopo)
         : GoverningDecider()
         , m_cpu_info_path(cpu_info_path)
         , m_cpu_freq_min_path(cpu_freq_min_path)
@@ -70,8 +76,10 @@ namespace geopm
         , m_freq_min(cpu_freq_min())
         , m_freq_max(cpu_freq_max())
         , m_freq_step(100e6)
-        , m_num_cores(geopm_sched_num_cpu())
+        , m_num_cpu(geopm_sched_num_cpu())
         , m_last_freq(NAN)
+        , m_platform_io(pio)
+        , m_platform_topo(ptopo)
     {
         m_name = "efficient_freq";
         parse_env_map();
@@ -89,11 +97,15 @@ namespace geopm
         , m_freq_min(other.m_freq_min)
         , m_freq_max(other.m_freq_max)
         , m_freq_step(other.m_freq_step)
-        , m_num_cores(other.m_num_cores)
+        , m_num_cpu(other.m_num_cpu)
+        , m_control_idx()
         , m_last_freq(other.m_last_freq)
         , m_rid_freq_map(other.m_rid_freq_map)
         , m_is_adaptive(other.m_is_adaptive)
         , m_region_last(other.m_region_last)
+        , m_region_map()
+        , m_platform_io(other.m_platform_io)
+        , m_platform_topo(other.m_platform_topo)
     {
 
     }
@@ -103,9 +115,35 @@ namespace geopm
 
     }
 
+    void EfficientFreqDecider::init_platform_io(void)
+    {
+        uint64_t freq_domain_type = m_platform_io->control_domain_type("PERF_CTL:FREQ");
+        if (freq_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
+            throw Exception("EfficientFreqDecider: Platform does not support frequency control",
+                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        }
+        /// @todo delete line below once PlatformIO supports control for non-CPU domains.
+        freq_domain_type = IPlatformTopo::M_DOMAIN_CPU;
+        uint32_t num_freq_domain = m_platform_topo->num_domain(freq_domain_type);
+        if (!num_freq_domain) {
+            throw Exception("EfficientFreqDecider: Platform does not support frequency control",
+                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        }
+        for (uint32_t dom_idx = 0; dom_idx != num_freq_domain; ++dom_idx) {
+            int control_idx = m_platform_io->push_control("PERF_CTL:FREQ", freq_domain_type, dom_idx);
+            if (control_idx < 0) {
+                throw Exception("EfficientFreqDecider: Failed to enable frequency control in the platform.",
+                                GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+            }
+            m_control_idx.push_back(control_idx);
+        }
+    }
+
     IDecider *EfficientFreqDecider::clone(void) const
     {
-        return (IDecider*)(new EfficientFreqDecider(*this));
+        EfficientFreqDecider *result = new EfficientFreqDecider(*this);
+        result->init_platform_io();
+        return result;
     }
 
     void EfficientFreqDecider::parse_env_map(void)
@@ -218,10 +256,12 @@ namespace geopm
             }
         }
 
-        if (freq != m_last_freq) {
-            std::vector<double> freq_vec(m_num_cores, freq);
-            curr_policy.ctl_cpu_freq(freq_vec);
+        if (is_updated || freq != m_last_freq) {
+            for (auto ctl_idx : m_control_idx) {
+                m_platform_io->adjust(ctl_idx, freq);
+            }
             m_last_freq = freq;
+            is_updated = true;
         }
 
         // Don't do anything since we never get a new policy.

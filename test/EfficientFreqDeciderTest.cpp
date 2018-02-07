@@ -44,9 +44,12 @@
 #include "Decider.hpp"
 #include "EfficientFreqDecider.hpp"
 #include "DeciderFactory.hpp"
+#include "PlatformTopo.hpp"
 
 #include "MockRegion.hpp"
 #include "MockPolicy.hpp"
+#include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 #include "geopm.h"
 
 void efficient_freq_decider_plugin_init(void);
@@ -73,13 +76,22 @@ class EfficientFreqDeciderTest: public :: testing :: Test
         std::vector<double> m_mapped_freqs;
         double m_freq_min;
         double m_freq_max;
-        const std::string cpuinfo_path = "EfficientFreqDeciderTest_cpu_info";
-        const std::string cpufreq_min_path = "EfficientFreqDeciderTest_cpu_freq_min";
-        const std::string cpufreq_max_path = "EfficientFreqDeciderTest_cpu_freq_max";
+        MockPlatformIO *m_platform_io;
+        MockPlatformTopo *m_platform_topo;
+        const std::string m_cpuinfo_path = "EfficientFreqDeciderTest_cpu_info";
+        const std::string m_cpufreq_min_path = "EfficientFreqDeciderTest_cpu_freq_min";
+        const std::string m_cpufreq_max_path = "EfficientFreqDeciderTest_cpu_freq_max";
 };
 
 void EfficientFreqDeciderTest::SetUp()
 {
+    m_platform_io = new MockPlatformIO;
+    m_platform_topo = new MockPlatformTopo;
+    ON_CALL(*m_platform_io, control_domain_type(_))
+            .WillByDefault(Return(geopm::PlatformTopo::M_DOMAIN_CPU));
+    ON_CALL(*m_platform_topo, num_domain(geopm::PlatformTopo::M_DOMAIN_CPU))
+            .WillByDefault(Return(1));
+
     setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
 
     m_freq_min = 1800000000.0;
@@ -92,7 +104,7 @@ void EfficientFreqDeciderTest::SetUp()
                GEOPM_REGION_HINT_PARALLEL, GEOPM_REGION_HINT_IGNORE};
     m_expected_freqs = {m_freq_min, m_freq_max, m_freq_min, m_freq_max, m_freq_min};
 
-    ASSERT_EQ(m_mapped_freqs.size(), m_region_names.size());
+    EXPECT_EQ(m_mapped_freqs.size(), m_region_names.size());
 
     std::stringstream ss;
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
@@ -105,7 +117,8 @@ void EfficientFreqDeciderTest::SetUp()
 
     m_mock_region = std::unique_ptr<MockRegion>(new MockRegion());
     m_mock_policy = std::unique_ptr<MockPolicy>(new MockPolicy());
-    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider());
+    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo));
+    m_decider.reset(m_decider->clone());
 }
 
 void EfficientFreqDeciderTest::TearDown()
@@ -113,15 +126,11 @@ void EfficientFreqDeciderTest::TearDown()
     unsetenv("GEOPM_EFFICIENT_FREQ_ONLINE");
     unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
     unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
-    std::remove(cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, plugin)
-{
-    efficient_freq_decider_plugin_init();
-    EXPECT_EQ("efficient_freq", geopm::DeciderFactory::decider_factory().decider("efficient_freq")->name());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
+    std::remove(m_cpuinfo_path.c_str());
+    delete m_platform_topo;
+    delete m_platform_io;
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info0)
@@ -131,8 +140,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info0)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // with @
     const std::string cpuinfo_str =
@@ -162,13 +171,13 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info0)
         "address sizes   : 46 bits physical, 48 bits virtual\n"
         "power management:\n\n";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_sticker();
-    ASSERT_DOUBLE_EQ(1.3e9, freq);
-    std::remove(cpuinfo_path.c_str());
+    EXPECT_DOUBLE_EQ(1.3e9, freq);
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info1)
@@ -178,8 +187,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info1)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // without @
     const std::string cpuinfo_str =
@@ -209,13 +218,13 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info1)
         "address sizes   : 46 bits physical, 48 bits virtual\n"
         "power management:\n\n";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_sticker();
-    ASSERT_DOUBLE_EQ(1.2e9, freq);
-    std::remove(cpuinfo_path.c_str());
+    EXPECT_DOUBLE_EQ(1.2e9, freq);
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info2)
@@ -225,8 +234,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info2)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // without @ with space
     const std::string cpuinfo_str =
@@ -256,13 +265,13 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info2)
         "address sizes   : 46 bits physical, 48 bits virtual\n"
         "power management:\n\n";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_sticker();
-    ASSERT_DOUBLE_EQ(1.1e9, freq);
-    std::remove(cpuinfo_path.c_str());
+    EXPECT_DOUBLE_EQ(1.1e9, freq);
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info3)
@@ -272,8 +281,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info3)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // missing newline
     const std::string cpuinfo_str =
@@ -283,13 +292,13 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info3)
         "model           : 87\n"
         "model name      : Intel(R) Genuine Intel(R) CPU 0000 1.10GHz";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_sticker();
-    ASSERT_DOUBLE_EQ(1.1e9, freq);
-    std::remove(cpuinfo_path.c_str());
+    EXPECT_DOUBLE_EQ(1.1e9, freq);
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info4)
@@ -299,8 +308,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info4)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // missing number
     const std::string cpuinfo_str =
@@ -311,14 +320,14 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info4)
         "model name      : Intel(R) Genuine Intel(R) CPU GHz\n"
         "stepping        : 1";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    ASSERT_THROW( {
-            EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EXPECT_THROW( {
+            EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
         },
         geopm::Exception);
-    std::remove(cpuinfo_path.c_str());
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info5)
@@ -328,8 +337,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info5)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // multiple GHz
     std::string cpuinfo_str =
@@ -340,13 +349,13 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info5)
         "model name      : Intel(R) Genuine Intel(R) CPU 1.5GHz\n"
         "stepping        : 1.0GHz\n";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_sticker();
-    ASSERT_DOUBLE_EQ(1.5e9, freq);
-    std::remove(cpuinfo_path.c_str());
+    EXPECT_DOUBLE_EQ(1.5e9, freq);
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_info6)
@@ -356,8 +365,8 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info6)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 
     // with model name foobar
     const std::string cpuinfo_str =
@@ -388,13 +397,13 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info6)
         "address sizes   : 46 bits physical, 48 bits virtual\n"
         "power management:\n\n";
 
-    std::ofstream cpuinfo_stream(cpuinfo_path);
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_sticker();
-    ASSERT_DOUBLE_EQ(1.3e9, freq);
-    std::remove(cpuinfo_path.c_str());
+    EXPECT_DOUBLE_EQ(1.3e9, freq);
+    std::remove(m_cpuinfo_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, parse_cpu_freq)
@@ -404,42 +413,29 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_freq)
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 
     // Test cases where we need CPU info (no cpufreq driver)
-    std::ofstream cpufreq_min_stream(cpufreq_min_path);
+    std::ofstream cpufreq_min_stream(m_cpufreq_min_path);
     cpufreq_min_stream << "1000000";
     cpufreq_min_stream.close();
-    std::ofstream cpufreq_max_stream(cpufreq_max_path);
+    std::ofstream cpufreq_max_stream(m_cpufreq_max_path);
     cpufreq_max_stream << "2000000";
     cpufreq_max_stream.close();
 
-    EfficientFreqDecider decider(cpuinfo_path, cpufreq_min_path, cpufreq_max_path);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
     double freq = decider.cpu_freq_min();
-    ASSERT_DOUBLE_EQ(1.0e9, freq);
+    EXPECT_DOUBLE_EQ(1.0e9, freq);
     freq = decider.cpu_freq_max();
-    ASSERT_DOUBLE_EQ(2.0e9, freq);
+    EXPECT_DOUBLE_EQ(2.0e9, freq);
 
-    std::remove(cpufreq_min_path.c_str());
-    std::remove(cpufreq_max_path.c_str());
+    std::remove(m_cpufreq_min_path.c_str());
+    std::remove(m_cpufreq_max_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, map)
 {
-    Sequence s1;
-    for (size_t x = 0; x < M_NUM_REGIONS; x++) {
-        double expected_freq = m_mapped_freqs[x];
-        EXPECT_CALL(*m_mock_policy, ctl_cpu_freq(_))
-            .InSequence(s1)
-            .WillOnce(Invoke([expected_freq] (std::vector<double> freq)
-                    {
-                        for (auto &cpu_freq : freq) {
-                            EXPECT_EQ(expected_freq, cpu_freq);
-                        }
-                    }));
-    }
-
-    Sequence s2;
+    Sequence mock_seq;
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         EXPECT_CALL(*m_mock_region, identifier())
-            .InSequence(s2)
+            .InSequence(mock_seq)
             // one for super, once for our decider
             .WillOnce(Return(geopm_crc32_str(0, m_region_names[x].c_str())))
             .WillOnce(Return(geopm_crc32_str(0, m_region_names[x].c_str())));
@@ -470,22 +466,10 @@ TEST_F(EfficientFreqDeciderTest, clone)
 
 TEST_F(EfficientFreqDeciderTest, hint)
 {
-    Sequence s1;
-    for (auto &expected_freq : m_expected_freqs) {
-        EXPECT_CALL(*m_mock_policy, ctl_cpu_freq(_))
-            .InSequence(s1)
-            .WillOnce(Invoke([expected_freq] (std::vector<double> freq)
-                {
-                    for (auto &cpu_freq : freq) {
-                        EXPECT_EQ(expected_freq, cpu_freq);
-                    }
-                }));
-    }
-
-    Sequence s2;
+    Sequence mock_seq;
     for (size_t x = 0; x < m_hints.size(); x++) {
         EXPECT_CALL(*m_mock_region, hint())
-            .InSequence(s2)
+            .InSequence(mock_seq)
             .WillOnce(testing::Return(m_hints[x]));
     }
 
@@ -497,20 +481,20 @@ TEST_F(EfficientFreqDeciderTest, hint)
 TEST_F(EfficientFreqDeciderTest, online_mode)
 {
     int err = unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-    ASSERT_EQ(0, err);
-    ASSERT_EQ(NULL, getenv("GEOPM_EFFICIENT_FREQ_RID_MAP"));
+    EXPECT_EQ(0, err);
+    EXPECT_EQ(NULL, getenv("GEOPM_EFFICIENT_FREQ_RID_MAP"));
     setenv("GEOPM_EFFICIENT_FREQ_ONLINE", "yes", 1);
     setenv("GEOPM_EFFICIENT_FREQ_MIN", "1e9", 1);
     setenv("GEOPM_EFFICIENT_FREQ_MAX", "2e9", 1);
 
     // reset decider with new settings
-    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider());
+    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo));
+    m_decider.reset(m_decider->clone());
 
     {
         // should not be called if we hit the adaptive branch
         EXPECT_CALL(*m_mock_region, hint()).Times(0);
 
-        EXPECT_CALL(*m_mock_policy, ctl_cpu_freq(_));
         EXPECT_CALL(*m_mock_region, num_sample(_, _));
         EXPECT_CALL(*m_mock_region, identifier()).Times(2);
 
