@@ -182,9 +182,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/CommMPIImpTest.mpi_mem_ops \
               test/gtest_links/CommMPIImpTest.mpi_barrier \
               test/gtest_links/CommMPIImpTest.mpi_win_ops \
-              test/gtest_links/PlatformIOTest.freq_ctl \
-              test/gtest_links/PlatformIOTest.whitelist \
-              test/gtest_links/PlatformIOTest.time_signal \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_unaligned \
               test/gtest_links/MSRIOTest.write \
@@ -228,6 +225,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOGroupTest.control \
               test/gtest_links/MSRIOGroupTest.whitelist \
               test/gtest_links/MSRIOGroupTest.cpuid \
+              test/gtest_links/PlatformIOTest.domain_type \
+              test/gtest_links/PlatformIOTest.push_signal \
+              test/gtest_links/PlatformIOTest.push_control \
+              test/gtest_links/PlatformIOTest.sample \
+              test/gtest_links/PlatformIOTest.adjust \
+              test/gtest_links/PlatformIOTest.read_signal \
+              test/gtest_links/PlatformIOTest.write_control \
               # end
 
 if ENABLE_MPI

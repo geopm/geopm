@@ -38,8 +38,6 @@
 #include <vector>
 #include <map>
 
-#include "PlatformIO.hpp"
-
 
 namespace geopm
 {
@@ -150,7 +148,7 @@ namespace geopm
             virtual int domain_type(void) const = 0;
     };
 
-    class IMSRSignal : public ISignal
+    class IMSRSignal
     {
         public:
             struct m_signal_config_s {
@@ -160,10 +158,28 @@ namespace geopm
             };
             IMSRSignal() {}
             virtual ~IMSRSignal() {}
+            /// @brief Get the signal parameter name.
+            /// @return The name of the feature being measured.
+            virtual std::string name(void) const = 0;
+            /// @brief Get the type of the domain under measurement.
+            /// @return One of the values from the IPlatformTopo::m_domain_e
+            ///         enum described in PlatformTopo.hpp.
+            virtual int domain_type(void) const = 0;
+            /// @brief Get the index of the domain under measurement.
+            /// @return The index of the domain within the set of
+            ///         domains of the same type on the platform.
+            virtual int domain_idx(void) const = 0;
+            /// @brief Get the value of the signal.
+            /// @return The value of the parameter measured in SI
+            ///         units.
+            virtual double sample(void) const = 0;
             /// @brief Get the number of MSRs required to generate the
             ///        signal.
             /// @return number of MSRs.
             virtual int num_msr(void) const = 0;
+            /// @brief Gets the MSR offset for each of the MSRs that are
+            ///        combined to provide a signal.
+            /// @param [out] offset The MSR offset values.
             virtual void offset(std::vector<uint64_t> &offset) const = 0;
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when calculating
@@ -181,7 +197,7 @@ namespace geopm
             virtual void map_field(const std::vector<const uint64_t *> &field) = 0;
     };
 
-    class IMSRControl : public IControl
+    class IMSRControl
     {
         public:
             struct m_control_config_s {
@@ -191,11 +207,32 @@ namespace geopm
             };
             IMSRControl() {}
             virtual ~IMSRControl() {}
+            /// @brief Get the control parameter name.
+            /// @return The name of the feature under control.
+            virtual std::string name(void) const = 0;
+            /// @brief Get the type of the domain under control.
+            /// @return One of the values from the m_domain_e
+            ///         enum described in PlatformTopo.hpp.
+            virtual int domain_type(void) const = 0;
+            /// @brief Get the index of the domain under control.
+            /// @return The index of the domain within the set of
+            ///        domains of the same type on the platform.
+            virtual int domain_idx(void) const = 0;
+            /// @brief Set the value for the control.
+            /// @param [in] setting Value in SI units of the parameter
+            ///        controlled by the object.
+            virtual void adjust(double setting) = 0;
             /// @brief Get the number of MSRs required to enforce the
             ///        control.
             /// @return number of MSRs.
             virtual int num_msr(void) const = 0;
+            /// @brief Gets the MSR offset for each of the MSRs that are
+            ///        set by the control.
+            /// @param [out] offset The MSR offset values.
             virtual void offset(std::vector<uint64_t> &offset) const = 0;
+            /// @brief Gets the mask for each of the MSRs that are
+            ///        written by the control.
+            /// @param [out] mask The write mask values.
             virtual void mask(std::vector<uint64_t> &mask) const = 0;
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when enforcing
@@ -316,12 +353,13 @@ namespace geopm
             ///        used to combine the signals.
             MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
                       const std::string &name);
+            MSRSignal(const MSRSignal &other) = default;
+            MSRSignal &operator=(const MSRSignal &other) = default;
             virtual ~MSRSignal();
             virtual std::string name(void) const override;
             int domain_type(void) const override;
             int domain_idx(void) const override;
             double sample(void) const override;
-            std::string log(double sample) const override;
             int num_msr(void) const override;
             void offset(std::vector<uint64_t> &offset) const override;
             void map_field(const uint64_t *field) override;
@@ -374,17 +412,18 @@ namespace geopm
             ///        control field setting.
             MSRControl(const std::vector<struct IMSRControl::m_control_config_s> &config,
                        const std::string &name);
+            MSRControl(const MSRControl &other) = default;
+            MSRControl &operator=(const MSRControl &other) = default;
             virtual ~MSRControl();
-            virtual std::string name(void) const;
-            int domain_type(void) const;
-            int domain_idx(void) const;
-            void adjust(double setting);
-            uint64_t mask(void);
-            int num_msr(void) const;
-            void offset(std::vector<uint64_t> &offset) const;
-            void mask(std::vector<uint64_t> &mask) const;
-            void map_field(uint64_t *field, uint64_t *mask);
-            void map_field(const std::vector<uint64_t *> &field, const std::vector<uint64_t *> &mask);
+            virtual std::string name(void) const override;
+            int domain_type(void) const override;
+            int domain_idx(void) const override;
+            void adjust(double setting) override;
+            int num_msr(void) const override;
+            void offset(std::vector<uint64_t> &offset) const override;
+            void mask(std::vector<uint64_t> &mask) const override;
+            void map_field(uint64_t *field, uint64_t *mask) override;
+            void map_field(const std::vector<uint64_t *> &field, const std::vector<uint64_t *> &mask) override;
         protected:
             std::vector<IMSRControl::m_control_config_s> m_config;
             std::string m_name;
