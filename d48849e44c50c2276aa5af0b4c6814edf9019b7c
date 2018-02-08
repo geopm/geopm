@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eac51229_af44428e",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-08T23:47:21Z",
+      "side": 1,
+      "message": "reverse the order of this loop and break out on match.",
+      "revId": "d48849e44c50c2276aa5af0b4c6814edf9019b7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62516b12_0b505613",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-08T23:47:21Z",
+      "side": 1,
+      "message": "reverse the order of this loop and break out when match is found.",
+      "revId": "d48849e44c50c2276aa5af0b4c6814edf9019b7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ff307e4_5aa06bb5",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-08T23:47:21Z",
+      "side": 1,
+      "message": "remove empty lines",
+      "revId": "d48849e44c50c2276aa5af0b4c6814edf9019b7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
