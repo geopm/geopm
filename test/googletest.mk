@@ -45,7 +45,7 @@ googlemock_version = 1.7.0
 googlemock = gmock-$(googlemock_version)
 googletest = $(googlemock)/gtest
 googlemock_archive = $(googlemock).zip
-googlemock_url = http://pkgs.fedoraproject.org/repo/pkgs/gmock/gmock-1.7.0.zip/073b984d8798ea1594f5e44d85b20d66/$(googlemock_archive)
+googlemock_url = https://github.com/geopm/gmock-1.7.0/releases/download/v1.7.0/$(googlemock_archive)
 googlemock_sha1 = f9d9dd882a25f4069ed9ee48e70aff1b53e3c5a5
 
 $(googlemock_archive):
