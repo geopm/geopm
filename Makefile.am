@@ -318,8 +318,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/StaticPolicyDecider.hpp \
                             src/TimeIOGroup.cpp \
                             src/TimeIOGroup.hpp \
-                            src/TimeSignal.cpp \
-                            src/TimeSignal.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeCommunicator.cpp \

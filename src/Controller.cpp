@@ -318,6 +318,7 @@ namespace geopm
             m_platform_factory = new PlatformFactory;
             m_platform = m_platform_factory->platform(plugin_desc.platform, true);
             m_msr_sample.resize(m_platform->capacity());
+            platform_io().read_batch();
             m_platform->sample(m_msr_sample);
             m_app_start_time = m_msr_sample[0].timestamp;
             for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
@@ -670,6 +671,7 @@ namespace geopm
                     }
                 }
 
+                platform_io().read_batch();
                 m_platform->sample(m_msr_sample);
                 // Insert MSR data into platform sample
                 std::vector<double> platform_sample(m_msr_sample.size());
@@ -899,6 +901,7 @@ namespace geopm
             !geopm_region_id_is_epoch(m_region_id_all) &&
             m_decider[0]->update_policy(*curr_region, *curr_policy) == true) {
             m_platform->enforce_policy(m_region_id_all, *curr_policy);
+            platform_io().write_batch();
         }
     }
 
@@ -929,6 +932,7 @@ namespace geopm
         char hostname[NAME_MAX];
         double energy_exit = 0.0;
 
+        platform_io().read_batch();
         m_platform->sample(m_msr_sample);
         for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
             if (it->domain_type == GEOPM_DOMAIN_PACKAGE &&
