@@ -465,12 +465,6 @@ namespace geopm
         return std::accumulate(per_msr_signal.begin(), per_msr_signal.end(), 0.0);
     }
 
-    std::string MSRSignal::log(double sample) const
-    {
-        throw Exception("MSRSignal::log(): not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
     MSRControl::MSRControl(const IMSR *msr_obj,
                            int cpu_idx,
                            int control_idx)
