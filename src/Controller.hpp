@@ -37,7 +37,6 @@
 #include <string>
 #include <stack>
 #include <map>
-#include <mpi.h>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
@@ -103,7 +102,7 @@ namespace geopm
             ///
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
-            Controller(IGlobalPolicy *global_policy, MPI_Comm comm);
+            Controller(IGlobalPolicy *global_policy, std::shared_ptr<IComm> comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
             /// @brief Run control algorithm.
@@ -221,8 +220,7 @@ namespace geopm
             std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
-            MPI_Comm m_ppn1_comm;
-            std::shared_ptr<IComm> m_ppn1_icomm;
+            std::shared_ptr<IComm> m_ppn1_comm;
             int m_ppn1_rank;
             std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
     };
