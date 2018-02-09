@@ -114,6 +114,8 @@ EXTRA_DIST = .gitignore \
              autogen.sh \
              ChangeLog \
              configure.ac \
+             contrib/json11/README.md \
+             contrib/json11/LICENSE.txt \
              CONTRIBUTING.md \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
@@ -194,6 +196,10 @@ TUTORIAL_DIST = tutorial/Imbalancer.cpp \
                 tutorial/tutorial_governed_policy.json \
                 tutorial/tutorial_region.c \
                 tutorial/tutorial_region.h \
+                tutorial/contrib/json11/json11.cpp \
+                tutorial/contrib/json11/json11.hpp \
+                tutorial/contrib/json11/README.md \
+                tutorial/contrib/json11/LICENSE.txt \
                 # end
 
 # EXTEND FLAGS FOR MPI TARGETS
