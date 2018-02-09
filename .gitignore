@@ -132,6 +132,7 @@
 /tutorial/tutorial_[0-9]*_report-*
 /tutorial/tutorial_[0-9]*_trace-*
 /tutorial/tutorial_4_imbalance.conf
+/tutorial/contrib
 /openmp-4.0.0.src.tar.xz
 /openmp-4.0.0.src/*
 /openmp/*
