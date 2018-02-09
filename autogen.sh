@@ -56,5 +56,10 @@ if [ ! -f MANIFEST ]; then
     fi
 fi
 
+mkdir -p tutorial/contrib/json11
+cp -p contrib/json11/json11.[ch]pp tutorial/contrib/json11/
+cp -p contrib/json11/README.md tutorial/contrib/json11/
+cp -p contrib/json11/LICENSE.txt tutorial/contrib/json11/
+
 mkdir -p m4
 autoreconf -i -f

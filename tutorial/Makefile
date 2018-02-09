@@ -78,8 +78,8 @@ tutorial_5: tutorial_5.o tutorial_region.o
 tutorial_6.o: tutorial_6.cpp
 	$(MPICXX) -c $^ $(CXXFLAGS) -I../src -o $@
 
-tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o ModelParse.o imbalancer.o
-	$(MPICXX) $^ $(LDFLAGS) -ljson-c -lgeopm -o $@
+tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o ModelParse.o imbalancer.o json11.o
+	$(MPICXX) $^ $(LDFLAGS) -lgeopm -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
@@ -95,6 +95,9 @@ ModelRegion.o: ModelRegion.cpp ModelRegion.hpp
 
 ModelParse.o: ModelParse.cpp ModelParse.hpp
 	$(MPICXX) -c ModelParse.cpp $(CXXFLAGS) -I../src -o $@
+
+json11.o: contrib/json11/json11.cpp contrib/json11/json11.hpp
+	$(CXX) -c contrib/json11/json11.cpp $(CXXFLAGS) -o $@
 
 clean:
 	rm -f $(TUTORIAL_BIN) *.o
