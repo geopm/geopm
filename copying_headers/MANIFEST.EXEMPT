@@ -29,6 +29,7 @@ examples/nekbone/README
 examples/qbox/README
 examples/hacc/README
 MANIFEST
+pull_request_template.md
 README
 README.md
 ronn/geopm.7.ronn
