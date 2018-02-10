@@ -55,17 +55,10 @@ class StubRegion : public geopm::Region
             m_mock_region_energy = e;
         }
 
-        // increase mocked time
+        // increase mocked energy
         void run_region()
         {
-            m_current_time += m_mock_runtime;
             m_current_energy += m_mock_region_energy;
-        }
-
-        // force time to be mocked value
-        struct geopm_time_s telemetry_timestamp(size_t sample_idx) override
-        {
-            return {m_current_time, 0};
         }
 
         double signal(int domain_idx, int signal_type) override
@@ -76,6 +69,9 @@ class StubRegion : public geopm::Region
             else if (signal_type == GEOPM_TELEMETRY_TYPE_DRAM_ENERGY) {
                 return 1.0;
             }
+            else if (signal_type == GEOPM_TELEMETRY_TYPE_RUNTIME) {
+                return m_mock_runtime;
+            }
             else {
                 throw std::runtime_error("EfficientFreqRegion used unexpected signal: " +
                                          std::to_string(signal_type));
@@ -83,8 +79,7 @@ class StubRegion : public geopm::Region
         }
 
     private:
-        time_t m_current_time = 0;
-        time_t m_mock_runtime = 0;
+        double m_mock_runtime = 0;
         double m_current_energy = 0.0;
         double m_mock_region_energy = 0.0;
 };
@@ -98,7 +93,7 @@ class EfficientFreqRegionTest : public ::testing::Test
         double m_freq_min = 1800000000.0;
         double m_freq_max = 2200000000.0;
         double m_freq_step = 100000000.0;
-        int m_base_samples = 4;
+        int m_base_samples = 3;
         int m_num_domain = 1;
 
         StubRegion m_region;
