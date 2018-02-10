@@ -73,7 +73,6 @@ namespace geopm
             std::vector<double> m_perf_max;
             std::vector<double> m_energy_min;
             std::vector<size_t> m_num_sample;
-            struct geopm_time_s m_start_time;
             double m_start_energy = 0.0;
             int m_num_domain;
     };
