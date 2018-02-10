@@ -48,7 +48,6 @@ namespace geopm
         , m_perf_max(M_NUM_FREQ, 0)
         , m_energy_min(M_NUM_FREQ, 0)
         , m_num_sample(M_NUM_FREQ, 0)
-        , m_start_time({0, 0})
         , m_num_domain(num_domain)
     {
         if (nullptr == region) {
@@ -65,14 +64,7 @@ namespace geopm
 
     double EfficientFreqRegion::perf_metric()
     {
-        double elapsed = NAN;
-        struct geopm_time_s current_time = m_region->telemetry_timestamp(-1);
-        struct geopm_time_s zero{};
-        if (geopm_time_comp(&zero, &m_start_time)) {
-            // higher perf is better, so negate runtime
-            elapsed = -1.0 * geopm_time_diff(&m_start_time, &current_time);
-        }
-        return elapsed;
+        return -1.0 * m_region->signal(0, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
 
     double EfficientFreqRegion::energy_metric()
@@ -92,8 +84,6 @@ namespace geopm
 
     void EfficientFreqRegion::update_entry()
     {
-        struct geopm_time_s current_time = m_region->telemetry_timestamp(-1);
-        m_start_time = current_time;
         m_start_energy = energy_metric();
     }
 
