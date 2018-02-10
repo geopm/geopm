@@ -514,11 +514,6 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
         EXPECT_CALL(*m_mock_region, num_sample(_, _));
         EXPECT_CALL(*m_mock_region, identifier()).Times(2);
 
-        // update start time of new region
-        struct geopm_time_s zero{};
-        EXPECT_CALL(*m_mock_region, telemetry_timestamp(_))
-            .WillOnce(Return(zero));
-
         m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
 
@@ -544,11 +539,9 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
             .WillOnce(Return(3))
             .WillOnce(Return(4));
 
-        // update start time of new region and end time of previous region
-        struct geopm_time_s zero{};
-        EXPECT_CALL(*m_mock_region, telemetry_timestamp(_))
-            .WillOnce(Return(zero))
-            .WillOnce(Return(zero));
+        // get runtime
+        EXPECT_CALL(*m_mock_region, signal(_, _))
+            .WillOnce(Return(0));
 
         m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
