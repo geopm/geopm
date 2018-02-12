@@ -57,6 +57,8 @@ namespace geopm
             virtual ~MPIComm();
 
             static const IComm &get_comm();
+            static const std::string& plugin_name();
+            static std::unique_ptr<IComm> make_plugin();
 
             virtual std::shared_ptr<IComm> split() const override;
             virtual std::shared_ptr<IComm> split(int color, int key) const override;
@@ -86,6 +88,7 @@ namespace geopm
                     const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const override;
             virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const override;
         protected:
+            static const std::string M_PLUGIN_NAME;
             void check_window(size_t window_id) const;
             bool is_valid() const;
             MPI_Comm m_comm;

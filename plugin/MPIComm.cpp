@@ -45,6 +45,7 @@
 namespace geopm
 {
     const char *MPICOMM_DESCRIPTION = "MPIComm";
+
     class CommWindow
     {
         public:
@@ -71,6 +72,18 @@ namespace geopm
             ex_str << "MPI Error: " << error_str;
             throw Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+    }
+
+    const std::string MPIComm::M_PLUGIN_NAME = "MPIComm";
+
+    const std::string& MPIComm::plugin_name()
+    {
+        return M_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IComm> MPIComm::make_plugin()
+    {
+        return std::unique_ptr<IComm>(new MPIComm);
     }
 
     const IComm &MPIComm::get_comm()

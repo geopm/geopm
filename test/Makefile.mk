@@ -82,7 +82,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
-              test/gtest_links/DeciderFactoryTest.no_supported_decider \
               test/gtest_links/RegionTest.identifier \
               test/gtest_links/RegionTest.sample_message \
               test/gtest_links/RegionTest.signal_last \
@@ -120,14 +119,12 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PolicyTest.negative_index_oob \
               test/gtest_links/BalancingDeciderTest.plugin \
               test/gtest_links/BalancingDeciderTest.name \
-              test/gtest_links/BalancingDeciderTest.clone \
               test/gtest_links/BalancingDeciderTest.supported \
               test/gtest_links/BalancingDeciderTest.new_policy_message \
               test/gtest_links/BalancingDeciderTest.update_policy \
               test/gtest_links/GoverningDeciderTest.plugin \
               test/gtest_links/GoverningDeciderTest.decider_is_supported \
               test/gtest_links/GoverningDeciderTest.name \
-              test/gtest_links/GoverningDeciderTest.clone \
               test/gtest_links/GoverningDeciderTest.1_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
@@ -143,7 +140,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/EfficientFreqDeciderTest.map \
               test/gtest_links/EfficientFreqDeciderTest.decider_is_supported \
               test/gtest_links/EfficientFreqDeciderTest.name \
-              test/gtest_links/EfficientFreqDeciderTest.clone \
               test/gtest_links/EfficientFreqDeciderTest.hint \
               test/gtest_links/EfficientFreqDeciderTest.online_mode \
               test/gtest_links/SharedMemoryTest.fd_check \
@@ -259,7 +255,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/GlobalPolicyTest.cpp \
                           test/ExceptionTest.cpp \
                           test/ProfileTableTest.cpp \
-                          test/DeciderFactoryTest.cpp \
                           test/SampleRegulatorTest.cpp \
                           test/RegionTest.cpp \
                           test/PolicyTest.cpp \

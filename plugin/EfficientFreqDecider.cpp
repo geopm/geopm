@@ -54,6 +54,8 @@
 
 namespace geopm
 {
+    const std::string EfficientFreqDecider::M_PLUGIN_NAME = "efficient_freq";
+
     EfficientFreqDecider::EfficientFreqDecider()
         : EfficientFreqDecider("/proc/cpuinfo",
                                "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
@@ -81,33 +83,13 @@ namespace geopm
         , m_platform_io(pio)
         , m_platform_topo(ptopo)
     {
-        m_name = "efficient_freq";
+        m_name = M_PLUGIN_NAME;
         parse_env_map();
         const char* env_freq_adapt_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
         if (env_freq_adapt_str) {
             m_is_adaptive = true;
         }
-    }
-
-    EfficientFreqDecider::EfficientFreqDecider(const EfficientFreqDecider &other)
-        : GoverningDecider(other)
-        , m_cpu_info_path(other.m_cpu_info_path)
-        , m_cpu_freq_min_path(other.m_cpu_freq_min_path)
-        , m_cpu_freq_max_path(other.m_cpu_freq_max_path)
-        , m_freq_min(other.m_freq_min)
-        , m_freq_max(other.m_freq_max)
-        , m_freq_step(other.m_freq_step)
-        , m_num_cpu(other.m_num_cpu)
-        , m_control_idx()
-        , m_last_freq(other.m_last_freq)
-        , m_rid_freq_map(other.m_rid_freq_map)
-        , m_is_adaptive(other.m_is_adaptive)
-        , m_region_last(other.m_region_last)
-        , m_region_map()
-        , m_platform_io(other.m_platform_io)
-        , m_platform_topo(other.m_platform_topo)
-    {
-
+        init_platform_io();
     }
 
     EfficientFreqDecider::~EfficientFreqDecider()
@@ -139,11 +121,14 @@ namespace geopm
         }
     }
 
-    IDecider *EfficientFreqDecider::clone(void) const
+    const std::string& EfficientFreqDecider::plugin_name(void)
     {
-        EfficientFreqDecider *result = new EfficientFreqDecider(*this);
-        result->init_platform_io();
-        return result;
+        return M_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IDecider> EfficientFreqDecider::make_plugin(void)
+    {
+        return std::unique_ptr<IDecider>(new EfficientFreqDecider);
     }
 
     void EfficientFreqDecider::parse_env_map(void)

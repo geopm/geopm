@@ -64,16 +64,21 @@ namespace geopm
                                  const std::string &cpu_freq_max_path,
                                  IPlatformIO *platform_io,
                                  IPlatformTopo *platform_topo);
-            EfficientFreqDecider(const EfficientFreqDecider &other);
+            EfficientFreqDecider(const EfficientFreqDecider &other) = delete;
+            EfficientFreqDecider &operator=(const EfficientFreqDecider &other) = delete;
             /// @brief EfficientFreqDecider destructor, virtual.
             virtual ~EfficientFreqDecider();
-            virtual IDecider *clone(void) const override;
             /// @brief Actual method altering GoverningDecider behavior.
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) override;
+            static const std::string& plugin_name(void);
+            static std::unique_ptr<IDecider> make_plugin(void);
+
+            // TODO: needs doc strings
             double cpu_freq_sticker(void);
             double cpu_freq_min(void);
             double cpu_freq_max(void);
         protected:
+            static const std::string M_PLUGIN_NAME;
             void init_platform_io(void);
             void parse_env_map(void);
             const std::string m_cpu_info_path;

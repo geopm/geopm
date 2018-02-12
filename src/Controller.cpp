@@ -30,24 +30,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vector>
-#include <map>
-#include <algorithm>
+#include <dlfcn.h>
+#include <fcntl.h>
 #include <libgen.h>
-#include <iostream>
-#include <fstream>
-#include <streambuf>
-#include <stdexcept>
-#include <string>
-#include <sstream>
-#include <numeric>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <system_error>
 #include <unistd.h>
+
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <numeric>
+#include <sstream>
+#include <streambuf>
+#include <string>
+#include <stdexcept>
+#include <system_error>
+#include <vector>
 
 #include "geopm.h"
 #include "geopm_ctl.h"
@@ -64,7 +66,6 @@
 #include "PlatformFactory.hpp"
 #include "PlatformTopology.hpp"
 #include "Profile.hpp"
-#include "DeciderFactory.hpp"
 #include "Decider.hpp"
 #include "GlobalPolicy.hpp"
 #include "Policy.hpp"
@@ -220,8 +221,7 @@ namespace geopm
         , m_ppn1_comm(comm)
         , m_ppn1_rank(-1)
     {
-        int num_nodes = 0;
-        auto ppn1_comm = CommFactory::comm_factory().get_comm(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
+        auto ppn1_comm = comm_factory().make_plugin(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
 
         // Only the root rank on each node will have a fully initialized controller
         if (m_ppn1_comm != MPI_COMM_NULL) {
@@ -276,6 +276,7 @@ namespace geopm
             }
             check_mpi(MPI_Bcast(&plugin_desc, sizeof(plugin_desc), MPI_CHAR, 0, m_ppn1_comm));
 
+            int num_nodes = 0;
             check_mpi(MPI_Comm_size(m_ppn1_comm, &num_nodes));
 
             if (num_nodes > 1) {
@@ -306,7 +307,6 @@ namespace geopm
             m_region.resize(num_level);
             m_policy.resize(num_level);
             m_decider.resize(num_level);
-            std::fill(m_decider.begin(), m_decider.end(), (IDecider *)NULL);
             m_last_policy_msg.resize(num_level);
             std::fill(m_last_policy_msg.begin(), m_last_policy_msg.end(), GEOPM_POLICY_UNKNOWN);
             m_is_epoch_changed.resize(num_level);
@@ -324,7 +324,7 @@ namespace geopm
             m_platform->bound(upper_bound, lower_bound);
             m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
-            m_decider[0] = DeciderFactory::decider_factory().decider(std::string(plugin_desc.leaf_decider));
+            m_decider[0] = decider_factory().make_plugin(plugin_desc.leaf_decider);
             m_decider[0]->bound(upper_bound, lower_bound);
 
             int num_domain = m_platform->num_control_domain();
@@ -347,7 +347,7 @@ namespace geopm
                                                    num_domain,
                                                    level,
                                                    NULL)));
-                m_decider[level] = DeciderFactory::decider_factory().decider(std::string(plugin_desc.tree_decider));
+                m_decider[level] = decider_factory().make_plugin(plugin_desc.tree_decider);
                 m_decider[level]->bound(upper_bound, lower_bound);
                 upper_bound *= num_domain;
                 lower_bound *= num_domain;
@@ -406,9 +406,6 @@ namespace geopm
                 delete it->second;
             }
             delete m_policy[level];
-        }
-        for (auto it = m_decider.begin(); it != m_decider.end(); ++it) {
-            delete (*it);
         }
         delete m_platform_factory;
         delete m_tree_comm;
