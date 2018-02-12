@@ -47,7 +47,7 @@
 #include "geopm_env.h"
 #include "config.h"
 
-static void __attribute__((constructor)) geopm_plugin_load()
+static void __attribute__((constructor)) geopm_plugin_load(void)
 {
     int err = 0;
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
@@ -85,9 +85,16 @@ static void __attribute__((constructor)) geopm_plugin_load()
 
         if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
             while ((file = fts_read(p_fts)) != NULL) {
+                /// @todo Document the plugin file name requirements
+                ///       in a man page.
+                // Plugin file names must begin with "libgeopmpi_" and
+                // end with ".so" or ".dylib".  Also check that the
+                // library has not already been loaded.
                 if (file->fts_info == FTS_F &&
                     (strstr(file->fts_name, ".so") ||
-                     strstr(file->fts_name, ".dylib"))) {
+                     strstr(file->fts_name, ".dylib")) &&
+                    strstr(file->fts_name, "libgeopmpi_") &&
+                    dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
                     if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
                         fprintf(stderr, "Warning: failed to dlopen plugin %s.\n", file->fts_path);

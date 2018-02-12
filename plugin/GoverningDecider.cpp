@@ -41,10 +41,12 @@
 #include "Region.hpp"
 #include "Exception.hpp"
 
+#define GEOPM_GOVERNING_DECIDER_PLUGIN_NAME "power_governing"
+
 namespace geopm
 {
     GoverningDecider::GoverningDecider()
-        : m_name("power_governing")
+        : m_name(plugin_name())
         , m_min_num_converged(5)
         , m_last_power_budget(DBL_MIN)
         , m_last_dram_power(DBL_MAX)
@@ -53,25 +55,9 @@ namespace geopm
 
     }
 
-    GoverningDecider::GoverningDecider(const GoverningDecider &other)
-        : Decider(other)
-        , m_name(other.m_name)
-        , m_min_num_converged(other.m_min_num_converged)
-        , m_last_power_budget(other.m_last_power_budget)
-        , m_last_dram_power(other.m_last_dram_power)
-        , m_num_sample(other.m_num_sample)
-    {
-
-    }
-
     GoverningDecider::~GoverningDecider()
     {
 
-    }
-
-    IDecider *GoverningDecider::clone(void) const
-    {
-        return (IDecider*)(new GoverningDecider(*this));
     }
 
     bool GoverningDecider::decider_supported(const std::string &description)
@@ -82,6 +68,16 @@ namespace geopm
     const std::string& GoverningDecider::name(void) const
     {
         return m_name;
+    }
+
+    std::string GoverningDecider::plugin_name(void)
+    {
+        return GEOPM_GOVERNING_DECIDER_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IDecider> GoverningDecider::make_plugin(void)
+    {
+        return std::unique_ptr<IDecider>(new GoverningDecider);
     }
 
     bool GoverningDecider::update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy)
