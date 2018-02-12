@@ -30,14 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "DeciderFactory.hpp"
+#include "Decider.hpp"
 #include "EfficientFreqDecider.hpp"
 #include "Exception.hpp"
 
-void __attribute__((constructor)) efficient_freq_decider_plugin_init()
+static void __attribute__((constructor)) efficient_freq_decider_plugin_init()
 {
     try {
-        geopm::DeciderFactory::decider_factory().register_decider(new geopm::EfficientFreqDecider);
+        geopm::decider_factory().register_plugin(geopm::EfficientFreqDecider::plugin_name(),
+                                                 geopm::EfficientFreqDecider::make_plugin);
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());

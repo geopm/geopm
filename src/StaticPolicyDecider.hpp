@@ -47,13 +47,15 @@ namespace geopm
         public:
             /// @brief StaticPolicyDecider default constructor.
             StaticPolicyDecider();
-            StaticPolicyDecider(const StaticPolicyDecider &other);
+            StaticPolicyDecider(const StaticPolicyDecider &other) = delete;
+            StaticPolicyDecider &operator=(const StaticPolicyDecider &other) = delete;
             /// @brief StaticPolicyDecider destructor, virtual.
             virtual ~StaticPolicyDecider();
-            virtual IDecider *clone(void) const override;
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) override;
             virtual bool decider_supported(const std::string &descripton) override;
             virtual const std::string& name(void) const override;
+            static std::string plugin_name(void);
+            static std::unique_ptr<IDecider> make_plugin(void);
         private:
             const std::string m_name;
     };

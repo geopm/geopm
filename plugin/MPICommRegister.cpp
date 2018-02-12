@@ -30,13 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Comm.hpp"
 #include "MPIComm.hpp"
 #include "Exception.hpp"
 
-void __attribute__((constructor)) mpi_comm_plugin_init()
+static void __attribute__((constructor)) mpi_comm_plugin_init()
 {
     try {
-        geopm::CommFactory::comm_factory().register_comm(&geopm::MPIComm::get_comm());
+        geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
+                                              geopm::MPIComm::make_plugin);
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());

@@ -38,12 +38,10 @@
 #include "geopm_error.h"
 #include "geopm_policy.h"
 #include "Exception.hpp"
-#include "DeciderFactory.hpp"
+#include "Decider.hpp"
 #include "GoverningDecider.hpp"
 #include "Region.hpp"
 #include "Policy.hpp"
-
-void governing_decider_plugin_init(void);
 
 class GoverningDeciderTest: public :: testing :: Test
 {
@@ -70,8 +68,7 @@ void GoverningDeciderTest::TearDown()
 
 TEST_F(GoverningDeciderTest, plugin)
 {
-    governing_decider_plugin_init();
-    EXPECT_EQ("power_governing", geopm::DeciderFactory::decider_factory().decider("power_governing")->name());
+    EXPECT_EQ("power_governing", geopm::decider_factory().make_plugin("power_governing")->name());
 }
 
 TEST_F(GoverningDeciderTest, decider_is_supported)
@@ -83,13 +80,6 @@ TEST_F(GoverningDeciderTest, decider_is_supported)
 TEST_F(GoverningDeciderTest, name)
 {
     EXPECT_EQ(std::string("power_governing"), m_decider->name());
-}
-
-TEST_F(GoverningDeciderTest, clone)
-{
-    geopm::IDecider *cloned = m_decider->clone();
-    EXPECT_EQ(std::string("power_governing"), cloned->name());
-    delete cloned;
 }
 
 TEST_F(GoverningDeciderTest, 1_socket_under_budget)
