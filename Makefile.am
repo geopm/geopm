@@ -244,19 +244,18 @@ endif
 endif
 
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
-                            src/Comm.hpp \
                             src/Comm.cpp \
+                            src/Comm.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
-                            src/DeciderFactory.cpp \
-                            src/DeciderFactory.hpp \
                             src/Environment.cpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \
                             src/GlobalPolicy.hpp \
+                            src/IOGroup.cpp \
                             src/IOGroup.hpp \
                             src/geopm.h \
                             src/geopm_ctl.h \
@@ -299,6 +298,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/PlatformTopo.hpp \
                             src/PlatformTopology.cpp \
                             src/PlatformTopology.hpp \
+                            src/PluginFactory.hpp \
                             src/Policy.cpp \
                             src/Policy.hpp \
                             src/PolicyFlags.cpp \

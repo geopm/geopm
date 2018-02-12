@@ -57,6 +57,8 @@ namespace geopm
             virtual ~MPIComm();
 
             static const IComm &get_comm();
+            static std::string plugin_name();
+            static std::unique_ptr<IComm> make_plugin();
 
             virtual std::shared_ptr<IComm> split() const override;
             virtual std::shared_ptr<IComm> split(int color, int key) const override;
@@ -91,7 +93,7 @@ namespace geopm
             MPI_Comm m_comm;
             size_t m_maxdims;
             std::set<size_t> m_windows;
-            const std::string m_description;
+            const std::string m_name;
     };
 }
 

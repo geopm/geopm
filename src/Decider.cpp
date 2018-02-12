@@ -30,15 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hwloc.h>
+#include <pthread.h>
 
 #include "Policy.hpp"
 #include "Decider.hpp"
+#include "StaticPolicyDecider.hpp"
 #include "config.h"
 
 namespace geopm
 {
-
     Decider::Decider()
         : m_last_power_budget(DBL_MIN)
         , m_upper_bound(DBL_MAX)
@@ -81,5 +81,22 @@ namespace geopm
             result = true;
         }
         return result;
+    }
+
+
+    static PluginFactory<IDecider> *g_plugin_factory;
+    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
+    static void register_built_in_once(void)
+    {
+        g_plugin_factory->register_plugin(StaticPolicyDecider::plugin_name(),
+                                          StaticPolicyDecider::make_plugin);
+    }
+
+    PluginFactory<IDecider> &decider_factory(void)
+    {
+        static PluginFactory<IDecider> instance;
+        g_plugin_factory = &instance;
+        pthread_once(&g_register_built_in_once, register_built_in_once);
+        return instance;
     }
 }

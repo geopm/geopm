@@ -30,35 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
-#include <iostream>
+#include "IOGroup.hpp"
 
-#include "gtest/gtest.h"
-#include "geopm_error.h"
-#include "Exception.hpp"
-#include "DeciderFactory.hpp"
-#include "Decider.hpp"
-
-class DeciderFactoryTest: public :: testing :: Test
+namespace geopm
 {
-    protected:
-        void SetUp();
-};
-
-void DeciderFactoryTest::SetUp()
-{
-}
-
-TEST_F(DeciderFactoryTest, no_supported_decider)
-{
-    geopm::IDecider *d = NULL;
-    int thrown = 0;
-    try {
-        d = geopm::DeciderFactory::decider_factory().decider("doesntexist");
+    PluginFactory<IOGroup> &iogroup_factory(void)
+    {
+        static PluginFactory<IOGroup> instance;
+        return instance;
     }
-    catch (geopm::Exception e) {
-        thrown = e.err_value();
-    }
-    ASSERT_EQ(NULL, d);
-    EXPECT_EQ(GEOPM_ERROR_DECIDER_UNSUPPORTED, thrown);
 }

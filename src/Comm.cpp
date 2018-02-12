@@ -43,35 +43,9 @@
 
 namespace geopm
 {
-    CommFactory::CommFactory()
+    PluginFactory<IComm> &comm_factory(void)
     {
-    }
-
-    CommFactory::~CommFactory()
-    {
-    }
-
-    CommFactory &CommFactory::comm_factory()
-    {
-        static CommFactory instance;
+        static PluginFactory<IComm> instance;
         return instance;
-    }
-
-    void CommFactory::register_comm(const IComm *in_comm)
-    {
-        m_comm_imps.push_back(in_comm);
-    }
-
-    const IComm *CommFactory::get_comm(const std::string &description) const
-    {
-        for (auto &imp : m_comm_imps) {
-            if (imp->comm_supported(description)) {
-                return imp;
-            }
-        }
-        // If we get here, no acceptable communication implementation was found
-        std::ostringstream ex_str;
-        ex_str << "Failure to instantiate Comm type: " << description;
-        throw Exception(ex_str.str(), GEOPM_ERROR_COMM_UNSUPPORTED, __FILE__, __LINE__);
     }
 }

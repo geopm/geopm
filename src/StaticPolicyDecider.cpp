@@ -35,17 +35,13 @@
 
 #include "config.h"
 
+#define GEOPM_STATIC_POLICY_DECIDER_PLUGIN_NAME "static_policy"
+
 namespace geopm
 {
+
     StaticPolicyDecider::StaticPolicyDecider()
-        : m_name("static_policy")
-    {
-
-    }
-
-    StaticPolicyDecider::StaticPolicyDecider(const StaticPolicyDecider &other)
-        : Decider(other)
-        , m_name(other.m_name)
+        : m_name(GEOPM_STATIC_POLICY_DECIDER_PLUGIN_NAME)
     {
 
     }
@@ -53,11 +49,6 @@ namespace geopm
     StaticPolicyDecider::~StaticPolicyDecider()
     {
 
-    }
-
-    IDecider *StaticPolicyDecider::clone(void) const
-    {
-        return (new StaticPolicyDecider(*this));
     }
 
     bool StaticPolicyDecider::decider_supported(const std::string &description)
@@ -68,6 +59,16 @@ namespace geopm
     const std::string& StaticPolicyDecider::name(void) const
     {
         return m_name;
+    }
+
+    std::string StaticPolicyDecider::plugin_name(void)
+    {
+        return GEOPM_STATIC_POLICY_DECIDER_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IDecider> StaticPolicyDecider::make_plugin(void)
+    {
+        return std::unique_ptr<IDecider>(new StaticPolicyDecider);
     }
 
     bool StaticPolicyDecider::update_policy(IRegion &curr_region, IPolicy &curr_policy)
