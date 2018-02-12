@@ -50,15 +50,17 @@ namespace geopm
         public:
             /// @brief BalancingDecider default constructor.
             BalancingDecider();
-            BalancingDecider(const BalancingDecider &other);
+            BalancingDecider(const BalancingDecider &other) = delete;
+            BalancingDecider &operator=(const BalancingDecider &other) = delete;
             /// @brief BalancingDecider destructor, virtual.
             virtual ~BalancingDecider();
-            virtual IDecider *clone(void) const override;
             virtual void bound(double upper_bound, double lower_bound) override;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) override;
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) override;
             virtual bool decider_supported(const std::string &descripton) override;
             virtual const std::string& name(void) const override;
+            static std::string plugin_name(void);
+            static std::unique_ptr<IDecider> make_plugin(void);
         private:
             const std::string m_name;
             const double m_convergence_target;
