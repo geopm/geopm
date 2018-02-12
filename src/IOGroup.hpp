@@ -36,6 +36,8 @@
 #include <string>
 #include <vector>
 
+#include "PluginFactory.hpp"
+
 namespace geopm
 {
     class IOGroup
@@ -144,6 +146,8 @@ namespace geopm
                                        int domain_idx,
                                        double setting) = 0;
     };
+
+    PluginFactory<IOGroup> &iogroup_factory(void);
 }
 
 #endif

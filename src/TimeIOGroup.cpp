@@ -34,6 +34,9 @@
 #include "TimeIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "config.h"
+
+#define GEOPM_TIME_IO_GROUP_PLUGIN_NAME "time"
 
 namespace geopm
 {
@@ -148,5 +151,15 @@ namespace geopm
     {
         throw Exception("TimeIOGroup::write_control() there are no controls supported by the TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+
+    std::string TimeIOGroup::plugin_name(void)
+    {
+        return GEOPM_TIME_IO_GROUP_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IOGroup> TimeIOGroup::make_plugin(void)
+    {
+        return std::unique_ptr<IOGroup>(new TimeIOGroup);
     }
 }

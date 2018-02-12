@@ -38,6 +38,8 @@
 #include <string>
 #include <list>
 
+#include "PluginFactory.hpp"
+
 namespace geopm
 {
     /// @brief Abstract base class for interprocess communication in geopm
@@ -200,26 +202,7 @@ namespace geopm
             virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const = 0;
     };
 
-    /// @brief Factory object exposing IComm implementation instances.
-    ///
-    /// The CommFactory exposes the constructors for all implementations of the IComm
-    /// pure virtual base class.  The factory, if possible, returns an instance of IComm
-    /// and caller must not delete the object when no longer needed.
-    class CommFactory
-    {
-        public:
-            static CommFactory &comm_factory();
-            /// @brief CommFactory destructor, virtual.
-            virtual ~CommFactory();
-            virtual void register_comm(const IComm *in_comm);
-            // User must not delete the returned instance from this call,
-            // but all IComms created from this instance must be memory managed by
-            virtual const IComm *get_comm(const std::string &description) const;
-        protected:
-            /// @brief CommFactory default constructor.
-            CommFactory();
-            std::list<const IComm *> m_comm_imps;
-    };
+    PluginFactory<IComm>& comm_factory(void);
 }
 
 #endif
