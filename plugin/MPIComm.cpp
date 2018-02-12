@@ -42,9 +42,10 @@
 #include "geopm_mpi_comm_split.h"
 #include "config.h"
 
+#define GEOPM_MPI_COMM_PLUGIN_NAME "MPIComm"
+
 namespace geopm
 {
-    const char *MPICOMM_DESCRIPTION = "MPIComm";
     class CommWindow
     {
         public:
@@ -73,7 +74,17 @@ namespace geopm
         }
     }
 
-    const IComm &MPIComm::get_comm()
+    std::string MPIComm::plugin_name(void)
+    {
+        return GEOPM_MPI_COMM_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IComm> MPIComm::make_plugin(void)
+    {
+        return std::unique_ptr<IComm>(new MPIComm);
+    }
+
+    const IComm &MPIComm::get_comm(void)
     {
         static MPIComm instance;
         return instance;
@@ -82,14 +93,14 @@ namespace geopm
     MPIComm::MPIComm()
         : m_comm(MPI_COMM_WORLD)
         , m_maxdims(1)
-        , m_description(MPICOMM_DESCRIPTION)
+        , m_name(GEOPM_MPI_COMM_PLUGIN_NAME)
     {
     }
 
     MPIComm::MPIComm(const MPIComm *in_comm)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
-        , m_description(in_comm->m_description)
+        , m_name(in_comm->m_name)
     {
         if (in_comm->is_valid()) {
             check_mpi(PMPI_Comm_dup(in_comm->m_comm, &m_comm));
@@ -99,7 +110,7 @@ namespace geopm
     MPIComm::MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(dimension.size())
-        , m_description(in_comm->m_description)
+        , m_name(in_comm->m_name)
     {
         if (in_comm->is_valid()) {
             check_mpi(PMPI_Cart_create(in_comm->m_comm, m_maxdims, dimension.data(), periods.data(), (int) is_reorder, &m_comm));
@@ -109,7 +120,7 @@ namespace geopm
     MPIComm::MPIComm(const MPIComm *in_comm, int color, int key)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
-        , m_description(in_comm->m_description)
+        , m_name(in_comm->m_name)
     {
         static std::map<int, int> color_map = {{M_SPLIT_COLOR_UNDEFINED, MPI_UNDEFINED}};
         auto it = color_map.find(color);
@@ -124,7 +135,7 @@ namespace geopm
     MPIComm::MPIComm(const MPIComm *in_comm, std::string tag, int split_type)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
-        , m_description(in_comm->m_description)
+        , m_name(in_comm->m_name)
     {
         int err = 0;
         if (!in_comm->is_valid()) {
@@ -150,7 +161,7 @@ namespace geopm
     MPIComm::MPIComm(const MPIComm *in_comm, std::string tag,  bool &is_ctl)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
-        , m_description(in_comm->m_description)
+        , m_name(in_comm->m_name)
     {
         if (in_comm->is_valid()) {
             geopm_comm_split_ppn1(in_comm->m_comm, tag.c_str(), &m_comm);
@@ -192,9 +203,9 @@ namespace geopm
         return std::make_shared<MPIComm>(this, dimensions, periods, is_reorder);
     }
 
-    bool MPIComm::comm_supported(const std::string &description) const
+    bool MPIComm::comm_supported(const std::string &plugin_name) const
     {
-        return description == m_description;
+        return plugin_name == m_name;
     }
 
     int MPIComm::cart_rank(const std::vector<int> &coords) const

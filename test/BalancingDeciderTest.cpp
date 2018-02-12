@@ -35,13 +35,11 @@
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
-#include "DeciderFactory.hpp"
+#include "Decider.hpp"
 #include "BalancingDecider.hpp"
 #include "PolicyFlags.hpp"
 #include "Policy.hpp"
 #include "Region.hpp"
-
-void balancing_decider_plugin_init(void);
 
 class BalancingDeciderTest: public :: testing :: Test
 {
@@ -113,25 +111,17 @@ void BalancingDeciderTest::TearDown()
 
 TEST_F(BalancingDeciderTest, plugin)
 {
-    balancing_decider_plugin_init();
-    EXPECT_EQ("power_balancing", geopm::DeciderFactory::decider_factory().decider("power_balancing")->name());
+    EXPECT_EQ("power_balancing", geopm::decider_factory().make_plugin("power_balancing")->name());
 }
 
 TEST_F(BalancingDeciderTest, name)
 {
-    EXPECT_EQ(std::string("power_balancing"), m_balancer->name());
-}
-
-TEST_F(BalancingDeciderTest, clone)
-{
-    geopm::IDecider *cloned = m_balancer->clone();
-    EXPECT_EQ(std::string("power_balancing"), cloned->name());
-    delete cloned;
+    EXPECT_EQ("power_balancing", m_balancer->name());
 }
 
 TEST_F(BalancingDeciderTest, supported)
 {
-    EXPECT_TRUE(m_balancer->decider_supported(std::string("power_balancing")));
+    EXPECT_TRUE(m_balancer->decider_supported("power_balancing"));
 }
 
 TEST_F(BalancingDeciderTest, new_policy_message)

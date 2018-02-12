@@ -35,6 +35,7 @@
 
 #include <string>
 
+#include "PluginFactory.hpp"
 #include "geopm_message.h"
 
 namespace geopm
@@ -58,8 +59,6 @@ namespace geopm
             IDecider(const IDecider &other) {}
             /// @brief Decider destructor, virtual.
             virtual ~IDecider() {}
-            /// @brief return a pointer of the derived class, virtual.
-            virtual IDecider *clone() const = 0;
             /// @brief Return the upper and lower control bounds.
             /// For a power based control, this will be the upper and lower
             /// power bounds of a single tree node below the current one. For
@@ -88,12 +87,8 @@ namespace geopm
             Decider();
             Decider(const Decider &other);
             virtual ~Decider();
-            virtual IDecider *clone() const = 0;
             virtual void bound(double upper_bound, double lower_bound) override;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) override;
-            virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) = 0;
-            virtual bool decider_supported(const std::string &descripton) = 0;
-            virtual const std::string& name(void) const = 0;
         protected:
             /// @brief Save the last known power budget
             double m_last_power_budget;
@@ -103,6 +98,7 @@ namespace geopm
             double m_lower_bound;
     };
 
+    PluginFactory<IDecider> &decider_factory(void);
 }
 
 #endif

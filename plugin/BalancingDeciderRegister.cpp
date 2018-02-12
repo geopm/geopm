@@ -30,14 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "DeciderFactory.hpp"
+#include "Decider.hpp"
 #include "BalancingDecider.hpp"
 #include "Exception.hpp"
 
-void __attribute__((constructor)) balancing_decider_plugin_init()
+static void __attribute__((constructor)) balancing_decider_plugin_init(void)
 {
     try {
-        geopm::DeciderFactory::decider_factory().register_decider(new geopm::BalancingDecider);
+        geopm::decider_factory().register_plugin(geopm::BalancingDecider::plugin_name(),
+                                                 geopm::BalancingDecider::make_plugin);
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());
