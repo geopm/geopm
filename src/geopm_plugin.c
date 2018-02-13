@@ -65,6 +65,7 @@ static void __attribute__((constructor)) geopm_plugin_load()
         while ((path_ptr = strchr(path_ptr, ':'))) {
             *path_ptr = '\0';
             ++num_path;
+            ++path_ptr;
         }
     }
     paths = calloc(num_path + 1, sizeof(char *));
