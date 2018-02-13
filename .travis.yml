@@ -52,6 +52,7 @@ install:
 script:
     - make
     - make check
+    - ./copying_headers/test-dist
 
 env:
     global:

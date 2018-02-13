@@ -46,13 +46,13 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
    [ $version ] && \
    [ $version != "0.0.0" ]; then
 
-    if [ "$TRAVIS_REPO_SLUG" == "geopm/geopm" ] && \
+    if [ "$TRAVIS_REPO_SLUG" == "cmcantalupo/geopm" ] && \
        [ "$TRAVIS_BRANCH" == "master" ] && \
        git describe --exact-match >& /dev/null; then
         obs_proj=home:cmcantalupo:geopm
         obs_pkg=geopm
         do_obs=true
-    elif [ "$TRAVIS_REPO_SLUG" == "geopm/geopm" ] && \
+    elif [ "$TRAVIS_REPO_SLUG" == "cmcantalupo/geopm" ] && \
          [ "$TRAVIS_BRANCH" == "dev" ]; then
         obs_proj=home:cmcantalupo:geopm-dev
         obs_pkg=geopm-dev
