@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20e31e4a_c40449a8",
+        "filename": "pull_request_template.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-13T18:22:58Z",
+      "side": 1,
+      "message": "Add file to copying_headers/MANIFEST.EXEMPT",
+      "revId": "2767338d797370907aa60d6ed80af536cba24d01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
