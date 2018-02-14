@@ -44,6 +44,7 @@
 #include "MSRIOGroup.hpp"
 #include "MSRIO.hpp"
 #include "PlatformTopo.hpp"
+#include "config.h"
 
 namespace geopm
 {

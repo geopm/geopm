@@ -32,6 +32,7 @@
 
 #include "MSR.hpp"
 #include "PlatformTopo.hpp"
+#include "config.h"
 
 namespace geopm
 {
