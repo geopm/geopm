@@ -194,6 +194,12 @@ TEST_F(MSRIOGroupTest, signal)
                                               geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, inst_idx);
 
+    // pushing same signal gives same index
+    int idx2 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(freq_idx, idx2);
+
+    // TODO: same name different domain gives different index.
+
     EXPECT_THROW_MESSAGE(m_msrio_group->sample(0),
                          GEOPM_ERROR_RUNTIME, "sample.* called before signal was read");
 
@@ -272,6 +278,10 @@ TEST_F(MSRIOGroupTest, control)
     ASSERT_EQ(0, freq_idx);
     int power_idx = m_msrio_group->push_control("PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, power_idx);
+
+    // pushing same control gives same index
+    int idx2 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(freq_idx, idx2);
 
     EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
                          "called before all controls were adjusted");
