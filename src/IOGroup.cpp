@@ -31,6 +31,7 @@
  */
 
 #include "IOGroup.hpp"
+#include "config.h"
 
 namespace geopm
 {
