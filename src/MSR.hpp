@@ -153,7 +153,7 @@ namespace geopm
         public:
             struct m_signal_config_s {
                 const IMSR *msr_obj;
-                int cpu_idx;
+                int domain_idx;
                 int signal_idx;
             };
             IMSRSignal() {}
@@ -202,7 +202,7 @@ namespace geopm
         public:
             struct m_control_config_s {
                 const IMSR *msr_obj;
-                int cpu_idx;
+                int domain_idx;
                 int control_idx;
             };
             IMSRControl() {}

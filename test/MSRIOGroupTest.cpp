@@ -80,7 +80,7 @@ class MockMSRIO : public geopm::MSRIO
 
 MockMSRIO::MockMSRIO()
    : M_MAX_OFFSET(4096)
-   , m_num_cpu(geopm_sched_num_cpu())
+   , m_num_cpu(16)
 {
     union field_u {
         uint64_t field;
@@ -147,7 +147,7 @@ void MSRIOGroupTest::SetUp()
 {
     std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
     m_test_dev_path = msrio->test_dev_paths();
-    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(std::move(msrio), 0x657)); // KNL cpuid
+    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(std::move(msrio), 0x657, 16)); // KNL cpuid
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -188,58 +188,89 @@ TEST_F(MSRIOGroupTest, signal)
     EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_INVALID, m_msrio_group->signal_domain_type("INVALID"));
 
     // push valid signals
-    int freq_idx = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
-    ASSERT_EQ(0, freq_idx);
+    int freq_idx_0 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    ASSERT_EQ(0, freq_idx_0);
     int inst_idx = m_msrio_group->push_signal("PERF_FIXED_CTR0:INST_RETIRED_ANY",
                                               geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, inst_idx);
 
-    EXPECT_THROW_MESSAGE(m_msrio_group->sample(0),
+    // pushing same signal gives same index
+    int idx2 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(freq_idx_0, idx2);
+
+    // pushing same signal for another cpu gives different index
+    int freq_idx_1 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
+    EXPECT_NE(freq_idx_0, freq_idx_1);
+
+    // TODO: same name different domain gives different index.
+
+    EXPECT_THROW_MESSAGE(m_msrio_group->sample(freq_idx_0),
                          GEOPM_ERROR_RUNTIME, "sample.* called before signal was read");
 
-    // write some values to be read
-    int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
-    ASSERT_NE(-1, fd);
+    // write frequency values to be read
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    int fd_1 = open(m_test_dev_path[1].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+    ASSERT_NE(-1, fd_1);
     uint64_t value = 0xB00;
-    size_t num_write = pwrite(fd, &value, sizeof(value), 0x198);
+    size_t num_write = pwrite(fd_0, &value, sizeof(value), 0x198);
     ASSERT_EQ(num_write, sizeof(value));
+    value = 0xC00;
+    num_write = pwrite(fd_1, &value, sizeof(value), 0x198);
+    ASSERT_EQ(num_write, sizeof(value));
+    // write inst_retired value to be read
     value = 5678;
-    num_write = pwrite(fd, &value, sizeof(value), 0x309);
+    num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
 
     m_msrio_group->read_batch();
-    double freq = m_msrio_group->sample(freq_idx);
+    double freq_0 = m_msrio_group->sample(freq_idx_0);
+    double freq_1 = m_msrio_group->sample(freq_idx_1);
     double inst = m_msrio_group->sample(inst_idx);
-    EXPECT_EQ(1.1e9, freq);
+    EXPECT_EQ(1.1e9, freq_0);
+    EXPECT_EQ(1.2e9, freq_1);
     EXPECT_EQ(5678, inst);
 
     // sample again without read should get same value
-    freq = m_msrio_group->sample(freq_idx);
+    freq_0 = m_msrio_group->sample(freq_idx_0);
+    freq_1 = m_msrio_group->sample(freq_idx_1);
     inst = m_msrio_group->sample(inst_idx);
-    EXPECT_EQ(1.1e9, freq);
+    EXPECT_EQ(1.1e9, freq_0);
+    EXPECT_EQ(1.2e9, freq_1);
     EXPECT_EQ(5678, inst);
 
     // read_batch sees updated values
     value = 0xC00;
-    num_write = pwrite(fd, &value, sizeof(value), 0x198);
+    num_write = pwrite(fd_0, &value, sizeof(value), 0x198);
     ASSERT_EQ(num_write, sizeof(value));
+    value = 0xD00;
+    num_write = pwrite(fd_1, &value, sizeof(value), 0x198);
+    ASSERT_EQ(num_write, sizeof(value));
+
     value = 65432;
-    num_write = pwrite(fd, &value, sizeof(value), 0x309);
+    num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
     m_msrio_group->read_batch();
-    freq = m_msrio_group->sample(freq_idx);
+    freq_0 = m_msrio_group->sample(freq_idx_0);
+    freq_1 = m_msrio_group->sample(freq_idx_1);
     inst = m_msrio_group->sample(inst_idx);
-    EXPECT_EQ(1.2e9, freq);
+    EXPECT_EQ(1.2e9, freq_0);
+    EXPECT_EQ(1.3e9, freq_1);
     EXPECT_EQ(65432, inst);
 
     // read and sample immediately
     value = 0xD00;
-    num_write = pwrite(fd, &value, sizeof(value), 0x198);
+    num_write = pwrite(fd_0, &value, sizeof(value), 0x198);
     ASSERT_EQ(num_write, sizeof(value));
-    freq = m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
-    EXPECT_EQ(1.3e9, freq);
+    freq_0 = m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(1.3e9, freq_0);
+    value = 0xE00;
+    num_write = pwrite(fd_1, &value, sizeof(value), 0x198);
+    ASSERT_EQ(num_write, sizeof(value));
+    freq_1 = m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
+    EXPECT_EQ(1.4e9, freq_1);
     value = 7777;
-    num_write = pwrite(fd, &value, sizeof(value), 0x309);
+    num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
     inst = m_msrio_group->read_signal("PERF_FIXED_CTR0:INST_RETIRED_ANY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(7777, inst);
@@ -268,63 +299,89 @@ TEST_F(MSRIOGroupTest, control)
     EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_INVALID, m_msrio_group->control_domain_type("INVALID"));
 
     // push valid controls
-    int freq_idx = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
-    ASSERT_EQ(0, freq_idx);
+    int freq_idx_0 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    ASSERT_EQ(0, freq_idx_0);
     int power_idx = m_msrio_group->push_control("PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, power_idx);
+
+    // pushing same control gives same index
+    int idx2 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(freq_idx_0, idx2);
+
+    // pushing same control for another cpu gives different index
+    int freq_idx_1 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
+    EXPECT_NE(freq_idx_0, freq_idx_1);
 
     EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
                          "called before all controls were adjusted");
 
-    int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
-    ASSERT_NE(-1, fd);
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+    int fd_1 = open(m_test_dev_path[1].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_1);
     uint64_t value;
     size_t num_read;
     // Set frequency to 1 GHz, power to 100W
-    m_msrio_group->adjust(freq_idx, 1e9);
+    m_msrio_group->adjust(freq_idx_0, 1e9);
+    m_msrio_group->adjust(freq_idx_1, 1.1e9);
     m_msrio_group->adjust(power_idx, 160);
     m_msrio_group->write_batch();
-    num_read = pread(fd, &value, sizeof(value), 0x199);
+    num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0xA00ULL, (value & 0xFF00));
-    num_read = pread(fd, &value, sizeof(value), 0x610);
+    num_read = pread(fd_1, &value, sizeof(value), 0x199);
+    EXPECT_EQ(8ULL, num_read);
+    EXPECT_EQ(0xB00ULL, (value & 0xFF00));
+    num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x500ULL, (value & 0x3FFF));
 
     // Set frequency to 5 GHz, power to 200W
-    m_msrio_group->adjust(freq_idx, 5e9);
+    m_msrio_group->adjust(freq_idx_0, 5e9);
+    m_msrio_group->adjust(freq_idx_1, 5.1e9);
     m_msrio_group->adjust(power_idx, 200);
     // Calling adjust without calling write_batch() should not
     // change the platform.
-    num_read = pread(fd, &value, sizeof(value), 0x199);
+    num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0xA00ULL, (value & 0xFF00));
-    num_read = pread(fd, &value, sizeof(value), 0x610);
+    num_read = pread(fd_1, &value, sizeof(value), 0x199);
+    EXPECT_EQ(8ULL, num_read);
+    EXPECT_EQ(0xB00ULL, (value & 0xFF00));
+    num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x500ULL, (value & 0x7FFF));
 
     m_msrio_group->write_batch();
     // Now that write_batch() been called the value on the platform
     // should be updated.
-    num_read = pread(fd, &value, sizeof(value), 0x199);
+    num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x3200ULL, (value & 0xFF00));
-    num_read = pread(fd, &value, sizeof(value), 0x610);
+    num_read = pread(fd_1, &value, sizeof(value), 0x199);
+    EXPECT_EQ(8ULL, num_read);
+    EXPECT_EQ(0x3300ULL, (value & 0xFF00));
+    num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x640ULL, (value & 0x7FFF));
 
     // Set frequency to 3 GHz immediately
     m_msrio_group->write_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 3e9);
-    num_read = pread(fd, &value, sizeof(value), 0x199);
+    num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x1E00ULL, (value & 0xFF00));
+    m_msrio_group->write_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1, 3.1e9);
+    num_read = pread(fd_1, &value, sizeof(value), 0x199);
+    EXPECT_EQ(8ULL, num_read);
+    EXPECT_EQ(0x1F00ULL, (value & 0xFF00));
 
     m_msrio_group->write_control("PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 300);
-    num_read = pread(fd, &value, sizeof(value), 0x610);
+    num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x960ULL, (value & 0x7FFF));
 
-    close(fd);
+    close(fd_0);
+    close(fd_1);
 
     EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
                          GEOPM_ERROR_INVALID, "cannot push a control after .*adjust");
