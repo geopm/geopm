@@ -133,6 +133,8 @@
 /tutorial/tutorial_[0-9]*_trace-*
 /tutorial/tutorial_4_imbalance.conf
 /tutorial/contrib
+/tutorial/geopm_time.h
+/tutorial/Exception.hpp
 /openmp-4.0.0.src.tar.xz
 /openmp-4.0.0.src/*
 /openmp/*

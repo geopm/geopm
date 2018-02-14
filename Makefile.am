@@ -166,14 +166,22 @@ EXTRA_DIST = .gitignore \
              geopm-tutorial.tar.gz \
              # end
 
-TUTORIAL_DIST = tutorial/Imbalancer.cpp \
+TUTORIAL_DIST = tutorial/contrib/json11/json11.cpp \
+                tutorial/contrib/json11/json11.hpp \
+                tutorial/contrib/json11/LICENSE.txt \
+                tutorial/contrib/json11/README.md \
+                tutorial/Exception.hpp \
+                tutorial/geopm_time.h \
+                tutorial/Imbalancer.cpp \
                 tutorial/imbalancer.h \
                 tutorial/Makefile \
-                tutorial/README.md \
                 tutorial/ModelApplication.cpp \
                 tutorial/ModelApplication.hpp \
+                tutorial/ModelParse.cpp \
+                tutorial/ModelParse.hpp \
                 tutorial/ModelRegion.cpp \
                 tutorial/ModelRegion.hpp \
+                tutorial/README.md \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
@@ -186,9 +194,9 @@ TUTORIAL_DIST = tutorial/Imbalancer.cpp \
                 tutorial/tutorial_4.sh \
                 tutorial/tutorial_5.c \
                 tutorial/tutorial_5.sh \
+                tutorial/tutorial_6_config.json \
                 tutorial/tutorial_6.cpp \
                 tutorial/tutorial_6.sh \
-                tutorial/tutorial_6_config.json \
                 tutorial/tutorial_balanced_policy.json \
                 tutorial/tutorial_build_gnu.sh \
                 tutorial/tutorial_build_intel.sh \
@@ -196,10 +204,6 @@ TUTORIAL_DIST = tutorial/Imbalancer.cpp \
                 tutorial/tutorial_governed_policy.json \
                 tutorial/tutorial_region.c \
                 tutorial/tutorial_region.h \
-                tutorial/contrib/json11/json11.cpp \
-                tutorial/contrib/json11/json11.hpp \
-                tutorial/contrib/json11/README.md \
-                tutorial/contrib/json11/LICENSE.txt \
                 # end
 
 # EXTEND FLAGS FOR MPI TARGETS
