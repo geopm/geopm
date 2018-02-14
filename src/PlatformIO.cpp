@@ -57,8 +57,9 @@ namespace geopm
     PlatformIO::PlatformIO()
         : m_is_active(false)
     {
-         register_iogroup(iogroup_factory().make_plugin("MSR"));
-         register_iogroup(iogroup_factory().make_plugin("time"));
+         for (const auto &it : iogroup_factory().plugin_names()) {
+             register_iogroup(iogroup_factory().make_plugin(it));
+         }
     }
 
     PlatformIO::PlatformIO(std::list<std::unique_ptr<IOGroup> > iogroup_list)

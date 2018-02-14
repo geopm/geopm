@@ -37,6 +37,7 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include <forward_list>
 
 #include "Exception.hpp"
 
