@@ -95,7 +95,7 @@ class MSRTest : public :: testing :: Test
 
 void MSRTest::SetUp()
 {
-    m_cpu_idx = 0;
+    m_cpu_idx = 2;
     m_domain_types = {IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU};
     m_function_types = {IMSR::M_FUNCTION_SCALE, IMSR::M_FUNCTION_LOG_HALF, IMSR::M_FUNCTION_7_BIT_FLOAT};
     m_unit_types = {IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE};
@@ -233,7 +233,7 @@ TEST_F(MSRTest, msr_signal)
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_signal_names[sig_idx]), sig->name());
     EXPECT_THROW(sig->domain_type(), geopm::Exception) << MSG_2_IMPLEMENTOR;
-    EXPECT_THROW(sig->domain_idx(), geopm::Exception) << MSG_2_IMPLEMENTOR;
+    EXPECT_EQ(m_cpu_idx, sig->domain_idx());
     EXPECT_THROW(sig->sample(), geopm::Exception);
     EXPECT_EQ(1, sig->num_msr());
     sig->offset(offset);
@@ -254,7 +254,7 @@ TEST_F(MSRTest, msr_control)
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con->name());
     EXPECT_THROW(con->domain_type(), geopm::Exception) << MSG_2_IMPLEMENTOR;
-    EXPECT_THROW(con->domain_idx(), geopm::Exception) << MSG_2_IMPLEMENTOR;
+    EXPECT_EQ(m_cpu_idx, con->domain_idx());
     EXPECT_THROW(con->adjust(m_control_value), geopm::Exception);
     EXPECT_EQ(1, con->num_msr());
     con->offset(offset);

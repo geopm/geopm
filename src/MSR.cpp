@@ -411,8 +411,8 @@ namespace geopm
 
     int MSRSignal::domain_idx(void) const
     {
-        throw Exception("MSRSignal::domain_idx(): not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        /// @todo Different MSRs composing this signal should not have different domain
+        return m_config[0].domain_idx;
     }
 
     double MSRSignal::sample(void) const
@@ -512,8 +512,8 @@ namespace geopm
 
     int MSRControl::domain_idx(void) const
     {
-        throw Exception("MSRControl::domain_idx(): not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        /// @todo Different MSRs composing this control should not have different domain
+        return m_config[0].domain_idx;
     }
 
     void MSRControl::adjust(double setting)

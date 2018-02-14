@@ -56,13 +56,13 @@ namespace geopm
     static const MSR *init_msr_arr(int cpu_id, size_t &arr_size);
 
     MSRIOGroup::MSRIOGroup()
-        : MSRIOGroup(std::unique_ptr<IMSRIO>(new MSRIO), cpuid())
+        : MSRIOGroup(std::unique_ptr<IMSRIO>(new MSRIO), cpuid(), geopm_sched_num_cpu())
     {
 
     }
 
-    MSRIOGroup::MSRIOGroup(std::unique_ptr<IMSRIO> msrio, int cpuid)
-        : m_num_cpu(geopm_sched_num_cpu())
+    MSRIOGroup::MSRIOGroup(std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu)
+        : m_num_cpu(num_cpu)
         , m_is_active(false)
         , m_is_read(false)
         , m_msrio(std::move(msrio))
@@ -147,33 +147,49 @@ namespace geopm
         }
 
         int result = -1;
-        int cpu_idx = domain_idx;
-
-        result = m_active_signal.size();
-        m_active_signal.push_back(ncsm_it->second[cpu_idx]);
-
-        MSRSignal *msr_sig = m_active_signal.back();
+        bool is_found = false;
+        // Check if signal was already pushed
+        for (size_t ii = 0; !is_found && ii < m_active_signal.size(); ++ii) {
 #ifdef GEOPM_DEBUG
-        if (!msr_sig) {
-            throw Exception("MSRIOGroup::push_signal(): NULL MSRSignal pointer was saved in active signals",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
+            if (!m_active_signal[ii]) {
+                throw Exception("MSRIOGroup::push_signal(): NULL MSRSignal pointer was saved in active signals",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
 #endif
-        std::vector<uint64_t> offset;
-        msr_sig->offset(offset);
-        m_read_signal_off.push_back(m_read_cpu_idx.size());
-        m_read_signal_len.push_back(msr_sig->num_msr());
-        for (int i = 0; i < msr_sig->num_msr(); ++i) {
-            m_read_cpu_idx.push_back(cpu_idx);
-            m_read_offset.push_back(offset[i]);
+            /// @todo Support non-CPU domains and check domain type of the signal here
+            if (m_active_signal[ii]->name() == signal_name &&
+                m_active_signal[ii]->domain_idx() == domain_idx) {
+                result = ii;
+                is_found = true;
+            }
+        }
+
+        /// @todo support for non-CPU domains.
+        int cpu_idx = domain_idx;
+        if (!is_found) {
+            result = m_active_signal.size();
+            m_active_signal.push_back(ncsm_it->second[cpu_idx]);
+            MSRSignal *msr_sig = m_active_signal[result];
+#ifdef GEOPM_DEBUG
+            if (!msr_sig) {
+                throw Exception("MSRIOGroup::push_signal(): NULL MSRSignal pointer was saved in active signals",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
+            std::vector<uint64_t> offset;
+            msr_sig->offset(offset);
+            m_read_signal_off.push_back(m_read_cpu_idx.size());
+            m_read_signal_len.push_back(msr_sig->num_msr());
+            for (int i = 0; i < msr_sig->num_msr(); ++i) {
+                m_read_cpu_idx.push_back(cpu_idx);
+                m_read_offset.push_back(offset[i]);
+            }
         }
         return result;
     }
 
     int MSRIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
     {
-        int result = -1;
-        int cpu_idx = domain_idx;
         /// @todo support for non-CPU domains.
         if (domain_type != IPlatformTopo::M_DOMAIN_CPU) {
             throw Exception("MSRIOGroup::push_control(): non-CPU domain_type not implemented.",
@@ -190,26 +206,47 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        result = m_active_control.size();
-        m_is_adjusted.push_back(false);
-        m_active_control.push_back(nccm_it->second[cpu_idx]);
-        MSRControl *msr_ctl = m_active_control.back();
+        int result = -1;
+        bool is_found = false;
+        // Check if control was already pushed
+        for (size_t ii = 0; !is_found && ii < m_active_control.size(); ++ii) {
 #ifdef GEOPM_DEBUG
-        if (!msr_ctl) {
-            throw Exception("MSRIOGroup::push_control(): NULL MSRControl pointer was saved in active controls",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
+            if (!m_active_control[ii]) {
+                throw Exception("MSRIOGroup::push_control(): NULL MSRControl pointer was saved in active signals",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
 #endif
-        std::vector<uint64_t> offset;
-        std::vector<uint64_t> mask;
-        msr_ctl->offset(offset);
-        msr_ctl->mask(mask);
-        m_write_control_off.push_back(m_write_cpu_idx.size());
-        m_write_control_len.push_back(msr_ctl->num_msr());
-        for (int i = 0; i < msr_ctl->num_msr(); ++i) {
-            m_write_cpu_idx.push_back(cpu_idx);
-            m_write_offset.push_back(offset[i]);
-            m_write_mask.push_back(mask[i]);
+            /// @todo Support non-CPU domains and check domain type of the control here
+            if (m_active_control[ii]->name() == control_name &&
+                m_active_control[ii]->domain_idx() == domain_idx) {
+                result = ii;
+                is_found = true;
+            }
+        }
+        /// @todo support for non-CPU domains.
+        int cpu_idx = domain_idx;
+        if (!is_found) {
+            result = m_active_control.size();
+            m_is_adjusted.push_back(false);
+            m_active_control.push_back(nccm_it->second[cpu_idx]);
+            MSRControl *msr_ctl = m_active_control[result];
+#ifdef GEOPM_DEBUG
+            if (!msr_ctl) {
+                throw Exception("MSRIOGroup::push_control(): NULL MSRControl pointer was saved in active controls",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
+            std::vector<uint64_t> offset;
+            std::vector<uint64_t> mask;
+            msr_ctl->offset(offset);
+            msr_ctl->mask(mask);
+            m_write_control_off.push_back(m_write_cpu_idx.size());
+            m_write_control_len.push_back(msr_ctl->num_msr());
+            for (int i = 0; i < msr_ctl->num_msr(); ++i) {
+                m_write_cpu_idx.push_back(cpu_idx);
+                m_write_offset.push_back(offset[i]);
+                m_write_mask.push_back(mask[i]);
+            }
         }
         return result;
     }
@@ -491,9 +528,10 @@ namespace geopm
             ++field_idx;
         }
 
+        /// @todo Support for non-cpu domains
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             for (auto &sc : signal_config) {
-                sc.cpu_idx = cpu_idx;
+                sc.domain_idx = cpu_idx;
             }
             cpu_signal[cpu_idx] = new MSRSignal(signal_config, signal_name);
         }
@@ -551,9 +589,10 @@ namespace geopm
             ++field_idx;
         }
 
+        /// @todo Support for non-cpu domains
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             for (auto &sc : control_config) {
-                sc.cpu_idx = cpu_idx;
+                sc.domain_idx = cpu_idx;
             }
             cpu_control[cpu_idx] = new MSRControl(control_config, control_name);
         }
