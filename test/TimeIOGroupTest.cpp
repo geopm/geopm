@@ -59,7 +59,9 @@ TEST_F(TimeIOGroupTest, is_valid)
 
 TEST_F(TimeIOGroupTest, push)
 {
-    EXPECT_NO_THROW(m_group.push_signal("TIME", 0, 0));
+    int idx1 = m_group.push_signal("TIME", 0, 0);
+    int idx2 = m_group.push_signal("TIME", 0, 0);
+    EXPECT_EQ(idx1, idx2);
     EXPECT_THROW(m_group.push_signal("INVALID", 0, 0), geopm::Exception);
     EXPECT_THROW(m_group.push_control("TIME", 0, 0), geopm::Exception);
     EXPECT_THROW(m_group.push_control("INVALID", 0, 0), geopm::Exception);
