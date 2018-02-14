@@ -35,9 +35,12 @@
 
 #include <stdint.h>
 #include <string>
+#include <memory>
 
 namespace geopm
 {
+    class IOGroup;
+
     /// @brief Class which is a collection of all valid control and
     /// signal objects for a platform
     class IPlatformIO
@@ -45,9 +48,21 @@ namespace geopm
         public:
             IPlatformIO() {}
             virtual ~IPlatformIO() {}
+            virtual void register_iogroup(std::unique_ptr<IOGroup> iogroup) = 0;
             /// @brief Query the domain for a named signal.
+            /// @param [in] signal_name The name of the signal.
+            /// @return One of the PlatformTopo::m_domain_e values
+            ///         signifying the granularity at which the signal
+            ///         is measured.  Will return M_DOMAIN_INVALID if
+            ///         the signal name is not supported.
             virtual int signal_domain_type(const std::string &signal_name) const = 0;
             /// @brief Query the domain for a named control.
+            /// @param [in] signal_name The name of the signal.
+            /// @return One of the PlatformTopo::m_domain_e values
+            ///         signifying the granularity at which the
+            ///         control can be adjusted.  Will return
+            ///         M_DOMAIN_INVALID if the signal name is not
+            ///         supported.
             virtual int control_domain_type(const std::string &control_name) const = 0;
             /// @brief Push a signal onto the end of the vector that
             ///        can be sampled.
@@ -58,8 +73,8 @@ namespace geopm
             ///        the set of domains of the same type on the
             ///        platform.
             /// @return Index of signal when sample() method is called
-            ///         or -1 if the signal is not valid on the
-            ///         platform.
+            ///         or M_DOMAIN_INVALID if the signal is not valid
+            ///         on the platform.
             virtual int push_signal(const std::string &signal_name,
                                     int domain_type,
                                     int domain_idx) = 0;
@@ -71,8 +86,8 @@ namespace geopm
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
-            /// @return Index of the control if the requested
-            ///         control is valid, otherwise returns -1.
+            /// @return Index of the control if the requested control
+            ///         is valid, otherwise returns M_DOMAIN_INVALID.
             virtual int push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx) = 0;

@@ -31,13 +31,27 @@
  */
 
 #include "IOGroup.hpp"
+#include "MSRIOGroup.hpp"
+#include "TimeIOGroup.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    static PluginFactory<IOGroup> *g_plugin_factory;
+    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
+    static void register_built_in_once(void)
+    {
+        g_plugin_factory->register_plugin(MSRIOGroup::plugin_name(),
+                                          MSRIOGroup::make_plugin);
+        g_plugin_factory->register_plugin(TimeIOGroup::plugin_name(),
+                                          TimeIOGroup::make_plugin);
+    }
+
     PluginFactory<IOGroup> &iogroup_factory(void)
     {
         static PluginFactory<IOGroup> instance;
+        g_plugin_factory = &instance;
+        pthread_once(&g_register_built_in_once, register_built_in_once);
         return instance;
     }
 }

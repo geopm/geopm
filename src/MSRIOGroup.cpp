@@ -46,6 +46,8 @@
 #include "PlatformTopo.hpp"
 #include "config.h"
 
+#define GEOPM_MSR_IO_GROUP_PLUGIN_NAME "MSR"
+
 namespace geopm
 {
     const MSR *msr_knl(size_t &num_msr);
@@ -560,6 +562,16 @@ namespace geopm
             }
             cpu_control[cpu_idx] = new MSRControl(control_config, control_name);
         }
+    }
+
+    std::string MSRIOGroup::plugin_name(void)
+    {
+        return GEOPM_MSR_IO_GROUP_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IOGroup> MSRIOGroup::make_plugin(void)
+    {
+        return std::unique_ptr<IOGroup>(new MSRIOGroup);
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)

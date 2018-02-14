@@ -83,7 +83,6 @@ namespace geopm
         return result;
     }
 
-
     static PluginFactory<IDecider> *g_plugin_factory;
     static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
     static void register_built_in_once(void)
