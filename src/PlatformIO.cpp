@@ -92,7 +92,8 @@ namespace geopm
             }
         }
         if (!is_found) {
-            throw Exception("PlatformIO::signal_domain_type(): signal name \"" + signal_name + "\" not found",
+            throw Exception("PlatformIO::signal_domain_type(): signal name \"" +
+                            signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
@@ -111,7 +112,8 @@ namespace geopm
             }
         }
         if (!is_found) {
-            throw Exception("PlatformIO::control_domain_type(): control name \"" + control_name + "\" not found",
+            throw Exception("PlatformIO::control_domain_type(): control name \"" +
+                            control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
@@ -165,7 +167,8 @@ namespace geopm
             }
         }
         if (result == -1) {
-            throw Exception("PlatformIO::push_control(): control name \"" + control_name + "\" not found",
+            throw Exception("PlatformIO::push_control(): control name \"" +
+                            control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
@@ -195,7 +198,7 @@ namespace geopm
                             double setting)
     {
         if (control_idx < 0 || control_idx >= num_control()) {
-            throw Exception("PlatformIO::adjust() control_idx out of range",
+            throw Exception("PlatformIO::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto &group_idx_pair = m_active_control[control_idx];

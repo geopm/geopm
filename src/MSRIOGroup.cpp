@@ -132,7 +132,7 @@ namespace geopm
     {
         /// @todo support for non-CPU domains.
         if (domain_type != IPlatformTopo::M_DOMAIN_CPU) {
-            throw Exception("MSRIOGroup::push_signal() non-CPU domain_type not implemented.",
+            throw Exception("MSRIOGroup::push_signal(): non-CPU domain_type not implemented.",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         if (m_is_active) {
@@ -141,10 +141,9 @@ namespace geopm
         }
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it == m_name_cpu_signal_map.end()) {
-            std::ostringstream err_str;
-            err_str << "MSRIOGroup::push_signal(): signal name \""
-                    << signal_name << "\" not found";
-            throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("MSRIOGroup::push_signal(): signal name \"" +
+                            signal_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         int result = -1;
@@ -186,10 +185,9 @@ namespace geopm
         }
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it == m_name_cpu_control_map.end()) {
-            std::ostringstream err_str;
-            err_str << "MSRIOGroup::push_control(): control name \""
-                    << control_name << "\" not found";
-            throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("MSRIOGroup::push_control(): control name \"" +
+                            control_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         result = m_active_control.size();
@@ -247,7 +245,7 @@ namespace geopm
         }
 
         if (!m_is_read) {
-            throw Exception("MSRIOGroup:sample(): sample() called before signal was read.",
+            throw Exception("MSRIOGroup::sample() called before signal was read.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
@@ -257,7 +255,7 @@ namespace geopm
     void MSRIOGroup::adjust(int control_idx, double setting)
     {
         if (control_idx < 0 || (unsigned)control_idx >= m_active_control.size()) {
-            throw Exception("MSRIOGroup::adjust() control_idx out of range",
+            throw Exception("MSRIOGroup::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (!m_is_active) {
@@ -271,15 +269,14 @@ namespace geopm
     {
         /// @todo support for non-CPU domains.
         if (domain_type != IPlatformTopo::M_DOMAIN_CPU) {
-            throw Exception("MSRIOGroup::push_signal() non-CPU domain_type not implemented.",
+            throw Exception("MSRIOGroup::read_signal(): non-CPU domain_type not implemented.",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it == m_name_cpu_signal_map.end()) {
-            std::ostringstream err_str;
-            err_str << "MSRIOGroup::read_signal(): signal name \""
-                    << signal_name << "\" not found";
-            throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("MSRIOGroup::read_signal(): signal name \"" +
+                            signal_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         int cpu_idx = domain_idx;
@@ -303,15 +300,14 @@ namespace geopm
     {
         /// @todo support for non-CPU domains.
         if (domain_type != IPlatformTopo::M_DOMAIN_CPU) {
-            throw Exception("MSRIOGroup::push_signal() non-CPU domain_type not implemented.",
+            throw Exception("MSRIOGroup::write_control(): non-CPU domain_type not implemented.",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it == m_name_cpu_control_map.end()) {
-            std::ostringstream err_str;
-            err_str << "MSRIOGroup::write_control(): control name \""
-                    << control_name << "\" not found";
-            throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("MSRIOGroup::write_control(): control name \"" +
+                            control_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         int cpu_idx = domain_idx;
@@ -354,9 +350,8 @@ namespace geopm
             uint64_t write_mask = 0;
 
             if (!num_signals && !num_controls) {
-                std::ostringstream err_str;
-                err_str << "MSRIOGroup::msr_whitelist(): invalid msr";
-                throw Exception(err_str.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("MSRIOGroup::msr_whitelist(): invalid msr",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
             if (num_controls) {
