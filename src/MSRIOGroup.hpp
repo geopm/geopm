@@ -97,6 +97,8 @@ namespace geopm
             std::string msr_whitelist(int cpuid) const;
             /// @brief Get the cpuid of the current platform.
             int cpuid(void) const;
+            static std::string plugin_name(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
         protected:
             void activate(void);
             /// @brief Register a single MSR field as a signal. This
