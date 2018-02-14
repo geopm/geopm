@@ -34,6 +34,7 @@
 #include "TimeIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {
