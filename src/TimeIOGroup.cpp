@@ -93,7 +93,7 @@ namespace geopm
 
     int TimeIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
     {
-        throw Exception("TimeIOGroup::push_control() there are no controls supported by the TimeIOGroup",
+        throw Exception("TimeIOGroup::push_control(): there are no controls supported by the TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
@@ -115,15 +115,15 @@ namespace geopm
     double TimeIOGroup::sample(int batch_idx)
     {
         if (!m_is_signal_pushed) {
-            throw Exception("TimeIOGroup::sample() signal has not been pushed",
+            throw Exception("TimeIOGroup::sample(): signal has not been pushed",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (!m_is_batch_read) {
-            throw Exception("TimeIOGroup::sample() signal has not been read",
+            throw Exception("TimeIOGroup::sample(): signal has not been read",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (batch_idx != 0) {
-            throw Exception("TimeIOGroup::sample() batch_idx out of range",
+            throw Exception("TimeIOGroup::sample(): batch_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_time_curr;
@@ -131,14 +131,14 @@ namespace geopm
 
     void TimeIOGroup::adjust(int batch_idx, double setting)
     {
-        throw Exception("TimeIOGroup::adjust() there are no controls supported by the TimeIOGroup",
+        throw Exception("TimeIOGroup::adjust(): there are no controls supported by the TimeIOGroup",
                          GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     double TimeIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("TimeIOGroup:read_signal " + signal_name +
+            throw Exception("TimeIOGroup:read_signal(): " + signal_name +
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -149,7 +149,7 @@ namespace geopm
 
     void TimeIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
     {
-        throw Exception("TimeIOGroup::write_control() there are no controls supported by the TimeIOGroup",
+        throw Exception("TimeIOGroup::write_control(): there are no controls supported by the TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
