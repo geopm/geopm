@@ -57,8 +57,8 @@ namespace geopm
     PlatformIO::PlatformIO()
         : m_is_active(false)
     {
-         m_iogroup_list.emplace_back(new MSRIOGroup);
-         m_iogroup_list.emplace_back(new TimeIOGroup);
+         register_iogroup(iogroup_factory().make_plugin("MSR"));
+         register_iogroup(iogroup_factory().make_plugin("time"));
     }
 
     PlatformIO::PlatformIO(std::list<std::unique_ptr<IOGroup> > iogroup_list)
@@ -71,6 +71,11 @@ namespace geopm
     PlatformIO::~PlatformIO()
     {
 
+    }
+
+    void PlatformIO::register_iogroup(std::unique_ptr<IOGroup> iogroup)
+    {
+        m_iogroup_list.push_back(std::move(iogroup));
     }
 
     int PlatformIO::signal_domain_type(const std::string &signal_name) const
