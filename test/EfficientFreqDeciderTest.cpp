@@ -115,7 +115,7 @@ void EfficientFreqDeciderTest::SetUp()
 
     m_mock_region = std::unique_ptr<MockRegion>(new MockRegion());
     m_mock_policy = std::unique_ptr<MockPolicy>(new MockPolicy());
-    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo));
+    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo));
 }
 
 void EfficientFreqDeciderTest::TearDown()
@@ -171,7 +171,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info0)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_sticker();
     EXPECT_DOUBLE_EQ(1.3e9, freq);
     std::remove(m_cpuinfo_path.c_str());
@@ -218,7 +218,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info1)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_sticker();
     EXPECT_DOUBLE_EQ(1.2e9, freq);
     std::remove(m_cpuinfo_path.c_str());
@@ -265,7 +265,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info2)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_sticker();
     EXPECT_DOUBLE_EQ(1.1e9, freq);
     std::remove(m_cpuinfo_path.c_str());
@@ -292,7 +292,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info3)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_sticker();
     EXPECT_DOUBLE_EQ(1.1e9, freq);
     std::remove(m_cpuinfo_path.c_str());
@@ -321,7 +321,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info4)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     EXPECT_THROW( {
-            EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+            EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
         },
         geopm::Exception);
     std::remove(m_cpuinfo_path.c_str());
@@ -349,7 +349,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info5)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_sticker();
     EXPECT_DOUBLE_EQ(1.5e9, freq);
     std::remove(m_cpuinfo_path.c_str());
@@ -397,7 +397,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_info6)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_sticker();
     EXPECT_DOUBLE_EQ(1.3e9, freq);
     std::remove(m_cpuinfo_path.c_str());
@@ -417,7 +417,7 @@ TEST_F(EfficientFreqDeciderTest, parse_cpu_freq)
     cpufreq_max_stream << "2000000";
     cpufreq_max_stream.close();
 
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo);
+    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
     double freq = decider.cpu_freq_min();
     EXPECT_DOUBLE_EQ(1.0e9, freq);
     freq = decider.cpu_freq_max();
@@ -484,7 +484,7 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
     setenv("GEOPM_EFFICIENT_FREQ_MAX", "2e9", 1);
 
     // reset decider with new settings
-    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, m_platform_io, m_platform_topo));
+    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo));
 
     {
         // should not be called if we hit the adaptive branch
