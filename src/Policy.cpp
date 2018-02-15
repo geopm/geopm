@@ -168,9 +168,9 @@ namespace geopm
         return m_mode;
     }
 
-    int Policy::frequency_mhz(void) const
+    double Policy::frequency_hz(void) const
     {
-        return m_policy_flags->frequency_mhz();;
+        return m_policy_flags->frequency_hz();;
     }
 
     int Policy::tdp_percent(void) const

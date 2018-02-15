@@ -136,16 +136,16 @@ modifying the behavior of the mode by matching key strings to value strings.
   * `freq_uniform_static`:
     Implements the GEOPM_MODE_FREQ_UNIFORM_STATIC mode described in the
     **geopm_policy_c(3**) man page in the `STATIC MODES` section.  The
-    only key required to be passed to the `-d` flag is the _cpu_mhz_ key
-    which has a value that is the CPU frequency in units of MHz.  All other
+    only key required to be passed to the `-d` flag is the _cpu_hz_ key
+    which has a value that is the CPU frequency in units of Hz.  All other
     keys are ignored.
 
   * `freq_hybrid_static`:
     Implements the GEOPM_MODE_FREQ_HYBRID_STATIC mode described in the
     **geopm_policy_c(3)** man page in the `STATIC MODES` section.  There
     are three keys required to be passed to the `-d` flag for the freq_hybrid
-    mode: _cpu_mhz_ giving operating frequency for constrained CPUs in units
-    of MHz, _num_cpu_max_perf_ giving the number of CPUs per node running at
+    mode: _cpu_hz_ giving operating frequency for constrained CPUs in units
+    of Hz, _num_cpu_max_perf_ giving the number of CPUs per node running at
     maximum performance, and _affinity_ which can have a value of "compact"
     or "scatter" describing the distribution of the constrained CPUs. In most
     cases this will match the OpenMP environment. All other keys are ignored.
@@ -188,11 +188,11 @@ modifying the behavior of the mode by matching key strings to value strings.
 
   * Create a configuration file for a fixed frequency of 1.5 GHz::
     $ geopmpolicy -c -f geopm.conf -m freq_uniform_static \ <br>
-    -d cpu_mhz:1500
+    -d cpu_hz:1500000000
 
   * Create a configuration file for a hybrid frequency of 2.5 GHz where 4 cores are unconstrained and using scatter distribution::
     $ geopmpolicy -c -f geopm.conf -m freq_hybrid_static \ <br>
-    -d cpu_mhz:2500,num_cpu_max_perf:4,affinity:scatter
+    -d cpu_hz:2500000000,num_cpu_max_perf:4,affinity:scatter
 
   * Create a configuration file for all processors to run at 75% of the Thermal Design Power::
     $ geopmpolicy -c -f geopm.conf -m tdp_balance_static \ <br>

@@ -52,8 +52,8 @@ class MockPolicy : public geopm::IPolicy {
                 void(uint64_t region_id, int domain, double &target));
         MOCK_CONST_METHOD0(mode,
                 int(void));
-        MOCK_CONST_METHOD0(frequency_mhz,
-                int(void));
+        MOCK_CONST_METHOD0(frequency_hz,
+                double(void));
         MOCK_CONST_METHOD0(tdp_percent,
                 int(void));
         MOCK_CONST_METHOD0(affinity,
