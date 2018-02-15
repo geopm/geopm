@@ -57,7 +57,7 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
 
   * `int geopm_policy_cpu_freq(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `int` _cpu_mhz_`);`
+    `int` _cpu_hz_`);`
 
   * `int geopm_policy_full_perf(`:
     `struct geopm_policy_c *`_policy_, <br>
@@ -153,7 +153,7 @@ and zero upon success; see [ERRORS][] section below for details.
     [STATIC MODES][] and [DYNAMIC MODES][] sections below.
 
   * `geopm_policy_cpu_freq`():
-    sets the _cpu_mhz_ frequency in MHz to which the _policy_ will
+    sets the _cpu_hz_ frequency in Hz to which the _policy_ will
     constrain the restricted CPUs.
 
   * `geopm_policy_cpu_full_perf`():
