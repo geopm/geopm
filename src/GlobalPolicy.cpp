@@ -1028,8 +1028,29 @@ namespace geopm
                 }
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
+                //int affinity = affinity();
+                //for (int i = 0; i < num_logical_cpus; i++) {
+                    //int real_cpu = i % num_real_cpus;
+                    //if (affinity == GEOPM_POLICY_AFFINITY_SCATTER && num_cpu_max_perf > 0) {
+                        //if ((real_cpu % num_cpus_per_package) < num_small_cores_per_package) {
+                            //small = true;
+                        //}
+                    //}
+                    //else if (affinity == GEOPM_POLICY_AFFINITY_COMPACT && num_cpu_max_perf > 0) {
+                        //if (real_cpu < (num_real_cpus - num_cpu_max_perf)) {
+                            //small = true;
+                        //}
+                    //}
+                    //else {
+                        //small = true;
+                    //}
+                    //if (small) {
+                        //freq_perc = ((int64_t)(frequency * 0.01) << 8) & 0xffff;
+                        //m_imp->msr_write(GEOPM_DOMAIN_CPU, i, "IA32_PERF_CTL", freq_perc & 0xffff);
+                    //}
+                    //small = false;
+                //}
                 for (int domain_idx = 0; domain_idx < num_freq_domain; ++domain_idx) {
-                    // TODO use affinity mask?
                     double target_freq = frequency_mhz();
                     if (domain_idx < num_max_perf()) {
                         // TODO implement or find API for max_freq()
