@@ -30,6 +30,8 @@
 #
 
 plugin_guide_pdf_sources = doc/geopm-plugin-guide.tex \
+                           doc/leaf-figure.pdf \
+                           doc/tree-figure.pdf \
                            # end
 
 EXTRA_DIST += $(plugin_guide_pdf_sources) \
