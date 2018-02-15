@@ -64,8 +64,8 @@ namespace geopm
             virtual void target(uint64_t region_id, int domain, double &target) = 0;
             virtual int mode(void) const = 0;
             /// @brief Get the policy frequency
-            /// @return frequency in MHz
-            virtual int frequency_mhz(void) const = 0;
+            /// @return frequency in Hz
+            virtual double frequency_hz(void) const = 0;
             /// @brief Get the policy TDP percentage
             /// @return TDP (thermal design power) percentage between 0-100
             virtual int tdp_percent(void) const = 0;
@@ -121,7 +121,7 @@ namespace geopm
             void target(uint64_t region_id, std::vector<double> &target) override;
             void target(uint64_t region_id, int domain, double &target) override;
             int mode(void) const override;
-            int frequency_mhz(void) const override;
+            double frequency_hz(void) const override;
             int tdp_percent(void) const override;
             int affinity(void) const override;
             int goal(void) const override;

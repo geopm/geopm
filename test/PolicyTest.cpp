@@ -56,9 +56,9 @@ void PolicyTest::SetUp()
 
     std::vector<double> target(m_num_domain);
     std::fill(target.begin(), target.end(), 13.0);
-    m_policy->update((uint64_t)13, target); 
+    m_policy->update((uint64_t)13, target);
     std::fill(target.begin(), target.end(), 21.0);
-    m_policy->update((uint64_t)21, target); 
+    m_policy->update((uint64_t)21, target);
     for (int i = 0; i < m_num_domain; i++) {
         if (i == m_num_domain / 2) {
             m_policy->update((uint64_t)42, i, -DBL_MAX);
@@ -67,7 +67,7 @@ void PolicyTest::SetUp()
             m_policy->update((uint64_t)42, i, 42.0);
         }
     }
-    m_flags->frequency_mhz(1200);
+    m_flags->frequency_hz(1.2e9);
     m_flags->tdp_percent(90);
     m_flags->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
     m_flags->goal(GEOPM_POLICY_GOAL_CPU_EFFICIENCY);
@@ -119,7 +119,7 @@ TEST_F(PolicyTest, mode)
 
 TEST_F(PolicyTest, frequency)
 {
-    EXPECT_EQ(1200, m_policy->frequency_mhz());
+    EXPECT_EQ(1.2e9, m_policy->frequency_hz());
 }
 
 TEST_F(PolicyTest, tdp_percent)
@@ -147,7 +147,7 @@ TEST_F(PolicyTest, target)
 {
     std::vector<double> tgt(m_num_domain);
     double actual;
-    
+
     m_policy->target(13, tgt);
     for (int i = 0; i < m_num_domain; ++i) {
         EXPECT_DOUBLE_EQ(13.0, tgt[i]);

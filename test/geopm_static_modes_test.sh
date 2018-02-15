@@ -34,7 +34,7 @@ err=0
 ./geopmpolicy -s
 err=$?
 if [ $err -eq 0 ]; then
-    ./geopmpolicy -e -m freq_uniform_static -d cpu_mhz:1600
+    ./geopmpolicy -e -m freq_uniform_static -d cpu_hz:1.6e9
     err=$?
     if [ $err -eq 0 ]; then
         ./test/geopm_static_modes_test

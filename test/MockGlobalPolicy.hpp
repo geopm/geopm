@@ -36,8 +36,8 @@ class MockGlobalPolicy : public geopm::IGlobalPolicy {
     public:
         MOCK_CONST_METHOD0(mode,
             int (void));
-        MOCK_CONST_METHOD0(frequency_mhz,
-            int (void));
+        MOCK_CONST_METHOD0(frequency_hz,
+            double (void));
         MOCK_CONST_METHOD0(tdp_percent,
             int (void));
         MOCK_CONST_METHOD0(budget_watts,
@@ -60,8 +60,8 @@ class MockGlobalPolicy : public geopm::IGlobalPolicy {
             void (struct geopm_policy_message_s &policy_message));
         MOCK_METHOD1(mode,
             void (int mode));
-        MOCK_METHOD1(frequency_mhz,
-            void (int frequency));
+        MOCK_METHOD1(frequency_hz,
+            void (double frequency));
         MOCK_METHOD1(tdp_percent,
             void (int percentage));
         MOCK_METHOD1(budget_watts,
