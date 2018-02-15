@@ -48,8 +48,8 @@
 #include "geopm_policy.h"
 #include "Exception.hpp"
 #include "GlobalPolicy.hpp"
-#include "Platform.hpp"
-#include "PlatformFactory.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "PolicyFlags.hpp"
 #include "geopm_version.h"
 #include "geopm_env.h"
@@ -1007,18 +1007,36 @@ namespace geopm
 
     void GlobalPolicy::enforce_static_mode()
     {
-        PlatformFactory platform_factory;
-        Platform *platform = platform_factory.platform(std::string("rapl"), true);
+        IPlatformIO &pio = platform_io();
+        IPlatformTopo &topo = platform_topo();
+        const std::string power_ctl_name = "POWER"; // TODO
+        const std::string freq_ctl_name = "FREQ";   // TODO
+        const int power_ctl_domain = pio.control_domain_type(power_ctl_name);
+        const int freq_ctl_domain = pio.control_domain_type(freq_ctl_name);
+        const int num_power_domain = topo.num_domain(power_ctl_domain);
+        const int num_freq_domain = topo.num_domain(freq_ctl_domain);
 
         switch (m_mode) {
             case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
-                platform->tdp_limit(tdp_percent());
+                for (int domain_idx = 0; domain_idx < num_power_domain; ++domain_idx) {
+                    pio.write_control(power_ctl_name, power_ctl_domain, domain_idx, tdp_percent());
+                }
                 break;
             case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
-                platform->manual_frequency(frequency_mhz(), 0, GEOPM_POLICY_AFFINITY_SCATTER);
+                for (int domain_idx = 0; domain_idx < num_freq_domain; ++domain_idx) {
+                    pio.write_control(freq_ctl_name, freq_ctl_domain, domain_idx, frequency_mhz());
+                }
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
-                platform->manual_frequency(frequency_mhz(), num_max_perf(), affinity());
+                for (int domain_idx = 0; domain_idx < num_freq_domain; ++domain_idx) {
+                    // TODO use affinity mask?
+                    double target_freq = frequency_mhz();
+                    if (domain_idx < num_max_perf()) {
+                        // TODO implement or find API for max_freq()
+                        //target_freq = max_freq();
+                    }
+                    pio.write_control(freq_ctl_name, freq_ctl_domain, domain_idx, target_freq);
+                }
                 break;
             default:
                 throw Exception("GlobalPolicy: invalid mode specified",
