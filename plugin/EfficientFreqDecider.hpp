@@ -62,8 +62,8 @@ namespace geopm
             EfficientFreqDecider(const std::string &cpu_info_path,
                                  const std::string &cpu_freq_min_path,
                                  const std::string &cpu_freq_max_path,
-                                 IPlatformIO *platform_io,
-                                 IPlatformTopo *platform_topo);
+                                 IPlatformIO &platform_io,
+                                 IPlatformTopo &platform_topo);
             EfficientFreqDecider(const EfficientFreqDecider &other) = delete;
             EfficientFreqDecider &operator=(const EfficientFreqDecider &other) = delete;
             /// @brief EfficientFreqDecider destructor, virtual.
@@ -94,8 +94,8 @@ namespace geopm
             bool m_is_adaptive = false;
             IRegion *m_region_last = nullptr;
             std::map<uint64_t, std::unique_ptr<EfficientFreqRegion>> m_region_map;
-            IPlatformIO *m_platform_io;
-            IPlatformTopo *m_platform_topo;
+            IPlatformIO &m_platform_io;
+            IPlatformTopo &m_platform_topo;
     };
 }
 
