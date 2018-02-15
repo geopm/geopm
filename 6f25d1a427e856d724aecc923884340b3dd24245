@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3eae7c6_e8834c08",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete whitespace",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8dee4ecb_c263ab7d",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete extra whitespace",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd0cedaa_7ee1fbf7",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete whitespace",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c34375ce_70bddcc1",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "delete me!",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "379a9331_de43b3d1",
+        "filename": "src/PluginFactory.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete whitespace.",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bb2f1fb_a115f0db",
+        "filename": "src/PluginFactory.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "delete me!",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8105437_7e332dc4",
+        "filename": "src/PluginFactory.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "why private",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bea1a731_bdb0e918",
+        "filename": "src/StaticPolicyDecider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete whitespace.",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1401825_ea72155f",
+        "filename": "src/geopm_plugin.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Document this requirement (plugins are called libgeopmpi_*)",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cee898be_d5318edd",
+        "filename": "test/EfficientFreqDeciderTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete me",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4886dd7e_07582350",
+        "filename": "test/geopm_test.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-15T01:34:59Z",
+      "side": 1,
+      "message": "Delete me",
+      "revId": "6f25d1a427e856d724aecc923884340b3dd24245",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
