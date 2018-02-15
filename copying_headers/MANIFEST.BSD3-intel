@@ -74,6 +74,8 @@ src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
+src/CPUFreqLimitsIOGroup.cpp
+src/CPUFreqLimitsIOGroup.hpp
 src/geopm_ctl.h
 src/geopm_ctl.h
 src/geopmctl_main.c
@@ -171,6 +173,7 @@ test/CircularBufferTest.cpp
 test/CommMPIImpTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
+test/CPUFreqLimitsIOGroupTest.cpp
 test/EfficientFreqDeciderTest.cpp
 test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
