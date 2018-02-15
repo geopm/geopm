@@ -632,7 +632,7 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
     plt.close()
 
 
-def generate_power_energy_plot(df, name):
+def generate_power_energy_plot(df, name, output_dir='.'):
     """
     Creates a plot comparing the runtime and energy of a region on two axes.
     """
@@ -652,7 +652,7 @@ def generate_power_energy_plot(df, name):
     plt.legend(lines + lines2, labels + labels2, shadow=True, fancybox=True, loc='best')
     plt.title('{}'.format(name))
     f.tight_layout()
-    plt.savefig('{}_freq_energy.{}'.format(name.replace(' ', '_'), 'png'))
+    plt.savefig(os.path.join(output_dir, '{}_freq_energy.{}'.format(name.replace(' ', '_'), 'png')))
     plt.close()
 
 
