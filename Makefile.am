@@ -135,6 +135,7 @@ EXTRA_DIST = .gitignore \
              geopm.spec \
              Makefile.am \
              MANIFEST \
+             pull_request_template.md \
              README.md \
              ronn/geopm.7.ronn \
              ronn/geopmanalysis.1.ronn \
