@@ -52,10 +52,10 @@ namespace geopm
         return m_flags;
     }
 
-    int PolicyFlags::frequency_mhz(void) const
+    double PolicyFlags::frequency_hz(void) const
     {
-        long int freq = m_flags & 0x00000000000000FFUL;
-        return (int)freq*100;
+        double freq = m_flags & 0x00000000000000FFUL;
+        return freq * 1e-8;
     }
 
     int PolicyFlags::tdp_percent(void) const
@@ -115,12 +115,15 @@ namespace geopm
         m_flags = flags;
     }
 
-    void PolicyFlags::frequency_mhz(int frequency)
+    void PolicyFlags::frequency_hz(double frequency)
     {
-        m_flags = m_flags & 0xFFFFFFFFFFFFFF00UL;
-        //Convert to 100s of MHZ
-        //Rounds frequency precisionto a 10th of a GHz
-        m_flags = m_flags | (frequency/100);
+        uint64_t mask = 0x00000000000000FFUL;
+        unsigned long freq_100_mhz = frequency * 1e-8;
+        if ((freq_100_mhz & mask) != freq_100_mhz) {
+            throw Exception("PolicyFlags::frequency_hz(): input frequency value too large.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_flags = m_flags & mask;
+        m_flags = m_flags | (freq_100_mhz);
     }
 
     void PolicyFlags::tdp_percent(int percentage)
