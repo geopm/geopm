@@ -99,6 +99,8 @@ class Analysis(object):
         self._app_argv = app_argv
         self._report_paths = []
         self._trace_paths = []
+        if not os.path.exists(self._output_dir):
+            os.makedirs(self._output_dir)
 
     def launch(self):
         """
@@ -222,7 +224,7 @@ class FreqSweepAnalysis(Analysis):
 
     def plot(self, process_output):
         for region, df in process_output.iteritems():
-            geopmpy.plotter.generate_power_energy_plot(df, region)
+            geopmpy.plotter.generate_power_energy_plot(df, region, self._output_dir)
 
     def _region_freq_map(self, report_df):
         """
@@ -438,9 +440,9 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         region_freq_str = self._sweep_analysis._region_freq_str(process_output)
 
         # Run online frequency decider
-        os.environ['GEOPM_EFFICIENT_FREQ_RID_ADAPTIVE'] = 'yes'
-        if 'GEOPM_EFFICIENT_FREQ_MAP' in os.environ:
-            del os.environ['GEOPM_EFFICIENT_FREQ_MAP']
+        os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
+        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
 
         profile_name = self._name + '_online'
         report_path = os.path.join(self._output_dir, profile_name + '.report')

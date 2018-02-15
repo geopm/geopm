@@ -220,7 +220,7 @@ namespace geopm
                         obj_name = obj_name.substr(last_slash + 1);
                     }
                 }
-                name = "[OMPT]" + obj_name + ":" + std::string(buffer);
+                name = "[OMPT]" + obj_name + ":" + std::string(buffer) + "_" + std::to_string(addr);
             }
         }
     }
