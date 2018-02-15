@@ -80,7 +80,7 @@ int geopm_policy_mode(struct geopm_policy_c *policy,
                       int mode);
 
 int geopm_policy_cpu_freq(struct geopm_policy_c *policy,
-                          int cpu_mhz);
+                          double cpu_hz);
 
 int geopm_policy_full_perf(struct geopm_policy_c *policy,
                            int num_cpu_full_perf);
