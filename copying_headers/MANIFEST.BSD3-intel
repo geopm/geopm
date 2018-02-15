@@ -74,6 +74,8 @@ src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
+src/CPUFreqLimitsIOGroup.cpp
+src/CPUFreqLimitsIOGroup.hpp
 src/geopm_ctl.h
 src/geopm_ctl.h
 src/geopmctl_main.c
