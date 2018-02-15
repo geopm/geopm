@@ -48,8 +48,8 @@ namespace geopm
             /// @return Integer representation of flags
             virtual unsigned long flags(void) const = 0;
             /// @brief Get the policy frequency
-            /// @return frequency in MHz
-            virtual int frequency_mhz(void) const = 0;
+            /// @return frequency in Hz
+            virtual double frequency_hz(void) const = 0;
             /// @brief Get the policy TDP percentage
             /// @return TDP (thermal design power) percentage between 0-100
             virtual int tdp_percent(void) const = 0;
@@ -73,8 +73,8 @@ namespace geopm
             /// @param [in] flags Integer representation of flags
             virtual void flags(unsigned long flags) = 0;
             /// @brief Set the policy frequency
-            /// @param [in] frequency frequency in MHz
-            virtual void frequency_mhz(int frequency) = 0;
+            /// @param [in] frequency frequency in Hz
+            virtual void frequency_hz(double frequency) = 0;
             /// @brief Set the policy TDP percentage
             /// @param [in] percentage TDP percentage between 0-100
             virtual void tdp_percent(int percentage) = 0;
@@ -103,13 +103,13 @@ namespace geopm
             /// @brief GlobalPolicy destructor
             virtual ~PolicyFlags();
             unsigned long flags(void) const override;
-            int frequency_mhz(void) const  override;
+            double frequency_hz(void) const  override;
             int tdp_percent(void) const override;
             int affinity(void) const override;
             int goal(void) const override;
             int num_max_perf(void) const override;
             void flags(unsigned long flags) override;
-            void frequency_mhz(int frequency) override;
+            void frequency_hz(double frequency) override;
             void tdp_percent(int percentage) override;
             void affinity(int cpu_affinity) override;
             void goal(int geo_goal) override;
