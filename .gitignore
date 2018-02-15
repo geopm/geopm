@@ -91,6 +91,7 @@
 /src/*.lo
 /src/*.o
 /stamp-h1
+/tags
 /test-driver
 /test/geopm_mpi_test
 /test/geopm_mpi_test_api
