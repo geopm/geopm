@@ -76,6 +76,8 @@ src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
+src/CpuinfoIOGroup.cpp
+src/CpuinfoIOGroup.hpp
 src/geopm_ctl.h
 src/geopm_ctl.h
 src/geopmctl_main.c
@@ -178,6 +180,7 @@ test/CombinedSignalTest.cpp
 test/CommMPIImpTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
+test/CpuinfoIOGroupTest.cpp
 test/EfficientFreqDeciderTest.cpp
 test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
