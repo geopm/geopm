@@ -1,0 +1,9 @@
+Verified+1: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Klocwork+1: <fsp@intel.com>
+Verified+1: <fsp@intel.com>
+Code-Review+2: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Submitted-by: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Submitted-at: Wed, 14 Feb 2018 20:35:58 -0500
+Reviewed-on: https://review.gerrithub.io/399938
+Project: geopm/geopm
+Branch: refs/heads/dev
