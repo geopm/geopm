@@ -48,8 +48,9 @@
 #include "geopm_policy.h"
 #include "Exception.hpp"
 #include "GlobalPolicy.hpp"
-#include "Platform.hpp"
-#include "PlatformFactory.hpp"
+#include "IOGroup.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "PolicyFlags.hpp"
 #include "geopm_version.h"
 #include "geopm_env.h"
@@ -1007,18 +1008,63 @@ namespace geopm
 
     void GlobalPolicy::enforce_static_mode()
     {
-        PlatformFactory platform_factory;
-        Platform *platform = platform_factory.platform(std::string("rapl"), true);
+        IPlatformIO &pio = platform_io();
+        IPlatformTopo &topo = platform_topo();
+        const std::string tdp_sig_name = "PKG_POWER_INFO:THERMAL_SPEC_POWER";
+        const std::string power_ctl_name = "PKG_RAPL_UNIT:POWER";
+        const std::string freq_ctl_name = "PERF_CTL:FREQ";
+        const int tdp_sig_domain = pio.signal_domain_type(tdp_sig_name);
+        const double tdp = pio.read_signal(tdp_sig_name, tdp_sig_domain, 0);
+        const int power_ctl_domain = pio.control_domain_type(power_ctl_name);
+        const int freq_ctl_domain = pio.control_domain_type(freq_ctl_name);
+        const int num_power_domain = topo.num_domain(power_ctl_domain);
+        const int num_freq_domain = topo.num_domain(freq_ctl_domain);
+        const int num_real_cpus = topo.num_domain(IPlatformTopo::M_DOMAIN_CORE);
+        const int num_packages = topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+        const int num_cpus_per_package = num_real_cpus / num_packages;
+        const int affinity = this->affinity();
+        const int num_cpu_max_perf = this->num_max_perf();
+        const int num_small_cores_per_package = num_cpus_per_package - (num_cpu_max_perf / num_packages);
+        const std::string min_freq_signal_name = "MIN";
+        std::unique_ptr<IOGroup> cpu_freq_limits = iogroup_factory().make_plugin("CPU_FREQ_LIMITS");
+        int domain_type = cpu_freq_limits->signal_domain_type(min_freq_signal_name);
+        double min_freq = cpu_freq_limits->read_signal(min_freq_signal_name, domain_type, 0);
 
         switch (m_mode) {
             case GEOPM_POLICY_MODE_TDP_BALANCE_STATIC:
-                platform->tdp_limit(tdp_percent());
+                for (int domain_idx = 0; domain_idx < num_power_domain; ++domain_idx) {
+                    pio.write_control(power_ctl_name, power_ctl_domain, domain_idx, tdp * tdp_percent());
+                }
                 break;
             case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
-                platform->manual_frequency(frequency_hz() * 1e-8, 0, GEOPM_POLICY_AFFINITY_SCATTER);
+                for (int domain_idx = 0; domain_idx < num_freq_domain; ++domain_idx) {
+                    pio.write_control(freq_ctl_name, freq_ctl_domain, domain_idx, frequency_hz());
+                }
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
-                platform->manual_frequency(frequency_hz() * 1e-8, num_max_perf(), affinity());
+                for (int cpu_idx = 0; cpu_idx < num_freq_domain; ++cpu_idx) {
+                    double target_freq = frequency_hz();
+                    int real_cpu = cpu_idx % num_real_cpus;
+                    bool small = false;
+                    if (affinity == GEOPM_POLICY_AFFINITY_SCATTER && num_cpu_max_perf > 0) {
+                        if ((real_cpu % num_cpus_per_package) < num_small_cores_per_package) {
+                            small = true;
+                        }
+                    }
+                    else if (affinity == GEOPM_POLICY_AFFINITY_COMPACT && num_cpu_max_perf > 0) {
+                        if (real_cpu < (num_real_cpus - num_cpu_max_perf)) {
+                            small = true;
+                        }
+                    }
+                    else {
+                        small = true;
+                    }
+                    if (small) {
+                        target_freq = min_freq;
+                    }
+                    pio.write_control(freq_ctl_name, freq_ctl_domain, cpu_idx, target_freq);
+                    small = false;
+                }
                 break;
             default:
                 throw Exception("GlobalPolicy: invalid mode specified",
