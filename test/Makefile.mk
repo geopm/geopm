@@ -129,14 +129,15 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info0 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info1 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info2 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info3 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info4 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info5 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_info6 \
-              test/gtest_links/EfficientFreqDeciderTest.parse_cpu_freq \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info0 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info1 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info2 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info3 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info4 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info5 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_info6 \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.parse_cpu_freq \
+              test/gtest_links/CPUFreqLimitsIOGroupTest.plugin \
               test/gtest_links/EfficientFreqDeciderTest.map \
               test/gtest_links/EfficientFreqDeciderTest.decider_is_supported \
               test/gtest_links/EfficientFreqDeciderTest.name \
@@ -272,6 +273,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/EfficientFreqDeciderRegister.cpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
+                          test/CPUFreqLimitsIOGroupTest.cpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockPlatform.hpp \
