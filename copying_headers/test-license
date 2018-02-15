@@ -95,7 +95,7 @@ class BadRepoError(Exception):
         self.path = str(path)
         self.errno = 4
     def __str__(self):
-        return 'Unable to find file "{0}"'.format(self.path)
+        return 'Unable to find file(s): {0}'.format(self.path)
 
 class LicenseHeaderFormatError(Exception):
     def __init__(self, msg, path):
@@ -245,6 +245,13 @@ class Repo(object):
         part = set(part)
         if not full.issubset(part):
             raise ManifestIncompleteError(full.difference(part))
+        manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.EXEMPT')
+        bad_paths = []
+        for path in open(manifest):
+            if not os.path.exists(path.strip()):
+                bad_paths.append(path.strip())
+        if bad_paths:
+            raise BadRepoError(', '.join(['"{}"'.format(pp) for pp in bad_paths]))
 
     def check_license(self):
         """
