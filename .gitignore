@@ -140,3 +140,4 @@
 /openmp-4.0.0.src/*
 /openmp/*
 /scripts/test/pytest_links/*
+.gdb_history
