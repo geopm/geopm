@@ -65,7 +65,7 @@ void BalancingDeciderTest::SetUp()
     m_policy = new geopm::Policy(m_num_domain);
     m_region = new geopm::Region(GEOPM_REGION_ID_EPOCH, m_num_domain, 1, NULL);
 
-    m_flags->frequency_mhz(1200);
+    m_flags->frequency_hz(1200000000);
     m_flags->tdp_percent(90);
     m_flags->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
     m_flags->goal(GEOPM_POLICY_GOAL_CPU_EFFICIENCY);
