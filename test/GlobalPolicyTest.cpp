@@ -103,20 +103,20 @@ TEST_F(GlobalPolicyTest, mode_freq_uniform_static)
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->frequency_mhz(1800);
+    policy->frequency_hz(1.8e9);
     policy->write();
     delete policy;
 
     policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC);
-    policy->frequency_mhz(3400);
+    policy->frequency_hz(3.4e9);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC, policy->mode());
-    EXPECT_EQ(3400, policy->frequency_mhz());
+    EXPECT_EQ(3.4e9, policy->frequency_hz());
     //read saved values back
     policy->read();
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
-    EXPECT_DOUBLE_EQ(1800, policy->frequency_mhz());
+    EXPECT_DOUBLE_EQ(1.8e9, policy->frequency_hz());
     delete policy;
 }
 
@@ -125,7 +125,7 @@ TEST_F(GlobalPolicyTest, mode_freq_hybrid_static)
     geopm::GlobalPolicy *policy = new geopm::GlobalPolicy("", m_path);
     // write values to file
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC);
-    policy->frequency_mhz(1800);
+    policy->frequency_hz(1.8e9);
     policy->num_max_perf(16);
     policy->affinity(GEOPM_POLICY_AFFINITY_SCATTER);
     policy->write();
@@ -134,17 +134,17 @@ TEST_F(GlobalPolicyTest, mode_freq_hybrid_static)
     policy = new geopm::GlobalPolicy(m_path, "");
     //overwrite local values
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->frequency_mhz(3600);
+    policy->frequency_hz(3.6e9);
     policy->num_max_perf(42);
     policy->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
-    EXPECT_EQ(3600, policy->frequency_mhz());
+    EXPECT_EQ(3.6e9, policy->frequency_hz());
     EXPECT_EQ(42, policy->num_max_perf());
     EXPECT_EQ(GEOPM_POLICY_AFFINITY_COMPACT, policy->affinity());
     //read saved values back
     policy->read();
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC, policy->mode());
-    EXPECT_EQ(1800, policy->frequency_mhz());
+    EXPECT_EQ(1.8e9, policy->frequency_hz());
     EXPECT_EQ(16, policy->num_max_perf());
     EXPECT_EQ(GEOPM_POLICY_AFFINITY_SCATTER, policy->affinity());
     delete policy;
@@ -292,17 +292,17 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_uniform_static)
     policy->tree_decider("static_policy");
     policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->frequency_mhz(1800);
+    policy->frequency_hz(1.8e9);
     policy->write();
     //overwrite local values
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC);
-    policy->frequency_mhz(3400);
+    policy->frequency_hz(3.4e9);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC, policy->mode());
-    EXPECT_EQ(3400, policy->frequency_mhz());
+    EXPECT_EQ(3.4e9, policy->frequency_hz());
     //read saved values back
     policy->read();
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
-    EXPECT_DOUBLE_EQ(1800, policy->frequency_mhz());
+    EXPECT_DOUBLE_EQ(1.8e9, policy->frequency_hz());
     delete policy;
 }
 
@@ -313,23 +313,23 @@ TEST_F(GlobalPolicyTestShmem, mode_freq_hybrid_static)
     policy->tree_decider("static_policy");
     policy->leaf_decider("static_policy");
     policy->mode(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC);
-    policy->frequency_mhz(1800);
+    policy->frequency_hz(1.8e9);
     policy->num_max_perf(16);
     policy->affinity(GEOPM_POLICY_AFFINITY_SCATTER);
     policy->write();
     //overwrite local values
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->frequency_mhz(3600);
+    policy->frequency_hz(3.6e9);
     policy->num_max_perf(42);
     policy->affinity(GEOPM_POLICY_AFFINITY_COMPACT);
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC, policy->mode());
-    EXPECT_EQ(3600, policy->frequency_mhz());
+    EXPECT_EQ(3.6e9, policy->frequency_hz());
     EXPECT_EQ(42, policy->num_max_perf());
     EXPECT_EQ(GEOPM_POLICY_AFFINITY_COMPACT, policy->affinity());
     //read saved values back
     policy->read();
     EXPECT_EQ(GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC, policy->mode());
-    EXPECT_EQ(1800, policy->frequency_mhz());
+    EXPECT_EQ(1.8e9, policy->frequency_hz());
     EXPECT_EQ(16, policy->num_max_perf());
     EXPECT_EQ(GEOPM_POLICY_AFFINITY_SCATTER, policy->affinity());
     delete policy;
@@ -444,7 +444,7 @@ TEST_F(GlobalPolicyTest, invalid_policy)
     policy->tree_decider("power_balancing");
     policy->leaf_decider("power_governing");
     policy->mode(GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC);
-    policy->frequency_mhz(1800);
+    policy->frequency_hz(1.8e9);
     EXPECT_THROW(policy->write(), geopm::Exception);
     policy->tree_decider("static_policy");
     policy->leaf_decider("static_policy");
@@ -494,9 +494,9 @@ TEST_F(GlobalPolicyTest, invalid_policy)
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
 
-    // cpu_mhz must be double
+    // cpu_hz must be double
     config_stream.open(input_config);
-    config_stream << "{\"options\": {\"cpu_mhz\": \"percent\"} }";
+    config_stream << "{\"options\": {\"cpu_hz\": \"percent\"} }";
     config_stream.close();
     EXPECT_THROW(geopm::GlobalPolicy malformed_file(input_config, ""), geopm::Exception);
 

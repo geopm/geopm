@@ -66,8 +66,8 @@ namespace geopm
             /// @return geopm_policy_mode_e power mode
             virtual int mode(void) const = 0;
             /// @brief Get the policy frequency
-            /// @return frequency in MHz
-            virtual int frequency_mhz(void) const = 0;
+            /// @return frequency in Hz
+            virtual double frequency_hz(void) const = 0;
             /// @brief Get the policy TDP percentage
             /// @return TDP (thermal design power) percentage between 0-100
             virtual int tdp_percent(void) const = 0;
@@ -112,8 +112,8 @@ namespace geopm
             /// @param [in] mode geopm_policy_mode_e power mode
             virtual void mode(int mode) = 0;
             /// @brief Set the policy frequency
-            /// @param [in] frequency frequency in MHz
-            virtual void frequency_mhz(int frequency) = 0;
+            /// @param [in] frequency frequency in Hz
+            virtual void frequency_hz(double frequency) = 0;
             /// @brief Set the policy TDP percentage
             /// @param [in] percentage TDP percentage between 0-100
             virtual void tdp_percent(int percentage) = 0;
@@ -176,7 +176,7 @@ namespace geopm
             /// @brief GlobalPolicy destructor
             virtual ~GlobalPolicy();
             int mode(void) const override;
-            int frequency_mhz(void) const override;
+            double frequency_hz(void) const override;
             int tdp_percent(void) const override;
             int budget_watts(void) const override;
             int affinity(void) const override;
@@ -188,7 +188,7 @@ namespace geopm
             std::string mode_string() const override;
             void policy_message(struct geopm_policy_message_s &policy_message) override;
             void mode(int mode) override;
-            void frequency_mhz(int frequency) override;
+            void frequency_hz(double frequency) override;
             void tdp_percent(int percentage) override;
             void budget_watts(int budget) override;
             void affinity(int cpu_affinity) override;

@@ -132,7 +132,7 @@ extern "C"
         return err;
     }
 
-    int geopm_policy_cpu_freq(struct geopm_policy_c *policy, int cpu_mhz)
+    int geopm_policy_cpu_freq(struct geopm_policy_c *policy, double cpu_hz)
     {
         int err = 0;
 
@@ -141,7 +141,7 @@ extern "C"
             if (policy_obj == NULL) {
                 throw geopm::Exception(GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
             }
-            policy_obj->frequency_mhz(cpu_mhz);
+            policy_obj->frequency_hz(cpu_hz);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -437,9 +437,9 @@ namespace geopm
         return m_mode;
     }
 
-    int GlobalPolicy::frequency_mhz(void) const
+    double GlobalPolicy::frequency_hz(void) const
     {
-        return m_flags->frequency_mhz();;
+        return m_flags->frequency_hz();;
     }
 
     int GlobalPolicy::tdp_percent(void) const
@@ -497,9 +497,9 @@ namespace geopm
         m_mode = mode;
     }
 
-    void GlobalPolicy::frequency_mhz(int frequency)
+    void GlobalPolicy::frequency_hz(double frequency)
     {
-        m_flags->frequency_mhz(frequency);
+        m_flags->frequency_hz(frequency);
     }
 
     void GlobalPolicy::tdp_percent(int percentage)
@@ -632,11 +632,11 @@ namespace geopm
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
-            else if (key_string == "cpu_mhz") {
+            else if (key_string == "cpu_hz") {
                 if (subval.is_number()) {
-                    frequency_mhz(subval.number_value());
+                    frequency_hz(subval.number_value());
                 } else {
-                    throw Exception("GlobalPolicy::read(): cpu_mhz expected to be a double type",
+                    throw Exception("GlobalPolicy::read(): cpu_hz expected to be a double type",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
             }
@@ -717,13 +717,13 @@ namespace geopm
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC) {
-            if (frequency_mhz() < 0) {
+            if (frequency_hz() < 0) {
                 throw Exception("GlobalPolicy::check_valid(): frequency is out of bounds",
                                 GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         if (m_mode == GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC) {
-            if (frequency_mhz() < 0) {
+            if (frequency_hz() < 0) {
                 throw Exception("GlobalPolicy::check_valid(): frequency is out of bounds",
                                 GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
@@ -895,13 +895,13 @@ namespace geopm
                 policy = Json::object {
                     {"mode", "freq_uniform_static"},
                     {"options", Json::object {
-                        {"cpu_mhz", frequency_mhz()}}}};
+                        {"cpu_hz", frequency_hz()}}}};
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
                 policy = Json::object {
                     {"mode", "freq_hybrid_static"},
                     {"options", Json::object {
-                        {"cpu_mhz", frequency_mhz()},
+                        {"cpu_hz", frequency_hz()},
                         {"num_cpu_max_perf", num_max_perf()},
                         {"affinity", affinity_string(affinity())}}}};
                 break;
@@ -945,7 +945,7 @@ namespace geopm
                     {"mode", "dynamic"},
                     {"options", Json::object {
                         {"tdp_percent", tdp_percent()},
-                        {"cpu_mhz", frequency_mhz()},
+                        {"cpu_hz", frequency_hz()},
                         {"num_cpu_max_perf", num_max_perf()},
                         {"affinity", affinity_string(affinity())},
                         {"platform", m_platform},
@@ -1015,10 +1015,10 @@ namespace geopm
                 platform->tdp_limit(tdp_percent());
                 break;
             case GEOPM_POLICY_MODE_FREQ_UNIFORM_STATIC:
-                platform->manual_frequency(frequency_mhz(), 0, GEOPM_POLICY_AFFINITY_SCATTER);
+                platform->manual_frequency(frequency_hz() * 1e-8, 0, GEOPM_POLICY_AFFINITY_SCATTER);
                 break;
             case GEOPM_POLICY_MODE_FREQ_HYBRID_STATIC:
-                platform->manual_frequency(frequency_mhz(), num_max_perf(), affinity());
+                platform->manual_frequency(frequency_hz() * 1e-8, num_max_perf(), affinity());
                 break;
             default:
                 throw Exception("GlobalPolicy: invalid mode specified",
