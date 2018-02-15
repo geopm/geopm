@@ -99,6 +99,8 @@ class Analysis(object):
         self._app_argv = app_argv
         self._report_paths = []
         self._trace_paths = []
+        if not os.path.exists(self._output_dir):
+            os.makedirs(self._output_dir)
 
     def launch(self):
         """
@@ -106,12 +108,13 @@ class Analysis(object):
         """
         raise NotImplementedError('Analysis base class does not implement the launch method()')
 
-    def find_files(self):
+    def find_files(self, search_pattern):
         """
         Uses the output dir and any custom naming convention to load the report and trace data
         produced by launch.
         """
-        raise NotImplementedError('Analysis base class does not implement the find_files method()')
+        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
+        self.set_data_paths(glob.glob(report_glob))
 
     def set_data_paths(self, report_paths, trace_paths=None):
         """
@@ -127,7 +130,7 @@ class Analysis(object):
         """
         Load any necessary data from the application result files into memory for analysis.
         """
-        return geopmpy.io.AppOutput(self._report_paths, self._trace_paths, verbose=False)
+        return geopmpy.io.AppOutput(self._report_paths, self._trace_paths, verbose=True)
 
     def plot_process(self, parse_output):
         """
@@ -205,8 +208,7 @@ class FreqSweepAnalysis(Analysis):
                 raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def find_files(self):
-        report_glob = os.path.join(self._output_dir, self._name + '_freq_*.report')
-        self.set_data_paths(glob.glob(report_glob))
+        super(FreqSweepAnalysis, self).find_files('_freq_*.report')
 
     def report_process(self, parse_output):
         return self._region_freq_map(parse_output.get_report_df())
@@ -222,7 +224,7 @@ class FreqSweepAnalysis(Analysis):
 
     def plot(self, process_output):
         for region, df in process_output.iteritems():
-            geopmpy.plotter.generate_power_energy_plot(df, region)
+            geopmpy.plotter.generate_runtime_energy_plot(df, region, self._output_dir)
 
     def _region_freq_map(self, report_df):
         """
@@ -363,8 +365,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
             raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def find_files(self):
-        report_glob = os.path.join(self._output_dir, self._name + '*.report')
-        self.set_data_paths(glob.glob(report_glob))
+        super(OfflineBaselineComparisonAnalysis, self).find_files('*.report')
 
     def parse(self):
         """Combines reports from the sweep with other reports to be
@@ -402,6 +403,12 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         rs += str(process_output)+'\n'
         sys.stdout.write(rs)
 
+    def plot_process(self, parse_output):
+        pass
+
+    def plot(self, process_output):
+        pass
+
 
 # TODO: this only needs to run the sticker freq, not the whole sweep
 class OnlineBaselineComparisonAnalysis(Analysis):
@@ -438,9 +445,9 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         region_freq_str = self._sweep_analysis._region_freq_str(process_output)
 
         # Run online frequency decider
-        os.environ['GEOPM_EFFICIENT_FREQ_RID_ADAPTIVE'] = 'yes'
-        if 'GEOPM_EFFICIENT_FREQ_MAP' in os.environ:
-            del os.environ['GEOPM_EFFICIENT_FREQ_MAP']
+        os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
+        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
 
         profile_name = self._name + '_online'
         report_path = os.path.join(self._output_dir, profile_name + '.report')
@@ -467,8 +474,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
             raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def find_files(self):
-        report_glob = os.path.join(self._output_dir, self._name + '*.report')
-        self.set_data_paths(glob.glob(report_glob))
+        super(OnlineBaselineComparisonAnalysis, self).find_files('*.report')
 
     def parse(self):
         """Combines reports from the sweep with other reports to be
@@ -505,6 +511,12 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         rs += 'All frequencies:\n'
         rs += str(process_output)+'\n'
         sys.stdout.write(rs)
+
+    def plot_process(self, parse_output):
+        pass
+
+    def plot(self, process_output):
+        pass
 
 
 class StreamDgemmMixAnalysis(Analysis):
@@ -579,8 +591,7 @@ class StreamDgemmMixAnalysis(Analysis):
             self._online_analysis[ratio_idx].launch(geopm_ctl, do_geopm_barrier)
 
     def find_files(self):
-        report_glob = os.path.join(self._output_dir, self._name + '*.report')
-        self.set_data_paths(glob.glob(report_glob))
+        super(StreamDgemmMixAnalysis, self).find_files('*.report')
 
     def parse(self):
         app_output = super(StreamDgemmMixAnalysis, self).parse()

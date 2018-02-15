@@ -41,8 +41,15 @@ import numpy
 import glob
 import json
 import sys
+import subprocess
 from natsort import natsorted
 from geopmpy import __version__
+
+
+_, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
+pandas.set_option('display.width', int(os.environ['COLUMNS']))
+pandas.set_option('display.max_colwidth', 80)
+
 
 class AppOutput(object):
     """The container class for all report and trace related data.
