@@ -73,6 +73,8 @@ src/Decider.hpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
+src/FreqIOGroup.cpp
+src/FreqIOGroup.hpp
 src/geopm_ctl.h
 src/geopm_ctl.h
 src/geopmctl_main.c
