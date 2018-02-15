@@ -29,32 +29,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef CPUFREQLIMITSIOGROUP_HPP_INCLUDE
+#define CPUFREQLIMITSIOGROUP_HPP_INCLUDE
 
+#include <map>
 #include "IOGroup.hpp"
-#include "MSRIOGroup.hpp"
-#include "CPUFreqLimitsIOGroup.hpp"
-#include "TimeIOGroup.hpp"
-#include "config.h"
 
 namespace geopm
 {
-    static PluginFactory<IOGroup> *g_plugin_factory;
-    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
-    static void register_built_in_once(void)
+    class CPUFreqLimitsIOGroup : public IOGroup
     {
-        g_plugin_factory->register_plugin(MSRIOGroup::plugin_name(),
-                                          MSRIOGroup::make_plugin);
-        g_plugin_factory->register_plugin(TimeIOGroup::plugin_name(),
-                                          TimeIOGroup::make_plugin);
-        g_plugin_factory->register_plugin(CPUFreqLimitsIOGroup::plugin_name(),
-                                          CPUFreqLimitsIOGroup::make_plugin);
-    }
-
-    PluginFactory<IOGroup> &iogroup_factory(void)
-    {
-        static PluginFactory<IOGroup> instance;
-        g_plugin_factory = &instance;
-        pthread_once(&g_register_built_in_once, register_built_in_once);
-        return instance;
-    }
+        public:
+            CPUFreqLimitsIOGroup();
+            virtual ~CPUFreqLimitsIOGroup();
+            bool is_valid_signal(const std::string &signal_name) override;
+            bool is_valid_control(const std::string &control_name) override;
+            int signal_domain_type(const std::string &signal_name) override;
+            int control_domain_type(const std::string &control_name) override;
+            int push_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
+            int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
+            void read_batch(void) override;
+            void write_batch(void) override;
+            double sample(int batch_idx) override;
+            void adjust(int batch_idx, double setting) override;
+            double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
+            void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
+            static std::string plugin_name(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
+        protected:
+            const std::map<std::string, double> m_signal_value_map;
+    };
 }
+
+#endif
