@@ -632,14 +632,14 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
     plt.close()
 
 
-def generate_power_energy_plot(df, name):
+def generate_runtime_energy_plot(df, name, output_dir='.'):
     """
     Creates a plot comparing the runtime and energy of a region on two axes.
     """
     f, ax = plt.subplots()
 
     ax.plot(df.index, df['energy'], color='DarkBlue', label='Energy', marker='o', linestyle='-')
-    ax.set_xlabel('Frequency (Hz)')
+    ax.set_xlabel('Frequency (GHz)')
     ax.set_ylabel('Energy (J)')
 
     ax2 = ax.twinx()
@@ -652,7 +652,7 @@ def generate_power_energy_plot(df, name):
     plt.legend(lines + lines2, labels + labels2, shadow=True, fancybox=True, loc='best')
     plt.title('{}'.format(name))
     f.tight_layout()
-    plt.savefig('{}_freq_energy.{}'.format(name.replace(' ', '_'), 'png'))
+    plt.savefig(os.path.join(output_dir, '{}_freq_energy.{}'.format(name.replace(' ', '_'), 'png')))
     plt.close()
 
 
@@ -1086,9 +1086,6 @@ def generate_freq_plot(trace_df, config):
 def main(argv):
     report_plots = {'debug', 'box', 'bar'}
     trace_plots = {'debug', 'power', 'epoch', 'freq'}
-
-    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()  # Ensures COLUMNS is set so text wraps
-    pandas.set_option('display.width', int(os.environ['COLUMNS']))                # Same tweak for Pandas
 
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
