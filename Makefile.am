@@ -262,6 +262,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/GlobalPolicy.hpp \
                             src/IOGroup.cpp \
                             src/IOGroup.hpp \
+                            src/CPUFreqLimitsIOGroup.cpp \
+                            src/CPUFreqLimitsIOGroup.hpp \
                             src/geopm.h \
                             src/geopm_ctl.h \
                             src/geopm_env.h \
