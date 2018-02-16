@@ -79,6 +79,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GlobalPolicyTest.c_interface \
               test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/ProfileIOSampleTest.hello \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
@@ -229,6 +230,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/ProfileIOGroupTest.is_valid \
               # end
 
 if ENABLE_MPI
@@ -303,6 +305,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/geopm_test.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.hpp \
+                          test/ProfileIOSampleTest.cpp \
+                          test/ProfileIOGroupTest.cpp \
+                          test/MockProfileIOSample.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

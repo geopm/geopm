@@ -170,45 +170,45 @@ void MSRIOGroupTest::SetUp()
 TEST_F(MSRIOGroupTest, signal)
 {
     // error cases
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("PERF_STATUS:FREQ", 99, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", 99, 0),
                                GEOPM_ERROR_NOT_IMPLEMENTED, "non-CPU domain_type");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("INVALID", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->sample(-1), GEOPM_ERROR_INVALID, "signal_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->sample(22), GEOPM_ERROR_INVALID, "signal_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("PERF_STATUS:FREQ", 99, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", 99, 0),
                                GEOPM_ERROR_NOT_IMPLEMENTED, "non-CPU domain_type");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("INVALID", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
 
-    EXPECT_TRUE(m_msrio_group->is_valid_signal("PERF_STATUS:FREQ"));
+    EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_signal("INVALID"));
 
     // check domains
-    EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_CPU, m_msrio_group->signal_domain_type("PERF_FIXED_CTR0:INST_RETIRED_ANY"));
+    EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_CPU, m_msrio_group->signal_domain_type("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY"));
     EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_INVALID, m_msrio_group->signal_domain_type("INVALID"));
 
     // push valid signals
-    int freq_idx_0 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx_0);
-    int inst_idx = m_msrio_group->push_signal("PERF_FIXED_CTR0:INST_RETIRED_ANY",
+    int inst_idx = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY",
                                               geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, inst_idx);
 
     // pushing same signal gives same index
-    int idx2 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    int idx2 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(freq_idx_0, idx2);
 
     // pushing same signal for another cpu gives different index
-    int freq_idx_1 = m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
+    int freq_idx_1 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_NE(freq_idx_0, freq_idx_1);
 
     // TODO: same name different domain gives different index.
@@ -271,62 +271,62 @@ TEST_F(MSRIOGroupTest, signal)
     value = 0xD00;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x198);
     ASSERT_EQ(num_write, sizeof(value));
-    freq_0 = m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    freq_0 = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(1.3e9, freq_0);
     value = 0xE00;
     num_write = pwrite(fd_1, &value, sizeof(value), 0x198);
     ASSERT_EQ(num_write, sizeof(value));
-    freq_1 = m_msrio_group->read_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
+    freq_1 = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_EQ(1.4e9, freq_1);
     value = 7777;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
-    inst = m_msrio_group->read_signal("PERF_FIXED_CTR0:INST_RETIRED_ANY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    inst = m_msrio_group->read_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(7777, inst);
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "cannot push a signal after read_batch");
 }
 
 TEST_F(MSRIOGroupTest, control)
 {
     // error cases
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("PERF_CTL:FREQ", 99, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", 99, 0),
                                GEOPM_ERROR_NOT_IMPLEMENTED, "non-CPU domain_type");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->adjust(-1, 0), GEOPM_ERROR_INVALID, "control_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->adjust(22, 0), GEOPM_ERROR_INVALID, "control_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("PERF_CTL:FREQ", 99, 0, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", 99, 0, 1e9),
                                GEOPM_ERROR_NOT_IMPLEMENTED, "non-CPU domain_type");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("INVALID", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 1e9),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, -1, 1e9),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 9000, 1e9),
                                GEOPM_ERROR_INVALID, "domain_idx out of bounds");
-    EXPECT_TRUE(m_msrio_group->is_valid_control("PERF_CTL:FREQ"));
+    EXPECT_TRUE(m_msrio_group->is_valid_control("MSR::PERF_CTL:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_control("INVALID"));
 
-    EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_CPU, m_msrio_group->control_domain_type("PERF_FIXED_CTR_CTRL:EN0_OS"));
+    EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_CPU, m_msrio_group->control_domain_type("MSR::PERF_FIXED_CTR_CTRL:EN0_OS"));
     EXPECT_EQ(geopm::PlatformTopo::M_DOMAIN_INVALID, m_msrio_group->control_domain_type("INVALID"));
 
     // push valid controls
-    int freq_idx_0 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx_0);
-    int power_idx = m_msrio_group->push_control("PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, power_idx);
 
     // pushing same control gives same index
-    int idx2 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    int idx2 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(freq_idx_0, idx2);
 
     // pushing same control for another cpu gives different index
-    int freq_idx_1 = m_msrio_group->push_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
+    int freq_idx_1 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_NE(freq_idx_0, freq_idx_1);
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
@@ -383,16 +383,16 @@ TEST_F(MSRIOGroupTest, control)
     EXPECT_EQ(0x640ULL, (value & 0x7FFF));
 
     // Set frequency to 3 GHz immediately
-    m_msrio_group->write_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 3e9);
+    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 3e9);
     num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x1E00ULL, (value & 0xFF00));
-    m_msrio_group->write_control("PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1, 3.1e9);
+    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 1, 3.1e9);
     num_read = pread(fd_1, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x1F00ULL, (value & 0xFF00));
 
-    m_msrio_group->write_control("PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 300);
+    m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT", geopm::IPlatformTopo::M_DOMAIN_CPU, 0, 300);
     num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x960ULL, (value & 0x7FFF));

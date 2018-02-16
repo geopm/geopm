@@ -36,13 +36,14 @@
 #include "Exception.hpp"
 #include "config.h"
 
-#define GEOPM_TIME_IO_GROUP_PLUGIN_NAME "time"
+#define GEOPM_TIME_IO_GROUP_PLUGIN_NAME "TIME"
 
 namespace geopm
 {
     TimeIOGroup::TimeIOGroup()
         : m_is_signal_pushed(false)
         , m_is_batch_read(false)
+        , m_signal_name(plugin_name() + "::ELAPSED")
     {
         geopm_time(&m_time_zero);
     }
@@ -54,7 +55,7 @@ namespace geopm
 
     bool TimeIOGroup::is_valid_signal(const std::string &signal_name)
     {
-        return signal_name == "TIME";
+        return signal_name == m_signal_name || signal_name == "TIME";
     }
 
     bool TimeIOGroup::is_valid_control(const std::string &control_name)
@@ -65,7 +66,7 @@ namespace geopm
     int TimeIOGroup::signal_domain_type(const std::string &signal_name)
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
-        if (signal_name == "TIME") {
+        if (signal_name == m_signal_name) {
             result = PlatformTopo::M_DOMAIN_BOARD;
         }
         return result;
@@ -80,7 +81,7 @@ namespace geopm
     {
         if (!is_valid_signal(signal_name)) {
             throw Exception("TimeIOGroup::push_signal(): signal_name " + signal_name +
-                            "not valid for TimeIOGroup",
+                            " not valid for TimeIOGroup",
                              GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (m_is_batch_read) {

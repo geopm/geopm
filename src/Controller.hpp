@@ -57,6 +57,7 @@ namespace geopm
     class IPolicy;
     class IComm;
     class RuntimeRegulator;
+    class IProfileIOSample;
 
     /// @brief Class used to launch or step the global extensible
     ///        open power manager algorithm.
@@ -224,6 +225,7 @@ namespace geopm
             MPI_Comm m_ppn1_comm;
             int m_ppn1_rank;
             std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
+            std::shared_ptr<IProfileIOSample> m_profile_io_sample;
     };
 }
 

@@ -73,6 +73,8 @@
 #include "OMPT.hpp"
 #include "PlatformIO.hpp"
 #include "RuntimeRegulator.hpp"
+#include "ProfileIOGroup.hpp"
+#include "ProfileIOSample.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -428,6 +430,9 @@ namespace geopm
             m_sampler->cpu_rank(cpu_rank);
             m_platform->init_transform(cpu_rank);
             m_sample_regulator = new SampleRegulator(cpu_rank);
+            m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank);
+            std::unique_ptr<ProfileIOGroup> tmp_piog(new ProfileIOGroup(m_profile_io_sample));
+            platform_io().register_iogroup(std::move(tmp_piog));
             m_is_connected = true;
         }
     }
@@ -730,6 +735,7 @@ namespace geopm
                                       m_prof_sample.cbegin(), m_prof_sample.cbegin() + length,
                                       aligned_signal,
                                       m_region_id);
+                m_profile_io_sample->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
                 // Determine if all ranks were last sampled from the same region
                 uint64_t region_id_all = m_region_id[0];
                 for (auto it = m_region_id.begin(); it != m_region_id.end(); ++it) {
