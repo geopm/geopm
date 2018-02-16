@@ -63,6 +63,8 @@ TEST_F(TimeIOGroupTest, push)
     EXPECT_THROW(m_group.push_signal("INVALID", 0, 0), geopm::Exception);
     EXPECT_THROW(m_group.push_control("TIME", 0, 0), geopm::Exception);
     EXPECT_THROW(m_group.push_control("INVALID", 0, 0), geopm::Exception);
+    EXPECT_THROW(m_group.push_signal("TIME", 0, -1), geopm::Exception);
+    EXPECT_THROW(m_group.push_signal("TIME", 0, 1), geopm::Exception);
 }
 
 TEST_F(TimeIOGroupTest, read_nothing)
@@ -131,6 +133,8 @@ TEST_F(TimeIOGroupTest, read_signal)
     double time1 = m_group.read_signal("TIME", 0, 0);
     EXPECT_NEAR(time1 - time0, 1.0, 0.001);
     EXPECT_THROW(m_group.read_signal("INVALID", 0, 0), geopm::Exception);
+    EXPECT_THROW(m_group.read_signal("TIME", 0, -1), geopm::Exception);
+    EXPECT_THROW(m_group.read_signal("TIME", 0, 1), geopm::Exception);
 }
 
 TEST_F(TimeIOGroupTest, read_signal_and_batch)

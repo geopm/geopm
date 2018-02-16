@@ -87,6 +87,11 @@ namespace geopm
             throw Exception("TimeIOGroup::push_signal(): cannot push signal after call to read_batch().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (domain_idx != 0) {
+            throw Exception("TimeIOGroup::push_signal(): domain_idx out of bounds.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         m_is_signal_pushed = true;
         return 0;
     }
@@ -142,6 +147,11 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (domain_idx != 0) {
+            throw Exception("TimeIOGroup::read_signal(): domain_idx out of bounds.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         geopm_time_s time_curr;
         geopm_time(&time_curr);
         return geopm_time_diff(&m_time_zero, &time_curr);
