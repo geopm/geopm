@@ -146,6 +146,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
+        /// @todo support for non-CPU domains.
+        if (domain_idx < 0 || domain_idx > geopm_sched_num_cpu()) {
+            throw Exception("MSRIOGroup::push_signal(): domain_idx out of bounds.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         int result = -1;
         bool is_found = false;
         // Check if signal was already pushed
@@ -199,6 +205,12 @@ namespace geopm
             throw Exception("MSRIOGroup::push_control(): cannot push a control after read_batch() or adjust() has been called.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        /// @todo support for non-CPU domains.
+        if (domain_idx < 0 || domain_idx > geopm_sched_num_cpu()) {
+            throw Exception("MSRIOGroup::push_control(): domain_idx out of bounds.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it == m_name_cpu_control_map.end()) {
             throw Exception("MSRIOGroup::push_control(): control name \"" +
@@ -315,6 +327,11 @@ namespace geopm
                             signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        /// @todo support for non-CPU domains.
+        if (domain_idx < 0 || domain_idx > geopm_sched_num_cpu()) {
+            throw Exception("MSRIOGroup::read_signal(): domain_idx out of bounds.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
 
         int cpu_idx = domain_idx;
         MSRSignal signal = *(ncsm_it->second[cpu_idx]);
@@ -344,6 +361,11 @@ namespace geopm
         if (nccm_it == m_name_cpu_control_map.end()) {
             throw Exception("MSRIOGroup::write_control(): control name \"" +
                             control_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        /// @todo support for non-CPU domains.
+        if (domain_idx < 0 || domain_idx > geopm_sched_num_cpu()) {
+            throw Exception("MSRIOGroup::write_control(): domain_idx out of bounds.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
