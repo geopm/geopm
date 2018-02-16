@@ -137,6 +137,10 @@ src/PolicyFlags.hpp
 src/Policy.hpp
 src/Profile.cpp
 src/Profile.hpp
+src/ProfileIOGroup.cpp
+src/ProfileIOGroup.hpp
+src/ProfileIOSample.cpp
+src/ProfileIOSample.hpp
 src/ProfileSampler.cpp
 src/ProfileSampler.hpp
 src/ProfileTable.cpp
@@ -232,6 +236,8 @@ test/PlatformTopoTest.cpp
 test/PlatformTopologyTest.cpp
 test/pmpi_mock.c
 test/PolicyTest.cpp
+test/ProfileIOGroupTest.cpp
+test/ProfileIOSampleTest.cpp
 test/ProfileTableTest.cpp
 test/RegionTest.cpp
 test/SampleRegulatorTest.cpp
