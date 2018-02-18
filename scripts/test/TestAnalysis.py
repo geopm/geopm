@@ -31,7 +31,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys
 import os
 import unittest
 from collections import defaultdict
@@ -138,7 +137,7 @@ def get_expected_baseline_output_df(profile_names, column,
     for prof in profile_names:
         baseline_perf = baseline_metric_perf['epoch']
         optimal_perf = profile_metric_perf[prof]['epoch']
-        metric_change[prof] = (baseline_perf - optimal_perf) / baseline_perf
+        metric_change[prof] = ((baseline_perf - optimal_perf) / baseline_perf) * 100
 
     # arrange into list of lists for DataFrame constructor
     expected_data = []
@@ -158,7 +157,7 @@ def get_expected_mix_output_df(profile_names, column, baseline_metric_perf,
     for prof in profile_names:
         baseline_perf = baseline_metric_perf['epoch']
         optimal_perf = profile_metric_perf[prof]['epoch']
-        metric_change[prof] = (baseline_perf - optimal_perf) / baseline_perf
+        metric_change[prof] = ((baseline_perf - optimal_perf) / baseline_perf) * 100
 
     # arrange into list of lists for DataFrame constructor
     expected_data = []
