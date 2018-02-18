@@ -260,11 +260,11 @@ class FreqSweepAnalysis(Analysis):
         return result
 
     def _runtime_energy_sweep(self, df, region):
-        freqs = sys_freq_avail()
+        freq_pname = get_freq_profiles(df, self._name)
         data = []
-        for freq in freqs:
-            profile_name = fixed_freq_name(self._name, freq)
-
+        freqs = []
+        for freq, profile_name in freq_pname:
+            freqs.append(freq)
             freq_df = df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :], ]
 
             region_mean_runtime = freq_df.groupby(level='region')['runtime'].mean()
@@ -293,7 +293,7 @@ def baseline_comparison(parse_output, baseline_name, comp_name):
     # show runtime as positive percent; we only care about epoch region
     runtime_savings = runtime_savings.loc[pandas.IndexSlice[:, :, :, :, :, :, 'epoch'], ].mean() * -100.0
     energy_savings = (baseline_frame['energy'] - frame['energy']) / baseline_frame['energy']
-    energy_savings = energy_savings.loc[pandas.IndexSlice[:, :, :, :, :, :, 'epoch'], ].mean()
+    energy_savings = energy_savings.loc[pandas.IndexSlice[:, :, :, :, :, :, 'epoch'], ].mean() * 100
 
     # index contains the profile name which will have things that vary between runs
     result_df = pandas.DataFrame([[energy_savings, runtime_savings]],
