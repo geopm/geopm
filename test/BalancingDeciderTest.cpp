@@ -109,11 +109,6 @@ void BalancingDeciderTest::TearDown()
     }
 }
 
-TEST_F(BalancingDeciderTest, plugin)
-{
-    EXPECT_EQ("power_balancing", geopm::decider_factory().make_plugin("power_balancing")->name());
-}
-
 TEST_F(BalancingDeciderTest, name)
 {
     EXPECT_EQ("power_balancing", m_balancer->name());
