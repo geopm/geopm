@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82b892b1_480455b8",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-21T18:20:47Z",
+      "side": 1,
+      "message": "Is this to fix the long names of the frequency sweeps being cut off?",
+      "revId": "455910e4a7bdb895da3bf8de609e9c54e8be93c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
