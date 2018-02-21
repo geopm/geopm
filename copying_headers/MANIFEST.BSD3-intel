@@ -237,6 +237,7 @@ test/RegionTest.cpp
 test/SampleRegulatorTest.cpp
 test/SchedTest.cpp
 test/SharedMemoryTest.cpp
+test/StaticPolicyDeciderTest.cpp
 test/TreeCommunicatorTest.cpp
 test/TimeIOGroupTest.cpp
 tracker/track

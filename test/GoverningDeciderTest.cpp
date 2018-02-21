@@ -66,11 +66,6 @@ void GoverningDeciderTest::TearDown()
 
 /// @todo: Add test where domains have imbalanced power consumption.
 
-TEST_F(GoverningDeciderTest, plugin)
-{
-    EXPECT_EQ("power_governing", geopm::decider_factory().make_plugin("power_governing")->name());
-}
-
 TEST_F(GoverningDeciderTest, decider_is_supported)
 {
     EXPECT_TRUE(m_decider->decider_supported("power_governing"));

@@ -443,12 +443,6 @@ TEST_F(EfficientFreqDeciderTest, map)
     }
 }
 
-TEST_F(EfficientFreqDeciderTest, plugin)
-{
-    EXPECT_EQ("efficient_freq", geopm::decider_factory().make_plugin("efficient_freq")->name());
-}
-
-
 TEST_F(EfficientFreqDeciderTest, decider_is_supported)
 {
     EXPECT_TRUE(m_decider->decider_supported("efficient_freq"));
