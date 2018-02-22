@@ -70,6 +70,7 @@ src/ControlMessage.cpp
 src/ControlMessage.hpp
 src/Decider.cpp
 src/Decider.hpp
+src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
