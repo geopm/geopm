@@ -68,146 +68,6 @@ static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_messa
     return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
 }
 
-static geopm::Profile &geopm_default_prof(void)
-{
-    static geopm::Profile default_prof(geopm_env_profile(), MPI_COMM_WORLD);
-    return default_prof;
-}
-
-extern "C"
-{
-    // defined in geopm_pmpi.c and used only here
-    void geopm_pmpi_prof_enable(int do_profile);
-
-    int geopm_prof_init(void)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id)
-    {
-        int err = 0;
-        try {
-            *region_id = geopm_default_prof().region(std::string(region_name), hint);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_enter(uint64_t region_id)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().enter(region_id);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_exit(uint64_t region_id)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().exit(region_id);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_progress(uint64_t region_id, double fraction)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().progress(region_id, fraction);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_epoch(void)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().epoch();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_prof_shutdown(void)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().shutdown();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_tprof_init(uint32_t num_work_unit)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().tprof_table()->init(num_work_unit);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-
-    }
-
-    int geopm_tprof_init_loop(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
-    {
-        int err = 0;
-        try {
-            geopm::IProfileThreadTable *table_ptr = geopm_default_prof().tprof_table();
-            if (chunk_size) {
-                table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
-            }
-            else {
-                table_ptr->init(num_thread, thread_idx, num_iter);
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_tprof_post(void)
-    {
-        int err = 0;
-        try {
-            geopm_default_prof().tprof_table()->post();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-}
-
 namespace geopm
 {
 
@@ -342,7 +202,6 @@ namespace geopm
         PMPI_Barrier(m_shm_comm);
         m_ctl_msg->step();
         m_ctl_msg->wait();
-        geopm_pmpi_prof_enable(1);
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
         geopm_time(&overhead_exit);
@@ -372,7 +231,6 @@ namespace geopm
         geopm_time(&overhead_entry);
 #endif
 
-        geopm_pmpi_prof_enable(0);
         PMPI_Barrier(m_shm_comm);
         m_ctl_msg->step();
         m_ctl_msg->wait();
