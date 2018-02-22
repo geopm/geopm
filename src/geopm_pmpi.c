@@ -50,7 +50,6 @@
 #include "config.h"
 
 static int g_is_geopm_pmpi_ctl_enabled = 0;
-static int g_is_geopm_pmpi_prof_enabled = 0;
 static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
 static MPI_Fint g_geopm_comm_world_swap_f = 0;
 static MPI_Fint g_geopm_comm_world_f = 0;
@@ -60,11 +59,7 @@ static struct geopm_ctl_c *g_ctl = NULL;
 static pthread_t g_ctl_thread;
 #endif
 
-/* To be used only in Profile.cpp */
-void geopm_pmpi_prof_enable(int do_profile)
-{
-    g_is_geopm_pmpi_prof_enabled = do_profile;
-}
+int geopm_is_pmpi_prof_enabled(void);
 
 #ifndef GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE
 /*
@@ -102,7 +97,7 @@ MPI_Fint geopm_swap_comm_world_f(MPI_Fint comm)
 
 void geopm_mpi_region_enter(uint64_t func_rid)
 {
-    if (g_is_geopm_pmpi_prof_enabled) {
+    if (geopm_is_pmpi_prof_enabled()) {
         if (func_rid) {
             geopm_prof_enter(func_rid);
         }
@@ -112,7 +107,7 @@ void geopm_mpi_region_enter(uint64_t func_rid)
 
 void geopm_mpi_region_exit(uint64_t func_rid)
 {
-    if (g_is_geopm_pmpi_prof_enabled) {
+    if (geopm_is_pmpi_prof_enabled()) {
         geopm_prof_exit(GEOPM_REGION_ID_MPI);
         if (func_rid) {
             geopm_prof_exit(func_rid);
@@ -123,7 +118,7 @@ void geopm_mpi_region_exit(uint64_t func_rid)
 uint64_t geopm_mpi_func_rid(const char *func_name)
 {
     uint64_t result = 0;
-    if (g_is_geopm_pmpi_prof_enabled) {
+    if (geopm_is_pmpi_prof_enabled()) {
         int err = geopm_prof_region(func_name, GEOPM_REGION_HINT_NETWORK, &result);
         if (err) {
             result = 0;

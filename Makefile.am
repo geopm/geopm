@@ -351,6 +351,7 @@ if ENABLE_MPI
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
                           src/Controller.cpp \
                           src/Controller.hpp \
+                          src/DefaultProfile.cpp \
                           src/geopm_mpi_comm_split.h \
                           src/geopm_pmpi.h \
                           src/geopm_pmpi.c \
