@@ -360,6 +360,8 @@ if ENABLE_MPI
                           src/OMPT.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
+                          src/ProfileSampler.cpp \
+                          src/ProfileSampler.hpp \
                           # end
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90 \
