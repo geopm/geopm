@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "e084a148_b2841b38",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-22T19:04:20Z",
+      "side": 1,
+      "message": "add default falue of \u0027*.report\u0027 and then only override with super when that is incorrect.",
+      "revId": "455910e4a7bdb895da3bf8de609e9c54e8be93c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46472fe3_61c58b27",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-22T19:04:20Z",
+      "side": 1,
+      "message": "Add command line option to geopmanalysis for --verbose and pipe result through rather than defaulting to true.",
+      "revId": "455910e4a7bdb895da3bf8de609e9c54e8be93c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "963be398_1204aafa",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-22T19:04:20Z",
+      "side": 1,
+      "message": "add try catch for non-tty environments.",
+      "revId": "455910e4a7bdb895da3bf8de609e9c54e8be93c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82b892b1_480455b8",
         "filename": "scripts/geopmpy/io.py",
         "patchSetId": 3
