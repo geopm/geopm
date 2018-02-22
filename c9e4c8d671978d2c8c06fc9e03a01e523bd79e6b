@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20abfb1d_bc7c2298",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-22T19:10:43Z",
+      "side": 1,
+      "message": "Need to take into account at least domain_idx when doing this search.  Implementation below does not allow user to request frequency of more than one CPU.",
+      "revId": "c9e4c8d671978d2c8c06fc9e03a01e523bd79e6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
