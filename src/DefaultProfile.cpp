@@ -199,7 +199,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::IProfileThreadTable *table_ptr = geopm_default_prof().tprof_table();
+            std::shared_ptr<geopm::IProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
             if (chunk_size) {
                 table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
             }

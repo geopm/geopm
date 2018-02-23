@@ -37,6 +37,7 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <memory>
 #include <mpi.h>
 
 namespace geopm
@@ -166,6 +167,7 @@ namespace geopm
             /// application.
             virtual void epoch(void) = 0;
             virtual void shutdown(void) = 0;
+            virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) = 0;
     };
 
     class Profile : public IProfile
@@ -205,7 +207,7 @@ namespace geopm
             void progress(uint64_t region_id, double fraction) override;
             void epoch(void) override;
             void shutdown(void) override;
-            IProfileThreadTable *tprof_table(void);
+            std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
         protected:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
@@ -263,26 +265,23 @@ namespace geopm
             int m_num_progress;
             /// @brief Holds the rank's current progress in the region.
             double m_progress;
-            /// @brief Holds a pointer to the shared memory region
-            ///        used for passing sample data to the geopm runtime.
-            void *m_table_buffer;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
-            ISharedMemoryUser *m_ctl_shmem;
+            std::unique_ptr<ISharedMemoryUser> m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
-            IControlMessage *m_ctl_msg;
+            std::unique_ptr<IControlMessage> m_ctl_msg;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
-            ISharedMemoryUser *m_table_shmem;
+            std::unique_ptr<ISharedMemoryUser> m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            IProfileTable *m_table;
-            ISharedMemoryUser *m_tprof_shmem;
-            IProfileThreadTable *m_tprof_table;
+            std::unique_ptr<IProfileTable> m_table;
+            std::unique_ptr<ISharedMemoryUser> m_tprof_shmem;
+            std::shared_ptr<IProfileThreadTable> m_tprof_table;
             const double M_OVERHEAD_FRAC;
-            ISampleScheduler *m_scheduler;
+            std::unique_ptr<ISampleScheduler> m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;

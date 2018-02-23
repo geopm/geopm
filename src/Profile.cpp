@@ -71,15 +71,14 @@ namespace geopm
         , m_num_enter(0)
         , m_num_progress(0)
         , m_progress(0.0)
-        , m_table_buffer(NULL)
-        , m_ctl_shmem(NULL)
-        , m_ctl_msg(NULL)
-        , m_table_shmem(NULL)
-        , m_table(NULL)
-        , m_tprof_shmem(NULL)
-        , m_tprof_table(NULL)
+        , m_ctl_shmem(nullptr)
+        , m_ctl_msg(nullptr)
+        , m_table_shmem(nullptr)
+        , m_table(nullptr)
+        , m_tprof_shmem(nullptr)
+        , m_tprof_table(nullptr)
         , M_OVERHEAD_FRAC(0.01)
-        , m_scheduler(NULL)
+        , m_scheduler(nullptr)
         , m_shm_comm(MPI_COMM_NULL)
         , m_rank(0)
         , m_shm_rank(0)
@@ -100,7 +99,7 @@ namespace geopm
         std::string tprof_key(key_base + "-tprof");
         int shm_num_rank = 0;
 
-        m_scheduler = new SampleScheduler(M_OVERHEAD_FRAC);
+        m_scheduler = std::unique_ptr<ISampleScheduler>(new SampleScheduler(M_OVERHEAD_FRAC));
         init_prof_comm(comm, shm_num_rank);
         init_ctl_shm(sample_key);
         init_ctl_msg();
@@ -127,7 +126,7 @@ namespace geopm
     void Profile::init_ctl_shm(const std::string &sample_key)
     {
         try {
-            m_ctl_shmem = new SharedMemoryUser(sample_key, geopm_env_profile_timeout()); // 5 second timeout
+            m_ctl_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(sample_key, geopm_env_profile_timeout())); // 5 second timeout
         }
         catch (Exception ex) {
             if (ex.err_value() != ENOENT) {
@@ -147,7 +146,7 @@ namespace geopm
 
     void Profile::init_ctl_msg(void)
     {
-        m_ctl_msg = new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
+        m_ctl_msg = std::unique_ptr<IControlMessage>(new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank));
     }
 
     void Profile::init_cpu_list(void)
@@ -224,23 +223,22 @@ namespace geopm
 
     void Profile::init_tprof_table(const std::string &tprof_key)
     {
-        m_tprof_shmem = new SharedMemoryUser(tprof_key, 3.0);
+        m_tprof_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(tprof_key, 3.0));
         PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_tprof_shmem->unlink();
         }
-        m_tprof_table = new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer());
+        m_tprof_table = std::shared_ptr<IProfileThreadTable>(new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer()));
     }
 
     void Profile::init_table(const std::string &sample_key)
     {
         std::string table_shm_key(sample_key);
         table_shm_key += "-" + std::to_string(m_rank);
-        m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
+        m_table_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(table_shm_key, 3.0));
         m_table_shmem->unlink();
 
-        m_table_buffer = m_table_shmem->pointer();
-        m_table = new ProfileTable(m_table_shmem->size(), m_table_buffer);
+        m_table = std::unique_ptr<IProfileTable>(new ProfileTable(m_table_shmem->size(), m_table_shmem->pointer()));
 
         PMPI_Barrier(m_shm_comm);
         m_ctl_msg->step();
@@ -250,12 +248,6 @@ namespace geopm
     Profile::~Profile()
     {
         shutdown();
-        delete m_tprof_table;
-        delete m_tprof_shmem;
-        delete m_table;
-        delete m_table_shmem;
-        delete m_ctl_shmem;
-        delete m_scheduler;
     }
 
     void Profile::shutdown(void)
@@ -563,8 +555,7 @@ namespace geopm
 
     }
 
-
-    IProfileThreadTable *Profile::tprof_table(void)
+    std::shared_ptr<IProfileThreadTable> Profile::tprof_table(void)
     {
         return m_tprof_table;
     }
