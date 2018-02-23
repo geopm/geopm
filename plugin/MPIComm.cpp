@@ -81,13 +81,8 @@ namespace geopm
 
     std::unique_ptr<IComm> MPIComm::make_plugin(void)
     {
-        return std::unique_ptr<IComm>(new MPIComm);
-    }
-
-    const IComm &MPIComm::get_comm(void)
-    {
-        static MPIComm instance;
-        return instance;
+        static std::unique_ptr<MPIComm> comm_world_singleton(new MPIComm);
+        return std::unique_ptr<MPIComm>(new MPIComm(comm_world_singleton.get()));
     }
 
     MPIComm::MPIComm()
@@ -103,7 +98,7 @@ namespace geopm
         , m_name(in_comm->m_name)
     {
         if (in_comm->is_valid()) {
-            check_mpi(PMPI_Comm_dup(in_comm->m_comm, &m_comm));
+            check_mpi(MPI_Comm_dup(in_comm->m_comm, &m_comm));
         }
     }
 
