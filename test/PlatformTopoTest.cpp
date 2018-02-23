@@ -37,6 +37,9 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
+using geopm::PlatformTopo;
+using geopm::Exception;
+
 class PlatformTopoTest : public :: testing :: Test
 {
     protected:
@@ -154,6 +157,14 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
     EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
     EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+
+    // expect same errors on every platform
+    /// @todo when implemented, add tests for each platform
+    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_NIC), geopm::Exception);
+    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_NIC), geopm::Exception);
+    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR), geopm::Exception);
+    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR), geopm::Exception);
+    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_INVALID), geopm::Exception);
 }
 
 TEST_F(PlatformTopoTest, knl_num_domain)
@@ -167,7 +178,6 @@ TEST_F(PlatformTopoTest, knl_num_domain)
     EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
-
 
 TEST_F(PlatformTopoTest, bdx_num_domain)
 {
@@ -257,6 +267,64 @@ TEST_F(PlatformTopoTest, bdx_domain_cpus)
     // good.
     //
     // EXPECT_EQ(cpu_set_expect, cpu_set_actual);
+}
+
+TEST_F(PlatformTopoTest, parse_error)
+{
+    std::string lscpu_missing_cpu =
+        "Thread(s) per core:    1\n"
+        "Core(s) per socket:    2\n"
+        "Socket(s):             1\n"
+        "NUMA node(s):          1\n";
+    std::string lscpu_missing_thread =
+        "CPU(s):                2\n"
+        "Core(s) per socket:    2\n"
+        "Socket(s):             1\n"
+        "NUMA node(s):          1\n";
+    std::string lscpu_missing_cores =
+        "CPU(s):                2\n"
+        "Thread(s) per core:    1\n"
+        "Socket(s):             1\n"
+        "NUMA node(s):          1\n";
+    std::string lscpu_missing_sockets =
+        "CPU(s):                2\n"
+        "Thread(s) per core:    1\n"
+        "Core(s) per socket:    2\n"
+        "NUMA node(s):          1\n";
+    std::string lscpu_missing_numa =
+        "CPU(s):                2\n"
+        "Thread(s) per core:    1\n"
+        "Core(s) per socket:    2\n"
+        "Socket(s):             1\n";
+
+    write_lscpu(lscpu_missing_cpu);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    write_lscpu(lscpu_missing_thread);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    write_lscpu(lscpu_missing_cores);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    write_lscpu(lscpu_missing_sockets);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    write_lscpu(lscpu_missing_numa);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+
+    std::string lscpu_non_number =
+        "CPU(s):                xx\n"
+        "Thread(s) per core:    1\n"
+        "Core(s) per socket:    2\n"
+        "Socket(s):             1\n"
+        "NUMA node(s):          1\n";
+    write_lscpu(lscpu_non_number);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+
+    std::string lscpu_invalid =
+        "CPU(s):                2\n"
+        "Thread(s) per core:    2\n"
+        "Core(s) per socket:    2\n"
+        "Socket(s):             2\n"
+        "NUMA node(s):          1\n";
+    write_lscpu(lscpu_invalid);
+    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
 }
 
             /////////////////////////////////////////////////////////////////////////////////////////

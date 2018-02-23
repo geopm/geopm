@@ -205,6 +205,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformTopoTest.singleton_construction \
               test/gtest_links/PlatformTopoTest.bdx_domain_idx \
               test/gtest_links/PlatformTopoTest.bdx_domain_cpus \
+              test/gtest_links/PlatformTopoTest.parse_error \
               test/gtest_links/SingleTreeCommunicatorTest.hello \
               test/gtest_links/TreeCommunicatorTest.hello \
               test/gtest_links/TreeCommunicatorTest.send_policy_down \

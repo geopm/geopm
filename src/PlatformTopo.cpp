@@ -211,12 +211,12 @@ namespace geopm
         for (int i = 0; i < num_values; ++i) {
             auto it = lscpu_map.find(keys[i]);
             if (it == lscpu_map.end()) {
-                throw Exception("PlatformTopo: parsing lscpu output, key not found",
+                throw Exception("PlatformTopo: parsing lscpu output, key not found: \"" + keys[i] + "\"",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             values[i] = atoi(it->second.c_str());
             if (!values[i]) {
-                throw Exception("PlatformTopo: parsing lscpu output, value not converted",
+                throw Exception("PlatformTopo: parsing lscpu output, value not converted: " + it->second,
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
@@ -225,7 +225,7 @@ namespace geopm
         core_per_package = num_core / num_package;
         thread_per_core = values[1];
         if (num_package * core_per_package * thread_per_core != values[0]) {
-            throw Exception("PlatformTopo: parsing lscpu output, inconsistant values or come CPUs are not online",
+            throw Exception("PlatformTopo: parsing lscpu output, inconsistent values or some CPUs are not online",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
@@ -233,6 +233,7 @@ namespace geopm
     void PlatformTopo::parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
                                         std::vector<std::set<int> > &numa_map)
     {
+        // TODO: what to do if there are no numa node lines?
         bool is_node_found = true;
         for (int node_idx = 0; is_node_found; ++node_idx) {
             std::ostringstream numa_key;
@@ -297,7 +298,7 @@ namespace geopm
         else {
             int err = pclose(fid);
             if (err) {
-                throw Exception("PlatformTopo::close_lscpu(): Could not fclose lscpu file",
+                throw Exception("PlatformTopo::close_lscpu(): Could not pclose lscpu file",
                                 errno ? errno : GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
@@ -331,5 +332,6 @@ namespace geopm
                 }
             }
         }
+        close_lscpu(fid);
     }
 }
