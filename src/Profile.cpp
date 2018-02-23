@@ -47,7 +47,6 @@
 #include <errno.h>
 
 #include "geopm.h"
-#include "geopm_mpi_comm_split.h"
 #include "geopm_message.h"
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
@@ -60,11 +59,12 @@
 #include "ControlMessage.hpp"
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
+#include "Comm.hpp"
 #include "config.h"
 
 namespace geopm
 {
-    Profile::Profile(const std::string prof_name, MPI_Comm comm)
+    Profile::Profile(const std::string prof_name, std::unique_ptr<IComm> comm)
         : m_is_enabled(true)
         , m_prof_name(prof_name)
         , m_curr_region_id(0)
@@ -79,7 +79,7 @@ namespace geopm
         , m_tprof_table(nullptr)
         , M_OVERHEAD_FRAC(0.01)
         , m_scheduler(nullptr)
-        , m_shm_comm(MPI_COMM_NULL)
+        , m_shm_comm(nullptr)
         , m_rank(0)
         , m_shm_rank(0)
         , m_is_first_sync(true)
@@ -100,7 +100,7 @@ namespace geopm
         int shm_num_rank = 0;
 
         m_scheduler = std::unique_ptr<ISampleScheduler>(new SampleScheduler(M_OVERHEAD_FRAC));
-        init_prof_comm(comm, shm_num_rank);
+        init_prof_comm(std::move(comm), shm_num_rank);
         init_ctl_shm(sample_key);
         init_ctl_msg();
         init_cpu_list();
@@ -114,13 +114,13 @@ namespace geopm
 #endif
     }
 
-    void Profile::init_prof_comm(MPI_Comm comm, int &shm_num_rank)
+    void Profile::init_prof_comm(std::unique_ptr<IComm> comm, int &shm_num_rank)
     {
-        MPI_Comm_rank(comm, &m_rank);
-        geopm_comm_split_shared(comm, "prof", &m_shm_comm);
-        PMPI_Comm_rank(m_shm_comm, &m_shm_rank);
-        PMPI_Comm_size(m_shm_comm, &shm_num_rank);
-        PMPI_Barrier(m_shm_comm);
+        m_rank = comm->rank();
+        m_shm_comm = comm->split("prof", IComm::M_COMM_SPLIT_TYPE_SHARED);
+        m_shm_rank = m_shm_comm->rank();
+        shm_num_rank = m_shm_comm->num_rank();
+        m_shm_comm->barrier();
     }
 
     void Profile::init_ctl_shm(const std::string &sample_key)
@@ -138,7 +138,7 @@ namespace geopm
             m_is_enabled = false;
             return;
         }
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         if (!m_shm_rank) {
             m_ctl_shmem->unlink();
         }
@@ -170,7 +170,7 @@ namespace geopm
         }
         free(proc_cpuset);
 
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
         m_ctl_msg->wait();
     }
@@ -198,7 +198,7 @@ namespace geopm
                     }
                 }
             }
-            PMPI_Barrier(m_shm_comm);
+            m_shm_comm->barrier();
         }
 
         if (!m_shm_rank) {
@@ -216,7 +216,7 @@ namespace geopm
                 }
             }
         }
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
         m_ctl_msg->wait();
     }
@@ -224,7 +224,7 @@ namespace geopm
     void Profile::init_tprof_table(const std::string &tprof_key)
     {
         m_tprof_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(tprof_key, 3.0));
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         if (!m_shm_rank) {
             m_tprof_shmem->unlink();
         }
@@ -240,7 +240,7 @@ namespace geopm
 
         m_table = std::unique_ptr<IProfileTable>(new ProfileTable(m_table_shmem->size(), m_table_shmem->pointer()));
 
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
         m_ctl_msg->wait();
     }
@@ -261,7 +261,7 @@ namespace geopm
         geopm_time(&overhead_entry);
 #endif
 
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
         m_ctl_msg->wait();
 
@@ -274,8 +274,9 @@ namespace geopm
         if (geopm_env_report_verbosity()) {
             print(geopm_env_report(), geopm_env_report_verbosity());
         }
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
+        m_shm_comm.reset();
         m_is_enabled = false;
     }
 
@@ -318,7 +319,7 @@ namespace geopm
         if (!m_curr_region_id && region_id) {
             if (!geopm_region_id_is_mpi(region_id) &&
                 geopm_env_do_region_barrier()) {
-                PMPI_Barrier(m_shm_comm);
+                m_shm_comm->barrier();
             }
             m_curr_region_id = region_id;
             m_num_enter = 0;
@@ -380,7 +381,7 @@ namespace geopm
         if (!m_num_enter) {
             if (!geopm_region_id_is_mpi(region_id) &&
                 geopm_env_do_region_barrier()) {
-                PMPI_Barrier(m_shm_comm);
+                m_shm_comm->barrier();
             }
             if (geopm_region_id_is_mpi(region_id)) {
                 m_curr_region_id = geopm_region_id_set_mpi(m_parent_region);
@@ -446,7 +447,7 @@ namespace geopm
 #endif
 
         struct geopm_prof_message_s sample;
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         if (!m_shm_rank) {
             sample.rank = m_rank;
             sample.region_id = GEOPM_REGION_ID_EPOCH;
@@ -503,7 +504,7 @@ namespace geopm
         int is_done = 0;
         int is_all_done = 0;
 
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
         m_ctl_msg->wait();
 
@@ -522,17 +523,17 @@ namespace geopm
         strncpy(buffer_ptr, m_prof_name.c_str(), buffer_remain - 1);
         buffer_offset += m_prof_name.length() + 1;
         while (!is_all_done) {
-            PMPI_Barrier(m_shm_comm);
+            m_shm_comm->barrier();
             m_ctl_msg->loop_begin();
 
             is_done = m_table->name_fill(buffer_offset);
-            PMPI_Allreduce(&is_done, &is_all_done, 1, MPI_INT, MPI_LAND, m_shm_comm);
+            is_all_done = m_shm_comm->test(is_done);
 
             m_ctl_msg->step();
             m_ctl_msg->wait();
             buffer_offset = 0;
         }
-        PMPI_Barrier(m_shm_comm);
+        m_shm_comm->barrier();
         m_ctl_msg->step();
         m_ctl_msg->wait();
 

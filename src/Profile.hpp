@@ -38,10 +38,10 @@
 #include <string>
 #include <list>
 #include <memory>
-#include <mpi.h>
 
 namespace geopm
 {
+    class IComm;
     class ISharedMemoryUser;
     class IControlMessage;
     class IProfileTable;
@@ -198,7 +198,7 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string prof_name, MPI_Comm comm);
+            Profile(const std::string prof_name, std::unique_ptr<IComm> comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint) override;
@@ -213,7 +213,7 @@ namespace geopm
                 M_PROF_SAMPLE_PERIOD = 1,
             };
 
-            void init_prof_comm(MPI_Comm comm, int &shm_num_rank);
+            void init_prof_comm(std::unique_ptr<IComm> comm, int &shm_num_rank);
             void init_ctl_shm(const std::string &sample_key);
             void init_ctl_msg(void);
             /// @brief Fill in rank affinity list.
@@ -287,7 +287,7 @@ namespace geopm
             std::list<int> m_cpu_list;
             /// @brief Communicator consisting of the root rank on each
             ///        compute node.
-            MPI_Comm m_shm_comm;
+            std::shared_ptr<IComm> m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
             /// @brief The process's rank in m_shm_comm.

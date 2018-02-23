@@ -255,6 +255,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/ControlMessage.hpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
+                            src/DefaultProfile.cpp \
                             src/Environment.cpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
@@ -308,6 +309,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Policy.hpp \
                             src/PolicyFlags.cpp \
                             src/PolicyFlags.hpp \
+                            src/Profile.cpp \
+                            src/Profile.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
                             src/ProfileThread.cpp \
@@ -351,15 +354,12 @@ if ENABLE_MPI
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
                           src/Controller.cpp \
                           src/Controller.hpp \
-                          src/DefaultProfile.cpp \
                           src/geopm_mpi_comm_split.h \
                           src/geopm_pmpi.h \
                           src/geopm_pmpi.c \
                           src/MPICommSplit.cpp \
                           src/OMPT.cpp \
                           src/OMPT.hpp \
-                          src/Profile.cpp \
-                          src/Profile.hpp \
                           src/ProfileSampler.cpp \
                           src/ProfileSampler.hpp \
                           # end
