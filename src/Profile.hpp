@@ -210,6 +210,10 @@ namespace geopm
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
             };
+
+            void init_prof_comm(MPI_Comm comm, int &shm_num_rank);
+            void init_ctl_shm(const std::string &sample_key);
+            void init_ctl_msg(void);
             /// @brief Fill in rank affinity list.
             ///
             /// Uses hwloc to determine the cpuset the current
@@ -218,6 +222,9 @@ namespace geopm
             /// to communicate with the geopm runtime the number of ranks
             /// as well as their affinity masks.
             void init_cpu_list(void);
+            void init_cpu_affinity(int shm_num_rank);
+            void init_tprof_table(const std::string &tprof_key);
+            void init_table(const std::string &sample_key);
             /// @brief Post profile sample.
             ///
             /// Called to derive a sample based on the profiling

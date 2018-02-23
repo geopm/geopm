@@ -40,7 +40,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <sstream>
 
 #include <float.h>
 #include <unistd.h>
@@ -96,19 +95,39 @@ namespace geopm
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
 #endif
+        std::string key_base(geopm_env_shmkey());
+        std::string sample_key(key_base + "-sample");
+        std::string tprof_key(key_base + "-tprof");
         int shm_num_rank = 0;
 
         m_scheduler = new SampleScheduler(M_OVERHEAD_FRAC);
+        init_prof_comm(comm, shm_num_rank);
+        init_ctl_shm(sample_key);
+        init_ctl_msg();
+        init_cpu_list();
+        init_cpu_affinity(shm_num_rank);
+        init_tprof_table(tprof_key);
+        init_table(sample_key);
+#ifdef GEOPM_OVERHEAD
+        struct geopm_time_s overhead_exit;
+        geopm_time(&overhead_exit);
+        m_overhead_time_startup = geopm_time_diff(&overhead_entry, &overhead_exit);
+#endif
+    }
+
+    void Profile::init_prof_comm(MPI_Comm comm, int &shm_num_rank)
+    {
         MPI_Comm_rank(comm, &m_rank);
         geopm_comm_split_shared(comm, "prof", &m_shm_comm);
         PMPI_Comm_rank(m_shm_comm, &m_shm_rank);
         PMPI_Comm_size(m_shm_comm, &shm_num_rank);
         PMPI_Barrier(m_shm_comm);
+    }
 
-        std::string key(geopm_env_shmkey());
-        key += "-sample";
+    void Profile::init_ctl_shm(const std::string &sample_key)
+    {
         try {
-            m_ctl_shmem = new SharedMemoryUser(key, geopm_env_profile_timeout()); // 5 second timeout
+            m_ctl_shmem = new SharedMemoryUser(sample_key, geopm_env_profile_timeout()); // 5 second timeout
         }
         catch (Exception ex) {
             if (ex.err_value() != ENOENT) {
@@ -124,15 +143,41 @@ namespace geopm
         if (!m_shm_rank) {
             m_ctl_shmem->unlink();
         }
+    }
 
+    void Profile::init_ctl_msg(void)
+    {
         m_ctl_msg = new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
+    }
 
-        init_cpu_list();
+    void Profile::init_cpu_list(void)
+    {
+        if (!m_is_enabled) {
+            return;
+        }
+
+        cpu_set_t *proc_cpuset = NULL;
+        int num_cpu = geopm_sched_num_cpu();
+        proc_cpuset = CPU_ALLOC(num_cpu);
+        if (!proc_cpuset) {
+            throw Exception("Profile: unable to allocate process CPU mask",
+                            ENOMEM, __FILE__, __LINE__);
+        }
+        geopm_sched_proc_cpuset(num_cpu, proc_cpuset);
+        for (int i = 0; i < num_cpu; ++i) {
+            if (CPU_ISSET(i, proc_cpuset)) {
+                m_cpu_list.push_front(i);
+            }
+        }
+        free(proc_cpuset);
 
         PMPI_Barrier(m_shm_comm);
         m_ctl_msg->step();
         m_ctl_msg->wait();
+    }
 
+    void Profile::init_cpu_affinity(int shm_num_rank)
+    {
         for (int i = 0 ; i < shm_num_rank; ++i) {
             if (i == m_shm_rank) {
                 if (i == 0) {
@@ -175,19 +220,23 @@ namespace geopm
         PMPI_Barrier(m_shm_comm);
         m_ctl_msg->step();
         m_ctl_msg->wait();
+    }
 
-        std::string tprof_key(geopm_env_shmkey());
-        tprof_key += "-tprof";
+    void Profile::init_tprof_table(const std::string &tprof_key)
+    {
         m_tprof_shmem = new SharedMemoryUser(tprof_key, 3.0);
         PMPI_Barrier(m_shm_comm);
         if (!m_shm_rank) {
             m_tprof_shmem->unlink();
         }
         m_tprof_table = new ProfileThreadTable(m_tprof_shmem->size(), m_tprof_shmem->pointer());
+    }
 
-        std::ostringstream table_shm_key;
-        table_shm_key << key <<  "-"  << m_rank;
-        m_table_shmem = new SharedMemoryUser(table_shm_key.str(), 3.0);
+    void Profile::init_table(const std::string &sample_key)
+    {
+        std::string table_shm_key(sample_key);
+        table_shm_key += "-" + std::to_string(m_rank);
+        m_table_shmem = new SharedMemoryUser(table_shm_key, 3.0);
         m_table_shmem->unlink();
 
         m_table_buffer = m_table_shmem->pointer();
@@ -196,11 +245,6 @@ namespace geopm
         PMPI_Barrier(m_shm_comm);
         m_ctl_msg->step();
         m_ctl_msg->wait();
-#ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time_startup = geopm_time_diff(&overhead_entry, &overhead_exit);
-#endif
     }
 
     Profile::~Profile()
@@ -519,27 +563,6 @@ namespace geopm
 
     }
 
-    void Profile::init_cpu_list(void)
-    {
-        if (!m_is_enabled) {
-            return;
-        }
-
-        cpu_set_t *proc_cpuset = NULL;
-        int num_cpu = geopm_sched_num_cpu();
-        proc_cpuset = CPU_ALLOC(num_cpu);
-        if (!proc_cpuset) {
-            throw Exception("Profile: unable to allocate process CPU mask",
-                            ENOMEM, __FILE__, __LINE__);
-        }
-        geopm_sched_proc_cpuset(num_cpu, proc_cpuset);
-        for (int i = 0; i < num_cpu; ++i) {
-            if (CPU_ISSET(i, proc_cpuset)) {
-                m_cpu_list.push_front(i);
-            }
-        }
-        free(proc_cpuset);
-    }
 
     IProfileThreadTable *Profile::tprof_table(void)
     {
