@@ -13,8 +13,8 @@ Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 
 WEB PAGES
 ---------
-http://geopm.github.io/geopm <br>
-http://geopm.github.io/geopm/man/geopm.7.html
+http://geopm.github.io <br>
+http://geopm.github.io/man/geopm.7.html
 
 SUMMARY
 -------
@@ -352,7 +352,7 @@ TODO file for links to descriptions of forthcoming work.
 
 Test coverage is incomplete.  The line coverage results from gcov as
 reported by gcovr for the latest release can be found here:
-<http://geopm.github.io/geopm/coverage/index.html>
+<http://geopm.github.io/coverage/index.html>
 
 ACKNOWLEDGMENTS
 ---------------
