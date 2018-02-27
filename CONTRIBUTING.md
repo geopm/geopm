@@ -93,10 +93,7 @@ directory:
 
     make check
 
-Please run these tests before submitting a change request.  Set the
-MPIEXEC environment variable as is appropriate for your system to
-launch the tests with an MPI dependency.  The default if MPIEXEC not
-set is "mpiexec".
+Please run these tests before submitting a change request.
 
 COVERAGE INSTRUCTIONS
 ---------------------
