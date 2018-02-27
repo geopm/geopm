@@ -152,7 +152,7 @@ class SubsetOptionParser(optparse.OptionParser):
         idx = 0
         while idx < len(argv):
             if argv[idx] == '--':
-                unfiltered.extend(argv[idx + 1:])
+                unfiltered.extend(argv[idx:])
                 break
             is_found = False
             for option in self._get_all_options():
