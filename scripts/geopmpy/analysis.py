@@ -675,20 +675,20 @@ geopmanalysis - Used to run applications and analyze results for specific
 
   -h, --help            show this help message and exit
 
-  -t, --analysis_type   type of analysis to perform. Available
+  -t, --analysis-type   type of analysis to perform. Available
                         ANALYSIS_TYPE values: freq_sweep, balancer,
                         offline, online, stream_mix.
-  -n, --num_rank        total number of application ranks to launch with
-  -N, --num_node        number of compute nodes to launch onto
-  -o, --output_dir      the output directory for reports, traces, and plots (default '.')
-  -p, --profile_prefix  prefix to prepend to profile name when launching
+  -n, --num-rank        total number of application ranks to launch with
+  -N, --num-node        number of compute nodes to launch onto
+  -o, --output-dir      the output directory for reports, traces, and plots (default '.')
+  -p, --profile-prefix  prefix to prepend to profile name when launching
   -l, --level           controls the level of detail provided in the analysis.
                         level 0: run application and generate reports and traces only
                         level 1: print analysis of report and trace data (default)
                         level 2: create plots from report and trace data
-  -s, --skip_launch     do not launch jobs, only analyze existing data
+  -s, --skip-launch     do not launch jobs, only analyze existing data
   -v, --verbose         Print verbose debugging information.
-  --geopm_ctl           launch type for the GEOPM controller.  Available
+  --geopm-ctl           launch type for the GEOPM controller.  Available
                         GEOPM_CTL values: process, pthread, or application (default 'process')
   --version             show the GEOPM version number and exit
 
@@ -713,23 +713,23 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
 
-    parser.add_argument('-t', '--analysis_type',
-                        action='store', required=True, default='REQUIRED OPTION')
-    parser.add_argument('-n', '--num_rank',
-                        action='store', required=True, default=None, type=int)
-    parser.add_argument('-N', '--num_node',
-                        action='store', required=True, default=None, type=int)
-    parser.add_argument('-o', '--output_dir',
+    parser.add_argument('-t', '--analysis-type', dest='analysis_type',
+                        action='store', required=True)
+    parser.add_argument('-n', '--num-rank', dest='num_rank',
+                        action='store', default=None, type=int)
+    parser.add_argument('-N', '--num-node', dest='num_node',
+                        action='store', default=None, type=int)
+    parser.add_argument('-o', '--output-dir', dest='output_dir',
                         action='store', default='.')
-    parser.add_argument('-p', '--profile_prefix',
+    parser.add_argument('-p', '--profile-prefix', dest='profile_prefix',
                         action='store', default='')
     parser.add_argument('-l', '--level',
                         action='store', default=1, type=int)
     parser.add_argument('app_argv', metavar='APP_ARGV',
                         action='store', nargs='*')
-    parser.add_argument('-s', '--skip_launch',
+    parser.add_argument('-s', '--skip-launch', dest='skip_launch',
                         action='store_true', default=False)
-    parser.add_argument('--geopm_ctl',
+    parser.add_argument('--geopm-ctl', dest='geopm_ctl',
                         action='store', default='process')
     parser.add_argument('-v', '--verbose',
                         action='store_true', default=False)
@@ -737,10 +737,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     args = parser.parse_args(argv)
     if args.analysis_type not in analysis_type_map:
         raise SyntaxError('Analysis type: "{}" unrecognized.'.format(args.analysis_type))
-
-    if False:
-        if not args.profile_prefix:
-            raise RuntimeError('profile_prefix is required to skip launch.')
 
     analysis = analysis_type_map[args.analysis_type](args.profile_prefix,
                                                      args.output_dir,
@@ -754,6 +750,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     else:
         # if launching, must run within an allocation to make sure all runs use
         # the same set of nodes
+        if args.num_rank is None or args.num_node is None:
+            raise RuntimeError('--num-rank and --num-node are required for launch.')
         if 'SLURM_NNODES' in os.environ:
             num_node = int(os.getenv('SLURM_NNODES'))
         elif 'COBALT_NODEFILE' in os.environ:

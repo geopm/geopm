@@ -49,23 +49,23 @@ using the `--skip-launch` option.
 * `-h`, `--help`:
   Show help message and exit.
 
-* `-t`, `--analysis_type` _freq_sweep_|_balancer_|_offline_|_online_|_stream_mix_:
+* `-t`, `--analysis-type` _freq_sweep_|_balancer_|_offline_|_online_|_stream_mix_:
   The type of analysis to perform. _balancer_ analysis is not yet implemented.
 
-* `-n`, `--num_rank` _NUM_RANKS_:
+* `-n`, `--num-rank` _NUM_RANKS_:
   Total number of application ranks to launch with. Because geopmanalysis
   uses the GEOPM launch method "process" there will be one extra rank launched
   per node in addition to the number of application ranks specified by this option.
 
-* `-N`, `--num_node` _NUM_NODES_:
+* `-N`, `--num-node` _NUM_NODES_:
   Number of compute nodes to launch onto.  Note that this option is `not` propagated
   to the underlying launch application; for instance if ALPS is the application
   launch backend, this option does not specify the number of ranks per node.
 
-* `-o`, `--output_dir` _OUTPUT_DIR_:
+* `-o`, `--output-dir` _OUTPUT_DIR_:
   The output directory for reports, traces, and plots (default: '.').
 
-* `-p`, `--profile_prefix` _PREFIX_:
+* `-p`, `--profile-prefix` _PREFIX_:
   Prefix to prepend to profile name when launching. Depending on the
   type of analysis, several profiles will be generated. For example,
   the freq_sweep analysis appends the frequency for each run to this
@@ -77,11 +77,18 @@ using the `--skip-launch` option.
     level 1: print analysis of report and trace data (default) <br>
     level 2: create plots from report and trace data
 
-* `-s`, `--skip_launch`:
+* `-s`, `--skip-launch`:
   Do not launch jobs, only analyze existing data.
 
 * `--version`:
   Show the GEOPM version number and exit.
+
+* `-v`, `--verbose`:
+  Print verbose debugging information.
+
+* `--geopm-ctl` _GEOPM_CTL_:
+  Launch type for the GEOPM controller.  Available GEOPM_CTL values:
+  process, pthread, or application (default 'process').
 
 ## EXAMPLES
   Once the geopmpy modules are installed, you can invoke this utility directly from
