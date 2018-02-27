@@ -14,5 +14,5 @@ DOXYGEN ISSUES
 There are also some issues and bugs which are tracked with doxygen
 comments.  These should have a tracking github issue as well.
 
-https://geopm.github.io/geopm/dox/todo.html
-https://geopm.github.io/geopm/dox/bug.html
+https://geopm.github.io/dox/todo.html
+https://geopm.github.io/dox/bug.html

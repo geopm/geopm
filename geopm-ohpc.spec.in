@@ -63,7 +63,7 @@ Release:       1
 License:       BSD-3-Clause
 Group:         %{PROJ_NAME}/parallel-libs
 Vendor:        Intel Corporation
-URL:           http://geopm.github.io/geopm
+URL:           http://geopm.github.io
 Source0:       geopm-%{version}.tar.gz
 Source1:       OHPC_macros
 BuildRoot:     %{_tmppath}/%{pname}-%{version}-%{release}-root
