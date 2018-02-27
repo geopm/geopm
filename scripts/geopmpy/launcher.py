@@ -54,6 +54,7 @@ import re
 
 from geopmpy import __version__
 
+
 def resource_manager():
     """
     Heuristic to determine the resource manager used on the system.
@@ -100,8 +101,8 @@ def resource_manager():
                     result = 'ALPS'
                 except subprocess.CalledProcessError:
                     raise LookupError('Unable to determine resource manager, provide --geopm-rm option or set GEOPM_RM environment variable')
+    return result
 
-    return result;
 
 def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
@@ -129,6 +130,7 @@ class PassThroughError(Exception):
     Exception raised when geopm is not to be used.
     """
 
+
 class SubsetOptionParser(optparse.OptionParser):
     """
     OptionParser derived object that will parse a subset of command
@@ -145,51 +147,53 @@ class SubsetOptionParser(optparse.OptionParser):
         return opts, unfiltered
 
     def _filter_argv(self, argv):
-         argv_filt = []
-         unfiltered = []
-         idx = 0
-         while idx < len(argv):
-             if argv[idx] == '--':
-                 unfiltered.extend(argv[idx + 1 :])
-                 break;
+        argv_filt = []
+        unfiltered = []
+        idx = 0
+        while idx < len(argv):
+            if argv[idx] == '--':
+                unfiltered.extend(argv[idx + 1:])
+                break
+            is_found = False
+            for option in self._get_all_options():
+                for opt in option._long_opts:
+                    if not is_found and argv[idx] == opt:
+                        argv_filt.append(argv[idx])
+                        if idx < len(argv) - 1 and not argv[idx + 1].startswith('-'):
+                            argv_filt.append(argv[idx + 1])
+                            idx += 1
+                        is_found = True
+                    elif not is_found and re.match(r'{opt}=\w*'.format(opt=opt), argv[idx]):
+                        argv_filt.append(argv[idx])
+                        is_found = True
+                for opt in option._short_opts:
+                    if not is_found and argv[idx] == opt:
+                        argv_filt.append(argv[idx])
+                        if idx < len(argv) - 1 and not argv[idx + 1].startswith('-'):
+                            argv_filt.append(argv[idx + 1])
+                            idx += 1
+                        is_found = True
+                    elif not is_found and re.match(r'{opt}\w*'.format(opt=opt), argv[idx]):
+                        argv_filt.append(argv[idx])
+                        is_found = True
+            if not is_found:
+                unfiltered.append(argv[idx])
+            idx += 1
+        return argv_filt, unfiltered
 
-             is_found = False
-             for option in self._get_all_options():
-                 for opt in option._long_opts:
-                     if not is_found and argv[idx] == opt:
-                         argv_filt.append(argv[idx])
-                         if idx < len(argv) - 1 and not argv[idx + 1].startswith('-'):
-                             argv_filt.append(argv[idx + 1])
-                             idx += 1
-                         is_found = True
-                     elif not is_found and re.match(r'{opt}=\w*'.format(opt=opt), argv[idx]):
-                         argv_filt.append(argv[idx])
-                         is_found = True
-                 for opt in option._short_opts:
-                     if not is_found and argv[idx] == opt:
-                         argv_filt.append(argv[idx])
-                         if idx < len(argv) - 1 and not argv[idx + 1].startswith('-'):
-                             argv_filt.append(argv[idx + 1])
-                             idx += 1
-                         is_found = True
-                     elif not is_found and re.match(r'{opt}\w*'.format(opt=opt), argv[idx]):
-                         argv_filt.append(argv[idx])
-                         is_found = True
-             if not is_found:
-                 unfiltered.append(argv[idx])
-             idx += 1
-         return argv_filt, unfiltered
     def _add_help_option(self):
         pass
 
     def _add_version_option(self):
         pass
 
+
 def int_ceil_div(aa, bb):
     """
     Shortcut for the ceiling of the ratio of two integers.
     """
     return int(math.ceil(float(aa) / float(bb)))
+
 
 def range_str(values):
     """
@@ -213,12 +217,13 @@ def range_str(values):
         end = bb[-1][1]
         # If the group is of size one, the value has no neighbors
         if begin == end:
-           result.append(str(begin))
+            result.append(str(begin))
         # Otherwise create a range from the smallest to the largest
         else:
-           result.append('{}-{}'.format(begin, end))
+            result.append('{}-{}'.format(begin, end))
     # Return a comma separated list
     return ','.join(result)
+
 
 class Config(object):
     """
@@ -233,7 +238,7 @@ class Config(object):
         """
         self.ctl = None
         if not any(aa.startswith('--geopm-ctl') for aa in argv):
-            if any (aa.startswith('--geopm-') for aa in argv):
+            if any(aa.startswith('--geopm-') for aa in argv):
                 raise RuntimeError('Some GEOPM options have been provided but --geopm-ctl has not.')
             raise PassThroughError('The --geopm-ctl flag is not specified.')
         # Parse the subset of arguments used by geopm
@@ -292,8 +297,8 @@ class Config(object):
         Dictionary describing the environment variables controlled by the
         configuration object.
         """
-        result = {'LD_DYNAMIC_WEAK':'true',
-                  'OMP_PROC_BIND':'true'}
+        result = {'LD_DYNAMIC_WEAK': 'true',
+                  'OMP_PROC_BIND': 'true'}
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
         if self.profile:
@@ -318,8 +323,8 @@ class Config(object):
             result['GEOPM_REGION_BARRIER'] = 'true'
         if self.preload:
             result['LD_PRELOAD'] = ':'.join((ll for ll in
-                                   ('libgeopm.so', os.getenv('LD_PRELOAD'))
-                                   if ll is not None))
+                                             ('libgeopm.so', os.getenv('LD_PRELOAD'))
+                                             if ll is not None))
         if self.omp_num_threads:
             result['OMP_NUM_THREADS'] = self.omp_num_threads
 
@@ -378,6 +383,7 @@ class Config(object):
                 (rm == 'SrunLauncher' and self.rm == 'SLURM') or
                 (rm == 'IMPIExecLauncher' and self.rm == 'IMPI')):
             raise RuntimeError('Launcher mismatch: --geopm-rm command line option has been handled incorrectly.')
+
 
 class Launcher(object):
     """
@@ -637,13 +643,13 @@ class Launcher(object):
         core_index = core_per_node - 1
 
         if rank_per_socket_remainder == 0:
-            socket_boundary = self.core_per_socket * (self.num_socket - 1) # 22
+            socket_boundary = self.core_per_socket * (self.num_socket - 1)  # 22
             for socket in range(self.num_socket - 1, -1, -1):
-                for rank in range(rank_per_socket - 1, -1, -1): # Start assigning ranks to cores from the highest rank/core backwards
+                for rank in range(rank_per_socket - 1, -1, -1):  # Start assigning ranks to cores from the highest rank/core backwards
                     base_cores = range(core_index, core_index - app_core_per_rank, -1)
                     cpu_range = set()
                     for ht in range(app_thread_per_core):
-                        cpu_range.update({ bc + ht * core_per_node for bc in base_cores })
+                        cpu_range.update({bc + ht * core_per_node for bc in base_cores})
 
                     if not is_geopmctl:
                         result.insert(0, cpu_range)
@@ -655,11 +661,11 @@ class Launcher(object):
 
                 socket_boundary -= self.core_per_socket
         else:
-            for rank in range(app_rank_per_node - 1, -1, -1): # Start assigning ranks to cores from the highest rank/core backwards
+            for rank in range(app_rank_per_node - 1, -1, -1):  # Start assigning ranks to cores from the highest rank/core backwards
                 base_cores = range(core_index, core_index - app_core_per_rank, -1)
                 cpu_range = set()
                 for ht in range(app_thread_per_core):
-                    cpu_range.update({ bc + ht * core_per_node for bc in base_cores })
+                    cpu_range.update({bc + ht * core_per_node for bc in base_cores})
                 if not is_geopmctl:
                     result.insert(0, cpu_range)
                 core_index -= app_core_per_rank
@@ -801,6 +807,7 @@ class Launcher(object):
         """
         raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
 
+
 class SrunLauncher(Launcher):
     """
     Launcher derived object for use with the SLURM job launch
@@ -820,7 +827,8 @@ class SrunLauncher(Launcher):
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
             os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must ' +
+                               'be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
     def int_handler(self, signum, frame):
         """
@@ -863,7 +871,7 @@ class SrunLauncher(Launcher):
             # time limit in minutes, convert to seconds
             self.time_limit = opts.time_limit * 60
         self.job_name = opts.job_name
-        self.node_list = opts.node_list # Note this may also be the host file
+        self.node_list = opts.node_list  # Note this may also be the host file
         self.host_file = None
         self.partition = opts.partition
 
@@ -924,7 +932,7 @@ class SrunLauncher(Launcher):
         """
         result = []
         if self.timeout is not None:
-           result = ['-I' + str(self.timeout)]
+            result = ['-I' + str(self.timeout)]
         return result
 
     def time_limit_option(self):
@@ -1023,7 +1031,7 @@ class IMPIExecLauncher(Launcher):
         Pass through to Launcher constructor.
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                              time_limit, job_name, node_list, host_file)
+                                               time_limit, job_name, node_list, host_file)
 
         if self.config:
             self.config.check_launcher('IMPIExecLauncher')
@@ -1035,7 +1043,8 @@ class IMPIExecLauncher(Launcher):
             self.is_slurm_enabled and
             self.config.get_ctl() == 'application' and
             os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
+                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
     def mpiexec(self):
         """
@@ -1137,6 +1146,7 @@ class IMPIExecLauncher(Launcher):
             return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
         else:
             raise NotImplementedError('Idle nodes feature requires use with SLURM')
+
 
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
