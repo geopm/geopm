@@ -164,13 +164,13 @@ TEST_F(PlatformIOTest, domain_type)
     EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD, domain_type);
     domain_type = m_platio->signal_domain_type("FREQ");
     EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, domain_type);
-    EXPECT_THROW_MESSAGE(m_platio->signal_domain_type("INVALID"),
-                         GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->signal_domain_type("INVALID"),
+                               GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
 
     domain_type = m_platio->control_domain_type("FREQ");
     EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, domain_type);
-    EXPECT_THROW_MESSAGE(m_platio->control_domain_type("INVALID"),
-                         GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->control_domain_type("INVALID"),
+                               GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
 }
 
 TEST_F(PlatformIOTest, push_signal)
@@ -191,16 +191,16 @@ TEST_F(PlatformIOTest, push_signal)
     EXPECT_EQ(0, idx);
     idx = m_platio->push_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(1, idx);
-    EXPECT_THROW_MESSAGE(m_platio->push_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
-                         GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+                               GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
 
 
     EXPECT_EQ(2, m_platio->num_signal());
 
     m_platio->read_batch();
 
-    EXPECT_THROW_MESSAGE(m_platio->push_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0),
-                         GEOPM_ERROR_INVALID, "pushing signals after");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0),
+                               GEOPM_ERROR_INVALID, "pushing signals after");
 }
 
 TEST_F(PlatformIOTest, push_control)
@@ -215,8 +215,8 @@ TEST_F(PlatformIOTest, push_control)
 
     int idx = m_platio->push_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(0, idx);
-    EXPECT_THROW_MESSAGE(m_platio->push_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
-                         GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+                               GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
 
     EXPECT_EQ(1, m_platio->num_control());
 }
@@ -243,8 +243,8 @@ TEST_F(PlatformIOTest, sample)
     EXPECT_DOUBLE_EQ(2e9, freq);
     double time = m_platio->sample(time_idx);
     EXPECT_DOUBLE_EQ(1.0, time);
-    EXPECT_THROW_MESSAGE(m_platio->sample(-1), GEOPM_ERROR_INVALID, "signal_idx out of range");
-    EXPECT_THROW_MESSAGE(m_platio->sample(10), GEOPM_ERROR_INVALID, "signal_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(-1), GEOPM_ERROR_INVALID, "signal_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(10), GEOPM_ERROR_INVALID, "signal_idx out of range");
 }
 
 TEST_F(PlatformIOTest, adjust)
@@ -260,8 +260,8 @@ TEST_F(PlatformIOTest, adjust)
     EXPECT_EQ(0, freq_idx);
     m_platio->adjust(freq_idx, 3e9);
     m_platio->write_batch();
-    EXPECT_THROW_MESSAGE(m_platio->adjust(-1, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
-    EXPECT_THROW_MESSAGE(m_platio->adjust(10, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->adjust(-1, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->adjust(10, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
 }
 
 TEST_F(PlatformIOTest, read_signal)
@@ -279,8 +279,8 @@ TEST_F(PlatformIOTest, read_signal)
     double time = m_platio->read_signal("TIME", PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_DOUBLE_EQ(4e9, freq);
     EXPECT_DOUBLE_EQ(2.0, time);
-    EXPECT_THROW_MESSAGE(m_platio->read_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
-                         GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->read_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+                               GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
 }
 
 TEST_F(PlatformIOTest, write_control)
@@ -292,8 +292,8 @@ TEST_F(PlatformIOTest, write_control)
         EXPECT_CALL(*it, write_batch()).Times(0);
     }
     m_platio->write_control("FREQ", PlatformTopo::M_DOMAIN_CPU, 0, 3e9);
-    EXPECT_THROW_MESSAGE(m_platio->write_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0, 0.0),
-                         GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0, 0.0),
+                               GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
 }
 
 TEST_F(PlatformIOTest, read_signal_override)
