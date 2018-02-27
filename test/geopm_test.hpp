@@ -39,17 +39,47 @@
 
 #include "Exception.hpp"
 
-#define EXPECT_THROW_MESSAGE(statement, expected_err, expected_message) \
-    try {                                                               \
-        statement;                                                      \
-        ADD_FAILURE() << "Expected to throw, but succeeded.";           \
-    }                                                                   \
-    catch (const geopm::Exception &ex) {                                \
-        EXPECT_EQ(expected_err, ex.err_value());                        \
-        EXPECT_THAT(ex.what(), ::testing::MatchesRegex(std::string(".*") + expected_message + ".*")); \
-    }                                                                   \
-    catch (const std::exception &ex) {                                  \
-        ADD_FAILURE() << "Threw a different exception: " << ex.what();  \
-    }
+extern std::string geopm_expect_throw_message_g;
+
+/// Checks that the given statement throws a geopm::Exception with the
+/// right error code and message.  The message must be a substring of
+/// the thrown Exception's what() string.  Additional details may be
+/// added upon failure with the << operator, e.g.:
+/// GEOPM_EXPECT_THROW_MESSAGE(...) << "more details";
+/// This macro is based on gtest's EXPECT_THROW() macro.
+#define GEOPM_EXPECT_THROW_MESSAGE(statement, expected_err, expected_message)   \
+    if (true) {  /* used with naked else to support << in failure case */       \
+    bool geopm_expect_throw_do_fail = false;                                    \
+    try {                                                                       \
+        statement;                                                              \
+        geopm_expect_throw_message_g = "Expected to throw, but succeeded.";     \
+        geopm_expect_throw_do_fail = true;                                      \
+    }                                                                           \
+    catch (const geopm::Exception &ex) {                                        \
+        EXPECT_EQ(expected_err, ex.err_value());                                \
+        if (expected_err != ex.err_value()) {                                   \
+            geopm_expect_throw_do_fail = true;                                  \
+        }                                                                       \
+        /* use std::string to support C/C++ strings for expected message */     \
+        if (std::string(ex.what()).find(expected_message) == std::string::npos) { \
+            geopm_expect_throw_message_g = std::string("Exception message was different from expected: ") + \
+                                           ex.what() + '\n';                    \
+            geopm_expect_throw_message_g += std::string("Expected message: ") + \
+                                            expected_message;                   \
+            geopm_expect_throw_do_fail = true;                                  \
+        }                                                                       \
+    }                                                                           \
+    catch (const std::exception &ex) {                                          \
+        geopm_expect_throw_message_g = std::string("Threw a different type of exception: ") + ex.what(); \
+        geopm_expect_throw_do_fail = true;                                      \
+    }                                                                           \
+    if (geopm_expect_throw_do_fail) {                                           \
+        /* gtest wrapper to make goto label unique */                           \
+        goto GTEST_CONCAT_TOKEN_(geopm_expect_throw_message_fail, __LINE__);    \
+    }                                                                           \
+    }                                                                           \
+    else                                                                        \
+        GTEST_CONCAT_TOKEN_(geopm_expect_throw_message_fail, __LINE__):         \
+            GTEST_NONFATAL_FAILURE_(geopm_expect_throw_message_g.c_str())
 
 #endif

@@ -32,6 +32,10 @@
 
 #include "gtest/gtest.h"
 
+#include "geopm_test.hpp"
+
+std::string geopm_expect_throw_message_g;
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
