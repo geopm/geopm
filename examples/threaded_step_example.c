@@ -69,6 +69,7 @@ static int run_something(void)
     int num_thread, i, num_iter = 1000000, iter_per_step = 100, chunk_size = 128;
     int step_counter = 0;
     uint64_t region_id;
+    MPI_Comm comm = MPI_COMM_WORLD;
 
     #pragma omp parallel
     {
@@ -95,7 +96,7 @@ static int run_something(void)
         err = geopm_policy_create("profile_policy", "", &policy);
     }
     if (!err) {
-        err = geopm_ctl_create(policy, MPI_COMM_WORLD, &ctl);
+        err = geopm_ctl_create(policy, (void *) &comm, &ctl);
     }
     if (!err) {
         err = geopm_ctl_step(ctl);

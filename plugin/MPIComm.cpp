@@ -85,11 +85,26 @@ namespace geopm
         return std::unique_ptr<MPIComm>(new MPIComm(comm_world_singleton.get()));
     }
 
+    std::unique_ptr<IComm> MPIComm::make_plugin_payload(const void *payload)
+    {
+        return std::unique_ptr<MPIComm>(new MPIComm(*(MPI_Comm *)payload));
+    }
+
     MPIComm::MPIComm()
         : m_comm(MPI_COMM_WORLD)
         , m_maxdims(1)
         , m_name(plugin_name())
     {
+    }
+
+    MPIComm::MPIComm(MPI_Comm in_comm)
+        : m_comm(MPI_COMM_WORLD)
+        , m_maxdims(1)
+        , m_name(plugin_name())
+    {
+        if (in_comm != MPI_COMM_NULL) {
+            check_mpi(MPI_Comm_dup(in_comm, &m_comm));
+        }
     }
 
     MPIComm::MPIComm(const MPIComm *in_comm)
