@@ -45,6 +45,7 @@
 #include "geopm_env.h"
 #include "geopm_error.h"
 #include "geopm_message.h"
+#include "geopm_mpi_comm_split.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "config.h"
@@ -168,7 +169,7 @@ static int geopm_pmpi_init(const char *exec_name)
                     }
                 }
                 if (!err) {
-                    err = geopm_ctl_create(policy, g_geopm_comm_world_swap, &g_ctl);
+                    err = geopm_ctl_create(policy, (void *) &g_geopm_comm_world_swap, &g_ctl);
                 }
                 if (!err) {
                     err = geopm_ctl_run(g_ctl);
@@ -203,7 +204,7 @@ static int geopm_pmpi_init(const char *exec_name)
                     err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
                 }
                 if (!err) {
-                    err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
+                    err = geopm_ctl_create(policy, (void *) &g_ppn1_comm, &g_ctl);
                 }
 #ifndef __APPLE__
                 if (!err) {
@@ -268,11 +269,11 @@ static int geopm_pmpi_finalize(void)
     PMPI_Barrier(MPI_COMM_WORLD);
 
     if (g_geopm_comm_world_swap != MPI_COMM_WORLD) {
-        tmp_err = PMPI_Comm_free(&g_geopm_comm_world_swap);
+        //tmp_err = PMPI_Comm_free(&g_geopm_comm_world_swap);
         err = err ? err : tmp_err;
     }
     if (g_ppn1_comm != MPI_COMM_NULL) {
-        tmp_err = PMPI_Comm_free(&g_ppn1_comm);
+        //tmp_err = PMPI_Comm_free(&g_ppn1_comm);
         err = err ? err : tmp_err;
     }
     return err;
