@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "950f8f55_6b332223",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-28T22:15:10Z",
+      "side": 1,
+      "message": "const std::string \u0026sample_key",
+      "revId": "50015020fdcd29078ecc123b2d6630ad65eed8eb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
