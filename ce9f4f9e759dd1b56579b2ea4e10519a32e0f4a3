@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2890363_0804a0bd",
+        "filename": "src/DefaultProfile.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-02-28T17:22:58Z",
+      "side": 1,
+      "message": "shared_ptr?",
+      "range": {
+        "startLine": 89,
+        "startChar": 7,
+        "endLine": 89,
+        "endChar": 30
+      },
+      "revId": "ce9f4f9e759dd1b56579b2ea4e10519a32e0f4a3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
