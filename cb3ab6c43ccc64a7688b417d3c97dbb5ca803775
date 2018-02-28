@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31898048_570dffb1",
+        "filename": "test/geopm_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-02-28T21:51:17Z",
+      "side": 1,
+      "message": "-\u003e g_geopm_expect_throw_message\n\nany possibility of avoiding a global variable would be nice also.",
+      "revId": "cb3ab6c43ccc64a7688b417d3c97dbb5ca803775",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
