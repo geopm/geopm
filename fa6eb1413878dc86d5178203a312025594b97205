@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac677490_f2b1626d",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-28T18:44:13Z",
+      "side": 1,
+      "message": "can be const\u0026",
+      "range": {
+        "startLine": 45,
+        "startChar": 32,
+        "endLine": 45,
+        "endChar": 52
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02f2809d_e88d5edf",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-28T18:44:13Z",
+      "side": 1,
+      "message": "can be const\u0026",
+      "range": {
+        "startLine": 71,
+        "startChar": 40,
+        "endLine": 71,
+        "endChar": 60
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fd0b300_3b7708bd",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-28T18:44:13Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 95,
+        "startChar": 50,
+        "endLine": 95,
+        "endChar": 61
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92b4ebba_c6dc3310",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-28T18:44:13Z",
+      "side": 1,
+      "message": "I think there are a bunch places hardcoded to use M_DOMAIN_CPU, so this might break. We have a separate task to support non-cpu domains.",
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "812e2bd3_d9539384",
+        "filename": "src/FreqIOGroup.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-28T18:44:13Z",
+      "side": 1,
+      "message": "extra space",
+      "range": {
+        "startLine": 48,
+        "startChar": 92,
+        "endLine": 48,
+        "endChar": 93
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b44341dd_e48d8b40",
+        "filename": "src/FreqIOGroup.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-02-28T18:44:13Z",
+      "side": 1,
+      "message": "if these are going to be used as indices, it might be worth setting explicit values for them too.",
+      "range": {
+        "startLine": 62,
+        "startChar": 14,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
