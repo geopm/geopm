@@ -61,7 +61,7 @@ namespace geopm
             MSREncode(const struct IMSR::m_encode_s &msre);
             MSREncode(int begin_bit, int end_bit, int function, double scalar);
             virtual ~MSREncode();
-            double decode(uint64_t field);
+            double decode(uint64_t field, uint64_t last_field);
             uint64_t encode(double value);
             uint64_t mask(void);
         protected:
@@ -70,6 +70,7 @@ namespace geopm
             uint64_t m_mask;
             double m_scalar;
             double m_inverse;
+            int m_num_bit;
     };
 
 
@@ -85,8 +86,9 @@ namespace geopm
         , m_mask(((1ULL << (end_bit - begin_bit)) - 1) << begin_bit)
         , m_scalar(scalar)
         , m_inverse(1.0 / scalar)
+        , m_num_bit(end_bit - begin_bit)
     {
-        if ((end_bit - begin_bit) == 64) {
+        if (m_num_bit == 64) {
             m_mask = ~0ULL;
         }
     }
@@ -96,30 +98,35 @@ namespace geopm
 
     }
 
-    double MSREncode::decode(uint64_t field)
+    double MSREncode::decode(uint64_t field, uint64_t last_field)
     {
         double result = NAN;
         uint64_t sub_field = (field & m_mask) >> m_shift;
         uint64_t float_y, float_z;
         switch (m_function) {
-            case IMSR::M_FUNCTION_SCALE:
-                result = m_scalar * sub_field;
-                break;
             case IMSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X
-                result = m_scalar / (1ULL << sub_field);
+                result = 1.0 / (1ULL << sub_field);
                 break;
             case IMSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
                 // Y in bits [0:5) and Z in bits [5:7)
                 float_y = sub_field & 0x1F;
                 float_z = sub_field >> 5;
-                result = m_scalar * (1ULL << float_y) * (1.0 + float_z / 4.0);
+                result = (1ULL << float_y) * (1.0 + float_z / 4.0);
                 break;
-           default:
-                throw Exception("MSR::decode(): unimplemented scale function",
-                                GEOPM_ERROR_NOT_IMPLEMENTED,  __FILE__, __LINE__);
+            case IMSR::M_FUNCTION_OVERFLOW:
+                if (sub_field < last_field) {
+                    sub_field = sub_field + ((1 << m_num_bit) - 1);
+                }
+                result = (float)sub_field;
+                break;
+            case IMSR::M_FUNCTION_SCALE:
+                result = (float)sub_field;
+            default:
+                break;
         }
+        result *= m_scalar;
         return result;
     }
 
@@ -338,13 +345,14 @@ namespace geopm
     }
 
     double MSR::signal(int signal_idx,
-                       uint64_t field) const
+                       uint64_t field,
+                       uint64_t last_field) const
     {
         if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("MSR::signal(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_encode[signal_idx]->decode(field);
+        return m_signal_encode[signal_idx]->decode(field, last_field);
     }
 
     void MSR::control(int control_idx,
@@ -388,6 +396,7 @@ namespace geopm
         : m_config(config)
         , m_name(name)
         , m_field_ptr(config.size(), NULL)
+        , m_field_last(config.size(), 0) // TODO: set up initial value for overflow
         , m_is_field_mapped(false)
     {
 
@@ -415,17 +424,18 @@ namespace geopm
         return m_config[0].domain_idx;
     }
 
-    double MSRSignal::sample(void) const
+    double MSRSignal::sample(void)
     {
         if (!m_is_field_mapped) {
-            throw Exception("MSRControl::sample(): must call map() method before sample() can be called",
+            throw Exception("MSRSignal::sample(): must call map() method before sample() can be called",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::vector<double> signal_vec(num_msr());
         auto signal_it = signal_vec.begin();
         auto field_it = m_field_ptr.begin();
-        for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++signal_it, ++field_it) {
-            *signal_it = config_it->msr_obj->signal(config_it->signal_idx, *(*field_it));
+        auto last_it = m_field_last.begin();
+        for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++signal_it, ++field_it, ++last_it) {
+            *signal_it = config_it->msr_obj->signal(config_it->signal_idx, *(*field_it), *last_it);
         }
         return sample(signal_vec);
     }
