@@ -47,6 +47,8 @@ namespace geopm
     {
         public:
             ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample);
+            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
+                           geopm::IPlatformTopo *topo);
             virtual ~ProfileIOGroup();
             bool is_valid_signal(const std::string &signal_name) override;
             bool is_valid_control(const std::string &control_name) override;
@@ -60,6 +62,7 @@ namespace geopm
             void adjust(int control_idx, double setting) override;
             double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
             void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
+            static std::string plugin_name(void);
         protected:
             enum m_signal_type {
                 M_SIGNAL_REGION_ID,
@@ -74,7 +77,7 @@ namespace geopm
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx);
 
             std::shared_ptr<IProfileIOSample> m_profile_sample;
-            std::set<std::string> m_valid_signals;
+            std::map<std::string, int> m_signal_idx_map;
             IPlatformTopo *m_platform_topo;
             bool m_do_read_region_id;
             bool m_do_read_progress;
