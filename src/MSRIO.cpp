@@ -49,7 +49,13 @@
 namespace geopm
 {
     MSRIO::MSRIO()
-        : m_num_cpu(geopm_sched_num_cpu())
+        : MSRIO(geopm_sched_num_cpu())
+    {
+
+    }
+
+    MSRIO::MSRIO(int num_cpu)
+        : m_num_cpu(num_cpu)
         , m_file_desc(m_num_cpu + 1, -1) // Last file descriptor is for the batch file
         , m_is_batch_enabled(true)
         , m_read_batch({0, NULL})
