@@ -139,11 +139,41 @@ namespace geopm
                 is_found = true;
             }
         }
+
+        if (!is_found && (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM")) {
+            int energy_idx = -1;
+            if (signal_name == "POWER_PACKAGE") {
+                energy_idx = push_signal("ENERGY_PACKAGE", domain_type, domain_idx);
+            }
+            else if (signal_name == "POWER_DRAM") {
+                energy_idx = push_signal("ENERGY_DRAM", domain_type, domain_idx);
+            }
+
+            int time_idx = push_signal("TIME", domain_type, domain_idx);
+            int region_id_idx = push_signal("REGION_ID#", domain_type, domain_idx);
+            result = m_active_signal.size();
+
+            register_combined_signal(result,
+                                     {region_id_idx, time_idx, energy_idx},
+                                     std::unique_ptr<CombinedSignal>(new PerRegionDerivativeCombinedSignal));
+
+            m_active_signal.emplace_back(nullptr, result);
+            is_found = true;
+        }
+
         if (result == -1) {
             throw Exception("PlatformIO::push_signal(): signal name \"" + signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
+    }
+
+    void PlatformIO::register_combined_signal(int signal_idx,
+                                              std::vector<int> operands,
+                                              std::unique_ptr<CombinedSignal> signal)
+    {
+        auto tmp = std::make_pair(operands, std::move(signal));
+        m_combined_signal[signal_idx] = std::move(tmp);
     }
 
     int PlatformIO::push_control(const std::string &control_name,
@@ -186,12 +216,33 @@ namespace geopm
 
     double PlatformIO::sample(int signal_idx)
     {
+        double result = NAN;
         if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("PlatformIO::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto &group_idx_pair = m_active_signal[signal_idx];
-        return group_idx_pair.first->sample(group_idx_pair.second);
+        if (group_idx_pair.first) {
+            result = group_idx_pair.first->sample(group_idx_pair.second);
+        }
+        else {
+            result = sample_combined(group_idx_pair.second);
+        }
+        return result;
+    }
+
+    double PlatformIO::sample_combined(int signal_idx)
+    {
+        double result = NAN;
+        auto &op_func_pair = m_combined_signal.at(signal_idx);
+        std::vector<int> &operand_idx = op_func_pair.first;
+        auto &signal = op_func_pair.second;
+        std::vector<double> operands(operand_idx.size());
+        for (size_t ii = 0; ii < operands.size(); ++ii) {
+            operands[ii] = sample(operand_idx[ii]);
+        }
+        result = signal->sample(operands);
+        return result;
     }
 
     void PlatformIO::adjust(int control_idx,
