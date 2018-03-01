@@ -108,6 +108,7 @@ namespace geopm
     class CircularBuffer : public ICircularBuffer <type>
     {
         public:
+            CircularBuffer();
             /// @brief Constructor for the CircularBuffer template.
             ///
             /// Creates an empty circular buffer with a set capacity.
@@ -132,6 +133,13 @@ namespace geopm
             /// @brief Current capacity of the buffer.
             size_t m_max_size;
     };
+
+    template <class type>
+    CircularBuffer<type>::CircularBuffer()
+        : CircularBuffer(0)
+    {
+
+    }
 
     template <class type>
     CircularBuffer<type>::CircularBuffer(unsigned int size)
