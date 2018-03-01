@@ -61,6 +61,7 @@ namespace geopm
             bool m_is_batch_read;
             geopm_time_s m_time_zero;
             double m_time_curr;
+            const std::string m_signal_name;
     };
 }
 
