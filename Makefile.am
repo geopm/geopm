@@ -249,6 +249,8 @@ endif
 endif
 
 libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
+                            src/CombinedSignal.cpp \
+                            src/CombinedSignal.hpp \
                             src/Comm.cpp \
                             src/Comm.hpp \
                             src/ControlMessage.cpp \
