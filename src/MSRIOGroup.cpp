@@ -82,6 +82,12 @@ namespace geopm
                 register_msr_control(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->control_name(idx));
             }
         }
+
+        register_msr_signal("FREQUENCY", {"PERF_STATUS"}, {"FREQ"});
+        register_msr_control("FREQUENCY", {"PERF_CTL"}, {"FREQ"});
+
+        register_msr_signal("ENERGY_PACKAGE", {"PKG_ENERGY_STATUS"}, {"ENERGY"});
+        register_msr_signal("ENERGY_DRAM", {"DRAM_ENERGY_STATUS"}, {"ENERGY"});
     }
 
     MSRIOGroup::~MSRIOGroup()
@@ -465,35 +471,29 @@ namespace geopm
         m_read_field.resize(m_read_cpu_idx.size());
         m_write_field.resize(m_write_cpu_idx.size());
         size_t msr_idx = 0;
-        for (auto &sig : m_active_signal) {
-            IMSRSignal *msr_sig = dynamic_cast<IMSRSignal *>(sig);
-            if (msr_sig) {
-                std::vector<const uint64_t *> field_ptr(msr_sig->num_msr());
-                for (auto &fp : field_ptr) {
-                    fp = m_read_field.data() + msr_idx;
-                    ++msr_idx;
-                }
-                msr_sig->map_field(field_ptr);
+        for (auto &msr_sig : m_active_signal) {
+            std::vector<const uint64_t *> field_ptr(msr_sig->num_msr());
+            for (auto &fp : field_ptr) {
+                fp = m_read_field.data() + msr_idx;
+                ++msr_idx;
             }
+            msr_sig->map_field(field_ptr);
         }
         msr_idx = 0;
-        for (auto &ctl : m_active_control) {
-            IMSRControl *msr_ctl = dynamic_cast<IMSRControl *>(ctl);
-            if (msr_ctl) {
-                std::vector<uint64_t *> field_ptr(msr_ctl->num_msr());
-                std::vector<uint64_t *> mask_ptr(msr_ctl->num_msr());
-                size_t msr_idx_save = msr_idx;
-                for (auto &fp : field_ptr) {
-                    fp = m_write_field.data() + msr_idx;
-                    ++msr_idx;
-                }
-                msr_idx = msr_idx_save;
-                for (auto &mp : mask_ptr) {
-                    mp = m_write_mask.data() + msr_idx;
-                    ++msr_idx;
-                }
-                msr_ctl->map_field(field_ptr, mask_ptr);
+        for (auto &msr_ctl : m_active_control) {
+            std::vector<uint64_t *> field_ptr(msr_ctl->num_msr());
+            std::vector<uint64_t *> mask_ptr(msr_ctl->num_msr());
+            size_t msr_idx_save = msr_idx;
+            for (auto &fp : field_ptr) {
+                fp = m_write_field.data() + msr_idx;
+                ++msr_idx;
             }
+            msr_idx = msr_idx_save;
+            for (auto &mp : mask_ptr) {
+                mp = m_write_mask.data() + msr_idx;
+                ++msr_idx;
+            }
+            msr_ctl->map_field(field_ptr, mask_ptr);
         }
         m_is_active = true;
     }

@@ -288,6 +288,24 @@ TEST_F(MSRIOGroupTest, signal)
                          GEOPM_ERROR_INVALID, "cannot push a signal after read_batch");
 }
 
+TEST_F(MSRIOGroupTest, signal_alias)
+{
+    int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    ASSERT_EQ(0, freq_idx);
+    int alias = m_msrio_group->push_signal("FREQUENCY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_NE(freq_idx, alias);
+
+    int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd);
+    uint64_t value = 0xB00;
+    size_t num_write = pwrite(fd, &value, sizeof(value), 0x198);
+    ASSERT_EQ(num_write, sizeof(value));
+
+    m_msrio_group->read_batch();
+    double freq = m_msrio_group->sample(alias);
+    EXPECT_EQ(1.1e9, freq);
+}
+
 TEST_F(MSRIOGroupTest, control)
 {
     // error cases
@@ -402,6 +420,24 @@ TEST_F(MSRIOGroupTest, control)
 
     EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", geopm::IPlatformTopo::M_DOMAIN_CPU, 0),
                          GEOPM_ERROR_INVALID, "cannot push a control after .*adjust");
+}
+
+TEST_F(MSRIOGroupTest, control_alias)
+{
+    int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    ASSERT_EQ(0, freq_idx);
+    int alias = m_msrio_group->push_control("FREQUENCY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd);
+    uint64_t value;
+    size_t num_read;
+    // Set frequency to 1 GHz
+    m_msrio_group->adjust(freq_idx, 2e9);
+    m_msrio_group->adjust(alias, 1e9); // will overwrite
+    m_msrio_group->write_batch();
+    num_read = pread(fd, &value, sizeof(value), 0x199);
+    EXPECT_EQ(8ULL, num_read);
+    EXPECT_EQ(0xA00ULL, (value & 0xFF00));
 }
 
 TEST_F(MSRIOGroupTest, whitelist)
