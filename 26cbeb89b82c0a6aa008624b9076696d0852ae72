@@ -90,6 +90,24 @@
       "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b4a7d08_64d966d3",
+        "filename": "test/geopm_static_modes_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-01T21:15:12Z",
+      "side": 1,
+      "message": "Checked that you changed atoi() to atof() in geopmpolicy_main.c.",
+      "parentUuid": "c2f3f173_2e99a3f6",
+      "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
