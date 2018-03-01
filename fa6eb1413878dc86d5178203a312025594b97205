@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ff7afac5_a93acee1",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-01T00:02:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac677490_f2b1626d",
+      "range": {
+        "startLine": 45,
+        "startChar": 32,
+        "endLine": 45,
+        "endChar": 52
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "02f2809d_e88d5edf",
         "filename": "src/FreqIOGroup.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-28T18:44:13Z",
       "side": 1,
       "message": "can be const\u0026",
+      "range": {
+        "startLine": 71,
+        "startChar": 40,
+        "endLine": 71,
+        "endChar": 60
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afaa89b_27ebe834",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-01T00:02:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02f2809d_e88d5edf",
       "range": {
         "startLine": 71,
         "startChar": 40,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "962e314b_e7b0b05c",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-01T00:02:03Z",
+      "side": 1,
+      "message": "Done. This was a block of code that was moved/copied.",
+      "parentUuid": "1fd0b300_3b7708bd",
+      "range": {
+        "startLine": 95,
+        "startChar": 50,
+        "endLine": 95,
+        "endChar": 61
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d90f16de_0b6eb42e",
         "filename": "src/FreqIOGroup.cpp",
         "patchSetId": 5
@@ -82,6 +154,24 @@
       "writtenOn": "2018-02-28T22:29:03Z",
       "side": 1,
       "message": "put valid signals in a member std::set\u003cstd::string\u003e and do a find.  Faster (marginally) and less code.",
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2edd466_bbd927b3",
+        "filename": "src/FreqIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-01T00:02:03Z",
+      "side": 1,
+      "message": "2 birds with 1 stone.  created a map of string, doubles",
+      "parentUuid": "d90f16de_0b6eb42e",
       "revId": "fa6eb1413878dc86d5178203a312025594b97205",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -128,6 +218,30 @@
     },
     {
       "key": {
+        "uuid": "d8456b12_708b515a",
+        "filename": "src/FreqIOGroup.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-01T00:02:03Z",
+      "side": 1,
+      "message": "Done, this was copied code so this must exist in at least one other instance, but I\u0027d imagine more.",
+      "parentUuid": "812e2bd3_d9539384",
+      "range": {
+        "startLine": 48,
+        "startChar": 92,
+        "endLine": 48,
+        "endChar": 93
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b44341dd_e48d8b40",
         "filename": "src/FreqIOGroup.hpp",
         "patchSetId": 5
@@ -139,6 +253,30 @@
       "writtenOn": "2018-02-28T18:44:13Z",
       "side": 1,
       "message": "if these are going to be used as indices, it might be worth setting explicit values for them too.",
+      "range": {
+        "startLine": 62,
+        "startChar": 14,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "fa6eb1413878dc86d5178203a312025594b97205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "577d58ed_a9a33ce7",
+        "filename": "src/FreqIOGroup.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-01T00:02:03Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "b44341dd_e48d8b40",
       "range": {
         "startLine": 62,
         "startChar": 14,
