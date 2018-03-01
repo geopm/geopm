@@ -184,6 +184,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.write_batch \
               test/gtest_links/MSRTest.msr \
+              test/gtest_links/MSRTest.msr_overflow \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.msr_control \
               test/gtest_links/EfficientFreqRegionTest.freq_starts_at_maximum \
