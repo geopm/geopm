@@ -206,7 +206,7 @@ TEST_F(MSRTest, msr)
         for (int signal_idx = 0; signal_idx < msr->num_signal(); signal_idx++) {
             EXPECT_EQ(m_signal_names[signal_idx], msr->signal_name(signal_idx)) << "signal_idx: " << signal_idx;
             EXPECT_EQ(signal_idx, msr->signal_index(m_signal_names[signal_idx])) << "signal_idx: " << signal_idx;
-            double value = msr->signal(signal_idx, m_signal_field);
+            double value = msr->signal(signal_idx, m_signal_field, 0);
             EXPECT_DOUBLE_EQ(m_expected_sig_values[signal_idx], value) << "signal_idx: " << signal_idx;
         }
 
@@ -221,6 +221,26 @@ TEST_F(MSRTest, msr)
             EXPECT_EQ(m_expected_con_fields[control_idx], field) << "control_idx: " << control_idx;
         }
     }
+}
+
+TEST_F(MSRTest, msr_overflow)
+{
+    auto signal = std::pair<std::string, struct IMSR::m_encode_s>
+                     ("sig4", (struct IMSR::m_encode_s) {
+                         .begin_bit = 0,
+                         .end_bit   = 4,
+                         .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                         .function  = IMSR::M_FUNCTION_OVERFLOW,
+                         .units     = IMSR::M_UNITS_NONE,
+                         .scalar    = 1.0});
+    MSR msr("msr4", 0, {signal}, {});
+
+    double raw_value = msr.signal(0, 5, 0);
+    EXPECT_DOUBLE_EQ(5.0, raw_value);
+
+    // overflowed
+    double of_value = msr.signal(0, 5, 9);
+    EXPECT_DOUBLE_EQ(20.0, of_value);  // 5 + (16 -1)
 }
 
 #define MSG_2_IMPLEMENTOR "Congrats, you've implemented the API.  Now update the test."
