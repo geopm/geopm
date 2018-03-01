@@ -219,10 +219,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.read_signal \
               test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
+              test/gtest_links/MSRIOGroupTest.supported_cpuid \
               test/gtest_links/MSRIOGroupTest.signal \
               test/gtest_links/MSRIOGroupTest.control \
               test/gtest_links/MSRIOGroupTest.whitelist \
               test/gtest_links/MSRIOGroupTest.cpuid \
+              test/gtest_links/MSRIOGroupTest.register_msr_signal \
+              test/gtest_links/MSRIOGroupTest.register_msr_control \
               test/gtest_links/PlatformIOTest.domain_type \
               test/gtest_links/PlatformIOTest.push_signal \
               test/gtest_links/PlatformIOTest.signal_power \

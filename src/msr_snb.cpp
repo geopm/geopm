@@ -184,6 +184,15 @@ namespace geopm
                       .units     = IMSR::M_UNITS_SECONDS,
                       .scalar    = 9.765625e-04}}},
                 {}),
+            MSR("DRAM_ENERGY_STATUS", 0x619,
+                {{"ENERGY", (struct IMSR::m_encode_s) {
+                      .begin_bit = 0,
+                      .end_bit   = 32,
+                      .domain    = IPlatformTopo::M_DOMAIN_BOARD_MEMORY,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_JOULES,
+                      .scalar    = 6.103515625e-05}}}, // TODO: source?
+                {}),
             MSR("PLATFORM_INFO", 0xCE,
                 {{"MAX_NON_TURBO_RATIO", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,

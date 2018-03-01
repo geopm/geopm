@@ -531,10 +531,9 @@ namespace geopm
         std::vector <MSRSignal *> &cpu_signal = (*(ins_ret.first)).second;
         // Check to see if the signal name has already been registered
         if (!ins_ret.second) {
-            /* delete previous signals */
-            for (auto &cs : cpu_signal) {
-                delete cs;
-            }
+            throw Exception("MSRIOGroup::register_msr_signal(): signal_name " + signal_name +
+                            " was previously registered.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         cpu_signal.resize(m_num_cpu, NULL);
         int num_field = field_name.size();
@@ -544,7 +543,8 @@ namespace geopm
         for (auto &sc : signal_config) {
             auto name_msr_it = m_name_msr_map.find(msr_name[field_idx]);
             if (name_msr_it == m_name_msr_map.end()) {
-                throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found: " + msr_name[field_idx],
+                throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found: " +
+                                msr_name[field_idx],
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             sc.msr_obj = name_msr_it->second;
@@ -597,10 +597,10 @@ namespace geopm
         std::vector <MSRControl *> &cpu_control = (*(ins_ret.first)).second;
         // Check to see if the control name has already been registered
         if (!ins_ret.second) {
-            /* delete previous controls */
-            for (auto &cc : cpu_control) {
-                delete cc;
-            }
+            throw Exception("MSRIOGroup::register_msr_control(): control_name " + control_name +
+                            " was previously registered.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
         }
         cpu_control.resize(m_num_cpu, NULL);
         int num_field = field_name.size();
