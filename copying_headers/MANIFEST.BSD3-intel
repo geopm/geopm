@@ -62,6 +62,8 @@ scripts/test/TestAffinity.py
 scripts/test/TestAnalysis.py
 scripts/test/TestSubsetOptionParser.py
 src/CircularBuffer.hpp
+src/CombinedSignal.cpp
+src/CombinedSignal.hpp
 src/Comm.cpp
 src/Comm.hpp
 src/Controller.cpp
@@ -172,6 +174,7 @@ src/XeonPlatformImp.cpp
 src/XeonPlatformImp.hpp
 test/BalancingDeciderTest.cpp
 test/CircularBufferTest.cpp
+test/CombinedSignalTest.cpp
 test/CommMPIImpTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
