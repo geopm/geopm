@@ -166,6 +166,7 @@ namespace geopm
             std::vector<int>      m_write_cpu_idx;
             std::vector<uint64_t> m_write_offset;
             std::vector<uint64_t> m_write_mask;
+            const std::string m_name_prefix;
     };
 }
 

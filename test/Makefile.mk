@@ -230,6 +230,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/ProfileIOGroupTest.is_valid \
               # end
 
 if ENABLE_MPI
@@ -306,6 +307,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockPlatformTopo.hpp \
                           test/ProfileIOSampleTest.cpp \
                           test/ProfileIOGroupTest.cpp \
+                          test/MockProfileIOSample.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
