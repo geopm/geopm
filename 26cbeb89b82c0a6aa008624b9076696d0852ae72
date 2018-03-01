@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f349f350_e8c8a996",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-01T21:11:36Z",
+      "side": 1,
+      "message": "multiply Hz by 1e-8 to convert to 100 MHz units, not 1e8.",
+      "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adf63dc0_ec68cede",
+        "filename": "src/PolicyFlags.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-01T21:11:36Z",
+      "side": 1,
+      "message": "Mulitply by 1e8 to convert from 100 MHz units to Hz not 1e-8.",
+      "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1412c71d_8584447a",
+        "filename": "test/GlobalPolicyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-01T21:11:36Z",
+      "side": 1,
+      "message": "might be clearer to use scientific notation: e.g. 1.8e9",
+      "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6285c069_a95f7f7e",
+        "filename": "test/PolicyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-01T21:11:36Z",
+      "side": 1,
+      "message": "1.2e9",
+      "range": {
+        "startLine": 70,
+        "startChar": 33,
+        "endLine": 70,
+        "endChar": 34
+      },
+      "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2f3f173_2e99a3f6",
+        "filename": "test/geopm_static_modes_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-01T21:11:36Z",
+      "side": 1,
+      "message": "cpu_hz:1.6e9\n\nDoes the command line option parser for geopmpolicy use atoi()?  If so needs to be changed.",
+      "revId": "26cbeb89b82c0a6aa008624b9076696d0852ae72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
