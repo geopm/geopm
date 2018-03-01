@@ -38,13 +38,24 @@
 #include "geopm_hash.h"
 #include "config.h"
 
+#define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"
+
 namespace geopm
 {
-    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> m_profile_sample)
-        : m_profile_sample(m_profile_sample)
-        , m_valid_signals{"region_id",
-                          "progress"}
-        , m_platform_topo(&platform_topo())
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample)
+        : ProfileIOGroup(profile_sample, platform_topo())
+    {
+
+    }
+
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
+                                   IPlatformTopo &topo)
+        : m_profile_sample(profile_sample)
+        , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
+                           {plugin_name() + "::PROGRESS", M_SIGNAL_PROGRESS},
+                           {"REGION_ID#", M_SIGNAL_REGION_ID},
+                           {"PROGRESS", M_SIGNAL_PROGRESS}}
+        , m_platform_topo(topo)
         , m_do_read_region_id(false)
         , m_do_read_progress(false)
         , m_is_batch_read(false)
@@ -59,7 +70,7 @@ namespace geopm
 
     bool ProfileIOGroup::is_valid_signal(const std::string &signal_name)
     {
-        return m_valid_signals.find(signal_name) != m_valid_signals.end();
+        return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
     }
 
     bool ProfileIOGroup::is_valid_control(const std::string &control_name)
@@ -147,6 +158,11 @@ namespace geopm
             throw Exception("ProfileIOGroup::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (!m_is_batch_read) {
+            throw Exception("TimeIOGroup::sample(): signal has not been read",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
@@ -207,33 +223,36 @@ namespace geopm
     int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("ProfileIOGroup: signal_name " + signal_name +
-                            "not valid for ProfileIOGroup",
+            throw Exception("ProfileIOGroup::check_signal(): signal_name " + signal_name +
+                            " not valid for ProfileIOGroup",
                              GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
             /// @todo Add support for non-cpu domains.
-            throw Exception("ProfileIOGroup::push_signal(): non-CPU domains are not supported",
+            throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         int cpu_idx = domain_idx;
-        if (cpu_idx < 0 || cpu_idx >= m_platform_topo->num_domain(PlatformTopo::M_DOMAIN_CPU)) {
-            throw Exception("ProfileIOGroup::push_signal(): domain index out of range",
+        if (cpu_idx < 0 || cpu_idx >= m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_CPU)) {
+            throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int signal_type = -1;
-        if (signal_name == "region_id") {
-            signal_type = M_SIGNAL_REGION_ID;
-        }
-        else if (signal_name == "progress") {
-            signal_type = M_SIGNAL_PROGRESS;
+        auto it = m_signal_idx_map.find(signal_name);
+        if (it != m_signal_idx_map.end()) {
+            signal_type = it->second;
         }
 #ifdef GEOPM_DEBUG
         else {
-            throw Exception("ProfileIOGroup::push_signal: is_valid_signal() returned true, but signal name is unknown",
+            throw Exception("ProfileIOGroup::check_signal: is_valid_signal() returned true, but signal name is unknown",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
         return signal_type;
+    }
+
+    std::string ProfileIOGroup::plugin_name(void)
+    {
+        return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME;
     }
 }
