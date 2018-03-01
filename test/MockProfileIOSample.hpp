@@ -29,40 +29,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TIMEIOGROUP_HPP_INCLUDE
-#define TIMEIOGROUP_HPP_INCLUDE
 
-#include "IOGroup.hpp"
-#include "geopm_time.h"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
-namespace geopm
+#include "ProfileIOSample.hpp"
+
+class MockProfileIOSample : public geopm::IProfileIOSample
 {
-    class TimeIOGroup : public IOGroup
-    {
-        public:
-            TimeIOGroup();
-            virtual ~TimeIOGroup();
-            bool is_valid_signal(const std::string &signal_name) override;
-            bool is_valid_control(const std::string &control_name) override;
-            int signal_domain_type(const std::string &signal_name) override;
-            int control_domain_type(const std::string &control_name) override;
-            int push_signal(const std::string &signal_name, int domain_type, int domain_idx)  override;
-            int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
-            void read_batch(void) override;
-            void write_batch(void) override;
-            double sample(int batch_idx) override;
-            void adjust(int batch_idx, double setting) override;
-            double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
-            void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
-            static std::string plugin_name(void);
-            static std::unique_ptr<IOGroup> make_plugin(void);
-        protected:
-            bool m_is_signal_pushed;
-            bool m_is_batch_read;
-            geopm_time_s m_time_zero;
-            double m_time_curr;
-            const std::string m_signal_name;
-    };
-}
-
-#endif
+    public:
+        MOCK_METHOD2(update,
+                     void(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                          std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end));
+        MOCK_METHOD0(per_cpu_region_id,
+                     std::vector<uint64_t>(void));
+        MOCK_METHOD1(per_cpu_progress,
+                     std::vector<double>(const struct geopm_time_s &extrapolation_time));
+};

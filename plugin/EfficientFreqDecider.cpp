@@ -99,7 +99,7 @@ namespace geopm
 
     void EfficientFreqDecider::init_platform_io(void)
     {
-        uint64_t freq_domain_type = m_platform_io->control_domain_type("PERF_CTL:FREQ");
+        uint64_t freq_domain_type = m_platform_io->control_domain_type("FREQUENCY");
         if (freq_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
             throw Exception("EfficientFreqDecider: Platform does not support frequency control",
                             GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
@@ -112,7 +112,7 @@ namespace geopm
                             GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
         }
         for (uint32_t dom_idx = 0; dom_idx != num_freq_domain; ++dom_idx) {
-            int control_idx = m_platform_io->push_control("PERF_CTL:FREQ", freq_domain_type, dom_idx);
+            int control_idx = m_platform_io->push_control("FREQUENCY", freq_domain_type, dom_idx);
             if (control_idx < 0) {
                 throw Exception("EfficientFreqDecider: Failed to enable frequency control in the platform.",
                                 GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
