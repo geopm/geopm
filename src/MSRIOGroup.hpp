@@ -97,10 +97,6 @@ namespace geopm
             std::string msr_whitelist(int cpuid) const;
             /// @brief Get the cpuid of the current platform.
             int cpuid(void) const;
-            static std::string plugin_name(void);
-            static std::unique_ptr<IOGroup> make_plugin(void);
-        protected:
-            void activate(void);
             /// @brief Register a single MSR field as a signal. This
             ///        is called by init_msr().
             /// @param [in] signal_name Compound signal name of form
@@ -108,6 +104,18 @@ namespace geopm
             ///        name of the MSR and the field_name is the name
             ///        of the signal field held in the MSR.
             void register_msr_signal(const std::string &signal_name);
+            /// @brief Register a single MSR field as a control. This
+            ///        is called by init_msr().
+            /// @param [in] signal_name Compound control name of form
+            ///        "msr_name:field_name" where msr_name is the
+            ///        name of the MSR and the field_name is the name
+            ///        of the control field held in the MSR.
+            void register_msr_control(const std::string &control_name);
+            static std::string plugin_name(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
+        protected:
+            /// @brief Configure memory for all pushed signals and controls.
+            void activate(void);
             /// @brief Register a signal for the MSR interface.  This
             ///        is called by init_msr().
             /// @param [in] signal_name The name of the signal as it
@@ -120,13 +128,6 @@ namespace geopm
             void register_msr_signal(const std::string &signal_name,
                                      const std::vector<std::string> &msr_name,
                                      const std::vector<std::string> &field_name);
-            /// @brief Register a single MSR field as a control. This
-            ///        is called by init_msr().
-            /// @param [in] signal_name Compound control name of form
-            ///        "msr_name:field_name" where msr_name is the
-            ///        name of the MSR and the field_name is the name
-            ///        of the control field held in the MSR.
-            void register_msr_control(const std::string &control_name);
             /// @brief Register a contol for the MSR interface.  This
             ///        is called by init_msr().
             /// @param [in] control_name The name of the control as it
@@ -139,7 +140,6 @@ namespace geopm
             void register_msr_control(const std::string &control_name,
                                       const std::vector<std::string> &msr_name,
                                       const std::vector<std::string> &field_name);
-
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
