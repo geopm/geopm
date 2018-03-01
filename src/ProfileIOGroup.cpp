@@ -37,12 +37,14 @@
 #include "Exception.hpp"
 #include "config.h"
 
+#define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"
+
 namespace geopm
 {
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> m_profile_sample)
         : m_profile_sample(m_profile_sample)
-        , m_valid_signals{"region_id",
-                          "progress"}
+        , m_signal_idx_map{{plugin_name() + "::REGION_ID", M_SIGNAL_REGION_ID},
+                           {plugin_name() + "::PROGRESS", M_SIGNAL_PROGRESS}}
         , m_platform_topo(&platform_topo())
         , m_do_read_region_id(false)
         , m_do_read_progress(false)
@@ -58,7 +60,7 @@ namespace geopm
 
     bool ProfileIOGroup::is_valid_signal(const std::string &signal_name)
     {
-        return m_valid_signals.find(signal_name) != m_valid_signals.end();
+        return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
     }
 
     bool ProfileIOGroup::is_valid_control(const std::string &control_name)
@@ -221,11 +223,9 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int signal_type = -1;
-        if (signal_name == "region_id") {
-            signal_type = M_SIGNAL_REGION_ID;
-        }
-        else if (signal_name == "progress") {
-            signal_type = M_SIGNAL_PROGRESS;
+        auto it = m_signal_idx_map.find(signal_name);
+        if (it != m_signal_idx_map.end()) {
+            signal_type = it->second;
         }
 #ifdef GEOPM_DEBUG
         else {
@@ -234,5 +234,10 @@ namespace geopm
         }
 #endif
         return signal_type;
+    }
+
+    std::string ProfileIOGroup::plugin_name(void)
+    {
+        return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME;
     }
 }
