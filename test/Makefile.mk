@@ -225,11 +225,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOGroupTest.cpuid \
               test/gtest_links/PlatformIOTest.domain_type \
               test/gtest_links/PlatformIOTest.push_signal \
+              test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.push_control \
               test/gtest_links/PlatformIOTest.sample \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/PlatformIOTest.read_signal_override \
               test/gtest_links/ProfileIOGroupTest.is_valid \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
