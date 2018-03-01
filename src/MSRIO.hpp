@@ -104,6 +104,7 @@ namespace geopm
     {
         public:
             MSRIO();
+            MSRIO(int num_cpu);
             virtual ~MSRIO();
             uint64_t read_msr(int cpu_idx,
                               uint64_t offset) override;
