@@ -97,10 +97,6 @@ namespace geopm
             std::string msr_whitelist(int cpuid) const;
             /// @brief Get the cpuid of the current platform.
             int cpuid(void) const;
-            static std::string plugin_name(void);
-            static std::unique_ptr<IOGroup> make_plugin(void);
-        protected:
-            void activate(void);
             /// @brief Register a single MSR field as a signal. This
             ///        is called by init_msr().
             /// @param [in] signal_name Compound signal name of form
@@ -139,6 +135,11 @@ namespace geopm
             void register_msr_control(const std::string &control_name,
                                       const std::vector<std::string> &msr_name,
                                       const std::vector<std::string> &field_name);
+            static std::string plugin_name(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
+        protected:
+            /// @brief Configure memory for all pushed signals and controls.
+            void activate(void);
 
             int m_num_cpu;
             bool m_is_active;

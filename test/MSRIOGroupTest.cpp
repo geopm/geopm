@@ -167,6 +167,33 @@ void MSRIOGroupTest::SetUp()
     close(fd);
 }
 
+TEST_F(MSRIOGroupTest, supported_cpuid)
+{
+    // Check that MSRIOGroup can be safely constructed for supported platforms
+    std::vector<uint64_t> cpuids = {
+        MSRIOGroup::M_CPUID_SNB,
+        MSRIOGroup::M_CPUID_IVT,
+        MSRIOGroup::M_CPUID_HSX,
+        MSRIOGroup::M_CPUID_BDX,
+        MSRIOGroup::M_CPUID_KNL
+    };
+    for (auto id : cpuids) {
+        std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
+        try {
+            MSRIOGroup(std::move(msrio), id, 4);
+        }
+        catch (const std::exception &ex) {
+            FAIL() << "Could not construct MSRIOGroup for cpuid 0x"
+                   << std::hex << id << std::dec << ": " << ex.what();
+        }
+    }
+
+    // unsupported cpuid
+    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(std::move(msrio), 0x9999, 4),
+                               GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
+}
+
 TEST_F(MSRIOGroupTest, signal)
 {
     // error cases
@@ -483,4 +510,35 @@ TEST_F(MSRIOGroupTest, cpuid)
    else {
        std::cerr << "Warning: skipping MSRIOGroupTest.cpuid because non-intel architecture detected" << std::endl;
    }
+}
+
+TEST_F(MSRIOGroupTest, register_msr_signal)
+{
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("TEST"),
+                               GEOPM_ERROR_INVALID, "signal_name must be of the form \"msr_name:field_name\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("PERF_STATUS:FREQ"),
+                               GEOPM_ERROR_INVALID, "signal_name PERF_STATUS:FREQ was previously registered");
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("TEST1", {"ONE"}, {}),
+                               GEOPM_ERROR_INVALID, "signal_name vector length does not match msr_name");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("TEST2", {"BAD"}, {"BAD"}),
+                               GEOPM_ERROR_INVALID, "msr_name could not be found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("TEST3", {"PERF_STATUS"}, {"BAD"}),
+                               GEOPM_ERROR_INVALID, "field_name could not be found");
+}
+
+TEST_F(MSRIOGroupTest, register_msr_control)
+{
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("TEST"),
+                               GEOPM_ERROR_INVALID, "control_name must be of the form \"msr_name:field_name\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("PERF_CTL:FREQ"),
+                               GEOPM_ERROR_INVALID, "control_name PERF_CTL:FREQ was previously registered");
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("TEST1", {"ONE"}, {}),
+                               GEOPM_ERROR_INVALID, "control_name vector length does not match msr_name");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("TEST2", {"BAD"}, {"BAD"}),
+                               GEOPM_ERROR_INVALID, "msr_name could not be found");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("TEST3", {"PERF_STATUS"}, {"BAD"}),
+                               GEOPM_ERROR_INVALID, "field_name could not be found");
+
 }
