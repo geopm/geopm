@@ -47,7 +47,7 @@ before_install:
     - pip install --user pandas natsort matplotlib
 
 install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran
+    - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran --enable-debug
 
 script:
     - make
