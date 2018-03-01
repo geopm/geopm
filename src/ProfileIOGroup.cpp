@@ -41,11 +41,18 @@
 
 namespace geopm
 {
-    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> m_profile_sample)
-        : m_profile_sample(m_profile_sample)
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample)
+        : ProfileIOGroup(profile_sample, &platform_topo())
+    {
+
+    }
+
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
+                                   IPlatformTopo* topo)
+        : m_profile_sample(profile_sample)
         , m_signal_idx_map{{plugin_name() + "::REGION_ID", M_SIGNAL_REGION_ID},
                            {plugin_name() + "::PROGRESS", M_SIGNAL_PROGRESS}}
-        , m_platform_topo(&platform_topo())
+        , m_platform_topo(topo)
         , m_do_read_region_id(false)
         , m_do_read_progress(false)
         , m_is_batch_read(false)
@@ -148,14 +155,19 @@ namespace geopm
             throw Exception("ProfileIOGroup::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (!m_is_batch_read) {
+            throw Exception("TimeIOGroup::sample(): signal has not been read",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_ID:
-                result = m_per_cpu_region_id[cpu_idx];
+                result = m_per_cpu_region_id[cpu_idx];  // TODO: need rid2dbl?
                 break;
             case M_SIGNAL_PROGRESS:
-                result = rid2dbl(m_per_cpu_region_id[cpu_idx]);
+                result = m_per_cpu_progress[cpu_idx];
                 break;
             default:
 #ifdef GEOPM_DEBUG
@@ -208,18 +220,18 @@ namespace geopm
     int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("ProfileIOGroup: signal_name " + signal_name +
+            throw Exception("ProfileIOGroup::check_signal(): signal_name " + signal_name +
                             "not valid for ProfileIOGroup",
                              GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
             /// @todo Add support for non-cpu domains.
-            throw Exception("ProfileIOGroup::push_signal(): non-CPU domains are not supported",
+            throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         int cpu_idx = domain_idx;
         if (cpu_idx < 0 || cpu_idx >= m_platform_topo->num_domain(PlatformTopo::M_DOMAIN_CPU)) {
-            throw Exception("ProfileIOGroup::push_signal(): domain index out of range",
+            throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int signal_type = -1;
@@ -229,7 +241,7 @@ namespace geopm
         }
 #ifdef GEOPM_DEBUG
         else {
-            throw Exception("ProfileIOGroup::push_signal: is_valid_signal() returned true, but signal name is unknown",
+            throw Exception("ProfileIOGroup::check_signal: is_valid_signal() returned true, but signal name is unknown",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
