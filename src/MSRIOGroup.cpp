@@ -67,6 +67,7 @@ namespace geopm
         , m_is_read(false)
         , m_msrio(std::move(msrio))
         , m_cpuid(cpuid)
+        , m_name_prefix(GEOPM_MSR_IO_GROUP_PLUGIN_NAME "::")
     {
         size_t num_msr = 0;
         const MSR *msr_arr = init_msr_arr(cpuid, num_msr);
@@ -75,10 +76,10 @@ namespace geopm
              ++msr_ptr) {
             m_name_msr_map.insert(std::pair<std::string, const IMSR *>(msr_ptr->name(), msr_ptr));
             for (int idx = 0; idx < msr_ptr->num_signal(); idx++) {
-                register_msr_signal(msr_ptr->name() + ":" + msr_ptr->signal_name(idx));
+                register_msr_signal(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->signal_name(idx));
             }
             for (int idx = 0; idx < msr_ptr->num_control(); idx++) {
-                register_msr_control(msr_ptr->name() + ":" + msr_ptr->control_name(idx));
+                register_msr_control(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->control_name(idx));
             }
         }
     }
@@ -499,13 +500,18 @@ namespace geopm
 
     void MSRIOGroup::register_msr_signal(const std::string &signal_name)
     {
-        size_t colon_pos = signal_name.find(':');
-        if (colon_pos == std::string::npos) {
-            throw Exception("MSRIOGroup::register_msr_signal(): signal_name must be of the form \"msr_name:field_name\"",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        Exception ex("MSRIOGroup::register_msr_signal(): signal_name must be of the form \"MSR::<msr_name>:<field_name>\"",
+                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (signal_name.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
+            throw ex;
         }
-        std::vector<std::string> msr_name_vec({signal_name.substr(0, colon_pos)});
-        std::vector<std::string> field_name_vec({signal_name.substr(colon_pos + 1)});
+        std::string name_field = signal_name.substr(m_name_prefix.size());
+        size_t colon_pos = name_field.find(':');
+        if (colon_pos == std::string::npos) {
+            throw ex;
+        }
+        std::vector<std::string> msr_name_vec({name_field.substr(0, colon_pos)});
+        std::vector<std::string> field_name_vec({name_field.substr(colon_pos + 1)});
         register_msr_signal(signal_name, msr_name_vec, field_name_vec);
     }
 
@@ -538,7 +544,7 @@ namespace geopm
         for (auto &sc : signal_config) {
             auto name_msr_it = m_name_msr_map.find(msr_name[field_idx]);
             if (name_msr_it == m_name_msr_map.end()) {
-                throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found",
+                throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found: " + msr_name[field_idx],
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             sc.msr_obj = name_msr_it->second;
@@ -561,13 +567,18 @@ namespace geopm
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
     {
-        size_t colon_pos = control_name.find(':');
-        if (colon_pos == std::string::npos) {
-            throw Exception("MSRIOGroup::register_msr_control(): control_name must be of the form \"msr_name:field_name\"",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        Exception ex("MSRIOGroup::register_msr_control(): control_name must be of the form \"MSR::<msr_name>:<field_name>\"",
+                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (control_name.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
+            throw ex;
         }
-        std::vector<std::string> msr_name_vec({control_name.substr(0, colon_pos)});
-        std::vector<std::string> field_name_vec({control_name.substr(colon_pos + 1)});
+        std::string name_field = control_name.substr(m_name_prefix.size());
+        size_t colon_pos = name_field.find(':');
+        if (colon_pos == std::string::npos) {
+            throw ex;
+        }
+        std::vector<std::string> msr_name_vec({name_field.substr(0, colon_pos)});
+        std::vector<std::string> field_name_vec({name_field.substr(colon_pos + 1)});
         register_msr_control(control_name, msr_name_vec, field_name_vec);
     }
 
