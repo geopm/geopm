@@ -47,6 +47,8 @@ namespace geopm
     {
         public:
             ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample);
+            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
+                           geopm::IPlatformTopo *topo);
             virtual ~ProfileIOGroup();
             bool is_valid_signal(const std::string &signal_name) override;
             bool is_valid_control(const std::string &control_name) override;
