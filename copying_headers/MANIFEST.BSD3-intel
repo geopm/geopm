@@ -211,6 +211,7 @@ test_integration/Makefile.mk
 test_integration/Makefile.mk
 test/legacy_whitelist.out
 test/Makefile.mk
+test/MockIOGroup.hpp
 test/MockComm.hpp
 test/MockGlobalPolicy.hpp
 test/MockPlatform.hpp
