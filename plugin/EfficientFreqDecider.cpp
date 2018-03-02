@@ -57,31 +57,22 @@
 namespace geopm
 {
     EfficientFreqDecider::EfficientFreqDecider()
-        : EfficientFreqDecider("/proc/cpuinfo",
-                               "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
-                               "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq",
-                               platform_io(),
+        : EfficientFreqDecider(platform_io(),
                                platform_topo())
     {
 
     }
 
-    EfficientFreqDecider::EfficientFreqDecider(const std::string &cpu_info_path,
-                                               const std::string &cpu_freq_min_path,
-                                               const std::string &cpu_freq_max_path,
-                                               IPlatformIO &pio,
+    EfficientFreqDecider::EfficientFreqDecider(IPlatformIO &pio,
                                                IPlatformTopo &ptopo)
         : GoverningDecider()
-        , m_cpu_info_path(cpu_info_path)
-        , m_cpu_freq_min_path(cpu_freq_min_path)
-        , m_cpu_freq_max_path(cpu_freq_max_path)
-        , m_freq_min(cpu_freq_min())
-        , m_freq_max(cpu_freq_max())
-        , m_freq_step(100e6)
-        , m_num_cpu(geopm_sched_num_cpu())
-        , m_last_freq(NAN)
         , m_platform_io(pio)
         , m_platform_topo(ptopo)
+        , m_freq_min(cpu_freq_min())
+        , m_freq_max(cpu_freq_max())
+        , m_freq_step(get_limit("STEP"))
+        , m_num_cpu(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_CPU))
+        , m_last_freq(NAN)
     {
         m_name = plugin_name();
         parse_env_map();
@@ -95,6 +86,14 @@ namespace geopm
     EfficientFreqDecider::~EfficientFreqDecider()
     {
 
+    }
+
+    double EfficientFreqDecider::get_limit(const std::string &sig_name)
+    {
+        /*const*/ int domain_type = m_platform_io.signal_domain_type(sig_name);
+        /// @todo delete line below once PlatformIO supports control for non-CPU domains.
+        domain_type = IPlatformTopo::M_DOMAIN_CPU;
+        return m_platform_io.read_signal(sig_name, domain_type, 0);
     }
 
     void EfficientFreqDecider::init_platform_io(void)
@@ -252,57 +251,7 @@ namespace geopm
 
     double EfficientFreqDecider::cpu_freq_sticker(void)
     {
-        double result = NAN;
-        const std::string key = "model name";
-        std::ifstream cpuinfo_file(m_cpu_info_path);
-        if (!cpuinfo_file.is_open()) {
-            throw Exception("EfficientFreqDecider::cpu_freq_sticker(): unable to open " + m_cpu_info_path,
-                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        while (isnan(result) && cpuinfo_file.good()) {
-            std::string line;
-            std::getline(cpuinfo_file, line);
-            if (line.find(key) == 0 && line.find(':') != std::string::npos) {
-                size_t colon_pos = line.find(':');
-                bool match = true;
-                for (size_t pos = key.size(); pos != colon_pos; ++pos) {
-                    if (!std::isspace(line[pos])) {
-                        match = false;
-                    }
-                }
-                if (!match) {
-                    continue;
-                }
-                std::transform(line.begin(), line.end(), line.begin(), [](unsigned char c){ return std::tolower(c);});
-                std::string unit_str[3] = {"ghz", "mhz","khz"};
-                double unit_factor[3] = {1e9, 1e6, 1e3};
-                for (int unit_idx = 0; unit_idx != 3; ++unit_idx) {
-                    size_t unit_pos = line.find(unit_str[unit_idx]);
-                    if (unit_pos != std::string::npos) {
-                        std::string value_str = line.substr(0, unit_pos);
-                        while (std::isspace(value_str.back())) {
-                            value_str.erase(value_str.size() - 1);
-                        }
-                        size_t space_pos = value_str.rfind(' ');
-                        if (space_pos != std::string::npos) {
-                            value_str = value_str.substr(space_pos);
-                        }
-                        try {
-                            result = unit_factor[unit_idx] * std::stod(value_str);
-                        }
-                        catch (std::invalid_argument) {
-
-                        }
-                    }
-                }
-            }
-        }
-        cpuinfo_file.close();
-        if (isnan(result)) {
-            throw Exception("EfficientFreqDecider::cpu_freq_sticker(): unable to parse sticker frequency from " + m_cpu_info_path,
-                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        return result;
+        return get_limit("STICKER");
     }
 
     double EfficientFreqDecider::cpu_freq_min(void)
@@ -318,30 +267,14 @@ namespace geopm
             }
         }
         if (isnan(result)) {
-            std::ifstream freq_file(m_cpu_freq_min_path);
-            if (freq_file.is_open()) {
-                std::string line;
-                getline(freq_file, line);
-                try {
-                    result = 1e3 * std::stod(line);
-                }
-                catch (std::invalid_argument) {
-
-                }
-            }
-        }
-        if (isnan(result)) {
             try {
-                result = cpu_freq_sticker() - 6 * m_freq_step;
+                result = get_limit("MIN");
             }
             catch (Exception) {
-
+                result = cpu_freq_sticker() - 6 * m_freq_step;
             }
         }
-        if (isnan(result)) {
-            throw Exception("EfficientFreqDecider::cpu_freq_min(): unable to parse minimum frequency",
-                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+
         return result;
     }
 
@@ -358,31 +291,9 @@ namespace geopm
             }
         }
         if (isnan(result)) {
-            std::ifstream freq_file(m_cpu_freq_max_path);
-            if (freq_file.is_open()) {
-                std::string line;
-                getline(freq_file, line);
-                try {
-                    result = 1e3 * std::stod(line);
-                }
-                catch (std::invalid_argument) {
+            result = get_limit("MAX");
+        }
 
-                }
-            }
-        }
-        if (isnan(result)) {
-            try {
-                result = cpu_freq_sticker() + m_freq_step;
-            }
-            catch (Exception) {
-
-            }
-        }
-        if (isnan(result)) {
-            throw Exception("EfficientFreqDecider::cpu_freq_max(): unable to parse maximum frequency",
-                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         return result;
     }
-
 }
