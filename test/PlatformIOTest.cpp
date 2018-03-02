@@ -39,6 +39,7 @@
 #include "gmock/gmock.h"
 
 #include "IOGroup.hpp"
+#include "MockIOGroup.hpp"
 #include "PlatformIOInternal.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
@@ -51,10 +52,9 @@ using geopm::PlatformTopo;
 using ::testing::_;
 using ::testing::Return;
 
-class MockIOGroup : public geopm::IOGroup
+class PlatformIOTestMockIOGroup : public MockIOGroup
 {
     public:
-
         void set_valid_signal_names(std::list<std::string> names) {
             m_valid_signals = names;
         }
@@ -73,28 +73,6 @@ class MockIOGroup : public geopm::IOGroup
                              m_valid_controls.end(),
                              control_name) != m_valid_controls.end();
         }
-        MOCK_METHOD1(signal_domain_type,
-                     int(const std::string &signal_name));
-        MOCK_METHOD1(control_domain_type,
-                     int(const std::string &control_name));
-        MOCK_METHOD3(push_signal,
-                     int(const std::string &signal_name, int domain_type, int domain_idx));
-        MOCK_METHOD3(push_control,
-                     int(const std::string &control_name, int domain_type, int domain_idx));
-        MOCK_METHOD0(read_batch,
-                     void(void));
-        MOCK_METHOD0(write_batch,
-                     void(void));
-        MOCK_METHOD1(sample,
-                     double(int batch_idx));
-        MOCK_METHOD2(adjust,
-                     void(int batch_idx, double setting));
-        MOCK_METHOD3(read_signal,
-                     double(const std::string &signal_name,
-                            int domain_type, int domain_idx));
-        MOCK_METHOD4(write_control,
-            void(const std::string &control_name, int domain_type,
-                 int domain_idx, double setting));
 
     protected:
         std::list<std::string> m_valid_signals;
@@ -105,21 +83,21 @@ class PlatformIOTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        std::list<MockIOGroup *> m_iogroup_ptr;
+        std::list<PlatformIOTestMockIOGroup *> m_iogroup_ptr;
         std::unique_ptr<PlatformIO> m_platio;
 };
 
 void PlatformIOTest::SetUp()
 {
     std::list<std::unique_ptr<IOGroup>> iogroup_list;
-    auto tmp = new MockIOGroup;
+    auto tmp = new PlatformIOTestMockIOGroup;
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
     tmp->set_valid_signal_names({"TIME"});
     ON_CALL(*tmp, signal_domain_type("TIME"))
         .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
 
-    tmp = new MockIOGroup;
+    tmp = new PlatformIOTestMockIOGroup;
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
     tmp->set_valid_signal_names({"FREQ", "POWER"});
@@ -133,7 +111,7 @@ void PlatformIOTest::SetUp()
     ON_CALL(*tmp, control_domain_type("POWER"))
         .WillByDefault(Return(PlatformTopo::M_DOMAIN_PACKAGE));
 
-    tmp = new MockIOGroup;
+    tmp = new PlatformIOTestMockIOGroup;
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
     tmp->set_valid_signal_names({"POWER"});
