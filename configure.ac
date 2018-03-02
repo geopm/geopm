@@ -438,6 +438,20 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
 ])
 
+AC_LANG_PUSH([C++])
+AC_MSG_CHECKING([that double is 64 bits])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[]],
+            [[static_assert(sizeof(double) == 8);]])
+],[
+    AC_MSG_RESULT(yes)
+],[
+    AC_MSG_RESULT(no)
+    AC_MSG_FAILURE([sizeof double must equal 64 bits])
+])
+
+AC_LANG_POP([C++])
+
 AM_CONDITIONAL([HAVE_GFORTRAN], [test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null])
 AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
