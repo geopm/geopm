@@ -51,7 +51,7 @@ using geopm::PlatformTopo;
 using ::testing::_;
 using ::testing::Return;
 
-class MockIOGroup : public geopm::IOGroup
+class _MockIOGroup : public geopm::IOGroup
 {
     public:
 
@@ -105,21 +105,21 @@ class PlatformIOTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        std::list<MockIOGroup *> m_iogroup_ptr;
+        std::list<_MockIOGroup *> m_iogroup_ptr;
         std::unique_ptr<PlatformIO> m_platio;
 };
 
 void PlatformIOTest::SetUp()
 {
     std::list<std::unique_ptr<IOGroup>> iogroup_list;
-    auto tmp = new MockIOGroup;
+    auto tmp = new _MockIOGroup;
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
     tmp->set_valid_signal_names({"TIME"});
     ON_CALL(*tmp, signal_domain_type("TIME"))
         .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
 
-    tmp = new MockIOGroup;
+    tmp = new _MockIOGroup;
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
     tmp->set_valid_signal_names({"FREQ", "POWER"});
@@ -133,7 +133,7 @@ void PlatformIOTest::SetUp()
     ON_CALL(*tmp, control_domain_type("POWER"))
         .WillByDefault(Return(PlatformTopo::M_DOMAIN_PACKAGE));
 
-    tmp = new MockIOGroup;
+    tmp = new _MockIOGroup;
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
     tmp->set_valid_signal_names({"POWER"});
