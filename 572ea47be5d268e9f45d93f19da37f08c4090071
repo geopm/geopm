@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aeec0817_bd28ef48",
+        "filename": "src/CPUFreqLimitsIOGroup.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-02T23:20:42Z",
+      "side": 1,
+      "message": "Throw for DRAM, ACCELERATOR and NIC domains, but not for any of the domains related to CPUs.",
+      "range": {
+        "startLine": 226,
+        "startChar": 8,
+        "endLine": 228,
+        "endChar": 64
+      },
+      "revId": "572ea47be5d268e9f45d93f19da37f08c4090071",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
