@@ -39,7 +39,8 @@ geopm_ctl_c(3) -- geopm power controller structure
 
   * `int geopm_ctl_create(`:
     `struct geopm_policy_c *`_policy_, <br>
-    `MPI_Comm` _comm_, <br>
+    `MPI_Comm *` _comm_, <br>
+    `size_t` _sz_of_comm_, <br>
     `struct geopm_ctl_c **`_ctl_`);`
 
   * `int geopm_ctl_destroy(`:
