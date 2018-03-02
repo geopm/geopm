@@ -33,6 +33,7 @@
 #ifndef PLUGINFACTORY_HPP_INCLUDE
 #define PLUGINFACTORY_HPP_INCLUDE
 
+#include <set>
 #include <map>
 #include <memory>
 #include <string>
@@ -60,6 +61,16 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
+            void register_plugin(const std::string &plugin_name,
+                                 std::function<std::unique_ptr<T>(const void *, size_t)> make_plugin)
+            {
+                auto result = m_name_func_payload_map.emplace(plugin_name, make_plugin);
+                if (!result.second) {
+                    throw Exception("PluginFactory::register_plugin(): name: \"" +
+                                    plugin_name + "\" has been previously registered",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+            }
             std::unique_ptr<T> make_plugin(const std::string &plugin_name)
             {
                 auto it = m_name_func_map.find(plugin_name);
@@ -70,18 +81,34 @@ namespace geopm
                 }
                 return it->second();
             }
+            std::unique_ptr<T> make_plugin(const std::string &plugin_name, const void *payload, size_t payload_size)
+            {
+                auto it = m_name_func_payload_map.find(plugin_name);
+                if (it == m_name_func_payload_map.end()) {
+                    throw Exception("PluginFactory::make_plugin(): name: \"" +
+                                    plugin_name + "\" has not been previously registered to take payload",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                return it->second(payload, payload_size);
+            }
             std::forward_list<std::string> plugin_names(void)
             {
-                std::forward_list<std::string> result;
+                std::set<std::string> result;
                 for (auto it = m_name_func_map.rbegin();
                      it != m_name_func_map.rend();
                      ++it) {
-                    result.push_front(it->first);
+                    result.insert(it->first);
                 }
-                return result;
+                for (auto it = m_name_func_payload_map.rbegin();
+                     it != m_name_func_payload_map.rend();
+                     ++it) {
+                    result.insert(it->first);
+                }
+                return std::forward_list<std::string>(result.begin(), result.end());
             }
         private:
             std::map<std::string, std::function<std::unique_ptr<T>()> > m_name_func_map;
+            std::map<std::string, std::function<std::unique_ptr<T>(const void *, size_t)> > m_name_func_payload_map;
     };
 
 }
