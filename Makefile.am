@@ -260,6 +260,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/ControlMessage.hpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
+                            src/DefaultProfile.cpp \
                             src/Environment.cpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
@@ -316,6 +317,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/Policy.hpp \
                             src/PolicyFlags.cpp \
                             src/PolicyFlags.hpp \
+                            src/Profile.cpp \
+                            src/Profile.hpp \
                             src/ProfileIOSample.cpp \
                             src/ProfileIOSample.hpp \
                             src/ProfileIOGroup.cpp \
@@ -364,15 +367,12 @@ if ENABLE_MPI
     # compiled into libgeopm.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
                           src/geopm_ctl.h \
-                          src/DefaultProfile.cpp \
                           src/geopm_mpi_comm_split.h \
                           src/geopm_pmpi.h \
                           src/geopm_pmpi.c \
                           src/MPICommSplit.cpp \
                           src/MPIComm.cpp \
                           src/MPIComm.hpp \
-                          src/Profile.cpp \
-                          src/Profile.hpp \
                           # end
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90 \
