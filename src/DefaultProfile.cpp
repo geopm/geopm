@@ -70,12 +70,12 @@ namespace geopm
 {
     class DefaultProfile : public Profile {
         public:
-            DefaultProfile(const std::string prof_name, MPI_Comm comm);
+            DefaultProfile(const std::string prof_name, std::unique_ptr<IComm> comm);
             virtual ~DefaultProfile();
     };
 
-    DefaultProfile::DefaultProfile(const std::string prof_name, MPI_Comm comm)
-        : Profile(prof_name, comm)
+    DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<IComm> comm)
+        : Profile(prof_name, std::move(comm))
     {
         g_pmpi_prof_enabled = 1;
     }
@@ -88,7 +88,7 @@ namespace geopm
 
 static geopm::DefaultProfile &geopm_default_prof(void)
 {
-    static geopm::DefaultProfile default_prof(geopm_env_profile(), MPI_COMM_WORLD);
+    static geopm::DefaultProfile default_prof(geopm_env_profile(), std::move(geopm::comm_factory().make_plugin(geopm_env_comm())));
     return default_prof;
 }
 
@@ -225,4 +225,3 @@ extern "C"
         return err;
     }
 }
-
