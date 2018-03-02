@@ -61,6 +61,8 @@ typedef int MPI_Win;
 #define MPI_INFO_NULL         ((MPI_Info)0x1c000000)
 #define MPI_WIN_NULL ((MPI_Win)0x20000000)
 #define MPI_MAX_ERROR_STRING   512
+#define MPI_Fint        int // TODO need MPI enabled machine
+#define MPI_ERR_SIZE    -9000 // ditto
 
 extern "C"
 {
@@ -98,6 +100,11 @@ extern "C"
     {
         *param2 = 0;
         return 0;
+    }
+
+    MPI_Comm MPI_Comm_f2c(MPI_Fint comm)
+    {
+        return MPI_COMM_WORLD;
     }
 
 #define MPI_Error_string(p0, p1, p2) mock_error_string(p0, p1, p2)

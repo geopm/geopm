@@ -58,6 +58,7 @@
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
 #include "SampleScheduler.hpp"
+#include "Comm.hpp"
 #include "ControlMessage.hpp"
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
@@ -155,7 +156,7 @@ namespace geopm
         return result;
     }
 
-    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm)
+    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm)
     {
         length = 0;
         if (m_ctl_msg->is_sample_begin() ||
@@ -170,7 +171,7 @@ namespace geopm
                 length += rank_length;
             }
             if (m_ctl_msg->is_sample_end()) {
-                PMPI_Barrier(comm);
+                comm->barrier();
                 m_ctl_msg->step();
                 while (!m_ctl_msg->is_name_begin() &&
                        !m_ctl_msg->is_shutdown()) {
