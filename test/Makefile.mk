@@ -270,6 +270,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/EfficientFreqDecider.hpp \
                           plugin/EfficientFreqDecider.cpp \
                           plugin/EfficientFreqDeciderRegister.cpp \
+						  test/MockIOGroup.hpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
                           test/EfficientFreqDeciderTest.cpp \
