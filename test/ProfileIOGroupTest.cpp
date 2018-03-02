@@ -33,6 +33,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "geopm_hash.h"
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "MockProfileIOSample.hpp"
@@ -89,7 +90,7 @@ ProfileIOGroupTest::~ProfileIOGroupTest()
 
 TEST_F(ProfileIOGroupTest, is_valid)
 {
-    EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::REGION_ID"));
+    EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::REGION_ID#"));
     EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::PROGRESS"));
     EXPECT_FALSE(m_piog.is_valid_signal("PROFILE::INVALID_SIGNAL"));
     EXPECT_FALSE(m_piog.is_valid_control("PROFILE::INVALID_CONTROL"));
@@ -97,7 +98,7 @@ TEST_F(ProfileIOGroupTest, is_valid)
 
 TEST_F(ProfileIOGroupTest, domain_type)
 {
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::REGION_ID"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::REGION_ID#"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::PROGRESS"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_piog.signal_domain_type("PROFILE::INVALID_SIGNAL"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_piog.control_domain_type("PROFILE::INVALID_CONTROL"));
@@ -106,17 +107,17 @@ TEST_F(ProfileIOGroupTest, domain_type)
 TEST_F(ProfileIOGroupTest, invalid_signal)
 {
     EXPECT_THROW(m_piog.push_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0), Exception); // "signal name \"INVALID\" not valid"
-    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_BOARD, 0), Exception); // "non-CPU domains are not supported"
-    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 9999), Exception); // "domain index out of range
+    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_BOARD, 0), Exception); // "non-CPU domains are not supported"
+    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 9999), Exception); // "domain index out of range
     EXPECT_THROW(m_piog.read_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0), Exception); // "signal name \"INVALID\" not valid"
-    EXPECT_THROW(m_piog.read_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_BOARD, 0), Exception); // "non-CPU domains are not supported"
-    EXPECT_THROW(m_piog.read_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 9999), Exception); // "domain index out of range
+    EXPECT_THROW(m_piog.read_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_BOARD, 0), Exception); // "non-CPU domains are not supported"
+    EXPECT_THROW(m_piog.read_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 9999), Exception); // "domain index out of range
 }
 
 TEST_F(ProfileIOGroupTest, control)
 {
-    EXPECT_THROW(m_piog.push_control("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 0), Exception); // "no controls supported"
-    EXPECT_THROW(m_piog.write_control("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 0, 0.0), Exception); // "no controls supported"
+    EXPECT_THROW(m_piog.push_control("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0), Exception); // "no controls supported"
+    EXPECT_THROW(m_piog.write_control("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0, 0.0), Exception); // "no controls supported"
 }
 
 TEST_F(ProfileIOGroupTest, region_id)
@@ -131,34 +132,34 @@ TEST_F(ProfileIOGroupTest, region_id)
         .WillOnce(Return(expected_rid[3]));
 
     // push_signal
-    int rid_idx0 = m_piog.push_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 0);
-    int dup_idx0 = m_piog.push_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 0);
+    int rid_idx0 = m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0);
+    int dup_idx0 = m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(rid_idx0, dup_idx0);
-    int rid_idx1 = m_piog.push_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 1);
+    int rid_idx1 = m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_THROW(m_piog.sample(rid_idx0), Exception); // "sample has not been read"
 
     // sample
     m_piog.read_batch();
-    double rid0 = m_piog.sample(rid_idx0);
-    double rid1 = m_piog.sample(rid_idx1);
-    EXPECT_EQ(777, rid0);
-    EXPECT_EQ(888, rid1);
+    uint64_t rid0 = geopm_signal_to_field(m_piog.sample(rid_idx0));
+    uint64_t rid1 = geopm_signal_to_field(m_piog.sample(rid_idx1));
+    EXPECT_EQ(777ULL, rid0);
+    EXPECT_EQ(888ULL, rid1);
 
     // second sample
     m_piog.read_batch();
-    rid0 = m_piog.sample(rid_idx0);
-    rid1 = m_piog.sample(rid_idx1);
-    EXPECT_EQ(555, rid0);
-    EXPECT_EQ(444, rid1);
+    rid0 = geopm_signal_to_field(m_piog.sample(rid_idx0));
+    rid1 = geopm_signal_to_field(m_piog.sample(rid_idx1));
+    EXPECT_EQ(555ULL, rid0);
+    EXPECT_EQ(444ULL, rid1);
 
     // read_signal
-    rid0 = m_piog.read_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 0);
-    rid1 = m_piog.read_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 1);
-    EXPECT_EQ(888, rid0);
-    EXPECT_EQ(555, rid1);
+    rid0 = geopm_signal_to_field(m_piog.read_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0));
+    rid1 = geopm_signal_to_field(m_piog.read_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 1));
+    EXPECT_EQ(888ULL, rid0);
+    EXPECT_EQ(555ULL, rid1);
 
     // errors
-    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID", PlatformTopo::M_DOMAIN_CPU, 0),
+    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0),
                  Exception); // "cannot push signal after call to read_batch"
 }
 
