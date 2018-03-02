@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c04eb898_d96f44b5",
+        "filename": ".travis.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-02T17:49:45Z",
+      "side": 1,
+      "message": "Don\u0027t do this; test that depends on this should also get GEOPM_DEBUG wrapper",
+      "revId": "20f8c108084d34731518d4b666ac0e37a3e869f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
