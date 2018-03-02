@@ -38,10 +38,11 @@
 #include <string>
 #include <set>
 #include <forward_list>
-#include <mpi.h>
+#include <memory>
 
 namespace geopm
 {
+    class IComm;
     class ISharedMemory;
     class IControlMessage;
     class IProfileTable;
@@ -67,7 +68,7 @@ namespace geopm
             IProfileSampler(const IProfileSampler &other) {}
             virtual ~IProfileSampler() {}
             virtual size_t capacity(void) = 0;
-            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) = 0;
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) = 0;
             virtual bool do_shutdown(void) = 0;
             virtual bool do_report(void) = 0;
             virtual void region_names(void) = 0;
@@ -197,7 +198,7 @@ namespace geopm
             ///        sample messages.
             ///
             /// @param [out] length The number of samples that were inserted.
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, MPI_Comm comm) override;
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) override;
             /// @brief Check if the application is shutting down.
             ///
             /// Queries the control shared memory region to test if the

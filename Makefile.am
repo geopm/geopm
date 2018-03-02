@@ -254,6 +254,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/CombinedSignal.hpp \
                             src/Comm.cpp \
                             src/Comm.hpp \
+                            src/Controller.cpp \
+                            src/Controller.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
                             src/Decider.cpp \
@@ -294,6 +296,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/msr_hsx.cpp \
                             src/msr_knl.cpp \
                             src/msr_snb.cpp \
+                            src/OMPT.cpp \
+                            src/OMPT.hpp \
                             src/Platform.cpp \
                             src/Platform.hpp \
                             src/PlatformFactory.cpp \
@@ -320,6 +324,8 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/ProfileTable.hpp \
                             src/ProfileThread.cpp \
                             src/ProfileThread.hpp \
+                            src/ProfileSampler.cpp \
+                            src/ProfileSampler.hpp \
                             src/RAPLPlatform.cpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
@@ -358,8 +364,6 @@ if ENABLE_MPI
     # compiled into libgeopm.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
                           src/geopm_ctl.h \
-                          src/Controller.cpp \
-                          src/Controller.hpp \
                           src/DefaultProfile.cpp \
                           src/geopm_mpi_comm_split.h \
                           src/geopm_pmpi.h \
@@ -367,12 +371,8 @@ if ENABLE_MPI
                           src/MPICommSplit.cpp \
                           src/MPIComm.cpp \
                           src/MPIComm.hpp \
-                          src/OMPT.cpp \
-                          src/OMPT.hpp \
                           src/Profile.cpp \
                           src/Profile.hpp \
-                          src/ProfileSampler.cpp \
-                          src/ProfileSampler.hpp \
                           # end
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90 \
