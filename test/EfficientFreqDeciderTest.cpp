@@ -57,6 +57,7 @@ using ::testing::Invoke;
 using ::testing::Sequence;
 using ::testing::Return;
 using geopm::IDecider;
+using geopm::IOGroup;
 using geopm::EfficientFreqDecider;
 
 class EfficientFreqDeciderTest: public :: testing :: Test
@@ -76,9 +77,6 @@ class EfficientFreqDeciderTest: public :: testing :: Test
         double m_freq_max;
         MockPlatformIO *m_platform_io;
         MockPlatformTopo *m_platform_topo;
-        const std::string m_cpuinfo_path = "EfficientFreqDeciderTest_cpu_info";
-        const std::string m_cpufreq_min_path = "EfficientFreqDeciderTest_cpu_freq_min";
-        const std::string m_cpufreq_max_path = "EfficientFreqDeciderTest_cpu_freq_max";
 };
 
 void EfficientFreqDeciderTest::SetUp()
@@ -89,6 +87,16 @@ void EfficientFreqDeciderTest::SetUp()
             .WillByDefault(Return(geopm::PlatformTopo::M_DOMAIN_CPU));
     ON_CALL(*m_platform_topo, num_domain(geopm::PlatformTopo::M_DOMAIN_CPU))
             .WillByDefault(Return(1));
+    ON_CALL(*m_platform_io, signal_domain_type(_))
+            .WillByDefault(Return(geopm::PlatformTopo::M_DOMAIN_BOARD));
+    ON_CALL(*m_platform_io, read_signal(std::string("MIN"), _, _))
+            .WillByDefault(Return(1.0e9));
+    ON_CALL(*m_platform_io, read_signal(std::string("STICKER"), _, _))
+            .WillByDefault(Return(1.3e9));
+    ON_CALL(*m_platform_io, read_signal(std::string("MAX"), _, _))
+            .WillByDefault(Return(2.2e9));
+    ON_CALL(*m_platform_io, read_signal(std::string("STEP"), _, _))
+            .WillByDefault(Return(100e6));
 
     setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
 
@@ -115,7 +123,7 @@ void EfficientFreqDeciderTest::SetUp()
 
     m_mock_region = std::unique_ptr<MockRegion>(new MockRegion());
     m_mock_policy = std::unique_ptr<MockPolicy>(new MockPolicy());
-    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo));
+    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(*m_platform_io, *m_platform_topo));
 }
 
 void EfficientFreqDeciderTest::TearDown()
@@ -123,308 +131,8 @@ void EfficientFreqDeciderTest::TearDown()
     unsetenv("GEOPM_EFFICIENT_FREQ_ONLINE");
     unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
     unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-    std::remove(m_cpuinfo_path.c_str());
     delete m_platform_topo;
     delete m_platform_io;
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info0)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // with @
-    const std::string cpuinfo_str =
-        "processor       : 254\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 87\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU 0000 @ 1.30GHz\n"
-        "stepping        : 1\n"
-        "microcode       : 0x1ac\n"
-        "cpu MHz         : 1036.394\n"
-        "cache size      : 1024 KB\n"
-        "physical id     : 0\n"
-        "siblings        : 256\n"
-        "core id         : 72\n"
-        "cpu cores       : 64\n"
-        "apicid          : 291\n"
-        "initial apicid  : 291\n"
-        "fpu             : yes\n"
-        "fpu_exception   : yes\n"
-        "cpuid level     : 13\n"
-        "wp              : yes\n"
-        "flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl est tm2 ssse3 fma cx16 xtpr pdcm sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch ida arat epb pln pts dtherm fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms avx512f rdseed adx avx512pf avx512er avx512cd xsaveopt\n"
-        "bogomips        : 2594.01\n"
-        "clflush size    : 64\n"
-        "cache_alignment : 64\n"
-        "address sizes   : 46 bits physical, 48 bits virtual\n"
-        "power management:\n\n";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_sticker();
-    EXPECT_DOUBLE_EQ(1.3e9, freq);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info1)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // without @
-    const std::string cpuinfo_str =
-        "processor       : 255\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 87\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU 0000 1.20GHz\n"
-        "stepping        : 1\n"
-        "microcode       : 0x1ac\n"
-        "cpu MHz         : 1069.199\n"
-        "cache size      : 1024 KB\n"
-        "physical id     : 0\n"
-        "siblings        : 256\n"
-        "core id         : 73\n"
-        "cpu cores       : 64\n"
-        "apicid          : 295\n"
-        "initial apicid  : 295\n"
-        "fpu             : yes\n"
-        "fpu_exception   : yes\n"
-        "cpuid level     : 13\n"
-        "wp              : yes\n"
-        "flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl est tm2 ssse3 fma cx16 xtpr pdcm sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch ida arat epb pln pts dtherm fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms avx512f rdseed adx avx512pf avx512er avx512cd xsaveopt\n"
-        "bogomips        : 2594.01\n"
-        "clflush size    : 64\n"
-        "cache_alignment : 64\n"
-        "address sizes   : 46 bits physical, 48 bits virtual\n"
-        "power management:\n\n";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_sticker();
-    EXPECT_DOUBLE_EQ(1.2e9, freq);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info2)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // without @ with space
-    const std::string cpuinfo_str =
-        "processor       : 255\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 87\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU 0000 1.10 GHz\n"
-        "stepping        : 1\n"
-        "microcode       : 0x1ac\n"
-        "cpu MHz         : 1069.199\n"
-        "cache size      : 1024 KB\n"
-        "physical id     : 0\n"
-        "siblings        : 256\n"
-        "core id         : 73\n"
-        "cpu cores       : 64\n"
-        "apicid          : 295\n"
-        "initial apicid  : 295\n"
-        "fpu             : yes\n"
-        "fpu_exception   : yes\n"
-        "cpuid level     : 13\n"
-        "wp              : yes\n"
-        "flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl est tm2 ssse3 fma cx16 xtpr pdcm sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch ida arat epb pln pts dtherm fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms avx512f rdseed adx avx512pf avx512er avx512cd xsaveopt\n"
-        "bogomips        : 2594.01\n"
-        "clflush size    : 64\n"
-        "cache_alignment : 64\n"
-        "address sizes   : 46 bits physical, 48 bits virtual\n"
-        "power management:\n\n";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_sticker();
-    EXPECT_DOUBLE_EQ(1.1e9, freq);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info3)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // missing newline
-    const std::string cpuinfo_str =
-        "processor       : 255\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 87\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU 0000 1.10GHz";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_sticker();
-    EXPECT_DOUBLE_EQ(1.1e9, freq);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info4)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // missing number
-    const std::string cpuinfo_str =
-        "processor       : 255\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 87\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU GHz\n"
-        "stepping        : 1";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EXPECT_THROW( {
-            EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-        },
-        geopm::Exception);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info5)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // multiple GHz
-    std::string cpuinfo_str =
-        "processor       : 255\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 8.7GHz\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU 1.5GHz\n"
-        "stepping        : 1.0GHz\n";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_sticker();
-    EXPECT_DOUBLE_EQ(1.5e9, freq);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_info6)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
-
-    // with model name foobar
-    const std::string cpuinfo_str =
-        "processor       : 254\n"
-        "vendor_id       : GenuineIntel\n"
-        "cpu family      : 6\n"
-        "model           : 87\n"
-        "model name X    : Intel(R) Genuine Intel(R) CPU 0000 @ 1.00GHz\n"
-        "model name      : Intel(R) Genuine Intel(R) CPU 0000 @ 1.30GHz\n"
-        "stepping        : 1\n"
-        "microcode       : 0x1ac\n"
-        "cpu MHz         : 1036.394\n"
-        "cache size      : 1024 KB\n"
-        "physical id     : 0\n"
-        "siblings        : 256\n"
-        "core id         : 72\n"
-        "cpu cores       : 64\n"
-        "apicid          : 291\n"
-        "initial apicid  : 291\n"
-        "fpu             : yes\n"
-        "fpu_exception   : yes\n"
-        "cpuid level     : 13\n"
-        "wp              : yes\n"
-        "flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl est tm2 ssse3 fma cx16 xtpr pdcm sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch ida arat epb pln pts dtherm fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms avx512f rdseed adx avx512pf avx512er avx512cd xsaveopt\n"
-        "bogomips        : 2594.01\n"
-        "clflush size    : 64\n"
-        "cache_alignment : 64\n"
-        "address sizes   : 46 bits physical, 48 bits virtual\n"
-        "power management:\n\n";
-
-    std::ofstream cpuinfo_stream(m_cpuinfo_path);
-    cpuinfo_stream << cpuinfo_str;
-    cpuinfo_stream.close();
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_sticker();
-    EXPECT_DOUBLE_EQ(1.3e9, freq);
-    std::remove(m_cpuinfo_path.c_str());
-}
-
-TEST_F(EfficientFreqDeciderTest, parse_cpu_freq)
-{
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
-    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-
-    // Test cases where we need CPU info (no cpufreq driver)
-    std::ofstream cpufreq_min_stream(m_cpufreq_min_path);
-    cpufreq_min_stream << "1000000";
-    cpufreq_min_stream.close();
-    std::ofstream cpufreq_max_stream(m_cpufreq_max_path);
-    cpufreq_max_stream << "2000000";
-    cpufreq_max_stream.close();
-
-    EfficientFreqDecider decider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo);
-    double freq = decider.cpu_freq_min();
-    EXPECT_DOUBLE_EQ(1.0e9, freq);
-    freq = decider.cpu_freq_max();
-    EXPECT_DOUBLE_EQ(2.0e9, freq);
-
-    std::remove(m_cpufreq_min_path.c_str());
-    std::remove(m_cpufreq_max_path.c_str());
 }
 
 TEST_F(EfficientFreqDeciderTest, map)
@@ -484,7 +192,7 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
     setenv("GEOPM_EFFICIENT_FREQ_MAX", "2e9", 1);
 
     // reset decider with new settings
-    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path, *m_platform_io, *m_platform_topo));
+    m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(*m_platform_io, *m_platform_topo));
 
     {
         // should not be called if we hit the adaptive branch
