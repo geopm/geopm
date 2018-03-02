@@ -62,8 +62,8 @@ namespace geopm
             void adjust(int control_idx, double setting) override;
             double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
             void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
-            static inline double rid2dbl(uint64_t region_id) {return *((double *)&region_id);}
-            static inline uint64_t dbl2rid(double region_id) {return *((uint64_t *)&region_id);}
+            static inline double rid2dbl(uint64_t region_id) {return *(reinterpret_cast<double *>(&region_id));}
+            static inline uint64_t dbl2rid(double region_id) {return *(reinterpret_cast<uint64_t *>(&region_id));}
             static std::string plugin_name(void);
         protected:
             enum m_signal_type {

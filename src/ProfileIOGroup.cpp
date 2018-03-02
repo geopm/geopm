@@ -35,6 +35,7 @@
 #include "PlatformTopo.hpp"
 #include "ProfileIOSample.hpp"
 #include "Exception.hpp"
+#include "geopm_hash.h"
 #include "config.h"
 
 #define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"
@@ -50,7 +51,7 @@ namespace geopm
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
                                    IPlatformTopo* topo)
         : m_profile_sample(profile_sample)
-        , m_signal_idx_map{{plugin_name() + "::REGION_ID", M_SIGNAL_REGION_ID},
+        , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
                            {plugin_name() + "::PROGRESS", M_SIGNAL_PROGRESS}}
         , m_platform_topo(topo)
         , m_do_read_region_id(false)
@@ -164,7 +165,7 @@ namespace geopm
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_ID:
-                result = m_per_cpu_region_id[cpu_idx];  // TODO: need rid2dbl?
+                result = geopm_field_to_signal(m_per_cpu_region_id[cpu_idx]);
                 break;
             case M_SIGNAL_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
@@ -195,7 +196,7 @@ namespace geopm
         double result;
         switch (signal_type) {
             case M_SIGNAL_REGION_ID:
-                result = m_profile_sample->per_cpu_region_id()[cpu_idx];
+                result = geopm_field_to_signal(m_profile_sample->per_cpu_region_id()[cpu_idx]);
                 break;
             case M_SIGNAL_PROGRESS:
                 geopm_time(&read_time);
