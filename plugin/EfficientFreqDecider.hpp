@@ -59,10 +59,7 @@ namespace geopm
         public:
             /// @brief EfficientFreqDecider default constructor.
             EfficientFreqDecider();
-            EfficientFreqDecider(const std::string &cpu_info_path,
-                                 const std::string &cpu_freq_min_path,
-                                 const std::string &cpu_freq_max_path,
-                                 IPlatformIO &platform_io,
+            EfficientFreqDecider(IPlatformIO &platform_io,
                                  IPlatformTopo &platform_topo);
             EfficientFreqDecider(const EfficientFreqDecider &other) = delete;
             EfficientFreqDecider &operator=(const EfficientFreqDecider &other) = delete;
@@ -74,15 +71,14 @@ namespace geopm
             static std::unique_ptr<IDecider> make_plugin(void);
 
             // TODO: needs doc strings
-            double cpu_freq_sticker(void);
             double cpu_freq_min(void);
             double cpu_freq_max(void);
         protected:
+            double get_limit(const std::string &sig_name);
             void init_platform_io(void);
             void parse_env_map(void);
-            const std::string m_cpu_info_path;
-            const std::string m_cpu_freq_min_path;
-            const std::string m_cpu_freq_max_path;
+            IPlatformIO &m_platform_io;
+            IPlatformTopo &m_platform_topo;
             const double m_freq_min;
             const double m_freq_max;
             const double m_freq_step;
@@ -94,8 +90,6 @@ namespace geopm
             bool m_is_adaptive = false;
             IRegion *m_region_last = nullptr;
             std::map<uint64_t, std::unique_ptr<EfficientFreqRegion>> m_region_map;
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
     };
 }
 
