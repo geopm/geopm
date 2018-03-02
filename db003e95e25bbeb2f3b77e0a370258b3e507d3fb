@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cda73c6c_7d09e597",
+        "filename": "src/MSRIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-02T23:40:22Z",
+      "side": 1,
+      "message": "Keep this interface protected and rewrite tests to only use the first one.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 81
+      },
+      "revId": "db003e95e25bbeb2f3b77e0a370258b3e507d3fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
