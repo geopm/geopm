@@ -39,6 +39,8 @@ static void __attribute__((constructor)) mpi_comm_plugin_init()
     try {
         geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
                                               geopm::MPIComm::make_plugin);
+        geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
+                                              geopm::MPIComm::make_plugin_payload);
     }
     catch(...) {
         geopm::exception_handler(std::current_exception());

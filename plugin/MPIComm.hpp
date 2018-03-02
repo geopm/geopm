@@ -48,6 +48,7 @@ namespace geopm
     {
         public:
             MPIComm();
+            MPIComm(MPI_Comm in_comm);
             MPIComm(const MPIComm *in_comm);
             MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder);
             MPIComm(const MPIComm *in_comm, int color, int key);
@@ -56,9 +57,9 @@ namespace geopm
             MPIComm(const MPIComm *in_comm, std::string tag, int split_type);
             virtual ~MPIComm();
 
-            static const IComm &get_comm();
             static std::string plugin_name();
             static std::unique_ptr<IComm> make_plugin();
+            static std::unique_ptr<IComm> make_plugin_payload(const void *payload, size_t payload_size);
 
             virtual std::shared_ptr<IComm> split() const override;
             virtual std::shared_ptr<IComm> split(int color, int key) const override;
