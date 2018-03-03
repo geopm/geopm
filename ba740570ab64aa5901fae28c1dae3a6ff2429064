@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7893bdd_c82a19ad",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-03T06:57:49Z",
+      "side": 1,
+      "message": "CPU_FREQ_LIMITS",
+      "range": {
+        "startLine": 7,
+        "startChar": 50,
+        "endLine": 7,
+        "endChar": 59
+      },
+      "revId": "ba740570ab64aa5901fae28c1dae3a6ff2429064",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1856c2d4_c1dcedc3",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-03T06:57:49Z",
+      "side": 1,
+      "message": "Add todo in GlobalPolicy patch",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 94,
+        "endChar": 22
+      },
+      "revId": "ba740570ab64aa5901fae28c1dae3a6ff2429064",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "304b0dd6_7cafeb59",
+        "filename": "test/EfficientFreqDeciderTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-03T06:57:49Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 60,
+        "startChar": 10,
+        "endLine": 60,
+        "endChar": 21
+      },
+      "revId": "ba740570ab64aa5901fae28c1dae3a6ff2429064",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54850f7a_0c4ea467",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 8
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-03T06:57:49Z",
+      "side": 1,
+      "message": "crap",
+      "range": {
+        "startLine": 274,
+        "startChar": 1,
+        "endLine": 274,
+        "endChar": 5
+      },
+      "revId": "ba740570ab64aa5901fae28c1dae3a6ff2429064",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
