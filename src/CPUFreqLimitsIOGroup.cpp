@@ -129,10 +129,19 @@ namespace geopm
     }
 
     CPUFreqLimitsIOGroup::CPUFreqLimitsIOGroup()
+        :CPUFreqLimitsIOGroup("/proc/cpuinfo",
+                              "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
+                              "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+    {
+    }
+
+    CPUFreqLimitsIOGroup::CPUFreqLimitsIOGroup(const std::string &cpu_info_path,
+                         const std::string &cpu_freq_min_path,
+                         const std::string &cpu_freq_max_path)
         : m_signal_value_map(
-                {{CPU_FREQ_LIMIT_MIN, read_cpu_freq("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")},
-                 {CPU_FREQ_LIMIT_STICKER, read_cpu_freq_sticker("/proc/cpuinfo")},
-                 {CPU_FREQ_LIMIT_MAX, read_cpu_freq("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")},
+                {{CPU_FREQ_LIMIT_MIN, read_cpu_freq(cpu_freq_min_path)},
+                 {CPU_FREQ_LIMIT_STICKER, read_cpu_freq_sticker(cpu_info_path)},
+                 {CPU_FREQ_LIMIT_MAX, read_cpu_freq(cpu_freq_max_path)},
                  {CPU_FREQ_STEP, 100e6}})
     {
     }

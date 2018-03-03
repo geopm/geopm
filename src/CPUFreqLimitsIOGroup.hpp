@@ -41,6 +41,9 @@ namespace geopm
     {
         public:
             CPUFreqLimitsIOGroup();
+            CPUFreqLimitsIOGroup(const std::string &cpu_info_path,
+                                 const std::string &cpu_freq_min_path,
+                                 const std::string &cpu_freq_max_path);
             virtual ~CPUFreqLimitsIOGroup();
             bool is_valid_signal(const std::string &signal_name) override;
             bool is_valid_control(const std::string &control_name) override;

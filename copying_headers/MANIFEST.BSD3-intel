@@ -173,6 +173,7 @@ test/CircularBufferTest.cpp
 test/CommMPIImpTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
+test/CPUFreqLimitsIOGroupTest.cpp
 test/EfficientFreqDeciderTest.cpp
 test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
