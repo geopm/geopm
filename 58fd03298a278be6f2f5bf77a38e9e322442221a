@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ecb0aa1_d325f2dd",
+        "filename": "test/CPUFreqLimitsIOGroupTest.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-03T23:40:54Z",
+      "side": 1,
+      "message": "could be #defines for these, especially this one that is reused.",
+      "range": {
+        "startLine": 333,
+        "startChar": 8,
+        "endLine": 358,
+        "endChar": 32
+      },
+      "revId": "58fd03298a278be6f2f5bf77a38e9e322442221a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
