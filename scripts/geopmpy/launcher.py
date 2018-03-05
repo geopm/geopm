@@ -981,7 +981,6 @@ class SrunLauncher(Launcher):
             result = ['-p', self.partition]
         return result
 
-
     def get_idle_nodes(self):
         """
         Returns a list of the names of compute nodes that are currently
@@ -996,7 +995,10 @@ class SrunLauncher(Launcher):
         sinfo command.
 
         """
-        return list(set(subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()))
+        result = []
+        if 'SLURM_NODELIST' in os.environ:
+            result = os.getenv('SLURM_NODELIST', '').strip().split()
+        return result
 
 
 class SrunTOSSLauncher(SrunLauncher):
