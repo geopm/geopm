@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5fbe440_e566847c",
+        "filename": "src/GlobalPolicy.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-05T23:16:53Z",
+      "side": 1,
+      "message": "rename variables to void function namespace collisions and requirement of the this reference.",
+      "range": {
+        "startLine": 1024,
+        "startChar": 29,
+        "endLine": 1024,
+        "endChar": 33
+      },
+      "revId": "da2b7264c84a8d6c4ea9e0017c1baf2d97cab7da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
