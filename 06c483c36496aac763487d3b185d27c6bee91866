@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de7999a1_5dfdfd07",
+        "filename": "src/CPUFreqLimitsIOGroup.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-05T22:52:35Z",
+      "side": 1,
+      "message": "m_signal_value_map.size() rather than distance from begin to end.",
+      "range": {
+        "startLine": 210,
+        "startChar": 42,
+        "endLine": 210,
+        "endChar": 88
+      },
+      "revId": "06c483c36496aac763487d3b185d27c6bee91866",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f80cfaf3_5a199d80",
+        "filename": "src/CPUFreqLimitsIOGroup.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-05T22:52:35Z",
+      "side": 1,
+      "message": "Avoid repeated code, put this in with the default section.",
+      "revId": "06c483c36496aac763487d3b185d27c6bee91866",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
