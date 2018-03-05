@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cda49b27_8ce2b6c5",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-05T23:46:40Z",
+      "side": 1,
+      "message": "reomove try/catch and replace with logic in get_limit(\"MIN\") to test that the domain type is not invalid.  If the domain type is returned as invalid, then user the get_limit() wrapper to implement the fall back logic.",
+      "revId": "851f32a6d0575b4e48c55ccbb804d279d05036be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8737e93e_b348a5c0",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-05T23:46:40Z",
+      "side": 1,
+      "message": "Rename to PlatformIOMockIOGroup and inherrit from MockIOGroup.  Then only define the overrides.",
+      "revId": "851f32a6d0575b4e48c55ccbb804d279d05036be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
