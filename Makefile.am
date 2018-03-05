@@ -113,6 +113,7 @@ EXTRA_DIST = .gitignore \
              .travis_obs.sh \
              autogen.sh \
              ChangeLog \
+             CODE_OF_CONDUCT.md \
              configure.ac \
              contrib/json11/README.md \
              contrib/json11/LICENSE.txt \
