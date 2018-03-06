@@ -199,10 +199,10 @@ class TestAnalysis(unittest.TestCase):
         self._max_freq = max(self._freqs)
         self._step_freq = 100e6
         self._mid_freq = self._max_freq - self._step_freq*2
-        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(self._name_prefix, '.', True, 2, 3, 'args')
-        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(self._name_prefix, '.', True, 2, 3, 'args')
-        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(self._name_prefix, '.', True, 2, 3, 'args')
-        self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(self._name_prefix, '.', True, 2, 3, 'args')
+        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(self._name_prefix, '.', 2, 3, 'args')
+        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
+        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
+        self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(self._name_prefix, '.', 2, 3, 'args')
         self._tmp_files = []
 
     def tearDown(self):
