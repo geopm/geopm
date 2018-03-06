@@ -91,7 +91,7 @@ class Analysis(object):
     reports and/or logs. Implementations should define how to launch experiments,
     parse and process the output, and process text reports or graphical plots.
     """
-    def __init__(self, name, output_dir, verbose, num_rank, num_node, app_argv):
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
         self._name = name
         self._output_dir = output_dir
         self._verbose = verbose
@@ -168,8 +168,8 @@ class FreqSweepAnalysis(Analysis):
     frequency, finds the lowest frequency for each region at which the performance
     will not be degraded by more than a given margin.
     """
-    def __init__(self, name, output_dir, verbose, num_rank, num_node, app_argv):
-        super(FreqSweepAnalysis, self).__init__(name, output_dir, verbose, num_rank, num_node, app_argv)
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
+        super(FreqSweepAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, verbose)
         self._perf_margin = 0.1
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
@@ -310,15 +310,15 @@ class OfflineBaselineComparisonAnalysis(Analysis):
     compared.  Uses baseline comparison function to do analysis.
 
     """
-    def __init__(self, name, output_dir, verbose, num_rank, num_node, app_argv):
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
         super(OfflineBaselineComparisonAnalysis, self).__init__(name,
                                                                 output_dir,
-                                                                verbose,
                                                                 num_rank,
                                                                 num_node,
-                                                                app_argv)
-        self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, verbose, num_rank,
-                                                 num_node, app_argv)
+                                                                app_argv,
+                                                                verbose)
+        self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, num_rank,
+                                                 num_node, app_argv, verbose)
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         """
@@ -416,15 +416,15 @@ class OnlineBaselineComparisonAnalysis(Analysis):
     compared.  Uses baseline comparison class to do analysis.
 
     """
-    def __init__(self, name, output_dir, verbose, num_rank, num_node, app_argv):
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
         super(OnlineBaselineComparisonAnalysis, self).__init__(name,
                                                                output_dir,
-                                                               verbose,
                                                                num_rank,
                                                                num_node,
-                                                               app_argv)
-        self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, verbose, num_rank,
-                                                 num_node, app_argv)
+                                                               app_argv,
+                                                               verbose)
+        self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, num_rank,
+                                                 num_node, app_argv, verbose)
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         """
@@ -523,8 +523,8 @@ class StreamDgemmMixAnalysis(Analysis):
        online mode are compared to the run a sticker frequency.
 
     """
-    def __init__(self, name, output_dir, verbose, num_rank, num_node, app_argv):
-        super(StreamDgemmMixAnalysis, self).__init__(name, output_dir, verbose, num_rank, num_node, app_argv)
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
+        super(StreamDgemmMixAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, verbose)
 
         self._sweep_analysis = {}
         self._offline_analysis = {}
@@ -565,24 +565,25 @@ class StreamDgemmMixAnalysis(Analysis):
             # Analysis class that runs the frequency sweep (will append _freq_XXXX to name)
             self._sweep_analysis[ratio_idx] = FreqSweepAnalysis(name,
                                                                 self._output_dir,
-                                                                self._verbose,
                                                                 self._num_rank,
                                                                 self._num_node,
-                                                                app_argv)
+                                                                app_argv,
+                                                                self._verbose)
             # Analysis class that includes a full sweep plus the plugin run with freq map
             self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(name,
                                                                                   self._output_dir,
-                                                                                  self._verbose,
                                                                                   self._num_rank,
                                                                                   self._num_node,
-                                                                                  app_argv)
+                                                                                  app_argv,
+                                                                                  self._verbose)
             # Analysis class that runs the online plugin
             self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(name,
                                                                                 self._output_dir,
-                                                                                self._verbose,
                                                                                 self._num_rank,
                                                                                 self._num_node,
-                                                                                app_argv)
+                                                                                app_argv,
+                                                                                self._verbose)
+
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
@@ -744,10 +745,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
     analysis = analysis_type_map[args.analysis_type](args.profile_prefix,
                                                      args.output_dir,
-                                                     args.verbose,
                                                      args.num_rank,
                                                      args.num_node,
-                                                     args.app_argv)
+                                                     args.app_argv,
+                                                     args.verbose)
 
     if args.skip_launch:
         analysis.find_files()
