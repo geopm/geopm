@@ -1195,7 +1195,7 @@ def main(argv):
         if not args.trace_base:
             trace_glob = all_traces_glob
         else:
-            trace_glob = args.trace_base + '*'
+            trace_glob = (args.trace_base + '*') if args.trace_base != 'None' else None
     else:
         trace_glob = None
 
@@ -1237,23 +1237,24 @@ def main(argv):
         report_df = app_output.get_report_df()
         trace_df = app_output.get_trace_df()
 
-    if report_plots.intersection(args.plot_types) and len(report_df) == 0:
+    if report_glob is not None and len(report_df) == 0:
         raise LookupError('No report data parsed.')
-    if trace_plots.intersection(args.plot_types) and len(trace_df) == 0:
+    if trace_glob is not None and len(trace_df) == 0:
         raise LookupError('No trace data parsed.')
 
     if args.profile_name:
         profile_name = args.profile_name
     else:
         if report_glob is not None:
-            profile_name_list = report_df.index.get_level_values('name').unique()
+            profile_name_list = report_df.index.get_level_values('name').unique().tolist()
         elif trace_glob is not None:
-            profile_name_list = trace_df.index.get_level_values('name').unique()
+            profile_name_list = trace_df.index.get_level_values('name').unique().tolist()
         else:
             raise LookupError('No glob pattern specified.')
 
-        if len(profile_name_list) > 1:
-            raise LookupError('Multiple profile names detected! Please provide the -n option to specify the profile name!')
+        if len(profile_name_list) > 1 and 'debug' not in args.plot_types:
+            raise LookupError('Multiple profile names detected! Please provide the -n option to specify the profile name!\n{}'\
+                              .format('\n'.join(profile_name_list)))
         profile_name = profile_name_list[0]
 
     report_config = ReportConfig(shell=args.shell, profile_name=profile_name, misc_text=args.misc_text,
@@ -1294,3 +1295,4 @@ def main(argv):
             if len(report_df) == 0:
                 raise LookupError('No data present for the requested report plot.')
             globals()[plot_func_name](report_df, report_config)
+
