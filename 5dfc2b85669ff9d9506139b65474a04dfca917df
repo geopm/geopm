@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6a20b55_0acf7e1b",
+        "filename": "src/MSR.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T01:39:21Z",
+      "side": 1,
+      "message": "No TODO required, 0 is a good starting value.",
+      "range": {
+        "startLine": 399,
+        "startChar": 41,
+        "endLine": 399,
+        "endChar": 83
+      },
+      "revId": "5dfc2b85669ff9d9506139b65474a04dfca917df",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
