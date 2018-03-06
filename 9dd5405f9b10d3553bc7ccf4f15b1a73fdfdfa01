@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ae823c9_a6aee9ed",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T00:38:34Z",
+      "side": 1,
+      "message": "remove \u0026 if storing as reference",
+      "revId": "9dd5405f9b10d3553bc7ccf4f15b1a73fdfdfa01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f641090_7c17981b",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T00:38:34Z",
+      "side": 1,
+      "message": "could be a reference",
+      "revId": "9dd5405f9b10d3553bc7ccf4f15b1a73fdfdfa01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
