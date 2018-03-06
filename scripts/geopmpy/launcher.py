@@ -1064,6 +1064,10 @@ class IMPIExecLauncher(Launcher):
         parser.add_option('--ppn', dest='rank_per_node', nargs=1, type='int')
 
         opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
+        try:
+            self.argv_unparsed.remove('--')
+        except ValueError:
+            pass
 
         if opts.num_rank:
             self.num_rank = opts.num_rank
