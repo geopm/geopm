@@ -34,6 +34,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm_hash.h"
+#include "geopm_test.hpp"
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "MockProfileIOSample.hpp"
@@ -94,6 +95,10 @@ TEST_F(ProfileIOGroupTest, is_valid)
     EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::PROGRESS"));
     EXPECT_FALSE(m_piog.is_valid_signal("PROFILE::INVALID_SIGNAL"));
     EXPECT_FALSE(m_piog.is_valid_control("PROFILE::INVALID_CONTROL"));
+
+    // aliases
+    EXPECT_TRUE(m_piog.is_valid_signal("REGION_ID#"));
+    EXPECT_TRUE(m_piog.is_valid_signal("PROGRESS"));
 }
 
 TEST_F(ProfileIOGroupTest, domain_type)
@@ -102,6 +107,10 @@ TEST_F(ProfileIOGroupTest, domain_type)
     EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::PROGRESS"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_piog.signal_domain_type("PROFILE::INVALID_SIGNAL"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_piog.control_domain_type("PROFILE::INVALID_CONTROL"));
+
+    // aliases
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("REGION_ID#"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROGRESS"));
 }
 
 TEST_F(ProfileIOGroupTest, invalid_signal)
@@ -122,91 +131,85 @@ TEST_F(ProfileIOGroupTest, control)
 
 TEST_F(ProfileIOGroupTest, region_id)
 {
-    std::vector<uint64_t> expected_rid[4] = {{777, 888},
-                                             {555, 444},
-                                             {888, 555}, {888, 555}};
+    std::vector<std::vector<uint64_t> > expected_rid = {{777, 888},
+                                                        {555, 444}};
+    std::vector<uint64_t> expected_read_rid = {888, 555};
+    ASSERT_EQ(expected_rid[0].size(), expected_read_rid.size());
+    int num_cpu = expected_read_rid.size();
+
     EXPECT_CALL(*m_mock_pios, per_cpu_region_id()).Times(4)
         .WillOnce(Return(expected_rid[0]))
         .WillOnce(Return(expected_rid[1]))
-        .WillOnce(Return(expected_rid[2]))
-        .WillOnce(Return(expected_rid[3]));
+        .WillRepeatedly(Return(expected_read_rid));
 
     // push_signal
-    int rid_idx0 = m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0);
+    std::vector<int> rid_idx;
+    for (int cpu = 0; cpu < num_cpu; ++cpu) {
+        rid_idx.push_back(m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, cpu));
+    }
     int dup_idx0 = m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0);
-    EXPECT_EQ(rid_idx0, dup_idx0);
-    int rid_idx1 = m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 1);
-    EXPECT_THROW(m_piog.sample(rid_idx0), Exception); // "sample has not been read"
+    EXPECT_EQ(rid_idx[0], dup_idx0);
+    int alias = m_piog.push_signal("REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(rid_idx[0], alias);
 
-    // sample
-    m_piog.read_batch();
-    uint64_t rid0 = geopm_signal_to_field(m_piog.sample(rid_idx0));
-    uint64_t rid1 = geopm_signal_to_field(m_piog.sample(rid_idx1));
-    EXPECT_EQ(777ULL, rid0);
-    EXPECT_EQ(888ULL, rid1);
+    GEOPM_EXPECT_THROW_MESSAGE(m_piog.sample(rid_idx[0]), GEOPM_ERROR_INVALID,
+                               "signal has not been read");
 
-    // second sample
-    m_piog.read_batch();
-    rid0 = geopm_signal_to_field(m_piog.sample(rid_idx0));
-    rid1 = geopm_signal_to_field(m_piog.sample(rid_idx1));
-    EXPECT_EQ(555ULL, rid0);
-    EXPECT_EQ(444ULL, rid1);
-
+    // samples
+    for (auto expected : expected_rid) {
+        m_piog.read_batch();
+        for (int cpu = 0; cpu < num_cpu; ++cpu) {
+            EXPECT_EQ(expected[cpu],
+                      geopm_signal_to_field(m_piog.sample(rid_idx[cpu])));
+        }
+    }
     // read_signal
-    rid0 = geopm_signal_to_field(m_piog.read_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0));
-    rid1 = geopm_signal_to_field(m_piog.read_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 1));
-    EXPECT_EQ(888ULL, rid0);
-    EXPECT_EQ(555ULL, rid1);
-
+    for (int cpu = 0; cpu < num_cpu; ++cpu) {
+        EXPECT_EQ(expected_read_rid[cpu],
+                  geopm_signal_to_field(m_piog.read_signal("PROFILE::REGION_ID#",
+                                                           PlatformTopo::M_DOMAIN_CPU, cpu)));
+    }
     // errors
-    EXPECT_THROW(m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0),
-                 Exception); // "cannot push signal after call to read_batch"
+    GEOPM_EXPECT_THROW_MESSAGE(m_piog.push_signal("PROFILE::REGION_ID#", PlatformTopo::M_DOMAIN_CPU, 0),
+                               GEOPM_ERROR_INVALID, "cannot push signal after call to read_batch");
 }
 
-// TODO: use vectors and loop for index, prog values
 TEST_F(ProfileIOGroupTest, progress)
 {
-    std::vector<double> expected_progress[5] = {{0.5, 0.3, 0.9},
-                                                {0.1, 0.0, 0.4},
-                                                {0.1, 0.3, 0.2}, {0.1, 0.3, 0.2}, {0.1, 0.3, 0.2}};
+    std::vector<std::vector<double> > expected_progress = {{0.5, 0.3, 0.9},
+                                                           {0.1, 0.0, 0.4}};
+    std::vector<double> expected_read_progress = {0.1, 0.3, 0.2};
+    ASSERT_EQ(expected_progress[0].size(), expected_read_progress.size());
+    int num_cpu = expected_read_progress.size();
     EXPECT_CALL(*m_mock_pios, per_cpu_progress(_)).Times(5)
         .WillOnce(Return(expected_progress[0]))
         .WillOnce(Return(expected_progress[1]))
-        .WillOnce(Return(expected_progress[2]))
-        .WillOnce(Return(expected_progress[3]))
-        .WillOnce(Return(expected_progress[4]));
+        .WillRepeatedly(Return(expected_read_progress));
 
     // push_signal
-    int prog_idx0 = m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
-    int prog_idx1 = m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 1);
-    int prog_idx2 = m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 2);
+    std::vector<int> prog_idx;
+    for (int cpu = 0; cpu < num_cpu; ++cpu) {
+        prog_idx.push_back(m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, cpu));
+    }
     int dup_idx0 = m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
-    EXPECT_EQ(prog_idx0, dup_idx0);
-    EXPECT_THROW(m_piog.sample(prog_idx0), Exception); // "sample has not been read"
+    EXPECT_EQ(prog_idx[0], dup_idx0);
+    int alias = m_piog.push_signal("PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(prog_idx[0], alias);
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_piog.sample(prog_idx[0]), GEOPM_ERROR_INVALID,
+                               "signal has not been read");
 
     // sample
-    m_piog.read_batch();
-    double prog0 = m_piog.sample(prog_idx0);
-    double prog1 = m_piog.sample(prog_idx1);
-    double prog2 = m_piog.sample(prog_idx2);
-    EXPECT_DOUBLE_EQ(0.5, prog0);
-    EXPECT_DOUBLE_EQ(0.3, prog1);
-    EXPECT_DOUBLE_EQ(0.9, prog2);
-
-    // second sample
-    m_piog.read_batch();
-    prog0 = m_piog.sample(prog_idx0);
-    prog1 = m_piog.sample(prog_idx1);
-    prog2 = m_piog.sample(prog_idx2);
-    EXPECT_DOUBLE_EQ(0.1, prog0);
-    EXPECT_DOUBLE_EQ(0.0, prog1);
-    EXPECT_DOUBLE_EQ(0.4, prog2);
-
+    for (auto expected : expected_progress) {
+        m_piog.read_batch();
+        for (int cpu = 0; cpu < num_cpu; ++cpu) {
+            EXPECT_DOUBLE_EQ(expected[cpu], m_piog.sample(prog_idx[cpu]));
+        }
+    }
     // read_signal
-    prog0 = m_piog.read_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
-    prog1 = m_piog.read_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 1);
-    prog2 = m_piog.read_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 2);
-    EXPECT_DOUBLE_EQ(0.1, prog0);
-    EXPECT_DOUBLE_EQ(0.3, prog1);
-    EXPECT_DOUBLE_EQ(0.2, prog2);
+    for (int cpu = 0; cpu < num_cpu; ++cpu) {
+        EXPECT_DOUBLE_EQ(expected_read_progress[cpu],
+                         m_piog.read_signal("PROFILE::PROGRESS",
+                                            PlatformTopo::M_DOMAIN_CPU, cpu));
+    }
 }
