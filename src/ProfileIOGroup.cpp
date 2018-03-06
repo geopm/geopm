@@ -52,7 +52,9 @@ namespace geopm
                                    IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
-                           {plugin_name() + "::PROGRESS", M_SIGNAL_PROGRESS}}
+                           {plugin_name() + "::PROGRESS", M_SIGNAL_PROGRESS},
+                           {"REGION_ID#", M_SIGNAL_REGION_ID},
+                           {"PROGRESS", M_SIGNAL_PROGRESS}}
         , m_platform_topo(topo)
         , m_do_read_region_id(false)
         , m_do_read_progress(false)
@@ -222,7 +224,7 @@ namespace geopm
     {
         if (!is_valid_signal(signal_name)) {
             throw Exception("ProfileIOGroup::check_signal(): signal_name " + signal_name +
-                            "not valid for ProfileIOGroup",
+                            " not valid for ProfileIOGroup",
                              GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
