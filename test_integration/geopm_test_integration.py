@@ -61,14 +61,19 @@ def skip_unless_cpufreq():
     return lambda func: func
 
 
-def skip_unless_platform_bdx():
+def get_platform():
     with open('/proc/cpuinfo') as fid:
         for line in fid.readlines():
             if line.startswith('cpu family\t:'):
                 fam = int(line.split(':')[1])
             if line.startswith('model\t\t:'):
                 mod = int(line.split(':')[1])
-    if fam != 6 or (mod != 45 and mod != 47):
+    return fam, mod
+
+
+def skip_unless_platform_bdx():
+    fam, mod = get_platform()
+    if fam != 6 or mod not in (45, 47, 79):
         return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
     return lambda func: func
 
@@ -612,7 +617,15 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
-        self._options['power_budget'] = 150
+        fam, mod = get_platform()
+        if fam == 6 and mod in (45, 47, 79):
+            # set budget for BDX server or IVB
+            self._options['power_budget'] = 240
+        elif fam == 6 and mod == 87:
+            # budget for KNL
+            self._options['power_budget'] = 150
+        else:
+            self._options['power_budget'] = 200
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
