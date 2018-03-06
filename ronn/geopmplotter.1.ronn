@@ -53,11 +53,13 @@ If _PATH_ is not provided, the current working directory is used.
 * `-t`, `--trace_base` _TRACE_BASE_:
   The base trace string to be searched. All files that are located in the _PATH_ directory
   that begin with _TRACE_BASE_ will be selected and interpreted as trace files.  If this option
-  is not specified then all files with the ".trace" extension in _PATH_ are selected.
+  is not specified then all files with the ".trace" extension in _PATH_ are selected.  If 'None'
+  is specified as the trace base then no trace files will be parsed.
 
-* `-p`, `--plot_type` _bar_|_box_|_power_|_epoch_|_freq_:
+* `-p`, `--plot_type` _bar_|_box_|_power_|_epoch_|_freq_|_debug_:
   The type of plot to be generated (default: _bar_).  Multiple plots can
-  be specified by providing a comma separated list (e.g. -p bar,box).
+  be specified by providing a comma separated list (e.g. -p bar,box).  The debug plot can be
+  used to explore parsed data from a Python command prompt.
 
 * `-s`, `--shell`:
   Drop to a python shell after plotting.  Useful for data analysis.
