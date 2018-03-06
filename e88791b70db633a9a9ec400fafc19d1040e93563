@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "794d7c62_a7bb1781",
+        "filename": "test/MockIOGroup.hpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-06T23:54:38Z",
+      "side": 1,
+      "message": "put on next line. Not worth blocking this patch for this.",
+      "range": {
+        "startLine": 35,
+        "startChar": 42,
+        "endLine": 35,
+        "endChar": 43
+      },
+      "revId": "e88791b70db633a9a9ec400fafc19d1040e93563",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
