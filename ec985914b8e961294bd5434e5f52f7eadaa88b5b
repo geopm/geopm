@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49381129_8aefb659",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T01:24:00Z",
+      "side": 1,
+      "message": "REGION_ID -\u003e REGION_ID#",
+      "revId": "ec985914b8e961294bd5434e5f52f7eadaa88b5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5668a756_485a68ec",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T01:24:00Z",
+      "side": 1,
+      "message": "energy_package_idx -\u003e energy_idx",
+      "range": {
+        "startLine": 157,
+        "startChar": 63,
+        "endLine": 157,
+        "endChar": 81
+      },
+      "revId": "ec985914b8e961294bd5434e5f52f7eadaa88b5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8cb5bfb_dfbb1f82",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T01:24:00Z",
+      "side": 1,
+      "message": "REGION_ID -\u003e REGION_ID#, also missing alias from PROFILE::REGION_ID# to REGION_ID#",
+      "revId": "ec985914b8e961294bd5434e5f52f7eadaa88b5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
