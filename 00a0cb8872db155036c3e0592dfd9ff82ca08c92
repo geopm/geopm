@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c59f4366_497bfdb8",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T00:52:30Z",
+      "side": 1,
+      "message": "Use plugin_name() +",
+      "range": {
+        "startLine": 70,
+        "startChar": 24,
+        "endLine": 70,
+        "endChar": 54
+      },
+      "revId": "00a0cb8872db155036c3e0592dfd9ff82ca08c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05610c0d_cc0d0fcf",
+        "filename": "src/TimeIOGroup.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T00:52:30Z",
+      "side": 1,
+      "message": "Needs to be enabled for the \"TIME\" signal as well.",
+      "revId": "00a0cb8872db155036c3e0592dfd9ff82ca08c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6304312d_463b77d3",
+        "filename": "test/TimeIOGroupTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T00:52:30Z",
+      "side": 1,
+      "message": "Add test for domain type of the alias.",
+      "revId": "00a0cb8872db155036c3e0592dfd9ff82ca08c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7fbe139b_e6aa61b5",
+        "filename": "test/TimeIOGroupTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T00:52:30Z",
+      "side": 1,
+      "message": "Fix comment, will not have a different signal index.",
+      "revId": "00a0cb8872db155036c3e0592dfd9ff82ca08c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
