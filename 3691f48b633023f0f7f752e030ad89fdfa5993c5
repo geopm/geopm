@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b964f872_fded821c",
+        "filename": "src/CombinedSignal.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T01:08:29Z",
+      "side": 1,
+      "message": "add new line and make input a const reference.",
+      "revId": "3691f48b633023f0f7f752e030ad89fdfa5993c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09df414e_f1ebe943",
+        "filename": "src/CombinedSignal.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-06T01:08:29Z",
+      "side": 1,
+      "message": "const reference input.",
+      "revId": "3691f48b633023f0f7f752e030ad89fdfa5993c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
