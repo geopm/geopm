@@ -48,7 +48,8 @@ namespace geopm
             enum m_domain_e {
                 /// @brief Reserved to represent an invalid domain
                 M_DOMAIN_INVALID = 0,
-                /// @brief All components on a user allocated compute node (one per controller)
+                /// @brief All components on a user allocated compute
+                ///        node (one per controller)
                 M_DOMAIN_BOARD,
                 /// @Brief Single processor package in one socket
                 M_DOMAIN_PACKAGE,
@@ -62,14 +63,27 @@ namespace geopm
                 M_DOMAIN_PACKAGE_MEMORY,
                 /// @brief Network interface controller on the PCI bus
                 M_DOMAIN_BOARD_NIC,
-                /// @brief Network interface controller on the processor package
+                /// @brief Network interface controller on the
+                ///        processor package
                 M_DOMAIN_PACKAGE_NIC,
                 /// @brief Accelerator card on the PCI bus
                 M_DOMAIN_BOARD_ACCELERATOR,
-                /// @brief Accelerator unit on the package (e.g on-package graphics)
+                /// @brief Accelerator unit on the package (e.g
+                ///        on-package graphics)
                 M_DOMAIN_PACKAGE_ACCELERATOR,
-                /// @brief Start of user defined collections of Linux logical CPUs
+                /// @brief Start of groups of child nodes in tree
+                ///        communicator from level 0 upward (note no
+                ///        children at level 0).
+                M_DOMAIN_TREE_CHILDREN_BASE = 3072,
+                M_DOMAIN_TREE_CHILDREN_MAX = 3583,
+                /// @brief Start of groups of parent nodes in tree
+                ///        communicator from level 0 upward
+                M_DOMAIN_TREE_PARENT_BASE = 3584,
+                M_DOMAIN_TREE_PARENT_MAX = 4095,
+                /// @brief Start of user defined collections of Linux
+                ///        logical CPUs
                 M_DOMAIN_CPU_GROUP_BASE = 4096,
+                M_DOMAIN_CPU_GROPU_MAX = 8191,
             };
 
             IPlatformTopo() {}
@@ -89,9 +103,34 @@ namespace geopm
             /// @brief Define a new domain type that is a group of
             ///        Linux logical CPUs by assigning a domain index
             ///        to each.
-            /// @param [in] cpu_domain_idx A vector over Linux logical CPUs
-            ///        assigning a domain index to each.
+            /// @param [in] cpu_domain_idx A vector over Linux logical
+            ///        CPUs assigning a domain index to each.
+            /// @return The domain type index reserved for the newly
+            ///         defined cpu group.
             virtual int define_cpu_group(const std::vector<int> &cpu_domain_idx) = 0;
+            /// @brief Define the topology of the inter-node
+            ///        communication tree.
+            /// @param [in] fan_out Vector of fan out values for each
+            ///        level ordered from root to leaves.
+            virtual void define_tree(const std::vector<int> &fan_out) = 0;
+            /// @brief Get the m_domain_e value for the domain
+            ///        associated with the children of the tree level.
+            /// @param [in] level The tree level ordered from leaf to
+            ///        root.
+            /// @return The m_domain_e value for the request.
+            static inline int children_domain_type(int level)
+            {
+                return M_DOMAIN_TREE_CHILDREN_BASE + level;
+            }
+            /// @brief Get the m_domain_e value for the domain
+            ///        associated with parent of the tree level.
+            /// @param [in] level The tree level orderd from leaf to
+            ///        root.
+            /// @return The m_domain_e value for the request.
+            static inline int parent_domain_type(int level)
+            {
+                return M_DOMAIN_TREE_PARENT_BASE + level;
+            }
     };
 
     IPlatformTopo &platform_topo(void);
@@ -109,6 +148,7 @@ namespace geopm
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             int define_cpu_group(const std::vector<int> &cpu_domain_idx) override;
+            void define_tree(const std::vector<int> &fan_out) override;
         protected:
             void lscpu(std::map<std::string, std::string> &lscpu_map);
             void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
@@ -125,6 +165,7 @@ namespace geopm
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
+            std::vector<int> m_tree_fan_out;
     };
 
 }

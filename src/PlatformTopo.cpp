@@ -103,14 +103,40 @@ namespace geopm
             case M_DOMAIN_BOARD_ACCELERATOR:
             case M_DOMAIN_PACKAGE_ACCELERATOR:
                 /// @todo Add support for NIC and accelerators to PlatformTopo.
-                throw Exception("PlatformTopo::num_domain() no support yet for NIC or ACCELERATOR",
+                throw Exception("PlatformTopo::num_domain(): no support yet for NIC or ACCELERATOR",
                                 GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                 break;
             case M_DOMAIN_INVALID:
-            default:
-                throw Exception("PlatformTopo::num_domain() invalid domain specified",
+                throw Exception("PlatformTopo::num_domain(): invalid domain specified",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 break;
+            default:
+                if (domain_type >= M_DOMAIN_TREE_CHILDREN_BASE &&
+                    domain_type <= M_DOMAIN_TREE_CHILDREN_MAX) {
+                    int level = domain_type - M_DOMAIN_TREE_CHILDREN_BASE;
+                    if (level > (int)m_tree_fan_out.size()) {
+                        throw Exception("PlatformTopo::num_domain(): level domain_type infers level larger than tree depth",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                    if (level != 0) { // Number of children at level 0 is 0
+                       result = m_tree_fan_out[level - 1];
+                    }
+                }
+                else if (domain_type >= M_DOMAIN_TREE_PARENT_BASE &&
+                         domain_type <= M_DOMAIN_TREE_PARENT_MAX) {
+                    int level = domain_type - M_DOMAIN_TREE_PARENT_BASE;
+                    if (level > (int)m_tree_fan_out.size()) {
+                        throw Exception("PlatformTopo::num_domain(): level domain_type infers level larger than tree depth",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                    result = 1;
+                }
+                else {
+                    throw Exception("PlatformTopo::num_domain(): invalid domain specified",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                break;
+
         }
         return result;
     }
@@ -129,6 +155,11 @@ namespace geopm
         /// @todo Add support for define_cpu_group() method
         throw Exception("PlatformTopo::define_cpu_group(): method not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    void PlatformTopo::define_tree(const std::vector<int> &fan_out)
+    {
+        m_tree_fan_out = fan_out;
     }
 
     int PlatformTopo::domain_idx(int domain_type,
