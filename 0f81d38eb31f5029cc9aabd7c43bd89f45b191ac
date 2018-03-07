@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "174503c9_b84c623c",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1013646
+      },
+      "writtenOn": "2018-03-07T23:41:11Z",
+      "side": 1,
+      "message": "remove decimal point",
+      "range": {
+        "startLine": 170,
+        "startChar": 29,
+        "endLine": 170,
+        "endChar": 30
+      },
+      "revId": "0f81d38eb31f5029cc9aabd7c43bd89f45b191ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b4bbfb5_e75b5feb",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1013646
+      },
+      "writtenOn": "2018-03-07T23:41:11Z",
+      "side": 1,
+      "message": "replace \u003c\u003c 3 with \"*8\"",
+      "range": {
+        "startLine": 188,
+        "startChar": 57,
+        "endLine": 188,
+        "endChar": 58
+      },
+      "revId": "0f81d38eb31f5029cc9aabd7c43bd89f45b191ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "980b1e11_e6ef4fc2",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1013646
+      },
+      "writtenOn": "2018-03-07T23:41:11Z",
+      "side": 1,
+      "message": "delete HFI_IDLE_POWER",
+      "range": {
+        "startLine": 207,
+        "startChar": 12,
+        "endLine": 207,
+        "endChar": 26
+      },
+      "revId": "0f81d38eb31f5029cc9aabd7c43bd89f45b191ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb8bf43b_11fc2557",
+        "filename": "plugin/GoverningDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1013646
+      },
+      "writtenOn": "2018-03-07T23:41:11Z",
+      "side": 1,
+      "message": "~0ull",
+      "range": {
+        "startLine": 221,
+        "startChar": 33,
+        "endLine": 221,
+        "endChar": 42
+      },
+      "revId": "0f81d38eb31f5029cc9aabd7c43bd89f45b191ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
