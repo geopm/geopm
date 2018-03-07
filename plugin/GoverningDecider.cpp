@@ -138,7 +138,7 @@ namespace geopm
         return result;
     }
 
-//#define HFI_POWER_ACCOUNTING_SUPPORT 1
+#define HFI_POWER_ACCOUNTING_SUPPORT 1
 
 #ifdef HFI_POWER_ACCOUNTING_SUPPORT
 // Post-Silicon estimates for WFR(STL-1 generation)
@@ -150,6 +150,7 @@ namespace geopm
 #define HFI_MIN_BW_GBPS 0  
 
 #define OPATOOLS_OUT_MAX_LEN 10
+#define NW_LOG_REC_MAX 100
 
 
     static volatile unsigned g_is_popen_complete = 0;
@@ -212,51 +213,91 @@ namespace geopm
         return HFI_IDLE_POWER;
     }
 
+
     static FILE* hfi_report;
     static char hostname_arr[30];
     static double get_dynamic_hfi_power()
     {
-	const uint32_t MAX_COUNTER_VAL = (0x0)>>1;
-	static struct geopm_time_s hfi_previous_timer, hfi_previous_timer_overall;
-	static uint32_t hfi_previous_bytes=0x0;
-	static double hfi_dyn_power=0.0;
-
-	struct geopm_time_s hfi_current_timer;
-	uint32_t hfi_current_bytes=0;
-        double delta_time, delta_bytes, delta_time_overall, avg_bandwidth=0.0;
+	const uint32_t MAX_COUNTER_VAL = (-1L)>>1;
 
         static int  is_logfile_open=0;
+        static uint32_t log_cnt=-1;
+
+	struct geopm_time_s hfi_current_timer;
+	static struct geopm_time_s hfi_previous_timer, hfi_start_timer;
+	static uint32_t hfi_previous_bytes=0x0; 
+        static double delta_time, hfi_dyn_power;
+
+
+	static uint32_t hfi_current_bytes_arr[NW_LOG_REC_MAX], 
+		        delta_bytes_arr[NW_LOG_REC_MAX]; 
+
+	static double delta_time_arr[NW_LOG_REC_MAX],
+	              timestamp_arr[NW_LOG_REC_MAX], 
+	              avg_bandwidth_arr[NW_LOG_REC_MAX], 
+		      hfi_dyn_power_arr[NW_LOG_REC_MAX]; 
+
 
 	if(is_logfile_open==0) {
 	   gethostname(hostname_arr,30);
            hfi_report = fopen(hostname_arr,"w");
            fprintf(hfi_report,"#TimeStamp, Inst_Bytes, Power, Delta Bytes, Delta Time, Bandwidth\n"); 
+  	   geopm_time(&hfi_start_timer);	
+  	   geopm_time(&hfi_previous_timer);	
            is_logfile_open=1;
         }
 
   	geopm_time(&hfi_current_timer);	
 	delta_time = geopm_time_diff(&hfi_previous_timer, &hfi_current_timer);
 
-	if (delta_time >= 1) {
+	// should record be logged?
+	if (delta_time >= 0.001) {
 
-	   hfi_current_bytes = get_hfi_byte_cnt();
+	   log_cnt++;
 
-	   if(hfi_current_bytes<hfi_previous_bytes) 
-	        delta_bytes=(double)(hfi_current_bytes+MAX_COUNTER_VAL-hfi_previous_bytes);
-	   else 
-	        delta_bytes=(double)(hfi_current_bytes-hfi_previous_bytes);
+	   // record timestamps
+           timestamp_arr[log_cnt] = geopm_time_diff(&hfi_start_timer, 
+			   			&hfi_current_timer);
+	   delta_time_arr[log_cnt] = delta_time;
 
-	   avg_bandwidth=(double)delta_bytes/delta_time;
-	   hfi_dyn_power = convert_bw_to_dynamic_hfi_power(avg_bandwidth)- HFI_IDLE_POWER;
+	   // get and record HFI counter
+	   hfi_current_bytes_arr[log_cnt] = get_hfi_byte_cnt();
 
-           delta_time_overall = geopm_time_diff(&hfi_previous_timer_overall, &hfi_current_timer);
+	   // correct any HFI counter overflow errors
+	   if (hfi_current_bytes_arr[log_cnt] < hfi_previous_bytes) { 
+           	delta_bytes_arr[log_cnt] = MAX_COUNTER_VAL -
+			                   hfi_previous_bytes +
+					   hfi_current_bytes_arr[log_cnt];
+	   } else {
+		delta_bytes_arr[log_cnt] = hfi_current_bytes_arr[log_cnt] - 
+					   hfi_previous_bytes;
+	   }
+
+	   // calculate and record bandwidth and HFI _dynamic_ power
+	   avg_bandwidth_arr[log_cnt] = (double)delta_bytes_arr[log_cnt] / 
+		                        delta_time_arr[log_cnt];
+	   hfi_dyn_power = convert_bw_to_dynamic_hfi_power(avg_bandwidth_arr[log_cnt]) - 
+		           HFI_IDLE_POWER;
+	   hfi_dyn_power_arr[log_cnt] = hfi_dyn_power;
+
+	   // bookkeeping for future iterations 
 	   hfi_previous_timer = hfi_current_timer;
-	   hfi_previous_bytes = hfi_current_bytes;
+	   hfi_previous_bytes = hfi_current_bytes_arr[log_cnt];
 
-           fprintf(hfi_report,"%f, %d, %f, %f, %f, %f\n", delta_time_overall, 
-			   hfi_current_bytes, hfi_dyn_power, delta_bytes, delta_time, avg_bandwidth);
+	   // dump records on detecting full buffer
+	   if(log_cnt == NW_LOG_REC_MAX-1) {
+            	for (log_cnt=0; log_cnt<NW_LOG_REC_MAX; log_cnt++) {
+            		fprintf(hfi_report,"%g, %u, %g, %u, %g, %g\n", 
+	    	      		           timestamp_arr[log_cnt], 
+	    	      		           hfi_current_bytes_arr[log_cnt], 
+	    	      		           hfi_dyn_power_arr[log_cnt], 
+	    	      		           delta_bytes_arr[log_cnt], 
+	    	      		           delta_time_arr[log_cnt], 
+	    	      		           avg_bandwidth_arr[log_cnt]);
+	    	}
+	    	log_cnt = 0;
+	   }
 	}
-
 	return hfi_dyn_power;
     }
 
