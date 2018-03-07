@@ -72,6 +72,7 @@
 #include "Region.hpp"
 #include "OMPT.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "RuntimeRegulator.hpp"
 #include "ProfileIOGroup.hpp"
 #include "ProfileIOSample.hpp"
@@ -222,6 +223,11 @@ namespace geopm
         , m_ppn1_comm(comm)
         , m_ppn1_rank(-1)
     {
+
+        // Make sure these are constructed before using in connect()
+        platform_io();
+        platform_topo();
+
         auto ppn1_comm = comm_factory().make_plugin(geopm_env_comm())->split("ctl", IComm::M_COMM_SPLIT_TYPE_PPN1);
 
         // Only the root rank on each node will have a fully initialized controller
