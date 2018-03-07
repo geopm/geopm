@@ -43,5 +43,7 @@ class MockPlatformTopo : public geopm::IPlatformTopo
                            int(int domain_type, int cpu_idx));
         MOCK_METHOD1(define_cpu_group,
                      int(const std::vector<int> &cpu_domain_idx));
+        MOCK_METHOD1(define_tree,
+                     void(const std::vector<int> &fan_out));
 };
 
