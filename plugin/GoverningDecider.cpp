@@ -185,7 +185,7 @@ namespace geopm
 	    g_is_popen_complete = 0;
       	    char opatools_dump[OPATOOLS_OUT_MAX_LEN];
             while (fgets(opatools_dump, OPATOOLS_OUT_MAX_LEN, opatools_fileptr) != NULL) {
-               hfi_byte_cnt = std::stoll(opatools_dump)*8; // bytes=8*flits
+               hfi_byte_cnt = std::stoll(opatools_dump)<<3; // bytes=8*flits
             }
             if(pclose(opatools_fileptr)==1) {
 	        printf("Error!!! pclose() failed on opatools\n");
@@ -218,18 +218,17 @@ namespace geopm
     static char hostname_arr[30];
     static double get_dynamic_hfi_power()
     {
-	const uint32_t MAX_COUNTER_VAL = (-1L)>>1;
+	const uint64_t MAX_COUNTER_VAL = (-1L)>>1;
 
-        static int  is_logfile_open=0;
+        static short  is_logfile_open=0;
         static uint32_t log_cnt=-1;
 
 	struct geopm_time_s hfi_current_timer;
 	static struct geopm_time_s hfi_previous_timer, hfi_start_timer;
-	static uint32_t hfi_previous_bytes=0x0; 
         static double delta_time, hfi_dyn_power;
 
-
-	static uint32_t hfi_current_bytes_arr[NW_LOG_REC_MAX], 
+	static uint64_t hfi_previous_bytes=0x0; 
+	static uint64_t hfi_current_bytes_arr[NW_LOG_REC_MAX], 
 		        delta_bytes_arr[NW_LOG_REC_MAX]; 
 
 	static double delta_time_arr[NW_LOG_REC_MAX],
@@ -287,7 +286,7 @@ namespace geopm
 	   // dump records on detecting full buffer
 	   if(log_cnt == NW_LOG_REC_MAX-1) {
             	for (log_cnt=0; log_cnt<NW_LOG_REC_MAX; log_cnt++) {
-            		fprintf(hfi_report,"%g, %u, %g, %u, %g, %g\n", 
+            		fprintf(hfi_report,"%g, %lu, %g, %lu, %g, %g\n", 
 	    	      		           timestamp_arr[log_cnt], 
 	    	      		           hfi_current_bytes_arr[log_cnt], 
 	    	      		           hfi_dyn_power_arr[log_cnt], 
