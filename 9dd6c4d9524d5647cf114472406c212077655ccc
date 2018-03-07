@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ccda881_34b22ad7",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-07T02:17:08Z",
+      "side": 1,
+      "message": "result \u003d os.environ.get(\u0027SLURM_NODELIST\u0027, \u0027\u0027).strip().split()",
+      "range": {
+        "startLine": 999,
+        "startChar": 8,
+        "endLine": 999,
+        "endChar": 10
+      },
+      "revId": "9dd6c4d9524d5647cf114472406c212077655ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
