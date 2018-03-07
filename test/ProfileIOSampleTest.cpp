@@ -66,7 +66,7 @@ TEST_F(ProfileIOSampleTest, hello)
     }
 
     std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > prof_sample;
-    std::pair<uint64_t, struct geopm_prof_message_s> samp {42, {.rank=2, .region_id=42, .timestamp=time_0, .progress=0.5}};
+    std::pair<uint64_t, struct geopm_prof_message_s> samp = std::make_pair(42, (struct geopm_prof_message_s) {.rank=2, .region_id=42, .timestamp=time_0, .progress=0.5});
     prof_sample.emplace_back(samp);
     m_profile_sample.update(prof_sample.begin(), prof_sample.end());
 
@@ -101,7 +101,7 @@ TEST_F(ProfileIOSampleTest, hello)
         }
     }
 
-    prof_sample[0] = {42ULL, {.rank=2, .region_id=42ULL, .timestamp=time_1, .progress=0.6}};
+    prof_sample[0] = std::make_pair(42ULL, (struct geopm_prof_message_s) {.rank=2, .region_id=42ULL, .timestamp=time_1, .progress=0.6});
     m_profile_sample.update(prof_sample.begin(), prof_sample.end());
 
     progress = m_profile_sample.per_cpu_progress(time_1);
