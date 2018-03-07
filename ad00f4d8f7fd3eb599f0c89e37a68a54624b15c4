@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45e39127_fb6b9654",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-07T02:28:00Z",
+      "side": 1,
+      "message": "mod in (45, 47, 79)",
+      "range": {
+        "startLine": 621,
+        "startChar": 24,
+        "endLine": 621,
+        "endChar": 34
+      },
+      "revId": "ad00f4d8f7fd3eb599f0c89e37a68a54624b15c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f92c9923_834d107f",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-07T02:28:00Z",
+      "side": 1,
+      "message": "Seems too high, lower below 240 Watts which is TDP for two sockets of E5-2695 v4 (i.e. mod 79)",
+      "range": {
+        "startLine": 623,
+        "startChar": 44,
+        "endLine": 623,
+        "endChar": 47
+      },
+      "revId": "ad00f4d8f7fd3eb599f0c89e37a68a54624b15c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
