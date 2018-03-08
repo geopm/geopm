@@ -237,6 +237,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformIOTest.write_control \
               test/gtest_links/PlatformIOTest.read_signal_override \
               test/gtest_links/ProfileIOGroupTest.is_valid \
+              test/gtest_links/ProfileIOGroupTest.domain_type \
+              test/gtest_links/ProfileIOGroupTest.invalid_signal \
+              test/gtest_links/ProfileIOGroupTest.control \
+              test/gtest_links/ProfileIOGroupTest.region_id \
+              test/gtest_links/ProfileIOGroupTest.progress \
+              test/gtest_links/ProfileIOGroupTest.runtime_sample \
+              test/gtest_links/ProfileIOGroupTest.runtime_read_signal \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
