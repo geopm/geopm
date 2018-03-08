@@ -75,6 +75,7 @@
 #include "PlatformTopo.hpp"
 #include "RuntimeRegulator.hpp"
 #include "ProfileIOGroup.hpp"
+#include "ProfileIORuntime.hpp"
 #include "ProfileIOSample.hpp"
 #include "config.h"
 
@@ -436,7 +437,9 @@ namespace geopm
             m_platform->init_transform(cpu_rank);
             m_sample_regulator = new SampleRegulator(cpu_rank);
             m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank);
-            std::unique_ptr<ProfileIOGroup> tmp_piog(new ProfileIOGroup(m_profile_io_sample));
+            m_profile_io_runtime = std::make_shared<ProfileIORuntime>(cpu_rank);
+            std::unique_ptr<ProfileIOGroup> tmp_piog(new ProfileIOGroup(m_profile_io_sample,
+                                                                        m_profile_io_runtime));
             platform_io().register_iogroup(std::move(tmp_piog));
             m_is_connected = true;
         }
@@ -643,6 +646,10 @@ namespace geopm
                                 auto rid_it = m_rid_regulator_map.emplace(std::piecewise_construct,
                                                                           std::make_tuple(base_region_id),
                                                                           std::make_tuple(m_rank_per_node));
+                                // Add new regulator to ProfileIO
+                                if (rid_it.second) {
+                                    m_profile_io_runtime->insert_regulator(base_region_id, rid_it.first->second);
+                                }
                                 rid_it.first->second.record_entry(local_rank, (*sample_it).second.timestamp);
                             }
                             else if ((*sample_it).second.progress == 1.0 &&
