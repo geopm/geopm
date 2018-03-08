@@ -320,7 +320,7 @@ TEST_F(MSRIOGroupTest, signal_alias)
     int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx);
     int alias = m_msrio_group->push_signal("FREQUENCY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
-    EXPECT_NE(freq_idx, alias);
+    EXPECT_EQ(freq_idx, alias);
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -454,6 +454,7 @@ TEST_F(MSRIOGroupTest, control_alias)
     int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx);
     int alias = m_msrio_group->push_control("FREQUENCY", geopm::IPlatformTopo::M_DOMAIN_CPU, 0);
+    ASSERT_EQ(freq_idx, alias);
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
     uint64_t value;
@@ -551,9 +552,9 @@ TEST_F(MSRIOGroupTest, cpuid)
 TEST_F(MSRIOGroupTest, register_msr_signal)
 {
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("TEST"),
-                               GEOPM_ERROR_INVALID, "signal_name must be of the form \"MSR::<msr_name>:<field_name>\"");
+                               GEOPM_ERROR_INVALID, "msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::TEST"),
-                               GEOPM_ERROR_INVALID, "signal_name must be of the form \"MSR::<msr_name>:<field_name>\"");
+                               GEOPM_ERROR_INVALID, "msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::PERF_STATUS:FREQ"),
                                GEOPM_ERROR_INVALID, "signal_name MSR::PERF_STATUS:FREQ was previously registered");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::BAD:BAD"),
@@ -565,9 +566,9 @@ TEST_F(MSRIOGroupTest, register_msr_signal)
 TEST_F(MSRIOGroupTest, register_msr_control)
 {
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("TEST"),
-                               GEOPM_ERROR_INVALID, "control_name must be of the form \"MSR::<msr_name>:<field_name>\"");
+                               GEOPM_ERROR_INVALID, "msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::TEST"),
-                               GEOPM_ERROR_INVALID, "control_name must be of the form \"MSR::<msr_name>:<field_name>\"");
+                               GEOPM_ERROR_INVALID, "msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::PERF_CTL:FREQ"),
                                GEOPM_ERROR_INVALID, "control_name MSR::PERF_CTL:FREQ was previously registered");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::BAD:BAD"),
