@@ -30,49 +30,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RUNTIMEREGULATOR_HPP_INCLUDE
-#define RUNTIMEREGULATOR_HPP_INCLUDE
+#include <set>
 
-#include <vector>
-#include <string>
-
-#include "geopm_time.h"
-#include "geopm_message.h"
+#include "ProfileIO.hpp"
 
 namespace geopm
 {
-    class IRuntimeRegulator
+    std::map<int, int> ProfileIO::rank_to_node_local_rank(const std::vector<int> &per_cpu_rank)
     {
-        public:
-            IRuntimeRegulator() = default;
-            virtual ~IRuntimeRegulator() = default;
-            virtual void record_entry(int rank, struct geopm_time_s entry_time) = 0;
-            virtual void record_exit(int rank, struct geopm_time_s exit_time) = 0;
-            virtual void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
-            virtual std::vector<double> runtimes(void) const = 0;
-    };
-    class RuntimeRegulator : public IRuntimeRegulator
-    {
-        public:
-            RuntimeRegulator();
-            RuntimeRegulator(int max_rank_count);
-            virtual ~RuntimeRegulator() override;
-            void record_entry(int rank, struct geopm_time_s entry_time) override;
-            void record_exit(int rank, struct geopm_time_s exit_time) override;
-            void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
-            std::vector<double> runtimes(void) const override;
+        std::set<int> rank_set;
+        for (auto rank : per_cpu_rank) {
+            if (rank != -1) {
+                rank_set.insert(rank);
+            }
+        }
+        std::map<int, int> rank_idx_map;
+        int i = 0;
+        for (auto rank : rank_set) {
+            rank_idx_map.insert(std::pair<int, int>(rank, i));
+            ++i;
+        }
+        return rank_idx_map;
+    }
 
-        protected:
-            void update_average(void);
-            const struct geopm_time_s M_TIME_ZERO;
-            enum m_num_rank_signal_e {
-                M_NUM_RANK_SIGNAL = 2,
-            };
-            int m_max_rank_count;
-            double m_last_avg;
-            // per rank vector of last entry and recorded runtime pairs
-            std::vector<std::pair<struct geopm_time_s, double> > m_runtimes;
-    };
+    std::vector<int> ProfileIO::rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank)
+    {
+        std::vector<int> result(per_cpu_rank);
+        std::map<int, int> rank_idx_map = rank_to_node_local_rank(per_cpu_rank);
+        for (auto &rank_it : result) {
+            auto node_local_rank_it = rank_idx_map.find(rank_it);
+            rank_it = node_local_rank_it->second;
+        }
+        return result;
+    }
 }
-
-#endif

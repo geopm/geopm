@@ -30,48 +30,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RUNTIMEREGULATOR_HPP_INCLUDE
-#define RUNTIMEREGULATOR_HPP_INCLUDE
+#ifndef PROFILEIORUNTIME_HPP_INCLUDE
+#define PROFILEIORUNTIME_HPP_INCLUDE
+
+#include <cstdint>
 
 #include <vector>
-#include <string>
+#include <map>
+#include <set>
 
-#include "geopm_time.h"
-#include "geopm_message.h"
+#include "config.h"
 
 namespace geopm
 {
-    class IRuntimeRegulator
-    {
-        public:
-            IRuntimeRegulator() = default;
-            virtual ~IRuntimeRegulator() = default;
-            virtual void record_entry(int rank, struct geopm_time_s entry_time) = 0;
-            virtual void record_exit(int rank, struct geopm_time_s exit_time) = 0;
-            virtual void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
-            virtual std::vector<double> runtimes(void) const = 0;
-    };
-    class RuntimeRegulator : public IRuntimeRegulator
-    {
-        public:
-            RuntimeRegulator();
-            RuntimeRegulator(int max_rank_count);
-            virtual ~RuntimeRegulator() override;
-            void record_entry(int rank, struct geopm_time_s entry_time) override;
-            void record_exit(int rank, struct geopm_time_s exit_time) override;
-            void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
-            std::vector<double> runtimes(void) const override;
+    class IRuntimeRegulator;
 
+    class IProfileIORuntime
+    {
+        public:
+            IProfileIORuntime() = default;
+            virtual ~IProfileIORuntime() = default;
+            virtual void insert_regulator(uint64_t region_id, IRuntimeRegulator &reg) = 0;
+            virtual std::vector<double> per_cpu_runtime(uint64_t region_id) const = 0;
+    };
+
+    class ProfileIORuntime : public IProfileIORuntime
+    {
+        public:
+            ProfileIORuntime(const std::vector<int> &cpu_rank);
+            virtual ~ProfileIORuntime() = default;
+            void insert_regulator(uint64_t region_id, IRuntimeRegulator &reg) override;
+            std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
         protected:
-            void update_average(void);
-            const struct geopm_time_s M_TIME_ZERO;
-            enum m_num_rank_signal_e {
-                M_NUM_RANK_SIGNAL = 2,
-            };
-            int m_max_rank_count;
-            double m_last_avg;
-            // per rank vector of last entry and recorded runtime pairs
-            std::vector<std::pair<struct geopm_time_s, double> > m_runtimes;
+            /// @brief The rank index of the rank running on each CPU.
+            std::vector<int> m_cpu_rank;
+            std::map<uint64_t, IRuntimeRegulator&> m_regulator;
     };
 }
 

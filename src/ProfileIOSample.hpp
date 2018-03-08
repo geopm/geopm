@@ -75,6 +75,7 @@ namespace geopm
             std::vector<double> per_rank_progress(const struct geopm_time_s &extrapolation_time);
             /// @brief Number of ranks running on the node.
             size_t m_num_rank;
+            /// @brief The rank index of the rank running on each CPU.
             std::vector<int> m_cpu_rank;
             /// @brief A map from the MPI rank reported in the
             ///        ProfileSampler data to the node local rank
