@@ -90,6 +90,17 @@ using the `--skip-launch` option.
   Launch type for the GEOPM controller.  Available GEOPM_CTL values:
   process, pthread, or application (default 'process').
 
+* `--iterations` _NUM_ITERATIONS_:
+  Number of iterations to perform for every type of analysis.  E.g. for the
+  OfflineFrequencyAnalysis, _NUM_ITERATIONS_ runs will be performed at every
+  available frequency.  The data is averaged together prior to evaluating what
+  the best per-region frequency is. (default: _1_)
+
+* `--enable-turbo`:
+  When calculating the best per region frequencies, this flag sipulates that frequencies
+  in the turbo range should be considered.  By default, this flag is not set meaning
+  frequencies in the turbo range are not considered.
+
 ## EXAMPLES
   Once the geopmpy modules are installed, you can invoke this utility directly from
   the command line.  You can either run the utility from inside a directory containing
