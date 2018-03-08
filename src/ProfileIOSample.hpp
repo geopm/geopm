@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef PROFILEIOSAMPLE_HPP_INCLUDE
+#define PROFILEIOSAMPLE_HPP_INCLUDE
+
 #include <vector>
 #include <map>
 
@@ -89,3 +92,5 @@ namespace geopm
             std::vector<double> m_aligned_signal;
     };
 }
+
+#endif

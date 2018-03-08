@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKPROFILEIOSAMPLE_HPP_INCLUDE
+#define MOCKPROFILEIOSAMPLE_HPP_INCLUDE
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -46,3 +49,5 @@ class MockProfileIOSample : public geopm::IProfileIOSample
         MOCK_METHOD1(per_cpu_progress,
                      std::vector<double>(const struct geopm_time_s &extrapolation_time));
 };
+
+#endif
