@@ -232,6 +232,7 @@ test/MockPlatformTopology.hpp
 test/MockPlatformIO.hpp
 test/MockPlatformTopo.hpp
 test/MockPolicy.hpp
+test/MockProfileIORuntime.hpp
 test/MockProfileIOSample.hpp
 test/MockProfileSampler.hpp
 test/MockRegion.hpp
