@@ -47,9 +47,10 @@ namespace geopm
             RuntimeRegulator(void);
             RuntimeRegulator(int max_rank_count);
             virtual ~RuntimeRegulator();
-            void record_entry(int rank, struct geopm_time_s entry_time);
-            void record_exit(int rank, struct geopm_time_s exit_time);
-            void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry);
+            virtual void record_entry(int rank, struct geopm_time_s entry_time);
+            virtual void record_exit(int rank, struct geopm_time_s exit_time);
+            virtual void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry);
+            virtual std::vector<double> runtimes();
 
         protected:
             void update_average(void);
@@ -59,7 +60,7 @@ namespace geopm
             };
             int m_max_rank_count;
             double m_last_avg;
-            // per CPU vector of last entry and recorded runtime pairs
+            // per rank vector of last entry and recorded runtime pairs
             std::vector<std::pair<struct geopm_time_s, double> > m_runtimes;
     };
 }
