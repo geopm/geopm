@@ -207,3 +207,24 @@ TEST_F(RuntimeRegulatorTest, config_rank_then_workers)
     rtr.insert_runtime_signal(m_telemetry_sample);
     validate(expected_avg);
 }
+
+TEST_F(RuntimeRegulatorTest, raw_runtimes)
+{
+    for (int y = 0; y < M_NUM_ITERATIONS; y++) {
+        RuntimeRegulator rtr(M_NUM_RANKS);
+        std::vector<double> expected;
+        for (int x = 0; x < M_NUM_RANKS; x++) {
+            if (M_RANK_TIMES[x][y]) {
+                rtr.record_entry(x, m_entry[x][y]);
+            }
+        }
+        for (int x = 0; x < M_NUM_RANKS; x++) {
+            if (M_RANK_TIMES[x][y]) {
+                rtr.record_exit(x, m_exit[x][y]);
+            }
+            expected.push_back(M_RANK_TIMES[x][y]);
+        }
+        std::vector<double> result = rtr.runtimes();
+        EXPECT_EQ(expected, result);
+    }
+}

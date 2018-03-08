@@ -106,4 +106,13 @@ namespace geopm
             domain_tel.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = m_last_avg;
         }
     }
+
+    std::vector<double> RuntimeRegulator::runtimes()
+    {
+        std::vector<double> result(m_runtimes.size());
+        for (size_t rr = 0; rr < m_runtimes.size(); ++rr) {
+            result[rr] = m_runtimes[rr].second;
+        }
+        return result;
+    }
 }
