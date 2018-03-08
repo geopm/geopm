@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe5f52c3_8a604320",
+        "filename": "plugin/MPIComm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-08T06:40:05Z",
+      "side": 1,
+      "message": "\u003d\u003d",
+      "range": {
+        "startLine": 91,
+        "startChar": 25,
+        "endLine": 91,
+        "endChar": 26
+      },
+      "revId": "77099f937345c3e2cd823718b8f830deda8ecd15",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
