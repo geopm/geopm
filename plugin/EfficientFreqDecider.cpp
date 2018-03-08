@@ -37,7 +37,6 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
-
 #include "geopm.h"
 #include "geopm_message.h"
 #include "geopm_hash.h"
@@ -153,6 +152,7 @@ namespace geopm
             }
             m_control_idx.push_back(control_idx);
         }
+        m_region_id_idx = m_platform_io.push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 0);
     }
 
     std::string EfficientFreqDecider::plugin_name(void)
@@ -204,25 +204,25 @@ namespace geopm
     {
         bool is_updated = false;
         is_updated = GoverningDecider::update_policy(curr_region, curr_policy);
-        int num_domain = curr_policy.num_domain();
-        auto curr_region_id = curr_region.identifier();
-        uint64_t rid = curr_region_id & 0x00000000FFFFFFFF;
+        /// @todo support non-cpu domains
+        int num_domain = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_CPU);
+        uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_region_id_idx));
         double freq = m_last_freq;
-        auto it = m_rid_freq_map.find(rid);
+        auto it = m_rid_freq_map.find(current_region_id);
         if (it != m_rid_freq_map.end()) {
             freq = it->second;
         }
         else if (m_is_adaptive) {
             bool is_region_boundary = m_region_last != nullptr &&
-                m_region_last->identifier() != curr_region_id;
+                m_last_region_id != current_region_id;
             if (m_region_last == nullptr || is_region_boundary) {
                 // set the freq for the current region (entry)
-                auto region_it = m_region_map.find(curr_region_id);
+                auto region_it = m_region_map.find(current_region_id);
                 if (region_it == m_region_map.end()) {
                     auto tmp = m_region_map.emplace(
-                        curr_region_id,
+                        current_region_id,
                         std::unique_ptr<EfficientFreqRegion>(
-                            new EfficientFreqRegion(&curr_region, m_freq_min,
+                            new EfficientFreqRegion(m_platform_io, m_freq_min,
                                                     m_freq_max, m_freq_step,
                                                     num_domain)));
                     region_it = tmp.first;
@@ -233,24 +233,22 @@ namespace geopm
             }
             if (is_region_boundary) {
                 // update previous region (exit)
-                auto last_region_id = m_region_last->identifier();
-                auto region_it = m_region_map.find(last_region_id);
+                auto region_it = m_region_map.find(m_last_region_id);
                 if (region_it == m_region_map.end()) {
                     auto tmp = m_region_map.emplace(
-                        last_region_id,
+                        m_last_region_id,
                         std::unique_ptr<EfficientFreqRegion>(
-                            new EfficientFreqRegion(m_region_last, m_freq_min,
+                            new EfficientFreqRegion(m_platform_io, m_freq_min,
                                                     m_freq_max, m_freq_step,
                                                     num_domain)));
                     region_it = tmp.first;
                 }
                 region_it->second->update_exit();
             }
-            m_region_last = &curr_region;
+            m_last_region_id = current_region_id;
         }
         else {
             switch(curr_region.hint()) {
-
                 // Hints for low CPU frequency
                 case GEOPM_REGION_HINT_MEMORY:
                 case GEOPM_REGION_HINT_NETWORK:
