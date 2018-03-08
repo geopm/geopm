@@ -114,32 +114,11 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         protected:
+            void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
+            void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
+
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
-            /// @brief Register a signal for the MSR interface.  This
-            ///        is called by init_msr().
-            /// @param [in] signal_name The name of the signal as it
-            ///        is requested by the push_signal() method.
-            /// @param [in] msr_name Vector of MSR names that are used
-            ///        to construct the signal.
-            /// @param [in] field_name Vector of field names that
-            ///        are read from each corresponding MSR in the
-            ///        msr_name vector.
-            void register_msr_signal(const std::string &signal_name,
-                                     const std::vector<std::string> &msr_name,
-                                     const std::vector<std::string> &field_name);
-            /// @brief Register a contol for the MSR interface.  This
-            ///        is called by init_msr().
-            /// @param [in] control_name The name of the control as it
-            ///        is requested by the push_control() method.
-            /// @param [in] msr_name Vector of MSR names that are used
-            ///        to apply the control.
-            /// @param [in] field_name Vector of field names that
-            ///        are written to in each corresponding MSR in
-            ///        the msr_name vector.
-            void register_msr_control(const std::string &control_name,
-                                      const std::vector<std::string> &msr_name,
-                                      const std::vector<std::string> &field_name);
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
@@ -147,7 +126,7 @@ namespace geopm
             int m_cpuid;
             std::vector<bool> m_is_adjusted;
             // Mappings from names to all valid signals and controls
-            std::map<std::string, const IMSR *> m_name_msr_map;
+            std::map<std::string, const IMSR &> m_name_msr_map;
             std::map<std::string, std::vector<MSRSignal *> > m_name_cpu_signal_map;
             std::map<std::string, std::vector<MSRControl *> > m_name_cpu_control_map;
             // Pushed signals and controls only
@@ -155,15 +134,11 @@ namespace geopm
             std::vector<MSRControl *> m_active_control;
             // Vectors are over MSRs for all active signals
             std::vector<uint64_t> m_read_field;
-            std::vector<off_t>    m_read_signal_off;
-            std::vector<int>      m_read_signal_len;
-            std::vector<int>      m_read_cpu_idx;
+            std::vector<int> m_read_cpu_idx;
             std::vector<uint64_t> m_read_offset;
             // Vectors are over MSRs for all active controls
             std::vector<uint64_t> m_write_field;
-            std::vector<off_t>    m_write_control_off;
-            std::vector<int>      m_write_control_len;
-            std::vector<int>      m_write_cpu_idx;
+            std::vector<int> m_write_cpu_idx;
             std::vector<uint64_t> m_write_offset;
             std::vector<uint64_t> m_write_mask;
             const std::string m_name_prefix;

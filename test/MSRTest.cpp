@@ -139,14 +139,14 @@ void MSRTest::ConfigSignals()
 
     m_signals.resize(M_NUM_SIGNALS);
     for (size_t idx = 0; idx < M_NUM_SIGNALS; idx++) {
-                 m_signals[idx] = std::pair<std::string, struct IMSR::m_encode_s>
-                     (m_signal_names[idx], (struct IMSR::m_encode_s) {
-                                           .begin_bit = m_sig_begin_bits[idx],
-                                           .end_bit   = m_sig_end_bits[idx],
-                                           .domain    = m_domain_types[idx],
-                                           .function  = m_function_types[idx],
-                                           .units     = m_unit_types[idx],
-                                           .scalar    = m_signal_scalars[idx]});
+        m_signals[idx] = std::pair<std::string, struct IMSR::m_encode_s>(
+                             m_signal_names[idx], (struct IMSR::m_encode_s) {
+                                 .begin_bit = m_sig_begin_bits[idx],
+                                 .end_bit   = m_sig_end_bits[idx],
+                                 .domain    = m_domain_types[idx],
+                                 .function  = m_function_types[idx],
+                                 .units     = m_unit_types[idx],
+                                 .scalar    = m_signal_scalars[idx]});
     }
 }
 
@@ -168,14 +168,14 @@ void MSRTest::ConfigControls()
 
     m_controls.resize(M_NUM_CONTROLS);
     for (size_t idx = 0; idx < M_NUM_CONTROLS; idx++) {
-                 m_controls[idx] = std::pair<std::string, struct IMSR::m_encode_s>
-                     (m_control_names[idx], (struct IMSR::m_encode_s) {
-                                           .begin_bit = m_con_begin_bits[idx],
-                                           .end_bit   = m_con_end_bits[idx],
-                                           .domain    = m_domain_types[idx],
-                                           .function  = m_function_types[idx],
-                                           .units     = m_unit_types[idx],
-                                           .scalar    = m_control_scalars[idx]});
+        m_controls[idx] = std::pair<std::string, struct IMSR::m_encode_s>(
+                              m_control_names[idx], (struct IMSR::m_encode_s) {
+                                  .begin_bit = m_con_begin_bits[idx],
+                                  .end_bit   = m_con_end_bits[idx],
+                                  .domain    = m_domain_types[idx],
+                                  .function  = m_function_types[idx],
+                                  .units     = m_unit_types[idx],
+                                  .scalar    = m_control_scalars[idx]});
     }
 }
 
@@ -243,46 +243,42 @@ TEST_F(MSRTest, msr_overflow)
     EXPECT_DOUBLE_EQ(20.0, of_value);  // 5 + (16 -1)
 }
 
-#define MSG_2_IMPLEMENTOR "Congrats, you've implemented the API.  Now update the test."
 TEST_F(MSRTest, msr_signal)
 {
     int msr_idx = 0;
     int sig_idx = 0;
-    std::vector<uint64_t> offset;
-    IMSRSignal *sig = new MSRSignal(m_msrs[msr_idx], m_cpu_idx, sig_idx);
+    MSRSignal sig(*m_msrs[msr_idx],
+                  IPlatformTopo::M_DOMAIN_CPU,
+                  m_cpu_idx, sig_idx);
 
-    EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_signal_names[sig_idx]), sig->name());
-    EXPECT_THROW(sig->domain_type(), geopm::Exception) << MSG_2_IMPLEMENTOR;
-    EXPECT_EQ(m_cpu_idx, sig->domain_idx());
-    EXPECT_THROW(sig->sample(), geopm::Exception);
-    EXPECT_EQ(1, sig->num_msr());
-    sig->offset(offset);
-    EXPECT_EQ(m_msr_offsets[msr_idx], offset[0]);
-    sig->map_field(&m_signal_field);
-    EXPECT_EQ(m_expected_sig_values[sig_idx], sig->sample());
-
-    delete sig;
+    EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_signal_names[sig_idx]), sig.name());
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, sig.domain_type());
+    EXPECT_EQ(m_cpu_idx, sig.domain_idx());
+    /// @todo check exception mesage for field mapping error.
+    EXPECT_THROW(sig.sample(), geopm::Exception);
+    uint64_t offset = sig.offset();
+    EXPECT_EQ(m_msr_offsets[msr_idx], offset);
+    sig.map_field(&m_signal_field);
+    EXPECT_EQ(m_expected_sig_values[sig_idx], sig.sample());
 }
 
 TEST_F(MSRTest, msr_control)
 {
     int msr_idx = 1;
     int con_idx = 0;
-    std::vector<uint64_t> offset;
     uint64_t field = 0, mask = 0;
-    IMSRControl *con = new MSRControl(m_msrs[msr_idx], m_cpu_idx, con_idx);
+    MSRControl con(*m_msrs[msr_idx],
+                   IPlatformTopo::M_DOMAIN_CPU,
+                   m_cpu_idx, con_idx);
 
-    EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con->name());
-    EXPECT_THROW(con->domain_type(), geopm::Exception) << MSG_2_IMPLEMENTOR;
-    EXPECT_EQ(m_cpu_idx, con->domain_idx());
-    EXPECT_THROW(con->adjust(m_control_value), geopm::Exception);
-    EXPECT_EQ(1, con->num_msr());
-    con->offset(offset);
-    EXPECT_EQ(m_msr_offsets[msr_idx], offset[0]);
-    con->map_field(&field, &mask);
-    con->adjust(m_control_value);
+    EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con.name());
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, con.domain_type());
+    EXPECT_EQ(m_cpu_idx, con.domain_idx());
+    EXPECT_THROW(con.adjust(m_control_value), geopm::Exception);
+    uint64_t offset = con.offset();
+    EXPECT_EQ(m_msr_offsets[msr_idx], offset);
+    con.map_field(&field, &mask);
+    con.adjust(m_control_value);
     EXPECT_EQ(m_expected_con_masks[con_idx], mask);
     EXPECT_EQ(m_expected_con_fields[con_idx], field);
-
-    delete con;
 }
