@@ -36,14 +36,17 @@
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 #include "ProfileIOGroup.hpp"
+#include "ProfileIORuntime.hpp"
+#include "ProfileIOSample.hpp"
 #include "PlatformTopo.hpp"
+#include "MockProfileIORuntime.hpp"
 #include "MockProfileIOSample.hpp"
 #include "MockPlatformTopo.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 using ::testing::_;
 using ::testing::Return;
-using geopm::IProfileIOSample;
 using geopm::ProfileIOGroup;
 using geopm::PlatformTopo;
 using geopm::Exception;
@@ -71,17 +74,19 @@ class ProfileIOGroupTest : public :: testing:: Test
     protected:
         MockPlatformTopoCpu m_mock_topo;
         std::shared_ptr<MockProfileIOSample> m_mock_pios;
+        std::shared_ptr<MockProfileIORuntime> m_mock_runtime;
         ProfileIOGroup m_piog;
 };
 
 
 ProfileIOGroupTest::ProfileIOGroupTest()
-    : m_mock_pios(std::shared_ptr<MockProfileIOSample>(new MockProfileIOSample))
-    , m_piog(m_mock_pios, m_mock_topo)
+    : m_mock_pios(std::make_shared<MockProfileIOSample>())
+    , m_mock_runtime(std::make_shared<MockProfileIORuntime>())
+    , m_piog(m_mock_pios, m_mock_runtime, m_mock_topo)
 {
     // ProfileIOGroup should never call update; only Controller will update
     EXPECT_CALL(*m_mock_pios, update(_, _)).Times(0);
-
+    EXPECT_CALL(*m_mock_runtime, insert_regulator(_, _)).Times(0);
 }
 
 ProfileIOGroupTest::~ProfileIOGroupTest()
@@ -92,25 +97,25 @@ ProfileIOGroupTest::~ProfileIOGroupTest()
 TEST_F(ProfileIOGroupTest, is_valid)
 {
     EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::REGION_ID#"));
-    EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::PROGRESS"));
+    EXPECT_TRUE(m_piog.is_valid_signal("PROFILE::REGION_PROGRESS"));
     EXPECT_FALSE(m_piog.is_valid_signal("PROFILE::INVALID_SIGNAL"));
     EXPECT_FALSE(m_piog.is_valid_control("PROFILE::INVALID_CONTROL"));
 
     // aliases
     EXPECT_TRUE(m_piog.is_valid_signal("REGION_ID#"));
-    EXPECT_TRUE(m_piog.is_valid_signal("PROGRESS"));
+    EXPECT_TRUE(m_piog.is_valid_signal("REGION_PROGRESS"));
 }
 
 TEST_F(ProfileIOGroupTest, domain_type)
 {
     EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::REGION_ID#"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::PROGRESS"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROFILE::REGION_PROGRESS"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_piog.signal_domain_type("PROFILE::INVALID_SIGNAL"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_piog.control_domain_type("PROFILE::INVALID_CONTROL"));
 
     // aliases
     EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("REGION_ID#"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("PROGRESS"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_piog.signal_domain_type("REGION_PROGRESS"));
 }
 
 TEST_F(ProfileIOGroupTest, invalid_signal)
@@ -189,11 +194,11 @@ TEST_F(ProfileIOGroupTest, progress)
     // push_signal
     std::vector<int> prog_idx;
     for (int cpu = 0; cpu < num_cpu; ++cpu) {
-        prog_idx.push_back(m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, cpu));
+        prog_idx.push_back(m_piog.push_signal("PROFILE::REGION_PROGRESS", PlatformTopo::M_DOMAIN_CPU, cpu));
     }
-    int dup_idx0 = m_piog.push_signal("PROFILE::PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
+    int dup_idx0 = m_piog.push_signal("PROFILE::REGION_PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(prog_idx[0], dup_idx0);
-    int alias = m_piog.push_signal("PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
+    int alias = m_piog.push_signal("REGION_PROGRESS", PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(prog_idx[0], alias);
 
     GEOPM_EXPECT_THROW_MESSAGE(m_piog.sample(prog_idx[0]), GEOPM_ERROR_INVALID,
@@ -209,7 +214,69 @@ TEST_F(ProfileIOGroupTest, progress)
     // read_signal
     for (int cpu = 0; cpu < num_cpu; ++cpu) {
         EXPECT_DOUBLE_EQ(expected_read_progress[cpu],
-                         m_piog.read_signal("PROFILE::PROGRESS",
+                         m_piog.read_signal("PROFILE::REGION_PROGRESS",
                                             PlatformTopo::M_DOMAIN_CPU, cpu));
     }
+}
+
+TEST_F(ProfileIOGroupTest, runtime_sample)
+{
+    uint64_t region_id_1 = 4444;
+    uint64_t region_id_2 = 5555;
+
+    std::vector<double> region_runtime_1 = {5, 6, 7, 8};
+    std::vector<double> region_runtime_2 = {4, 3, 2, 3};
+    std::vector<uint64_t> region_cpu = {5555, 4444, 4444, 5555};
+    std::vector<double> expected_runtime = {4, 6, 7, 3};
+
+    EXPECT_CALL(*m_mock_pios, per_cpu_region_id())
+        .WillOnce(Return(region_cpu));
+    EXPECT_CALL(*m_mock_runtime, per_cpu_runtime(region_id_1))
+        .WillOnce(Return(region_runtime_1));
+    EXPECT_CALL(*m_mock_runtime, per_cpu_runtime(region_id_2))
+        .WillOnce(Return(region_runtime_2));
+
+    // push_signal
+    std::vector<int> runtime_idx;
+    for (size_t ii = 0; ii < region_cpu.size(); ++ii) {
+        runtime_idx.push_back(m_piog.push_signal("PROFILE::REGION_RUNTIME", PlatformTopo::M_DOMAIN_CPU, ii));
+    }
+    int dup_idx = m_piog.push_signal("PROFILE::REGION_RUNTIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    int alias = m_piog.push_signal("REGION_RUNTIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(runtime_idx[0], dup_idx);
+    EXPECT_EQ(runtime_idx[0], alias);
+
+    m_piog.read_batch();
+
+    // sample
+    std::vector<double> result;
+    for (size_t ii = 0; ii < region_cpu.size(); ++ii) {
+        result.push_back(m_piog.sample(runtime_idx[ii]));
+    }
+    EXPECT_EQ(expected_runtime, result);
+}
+
+TEST_F(ProfileIOGroupTest, runtime_read_signal)
+{
+    uint64_t region_id_1 = 4444;
+    uint64_t region_id_2 = 5555;
+
+    std::vector<double> region_runtime_1 = {5, 6, 7, 8};
+    std::vector<double> region_runtime_2 = {4, 3, 2, 3};
+    std::vector<uint64_t> region_cpu = {5555, 4444, 4444, 5555};
+    std::vector<double> expected_runtime = {4, 6, 7, 3};
+
+    EXPECT_CALL(*m_mock_pios, per_cpu_region_id()).Times(4)
+        .WillRepeatedly(Return(region_cpu));
+    EXPECT_CALL(*m_mock_runtime, per_cpu_runtime(region_id_1)).Times(2)
+        .WillRepeatedly(Return(region_runtime_1));
+    EXPECT_CALL(*m_mock_runtime, per_cpu_runtime(region_id_2)).Times(2)
+        .WillRepeatedly(Return(region_runtime_2));
+
+    // read_signal
+    std::vector<double> result;
+    for (size_t ii = 0; ii < region_cpu.size(); ++ii) {
+        result.push_back(m_piog.read_signal("PROFILE::REGION_RUNTIME", PlatformTopo::M_DOMAIN_CPU, ii));
+    }
+    EXPECT_EQ(expected_runtime, result);
 }
