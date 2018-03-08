@@ -56,12 +56,22 @@ using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Sequence;
 using ::testing::Return;
+using ::testing::AtLeast;
 using geopm::IDecider;
 using geopm::EfficientFreqDecider;
+using geopm::PlatformTopo;
 
 class EfficientFreqDeciderTest: public :: testing :: Test
 {
     protected:
+        enum mock_signal_idx_e {
+            REGION_ID_IDX,
+            RUNTIME_IDX,
+            FREQ_IDX,
+            ENERGY_PKG_IDX,
+            ENERGY_DRAM_IDX,
+        };
+
         void SetUp();
         void TearDown();
         static const size_t M_NUM_REGIONS = 5;
@@ -76,28 +86,45 @@ class EfficientFreqDeciderTest: public :: testing :: Test
         double m_freq_max;
         MockPlatformIO *m_platform_io;
         MockPlatformTopo *m_platform_topo;
+        const int M_NUM_CPU = 4;
 };
 
 void EfficientFreqDeciderTest::SetUp()
 {
     m_platform_io = new MockPlatformIO;
     m_platform_topo = new MockPlatformTopo;
-    ON_CALL(*m_platform_io, control_domain_type(_))
-            .WillByDefault(Return(geopm::PlatformTopo::M_DOMAIN_CPU));
-    ON_CALL(*m_platform_topo, num_domain(geopm::PlatformTopo::M_DOMAIN_CPU))
-            .WillByDefault(Return(1));
+    ON_CALL(*m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_CPU))
+        .WillByDefault(Return(M_NUM_CPU));
     ON_CALL(*m_platform_io, signal_domain_type(_))
-            .WillByDefault(Return(geopm::PlatformTopo::M_DOMAIN_BOARD));
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
+    ON_CALL(*m_platform_io, control_domain_type(_))
+        .WillByDefault(Return(PlatformTopo::M_DOMAIN_CPU));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_MIN"), _, _))
-            .WillByDefault(Return(1.0e9));
+        .WillByDefault(Return(1.0e9));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_STICKER"), _, _))
-            .WillByDefault(Return(1.3e9));
+        .WillByDefault(Return(1.3e9));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_MAX"), _, _))
-            .WillByDefault(Return(2.2e9));
+        .WillByDefault(Return(2.2e9));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_STEP"), _, _))
-            .WillByDefault(Return(100e6));
+        .WillByDefault(Return(100e6));
+    ON_CALL(*m_platform_io, push_signal("REGION_ID#", _, _))
+        .WillByDefault(Return(REGION_ID_IDX));
+    ON_CALL(*m_platform_io, push_signal("REGION_RUNTIME", _, _))
+        .WillByDefault(Return(RUNTIME_IDX));
+    ON_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
+        .WillByDefault(Return(ENERGY_PKG_IDX));
+    ON_CALL(*m_platform_io, push_signal("ENERGY_DRAM", _, _))
+        .WillByDefault(Return(ENERGY_DRAM_IDX));
+    ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
+        .WillByDefault(Return(FREQ_IDX));
 
-    setenv("GEOPM_PLUGIN_PATH", ".libs/", 1);
+    // calls in constructor
+    EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(1));
+    EXPECT_CALL(*m_platform_io, signal_domain_type(_)).Times(1);
+    EXPECT_CALL(*m_platform_io, control_domain_type(_)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal(_, _, _)).Times(2);
+    EXPECT_CALL(*m_platform_io, push_signal(_, _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_control(_, _, _)).Times(M_NUM_CPU);
 
     m_freq_min = 1800000000.0;
     m_freq_max = 2200000000.0;
@@ -127,7 +154,7 @@ void EfficientFreqDeciderTest::SetUp()
 
 void EfficientFreqDeciderTest::TearDown()
 {
-    unsetenv("GEOPM_EFFICIENT_FREQ_ONLINE");
+    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
     unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
     unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
     delete m_platform_topo;
@@ -136,25 +163,26 @@ void EfficientFreqDeciderTest::TearDown()
 
 TEST_F(EfficientFreqDeciderTest, map)
 {
+    EXPECT_CALL(*m_mock_region, num_sample(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, _)).Times(M_NUM_REGIONS * M_NUM_CPU);
+
     Sequence mock_seq;
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
+        // once for GoverningDecider
         EXPECT_CALL(*m_mock_region, identifier())
             .InSequence(mock_seq)
-            // one for super, once for our decider
-            .WillOnce(Return(geopm_crc32_str(0, m_region_names[x].c_str())))
             .WillOnce(Return(geopm_crc32_str(0, m_region_names[x].c_str())));
+
+        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
+            .InSequence(mock_seq)
+            .WillOnce(Return(geopm_field_to_signal(
+                geopm_crc32_str(0, m_region_names[x].c_str()))));
     }
 
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
 }
-
-TEST_F(EfficientFreqDeciderTest, plugin)
-{
-    EXPECT_EQ("efficient_freq", geopm::decider_factory().make_plugin("efficient_freq")->name());
-}
-
 
 TEST_F(EfficientFreqDeciderTest, decider_is_supported)
 {
@@ -169,11 +197,20 @@ TEST_F(EfficientFreqDeciderTest, name)
 
 TEST_F(EfficientFreqDeciderTest, hint)
 {
+    EXPECT_CALL(*m_mock_region, num_sample(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, _)).Times(AtLeast(3));
+
     Sequence mock_seq;
     for (size_t x = 0; x < m_hints.size(); x++) {
+        // once for GoverningDecider
+        EXPECT_CALL(*m_mock_region, identifier())
+            .InSequence(mock_seq);
+        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
+            .InSequence(mock_seq)
+            .WillOnce(Return(0));
         EXPECT_CALL(*m_mock_region, hint())
             .InSequence(mock_seq)
-            .WillOnce(testing::Return(m_hints[x]));
+            .WillOnce(Return(m_hints[x]));
     }
 
     for (size_t x = 0; x < m_hints.size(); x++) {
@@ -190,15 +227,33 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
     setenv("GEOPM_EFFICIENT_FREQ_MIN", "1e9", 1);
     setenv("GEOPM_EFFICIENT_FREQ_MAX", "2e9", 1);
 
+    // calls in constructor form SetUp and this test
+    EXPECT_CALL(*m_platform_io, signal_domain_type(_)).Times(1);
+    EXPECT_CALL(*m_platform_io, control_domain_type(_)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal(_, _, _)).Times(2);
+    EXPECT_CALL(*m_platform_io, push_signal("REGION_ID#", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_control("FREQUENCY", _, _)).Times(M_NUM_CPU);
+    EXPECT_CALL(*m_platform_io, push_signal("REGION_RUNTIME", _, _)).Times(M_NUM_CPU);
+    EXPECT_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _)).Times(M_NUM_CPU);
+    EXPECT_CALL(*m_platform_io, push_signal("ENERGY_DRAM", _, _)).Times(M_NUM_CPU);
+
     // reset decider with new settings
     m_decider = std::unique_ptr<IDecider>(new EfficientFreqDecider(*m_platform_io, *m_platform_topo));
 
     {
         // should not be called if we hit the adaptive branch
         EXPECT_CALL(*m_mock_region, hint()).Times(0);
-
         EXPECT_CALL(*m_mock_region, num_sample(_, _));
-        EXPECT_CALL(*m_mock_region, identifier()).Times(2);
+        // called by GoverningDecider
+        EXPECT_CALL(*m_mock_region, identifier()).Times(AtLeast(1));
+
+        // within EfficientFreqRegion
+        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX)).Times(1);
+        EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(M_NUM_CPU);
+        EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX)).Times(M_NUM_CPU);
+
+        // set frequency on first entry
+        EXPECT_CALL(*m_platform_io, adjust(_, _)).Times(M_NUM_CPU);
 
         m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
@@ -206,10 +261,14 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
     {
         EXPECT_CALL(*m_mock_region, hint()).Times(0);
         EXPECT_CALL(*m_mock_region, num_sample(_, _));
+        EXPECT_CALL(*m_mock_region, identifier()).Times(AtLeast(1));
 
-        // upon second update, previous region will not be null
-        // and it will check the region id
-        EXPECT_CALL(*m_mock_region, identifier()).Times(3);
+        // within EfficientFreqRegion
+        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX)).Times(1);
+        //EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(M_NUM_CPU);
+        //EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX)).Times(M_NUM_CPU);
+
+        EXPECT_CALL(*m_platform_io, adjust(_, _)).Times(M_NUM_CPU);
 
         m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
@@ -217,18 +276,18 @@ TEST_F(EfficientFreqDeciderTest, online_mode)
     {
         EXPECT_CALL(*m_mock_region, hint()).Times(0);
         EXPECT_CALL(*m_mock_region, num_sample(_, _));
+        EXPECT_CALL(*m_mock_region, identifier()).Times(AtLeast(1));
 
         // cause a transition to a new region
-        EXPECT_CALL(*m_mock_region, identifier()).Times(4)
-            .WillOnce(Return(1))
-            .WillOnce(Return(2))
-            .WillOnce(Return(3))
+        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
             .WillOnce(Return(4));
+        //EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(M_NUM_CPU);
+        //EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX)).Times(M_NUM_CPU);
 
-        // get runtime
-        EXPECT_CALL(*m_mock_region, signal(_, _))
-            .WillOnce(Return(0));
+        EXPECT_CALL(*m_platform_io, adjust(_, _)).Times(M_NUM_CPU);
 
         m_decider->update_policy(*m_mock_region, *m_mock_policy);
     }
+
+    unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
 }

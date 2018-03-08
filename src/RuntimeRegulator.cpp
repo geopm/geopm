@@ -38,17 +38,17 @@
 namespace geopm
 {
     RuntimeRegulator::RuntimeRegulator()
-        : M_TIME_ZERO ((struct geopm_time_s){{0, 0}})
-        , m_max_rank_count (0)
-        , m_last_avg (0.0)
+        : M_TIME_ZERO((struct geopm_time_s){{0, 0}})
+        , m_max_rank_count(0)
+        , m_last_avg(NAN)
     {
     }
 
     RuntimeRegulator::RuntimeRegulator(int max_rank_count)
-        : M_TIME_ZERO ((struct geopm_time_s){{0, 0}})
-        , m_max_rank_count (max_rank_count)
-        , m_last_avg (0.0)
-        , m_runtimes(m_max_rank_count, std::make_pair(M_TIME_ZERO, 0.0))
+        : M_TIME_ZERO((struct geopm_time_s){{0, 0}})
+        , m_max_rank_count(max_rank_count)
+        , m_last_avg(NAN)
+        , m_runtimes(m_max_rank_count, std::make_pair(M_TIME_ZERO, NAN))
     {
         if (m_max_rank_count <= 0) {
             throw Exception("RuntimeRegulator::RuntimeRegulator(): invalid max rank count", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -88,14 +88,17 @@ namespace geopm
         double sum = 0.0;
         int num_vals = 0;
         for (auto &val : m_runtimes) {
-            sum += val.second;
-            if (val.second != 0.0) {
+            if (!isnan(val.second)) {
+                sum += val.second;
                 ++num_vals;
             }
         }
 
         if (num_vals) {
             m_last_avg = sum / num_vals;
+        }
+        else {
+            m_last_avg = NAN;
         }
     }
 
