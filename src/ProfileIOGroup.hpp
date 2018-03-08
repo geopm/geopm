@@ -29,6 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef PROFILEIOGROUP_HPP_INCLUDE
 #define PROFILEIOGROUP_HPP_INCLUDE
 
@@ -41,13 +42,16 @@
 namespace geopm
 {
     class IProfileIOSample;
+    class IProfileIORuntime;
     class IPlatformTopo;
 
     class ProfileIOGroup : public IOGroup
     {
         public:
-            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample);
             ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
+                           std::shared_ptr<IProfileIORuntime> profile_runtime);
+            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
+                           std::shared_ptr<IProfileIORuntime> profile_runtime,
                            geopm::IPlatformTopo &topo);
             virtual ~ProfileIOGroup();
             bool is_valid_signal(const std::string &signal_name) override;
@@ -67,6 +71,7 @@ namespace geopm
             enum m_signal_type {
                 M_SIGNAL_REGION_ID,
                 M_SIGNAL_PROGRESS,
+                M_SIGNAL_RUNTIME,
             };
             struct m_signal_config {
                 int signal_type;
@@ -77,15 +82,19 @@ namespace geopm
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx);
 
             std::shared_ptr<IProfileIOSample> m_profile_sample;
+            std::shared_ptr<IProfileIORuntime> m_profile_runtime;
             std::map<std::string, int> m_signal_idx_map;
             IPlatformTopo &m_platform_topo;
-            bool m_do_read_region_id;
-            bool m_do_read_progress;
-            bool m_is_batch_read;
+            bool m_do_read_region_id = false;
+            bool m_do_read_progress = false;
+            bool m_do_read_runtime = false;
+            bool m_is_batch_read = false;
             std::vector<struct m_signal_config> m_active_signal;
             struct geopm_time_s m_read_time;
             std::vector<uint64_t> m_per_cpu_region_id;
             std::vector<double> m_per_cpu_progress;
+            std::vector<double> m_per_cpu_runtime;
+            std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
     };
 }
 
