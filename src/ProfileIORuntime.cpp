@@ -30,49 +30,46 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RUNTIMEREGULATOR_HPP_INCLUDE
-#define RUNTIMEREGULATOR_HPP_INCLUDE
-
-#include <vector>
-#include <string>
-
-#include "geopm_time.h"
-#include "geopm_message.h"
+#include "ProfileIORuntime.hpp"
+#include "ProfileIO.hpp"
+#include "RuntimeRegulator.hpp"
+#include "Exception.hpp"
 
 namespace geopm
 {
-    class IRuntimeRegulator
+    ProfileIORuntime::ProfileIORuntime(const std::vector<int> &cpu_rank)
     {
-        public:
-            IRuntimeRegulator() = default;
-            virtual ~IRuntimeRegulator() = default;
-            virtual void record_entry(int rank, struct geopm_time_s entry_time) = 0;
-            virtual void record_exit(int rank, struct geopm_time_s exit_time) = 0;
-            virtual void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
-            virtual std::vector<double> runtimes(void) const = 0;
-    };
-    class RuntimeRegulator : public IRuntimeRegulator
+        m_cpu_rank = ProfileIO::rank_to_node_local_rank_per_cpu(cpu_rank);
+    }
+
+    void ProfileIORuntime::insert_regulator(uint64_t region_id, IRuntimeRegulator &reg)
     {
-        public:
-            RuntimeRegulator();
-            RuntimeRegulator(int max_rank_count);
-            virtual ~RuntimeRegulator() override;
-            void record_entry(int rank, struct geopm_time_s entry_time) override;
-            void record_exit(int rank, struct geopm_time_s exit_time) override;
-            void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
-            std::vector<double> runtimes(void) const override;
+        m_regulator.emplace(std::pair<uint64_t, IRuntimeRegulator&>(region_id, reg));
+    }
 
-        protected:
-            void update_average(void);
-            const struct geopm_time_s M_TIME_ZERO;
-            enum m_num_rank_signal_e {
-                M_NUM_RANK_SIGNAL = 2,
-            };
-            int m_max_rank_count;
-            double m_last_avg;
-            // per rank vector of last entry and recorded runtime pairs
-            std::vector<std::pair<struct geopm_time_s, double> > m_runtimes;
-    };
-}
-
+    std::vector<double> ProfileIORuntime::per_cpu_runtime(uint64_t region_id) const
+    {
+        std::vector<double> result(m_cpu_rank.size(), 0.0);
+#ifdef GEOPM_DEBUG
+        if (m_regulator.find(region_id) == m_regulator.end()) {
+            throw Exception("ProfileIORuntime::per_cpu_runtime: No regulator set "
+                            "for region " + std::to_string(region_id),
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
 #endif
+        auto rank_runtimes = m_regulator.at(region_id).runtimes();
+        int cpu_idx = 0;
+        for (auto rank : m_cpu_rank) {
+#ifdef GEOPM_DEBUG
+            if (rank > (int)rank_runtimes.size() - 1) {
+                throw Exception("ProfileIORuntime::per_cpu_runtime: node-local rank "
+                                "for rank " + std::to_string(rank) + " not found in map.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+            result[cpu_idx] = rank_runtimes[rank];
+            ++cpu_idx;
+        }
+        return result;
+    }
+}
