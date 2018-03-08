@@ -199,30 +199,6 @@ namespace geopm
         init(signal, control);
     }
 
-    MSR::MSR(const std::string &msr_name,
-             const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
-             const std::vector<const IMSR *> &prog_msr,
-             const std::vector<std::string> &prog_field_name,
-             const std::vector<double> &prog_value)
-        : m_name(msr_name)
-        , m_offset(0)
-        , m_signal_encode(signal.size(), NULL)
-        , m_control_encode(0)
-        , m_domain_type(IPlatformTopo::M_DOMAIN_CPU)
-        , m_prog_msr(prog_msr)
-        , m_prog_field_name(prog_field_name)
-        , m_prog_value(prog_value)
-    {
-        const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > control;
-        init(signal, control);
-        if (m_prog_msr.size() != m_prog_field_name.size() ||
-            m_prog_msr.size() != m_prog_value.size()) {
-            throw Exception("MSR::MSR() input vectors for programming are not the same size",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-    }
-
-
     MSR::~MSR()
     {
         for (auto it = m_control_encode.rbegin(); it != m_control_encode.rend(); ++it) {
@@ -259,22 +235,6 @@ namespace geopm
     std::string MSR::name(void) const
     {
         return m_name;
-    }
-
-    void MSR::program(uint64_t offset,
-                      int cpu_idx,
-                      IMSRIO *msrio)
-    {
-        auto msr_it = m_prog_msr.begin();
-        auto field_it = m_prog_field_name.begin();
-        auto value_it = m_prog_value.begin();
-        for (; msr_it != m_prog_msr.end(); ++msr_it, ++field_it, ++value_it) {
-            int control_idx = (*msr_it)->control_index(*field_it);
-            uint64_t field = 0, mask = 0;
-            (*msr_it)->control(control_idx, *value_it, field, mask);
-            msrio->write_msr(cpu_idx, (*msr_it)->offset(), mask, field);
-        }
-        m_offset = offset;
     }
 
     uint64_t MSR::offset(void) const
@@ -373,30 +333,19 @@ namespace geopm
         return m_domain_type;
     }
 
-    MSRSignal::MSRSignal(const IMSR *msr_obj,
-                         int cpu_idx,
+    /// @todo Do we really want to store domain_type and domain_idx?
+    ///       the class is just holding them for the getters.
+    MSRSignal::MSRSignal(const IMSR &msr_obj,
+                         int domain_type,
+                         int domain_idx,
                          int signal_idx)
-        : MSRSignal(msr_obj, cpu_idx, signal_idx,
-                    msr_obj->name() + ":" + msr_obj->signal_name(signal_idx))
-    {
-
-    }
-
-    MSRSignal::MSRSignal(const IMSR *msr_obj,
-                         int cpu_idx,
-                         int signal_idx,
-                         const std::string &name)
-        : MSRSignal(std::vector<IMSRSignal::m_signal_config_s>{IMSRSignal::m_signal_config_s{msr_obj, cpu_idx, signal_idx}}, name)
-    {
-
-    }
-
-    MSRSignal::MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
-                         const std::string &name)
-        : m_config(config)
-        , m_name(name)
-        , m_field_ptr(config.size(), NULL)
-        , m_field_last(config.size(), 0)
+        : m_name(msr_obj.name() + ":" + msr_obj.signal_name(signal_idx))
+        , m_msr_obj(msr_obj)
+        , m_domain_type(domain_type)
+        , m_domain_idx(domain_idx)
+        , m_signal_idx(signal_idx)
+        , m_field_ptr(nullptr)
+        , m_field_last(0)
         , m_is_field_mapped(false)
     {
 
@@ -414,14 +363,12 @@ namespace geopm
 
     int MSRSignal::domain_type(void) const
     {
-        throw Exception("MSRSignal::domain_type(): not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return m_domain_type;
     }
 
     int MSRSignal::domain_idx(void) const
     {
-        /// @todo Different MSRs composing this signal should not have different domain
-        return m_config[0].domain_idx;
+        return m_domain_idx;
     }
 
     double MSRSignal::sample(void)
@@ -430,75 +377,31 @@ namespace geopm
             throw Exception("MSRSignal::sample(): must call map() method before sample() can be called",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::vector<double> signal_vec(num_msr());
-        auto signal_it = signal_vec.begin();
-        auto field_it = m_field_ptr.begin();
-        auto last_it = m_field_last.begin();
-        for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++signal_it, ++field_it, ++last_it) {
-            *signal_it = config_it->msr_obj->signal(config_it->signal_idx, *(*field_it), *last_it);
-        }
-        return sample(signal_vec);
+        return m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_field_last);
     }
 
-    int MSRSignal::num_msr(void) const
+    uint64_t MSRSignal::offset(void) const
     {
-        return m_config.size();
-    }
-
-    void MSRSignal::offset(std::vector<uint64_t> &offset) const
-    {
-        offset.resize(m_config.size());
-        size_t i = 0;
-        for (auto &cc : m_config) {
-            offset[i] = cc.msr_obj->offset();
-            ++i;
-        }
+        return m_msr_obj.offset();
     }
 
     void MSRSignal::map_field(const uint64_t *field)
     {
-        map_field(std::vector<const uint64_t *> {field});
-    }
-
-    void MSRSignal::map_field(const std::vector<const uint64_t *> &field)
-    {
-        if (field.size() != (size_t)num_msr()) {
-            throw Exception("MSRSignal::map_field() field vector not properly sized",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::copy(field.begin(), field.end(), m_field_ptr.begin());
+        m_field_ptr = field;
         m_is_field_mapped = true;
     }
 
-    double MSRSignal::sample(const std::vector<double> &per_msr_signal) const
-    {
-        return std::accumulate(per_msr_signal.begin(), per_msr_signal.end(), 0.0);
-    }
-
-    MSRControl::MSRControl(const IMSR *msr_obj,
-                           int cpu_idx,
+    MSRControl::MSRControl(const IMSR &msr_obj,
+                           int domain_type,
+                           int domain_idx,
                            int control_idx)
-        : MSRControl(msr_obj, cpu_idx, control_idx,
-                     msr_obj->name() + ":" + msr_obj->control_name(control_idx))
-    {
-
-    }
-
-    MSRControl::MSRControl(const IMSR *msr_obj,
-                           int cpu_idx,
-                           int control_idx,
-                           const std::string &name)
-        : MSRControl(std::vector<IMSRControl::m_control_config_s>{IMSRControl::m_control_config_s{msr_obj, cpu_idx, control_idx}}, name)
-    {
-
-    }
-
-    MSRControl::MSRControl(const std::vector<struct IMSRControl::m_control_config_s> &config,
-                           const std::string &name)
-        : m_config(config)
-        , m_name(name)
-        , m_field_ptr(config.size(), NULL)
-        , m_mask_ptr(config.size(), NULL)
+        : m_name(msr_obj.name() + ":" + msr_obj.control_name(control_idx))
+        , m_msr_obj(msr_obj)
+        , m_domain_type(domain_type)
+        , m_domain_idx(domain_idx)
+        , m_control_idx(control_idx)
+        , m_field_ptr(nullptr)
+        , m_mask_ptr(nullptr)
         , m_is_field_mapped(false)
     {
 
@@ -516,14 +419,12 @@ namespace geopm
 
     int MSRControl::domain_type(void) const
     {
-        throw Exception("MSRControl::domain_type(): not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return m_domain_type;
     }
 
     int MSRControl::domain_idx(void) const
     {
-        /// @todo Different MSRs composing this control should not have different domain
-        return m_config[0].domain_idx;
+        return m_domain_idx;
     }
 
     void MSRControl::adjust(double setting)
@@ -532,54 +433,26 @@ namespace geopm
             throw Exception("MSRControl::adjust(): must call map() method before adjust() can be called",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto field_it = m_field_ptr.begin();
-        auto mask_it = m_mask_ptr.begin();
-        for (auto config_it = m_config.begin(); config_it != m_config.end(); ++config_it, ++field_it, ++mask_it) {
-            config_it->msr_obj->control(config_it->control_idx, setting, *(*field_it), *(*mask_it));
-        }
+        m_msr_obj.control(m_control_idx, setting, *m_field_ptr, *m_mask_ptr);
     }
 
-    int MSRControl::num_msr(void) const
+    uint64_t MSRControl::offset(void) const
     {
-        return m_config.size();
+        return m_msr_obj.offset();
     }
 
-    void MSRControl::offset(std::vector<uint64_t> &offset) const
+    uint64_t MSRControl::mask(void) const
     {
-        offset.resize(m_config.size());
-        size_t i = 0;
-        for (auto &cc : m_config) {
-            offset[i] = cc.msr_obj->offset();
-            ++i;
-        }
-    }
-
-    void MSRControl::mask(std::vector<uint64_t> &mask) const
-    {
-        mask.resize(m_config.size());
-        size_t i = 0;
+        uint64_t result = 0;
         uint64_t field = 0;
-        for (auto &cc : m_config) {
-            cc.msr_obj->control(cc.control_idx, 0.0, field, mask[i]);
-            ++i;
-        }
+        m_msr_obj.control(m_control_idx, 0.0, field, result);
+        return result;
     }
 
     void MSRControl::map_field(uint64_t *field, uint64_t *mask)
     {
-        map_field(std::vector<uint64_t *> {field}, std::vector<uint64_t *> {mask});
-    }
-
-    void MSRControl::map_field(const std::vector<uint64_t *> &field, const std::vector<uint64_t *> &mask)
-    {
-        if (field.size() != (size_t)num_msr() ||
-            mask.size() != (size_t)num_msr()) {
-            throw Exception("MSRControl::map_field() field vector not properly sized",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::copy(field.begin(), field.end(), m_field_ptr.begin());
-        std::copy(mask.begin(), mask.end(), m_mask_ptr.begin());
+        m_field_ptr = field;
+        m_mask_ptr = mask;
         m_is_field_mapped = true;
     }
-
 }

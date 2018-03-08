@@ -74,7 +74,7 @@ namespace geopm
         for (const MSR *msr_ptr = msr_arr;
              msr_ptr != msr_arr + num_msr;
              ++msr_ptr) {
-            m_name_msr_map.insert(std::pair<std::string, const IMSR *>(msr_ptr->name(), msr_ptr));
+            m_name_msr_map.insert(std::pair<std::string, const IMSR &>(msr_ptr->name(), *msr_ptr));
             for (int idx = 0; idx < msr_ptr->num_signal(); idx++) {
                 register_msr_signal(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->signal_name(idx));
             }
@@ -83,11 +83,11 @@ namespace geopm
             }
         }
 
-        register_msr_signal("FREQUENCY", {"PERF_STATUS"}, {"FREQ"});
-        register_msr_control("FREQUENCY", {"PERF_CTL"}, {"FREQ"});
+        register_msr_signal("FREQUENCY", "MSR::PERF_STATUS:FREQ");
+        register_msr_control("FREQUENCY", "MSR::PERF_CTL:FREQ");
 
-        register_msr_signal("ENERGY_PACKAGE", {"PKG_ENERGY_STATUS"}, {"ENERGY"});
-        register_msr_signal("ENERGY_DRAM", {"DRAM_ENERGY_STATUS"}, {"ENERGY"});
+        register_msr_signal("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
+        register_msr_signal("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
     }
 
     MSRIOGroup::~MSRIOGroup()
@@ -169,8 +169,10 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
+            // signal_name may be alias, so use active signal MSR name
+            std::string registered_name = ncsm_it->second[domain_idx]->name();
             /// @todo Support non-CPU domains and check domain type of the signal here
-            if (m_active_signal[ii]->name() == signal_name &&
+            if (m_active_signal[ii]->name() == registered_name &&
                 m_active_signal[ii]->domain_idx() == domain_idx) {
                 result = ii;
                 is_found = true;
@@ -189,14 +191,9 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-            std::vector<uint64_t> offset;
-            msr_sig->offset(offset);
-            m_read_signal_off.push_back(m_read_cpu_idx.size());
-            m_read_signal_len.push_back(msr_sig->num_msr());
-            for (int i = 0; i < msr_sig->num_msr(); ++i) {
-                m_read_cpu_idx.push_back(cpu_idx);
-                m_read_offset.push_back(offset[i]);
-            }
+            uint64_t offset = msr_sig->offset();
+            m_read_cpu_idx.push_back(cpu_idx);
+            m_read_offset.push_back(offset);
         }
         return result;
     }
@@ -235,8 +232,10 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
+            // control_name may be alias, so use active control MSR name
+            std::string registered_name = nccm_it->second[domain_idx]->name();
             /// @todo Support non-CPU domains and check domain type of the control here
-            if (m_active_control[ii]->name() == control_name &&
+            if (m_active_control[ii]->name() == registered_name &&
                 m_active_control[ii]->domain_idx() == domain_idx) {
                 result = ii;
                 is_found = true;
@@ -255,17 +254,11 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-            std::vector<uint64_t> offset;
-            std::vector<uint64_t> mask;
-            msr_ctl->offset(offset);
-            msr_ctl->mask(mask);
-            m_write_control_off.push_back(m_write_cpu_idx.size());
-            m_write_control_len.push_back(msr_ctl->num_msr());
-            for (int i = 0; i < msr_ctl->num_msr(); ++i) {
-                m_write_cpu_idx.push_back(cpu_idx);
-                m_write_offset.push_back(offset[i]);
-                m_write_mask.push_back(mask[i]);
-            }
+            uint64_t offset = msr_ctl->offset();
+            uint64_t mask = msr_ctl->mask();
+            m_write_cpu_idx.push_back(cpu_idx);
+            m_write_offset.push_back(offset);
+            m_write_mask.push_back(mask);
         }
         return result;
     }
@@ -342,18 +335,10 @@ namespace geopm
 
         int cpu_idx = domain_idx;
         MSRSignal signal = *(ncsm_it->second[cpu_idx]);
-        int num_msr = signal.num_msr();
-        std::vector<uint64_t> offset_vec(num_msr);
-        signal.offset(offset_vec);
-        std::vector<uint64_t> field_vec(num_msr);
-        std::vector<const uint64_t *> field_ptr(num_msr);
-        for (int msr_idx = 0; msr_idx != num_msr; ++msr_idx) {
-            field_ptr[msr_idx] = &(field_vec[msr_idx]);
-        }
-        signal.map_field(field_ptr);
-        for (int msr_idx = 0; msr_idx != num_msr; ++msr_idx) {
-            field_vec[msr_idx] = m_msrio->read_msr(cpu_idx, offset_vec[msr_idx]);
-        }
+        uint64_t offset = signal.offset();
+        uint64_t field = 0;
+        signal.map_field(&field);
+        field = m_msrio->read_msr(cpu_idx, offset);
         return signal.sample();
     }
 
@@ -378,22 +363,12 @@ namespace geopm
 
         int cpu_idx = domain_idx;
         MSRControl control = *(nccm_it->second[cpu_idx]);
-        int num_msr = control.num_msr();
-        std::vector<uint64_t> offset_vec(num_msr);
-        control.offset(offset_vec);
-        std::vector<uint64_t> field_vec(num_msr);
-        std::vector<uint64_t *> field_ptr(num_msr);
-        std::vector<uint64_t> mask_vec(num_msr);
-        std::vector<uint64_t *> mask_ptr(num_msr);
-        for (int msr_idx = 0; msr_idx != num_msr; ++msr_idx) {
-            field_ptr[msr_idx] = &(field_vec[msr_idx]);
-            mask_ptr[msr_idx] = &(mask_vec[msr_idx]);
-        }
-        control.map_field(field_ptr, mask_ptr);
+        uint64_t offset = control.offset();
+        uint64_t field = 0;
+        uint64_t mask = 0;
+        control.map_field(&field, &mask);
         control.adjust(setting);
-        for (int msr_idx = 0; msr_idx != num_msr; ++msr_idx) {
-            m_msrio->write_msr(cpu_idx, offset_vec[msr_idx], field_vec[msr_idx], mask_vec[msr_idx]);
-        }
+        m_msrio->write_msr(cpu_idx, offset, field, mask);
     }
 
     std::string MSRIOGroup::msr_whitelist(void) const
@@ -472,59 +447,40 @@ namespace geopm
         m_write_field.resize(m_write_cpu_idx.size());
         size_t msr_idx = 0;
         for (auto &msr_sig : m_active_signal) {
-            std::vector<const uint64_t *> field_ptr(msr_sig->num_msr());
-            for (auto &fp : field_ptr) {
-                fp = m_read_field.data() + msr_idx;
-                ++msr_idx;
-            }
+            const uint64_t *field_ptr = &(m_read_field[msr_idx]);
             msr_sig->map_field(field_ptr);
+            ++msr_idx;
         }
         msr_idx = 0;
         for (auto &msr_ctl : m_active_control) {
-            std::vector<uint64_t *> field_ptr(msr_ctl->num_msr());
-            std::vector<uint64_t *> mask_ptr(msr_ctl->num_msr());
-            size_t msr_idx_save = msr_idx;
-            for (auto &fp : field_ptr) {
-                fp = m_write_field.data() + msr_idx;
-                ++msr_idx;
-            }
-            msr_idx = msr_idx_save;
-            for (auto &mp : mask_ptr) {
-                mp = m_write_mask.data() + msr_idx;
-                ++msr_idx;
-            }
+            uint64_t *field_ptr = &(m_write_field[msr_idx]);
+            uint64_t *mask_ptr = &(m_write_mask[msr_idx]);
             msr_ctl->map_field(field_ptr, mask_ptr);
+            ++msr_idx;
         }
         m_is_active = true;
     }
 
-    void MSRIOGroup::register_msr_signal(const std::string &signal_name)
+    void MSRIOGroup::register_msr_signal(const std::string &msr_name)
     {
-        Exception ex("MSRIOGroup::register_msr_signal(): signal_name must be of the form \"MSR::<msr_name>:<field_name>\"",
+        register_msr_signal(msr_name, msr_name);
+    }
+
+    void MSRIOGroup::register_msr_signal(const std::string &signal_name, const std::string &msr_name_field)
+    {
+        Exception ex("MSRIOGroup::register_msr_signal(): msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"",
                      GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        if (signal_name.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
+        if (msr_name_field.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
             throw ex;
         }
-        std::string name_field = signal_name.substr(m_name_prefix.size());
+        std::string name_field = msr_name_field.substr(m_name_prefix.size());
         size_t colon_pos = name_field.find(':');
         if (colon_pos == std::string::npos) {
             throw ex;
         }
-        std::vector<std::string> msr_name_vec({name_field.substr(0, colon_pos)});
-        std::vector<std::string> field_name_vec({name_field.substr(colon_pos + 1)});
-        register_msr_signal(signal_name, msr_name_vec, field_name_vec);
-    }
+        std::string msr_name(name_field.substr(0, colon_pos));
+        std::string field_name(name_field.substr(colon_pos + 1));
 
-
-    void MSRIOGroup::register_msr_signal(const std::string &signal_name,
-                                         const std::vector<std::string> &msr_name,
-                                         const std::vector<std::string> &field_name)
-    {
-        // Assert that msr_name and field_name are the same size.
-        if (msr_name.size() != field_name.size()) {
-            throw Exception("MSRIOGroup::register_msr_signal(): signal_name vector length does not match msr_name",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         // Insert the signal name with an empty vector into the map
         auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<MSRSignal *> >(signal_name, {}));
         // Get reference to the per-cpu signal vector
@@ -535,62 +491,46 @@ namespace geopm
                             " was previously registered.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        cpu_signal.resize(m_num_cpu, NULL);
-        int num_field = field_name.size();
+        cpu_signal.resize(m_num_cpu, nullptr);
 
-        std::vector<struct IMSRSignal::m_signal_config_s> signal_config(num_field);
-        int field_idx = 0;
-        for (auto &sc : signal_config) {
-            auto name_msr_it = m_name_msr_map.find(msr_name[field_idx]);
-            if (name_msr_it == m_name_msr_map.end()) {
-                throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found: " +
-                                msr_name[field_idx],
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            sc.msr_obj = name_msr_it->second;
-            sc.signal_idx = sc.msr_obj->signal_index(field_name[field_idx]);
-            if (sc.signal_idx == -1) {
-                throw Exception("MSRIOGroup::register_msr_signal(): field_name could not be found",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            ++field_idx;
+        auto name_msr_it = m_name_msr_map.find(msr_name);
+        if (name_msr_it == m_name_msr_map.end()) {
+            throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found: " + msr_name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        const IMSR &msr_obj = name_msr_it->second;
+        int signal_idx = msr_obj.signal_index(field_name);
+        if (signal_idx == -1) {
+            throw Exception("MSRIOGroup::register_msr_signal(): field_name could not be found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        /// @todo Support for non-cpu domains
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            for (auto &sc : signal_config) {
-                sc.domain_idx = cpu_idx;
-            }
-            cpu_signal[cpu_idx] = new MSRSignal(signal_config, signal_name);
+            cpu_signal[cpu_idx] = new MSRSignal(msr_obj, PlatformTopo::M_DOMAIN_CPU,
+                                                cpu_idx, signal_idx);
         }
     }
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
     {
-        Exception ex("MSRIOGroup::register_msr_control(): control_name must be of the form \"MSR::<msr_name>:<field_name>\"",
+        register_msr_control(control_name, control_name);
+    }
+
+    void MSRIOGroup::register_msr_control(const std::string &control_name, const std::string &msr_name_field)
+    {
+        Exception ex("MSRIOGroup::register_msr_control(): msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"",
                      GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        if (control_name.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
+        if (msr_name_field.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
             throw ex;
         }
-        std::string name_field = control_name.substr(m_name_prefix.size());
+        std::string name_field = msr_name_field.substr(m_name_prefix.size());
         size_t colon_pos = name_field.find(':');
         if (colon_pos == std::string::npos) {
             throw ex;
         }
-        std::vector<std::string> msr_name_vec({name_field.substr(0, colon_pos)});
-        std::vector<std::string> field_name_vec({name_field.substr(colon_pos + 1)});
-        register_msr_control(control_name, msr_name_vec, field_name_vec);
-    }
+        std::string msr_name(name_field.substr(0, colon_pos));
+        std::string field_name(name_field.substr(colon_pos + 1));
 
-    void MSRIOGroup::register_msr_control(const std::string &control_name,
-                                          const std::vector<std::string> &msr_name,
-                                          const std::vector<std::string> &field_name)
-    {
-        // Assert that msr_name and field_name are the same size.
-        if (msr_name.size() != field_name.size()) {
-            throw Exception("MSRIOGroup::register_msr_control(): control_name vector length does not match msr_name",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         // Insert the control name with an empty vector into the map
         auto ins_ret = m_name_cpu_control_map.insert(std::pair<std::string, std::vector<MSRControl *> >(control_name, {}));
         // Get reference to the per-cpu control vector
@@ -603,31 +543,21 @@ namespace geopm
 
         }
         cpu_control.resize(m_num_cpu, NULL);
-        int num_field = field_name.size();
 
-        std::vector<struct IMSRControl::m_control_config_s> control_config(num_field);
-        int field_idx = 0;
-        for (auto &sc : control_config) {
-            auto name_msr_it = m_name_msr_map.find(msr_name[field_idx]);
-            if (name_msr_it == m_name_msr_map.end()) {
-                throw Exception("MSRIOGroup::register_msr_control(): msr_name could not be found",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            sc.msr_obj = name_msr_it->second;
-            sc.control_idx = sc.msr_obj->control_index(field_name[field_idx]);
-            if (sc.control_idx == -1) {
-                throw Exception("MSRIOGroup::register_msr_control(): field_name could not be found",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            ++field_idx;
+        auto name_msr_it = m_name_msr_map.find(msr_name);
+        if (name_msr_it == m_name_msr_map.end()) {
+            throw Exception("MSRIOGroup::register_msr_control(): msr_name could not be found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        const IMSR &msr_obj = name_msr_it->second;
+        int control_idx = msr_obj.control_index(field_name);
+        if (control_idx == -1) {
+            throw Exception("MSRIOGroup::register_msr_control(): field_name could not be found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        /// @todo Support for non-cpu domains
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            for (auto &sc : control_config) {
-                sc.domain_idx = cpu_idx;
-            }
-            cpu_control[cpu_idx] = new MSRControl(control_config, control_name);
+            cpu_control[cpu_idx] = new MSRControl(msr_obj, PlatformTopo::M_DOMAIN_CPU, cpu_idx, control_idx);
         }
     }
 

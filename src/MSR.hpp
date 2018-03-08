@@ -41,8 +41,6 @@
 
 namespace geopm
 {
-    class IMSRIO;
-
     /// @brief Class describing all of the encoded values within a
     /// single MSR register.  This class encodes how to access fields
     /// within an MSR, but does not hold the state of any registers.
@@ -80,18 +78,6 @@ namespace geopm
             /// @brief Query the name of the MSR.
             /// @param msr_name [out] The name of the MSR.
             virtual std::string name(void) const = 0;
-            /// @brief Program a counter to provide the MSR.
-            /// @param [in] offset The offset to the programmable
-            ///        counter MSR that will be read after programming
-            ///        is complete (the value returned by the offset()
-            ///        API).
-            /// @param [in] cpu_idx Logical Linux CPU index to be
-            ///        programmed.
-            /// @param [in] msrio The IMSRIO object that will be used
-            ///        to program the counter.
-            virtual void program(uint64_t offset,
-                                 int cpu_idx,
-                                 IMSRIO *msrio) = 0;
             /// @brief The byte offset for the MSR.
             /// @return The 64-bit offset to the register.
             virtual uint64_t offset(void) const = 0;
@@ -153,12 +139,6 @@ namespace geopm
     class IMSRSignal
     {
         public:
-            struct m_signal_config_s {
-                const IMSR *msr_obj;
-                int domain_idx;
-                int signal_idx;
-                uint64_t last_field;
-            };
             IMSRSignal() {}
             virtual ~IMSRSignal() {}
             /// @brief Get the signal parameter name.
@@ -176,38 +156,21 @@ namespace geopm
             /// @return The value of the parameter measured in SI
             ///         units.
             virtual double sample(void) = 0;
-            /// @brief Get the number of MSRs required to generate the
-            ///        signal.
-            /// @return number of MSRs.
-            virtual int num_msr(void) const = 0;
             /// @brief Gets the MSR offset for each of the MSRs that are
             ///        combined to provide a signal.
             /// @param [out] offset The MSR offset values.
-            virtual void offset(std::vector<uint64_t> &offset) const = 0;
+            virtual uint64_t offset(void) const = 0;
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when calculating
-            ///        the signal.  This method should only be called
-            ///        if the num_msr() method returns 1.
+            ///        the signal.
             /// @param [in] Pointer to the memory containing the raw
             ///        MSR value.
             virtual void map_field(const uint64_t *field) = 0;
-            /// @brief Map a vector of pointers to the raw MSR values
-            ///        that will be referenced when measuring the
-            ///        signal.
-            /// @param [in] field The vector of num_msr() pointers to
-            ///        the raw MSR values that will be referenced when
-            ///        measuring the signal.
-            virtual void map_field(const std::vector<const uint64_t *> &field) = 0;
     };
 
     class IMSRControl
     {
         public:
-            struct m_control_config_s {
-                const IMSR *msr_obj;
-                int domain_idx;
-                int control_idx;
-            };
             IMSRControl() {}
             virtual ~IMSRControl() {}
             /// @brief Get the control parameter name.
@@ -225,34 +188,21 @@ namespace geopm
             /// @param [in] setting Value in SI units of the parameter
             ///        controlled by the object.
             virtual void adjust(double setting) = 0;
-            /// @brief Get the number of MSRs required to enforce the
-            ///        control.
-            /// @return number of MSRs.
-            virtual int num_msr(void) const = 0;
             /// @brief Gets the MSR offset for each of the MSRs that are
             ///        set by the control.
             /// @param [out] offset The MSR offset values.
-            virtual void offset(std::vector<uint64_t> &offset) const = 0;
+            virtual uint64_t offset(void) const = 0;
             /// @brief Gets the mask for each of the MSRs that are
             ///        written by the control.
             /// @param [out] mask The write mask values.
-            virtual void mask(std::vector<uint64_t> &mask) const = 0;
+            virtual uint64_t mask(void) const = 0;
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when enforcing
-            ///        the control.  This method should only be called
-            ///        if the num_msr() method returns 1.
+            ///        the control.
             /// @param [in] Pointer to the memory containing the raw
             ///        MSR value.
             virtual void map_field(uint64_t *field,
                                    uint64_t *mask) = 0;
-            /// @brief Map a vector of pointers to the raw MSR values
-            ///        that will be referenced when enforcing the control.
-            /// @param [in] field The vector of num_msr() pointers to
-            ///        the raw MSR values that will be referenced when
-            ///        enforcing the control.
-            virtual void map_field(const std::vector<uint64_t *> &field,
-                                   const std::vector<uint64_t *> &mask) = 0;
-
     };
 
     class MSREncode;
@@ -273,29 +223,9 @@ namespace geopm
                 uint64_t offset,
                 const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
                 const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control);
-            /// @brief Constructor for the MSR class for programmable
-            ///        counter MSRs.
-            /// @param [in] msr_name The name of the programmed MSR.
-            /// @param [in] signal Vector of signal name and encode
-            ///        struct pairs describing all signals embedded in
-            ///        the MSR once it is programmed.
-            /// @param [in] program_msr Vector of IMSR objects that
-            ///        are used to program the counter.
-            /// @param [in] write_field_name Vector of fields in each
-            ///        program_msr object that are to be configured.
-            /// @param [in] prog_value Vector of values to be written
-            ///        in each field to configure the MSR.
-            MSR(const std::string &msr_name,
-                const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
-                const std::vector<const IMSR *> &prog_msr,
-                const std::vector<std::string> &prog_field_name,
-                const std::vector<double> &prog_value);
             /// @brief MSR class destructor.
             virtual ~MSR();
             std::string name(void) const override;
-            void program(uint64_t offset,
-                         int cpu_idx,
-                         IMSRIO *msrio) override;
             uint64_t offset(void) const override;
             int num_signal(void) const override;
             int num_control(void) const override;
@@ -339,24 +269,10 @@ namespace geopm
             ///        query for the MSR.
             /// @param [in] signal_idx The index of the signal within
             ///        the MSR that the class represents.
-            MSRSignal(const IMSR *msr_obj,
-                      int cpu_idx,
+            MSRSignal(const IMSR &msr_obj,
+                      int domain_type,
+                      int domain_idx,
                       int signal_idx);
-            MSRSignal(const IMSR *msr_obj,
-                      int cpu_idx,
-                      int signal_idx,
-                      const std::string &name);
-            /// @brief Constructor for the MSRSignal class used when
-            ///        the signal is a function of several bit fields
-            ///        in one or many MSRs.
-            /// @param [in] config A vector of m_signal_config_s
-            ///        structures describing the bit field signals
-            ///        that are used to calculate a sample.  When
-            ///        using this constructor the protected sample()
-            ///        method that takes a vector of doubles will be
-            ///        used to combine the signals.
-            MSRSignal(const std::vector<IMSRSignal::m_signal_config_s> &config,
-                      const std::string &name);
             /// @todo Revisit whether this is really okay to copy
             MSRSignal(const MSRSignal &other) = default;
             MSRSignal &operator=(const MSRSignal &other) = default;
@@ -365,25 +281,16 @@ namespace geopm
             int domain_type(void) const override;
             int domain_idx(void) const override;
             double sample(void) override;
-            int num_msr(void) const override;
-            void offset(std::vector<uint64_t> &offset) const override;
+            uint64_t offset(void) const override;
             void map_field(const uint64_t *field) override;
-            void map_field(const std::vector<const uint64_t *> &field) override;
         protected:
-            /// @brief When constructed with a vector of
-            ///        m_signal_config_s structures this method will
-            ///        use the corresponding vector of signals to
-            ///        calculate a single sample.
-            /// @param [in] per_msr_signal A vector of signals
-            ///        measured from each bit field described in the
-            ///        constructor.
-            /// @return The sample derived from the per MSR signals.
-            virtual double sample(const std::vector<double> &per_msr_signal) const;
-
-            std::vector<IMSRSignal::m_signal_config_s> m_config;
-            std::string m_name;
-            std::vector<const uint64_t *> m_field_ptr;
-            std::vector<uint64_t> m_field_last;
+            const std::string m_name;
+            const IMSR &m_msr_obj;
+            const int m_domain_type;
+            const int m_domain_idx;
+            const int m_signal_idx;
+            const uint64_t *m_field_ptr;
+            uint64_t m_field_last;
             bool m_is_field_mapped;
     };
 
@@ -399,25 +306,10 @@ namespace geopm
             ///        write the MSR.
             /// @param [in] control_idx The index of the control within
             ///        the MSR that the class represents.
-            MSRControl(const IMSR *msr_obj,
-                       int cpu_idx,
+            MSRControl(const IMSR &msr_obj,
+                       int domain_type,
+                       int domain_idx,
                        int control_idx);
-            MSRControl(const IMSR *msr_obj,
-                       int cpu_idx,
-                       int control_idx,
-                       const std::string &name);
-            /// @brief Constructor for the MSRControl class used when
-            ///        the control is a enforced by setting several
-            ///        bit fields in one or many MSRs.
-            /// @param [in] config A vector of m_signal_config_s
-            ///        structures describing the bit field controls
-            ///        that are used to enforce the control.  When
-            ///        using this constructor the protected adjust()
-            ///        method that takes a double and sets a vector of
-            ///        double settings will be used to derive each
-            ///        control field setting.
-            MSRControl(const std::vector<struct IMSRControl::m_control_config_s> &config,
-                       const std::string &name);
             MSRControl(const MSRControl &other) = default;
             MSRControl &operator=(const MSRControl &other) = default;
             virtual ~MSRControl();
@@ -425,16 +317,17 @@ namespace geopm
             int domain_type(void) const override;
             int domain_idx(void) const override;
             void adjust(double setting) override;
-            int num_msr(void) const override;
-            void offset(std::vector<uint64_t> &offset) const override;
-            void mask(std::vector<uint64_t> &mask) const override;
+            uint64_t offset(void) const override;
+            uint64_t mask(void) const override;
             void map_field(uint64_t *field, uint64_t *mask) override;
-            void map_field(const std::vector<uint64_t *> &field, const std::vector<uint64_t *> &mask) override;
         protected:
-            std::vector<IMSRControl::m_control_config_s> m_config;
-            std::string m_name;
-            std::vector<uint64_t *> m_field_ptr;
-            std::vector<uint64_t *> m_mask_ptr;
+            const std::string m_name;
+            const IMSR &m_msr_obj;
+            const int m_domain_type;
+            const int m_domain_idx;
+            const int m_control_idx;
+            uint64_t *m_field_ptr;
+            uint64_t *m_mask_ptr;
             bool m_is_field_mapped;
     };
 
