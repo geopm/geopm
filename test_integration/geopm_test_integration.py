@@ -902,15 +902,18 @@ class TestIntegration(unittest.TestCase):
                                                                       '.',
                                                                       num_rank,
                                                                       num_node,
-                                                                      app_argv)
+                                                                      app_argv,
+                                                                      verbose=True)
         analysis.launch()
         parse_output = analysis.parse()
         process_output = analysis.report_process(parse_output)
-        energy_savings_epoch = process_output.loc[name+'_offline']['energy']
-        runtime_savings_epoch = process_output.loc[name+'_offline']['runtime']
+        analysis.report(process_output)
+        sticker_freq_idx = process_output.loc['epoch'].index[-2]
+        energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
+        runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]
 
         self.assertLess(0.0, energy_savings_epoch)
-        self.assertLess(runtime_savings_epoch, 5.0)
+        self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
 
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
@@ -959,15 +962,18 @@ class TestIntegration(unittest.TestCase):
                                                                      '.',
                                                                      num_rank,
                                                                      num_node,
-                                                                     app_argv)
+                                                                     app_argv,
+                                                                     verbose=True)
         analysis.launch()
         parse_output = analysis.parse()
         process_output = analysis.report_process(parse_output)
-        energy_savings_epoch = process_output.loc[name+'_online']['energy']
-        runtime_savings_epoch = process_output.loc[name+'_online']['runtime']
+        analysis.report(process_output)
+        sticker_freq_idx = process_output.loc['epoch'].index[-2]
+        energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
+        runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]
 
         self.assertLess(0.0, energy_savings_epoch)
-        self.assertLess(runtime_savings_epoch, 5.0)
+        self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
 
     @skip_unless_slurm_batch()
     def test_controller_signal_handling(self):
