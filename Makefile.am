@@ -319,10 +319,14 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/PolicyFlags.hpp \
                             src/Profile.cpp \
                             src/Profile.hpp \
-                            src/ProfileIOSample.cpp \
-                            src/ProfileIOSample.hpp \
+                            src/ProfileIO.cpp \
+                            src/ProfileIO.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
+                            src/ProfileIORuntime.cpp \
+                            src/ProfileIORuntime.hpp \
+                            src/ProfileIOSample.cpp \
+                            src/ProfileIOSample.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
                             src/ProfileThread.cpp \
