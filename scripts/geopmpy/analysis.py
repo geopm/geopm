@@ -85,15 +85,37 @@ def fixed_freq_name(prefix, freq):
     return '{}_freq_{}'.format(prefix, freq)
 
 
+def profile_to_freq_mhz(df):
+    profile_name_map = {}
+    names_list = df.index.get_level_values('name').unique().tolist()
+    for name in names_list:
+        profile_name_map[name] = int(float(name.split('_freq_')[-1]) * 1e-6)
+    df = df.rename(profile_name_map)
+    df.index = df.index.set_names('freq_mhz', level='name')
+    return df
+
+
+def all_region_data_pretty(combined_df):
+    rs = 'All region data:\n'
+    for region, df in combined_df.groupby('region'):
+        df = df.sort_index(ascending=False)
+        rs += '-' * 120 + '\n'
+        rs += 'Region : {}\n'.format(region)
+        rs += '{}\n'.format(df)
+    rs += '-' * 120 + '\n'
+    return rs
+
+
 class Analysis(object):
     """
     Base class for different types of analysis that use the data from geopm
     reports and/or logs. Implementations should define how to launch experiments,
     parse and process the output, and process text reports or graphical plots.
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, iterations=1, verbose=True):
         self._name = name
         self._output_dir = output_dir
+        self._iterations = iterations
         self._verbose = verbose
         self._num_rank = num_rank
         self._num_node = num_node
@@ -168,9 +190,10 @@ class FreqSweepAnalysis(Analysis):
     frequency, finds the lowest frequency for each region at which the performance
     will not be degraded by more than a given margin.
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
-        super(FreqSweepAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, verbose)
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, iterations=1, verbose=True, allow_turbo=False):
+        super(FreqSweepAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, iterations, verbose)
         self._perf_margin = 0.1
+        self._allow_turbo = allow_turbo
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         ctl_conf = geopmpy.io.CtlConf(self._name + '_ctl.config',
@@ -184,44 +207,54 @@ class FreqSweepAnalysis(Analysis):
             del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
         if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
             del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
-        for freq in sys_freq_avail():
-            profile_name = fixed_freq_name(self._name, freq)
-            report_path = os.path.join(self._output_dir, profile_name + '.report')
-            trace_path = os.path.join(self._output_dir, profile_name + '-trace')
-            self._report_paths.append(report_path)
-            if self._app_argv and not os.path.exists(report_path):
-                os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(freq)
-                os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(freq)
-                argv = ['dummy', '--geopm-ctl', geopm_ctl,
-                                 '--geopm-policy', ctl_conf.get_path(),
-                                 '--geopm-report', report_path,
-                                 '--geopm-trace', trace_path,
-                                 '--geopm-profile', profile_name]
-                if do_geopm_barrier:
-                    argv.append('--geopm-barrier')
-                argv.append('--')
-                argv.extend(self._app_argv)
-                launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
-                launcher.run()
-            elif os.path.exists(report_path):
-                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-            else:
-                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+
+        freqs = sys_freq_avail()
+        for iteration in range(self._iterations):
+            for freq in freqs:
+                profile_name = fixed_freq_name(self._name, freq)
+                report_path = os.path.join(self._output_dir, profile_name + '_{}_.report'.format(iteration))
+                trace_path = os.path.join(self._output_dir, profile_name + '_{}_trace'.format(iteration))
+                self._report_paths.append(report_path)
+                if self._app_argv and not os.path.exists(report_path):
+                    os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(freq)
+                    os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(freq)
+                    argv = ['dummy', '--geopm-ctl', geopm_ctl,
+                                     '--geopm-policy', ctl_conf.get_path(),
+                                     '--geopm-report', report_path,
+                                     '--geopm-trace', trace_path,
+                                     '--geopm-profile', profile_name]
+                    if do_geopm_barrier:
+                        argv.append('--geopm-barrier')
+                    argv.append('--')
+                    argv.extend(self._app_argv)
+                    launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
+                    launcher.run()
+                elif os.path.exists(report_path):
+                    sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+                else:
+                    raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def find_files(self):
         super(FreqSweepAnalysis, self).find_files('_freq_*.report')
 
     def report_process(self, parse_output):
-        return self._region_freq_map(parse_output.get_report_df())
+        output = argparse.Namespace()
+        report_df = parse_output.get_report_df()
+        output.region_freq_map = self._region_freq_map(report_df)
+        output.means_df = self._region_means_df(report_df)
+        return output
+
+    def report(self, process_output):
+        if self._verbose:
+            sys.stdout.write(all_region_data_pretty(process_output.means_df))
+
+        region_freq_str = self._region_freq_str(process_output.region_freq_map)
+        sys.stdout.write('Region frequency map: \n    {}\n'.format(region_freq_str.replace(',', '\n    ')))
 
     def plot_process(self, parse_output):
         regions = parse_output.get_report_df().index.get_level_values('region').unique().tolist()
         return {region: self._runtime_energy_sweep(parse_output.get_report_df(), region)
                 for region in regions}
-
-    def report(self, process_output):
-        region_freq_str = self._region_freq_str(process_output)
-        sys.stdout.write('Region frequency map: {}\n'.format(region_freq_str))
 
     def plot(self, process_output):
         for region, df in process_output.iteritems():
@@ -239,9 +272,21 @@ class FreqSweepAnalysis(Analysis):
 
         is_once = True
         for freq, profile_name in freq_pname:
+
+            # Since we are still attempting to perform a run in the turbo range, we need to skip this run when
+            # determining the best per region frequencies below.  The profile_name that corresponds to the
+            # turbo run is always the first in the list.
+            if not self._allow_turbo and (freq, profile_name) == freq_pname[0]:
+                continue
+
             region_mean_runtime = report_df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :], ].groupby(level='region')
             for region, region_df in region_mean_runtime:
+
                 runtime = region_df['runtime'].mean()
+                # Only set a freq in the map if the runtime is meaningful
+                if runtime <= 1.0 or region.startswith('MPI'):
+                    continue
+
                 if is_once:
                     min_runtime[region] = runtime
                     optimal_freq[region] = freq
@@ -280,28 +325,83 @@ class FreqSweepAnalysis(Analysis):
                                 index=freqs,
                                 columns=['runtime', 'energy'])
 
+    def _region_means_df(self, report_df):
+        idx = pandas.IndexSlice
 
-def baseline_comparison(parse_output, baseline_name, comp_name):
-    """Used to compare a set of runs for a profile of interest to a baseline profile.
+        report_df = profile_to_freq_mhz(report_df)
 
+        cols = ['energy', 'runtime', 'mpi_runtime', 'frequency', 'count']
+
+        means_df = report_df.groupby(['region', 'freq_mhz'])[cols].mean()
+        # Define ref_freq to be three steps back from the end of the list.  The end of the list should always be
+        # the turbo frequency.
+        ref_freq = report_df.index.get_level_values('freq_mhz').unique().tolist()[-4]
+
+        # Calculate the energy/runtime comparisons against the ref_freq
+        es = pandas.Series((means_df['energy'] -
+                            means_df.loc[idx[:, ref_freq], ]['energy'].reset_index(level='freq_mhz', drop=True)) /
+                           (means_df.loc[idx[:, ref_freq], ]['energy'].reset_index(level='freq_mhz', drop=True))
+                           , name='DCEngVar_%')
+        means_df = pandas.concat([means_df, es], axis=1)
+
+        rs = pandas.Series((means_df['runtime'] -
+                            means_df.loc[idx[:, ref_freq], ]['runtime'].reset_index(level='freq_mhz', drop=True)) /
+                           (means_df.loc[idx[:, ref_freq], ]['runtime'].reset_index(level='freq_mhz', drop=True))
+                           , name='TimeVar_%')
+        means_df = pandas.concat([means_df, rs], axis=1)
+
+        bs = pandas.Series(means_df['runtime'] * (1.0 + self._perf_margin), name='runtime_bound')
+        means_df = pandas.concat([means_df, bs], axis=1)
+
+        # Calculate power and kwh
+        p = pandas.Series(means_df['energy'] / means_df['runtime'], name='power')
+        means_df = pandas.concat([means_df, p], axis=1)
+        kwh = pandas.Series((means_df['runtime'] / 3600) * (means_df['power'] / 1000), name='kwh')
+        means_df = pandas.concat([means_df, kwh], axis=1)
+
+        # Modify column order so that runtime bound occurs just after runtime
+        cols = means_df.columns.tolist()
+        tmp = cols.pop(7)
+        cols.insert(2, tmp)
+
+        return means_df[cols]
+
+
+def baseline_comparison(parse_output, comp_name):
+    """Used to compare a set of runs for a profile of interest to a baseline profile including verbose data.
     """
-    frame = parse_output.loc[pandas.IndexSlice[:, comp_name, :, :, :, :, :, :], ]
-    baseline_frame = parse_output.loc[pandas.IndexSlice[:, baseline_name, :, :, :, :, :, :], ]
+    comp_df = parse_output.loc[pandas.IndexSlice[:, comp_name, :, :, :, :, :, :], ]
+    baseline_df = parse_output.loc[parse_output.index.get_level_values('name') != comp_name]
+    baseline_df = profile_to_freq_mhz(baseline_df)
 
-    index = ['name']
-    baseline_frame.reset_index(index, drop=True, inplace=True)
-    frame.reset_index(index, drop=True, inplace=True)
+    # Reduce the data
+    cols = ['energy', 'runtime', 'mpi_runtime', 'frequency', 'count']
+    baseline_means_df = baseline_df.groupby(['region', 'freq_mhz'])[cols].mean()
+    comp_means_df = comp_df.groupby(['region', 'name'])[cols].mean()
 
-    runtime_savings = (baseline_frame['runtime'] - frame['runtime']) / baseline_frame['runtime']
-    # show runtime as positive percent; we only care about epoch region
-    runtime_savings = runtime_savings.loc[pandas.IndexSlice[:, :, :, :, :, :, 'epoch'], ].mean() * -100.0
-    energy_savings = (baseline_frame['energy'] - frame['energy']) / baseline_frame['energy']
-    energy_savings = energy_savings.loc[pandas.IndexSlice[:, :, :, :, :, :, 'epoch'], ].mean() * 100
+    # Add power column
+    p = pandas.Series(baseline_means_df['energy'] / baseline_means_df['runtime'], name='power')
+    baseline_means_df = pandas.concat([baseline_means_df, p], axis=1)
+    p = pandas.Series(comp_means_df['energy'] / comp_means_df['runtime'], name='power')
+    comp_means_df = pandas.concat([comp_means_df, p], axis=1)
 
-    # index contains the profile name which will have things that vary between runs
-    result_df = pandas.DataFrame([[energy_savings, runtime_savings]],
-                                 index=[comp_name], columns=['energy', 'runtime'])
-    return result_df
+    # Add kwh column
+    kwh = pandas.Series((baseline_means_df['runtime'] / 3600) * (baseline_means_df['power'] / 1000), name='kwh')
+    baseline_means_df = pandas.concat([baseline_means_df, kwh], axis=1)
+    kwh = pandas.Series((comp_means_df['runtime'] / 3600) * (comp_means_df['power'] / 1000), name='kwh')
+    comp_means_df = pandas.concat([comp_means_df, kwh], axis=1)
+
+    # Calculate energy savings
+    es = pandas.Series((baseline_means_df['energy'] - comp_means_df['energy'].reset_index('name', drop=True))\
+                       / baseline_means_df['energy'], name='energy_savings') * 100
+    baseline_means_df = pandas.concat([baseline_means_df, es], axis=1)
+
+    # Calculate runtime savings
+    rs = pandas.Series((baseline_means_df['runtime'] - comp_means_df['runtime'].reset_index('name', drop=True))\
+                       / baseline_means_df['runtime'], name='runtime_savings') * 100
+    baseline_means_df = pandas.concat([baseline_means_df, rs], axis=1)
+
+    return baseline_means_df
 
 
 class OfflineBaselineComparisonAnalysis(Analysis):
@@ -310,15 +410,22 @@ class OfflineBaselineComparisonAnalysis(Analysis):
     compared.  Uses baseline comparison function to do analysis.
 
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, iterations=1, verbose=True, allow_turbo=False):
         super(OfflineBaselineComparisonAnalysis, self).__init__(name,
                                                                 output_dir,
                                                                 num_rank,
                                                                 num_node,
                                                                 app_argv,
+                                                                iterations,
                                                                 verbose)
         self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, num_rank,
-                                                 num_node, app_argv, verbose)
+                                                 num_node, app_argv, iterations, verbose, allow_turbo)
+        self._allow_turbo = allow_turbo
+        try:
+            self._ref_freq = sys_freq_avail()[-1] if allow_turbo else sys_freq_avail()[-2]
+        except IOError:
+            sys.stderr.write('<geopmpy>: Warning: sys_freq_avail() failed.  Using fake reference frequency.\n')
+            self._ref_freq = 9999 # Only used for testing.
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         """
@@ -336,35 +443,42 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         self._sweep_analysis.launch(geopm_ctl, do_geopm_barrier)
         parse_output = self._sweep_analysis.parse()
         process_output = self._sweep_analysis.report_process(parse_output)
-        region_freq_str = self._sweep_analysis._region_freq_str(process_output)
+        if self._verbose:
+            self._sweep_analysis.report(process_output)
+        region_freq_str = self._sweep_analysis._region_freq_str(process_output.region_freq_map)
+
+        sys.stdout.write('Region frequency map: \n    {}\n'.format(region_freq_str.replace(',', '\n    ')))
 
         # Run offline frequency decider
-        os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP'] = region_freq_str
-        if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
-            del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
-        profile_name = self._name + '_offline'
-        report_path = os.path.join(self._output_dir, profile_name + '.report')
-        self._report_paths.append(report_path)
+        for iteration in range(self._iterations):
+            os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP'] = region_freq_str
+            if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
+                del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
+            profile_name = self._name + '_offline'
+            report_path = os.path.join(self._output_dir, profile_name + '_{}_.report'.format(iteration))
+            trace_path = os.path.join(self._output_dir, profile_name + '_{}_trace'.format(iteration))
+            self._report_paths.append(report_path)
 
-        self._min_freq = min(sys_freq_avail())
-        self._max_freq = max(sys_freq_avail())
-        if self._app_argv and not os.path.exists(report_path):
-            os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
-            os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
-            argv = ['dummy', '--geopm-ctl', geopm_ctl,
-                             '--geopm-policy', ctl_conf.get_path(),
-                             '--geopm-report', report_path,
-                             '--geopm-profile', profile_name]
-            if do_geopm_barrier:
-                argv.append('--geopm-barrier')
-            argv.append('--')
-            argv.extend(self._app_argv)
-            launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
-            launcher.run()
-        elif os.path.exists(report_path):
-            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-        else:
-            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+            self._min_freq = min(sys_freq_avail())
+            self._max_freq = max(sys_freq_avail())
+            if self._app_argv and not os.path.exists(report_path):
+                os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
+                os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
+                argv = ['dummy', '--geopm-ctl', geopm_ctl,
+                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-report', report_path,
+                                 '--geopm-trace', trace_path,
+                                 '--geopm-profile', profile_name]
+                if do_geopm_barrier:
+                    argv.append('--geopm-barrier')
+                argv.append('--')
+                argv.extend(self._app_argv)
+                launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
+                launcher.run()
+            elif os.path.exists(report_path):
+                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+            else:
+                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def parse(self):
         """Combines reports from the sweep with other reports to be
@@ -381,26 +495,24 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         return parse_output
 
     def report_process(self, parse_output):
-        freq_pname = get_freq_profiles(parse_output, self._name)
-
-        baseline_freq, baseline_name = freq_pname[0]
         comp_name = self._name + '_offline'
-        baseline_comp = baseline_comparison(parse_output, baseline_name, comp_name)
-        for freq, freq_name in freq_pname:
-            comp = baseline_comparison(parse_output, freq_name, comp_name)
-            comp.index = [freq_name]
-            baseline_comp = baseline_comp.append(comp)
-        baseline_comp.sort_index(ascending=True, inplace=True)
-        return baseline_comp
+        baseline_comp_df = baseline_comparison(parse_output, comp_name)
+        return baseline_comp_df
 
     def report(self, process_output):
         name = self._name + '_offline'
-        rs = 'Report for {}\n'.format(name)
-        rs += 'Energy Decrease: {0:.2f}%\n'.format(process_output.loc[name]['energy'])
-        rs += 'Runtime Increase: {0:.2f}%\n'.format(process_output.loc[name]['runtime'])
-        rs += 'All frequencies:\n'
-        rs += str(process_output)+'\n'
-        sys.stdout.write(rs)
+        ref_freq = int(self._ref_freq * 1e-6)
+
+        rs = 'Report for {}\n\n'.format(name)
+        rs += 'Energy Decrease: {0:.2f}%\n'.format(process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
+        rs += 'Runtime Decrease: {0:.2f}%\n\n'.format(process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
+        rs += 'Epoch data:\n'
+        rs += str(process_output.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
+        rs += '-' * 120 + '\n'
+        sys.stdout.write(rs + '\n')
+
+        if self._verbose:
+            sys.stdout.write(all_region_data_pretty(process_output))
 
     def plot_process(self, parse_output):
         pass
@@ -409,22 +521,29 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         pass
 
 
-# TODO: this only needs to run the sticker freq, not the whole sweep
+# TODO: this only needs to run the reference freq, not the whole sweep
 class OnlineBaselineComparisonAnalysis(Analysis):
     """Compares the energy efficiency plugin in offline mode to the
     baseline at sticker frequency.  Launches freq sweep and run to be
     compared.  Uses baseline comparison class to do analysis.
 
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, iterations=1, verbose=True, allow_turbo=False):
         super(OnlineBaselineComparisonAnalysis, self).__init__(name,
                                                                output_dir,
                                                                num_rank,
                                                                num_node,
                                                                app_argv,
+                                                               iterations,
                                                                verbose)
         self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, num_rank,
-                                                 num_node, app_argv, verbose)
+                                                 num_node, app_argv, iterations, verbose, allow_turbo)
+        self._allow_turbo = allow_turbo
+        try:
+            self._ref_freq = sys_freq_avail()[-1] if allow_turbo else sys_freq_avail()[-2]
+        except IOError:
+            sys.stderr.write('<geopmpy>: Warning: sys_freq_avail() failed.  Using fake reference frequency.\n')
+            self._ref_freq = 9999 # Only used for testing.
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         """
@@ -440,38 +559,38 @@ class OnlineBaselineComparisonAnalysis(Analysis):
 
         # Run frequency sweep
         self._sweep_analysis.launch(geopm_ctl, do_geopm_barrier)
-        parse_output = self._sweep_analysis.parse()
-        process_output = self._sweep_analysis.report_process(parse_output)
-        region_freq_str = self._sweep_analysis._region_freq_str(process_output)
 
         # Run online frequency decider
-        os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
-        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
-            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
+        for iteration in range(self._iterations):
+            os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
+            if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
+                del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
 
-        profile_name = self._name + '_online'
-        report_path = os.path.join(self._output_dir, profile_name + '.report')
-        self._report_paths.append(report_path)
+            profile_name = self._name + '_online'
+            report_path = os.path.join(self._output_dir, profile_name + '_{}_.report'.format(iteration))
+            trace_path = os.path.join(self._output_dir, profile_name + '_{}_trace'.format(iteration))
+            self._report_paths.append(report_path)
 
-        self._min_freq = min(sys_freq_avail())
-        self._max_freq = max(sys_freq_avail())
-        if self._app_argv and not os.path.exists(report_path):
-            os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
-            os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
-            argv = ['dummy', '--geopm-ctl', geopm_ctl,
-                             '--geopm-policy', ctl_conf.get_path(),
-                             '--geopm-report', report_path,
-                             '--geopm-profile', profile_name]
-            if do_geopm_barrier:
-                argv.append('--geopm-barrier')
-            argv.append('--')
-            argv.extend(self._app_argv)
-            launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
-            launcher.run()
-        elif os.path.exists(report_path):
-            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-        else:
-            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+            freqs = sys_freq_avail()
+            self._min_freq = min(freqs)
+            self._max_freq = max(freqs) if self._allow_turbo else freqs[-2]
+            if self._app_argv and not os.path.exists(report_path):
+                os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
+                os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
+                argv = ['dummy', '--geopm-ctl', geopm_ctl,
+                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-report', report_path,
+                                 '--geopm-profile', profile_name]
+                if do_geopm_barrier:
+                    argv.append('--geopm-barrier')
+                argv.append('--')
+                argv.extend(self._app_argv)
+                launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
+                launcher.run()
+            elif os.path.exists(report_path):
+                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+            else:
+                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def parse(self):
         """Combines reports from the sweep with other reports to be
@@ -488,26 +607,24 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         return parse_output
 
     def report_process(self, parse_output):
-        freq_pname = get_freq_profiles(parse_output, self._name)
-
-        baseline_freq, baseline_name = freq_pname[0]
         comp_name = self._name + '_online'
-        baseline_comp = baseline_comparison(parse_output, baseline_name, comp_name)
-        for freq, freq_name in freq_pname:
-            comp = baseline_comparison(parse_output, freq_name, comp_name)
-            comp.index = [freq_name]
-            baseline_comp = baseline_comp.append(comp)
-        baseline_comp.sort_index(ascending=True, inplace=True)
-        return baseline_comp
+        baseline_comp_df = baseline_comparison(parse_output, comp_name)
+        return baseline_comp_df
 
     def report(self, process_output):
         name = self._name + '_online'
-        rs = 'Report for {}\n'.format(name)
-        rs += 'Energy Decrease: {0:.2f}%\n'.format(process_output.loc[name]['energy'])
-        rs += 'Runtime Increase: {0:.2f}%\n'.format(process_output.loc[name]['runtime'])
-        rs += 'All frequencies:\n'
-        rs += str(process_output)+'\n'
-        sys.stdout.write(rs)
+        ref_freq = int(self._ref_freq * 1e-6)
+
+        rs = 'Report for {}\n\n'.format(name)
+        rs += 'Energy Decrease: {0:.2f}%\n'.format(process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
+        rs += 'Runtime Decrease: {0:.2f}%\n\n'.format(process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
+        rs += 'Epoch data:\n'
+        rs += str(process_output.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
+        rs += '-' * 120 + '\n'
+        sys.stdout.write(rs + '\n')
+
+        if self._verbose:
+            sys.stdout.write(all_region_data_pretty(process_output))
 
     def plot_process(self, parse_output):
         pass
@@ -523,9 +640,10 @@ class StreamDgemmMixAnalysis(Analysis):
        online mode are compared to the run a sticker frequency.
 
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True):
-        super(StreamDgemmMixAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, verbose)
+    def __init__(self, name, output_dir, num_rank, num_node, app_argv, iterations=1, verbose=True, allow_turbo=False):
+        super(StreamDgemmMixAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, iterations, verbose)
 
+        self._allow_turbo = allow_turbo
         self._sweep_analysis = {}
         self._offline_analysis = {}
         self._online_analysis = {}
@@ -568,21 +686,27 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                 self._num_rank,
                                                                 self._num_node,
                                                                 app_argv,
-                                                                self._verbose)
+                                                                self._iterations,
+                                                                self._verbose,
+                                                                self._allow_turbo)
             # Analysis class that includes a full sweep plus the plugin run with freq map
             self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(name,
                                                                                   self._output_dir,
                                                                                   self._num_rank,
                                                                                   self._num_node,
                                                                                   app_argv,
-                                                                                  self._verbose)
+                                                                                  self._iterations,
+                                                                                  self._verbose,
+                                                                                  self._allow_turbo)
             # Analysis class that runs the online plugin
             self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(name,
                                                                                 self._output_dir,
                                                                                 self._num_rank,
                                                                                 self._num_node,
                                                                                 app_argv,
-                                                                                self._verbose)
+                                                                                self._iterations,
+                                                                                self._verbose,
+                                                                                self._allow_turbo)
 
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
@@ -622,19 +746,31 @@ class StreamDgemmMixAnalysis(Analysis):
             baseline_freq, baseline_name = freq_pname[0]
             best_fit_freq = optimal_freq['epoch']
             best_fit_name = fixed_freq_name(name, best_fit_freq)
-            offline_app_df = baseline_comparison(df, baseline_name, best_fit_name)
-            offline_phase_df = self._offline_analysis[ratio_idx].report_process(df)
-            online_phase_df = self._online_analysis[ratio_idx].report_process(df)
-            offline_app_energy = float(offline_app_df['energy'])
-            offline_phase_energy = float(offline_phase_df.loc[name+'_offline']['energy'])
-            online_phase_energy = float(online_phase_df.loc[name+'_online']['energy'])
+
+            baseline_df = df.loc[pandas.IndexSlice[:, baseline_name, :, :, :, :, :, :], ]
+
+            best_fit_df = df.loc[pandas.IndexSlice[:, best_fit_name, :, :, :, :, :, :], ]
+            combo_df = baseline_df.append(best_fit_df)
+            comp_df = baseline_comparison(combo_df, best_fit_name)
+            offline_app_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
+            offline_app_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
+
+            offline_df = df.loc[pandas.IndexSlice[:, name + '_offline', :, :, :, :, :, :], ]
+            combo_df = baseline_df.append(offline_df)
+            comp_df = baseline_comparison(combo_df, name + '_offline')
+            offline_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
+            offline_phase_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
+
+            online_df = df.loc[pandas.IndexSlice[:, name + '_online', :, :, :, :, :, :], ]
+            combo_df = baseline_df.append(online_df)
+            comp_df = baseline_comparison(combo_df, name + '_online')
+            online_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
+            online_phase_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
+
             row = pandas.DataFrame([[offline_app_energy, offline_phase_energy, online_phase_energy]],
                                    columns=series_names, index=[ratio_idx])
             energy_result_df = energy_result_df.append(row)
 
-            offline_app_runtime = float(offline_app_df['runtime'])
-            offline_phase_runtime = float(offline_phase_df.loc[name+'_offline']['runtime'])
-            online_phase_runtime = float(online_phase_df.loc[name+'_online']['runtime'])
             row = pandas.DataFrame([[offline_app_runtime, offline_phase_runtime, online_phase_runtime]],
                                    columns=series_names, index=[ratio_idx])
             runtime_result_df = runtime_result_df.append(row)
@@ -691,6 +827,8 @@ geopmanalysis - Used to run applications and analyze results for specific
   -v, --verbose         Print verbose debugging information.
   --geopm-ctl           launch type for the GEOPM controller.  Available
                         GEOPM_CTL values: process, pthread, or application (default 'process')
+  --iterations          Number of experiments to run per analysis type
+  --allow-turbo         Allows turbo to be tested when determining best per-region frequencies
   --version             show the GEOPM version number and exit
 
 """.format(argv_0=sys.argv[0])
@@ -732,6 +870,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store_true', default=False)
     parser.add_argument('--geopm-ctl', dest='geopm_ctl',
                         action='store', default='process')
+    parser.add_argument('--iterations',
+                        action='store', default=1, type=int)
+    parser.add_argument('--allow-turbo', dest='allow_turbo',
+                        action='store_true', default=False)
     parser.add_argument('-v', '--verbose',
                         action='store_true', default=False)
 
@@ -744,7 +886,9 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                                                      args.num_rank,
                                                      args.num_node,
                                                      args.app_argv,
-                                                     args.verbose)
+                                                     args.iterations,
+                                                     args.verbose,
+                                                     args.allow_turbo)
 
     if args.skip_launch:
         analysis.find_files()
@@ -772,3 +916,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
         if args.level > 1:
             process_output = analysis.plot_process(parse_output)
             analysis.plot(process_output)
+
