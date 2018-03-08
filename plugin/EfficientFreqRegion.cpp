@@ -31,16 +31,20 @@
  */
 
 #include "EfficientFreqRegion.hpp"
-#include "Region.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
 namespace geopm
 {
 
-    EfficientFreqRegion::EfficientFreqRegion(geopm::IRegion *region,
+    EfficientFreqRegion::EfficientFreqRegion(IPlatformIO &platform_io,
                                              double freq_min, double freq_max,
-                                             double freq_step, int num_domain)
-        : m_region(region)
+                                             double freq_step, int num_domain,
+                                             std::vector<int> runtime_idx,
+                                             std::vector<int> pkg_energy_idx,
+                                             std::vector<int> dram_energy_idx)
+        : m_platform_io(platform_io)
         , M_NUM_FREQ(1 + (size_t)(ceil((freq_max-freq_min)/freq_step)))
         , m_curr_idx(M_NUM_FREQ - 1)
         , m_num_increase(M_NUM_FREQ, 0)
@@ -49,11 +53,10 @@ namespace geopm
         , m_energy_min(M_NUM_FREQ, 0)
         , m_num_sample(M_NUM_FREQ, 0)
         , m_num_domain(num_domain)
+        , m_runtime_idx(runtime_idx)
+        , m_pkg_energy_idx(pkg_energy_idx)
+        , m_dram_energy_idx(dram_energy_idx)
     {
-        if (nullptr == region) {
-            throw Exception("EfficientFreqRegion(): region cannot be NULL",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
         // set up allowed frequency range
         double freq = freq_min;
         for (auto &freq_it : m_allowed_freq) {
@@ -64,15 +67,28 @@ namespace geopm
 
     double EfficientFreqRegion::perf_metric()
     {
-        return -1.0 * m_region->signal(0, GEOPM_TELEMETRY_TYPE_RUNTIME);
+        double max_runtime = 0.0;
+        int count = 0;
+        for (auto sample_idx : m_runtime_idx) {
+            double sample = m_platform_io.sample(sample_idx);
+            if (!isnan(sample) && sample > max_runtime) {
+                max_runtime = sample;
+                ++count;
+            }
+        }
+        if (count == 0) {
+            max_runtime = NAN;
+        }
+        // Higher is better for performance, so negate
+        return -1.0 * max_runtime;
     }
 
     double EfficientFreqRegion::energy_metric()
     {
         double total_energy = 0.0;
         for (int domain_idx = 0; domain_idx != m_num_domain; ++domain_idx) {
-            total_energy += m_region->signal(domain_idx, GEOPM_TELEMETRY_TYPE_PKG_ENERGY);
-            total_energy += m_region->signal(domain_idx, GEOPM_TELEMETRY_TYPE_DRAM_ENERGY);
+            total_energy += m_platform_io.sample(m_pkg_energy_idx[domain_idx]);
+            total_energy += m_platform_io.sample(m_dram_energy_idx[domain_idx]);
         }
         return total_energy;
     }
@@ -118,6 +134,8 @@ namespace geopm
                 }
 
                 bool do_increase = false;
+                // assume best min energy is at highest freq if energy follows cpu-bound
+                // pattern; otherwise, energy should decrease with frequency.
                 if (m_curr_idx != M_NUM_FREQ - 1 &&
                     m_energy_min[m_curr_idx + 1] < (1.0 - M_ENERGY_MARGIN) * m_energy_min[m_curr_idx]) {
                     do_increase = true;
@@ -148,5 +166,4 @@ namespace geopm
             }
         }
     }
-
 }

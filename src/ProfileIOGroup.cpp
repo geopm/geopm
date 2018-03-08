@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileIOSample.hpp"

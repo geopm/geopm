@@ -49,14 +49,10 @@ namespace geopm
 
     std::vector<double> ProfileIORuntime::per_cpu_runtime(uint64_t region_id) const
     {
-        std::vector<double> result(m_cpu_rank.size(), 0.0);
-#ifdef GEOPM_DEBUG
+        std::vector<double> result(m_cpu_rank.size(), NAN);
         if (m_regulator.find(region_id) == m_regulator.end()) {
-            throw Exception("ProfileIORuntime::per_cpu_runtime: No regulator set "
-                            "for region " + std::to_string(region_id),
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            return result;
         }
-#endif
         auto rank_runtimes = m_regulator.at(region_id).runtimes();
         int cpu_idx = 0;
         for (auto rank : m_cpu_rank) {
@@ -65,7 +61,7 @@ namespace geopm
                 throw Exception("ProfileIORuntime::per_cpu_runtime: node-local rank "
                                 "for rank " + std::to_string(rank) + " not found in map.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
+            }
 #endif
             result[cpu_idx] = rank_runtimes[rank];
             ++cpu_idx;

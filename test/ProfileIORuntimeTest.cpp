@@ -68,8 +68,8 @@ TEST(ProfileIORuntimeTest, per_cpu_runtime)
     EXPECT_EQ(expected_runtime_2, runtime);
 
     // errors
-#ifdef GEOPM_DEBUG
-    GEOPM_EXPECT_THROW_MESSAGE(m_profile_runtime.per_cpu_runtime(808080),
-                               GEOPM_ERROR_LOGIC, "No regulator set for region");
-#endif
+    runtime = m_profile_runtime.per_cpu_runtime(808080);
+    for (auto rr : runtime) {
+        EXPECT_TRUE(isnan(rr));
+    }
 }

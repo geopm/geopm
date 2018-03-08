@@ -40,14 +40,17 @@
 namespace geopm
 {
 
-    class IRegion;
+    class IPlatformIO;
 
     /// @brief Holds the performance history of a Region.
     class EfficientFreqRegion
     {
         public:
-            EfficientFreqRegion(geopm::IRegion *region, double freq_min,
-                                double freq_max, double freq_step, int num_domain);
+            EfficientFreqRegion(IPlatformIO &platform_io, double freq_min,
+                                double freq_max, double freq_step, int num_domain,
+                                std::vector<int> runtime_idx,
+                                std::vector<int> pkg_energy_idx,
+                                std::vector<int> dram_energy_idx);
             virtual ~EfficientFreqRegion() = default;
             double freq(void) const;
             void update_entry(void);
@@ -57,7 +60,8 @@ namespace geopm
             // Higher is better.
             virtual double perf_metric();
             virtual double energy_metric();
-            geopm::IRegion *m_region;
+
+            IPlatformIO &m_platform_io;
             const size_t M_NUM_FREQ;
             size_t m_curr_idx;
             double m_target = 0.0;
@@ -75,6 +79,10 @@ namespace geopm
             std::vector<size_t> m_num_sample;
             double m_start_energy = 0.0;
             int m_num_domain;
+
+            std::vector<int> m_runtime_idx;
+            std::vector<int> m_pkg_energy_idx;
+            std::vector<int> m_dram_energy_idx;
     };
 
 } // namespace geopm

@@ -89,7 +89,13 @@ namespace geopm
             // for online adaptive mode
             bool m_is_adaptive = false;
             IRegion *m_region_last = nullptr;
+            uint64_t m_last_region_id = 0;
             std::map<uint64_t, std::unique_ptr<EfficientFreqRegion>> m_region_map;
+            int m_region_id_idx;
+
+            std::vector<int> m_runtime_idx;
+            std::vector<int> m_pkg_energy_idx;
+            std::vector<int> m_dram_energy_idx;
     };
 }
 
