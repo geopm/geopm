@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d41cad10_a49448a2",
+        "filename": "Makefile.am",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-08T06:46:58Z",
+      "side": 1,
+      "message": "@Chris, we\u0027ve gone back and forth on this a few times.  Confirm.",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 301,
+        "endChar": 42
+      },
+      "revId": "b3f7b6b80bafbc1bb2312803dca440be0a219bd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3328ed3d_9c5f27f9",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-08T06:46:58Z",
+      "side": 1,
+      "message": "Fixes #172",
+      "range": {
+        "startLine": 307,
+        "startChar": 16,
+        "endLine": 307,
+        "endChar": 88
+      },
+      "revId": "b3f7b6b80bafbc1bb2312803dca440be0a219bd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8009dcc9_d06ca32b",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-08T06:46:58Z",
+      "side": 1,
+      "message": "heads up, didn\u0027t notice and don\u0027t recall this change.  Fixes #172?",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 10
+      },
+      "revId": "b3f7b6b80bafbc1bb2312803dca440be0a219bd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa51da5a_53367694",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-08T06:46:58Z",
+      "side": 1,
+      "message": "heads up, didn\u0027t notice and don\u0027t recall this change.  Fixes #172?",
+      "range": {
+        "startLine": 276,
+        "startChar": 8,
+        "endLine": 276,
+        "endChar": 49
+      },
+      "revId": "b3f7b6b80bafbc1bb2312803dca440be0a219bd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e6f1a71_b11d878d",
+        "filename": "test/CommMPIImpTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-08T06:46:58Z",
+      "side": 1,
+      "message": "TODO",
+      "range": {
+        "startLine": 64,
+        "startChar": 31,
+        "endLine": 64,
+        "endChar": 35
+      },
+      "revId": "b3f7b6b80bafbc1bb2312803dca440be0a219bd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
