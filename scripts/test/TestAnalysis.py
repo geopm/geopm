@@ -199,7 +199,7 @@ class TestAnalysis(unittest.TestCase):
         self._max_freq = max(self._freqs)
         self._step_freq = 100e6
         self._mid_freq = self._max_freq - self._step_freq*2
-        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(self._name_prefix, '.', 2, 3, 'args')
+        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(self._name_prefix, '.', 2, 3, 'args', enable_turbo=True)
         self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
         self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
         self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(self._name_prefix, '.', 2, 3, 'args')
@@ -250,7 +250,7 @@ class TestAnalysis(unittest.TestCase):
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
 
-        result = float(energy_result.loc[prof_name]['energy'])
+        result = energy_result.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
         expected = float(expected_energy_df.loc[prof_name])
         self.assertEqual(expected, result)
 
@@ -281,7 +281,7 @@ class TestAnalysis(unittest.TestCase):
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
 
-        result = float(energy_result.loc[prof_name]['energy'])
+        result = energy_result.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
         expected = float(expected_energy_df.loc[prof_name])
         self.assertEqual(expected, result)
 
