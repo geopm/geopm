@@ -83,7 +83,7 @@ namespace geopm
         update_average();
     }
 
-    void RuntimeRegulator::update_average()
+    void RuntimeRegulator::update_average(void)
     {
         double sum = 0.0;
         int num_vals = 0;
@@ -107,7 +107,7 @@ namespace geopm
         }
     }
 
-    std::vector<double> RuntimeRegulator::runtimes()
+    std::vector<double> RuntimeRegulator::runtimes(void) const
     {
         std::vector<double> result(m_runtimes.size());
         for (size_t rr = 0; rr < m_runtimes.size(); ++rr) {
