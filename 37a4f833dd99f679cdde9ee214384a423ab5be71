@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df4eedc4_3c2e139c",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-09T18:53:41Z",
+      "side": 1,
+      "message": "delete extra \\n",
+      "revId": "37a4f833dd99f679cdde9ee214384a423ab5be71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb41fa83_eda01cb0",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-09T18:53:41Z",
+      "side": 1,
+      "message": "GROPU -\u003e GROUP",
+      "range": {
+        "startLine": 86,
+        "startChar": 16,
+        "endLine": 86,
+        "endChar": 38
+      },
+      "revId": "37a4f833dd99f679cdde9ee214384a423ab5be71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
