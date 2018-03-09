@@ -384,7 +384,7 @@ extern "C"
 
 #include "gtest/gtest.h"
 #define GEOPM_TEST
-#include "plugin/MPIComm.cpp"
+#include "src/MPIComm.cpp"
 
 namespace geopm
 {
