@@ -62,7 +62,7 @@ namespace geopm
     ///////////////////////////////
     // Helper for MPI exceptions //
     ///////////////////////////////
-    static void check_mpi(int err)
+    void check_mpi(int err)
     {
         if (err) {
             char error_str[MPI_MAX_ERROR_STRING];
@@ -81,13 +81,8 @@ namespace geopm
 
     std::unique_ptr<IComm> MPIComm::make_plugin(void)
     {
-        return std::unique_ptr<IComm>(new MPIComm);
-    }
-
-    const IComm &MPIComm::get_comm(void)
-    {
-        static MPIComm instance;
-        return instance;
+        static MPIComm comm_world_singleton;
+        return std::unique_ptr<MPIComm>(new MPIComm(&comm_world_singleton));
     }
 
     MPIComm::MPIComm()
@@ -97,13 +92,23 @@ namespace geopm
     {
     }
 
+    MPIComm::MPIComm(MPI_Comm in_comm)
+        : m_comm(MPI_COMM_NULL)
+        , m_maxdims(1)
+        , m_name(plugin_name())
+    {
+        if (in_comm != MPI_COMM_NULL) {
+            check_mpi(MPI_Comm_dup(in_comm, &m_comm));
+        }
+    }
+
     MPIComm::MPIComm(const MPIComm *in_comm)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
         , m_name(in_comm->m_name)
     {
         if (in_comm->is_valid()) {
-            check_mpi(PMPI_Comm_dup(in_comm->m_comm, &m_comm));
+            check_mpi(MPI_Comm_dup(in_comm->m_comm, &m_comm));
         }
     }
 
