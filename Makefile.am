@@ -365,6 +365,8 @@ if ENABLE_MPI
                           src/geopm_pmpi.h \
                           src/geopm_pmpi.c \
                           src/MPICommSplit.cpp \
+                          src/MPIComm.cpp \
+                          src/MPIComm.hpp \
                           src/OMPT.cpp \
                           src/OMPT.hpp \
                           src/Profile.cpp \
