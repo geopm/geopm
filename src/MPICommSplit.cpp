@@ -37,30 +37,24 @@
 #include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "Exception.hpp"
+#include "Comm.hpp"
+#include "MPIComm.hpp"
 
 #include "config.h"
 
-namespace geopm
-{
-    ///////////////////////////////
-    // Helper for MPI exceptions //
-    ///////////////////////////////
-    void check_mpi(int err)
-    {
-        if (err) {
-            char error_str[MPI_MAX_ERROR_STRING];
-            int name_max = MPI_MAX_ERROR_STRING;
-            MPI_Error_string(err, error_str, &name_max);
-            std::ostringstream ex_str;
-            ex_str << "MPI Error: " << error_str;
-            throw Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        return;
-    }
-}
-
 extern "C"
 {
+    static void __attribute__((constructor)) geopm_load(void)
+    {
+        try {
+            geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
+                                                  geopm::MPIComm::make_plugin);
+        }
+        catch(...) {
+            geopm::exception_handler(std::current_exception());
+        }
+    }
+
     static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
 
     int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm)
