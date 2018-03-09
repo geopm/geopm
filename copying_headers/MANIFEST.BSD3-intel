@@ -40,9 +40,6 @@ plugin/GoverningDecider.cpp
 plugin/GoverningDeciderRegister.cpp
 plugin/GoverningDecider.hpp
 plugin/Makefile.mk
-plugin/MPIComm.cpp
-plugin/MPIComm.hpp
-plugin/MPICommRegister.cpp
 scripts/geopmaprun
 scripts/geopmplotter
 scripts/geopmanalysis
@@ -89,6 +86,8 @@ src/geopm_hash.c
 src/geopm_hash.h
 src/geopm_message.c
 src/geopm_message.h
+src/MPIComm.cpp
+src/MPIComm.hpp
 src/MPICommSplit.cpp
 src/geopm_mpi_comm_split.h
 src/geopm_plugin.c
