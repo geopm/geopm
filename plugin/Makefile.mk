@@ -29,15 +29,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-if ENABLE_MPI
-pkglib_LTLIBRARIES += libgeopmpi_mpi.la
-libgeopmpi_mpi_la_SOURCES = src/MPICommSplit.cpp \
-                            plugin/MPIComm.hpp \
-                            plugin/MPIComm.cpp \
-                            plugin/MPICommRegister.cpp \
-                            # end
-endif
-
 pkglib_LTLIBRARIES += libgeopmpi_governing.la
 libgeopmpi_governing_la_SOURCES = plugin/GoverningDecider.cpp \
                                   plugin/GoverningDeciderRegister.cpp \
@@ -61,12 +52,6 @@ libgeopmpi_efficientfreq_la_SOURCES = plugin/EfficientFreqDecider.cpp \
                                       # end
 
 # -module required to force .so generation of plugin.
-if ENABLE_MPI
-libgeopmpi_mpi_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-libgeopmpi_mpi_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
-libgeopmpi_mpi_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -module
-libgeopmpi_mpi_la_LIBADD = libgeopm.la $(MPI_CLIBS)
-endif
 libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) -module
 libgeopmpi_governing_la_LIBADD = libgeopm.la
 libgeopmpi_balancing_la_LDFLAGS = $(AM_LDFLAGS) -module

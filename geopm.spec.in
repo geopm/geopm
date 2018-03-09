@@ -175,9 +175,6 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_libdir}/geopm/libgeopmpi_efficientfreq.so.0.0.0
 %{_libdir}/geopm/libgeopmpi_efficientfreq.so.0
 %{_libdir}/geopm/libgeopmpi_efficientfreq.so
-%{_libdir}/geopm/libgeopmpi_mpi.so.0.0.0
-%{_libdir}/geopm/libgeopmpi_mpi.so.0
-%{_libdir}/geopm/libgeopmpi_mpi.so
 %{_bindir}/geopmbench
 %{_bindir}/geopmctl
 %{_bindir}/geopmpolicy
