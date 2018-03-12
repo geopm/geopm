@@ -37,6 +37,7 @@
 #include <string>
 #include <stack>
 #include <map>
+#include <memory>
 #include <mpi.h>
 
 #include "geopm_time.h"

@@ -268,7 +268,6 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/CpuinfoIOGroup.cpp \
                             src/CpuinfoIOGroup.hpp \
                             src/geopm.h \
-                            src/geopm_ctl.h \
                             src/geopm_env.h \
                             src/geopm_error.h \
                             src/geopm_hash.c \
@@ -358,6 +357,7 @@ if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
     # compiled into libgeopm.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
+                          src/geopm_ctl.h \
                           src/Controller.cpp \
                           src/Controller.hpp \
                           src/DefaultProfile.cpp \

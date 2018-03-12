@@ -37,6 +37,8 @@
 #include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "Exception.hpp"
+#include "Controller.hpp"
+#include "GlobalPolicy.hpp"
 #include "Comm.hpp"
 #include "MPIComm.hpp"
 
@@ -53,6 +55,24 @@ extern "C"
         catch(...) {
             geopm::exception_handler(std::current_exception());
         }
+    }
+
+    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
+    {
+        int err = 0;
+        try {
+            geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+
+    int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
+    {
+        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
     }
 
     static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);
