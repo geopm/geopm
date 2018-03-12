@@ -94,7 +94,6 @@ extern "C"
         return (void *)err;
     }
 
-
     int geopmctl_main(const char *policy_config)
     {
         int err = 0;
@@ -117,24 +116,6 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
-    }
-
-    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
-    {
-        int err = 0;
-        try {
-            geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
-    {
-        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
     }
 
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
@@ -163,6 +144,7 @@ extern "C"
         }
         return err;
     }
+
     int geopm_ctl_step(struct geopm_ctl_c *ctl)
     {
         int err = 0;
@@ -175,6 +157,7 @@ extern "C"
         }
         return err;
     }
+
     int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                           const pthread_attr_t *attr,
                           pthread_t *thread)

@@ -47,6 +47,7 @@
 #include "geopm_message.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
+#include "geopm_mpi_comm_split.h"
 #include "config.h"
 
 static int g_is_geopm_pmpi_ctl_enabled = 0;

@@ -39,7 +39,6 @@
 #include <pthread.h>
 
 #include "geopm_policy.h"
-#include "geopm_mpi_comm_split.h"
 
 #ifdef __cplusplus
 extern "C" {
