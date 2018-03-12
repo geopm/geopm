@@ -84,59 +84,6 @@
 
 extern "C"
 {
-    static void *geopm_threaded_run(void *args)
-    {
-        long err = 0;
-        struct geopm_ctl_c *ctl = (struct geopm_ctl_c *)args;
-
-        err = geopm_ctl_run(ctl);
-
-        return (void *)err;
-    }
-
-
-    int geopmctl_main(const char *policy_config)
-    {
-        int err = 0;
-        try {
-            if (policy_config) {
-                std::string policy_config_str(policy_config);
-                geopm::IGlobalPolicy *policy = new geopm::GlobalPolicy(policy_config_str, "");
-                geopm::Controller ctl(policy, MPI_COMM_WORLD);
-                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
-                delete policy;
-            }
-            //The null case is for all nodes except rank 0.
-            //These controllers should assume their policy from the master.
-            else {
-                geopm::Controller ctl(NULL, MPI_COMM_WORLD);
-                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
-    {
-        int err = 0;
-        try {
-            geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, comm));
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-        }
-        return err;
-    }
-
-    int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
-    {
-        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
-    }
-
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
     {
         int err = 0;
@@ -163,6 +110,7 @@ extern "C"
         }
         return err;
     }
+
     int geopm_ctl_step(struct geopm_ctl_c *ctl)
     {
         int err = 0;
@@ -175,6 +123,7 @@ extern "C"
         }
         return err;
     }
+
     int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                           const pthread_attr_t *attr,
                           pthread_t *thread)
@@ -188,6 +137,42 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return err;
+    }
+
+    int geopmctl_main(const char *policy_config)
+    {
+        int err = 0;
+        try {
+            if (policy_config) {
+                std::string policy_config_str(policy_config);
+                geopm::IGlobalPolicy *policy = new geopm::GlobalPolicy(policy_config_str, "");
+                auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+                geopm::Controller ctl(policy, std::move(tmp_comm));
+                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+                delete policy;
+            }
+            //The null case is for all nodes except rank 0.
+            //These controllers should assume their policy from the master.
+            else {
+                auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+                geopm::Controller ctl(NULL, std::move(tmp_comm));
+                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+
+    static void *geopm_threaded_run(void *args)
+    {
+        long err = 0;
+        struct geopm_ctl_c *ctl = (struct geopm_ctl_c *)args;
+
+        err = geopm_ctl_run(ctl);
+
+        return (void *)err;
     }
 }
 
