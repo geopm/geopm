@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abdacff0_12adf16c",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T21:43:56Z",
+      "side": 1,
+      "message": "initialize to size and use index instead of push_back().",
+      "revId": "a6a27c18360ddcbb215559e6ca8beb9b84a14183",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f1e032f_da41d4a6",
+        "filename": "src/RuntimeRegulator.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T21:43:56Z",
+      "side": 1,
+      "message": "Add IRuntimeRegulator interface and make it pure virtual. Then mock can use interface.",
+      "revId": "a6a27c18360ddcbb215559e6ca8beb9b84a14183",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
