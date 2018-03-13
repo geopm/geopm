@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5c22812_1f77534d",
+        "filename": "src/ProfileIORuntime.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T22:50:11Z",
+      "side": 1,
+      "message": "could be a helper function. Put in ProfileIO.[ch]pp",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "04e9223983e59a02ca74c3e530fa78128f86ba06",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4db2b86c_6a5ff5c3",
+        "filename": "src/ProfileIORuntime.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T22:50:11Z",
+      "side": 1,
+      "message": "use std::make_pair",
+      "revId": "04e9223983e59a02ca74c3e530fa78128f86ba06",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "638a5a1c_df369069",
+        "filename": "src/ProfileIORuntime.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T22:50:11Z",
+      "side": 1,
+      "message": "no space",
+      "revId": "04e9223983e59a02ca74c3e530fa78128f86ba06",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "873f228b_b4226cfb",
+        "filename": "src/ProfileIORuntime.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T22:50:11Z",
+      "side": 1,
+      "message": "add docstrings",
+      "revId": "04e9223983e59a02ca74c3e530fa78128f86ba06",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "706806e9_d269d1ef",
+        "filename": "src/ProfileIORuntime.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T22:50:11Z",
+      "side": 1,
+      "message": "no space",
+      "revId": "04e9223983e59a02ca74c3e530fa78128f86ba06",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77a3c897_b5ae252c",
+        "filename": "test/MockRuntimeRegulator.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-13T22:50:11Z",
+      "side": 1,
+      "message": "IRuntimeRegulator",
+      "range": {
+        "startLine": 41,
+        "startChar": 36,
+        "endLine": 41,
+        "endChar": 59
+      },
+      "revId": "04e9223983e59a02ca74c3e530fa78128f86ba06",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
