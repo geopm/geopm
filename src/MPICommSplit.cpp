@@ -33,6 +33,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "geopm_env.h"
 #include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
@@ -46,7 +47,7 @@
 
 extern "C"
 {
-    static void __attribute__((constructor)) geopm_load(void)
+    static void geopm_load(void)
     {
         try {
             geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
@@ -199,5 +200,11 @@ extern "C"
             MPI_Comm_free(split_comm_ptr);
         }
         return err;
+    }
+
+    static pthread_once_t g_geopm_load_once = PTHREAD_ONCE_INIT;
+    static void __attribute__((constructor)) geopm_load_once(void)
+    {
+        pthread_once(&g_geopm_load_once, geopm_load);
     }
 }
