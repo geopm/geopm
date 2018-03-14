@@ -42,12 +42,13 @@
 #define u_short unsigned short
 #endif
 #include <fts.h>
+#include <pthread.h>
 
 #include "geopm_plugin.h"
 #include "geopm_env.h"
 #include "config.h"
 
-static void __attribute__((constructor)) geopmpolicy_load(void)
+static void geopmpolicy_load(void)
 {
     int err = 0;
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
@@ -106,4 +107,10 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
         }
         free(paths);
     }
+}
+
+static pthread_once_t g_geopmpolicy_load_once = PTHREAD_ONCE_INIT;
+static void __attribute__((constructor)) geopmpolicy_load_once(void)
+{
+    pthread_once(&g_geopmpolicy_load_once, geopmpolicy_load);
 }
