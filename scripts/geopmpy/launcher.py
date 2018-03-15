@@ -995,10 +995,7 @@ class SrunLauncher(Launcher):
         sinfo command.
 
         """
-        result = []
-        if 'SLURM_NODELIST' in os.environ:
-            result = os.getenv('SLURM_NODELIST', '').strip().split()
-        return result
+        return list(set(subprocess.check_output('scontrol show hostname', shell=True).splitlines()))
 
 
 class SrunTOSSLauncher(SrunLauncher):
