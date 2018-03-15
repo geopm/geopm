@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3ebd015_74f2b1bc",
+        "filename": ".gdbinit.geopm.local",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-15T23:56:49Z",
+      "side": 1,
+      "message": "TODO comment these out before merge.  Left uncommented now such that reviewers can just pull and run.  Will be commented for demonstration purposes.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 3
+      },
+      "revId": "2a62c9e02321132ffb4a9d1131c5f2cb153ccedf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb543e82_9b4068b1",
+        "filename": ".gdbinit.geopm.local",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-15T23:56:49Z",
+      "side": 1,
+      "message": "TODO comment this out before merge.  Left uncommented now such that reviewers can just pull and run.  Will be commented for demonstration purposes.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 44
+      },
+      "revId": "2a62c9e02321132ffb4a9d1131c5f2cb153ccedf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
