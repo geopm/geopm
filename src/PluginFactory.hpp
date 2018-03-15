@@ -38,6 +38,7 @@
 #include <string>
 #include <functional>
 #include <forward_list>
+#include <unistd.h>
 
 #include "Exception.hpp"
 

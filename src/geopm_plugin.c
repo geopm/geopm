@@ -48,8 +48,11 @@
 #include "geopm_env.h"
 #include "config.h"
 
+static int g_loaded = 0;
 static void geopmpolicy_load(void)
 {
+    if (g_loaded) return;
+
     int err = 0;
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
     FTS *p_fts;
@@ -107,6 +110,7 @@ static void geopmpolicy_load(void)
         }
         free(paths);
     }
+    g_loaded = 1;
 }
 
 static pthread_once_t g_geopmpolicy_load_once = PTHREAD_ONCE_INIT;

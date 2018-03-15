@@ -47,11 +47,15 @@
 
 extern "C"
 {
+    static int g_loaded = 0;
     static void geopm_load(void)
     {
+        if (g_loaded) return;
+
         try {
             geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
                                                   geopm::MPIComm::make_plugin);
+            g_loaded = 1;
         }
         catch(...) {
             geopm::exception_handler(std::current_exception());
