@@ -47,6 +47,28 @@
 #include "geopm_env.h"
 #include "config.h"
 
+static int geopm_name_begins_with(char *str, char *key)
+{
+    char *last_slash = strrchr(str, '/');
+    if (last_slash) {
+        str = last_slash + 1;
+    }
+    int result = (strncmp(str, key, strlen(key)) == 0);
+    return result;
+}
+
+static int geopm_name_ends_with(char *str, char *key)
+{
+    int result = 0;
+    size_t str_len = strlen(str);
+    size_t key_len = strlen(key);
+    if (key_len <= str_len) {
+        str += str_len - key_len;
+        result = (strncmp(str, key, strlen(key)) == 0);
+    }
+    return result;
+}
+
 static void __attribute__((constructor)) geopmpolicy_load(void)
 {
     int err = 0;
@@ -57,6 +79,12 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
     char **paths = NULL;
     char *default_path = GEOPM_PLUGIN_PATH;
     char path_env[NAME_MAX] = {0};
+    char so_suffix[NAME_MAX] = ".so." GEOPM_ABI_VERSION;
+    char *colon_ptr = strchr(so_suffix, ':');
+    while (colon_ptr) {
+        *colon_ptr = '.';
+        colon_ptr = strchr(colon_ptr, ':');
+    }
 
     if (strlen(geopm_env_plugin_path())) {
         ++num_path;
@@ -91,9 +119,9 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
                 // end with ".so" or ".dylib".  Also check that the
                 // library has not already been loaded.
                 if (file->fts_info == FTS_F &&
-                    (strstr(file->fts_name, ".so") ||
-                     strstr(file->fts_name, ".dylib")) &&
-                    strstr(file->fts_name, "libgeopmpi_") &&
+                    (geopm_name_ends_with(file->fts_name, so_suffix) ||
+                     geopm_name_ends_with(file->fts_name, ".dylib")) &&
+                    geopm_name_begins_with(file->fts_name, "libgeopmpi_") &&
                     dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
                     if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
