@@ -994,7 +994,8 @@ class TestIntegration(unittest.TestCase):
 
         alloc_nodes = launcher.get_alloc_nodes()
 
-        kill_proc_list = [subprocess.Popen("ssh {} 'sleep 15; pkill --signal 15 geopmctl; sleep 5; pkill -9 geopmbench'".format(nn),
+        kill_proc_list = [subprocess.Popen("ssh -vvv -o StrictHostKeyChecking=no -o BatchMode=yes {} ".format(nn) +
+                                           "'sleep 15; pkill --signal 15 geopmctl; sleep 5; pkill -9 geopmbench'",
                                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                           for nn in alloc_nodes]
 
@@ -1004,7 +1005,13 @@ class TestIntegration(unittest.TestCase):
             pass
 
         for kp in kill_proc_list:
-            kp.communicate()
+            stdout, stderr = kp.communicate()
+            err = kp.returncode
+            if err != 0:
+                launcher.write_log(name, "Output from SSH:")
+                launcher.write_log(name, str(stdout))
+                launcher.write_log(name, str(stderr))
+                self.skipTest(name + ' requires passwordless SSH between allocated nodes.')
 
         message = "Error: <geopm> Runtime error: Signal 15"
 
