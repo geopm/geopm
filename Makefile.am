@@ -286,6 +286,7 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/geopm_version.c \
                             src/geopm_version.h \
                             src/geopm_policy.h \
+                            src/Helper.hpp \
                             src/KNLPlatformImp.cpp \
                             src/KNLPlatformImp.hpp \
                             src/MSR.cpp \
