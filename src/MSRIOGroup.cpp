@@ -44,6 +44,7 @@
 #include "MSRIOGroup.hpp"
 #include "MSRIO.hpp"
 #include "PlatformTopo.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 #define GEOPM_MSR_IO_GROUP_PLUGIN_NAME "MSR"
@@ -568,7 +569,7 @@ namespace geopm
 
     std::unique_ptr<IOGroup> MSRIOGroup::make_plugin(void)
     {
-        return std::unique_ptr<IOGroup>(new MSRIOGroup);
+        return geopm::make_unique<MSRIOGroup>();
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)
