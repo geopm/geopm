@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d599c26b_2da2d3bd",
+        "filename": ".gdbinit.geopm",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:06:35Z",
+      "side": 1,
+      "message": "Instead of putting these here, could they be in debug.sh with gdb --args?",
+      "range": {
+        "startLine": 11,
+        "startChar": 6,
+        "endLine": 11,
+        "endChar": 78
+      },
+      "revId": "70175575c7f340e16c27aa122284dfe7ecba36e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
