@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab7de991_2c578ec6",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "iterations?",
+      "range": {
+        "startLine": 104,
+        "startChar": 71,
+        "endLine": 104,
+        "endChar": 76
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35f11575_6959754b",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "Doesn\u0027t this need to modify the freqs returned from sys_freq_avail() before doing the launch? Or it could also need to affect the behavior of get_freq_profiles(). allow_turbo_oneshot below is a little confusing.",
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcbf68e3_8f71fbb4",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "self._loops",
+      "range": {
+        "startLine": 201,
+        "startChar": 26,
+        "endLine": 201,
+        "endChar": 40
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51a34b20_ee4f82ef",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "I think operators go at the end of a broken long line",
+      "range": {
+        "startLine": 337,
+        "startChar": 28,
+        "endLine": 337,
+        "endChar": 30
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea74baf4_5e7703df",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "need this?",
+      "range": {
+        "startLine": 354,
+        "startChar": 8,
+        "endLine": 355,
+        "endChar": 59
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f41bc180_250fae04",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "thanks for adding this.",
+      "range": {
+        "startLine": 377,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 63
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62edbbdc_f08c60fd",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "self._loops",
+      "range": {
+        "startLine": 448,
+        "startChar": 26,
+        "endLine": 448,
+        "endChar": 40
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5248d90b_b4ab9eb8",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "This is repeated above; could be a function.",
+      "range": {
+        "startLine": 629,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 34
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef8fec9f_13ac2f6d",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-16T00:34:13Z",
+      "side": 1,
+      "message": "Need to be added to manpage",
+      "range": {
+        "startLine": 839,
+        "startChar": 0,
+        "endLine": 840,
+        "endChar": 94
+      },
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
