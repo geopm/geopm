@@ -22,6 +22,63 @@
       "revId": "70175575c7f340e16c27aa122284dfe7ecba36e1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5f17474_833ac44c",
+        "filename": "debug.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-16T00:31:57Z",
+      "side": 1,
+      "message": "this will run all tests.  Think we want a similar interface to unit_test.sh.",
+      "revId": "70175575c7f340e16c27aa122284dfe7ecba36e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7fac8597_a368a04d",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-16T00:31:57Z",
+      "side": 1,
+      "message": "GEOPM_DEBUG_CMD?\n\nAlso should be documented in test_integration/README",
+      "range": {
+        "startLine": 106,
+        "startChar": 42,
+        "endLine": 106,
+        "endChar": 52
+      },
+      "revId": "70175575c7f340e16c27aa122284dfe7ecba36e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41cd0106_e7a08a3a",
+        "filename": "unit_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-03-16T00:31:57Z",
+      "side": 1,
+      "message": "Add help message if user did supply positional argument.",
+      "revId": "70175575c7f340e16c27aa122284dfe7ecba36e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
