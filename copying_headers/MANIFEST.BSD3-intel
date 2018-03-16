@@ -84,11 +84,9 @@ src/geopm.f90
 src/geopm.h
 src/geopm_hash.c
 src/geopm_hash.h
+src/geopm_helper.h
 src/geopm_message.c
 src/geopm_message.h
-src/MPIComm.cpp
-src/MPIComm.hpp
-src/MPICommSplit.cpp
 src/geopm_mpi_comm_split.h
 src/geopm_plugin.c
 src/geopm_plugin.h
@@ -109,6 +107,9 @@ src/IOGroup.cpp
 src/IOGroup.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
+src/MPIComm.cpp
+src/MPIComm.hpp
+src/MPICommSplit.cpp
 src/msr_hsx.cpp
 src/msr_knl.cpp
 src/msr_snb.cpp
