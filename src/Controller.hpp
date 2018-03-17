@@ -177,6 +177,7 @@ namespace geopm
             void signal_handler(void);
             void check_signal(void);
             void connect(void);
+            void init_decider(void);
             void walk_down(void);
             void walk_up(void);
             void override_telemetry(double progress);

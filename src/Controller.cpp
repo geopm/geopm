@@ -308,13 +308,8 @@ namespace geopm
             m_platform = m_platform_factory->platform(plugin_desc.platform, true);
             m_msr_sample.resize(m_platform->capacity());
 
-            double upper_bound;
-            double lower_bound;
-            m_platform->bound(upper_bound, lower_bound);
-            m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
-            m_decider[0] = decider_factory().make_plugin(plugin_desc.leaf_decider);
-            m_decider[0]->bound(upper_bound, lower_bound);
+            m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
             int num_domain = m_platform->num_control_domain();
             m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
@@ -336,10 +331,6 @@ namespace geopm
                                                    num_domain,
                                                    level,
                                                    NULL)));
-                m_decider[level] = decider_factory().make_plugin(plugin_desc.tree_decider);
-                m_decider[level]->bound(upper_bound, lower_bound);
-                upper_bound *= num_domain;
-                lower_bound *= num_domain;
                 num_domain = m_tree_comm->level_size(level);
                 if (num_domain > m_max_fanout) {
                     m_max_fanout = num_domain;
@@ -427,6 +418,27 @@ namespace geopm
         }
     }
 
+    void Controller::init_decider(void)
+    {
+        double upper_bound;
+        double lower_bound;
+        m_platform->bound(upper_bound, lower_bound);
+        int num_domain = m_platform->num_control_domain();
+        int num_level = m_tree_comm->num_level();
+
+        m_decider[0] = decider_factory().make_plugin(plugin_desc.leaf_decider);
+        m_decider[0]->bound(upper_bound, lower_bound);
+
+        for (int level = 1; level < num_level; ++level) {
+            m_decider[level] = decider_factory().make_plugin(plugin_desc.tree_decider);
+            m_decider[level]->bound(upper_bound, lower_bound);
+            upper_bound *= num_domain;
+            lower_bound *= num_domain;
+            num_domain = m_tree_comm->level_size(level);
+
+        }
+    }
+
     void Controller::run(void)
     {
         if (!m_is_node_root) {
@@ -436,6 +448,7 @@ namespace geopm
         geopm_signal_handler_register();
 
         connect();
+        init_decider();
 
         geopm_signal_handler_check();
 
