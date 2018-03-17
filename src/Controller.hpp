@@ -41,6 +41,7 @@
 
 #include "geopm_time.h"
 #include "geopm_message.h"
+#include "geopm_plugin.h"
 
 namespace geopm
 {
@@ -177,6 +178,7 @@ namespace geopm
             void signal_handler(void);
             void check_signal(void);
             void connect(void);
+            void init_decider(void);
             void walk_down(void);
             void walk_up(void);
             void override_telemetry(double progress);
@@ -229,6 +231,7 @@ namespace geopm
             std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
             std::shared_ptr<IProfileIOSample> m_profile_io_sample;
             std::shared_ptr<IProfileIORuntime> m_profile_io_runtime;
+            struct geopm_plugin_description_s m_plugin_desc;
     };
 }
 

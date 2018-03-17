@@ -267,6 +267,8 @@ namespace geopm
                 }
             }
             m_ppn1_comm->broadcast(&plugin_desc, sizeof(plugin_desc), 0);
+            // to be used by init_decider()
+            m_plugin_desc = plugin_desc;
 
             if (num_nodes > 1) {
                 int num_fan_out = 1;
@@ -308,13 +310,8 @@ namespace geopm
             m_platform = m_platform_factory->platform(plugin_desc.platform, true);
             m_msr_sample.resize(m_platform->capacity());
 
-            double upper_bound;
-            double lower_bound;
-            m_platform->bound(upper_bound, lower_bound);
-            m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
-            m_decider[0] = decider_factory().make_plugin(plugin_desc.leaf_decider);
-            m_decider[0]->bound(upper_bound, lower_bound);
+            m_throttle_limit_mhz = m_platform->throttle_limit_mhz();
 
             int num_domain = m_platform->num_control_domain();
             m_telemetry_sample.resize(num_domain, {0, {{0, 0}}, {0}});
@@ -336,17 +333,12 @@ namespace geopm
                                                    num_domain,
                                                    level,
                                                    NULL)));
-                m_decider[level] = decider_factory().make_plugin(plugin_desc.tree_decider);
-                m_decider[level]->bound(upper_bound, lower_bound);
-                upper_bound *= num_domain;
-                lower_bound *= num_domain;
                 num_domain = m_tree_comm->level_size(level);
                 if (num_domain > m_max_fanout) {
                     m_max_fanout = num_domain;
                 }
             }
 
-            platform_io().read_batch();
             m_platform->sample(m_msr_sample);
             m_app_start_time = m_msr_sample[0].timestamp;
             for (auto it = m_msr_sample.begin(); it != m_msr_sample.end(); ++it) {
@@ -427,6 +419,27 @@ namespace geopm
         }
     }
 
+    void Controller::init_decider(void)
+    {
+        double upper_bound;
+        double lower_bound;
+        m_platform->bound(upper_bound, lower_bound);
+        int num_domain = m_platform->num_control_domain();
+        int num_level = m_tree_comm->num_level();
+
+        m_decider[0] = decider_factory().make_plugin(m_plugin_desc.leaf_decider);
+        m_decider[0]->bound(upper_bound, lower_bound);
+
+        for (int level = 1; level < num_level; ++level) {
+            m_decider[level] = decider_factory().make_plugin(m_plugin_desc.tree_decider);
+            m_decider[level]->bound(upper_bound, lower_bound);
+            upper_bound *= num_domain;
+            lower_bound *= num_domain;
+            num_domain = m_tree_comm->level_size(level);
+
+        }
+    }
+
     void Controller::run(void)
     {
         if (!m_is_node_root) {
@@ -436,6 +449,8 @@ namespace geopm
         geopm_signal_handler_register();
 
         connect();
+        init_decider();
+        platform_io().read_batch();
 
         geopm_signal_handler_check();
 
