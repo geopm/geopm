@@ -40,6 +40,7 @@
 #include <forward_list>
 
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {
@@ -55,9 +56,11 @@ namespace geopm
             {
                 auto result = m_name_func_map.emplace(plugin_name, make_plugin);
                 if (!result.second) {
+#ifdef GEOPM_DEBUG
                     throw Exception("PluginFactory::register_plugin(): name: \"" +
                                     plugin_name + "\" has been previously registered",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+#endif
                 }
             }
             std::unique_ptr<T> make_plugin(const std::string &plugin_name)
