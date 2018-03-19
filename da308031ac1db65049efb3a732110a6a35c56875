@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3122578f_2ab707ce",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1198,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T17:53:19Z",
+      "side": 1,
+      "message": "Please add to documentation",
+      "range": {
+        "startLine": 1198,
+        "startChar": 71,
+        "endLine": 1198,
+        "endChar": 77
+      },
+      "revId": "da308031ac1db65049efb3a732110a6a35c56875",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
