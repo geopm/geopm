@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad25830a_571938f3",
+        "filename": ".gdbinit.geopm.local",
+        "patchSetId": 12
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T17:40:58Z",
+      "side": 1,
+      "message": "can be removed?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 6
+      },
+      "revId": "5675f0eaa6e92e4ae25fddade2e478deb55b3405",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e342364_69dae34c",
+        "filename": ".gdbinit.geopm.local",
+        "patchSetId": 12
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T17:40:58Z",
+      "side": 1,
+      "message": "etc",
+      "range": {
+        "startLine": 39,
+        "startChar": 15,
+        "endLine": 39,
+        "endChar": 18
+      },
+      "revId": "5675f0eaa6e92e4ae25fddade2e478deb55b3405",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
