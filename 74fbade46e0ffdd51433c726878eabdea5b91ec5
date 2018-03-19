@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0a60713_4a8b4ed8",
+        "filename": "Makefile.am",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T18:20:24Z",
+      "side": 1,
+      "message": "should be Helper.hpp",
+      "revId": "74fbade46e0ffdd51433c726878eabdea5b91ec5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae0158e8_e94d21d9",
+        "filename": "src/geopm_helper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T18:20:24Z",
+      "side": 1,
+      "message": "class Type",
+      "range": {
+        "startLine": 41,
+        "startChar": 14,
+        "endLine": 41,
+        "endChar": 24
+      },
+      "revId": "74fbade46e0ffdd51433c726878eabdea5b91ec5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2594d388_88683114",
+        "filename": "src/geopm_helper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T18:20:24Z",
+      "side": 1,
+      "message": "std::forward\u003cArgs\u003e",
+      "revId": "74fbade46e0ffdd51433c726878eabdea5b91ec5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
