@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b90f5ba_7f2d1865",
+        "filename": "src/PluginFactory.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-19T17:30:53Z",
+      "side": 1,
+      "message": "Should be around the if statement too.",
+      "revId": "a8c55b14db740aed56b240d023cd327e3fb2ef14",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
