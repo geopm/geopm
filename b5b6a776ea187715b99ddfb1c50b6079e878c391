@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "3ba30a0b_92edc444",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-20T20:32:51Z",
+      "side": 1,
+      "message": "The way that sys_freq_avail() works now is that it will create an entry for turbo (i.e. one step over sticker) even if turbo is not available on the platform.  I\u0027d rather have it this way where we assume turbo is available and try to run with that frequency.\n\nIf it was disabled for some reason, we\u0027ll be pinned to sticker and we\u0027ll see that in the report data.  If it is enabled, we\u0027ll do a run at turbo.  In either case we\u0027ll create a profile name with the turbo frequency so the data returned from get_freq_profiles() is still accurate even if we didn\u0027t achieve turbo frequencies during the run.\n\nTl;dr; I\u0027d like to leave this as is so we have data from a run at turbo if it was enabled.  That way we can at least evaluate run characteristics at turbo even if we\u0027re not allowing it to be chosen for a best per-region frequency.",
+      "parentUuid": "35f11575_6959754b",
+      "revId": "b5b6a776ea187715b99ddfb1c50b6079e878c391",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcbf68e3_8f71fbb4",
         "filename": "scripts/geopmpy/analysis.py",
         "patchSetId": 2
