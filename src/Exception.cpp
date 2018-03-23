@@ -263,11 +263,6 @@ namespace geopm
 
     }
 
-    Exception::~Exception()
-    {
-
-    }
-
     int Exception::err_value(void) const
     {
         return m_err;

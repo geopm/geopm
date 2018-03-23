@@ -70,11 +70,6 @@ namespace geopm
 
     }
 
-    ProfileThreadTable::~ProfileThreadTable()
-    {
-
-    }
-
     int ProfileThreadTable::num_cpu(void)
     {
         return m_num_cpu;

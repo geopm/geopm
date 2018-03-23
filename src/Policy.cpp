@@ -49,7 +49,7 @@ namespace geopm
     {
         public:
             RegionPolicy(int num_domain);
-            virtual ~RegionPolicy();
+            virtual ~RegionPolicy() = default;
             void update(int domain_idx, double target);
             void update(const std::vector<double> &target);
             void target(std::vector<double> &target);
@@ -224,11 +224,6 @@ namespace geopm
     {
         std::fill(m_target.begin(), m_target.end(), m_invalid_target);
         std::fill(m_updated.begin(), m_updated.end(), false);
-    }
-
-    RegionPolicy::~RegionPolicy()
-    {
-
     }
 
     void RegionPolicy::update(int domain_idx, double target)

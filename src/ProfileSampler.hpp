@@ -51,9 +51,9 @@ namespace geopm
     class IProfileRankSampler
     {
         public:
-            IProfileRankSampler() {}
-            IProfileRankSampler(const IProfileRankSampler &other) {}
-            virtual ~IProfileRankSampler() {}
+            IProfileRankSampler() = default;
+            IProfileRankSampler(const IProfileRankSampler &other) = default;
+            virtual ~IProfileRankSampler() = default;
             virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) = 0;
             virtual size_t capacity(void) = 0;
             virtual bool name_fill(std::set<std::string> &name_set) = 0;
@@ -64,9 +64,9 @@ namespace geopm
     class IProfileSampler
     {
         public:
-            IProfileSampler() {}
-            IProfileSampler(const IProfileSampler &other) {}
-            virtual ~IProfileSampler() {}
+            IProfileSampler() = default;
+            IProfileSampler(const IProfileSampler &other) = default;
+            virtual ~IProfileSampler() = default;
             virtual size_t capacity(void) = 0;
             virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) = 0;
             virtual bool do_shutdown(void) = 0;
@@ -106,7 +106,7 @@ namespace geopm
             /// @brief ProfileRankSampler destructor.
             ///
             /// Cleans up the hash table and shared memory region.
-            virtual ~ProfileRankSampler();
+            virtual ~ProfileRankSampler() = default;
             /// @brief Returns the samples present in the hash table.
             ///
             /// Fills in a portion of a vector specified by a vector iterator.
@@ -191,7 +191,7 @@ namespace geopm
             ///        be created for each application rank.
             ProfileSampler(IPlatformTopo &topo, size_t table_size);
             /// @brief ProfileSampler destructor.
-            virtual ~ProfileSampler();
+            virtual ~ProfileSampler() = default;
             /// @brief Retrieve the maximum capacity of all the per-rank
             ///        hash tables.
             ///

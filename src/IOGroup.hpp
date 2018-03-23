@@ -43,8 +43,8 @@ namespace geopm
     class IOGroup
     {
         public:
-            IOGroup() {}
-            virtual ~IOGroup() {}
+            IOGroup() = default;
+            virtual ~IOGroup() = default;
             /// @brief Test if signal_name refers to a signal
             ///        supported by the group.
             /// @param [in] signal_name Name of signal to test.

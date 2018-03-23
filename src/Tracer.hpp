@@ -46,8 +46,8 @@ namespace geopm
     class ITracer
     {
         public:
-            ITracer() {}
-            virtual ~ITracer() {}
+            ITracer() = default;
+            virtual ~ITracer() = default;
             virtual void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) = 0;
             virtual void update(const struct geopm_policy_message_s &policy) = 0;
     };

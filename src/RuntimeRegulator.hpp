@@ -56,7 +56,7 @@ namespace geopm
         public:
             RuntimeRegulator();
             RuntimeRegulator(int max_rank_count);
-            virtual ~RuntimeRegulator() override;
+            virtual ~RuntimeRegulator() = default;
             void record_entry(int rank, struct geopm_time_s entry_time) override;
             void record_exit(int rank, struct geopm_time_s exit_time) override;
             void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;

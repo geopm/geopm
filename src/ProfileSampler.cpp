@@ -106,10 +106,6 @@ namespace geopm
         errno = 0; // Ignore errors from the unlink calls.
     }
 
-    ProfileSampler::~ProfileSampler(void)
-    {
-    }
-
     void ProfileSampler::initialize(int &rank_per_node)
     {
         std::ostringstream shm_key;
@@ -263,10 +259,6 @@ namespace geopm
         errno = 0; // Ignore errors from the unlink call.
         m_table_shmem = geopm::make_unique<SharedMemory>(shm_key, table_size);
         m_table = geopm::make_unique<ProfileTable>(m_table_shmem->size(), m_table_shmem->pointer());
-    }
-
-    ProfileRankSampler::~ProfileRankSampler()
-    {
     }
 
     size_t ProfileRankSampler::capacity(void)

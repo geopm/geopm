@@ -72,8 +72,8 @@ namespace geopm
                 M_DOMAIN_CPU_GROUP_BASE = 4096,
             };
 
-            IPlatformTopo() {}
-            virtual ~IPlatformTopo() {}
+            IPlatformTopo() = default;
+            virtual ~IPlatformTopo() = default;
             /// @brief Number of domains on the platform of a
             ///        particular m_domain_e type.
             virtual int num_domain(int domain_type) const = 0;
@@ -101,7 +101,7 @@ namespace geopm
         public:
             PlatformTopo();
             PlatformTopo(const std::string &lscpu_file_name);
-            virtual ~PlatformTopo();
+            virtual ~PlatformTopo() = default;
             int num_domain(int domain_type) const override;
             void domain_cpus(int domain_type,
                              int domain_idx,

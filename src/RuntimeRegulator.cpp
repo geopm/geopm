@@ -55,10 +55,6 @@ namespace geopm
         }
     }
 
-    RuntimeRegulator::~RuntimeRegulator()
-    {
-    }
-
     void RuntimeRegulator::record_entry(int rank, struct geopm_time_s entry_time)
     {
         if (rank < 0 || rank >= m_max_rank_count) {

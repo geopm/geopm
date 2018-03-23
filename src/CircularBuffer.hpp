@@ -48,8 +48,8 @@ namespace geopm
     class ICircularBuffer
     {
         public:
-            ICircularBuffer() {}
-            virtual ~ICircularBuffer() {}
+            ICircularBuffer() = default;
+            virtual ~ICircularBuffer() = default;
             /// @brief Re-size the circular buffer.
             ///
             /// Resets the capacity of the circular buffer without

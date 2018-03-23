@@ -126,10 +126,6 @@ namespace geopm
     {
     }
 
-    CpuinfoIOGroup::~CpuinfoIOGroup()
-    {
-    }
-
     bool CpuinfoIOGroup::is_valid_signal(const std::string &signal_name)
     {
         return m_signal_value_map.find(signal_name) != m_signal_value_map.end();

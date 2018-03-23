@@ -67,11 +67,6 @@ namespace geopm
 
     }
 
-    ProfileIOGroup::~ProfileIOGroup()
-    {
-
-    }
-
     bool ProfileIOGroup::is_valid_signal(const std::string &signal_name)
     {
         return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();

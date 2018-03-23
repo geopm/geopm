@@ -73,8 +73,8 @@ namespace geopm
                 M_UNITS_CELSIUS,
             };
 
-            IMSR() {}
-            virtual ~IMSR() {}
+            IMSR() = default;
+            virtual ~IMSR() = default;
             /// @brief Query the name of the MSR.
             /// @param msr_name [out] The name of the MSR.
             virtual std::string name(void) const = 0;
@@ -139,8 +139,8 @@ namespace geopm
     class IMSRSignal
     {
         public:
-            IMSRSignal() {}
-            virtual ~IMSRSignal() {}
+            IMSRSignal() = default;
+            virtual ~IMSRSignal() = default;
             /// @brief Get the signal parameter name.
             /// @return The name of the feature being measured.
             virtual std::string name(void) const = 0;
@@ -171,8 +171,8 @@ namespace geopm
     class IMSRControl
     {
         public:
-            IMSRControl() {}
-            virtual ~IMSRControl() {}
+            IMSRControl() = default;
+            virtual ~IMSRControl() = default;
             /// @brief Get the control parameter name.
             /// @return The name of the feature under control.
             virtual std::string name(void) const = 0;
@@ -276,7 +276,7 @@ namespace geopm
             /// @todo Revisit whether this is really okay to copy
             MSRSignal(const MSRSignal &other) = default;
             MSRSignal &operator=(const MSRSignal &other) = default;
-            virtual ~MSRSignal();
+            virtual ~MSRSignal() = default;
             virtual std::string name(void) const override;
             int domain_type(void) const override;
             int domain_idx(void) const override;

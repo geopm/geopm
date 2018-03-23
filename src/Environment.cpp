@@ -55,7 +55,7 @@ namespace geopm
     {
         public:
             Environment();
-            virtual ~Environment();
+            virtual ~Environment() = default;
             void load(void);
             const char *report(void) const;
             const char *comm(void) const;
@@ -108,11 +108,6 @@ namespace geopm
     Environment::Environment()
     {
         load();
-    }
-
-    Environment::~Environment()
-    {
-
     }
 
     void Environment::load()

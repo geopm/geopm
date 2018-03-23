@@ -153,7 +153,7 @@ namespace geopm
             ///        `__LINE__`.
             Exception(const std::string &what, int err, const char *file, int line);
             /// @brief Exception destructor, virtual.
-            virtual ~Exception();
+            virtual ~Exception() = default;
             /// @brief Returns the integer error code associated with
             ///        the exception.
             ///

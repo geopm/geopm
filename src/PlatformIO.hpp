@@ -46,8 +46,8 @@ namespace geopm
     class IPlatformIO
     {
         public:
-            IPlatformIO() {}
-            virtual ~IPlatformIO() {}
+            IPlatformIO() = default;
+            virtual ~IPlatformIO() = default;
             virtual void register_iogroup(std::unique_ptr<IOGroup> iogroup) = 0;
             /// @brief Query the domain for a named signal.
             /// @param [in] signal_name The name of the signal.

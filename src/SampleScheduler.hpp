@@ -43,8 +43,8 @@ namespace geopm
     class ISampleScheduler
     {
         public:
-            ISampleScheduler() {}
-            virtual ~ISampleScheduler() {}
+            ISampleScheduler() = default;
+            virtual ~ISampleScheduler() = default;
             virtual bool do_sample(void) = 0;
             virtual void record_exit(void) = 0;
             virtual void clear(void) = 0;
@@ -54,7 +54,7 @@ namespace geopm
     {
         public:
             SampleScheduler(double overhead_frac);
-            virtual ~SampleScheduler();
+            virtual ~SampleScheduler() = default;
             bool do_sample(void) override;
             void record_exit(void) override;
             void clear(void) override;

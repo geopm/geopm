@@ -44,11 +44,6 @@ namespace geopm
 
     }
 
-    StaticPolicyDecider::~StaticPolicyDecider()
-    {
-
-    }
-
     bool StaticPolicyDecider::decider_supported(const std::string &description)
     {
         return (description == m_name);

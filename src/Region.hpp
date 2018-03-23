@@ -52,8 +52,8 @@ namespace geopm
     class IRegion
     {
         public:
-            IRegion() {}
-            virtual ~IRegion() {}
+            IRegion() = default;
+            virtual ~IRegion() = default;
             /// @brief Record an entry into the region.
             virtual void entry(void) = 0;
             /// @brief Return the number of entries into the region.

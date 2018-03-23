@@ -52,11 +52,6 @@ namespace geopm
 
     }
 
-    RAPLPlatform::~RAPLPlatform()
-    {
-
-    }
-
     int RAPLPlatform::control_domain()
     {
         return GEOPM_CONTROL_DOMAIN_POWER;

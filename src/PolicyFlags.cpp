@@ -42,11 +42,6 @@ namespace geopm
 
     }
 
-    PolicyFlags::~PolicyFlags()
-    {
-
-    }
-
     unsigned long PolicyFlags::flags(void) const
     {
         return m_flags;

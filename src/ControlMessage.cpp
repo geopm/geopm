@@ -49,11 +49,6 @@ namespace geopm
         memset(&m_ctl_msg, 0, sizeof(geopm_ctl_message_s));
     }
 
-    ControlMessage::~ControlMessage()
-    {
-
-    }
-
     void ControlMessage::step(void)
     {
         if (m_is_ctl && m_ctl_msg.ctl_status != M_STATUS_SHUTDOWN) {

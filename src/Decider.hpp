@@ -55,10 +55,10 @@ namespace geopm
     {
         public:
             /// @brief Decider default constructor.
-            IDecider() {}
-            IDecider(const IDecider &other) {}
+            IDecider() = default;
+            IDecider(const IDecider &other) = default;
             /// @brief Decider destructor, virtual.
-            virtual ~IDecider() {}
+            virtual ~IDecider() = default;
             /// @brief Return the upper and lower control bounds.
             /// For a power based control, this will be the upper and lower
             /// power bounds of a single tree node below the current one. For
@@ -86,7 +86,7 @@ namespace geopm
         public:
             Decider();
             Decider(const Decider &other);
-            virtual ~Decider();
+            virtual ~Decider() = default;
             virtual void bound(double upper_bound, double lower_bound) override;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) override;
         protected:

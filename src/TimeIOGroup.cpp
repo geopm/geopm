@@ -49,11 +49,6 @@ namespace geopm
         geopm_time(&m_time_zero);
     }
 
-    TimeIOGroup::~TimeIOGroup()
-    {
-
-    }
-
     bool TimeIOGroup::is_valid_signal(const std::string &signal_name)
     {
         return m_valid_signal_name.find(signal_name) != m_valid_signal_name.end();

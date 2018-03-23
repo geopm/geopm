@@ -61,8 +61,8 @@ namespace geopm
     class IControlMessage
     {
         public:
-            IControlMessage() {}
-            virtual ~IControlMessage() {}
+            IControlMessage() = default;
+            virtual ~IControlMessage() = default;
             /// @brief Signal an advance to next phase in runtime.
             virtual void step(void) = 0;
             /// @brief Wait for message that other side has advanced
@@ -135,7 +135,7 @@ namespace geopm
             /// application rank.
             ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer);
             /// @brief ControlMessage virtual destructor
-            virtual ~ControlMessage();
+            virtual ~ControlMessage() = default;
             void step() override;
             void wait() override;
             void abort(void) override;

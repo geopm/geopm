@@ -70,9 +70,9 @@ namespace geopm
     class IPlatformTopology
     {
         public:
-            IPlatformTopology() {}
-            IPlatformTopology(const IPlatformTopology &other) {}
-            virtual ~IPlatformTopology() {}
+            IPlatformTopology() = default;
+            IPlatformTopology(const IPlatformTopology &other) = default;
+            virtual ~IPlatformTopology() = default;
             /// @brief Retrieve the count of a specific hwloc resource type.
             /// @param [in] domain_type Enum of type domain_type_e representing the
             /// type of resource to query.

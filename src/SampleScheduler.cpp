@@ -43,11 +43,6 @@ namespace geopm
 
     }
 
-    SampleScheduler::~SampleScheduler()
-    {
-
-    }
-
     bool SampleScheduler::do_sample(void)
     {
         bool result = true;

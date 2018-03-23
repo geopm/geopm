@@ -42,8 +42,8 @@ namespace geopm
     class IMSRIO
     {
         public:
-            IMSRIO() {}
-            virtual ~IMSRIO() {}
+            IMSRIO() = default;
+            virtual ~IMSRIO() = default;
             /// @brief Read from a single MSR on a CPU.
             /// @brief [in] cpu_idx logical Linux CPU index to read
             ///        from.

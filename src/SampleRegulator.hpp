@@ -76,9 +76,9 @@ namespace geopm
     class ISampleRegulator
     {
         public:
-            ISampleRegulator() {}
-            ISampleRegulator(const ISampleRegulator &other) {}
-            virtual ~ISampleRegulator() {}
+            ISampleRegulator() = default;
+            ISampleRegulator(const ISampleRegulator &other) = default;
+            virtual ~ISampleRegulator() = default;
             /// @brief The parenthesis operator which implements the
             /// SampleRegulator functor.
             ///

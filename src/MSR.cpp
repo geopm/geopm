@@ -60,7 +60,7 @@ namespace geopm
         public:
             MSREncode(const struct IMSR::m_encode_s &msre);
             MSREncode(int begin_bit, int end_bit, int function, double scalar);
-            virtual ~MSREncode();
+            virtual ~MSREncode() = default;
             double decode(uint64_t field, uint64_t last_field);
             uint64_t encode(double value);
             uint64_t mask(void);
@@ -91,11 +91,6 @@ namespace geopm
         if (m_num_bit == 64) {
             m_mask = ~0ULL;
         }
-    }
-
-    MSREncode::~MSREncode()
-    {
-
     }
 
     double MSREncode::decode(uint64_t field, uint64_t last_field)
@@ -347,11 +342,6 @@ namespace geopm
         , m_field_ptr(nullptr)
         , m_field_last(0)
         , m_is_field_mapped(false)
-    {
-
-    }
-
-    MSRSignal::~MSRSignal()
     {
 
     }

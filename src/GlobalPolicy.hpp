@@ -59,9 +59,9 @@ namespace geopm
     class IGlobalPolicy
     {
         public:
-            IGlobalPolicy() {}
+            IGlobalPolicy() = default;
             /// @brief GlobalPolicy destructor
-            virtual ~IGlobalPolicy() {}
+            virtual ~IGlobalPolicy() = default;
             /// @brief Get the policy power mode
             /// @return geopm_policy_mode_e power mode
             virtual int mode(void) const = 0;

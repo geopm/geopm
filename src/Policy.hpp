@@ -48,8 +48,8 @@ namespace geopm
     class IPolicy
     {
         public:
-            IPolicy() {}
-            virtual ~IPolicy() {}
+            IPolicy() = default;
+            virtual ~IPolicy() = default;
             /// @brief Get number of control domains for the policy.
             /// @returns number of domains under control.
             virtual int num_domain(void) = 0;

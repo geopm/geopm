@@ -166,10 +166,6 @@ namespace geopm
         comm->barrier();
     }
 
-    TreeCommunicator::~TreeCommunicator()
-    {
-    }
-
     int TreeCommunicator::num_level(void) const
     {
         return m_num_level;
@@ -405,11 +401,6 @@ namespace geopm
     SingleTreeCommunicator::SingleTreeCommunicator(IGlobalPolicy *global_policy)
         : m_policy(global_policy)
         , m_sample(GEOPM_SAMPLE_INVALID)
-    {
-
-    }
-
-    SingleTreeCommunicator::~SingleTreeCommunicator()
     {
 
     }

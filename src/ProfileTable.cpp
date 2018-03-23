@@ -85,11 +85,6 @@ namespace geopm
         }
     }
 
-    ProfileTable::~ProfileTable()
-    {
-
-    }
-
     size_t ProfileTable::table_length(size_t buffer_size) const
     {
         size_t private_size = GEOPM_NUM_REGION_ID_PRIVATE * sizeof(struct table_entry_s);

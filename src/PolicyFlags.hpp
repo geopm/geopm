@@ -101,7 +101,7 @@ namespace geopm
         public:
             PolicyFlags(long int flags);
             /// @brief GlobalPolicy destructor
-            virtual ~PolicyFlags();
+            virtual ~PolicyFlags() = default;
             unsigned long flags(void) const override;
             double frequency_hz(void) const  override;
             int tdp_percent(void) const override;

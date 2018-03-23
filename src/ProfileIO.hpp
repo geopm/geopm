@@ -43,6 +43,9 @@ namespace geopm
         public:
             static std::map<int, int> rank_to_node_local_rank(const std::vector<int> &per_cpu_rank);
             static std::vector<int> rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank);
+        protected:
+            ProfileIO() = default;
+            ~ProfileIO() = default;
     };
 }
 

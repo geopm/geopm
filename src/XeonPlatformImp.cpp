@@ -104,11 +104,6 @@ namespace geopm
 
     }
 
-    XeonPlatformImp::~XeonPlatformImp()
-    {
-
-    }
-
     int SNBPlatformImp::platform_id(void)
     {
         return 0x62D;

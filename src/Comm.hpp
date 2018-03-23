@@ -57,10 +57,10 @@ namespace geopm
             };
 
             /// @brief Constructor for global communicator
-            IComm() {}
-            IComm(const IComm *in_comm) {}
+            IComm() = default;
+            IComm(const IComm &in_comm) = default;
             /// @brief Default destructor
-            virtual ~IComm() {}
+            virtual ~IComm() = default;
 
             virtual std::shared_ptr<IComm> split() const = 0;
             virtual std::shared_ptr<IComm> split(int color, int key) const = 0;

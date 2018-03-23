@@ -55,11 +55,6 @@ namespace geopm
 
     }
 
-    Decider::~Decider()
-    {
-
-    }
-
     void Decider::bound(double upper_bound, double lower_bound)
     {
         m_upper_bound = upper_bound;

@@ -87,9 +87,9 @@ namespace geopm
     class IProfile
     {
         public:
-            IProfile() {}
-            IProfile(const IProfile &other) {}
-            virtual ~IProfile() {}
+            IProfile() = default;
+            IProfile(const IProfile &other) = default;
+            virtual ~IProfile() = default;
             /// @brief Register a region of code to be profiled.
             ///
             /// The statistics gathered for each region are aggregated

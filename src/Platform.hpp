@@ -51,8 +51,8 @@ namespace geopm
     class IPlatform
     {
         public:
-            IPlatform() {}
-            virtual ~IPlatform() {}
+            IPlatform() = default;
+            virtual ~IPlatform() = default;
             /// @brief Set our member variable pointing to a PlatformImp object.
             /// @param [in] platform_imp A PlatformImp object that is compatible
             ///        with this platform and the underlying hardware.
@@ -173,7 +173,7 @@ namespace geopm
             ///        describing the finest grain domain of control.
             Platform(int control_domain_type);
             /// @brief Default destructor.
-            virtual ~Platform();
+            virtual ~Platform() = default;
             void set_implementation(PlatformImp* platform_imp, bool do_initialize);
             int num_domain(void) const;
             void name(std::string &plat_name) const;

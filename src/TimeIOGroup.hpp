@@ -44,7 +44,7 @@ namespace geopm
     {
         public:
             TimeIOGroup();
-            virtual ~TimeIOGroup();
+            virtual ~TimeIOGroup() = default;
             bool is_valid_signal(const std::string &signal_name) override;
             bool is_valid_control(const std::string &control_name) override;
             int signal_domain_type(const std::string &signal_name) override;

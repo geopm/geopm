@@ -50,7 +50,7 @@ namespace geopm
             StaticPolicyDecider(const StaticPolicyDecider &other) = delete;
             StaticPolicyDecider &operator=(const StaticPolicyDecider &other) = delete;
             /// @brief StaticPolicyDecider destructor, virtual.
-            virtual ~StaticPolicyDecider();
+            virtual ~StaticPolicyDecider() = default;
             virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) override;
             virtual bool decider_supported(const std::string &descripton) override;
             virtual const std::string& name(void) const override;

@@ -63,11 +63,6 @@ namespace geopm
         parse_lscpu_numa(lscpu_map, m_numa_map);
     }
 
-    PlatformTopo::~PlatformTopo()
-    {
-
-    }
-
     int PlatformTopo::num_domain(int domain_type) const
     {
         int result = 0;

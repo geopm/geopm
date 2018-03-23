@@ -53,7 +53,7 @@ namespace geopm
             /// @brief Copy constructor.
             XeonPlatformImp(const XeonPlatformImp &other);
             /// @brief Default destructor.
-            virtual ~XeonPlatformImp();
+            virtual ~XeonPlatformImp() = default;
             virtual bool model_supported(int platform_id);
             virtual std::string platform_name(void);
             virtual double read_signal(int device_type, int device_index, int signal_type);
