@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2c9af7b_885fd411",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "This can be removed.  Extra underscore.",
+      "range": {
+        "startLine": 215,
+        "startChar": 80,
+        "endLine": 215,
+        "endChar": 81
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fada5aba_6c845d04",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Look at making this a dot.",
+      "range": {
+        "startLine": 216,
+        "startChar": 79,
+        "endLine": 216,
+        "endChar": 80
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cc2b4ef_fdee8afc",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "wtf, just make this a dict.",
+      "range": {
+        "startLine": 241,
+        "startChar": 17,
+        "endLine": 241,
+        "endChar": 37
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3955fa1e_bdd0fe77",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Try to make this a fraction of the total runtime instead of a magic number.",
+      "range": {
+        "startLine": 287,
+        "startChar": 30,
+        "endLine": 287,
+        "endChar": 33
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfa77d9_efda45dd",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Get rid of this.  Should be handled by first check if that\u0027s the idea.",
+      "range": {
+        "startLine": 287,
+        "startChar": 34,
+        "endLine": 287,
+        "endChar": 61
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52a67c33_26a00168",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "This could be in a seperate var since it\u0027s repeated.",
+      "range": {
+        "startLine": 342,
+        "startChar": 28,
+        "endLine": 342,
+        "endChar": 111
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3b59c3b_1313e75d",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Move this after verbose.",
+      "range": {
+        "startLine": 413,
+        "startChar": 71,
+        "endLine": 413,
+        "endChar": 83
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd185e5f_ebcf3307",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "This could be a static member of the Analysis base class, and then the test could mock this function to something else to avoid puking on non-Intel systems.  This is specifically for unit testing.",
+      "range": {
+        "startLine": 425,
+        "startChar": 29,
+        "endLine": 425,
+        "endChar": 45
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef02aafe_38927b0e",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Add a comment above explaining this madness.",
+      "range": {
+        "startLine": 425,
+        "startChar": 45,
+        "endLine": 425,
+        "endChar": 49
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c2be8f8_1510b90f",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "When we\u0027re skipping the launch, the RID_MAP should be printed somewhere.",
+      "range": {
+        "startLine": 497,
+        "startChar": 8,
+        "endLine": 497,
+        "endChar": 43
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b02de3cd_55991a91",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Get rid of this.",
+      "range": {
+        "startLine": 524,
+        "startChar": 1,
+        "endLine": 524,
+        "endChar": 70
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43b9cdad_669e9ede",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "freqs[0]",
+      "range": {
+        "startLine": 575,
+        "startChar": 29,
+        "endLine": 575,
+        "endChar": 39
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9781f8ac_9a476a3c",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "Change to freqs[-1].  Comment.",
+      "range": {
+        "startLine": 576,
+        "startChar": 29,
+        "endLine": 576,
+        "endChar": 39
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3cbdf620_a909962c",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-23T18:35:36Z",
+      "side": 1,
+      "message": "allow \u003d\u003e enable, add a blurb about it being disabled by default.",
+      "range": {
+        "startLine": 831,
+        "startChar": 4,
+        "endLine": 831,
+        "endChar": 15
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
