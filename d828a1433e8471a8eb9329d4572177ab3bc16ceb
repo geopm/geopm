@@ -1,0 +1,337 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0a420a6_934e9ea9",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "have the test constructor take the platform topo and have real constructor call platform_topo()",
+      "range": {
+        "startLine": 361,
+        "startChar": 43,
+        "endLine": 361,
+        "endChar": 59
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2d82946_aa8b0b06",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "print ex.what don\u0027t throw",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 13
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab49330c_5960fa65",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "change to no_XXX_shmem",
+      "range": {
+        "startLine": 245,
+        "startChar": 50,
+        "endLine": 245,
+        "endChar": 56
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1739364a_f3c54637",
+        "filename": "test/MockComm.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "include guards?",
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d8dda4e_75deb21b",
+        "filename": "test/MockProfileTable.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2461ce8_d21613e3",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "std::vector\u003cchar\u003e(size) .data for pointer() return val",
+      "range": {
+        "startLine": 83,
+        "startChar": 58,
+        "endLine": 83,
+        "endChar": 72
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbaea0c1_2a61dfd4",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "new line",
+      "range": {
+        "startLine": 136,
+        "startChar": 99,
+        "endLine": 136,
+        "endChar": 113
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2589b87_6de17247",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "no space here",
+      "range": {
+        "startLine": 212,
+        "startChar": 17,
+        "endLine": 212,
+        "endChar": 18
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36503a7a_c74f9482",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "\"1\"?",
+      "range": {
+        "startLine": 221,
+        "startChar": 42,
+        "endLine": 221,
+        "endChar": 67
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "974bc59b_610cbc6b",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "maybe get rid of lambdas",
+      "range": {
+        "startLine": 243,
+        "startChar": 8,
+        "endLine": 250,
+        "endChar": 10
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cddcee88_27691124",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "MPI region",
+      "range": {
+        "startLine": 312,
+        "startChar": 9,
+        "endLine": 312,
+        "endChar": 19
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de6c4931_46a7f070",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "re-entrant region",
+      "range": {
+        "startLine": 316,
+        "startChar": 8,
+        "endLine": 316,
+        "endChar": 27
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58355bd1_f0aa6f74",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "look into ProfileTest test for fixtures north of config and ProfileIntTest for config and south",
+      "range": {
+        "startLine": 490,
+        "startChar": 7,
+        "endLine": 490,
+        "endChar": 18
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5d8f98a_29dfd5a6",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "sizeof(ctl_msg)?",
+      "range": {
+        "startLine": 501,
+        "startChar": 98,
+        "endLine": 501,
+        "endChar": 114
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c40ca07_46841d63",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-23T23:02:09Z",
+      "side": 1,
+      "message": "missing no_table_shmem",
+      "range": {
+        "startLine": 529,
+        "startChar": 33,
+        "endLine": 529,
+        "endChar": 42
+      },
+      "revId": "d828a1433e8471a8eb9329d4572177ab3bc16ceb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
