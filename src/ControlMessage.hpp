@@ -132,7 +132,7 @@ namespace geopm
             /// the caller is the controller or the lowest application
             /// rank on the node and false if the caller is any other
             /// application rank.
-            ControlMessage(struct geopm_ctl_message_s *ctl_msg, bool is_ctl, bool is_writer);
+            ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer);
             /// @brief ControlMessage virtual destructor
             virtual ~ControlMessage();
             void step() override;
@@ -162,7 +162,7 @@ namespace geopm
                 M_STATUS_SHUTDOWN = 9,
                 M_STATUS_ABORT = 9999,
             };
-            struct geopm_ctl_message_s *m_ctl_msg;
+            struct geopm_ctl_message_s &m_ctl_msg;
             bool m_is_ctl;
             bool m_is_writer;
             int m_last_status;
