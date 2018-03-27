@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCK_PLATFORM_IMP_HPP_INCLUDE
+#define MOCK_PLATFORM_IMP_HPP_INCLUDE
+
 #include "PlatformImp.hpp"
 
-class MockPlatformImp : public geopm::PlatformImp {
+class MockPlatformImp : public geopm::PlatformImp
+{
     public:
         MOCK_CONST_METHOD0(num_package,
             int(void));
@@ -85,3 +89,5 @@ class MockPlatformImp : public geopm::PlatformImp {
         MOCK_METHOD1(msr_offset,
             off_t(std::string));
 };
+
+#endif
