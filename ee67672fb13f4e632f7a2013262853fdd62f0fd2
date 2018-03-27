@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "302062bb_ebb6e93e",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-27T21:38:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49295146_333d753c",
+      "range": {
+        "startLine": 506,
+        "startChar": 12,
+        "endLine": 506,
+        "endChar": 43
+      },
+      "revId": "ee67672fb13f4e632f7a2013262853fdd62f0fd2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0278bb88_009cd03c",
         "filename": "src/ProfileSampler.cpp",
         "patchSetId": 6
@@ -59,6 +83,30 @@
       "writtenOn": "2018-03-27T17:53:56Z",
       "side": 1,
       "message": "ProfileTestIntegration",
+      "range": {
+        "startLine": 243,
+        "startChar": 38,
+        "endLine": 243,
+        "endChar": 41
+      },
+      "revId": "ee67672fb13f4e632f7a2013262853fdd62f0fd2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58423042_614f4481",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-27T21:38:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72e04589_34c8b47f",
       "range": {
         "startLine": 243,
         "startChar": 38,
@@ -111,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "22def8b3_3234df1b",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-27T21:38:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cb46d7b_79afc018",
+      "revId": "ee67672fb13f4e632f7a2013262853fdd62f0fd2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "198af39e_438e7316",
         "filename": "test/ProfileTest.cpp",
         "patchSetId": 6
@@ -122,6 +188,30 @@
       "writtenOn": "2018-03-27T16:26:00Z",
       "side": 1,
       "message": "maybe EXPECT_NO_THROW(Profile(...)); ?  You don\u0027t need new, just make it on the stack.",
+      "range": {
+        "startLine": 485,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 67
+      },
+      "revId": "ee67672fb13f4e632f7a2013262853fdd62f0fd2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77c62119_adbc765e",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-27T21:38:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "198af39e_438e7316",
       "range": {
         "startLine": 485,
         "startChar": 0,
