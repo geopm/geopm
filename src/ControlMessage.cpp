@@ -40,13 +40,13 @@
 namespace geopm
 {
 
-    ControlMessage::ControlMessage(struct geopm_ctl_message_s *ctl_msg, bool is_ctl, bool is_writer)
+    ControlMessage::ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
         : m_ctl_msg(ctl_msg)
         , m_is_ctl(is_ctl)
         , m_is_writer(is_writer)
         , m_last_status(M_STATUS_UNDEFINED)
     {
-        memset(m_ctl_msg, 0, sizeof(geopm_ctl_message_s));
+        memset(&m_ctl_msg, 0, sizeof(geopm_ctl_message_s));
     }
 
     ControlMessage::~ControlMessage()
@@ -56,11 +56,11 @@ namespace geopm
 
     void ControlMessage::step(void)
     {
-        if (m_is_ctl && m_ctl_msg->ctl_status != M_STATUS_SHUTDOWN) {
-            m_ctl_msg->ctl_status++;
+        if (m_is_ctl && m_ctl_msg.ctl_status != M_STATUS_SHUTDOWN) {
+            m_ctl_msg.ctl_status++;
         }
-        else if (m_is_writer && m_ctl_msg->app_status != M_STATUS_SHUTDOWN) {
-            m_ctl_msg->app_status++;
+        else if (m_is_writer && m_ctl_msg.app_status != M_STATUS_SHUTDOWN) {
+            m_ctl_msg.app_status++;
         }
     }
 
@@ -81,59 +81,59 @@ namespace geopm
     void ControlMessage::abort(void)
     {
         if (m_is_ctl) {
-            m_ctl_msg->ctl_status = M_STATUS_ABORT;
+            m_ctl_msg.ctl_status = M_STATUS_ABORT;
         }
         else {
-            m_ctl_msg->app_status = M_STATUS_ABORT;
+            m_ctl_msg.app_status = M_STATUS_ABORT;
         }
     }
 
     void ControlMessage::cpu_rank(int cpu_idx, int rank)
     {
-        m_ctl_msg->cpu_rank[cpu_idx] = rank;
+        m_ctl_msg.cpu_rank[cpu_idx] = rank;
     }
 
     int ControlMessage::cpu_rank(int cpu_idx)
     {
-        return m_ctl_msg->cpu_rank[cpu_idx];
+        return m_ctl_msg.cpu_rank[cpu_idx];
     }
 
     bool ControlMessage::is_sample_begin(void)
     {
-        return (m_ctl_msg->app_status == M_STATUS_SAMPLE_BEGIN);
+        return (m_ctl_msg.app_status == M_STATUS_SAMPLE_BEGIN);
     }
 
     bool ControlMessage::is_sample_end(void)
     {
-        return (m_ctl_msg->app_status == M_STATUS_SAMPLE_END);
+        return (m_ctl_msg.app_status == M_STATUS_SAMPLE_END);
     }
 
     bool ControlMessage::is_name_begin(void)
     {
-        return (m_ctl_msg->app_status == M_STATUS_NAME_BEGIN);
+        return (m_ctl_msg.app_status == M_STATUS_NAME_BEGIN);
     }
 
     bool ControlMessage::is_shutdown(void)
     {
-        return (m_ctl_msg->app_status == M_STATUS_SHUTDOWN);
+        return (m_ctl_msg.app_status == M_STATUS_SHUTDOWN);
     }
 
     int ControlMessage::this_status()
     {
-        return (m_is_ctl ? m_ctl_msg->app_status : m_ctl_msg->ctl_status);
+        return (m_is_ctl ? m_ctl_msg.app_status : m_ctl_msg.ctl_status);
     }
 
     void ControlMessage::loop_begin()
     {
         if (m_is_ctl) {
-            while (m_ctl_msg->app_status != M_STATUS_NAME_LOOP_BEGIN) {
+            while (m_ctl_msg.app_status != M_STATUS_NAME_LOOP_BEGIN) {
                 geopm_signal_handler_check();
             }
-            m_ctl_msg->ctl_status = M_STATUS_NAME_LOOP_BEGIN;
+            m_ctl_msg.ctl_status = M_STATUS_NAME_LOOP_BEGIN;
         }
         else {
-            m_ctl_msg->app_status = M_STATUS_NAME_LOOP_BEGIN;
-            while (m_ctl_msg->ctl_status != M_STATUS_NAME_LOOP_BEGIN) {
+            m_ctl_msg.app_status = M_STATUS_NAME_LOOP_BEGIN;
+            while (m_ctl_msg.ctl_status != M_STATUS_NAME_LOOP_BEGIN) {
                 geopm_signal_handler_check();
             }
         }

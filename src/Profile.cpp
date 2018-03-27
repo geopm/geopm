@@ -157,7 +157,7 @@ namespace geopm
 
     void Profile::init_ctl_msg(void)
     {
-        m_ctl_msg = std::unique_ptr<IControlMessage>(new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank));
+        m_ctl_msg = std::unique_ptr<IControlMessage>(new ControlMessage(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank));
     }
 
     void Profile::init_cpu_list(void)

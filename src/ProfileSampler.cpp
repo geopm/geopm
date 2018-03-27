@@ -84,7 +84,7 @@ namespace geopm
         // Remove shared memory file if one already exists.
         (void)unlink(sample_key_path.c_str());
         m_ctl_shmem = new SharedMemory(sample_key, table_size);
-        m_ctl_msg = new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true);
+        m_ctl_msg = new ControlMessage(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true);
 
         std::string tprof_key(geopm_env_shmkey());
         tprof_key += "-tprof";

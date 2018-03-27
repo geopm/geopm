@@ -47,7 +47,7 @@ class ControlMessageTest: public geopm::ControlMessage, public testing::Test
 };
 
 ControlMessageTest::ControlMessageTest()
-    : geopm::ControlMessage(&m_test_ctl_msg_buffer, false, false)
+    : geopm::ControlMessage(m_test_ctl_msg_buffer, false, false)
 {
 
 }
@@ -59,8 +59,8 @@ ControlMessageTest::~ControlMessageTest()
 
 void ControlMessageTest::SetUp()
 {
-    m_test_ctl_msg = new geopm::ControlMessage(&m_test_ctl_msg_buffer, true, true);
-    m_test_app_msg = new geopm::ControlMessage(&m_test_ctl_msg_buffer, false, true);
+    m_test_ctl_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, true, true);
+    m_test_app_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, false, true);
 }
 
 void ControlMessageTest::TearDown()
