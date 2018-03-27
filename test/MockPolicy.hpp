@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKPOLICY_HPP_INCLUDE
+#define MOCKPOLICY_HPP_INCLUDE
+
 #include "Policy.hpp"
 
-class MockPolicy : public geopm::IPolicy {
+class MockPolicy : public geopm::IPolicy
+{
     public:
         MOCK_METHOD0(num_domain,
                 int(void));
@@ -74,3 +78,5 @@ class MockPolicy : public geopm::IPolicy {
         MOCK_METHOD1(is_converged,
                 bool(uint64_t region_id));
 };
+
+#endif

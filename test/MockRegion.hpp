@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKREGION_HPP_INCLUDE
+#define MOCKREGION_HPP_INCLUDE
+
 #include "Region.hpp"
 
-class MockRegion : public geopm::IRegion {
+class MockRegion : public geopm::IRegion
+{
     public:
         MOCK_METHOD0(entry,
                 void(void));
@@ -77,3 +81,5 @@ class MockRegion : public geopm::IRegion {
         MOCK_METHOD1(telemetry_timestamp,
                 struct geopm_time_s(size_t sample_idx));
 };
+
+#endif

@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKPLATFORM_HPP_INCLUDE
+#define MOCKPLATFORM_HPP_INCLUDE
+
 #include "Platform.hpp"
 
-class MockPlatform : public geopm::Platform {
+class MockPlatform : public geopm::Platform
+{
     public:
         MOCK_METHOD0(control_domain,
             int(void));
@@ -51,3 +55,5 @@ class MockPlatform : public geopm::Platform {
         MOCK_METHOD2(bound,
             void(double &upper_bound, double &lower_bound));
 };
+
+#endif

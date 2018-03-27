@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKPLATFORMTOPOLOGY_HPP_INCLUDE
+#define MOCKPLATFORMTOPOLOGY_HPP_INCLUDE
+
 #include "PlatformTopology.hpp"
 
-class MockPlatformTopology : public geopm::PlatformTopology {
+class MockPlatformTopology : public geopm::PlatformTopology
+{
     public:
         MOCK_CONST_METHOD1(num_domain,
             int(int domain_type));
@@ -41,3 +45,5 @@ class MockPlatformTopology : public geopm::PlatformTopology {
         MOCK_CONST_METHOD3(children_by_type,
             void(int type, hwloc_obj_t obj, std::vector<hwloc_obj_t> &children));
 };
+
+#endif

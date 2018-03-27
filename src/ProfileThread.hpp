@@ -31,8 +31,8 @@
  */
 
 
-#ifndef PROFILE_THREAD_HPP_INCLUDE
-#define PROFILE_THREAD_HPP_INCLUDE
+#ifndef PROFILETHREAD_HPP_INCLUDE
+#define PROFILETHREAD_HPP_INCLUDE
 
 #include <stdlib.h>
 #include <stdint.h>
