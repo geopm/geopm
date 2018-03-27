@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKCOMM_HPP_INCLUDE
+#define MOCKCOMM_HPP_INCLUDE
+
 #include "Comm.hpp"
 
-class MockComm : public geopm::IComm {
+class MockComm : public geopm::IComm
+{
     public:
         MOCK_CONST_METHOD0(split,
             std::shared_ptr<IComm> (void));
@@ -83,3 +87,5 @@ class MockComm : public geopm::IComm {
         MOCK_CONST_METHOD5(window_put,
             void (const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id));
 };
+
+#endif

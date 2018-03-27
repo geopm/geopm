@@ -30,9 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKGLOBALPOLICY_HPP_INCLUDE
+#define MOCKGLOBALPOLICY_HPP_INCLUDE
+
 #include "GlobalPolicy.hpp"
 
-class MockGlobalPolicy : public geopm::IGlobalPolicy {
+class MockGlobalPolicy : public geopm::IGlobalPolicy
+{
     public:
         MOCK_CONST_METHOD0(mode,
             int (void));
@@ -87,3 +91,5 @@ class MockGlobalPolicy : public geopm::IGlobalPolicy {
         MOCK_CONST_METHOD0(header,
             std::string (void));
 };
+
+#endif

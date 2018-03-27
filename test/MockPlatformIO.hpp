@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKPLATFORMIO_HPP_INCLUDE
+#define MOCKPLATFORMIO_HPP_INCLUDE
 
 #include "PlatformIO.hpp"
 #include "IOGroup.hpp"
@@ -68,3 +70,5 @@ class MockPlatformIO : public geopm::IPlatformIO
         MOCK_METHOD4(write_control,
                      void(const std::string &control_name, int domain_type, int domain_idx, double setting));
 };
+
+#endif

@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKPLATFORMTOPO_HPP_INCLUDE
+#define MOCKPLATFORMTOPO_HPP_INCLUDE
+
 #include "PlatformTopo.hpp"
 
 class MockPlatformTopo : public geopm::IPlatformTopo
@@ -45,3 +48,4 @@ class MockPlatformTopo : public geopm::IPlatformTopo
                      int(const std::vector<int> &cpu_domain_idx));
 };
 
+#endif
