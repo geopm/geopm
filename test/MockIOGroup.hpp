@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCK_IO_GROUP_HPP_INCLUDE
+#define MOCK_IO_GROUP_HPP_INCLUDE
+
 #include "IOGroup.hpp"
 
 class MockIOGroup : public geopm::IOGroup
@@ -60,3 +63,5 @@ class MockIOGroup : public geopm::IOGroup
         MOCK_METHOD4(write_control,
                 void (const std::string &control_name, int domain_type, int domain_idx, double setting));
 };
+
+#endif

@@ -30,12 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCK_PROFILE_SAMPLER_HPP_INCLUDE
+#define MOCK_PROFILE_SAMPLER_HPP_INCLUDE
+
 #include "Comm.hpp"
 #include "geopm_message.h"
 #include "ProfileThread.hpp"
 #include "ProfileSampler.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler {
+class MockProfileSampler : public geopm::IProfileSampler
+{
     public:
         MOCK_METHOD0(capacity,
             size_t (void));
@@ -60,3 +64,5 @@ class MockProfileSampler : public geopm::IProfileSampler {
         MOCK_METHOD0(tprof_table,
             geopm::IProfileThreadTable *(void));
 };
+
+#endif
