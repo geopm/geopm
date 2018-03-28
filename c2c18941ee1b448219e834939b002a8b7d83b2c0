@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7241107d_8cfe8823",
+        "filename": "test/MockComm.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-28T18:35:28Z",
+      "side": 1,
+      "message": "Change back to old style: MOCKCOMM_HPP_INCLUDE",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 29
+      },
+      "revId": "c2c18941ee1b448219e834939b002a8b7d83b2c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
