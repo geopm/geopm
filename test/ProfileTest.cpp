@@ -485,6 +485,13 @@ TEST_F(ProfileTestIntegration, misconfig_ctl_shmem)
     // no ctl_shmem
     Profile(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
                        nullptr, m_topo, nullptr, nullptr, nullptr);
+
+    // small ctl_shmem
+    m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
+    m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
+    auto ctl_shm = geopm::make_unique<SharedMemory>(M_SHM_KEY + "-sample", 1);
+    Profile(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
+                       nullptr, m_topo, nullptr, nullptr, nullptr);
 }
 
 TEST_F(ProfileTestIntegration, misconfig_tprof_shmem)

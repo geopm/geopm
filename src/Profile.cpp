@@ -154,6 +154,9 @@ namespace geopm
                 m_ctl_shmem->unlink();
             }
 
+            if (m_ctl_shmem->size() < sizeof(struct geopm_ctl_message_s)) {
+                throw Exception("Profile: ctl_shmem too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
             m_ctl_msg = std::unique_ptr<IControlMessage>(new ControlMessage((struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank));
         }
     }
