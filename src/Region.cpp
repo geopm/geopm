@@ -46,7 +46,7 @@
 
 namespace geopm
 {
-    Region::Region(uint64_t identifier, int num_domain, int level, IProfileThreadTable *tprof_table)
+    Region::Region(uint64_t identifier, int num_domain, int level, std::shared_ptr<IProfileThreadTable> tprof_table)
         : m_identifier(identifier)
         , m_num_domain(num_domain)
         , m_level(level)
