@@ -81,11 +81,11 @@ namespace geopm
 
     ProfileSampler::ProfileSampler(IPlatformTopo &topo, size_t table_size)
         : m_table_size(table_size)
+        , m_ctl_shmem(nullptr)
+        , m_ctl_msg(nullptr)
         , m_do_report(false)
         , m_tprof_shmem(nullptr)
         , m_tprof_table(nullptr)
-        , m_ctl_shmem(nullptr)
-        , m_ctl_msg(nullptr)
     {
         std::string sample_key(geopm_env_shmkey());
         sample_key += "-sample";
