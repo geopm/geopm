@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d98baff_f6e2014c",
+        "filename": "src/ProfileSampler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-03-28T18:23:32Z",
+      "side": 1,
+      "message": "Need to delete this also.\nOr change to smart pointers or investigate whether this can be on stack instead",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 17
+      },
+      "revId": "ebfa607c28de7c202dfbc355c1a50d31dfcdcfd1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
