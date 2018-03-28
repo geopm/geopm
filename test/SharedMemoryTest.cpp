@@ -102,7 +102,7 @@ TEST_F(SharedMemoryTest, fd_check)
     key_path += m_shm_key;
 
     config_shmem();
-    sleep(5);
+    sleep(1);
     EXPECT_EQ(stat(key_path.c_str(), &buf), 0) << "Something (likely systemd) is removing shmem entries after creation.\n"
                                                << "See https://superuser.com/a/1179962 for more information.";
     config_shmem_u();
