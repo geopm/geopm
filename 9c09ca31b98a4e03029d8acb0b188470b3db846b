@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14581d71_2ccf49a8",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-03-28T18:58:55Z",
+      "side": 1,
+      "message": "Needs --geopm-trace!",
+      "range": {
+        "startLine": 582,
+        "startChar": 33,
+        "endLine": 582,
+        "endChar": 63
+      },
+      "revId": "9c09ca31b98a4e03029d8acb0b188470b3db846b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
