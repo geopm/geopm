@@ -77,7 +77,7 @@ namespace geopm
             virtual void name_set(std::set<std::string> &region_name) = 0;
             virtual void report_name(std::string &report_str) = 0;
             virtual void profile_name(std::string &prof_str) = 0;
-            virtual IProfileThreadTable *tprof_table(void) = 0;
+            virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) = 0;
     };
 
     /// @brief Retrieves sample data from a single application rank through
@@ -136,15 +136,15 @@ namespace geopm
             bool name_fill(std::set<std::string> &name_set) override;
             void report_name(std::string &report_str) override;
             void profile_name(std::string &prof_str) override;
-            IProfileThreadTable *tprof_table(void);
+            std::shared_ptr<IProfileThreadTable> tprof_table(void);
         protected:
             /// Holds the shared memory region used for sampling from the
             /// application process.
-            ISharedMemory *m_table_shmem;
+            std::unique_ptr<ISharedMemory> m_table_shmem;
             /// The hash table which stores application process samples.
-            IProfileTable *m_table;
-            ISharedMemory *m_tprof_shmem;
-            IProfileThreadTable *m_tprof_table;
+            std::unique_ptr<IProfileTable> m_table;
+            std::unique_ptr<ISharedMemory> m_tprof_shmem;
+            std::shared_ptr<IProfileThreadTable> m_tprof_table;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
@@ -250,17 +250,17 @@ namespace geopm
             void name_set(std::set<std::string> &region_name) override;
             void report_name(std::string &report_str) override;
             void profile_name(std::string &prof_str) override;
-            IProfileThreadTable *tprof_table(void) override;
+            std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
         protected:
             /// Holds the shared memory region used for application coordination
             /// and control.
-            ISharedMemory *m_ctl_shmem;
+            std::unique_ptr<ISharedMemory> m_ctl_shmem;
             /// Pointer to the control structure used for application coordination
             /// and control.
-            IControlMessage *m_ctl_msg;
+            std::unique_ptr<IControlMessage> m_ctl_msg;
             /// List of per-rank samplers for each MPI application rank running
             /// on the local compute node.
-            std::forward_list<IProfileRankSampler *> m_rank_sampler;
+            std::forward_list<std::unique_ptr<IProfileRankSampler> > m_rank_sampler;
             /// Size of the hash tables to create for each MPI application rank
             /// running on the local compute node..
             const size_t m_table_size;
@@ -268,8 +268,8 @@ namespace geopm
             std::string m_report_name;
             std::string m_profile_name;
             bool m_do_report;
-            ISharedMemory *m_tprof_shmem;
-            IProfileThreadTable *m_tprof_table;
+            std::unique_ptr<ISharedMemory> m_tprof_shmem;
+            std::shared_ptr<IProfileThreadTable> m_tprof_table;
     };
 }
 

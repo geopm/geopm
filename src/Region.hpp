@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <memory>
 
 #include "geopm_message.h"
 
@@ -241,7 +242,7 @@ namespace geopm
             /// @brief Default constructor.
             /// @param [in] identifier Unique 64 bit region identifier.
             /// @param [in] num_domain Number of control domains.
-            Region(uint64_t identifier, int num_domain, int level, IProfileThreadTable *tprof_table);
+            Region(uint64_t identifier, int num_domain, int level, std::shared_ptr<IProfileThreadTable> tprof_table);
             /// @brief Default destructor.
             virtual ~Region();
             void entry(void) override;
@@ -332,7 +333,7 @@ namespace geopm
             std::vector<bool> m_is_entered;
             int m_derivative_num_fit;
             double m_mpi_time;
-            IProfileThreadTable *m_tprof_table;
+            std::shared_ptr<IProfileThreadTable> m_tprof_table;
     };
 }
 
