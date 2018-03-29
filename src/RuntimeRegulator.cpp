@@ -37,13 +37,6 @@
 
 namespace geopm
 {
-    RuntimeRegulator::RuntimeRegulator()
-        : M_TIME_ZERO ((struct geopm_time_s){{0, 0}})
-        , m_max_rank_count (0)
-        , m_last_avg (0.0)
-    {
-    }
-
     RuntimeRegulator::RuntimeRegulator(int max_rank_count)
         : M_TIME_ZERO ((struct geopm_time_s){{0, 0}})
         , m_max_rank_count (max_rank_count)
@@ -115,4 +108,31 @@ namespace geopm
         }
         return result;
     }
+
+    MPIRuntimeRegulator::MPIRuntimeRegulator(int max_rank_count)
+        : RuntimeRegulator(max_rank_count)
+    {
+    }
+
+    void MPIRuntimeRegulator::record_exit(int rank, struct geopm_time_s exit_time)
+    {
+        if (rank < 0 || rank >= m_max_rank_count) {
+            throw Exception("MPIRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        double delta = geopm_time_diff(&m_runtimes[rank].first, &exit_time);
+        m_runtimes[rank].second = delta / m_max_rank_count;
+        m_runtimes[rank].first = M_TIME_ZERO; // record exit
+        update_average();
+    }
+
+    void MPIRuntimeRegulator::update_average(void)
+    {
+        double sum = 0.0;
+        for (auto &val : m_runtimes) {
+            sum += val.second;
+        }
+
+        m_last_avg = sum / m_runtimes.size();
+    }
+
 }
