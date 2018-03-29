@@ -58,6 +58,7 @@
 #include "Comm.hpp"
 #include "Controller.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "SampleRegulator.hpp"
 #include "TreeCommunicator.hpp"
 #include "Platform.hpp"
@@ -403,8 +404,10 @@ namespace geopm
 
         if (!m_is_connected) {
             m_sampler->initialize(m_rank_per_node);
-            m_num_mpi_enter.resize(m_rank_per_node, 0);
-            m_mpi_enter_time.resize(m_rank_per_node, {{0,0}});
+            auto rid_it = m_rid_regulator_map.emplace(std::piecewise_construct,
+                                                      std::make_tuple(GEOPM_REGION_ID_MPI),
+                                                      std::make_tuple(geopm::make_unique<MPIRuntimeRegulator>
+                                                      (m_rank_per_node)));
             m_prof_sample.resize(m_sampler->capacity());
             std::vector<int> cpu_rank;
             m_sampler->cpu_rank(cpu_rank);
@@ -412,6 +415,8 @@ namespace geopm
             m_sample_regulator = new SampleRegulator(cpu_rank);
             m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank);
             m_profile_io_runtime = std::make_shared<ProfileIORuntime>(cpu_rank);
+            // Add new MPI region regulator to ProfileIO
+            m_profile_io_runtime->insert_regulator(GEOPM_REGION_ID_MPI, *rid_it.first->second);
             std::unique_ptr<ProfileIOGroup> tmp_piog(new ProfileIOGroup(m_profile_io_sample,
                                                                         m_profile_io_runtime));
             platform_io().register_iogroup(std::move(tmp_piog));
@@ -617,18 +622,12 @@ namespace geopm
                         base_region_id = geopm_region_id_unset_mpi(sample_it->second.region_id);
                         if (sample_it->second.progress == 0.0 &&
                             !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
-                            if (!m_num_mpi_enter[local_rank]) {
-                                m_mpi_enter_time[local_rank] = sample_it->second.timestamp;
-                            }
-                            ++m_num_mpi_enter[local_rank];
+                            m_rid_regulator_map[GEOPM_REGION_ID_MPI]->record_entry(local_rank, (*sample_it).second.timestamp);
                         }
                         else if (sample_it->second.progress == 1.0 &&
                                  !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
-                            --m_num_mpi_enter[local_rank];
-                            if (!m_num_mpi_enter[local_rank]) {
-                                region_mpi_time += geopm_time_diff(&(m_mpi_enter_time[local_rank]),
-                                                                   &((*sample_it).second.timestamp)) / m_rank_per_node;
-                            }
+                            m_rid_regulator_map[GEOPM_REGION_ID_MPI]->record_exit(local_rank, (*sample_it).second.timestamp);
+                            region_mpi_time += m_rid_regulator_map[GEOPM_REGION_ID_MPI]->runtimes()[local_rank];
                         }
                         if (!base_region_id) {
                             base_region_id = GEOPM_REGION_ID_UNMARKED;
@@ -642,16 +641,17 @@ namespace geopm
                                 !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
                                 auto rid_it = m_rid_regulator_map.emplace(std::piecewise_construct,
                                                                           std::make_tuple(base_region_id),
-                                                                          std::make_tuple(m_rank_per_node));
+                                                                          std::make_tuple(geopm::make_unique<RuntimeRegulator>
+                                                                                          (m_rank_per_node)));
                                 // Add new regulator to ProfileIO
                                 if (rid_it.second) {
-                                    m_profile_io_runtime->insert_regulator(base_region_id, rid_it.first->second);
+                                    m_profile_io_runtime->insert_regulator(base_region_id, *rid_it.first->second);
                                 }
-                                rid_it.first->second.record_entry(local_rank, (*sample_it).second.timestamp);
+                                rid_it.first->second->record_entry(local_rank, (*sample_it).second.timestamp);
                             }
                             else if ((*sample_it).second.progress == 1.0 &&
                                      !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
-                                m_rid_regulator_map[base_region_id].record_exit(local_rank, (*sample_it).second.timestamp);
+                                m_rid_regulator_map[base_region_id]->record_exit(local_rank, (*sample_it).second.timestamp);
                             }
                         }
                     }
@@ -659,7 +659,7 @@ namespace geopm
                         is_epoch_begun = true;
                     }
                 }
-                m_mpi_sync_time += region_mpi_time;
+                m_mpi_sync_time += region_mpi_time / m_rank_per_node;
                 if (region_mpi_time != 0.0) {
                     uint64_t map_id = base_region_id;
                     // Regular user region keys are only the least significant 32 bits of the region id,
@@ -676,10 +676,10 @@ namespace geopm
                                                              m_sampler->tprof_table())));
                         region_it = tmp_it.first;
                     }
-                    region_it->second->increment_mpi_time(region_mpi_time);
+                    region_it->second->increment_mpi_time(region_mpi_time / m_rank_per_node);
                     if (is_epoch_begun) {
                         region_it = m_region[level].find(GEOPM_REGION_ID_EPOCH);
-                        region_it->second->increment_mpi_time(region_mpi_time);
+                        region_it->second->increment_mpi_time(region_mpi_time / m_rank_per_node);
                     }
                 }
 
@@ -755,7 +755,10 @@ namespace geopm
                 }
 
                 m_platform->transform_rank_data(region_id_all, m_msr_sample[0].timestamp, aligned_signal, m_telemetry_sample);
-                m_rid_regulator_map[geopm_region_id_unset_mpi(m_telemetry_sample[0].region_id)].insert_runtime_signal(m_telemetry_sample);
+                auto reg_it = m_rid_regulator_map.find(geopm_region_id_unset_mpi(m_telemetry_sample[0].region_id));
+                if (reg_it != m_rid_regulator_map.end()) {
+                    reg_it->second->insert_runtime_signal(m_telemetry_sample);
+                }
 
                 // First entry into any region
                 if (m_region_id_all == GEOPM_REGION_ID_UNDEFINED && region_id_all != m_region_id_all) {
@@ -865,7 +868,10 @@ namespace geopm
             (*it).region_id = m_region_id_all;
             (*it).signal[GEOPM_TELEMETRY_TYPE_PROGRESS] = progress;
         }
-        m_rid_regulator_map[geopm_region_id_unset_mpi(m_telemetry_sample[0].region_id)].insert_runtime_signal(m_telemetry_sample);
+        auto reg_it = m_rid_regulator_map.find(geopm_region_id_unset_mpi(m_telemetry_sample[0].region_id));
+        if (reg_it != m_rid_regulator_map.end()) {
+            reg_it->second->insert_runtime_signal(m_telemetry_sample);
+        }
     }
 
     void Controller::update_region(void)
