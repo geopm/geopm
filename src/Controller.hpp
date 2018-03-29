@@ -53,12 +53,12 @@ namespace geopm
     class DeciderFactory;
     class IDecider;
     class IRegion;
+    class IRuntimeRegulator;
     class IGlobalPolicy;
     class IProfileSampler;
     class ITracer;
     class IPolicy;
     class IComm;
-    class RuntimeRegulator;
     class IProfileIOSample;
     class IProfileIORuntime;
 
@@ -204,8 +204,6 @@ namespace geopm
             std::vector<struct geopm_policy_message_s> m_last_policy_msg;
             std::vector<struct geopm_sample_message_s> m_last_sample_msg;
             std::vector<uint64_t> m_region_id;
-            // Per rank vector counting number of entries into MPI.
-            std::vector<uint64_t> m_num_mpi_enter;
             std::vector<bool> m_is_epoch_changed;
             uint64_t m_region_id_all;
             bool m_do_shutdown;
@@ -222,13 +220,11 @@ namespace geopm
             uint64_t m_sample_count;
             uint64_t m_throttle_count;
             double m_throttle_limit_mhz;
-            // Per rank vector tracking time of last entry into MPI.
-            std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
             std::shared_ptr<IComm> m_ppn1_comm;
             int m_ppn1_rank;
-            std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
+            std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
             std::shared_ptr<IProfileIOSample> m_profile_io_sample;
             std::shared_ptr<IProfileIORuntime> m_profile_io_runtime;
             struct geopm_plugin_description_s m_plugin_desc;
