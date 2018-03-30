@@ -627,7 +627,7 @@ namespace geopm
                         else if (sample_it->second.progress == 1.0 &&
                                  !geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, base_region_id)) {
                             m_rid_regulator_map[GEOPM_REGION_ID_MPI]->record_exit(local_rank, sample_it->second.timestamp);
-                            region_mpi_time += m_rid_regulator_map[GEOPM_REGION_ID_MPI]->runtimes()[local_rank] / m_rank_per_node;
+                            region_mpi_time += platform_io().read_signal("MPI_TIME", PlatformTopo::M_DOMAIN_CPU, local_rank) / m_rank_per_node;
                         }
                         if (!base_region_id) {
                             base_region_id = GEOPM_REGION_ID_UNMARKED;
