@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffba6d20_e126a189",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-30T23:19:41Z",
+      "side": 1,
+      "message": "Assuming no signal name change, update this commit message in place and use \"MPI_TIME\" instead of \"MPI\" here",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 7
+      },
+      "revId": "8d47ab5054b2e5effcf836438dd7f41971c220dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
