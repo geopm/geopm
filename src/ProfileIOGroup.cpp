@@ -59,6 +59,8 @@ namespace geopm
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {"REGION_ID#", M_SIGNAL_REGION_ID},
                            {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
+                           {plugin_name() + "::EPOCH_MPI_TIME", M_SIGNAL_EPOCH_MPI_TIME},
+                           {"EPOCH_MPI_TIME", M_SIGNAL_EPOCH_MPI_TIME},
                            {plugin_name() + "::REGION_RUNTIME", M_SIGNAL_RUNTIME},
                            {"REGION_RUNTIME", M_SIGNAL_RUNTIME}}
         , m_platform_topo(topo)
@@ -142,6 +144,9 @@ namespace geopm
             geopm_time(&read_time);
             m_per_cpu_progress = m_profile_sample->per_cpu_progress(read_time);
         }
+        if (m_do_read[M_SIGNAL_EPOCH_MPI_TIME]) {
+            m_per_rank_epoch_mpi_time = m_profile_runtime->per_rank_runtime(GEOPM_REGION_ID_MPI);
+        }
         if (m_do_read[M_SIGNAL_RUNTIME]) {
             std::map<uint64_t, std::vector<double> > cache;
             for (auto rid : m_per_cpu_region_id) {
@@ -189,6 +194,9 @@ namespace geopm
             case M_SIGNAL_RUNTIME:
                 result = m_per_cpu_runtime[cpu_idx];
                 break;
+            case M_SIGNAL_EPOCH_MPI_TIME:
+                result = m_per_rank_epoch_mpi_time[cpu_idx];
+                break;
             default:
 #ifdef GEOPM_DEBUG
                 throw Exception("ProfileIOGroup:sample(): Signal was pushed with an invalid signal type",
@@ -225,6 +233,10 @@ namespace geopm
             case M_SIGNAL_RUNTIME:
                 region_id = m_profile_sample->per_cpu_region_id()[cpu_idx];
                 result = m_profile_runtime->per_cpu_runtime(region_id)[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_MPI_TIME:
+                /// @todo Once non-cpu domain support and combined signal support, revisit
+                result = m_profile_runtime->per_rank_runtime(GEOPM_REGION_ID_MPI)[cpu_idx];
                 break;
             default:
 #ifdef GEOPM_DEBUG

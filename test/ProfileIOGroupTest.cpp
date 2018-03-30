@@ -34,6 +34,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm_hash.h"
+#include "geopm_message.h"
 #include "geopm_test.hpp"
 #include "ProfileIOGroup.hpp"
 #include "ProfileIORuntime.hpp"
@@ -256,6 +257,33 @@ TEST_F(ProfileIOGroupTest, runtime_sample)
     EXPECT_EQ(expected_runtime, result);
 }
 
+TEST_F(ProfileIOGroupTest, mpi_time_sample)
+{
+    std::vector<double> region_runtime = {5, 6, 7, 8};
+
+    EXPECT_CALL(*m_mock_runtime, per_rank_runtime(GEOPM_REGION_ID_MPI))
+        .WillOnce(Return(region_runtime));
+
+    // push_signal
+    std::vector<int> runtime_idx;
+    for (size_t ii = 0; ii < region_runtime.size(); ++ii) {
+        runtime_idx.push_back(m_piog.push_signal("PROFILE::EPOCH_MPI_TIME", PlatformTopo::M_DOMAIN_CPU, ii));
+    }
+    int dup_idx = m_piog.push_signal("PROFILE::EPOCH_MPI_TIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    int alias = m_piog.push_signal("EPOCH_MPI_TIME", PlatformTopo::M_DOMAIN_CPU, 0);
+    EXPECT_EQ(runtime_idx[0], dup_idx);
+    EXPECT_EQ(runtime_idx[0], alias);
+
+    m_piog.read_batch();
+
+    // sample
+    std::vector<double> result;
+    for (size_t ii = 0; ii < region_runtime.size(); ++ii) {
+        result.push_back(m_piog.sample(runtime_idx[ii]));
+    }
+    EXPECT_EQ(region_runtime, result);
+}
+
 TEST_F(ProfileIOGroupTest, runtime_read_signal)
 {
     uint64_t region_id_1 = 4444;
@@ -279,4 +307,19 @@ TEST_F(ProfileIOGroupTest, runtime_read_signal)
         result.push_back(m_piog.read_signal("PROFILE::REGION_RUNTIME", PlatformTopo::M_DOMAIN_CPU, ii));
     }
     EXPECT_EQ(expected_runtime, result);
+}
+
+TEST_F(ProfileIOGroupTest, mpi_time_read_signal)
+{
+    std::vector<double> region_runtime = {5, 6, 7, 8};
+
+    EXPECT_CALL(*m_mock_runtime, per_rank_runtime(GEOPM_REGION_ID_MPI))
+        .WillRepeatedly(Return(region_runtime));
+
+    // read_signal
+    std::vector<double> result;
+    for (size_t ii = 0; ii < region_runtime.size(); ++ii) {
+        result.push_back(m_piog.read_signal("PROFILE::EPOCH_MPI_TIME", PlatformTopo::M_DOMAIN_CPU, ii));
+    }
+    EXPECT_EQ(region_runtime, result);
 }

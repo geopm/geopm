@@ -72,4 +72,17 @@ namespace geopm
         }
         return result;
     }
+
+    std::vector<double> ProfileIORuntime::per_rank_runtime(uint64_t region_id) const
+    {
+        auto rid_it = m_regulator.find(region_id);
+#ifdef GEOPM_DEBUG
+        if (rid_it == m_regulator.end()) {
+            throw Exception("ProfileIORuntime::per_cpu_runtime: No regulator set "
+                            "for region " + std::to_string(region_id),
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return rid_it->second.runtimes();
+    }
 }
