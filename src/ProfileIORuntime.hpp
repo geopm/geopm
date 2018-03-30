@@ -52,6 +52,7 @@ namespace geopm
             virtual ~IProfileIORuntime() = default;
             virtual void insert_regulator(uint64_t region_id, IRuntimeRegulator &reg) = 0;
             virtual std::vector<double> per_cpu_runtime(uint64_t region_id) const = 0;
+            virtual std::vector<double> per_rank_runtime(uint64_t region_id) const = 0;
     };
 
     class ProfileIORuntime : public IProfileIORuntime
@@ -61,6 +62,7 @@ namespace geopm
             virtual ~ProfileIORuntime() = default;
             void insert_regulator(uint64_t region_id, IRuntimeRegulator &reg) override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
+            std::vector<double> per_rank_runtime(uint64_t region_id) const override;
         protected:
             /// @brief The rank index of the rank running on each CPU.
             std::vector<int> m_cpu_rank;

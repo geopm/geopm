@@ -73,3 +73,34 @@ TEST(ProfileIORuntimeTest, per_cpu_runtime)
                                GEOPM_ERROR_LOGIC, "No regulator set for region");
 #endif
 }
+
+TEST(ProfileIORuntimeTest, per_rank_runtime)
+{
+    MockRuntimeRegulator mock_reg_1;
+    MockRuntimeRegulator mock_reg_2;
+    std::vector<int> cpu_rank {1, 1, 2, 2, 3, 3, 4, 4};
+    ProfileIORuntime m_profile_runtime(cpu_rank);
+    uint64_t region_id_1 = 999;
+    uint64_t region_id_2 = 777;
+    m_profile_runtime.insert_regulator(region_id_1, mock_reg_1);
+    m_profile_runtime.insert_regulator(region_id_2, mock_reg_2);
+
+    std::vector<double> rank_runtime_1{8, 6, 8, 5};
+    std::vector<double> rank_runtime_2{9, 7, 5, 4};
+
+    EXPECT_CALL(mock_reg_1, runtimes())
+        .WillOnce(Return(rank_runtime_1));
+    EXPECT_CALL(mock_reg_2, runtimes())
+        .WillOnce(Return(rank_runtime_2));
+
+    std::vector<double> runtime = m_profile_runtime.per_rank_runtime(region_id_1);
+    EXPECT_EQ(rank_runtime_1, runtime);
+    runtime = m_profile_runtime.per_rank_runtime(region_id_2);
+    EXPECT_EQ(rank_runtime_2, runtime);
+
+    // errors
+#ifdef GEOPM_DEBUG
+    GEOPM_EXPECT_THROW_MESSAGE(m_profile_runtime.per_rank_runtime(808080),
+                               GEOPM_ERROR_LOGIC, "No regulator set for region");
+#endif
+}
