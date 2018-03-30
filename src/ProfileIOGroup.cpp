@@ -62,9 +62,9 @@ namespace geopm
                            {plugin_name() + "::REGION_RUNTIME", M_SIGNAL_RUNTIME},
                            {"REGION_RUNTIME", M_SIGNAL_RUNTIME}}
         , m_platform_topo(topo)
+        , m_do_read(M_SIGNAL_MAX, false)
         , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
     {
-
     }
 
     ProfileIOGroup::~ProfileIOGroup()
@@ -117,20 +117,10 @@ namespace geopm
         if (result == -1) {
             result = m_active_signal.size();
             m_active_signal.push_back({signal_type, domain_type, domain_idx});
-            switch (signal_type) {
-                case M_SIGNAL_REGION_ID:
-                    m_do_read_region_id = true;
-                    break;
-                case M_SIGNAL_PROGRESS:
-                    m_do_read_progress = true;
-                    break;
-                case M_SIGNAL_RUNTIME:
-                    // Runtime signal requires region_id as well
-                    m_do_read_region_id = true;
-                    m_do_read_runtime = true;
-                    break;
-                default:
-                    break;
+            m_do_read[signal_type] = true;
+            // Runtime signal requires region_id as well
+            if (signal_type == M_SIGNAL_RUNTIME) {
+                m_do_read[M_SIGNAL_REGION_ID] = true;
             }
         }
         return result;
@@ -144,15 +134,15 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
-        if (m_do_read_region_id) {
+        if (m_do_read[M_SIGNAL_REGION_ID]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
         }
-        if (m_do_read_progress) {
+        if (m_do_read[M_SIGNAL_PROGRESS]) {
             struct geopm_time_s read_time;
             geopm_time(&read_time);
             m_per_cpu_progress = m_profile_sample->per_cpu_progress(read_time);
         }
-        if (m_do_read_runtime) {
+        if (m_do_read[M_SIGNAL_RUNTIME]) {
             std::map<uint64_t, std::vector<double> > cache;
             for (auto rid : m_per_cpu_region_id) {
                 // add runtimes for each region if not already present
