@@ -71,6 +71,7 @@ namespace geopm
             enum m_signal_type {
                 M_SIGNAL_REGION_ID = 0,
                 M_SIGNAL_PROGRESS,
+                M_SIGNAL_EPOCH_MPI_TIME,
                 M_SIGNAL_RUNTIME,
                 M_SIGNAL_MAX,
             };
@@ -92,6 +93,7 @@ namespace geopm
             struct geopm_time_s m_read_time;
             std::vector<uint64_t> m_per_cpu_region_id;
             std::vector<double> m_per_cpu_progress;
+            std::vector<double> m_per_rank_epoch_mpi_time;
             std::vector<double> m_per_cpu_runtime;
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
     };

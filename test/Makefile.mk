@@ -242,12 +242,15 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ProfileIOGroupTest.control \
               test/gtest_links/ProfileIOGroupTest.region_id \
               test/gtest_links/ProfileIOGroupTest.progress \
+              test/gtest_links/ProfileIOGroupTest.mpi_time_sample \
               test/gtest_links/ProfileIOGroupTest.runtime_sample \
+              test/gtest_links/ProfileIOGroupTest.mpi_time_read_signal \
               test/gtest_links/ProfileIOGroupTest.runtime_read_signal \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
               test/gtest_links/ProfileIORuntimeTest.per_cpu_runtime \
+              test/gtest_links/ProfileIORuntimeTest.per_rank_runtime \
               test/gtest_links/ProfileTestIntegration.config \
               test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
