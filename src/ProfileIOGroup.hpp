@@ -69,9 +69,10 @@ namespace geopm
             static std::string plugin_name(void);
         protected:
             enum m_signal_type {
-                M_SIGNAL_REGION_ID,
+                M_SIGNAL_REGION_ID = 0,
                 M_SIGNAL_PROGRESS,
                 M_SIGNAL_RUNTIME,
+                M_SIGNAL_MAX,
             };
             struct m_signal_config {
                 int signal_type;
@@ -85,9 +86,7 @@ namespace geopm
             std::shared_ptr<IProfileIORuntime> m_profile_runtime;
             std::map<std::string, int> m_signal_idx_map;
             IPlatformTopo &m_platform_topo;
-            bool m_do_read_region_id = false;
-            bool m_do_read_progress = false;
-            bool m_do_read_runtime = false;
+            std::vector<bool> m_do_read;
             bool m_is_batch_read = false;
             std::vector<struct m_signal_config> m_active_signal;
             struct geopm_time_s m_read_time;
