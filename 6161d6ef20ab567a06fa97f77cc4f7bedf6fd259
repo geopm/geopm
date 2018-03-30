@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2fc1b5c_79e02ce9",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-30T22:18:03Z",
+      "side": 1,
+      "message": "rid_it-\u003e",
+      "range": {
+        "startLine": 419,
+        "startChar": 72,
+        "endLine": 419,
+        "endChar": 80
+      },
+      "revId": "6161d6ef20ab567a06fa97f77cc4f7bedf6fd259",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aac3ec59_91265bb9",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-30T22:18:03Z",
+      "side": 1,
+      "message": "sample_it-\u003e",
+      "range": {
+        "startLine": 625,
+        "startChar": 95,
+        "endLine": 625,
+        "endChar": 108
+      },
+      "revId": "6161d6ef20ab567a06fa97f77cc4f7bedf6fd259",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3e3c27f_14bb376a",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-30T22:18:03Z",
+      "side": 1,
+      "message": "sample_it-\u003e",
+      "range": {
+        "startLine": 629,
+        "startChar": 94,
+        "endLine": 629,
+        "endChar": 107
+      },
+      "revId": "6161d6ef20ab567a06fa97f77cc4f7bedf6fd259",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b8c0d40_add6516b",
+        "filename": "src/RuntimeRegulator.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-03-30T22:18:03Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 49
+      },
+      "revId": "6161d6ef20ab567a06fa97f77cc4f7bedf6fd259",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
