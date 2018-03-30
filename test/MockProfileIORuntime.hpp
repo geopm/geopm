@@ -50,6 +50,8 @@ class MockProfileIORuntime : public geopm::IProfileIORuntime
                      void(uint64_t region_id, geopm::IRuntimeRegulator &reg));
         MOCK_CONST_METHOD1(per_cpu_runtime,
                      std::vector<double>(uint64_t region_id));
+        MOCK_CONST_METHOD1(per_rank_runtime,
+                     std::vector<double>(uint64_t region_id));
 };
 
 #endif
