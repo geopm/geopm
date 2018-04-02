@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4364f627_9b480196",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-02T17:59:38Z",
+      "side": 1,
+      "message": "if region_id \u003d\u003d GEOPM_REGION_MPI then:\n   \nelse unset_mpi then:\n#ifdef GEOPM_DEBUG\nelse {\n  throw\n}",
+      "range": {
+        "startLine": 761,
+        "startChar": 16,
+        "endLine": 761,
+        "endChar": 17
+      },
+      "revId": "a867338064041317bea0a9ec2f64a5ffed35524f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
