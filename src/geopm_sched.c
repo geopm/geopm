@@ -96,7 +96,7 @@ int geopm_sched_popen(const char *cmd, FILE **fid)
 
 int geopm_sched_num_cpu(void)
 {
-    return sysconf(_SC_NPROCESSORS_ONLN);
+    return sysconf(_SC_NPROCESSORS_CONF);
 }
 
 int geopm_sched_get_cpu(void)
