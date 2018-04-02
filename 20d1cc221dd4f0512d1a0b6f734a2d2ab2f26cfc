@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a41238d6_cd8abecd",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-02T16:47:19Z",
+      "side": 1,
+      "message": "Should we ditch this patch entirely?  Avoid PlatformIO lookup overhead because we already have access to the regulator managed by ProfileIOGroup.",
+      "range": {
+        "startLine": 630,
+        "startChar": 47,
+        "endLine": 630,
+        "endChar": 124
+      },
+      "revId": "20d1cc221dd4f0512d1a0b6f734a2d2ab2f26cfc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
