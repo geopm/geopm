@@ -53,8 +53,5 @@ libgeopmpi_efficientfreq_la_SOURCES = plugin/EfficientFreqDecider.cpp \
 
 # -module required to force .so generation of plugin.
 libgeopmpi_governing_la_LDFLAGS = $(AM_LDFLAGS) -module
-libgeopmpi_governing_la_LIBADD = libgeopm.la
 libgeopmpi_balancing_la_LDFLAGS = $(AM_LDFLAGS) -module
-libgeopmpi_balancing_la_LIBADD = libgeopm.la
 libgeopmpi_efficientfreq_la_LDFLAGS = $(AM_LDFLAGS) -module
-libgeopmpi_efficientfreq_la_LIBADD = libgeopm.la
