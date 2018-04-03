@@ -208,6 +208,11 @@ namespace geopm
         return std::make_shared<MPIComm>(this, dimensions, periods, is_reorder);
     }
 
+    std::shared_ptr<IComm> MPIComm::split_cart(std::vector<int> dimensions) const
+    {
+        return split(dimensions, {}, true);
+    }
+
     bool MPIComm::comm_supported(const std::string &plugin_name) const
     {
         return plugin_name == m_name;
@@ -306,6 +311,13 @@ namespace geopm
         if (is_valid()) {
             check_mpi(PMPI_Cart_coords(m_comm, rank, m_maxdims, coord.data()));
         }
+    }
+
+    std::vector<int> MPIComm::coordinate(int rank, size_t in_size) const
+    {
+        std::vector<int> result(in_size, 0);
+        coordinate(rank, result);
+        return result;
     }
 
     void MPIComm::barrier(void) const

@@ -137,7 +137,7 @@ static void config_cart_comm(std::shared_ptr<MockComm> cart_comm, int ppn1_rank,
     //rank, coordinate, cart_rank, split
     EXPECT_CALL(*cart_comm, rank())
         .WillOnce(testing::Return(ppn1_rank));
-    EXPECT_CALL(*cart_comm, coordinate(testing::_, testing::_))
+    EXPECT_CALL(*cart_comm, coordinate(testing::_, testing::Matcher<std::vector<int> &>(testing::_)))
         .WillOnce(testing::SetArgReferee<1>(coordinates[ppn1_rank]));
 
     if (config_levels) {

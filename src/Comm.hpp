@@ -66,6 +66,8 @@ namespace geopm
             virtual std::shared_ptr<IComm> split(int color, int key) const = 0;
             virtual std::shared_ptr<IComm> split(const std::string &tag, int split_type) const = 0;
             virtual std::shared_ptr<IComm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const = 0;
+            virtual std::shared_ptr<IComm> split_cart(std::vector<int> dimensions) const = 0;
+
             virtual bool comm_supported(const std::string &description) const = 0;
 
             // Introspection
@@ -134,6 +136,7 @@ namespace geopm
             ///        The size of this vector should equal the number of dimensions
             ///        that the Cartesian communicator was created with.
             virtual void coordinate(int rank, std::vector<int> &coord) const = 0;
+            virtual std::vector<int> coordinate(int rank, size_t in_size) const = 0;
 
             // Collective communication
             /// @brief Barrier for all ranks

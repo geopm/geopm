@@ -64,6 +64,7 @@ namespace geopm
             virtual std::shared_ptr<IComm> split(int color, int key) const override;
             virtual std::shared_ptr<IComm> split(const std::string &tag, int split_type) const override;
             virtual std::shared_ptr<IComm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const override;
+            virtual std::shared_ptr<IComm> split_cart(std::vector<int> dimensions) const override;
 
             virtual bool comm_supported(const std::string &description) const override;
 
@@ -76,6 +77,7 @@ namespace geopm
             virtual size_t window_create(size_t size, void *base) override;
             virtual void window_destroy(size_t window_id) override;
             virtual void coordinate(int rank, std::vector<int> &coord) const override;
+            virtual std::vector<int> coordinate(int rank, size_t in_size) const override;
             virtual void window_lock(size_t window_id, bool is_exclusive, int rank, int assert) const override;
             virtual void window_unlock(size_t window_id, int rank) const override;
             virtual void barrier(void) const override;
