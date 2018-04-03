@@ -58,6 +58,8 @@ scripts/test/__init__.py
 scripts/test/TestAffinity.py
 scripts/test/TestAnalysis.py
 scripts/test/TestSubsetOptionParser.py
+src/Agent.cpp
+src/Agent.hpp
 src/CircularBuffer.hpp
 src/CombinedSignal.cpp
 src/CombinedSignal.hpp
