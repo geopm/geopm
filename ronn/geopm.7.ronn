@@ -329,6 +329,12 @@ manager selected by the wrapper script.
     option.  If the environment variable is set and/or the command line
     option is specified then hyperthreads will be disabled.
 
+  * `GEOPM_AGENT`:
+    Used to select the Agent to be used by all Kontrollers.  The Agent
+    will take over the role previously held by Deciders in splitting
+    policy information to be sent to controllers lower in the tree,
+    and aggregating sampled data up the tree.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 

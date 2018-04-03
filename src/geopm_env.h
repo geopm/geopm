@@ -44,6 +44,7 @@ enum geopm_pmpi_ctl_e {
 };
 
 const char *geopm_env_policy(void);
+const char *geopm_env_agent(void);
 const char *geopm_env_shmkey(void);
 const char *geopm_env_trace(void);
 const char *geopm_env_plugin_path(void);
