@@ -51,7 +51,8 @@ namespace geopm
             PluginFactory(const PluginFactory &other) = delete;
             PluginFactory &operator=(const PluginFactory &other) = delete;
             void register_plugin(const std::string &plugin_name,
-                                 std::function<std::unique_ptr<T>()> make_plugin)
+                                 std::function<std::unique_ptr<T>()> make_plugin,
+                                 const std::map<std::string, std::string> &dictionary = m_empty_dictionary)
             {
                 auto result = m_name_func_map.emplace(plugin_name, make_plugin);
                 if (!result.second) {
@@ -59,6 +60,7 @@ namespace geopm
                                     plugin_name + "\" has been previously registered",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
+                m_dictionary.emplace(plugin_name, dictionary);
             }
             std::unique_ptr<T> make_plugin(const std::string &plugin_name)
             {
@@ -80,9 +82,18 @@ namespace geopm
                 }
                 return result;
             }
+            const std::map<std::string, std::string> &dictionary(std::string plugin_name)
+            {
+                return m_dictionary.at(plugin_name);
+            }
         private:
             std::map<std::string, std::function<std::unique_ptr<T>()> > m_name_func_map;
+            std::map<std::string, const std::map<std::string, std::string> &> m_dictionary;
+            static const std::map<std::string, std::string> m_empty_dictionary;
     };
+
+    template <class Type>
+    const std::map<std::string, std::string> PluginFactory<Type>::m_empty_dictionary = {};
 
 }
 #endif
