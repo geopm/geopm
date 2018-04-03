@@ -259,6 +259,16 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ProfileTest.epoch \
               test/gtest_links/ProfileTest.shutdown \
               test/gtest_links/ProfileTest.tprof_table \
+              test/gtest_links/TreeCommLevelTest.level_rank \
+              test/gtest_links/TreeCommLevelTest.send_up \
+              test/gtest_links/TreeCommLevelTest.send_down \
+              test/gtest_links/TreeCommLevelTest.receive_up_complete \
+              test/gtest_links/TreeCommLevelTest.receive_up_incomplete \
+              test/gtest_links/TreeCommLevelTest.receive_down_complete \
+              test/gtest_links/TreeCommLevelTest.receive_down_incomplete \
+              test/gtest_links/TreeCommTest.geometry \
+              test/gtest_links/TreeCommTest.send_receive \
+              test/gtest_links/TreeCommTest.overhead_send \
               # end
 
 if ENABLE_MPI
@@ -349,6 +359,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockRuntimeRegulator.hpp \
                           test/MockProfileIORuntime.hpp \
                           test/ProfileTest.cpp \
+                          test/TreeCommLevelTest.cpp \
+                          test/TreeCommTest.cpp \
+                          test/MockTreeCommLevel.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

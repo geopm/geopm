@@ -46,6 +46,8 @@ class MockComm : public geopm::IComm
             std::shared_ptr<IComm> (const std::string &tag, int split_type));
         MOCK_CONST_METHOD3(split,
             std::shared_ptr<IComm> (std::vector<int> dimensions, std::vector<int> periods, bool is_reorder));
+        MOCK_CONST_METHOD1(split_cart,
+            std::shared_ptr<IComm>(std::vector<int> dimensions));
         MOCK_CONST_METHOD1(comm_supported,
             bool (const std::string &description));
         MOCK_CONST_METHOD1(cart_rank,
@@ -70,6 +72,8 @@ class MockComm : public geopm::IComm
             void (size_t window_id, int rank));
         MOCK_CONST_METHOD2(coordinate,
             void (int rank, std::vector<int> &coord));
+        MOCK_CONST_METHOD2(coordinate,
+            std::vector<int>(int rank, size_t in_size));
         MOCK_CONST_METHOD0(barrier,
             void (void));
         MOCK_CONST_METHOD3(broadcast,

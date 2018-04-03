@@ -353,6 +353,10 @@ libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
                             src/TimeIOGroup.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
+                            src/TreeComm.cpp \
+                            src/TreeComm.hpp \
+                            src/TreeCommLevel.cpp \
+                            src/TreeCommLevel.hpp \
                             src/TreeCommunicator.cpp \
                             src/TreeCommunicator.hpp \
                             src/XeonPlatformImp.cpp \
