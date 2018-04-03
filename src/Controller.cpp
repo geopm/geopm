@@ -76,6 +76,7 @@
 #include "ProfileIOGroup.hpp"
 #include "ProfileIORuntime.hpp"
 #include "ProfileIOSample.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -412,9 +413,8 @@ namespace geopm
             m_sample_regulator = new SampleRegulator(cpu_rank);
             m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank);
             m_profile_io_runtime = std::make_shared<ProfileIORuntime>(cpu_rank);
-            std::unique_ptr<ProfileIOGroup> tmp_piog(new ProfileIOGroup(m_profile_io_sample,
-                                                                        m_profile_io_runtime));
-            platform_io().register_iogroup(std::move(tmp_piog));
+            platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample,
+                                                                              m_profile_io_runtime));
             m_is_connected = true;
         }
     }

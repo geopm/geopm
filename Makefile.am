@@ -249,7 +249,9 @@ if ENABLE_FORTRAN
 endif
 endif
 
-libgeopmpolicy_la_SOURCES = src/CircularBuffer.hpp \
+libgeopmpolicy_la_SOURCES = src/Agent.cpp \
+                            src/Agent.hpp \
+                            src/CircularBuffer.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
                             src/Comm.cpp \
