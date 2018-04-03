@@ -64,6 +64,7 @@ namespace geopm
             const char *trace(void) const;
             const char *plugin_path(void) const;
             const char *profile(void) const;
+            const char *agent(void) const;
             int report_verbosity(void) const;
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
@@ -78,6 +79,7 @@ namespace geopm
             std::string m_report;
             std::string m_comm;
             std::string m_policy;
+            std::string m_agent;
             std::string m_shmkey;
             std::string m_trace;
             std::string m_plugin_path;
@@ -118,6 +120,7 @@ namespace geopm
         m_report = "";
         m_comm = "MPIComm";
         m_policy = "";
+        m_agent = "static_policy";
         m_shmkey = "/geopm-shm-" + std::to_string(geteuid());
         m_trace = "";
         m_plugin_path = "";
@@ -136,6 +139,7 @@ namespace geopm
         (void)get_env("GEOPM_REPORT", m_report);
         (void)get_env("GEOPM_COMM", m_comm);
         (void)get_env("GEOPM_POLICY", m_policy);
+        (void)get_env("GEOPM_AGENT", m_agent);
         (void)get_env("GEOPM_SHMKEY", m_shmkey);
         if (m_shmkey[0] != '/') {
             m_shmkey = "/" + m_shmkey;
@@ -215,6 +219,11 @@ namespace geopm
         return m_policy.c_str();
     }
 
+    const char *Environment::agent(void) const
+    {
+        return m_agent.c_str();
+    }
+
     const char *Environment::shmkey(void) const
     {
         return m_shmkey.c_str();
@@ -286,6 +295,11 @@ extern "C"
     const char *geopm_env_policy(void)
     {
         return geopm::environment().policy();
+    }
+
+    const char *geopm_env_agent(void)
+    {
+        return geopm::environment().agent();
     }
 
     const char *geopm_env_shmkey(void)
