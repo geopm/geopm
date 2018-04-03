@@ -173,6 +173,10 @@ src/TimeIOGroup.cpp
 src/TimeIOGroup.hpp
 src/Tracer.cpp
 src/Tracer.hpp
+src/TreeComm.cpp
+src/TreeComm.hpp
+src/TreeCommLevel.cpp
+src/TreeCommLevel.hpp
 src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 src/XeonPlatformImp.cpp
@@ -227,6 +231,8 @@ test/MockRuntimeRegulator.hpp
 test/MockSampleScheduler.hpp
 test/MockSharedMemory.hpp
 test/MockSharedMemoryUser.hpp
+test/MockSampleScheduler.hpp
+test/MockTreeCommLevel.hpp
 test/ModelApplicationTest.cpp
 test/MPIInterfaceTest.cpp
 test/MSRIOGroupTest.cpp
@@ -250,6 +256,9 @@ test/RuntimeRegulatorTest.cpp
 test/SampleRegulatorTest.cpp
 test/SchedTest.cpp
 test/SharedMemoryTest.cpp
+test/TreeCommTest.cpp
+test/TreeCommLevelTest.cpp
+test/TreeCommunicatorTest.cpp
 test/TimeIOGroupTest.cpp
 test/TreeCommunicatorTest.cpp
 tracker/track
