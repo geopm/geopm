@@ -52,7 +52,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
                --geopm-ctl=process \
                --geopm-report=tutorial_1_report \
                --geopm-trace=tutorial_1_trace \
-               -- ./tutorial_1
+               -- $DDT ./tutorial_1
     err=$?
 elif [ "$GEOPM_RM" == "ALPS" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun

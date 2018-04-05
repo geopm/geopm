@@ -47,8 +47,12 @@ class MockRuntimeRegulator : public geopm::IRuntimeRegulator
                      void(int rank, struct geopm_time_s exit_time));
         MOCK_METHOD1(insert_runtime_signal,
                      void(std::vector<struct geopm_telemetry_message_s> &telemetry));
-        MOCK_CONST_METHOD0(runtimes,
+        MOCK_CONST_METHOD0(per_rank_last_runtime,
                      std::vector<double>());
+        MOCK_CONST_METHOD0(per_rank_total_runtime,
+                     std::vector<double>());
+        MOCK_CONST_METHOD0(per_rank_count,
+                     std::vector<size_t>());
 };
 
 #endif

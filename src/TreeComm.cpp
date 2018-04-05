@@ -45,33 +45,34 @@ namespace geopm
 {
 
      TreeComm::TreeComm(std::shared_ptr<IComm> comm,
-                        int num_send_up,
-                        int num_send_down)
-         : TreeComm(comm, num_send_up, num_send_down, fan_out(comm), {})
+                        int num_send_down,
+                        int num_send_up)
+         : TreeComm(comm, fan_out(comm), 0, num_send_down, num_send_up, {})
      {
 
      }
 
      TreeComm::TreeComm(std::shared_ptr<IComm> comm,
-                        int num_send_up,
-                        int num_send_down,
                         const std::vector<int> &fan_out,
+                        int num_level_ctl,
+                        int num_send_down,
+                        int num_send_up,
                         std::vector<std::unique_ptr<ITreeCommLevel> > mock_level)
         : m_comm(comm)
-        , m_root_level(fan_out.size() + 1)
-        , m_num_node(comm->num_rank()) // Assume that comm has one rank per node
         , m_fan_out(fan_out)
-        , m_num_send_up(num_send_up)
+        , m_root_level(fan_out.size())
+        , m_num_level_ctl(num_level_ctl)
+        , m_num_node(comm->num_rank()) // Assume that comm has one rank per node
         , m_num_send_down(num_send_down)
+        , m_num_send_up(num_send_up)
         , m_level_ctl(std::move(mock_level))
     {
         if (m_level_ctl.size() == 0) {
             std::shared_ptr<IComm> comm_cart(comm->split_cart(m_fan_out));
             m_level_ctl = init_level(comm_cart, m_root_level);
         }
-        m_num_level_ctl = m_level_ctl.size();
 #ifdef GEOPM_DEBUG
-        if (m_num_level_ctl >= m_root_level) {
+        if (m_num_level_ctl > m_root_level) {
             throw Exception("Number of controlled levels greater than tree depth.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
@@ -82,7 +83,7 @@ namespace geopm
 
     int TreeComm::num_level_controlled(std::vector<int> coords)
     {
-        int result = 1;
+        int result = 0;
         for (auto it = coords.rbegin(); it != coords.rend() && *it == 0; ++it) {
              ++result;
         }
@@ -93,13 +94,17 @@ namespace geopm
     {
         std::vector<std::unique_ptr<ITreeCommLevel> > result;
         int rank_cart = comm_cart->rank();
-        std::vector<int> coords(comm_cart->coordinate(rank_cart, root_level - 1)); // fan_out.size()
-        int num_level_ctl = num_level_controlled(coords);
+        std::vector<int> coords(comm_cart->coordinate(rank_cart));
+        m_num_level_ctl = num_level_controlled(coords);
         std::vector<int> parent_coords(coords);
         int level = 0;
-        for (; level < num_level_ctl; ++level) {
+        int max_level = m_num_level_ctl;
+        if (m_num_level_ctl != root_level) {
+            ++max_level;
+        }
+        for (; level < max_level; ++level) {
             parent_coords[root_level - 1 - level] = 0;
-            m_level_ctl.emplace_back(
+            result.emplace_back(
                 new TreeCommLevel(comm_cart->split(
                     comm_cart->cart_rank(parent_coords), rank_cart),
                     m_num_send_up, m_num_send_down));
@@ -136,24 +141,16 @@ namespace geopm
 
     int TreeComm::level_size(int level) const
     {
-        if (level < 0 || level >= m_root_level) {
+        if (level < 0 || level >= (int)m_fan_out.size()) {
             throw Exception("TreeComm::level_size()",
                             GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
-        // Size at root is one, otherwise use m_fan_out to determine
-        // level size above.
-        int result = 1;
-        if (level != m_root_level - 1) {
-            result = m_fan_out[level];
-        }
-        return result;
+        return m_fan_out[level];
     }
 
     void TreeComm::send_up(int level, const std::vector<double> &sample)
     {
-        /// @todo may need special case for sending up from level 0
-        ///       to get signals from KontrollerIO?
-        if (level < 0 || level >= m_num_level_ctl) {
+        if (level < 0 || (level != 0 && level >= m_num_level_ctl)) {
             throw Exception("TreeComm::send_up()",
                             GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
@@ -180,7 +177,7 @@ namespace geopm
 
     bool TreeComm::receive_down(int level, std::vector<double> &policy)
     {
-        if (level < 0 || level >= m_num_level_ctl) {
+        if (level < 0 || (level != 0 && level >= m_num_level_ctl)) {
             throw Exception("TreeComm::receive_down()",
                             GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }

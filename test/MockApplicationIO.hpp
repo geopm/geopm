@@ -30,46 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
+#ifndef MOCKAPPLICATIONIO_HPP_INCLUDE
+#define MOCKAPPLICATIONIO_HPP_INCLUDE
 
-#include "ProfileIORuntime.hpp"
-#include "MockRuntimeRegulator.hpp"
-#include "geopm_test.hpp"
+#include "ApplicationIO.hpp"
 
-using testing::Return;
-using testing::_;
-using geopm::ProfileIORuntime;
-
-TEST(ProfileIORuntimeTest, per_cpu_runtime)
+class MockApplicationIO : public geopm::IApplicationIO
 {
-    MockRuntimeRegulator mock_reg_1;
-    MockRuntimeRegulator mock_reg_2;
-    std::vector<int> cpu_rank {1, 1, 2, 2, 3, 3, 4, 4};
-    ProfileIORuntime m_profile_runtime(cpu_rank);
-    uint64_t region_id_1 = 999;
-    uint64_t region_id_2 = 777;
-    m_profile_runtime.insert_regulator(region_id_1, mock_reg_1);
-    m_profile_runtime.insert_regulator(region_id_2, mock_reg_2);
+    public:
+        MOCK_CONST_METHOD0(do_shutdown,
+                           bool(void));
+        MOCK_CONST_METHOD0(report_name,
+                           std::string(void));
+        MOCK_CONST_METHOD0(profile_name,
+                           std::string(void));
+        MOCK_CONST_METHOD0(region_name_set,
+                           std::set<std::string>(void));
+        MOCK_CONST_METHOD1(total_region_runtime,
+                           double(uint64_t region_id));
+        MOCK_CONST_METHOD1(total_region_mpi_runtime,
+                           double(uint64_t region_id));
+        MOCK_CONST_METHOD0(total_app_runtime,
+                           double(void));
+        MOCK_CONST_METHOD0(total_app_mpi_runtime,
+                           double(void));
+        MOCK_CONST_METHOD0(total_epoch_runtime,
+                           double(void));
+        MOCK_CONST_METHOD1(total_count,
+                           int(uint64_t region_id));
+        MOCK_METHOD1(update,
+                     void(std::shared_ptr<geopm::IComm> comm));
+        MOCK_METHOD0(profile_io_group,
+                     std::shared_ptr<geopm::IOGroup>(void));
+};
 
-    std::vector<double> rank_runtime_1{8, 6, 8, 5};
-    std::vector<double> rank_runtime_2{9, 7, 5, 4};
-    std::vector<double> expected_runtime_1{8, 8, 6, 6, 8, 8, 5, 5};
-    std::vector<double> expected_runtime_2{9, 9, 7, 7, 5, 5, 4, 4};
-
-    EXPECT_CALL(mock_reg_1, runtimes())
-        .WillOnce(Return(rank_runtime_1));
-    EXPECT_CALL(mock_reg_2, runtimes())
-        .WillOnce(Return(rank_runtime_2));
-
-    std::vector<double> runtime = m_profile_runtime.per_cpu_runtime(region_id_1);
-    EXPECT_EQ(expected_runtime_1, runtime);
-    runtime = m_profile_runtime.per_cpu_runtime(region_id_2);
-    EXPECT_EQ(expected_runtime_2, runtime);
-
-    // errors
-#ifdef GEOPM_DEBUG
-    GEOPM_EXPECT_THROW_MESSAGE(m_profile_runtime.per_cpu_runtime(808080),
-                               GEOPM_ERROR_LOGIC, "No regulator set for region");
 #endif
-}

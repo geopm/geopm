@@ -210,7 +210,7 @@ namespace geopm
 
     std::shared_ptr<IComm> MPIComm::split_cart(std::vector<int> dimensions) const
     {
-        return split(dimensions, {}, true);
+        return split(dimensions, std::vector<int>(dimensions.size(), 0), true);
     }
 
     bool MPIComm::comm_supported(const std::string &plugin_name) const
@@ -313,9 +313,9 @@ namespace geopm
         }
     }
 
-    std::vector<int> MPIComm::coordinate(int rank, size_t in_size) const
+    std::vector<int> MPIComm::coordinate(int rank) const
     {
-        std::vector<int> result(in_size, 0);
+        std::vector<int> result(m_maxdims, 0);
         coordinate(rank, result);
         return result;
     }
