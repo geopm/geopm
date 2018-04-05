@@ -67,11 +67,11 @@ namespace geopm
     {
         public:
             TreeComm(std::shared_ptr<IComm> comm,
-                     int num_send_up,
-                     int num_send_down);
-            TreeComm(std::shared_ptr<IComm> comm,
-                     int num_send_up,
                      int num_send_down,
+                     int num_send_up);
+            TreeComm(std::shared_ptr<IComm> comm,
+                     int num_send_down,
+                     int num_send_up,
                      const std::vector<int> &fan_out,
                      std::vector<std::unique_ptr<ITreeCommLevel> > mock_level);
             virtual ~TreeComm();
@@ -79,10 +79,10 @@ namespace geopm
             int root_level(void) const override;
             int level_rank(int level) const override;
             int level_size(int level) const override;
-            void send_up(int level, const std::vector<double> &sample) override;
             void send_down(int level, const std::vector<std::vector<double> > &policy) override;
-            bool receive_up(int level, std::vector<std::vector<double> > &sample) override;
+            void send_up(int level, const std::vector<double> &sample) override;
             bool receive_down(int level, std::vector<double> &policy) override;
+            bool receive_up(int level, std::vector<std::vector<double> > &sample) override;
             size_t overhead_send(void) const override;
             void broadcast_string(const std::string &str) override;
             std::string broadcast_string(void) override;
@@ -99,8 +99,8 @@ namespace geopm
             /// Tree fan out from root to leaf. Note levels go from
             /// leaf to root
             std::vector<int> m_fan_out;
-            int m_num_send_up;
             int m_num_send_down;
+            int m_num_send_up;
             std::vector<std::unique_ptr<ITreeCommLevel> > m_level_ctl;
     };
 }

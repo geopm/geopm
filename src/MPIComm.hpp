@@ -77,7 +77,7 @@ namespace geopm
             virtual size_t window_create(size_t size, void *base) override;
             virtual void window_destroy(size_t window_id) override;
             virtual void coordinate(int rank, std::vector<int> &coord) const override;
-            virtual std::vector<int> coordinate(int rank, size_t in_size) const override;
+            virtual std::vector<int> coordinate(int rank) const override;
             virtual void window_lock(size_t window_id, bool is_exclusive, int rank, int assert) const override;
             virtual void window_unlock(size_t window_id, int rank) const override;
             virtual void barrier(void) const override;

@@ -31,16 +31,22 @@
  */
 
 #include <unistd.h>
+#include <limits.h>
+#include <string.h>
+#include <cctype>
 #include <iomanip>
 #include <sstream>
 #include <iostream>
-#include <string.h>
-#include <limits.h>
+#include <algorithm>
 
 #include "Tracer.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "geopm_env.h"
 #include "config.h"
+
+using geopm::IPlatformTopo;
 
 namespace geopm
 {
@@ -51,6 +57,7 @@ namespace geopm
         , m_buffer_limit(134217728) // 128 MiB
         , m_time_zero({{0, 0}})
         , m_policy({0, 0, 0, 0.0})
+        , m_platform_io(platform_io())
     {
         geopm_time(&m_time_zero);
         if (geopm_env_do_trace()) {
@@ -72,10 +79,54 @@ namespace geopm
         }
     }
 
+    std::string Tracer::hostname(void) {
+        char hostname[NAME_MAX];
+        int err = gethostname(hostname, NAME_MAX);
+        if (err) {
+            throw Exception("Tracer::hostname() gethostname() failed", err, __FILE__, __LINE__);
+        }
+        return hostname;
+    }
+
+    Tracer::Tracer()
+        : Tracer(geopm_env_trace(), hostname(), geopm_env_do_trace(), platform_io())
+    {
+
+    }
+
+    Tracer::Tracer(const std::string &file_path,
+                   const std::string &hostname,
+                   bool do_trace,
+                   IPlatformIO &platform_io)
+        : m_file_path(file_path)
+        , m_hostname(hostname)
+        , m_is_trace_enabled(do_trace)
+        , m_do_header(true)
+        , m_buffer_limit(134217728) // 128 MiB
+        , m_time_zero({{0, 0}})
+        , m_policy({0, 0, 0, 0.0})
+        , m_platform_io(platform_io)
+    {
+        if (m_is_trace_enabled) {
+            std::ostringstream output_path;
+            output_path << m_file_path << "-" << m_hostname;
+            m_stream.open(output_path.str());
+            if (!m_stream.good()) {
+                std::cerr << "Warning: unable to open trace file '" << output_path.str()
+                          << "': " << strerror(errno) << std::endl;
+            }
+            m_buffer << std::setprecision(16);
+
+            m_header = "HEADER";
+            m_buffer << m_header;
+            m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << "\n";
+        }
+    }
+
     Tracer::~Tracer()
     {
-        m_stream << m_buffer.str();
-        if (m_is_trace_enabled) {
+        if (m_stream.good() && m_is_trace_enabled) {
+            m_stream << m_buffer.str();
             m_stream.close();
         }
     }
@@ -86,7 +137,7 @@ namespace geopm
             if (m_do_header) {
                 // Write the GlobalPolicy information first
                 m_buffer << m_header;
-                m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << std::endl;
+                m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << "\n";
                 m_buffer << "region_id | seconds | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
                     m_buffer << "pkg_energy-" << i << " | "
@@ -99,7 +150,7 @@ namespace geopm
                              << "progress-" << i << " | "
                              << "runtime-" << i << " | ";
                 }
-                m_buffer << "policy_mode | policy_flags | policy_num_sample | policy_power_budget" << std::endl;
+                m_buffer << "policy_mode | policy_flags | policy_num_sample | policy_power_budget\n";
                 m_do_header = false;
             }
             m_buffer << telemetry[0].region_id << " | "
@@ -112,7 +163,7 @@ namespace geopm
             m_buffer << m_policy.mode << " | "
                      << m_policy.flags << " | "
                      << m_policy.num_sample << " | "
-                     << m_policy.power_budget << std::endl;
+                     << m_policy.power_budget << "\n";
 
         }
         if (m_buffer.tellp() > m_buffer_limit) {
@@ -126,5 +177,93 @@ namespace geopm
         if (m_is_trace_enabled) {
             m_policy = policy;
         }
+    }
+
+    void Tracer::columns(const std::vector<IPlatformIO::m_request_s> &cols)
+    {
+        if (m_is_trace_enabled) {
+            for (auto col : cols) {
+                m_column_idx.push_back(m_platform_io.push_signal(col.name,
+                                                                 col.domain_type,
+                                                                 col.domain_idx));
+                m_buffer << pretty_name(col);
+                if (m_column_idx.size() != cols.size()) {
+                    m_buffer << "|";
+                }
+            }
+            m_buffer << "\n";
+
+            if (!m_stream.good()) {
+                throw std::runtime_error("stream not open");
+            }
+        }
+    }
+
+    void Tracer::update(bool is_epoch)
+    {
+#ifdef GEOPM_DEBUG
+        if (m_column_idx.size() == 0) {
+            throw Exception("Tracer::update(): No columns added to trace.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        double sample = m_platform_io.sample(m_column_idx[0]);
+        m_buffer << sample;
+        for (size_t col_idx = 1; col_idx < m_column_idx.size(); ++col_idx) {
+            sample = m_platform_io.sample(m_column_idx[col_idx]);
+            m_buffer << "|" << sample;
+        }
+        m_buffer << "\n";
+    }
+    void Tracer::flush(void)
+    {
+        m_stream << m_buffer.str();
+        m_buffer.str("");
+        m_stream.close();
+        m_is_trace_enabled = false;
+    }
+
+    std::string ITracer::pretty_name(const IPlatformIO::m_request_s &col) {
+        std::ostringstream result;
+        std::string name = col.name;
+        std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c){ return std::tolower(c); });
+        result << name << "-";
+        switch(col.domain_type) {
+            case IPlatformTopo::M_DOMAIN_BOARD:
+                result << "board";
+                break;
+            case IPlatformTopo::M_DOMAIN_PACKAGE:
+                result << "package";
+                break;
+            case IPlatformTopo::M_DOMAIN_CORE:
+                result << "core";
+                break;
+            case IPlatformTopo::M_DOMAIN_CPU:
+                result << "cpu";
+                break;
+            case IPlatformTopo::M_DOMAIN_BOARD_MEMORY:
+                result << "board_memory";
+                break;
+            case IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY:
+                result << "package_memory";
+                break;
+            case IPlatformTopo::M_DOMAIN_BOARD_NIC:
+                result << "board_nic";
+                break;
+            case IPlatformTopo::M_DOMAIN_PACKAGE_NIC:
+                result << "package_nic";
+                break;
+            case IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR:
+                result << "board_acc";
+                break;
+            case IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR:
+                result << "package_acc";
+                break;
+            default:
+                throw Exception("Tracer::pretty_name(): unrecognized domain_type",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        result << "-" << col.domain_idx;
+        return result.str();
     }
 }
