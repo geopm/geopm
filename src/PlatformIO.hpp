@@ -150,6 +150,12 @@ namespace geopm
                                        int domain_type,
                                        int domain_idx,
                                        double setting) = 0;
+            struct m_request_s {
+                std::string name;
+                int domain_type;
+                int domain_idx;
+            };
+
     };
 
     IPlatformIO &platform_io(void);
