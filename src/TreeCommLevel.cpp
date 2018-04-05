@@ -97,7 +97,7 @@ namespace geopm
         }
         else {
             m_sample_mailbox[0] = 1.0;
-            memcpy(m_sample_mailbox + sizeof(double), sample.data(), msg_size);
+            memcpy(m_sample_mailbox + 1, sample.data(), msg_size);
         }
     }
 

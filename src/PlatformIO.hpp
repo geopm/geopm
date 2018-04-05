@@ -188,7 +188,6 @@ namespace geopm
             static double agg_max(const std::vector<double> &operand);
             static double agg_stddev(const std::vector<double> &operand);
             static double agg_region_id(const std::vector<double> &operand);
-
             /// @brief Structure describing the values required to
             ///        push a signal or control.
             struct m_request_s {

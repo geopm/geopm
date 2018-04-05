@@ -30,43 +30,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKPROFILESAMPLER_HPP_INCLUDE
-#define MOCKPROFILESAMPLER_HPP_INCLUDE
+#ifndef MOCKKPROFILIOSAMPLE_HPP_INCLUDE
+#define MOCKKPROFILIOSAMPLE_HPP_INCLUDE
 
-#include "Comm.hpp"
+#include "KprofileIOSample.hpp"
 #include "geopm_message.h"
-#include "ProfileThread.hpp"
-#include "ProfileSampler.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler
-{
+class MockKprofileIOSample : public geopm::IKprofileIOSample {
     public:
-        MOCK_METHOD0(capacity,
-            size_t (void));
-        MOCK_METHOD3(sample,
-            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
-                  size_t &length,
-                  std::shared_ptr<geopm::IComm> comm));
-        MOCK_METHOD0(do_shutdown,
-            bool (void));
-        MOCK_METHOD0(do_report,
-            bool (void));
-        MOCK_METHOD0(region_names,
-            void (void));
-        MOCK_METHOD0(initialize,
-            void (void));
-        MOCK_METHOD0(rank_per_node,
-            int (void));
-        MOCK_METHOD0(cpu_rank,
-            std::vector<int> (void));
-        MOCK_METHOD0(name_set,
-            std::set<std::string> (void));
-        MOCK_METHOD0(report_name,
-            std::string (void));
-        MOCK_METHOD0(profile_name,
-            std::string (void));
-        MOCK_METHOD0(tprof_table,
-            std::shared_ptr<geopm::IProfileThreadTable>(void));
+        MOCK_METHOD2(update,
+                     void(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin, std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end));
+        MOCK_CONST_METHOD0(per_cpu_region_id,
+                           std::vector<uint64_t>(void));
+        MOCK_CONST_METHOD1(per_cpu_progress,
+                           std::vector<double>(const struct geopm_time_s &extrapolation_time));
+        MOCK_CONST_METHOD1(per_cpu_runtime,
+                           std::vector<double>(uint64_t region_id));
+        MOCK_CONST_METHOD1(total_region_runtime,
+                           double(uint64_t region_id));
+        MOCK_CONST_METHOD1(total_region_mpi_time,
+                           double(uint64_t region_id));
+        MOCK_CONST_METHOD0(total_epoch_runtime,
+                           double(void));
+        MOCK_CONST_METHOD0(total_app_runtime,
+                           double(void));
+        MOCK_CONST_METHOD0(total_app_mpi_time,
+                           double(void));
+        MOCK_CONST_METHOD1(total_count,
+                           int(uint64_t region_id));
 };
 
 #endif

@@ -89,6 +89,9 @@ namespace geopm
 
         register_msr_signal("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
+        register_msr_signal("CYCLES_THREAD",    "MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
+        register_msr_signal("CYCLES_REFERENCE", "MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
+
     }
 
     MSRIOGroup::~MSRIOGroup()

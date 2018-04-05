@@ -247,7 +247,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
-              test/gtest_links/ProfileIORuntimeTest.per_cpu_runtime \
               test/gtest_links/ProfileTestIntegration.config \
               test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
@@ -275,7 +274,26 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MonitorAgentTest.descend_nothing \
               test/gtest_links/MonitorAgentTest.ascend_aggregates_signals \
               test/gtest_links/MonitorAgentTest.custom_signals \
+              test/gtest_links/ReporterTest.generate \
+              test/gtest_links/KontrollerTest.single_node \
+              test/gtest_links/KontrollerTest.two_level_controller_2 \
+              test/gtest_links/KontrollerTest.two_level_controller_1 \
+              test/gtest_links/KontrollerTest.two_level_controller_0 \
+              test/gtest_links/ManagerIOTest.write_json_file \
+              test/gtest_links/ManagerIOTest.write_shm \
+              test/gtest_links/ManagerIOTest.negative_write_json_file \
+              test/gtest_links/ManagerIOTestIntegration.write_shm \
+              test/gtest_links/ManagerIOSamplerTest.parse_json_file \
+              test/gtest_links/ManagerIOSamplerTest.negative_parse_json_file \
+              test/gtest_links/ManagerIOSamplerTest.parse_shm \
+              test/gtest_links/ManagerIOSamplerTest.negative_parse_shm \
+              test/gtest_links/ManagerIOSamplerTest.negative_shm_setup_mutex \
+              test/gtest_links/ManagerIOSamplerTest.negative_bad_files \
+              test/gtest_links/ManagerIOSamplerTestIntegration.parse_shm \
+              test/gtest_links/TracerTest.columns \
+              test/gtest_links/TracerTest.update_samples \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
+              test/gtest_links/ApplicationIOTest.passthrough \
               # end
 
 if ENABLE_MPI
@@ -302,6 +320,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformTopologyTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
+                          test/ManagerIOTest.cpp \
                           test/ExceptionTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/SampleRegulatorTest.cpp \
@@ -362,15 +381,25 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/ProfileIOGroupTest.cpp \
                           test/MockProfileIOSample.hpp \
                           test/CombinedSignalTest.cpp \
-                          test/ProfileIORuntimeTest.cpp \
                           test/MockRuntimeRegulator.hpp \
-                          test/MockProfileIORuntime.hpp \
                           test/ProfileTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
                           test/MockTreeCommLevel.hpp \
                           test/MonitorAgentTest.cpp \
                           test/AgentFactoryTest.cpp \
+                          test/ReporterTest.cpp \
+                          test/KontrollerTest.cpp \
+                          test/MockApplicationIO.hpp \
+                          test/MockAgent.hpp \
+                          test/MockReporter.hpp \
+                          test/MockTracer.hpp \
+                          test/MockTreeComm.hpp \
+                          test/MockManagerIOSampler.hpp \
+                          test/TracerTest.cpp \
+                          test/ApplicationIOTest.cpp \
+                          test/MockKprofileIOSample.hpp \
+                          test/MockProfileIORuntime.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
