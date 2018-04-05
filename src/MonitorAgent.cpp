@@ -51,6 +51,7 @@ namespace geopm
         , m_last_wait{{0, 0}}
     {
         load_trace_columns();
+        geopm_time(&m_last_wait);
 
         // All columns sampled will be in the trace
         for (auto col : trace_columns()) {
@@ -123,10 +124,9 @@ namespace geopm
     {
         static double M_WAIT_SEC = 0.005;
         geopm_time_s current_time;
-        geopm_time(&current_time);
-        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC) {
-
-        }
+        do {
+            geopm_time(&current_time);
+        } while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
         geopm_time(&m_last_wait);
     }
 

@@ -30,43 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKPROFILESAMPLER_HPP_INCLUDE
-#define MOCKPROFILESAMPLER_HPP_INCLUDE
+#ifndef MOCKREPORTER_HPP_INCLUDE
+#define MOCKREPORTER_HPP_INCLUDE
 
+#include "Reporter.hpp"
+#include "ApplicationIO.hpp"
 #include "Comm.hpp"
-#include "geopm_message.h"
-#include "ProfileThread.hpp"
-#include "ProfileSampler.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler
+class MockReporter : public geopm::IReporter
 {
     public:
-        MOCK_METHOD0(capacity,
-            size_t (void));
-        MOCK_METHOD3(sample,
-            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
-                  size_t &length,
-                  std::shared_ptr<geopm::IComm> comm));
-        MOCK_METHOD0(do_shutdown,
-            bool (void));
-        MOCK_METHOD0(do_report,
-            bool (void));
-        MOCK_METHOD0(region_names,
-            void (void));
-        MOCK_METHOD0(initialize,
-            void (void));
-        MOCK_METHOD0(rank_per_node,
-            int (void));
-        MOCK_METHOD0(cpu_rank,
-            std::vector<int> (void));
-        MOCK_METHOD0(name_set,
-            std::set<std::string> (void));
-        MOCK_METHOD0(report_name,
-            std::string (void));
-        MOCK_METHOD0(profile_name,
-            std::string (void));
-        MOCK_METHOD0(tprof_table,
-            std::shared_ptr<geopm::IProfileThreadTable>(void));
+        MOCK_METHOD6(generate,
+                     void(const std::string &agent_name,
+                          const std::string &agent_report_header,
+                          const std::string &agent_node_report,
+                          const std::map<uint64_t, std::string> &agent_region_report,
+                          const geopm::IApplicationIO &application_io,
+                          std::shared_ptr<geopm::IComm> comm));
 };
 
 #endif

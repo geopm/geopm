@@ -77,6 +77,7 @@
 #include "ProfileIORuntime.hpp"
 #include "ProfileIOSample.hpp"
 #include "Helper.hpp"
+#include "Kontroller.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -101,20 +102,25 @@ extern "C"
     {
         int err = 0;
         try {
-            if (policy_config) {
-                std::string policy_config_str(policy_config);
-                geopm::IGlobalPolicy *policy = new geopm::GlobalPolicy(policy_config_str, "");
-                auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
-                geopm::Controller ctl(policy, std::move(tmp_comm));
+            auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+            if (geopm_env_do_kontroller()) {
+                geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy());
                 err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
-                delete policy;
             }
-            //The null case is for all nodes except rank 0.
-            //These controllers should assume their policy from the master.
             else {
-                auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
-                geopm::Controller ctl(NULL, std::move(tmp_comm));
-                err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+                if (policy_config) {
+                    std::string policy_config_str(policy_config);
+                    geopm::IGlobalPolicy *policy = new geopm::GlobalPolicy(policy_config_str, "");
+                    geopm::Controller ctl(policy, std::move(tmp_comm));
+                    err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+                    delete policy;
+                }
+                //The null case is for all nodes except rank 0.
+                //These controllers should assume their policy from the master.
+                else {
+                    geopm::Controller ctl(NULL, std::move(tmp_comm));
+                    err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+                }
             }
         }
         catch (...) {
@@ -126,12 +132,23 @@ extern "C"
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
     {
         int err = 0;
-        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
-        try {
-            delete ctl_obj;
+        if (geopm_env_do_kontroller()) {
+            geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+            try {
+                delete ctl_obj;
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
         }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), true);
+        else {
+            geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+            try {
+                delete ctl_obj;
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
         }
         return err;
     }
@@ -139,13 +156,26 @@ extern "C"
     int geopm_ctl_run(struct geopm_ctl_c *ctl)
     {
         int err = 0;
-        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
-        try {
-            ctl_obj->run();
+        if (geopm_env_do_kontroller()) {
+            geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+            try {
+                ctl_obj->run();
+            }
+            catch (...) {
+                /// @todo need this feature to be added to the Kontroller.
+                //ctl_obj->reset();
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
         }
-        catch (...) {
-            ctl_obj->reset();
-            err = geopm::exception_handler(std::current_exception(), true);
+        else {
+            geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+            try {
+                ctl_obj->run();
+            }
+            catch (...) {
+                ctl_obj->reset();
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
         }
         return err;
     }
@@ -403,12 +433,12 @@ namespace geopm
         }
 
         if (!m_is_connected) {
-            m_sampler->initialize(m_rank_per_node);
+            m_sampler->initialize();
+            m_rank_per_node = m_sampler->rank_per_node();
             m_num_mpi_enter.resize(m_rank_per_node, 0);
             m_mpi_enter_time.resize(m_rank_per_node, {{0,0}});
             m_prof_sample.resize(m_sampler->capacity());
-            std::vector<int> cpu_rank;
-            m_sampler->cpu_rank(cpu_rank);
+            std::vector<int> cpu_rank = m_sampler->cpu_rank();
             m_platform->init_transform(cpu_rank);
             m_sample_regulator = new SampleRegulator(cpu_rank);
             m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank);
@@ -954,9 +984,9 @@ namespace geopm
                 energy_exit += it->signal;
             }
         }
-        m_sampler->report_name(report_name);
-        m_sampler->profile_name(profile_name);
-        m_sampler->name_set(region_name);
+        report_name = m_sampler->report_name();
+        profile_name = m_sampler->profile_name();
+        region_name = m_sampler->name_set();
 
         if (report_name.empty() || profile_name.empty()) {
             throw Exception("Controller::generate_report(): Invalid report data", GEOPM_ERROR_INVALID, __FILE__, __LINE__);

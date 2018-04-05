@@ -72,8 +72,8 @@ class MockComm : public geopm::IComm
             void (size_t window_id, int rank));
         MOCK_CONST_METHOD2(coordinate,
             void (int rank, std::vector<int> &coord));
-        MOCK_CONST_METHOD2(coordinate,
-            std::vector<int>(int rank, size_t in_size));
+        MOCK_CONST_METHOD1(coordinate,
+            std::vector<int>(int rank));
         MOCK_CONST_METHOD0(barrier,
             void (void));
         MOCK_CONST_METHOD3(broadcast,

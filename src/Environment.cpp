@@ -73,6 +73,7 @@ namespace geopm
             int do_profile() const;
             int profile_timeout(void) const;
             int debug_attach(void) const;
+            int do_kontroller(void) const;
         private:
             bool get_env(const char *name, std::string &env_string) const;
             bool get_env(const char *name, int &value) const;
@@ -92,6 +93,7 @@ namespace geopm
             bool m_do_profile;
             int m_profile_timeout;
             int m_debug_attach;
+            bool m_do_kontroller;
     };
 
     static Environment &test_environment(void)
@@ -115,7 +117,7 @@ namespace geopm
         m_report = "";
         m_comm = "MPIComm";
         m_policy = "";
-        m_agent = "static_policy";
+        m_agent = "monitor";
         m_shmkey = "/geopm-shm-" + std::to_string(geteuid());
         m_trace = "";
         m_plugin_path = "";
@@ -128,13 +130,14 @@ namespace geopm
         m_do_profile = false;
         m_profile_timeout = 30;
         m_debug_attach = -1;
+        m_do_kontroller = false;
 
         std::string tmp_str("");
 
         (void)get_env("GEOPM_REPORT", m_report);
         (void)get_env("GEOPM_COMM", m_comm);
         (void)get_env("GEOPM_POLICY", m_policy);
-        (void)get_env("GEOPM_AGENT", m_agent);
+        m_do_kontroller = get_env("GEOPM_AGENT", m_agent);
         (void)get_env("GEOPM_SHMKEY", m_shmkey);
         if (m_shmkey[0] != '/') {
             m_shmkey = "/" + m_shmkey;
@@ -278,6 +281,11 @@ namespace geopm
     {
         return m_debug_attach;
     }
+
+    int Environment::do_kontroller(void) const
+    {
+        return m_do_kontroller;
+    }
 }
 
 extern "C"
@@ -365,5 +373,10 @@ extern "C"
     int geopm_env_debug_attach(void)
     {
         return geopm::environment().debug_attach();
+    }
+
+    int geopm_env_do_kontroller(void)
+    {
+        return geopm::environment().do_kontroller();
     }
 }
