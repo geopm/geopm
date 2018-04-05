@@ -54,8 +54,33 @@ namespace geopm
             IProfileRankSampler() = default;
             IProfileRankSampler(const IProfileRankSampler &other) = default;
             virtual ~IProfileRankSampler() = default;
-            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) = 0;
+            /// @brief Returns the samples present in the hash table.
+            ///
+            /// Fills in a portion of a vector specified by a vector iterator.
+            /// It is assumed the vector is already sized greater than or
+            /// equal to the maximum number of samples we can return. This value
+            /// can be queried with the capacity() method. Internally the samples
+            /// are aggregated for later reporting functionality.
+            ///
+            /// @param [in] content_begin Vector iterator at which to begin inserting
+            ///        sample messages.
+            ///
+            /// @param [out] length The number of samples that were inserted.
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin,
+                                size_t &length) = 0;
+            /// @brief Retrieve the maximum capacity of the hash table.
+            ///
+            /// @return The maximum number of samples that can possibly
+            ///         be returned.
             virtual size_t capacity(void) = 0;
+            /// @brief Retrieve region names from the application process.
+            ///
+            /// Coordinates with the application process to retrieve the
+            /// profile name, region names, and the file name to write
+            /// the report to.
+            ///
+            /// @return Returns true if finished retrieving names from the
+            ///         application, else returns false.
             virtual bool name_fill(std::set<std::string> &name_set) = 0;
             virtual void report_name(std::string &report_str) = 0;
             virtual void profile_name(std::string &prof_str) = 0;
@@ -67,16 +92,69 @@ namespace geopm
             IProfileSampler() = default;
             IProfileSampler(const IProfileSampler &other) = default;
             virtual ~IProfileSampler() = default;
+            /// @brief Retrieve the maximum capacity of all the per-rank
+            ///        hash tables.
+            ///
+            /// @return The maximum number of samples that can possibly
+            ///         be returned.
             virtual size_t capacity(void) = 0;
-            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) = 0;
+            /// @brief Returns the samples present in all the per-rank
+            ///        hash tables.
+            ///
+            /// Fills in a portion of a vector which is assumed to be already
+            /// sized greater than or equal to the maximum number of samples
+            /// we can return. This value can be queried with the capacity()
+            /// method.
+            ///
+            /// @param [out] content Vector to be filled with per-node
+            ///        sample messages.
+            ///
+            /// @param [out] length The number of samples that were inserted.
+            /// @param [in] comm Comm object required for barriers in
+            ///        handshake with application.
+            virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
+                                size_t &length, std::shared_ptr<IComm> comm) = 0;
+            /// @brief Check if the application is shutting down.
+            ///
+            /// Queries the control shared memory region to test if the
+            /// application status in shutdown.
+            ///
+            /// @return Return true if application is shutting down, else
+            ///         returns false.
             virtual bool do_shutdown(void) = 0;
+            /// @brief Generate a post-run report for a single node.
+            ///
+            /// Generates a post-run report by telling each ProfileRankSampler
+            /// to dump its per-region statistics to a file descriptor.
             virtual bool do_report(void) = 0;
             virtual void region_names(void) = 0;
-            virtual void initialize(int &rank_per_node) = 0;
-            virtual void cpu_rank(std::vector<int> &cpu_rank) = 0;
-            virtual void name_set(std::set<std::string> &region_name) = 0;
-            virtual void report_name(std::string &report_str) = 0;
-            virtual void profile_name(std::string &prof_str) = 0;
+            /// @brief Initialize shared memory regions.
+            ///
+            /// Coordinates with the application to initialize shared memory
+            /// and create ProfileRankSamplers for each MPI application rank
+            /// running on the local compute node.
+            virtual void initialize(void) = 0;
+            /// @brief Return the number of ranks per node.
+            ///
+            /// @return number of mpi ranks
+            /// running on the node.
+            virtual int rank_per_node(void) = 0;
+            /// @brief Retrieve a vector to the affinities of all
+            ///        application ranks.
+            ///
+            /// Return vector is sized to number of Linux online CPUs
+            /// in the system.  Each element of the vector is indexed
+            /// by the Linux CPU ID, and the value assigned is the MPI
+            /// rank running on the CPU (or -1 if no rank has been
+            /// affinitized).
+            ///
+            /// @return Vector to be filled with the MPI rank for each
+            ///         Linux CPU, set to -1 if no MPI rank is
+            ///         affinitized.
+            virtual std::vector<int> cpu_rank(void) = 0;
+            virtual std::set<std::string> name_set(void) = 0;
+            virtual std::string report_name(void) = 0;
+            virtual std::string profile_name(void) = 0;
             virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) = 0;
     };
 
@@ -120,19 +198,7 @@ namespace geopm
             ///
             /// @param [out] length The number of samples that were inserted.
             void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) override;
-            /// @brief Retrieve the maximum capacity of the hash table.
-            ///
-            /// @return The maximum number of samples that can possibly
-            ///         be returned.
             size_t capacity(void) override;
-            /// @brief Retrieve region names from the application process.
-            ///
-            /// Coordinates with the application process to retrieve the
-            /// profile name, region names, and the file name to write
-            /// the report to.
-            ///
-            /// @return Returns true if finished retrieving names from the
-            ///         application, else returns false.
             bool name_fill(std::set<std::string> &name_set) override;
             void report_name(std::string &report_str) override;
             void profile_name(std::string &prof_str) override;
@@ -157,6 +223,7 @@ namespace geopm
             std::set<std::string> m_name_set;
             /// Holds the status of the name_fill operation.
             bool m_is_name_finished;
+            int rank_per_node;
     };
 
     class IPlatformTopo;
@@ -191,65 +258,23 @@ namespace geopm
             ///        be created for each application rank.
             ProfileSampler(IPlatformTopo &topo, size_t table_size);
             /// @brief ProfileSampler destructor.
-            virtual ~ProfileSampler() = default;
+            virtual ~ProfileSampler();
             /// @brief Retrieve the maximum capacity of all the per-rank
             ///        hash tables.
             ///
             /// @return The maximum number of samples that can possibly
             ///         be returned.
             size_t capacity(void) override;
-            /// @brief Returns the samples present in all the per-rank
-            ///        hash tables.
-            ///
-            /// Fills in a portion of a vector which is assumed to be already
-            /// sized greater than or equal to the maximum number of samples
-            /// we can return. This value can be queried with the capacity()
-            /// method.
-            ///
-            /// @param [in] content Vector to be filled with per-node
-            ///        sample messages.
-            ///
-            /// @param [out] length The number of samples that were inserted.
             void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) override;
-            /// @brief Check if the application is shutting down.
-            ///
-            /// Queries the control shared memory region to test if the
-            /// application status in shutdown.
-            ///
-            /// @return Return true if application is shutting down, else
-            ///         returns false.
             bool do_shutdown(void) override;
-            /// @brief Generate a post-run report for a single node.
-            ///
-            /// Generates a post-run report by telling each ProfileRankSampler
-            /// to dump its per-region statistics to a file descriptor.
             bool do_report(void) override;
             void region_names(void) override;
-            /// @brief Initialize shared memory regions.
-            ///
-            /// Coordinates with the application to initialize shared memory
-            /// and create ProfileRankSamplers for each MPI application rank
-            /// running on the local compute node.
-            ///
-            /// @param [out] rank_per_node number of mpi ranks
-            /// running on the node.
-            void initialize(int &rank_per_node) override;
-            /// @brief Retrieve a vector to the affinities of all
-            ///        application ranks.
-            ///
-            /// Resizes the input vector cpu_rank to number of Linux
-            /// online CPUs in the system.  Each element of the vector
-            /// is indexed by the Linux CPU ID, and the value assigned
-            /// is the MPI rank running on the CPU (or -1 if no rank
-            /// has been affinitized).
-            ///
-            /// @param [out] cpu_rank Vector to be filled with the MPI
-            ///        rank for each Linux CPU, set to -1 if no MPI
-            ///        rank is affinitized.
-            void cpu_rank(std::vector<int> &cpu_rank) override;
-            void name_set(std::set<std::string> &region_name) override;
-            void report_name(std::string &report_str) override;
-            void profile_name(std::string &prof_str) override;
+            void initialize(void) override;
+            int rank_per_node(void) override;
+            std::vector<int> cpu_rank(void) override;
+            std::set<std::string> name_set(void) override;
+            std::string report_name(void) override;
+            std::string profile_name(void) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
         protected:
             /// Holds the shared memory region used for application coordination
@@ -270,6 +295,7 @@ namespace geopm
             bool m_do_report;
             std::unique_ptr<ISharedMemory> m_tprof_shmem;
             std::shared_ptr<IProfileThreadTable> m_tprof_table;
+            int m_rank_per_node;
     };
 }
 

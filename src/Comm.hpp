@@ -136,8 +136,7 @@ namespace geopm
             ///        The size of this vector should equal the number of dimensions
             ///        that the Cartesian communicator was created with.
             virtual void coordinate(int rank, std::vector<int> &coord) const = 0;
-            virtual std::vector<int> coordinate(int rank, size_t in_size) const = 0;
-
+            virtual std::vector<int> coordinate(int rank) const = 0;
             // Collective communication
             /// @brief Barrier for all ranks
             virtual void barrier(void) const = 0;

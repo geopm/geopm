@@ -30,43 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKPROFILESAMPLER_HPP_INCLUDE
-#define MOCKPROFILESAMPLER_HPP_INCLUDE
+#ifndef MOCKAGENT_HPP_INCLUDE
+#define MOCKAGENT_HPP_INCLUDE
 
-#include "Comm.hpp"
-#include "geopm_message.h"
-#include "ProfileThread.hpp"
-#include "ProfileSampler.hpp"
+#include "Agent.hpp"
+#include "PlatformIO.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler
+class MockAgent : public geopm::IAgent
 {
     public:
-        MOCK_METHOD0(capacity,
-            size_t (void));
-        MOCK_METHOD3(sample,
-            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
-                  size_t &length,
-                  std::shared_ptr<geopm::IComm> comm));
-        MOCK_METHOD0(do_shutdown,
-            bool (void));
-        MOCK_METHOD0(do_report,
-            bool (void));
-        MOCK_METHOD0(region_names,
-            void (void));
-        MOCK_METHOD0(initialize,
-            void (void));
-        MOCK_METHOD0(rank_per_node,
-            int (void));
-        MOCK_METHOD0(cpu_rank,
-            std::vector<int> (void));
-        MOCK_METHOD0(name_set,
-            std::set<std::string> (void));
-        MOCK_METHOD0(report_name,
-            std::string (void));
-        MOCK_METHOD0(profile_name,
-            std::string (void));
-        MOCK_METHOD0(tprof_table,
-            std::shared_ptr<geopm::IProfileThreadTable>(void));
+        MOCK_METHOD1(init,
+                     void(int level));
+        MOCK_METHOD2(descend,
+                     void(const std::vector<double> &in_policy,
+                          std::vector<std::vector<double> >&out_policy));
+        MOCK_METHOD2(ascend,
+                     void(const std::vector<std::vector<double> > &in_signal,
+                          std::vector<double> &out_signal));
+        MOCK_METHOD1(adjust_platform,
+                     void(const std::vector<double> &in_policy));
+        MOCK_METHOD1(sample_platform,
+                     void(std::vector<double> &out_sample));
+        MOCK_METHOD0(wait,
+                     void(void));
+        MOCK_METHOD0(report_header,
+                     std::string(void));
+        MOCK_METHOD0(report_node,
+                     std::string(void));
+        MOCK_METHOD0(report_region,
+                     std::map<uint64_t, std::string>(void));
+        MOCK_METHOD0(trace_columns,
+                     std::vector<geopm::IPlatformIO::m_request_s>(void));
+
 };
 
 #endif

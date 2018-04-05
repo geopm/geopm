@@ -32,7 +32,7 @@
 
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
-//#include "BalancingAgent.hpp"
+#include "BalancingAgent.hpp"
 
 namespace geopm
 {
@@ -44,15 +44,10 @@ namespace geopm
                                           MonitorAgent::make_plugin,
                                           IAgent::make_dictionary(MonitorAgent::policy_names(),
                                                                   MonitorAgent::sample_names()));
-
-        /// @todo add this back in once each Agent is implemented
-        ///       and source code is part of libgeopm.
-#if 0
         g_plugin_factory->register_plugin(BalancingAgent::plugin_name(),
                                           BalancingAgent::make_plugin,
                                           IAgent::make_dictionary(BalancingAgent::policy_names(),
                                                                   BalancingAgent::sample_names()));
-#endif
     }
 
     PluginFactory<IAgent> &agent_factory(void)

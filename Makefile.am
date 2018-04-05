@@ -251,6 +251,10 @@ endif
 
 libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Agent.hpp \
+                            src/ApplicationIO.cpp \
+                            src/ApplicationIO.hpp \
+                            src/BalancingAgent.hpp \
+                            src/BalancingAgent.cpp \
                             src/CircularBuffer.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
@@ -260,6 +264,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Controller.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
+                            src/CpuinfoIOGroup.cpp \
+                            src/CpuinfoIOGroup.hpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
                             src/DefaultProfile.cpp \
@@ -270,8 +276,6 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/GlobalPolicy.hpp \
                             src/IOGroup.cpp \
                             src/IOGroup.hpp \
-                            src/CpuinfoIOGroup.cpp \
-                            src/CpuinfoIOGroup.hpp \
                             src/geopm.h \
                             src/geopm_env.h \
                             src/geopm_error.h \
@@ -289,8 +293,12 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_version.h \
                             src/geopm_policy.h \
                             src/Helper.hpp \
+                            src/ManagerIO.cpp \
+                            src/ManagerIO.hpp \
                             src/KNLPlatformImp.cpp \
                             src/KNLPlatformImp.hpp \
+                            src/Kontroller.cpp \
+                            src/Kontroller.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
                             src/MSR.cpp \
@@ -328,8 +336,6 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/ProfileIO.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
-                            src/ProfileIORuntime.cpp \
-                            src/ProfileIORuntime.hpp \
                             src/ProfileIOSample.cpp \
                             src/ProfileIOSample.hpp \
                             src/ProfileTable.cpp \
@@ -342,6 +348,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/RAPLPlatform.hpp \
                             src/Region.cpp \
                             src/Region.hpp \
+                            src/Reporter.cpp \
+                            src/Reporter.hpp \
                             src/RuntimeRegulator.cpp \
                             src/RuntimeRegulator.hpp \
                             src/SampleRegulator.cpp \
@@ -367,6 +375,14 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/XeonPlatformImp.hpp \
                             contrib/json11/json11.cpp \
                             contrib/json11/json11.hpp \
+                            src/KprofileIOGroup.cpp \
+                            src/KprofileIOGroup.hpp \
+                            src/KprofileIOSample.cpp \
+                            src/KprofileIOSample.hpp \
+                            src/KruntimeRegulator.cpp \
+                            src/KruntimeRegulator.hpp \
+                            src/ProfileIORuntime.cpp \
+                            src/ProfileIORuntime.hpp \
                             # end
 
 geopmpolicy_SOURCES = src/geopmpolicy_main.c \

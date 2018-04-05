@@ -77,15 +77,15 @@ void TreeCommTest::SetUp()
 
     EXPECT_CALL(*m_mock_comm, barrier());
     EXPECT_CALL(*m_mock_comm, num_rank()).WillOnce(Return(120));
-    m_tree_comm.reset(new TreeComm(m_mock_comm, 3, 2, m_fan_out, std::move(temp)));
+    m_tree_comm.reset(new TreeComm(m_mock_comm, m_fan_out, 4, 3, 2, std::move(temp)));
 }
 
 TEST_F(TreeCommTest, geometry)
 {
 
     EXPECT_EQ(4, m_tree_comm->num_level_controlled());
-    EXPECT_EQ(5, m_tree_comm->root_level());
-    for (int level = 0; level < 4; ++level) {
+    EXPECT_EQ(4, m_tree_comm->root_level());
+    for (size_t level = 0; level < m_fan_out.size(); ++level) {
         int rank = 5 - level;
         EXPECT_CALL(*(m_level_ptr[level]), level_rank()).WillOnce(Return(rank));
         EXPECT_EQ(rank, m_tree_comm->level_rank(level));

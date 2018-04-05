@@ -69,7 +69,7 @@ namespace geopm
         , m_platform_topo(topo)
         , m_iogroup_list(iogroup_list)
     {
-        if (iogroup_list.size() == 0) {
+        if (m_iogroup_list.size() == 0) {
             for (const auto &it : iogroup_factory().plugin_names()) {
                 register_iogroup(iogroup_factory().make_plugin(it));
             }

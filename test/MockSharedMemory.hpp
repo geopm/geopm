@@ -30,20 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SHAREDMEMORY_HPP_INCLUDE
-#define SHAREDMEMORY_HPP_INCLUDE
+#ifndef MOCKSHAREDMEMORY_HPP_INCLUDE
+#define MOCKSHAREDMEMORY_HPP_INCLUDE
 
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include <vector>
 #include "SharedMemory.hpp"
 
 class MockSharedMemory : public geopm::ISharedMemory
 {
     public:
+        MockSharedMemory() = delete;
+        MockSharedMemory(size_t size) {
+            m_buffer = std::vector<char>(size);
+            EXPECT_CALL(*this, size())
+                .WillRepeatedly(testing::Return(size));
+            EXPECT_CALL(*this, pointer())
+                .WillRepeatedly(testing::Return(m_buffer.data()));
+        };
+
+        virtual ~MockSharedMemory() = default;
+
         MOCK_METHOD0(pointer,
                 void *(void));
         MOCK_METHOD0(key,
                 std::string (void));
         MOCK_METHOD0(size,
                 size_t (void));
+
+    protected:
+        std::vector<char> m_buffer;
 };
 
 #endif
+
