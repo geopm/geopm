@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9b6da51_1addb283",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-09T20:53:07Z",
+      "side": 1,
+      "message": "#ifdef GEOPM_DEBUG\n    do_print \u003d true;\n#endif",
+      "revId": "d75452973d791ebb244ca5b3766ade2cfe17c3ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
