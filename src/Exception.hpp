@@ -65,9 +65,12 @@ namespace geopm
     /// @param [in] eptr A pointer to a thrown exception such as
     ///        std::current_exception().
     ///
+    /// @param [in] print A bool specifying whether or not to print
+    ///        a debug string to standard error when handling exception.
+    ///
     /// @return Error number, positive numbers are system errors,
     ///         negative numbers are GEOPM errors.
-    int exception_handler(std::exception_ptr eptr);
+    int exception_handler(std::exception_ptr eptr, bool do_print=false);
 
     /// @brief Class for all GEOPM-specific exceptions.
     ///
