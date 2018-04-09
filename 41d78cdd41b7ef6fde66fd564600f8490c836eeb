@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05a45e7e_7c0f6da5",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-09T20:32:02Z",
+      "side": 1,
+      "message": "Should be do_print",
+      "range": {
+        "startLine": 175,
+        "startChar": 56,
+        "endLine": 175,
+        "endChar": 61
+      },
+      "revId": "41d78cdd41b7ef6fde66fd564600f8490c836eeb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
