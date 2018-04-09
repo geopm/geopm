@@ -172,7 +172,7 @@ namespace geopm
 
     static std::string error_message(int err);
 
-    int exception_handler(std::exception_ptr eptr)
+    int exception_handler(std::exception_ptr eptr, bool do_print)
     {
         int err = GEOPM_ERROR_RUNTIME;
         try {
@@ -186,35 +186,38 @@ namespace geopm
             const std::system_error *ex_sys = dynamic_cast<const std::system_error *>(&ex);
             const std::runtime_error *ex_rt = dynamic_cast<const std::runtime_error *>(&ex);
 
-            if (ex_geopm_signal) {
 #ifdef GEOPM_DEBUG
-                std::cerr << "Error: " << ex_geopm_signal->what() << std::endl;
+            do_print = true;
 #endif
+            if (ex_geopm_signal) {
+                if (do_print) {
+                    std::cerr << "Error: " << ex_geopm_signal->what() << std::endl;
+                }
                 err = ex_geopm->err_value();
                 raise(ex_geopm_signal->sig_value());
             }
             else if (ex_geopm) {
-#ifdef GEOPM_DEBUG
-                std::cerr << "Error: " << ex_geopm->what() << std::endl;
-#endif
+                if (do_print) {
+                    std::cerr << "Error: " << ex_geopm->what() << std::endl;
+                }
                 err = ex_geopm->err_value();
             }
             else if (ex_sys) {
-#ifdef GEOPM_DEBUG
-                std::cerr << "Error: " << ex_sys->what() << std::endl;
-#endif
+                if (do_print) {
+                    std::cerr << "Error: " << ex_sys->what() << std::endl;
+                }
                 err = ex_sys->code().value();
             }
             else if (ex_rt) {
-#ifdef GEOPM_DEBUG
-                std::cerr << "Error: " << ex_rt->what() << std::endl;
-#endif
+                if (do_print) {
+                    std::cerr << "Error: " << ex_rt->what() << std::endl;
+                }
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
             else {
-#ifdef GEOPM_DEBUG
-                std::cerr << "Error: " << ex.what() << std::endl;
-#endif
+                if (do_print) {
+                    std::cerr << "Error: " << ex.what() << std::endl;
+                }
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
         }
