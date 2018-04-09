@@ -117,7 +117,7 @@ extern "C"
             }
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
@@ -130,7 +130,7 @@ extern "C"
             delete ctl_obj;
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
@@ -144,7 +144,7 @@ extern "C"
         }
         catch (...) {
             ctl_obj->reset();
-            err = geopm::exception_handler(std::current_exception());
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
@@ -157,7 +157,7 @@ extern "C"
             ctl_obj->step();
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
@@ -172,7 +172,7 @@ extern "C"
             ctl_obj->pthread(attr, thread);
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
