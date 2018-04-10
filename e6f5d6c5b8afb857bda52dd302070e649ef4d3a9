@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8647d438_79c547b6",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-10T20:56:06Z",
+      "side": 1,
+      "message": "how did sysfsp pass this build?",
+      "range": {
+        "startLine": 358,
+        "startChar": 39,
+        "endLine": 358,
+        "endChar": 79
+      },
+      "revId": "e6f5d6c5b8afb857bda52dd302070e649ef4d3a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
