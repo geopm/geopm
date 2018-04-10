@@ -58,7 +58,7 @@ namespace geopm
             PlatformIO(const PlatformIO &other) = delete;
             PlatformIO & operator=(const PlatformIO&) = delete;
             /// @brief Virtual destructor for the PlatformIO class.
-            virtual ~PlatformIO();
+            virtual ~PlatformIO() = default;
             void register_iogroup(std::shared_ptr<IOGroup> iogroup) override;
             int signal_domain_type(const std::string &signal_name) const override;
             int control_domain_type(const std::string &control_name) const override;

@@ -36,6 +36,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <memory>
 
 #include "geopm_message.h"
 
@@ -142,7 +143,7 @@ namespace geopm
             /// rank.
             SampleRegulator(const std::vector<int> &cpu_rank);
             /// @brief SampleRegulator destructor, virtual.
-            virtual ~SampleRegulator();
+            virtual ~SampleRegulator() = default;
             void operator () (const struct geopm_time_s &platform_sample_time,
                               std::vector<double>::const_iterator platform_sample_begin,
                               std::vector<double>::const_iterator platform_sample_end,
@@ -184,7 +185,7 @@ namespace geopm
             std::vector<uint64_t> m_region_id;
             /// @brief Per rank record of last profile samples in
             /// m_region_id_prev
-            std::vector<ICircularBuffer<struct m_rank_sample_s> *> m_rank_sample_prev;
+            std::vector<std::unique_ptr<ICircularBuffer<struct m_rank_sample_s> > > m_rank_sample_prev;
             /// @brief The platform sample time.
             struct geopm_time_s m_aligned_time;
             /// @brief Vector to multiply with signal_domain_matrix to

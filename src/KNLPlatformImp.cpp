@@ -119,11 +119,6 @@ namespace geopm
 
     }
 
-    KNLPlatformImp::~KNLPlatformImp()
-    {
-
-    }
-
     bool KNLPlatformImp::model_supported(int platform_id)
     {
         return (platform_id == M_PLATFORM_ID);

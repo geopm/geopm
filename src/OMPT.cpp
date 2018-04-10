@@ -69,7 +69,7 @@ namespace geopm
         public:
             OMPT();
             OMPT(const std::string &map_path);
-            virtual ~OMPT();
+            virtual ~OMPT() = default;
             uint64_t region_id(void *parallel_function);
             void region_name(void *parallel_function, std::string &name);
             void region_name_pretty(std::string &name);
@@ -130,11 +130,6 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
         }
-    }
-
-    OMPT::~OMPT()
-    {
-
     }
 
     uint64_t OMPT::region_id(void *parallel_function)

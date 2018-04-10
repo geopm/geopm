@@ -54,7 +54,7 @@ namespace geopm
             KNLPlatformImp();
             KNLPlatformImp(const KNLPlatformImp &other);
             /// @brief Default destructor.
-            virtual ~KNLPlatformImp();
+            virtual ~KNLPlatformImp() = default;
 
             //////////////////////////////////////////////
             // KNLPlatformImp dependent implementations //

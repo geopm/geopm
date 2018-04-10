@@ -43,8 +43,8 @@ namespace geopm
     class ITreeComm
     {
         public:
-            ITreeComm() {}
-            virtual ~ITreeComm() {}
+            ITreeComm() = default;
+            virtual ~ITreeComm() = default;
             virtual int num_level_controlled(void) const = 0;
             virtual int root_level(void) const = 0;
             virtual int level_rank(int level) const = 0;

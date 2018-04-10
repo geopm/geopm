@@ -43,8 +43,8 @@ namespace geopm
     class ITreeCommLevel
     {
         public:
-            ITreeCommLevel() {}
-            virtual ~ITreeCommLevel() {}
+            ITreeCommLevel() = default;
+            virtual ~ITreeCommLevel() = default;
             virtual int level_rank(void) const = 0;
             virtual void send_up(const std::vector<double> &sample) = 0;
             virtual void send_down(const std::vector<std::vector<double> > &policy) = 0;

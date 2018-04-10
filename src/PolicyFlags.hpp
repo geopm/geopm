@@ -42,8 +42,8 @@ namespace geopm
     class IPolicyFlags
     {
         public:
-            IPolicyFlags() {}
-            virtual ~IPolicyFlags() {}
+            IPolicyFlags() = default;
+            virtual ~IPolicyFlags() = default;
             /// @brief Get the encoded flags
             /// @return Integer representation of flags
             virtual unsigned long flags(void) const = 0;

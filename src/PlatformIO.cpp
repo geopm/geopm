@@ -76,11 +76,6 @@ namespace geopm
         }
     }
 
-    PlatformIO::~PlatformIO()
-    {
-
-    }
-
     void PlatformIO::register_iogroup(std::shared_ptr<IOGroup> iogroup)
     {
         m_iogroup_list.push_back(iogroup);
