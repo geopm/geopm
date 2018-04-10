@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d5e6703_1c4d4093",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-10T21:12:01Z",
+      "side": 1,
+      "message": "agg_sum",
+      "range": {
+        "startLine": 321,
+        "startChar": 35,
+        "endLine": 321,
+        "endChar": 46
+      },
+      "revId": "d7fa0b6f1b2d454da99bc0e84dec34b855b31a2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4162a7c_db3d2b77",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-10T21:12:01Z",
+      "side": 1,
+      "message": "agg_sum",
+      "range": {
+        "startLine": 322,
+        "startChar": 42,
+        "endLine": 322,
+        "endChar": 53
+      },
+      "revId": "d7fa0b6f1b2d454da99bc0e84dec34b855b31a2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
