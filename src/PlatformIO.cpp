@@ -320,9 +320,12 @@ namespace geopm
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
             {"POWER", IPlatformIO::agg_average},
+            {"POWER_PACKAGE", IPlatformIO::agg_average},
+            {"FREQUENCY", IPlatformIO::agg_average},
             {"REGION_POWER", IPlatformIO::agg_average},
             {"RUNTIME", IPlatformIO::agg_max},
             {"REGION_RUNTIME", IPlatformIO::agg_max},
+            {"REGION_PROGRESS", IPlatformIO::agg_min},
             {"EPOCH_RUNTIME", IPlatformIO::agg_max},
             {"ENERGY", IPlatformIO::agg_sum},
             {"REGION_ENERGY", IPlatformIO::agg_sum},
@@ -330,6 +333,7 @@ namespace geopm
             {"IS_CONVERGED", IPlatformIO::agg_and},
             {"IS_UPDATED", IPlatformIO::agg_and},
             {"REGION_ID#", IPlatformIO::agg_region_id},
+            {"TIME", IPlatformIO::agg_average}
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
