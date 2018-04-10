@@ -38,6 +38,9 @@
 
 namespace geopm
 {
+    /// @brief Implementation of std::make_unique (C++14) for C++11.
+    ///        Note that this version will only work for non-array
+    ///        types.
     template <class Type, class ...Args>
     std::unique_ptr<Type> make_unique(Args &&...args)
     {
