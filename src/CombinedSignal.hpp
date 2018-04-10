@@ -34,6 +34,8 @@
 #define COMBINEDSIGNAL_HPP_INCLUDE
 
 #include <map>
+#include <functional>
+#include <vector>
 
 #include "CircularBuffer.hpp"
 
@@ -45,11 +47,13 @@ namespace geopm
     class CombinedSignal
     {
         public:
-            CombinedSignal() = default;
+            CombinedSignal();
+            CombinedSignal(std::function<double(const std::vector<double> &)>);
             virtual ~CombinedSignal() = default;
             /// @brief Sample all required signals and aggregate
             ///        values to produce the combined signal.
             virtual double sample(const std::vector<double> &values);
+            std::function<double(const std::vector<double> &)> m_agg_function;
     };
 
     /// @brief Used by PlatformIO for CombinedSignals based on a
