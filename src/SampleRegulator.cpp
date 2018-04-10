@@ -32,6 +32,7 @@
 #include <iostream>
 #include <string.h>
 
+#include "Helper.hpp"
 #include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"
 #include "config.h"
@@ -53,16 +54,9 @@ namespace geopm
             ++i;
         }
         for (int i = 0; i < m_num_rank; ++i) {
-            m_rank_sample_prev.push_back(new CircularBuffer<struct m_rank_sample_s>(M_INTERP_TYPE_LINEAR)); // two samples are required for linear interpolation
+            m_rank_sample_prev.push_back(geopm::make_unique<CircularBuffer<struct m_rank_sample_s> >(M_INTERP_TYPE_LINEAR)); // two samples are required for linear interpolation
         }
         m_region_id.resize(m_num_rank, GEOPM_REGION_ID_UNMARKED);
-    }
-
-    SampleRegulator::~SampleRegulator()
-    {
-        for (auto it = m_rank_sample_prev.begin(); it != m_rank_sample_prev.end(); ++it) {
-            delete *it;
-        }
     }
 
     void SampleRegulator::operator () (const struct geopm_time_s &platform_sample_time,

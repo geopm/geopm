@@ -50,10 +50,7 @@ namespace geopm
         m_region_id.resize(m_num_rank, GEOPM_REGION_ID_UNMARKED);
     }
 
-    ProfileIOSample::~ProfileIOSample()
-    {
-
-    }
+    ProfileIOSample::~ProfileIOSample() = default;
 
     void ProfileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)

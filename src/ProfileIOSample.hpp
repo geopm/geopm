@@ -45,8 +45,8 @@ namespace geopm
     class IProfileIOSample
     {
         public:
-            IProfileIOSample() {}
-            virtual ~IProfileIOSample() {}
+            IProfileIOSample() = default;
+            virtual ~IProfileIOSample() = default;
             virtual void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) = 0;
             virtual std::vector<uint64_t> per_cpu_region_id(void) = 0;

@@ -38,6 +38,7 @@
 #include <cmath>
 #include <sstream>
 
+#include "Helper.hpp"
 #include "Region.hpp"
 #include "CircularBuffer.hpp"
 #include "ProfileThread.hpp"
@@ -55,8 +56,8 @@ namespace geopm
         , m_entry_telemetry(m_num_domain, {GEOPM_REGION_ID_UNDEFINED, {{0, 0}}, {0}})
         , m_curr_sample({m_identifier, {0.0, 0.0, 0.0, 0.0}})
         , m_domain_sample(m_num_domain, m_curr_sample)
-        , m_domain_buffer(NULL)
-        , m_time_buffer(NULL)
+        , m_domain_buffer(nullptr)
+        , m_time_buffer(nullptr)
         , m_valid_entries(m_num_signal * m_num_domain, 0)
         , m_min(m_num_signal * m_num_domain, DBL_MAX)
         , m_max(m_num_signal * m_num_domain, -DBL_MAX)
@@ -70,16 +71,11 @@ namespace geopm
         , m_mpi_time(0.0)
         , m_tprof_table(tprof_table)
     {
-        m_domain_buffer = new CircularBuffer<std::vector<double> >(M_NUM_SAMPLE_HISTORY);
-        m_time_buffer = new CircularBuffer<struct geopm_time_s>(M_NUM_SAMPLE_HISTORY);
+        m_domain_buffer = geopm::make_unique<CircularBuffer<std::vector<double> > >(M_NUM_SAMPLE_HISTORY);
+        m_time_buffer = geopm::make_unique<CircularBuffer<struct geopm_time_s> >(M_NUM_SAMPLE_HISTORY);
     }
 
-    Region::~Region()
-    {
-        delete m_time_buffer;
-        delete m_domain_buffer;
-
-    }
+    Region::~Region() = default;
 
     void Region::entry(void)
     {

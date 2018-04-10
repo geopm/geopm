@@ -314,9 +314,9 @@ namespace geopm
             /// @brief Holder for sample data calculated after a domain exits a region.
             std::vector<struct geopm_sample_message_s> m_domain_sample;
             /// @brief Circular buffer is over time, vector is indexed over both domains and signals.
-            ICircularBuffer<std::vector<double> > *m_domain_buffer;
+            std::unique_ptr<ICircularBuffer<std::vector<double> > > m_domain_buffer;
             /// @brief time stamp for each entry in the m_domain_buffer.
-            ICircularBuffer<struct geopm_time_s> *m_time_buffer;
+            std::unique_ptr<ICircularBuffer<struct geopm_time_s> > m_time_buffer;
             /// @brief the number of valid samples per domain and signal type.
             std::vector<int> m_valid_entries;
             /// @brief the current minimum signal value per domain and signal type.
