@@ -370,6 +370,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/TreeCommTest.cpp \
                           test/MockTreeCommLevel.hpp \
                           test/MonitorAgentTest.cpp \
+                          test/AgentFactoryTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

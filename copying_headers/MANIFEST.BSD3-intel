@@ -185,6 +185,7 @@ src/TreeCommunicator.cpp
 src/TreeCommunicator.hpp
 src/XeonPlatformImp.cpp
 src/XeonPlatformImp.hpp
+test/AgentFactoryTest.cpp
 test/BalancingDeciderTest.cpp
 test/CircularBufferTest.cpp
 test/CombinedSignalTest.cpp
