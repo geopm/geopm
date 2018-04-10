@@ -117,6 +117,30 @@
     },
     {
       "key": {
+        "uuid": "ac578c46_b643fa71",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-04-10T21:25:28Z",
+      "side": 1,
+      "message": "This ended up not really being possible.  There are rare times when certain MPI regions take an order of magnitude longer than when compared to a higher p-state.  This means that comparing against the total runtime won\u0027t work, and this whole scheme blows up.\n\nI\u0027m removing this whole block.  The burden will have to be on the user to determine what to put in the RID_MAP based on if the runtime is meaningful to them.",
+      "parentUuid": "3955fa1e_bdd0fe77",
+      "range": {
+        "startLine": 287,
+        "startChar": 30,
+        "endLine": 287,
+        "endChar": 33
+      },
+      "revId": "344ee723f55a90c227b3ffd40739cbe2b5aa67b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52a67c33_26a00168",
         "filename": "scripts/geopmpy/analysis.py",
         "patchSetId": 5
