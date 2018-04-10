@@ -57,16 +57,18 @@ namespace geopm
     PlatformIO::PlatformIO()
         : m_is_active(false)
     {
-         for (const auto &it : iogroup_factory().plugin_names()) {
-             register_iogroup(iogroup_factory().make_plugin(it));
-         }
+
     }
 
     PlatformIO::PlatformIO(std::list<std::unique_ptr<IOGroup> > iogroup_list)
         : m_is_active(false)
         , m_iogroup_list(std::move(iogroup_list))
     {
-
+        if (iogroup_list.empty()) {
+            for (const auto &it : iogroup_factory().plugin_names()) {
+                register_iogroup(iogroup_factory().make_plugin(it));
+            }
+        }
     }
 
     PlatformIO::~PlatformIO()

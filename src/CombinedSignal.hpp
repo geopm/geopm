@@ -34,6 +34,8 @@
 #define COMBINEDSIGNAL_HPP_INCLUDE
 
 #include <map>
+#include <functional>
+#include <vector>
 
 #include "CircularBuffer.hpp"
 
@@ -43,9 +45,11 @@ namespace geopm
     class CombinedSignal
     {
         public:
-            CombinedSignal() = default;
+            CombinedSignal();
+            CombinedSignal(std::function<double(const std::vector<double> &)>);
             virtual ~CombinedSignal() = default;
             virtual double sample(const std::vector<double> &values);
+            std::function<double(const std::vector<double> &)> m_agg_function;
     };
 
     class PerRegionDerivativeCombinedSignal : public CombinedSignal

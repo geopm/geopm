@@ -34,16 +34,28 @@
 #include <numeric>
 #include <algorithm>
 
+#include "PlatformIO.hpp"
 #include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    CombinedSignal::CombinedSignal()
+        : CombinedSignal(IPlatformIO::agg_sum)
+    {
+
+    }
+
+    CombinedSignal::CombinedSignal(std::function<double(const std::vector<double> &)> func)
+        : m_agg_function(func)
+    {
+
+    }
 
     double CombinedSignal::sample(const std::vector<double> &values)
     {
-        return std::accumulate(values.begin(), values.end(), 0.0);
+        return m_agg_function(values);
     }
 
     double PerRegionDerivativeCombinedSignal::sample(const std::vector<double> &values)
