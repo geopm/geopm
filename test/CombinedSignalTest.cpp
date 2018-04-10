@@ -34,6 +34,7 @@
 #include "gtest/gtest.h"
 
 #include "CombinedSignal.hpp"
+#include "PlatformIO.hpp"
 #include "Exception.hpp"
 
 using geopm::CombinedSignal;
@@ -50,6 +51,18 @@ TEST(CombinedSignalTest, sample_sum)
     values = {4.1, 5, -6, 7, 18};
     result = comb_signal.sample(values);
     EXPECT_DOUBLE_EQ(28.1, result);
+}
+
+TEST(CombinedSignalTest, sample_max)
+{
+    CombinedSignal comb_signal {geopm::IPlatformIO::agg_max};
+    std::vector<double> values = {0.0};
+    double result = comb_signal.sample(values);
+    EXPECT_DOUBLE_EQ(0.0, result);
+
+    values = {4.1, 5, -6, 7, 18};
+    result = comb_signal.sample(values);
+    EXPECT_DOUBLE_EQ(18, result);
 }
 
 TEST(CombinedSignalTest, sample_flat_derivative)

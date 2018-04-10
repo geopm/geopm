@@ -269,13 +269,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TreeCommTest.geometry \
               test/gtest_links/TreeCommTest.send_receive \
               test/gtest_links/TreeCommTest.overhead_send \
-              test/gtest_links/MonitorAgentTest.fixed_signal_list \
-              test/gtest_links/MonitorAgentTest.all_signals_in_trace \
-              test/gtest_links/MonitorAgentTest.sample_platform \
-              test/gtest_links/MonitorAgentTest.descend_nothing \
-              test/gtest_links/MonitorAgentTest.ascend_aggregates_signals \
-              test/gtest_links/MonitorAgentTest.custom_signals \
-              test/gtest_links/AgentFactoryTest.static_info_monitor \
               # end
 
 if ENABLE_MPI
@@ -369,7 +362,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
                           test/MockTreeCommLevel.hpp \
-                          test/MonitorAgentTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

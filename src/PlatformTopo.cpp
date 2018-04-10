@@ -98,12 +98,15 @@ namespace geopm
             case M_DOMAIN_BOARD_ACCELERATOR:
             case M_DOMAIN_PACKAGE_ACCELERATOR:
                 /// @todo Add support for NIC and accelerators to PlatformTopo.
-                throw Exception("PlatformTopo::num_domain() no support yet for NIC or ACCELERATOR",
+                throw Exception("PlatformTopo::num_domain(): no support yet for NIC or ACCELERATOR",
                                 GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                 break;
             case M_DOMAIN_INVALID:
+                throw Exception("PlatformTopo::num_domain(): invalid domain specified",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
             default:
-                throw Exception("PlatformTopo::num_domain() invalid domain specified",
+                throw Exception("PlatformTopo::num_domain(): invalid domain specified",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 break;
         }
@@ -114,9 +117,44 @@ namespace geopm
                                    int domain_idx,
                                    std::set<int> &cpu_idx) const
     {
-        /// @todo Add support for domain_cpus() method
-        throw Exception("PlatformTopo::domain_cpus(): method not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        cpu_idx.clear();
+        switch (domain_type) {
+            case M_DOMAIN_BOARD:
+                for (auto numa_cpus : m_numa_map) {
+                    cpu_idx.insert(numa_cpus.begin(), numa_cpus.end());
+                }
+                break;
+            case M_DOMAIN_PACKAGE:
+                for (int thread_idx = 0;
+                     thread_idx != m_thread_per_core;
+                     ++thread_idx) {
+                    for (int core_idx = domain_idx * m_core_per_package;
+                         core_idx != (domain_idx + 1) * m_core_per_package;
+                         ++core_idx) {
+                        cpu_idx.insert(core_idx + thread_idx * m_core_per_package * m_num_package);
+                    }
+                }
+                break;
+            case M_DOMAIN_CORE:
+                for (int thread_idx = 0;
+                     thread_idx != m_thread_per_core;
+                     ++thread_idx) {
+                    cpu_idx.insert(domain_idx + thread_idx * m_core_per_package * m_num_package);
+                }
+                break;
+            case M_DOMAIN_CPU:
+                cpu_idx.insert(domain_idx);
+                break;
+            case M_DOMAIN_BOARD_MEMORY:
+                cpu_idx = m_numa_map[domain_idx];
+                break;
+            default:
+                throw Exception("PlatformTopo::domain_cpus(domain_type=" +
+                                std::to_string(domain_type) +
+                                ") support not yet implemented",
+                                GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                break;
+        }
     }
 
     int PlatformTopo::define_cpu_group(const std::vector<int> &cpu_domain_idx)
@@ -188,7 +226,40 @@ namespace geopm
         return result;
     }
 
-
+    bool PlatformTopo::is_domain_within(int inner_domain, int outer_domain)
+    {
+        bool result = false;
+        static const std::set<int> package_domain = {
+            M_DOMAIN_CPU,
+            M_DOMAIN_CORE,
+            M_DOMAIN_PACKAGE_MEMORY,
+            M_DOMAIN_PACKAGE_NIC,
+            M_DOMAIN_PACKAGE_ACCELERATOR,
+        };
+        if (inner_domain == outer_domain) {
+            result = true;
+        }
+        else if (outer_domain == M_DOMAIN_BOARD) {
+            // All domains are within the board domain
+            result = true;
+        }
+        else if (outer_domain == M_DOMAIN_CORE &&
+                 inner_domain == M_DOMAIN_CPU) {
+            // Only the CPU domain is within the core.
+            result = true;
+        }
+        else if (outer_domain == M_DOMAIN_PACKAGE &&
+                 package_domain.find(inner_domain) != package_domain.end()) {
+            // Everything under the package scope is in the package_domain set.
+            result = true;
+        }
+        else if (outer_domain == M_DOMAIN_BOARD_MEMORY &&
+                 inner_domain == M_DOMAIN_CPU) {
+            // To support mapping CPU signals to DRAM domain (e.g. power)
+            result = true;
+        }
+        return result;
+    }
 
     void PlatformTopo::parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
                                    int &num_package,
