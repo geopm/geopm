@@ -1,0 +1,10 @@
+Klocwork+1: <fsp@intel.com>
+Verified+1: <fsp@intel.com>
+Code-Review+1: Diana Guttman <diana.r.guttman@intel.com>
+Verified+1: Diana Guttman <diana.r.guttman@intel.com>
+Code-Review+2: Brandon Baker <brandon.baker@intel.com>
+Submitted-by: Brandon Baker <brandon.baker@intel.com>
+Submitted-at: Tue, 10 Apr 2018 16:42:56 -0400
+Reviewed-on: https://review.gerrithub.io/407031
+Project: geopm/geopm
+Branch: refs/heads/dev
