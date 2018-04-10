@@ -43,7 +43,6 @@
 #include "TreeCommLevel.hpp"
 #include "MockComm.hpp"
 #include "MockTreeCommLevel.hpp"
-#include "MockPlatformIO.hpp"
 #include "geopm_test.hpp"
 #include "config.h"
 
@@ -64,7 +63,6 @@ class TreeCommTest : public ::testing::Test
         std::vector<int> m_fan_out;
         std::vector<MockTreeCommLevel *> m_level_ptr;
         std::unique_ptr<TreeComm> m_tree_comm;
-        MockPlatformIO m_platform_io;
 };
 
 void TreeCommTest::SetUp()
@@ -79,8 +77,7 @@ void TreeCommTest::SetUp()
 
     EXPECT_CALL(*m_mock_comm, barrier());
     EXPECT_CALL(*m_mock_comm, num_rank()).WillOnce(Return(120));
-    m_tree_comm.reset(new TreeComm(m_mock_comm, 3, 2, m_fan_out, std::move(temp),
-                                   m_platform_io));
+    m_tree_comm.reset(new TreeComm(m_mock_comm, 3, 2, m_fan_out, std::move(temp)));
 }
 
 TEST_F(TreeCommTest, geometry)

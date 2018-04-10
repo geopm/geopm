@@ -39,7 +39,6 @@ namespace geopm
 {
     class IComm;
     class ITreeCommLevel;
-    class IPlatformIO;
 
     class ITreeComm
     {
@@ -74,8 +73,7 @@ namespace geopm
                      int num_send_up,
                      int num_send_down,
                      const std::vector<int> &fan_out,
-                     std::vector<std::unique_ptr<ITreeCommLevel> > mock_level,
-                     IPlatformIO &plat_io);
+                     std::vector<std::unique_ptr<ITreeCommLevel> > mock_level);
             virtual ~TreeComm();
             int num_level_controlled(void) const override;
             int root_level(void) const override;
@@ -103,7 +101,6 @@ namespace geopm
             std::vector<int> m_fan_out;
             int m_num_send_up;
             int m_num_send_down;
-            IPlatformIO &m_platform_io;
             std::vector<std::unique_ptr<ITreeCommLevel> > m_level_ctl;
     };
 }
