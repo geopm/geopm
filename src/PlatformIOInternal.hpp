@@ -37,6 +37,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <functional>
 
 #include "PlatformIO.hpp"
 #include "CombinedSignal.hpp"
@@ -45,29 +46,39 @@ namespace geopm
 {
     class IOGroup;
     class CombinedSignal;
+    class IPlatformTopo;
 
     class PlatformIO : public IPlatformIO
     {
         public:
             /// @brief Constructor for the PlatformIO class.
             PlatformIO();
-            PlatformIO(std::list<std::unique_ptr<IOGroup> > iogroup_list);
+            PlatformIO(std::list<std::shared_ptr<IOGroup> > iogroup_list,
+                       IPlatformTopo &topo);
             PlatformIO(const PlatformIO &other) = delete;
             PlatformIO & operator=(const PlatformIO&) = delete;
             /// @brief Virtual destructor for the PlatformIO class.
             virtual ~PlatformIO();
-            void register_iogroup(std::unique_ptr<IOGroup> iogroup) override;
+            void register_iogroup(std::shared_ptr<IOGroup> iogroup) override;
             int signal_domain_type(const std::string &signal_name) const override;
             int control_domain_type(const std::string &control_name) const override;
             int push_signal(const std::string &signal_name,
                             int domain_type,
                             int domain_idx) override;
+            int push_region_signal(int signal_idx,
+                                   int domain_type,
+                                   int domain_idx) override;
+            int push_combined_signal(const std::string &signal_name,
+                                     int domain_type,
+                                     int domain_idx,
+                                     const std::vector<int> &sub_signal_idx) override;
             int push_control(const std::string &control_name,
                              int domain_type,
                              int domain_idx) override;
             int num_signal(void) const override;
             int num_control(void) const override;
             double sample(int signal_idx) override;
+            double region_sample(int signal_idx, uint64_t region_id) override;
             void adjust(int control_idx, double setting) override;
             void read_batch(void) override;
             void write_batch(void) override;
@@ -78,6 +89,7 @@ namespace geopm
                                int domain_type,
                                int domain_idx,
                                double setting) override;
+            std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) override;
         protected:
             /// @brief Save a high-level signal as a combination of other signals.
             /// @param [in] signal_idx Index a caller can use to refer to this signal.
@@ -85,20 +97,22 @@ namespace geopm
             ///             be valid pushed signals registered with PlatformIO.
             /// @param [in] func The function that will combine the signals into
             ///             a single result.
-            //void register_combined_signal(int signal_idx,
-            //                              std::vector<int> operands,
-            //                              std::function<double(std::vector<double>)> func);
             void register_combined_signal(int signal_idx,
                                           std::vector<int> operands,
                                           std::unique_ptr<CombinedSignal> signal);
-
+            int push_signal_power(const std::string &signal_name,
+                                  int domain_type,
+                                  int domain_idx);
+            int push_signal_convert_domain(const std::string &signal_name,
+                                           int domain_type,
+                                           int domain_idx);
             /// @brief Sample a combined signal using the saved function and operands.
             double sample_combined(int signal_idx);
             bool m_is_active;
-            std::list<std::unique_ptr<IOGroup> > m_iogroup_list;
+            IPlatformTopo &m_platform_topo;
+            std::list<std::shared_ptr<IOGroup> > m_iogroup_list;
             std::vector<std::pair<IOGroup *, int> > m_active_signal;
             std::vector<std::pair<IOGroup *, int> > m_active_control;
-
             std::map<int, std::pair<std::vector<int>,
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
     };
