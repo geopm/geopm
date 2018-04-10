@@ -45,6 +45,7 @@ namespace geopm
     class IProfileIORuntime;
     class IPlatformTopo;
 
+    /// @brief IOGroup that provides signals from the application.
     class ProfileIOGroup : public IOGroup
     {
         public:

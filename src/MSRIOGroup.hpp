@@ -47,6 +47,7 @@ namespace geopm
     class MSRControl;
     class IMSRIO;
 
+    /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
     {
         public:

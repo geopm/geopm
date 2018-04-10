@@ -150,6 +150,8 @@ namespace geopm
                                        int domain_type,
                                        int domain_idx,
                                        double setting) = 0;
+            /// @brief Structure describing the values required to
+            ///        push a signal or control.
             struct m_request_s {
                 std::string name;
                 int domain_type;
