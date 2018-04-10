@@ -108,6 +108,8 @@ src/IOGroup.cpp
 src/IOGroup.hpp
 src/KNLPlatformImp.cpp
 src/KNLPlatformImp.hpp
+src/MonitorAgent.cpp
+src/MonitorAgent.hpp
 src/MPIComm.cpp
 src/MPIComm.hpp
 src/MPICommSplit.cpp
@@ -236,6 +238,7 @@ test/MockSharedMemoryUser.hpp
 test/MockSampleScheduler.hpp
 test/MockTreeCommLevel.hpp
 test/ModelApplicationTest.cpp
+test/MonitorAgentTest.cpp
 test/MPIInterfaceTest.cpp
 test/MSRIOGroupTest.cpp
 test/MSRIOTest.cpp
