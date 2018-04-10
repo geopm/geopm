@@ -34,15 +34,18 @@
 #include <iomanip>
 #include <cmath>
 #include <algorithm>
+#include <numeric>
 
 #include "geopm_sched.h"
+#include "geopm_message.h"
+#include "geopm_hash.h"
 #include "PlatformIO.hpp"
 #include "PlatformIOInternal.hpp"
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
-
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 #include "config.h"
 
@@ -55,18 +58,22 @@ namespace geopm
     }
 
     PlatformIO::PlatformIO()
-        : m_is_active(false)
+        : PlatformIO({}, platform_topo())
     {
-         for (const auto &it : iogroup_factory().plugin_names()) {
-             register_iogroup(iogroup_factory().make_plugin(it));
-         }
+
     }
 
-    PlatformIO::PlatformIO(std::list<std::unique_ptr<IOGroup> > iogroup_list)
+    PlatformIO::PlatformIO(std::list<std::shared_ptr<IOGroup> > iogroup_list,
+                           IPlatformTopo &topo)
         : m_is_active(false)
+        , m_platform_topo(topo)
         , m_iogroup_list(std::move(iogroup_list))
     {
-
+        if (iogroup_list.empty()) {
+            for (const auto &it : iogroup_factory().plugin_names()) {
+                register_iogroup(iogroup_factory().make_plugin(it));
+            }
+        }
     }
 
     PlatformIO::~PlatformIO()
@@ -74,9 +81,9 @@ namespace geopm
 
     }
 
-    void PlatformIO::register_iogroup(std::unique_ptr<IOGroup> iogroup)
+    void PlatformIO::register_iogroup(std::shared_ptr<IOGroup> iogroup)
     {
-        m_iogroup_list.push_back(std::move(iogroup));
+        m_iogroup_list.push_back(iogroup);
     }
 
     int PlatformIO::signal_domain_type(const std::string &signal_name) const
@@ -128,19 +135,37 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = -1;
-        bool is_found = false;
         for (auto it = m_iogroup_list.rbegin();
-             !is_found && it != m_iogroup_list.rend();
+             result == -1 && it != m_iogroup_list.rend();
              ++it) {
-            if ((*it)->is_valid_signal(signal_name)) {
+            if ((*it)->is_valid_signal(signal_name) &&
+                (*it)->signal_domain_type(signal_name) == domain_type) {
                 int group_signal_idx = (*it)->push_signal(signal_name, domain_type, domain_idx);
                 result = m_active_signal.size();
                 m_active_signal.emplace_back((*it).get(), group_signal_idx);
-                is_found = true;
             }
         }
+        if (result == -1 && signal_name.find("POWER") != std::string::npos) {
+            result = push_signal_power(signal_name, domain_type, domain_idx);
+        }
+        if (result == -1) {
+            result = push_signal_convert_domain(signal_name, domain_type, domain_idx);
+        }
+        if (result == -1) {
+            throw Exception("PlatformIO::push_signal(): no support for signal name \"" +
+                            signal_name + "\" and domain type \"" +
+                            std::to_string(domain_type) + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
 
-        if (!is_found && (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM")) {
+    int PlatformIO::push_signal_power(const std::string &signal_name,
+                                        int domain_type,
+                                        int domain_idx)
+    {
+        int result = -1;
+        if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
             int energy_idx = -1;
             if (signal_name == "POWER_PACKAGE") {
                 energy_idx = push_signal("ENERGY_PACKAGE", domain_type, domain_idx);
@@ -149,7 +174,7 @@ namespace geopm
                 energy_idx = push_signal("ENERGY_DRAM", domain_type, domain_idx);
             }
 
-            int time_idx = push_signal("TIME", domain_type, domain_idx);
+            int time_idx = push_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
             int region_id_idx = push_signal("REGION_ID#", domain_type, domain_idx);
             result = m_active_signal.size();
 
@@ -158,15 +183,44 @@ namespace geopm
                                      std::unique_ptr<CombinedSignal>(new PerRegionDerivativeCombinedSignal));
 
             m_active_signal.emplace_back(nullptr, result);
-            is_found = true;
-        }
-
-        if (result == -1) {
-            throw Exception("PlatformIO::push_signal(): signal name \"" + signal_name + "\" not found",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
+
+    int PlatformIO::push_signal_convert_domain(const std::string &signal_name,
+                                               int domain_type,
+                                               int domain_idx)
+    {
+        int result = -1;
+        int base_domain_type = signal_domain_type(signal_name);
+        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+            std::set<int> cpus;
+            m_platform_topo.domain_cpus(domain_type, domain_idx, cpus);
+            std::set<int> base_domain_idx;
+            for (auto it : cpus) {
+                base_domain_idx.insert(m_platform_topo.domain_idx(base_domain_type, it));
+            }
+            std::vector<int> signal_idx;
+            for (auto it : base_domain_idx) {
+                signal_idx.push_back(push_signal(signal_name, base_domain_type, it));
+            }
+            result = push_combined_signal(signal_name, domain_type, domain_idx, signal_idx);
+        }
+        return result;
+    }
+
+    int PlatformIO::push_combined_signal(const std::string &signal_name,
+                                         int domain_type,
+                                         int domain_idx,
+                                         const std::vector<int> &sub_signal_idx)
+    {
+        int result = m_active_signal.size();
+        std::unique_ptr<CombinedSignal> combiner = geopm::make_unique<CombinedSignal>(agg_function(signal_name));
+        register_combined_signal(result, sub_signal_idx, std::move(combiner));
+        m_active_signal.emplace_back(nullptr, result);
+        return result;
+    }
+
 
     void PlatformIO::register_combined_signal(int signal_idx,
                                               std::vector<int> operands,
@@ -174,6 +228,12 @@ namespace geopm
     {
         auto tmp = std::make_pair(operands, std::move(signal));
         m_combined_signal[signal_idx] = std::move(tmp);
+    }
+
+    int PlatformIO::push_region_signal(int signal_idx, int domain_type, int domain_idx)
+    {
+        /// @todo push region ID signal for given domain, then save mapping to be used by sample_region
+        return -1;
     }
 
     int PlatformIO::push_control(const std::string &control_name,
@@ -229,6 +289,12 @@ namespace geopm
             result = sample_combined(group_idx_pair.second);
         }
         return result;
+    }
+
+    double PlatformIO::region_sample(int signal_idx, uint64_t region_id)
+    {
+        /// @todo implement me
+        return NAN;
     }
 
     double PlatformIO::sample_combined(int signal_idx)
@@ -311,5 +377,146 @@ namespace geopm
             throw Exception("PlatformIO::write_control(): control name \"" + control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+    }
+
+    std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name)
+    {
+        static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
+            {"POWER", IPlatformIO::agg_average},
+            {"REGION_POWER", IPlatformIO::agg_average},
+            {"RUNTIME", IPlatformIO::agg_max},
+            {"REGION_RUNTIME", IPlatformIO::agg_max},
+            {"EPOCH_RUNTIME", IPlatformIO::agg_max},
+            {"ENERGY", IPlatformIO::agg_sum},
+            {"REGION_ENERGY", IPlatformIO::agg_sum},
+            {"EPOCH_ENERGY", IPlatformIO::agg_sum},
+            {"IS_CONVERGED", IPlatformIO::agg_and},
+            {"IS_UPDATED", IPlatformIO::agg_and},
+            {"REGION_ID#", IPlatformIO::agg_region_id},
+        };
+        auto it = fn_map.find(signal_name);
+        if (it == fn_map.end()) {
+            throw Exception("PlatformIO::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    double IPlatformIO::agg_sum(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = std::accumulate(operand.begin(), operand.end(), 0.0);
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_average(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = agg_sum(operand) / operand.size();
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_median(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        size_t num_op = operand.size();
+        if (num_op) {
+            size_t mid_idx = num_op / 2;
+            bool is_even = ((num_op % 2) == 0);
+            std::vector<double> operand_sorted(operand);
+            std::sort(operand_sorted.begin(), operand_sorted.end());
+            result = operand_sorted[mid_idx];
+            if (is_even) {
+                result += operand_sorted[mid_idx - 1];
+                result /= 2.0;
+            }
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_and(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = std::all_of(operand.begin(), operand.end(),
+                                 [](double it)
+                                 {return (it != 0.0);});
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_or(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = std::any_of(operand.begin(), operand.end(),
+                                 [](double it)
+                                 {return (it != 0.0);});
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_region_id(const std::vector<double> &operand)
+    {
+        uint64_t common_rid = GEOPM_REGION_ID_UNDEFINED;
+        if (operand.size()) {
+            for (const auto &it : operand) {
+                uint64_t it_rid = geopm_signal_to_field(it);
+                if (it_rid != GEOPM_REGION_ID_UNDEFINED &&
+                    common_rid == GEOPM_REGION_ID_UNDEFINED) {
+                    common_rid = it_rid;
+                }
+                if (common_rid != GEOPM_REGION_ID_UNDEFINED &&
+                   it_rid != GEOPM_REGION_ID_UNDEFINED &&
+                   it_rid != common_rid) {
+                   common_rid = GEOPM_REGION_ID_UNMARKED;
+                   break;
+                }
+            }
+        }
+        return geopm_field_to_signal(common_rid);
+    }
+
+    double IPlatformIO::agg_min(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = *std::min_element(operand.begin(), operand.end());
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_max(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = *std::max_element(operand.begin(), operand.end());
+        }
+        return result;
+    }
+
+    double IPlatformIO::agg_stddev(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size() > 1) {
+            double sum_squared = agg_sum(operand);
+            sum_squared *= sum_squared;
+            std::vector<double> operand_squared(operand);
+            for (auto &it : operand_squared) {
+                it *= it;
+            }
+            double sum_squares = agg_sum(operand_squared);
+            double aa = 1.0 / (operand.size() - 1);
+            double bb = aa / operand.size();
+            result = std::sqrt(aa * sum_squares - bb * sum_squared);
+        }
+        else if (operand.size() == 1) {
+            result = 0.0;
+        }
+        return result;
     }
 }
