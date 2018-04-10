@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14e7e827_c0725da4",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-10T21:15:44Z",
+      "side": 1,
+      "message": "Should be calling ctor on line 64?",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 28
+      },
+      "revId": "048ae263a19195122b5e934661c784b2715bdbee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
