@@ -353,10 +353,6 @@ TEST_F(PlatformTopoTest, bdx_is_domain_within)
     EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, IPlatformTopo::M_DOMAIN_PACKAGE));
-
-    // TODO: remove resource manager domain
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_RESOURCE_MANAGER, IPlatformTopo::M_DOMAIN_BOARD));
-
 }
 
 TEST_F(PlatformTopoTest, parse_error)
