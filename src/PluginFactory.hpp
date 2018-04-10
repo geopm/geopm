@@ -88,7 +88,7 @@ namespace geopm
             }
         private:
             std::map<std::string, std::function<std::unique_ptr<T>()> > m_name_func_map;
-            std::map<std::string, const std::map<std::string, std::string> &> m_dictionary;
+            std::map<std::string, const std::map<std::string, std::string> > m_dictionary;
             static const std::map<std::string, std::string> m_empty_dictionary;
     };
 
