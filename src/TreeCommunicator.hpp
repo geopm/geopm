@@ -198,7 +198,7 @@ namespace geopm
             ///        participate in the tree.
             TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, std::shared_ptr<IComm> comm);
             /// @brief TreeCommunicator destructor, virtual.
-            virtual ~TreeCommunicator() = default;
+            virtual ~TreeCommunicator();
             int num_level(void) const override;
             int root_level(void) const override;
             int level_rank(int level) const override;
