@@ -48,7 +48,8 @@ namespace geopm
             enum m_domain_e {
                 /// @brief Reserved to represent an invalid domain
                 M_DOMAIN_INVALID = 0,
-                /// @brief All components on a user allocated compute node (one per controller)
+                /// @brief All components on a user allocated compute
+                ///        node (one per controller)
                 M_DOMAIN_BOARD,
                 /// @Brief Single processor package in one socket
                 M_DOMAIN_PACKAGE,
@@ -62,14 +63,18 @@ namespace geopm
                 M_DOMAIN_PACKAGE_MEMORY,
                 /// @brief Network interface controller on the PCI bus
                 M_DOMAIN_BOARD_NIC,
-                /// @brief Network interface controller on the processor package
+                /// @brief Network interface controller on the
+                ///        processor package
                 M_DOMAIN_PACKAGE_NIC,
                 /// @brief Accelerator card on the PCI bus
                 M_DOMAIN_BOARD_ACCELERATOR,
-                /// @brief Accelerator unit on the package (e.g on-package graphics)
+                /// @brief Accelerator unit on the package (e.g
+                ///        on-package graphics)
                 M_DOMAIN_PACKAGE_ACCELERATOR,
-                /// @brief Start of user defined collections of Linux logical CPUs
-                M_DOMAIN_CPU_GROUP_BASE = 4096,
+                /// @brief Start of user defined collections of Linux
+                ///        logical CPUs
+                M_DOMAIN_CPU_GROUP_BEGIN = 4096,
+                M_DOMAIN_CPU_GROUP_END = 8191,
             };
 
             IPlatformTopo() {}
@@ -89,9 +94,17 @@ namespace geopm
             /// @brief Define a new domain type that is a group of
             ///        Linux logical CPUs by assigning a domain index
             ///        to each.
-            /// @param [in] cpu_domain_idx A vector over Linux logical CPUs
-            ///        assigning a domain index to each.
+            /// @param [in] cpu_domain_idx A vector over Linux logical
+            ///        CPUs assigning a domain index to each.
+            /// @return The domain type index reserved for the newly
+            ///         defined cpu group.
             virtual int define_cpu_group(const std::vector<int> &cpu_domain_idx) = 0;
+            /// @brief Check if one domain type is containd in another.
+            /// @param [in] inner_domain The contained domain type.
+            /// @param [in] outer_domain The containing domain type.
+            /// @return True if the inner_domain is contained within
+            ///         the outer_domain.
+            virtual bool is_domain_within(int inner_domain, int outer_domain) = 0;
     };
 
     IPlatformTopo &platform_topo(void);
@@ -109,6 +122,7 @@ namespace geopm
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             int define_cpu_group(const std::vector<int> &cpu_domain_idx) override;
+            bool is_domain_within(int inner_domain, int outer_domain) override;
         protected:
             void lscpu(std::map<std::string, std::string> &lscpu_map);
             void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
