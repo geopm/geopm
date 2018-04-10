@@ -64,7 +64,7 @@ namespace geopm
     {
         public:
             TreeCommunicatorLevel(std::shared_ptr<IComm> comm);
-            ~TreeCommunicatorLevel();
+            virtual ~TreeCommunicatorLevel();
             /// Check sample mailbox for each child and if all are full copy
             /// them into sample and reset values in mailbox, otherwise throw
             /// geopm::Exception with err_value() of
@@ -165,6 +165,8 @@ namespace geopm
 
         comm->barrier();
     }
+
+    TreeCommunicator::~TreeCommunicator() = default;
 
     int TreeCommunicator::num_level(void) const
     {
