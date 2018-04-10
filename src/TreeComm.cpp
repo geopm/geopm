@@ -39,7 +39,6 @@
 #include "TreeComm.hpp"
 #include "TreeCommLevel.hpp"
 #include "Comm.hpp"
-#include "PlatformIO.hpp"
 #include "config.h"
 
 namespace geopm
@@ -48,7 +47,7 @@ namespace geopm
      TreeComm::TreeComm(std::shared_ptr<IComm> comm,
                         int num_send_up,
                         int num_send_down)
-         : TreeComm(comm, num_send_up, num_send_down, fan_out(comm), {}, platform_io())
+         : TreeComm(comm, num_send_up, num_send_down, fan_out(comm), {})
      {
 
      }
@@ -57,15 +56,13 @@ namespace geopm
                         int num_send_up,
                         int num_send_down,
                         const std::vector<int> &fan_out,
-                        std::vector<std::unique_ptr<ITreeCommLevel> > mock_level,
-                        IPlatformIO &plat_io)
+                        std::vector<std::unique_ptr<ITreeCommLevel> > mock_level)
         : m_comm(comm)
         , m_root_level(fan_out.size() + 1)
         , m_num_node(comm->num_rank()) // Assume that comm has one rank per node
         , m_fan_out(fan_out)
         , m_num_send_up(num_send_up)
         , m_num_send_down(num_send_down)
-        , m_platform_io(plat_io)
         , m_level_ctl(std::move(mock_level))
     {
         if (m_level_ctl.size() == 0) {
