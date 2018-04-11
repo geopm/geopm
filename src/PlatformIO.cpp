@@ -35,6 +35,7 @@
 #include <cmath>
 #include <algorithm>
 #include <numeric>
+#include <iostream>
 
 #include "geopm_sched.h"
 #include "geopm_message.h"
@@ -69,7 +70,8 @@ namespace geopm
         , m_platform_topo(topo)
         , m_iogroup_list(std::move(iogroup_list))
     {
-        if (iogroup_list.empty()) {
+        if (iogroup_list.size() == 0) {
+            std::cout << "blah" << std::endl;
             for (const auto &it : iogroup_factory().plugin_names()) {
                 register_iogroup(iogroup_factory().make_plugin(it));
             }

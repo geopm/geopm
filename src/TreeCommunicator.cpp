@@ -54,49 +54,6 @@
 
 namespace geopm
 {
-    /////////////////////////////////
-    // Internal class declarations //
-    /////////////////////////////////
-
-    /// @brief TreeCommunicatorLevel class encapsulates communication functionality on
-    /// a per-level basis.
-    class TreeCommunicatorLevel
-    {
-        public:
-            TreeCommunicatorLevel(std::shared_ptr<IComm> comm);
-            ~TreeCommunicatorLevel();
-            /// Check sample mailbox for each child and if all are full copy
-            /// them into sample and reset values in mailbox, otherwise throw
-            /// geopm::Exception with err_value() of
-            /// GEOPM_ERROR_SAMPLE_INCOMPLETE
-            void get_sample(std::vector<struct geopm_sample_message_s> &sample);
-            /// Check policy mailbox and set policy to new value
-            /// stored there.  If the mailbox has not been modified or
-            /// contains GEOPM_POLICY_UNKNOWN for any other reason
-            /// throw a geopm::Exception with err_value() of
-            /// GEOPM_ERROR_POLICY_UNKNOWN.
-            void get_policy(struct geopm_policy_message_s &policy);
-            /// Send sample via MPI_Put() to root of level.
-            void send_sample(const struct geopm_sample_message_s &sample);
-            /// Send any changed policies via MPI_Put() to children.
-            void send_policy(const std::vector<struct geopm_policy_message_s> &policy);
-            /// Returns the level rank of the calling process.
-            int level_rank(void);
-            /// Returns number of bytes transfered over the network so far.
-            size_t overhead_send(void);
-        protected:
-            void create_window(void);
-            std::shared_ptr<IComm> m_comm;
-            int m_size;
-            int m_rank;
-            struct geopm_sample_message_s *m_sample_mailbox;
-            struct geopm_policy_message_s *m_policy_mailbox;
-            size_t m_sample_window;
-            size_t m_policy_window;
-            size_t m_overhead_send;
-            std::vector<struct geopm_policy_message_s> m_last_policy;
-    };
-
     ///////////////////////////////////
     // TreeCommunicator public API's //
     ///////////////////////////////////
@@ -148,8 +105,7 @@ namespace geopm
             auto level_comm = comm_cart->split(color, key);
             if (level_comm->num_rank()) {
                 ++m_num_level;
-                m_level.push_back(std::move(std::unique_ptr<TreeCommunicatorLevel>
-                                            (new TreeCommunicatorLevel(level_comm))));
+                m_level.emplace_back(new TreeCommunicatorLevel(level_comm));
             }
 
             if (coords[depth] != 0) {
