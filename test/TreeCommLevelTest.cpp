@@ -61,6 +61,8 @@ class TreeCommLevelTest : public ::testing::Test
         double *m_policy_mem_1;
         double *m_sample_mem_0;
         double *m_sample_mem_1;
+        int *m_sample_window[2] = {nullptr, nullptr};
+        int *m_policy_window[2] = {nullptr, nullptr};
 };
 
 
@@ -89,13 +91,18 @@ void TreeCommLevelTest::SetUp()
     EXPECT_CALL(*m_comm_1, alloc_mem(policy_size, _))
         .WillOnce(SetArgPointee<1>(m_policy_mem_1));
 
+    m_sample_window[0] = new int(77);
+    m_sample_window[1] = new int(78);
+    m_policy_window[0] = new int(87);
+    m_policy_window[1] = new int(88);
+
     // rank 0 only sets up sample window
-    EXPECT_CALL(*m_comm_0, window_create(sample_size, _));
-    EXPECT_CALL(*m_comm_0, window_create(0, NULL)); // policy window
+    EXPECT_CALL(*m_comm_0, window_create(sample_size, _)).WillOnce(Return((size_t)m_sample_window[0]));
+    EXPECT_CALL(*m_comm_0, window_create(0, NULL)).WillOnce(Return((size_t)m_policy_window[0])); // policy window
 
     // rank 1 only sets up policy window
-    EXPECT_CALL(*m_comm_1, window_create(0, NULL)); // sample window
-    EXPECT_CALL(*m_comm_1, window_create(policy_size, _));
+    EXPECT_CALL(*m_comm_1, window_create(0, NULL)).WillOnce(Return((size_t)m_sample_window[1])); // sample window
+    EXPECT_CALL(*m_comm_1, window_create(policy_size, _)).WillOnce(Return((size_t)m_policy_window[1]));
 
     m_level_rank_0 = std::make_shared<TreeCommLevel>(m_comm_0, m_num_up, m_num_down);
     m_level_rank_1 = std::make_shared<TreeCommLevel>(m_comm_1, m_num_up, m_num_down);
@@ -104,10 +111,18 @@ void TreeCommLevelTest::SetUp()
 void TreeCommLevelTest::TearDown()
 {
     auto free_func = [] (void *base) { free(base); };
+    auto delete_func = [] (size_t ptr) { delete (int*)ptr; };
     EXPECT_CALL(*m_comm_0, barrier());
     EXPECT_CALL(*m_comm_1, barrier());
-    EXPECT_CALL(*m_comm_0, window_destroy(_)).Times(2);
-    EXPECT_CALL(*m_comm_1, window_destroy(_)).Times(2);
+    EXPECT_CALL(*m_comm_0, window_destroy((size_t)m_sample_window[0]))
+        .WillOnce(Invoke(delete_func));
+    EXPECT_CALL(*m_comm_1, window_destroy((size_t)m_sample_window[1]))
+        .WillOnce(Invoke(delete_func));
+    EXPECT_CALL(*m_comm_0, window_destroy((size_t)m_policy_window[0]))
+        .WillOnce(Invoke(delete_func));
+    EXPECT_CALL(*m_comm_1, window_destroy((size_t)m_policy_window[1]))
+        .WillOnce(Invoke(delete_func));
+
     EXPECT_CALL(*m_comm_0, free_mem(m_sample_mem_0))
         .WillOnce(Invoke(free_func));
     EXPECT_CALL(*m_comm_1, free_mem(m_sample_mem_1))
