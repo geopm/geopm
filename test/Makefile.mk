@@ -140,6 +140,10 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info6 \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
+              test/gtest_links/EnergyEfficientAgentTest.map \
+              test/gtest_links/EnergyEfficientAgentTest.name \
+              test/gtest_links/EnergyEfficientAgentTest.hint \
+              test/gtest_links/EnergyEfficientAgentTest.online_mode \
               test/gtest_links/EfficientFreqDeciderTest.map \
               test/gtest_links/EfficientFreqDeciderTest.decider_is_supported \
               test/gtest_links/EfficientFreqDeciderTest.name \
@@ -190,6 +194,13 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRTest.msr_64_bit \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.msr_control \
+              test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
+              test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
+              test/gtest_links/EnergyEfficientRegionTest.only_changes_freq_after_enough_samples \
+              test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_below_min \
+              test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
+              test/gtest_links/EnergyEfficientRegionTest.energy_increases_freq_steps_back_up \
+              test/gtest_links/EnergyEfficientRegionTest.after_too_many_increase_freq_stays_at_higher \
               test/gtest_links/EfficientFreqRegionTest.freq_starts_at_maximum \
               test/gtest_links/EfficientFreqRegionTest.update_ignores_nan_sample \
               test/gtest_links/EfficientFreqRegionTest.only_changes_freq_after_enough_samples \
@@ -356,6 +367,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/EfficientFreqDecider.hpp \
                           plugin/EfficientFreqDecider.cpp \
                           plugin/EfficientFreqDeciderRegister.cpp \
+                          src/EnergyEfficientAgent.hpp \
+                          src/EnergyEfficientAgent.cpp \
+                          test/EnergyEfficientAgentTest.cpp \
                           test/MockIOGroup.hpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
@@ -384,6 +398,9 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/EfficientFreqRegion.hpp \
                           plugin/EfficientFreqRegion.cpp \
                           test/EfficientFreqRegionTest.cpp \
+                          src/EnergyEfficientRegion.hpp \
+                          src/EnergyEfficientRegion.cpp \
+                          test/EnergyEfficientRegionTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
                           test/ModelApplicationTest.cpp \
                           tutorial/ModelParse.hpp \

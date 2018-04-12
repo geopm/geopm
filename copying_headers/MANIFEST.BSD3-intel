@@ -79,6 +79,10 @@ src/Decider.cpp
 src/Decider.hpp
 src/DefaultProfile.cpp
 src/Environment.cpp
+src/EnergyEfficientAgent.cpp
+src/EnergyEfficientAgent.hpp
+src/EnergyEfficientRegion.cpp
+src/EnergyEfficientRegion.hpp
 src/EpochRuntimeRegulator.cpp
 src/EpochRuntimeRegulator.hpp
 src/Exception.cpp
@@ -213,6 +217,8 @@ test/CombinedSignalTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
 test/CpuinfoIOGroupTest.cpp
+test/EnergyEfficientAgentTest.cpp
+test/EnergyEfficientRegionTest.cpp
 test/EfficientFreqDeciderTest.cpp
 test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
