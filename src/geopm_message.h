@@ -36,6 +36,7 @@
 #include <pthread.h>
 #include <stdint.h>
 
+#include "geopm.h"
 #include "geopm_time.h"
 
 #ifdef __cplusplus
@@ -90,6 +91,11 @@ static inline uint64_t geopm_region_id_set_mpi(uint64_t rid)
 static inline uint64_t geopm_region_id_unset_mpi(uint64_t rid)
 {
     return (rid & (~GEOPM_REGION_ID_MPI));
+}
+
+static inline uint64_t geopm_region_id_hint(uint64_t rid)
+{
+    return (rid & GEOPM_MASK_REGION_HINT);
 }
 
 static inline int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t rid)
