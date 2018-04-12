@@ -282,6 +282,10 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Decider.hpp \
                             src/DefaultProfile.cpp \
                             src/Environment.cpp \
+                            src/EnergyEfficientAgent.cpp \
+                            src/EnergyEfficientAgent.hpp \
+                            src/EnergyEfficientRegion.cpp \
+                            src/EnergyEfficientRegion.hpp \
                             src/EpochRuntimeRegulator.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
