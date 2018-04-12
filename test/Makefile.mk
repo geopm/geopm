@@ -139,11 +139,10 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info6 \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
-              test/gtest_links/EfficientFreqDeciderTest.map \
-              test/gtest_links/EfficientFreqDeciderTest.decider_is_supported \
-              test/gtest_links/EfficientFreqDeciderTest.name \
-              test/gtest_links/EfficientFreqDeciderTest.hint \
-              test/gtest_links/EfficientFreqDeciderTest.online_mode \
+              test/gtest_links/EfficientFreqAgentTest.map \
+              test/gtest_links/EfficientFreqAgentTest.name \
+              test/gtest_links/EfficientFreqAgentTest.hint \
+              test/gtest_links/EfficientFreqAgentTest.online_mode \
               test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
@@ -346,14 +345,13 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           plugin/GoverningDecider.cpp \
                           plugin/GoverningDeciderRegister.cpp \
                           test/GoverningDeciderTest.cpp \
-                          plugin/EfficientFreqDecider.hpp \
-                          plugin/EfficientFreqDecider.cpp \
-                          plugin/EfficientFreqDeciderRegister.cpp \
+                          src/EfficientFreqAgent.hpp \
+                          src/EfficientFreqAgent.cpp \
+                          test/EfficientFreqAgentTest.cpp \
                           test/MockIOGroup.hpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
                           test/CpuinfoIOGroupTest.cpp \
-                          test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
                           test/MockProfileTable.hpp \
@@ -374,8 +372,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformIOTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
-                          plugin/EfficientFreqRegion.hpp \
-                          plugin/EfficientFreqRegion.cpp \
+                          src/EfficientFreqRegion.hpp \
+                          src/EfficientFreqRegion.cpp \
                           test/EfficientFreqRegionTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
                           test/ModelApplicationTest.cpp \

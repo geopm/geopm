@@ -35,6 +35,7 @@
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "BalancingAgent.hpp"
+#include "EfficientFreqAgent.hpp"
 #include "config.h"
 
 namespace geopm
@@ -51,6 +52,10 @@ namespace geopm
                                           BalancingAgent::make_plugin,
                                           IAgent::make_dictionary(BalancingAgent::policy_names(),
                                                                   BalancingAgent::sample_names()));
+        g_plugin_factory->register_plugin(EfficientFreqAgent::plugin_name(),
+                                          EfficientFreqAgent::make_plugin,
+                                          IAgent::make_dictionary(EfficientFreqAgent::policy_names(),
+                                                                  EfficientFreqAgent::sample_names()));
     }
 
     PluginFactory<IAgent> &agent_factory(void)
