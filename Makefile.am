@@ -270,6 +270,10 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Decider.hpp \
                             src/DefaultProfile.cpp \
                             src/Environment.cpp \
+                            src/EfficientFreqAgent.cpp \
+                            src/EfficientFreqAgent.hpp \
+                            src/EfficientFreqRegion.cpp \
+                            src/EfficientFreqRegion.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \

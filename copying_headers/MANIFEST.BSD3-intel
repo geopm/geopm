@@ -81,6 +81,10 @@ src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
+src/EfficientFreqAgent.cpp
+src/EfficientFreqAgent.hpp
+src/EfficientFreqRegion.cpp
+src/EfficientFreqRegion.hpp
 src/geopm_ctl.h
 src/geopmctl_main.c
 src/geopm_env.h
@@ -209,7 +213,7 @@ test/CombinedSignalTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
 test/CpuinfoIOGroupTest.cpp
-test/EfficientFreqDeciderTest.cpp
+test/EfficientFreqAgentTest.cpp
 test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
 test/ExceptionTest.cpp
