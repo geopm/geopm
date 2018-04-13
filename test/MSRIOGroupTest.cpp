@@ -49,6 +49,7 @@
 #include "MSRIO.hpp"
 #include "Exception.hpp"
 #include "MSRIOGroup.hpp"
+#include "MockPlatformTopo.hpp"
 #include "geopm_test.hpp"
 
 using geopm::MSRIOGroup;
@@ -59,6 +60,7 @@ class MSRIOGroupTest : public :: testing :: Test
         void SetUp();
         std::vector<std::string> m_test_dev_path;
         std::unique_ptr<geopm::MSRIOGroup> m_msrio_group;
+        MockPlatformTopo m_topo;
 };
 
 class MockMSRIO : public geopm::MSRIO
@@ -147,7 +149,7 @@ void MSRIOGroupTest::SetUp()
 {
     std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
     m_test_dev_path = msrio->test_dev_paths();
-    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(std::move(msrio), 0x657, 16)); // KNL cpuid
+    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(m_topo, std::move(msrio), 0x657, 16)); // KNL cpuid
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -180,7 +182,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     for (auto id : cpuids) {
         std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
         try {
-            MSRIOGroup(std::move(msrio), id, 4);
+            MSRIOGroup(m_topo, std::move(msrio), id, 4);
         }
         catch (const std::exception &ex) {
             FAIL() << "Could not construct MSRIOGroup for cpuid 0x"
@@ -190,7 +192,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
 
     // unsupported cpuid
     std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
-    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(std::move(msrio), 0x9999, 4),
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, 4),
                                GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }
 
