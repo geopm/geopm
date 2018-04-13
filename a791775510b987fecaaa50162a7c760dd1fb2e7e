@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5a8e328_98ea015d",
+        "filename": "src/ApplicationIO.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-04-13T17:49:20Z",
+      "side": 1,
+      "message": "Extract method refactor.\n\nAlso, you could query PlatformTopo for the number of domains in this type, and then sample all of them.\n\nENERGY_DRAM should be M_DOMAIN_BOARD_MEMORY.",
+      "range": {
+        "startLine": 75,
+        "startChar": 25,
+        "endLine": 76,
+        "endChar": 100
+      },
+      "revId": "a791775510b987fecaaa50162a7c760dd1fb2e7e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
