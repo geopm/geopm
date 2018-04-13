@@ -51,17 +51,17 @@ namespace geopm
             KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
                             geopm::IPlatformTopo &topo);
             virtual ~KprofileIOGroup();
-            bool is_valid_signal(const std::string &signal_name) override;
-            bool is_valid_control(const std::string &control_name) override;
-            int signal_domain_type(const std::string &signal_name) override;
-            int control_domain_type(const std::string &control_name) override;
+            bool is_valid_signal(const std::string &signal_name) const override;
+            bool is_valid_control(const std::string &control_name) const override;
+            int signal_domain_type(const std::string &signal_name) const override;
+            int control_domain_type(const std::string &control_name) const override;
             int push_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
             int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
             void read_batch(void) override;
             void write_batch(void) override;
-            double sample(int signal_idx) override;
+            double sample(int signal_idx) const override;
             void adjust(int control_idx, double setting) override;
-            double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
+            double read_signal(const std::string &signal_name, int domain_type, int domain_idx) const override;
             void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
             static std::string plugin_name(void);
         protected:
@@ -76,7 +76,7 @@ namespace geopm
                 int domain_idx;
             };
 
-            int check_signal(const std::string &signal_name, int domain_type, int domain_idx);
+            int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
 
             std::shared_ptr<IKprofileIOSample> m_profile_sample;
             std::map<std::string, int> m_signal_idx_map;

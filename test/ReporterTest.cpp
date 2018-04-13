@@ -39,6 +39,7 @@
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockApplicationIO.hpp"
+#include "MockTreeComm.hpp"
 #include "Helper.hpp"
 #include "geopm_hash.h"
 #include "config.h"
@@ -65,6 +66,7 @@ class ReporterTest : public testing::Test
 
         MockPlatformIO m_platform_io;
         MockApplicationIO m_application_io;
+        MockTreeComm m_tree_comm;
         std::unique_ptr<Reporter> m_reporter;
         std::string m_profile_name = "my profile";
         std::set<std::string> m_region_set = {"all2all", "model-init"};
@@ -115,7 +117,6 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(m_platform_io, push_region_signal(M_CLK_CORE_IDX, _, _))
         .WillOnce(Return(M_REGION_CLK_CORE_IDX));
 
-
     m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io);
 }
 
@@ -157,6 +158,15 @@ TEST_F(ReporterTest, generate)
     }
 
 
+    EXPECT_CALL(m_application_io, total_app_runtime())
+        .WillOnce(Return(44));
+    EXPECT_CALL(m_application_io, total_app_mpi_runtime())
+        .WillOnce(Return(22));
+    EXPECT_CALL(m_application_io, total_app_energy())
+        .WillOnce(Return(999));
+    EXPECT_CALL(m_tree_comm, overhead_send())
+        .WillOnce(Return(678 * 44));
+
     // Check for labels at start of line but ignore numbers
     // Note that region lines start with tab
     std::string expected = "#####\n"
@@ -181,20 +191,21 @@ TEST_F(ReporterTest, generate)
         "	mpi-runtime (sec): 5.6\n"
         "	count: 1\n"
         "Application Totals:\n"
-        "	runtime (sec):\n"
-        "	energy (joules):\n"
-        "	mpi-runtime (sec):\n"
+        "	runtime (sec): 44\n"
+        "	energy (joules): 999\n"
+        "	mpi-runtime (sec): 22\n"
         "	ignore-time (sec):\n"
         "	throttle time (%):\n"
         "	geopmctl memory HWM:\n"
-        "	geopmctl network BW (B/sec):\n"
+        "	geopmctl network BW (B/sec): 678\n"
         "\n";
 
     std::istringstream exp_stream(expected);
 
     m_reporter->generate("my_agent", "agent_header", "node_report", {},
-                        m_application_io,
-                        nullptr); // TODO: mock comm
+                         m_application_io,
+                         nullptr,  // TODO: mock comm; not used
+                         m_tree_comm);
     std::ifstream report(m_report_name);
     check_report(exp_stream, report);
 }

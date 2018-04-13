@@ -67,17 +67,17 @@ namespace geopm
 
     }
 
-    bool ProfileIOGroup::is_valid_signal(const std::string &signal_name)
+    bool ProfileIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
     }
 
-    bool ProfileIOGroup::is_valid_control(const std::string &control_name)
+    bool ProfileIOGroup::is_valid_control(const std::string &control_name) const
     {
         return false;
     }
 
-    int ProfileIOGroup::signal_domain_type(const std::string &signal_name)
+    int ProfileIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = IPlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
@@ -86,7 +86,7 @@ namespace geopm
         return result;
     }
 
-    int ProfileIOGroup::control_domain_type(const std::string &control_name)
+    int ProfileIOGroup::control_domain_type(const std::string &control_name) const
     {
         return PlatformTopo::M_DOMAIN_INVALID;
     }
@@ -170,7 +170,7 @@ namespace geopm
 
     }
 
-    double ProfileIOGroup::sample(int signal_idx)
+    double ProfileIOGroup::sample(int signal_idx) const
     {
         double result = NAN;
         if (signal_idx < 0 || signal_idx >= (int)m_active_signal.size()) {
@@ -211,7 +211,7 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx) const
     {
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
         /// @todo Add support for non-cpu domains.
@@ -247,7 +247,7 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
     {
         if (!is_valid_signal(signal_name)) {
             throw Exception("ProfileIOGroup::check_signal(): signal_name " + signal_name +

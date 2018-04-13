@@ -34,6 +34,7 @@
 
 #include "ApplicationIO.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
 #include "KprofileIOSample.hpp"
 #include "KprofileIOGroup.hpp"
@@ -50,6 +51,8 @@ namespace geopm
 
     ApplicationIO::ApplicationIO(const std::string &shm_key)
         : ApplicationIO(shm_key,
+                        platform_io(),
+                        platform_topo(),
                         geopm::make_unique<ProfileSampler>(M_SHMEM_REGION_SIZE),
                         nullptr)
     {
@@ -57,20 +60,39 @@ namespace geopm
     }
 
     ApplicationIO::ApplicationIO(const std::string &shm_key,
+                                 IPlatformIO &platform_io,
+                                 IPlatformTopo &platform_topo,
                                  std::unique_ptr<IProfileSampler> sampler,
                                  std::shared_ptr<IKprofileIOSample> pio_sample)
-        : m_sampler(std::move(sampler))
+        : m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
+        , m_sampler(std::move(sampler))
         , m_profile_io_sample(pio_sample)
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rank_per_node(-1)
     {
         connect();
+
+        m_start_energy = current_energy();
     }
 
     ApplicationIO::~ApplicationIO()
     {
 
+    }
+
+    double ApplicationIO::current_energy(void) const
+    {
+        double package_energy = 0.0;
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE); ++domain_idx) {
+            package_energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, domain_idx);
+        }
+        double dram_energy = 0.0;
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY); ++domain_idx) {
+            dram_energy += m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, domain_idx);
+        }
+        return package_energy + dram_energy;
     }
 
     void ApplicationIO::connect(void)
@@ -194,6 +216,18 @@ namespace geopm
         }
 #endif
         return m_profile_io_sample->total_app_mpi_time();
+    }
+
+    double ApplicationIO::total_app_energy(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return current_energy() - m_start_energy;
     }
 
     int ApplicationIO::total_count(uint64_t region_id) const
