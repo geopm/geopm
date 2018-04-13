@@ -144,15 +144,15 @@ TEST_F(ReporterTest, generate)
     }
 
     for (auto rid : m_region_energy) {
-        EXPECT_CALL(m_platform_io, region_sample(M_REGION_ENERGY_IDX, rid.first))
+        EXPECT_CALL(m_platform_io, sample_region(M_REGION_ENERGY_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_core) {
-        EXPECT_CALL(m_platform_io, region_sample(M_REGION_CLK_CORE_IDX, rid.first))
+        EXPECT_CALL(m_platform_io, sample_region(M_REGION_CLK_CORE_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_ref) {
-        EXPECT_CALL(m_platform_io, region_sample(M_REGION_CLK_REF_IDX, rid.first))
+        EXPECT_CALL(m_platform_io, sample_region(M_REGION_CLK_REF_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
 

@@ -340,7 +340,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     int num_level_ctl = 2;
     int root_level = 2;
     std::vector<int> fan_out = {2, 2};
-    ASSERT_EQ(root_level, fan_out.size());
+    ASSERT_EQ(root_level, (int)fan_out.size());
 
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
         .WillOnce(Return(num_level_ctl));

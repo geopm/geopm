@@ -154,9 +154,9 @@ namespace geopm
             uint64_t region_id = geopm_crc32_str(0, region.c_str());
             report << "Region " << region << " (" << region_id << "):" << std::endl;
             report << "\truntime (sec): " << application_io.total_region_runtime(region_id) << std::endl;
-            report << "\tenergy (joules): " << m_platform_io.region_sample(m_energy_idx, region_id) << std::endl; // from platformio
-            double numer = m_platform_io.region_sample(m_clk_core_idx, region_id);
-            double denom = m_platform_io.region_sample(m_clk_ref_idx, region_id);
+            report << "\tenergy (joules): " << m_platform_io.sample_region(m_energy_idx, region_id) << std::endl;
+            double numer = m_platform_io.sample_region(m_clk_core_idx, region_id);
+            double denom = m_platform_io.sample_region(m_clk_ref_idx, region_id);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "\tfrequency (%): " << freq << std::endl;
             report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;

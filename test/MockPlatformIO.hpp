@@ -60,7 +60,7 @@ class MockPlatformIO : public geopm::IPlatformIO
                            int(void));
         MOCK_METHOD1(sample,
                      double(int signal_idx));
-        MOCK_METHOD2(region_sample,
+        MOCK_METHOD2(sample_region,
                      double(int signal_idx, uint64_t region_id));
         MOCK_METHOD2(adjust,
                      void(int control_idx, double setting));

@@ -129,7 +129,7 @@ namespace geopm
             ///        push_region_signal.
             /// @param [in] region_id The region ID to look up data for.
             /// @return Total accumlated value for the signal for one region.
-            virtual double region_sample(int signal_idx, uint64_t region_id) = 0;
+            virtual double sample_region(int signal_idx, uint64_t region_id) = 0;
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.  This control will not
             ///        take effect until the next call to

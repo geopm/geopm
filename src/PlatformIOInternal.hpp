@@ -78,7 +78,7 @@ namespace geopm
             int num_signal(void) const override;
             int num_control(void) const override;
             double sample(int signal_idx) override;
-            double region_sample(int signal_idx, uint64_t region_id) override;
+            double sample_region(int signal_idx, uint64_t region_id) override;
             void adjust(int control_idx, double setting) override;
             void read_batch(void) override;
             void write_batch(void) override;
@@ -91,15 +91,24 @@ namespace geopm
                                double setting) override;
             std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) override;
         protected:
+            enum {
+                M_SIGNAL_IDX_BASE_BEGIN = 0,
+                M_SIGNAL_IDX_BASE_END = (1ULL << 24) - 1,
+                M_SIGNAL_IDX_SPECIAL_RANGE_SIZE = (1ULL << 20),
+                M_SIGNAL_IDX_COMBINED_BEGIN = M_SIGNAL_IDX_BASE_END + 1,
+                M_SIGNAL_IDX_COMBINED_END = M_SIGNAL_IDX_COMBINED_BEGIN + M_SIGNAL_IDX_SPECIAL_RANGE_SIZE - 1,
+                M_SIGNAL_IDX_REGION_BEGIN = M_SIGNAL_IDX_COMBINED_END + 1,
+                M_SIGNAL_IDX_REGION_END = M_SIGNAL_IDX_REGION_BEGIN + M_SIGNAL_IDX_SPECIAL_RANGE_SIZE - 1,
+            };
+
             /// @brief Save a high-level signal as a combination of other signals.
-            /// @param [in] signal_idx Index a caller can use to refer to this signal.
             /// @param [in] operands Input signal indices to be combined.  These must
             ///             be valid pushed signals registered with PlatformIO.
             /// @param [in] func The function that will combine the signals into
             ///             a single result.
-            void register_combined_signal(int signal_idx,
-                                          std::vector<int> operands,
-                                          std::unique_ptr<CombinedSignal> signal);
+            /// @return Index a caller can use to refer to this signal.
+            int register_combined_signal(std::vector<int> operands,
+                                         std::unique_ptr<CombinedSignal> signal);
             int push_signal_power(const std::string &signal_name,
                                   int domain_type,
                                   int domain_idx);
@@ -113,8 +122,10 @@ namespace geopm
             std::list<std::shared_ptr<IOGroup> > m_iogroup_list;
             std::vector<std::pair<IOGroup *, int> > m_active_signal;
             std::vector<std::pair<IOGroup *, int> > m_active_control;
-            std::map<int, std::pair<std::vector<int>,
-                                    std::unique_ptr<CombinedSignal> > > m_combined_signal;
+            std::vector<std::pair<std::vector<int>,
+                                  std::unique_ptr<CombinedSignal> > > m_combined_signal;
+            std::list<std::pair<int, int> > m_region_signal_idx_list;
+            std::map<std::pair<int, uint64_t>, double> m_region_signal_map;
     };
 }
 

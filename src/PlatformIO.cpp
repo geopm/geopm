@@ -171,13 +171,8 @@ namespace geopm
 
             int time_idx = push_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
             int region_id_idx = push_signal("REGION_ID#", domain_type, domain_idx);
-            result = m_active_signal.size();
-
-            register_combined_signal(result,
-                                     {region_id_idx, time_idx, energy_idx},
-                                     std::unique_ptr<CombinedSignal>(new PerRegionDerivativeCombinedSignal));
-
-            m_active_signal.emplace_back(nullptr, result);
+            result = register_combined_signal({region_id_idx, time_idx, energy_idx},
+                                              std::unique_ptr<CombinedSignal>(new PerRegionDerivativeCombinedSignal));
         }
         return result;
     }
@@ -209,26 +204,29 @@ namespace geopm
                                          int domain_idx,
                                          const std::vector<int> &sub_signal_idx)
     {
-        int result = m_active_signal.size();
         std::unique_ptr<CombinedSignal> combiner = geopm::make_unique<CombinedSignal>(agg_function(signal_name));
-        register_combined_signal(result, sub_signal_idx, std::move(combiner));
-        m_active_signal.emplace_back(nullptr, result);
-        return result;
+        return register_combined_signal(sub_signal_idx, std::move(combiner));
     }
 
-
-    void PlatformIO::register_combined_signal(int signal_idx,
-                                              std::vector<int> operands,
-                                              std::unique_ptr<CombinedSignal> signal)
+    int PlatformIO::register_combined_signal(std::vector<int> operands,
+                                             std::unique_ptr<CombinedSignal> signal)
     {
+        int result = M_SIGNAL_IDX_COMBINED_BEGIN + m_combined_signal.size();
         auto tmp = std::make_pair(operands, std::move(signal));
-        m_combined_signal[signal_idx] = std::move(tmp);
+        m_combined_signal.emplace_back(std::move(tmp));
+        return result;
     }
 
     int PlatformIO::push_region_signal(int signal_idx, int domain_type, int domain_idx)
     {
-        /// @todo push region ID signal for given domain, then save mapping to be used by sample_region
-        return -1;
+        if (signal_idx < 0 || (size_t)signal_idx >= m_active_signal.size()) {
+            throw Exception("PlatformIO::push_region_signal(): signal_idx out of range.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int result = m_active_signal.size();
+        int region_idx = push_signal("REGION_ID#", domain_type, domain_idx);
+        m_region_signal_idx_list.emplace_back(signal_idx, region_idx);
+        return result;
     }
 
     int PlatformIO::push_control(const std::string &control_name,
@@ -272,30 +270,43 @@ namespace geopm
     double PlatformIO::sample(int signal_idx)
     {
         double result = NAN;
-        if (signal_idx < 0 || signal_idx >= num_signal()) {
-            throw Exception("PlatformIO::sample(): signal_idx out of range",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        auto &group_idx_pair = m_active_signal[signal_idx];
-        if (group_idx_pair.first) {
+        if (signal_idx >= M_SIGNAL_IDX_BASE_BEGIN &&
+            signal_idx < M_SIGNAL_IDX_BASE_BEGIN + (int)m_active_signal.size()) {
+            signal_idx -= M_SIGNAL_IDX_BASE_BEGIN;
+            auto &group_idx_pair = m_active_signal[signal_idx];
             result = group_idx_pair.first->sample(group_idx_pair.second);
         }
+        else if (signal_idx >= M_SIGNAL_IDX_COMBINED_BEGIN &&
+                 signal_idx < M_SIGNAL_IDX_COMBINED_BEGIN + (int)m_combined_signal.size()) {
+            signal_idx -= M_SIGNAL_IDX_COMBINED_BEGIN;
+            result = sample_combined(signal_idx);
+        }
+        else if (signal_idx >= M_SIGNAL_IDX_REGION_BEGIN &&
+                 signal_idx < M_SIGNAL_IDX_REGION_BEGIN + (int)m_region_signal_idx_list.size()) {
+            throw Exception("PlatformIO::sample(): region signal index cannot be passed to sample(), use sample_region().",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         else {
-            result = sample_combined(group_idx_pair.second);
+            throw Exception("PlatformIO::sample(): signal_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
 
-    double PlatformIO::region_sample(int signal_idx, uint64_t region_id)
+    double PlatformIO::sample_region(int signal_idx, uint64_t region_id)
     {
-        /// @todo implement me
-        return NAN;
+        double result = NAN;
+        auto it = m_region_signal_map.find(std::make_pair(signal_idx, region_id));
+        if (it != m_region_signal_map.end()) {
+            result = it->second;
+        }
+        return result;
     }
 
     double PlatformIO::sample_combined(int signal_idx)
     {
         double result = NAN;
-        auto &op_func_pair = m_combined_signal.at(signal_idx);
+        auto &op_func_pair = m_combined_signal[signal_idx];
         std::vector<int> &operand_idx = op_func_pair.first;
         auto &signal = op_func_pair.second;
         std::vector<double> operands(operand_idx.size());
@@ -322,6 +333,11 @@ namespace geopm
     {
         for (auto &it : m_iogroup_list) {
             it->read_batch();
+        }
+        for (const auto &it : m_region_signal_idx_list) {
+            double value = sample(it.first);
+            uint64_t rid = geopm_signal_to_field(sample(it.second));
+            m_region_signal_map[std::make_pair(it.first, rid)] = value;
         }
         m_is_active = true;
     }
