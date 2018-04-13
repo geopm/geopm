@@ -45,18 +45,18 @@ namespace geopm
 
     class BalancingAgent : public IAgent
     {
-        enum m_policy_mailbox_idx_e {
-            M_POLICY_MAILBOX_POWER,
-            M_NUM_POLICY_MAILBOX,
-        };
-        enum m_sample_mailbox_idx_e {
-            M_SAMPLE_MAILBOX_POWER,
-            M_SAMPLE_MAILBOX_IS_CONVERGED,
-            M_SAMPLE_MAILBOX_EPOCH_RUNTIME,
-            M_NUM_SAMPLE_MAILBOX,
-        };
-
         public:
+            enum m_policy_mailbox_idx_e {
+                M_POLICY_MAILBOX_POWER,
+                M_NUM_POLICY_MAILBOX,
+            };
+            enum m_sample_mailbox_idx_e {
+                M_SAMPLE_MAILBOX_POWER,
+                M_SAMPLE_MAILBOX_IS_CONVERGED,
+                M_SAMPLE_MAILBOX_EPOCH_RUNTIME,
+                M_NUM_SAMPLE_MAILBOX,
+            };
+
             BalancingAgent();
             virtual ~BalancingAgent();
             void init(int level) override;

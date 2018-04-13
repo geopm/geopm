@@ -66,7 +66,7 @@ namespace geopm
                 throw Exception("ProfileIORuntime::per_cpu_runtime: node-local rank "
                                 "for rank " + std::to_string(rank) + " not found in map.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
+            }
 #endif
             result[cpu_idx] = rank_runtimes[rank];
             ++cpu_idx;

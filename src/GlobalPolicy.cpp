@@ -635,7 +635,8 @@ namespace geopm
             else if (key_string == "cpu_hz") {
                 if (subval.is_number()) {
                     frequency_hz(subval.number_value());
-                } else {
+                }
+                else {
                     throw Exception("GlobalPolicy::read(): cpu_hz expected to be a double type",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }

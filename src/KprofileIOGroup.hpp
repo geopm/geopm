@@ -49,7 +49,7 @@ namespace geopm
         public:
             KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample);
             KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
-                           geopm::IPlatformTopo &topo);
+                            geopm::IPlatformTopo &topo);
             virtual ~KprofileIOGroup();
             bool is_valid_signal(const std::string &signal_name) override;
             bool is_valid_control(const std::string &control_name) override;

@@ -65,8 +65,7 @@ namespace geopm
             virtual ~PerRegionDerivativeCombinedSignal() = default;
             double sample(const std::vector<double> &values) override;
         protected:
-            struct m_sample_s
-            {
+            struct m_sample_s {
                 double time;
                 double sample;
             };

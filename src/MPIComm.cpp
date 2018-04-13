@@ -172,7 +172,8 @@ namespace geopm
             geopm_comm_split_ppn1(in_comm->m_comm, tag.c_str(), &m_comm);
             if (!is_valid()) {
                 is_ctl = false;
-            } else {
+            }
+            else {
                 is_ctl = true;
             }
         }
@@ -353,7 +354,7 @@ namespace geopm
     }
 
     void MPIComm::gather(const void *send_buf, size_t send_size, void *recv_buf,
-            size_t recv_size, int root) const
+                         size_t recv_size, int root) const
     {
         if (is_valid()) {
             check_mpi(PMPI_Gather(GEOPM_MPI_CONST_CAST(void *)(send_buf), send_size, MPI_BYTE, recv_buf, recv_size, MPI_BYTE, root, m_comm));
@@ -361,7 +362,7 @@ namespace geopm
     }
 
     void MPIComm::gatherv(const void *send_buf, size_t send_size, void *recv_buf,
-                    const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const
+                          const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const
     {
         std::vector<int> sizes(recv_sizes.size(), 0);
         std::vector<int> offsets(rank_offset.size(), 0);
@@ -370,7 +371,7 @@ namespace geopm
         auto in_off_it = rank_offset.begin();
         auto out_off_it = offsets.begin();
 
-        for (;in_size_it != recv_sizes.end();
+        for (; in_size_it != recv_sizes.end();
              ++in_size_it, ++out_size_it,
              ++in_off_it, ++out_off_it) {
             if (*in_size_it > INT_MAX) {
@@ -414,6 +415,6 @@ namespace geopm
     void CommWindow::put(const void *send_buf, size_t send_size, int rank, off_t disp)
     {
         check_mpi(PMPI_Put(GEOPM_MPI_CONST_CAST(void *)(send_buf), send_size, MPI_BYTE, rank, disp,
-                    send_size, MPI_BYTE, m_window));
+                           send_size, MPI_BYTE, m_window));
     }
 }

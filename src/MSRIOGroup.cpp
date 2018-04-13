@@ -280,9 +280,8 @@ namespace geopm
 
     void MSRIOGroup::write_batch(void)
     {
-        if (m_active_control.size())
-        {
-            if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it){return !it;})) {
+        if (m_active_control.size()) {
+            if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it) {return !it;})) {
                 throw Exception("MSRIOGroup::write_batch() called before all controls were adjusted",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }

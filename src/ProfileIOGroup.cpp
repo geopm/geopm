@@ -208,7 +208,7 @@ namespace geopm
     void ProfileIOGroup::adjust(int control_idx, double setting)
     {
         throw Exception("ProfileIOGroup::adjust() there are no controls supported by the ProfileIOGroup",
-                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
@@ -252,7 +252,7 @@ namespace geopm
         if (!is_valid_signal(signal_name)) {
             throw Exception("ProfileIOGroup::check_signal(): signal_name " + signal_name +
                             " not valid for ProfileIOGroup",
-                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
             /// @todo Add support for non-cpu domains.

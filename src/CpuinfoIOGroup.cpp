@@ -80,7 +80,10 @@ namespace geopm
                 if (!match) {
                     continue;
                 }
-                std::transform(line.begin(), line.end(), line.begin(), [](unsigned char c){ return std::tolower(c);});
+                std::transform(line.begin(), line.end(), line.begin(),
+                               [](unsigned char c) {
+                                   return std::tolower(c);
+                               });
                 std::string unit_str[3] = {"ghz", "mhz", "khz"};
                 double unit_factor[3] = {1e9, 1e6, 1e3};
                 for (int unit_idx = 0; unit_idx != 3; ++unit_idx) {
@@ -110,20 +113,21 @@ namespace geopm
 
     CpuinfoIOGroup::CpuinfoIOGroup()
         :CpuinfoIOGroup("/proc/cpuinfo",
-                              "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
-                              "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+                        "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
+                        "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
     {
+
     }
 
     CpuinfoIOGroup::CpuinfoIOGroup(const std::string &cpu_info_path,
-                         const std::string &cpu_freq_min_path,
-                         const std::string &cpu_freq_max_path)
-        : m_signal_value_map(
-                {{"CPUINFO::FREQ_MIN", read_cpu_freq(cpu_freq_min_path)},
-                 {"CPUINFO::FREQ_STICKER", read_cpu_freq_sticker(cpu_info_path)},
-                 {"CPUINFO::FREQ_MAX", read_cpu_freq(cpu_freq_max_path)},
-                 {"CPUINFO::FREQ_STEP", 100e6}})
+                                   const std::string &cpu_freq_min_path,
+                                   const std::string &cpu_freq_max_path)
+        : m_signal_value_map({{"CPUINFO::FREQ_MIN", read_cpu_freq(cpu_freq_min_path)},
+                              {"CPUINFO::FREQ_STICKER", read_cpu_freq_sticker(cpu_info_path)},
+                              {"CPUINFO::FREQ_MAX", read_cpu_freq(cpu_freq_max_path)},
+                              {"CPUINFO::FREQ_STEP", 100e6}})
     {
+
     }
 
     bool CpuinfoIOGroup::is_valid_signal(const std::string &signal_name)
@@ -203,7 +207,7 @@ namespace geopm
     void CpuinfoIOGroup::adjust(int batch_idx, double setting)
     {
         throw Exception("CpuinfoIOGroup::adjust(): there are no controls supported by the CpuinfoIOGroup",
-                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     double CpuinfoIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)

@@ -67,7 +67,7 @@ namespace geopm
                 struct geopm_time_s timestamp;
                 double progress;
             };
-           enum m_interp_type_e {
+            enum m_interp_type_e {
                 M_INTERP_TYPE_NONE = 0,
                 M_INTERP_TYPE_NEAREST = 1,
                 M_INTERP_TYPE_LINEAR = 2,

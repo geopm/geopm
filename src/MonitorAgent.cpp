@@ -79,13 +79,13 @@ namespace geopm
     }
 
     void MonitorAgent::descend(const std::vector<double> &in_policy,
-                                    std::vector<std::vector<double> >&out_policy)
+                               std::vector<std::vector<double> >&out_policy)
     {
 
     }
 
     void MonitorAgent::ascend(const std::vector<std::vector<double> > &in_sample,
-                                   std::vector<double> &out_sample)
+                              std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
         if (out_sample.size() != m_num_sample) {
@@ -126,7 +126,8 @@ namespace geopm
         geopm_time_s current_time;
         do {
             geopm_time(&current_time);
-        } while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
+        }
+        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
         geopm_time(&m_last_wait);
     }
 

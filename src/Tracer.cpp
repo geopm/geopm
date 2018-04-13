@@ -79,7 +79,8 @@ namespace geopm
         }
     }
 
-    std::string Tracer::hostname(void) {
+    std::string Tracer::hostname(void)
+    {
         char hostname[NAME_MAX];
         int err = gethostname(hostname, NAME_MAX);
         if (err) {

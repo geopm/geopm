@@ -44,20 +44,20 @@
 namespace geopm
 {
 
-     TreeComm::TreeComm(std::shared_ptr<IComm> comm,
-                        int num_send_down,
-                        int num_send_up)
-         : TreeComm(comm, fan_out(comm), 0, num_send_down, num_send_up, {})
-     {
+    TreeComm::TreeComm(std::shared_ptr<IComm> comm,
+                       int num_send_down,
+                       int num_send_up)
+        : TreeComm(comm, fan_out(comm), 0, num_send_down, num_send_up, {})
+    {
 
-     }
+    }
 
-     TreeComm::TreeComm(std::shared_ptr<IComm> comm,
-                        const std::vector<int> &fan_out,
-                        int num_level_ctl,
-                        int num_send_down,
-                        int num_send_up,
-                        std::vector<std::unique_ptr<ITreeCommLevel> > mock_level)
+    TreeComm::TreeComm(std::shared_ptr<IComm> comm,
+                       const std::vector<int> &fan_out,
+                       int num_level_ctl,
+                       int num_send_down,
+                       int num_send_up,
+                       std::vector<std::unique_ptr<ITreeCommLevel> > mock_level)
         : m_comm(comm)
         , m_fan_out(fan_out)
         , m_root_level(fan_out.size())
@@ -85,7 +85,7 @@ namespace geopm
     {
         int result = 0;
         for (auto it = coords.rbegin(); it != coords.rend() && *it == 0; ++it) {
-             ++result;
+            ++result;
         }
         return result;
     }
@@ -106,8 +106,8 @@ namespace geopm
             parent_coords[root_level - 1 - level] = 0;
             result.emplace_back(
                 new TreeCommLevel(comm_cart->split(
-                    comm_cart->cart_rank(parent_coords), rank_cart),
-                    m_num_send_up, m_num_send_down));
+                                      comm_cart->cart_rank(parent_coords), rank_cart),
+                                  m_num_send_up, m_num_send_down));
         }
         for (; level < root_level; ++level) {
             comm_cart->split(IComm::M_SPLIT_COLOR_UNDEFINED, 0);

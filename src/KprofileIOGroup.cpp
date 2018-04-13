@@ -49,7 +49,7 @@ namespace geopm
     }
 
     KprofileIOGroup::KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
-                                   IPlatformTopo &topo)
+                                     IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
@@ -209,7 +209,7 @@ namespace geopm
     void KprofileIOGroup::adjust(int control_idx, double setting)
     {
         throw Exception("KprofileIOGroup::adjust() there are no controls supported by the KprofileIOGroup",
-                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     double KprofileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
@@ -253,7 +253,7 @@ namespace geopm
         if (!is_valid_signal(signal_name)) {
             throw Exception("KprofileIOGroup::check_signal(): signal_name " + signal_name +
                             " not valid for KprofileIOGroup",
-                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
             /// @todo Add support for non-cpu domains.

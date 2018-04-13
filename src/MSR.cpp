@@ -163,7 +163,7 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 break;
-           default:
+            default:
                 throw Exception("MSR::encode(): unimplemented scale function",
                                 GEOPM_ERROR_NOT_IMPLEMENTED,  __FILE__, __LINE__);
 

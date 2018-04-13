@@ -68,7 +68,8 @@ static int g_pmpi_prof_enabled = 0;
 
 namespace geopm
 {
-    class DefaultProfile : public Profile {
+    class DefaultProfile : public Profile
+    {
         public:
             DefaultProfile(const std::string prof_name, std::unique_ptr<IComm> comm);
             virtual ~DefaultProfile();

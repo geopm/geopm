@@ -156,8 +156,8 @@ namespace geopm
     }
 
     int PlatformIO::push_signal_power(const std::string &signal_name,
-                                        int domain_type,
-                                        int domain_idx)
+                                      int domain_type,
+                                      int domain_idx)
     {
         int result = -1;
         if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
@@ -445,8 +445,7 @@ namespace geopm
         double result = NAN;
         if (operand.size()) {
             result = std::all_of(operand.begin(), operand.end(),
-                                 [](double it)
-                                 {return (it != 0.0);});
+                                 [](double it) {return (it != 0.0);});
         }
         return result;
     }
@@ -456,8 +455,7 @@ namespace geopm
         double result = NAN;
         if (operand.size()) {
             result = std::any_of(operand.begin(), operand.end(),
-                                 [](double it)
-                                 {return (it != 0.0);});
+                                 [](double it) {return (it != 0.0);});
         }
         return result;
     }
@@ -473,10 +471,10 @@ namespace geopm
                     common_rid = it_rid;
                 }
                 if (common_rid != GEOPM_REGION_ID_UNDEFINED &&
-                   it_rid != GEOPM_REGION_ID_UNDEFINED &&
-                   it_rid != common_rid) {
-                   common_rid = GEOPM_REGION_ID_UNMARKED;
-                   break;
+                    it_rid != GEOPM_REGION_ID_UNDEFINED &&
+                    it_rid != common_rid) {
+                    common_rid = GEOPM_REGION_ID_UNMARKED;
+                    break;
                 }
             }
         }
