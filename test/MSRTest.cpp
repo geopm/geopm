@@ -253,7 +253,7 @@ TEST_F(MSRTest, msr_signal)
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_signal_names[sig_idx]), sig.name());
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, sig.domain_type());
-    EXPECT_EQ(m_cpu_idx, sig.domain_idx());
+    EXPECT_EQ(m_cpu_idx, sig.cpu_idx());
     /// @todo check exception mesage for field mapping error.
     EXPECT_THROW(sig.sample(), geopm::Exception);
     uint64_t offset = sig.offset();
@@ -273,7 +273,7 @@ TEST_F(MSRTest, msr_control)
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con.name());
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, con.domain_type());
-    EXPECT_EQ(m_cpu_idx, con.domain_idx());
+    EXPECT_EQ(m_cpu_idx, con.cpu_idx());
     EXPECT_THROW(con.adjust(m_control_value), geopm::Exception);
     uint64_t offset = con.offset();
     EXPECT_EQ(m_msr_offsets[msr_idx], offset);
