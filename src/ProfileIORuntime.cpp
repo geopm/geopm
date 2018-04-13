@@ -34,6 +34,7 @@
 #include "ProfileIO.hpp"
 #include "RuntimeRegulator.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {

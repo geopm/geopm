@@ -33,6 +33,7 @@
 #include <set>
 
 #include "ProfileIO.hpp"
+#include "config.h"
 
 namespace geopm
 {

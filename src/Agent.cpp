@@ -33,6 +33,7 @@
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "BalancingAgent.hpp"
+#include "config.h"
 
 namespace geopm
 {
