@@ -185,7 +185,7 @@ namespace geopm
         , m_offset(offset)
         , m_signal_encode(signal.size(), NULL)
         , m_control_encode(control.size())
-        , m_domain_type(IPlatformTopo::M_DOMAIN_CPU)
+        , m_domain_type(IPlatformTopo::M_DOMAIN_INVALID)
         , m_prog_msr(0)
         , m_prog_field_name(0)
         , m_prog_value(0)
@@ -218,12 +218,15 @@ namespace geopm
             m_control_map.insert(std::pair<std::string, int>(it->first, idx));
             m_control_encode[idx] = new MSREncode(it->second);
         }
-
-        if (m_name.compare(0, strlen("PKG_"), "PKG_") == 0) {
-            m_domain_type = IPlatformTopo::M_DOMAIN_PACKAGE;
+        if (signal.size() != 0) {
+            m_domain_type = signal[0].second.domain;
         }
-        else if (m_name.compare(0, strlen("DRAM_"), "DRAM_") == 0) {
-            m_domain_type = IPlatformTopo::M_DOMAIN_BOARD_MEMORY;
+        else if (control.size() != 0) {
+            m_domain_type = control[0].second.domain;
+        }
+        else {
+            throw Exception("MSR::init(): both signal and control vectors are empty",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
@@ -328,16 +331,14 @@ namespace geopm
         return m_domain_type;
     }
 
-    /// @todo Do we really want to store domain_type and domain_idx?
-    ///       the class is just holding them for the getters.
     MSRSignal::MSRSignal(const IMSR &msr_obj,
                          int domain_type,
-                         int domain_idx,
+                         int cpu_idx,
                          int signal_idx)
         : m_name(msr_obj.name() + ":" + msr_obj.signal_name(signal_idx))
         , m_msr_obj(msr_obj)
         , m_domain_type(domain_type)
-        , m_domain_idx(domain_idx)
+        , m_cpu_idx(cpu_idx)
         , m_signal_idx(signal_idx)
         , m_field_ptr(nullptr)
         , m_field_last(0)
@@ -356,9 +357,9 @@ namespace geopm
         return m_domain_type;
     }
 
-    int MSRSignal::domain_idx(void) const
+    int MSRSignal::cpu_idx(void) const
     {
-        return m_domain_idx;
+        return m_cpu_idx;
     }
 
     double MSRSignal::sample(void)
@@ -383,12 +384,12 @@ namespace geopm
 
     MSRControl::MSRControl(const IMSR &msr_obj,
                            int domain_type,
-                           int domain_idx,
+                           int cpu_idx,
                            int control_idx)
         : m_name(msr_obj.name() + ":" + msr_obj.control_name(control_idx))
         , m_msr_obj(msr_obj)
         , m_domain_type(domain_type)
-        , m_domain_idx(domain_idx)
+        , m_cpu_idx(cpu_idx)
         , m_control_idx(control_idx)
         , m_field_ptr(nullptr)
         , m_mask_ptr(nullptr)
@@ -412,9 +413,9 @@ namespace geopm
         return m_domain_type;
     }
 
-    int MSRControl::domain_idx(void) const
+    int MSRControl::cpu_idx(void) const
     {
-        return m_domain_idx;
+        return m_cpu_idx;
     }
 
     void MSRControl::adjust(double setting)
