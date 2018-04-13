@@ -37,17 +37,22 @@
 
 #include "ApplicationIO.hpp"
 #include "Helper.hpp"
+#include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 #include "MockProfileSampler.hpp"
 #include "MockKprofileIOSample.hpp"
 
 using geopm::ApplicationIO;
 using testing::Return;
+using testing::_;
 
 class ApplicationIOTest : public ::testing::Test
 {
     protected:
         void SetUp();
         std::string m_shm_key = "test_shm";
+        MockPlatformIO m_platform_io;
+        MockPlatformTopo m_platform_topo;
         MockProfileSampler *m_sampler;
         MockKprofileIOSample *m_pio_sample;
         std::unique_ptr<ApplicationIO> m_app_io;
@@ -65,7 +70,17 @@ void ApplicationIOTest::SetUp()
     EXPECT_CALL(*m_sampler, capacity());
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, std::move(tmp_s), tmp_pio);
+
+    EXPECT_CALL(m_platform_topo, num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillRepeatedly(Return(2));
+    EXPECT_CALL(m_platform_topo, num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY))
+        .WillRepeatedly(Return(2));
+
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", _, _)).Times(2);
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", _, _)).Times(2);
+    m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, m_platform_io,
+                                                 m_platform_topo,
+                                                 std::move(tmp_s), tmp_pio);
 }
 
 TEST_F(ApplicationIOTest, passthrough)

@@ -122,7 +122,7 @@ namespace geopm
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
             /// @return Signal value measured from the platform in SI units.
-            virtual double sample(int signal_idx) = 0;
+            virtual double sample(int signal_idx) const = 0;
             /// @brief Sample a signal that has been pushed to
             ///        accumlate as per-region values.
             /// @param [in] signal_idx Index returned by a previous call to
@@ -160,7 +160,7 @@ namespace geopm
             /// @return The value in SI units of the signal.
             virtual double read_signal(const std::string &signal_name,
                                        int domain_type,
-                                       int domain_idx) = 0;
+                                       int domain_idx) const = 0;
             /// @brief Interpret the setting and write setting to the
             ///        platform.  Does not modify the values stored by
             ///        calling adjust().
@@ -178,7 +178,7 @@ namespace geopm
                                        int domain_idx,
                                        double setting) = 0;
 
-            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) = 0;
+            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const = 0;
             static double agg_sum(const std::vector<double> &operand);
             static double agg_average(const std::vector<double> &operand);
             static double agg_median(const std::vector<double> &operand);

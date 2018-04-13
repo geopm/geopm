@@ -65,13 +65,13 @@ class PlatformIOTestMockIOGroup : public MockIOGroup
         void set_valid_control_names(std::list<std::string> names) {
             m_valid_controls = names;
         }
-        bool is_valid_signal(const std::string &signal_name) override
+        bool is_valid_signal(const std::string &signal_name) const override
         {
             return std::find(m_valid_signals.begin(),
                              m_valid_signals.end(),
                              signal_name) != m_valid_signals.end();
         }
-        bool is_valid_control(const std::string &control_name) override
+        bool is_valid_control(const std::string &control_name) const override
         {
             return std::find(m_valid_controls.begin(),
                              m_valid_controls.end(),
