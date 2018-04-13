@@ -83,6 +83,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "ApplicationIO.hpp"
+#include "TreeComm.hpp"
 #include "Comm.hpp"
 #include "Exception.hpp"
 #include "config.h"
@@ -98,6 +99,7 @@ namespace geopm
         : m_report_name(report_name)
         , m_platform_io(platform_io)
     {
+        /// @todo this should be total energy
         int energy = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_energy_idx = m_platform_io.push_region_signal(energy, IPlatformTopo::M_DOMAIN_BOARD, 0);
         int clk_core = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
@@ -105,7 +107,9 @@ namespace geopm
         m_clk_core_idx = m_platform_io.push_region_signal(clk_core, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_platform_io.push_region_signal(clk_ref, IPlatformTopo::M_DOMAIN_BOARD, 0);
 
-        if (false) { // @todo if we are the root of the tree
+        // @todo if we are the root of the tree
+        //m_is_root = m_tree_comm->num_level_ctl() == m_tree_comm->root_level();
+        if (false) {
             // check if report file can be created
             if (!m_report_name.empty()) {
                 std::ofstream test_open(m_report_name);
@@ -124,8 +128,10 @@ namespace geopm
                             const std::string &agent_node_report,
                             const std::map<uint64_t, std::string> &agent_region_report,
                             const IApplicationIO &application_io,
-                            std::shared_ptr<IComm> comm)
+                            std::shared_ptr<IComm> comm,
+                            const ITreeComm &tree_comm)
     {
+        /// @todo check m_is_root
         std::ofstream master_report(m_report_name);
         if (!master_report.good()) {
             throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -163,18 +169,21 @@ namespace geopm
             report << "\tcount: " << application_io.total_count(region_id) << std::endl;
         }
 
-        report << "Application Totals:" << std::endl
-               << "\truntime (sec): " << 34343 << std::endl
-               << "\tenergy (joules): " << 4545 << std::endl
-               << "\tmpi-runtime (sec): " << 565656 << std::endl
-               << "\tignore-time (sec): " << 66767 << std::endl
-               << "\tthrottle time (%): " << 78787 << std::endl;
+        /// @todo use comm to aggregate reports from other nodes
+        master_report << report.str();
+
+        double total_runtime = application_io.total_app_runtime();
+        master_report << "Application Totals:" << std::endl
+                      << "\truntime (sec): " << total_runtime << std::endl
+                      << "\tenergy (joules): " << application_io.total_app_energy() << std::endl
+                      << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
+                      << "\tignore-time (sec): " << -1 << std::endl
+                      << "\tthrottle time (%): " << -1 << std::endl;
 
         std::string max_memory = get_max_memory();
-        report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
-        report << "\tgeopmctl network BW (B/sec): " << 89898 << std::endl << std::endl;
+        master_report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
+        master_report << "\tgeopmctl network BW (B/sec): " << tree_comm.overhead_send() / total_runtime << std::endl << std::endl;
 
-        master_report << report.str();
         master_report.close();
     }
 
