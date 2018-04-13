@@ -34,6 +34,7 @@
 
 #include "ApplicationIO.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
 #include "KprofileIOSample.hpp"
 #include "KprofileIOGroup.hpp"
@@ -50,6 +51,7 @@ namespace geopm
 
     ApplicationIO::ApplicationIO(const std::string &shm_key)
         : ApplicationIO(shm_key,
+                        platform_io(),
                         geopm::make_unique<ProfileSampler>(M_SHMEM_REGION_SIZE),
                         nullptr)
     {
@@ -57,15 +59,21 @@ namespace geopm
     }
 
     ApplicationIO::ApplicationIO(const std::string &shm_key,
+                                 IPlatformIO &platform_io,
                                  std::unique_ptr<IProfileSampler> sampler,
                                  std::shared_ptr<IKprofileIOSample> pio_sample)
-        : m_sampler(std::move(sampler))
+        : m_platform_io(platform_io)
+        , m_sampler(std::move(sampler))
         , m_profile_io_sample(pio_sample)
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rank_per_node(-1)
     {
         connect();
+
+        /// @todo Combined signals are not supported yet; this is wrong
+        m_start_energy = m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0) +
+                         m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
     }
 
     ApplicationIO::~ApplicationIO()
@@ -194,6 +202,22 @@ namespace geopm
         }
 #endif
         return m_profile_io_sample->total_app_mpi_time();
+    }
+
+    double ApplicationIO::total_app_energy(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+
+        /// @todo Combined signals are not supported yet; this is wrong
+        double curr_energy = m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0) +
+                             m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        return curr_energy - m_start_energy;
     }
 
     int ApplicationIO::total_count(uint64_t region_id) const

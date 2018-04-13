@@ -60,6 +60,7 @@ namespace geopm
             virtual double total_region_mpi_runtime(uint64_t region_id) const = 0;
             virtual double total_app_runtime(void) const = 0;
             virtual double total_app_mpi_runtime(void) const = 0;
+            virtual double total_app_energy(void) const = 0;
             virtual double total_epoch_runtime(void) const = 0;
             virtual int total_count(uint64_t region_id) const = 0;
             virtual void update(std::shared_ptr<IComm> comm) = 0;
@@ -67,12 +68,14 @@ namespace geopm
 
     class IProfileSampler;
     class IKprofileIOSample;
+    class IPlatformIO;
 
     class ApplicationIO : public IApplicationIO
     {
         public:
             ApplicationIO(const std::string &shm_key);
             ApplicationIO(const std::string &shm_key,
+                          IPlatformIO& platform_io,
                           std::unique_ptr<IProfileSampler> sampler,
                           std::shared_ptr<IKprofileIOSample> pio_sample);
             virtual ~ApplicationIO();
@@ -84,6 +87,7 @@ namespace geopm
             double total_region_mpi_runtime(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
             double total_app_mpi_runtime(void) const override;
+            double total_app_energy(void) const override;
             double total_epoch_runtime(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<IComm> comm) override;
@@ -92,6 +96,7 @@ namespace geopm
 
             void connect(void);
 
+            IPlatformIO &m_platform_io;
             std::unique_ptr<IProfileSampler> m_sampler;
             std::shared_ptr<IKprofileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
@@ -102,6 +107,9 @@ namespace geopm
             bool m_do_shutdown;
             bool m_is_connected;
             int m_rank_per_node;
+
+            std::vector<std::pair<uint64_t, double> > m_short_region;
+            double m_start_energy;
     };
 }
 

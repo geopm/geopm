@@ -182,7 +182,7 @@ TEST_F(KontrollerTest, single_node)
     EXPECT_CALL(*agent, report_node());
     std::map<uint64_t, std::string> region_names {};
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _));
+    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 
@@ -247,7 +247,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(*agent, report_node());
     std::map<uint64_t, std::string> region_names {};
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _));
+    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 
@@ -326,7 +326,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     }
     std::map<uint64_t, std::string> region_names {};
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _));
+    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 
@@ -402,7 +402,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     }
     std::map<uint64_t, std::string> region_names {};
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _));
+    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 

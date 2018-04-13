@@ -184,7 +184,8 @@ namespace geopm
                              agent_node_report.str(),
                              m_agent[0]->report_region(),
                              *m_application_io,
-                             nullptr); /// @todo get the IComm from somewhere
+                             nullptr,  /// @todo get the IComm from somewhere
+                             *m_tree_comm);
         m_tracer->flush();
     }
 

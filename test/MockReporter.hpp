@@ -36,17 +36,19 @@
 #include "Reporter.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
+#include "TreeComm.hpp"
 
 class MockReporter : public geopm::IReporter
 {
     public:
-        MOCK_METHOD6(generate,
+        MOCK_METHOD7(generate,
                      void(const std::string &agent_name,
                           const std::string &agent_report_header,
                           const std::string &agent_node_report,
                           const std::map<uint64_t, std::string> &agent_region_report,
                           const geopm::IApplicationIO &application_io,
-                          std::shared_ptr<geopm::IComm> comm));
+                          std::shared_ptr<geopm::IComm> comm,
+                          const geopm::ITreeComm &tree_comm));
 };
 
 #endif
