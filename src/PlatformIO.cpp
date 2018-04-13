@@ -219,11 +219,14 @@ namespace geopm
 
     int PlatformIO::push_region_signal(int signal_idx, int domain_type, int domain_idx)
     {
-        if (signal_idx < 0 || (size_t)signal_idx >= m_active_signal.size()) {
+        if ((signal_idx < M_SIGNAL_IDX_BASE_BEGIN ||
+             signal_idx >= M_SIGNAL_IDX_BASE_BEGIN + m_active_signal.size()) &&
+            (signal_idx < M_SIGNAL_IDX_COMBINED_BEGIN ||
+             signal_idx >= M_SIGNAL_IDX_COMBINED_BEGIN + m_combined_signal.size())) {
             throw Exception("PlatformIO::push_region_signal(): signal_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int result = m_active_signal.size();
+        int result = m_region_signal_idx_list.size();
         int region_idx = push_signal("REGION_ID#", domain_type, domain_idx);
         m_region_signal_idx_list.emplace_back(signal_idx, region_idx);
         return result;

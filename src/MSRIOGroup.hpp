@@ -46,6 +46,7 @@ namespace geopm
     class MSRSignal;
     class MSRControl;
     class IMSRIO;
+    class IPlatformTopo;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
@@ -60,7 +61,7 @@ namespace geopm
             };
 
             MSRIOGroup();
-            MSRIOGroup(std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu);
+            MSRIOGroup(IPlatformTopo &platform_topo, std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu);
             virtual ~MSRIOGroup();
             bool is_valid_signal(const std::string &signal_name) const override;
             bool is_valid_control(const std::string &control_name) const override;
@@ -120,6 +121,7 @@ namespace geopm
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
+            IPlatformTopo &m_platform_topo;
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
