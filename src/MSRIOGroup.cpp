@@ -146,14 +146,14 @@ namespace geopm
             throw Exception("MSRIOGroup::push_signal(): cannot push a signal after read_batch() or adjust() has been called.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != signal_domain_type(signal_name)) {
-            throw Exception("MSRIOGroup::push_signal(): domain_type does not match the domain of the signal.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it == m_name_cpu_signal_map.end()) {
             throw Exception("MSRIOGroup::push_signal(): signal name \"" +
                             signal_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_type != signal_domain_type(signal_name)) {
+            throw Exception("MSRIOGroup::push_signal(): domain_type does not match the domain of the signal.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
@@ -205,14 +205,14 @@ namespace geopm
             throw Exception("MSRIOGroup::push_control(): cannot push a control after write_batch() or adjust() has been called.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != control_domain_type(control_name)) {
-            throw Exception("MSRIOGroup::push_control(): domain_type does not match the domain of the control.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it == m_name_cpu_control_map.end()) {
             throw Exception("MSRIOGroup::push_control(): control name \"" +
                             control_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_type != control_domain_type(control_name)) {
+            throw Exception("MSRIOGroup::push_control(): domain_type does not match the domain of the control.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
