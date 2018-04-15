@@ -80,7 +80,7 @@ namespace geopm
             void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) override;
             void update(const struct geopm_policy_message_s &policy) override;
             void flush(void) override;
-        protected:
+        private:
             static std::string hostname(void);
             std::string m_file_path;
             std::string m_header;

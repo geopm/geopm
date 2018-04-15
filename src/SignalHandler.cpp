@@ -62,7 +62,7 @@ namespace geopm
             void init(void) const;
             void check(void) const;
             void revert(void) const;
-        protected:
+        private:
             /// @brief All signals that terminate the process.
             std::vector<int> m_signals;
             std::vector<struct sigaction> m_old_action;

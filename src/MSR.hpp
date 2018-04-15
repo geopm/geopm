@@ -241,7 +241,7 @@ namespace geopm
                          uint64_t &field,
                          uint64_t &mask) const override;
             int domain_type(void) const override;
-        protected:
+        private:
             void init(const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
                       const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control);
             std::string m_name;
@@ -283,7 +283,7 @@ namespace geopm
             double sample(void) override;
             uint64_t offset(void) const override;
             void map_field(const uint64_t *field) override;
-        protected:
+        private:
             const std::string m_name;
             const IMSR &m_msr_obj;
             const int m_domain_type;
@@ -320,7 +320,7 @@ namespace geopm
             uint64_t offset(void) const override;
             uint64_t mask(void) const override;
             void map_field(uint64_t *field, uint64_t *mask) override;
-        protected:
+        private:
             const std::string m_name;
             const IMSR &m_msr_obj;
             const int m_domain_type;

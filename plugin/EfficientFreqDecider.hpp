@@ -73,7 +73,7 @@ namespace geopm
             // TODO: needs doc strings
             double cpu_freq_min(void);
             double cpu_freq_max(void);
-        protected:
+        private:
             double get_limit(const std::string &sig_name);
             void init_platform_io(void);
             void parse_env_map(void);

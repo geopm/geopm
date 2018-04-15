@@ -203,7 +203,7 @@ namespace geopm
             void report_name(std::string &report_str) override;
             void profile_name(std::string &prof_str) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void);
-        protected:
+        private:
             /// Holds the shared memory region used for sampling from the
             /// application process.
             std::unique_ptr<ISharedMemory> m_table_shmem;
@@ -276,7 +276,7 @@ namespace geopm
             std::string report_name(void) override;
             std::string profile_name(void) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
-        protected:
+        private:
             /// Holds the shared memory region used for application coordination
             /// and control.
             std::unique_ptr<ISharedMemory> m_ctl_shmem;

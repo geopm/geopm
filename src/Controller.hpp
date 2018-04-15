@@ -170,7 +170,7 @@ namespace geopm
             /// all MSR values that GEOPM can alter to the value that was
             /// read at GEOPM startup.
             void reset(void);
-        protected:
+        private:
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,
                 M_SHMEM_REGION_SIZE = 12288,

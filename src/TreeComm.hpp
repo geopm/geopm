@@ -87,7 +87,7 @@ namespace geopm
             size_t overhead_send(void) const override;
             void broadcast_string(const std::string &str) override;
             std::string broadcast_string(void) override;
-        protected:
+        private:
             int num_level_controlled(std::vector<int> coords);
             std::vector<std::unique_ptr<ITreeCommLevel> > init_level(
                 std::shared_ptr<IComm> comm_cart, int root_level);

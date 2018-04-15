@@ -58,7 +58,7 @@ namespace geopm
             bool do_sample(void) override;
             void record_exit(void) override;
             void clear(void) override;
-        protected:
+        private:
             enum m_status_e {
                 M_STATUS_CLEAR,
                 M_STATUS_ENTERED,

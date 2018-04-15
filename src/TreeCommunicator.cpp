@@ -84,7 +84,7 @@ namespace geopm
             int level_rank(void);
             /// Returns number of bytes transfered over the network so far.
             size_t overhead_send(void);
-        protected:
+        private:
             void create_window(void);
             std::shared_ptr<IComm> m_comm;
             int m_size;

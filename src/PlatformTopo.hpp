@@ -123,7 +123,7 @@ namespace geopm
                            int cpu_idx) const override;
             int define_cpu_group(const std::vector<int> &cpu_domain_idx) override;
             bool is_domain_within(int inner_domain, int outer_domain) override;
-        protected:
+        private:
             void lscpu(std::map<std::string, std::string> &lscpu_map);
             void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
                              int &num_package,

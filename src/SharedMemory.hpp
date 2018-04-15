@@ -84,7 +84,7 @@ namespace geopm
             /// @return Key to the shared memory region.
             std::string key(void) override;
             size_t size(void) override;
-        protected:
+        private:
             /// @brief Shared memory key for the region.
             std::string m_shm_key;
             /// @brief Size of the region.
@@ -115,7 +115,7 @@ namespace geopm
             std::string key(void) override;
             size_t size(void) override;
             void unlink(void) override;
-        protected:
+        private:
             /// Shared memory key for the region.
             std::string m_shm_key;
             /// Size of the region.

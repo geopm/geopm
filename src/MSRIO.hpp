@@ -119,7 +119,7 @@ namespace geopm
                               const std::vector<uint64_t> &write_mask) override;
             void read_batch(std::vector<uint64_t> &raw_value) override;
             void write_batch(const std::vector<uint64_t> &raw_value) override;
-        protected:
+        private:
             struct m_msr_batch_op_s {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
                 uint16_t isrdmsr;  /// @brief In: 0=wrmsr, non-zero=rdmsr

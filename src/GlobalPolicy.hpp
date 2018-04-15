@@ -202,7 +202,7 @@ namespace geopm
             void read(void) override;
             void enforce_static_mode() override;
             std::string header(void) const override;
-        protected:
+        private:
             /// @brief Structure intended to be shared between
             /// the resource manager and the geopm
             /// runtime in order to convey job wide

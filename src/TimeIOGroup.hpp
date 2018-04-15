@@ -60,7 +60,7 @@ namespace geopm
             void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
-        protected:
+        private:
             bool m_is_signal_pushed;
             bool m_is_batch_read;
             geopm_time_s m_time_zero;
