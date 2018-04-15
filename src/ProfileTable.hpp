@@ -196,7 +196,7 @@ namespace geopm
             void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length) override;
             bool name_fill(size_t header_offset) override;
             bool name_set(size_t header_offset, std::set<std::string> &name) override;
-        protected:
+        private:
             virtual bool sticky(const struct geopm_prof_message_s &value);
             enum {
                 M_TABLE_DEPTH_MAX = 16,

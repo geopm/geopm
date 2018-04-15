@@ -69,7 +69,7 @@ namespace geopm
             /// acceptance state.
             /// @return true if converged else false.
             bool is_converged(void);
-        protected:
+        private:
             const double m_invalid_target;
             const int m_num_domain;
             std::vector<double> m_target;

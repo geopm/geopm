@@ -114,7 +114,7 @@ namespace geopm
             void register_msr_control(const std::string &control_name);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
-        protected:
+        private:
             void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
             void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
 

@@ -55,7 +55,7 @@ namespace geopm
             void unlock(int rank);
             void put(const void *send_buf, size_t send_size, int rank, off_t disp);
 #ifndef GEOPM_TEST
-        protected:
+        private:
 #endif
             MPI_Win m_window;
     };

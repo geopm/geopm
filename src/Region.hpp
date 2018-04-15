@@ -266,7 +266,7 @@ namespace geopm
             void report(std::ostringstream &string_stream, const std::string &name, int rank_per_node) const override;
             void thread_progress(std::vector<double> &progress) override;
             struct geopm_time_s telemetry_timestamp(size_t sample_idx) override;
-        protected:
+        private:
             /// @brief Bound testing of input parameters.
             ///
             /// Checks the requested domain index and signal type to make sure they are within

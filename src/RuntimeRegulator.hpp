@@ -62,7 +62,7 @@ namespace geopm
             void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
             std::vector<double> runtimes(void) const override;
 
-        protected:
+        private:
             void update_average(void);
             const struct geopm_time_s M_TIME_ZERO;
             enum m_num_rank_signal_e {

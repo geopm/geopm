@@ -53,7 +53,7 @@ namespace geopm
             ///        each CPU.
             /// @return Vector of local rank indexed by CPU.
             static std::vector<int> rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank);
-        protected:
+        private:
             ProfileIO() = default;
             ~ProfileIO() = default;
     };

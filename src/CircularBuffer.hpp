@@ -123,7 +123,7 @@ namespace geopm
             int capacity(void) const override;
             void insert(const type value) override;
             const type& value(const unsigned int index) const override;
-        protected:
+        private:
             /// @brief Vector holding the buffer data.
             std::vector<type> m_buffer;
             /// @brief Index of the current head of the buffer.

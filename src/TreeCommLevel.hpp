@@ -64,7 +64,7 @@ namespace geopm
             bool receive_up(std::vector<std::vector<double> > &sample) override;
             bool receive_down(std::vector<double> &policy) override;
             size_t overhead_send(void) const override;
-        protected:
+        private:
             void create_window();
             std::shared_ptr<IComm> m_comm;
             int m_size;

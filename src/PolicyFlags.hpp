@@ -114,7 +114,7 @@ namespace geopm
             void affinity(int cpu_affinity) override;
             void goal(int geo_goal) override;
             void num_max_perf(int num_big_cores) override;
-        protected:
+        private:
             /// @brief Encapsulates power policy information as a
             /// 32-bit bitmask.
             enum m_policy_flags_e {

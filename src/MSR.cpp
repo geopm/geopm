@@ -64,7 +64,7 @@ namespace geopm
             double decode(uint64_t field, uint64_t last_field);
             uint64_t encode(double value);
             uint64_t mask(void);
-        protected:
+        private:
             const int m_function;
             int m_shift;
             uint64_t m_mask;
