@@ -81,7 +81,9 @@ src/DefaultProfile.cpp
 src/Environment.cpp
 src/Exception.cpp
 src/Exception.hpp
+src/geopm_agent.h
 src/geopm_ctl.h
+src/geopm_endpoint.h
 src/geopmctl_main.c
 src/geopm_env.h
 src/geopm_error.h
