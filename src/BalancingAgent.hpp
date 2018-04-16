@@ -71,6 +71,8 @@ namespace geopm
             std::string report_node(void) override;
             std::map<uint64_t, std::string> report_region(void) override;
             std::vector<IPlatformIO::m_request_s> trace_columns(void) override;
+            std::vector<std::string> trace_names(void) const override;
+            void trace_values(std::vector<double> &values) override;
             static std::string plugin_name(void);
             static std::unique_ptr<IAgent> make_plugin(void);
             static std::vector<std::string> policy_names(void);

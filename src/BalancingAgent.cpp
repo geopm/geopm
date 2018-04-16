@@ -176,6 +176,16 @@ namespace geopm
         return {};
     }
 
+    std::vector<std::string> BalancingAgent::trace_names(void) const
+    {
+        return {};
+    }
+
+    void BalancingAgent::trace_values(std::vector<double> &values)
+    {
+        ///@todo for each trace column, sample and fill in values
+    }
+
     std::string BalancingAgent::plugin_name(void)
     {
         return "BALANCING";
