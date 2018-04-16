@@ -64,6 +64,7 @@ enum geopm_error_e {
     GEOPM_ERROR_AFFINITY = -22,
     GEOPM_ERROR_ENVIRONMENT = -23,
     GEOPM_ERROR_COMM_UNSUPPORTED = -24,
+    GEOPM_ERROR_NO_AGENT = -25,
 };
 
 /* Convert error number into an error message */

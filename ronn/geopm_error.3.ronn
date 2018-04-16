@@ -129,6 +129,9 @@ The system error numbers are documented in the **errno(3)** man page.
   * `GEOPM_ERROR_COMM_UNSUPPORTED = -24`:
     Communication implementation not supported
 
+  * `GEOPM_ERROR_NO_AGENT = -25`:
+    Requested agent is unavailable or invalid
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
