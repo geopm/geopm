@@ -161,6 +161,16 @@ namespace geopm
         return m_trace_columns;
     }
 
+    std::vector<std::string> MonitorAgent::trace_names(void) const
+    {
+        return {"POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
+    }
+
+    void MonitorAgent::trace_values(std::vector<double> &values)
+    {
+        ///@todo for each trace column, sample and fill in values
+    }
+
     void MonitorAgent::load_trace_columns()
     {
         static std::vector<IPlatformIO::m_request_s> columns = {

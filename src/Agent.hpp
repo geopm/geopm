@@ -89,6 +89,12 @@ namespace geopm
             /// @brief Columns that this Agent specifies to be added
             ///        to the trace.
             virtual std::vector<IPlatformIO::m_request_s> trace_columns(void) = 0;
+            /// @brief Column headers to be added to the trace.
+            virtual std::vector<std::string> trace_names(void) const = 0;
+            /// @brief Called by Kontroller to get latest values to be
+            ///        added to the trace.
+            virtual void trace_values(std::vector<double> &values) = 0;
+
             /// @brief Used to look up the number of values in the
             ///        policy vector sent down the tree for a specific
             ///        Agent.  This should be called with the
