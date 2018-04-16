@@ -60,7 +60,9 @@ dist: dist-googletest dist-openmp
 
 
 include_HEADERS = src/geopm.h \
+                  src/geopm_agent.h \
                   src/geopm_ctl.h \
+                  src/geopm_endpoint.h \
                   src/geopm_error.h \
                   src/geopm_policy.h \
                   src/geopm_message.h \
@@ -277,6 +279,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/IOGroup.cpp \
                             src/IOGroup.hpp \
                             src/geopm.h \
+                            src/geopm_agent.h \
+                            src/geopm_endpoint.h \
                             src/geopm_env.h \
                             src/geopm_error.h \
                             src/geopm_hash.c \

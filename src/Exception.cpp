@@ -122,6 +122,9 @@ extern "C"
             case GEOPM_ERROR_COMM_UNSUPPORTED:
                 strncpy(msg, "<geopm> Communication implementation not supported", size);
                 break;
+            case GEOPM_ERROR_NO_AGENT:
+                strncpy(msg, "<geopm> Requested agent is unavailable or invalid", size);
+                break;
             default:
 #ifndef _GNU_SOURCE
                 int undef = strerror_r(err, msg, size);
