@@ -33,6 +33,7 @@
 #include <vector>
 #include <memory>
 #include <sstream>
+#include <list>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -89,6 +90,7 @@ class KontrollerTestMockPlatformIO : public MockPlatformIO
 
     private:
         int m_index = 0;
+
 };
 
 
@@ -113,6 +115,7 @@ class KontrollerTest : public ::testing::Test
         MockManagerIOSampler *m_manager_io;
 
         int m_num_step = 3;
+        std::list<std::pair<uint64_t, double> > m_region_entry_exit;
 };
 
 void KontrollerTest::SetUp()
@@ -153,10 +156,8 @@ TEST_F(KontrollerTest, single_node)
                           std::unique_ptr<MockManagerIOSampler>(m_manager_io));
 
     // setup trace
-    std::vector<IPlatformIO::m_request_s> m_trace_cols {
-        {"COL1", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"COL2", IPlatformTopo::M_DOMAIN_BOARD, 0}};
-    EXPECT_CALL(*agent, trace_columns()).WillOnce(Return(m_trace_cols));
+    std::vector<std::string> trace_names = {"COL1", "COL2"};
+    EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
     kontroller.setup_trace();
 
@@ -164,11 +165,14 @@ TEST_F(KontrollerTest, single_node)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_entry_exit));
     std::vector<double> manager_sample = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)manager_sample.size());
     EXPECT_CALL(*m_manager_io, sample()).Times(m_num_step)
         .WillRepeatedly(Return(manager_sample));
-    EXPECT_CALL(*m_tracer, update(testing::Matcher<bool>(_))).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
@@ -213,10 +217,8 @@ TEST_F(KontrollerTest, two_level_controller_2)
                           std::move(m_agents),
                           std::unique_ptr<MockManagerIOSampler>(m_manager_io));
 
-    std::vector<IPlatformIO::m_request_s> m_trace_cols {
-        {"COL1", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"COL2", IPlatformTopo::M_DOMAIN_BOARD, 0}};
-    EXPECT_CALL(*agent, trace_columns()).WillOnce(Return(m_trace_cols));
+    std::vector<std::string> trace_names = {"COL1", "COL2"};
+    EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
     kontroller.setup_trace();
 
@@ -230,8 +232,10 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-
-    EXPECT_CALL(*m_tracer, update(testing::Matcher<bool>(_))).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_entry_exit));
+    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
@@ -289,10 +293,8 @@ TEST_F(KontrollerTest, two_level_controller_1)
                           std::move(m_agents),
                           std::unique_ptr<MockManagerIOSampler>(m_manager_io));
 
-    std::vector<IPlatformIO::m_request_s> m_trace_cols {
-        {"COL1", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"COL2", IPlatformTopo::M_DOMAIN_BOARD, 0}};
-    EXPECT_CALL(*m_level_agent[0], trace_columns()).WillOnce(Return(m_trace_cols));
+    std::vector<std::string> trace_names = {"COL1", "COL2"};
+    EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
     kontroller.setup_trace();
 
@@ -306,12 +308,13 @@ TEST_F(KontrollerTest, two_level_controller_1)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-
-    EXPECT_CALL(*m_tracer, update(testing::Matcher<bool>(_))).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_entry_exit));
+    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
-
     EXPECT_CALL(*m_level_agent[0], descend(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], ascend(_, _)).Times(m_num_step);
 
@@ -368,21 +371,22 @@ TEST_F(KontrollerTest, two_level_controller_0)
                           std::move(m_agents),
                           std::unique_ptr<MockManagerIOSampler>(m_manager_io));
 
-    std::vector<IPlatformIO::m_request_s> m_trace_cols {
-        {"COL1", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"COL2", IPlatformTopo::M_DOMAIN_BOARD, 0}};
-    EXPECT_CALL(*m_level_agent[0], trace_columns()).WillOnce(Return(m_trace_cols));
+    std::vector<std::string> trace_names = {"COL1", "COL2"};
+    EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
     kontroller.setup_trace();
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_entry_exit));
     std::vector<double> manager_sample = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)manager_sample.size());
     EXPECT_CALL(*m_manager_io, sample()).Times(m_num_step)
         .WillRepeatedly(Return(manager_sample));
-    EXPECT_CALL(*m_tracer, update(testing::Matcher<bool>(_))).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);

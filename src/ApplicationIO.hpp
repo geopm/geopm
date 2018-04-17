@@ -39,6 +39,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <list>
 
 #include "geopm_message.h"
 #include "geopm_time.h"
@@ -63,6 +64,7 @@ namespace geopm
             virtual double total_epoch_runtime(void) const = 0;
             virtual int total_count(uint64_t region_id) const = 0;
             virtual void update(std::shared_ptr<IComm> comm) = 0;
+            virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
     };
 
     class IProfileSampler;
@@ -87,6 +89,7 @@ namespace geopm
             double total_epoch_runtime(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<IComm> comm) override;
+            std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 12288;
 

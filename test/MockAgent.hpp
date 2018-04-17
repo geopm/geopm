@@ -59,8 +59,6 @@ class MockAgent : public geopm::IAgent
                      std::string(void));
         MOCK_METHOD0(report_region,
                      std::map<uint64_t, std::string>(void));
-        MOCK_METHOD0(trace_columns,
-                     std::vector<geopm::IPlatformIO::m_request_s>(void));
         MOCK_CONST_METHOD0(trace_names,
                            std::vector<std::string>(void));
         MOCK_METHOD1(trace_values,
