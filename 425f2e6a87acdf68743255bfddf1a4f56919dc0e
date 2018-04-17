@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52e7cd41_aaff1693",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-17T17:51:15Z",
+      "side": 1,
+      "message": "this can be moved into Tracer itself; parsing environment variable will also go into Tracer.",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 257,
+        "endChar": 104
+      },
+      "revId": "425f2e6a87acdf68743255bfddf1a4f56919dc0e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a64b436f_6a8add2d",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-17T17:51:15Z",
+      "side": 1,
+      "message": "Resize m_trace_sample",
+      "revId": "425f2e6a87acdf68743255bfddf1a4f56919dc0e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
