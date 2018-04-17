@@ -221,4 +221,16 @@ namespace geopm
         m_sampler->sample(m_prof_sample, length, comm);
         m_profile_io_sample->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
     }
+
+    std::list<std::pair<uint64_t, double> > ApplicationIO::short_regions(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return m_profile_io_sample->short_regions();
+    }
 }

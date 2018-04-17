@@ -62,6 +62,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                      void(std::shared_ptr<geopm::IComm> comm));
         MOCK_METHOD0(profile_io_group,
                      std::shared_ptr<geopm::IOGroup>(void));
+        MOCK_CONST_METHOD0(short_regions,
+                           std::list<std::pair<uint64_t, double> >(void));
 };
 
 #endif
