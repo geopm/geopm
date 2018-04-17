@@ -49,10 +49,8 @@ class MonitorAgentTest : public ::testing::Test
     protected:
         enum signal_idx_e {
             M_OTHER,  // signal not used by this agent; index may not start at 0
-            M_TIME,
             M_POWER_PACKAGE,
             M_FREQUENCY,
-            M_REGION_PROGRESS
         };
         MonitorAgentTest();
         void SetUp();
@@ -73,30 +71,20 @@ MonitorAgentTest::MonitorAgentTest()
 void MonitorAgentTest::SetUp()
 {
     // all signals are over entire board for now
-    ON_CALL(m_platform_io, push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_TIME));
     ON_CALL(m_platform_io, push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_POWER_PACKAGE));
     ON_CALL(m_platform_io, push_signal("FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_FREQUENCY));
-    ON_CALL(m_platform_io, push_signal("REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_REGION_PROGRESS));
 
-    EXPECT_CALL(m_platform_io, push_signal("TIME", _, _));
     EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", _, _));
     EXPECT_CALL(m_platform_io, push_signal("FREQUENCY", _, _));
-    EXPECT_CALL(m_platform_io, push_signal("REGION_PROGRESS", _, _));
 
     // does not necessarily match PlatformIO, but Agent should call
     // these and use whatever function is returned
-    EXPECT_CALL(m_platform_io, agg_function("TIME"))
-        .WillOnce(Return(IPlatformIO::agg_max));
     EXPECT_CALL(m_platform_io, agg_function("POWER_PACKAGE"))
         .WillOnce(Return(IPlatformIO::agg_sum));
     EXPECT_CALL(m_platform_io, agg_function("FREQUENCY"))
         .WillOnce(Return(IPlatformIO::agg_average));
-    EXPECT_CALL(m_platform_io, agg_function("REGION_PROGRESS"))
-        .WillOnce(Return(IPlatformIO::agg_min));
 
     m_agent = geopm::make_unique<MonitorAgent>(m_plat_io_ref, m_plat_topo_ref);
 }
@@ -105,34 +93,17 @@ TEST_F(MonitorAgentTest, fixed_signal_list)
 {
     // default list we collect with this agent
     // if this list changes, update the mocked platform for this test
-    std::vector<std::string> expected_signals = {"TIME", "POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
+    std::vector<std::string> expected_signals = {"POWER_PACKAGE", "FREQUENCY"};
     EXPECT_EQ(expected_signals, m_agent->sample_names());
-}
-
-TEST_F(MonitorAgentTest, all_signals_in_trace)
-{
-    auto signals = m_agent->sample_names();
-    auto trace_col = m_agent->trace_columns();
-    ASSERT_EQ(signals.size(), trace_col.size());
-    for (size_t idx = 0; idx < signals.size(); ++idx) {
-        EXPECT_EQ(signals[idx], trace_col[idx].name);
-        // for now everything is board domain
-        EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD, trace_col[idx].domain_type);
-        EXPECT_EQ(0, trace_col[idx].domain_idx);
-    }
 }
 
 TEST_F(MonitorAgentTest, sample_platform)
 {
-    std::vector<double> expected_value {456, 789, 1234, 5678};
-    EXPECT_CALL(m_platform_io, sample(M_TIME))
-        .WillOnce(Return(expected_value[0]));
+    std::vector<double> expected_value {456, 789};
     EXPECT_CALL(m_platform_io, sample(M_POWER_PACKAGE))
-        .WillOnce(Return(expected_value[1]));
+        .WillOnce(Return(expected_value[0]));
     EXPECT_CALL(m_platform_io, sample(M_FREQUENCY))
-        .WillOnce(Return(expected_value[2]));
-    EXPECT_CALL(m_platform_io, sample(M_REGION_PROGRESS))
-        .WillOnce(Return(expected_value[3]));
+        .WillOnce(Return(expected_value[1]));
 
     std::vector<double> result(expected_value.size());
     m_agent->sample_platform(result);
@@ -148,51 +119,16 @@ TEST_F(MonitorAgentTest, descend_nothing)
 TEST_F(MonitorAgentTest, ascend_aggregates_signals)
 {
     std::vector<std::vector<double> > input = {
-        {5, 3, 8, 1},
-        {6, 4, 9, 0.8},
-        {7, 5, 10, 0.5}
+        {3, 8},
+        {4, 9},
+        {5, 10}
     };
     std::vector<double> expected = {
-        7,   // max
         12,  // sum
         9,   // average
-        0.5, // min
     };
     std::vector<double> result(expected.size());;
     m_agent->ascend(input, result);
 
     EXPECT_EQ(expected, result);
-}
-
-TEST_F(MonitorAgentTest, custom_signals)
-{
-    ON_CALL(m_platform_io, agg_function(_)).WillByDefault(Return(IPlatformIO::agg_sum));
-
-
-    auto err = setenv("GEOPM_MONITOR_AGENT_SIGNALS", "test1,test2,,test3", 0);
-    ASSERT_EQ(0, err);
-
-    std::vector<IPlatformIO::m_request_s> expected = {
-        {"test1", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"test2", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"test3", IPlatformTopo::M_DOMAIN_BOARD, 0},
-    };
-
-    for (size_t i = 0; i < expected.size(); ++i) {
-        EXPECT_CALL(m_platform_io, push_signal(expected[i].name,
-                                               expected[i].domain_type,
-                                               expected[i].domain_idx));
-        EXPECT_CALL(m_platform_io, agg_function(expected[i].name));
-    }
-
-    MonitorAgent agent(m_plat_io_ref, m_plat_topo_ref);
-    auto cols = agent.trace_columns();
-    ASSERT_EQ(expected.size(), cols.size());
-    for (size_t i = 0; i < expected.size(); ++i) {
-        EXPECT_EQ(expected[i].name, cols[i].name);
-        EXPECT_EQ(expected[i].domain_type, cols[i].domain_type);
-        EXPECT_EQ(expected[i].domain_idx, cols[i].domain_idx);
-    }
-
-    unsetenv("GEOPM_MONITOR_AGENT_SIGNALS");
 }
