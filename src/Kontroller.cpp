@@ -80,7 +80,7 @@ namespace geopm
                          IAgent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
                      std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
                      std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
-                     std::unique_ptr<ITracer>(new Tracer(geopm_env_trace())),
+                     std::unique_ptr<ITracer>(new Tracer()),
                      std::vector<std::unique_ptr<IAgent> >{},
                      std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(global_policy_path, true)))
     {
@@ -192,7 +192,6 @@ namespace geopm
     {
         walk_down();
         geopm_signal_handler_check();
-        m_application_io->update(m_comm);
 
         walk_up();
         geopm_signal_handler_check();
@@ -219,10 +218,13 @@ namespace geopm
 
     void Kontroller::walk_up(void)
     {
+        m_application_io->update(m_comm);
         m_platform_io.read_batch();
-        m_tracer->update(true); // todo: what to do with is_epoch
-
         m_agent[0]->sample_platform(m_out_sample);
+        m_agent[0]->trace_values(m_trace_sample);
+        m_tracer->update(m_trace_sample, m_application_io->region_entry_exit());
+        m_application_io->clear_region_entry_exit();
+
         for (int level = 0; level != m_num_level_ctl; ++level) {
             m_tree_comm->send_up(level, m_out_sample);
             m_tree_comm->receive_up(level, m_in_sample[level]);
@@ -248,13 +250,8 @@ namespace geopm
 
     void Kontroller::setup_trace(void)
     {
-        std::vector<IPlatformIO::m_request_s> columns({{"TIME", PlatformTopo::M_DOMAIN_BOARD, 0},
-                                                       {"REGION_ID#", PlatformTopo::M_DOMAIN_BOARD, 0},
-                                                       {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
-                                                       {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
-                                                       {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
-        std::vector<IPlatformIO::m_request_s> agent_columns = m_agent[0]->trace_columns();
-        columns.insert(columns.end(), agent_columns.begin(), agent_columns.end());
-        m_tracer->columns(columns);
+        auto agent_cols = m_agent[0]->trace_names();
+        m_tracer->columns(agent_cols);
+        m_trace_sample.resize(agent_cols.size());
     }
 }
