@@ -180,17 +180,25 @@ namespace geopm
         }
     }
 
-    void Tracer::columns(const std::vector<IPlatformIO::m_request_s> &cols)
+    void Tracer::columns(const std::vector<IPlatformIO::m_request_s> &base_cols,
+                         const std::vector<std::string> &agent_cols)
     {
         if (m_is_trace_enabled) {
-            for (auto col : cols) {
+            bool first = true;
+            for (const auto &col : base_cols) {
                 m_column_idx.push_back(m_platform_io.push_signal(col.name,
                                                                  col.domain_type,
                                                                  col.domain_idx));
-                m_buffer << pretty_name(col);
-                if (m_column_idx.size() != cols.size()) {
-                    m_buffer << "|";
+                if (first) {
+                    m_buffer << pretty_name(col);
+                    first = false;
                 }
+                else {
+                    m_buffer << "|" << pretty_name(col);
+                }
+            }
+            for (const auto &name : agent_cols) {
+                m_buffer << "|" << name;
             }
             m_buffer << "\n";
 
@@ -200,7 +208,7 @@ namespace geopm
         }
     }
 
-    void Tracer::update(bool is_epoch)
+        void Tracer::update(bool is_epoch, const std::vector<double> &agent_values)
     {
 #ifdef GEOPM_DEBUG
         if (m_column_idx.size() == 0) {
@@ -208,14 +216,20 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        double sample = m_platform_io.sample(m_column_idx[0]);
-        m_buffer << sample;
-        for (size_t col_idx = 1; col_idx < m_column_idx.size(); ++col_idx) {
-            sample = m_platform_io.sample(m_column_idx[col_idx]);
-            m_buffer << "|" << sample;
+        if (m_is_trace_enabled) {
+            double sample = m_platform_io.sample(m_column_idx[0]);
+            m_buffer << sample;
+            for (size_t col_idx = 1; col_idx < m_column_idx.size(); ++col_idx) {
+                sample = m_platform_io.sample(m_column_idx[col_idx]);
+                m_buffer << "|" << sample;
+            }
+            for (const auto &val : agent_values) {
+                m_buffer << "|" << val;
+            }
+            m_buffer << "\n";
         }
-        m_buffer << "\n";
     }
+
     void Tracer::flush(void)
     {
         m_stream << m_buffer.str();

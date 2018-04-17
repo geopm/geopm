@@ -78,10 +78,13 @@ TEST_F(TracerTest, columns)
         EXPECT_CALL(m_platform_io, push_signal(cc.name, cc.domain_type, cc.domain_idx));
     }
 
-    tracer.columns(cols);
+    // columns from agent will be printed as-is
+    std::vector<std::string> agent_cols {"col1", "col2"};
+
+    tracer.columns(cols, agent_cols);
     tracer.flush();
 
-    std::string expected_str = "HEADER\ntime-board-0|energy-package-0|energy-package-1\n";
+    std::string expected_str = "HEADER\ntime-board-0|energy-package-0|energy-package-1|col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -106,11 +109,15 @@ TEST_F(TracerTest, update_samples)
         ++idx;
     }
 
-    tracer.columns(cols);
-    tracer.update(true);  //todo: how to use is_epoch arg
-    tracer.flush();
+    std::vector<std::string> agent_cols {"col1", "col2"};
+    std::vector<double> agent_vals {88.8, 77.7};
 
-    std::string expected_str = "\n\n0.5|1.5|2.5\n";
+    tracer.columns(cols, agent_cols);
+    tracer.update(true, agent_vals);  //todo: how to use is_epoch arg
+    tracer.flush();
+    tracer.update(true, agent_vals); // no additional samples after flush
+
+    std::string expected_str = "\n\n0.5|1.5|2.5|88.8|77.7\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);

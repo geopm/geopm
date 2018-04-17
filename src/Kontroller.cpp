@@ -220,9 +220,11 @@ namespace geopm
     void Kontroller::walk_up(void)
     {
         m_platform_io.read_batch();
-        m_tracer->update(true); // todo: what to do with is_epoch
-
         m_agent[0]->sample_platform(m_out_sample);
+        m_agent[0]->trace_values(m_trace_sample);
+        m_tracer->update(true, m_trace_sample); // todo: what to do with is_epoch
+
+
         for (int level = 0; level != m_num_level_ctl; ++level) {
             m_tree_comm->send_up(level, m_out_sample);
             m_tree_comm->receive_up(level, m_in_sample[level]);
@@ -253,8 +255,7 @@ namespace geopm
                                                        {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
                                                        {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
                                                        {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
-        std::vector<IPlatformIO::m_request_s> agent_columns = m_agent[0]->trace_columns();
-        columns.insert(columns.end(), agent_columns.begin(), agent_columns.end());
-        m_tracer->columns(columns);
+        auto agent_cols = m_agent[0]->trace_names();
+        m_tracer->columns(columns, agent_cols);
     }
 }

@@ -54,8 +54,9 @@ namespace geopm
             virtual void update(const struct geopm_policy_message_s &policy) = 0;
 
             // new API
-            virtual void columns(const std::vector<IPlatformIO::m_request_s> &cols) = 0;
-            virtual void update(bool is_epoch) = 0;
+            virtual void columns(const std::vector<IPlatformIO::m_request_s> &cols,
+                                 const std::vector<std::string> &agent_cols) = 0;
+            virtual void update(bool is_epoch, const std::vector<double> &agent_signals) = 0;
             virtual void flush(void) = 0;
             static std::string pretty_name(const IPlatformIO::m_request_s &col);
     };
@@ -75,10 +76,12 @@ namespace geopm
                    IPlatformIO &platform_io);
             /// @brief Tracer destructor, virtual.
             virtual ~Tracer();
-            void columns(const std::vector<IPlatformIO::m_request_s> &cols) override;
-            void update(bool is_epoch) override;
             void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) override;
             void update(const struct geopm_policy_message_s &policy) override;
+
+            void columns(const std::vector<IPlatformIO::m_request_s> &cols,
+                         const std::vector<std::string> &agent_cols) override;
+            void update(bool is_epoch, const std::vector<double> &agent_signals) override;
             void flush(void) override;
         private:
             static std::string hostname(void);
@@ -94,7 +97,7 @@ namespace geopm
             struct geopm_policy_message_s m_policy;
 
             IPlatformIO &m_platform_io;
-            std::vector<int> m_column_idx;
+            std::vector<int> m_column_idx; // columns sampled by Tracer
     };
 }
 
