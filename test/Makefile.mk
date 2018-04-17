@@ -319,6 +319,8 @@ EXTRA_DIST += test/geopm_test.sh \
               test/pmpi_mock.c \
               test/default_policy.json \
               test/legacy_whitelist.out \
+              test/InternalProfile.cpp \
+              test/InternalProfile.hpp \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \
