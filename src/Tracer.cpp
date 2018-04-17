@@ -44,6 +44,8 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "geopm_env.h"
+#include "geopm_hash.h"
+#include "geopm_version.h"
 #include "config.h"
 
 using geopm::IPlatformTopo;
@@ -90,7 +92,8 @@ namespace geopm
     }
 
     Tracer::Tracer()
-        : Tracer(geopm_env_trace(), hostname(), geopm_env_do_trace(), platform_io())
+        : Tracer(geopm_env_trace(), hostname(), geopm_env_do_trace(), platform_io(),
+                 {}, 16)
     {
 
     }
@@ -98,7 +101,9 @@ namespace geopm
     Tracer::Tracer(const std::string &file_path,
                    const std::string &hostname,
                    bool do_trace,
-                   IPlatformIO &platform_io)
+                   IPlatformIO &platform_io,
+                   const std::vector<std::string> &env_column,
+                   int precision)
         : m_file_path(file_path)
         , m_hostname(hostname)
         , m_is_trace_enabled(do_trace)
@@ -107,7 +112,16 @@ namespace geopm
         , m_time_zero({{0, 0}})
         , m_policy({0, 0, 0, 0.0})
         , m_platform_io(platform_io)
+        , m_env_column(env_column)
+        , m_precision(precision)
     {
+        if (m_env_column.empty()) {
+            auto num_extra_cols = geopm_env_num_trace_signal();
+            for (int i = 0; i < num_extra_cols; ++i) {
+                m_env_column.push_back(geopm_env_trace_signal(i));
+            }
+        }
+
         if (m_is_trace_enabled) {
             std::ostringstream output_path;
             output_path << m_file_path << "-" << m_hostname;
@@ -116,11 +130,14 @@ namespace geopm
                 std::cerr << "Warning: unable to open trace file '" << output_path.str()
                           << "': " << strerror(errno) << std::endl;
             }
-            m_buffer << std::setprecision(16);
 
-            m_header = "HEADER";
-            m_buffer << m_header;
-            m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << "\n";
+            // Header
+            m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
+                     << "# \"profile_name\" : \"TODO\",\n"
+                     << "# \"power_budget\" : -1,\n"
+                     << "# \"tree_decider\" : \"static_policy\",\n"
+                     << "# \"leaf_decider\" : \"power_governing\",\n"
+                     << "# \"node_name\" : \"" << m_hostname << "\"\n";
         }
     }
 
@@ -180,27 +197,51 @@ namespace geopm
         }
     }
 
-    void Tracer::columns(const std::vector<IPlatformIO::m_request_s> &cols)
+    void Tracer::columns(const std::vector<std::string> &agent_cols)
     {
         if (m_is_trace_enabled) {
-            for (auto col : cols) {
+            bool first = true;
+
+            // default columns
+            std::vector<IPlatformIO::m_request_s> base_columns({
+                    {"TIME", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_ID#", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
+            // extra columns from environment
+            for (const auto &extra : m_env_column) {
+                base_columns.push_back({extra, IPlatformTopo::M_DOMAIN_BOARD, 0});
+            }
+
+            // set up columns to be sampled by Tracer
+            for (const auto &col : base_columns) {
                 m_column_idx.push_back(m_platform_io.push_signal(col.name,
                                                                  col.domain_type,
                                                                  col.domain_idx));
-                m_buffer << pretty_name(col);
-                if (m_column_idx.size() != cols.size()) {
-                    m_buffer << "|";
+                if (col.name.find("#") != std::string::npos) {
+                    m_hex_column.insert(m_column_idx.back());
+                }
+                if (first) {
+                    m_buffer << pretty_name(col);
+                    first = false;
+                }
+                else {
+                    m_buffer << "|" << pretty_name(col);
                 }
             }
-            m_buffer << "\n";
 
-            if (!m_stream.good()) {
-                throw std::runtime_error("stream not open");
+            // columns from agent; will be sampled by agent
+            for (const auto &name : agent_cols) {
+                m_buffer << "|" << name;
             }
+            m_buffer << "\n";
         }
     }
 
-    void Tracer::update(bool is_epoch)
+    void Tracer::update(bool is_epoch, const std::vector<double> &agent_values,
+                        std::vector<std::pair<uint64_t, double> > short_regions)
     {
 #ifdef GEOPM_DEBUG
         if (m_column_idx.size() == 0) {
@@ -208,14 +249,43 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        double sample = m_platform_io.sample(m_column_idx[0]);
-        m_buffer << sample;
-        for (size_t col_idx = 1; col_idx < m_column_idx.size(); ++col_idx) {
-            sample = m_platform_io.sample(m_column_idx[col_idx]);
-            m_buffer << "|" << sample;
+        if (m_is_trace_enabled) {
+            m_buffer << std::setprecision(m_precision) << std::scientific;
+            bool first = true;
+            double sample = NAN;
+            uint64_t hex_sample;
+
+
+            for (size_t col_idx = 0; col_idx < m_column_idx.size(); ++col_idx) {
+                if (!first) {
+                    m_buffer << "|";
+                }
+                else {
+                    first = false;
+                }
+                sample = m_platform_io.sample(m_column_idx[col_idx]);
+                if (m_hex_column.find(m_column_idx[col_idx]) != m_hex_column.end()) {
+                    hex_sample = geopm_signal_to_field(sample);
+                    m_buffer << "0x" << std::hex << hex_sample << std::dec;
+                }
+                else {
+                    m_buffer << sample;
+                }
+            }
+            for (const auto &val : agent_values) {
+                m_buffer << "|" << val;
+            }
+
+            // additional samples for short regions
+            /// @todo Fix telemetry for these
+            for (const auto &reg : short_regions) {
+                m_buffer << std::hex << "0x" << reg.first << std::dec <<" "
+                         << std::setprecision(1) << std::fixed << reg.second << "\n";
+            }
+            m_buffer << "\n";
         }
-        m_buffer << "\n";
     }
+
     void Tracer::flush(void)
     {
         m_stream << m_buffer.str();

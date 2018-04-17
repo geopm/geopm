@@ -107,4 +107,11 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_CALL(*m_pio_sample, total_count(rid))
         .WillOnce(Return(77));
     EXPECT_EQ(77, m_app_io->total_count(rid));
+
+    std::vector<std::pair<uint64_t, double> > expected, result;
+    expected = { {123, 0.0}, {123, 1.0}, {345, 0.0} };
+    EXPECT_CALL(*m_pio_sample, short_regions())
+        .WillOnce(Return(expected));
+    result = m_app_io->short_regions();
+    EXPECT_EQ(expected, result);
 }

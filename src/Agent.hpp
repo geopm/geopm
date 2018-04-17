@@ -88,6 +88,7 @@ namespace geopm
             virtual std::map<uint64_t, std::string> report_region(void) = 0;
             /// @brief Columns that this Agent specifies to be added
             ///        to the trace.
+            /// @todo To be replaced
             virtual std::vector<IPlatformIO::m_request_s> trace_columns(void) = 0;
             /// @brief Column headers to be added to the trace.
             virtual std::vector<std::string> trace_names(void) const = 0;
