@@ -69,7 +69,6 @@ namespace geopm
             std::string report_header(void) override;
             std::string report_node(void) override;
             std::map<uint64_t, std::string> report_region(void) override;
-            std::vector<IPlatformIO::m_request_s> trace_columns(void) override;
             std::vector<std::string> trace_names(void) const override;
             void trace_values(std::vector<double> &values) override;
 
@@ -83,7 +82,6 @@ namespace geopm
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
-            std::vector<IPlatformIO::m_request_s> m_trace_columns;
             std::vector<int> m_sample_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             size_t m_num_sample;
