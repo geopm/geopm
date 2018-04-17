@@ -101,6 +101,7 @@ namespace geopm
             std::vector<std::vector<std::vector<double> > > m_out_policy;
             std::vector<std::vector<std::vector<double> > > m_in_sample;
             std::vector<double> m_out_sample;
+            std::vector<double> m_trace_sample;
 
             std::unique_ptr<IManagerIOSampler> m_manager_io_sampler;
 
