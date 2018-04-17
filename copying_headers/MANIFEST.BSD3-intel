@@ -221,6 +221,8 @@ test/geopm_test.sh
 test/GlobalPolicyTest.cpp
 test/googletest.mk
 test/GoverningDeciderTest.cpp
+test/InternalProfile.cpp
+test/InternalProfile.hpp
 test_hw/geopm_time.h
 test_hw/Makefile
 test_hw/rapl_pkg_limit_plot.py
