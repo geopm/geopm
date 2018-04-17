@@ -60,6 +60,7 @@ namespace geopm
             virtual double total_app_runtime(void) const = 0;
             virtual double total_app_mpi_time(void) const = 0;
             virtual int total_count(uint64_t region_id) const = 0;
+            virtual std::vector<std::pair<uint64_t, double> > short_regions(void) const = 0;
     };
 
     class KprofileIOSample : public IKprofileIOSample
@@ -78,6 +79,7 @@ namespace geopm
             double total_app_runtime(void) const override;
             double total_app_mpi_time(void) const override;
             int total_count(uint64_t region_id) const override;
+            std::vector<std::pair<uint64_t, double> > short_regions(void) const override;
         private:
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
@@ -108,7 +110,7 @@ namespace geopm
             ///        extrapolation.
             std::vector<uint64_t> m_region_id;
             std::map<uint64_t, std::unique_ptr<IKruntimeRegulator> > m_rid_regulator_map;
-
+            std::vector<std::pair<uint64_t, double> > m_short_regions;
     };
 }
 

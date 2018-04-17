@@ -49,8 +49,8 @@ TEST(AgentFactoryTest, static_info_monitor)
     int num_policy = IAgent::num_policy(dict);
     int num_sample = IAgent::num_sample(dict);
     EXPECT_EQ(0, num_policy);
-    EXPECT_EQ(4, num_sample);
-    std::vector<std::string> exp_sample = {"TIME", "POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
+    EXPECT_EQ(3, num_sample);
+    std::vector<std::string> exp_sample = {"POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
     std::vector<std::string> exp_policy = {};
     EXPECT_EQ(exp_sample, IAgent::sample_names(dict));
     EXPECT_EQ(exp_policy, IAgent::policy_names(dict));
