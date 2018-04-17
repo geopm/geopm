@@ -67,6 +67,7 @@ namespace geopm
     void KprofileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                   std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
+        m_region_entry_exit.clear();
         static std::ofstream dump_file;
         dump_file.open("/tmp/profile_table_dump.txt", std::ios::app);
 
@@ -100,11 +101,13 @@ namespace geopm
                 if (m_region_id[local_rank] != region_id) {
                     if (rank_sample.progress == 0.0) {
                         rid_it->second->record_entry(local_rank, rank_sample.timestamp);
+                        m_region_entry_exit.emplace_back(region_id, rank_sample.progress);
                     }
                     m_rank_sample_buffer[local_rank].clear();
                 }
                 if (rank_sample.progress == 1.0) {
                     rid_it->second->record_exit(local_rank, rank_sample.timestamp);
+                    m_region_entry_exit.emplace_back(region_id, rank_sample.progress);
                     uint64_t mpi_parent_rid = geopm_region_id_unset_mpi(region_id);
                     if (geopm_region_id_is_mpi(region_id) &&
                         m_rid_regulator_map.find(mpi_parent_rid) != m_rid_regulator_map.end()) {
@@ -277,5 +280,10 @@ namespace geopm
             }
         }
         return result;
+    }
+
+    std::list<std::pair<uint64_t, double> > KprofileIOSample::region_entry_exit(void) const
+    {
+        return m_region_entry_exit;
     }
 }

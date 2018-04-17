@@ -45,9 +45,10 @@ class MockTracer : public geopm::ITracer
         MOCK_METHOD1(update,
                      void(const struct geopm_policy_message_s &policy));
         MOCK_METHOD1(columns,
-                     void(const std::vector<geopm::IPlatformIO::m_request_s> &cols));
-        MOCK_METHOD1(update,
-                     void(bool is_epoch));
+                     void(const std::vector<std::string> &agent_cols));
+        MOCK_METHOD2(update,
+                     void(const std::vector<double> &agent_vals,
+                          std::list<std::pair<uint64_t, double> > region_entry_exit));
         MOCK_METHOD0(flush,
                      void(void));
 };

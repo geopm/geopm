@@ -269,11 +269,9 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TreeCommTest.send_receive \
               test/gtest_links/TreeCommTest.overhead_send \
               test/gtest_links/MonitorAgentTest.fixed_signal_list \
-              test/gtest_links/MonitorAgentTest.all_signals_in_trace \
               test/gtest_links/MonitorAgentTest.sample_platform \
               test/gtest_links/MonitorAgentTest.descend_nothing \
               test/gtest_links/MonitorAgentTest.ascend_aggregates_signals \
-              test/gtest_links/MonitorAgentTest.custom_signals \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/KontrollerTest.single_node \
               test/gtest_links/KontrollerTest.two_level_controller_2 \
@@ -292,6 +290,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ManagerIOSamplerTestIntegration.parse_shm \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.update_samples \
+              test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ApplicationIOTest.passthrough \
               # end

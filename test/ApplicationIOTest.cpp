@@ -31,6 +31,9 @@
  */
 
 #include <memory>
+#include <set>
+#include <list>
+#include <string>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -107,4 +110,11 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_CALL(*m_pio_sample, total_count(rid))
         .WillOnce(Return(77));
     EXPECT_EQ(77, m_app_io->total_count(rid));
+
+    std::list<std::pair<uint64_t, double> > expected, result;
+    expected = { {123, 0.0}, {123, 1.0}, {345, 0.0} };
+    EXPECT_CALL(*m_pio_sample, region_entry_exit())
+        .WillOnce(Return(expected));
+    result = m_app_io->region_entry_exit();
+    EXPECT_EQ(expected, result);
 }

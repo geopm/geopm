@@ -335,6 +335,13 @@ manager selected by the wrapper script.
     policy information to be sent to controllers lower in the tree,
     and aggregating sampled data up the tree.
 
+  * `GEOPM_TRACE_SIGNALS`:
+    Used to insert additional columns into the trace beyond the
+    default columns and the columns added by the Agent.  The value
+    must be formatted as a comma-separated list of valid signal names.
+    All custom signals added to the trace will be sampled for the
+    entire board.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 

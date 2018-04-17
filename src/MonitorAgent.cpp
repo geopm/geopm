@@ -50,15 +50,15 @@ namespace geopm
         , m_platform_topo(topo)
         , m_last_wait{{0, 0}}
     {
-        load_trace_columns();
         geopm_time(&m_last_wait);
 
+        m_trace_names = {"POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
         // All columns sampled will be in the trace
-        for (auto col : trace_columns()) {
-            m_sample_idx.push_back(m_platform_io.push_signal(col.name,
-                                                             col.domain_type,
-                                                             col.domain_idx));
-            m_agg_func.push_back(m_platform_io.agg_function(col.name));
+        for (auto name : m_trace_names) {
+            m_sample_idx.push_back(m_platform_io.push_signal(name,
+                                                             IPlatformTopo::M_DOMAIN_BOARD,
+                                                             0));
+            m_agg_func.push_back(m_platform_io.agg_function(name));
         }
         m_num_sample = m_sample_idx.size();
     }
@@ -138,7 +138,7 @@ namespace geopm
 
     std::vector<std::string> MonitorAgent::sample_names(void)
     {
-        return {"TIME", "POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
+        return {"POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
     }
 
     std::string MonitorAgent::report_header(void)
@@ -156,49 +156,15 @@ namespace geopm
         return {};
     }
 
-    std::vector<IPlatformIO::m_request_s> MonitorAgent::trace_columns(void)
-    {
-        return m_trace_columns;
-    }
-
     std::vector<std::string> MonitorAgent::trace_names(void) const
     {
-        return {"POWER_PACKAGE", "FREQUENCY", "REGION_PROGRESS"};
+        return m_trace_names;
     }
 
     void MonitorAgent::trace_values(std::vector<double> &values)
     {
-        ///@todo for each trace column, sample and fill in values
-    }
-
-    void MonitorAgent::load_trace_columns()
-    {
-        static std::vector<IPlatformIO::m_request_s> columns = {
-            {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-            {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-            {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
-            {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        };
-
-        const char* env_monitor_col_str = getenv("GEOPM_MONITOR_AGENT_SIGNALS");
-        if (env_monitor_col_str) {
-            std::string signals(env_monitor_col_str);
-            std::string request;
-            // split on comma
-            size_t begin = 0;
-            size_t end = -1;
-            do {
-                begin = end + 1;
-                end = signals.find(",", begin);
-                request = signals.substr(begin, end - begin);
-                if (!request.empty()) {
-                    m_trace_columns.push_back({request, IPlatformTopo::M_DOMAIN_BOARD, 0});
-                }
-            }
-            while (end != std::string::npos);
-        }
-        else {
-            m_trace_columns = columns;
+        for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
+            values[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
         }
     }
 }

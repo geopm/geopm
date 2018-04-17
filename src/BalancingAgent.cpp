@@ -171,11 +171,6 @@ namespace geopm
         return {};
     }
 
-    std::vector<IPlatformIO::m_request_s> BalancingAgent::trace_columns(void)
-    {
-        return {};
-    }
-
     std::vector<std::string> BalancingAgent::trace_names(void) const
     {
         return {};
