@@ -58,6 +58,9 @@ class MockKprofileIOSample : public geopm::IKprofileIOSample {
                            double(void));
         MOCK_CONST_METHOD1(total_count,
                            int(uint64_t region_id));
+        MOCK_CONST_METHOD0(short_regions,
+                           std::vector<std::pair<uint64_t, double> >(void));
+
 };
 
 #endif

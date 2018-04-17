@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <set>
 
 #include "PlatformIO.hpp"
 #include "geopm_message.h"
@@ -54,8 +55,9 @@ namespace geopm
             virtual void update(const struct geopm_policy_message_s &policy) = 0;
 
             // new API
-            virtual void columns(const std::vector<IPlatformIO::m_request_s> &cols) = 0;
-            virtual void update(bool is_epoch) = 0;
+            virtual void columns(const std::vector<std::string> &agent_cols) = 0;
+            virtual void update(bool is_epoch, const std::vector<double> &agent_signals,
+                                std::vector<std::pair<uint64_t, double> > short_regions) = 0;
             virtual void flush(void) = 0;
             static std::string pretty_name(const IPlatformIO::m_request_s &col);
     };
@@ -72,16 +74,22 @@ namespace geopm
             Tracer(const std::string &file_path,
                    const std::string &hostname,
                    bool do_trace,
-                   IPlatformIO &platform_io);
+                   IPlatformIO &platform_io,
+                   const std::vector<std::string> &env_column,
+                   int precision);
             /// @brief Tracer destructor, virtual.
             virtual ~Tracer();
-            void columns(const std::vector<IPlatformIO::m_request_s> &cols) override;
-            void update(bool is_epoch) override;
             void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) override;
             void update(const struct geopm_policy_message_s &policy) override;
+
+            void columns(const std::vector<std::string> &agent_cols) override;
+            void update(bool is_epoch, const std::vector<double> &agent_signals,
+                        std::vector<std::pair<uint64_t, double> > short_regions) override;
             void flush(void) override;
         private:
             static std::string hostname(void);
+            /// @brief Format and write the values in m_last_telemetry to the trace.
+            void write_line(void);
             std::string m_file_path;
             std::string m_header;
             std::string m_hostname;
@@ -94,7 +102,13 @@ namespace geopm
             struct geopm_policy_message_s m_policy;
 
             IPlatformIO &m_platform_io;
-            std::vector<int> m_column_idx;
+            std::vector<std::string> m_env_column; // extra columns from environment
+            int m_precision;
+            std::vector<int> m_column_idx; // columns sampled by Tracer
+            std::set<int> m_hex_column;
+            std::vector<double> m_last_telemetry;
+            int m_region_id_idx = -1;
+            int m_region_progress_idx = -1;
     };
 }
 

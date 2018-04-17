@@ -40,6 +40,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
+#include "geopm_hash.h"
 #include "geopm_test.hpp"
 
 using geopm::Tracer;
@@ -52,11 +53,41 @@ using testing::HasSubstr;
 class TracerTest : public ::testing::Test
 {
     protected:
+        void SetUp(void);
         void TearDown(void);
         MockPlatformIO m_platform_io;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
+        std::vector<IPlatformIO::m_request_s> m_default_cols;
+        std::vector<std::string> m_extra_cols;
 };
+
+void TracerTest::SetUp(void)
+{
+    std::remove(m_path.c_str());
+
+    m_default_cols = {
+        {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
+    };
+    m_extra_cols = {"EXTRA"};
+
+    int idx = 0;
+    for (auto cc : m_default_cols) {
+        EXPECT_CALL(m_platform_io, push_signal(cc.name, cc.domain_type, cc.domain_idx))
+            .WillOnce(Return(idx));
+        ++idx;
+    }
+    for (auto cc : m_extra_cols) {
+        EXPECT_CALL(m_platform_io, push_signal(cc, IPlatformTopo::M_DOMAIN_BOARD, 0))
+            .WillOnce(Return(idx));
+        ++idx;
+    }
+}
 
 void TracerTest::TearDown(void)
 {
@@ -67,21 +98,24 @@ void check_trace(std::istream &expected, std::istream &result);
 
 TEST_F(TracerTest, columns)
 {
-    Tracer tracer(m_path, m_hostname, true, m_platform_io);
-    std::vector<IPlatformIO::m_request_s> cols = {
-        {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"ENERGY", IPlatformTopo::M_DOMAIN_PACKAGE, 0},
-        {"ENERGY", IPlatformTopo::M_DOMAIN_PACKAGE, 1}
-    };
+    Tracer tracer(m_path, m_hostname, true, m_platform_io, m_extra_cols, 1);
 
-    for (auto cc : cols) {
-        EXPECT_CALL(m_platform_io, push_signal(cc.name, cc.domain_type, cc.domain_idx));
-    }
+    // columns from agent will be printed as-is
+    std::vector<std::string> agent_cols {"col1", "col2"};
 
-    tracer.columns(cols);
+    tracer.columns(agent_cols);
     tracer.flush();
 
-    std::string expected_str = "HEADER\ntime-board-0|energy-package-0|energy-package-1\n";
+    std::string expected_header = "# \"geopm_version\"\n"
+                                  "# \"profile_name\"\n"
+                                  "# \"power_budget\"\n"
+                                  "# \"tree_decider\"\n"
+                                  "# \"leaf_decider\"\n"
+                                  "# \"node_name\" : \"" + m_hostname + "\"\n";
+    std::string expected_str = expected_header +
+        "time-board-0|region_id#-board-0|region_progress-board-0|energy_package-board-0|"
+        "power_package-board-0|frequency-board-0|extra-board-0|"
+        "col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -90,32 +124,67 @@ TEST_F(TracerTest, columns)
 
 TEST_F(TracerTest, update_samples)
 {
-    Tracer tracer(m_path, m_hostname, true, m_platform_io);
-    std::vector<IPlatformIO::m_request_s> cols = {
-        {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"ENERGY", IPlatformTopo::M_DOMAIN_PACKAGE, 0},
-        {"ENERGY", IPlatformTopo::M_DOMAIN_PACKAGE, 1}
-    };
+    Tracer tracer(m_path, m_hostname, true, m_platform_io, m_extra_cols, 1);
     int idx = 0;
-    for (auto cc : cols) {
-        EXPECT_CALL(m_platform_io, push_signal(cc.name, cc.domain_type, cc.domain_idx))
-            .WillOnce(Return(idx));
-
+    for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
             .WillOnce(Return(idx + 0.5));
         ++idx;
     }
+    for (auto cc : m_extra_cols) {
+        EXPECT_CALL(m_platform_io, sample(idx))
+            .WillOnce(Return(idx + 0.7));
+    }
 
-    tracer.columns(cols);
-    tracer.update(true);  //todo: how to use is_epoch arg
+    std::vector<std::string> agent_cols {"col1", "col2"};
+    std::vector<double> agent_vals {88.8, 77.7};
+
+    tracer.columns(agent_cols);
+    tracer.update(true, agent_vals, {});
     tracer.flush();
+    tracer.update(true, agent_vals, {}); // no additional samples after flush
 
-    std::string expected_str = "\n\n0.5|1.5|2.5\n";
+    std::string expected_str = "\n\n\n\n\n\n\n"
+        "5.0e-01|0x3ff8000000000000|2.5|3.5e+00|4.5e+00|5.5e+00|6.7e+00|8.9e+01|7.8e+01\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
     check_trace(expected, result);
+}
 
+TEST_F(TracerTest, short_regions)
+{
+    Tracer tracer(m_path, m_hostname, true, m_platform_io, m_extra_cols, 1);
+    EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_extra_cols.size())
+        .WillRepeatedly(Return(2.2));
+
+    std::vector<std::string> agent_cols {"col1", "col2"};
+    std::vector<double> agent_vals {88.8, 77.7};
+
+    std::vector<std::pair<uint64_t, double> > short_regions = {
+        {0x123, 0.0},
+        {0x123, 1.0},
+        {0x345, 0.0},
+        {0x456, 1.0},
+        {0x345, 1.0}
+    };
+    tracer.columns(agent_cols);
+    tracer.update(true, agent_vals, short_regions);
+    tracer.flush();
+    tracer.update(true, agent_vals, short_regions); // no additional samples after flush
+    std::string expected_str ="\n\n\n\n\n\n"
+        "\n" // header
+        "\n" // sample
+        "2.2e+00|0x123|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x123|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x345|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x456|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x345|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n";
+
+     std::istringstream expected(expected_str);
+     std::ifstream result(m_path + "-" + m_hostname);
+     ASSERT_TRUE(result.good()) << strerror(errno);
+     check_trace(expected, result);
 }
 
 /// @todo This is shared with ReporterTest; can be put in common file
