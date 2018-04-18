@@ -46,11 +46,32 @@ namespace geopm
         public:
             IKruntimeRegulator() = default;
             virtual ~IKruntimeRegulator() = default;
+            /// @brief Called when the region is entered on a
+            ///        particular rank.
+            /// @param [in] rank The rank that entered the region.
+            /// @param [in] entry_time The time the entry was
+            ///        recorded.
             virtual void record_entry(int rank, struct geopm_time_s entry_time) = 0;
+            /// @brief Called when the region is exited on a
+            ///        particular rank.
+            /// @param [in] rank The rank that entered the region.
+            /// @param [in] entry_time The time the exit was
+            ///        recorded.
             virtual void record_exit(int rank, struct geopm_time_s exit_time) = 0;
-            virtual void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) = 0;
+            /// @brief Returns the runtime measured for each rank the
+            ///        last time it entered and exited the region.  If
+            ///        a rank has not entered and exited the region,
+            ///        the runtime will be 0.
+            /// @return Last runtime for each rank.
             virtual std::vector<double> per_rank_last_runtime(void) const = 0;
+            /// @brief Returns the total accumulated runtime for each
+            ///        rank that has entered and exited the region at
+            ///        least once.
+            /// @return Total runtime for each rank.
             virtual std::vector<double> per_rank_total_runtime(void) const = 0;
+            /// @brief Returns the number of times each rank has
+            ///        entered and exited the region.
+            /// @return Count of entries and exits for each rank.
             virtual std::vector<size_t> per_rank_count(void) const = 0;
         protected:
             static const struct geopm_time_s M_TIME_ZERO;
@@ -65,7 +86,6 @@ namespace geopm
             virtual ~KruntimeRegulator() = default;
             void record_entry(int rank, struct geopm_time_s entry_time) override;
             void record_exit(int rank, struct geopm_time_s exit_time) override;
-            virtual void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
             std::vector<double> per_rank_last_runtime(void) const override;
             std::vector<double> per_rank_total_runtime(void) const override;
             std::vector<size_t> per_rank_count(void) const override;
@@ -81,16 +101,6 @@ namespace geopm
             };
             int m_num_rank;
             std::vector<struct m_log_s> m_rank_log;
-    };
-
-    class MPIKruntimeRegulator : public KruntimeRegulator
-    {
-        public:
-            MPIKruntimeRegulator() = default;
-            MPIKruntimeRegulator(const MPIKruntimeRegulator &other) = default;
-            MPIKruntimeRegulator(int num_rank);
-            virtual ~MPIKruntimeRegulator() = default;
-            void insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry) override;
     };
 }
 
