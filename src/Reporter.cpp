@@ -118,15 +118,28 @@ namespace geopm
             /// for unmarked, epoch, use existing strings and high-order bits for hash
             /// these two special regions go at the end
             uint64_t region_id = geopm_crc32_str(0, region.c_str());
+            double region_runtime;
+            double region_mpi_time;
+            double region_count;
+            try {
+                region_runtime = application_io.total_region_runtime(region_id);
+                region_mpi_time = application_io.total_region_mpi_runtime(region_id);
+                region_count = application_io.total_count(region_id);
+            }
+            catch(Exception ex) {
+                region_runtime = NAN;
+                region_mpi_time = NAN;
+                region_count = NAN;
+            }
             report << "Region " << region << " (" << region_id << "):" << std::endl;
-            report << "\truntime (sec): " << application_io.total_region_runtime(region_id) << std::endl;
+            report << "\truntime (sec): " << region_runtime << std::endl;
             report << "\tenergy (joules): " << m_platform_io.region_sample(m_energy_idx, region_id) << std::endl; // from platformio
             double numer = m_platform_io.region_sample(m_clk_core_idx, region_id);
             double denom = m_platform_io.region_sample(m_clk_ref_idx, region_id);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "\tfrequency (%): " << freq << std::endl;
-            report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;
-            report << "\tcount: " << application_io.total_count(region_id) << std::endl;
+            report << "\tmpi-runtime (sec): " << region_mpi_time << std::endl;
+            report << "\tcount: " << region_count << std::endl;
         }
 
         double total_runtime = application_io.total_app_runtime();
@@ -134,7 +147,7 @@ namespace geopm
                << "\truntime (sec): " << total_runtime << std::endl
                << "\tenergy (joules): " << -1 << std::endl
                << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
-               << "\tignore-time (sec): " << -1 << std::endl
+               << "\tignore-time (sec): " << application_io.total_app_ignore_runtime() << std::endl
                << "\tthrottle time (%): " << -1 << std::endl;
 
         std::string max_memory = get_max_memory();

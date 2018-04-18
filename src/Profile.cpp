@@ -301,6 +301,11 @@ namespace geopm
         uint64_t result = m_table->key(region_name);
         /// Record hint when registering a region.
         result = geopm_region_id_set_hint(hint, result);
+        if (!m_rank) {
+            bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, result);
+            bool is_mpi = geopm_region_id_is_mpi(result);
+        }
+
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
@@ -454,14 +459,11 @@ namespace geopm
 #endif
 
         struct geopm_prof_message_s sample;
-        m_shm_comm->barrier();
-        if (!m_shm_rank) {
-            sample.rank = m_rank;
-            sample.region_id = GEOPM_REGION_ID_EPOCH;
-            (void) geopm_time(&(sample.timestamp));
-            sample.progress = 0.0;
-            m_table->insert(sample.region_id, sample);
-        }
+        sample.rank = m_rank;
+        sample.region_id = GEOPM_REGION_ID_EPOCH;
+        (void) geopm_time(&(sample.timestamp));
+        sample.progress = 0.0;
+        m_table->insert(sample.region_id, sample);
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
