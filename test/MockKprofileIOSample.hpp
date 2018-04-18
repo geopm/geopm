@@ -46,12 +46,8 @@ class MockKprofileIOSample : public geopm::IKprofileIOSample {
                            std::vector<double>(const struct geopm_time_s &extrapolation_time));
         MOCK_CONST_METHOD1(per_cpu_runtime,
                            std::vector<double>(uint64_t region_id));
-        MOCK_CONST_METHOD1(total_region_runtime,
-                           double(uint64_t region_id));
-        MOCK_CONST_METHOD1(total_region_mpi_time,
-                           double(uint64_t region_id));
-        MOCK_CONST_METHOD0(total_epoch_runtime,
-                           double(void));
+        MOCK_CONST_METHOD1(per_rank_runtime,
+                                     std::vector<double>(uint64_t region_id));
         MOCK_CONST_METHOD0(total_app_runtime,
                            double(void));
         MOCK_CONST_METHOD0(total_app_mpi_time,
