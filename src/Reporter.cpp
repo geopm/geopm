@@ -128,13 +128,24 @@ namespace geopm
             report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;
             report << "\tcount: " << application_io.total_count(region_id) << std::endl;
         }
+        std::string region = "Unmarked";
+        uint64_t region_id = GEOPM_REGION_ID_UNMARKED;
+        report << "Region " << region << " (" << region_id << "):" << std::endl;
+        report << "\truntime (sec): " << application_io.total_region_runtime(region_id) << std::endl;
+        report << "\tenergy (joules): " << m_platform_io.region_sample(m_energy_idx, region_id) << std::endl; // from platformio
+        double numer = m_platform_io.region_sample(m_clk_core_idx, region_id);
+        double denom = m_platform_io.region_sample(m_clk_ref_idx, region_id);
+        double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
+        report << "\tfrequency (%): " << freq << std::endl;
+        report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;
+        report << "\tcount: " << application_io.total_count(region_id) << std::endl;
 
         double total_runtime = application_io.total_app_runtime();
         report << "Application Totals:" << std::endl
                << "\truntime (sec): " << total_runtime << std::endl
                << "\tenergy (joules): " << -1 << std::endl
                << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
-               << "\tignore-time (sec): " << -1 << std::endl
+               << "\tignore-time (sec): " << application_io.total_app_ignore_runtime() << std::endl
                << "\tthrottle time (%): " << -1 << std::endl;
 
         std::string max_memory = get_max_memory();
