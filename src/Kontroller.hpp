@@ -58,9 +58,15 @@ namespace geopm
     {
         public:
             /// @brief Standard contstructor for the Kontroller.
+            ///
+            /// @param [in] ppn1_comm The MPI communicator that supports
+            ///        the control messages.
+            /// @param [in] global_policy_path Path to the policy in a
+            ///        file or shared memory.
             Kontroller(std::shared_ptr<IComm> ppn1_comm,
                        const std::string &global_policy_path);
-            /// @brief Constructor for testing
+            /// @brief Constructor for testing that allows injecting mocked
+            ///        versions of internal objects.
             Kontroller(std::shared_ptr<IComm> comm,
                        IPlatformTopo &plat_topo,
                        IPlatformIO &plat_io,
@@ -74,11 +80,51 @@ namespace geopm
                        std::vector<std::unique_ptr<IAgent> > level_agent,
                        std::unique_ptr<IManagerIOSampler> manager_io_sampler);
             virtual ~Kontroller();
+            /// @brief Run control algorithm.
+            ///
+            /// Steps the control algorithm continuously until the
+            /// shutdown signal is received.  Since this is a blocking
+            /// call that never returns, it is intended that profiling
+            /// information is provided through POSIX shared memory.
             void run(void);
+            /// @brief Run a single step of the control algorithm.
+            ///
+            /// One step consists of receiving policy information from
+            /// the resource manager, sending them to every other
+            /// controller that the node is a parent of, reading
+            /// hardware telemetry
             void step(void);
+            /// @brief Propagate policy information from the resource
+            ///        manager at the root of the tree down to the
+            ///        controllers on every node.
+            ///
+            /// At each level of the tree, Agents may modify policies
+            /// before sending them to their children.
             void walk_down(void);
+            /// @brief Read hardware telemetry and application data
+            ///        and send the combined data up the tree to the
+            ///        resource manager.
+            ///
+            /// At each level of the tree, Agents may modify and
+            /// aggregate samples before sending them up up to their
+            /// parents.
             void walk_up(void);
+            /// @brief Write the report file and finalize the trace.
             void generate(void);
+            /// @brief Run control algorithm as a separate thread.
+            ///
+            /// Creates a POSIX thread running the control algorithm
+            /// continuously until the shutdown signal is received.
+            /// This is intended to be called by the application under
+            /// control.  With this method of launch the supporting
+            /// MPI implementation must be enabled for
+            /// MPI_THREAD_MULTIPLE using MPI_Init_thread().
+            ///
+            /// @param [in] attr The POSIX thread attributes applied
+            ///        when thread is created.
+            ///
+            /// @param [out] thread Pointer to the POSIX thread that
+            ///        is created.
             void pthread(const pthread_attr_t *attr, pthread_t *thread);
             void setup_trace(void);
         private:
