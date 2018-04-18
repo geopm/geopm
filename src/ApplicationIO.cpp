@@ -33,6 +33,7 @@
 #include <utility>
 
 #include "ApplicationIO.hpp"
+#include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
 #include "ProfileSampler.hpp"
 #include "KprofileIOSample.hpp"
@@ -64,6 +65,7 @@ namespace geopm
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rank_per_node(-1)
+        , m_epoch_regulator(nullptr)
     {
         connect();
     }
@@ -81,8 +83,9 @@ namespace geopm
             m_prof_sample.resize(m_sampler->capacity());
             std::vector<int> cpu_rank = m_sampler->cpu_rank();
             if (m_profile_io_sample == nullptr) {
-                m_profile_io_sample = std::make_shared<KprofileIOSample>(cpu_rank);
-                platform_io().register_iogroup(geopm::make_unique<KprofileIOGroup>(m_profile_io_sample));
+                m_epoch_regulator = geopm::make_unique<EpochRuntimeRegulator>(m_rank_per_node);
+                m_profile_io_sample = std::make_shared<KprofileIOSample>(cpu_rank, *m_epoch_regulator);
+                platform_io().register_iogroup(geopm::make_unique<KprofileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
             }
             m_is_connected = true;
         }
@@ -145,7 +148,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_profile_io_sample->total_region_runtime(region_id);
+        double result = 0.0;
+        try {
+            result = m_epoch_regulator->total_region_runtime(region_id);
+        }
+        catch (Exception ex) {
+        }
+        return result;
     }
 
     double ApplicationIO::total_region_mpi_runtime(uint64_t region_id) const
@@ -157,7 +166,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_profile_io_sample->total_region_mpi_time(region_id);
+        double result = 0.0;
+        try {
+            result = m_epoch_regulator->total_region_mpi_time(region_id);
+        }
+        catch (Exception ex) {
+        }
+        return result;
     }
 
     double ApplicationIO::total_epoch_runtime(void) const
@@ -169,7 +184,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_profile_io_sample->total_epoch_runtime();
+        return m_epoch_regulator->total_epoch_runtime();
     }
 
     double ApplicationIO::total_app_runtime(void) const
@@ -193,7 +208,19 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_profile_io_sample->total_app_mpi_time();
+        return m_epoch_regulator->total_app_mpi_time();
+    }
+
+    double ApplicationIO::total_app_ignore_runtime(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return m_epoch_regulator->total_app_ignore_time();
     }
 
     int ApplicationIO::total_count(uint64_t region_id) const
@@ -205,7 +232,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_profile_io_sample->total_count(region_id);
+        double result = 0.0;
+        try {
+            result = m_epoch_regulator->total_count(region_id);
+        }
+        catch (Exception ex) {
+        }
+        return result;
     }
 
     void ApplicationIO::update(std::shared_ptr<IComm> comm)

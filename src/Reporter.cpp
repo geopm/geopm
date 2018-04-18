@@ -134,7 +134,7 @@ namespace geopm
                << "\truntime (sec): " << total_runtime << std::endl
                << "\tenergy (joules): " << -1 << std::endl
                << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
-               << "\tignore-time (sec): " << -1 << std::endl
+               << "\tignore-time (sec): " << application_io.total_app_ignore_runtime() << std::endl
                << "\tthrottle time (%): " << -1 << std::endl;
 
         std::string max_memory = get_max_memory();
