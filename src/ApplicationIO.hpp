@@ -61,6 +61,7 @@ namespace geopm
             virtual double total_region_mpi_runtime(uint64_t region_id) const = 0;
             virtual double total_app_runtime(void) const = 0;
             virtual double total_app_mpi_runtime(void) const = 0;
+            virtual double total_app_ignore_runtime(void) const = 0;
             virtual double total_epoch_runtime(void) const = 0;
             virtual int total_count(uint64_t region_id) const = 0;
             virtual void update(std::shared_ptr<IComm> comm) = 0;
@@ -69,6 +70,7 @@ namespace geopm
     };
 
     class IProfileSampler;
+    class IEpochRuntimeRegulator;
     class IKprofileIOSample;
 
     class ApplicationIO : public IApplicationIO
@@ -87,6 +89,7 @@ namespace geopm
             double total_region_mpi_runtime(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
             double total_app_mpi_runtime(void) const override;
+            double total_app_ignore_runtime(void) const override;
             double total_epoch_runtime(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<IComm> comm) override;
@@ -107,6 +110,7 @@ namespace geopm
             bool m_do_shutdown;
             bool m_is_connected;
             int m_rank_per_node;
+            std::unique_ptr<IEpochRuntimeRegulator> m_epoch_regulator;
     };
 }
 
