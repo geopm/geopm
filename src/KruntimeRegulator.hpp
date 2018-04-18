@@ -72,7 +72,7 @@ namespace geopm
             /// @brief Returns the number of times each rank has
             ///        entered and exited the region.
             /// @return Count of entries and exits for each rank.
-            virtual std::vector<size_t> per_rank_count(void) const = 0;
+            virtual std::vector<double> per_rank_count(void) const = 0;
         protected:
             static const struct geopm_time_s M_TIME_ZERO;
     };
@@ -88,7 +88,7 @@ namespace geopm
             void record_exit(int rank, struct geopm_time_s exit_time) override;
             std::vector<double> per_rank_last_runtime(void) const override;
             std::vector<double> per_rank_total_runtime(void) const override;
-            std::vector<size_t> per_rank_count(void) const override;
+            std::vector<double> per_rank_count(void) const override;
         protected:
             enum m_num_rank_signal_e {
                 M_NUM_RANK_SIGNAL = 2,
