@@ -193,7 +193,6 @@ ProfileTest::ProfileTest()
     , m_rank({0, 1})
     , m_topo(M_NUM_CPU)
 {
-    setenv("GEOPM_ERROR_AFFINITY_IGNORE", "1", 1);
     setenv("GEOPM_REGION_BARRIER", "1", 1);
     setenv("GEOPM_PROFILE_TIMEOUT", "1", 1);
     setenv("GEOPM_REPORT_VERBOSITY", "1", 1);
@@ -202,7 +201,6 @@ ProfileTest::ProfileTest()
 
 ProfileTest::~ProfileTest()
 {
-    unsetenv("GEOPM_ERROR_AFFINITY_IGNORE");
     unsetenv("GEOPM_REGION_BARRIER");
     unsetenv("GEOPM_PROFILE_TIMEOUT");
     unsetenv("GEOPM_REPORT_VERBOSITY");
@@ -545,7 +543,6 @@ TEST_F(ProfileTestIntegration, misconfig_affinity)
 {
     int world_rank = 0;
     int shm_rank = 0;
-    unsetenv("GEOPM_ERROR_AFFINITY_IGNORE");
     geopm_env_load();
     m_ctl_msg = geopm::make_unique<ProfileTestControlMessage>();
     EXPECT_CALL(*m_ctl_msg, cpu_rank(testing::_))
