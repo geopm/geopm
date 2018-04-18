@@ -30,54 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fcntl.h>
-#include <libgen.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <numeric>
 #include <sstream>
-#include <streambuf>
-#include <string>
-#include <stdexcept>
-#include <system_error>
-#include <vector>
-
-#include "geopm.h"
-#include "geopm_env.h"
-#include "geopm_version.h"
-#include "geopm_signal_handler.h"
-#include "geopm_hash.h"
-#include "Comm.hpp"
-#include "Controller.hpp"
-#include "Exception.hpp"
-#include "SampleRegulator.hpp"
-#include "TreeCommunicator.hpp"
-#include "Platform.hpp"
-#include "PlatformFactory.hpp"
-#include "PlatformTopology.hpp"
-#include "ProfileSampler.hpp"
-#include "Decider.hpp"
-#include "GlobalPolicy.hpp"
-#include "Policy.hpp"
-#include "Tracer.hpp"
-#include "Region.hpp"
-#include "OMPT.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "RuntimeRegulator.hpp"
-#include "ProfileIOGroup.hpp"
-#include "ProfileIOSample.hpp"
-////
-// old controller includes above
-
+#include <fstream>
+#include <algorithm>
+#include <iostream>
 
 #include "Reporter.hpp"
 #include "PlatformIO.hpp"
@@ -85,6 +45,8 @@
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
 #include "Exception.hpp"
+#include "geopm_hash.h"
+#include "geopm_version.h"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -93,8 +55,7 @@
 
 namespace geopm
 {
-    /// @todo remove verbosity
-    Reporter::Reporter(const std::string &report_name, IPlatformIO &platform_io)
+    Reporter::Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank)
         : m_report_name(report_name)
         , m_platform_io(platform_io)
     {
@@ -105,7 +66,7 @@ namespace geopm
         m_clk_core_idx = m_platform_io.push_region_signal(clk_core, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_platform_io.push_region_signal(clk_ref, IPlatformTopo::M_DOMAIN_BOARD, 0);
 
-        if (false) { // @todo if we are the root of the tree
+        if (!rank) {
             // check if report file can be created
             if (!m_report_name.empty()) {
                 std::ofstream test_open(m_report_name);
@@ -130,15 +91,17 @@ namespace geopm
         if (!master_report.good()) {
             throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        int rank = comm->rank();
         // make header
-        master_report << "#####" << std::endl;
-        master_report << "Profile: " << application_io.profile_name() << std::endl;
-        master_report << "Agent: " << agent_name << std::endl;
-        master_report << "Policy Mode: deprecated" << std::endl;
-        master_report << "Tree Decider: deprecated" << std::endl;
-        master_report << "Leaf Decider: deprecated" << std::endl;
-        master_report << "Power Budget: deprecated" << std::endl;
-
+        if (!rank) {
+            master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
+            master_report << "Profile: " << application_io.profile_name() << std::endl;
+            master_report << "Agent: " << agent_name << std::endl;
+            master_report << "Policy Mode: deprecated" << std::endl;
+            master_report << "Tree Decider: deprecated" << std::endl;
+            master_report << "Leaf Decider: deprecated" << std::endl;
+            master_report << "Power Budget: deprecated" << std::endl;
+        }
         // per-node report
         std::ostringstream report;
         char hostname[NAME_MAX];
@@ -172,10 +135,38 @@ namespace geopm
 
         std::string max_memory = get_max_memory();
         report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
-        report << "\tgeopmctl network BW (B/sec): " << 89898 << std::endl << std::endl;
+        report << "\tgeopmctl network BW (B/sec): " << 89898 << std::endl;
 
-        master_report << report.str();
-        master_report.close();
+        // aggregate reports from every node
+        report.seekp(0, std::ios::end);
+        size_t buffer_size = (size_t) report.tellp();
+        report.seekp(0, std::ios::beg);
+        std::vector<char> report_buffer;
+        std::vector<size_t> buffer_size_array;
+        std::vector<off_t> buffer_displacement;
+        int num_ranks = comm->num_rank();
+        buffer_size_array.resize(num_ranks);
+        buffer_displacement.resize(num_ranks);
+        comm->gather(&buffer_size, sizeof(size_t), buffer_size_array.data(),
+                     sizeof(size_t), 0);
+
+        if (!rank) {
+            int full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
+            report_buffer.resize(full_report_size);
+            buffer_displacement[0] = 0;
+            for (int i = 1; i < num_ranks; ++i) {
+                buffer_displacement[i] = buffer_displacement[i-1] + buffer_size_array[i-1];
+            }
+        }
+
+        comm->gatherv((void *) (report.str().data()), sizeof(char) * buffer_size,
+                             (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
+
+        if (!rank) {
+            report_buffer.back() = '\0';
+            master_report << report_buffer.data();
+            master_report.close();
+        }
     }
 
     std::string Reporter::get_max_memory()
