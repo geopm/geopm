@@ -292,15 +292,6 @@ manager selected by the wrapper script.
     all ranks on a node then enabling this feature will cause a
     deadlock and the application will hang.
 
-  * `GEOPM_ERROR_AFFINITY_IGNORE`:
-    If set, errors of the type GEOPM_ERROR_AFFINITY are ignored by
-    GEOPM.  This is useful for testing on systems where CPU affinity
-    requirements cannot be met (e.g. Mac OS X). See **geopm_error(3)**
-    for more information on this error condition.  Note that this is
-    only useful for testing some parts of the GEOPM runtime.  The full
-    GEOPM runtime will not function at all in a multi-node setting
-    with this environment variable set.
-
   * `GEOPM_RM`:
     Used by job launch wrapper (geopmsrun or geopmaprun) to override
     the resource manager to use for job launch.  This environment
