@@ -39,6 +39,7 @@
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockApplicationIO.hpp"
+#include "MockComm.hpp"
 #include "Helper.hpp"
 #include "geopm_hash.h"
 #include "config.h"
@@ -47,6 +48,25 @@ using geopm::Reporter;
 using testing::HasSubstr;
 using testing::Return;
 using testing::_;
+using testing::SaveArg;
+using testing::SetArgPointee;
+
+// Mock for gathering reports; assumes one node only
+class ReporterTestMockComm : public MockComm
+{
+    public:
+        void gather(const void *send_buf, size_t send_size, void *recv_buf,
+                    size_t recv_size, int root) const override
+        {
+            *((size_t*)(recv_buf)) = *((size_t*)(send_buf));
+        }
+        void gatherv(const void *send_buf, size_t send_size, void *recv_buf,
+                     const std::vector<size_t> &recv_sizes,
+                     const std::vector<off_t> &rank_offset, int root) const override
+        {
+            memcpy(recv_buf, send_buf, send_size);
+        }
+};
 
 class ReporterTest : public testing::Test
 {
@@ -65,6 +85,7 @@ class ReporterTest : public testing::Test
 
         MockPlatformIO m_platform_io;
         MockApplicationIO m_application_io;
+        std::shared_ptr<ReporterTestMockComm> m_comm;
         std::unique_ptr<Reporter> m_reporter;
         std::string m_profile_name = "my profile";
         std::set<std::string> m_region_set = {"all2all", "model-init"};
@@ -115,13 +136,13 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(m_platform_io, push_region_signal(M_CLK_CORE_IDX, _, _))
         .WillOnce(Return(M_REGION_CLK_CORE_IDX));
 
-
-    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io);
+    m_comm = std::make_shared<ReporterTestMockComm>();
+    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, 0);
 }
 
 void ReporterTest::TearDown(void)
 {
-    //std::remove(m_report_name.c_str());
+    std::remove(m_report_name.c_str());
 }
 
 void check_report(std::istream &expected, std::istream &result);
@@ -155,7 +176,8 @@ TEST_F(ReporterTest, generate)
         EXPECT_CALL(m_platform_io, region_sample(M_REGION_CLK_REF_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
-
+    EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
+    EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
 
     // Check for labels at start of line but ignore numbers
     // Note that region lines start with tab
@@ -187,14 +209,13 @@ TEST_F(ReporterTest, generate)
         "	ignore-time (sec):\n"
         "	throttle time (%):\n"
         "	geopmctl memory HWM:\n"
-        "	geopmctl network BW (B/sec):\n"
-        "\n";
+        "	geopmctl network BW (B/sec):\n";
 
     std::istringstream exp_stream(expected);
 
     m_reporter->generate("my_agent", "agent_header", "node_report", {},
-                        m_application_io,
-                        nullptr); // TODO: mock comm
+                         m_application_io,
+                         m_comm);
     std::ifstream report(m_report_name);
     check_report(exp_stream, report);
 }

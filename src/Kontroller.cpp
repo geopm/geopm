@@ -79,7 +79,7 @@ namespace geopm
                          IAgent::num_policy(agent_factory().dictionary(geopm_env_agent())),
                          IAgent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
                      std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
-                     std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io())),
+                     std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
                      std::unique_ptr<ITracer>(new Tracer(geopm_env_trace())),
                      std::vector<std::unique_ptr<IAgent> >{},
                      std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(global_policy_path, true)))
@@ -184,7 +184,7 @@ namespace geopm
                              agent_node_report.str(),
                              m_agent[0]->report_region(),
                              *m_application_io,
-                             nullptr); /// @todo get the IComm from somewhere
+                             m_comm);
         m_tracer->flush();
     }
 
