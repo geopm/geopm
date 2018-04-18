@@ -67,17 +67,15 @@ namespace geopm
         if (rank < 0 || rank >= m_num_rank) {
             throw Exception("KruntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        if (geopm_time_diff(&m_rank_log[rank].enter_time, &M_TIME_ZERO) == 0.0) {
+            throw Exception("KruntimeRegulator::record_exit(): exit before entry", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
         double delta = geopm_time_diff(&m_rank_log[rank].enter_time, &exit_time);
         m_rank_log[rank].last_runtime = delta;
         m_rank_log[rank].enter_time = M_TIME_ZERO; // record exit
         m_rank_log[rank].total_runtime += delta;
         ++m_rank_log[rank].count;
-#ifdef GEOPM_DEBUG
-        if (geopm_time_diff(&m_rank_log[rank].enter_time, &M_TIME_ZERO) != 0.0) {
-            throw Exception("KruntimeRegulator::record_exit(): wtf", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-
     }
 
     std::vector<double> KruntimeRegulator::per_rank_last_runtime(void) const
@@ -98,9 +96,9 @@ namespace geopm
         return result;
     }
 
-    std::vector<size_t> KruntimeRegulator::per_rank_count(void) const
+    std::vector<double> KruntimeRegulator::per_rank_count(void) const
     {
-        std::vector<size_t> result(m_num_rank);
+        std::vector<double> result(m_num_rank);
         for (int rr = 0; rr < m_num_rank; ++rr) {
             result[rr] = m_rank_log[rr].count;
         }
