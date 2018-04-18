@@ -98,9 +98,9 @@ namespace geopm
         return result;
     }
 
-    std::vector<size_t> KruntimeRegulator::per_rank_count(void) const
+    std::vector<double> KruntimeRegulator::per_rank_count(void) const
     {
-        std::vector<size_t> result(m_num_rank);
+        std::vector<double> result(m_num_rank);
         for (int rr = 0; rr < m_num_rank; ++rr) {
             result[rr] = m_rank_log[rr].count;
         }

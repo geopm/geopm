@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include "EpochRuntimeRegulator.hpp"
 #include "KprofileIOSample.hpp"
 #include "ProfileIO.hpp"
 #include "CircularBuffer.hpp"
@@ -44,8 +45,9 @@
 
 namespace geopm
 {
-    KprofileIOSample::KprofileIOSample(const std::vector<int> &cpu_rank)
-        : m_epoch_start_time{{0, 0}}
+    KprofileIOSample::KprofileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator)
+        : m_seen_first_epoch(false)
+        , m_epoch_regulator(epoch_regulator)
     {
         // This object is created when app connects
         geopm_time(&m_app_start_time);
@@ -74,9 +76,7 @@ namespace geopm
             dump_file << "rank: " << sample_it->second.rank << " rid: " << sample_it->second.region_id
                       << " progress: " << sample_it->second.progress << std::endl;
 
-            if (!geopm_region_id_is_epoch(sample_it->second.region_id) &&
-                sample_it->second.region_id != GEOPM_REGION_ID_UNMARKED) {
-
+            if (sample_it->second.region_id != GEOPM_REGION_ID_UNMARKED) {
                 auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG
                 if (rank_idx_it == m_rank_idx_map.end()) {
@@ -86,46 +86,41 @@ namespace geopm
 #endif
                 size_t local_rank = rank_idx_it->second;
                 uint64_t region_id = sample_it->second.region_id;
-                struct m_rank_sample_s rank_sample {
-                    .timestamp = sample_it->second.timestamp,
-                    .progress = sample_it->second.progress
-                };
-                auto rid_it = m_rid_regulator_map.find(region_id);
-                if (rid_it == m_rid_regulator_map.end()) {
-                    auto tmp = m_rid_regulator_map.emplace(
-                                   std::pair<uint64_t, std::unique_ptr<IKruntimeRegulator> >(
-                                       region_id, geopm::make_unique<KruntimeRegulator>(m_num_rank)));
-                    rid_it = tmp.first;
-                }
-                if (m_region_id[local_rank] != region_id) {
-                    if (rank_sample.progress == 0.0) {
-                        rid_it->second->record_entry(local_rank, rank_sample.timestamp);
-                        m_region_entry_exit.emplace_back(region_id, rank_sample.progress);
-                    }
-                    m_rank_sample_buffer[local_rank].clear();
-                }
-                if (rank_sample.progress == 1.0) {
-                    rid_it->second->record_exit(local_rank, rank_sample.timestamp);
-                    m_region_entry_exit.emplace_back(region_id, rank_sample.progress);
-                    uint64_t mpi_parent_rid = geopm_region_id_unset_mpi(region_id);
-                    if (geopm_region_id_is_mpi(region_id) &&
-                        m_rid_regulator_map.find(mpi_parent_rid) != m_rid_regulator_map.end()) {
-                        m_region_id[local_rank] = mpi_parent_rid;
+                if (geopm_region_id_is_epoch(region_id)) {
+                    if (m_seen_first_epoch) {
+                        m_epoch_regulator.record_exit(GEOPM_REGION_ID_EPOCH, local_rank, sample_it->second.timestamp);
                     }
                     else {
-                        m_region_id[local_rank] = GEOPM_REGION_ID_UNMARKED;
+                        m_seen_first_epoch = true;
                     }
+                    m_epoch_regulator.record_entry(GEOPM_REGION_ID_EPOCH, local_rank, sample_it->second.timestamp);
                 }
                 else {
-                    m_region_id[local_rank] = region_id;
+                    struct m_rank_sample_s rank_sample { .timestamp = sample_it->second.timestamp,
+                                                         .progress = sample_it->second.progress };
+                    if (m_region_id[local_rank] != region_id) {
+                        if (rank_sample.progress == 0.0) {
+                            m_epoch_regulator.record_entry(region_id, local_rank, rank_sample.timestamp);
+                        }
+                        m_rank_sample_buffer[local_rank].clear();
+                    }
+                    if (rank_sample.progress == 1.0) {
+                        m_epoch_regulator.record_exit(region_id, local_rank, rank_sample.timestamp);
+                        uint64_t mpi_parent_rid = geopm_region_id_unset_mpi(region_id);
+                        try {
+                            m_epoch_regulator.region_regulator(mpi_parent_rid);
+                            m_region_id[local_rank] = mpi_parent_rid;
+                        }
+                        catch (Exception ex) {
+                            m_region_id[local_rank] = GEOPM_REGION_ID_UNMARKED;
+                        }
+                    }
+                    else {
+                        m_region_id[local_rank] = region_id;
+                    }
+                    dump_file << "rank rid set to " << m_region_id[local_rank] << std::endl;
+                    m_rank_sample_buffer[local_rank].insert(rank_sample);
                 }
-                dump_file << "rank rid set to " << m_region_id[local_rank] << std::endl;
-                m_rank_sample_buffer[local_rank].insert(rank_sample);
-            }
-            struct geopm_time_s zero {0, 0};
-            if (geopm_region_id_is_epoch(sample_it->second.region_id) &&
-                geopm_time_diff(&m_epoch_start_time, &zero) == 0) {
-                geopm_time(&m_epoch_start_time);
             }
         }
         dump_file.close();
@@ -214,46 +209,20 @@ namespace geopm
     std::vector<double> KprofileIOSample::per_cpu_runtime(uint64_t region_id) const
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
-        auto regulator_it = m_rid_regulator_map.find(region_id);
-        if (regulator_it != m_rid_regulator_map.end()) {
-            const std::vector<double> &rank_runtimes = regulator_it->second->per_rank_last_runtime();
-            int cpu_idx = 0;
-            for (auto rank : m_cpu_rank) {
+        const std::vector<double> &rank_runtimes = m_epoch_regulator.region_regulator(region_id).per_rank_last_runtime();
+        int cpu_idx = 0;
+        for (auto rank : m_cpu_rank) {
 #ifdef GEOPM_DEBUG
-                if (rank >= (int)rank_runtimes.size()) {
-                    throw Exception("KprofileIOSample::per_cpu_runtime: node-local rank "
-                                    "for rank " + std::to_string(rank) + " not found in map.",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
-#endif
-                result[cpu_idx] = rank_runtimes[rank];
-                ++cpu_idx;
+            if (rank >= (int)rank_runtimes.size()) {
+                throw Exception("KprofileIOSample::per_cpu_runtime: node-local rank "
+                                "for rank " + std::to_string(rank) + " not found in map.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
+#endif
+            result[cpu_idx] = rank_runtimes[rank];
+            ++cpu_idx;
         }
         return result;
-    }
-
-    double KprofileIOSample::total_region_runtime(uint64_t region_id) const
-    {
-        double result = 0.0;
-        auto regulator_it = m_rid_regulator_map.find(region_id);
-        if (regulator_it != m_rid_regulator_map.end()) {
-            result = IPlatformIO::agg_average(regulator_it->second->per_rank_total_runtime());
-        }
-        return result;
-    }
-
-    double KprofileIOSample::total_region_mpi_time(uint64_t region_id) const
-    {
-        region_id = geopm_region_id_set_mpi(region_id);
-        return total_region_runtime(region_id);
-    }
-
-    double KprofileIOSample::total_epoch_runtime(void) const
-    {
-        geopm_time_s curr_time{{0, 0}};
-        geopm_time(&curr_time);
-        return geopm_time_diff(&m_epoch_start_time, &curr_time);
     }
 
     double KprofileIOSample::total_app_runtime(void) const
@@ -265,20 +234,7 @@ namespace geopm
 
     double KprofileIOSample::total_app_mpi_time(void) const
     {
-        return NAN;
-    }
-
-    int KprofileIOSample::total_count(uint64_t region_id) const
-    {
-        int result = 0;
-        auto regulator_it = m_rid_regulator_map.find(region_id);
-        if (regulator_it != m_rid_regulator_map.end()) {
-            auto rank_count = regulator_it->second->per_rank_count();
-            if (rank_count.size() != 0) {
-                result = *std::max_element(rank_count.begin(), rank_count.end());
-            }
-        }
-        return result;
+        return m_epoch_regulator.total_region_runtime(GEOPM_REGION_ID_MPI);
     }
 
     std::list<std::pair<uint64_t, double> > KprofileIOSample::region_entry_exit(void) const
