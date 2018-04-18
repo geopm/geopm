@@ -44,6 +44,7 @@ namespace geopm
     class IKprofileIOSample;
     class IPlatformTopo;
 
+    /// @brief IOGroup that provides signals from the application.
     class KprofileIOGroup : public IOGroup
     {
         public:
