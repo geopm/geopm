@@ -69,7 +69,6 @@ namespace geopm
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
             int do_trace(void) const;
-            int do_ignore_affinity() const;
             int do_profile() const;
             int profile_timeout(void) const;
             int debug_attach(void) const;
@@ -89,7 +88,6 @@ namespace geopm
             int m_pmpi_ctl;
             bool m_do_region_barrier;
             bool m_do_trace;
-            bool m_do_ignore_affinity;
             bool m_do_profile;
             int m_profile_timeout;
             int m_debug_attach;
@@ -126,7 +124,6 @@ namespace geopm
         m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
         m_do_region_barrier = false;
         m_do_trace = false;
-        m_do_ignore_affinity = false;
         m_do_profile = false;
         m_profile_timeout = 30;
         m_debug_attach = -1;
@@ -148,7 +145,6 @@ namespace geopm
             m_report_verbosity = 1;
         }
         m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
-        m_do_ignore_affinity = get_env("GEOPM_ERROR_AFFINITY_IGNORE", tmp_str);
         (void)get_env("GEOPM_PROFILE_TIMEOUT", m_profile_timeout);
         if (get_env("GEOPM_PMPI_CTL", tmp_str)) {
             if (tmp_str == "process") {
@@ -262,11 +258,6 @@ namespace geopm
         return m_do_trace;
     }
 
-    int Environment::do_ignore_affinity(void) const
-    {
-        return m_do_ignore_affinity;
-    }
-
     int Environment::do_profile(void) const
     {
         return m_do_profile;
@@ -353,11 +344,6 @@ extern "C"
     int geopm_env_do_trace(void)
     {
         return geopm::environment().do_trace();
-    }
-
-    int geopm_env_do_ignore_affinity(void)
-    {
-        return geopm::environment().do_ignore_affinity();
     }
 
     int geopm_env_do_profile(void)

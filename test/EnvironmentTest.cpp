@@ -64,7 +64,6 @@ class EnvironmentTest: public :: testing :: Test
         int m_pmpi_ctl;
         bool m_do_region_barrier;
         bool m_do_trace;
-        bool m_do_ignore_affinity;
         bool m_do_profile;
         int m_profile_timeout;
         int m_debug_attach;
@@ -82,7 +81,6 @@ void EnvironmentTest::SetUp()
     m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
     m_do_region_barrier = false;
     m_do_trace = false;
-    m_do_ignore_affinity = false;
     m_do_profile = false;
     m_profile_timeout = 30;
     m_debug_attach = -1;
@@ -95,7 +93,6 @@ void EnvironmentTest::SetUp()
     unsetenv("GEOPM_PLUGIN_PATH");
     unsetenv("GEOPM_REPORT_VERBOSITY");
     unsetenv("GEOPM_REGION_BARRIER");
-    unsetenv("GEOPM_ERROR_AFFINITY_IGNORE");
     unsetenv("GEOPM_PROFILE_TIMEOUT");
     unsetenv("GEOPM_PMPI_CTL");
     unsetenv("GEOPM_DEBUG_ATTACH");
@@ -115,7 +112,6 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
     setenv("GEOPM_REPORT_VERBOSITY", std::to_string(m_report_verbosity).c_str(), 1);
     setenv("GEOPM_REGION_BARRIER", "", 1);
-    setenv("GEOPM_ERROR_AFFINITY_IGNORE", "", 1);
     setenv("GEOPM_PROFILE_TIMEOUT", std::to_string(m_profile_timeout).c_str(), 1);
     m_pmpi_ctl_str = std::string("process");
     m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
@@ -135,7 +131,6 @@ TEST_F(EnvironmentTest, construction0)
     EXPECT_EQ(m_pmpi_ctl, geopm_env_pmpi_ctl());
     EXPECT_EQ(1, geopm_env_do_region_barrier());
     EXPECT_EQ(1, geopm_env_do_trace());
-    EXPECT_EQ(1, geopm_env_do_ignore_affinity());
     EXPECT_EQ(1, geopm_env_do_profile());
     EXPECT_EQ(m_profile_timeout, geopm_env_profile_timeout());
     EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
@@ -149,7 +144,6 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
     setenv("GEOPM_REPORT_VERBOSITY", std::to_string(m_report_verbosity).c_str(), 1);
     //setenv("GEOPM_REGION_BARRIER", "", 1);
-    //setenv("GEOPM_ERROR_AFFINITY_IGNORE", "", 1);
     setenv("GEOPM_PROFILE_TIMEOUT", std::to_string(m_profile_timeout).c_str(), 1);
     m_pmpi_ctl_str = std::string("pthread");
     m_pmpi_ctl = GEOPM_PMPI_CTL_PTHREAD;
@@ -171,9 +165,7 @@ TEST_F(EnvironmentTest, construction1)
     EXPECT_EQ(m_pmpi_ctl, geopm_env_pmpi_ctl());
     EXPECT_EQ(0, geopm_env_do_region_barrier());
     EXPECT_EQ(1, geopm_env_do_trace());
-    EXPECT_EQ(0, geopm_env_do_ignore_affinity());
     EXPECT_EQ(1, geopm_env_do_profile());
     EXPECT_EQ(m_profile_timeout, geopm_env_profile_timeout());
     EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
 }
-

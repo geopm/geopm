@@ -215,15 +215,8 @@ namespace geopm
         if (!m_shm_rank) {
             for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
                 if (m_ctl_msg->cpu_rank(i) == -2) {
-                    if (geopm_env_do_ignore_affinity()) {
-                        for (int j = 0; j < shm_num_rank; ++j) {
-                            m_ctl_msg->cpu_rank(j, j);
-                        }
-                        break;
-                    }
-                    else {
-                        throw Exception("Profile: set GEOPM_ERROR_AFFINITY_IGNORE to ignore error", GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
-                    }
+                    throw Exception("Profile: cpu_rank not initialized correctly.",
+                                    GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
                 }
             }
         }
