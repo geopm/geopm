@@ -80,28 +80,6 @@ namespace geopm
 
     }
 
-    void KruntimeRegulator::insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry)
-    {
-        double last_avg = 0.0;
-        double sum = 0.0;
-        int num_vals = 0;
-        for (auto &val : m_rank_log) {
-            sum += val.last_runtime;
-            if (val.last_runtime != 0.0) {
-                ++num_vals;
-            }
-        }
-
-        if (num_vals) {
-            last_avg = sum / num_vals;
-        }
-
-        /// @todo proper domain averaging
-        for (auto &domain_tel : telemetry) {
-            domain_tel.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = last_avg;
-        }
-    }
-
     std::vector<double> KruntimeRegulator::per_rank_last_runtime(void) const
     {
         std::vector<double> result(m_num_rank);
@@ -127,26 +105,5 @@ namespace geopm
             result[rr] = m_rank_log[rr].count;
         }
         return result;
-    }
-
-    MPIKruntimeRegulator::MPIKruntimeRegulator(int num_rank)
-        : KruntimeRegulator(num_rank)
-    {
-
-    }
-
-    void MPIKruntimeRegulator::insert_runtime_signal(std::vector<struct geopm_telemetry_message_s> &telemetry)
-    {
-        double last_avg = 0.0;
-        double sum = 0.0;
-        for (auto &val : m_rank_log) {
-            sum += val.last_runtime;
-        }
-        last_avg = sum / m_num_rank;
-
-        /// @todo proper domain averaging
-        for (auto &domain_tel : telemetry) {
-            domain_tel.signal[GEOPM_TELEMETRY_TYPE_RUNTIME] = last_avg;
-        }
     }
 }

@@ -91,9 +91,28 @@ namespace geopm
             /// @param [in] domain_idx Domain over which the region ID
             ///        should be sampled. This must match the domain
             ///        index of the signal.
+            /// @return Index of signal when sample() method is called
+            ///         or M_DOMAIN_INVALID if the signal is not valid
+            ///         on the platform.
             virtual int push_region_signal(int signal_idx,
                                            int domain_type,
                                            int domain_idx) = 0;
+            /// @brief Push a signal that aggregated values sampled
+            ///        from other signals.  The aggregation function
+            ///        used if determined by a call to agg_function()
+            ///        with the given signal name.
+            /// @param [in] signal_name Name of the signal requested.
+            /// @param [in] domain_type One of the values from the
+            ///        m_domain_e enum described in PlatformTopo.hpp.
+            /// @param [in] domain_idx The index of the domain within
+            ///        the set of domains of the same type on the
+            ///        platform.
+            /// @param [in] sub_signal_idx Vector of previously pushed
+            ///        signals whose values will be used to generate
+            ///        the combined signal.
+            /// @return Index of signal when sample() method is called
+            ///         or M_DOMAIN_INVALID if the signal is not valid
+            ///         on the platform.
             virtual int push_combined_signal(const std::string &signal_name,
                                              int domain_type,
                                              int domain_idx,
@@ -177,16 +196,41 @@ namespace geopm
                                        int domain_type,
                                        int domain_idx,
                                        double setting) = 0;
-
+            /// @brief Returns a function appropriate for aggregating
+            ///        multiple values of the given signal into a
+            ///        single value.
+            /// @param [in] signal_name Name of the signal.
+            /// @return A function from vector<double> to double.
             virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) = 0;
+            /// @brief Returns the sum of the input operands.
             static double agg_sum(const std::vector<double> &operand);
+            /// @brief Returns the average of the input operands.
             static double agg_average(const std::vector<double> &operand);
+            /// @brief Returns the median of the input operands.
             static double agg_median(const std::vector<double> &operand);
+            /// @brief Returns the output of AND over all the operands
+            ///        where 0.0 is false and all other values are
+            ///        true.
             static double agg_and(const std::vector<double> &operand);
+            /// @brief Returns the output of OR over all the operands
+            ///        where 0.0 is false and all other values are
+            ///        true.
             static double agg_or(const std::vector<double> &operand);
+            /// @brief Returns the minimum value from the input
+            ///        operands.
             static double agg_min(const std::vector<double> &operand);
+            /// @brief Returns the maximum value from the input
+            ///        operands.
             static double agg_max(const std::vector<double> &operand);
+            /// @brief Returns the standard deviation of the input
+            ///        operands.
             static double agg_stddev(const std::vector<double> &operand);
+            /// @brief If all operands are the same, returns that
+            ///        value.  Otherwise, returns
+            ///        GEOPM_REGION_ID_UNMARKED.  This is intended for
+            ///        situations where all ranks in a domain must be
+            ///        in the same region to exert control for that
+            ///        region.
             static double agg_region_id(const std::vector<double> &operand);
             /// @brief Structure describing the values required to
             ///        push a signal or control.
