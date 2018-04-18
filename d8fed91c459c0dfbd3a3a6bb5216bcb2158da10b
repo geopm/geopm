@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "776ac6ce_fef4fab4",
+        "filename": "src/KprofileIOSample.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-18T16:46:02Z",
+      "side": 1,
+      "message": "std::list?",
+      "range": {
+        "startLine": 63,
+        "startChar": 20,
+        "endLine": 63,
+        "endChar": 31
+      },
+      "revId": "d8fed91c459c0dfbd3a3a6bb5216bcb2158da10b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
