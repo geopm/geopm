@@ -39,6 +39,24 @@
       "revId": "425f2e6a87acdf68743255bfddf1a4f56919dc0e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b21a442_d48ae914",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-18T01:20:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a64b436f_6a8add2d",
+      "revId": "425f2e6a87acdf68743255bfddf1a4f56919dc0e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
