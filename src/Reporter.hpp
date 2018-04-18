@@ -65,7 +65,7 @@ namespace geopm
     class Reporter : public IReporter
     {
         public:
-            Reporter(const std::string &report_name, IPlatformIO &platform_io);
+            Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank);
             virtual ~Reporter() = default;
             void generate(const std::string &agent_name,
                           const std::string &agent_report_header,
