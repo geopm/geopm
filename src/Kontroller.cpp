@@ -221,6 +221,7 @@ namespace geopm
     {
         m_platform_io.read_batch();
         m_tracer->update(true); // todo: what to do with is_epoch
+        m_agent[0]->sample_platform(m_out_sample);
 
         m_agent[0]->sample_platform(m_out_sample);
         for (int level = 0; level != m_num_level_ctl; ++level) {

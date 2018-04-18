@@ -35,14 +35,13 @@
 
 #include <vector>
 #include <map>
-#include <memory>
 
 #include "geopm_message.h"
 
 namespace geopm
 {
     template <typename T> class CircularBuffer;
-    class IKruntimeRegulator;
+    class IEpochRuntimeRegulator;
 
     class IKprofileIOSample
     {
@@ -56,30 +55,22 @@ namespace geopm
             virtual std::vector<uint64_t> per_cpu_region_id(void) const = 0;
             virtual std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const = 0;
             virtual std::vector<double> per_cpu_runtime(uint64_t region_id) const = 0;
-            virtual double total_region_runtime(uint64_t region_id) const = 0;
-            virtual double total_region_mpi_time(uint64_t region_id) const = 0;
-            virtual double total_epoch_runtime(void) const = 0;
             virtual double total_app_runtime(void) const = 0;
             virtual double total_app_mpi_time(void) const = 0;
-            virtual int total_count(uint64_t region_id) const = 0;
     };
 
     class KprofileIOSample : public IKprofileIOSample
     {
         public:
-            KprofileIOSample(const std::vector<int> &cpu_rank);
+            KprofileIOSample(IEpochRuntimeRegulator &epoch_regulator, const std::vector<int> &cpu_rank);
             virtual ~KprofileIOSample();
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
             std::vector<uint64_t> per_cpu_region_id(void) const override;
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
-            double total_region_runtime(uint64_t region_id) const override;
-            double total_region_mpi_time(uint64_t region_id) const override;
-            double total_epoch_runtime(void) const override;
             double total_app_runtime(void) const override;
             double total_app_mpi_time(void) const override;
-            int total_count(uint64_t region_id) const override;
         private:
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
@@ -94,6 +85,7 @@ namespace geopm
 
             struct geopm_time_s m_app_start_time;
             struct geopm_time_s m_epoch_start_time;
+            IEpochRuntimeRegulator &m_epoch_regulator;
             /// @brief A map from the MPI rank reported in the
             ///        ProfileSampler data to the node local rank
             ///        index.
@@ -109,8 +101,6 @@ namespace geopm
             ///        stored ProfileSampler data used for
             ///        extrapolation.
             std::vector<uint64_t> m_region_id;
-            std::map<uint64_t, std::unique_ptr<IKruntimeRegulator> > m_rid_regulator_map;
-
     };
 }
 

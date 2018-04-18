@@ -66,6 +66,7 @@ namespace geopm
     };
 
     class IProfileSampler;
+    class IEpochRuntimeRegulator;
     class IKprofileIOSample;
 
     class ApplicationIO : public IApplicationIO
@@ -102,6 +103,7 @@ namespace geopm
             bool m_do_shutdown;
             bool m_is_connected;
             int m_rank_per_node;
+            std::unique_ptr<IEpochRuntimeRegulator> m_epoch_regulator;
     };
 }
 

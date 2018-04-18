@@ -270,6 +270,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Decider.hpp \
                             src/DefaultProfile.cpp \
                             src/Environment.cpp \
+                            src/EpochRuntimeRegulator.cpp \
+                            src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
                             src/GlobalPolicy.cpp \

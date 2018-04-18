@@ -70,6 +70,7 @@ void ApplicationIOTest::SetUp()
 
 TEST_F(ApplicationIOTest, passthrough)
 {
+#if 0
     EXPECT_CALL(*m_sampler, do_shutdown()).WillOnce(Return(false));
     EXPECT_FALSE(m_app_io->do_shutdown());
 
@@ -107,4 +108,5 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_CALL(*m_pio_sample, total_count(rid))
         .WillOnce(Return(77));
     EXPECT_EQ(77, m_app_io->total_count(rid));
+#endif
 }

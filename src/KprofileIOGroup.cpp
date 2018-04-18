@@ -33,6 +33,8 @@
 
 #include "KprofileIOGroup.hpp"
 #include "PlatformTopo.hpp"
+#include "EpochRuntimeRegulator.hpp"
+#include "KruntimeRegulator.hpp"
 #include "KprofileIOSample.hpp"
 #include "Exception.hpp"
 #include "geopm_hash.h"
@@ -42,23 +44,33 @@
 
 namespace geopm
 {
-    KprofileIOGroup::KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample)
-        : KprofileIOGroup(profile_sample, platform_topo())
+    KprofileIOGroup::KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
+                                     IEpochRuntimeRegulator &epoch_regulator)
+        : KprofileIOGroup(profile_sample, epoch_regulator, platform_topo())
     {
 
     }
 
     KprofileIOGroup::KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
+                                     IEpochRuntimeRegulator &epoch_regulator,
                                      IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
+        , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {"REGION_ID#", M_SIGNAL_REGION_ID},
                            {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
+                           {plugin_name() + "::EPOCH_TIME", M_SIGNAL_EPOCH_TIME},
+                           {"EPOCH_TIME", M_SIGNAL_EPOCH_TIME},
+                           {plugin_name() + "::EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
+                           {"EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
                            {plugin_name() + "::REGION_RUNTIME", M_SIGNAL_RUNTIME},
                            {"REGION_RUNTIME", M_SIGNAL_RUNTIME}}
         , m_platform_topo(topo)
+        , m_do_read(M_SIGNAL_MAX, false)
         , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
+        , m_epoch_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_epoch_count(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
     {
 
     }
@@ -113,20 +125,10 @@ namespace geopm
         if (result == -1) {
             result = m_active_signal.size();
             m_active_signal.push_back({signal_type, domain_type, domain_idx});
-            switch (signal_type) {
-                case M_SIGNAL_REGION_ID:
-                    m_do_read_region_id = true;
-                    break;
-                case M_SIGNAL_PROGRESS:
-                    m_do_read_progress = true;
-                    break;
-                case M_SIGNAL_RUNTIME:
-                    // Runtime signal requires region_id as well
-                    m_do_read_region_id = true;
-                    m_do_read_runtime = true;
-                    break;
-                default:
-                    break;
+            m_do_read[signal_type] = true;
+            // Runtime signal requires region_id as well
+            if (signal_type == M_SIGNAL_RUNTIME) {
+                m_do_read[M_SIGNAL_REGION_ID] = true;
             }
         }
         return result;
@@ -140,15 +142,21 @@ namespace geopm
 
     void KprofileIOGroup::read_batch(void)
     {
-        if (m_do_read_region_id) {
+        if (m_do_read[M_SIGNAL_REGION_ID]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
         }
-        if (m_do_read_progress) {
+        if (m_do_read[M_SIGNAL_PROGRESS]) {
             struct geopm_time_s read_time;
             geopm_time(&read_time);
             m_per_cpu_progress = m_profile_sample->per_cpu_progress(read_time);
         }
-        if (m_do_read_runtime) {
+        if (m_do_read[M_SIGNAL_EPOCH_TIME]) {
+            m_epoch_runtime = m_epoch_regulator.region_regulator(GEOPM_REGION_ID_EPOCH).per_rank_last_runtime();
+        }
+        if (m_do_read[M_SIGNAL_EPOCH_COUNT]) {
+            m_epoch_count = m_epoch_regulator.region_regulator(GEOPM_REGION_ID_EPOCH).per_rank_count();
+        }
+        if (m_do_read[M_SIGNAL_RUNTIME]) {
             std::map<uint64_t, std::vector<double> > cache;
             for (auto rid : m_per_cpu_region_id) {
                 // add runtimes for each region if not already present
@@ -192,6 +200,12 @@ namespace geopm
             case M_SIGNAL_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
                 break;
+            case M_SIGNAL_EPOCH_TIME:
+                result = m_epoch_runtime[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_COUNT:
+                result = m_epoch_count[cpu_idx];
+                break;
             case M_SIGNAL_RUNTIME:
                 result = m_per_cpu_runtime[cpu_idx];
                 break;
@@ -227,6 +241,12 @@ namespace geopm
             case M_SIGNAL_PROGRESS:
                 geopm_time(&read_time);
                 result = m_profile_sample->per_cpu_progress(read_time)[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_TIME:
+                result = m_epoch_regulator.last_epoch_time()[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_COUNT:
+                result = m_epoch_regulator.region_regulator(GEOPM_REGION_ID_EPOCH).per_rank_count()[cpu_idx];
                 break;
             case M_SIGNAL_RUNTIME:
                 region_id = m_profile_sample->per_cpu_region_id()[cpu_idx];
