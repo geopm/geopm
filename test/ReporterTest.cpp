@@ -74,11 +74,8 @@ class ReporterTest : public testing::Test
     protected:
         enum {
             M_ENERGY_IDX,
-            M_REGION_ENERGY_IDX,
             M_CLK_CORE_IDX,
             M_CLK_REF_IDX,
-            M_REGION_CLK_CORE_IDX,
-            M_REGION_CLK_REF_IDX,
         };
         ReporterTest();
         void TearDown(void);
@@ -127,16 +124,13 @@ ReporterTest::ReporterTest()
 
     EXPECT_CALL(m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
         .WillOnce(Return(M_ENERGY_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal(M_ENERGY_IDX, _, _))
-        .WillOnce(Return(M_REGION_ENERGY_IDX));
+    EXPECT_CALL(m_platform_io, push_region_signal_total(M_ENERGY_IDX, _, _));
     EXPECT_CALL(m_platform_io, push_signal("CYCLES_REFERENCE", _, _))
         .WillOnce(Return(M_CLK_REF_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal(M_CLK_REF_IDX, _, _))
-        .WillOnce(Return(M_REGION_CLK_REF_IDX));
+    EXPECT_CALL(m_platform_io, push_region_signal_total(M_CLK_REF_IDX, _, _));
     EXPECT_CALL(m_platform_io, push_signal("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal(M_CLK_CORE_IDX, _, _))
-        .WillOnce(Return(M_REGION_CLK_CORE_IDX));
+    EXPECT_CALL(m_platform_io, push_region_signal_total(M_CLK_CORE_IDX, _, _));
 
     m_comm = std::make_shared<ReporterTestMockComm>();
     m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, 0);
@@ -171,15 +165,15 @@ TEST_F(ReporterTest, generate)
     }
 
     for (auto rid : m_region_energy) {
-        EXPECT_CALL(m_platform_io, region_sample(M_REGION_ENERGY_IDX, rid.first))
+        EXPECT_CALL(m_platform_io, sample_region_total(M_ENERGY_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_core) {
-        EXPECT_CALL(m_platform_io, region_sample(M_REGION_CLK_CORE_IDX, rid.first))
+        EXPECT_CALL(m_platform_io, sample_region_total(M_CLK_CORE_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_ref) {
-        EXPECT_CALL(m_platform_io, region_sample(M_REGION_CLK_REF_IDX, rid.first))
+        EXPECT_CALL(m_platform_io, sample_region_total(M_CLK_REF_IDX, rid.first))
             .WillOnce(Return(rid.second));
     }
     EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));

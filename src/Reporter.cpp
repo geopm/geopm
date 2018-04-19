@@ -61,12 +61,12 @@ namespace geopm
         : m_report_name(report_name)
         , m_platform_io(platform_io)
     {
-        int energy = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_idx = m_platform_io.push_region_signal(energy, IPlatformTopo::M_DOMAIN_BOARD, 0);
-        int clk_core = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        int clk_ref = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_core_idx = m_platform_io.push_region_signal(clk_core, IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_ref_idx = m_platform_io.push_region_signal(clk_ref, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_platform_io.push_region_signal_total(m_energy_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_core_idx = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_ref_idx = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_platform_io.push_region_signal_total(m_clk_core_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_platform_io.push_region_signal_total(m_clk_ref_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
 
         if (!rank) {
             // check if report file can be created
@@ -118,11 +118,17 @@ namespace geopm
             /// for unmarked, epoch, use existing strings and high-order bits for hash
             /// these two special regions go at the end
             uint64_t region_id = geopm_crc32_str(0, region.c_str());
+            /// @todo If the user defines a region with a name that
+            /// starts with MPI_ it will not be properly accounted for
+            /// in the report.
+            if (region.find("MPI_") == 0) {
+                region_id = geopm_region_id_set_mpi(region_id);
+            }
             report << "Region " << region << " (" << region_id << "):" << std::endl;
             report << "\truntime (sec): " << application_io.total_region_runtime(region_id) << std::endl;
-            report << "\tenergy (joules): " << m_platform_io.region_sample(m_energy_idx, region_id) << std::endl; // from platformio
-            double numer = m_platform_io.region_sample(m_clk_core_idx, region_id);
-            double denom = m_platform_io.region_sample(m_clk_ref_idx, region_id);
+            report << "\tenergy (joules): " << m_platform_io.sample_region_total(m_energy_idx, region_id) << std::endl;
+            double numer = m_platform_io.sample_region_total(m_clk_core_idx, region_id);
+            double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region_id);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "\tfrequency (%): " << freq << std::endl;
             report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;

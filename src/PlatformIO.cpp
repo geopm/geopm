@@ -225,10 +225,10 @@ namespace geopm
         m_combined_signal[signal_idx] = std::move(tmp);
     }
 
-    int PlatformIO::push_region_signal(int signal_idx, int domain_type, int domain_idx)
+    void PlatformIO::push_region_signal_total(int signal_idx, int domain_type, int domain_idx)
     {
-        /// @todo push region ID signal for given domain, then save mapping to be used by sample_region
-        return -1;
+        int rid_idx = push_signal("REGION_ID#", domain_type, domain_idx);
+        m_region_id_idx[signal_idx] = rid_idx;
     }
 
     int PlatformIO::push_control(const std::string &control_name,
@@ -271,6 +271,7 @@ namespace geopm
 
     double PlatformIO::sample(int signal_idx)
     {
+        /// @todo can sample be called before read_batch()?
         double result = NAN;
         if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("PlatformIO::sample(): signal_idx out of range",
@@ -286,10 +287,16 @@ namespace geopm
         return result;
     }
 
-    double PlatformIO::region_sample(int signal_idx, uint64_t region_id)
+    double PlatformIO::sample_region_total(int signal_idx, uint64_t region_id)
     {
-        /// @todo implement me
-        return NAN;
+        double current_value = 0.0;
+        uint64_t curr_rid = geopm_signal_to_field(sample(m_region_id_idx.at(signal_idx)));
+        const auto &data =  m_region_sample_data[std::make_pair(signal_idx, region_id)];
+        // if currently in this region, add current value to total
+        if (region_id == curr_rid && !isnan(data.last_entry_value)) {
+            current_value = sample(signal_idx) - data.last_entry_value;
+        }
+        return current_value + data.total;
     }
 
     double PlatformIO::sample_combined(int signal_idx)
@@ -322,6 +329,29 @@ namespace geopm
     {
         for (auto &it : m_iogroup_list) {
             it->read_batch();
+        }
+        // aggregate region totals
+        for (const auto &it : m_region_id_idx) {
+            double value = sample(it.first);
+            uint64_t region_id = geopm_signal_to_field(sample(it.second));
+            // first time sampling this signal
+            if (m_last_region_id.find(it.first) == m_last_region_id.end()) {
+                m_last_region_id[it.first] = region_id;
+                // set start value for first region to be recording this signal
+                m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+            }
+            else {
+                uint64_t last_rid = m_last_region_id[it.first];
+                // region boundary
+                if (region_id != last_rid) {
+                    // add entry to new region
+                    m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+                    // update total for previous region
+                    m_region_sample_data[std::make_pair(it.first, last_rid)].total +=
+                        value - m_region_sample_data.at(std::make_pair(it.first, last_rid)).last_entry_value;
+                    m_last_region_id[it.first] = region_id;
+                }
+            }
         }
         m_is_active = true;
     }

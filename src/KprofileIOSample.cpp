@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include "geopm.h"
 #include "KprofileIOSample.hpp"
 #include "ProfileIO.hpp"
 #include "CircularBuffer.hpp"
@@ -85,7 +86,7 @@ namespace geopm
                 }
 #endif
                 size_t local_rank = rank_idx_it->second;
-                uint64_t region_id = sample_it->second.region_id;
+                uint64_t region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, sample_it->second.region_id);
                 struct m_rank_sample_s rank_sample {
                     .timestamp = sample_it->second.timestamp,
                     .progress = sample_it->second.progress
