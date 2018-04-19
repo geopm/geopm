@@ -35,6 +35,7 @@
 #include <fstream>
 
 #include "geopm.h"
+
 #include "EpochRuntimeRegulator.hpp"
 #include "KprofileIOSample.hpp"
 #include "ProfileIO.hpp"

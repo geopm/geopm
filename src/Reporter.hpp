@@ -55,6 +55,7 @@ namespace geopm
         public:
             IReporter() = default;
             virtual ~IReporter() = default;
+            virtual void init(void) = 0;
             virtual void generate(const std::string &agent_name,
                                   const std::string &agent_report_header,
                                   const std::string &agent_node_report,
@@ -69,6 +70,7 @@ namespace geopm
         public:
             Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank);
             virtual ~Reporter() = default;
+            void init(void) override;
             void generate(const std::string &agent_name,
                           const std::string &agent_report_header,
                           const std::string &agent_node_report,
@@ -81,6 +83,7 @@ namespace geopm
 
             std::string m_report_name;
             IPlatformIO &m_platform_io;
+            int m_rank;
             int m_energy_idx;
             int m_clk_core_idx;
             int m_clk_ref_idx;
