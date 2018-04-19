@@ -287,12 +287,10 @@ namespace geopm
         size_t header_offset = 0;
 
         if (!m_is_name_finished) {
-            if (name_set.empty()) {
-                m_report_name = (char *)m_table_shmem->pointer();
-                header_offset += m_report_name.length() + 1;
-                m_prof_name = (char *)m_table_shmem->pointer() + header_offset;
-                header_offset += m_prof_name.length() + 1;
-            }
+            m_report_name = (char *)m_table_shmem->pointer();
+            header_offset += m_report_name.length() + 1;
+            m_prof_name = (char *)m_table_shmem->pointer() + header_offset;
+            header_offset += m_prof_name.length() + 1;
             m_is_name_finished = m_table->name_set(header_offset, name_set);
         }
 
