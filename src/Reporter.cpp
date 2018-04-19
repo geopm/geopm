@@ -44,6 +44,7 @@
 #include "PlatformTopo.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
+#include "TreeComm.hpp"
 #include "Exception.hpp"
 #include "geopm_hash.h"
 #include "geopm_version.h"
@@ -85,9 +86,10 @@ namespace geopm
                             const std::string &agent_node_report,
                             const std::map<uint64_t, std::string> &agent_region_report,
                             const IApplicationIO &application_io,
-                            std::shared_ptr<IComm> comm)
+                            std::shared_ptr<IComm> comm,
+                            const ITreeComm &tree_comm)
     {
-        std::ofstream master_report(m_report_name);
+        std::ofstream master_report(application_io.report_name());
         if (!master_report.good()) {
             throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -126,16 +128,17 @@ namespace geopm
             report << "\tcount: " << application_io.total_count(region_id) << std::endl;
         }
 
+        double total_runtime = application_io.total_app_runtime();
         report << "Application Totals:" << std::endl
-               << "\truntime (sec): " << 34343 << std::endl
-               << "\tenergy (joules): " << 4545 << std::endl
-               << "\tmpi-runtime (sec): " << 565656 << std::endl
-               << "\tignore-time (sec): " << 66767 << std::endl
-               << "\tthrottle time (%): " << 78787 << std::endl;
+               << "\truntime (sec): " << total_runtime << std::endl
+               << "\tenergy (joules): " << -1 << std::endl
+               << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
+               << "\tignore-time (sec): " << -1 << std::endl
+               << "\tthrottle time (%): " << -1 << std::endl;
 
         std::string max_memory = get_max_memory();
         report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
-        report << "\tgeopmctl network BW (B/sec): " << 89898 << std::endl;
+        report << "\tgeopmctl network BW (B/sec): " << tree_comm.overhead_send() / total_runtime << std::endl;
 
         // aggregate reports from every node
         report.seekp(0, std::ios::end);

@@ -184,7 +184,8 @@ namespace geopm
                              agent_node_report.str(),
                              m_agent[0]->report_region(),
                              *m_application_io,
-                             m_comm);
+                             m_comm,
+                             *m_tree_comm);
         m_tracer->flush();
     }
 
