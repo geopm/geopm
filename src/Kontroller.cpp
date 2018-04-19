@@ -30,8 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "geopm_message.h"
@@ -160,6 +158,7 @@ namespace geopm
 
     void Kontroller::run(void)
     {
+        m_reporter->init();
         setup_trace();
         while (!m_application_io->do_shutdown()) {
             step();

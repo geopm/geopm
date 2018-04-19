@@ -36,6 +36,7 @@
 
 #include "geopm.h"
 #include "EpochRuntimeRegulator.hpp"
+#include "geopm.h"
 #include "KprofileIOSample.hpp"
 #include "ProfileIO.hpp"
 #include "CircularBuffer.hpp"

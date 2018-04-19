@@ -241,6 +241,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.push_control \
               test/gtest_links/PlatformIOTest.sample \
+              test/gtest_links/PlatformIOTest.sample_region_total \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.write_control \
