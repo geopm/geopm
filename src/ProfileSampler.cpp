@@ -229,6 +229,9 @@ namespace geopm
                 throw Exception("ProfileSampler::region_names(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
+        // report and profile names may have been inserted as region names
+        m_name_set.erase(m_report_name);
+        m_name_set.erase(m_profile_name);
         m_rank_sampler.front()->report_name(m_report_name);
         m_rank_sampler.front()->profile_name(m_profile_name);
         m_do_report = true;
