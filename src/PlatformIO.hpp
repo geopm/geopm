@@ -50,7 +50,7 @@ namespace geopm
         public:
             IPlatformIO() = default;
             virtual ~IPlatformIO() = default;
-            /// @brief Registers an IOGroup with the PlatformIO so 
+            /// @brief Registers an IOGroup with the PlatformIO so
             ///        that its signals and controls are available
             ///        through the PlatformIO interface.
             /// @param [in] iogroup Shared pointer to the IOGroup.
@@ -86,10 +86,18 @@ namespace geopm
                                     int domain_idx) = 0;
             /// @brief Push a previously registered signal to be
             ///        accumulated as a new per-region version of the
-            ///        signal.
+            ///        signal. Note that unlike other signals this is
+            ///        a total accumulated per region by subtracting
+            ///        the value of the signal at the region exit from
+            ///        the region entry.  Region entry and exit are
+            ///        not exact and are determined by the value of
+            ///        the REGION_ID# signal at the time of
+            ///        read_batch().  This aggregation should not be
+            ///        used for signals that are not monotonically
+            ///        increasing, such as frequency.
             /// @param [in] signal_idx Index returned by a previous
             ///        call to push_signal.  If the signal_idx is
-            ///        not a previously registered signal, this 
+            ///        not a previously registered signal, this
             ///        function throws.
             /// @param [in] domain_type Domain type over which the
             ///        region ID should be sampled. This must match
@@ -98,25 +106,9 @@ namespace geopm
             ///        should be sampled. This must match the domain
             ///        index of the signal.
             /// @return Index of signal when sample() method is called.
-            virtual int push_region_signal(int signal_idx,
-                                           int domain_type,
-                                           int domain_idx) = 0;
-            /// @brief Push a signal that aggregated values sampled
-            ///        from other signals.  The aggregation function
-            ///        used is determined by a call to agg_function()
-            ///        with the given signal name.
-            /// @param [in] signal_name Name of the signal requested.
-            /// @param [in] domain_type One of the values from the
-            ///        m_domain_e enum described in PlatformTopo.hpp.
-            /// @param [in] domain_idx The index of the domain within
-            ///        the set of domains of the same type on the
-            ///        platform.
-            /// @param [in] sub_signal_idx Vector of previously pushed
-            ///        signals whose values will be used to generate
-            ///        the combined signal.
-            /// @return Index of signal when sample() method is called
-            ///         or throws if the signal is not valid
-            ///         on the platform.
+            virtual void push_region_signal_total(int signal_idx,
+                                                  int domain_type,
+                                                  int domain_idx) = 0;
             virtual int push_combined_signal(const std::string &signal_name,
                                              int domain_type,
                                              int domain_idx,
@@ -147,12 +139,19 @@ namespace geopm
             /// @return Signal value measured from the platform in SI units.
             virtual double sample(int signal_idx) = 0;
             /// @brief Sample a signal that has been pushed to
-            ///        accumlate as per-region values.
+            ///        accumlate as per-region values.  Note that
+            ///        unlike other signals this is a total
+            ///        accumulated per region by subtracting the value
+            ///        of the signal at the region exit from the
+            ///        region entry.  Region entry and exit are not
+            ///        exact and are determined by the value of the
+            ///        REGION_ID# signal at the time of read_batch().
             /// @param [in] signal_idx Index returned by a previous call to
-            ///        push_region_signal.
+            ///        push_signal.  It must also have been passed to
+            ///        push_region_signal_total to start the accumlation.
             /// @param [in] region_id The region ID to look up data for.
             /// @return Total accumulated value for the signal for one region.
-            virtual double region_sample(int signal_idx, uint64_t region_id) = 0;
+            virtual double sample_region_total(int signal_idx, uint64_t region_id) = 0;
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.  This control will not
             ///        take effect until the next call to
