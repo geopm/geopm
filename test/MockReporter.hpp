@@ -40,6 +40,7 @@
 class MockReporter : public geopm::IReporter
 {
     public:
+        MOCK_METHOD0(init, void(void));
         MOCK_METHOD7(generate,
                      void(const std::string &agent_name,
                           const std::string &agent_report_header,
