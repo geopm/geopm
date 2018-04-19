@@ -40,6 +40,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
+#include "MockTreeComm.hpp"
 #include "Helper.hpp"
 #include "geopm_hash.h"
 #include "config.h"
@@ -86,6 +87,7 @@ class ReporterTest : public testing::Test
         MockPlatformIO m_platform_io;
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
+        MockTreeComm m_tree_comm;
         std::unique_ptr<Reporter> m_reporter;
         std::string m_profile_name = "my profile";
         std::set<std::string> m_region_set = {"all2all", "model-init"};
@@ -149,8 +151,12 @@ void check_report(std::istream &expected, std::istream &result);
 
 TEST_F(ReporterTest, generate)
 {
+    EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
     EXPECT_CALL(m_application_io, profile_name());
     EXPECT_CALL(m_application_io, region_name_set());
+    EXPECT_CALL(m_application_io, total_app_runtime()).WillOnce(Return(56));
+    EXPECT_CALL(m_application_io, total_app_mpi_runtime()).WillOnce(Return(45));
+    EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
     for (auto rid : m_region_runtime) {
         EXPECT_CALL(m_application_io, total_region_runtime(rid.first))
             .WillOnce(Return(rid.second));
@@ -203,19 +209,19 @@ TEST_F(ReporterTest, generate)
         "	mpi-runtime (sec): 5.6\n"
         "	count: 1\n"
         "Application Totals:\n"
-        "	runtime (sec):\n"
+        "	runtime (sec): 56\n"
         "	energy (joules):\n"
-        "	mpi-runtime (sec):\n"
+        "	mpi-runtime (sec): 45\n"
         "	ignore-time (sec):\n"
         "	throttle time (%):\n"
         "	geopmctl memory HWM:\n"
-        "	geopmctl network BW (B/sec):\n";
+        "	geopmctl network BW (B/sec): 678\n";
 
     std::istringstream exp_stream(expected);
 
     m_reporter->generate("my_agent", "agent_header", "node_report", {},
                          m_application_io,
-                         m_comm);
+                         m_comm, m_tree_comm);
     std::ifstream report(m_report_name);
     check_report(exp_stream, report);
 }

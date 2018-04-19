@@ -48,6 +48,7 @@ namespace geopm
     class IComm;
     class IApplicationIO;
     class IPlatformIO;
+    class ITreeComm;
 
     class IReporter
     {
@@ -59,7 +60,8 @@ namespace geopm
                                   const std::string &agent_node_report,
                                   const std::map<uint64_t, std::string> &agent_region_report,
                                   const IApplicationIO &application_io,
-                                  std::shared_ptr<IComm> comm) = 0;
+                                  std::shared_ptr<IComm> comm,
+                                  const ITreeComm &tree_comm) = 0;
     };
 
     class Reporter : public IReporter
@@ -72,7 +74,8 @@ namespace geopm
                           const std::string &agent_node_report,
                           const std::map<uint64_t, std::string> &agent_region_report,
                           const IApplicationIO &application_io,
-                          std::shared_ptr<IComm> comm) override;
+                          std::shared_ptr<IComm> comm,
+                          const ITreeComm &tree_comm) override;
         private:
             std::string get_max_memory(void);
 
