@@ -36,6 +36,9 @@
 #include <algorithm>
 #include <numeric>
 
+#include <iostream>
+#include <sstream>
+
 #include "geopm_sched.h"
 #include "geopm_message.h"
 #include "geopm_hash.h"
@@ -74,6 +77,25 @@ namespace geopm
                 register_iogroup(iogroup_factory().make_plugin(it));
             }
         }
+    }
+
+    PlatformIO::~PlatformIO()
+    {
+        std::set<uint64_t> region_id;
+
+        std::ostringstream oss;
+        oss << "All region-sample indices visited:" << std::endl;
+        for (auto kv : m_region_sample_data) {
+            region_id.insert(kv.first.second);
+            oss << kv.first.first << "," << kv.first.second
+                << ": total=" << kv.second.total << std::endl;
+        }
+        oss << "Region ID set: ";
+        for (auto rid : region_id) {
+            oss << rid << " ";
+        }
+        oss << std::endl;
+        std::cout << oss.str();
     }
 
     void PlatformIO::register_iogroup(std::shared_ptr<IOGroup> iogroup)
@@ -271,7 +293,6 @@ namespace geopm
 
     double PlatformIO::sample(int signal_idx)
     {
-        /// @todo can sample be called before read_batch()?
         double result = NAN;
         if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("PlatformIO::sample(): signal_idx out of range",
@@ -291,6 +312,7 @@ namespace geopm
     {
         double current_value = 0.0;
         uint64_t curr_rid = geopm_signal_to_field(sample(m_region_id_idx.at(signal_idx)));
+        curr_rid = geopm_region_id_hash(curr_rid);
         const auto &data =  m_region_sample_data[std::make_pair(signal_idx, region_id)];
         // if currently in this region, add current value to total
         if (region_id == curr_rid && !isnan(data.last_entry_value)) {
@@ -334,6 +356,7 @@ namespace geopm
         for (const auto &it : m_region_id_idx) {
             double value = sample(it.first);
             uint64_t region_id = geopm_signal_to_field(sample(it.second));
+            region_id = geopm_region_id_hash(region_id);
             // first time sampling this signal
             if (m_last_region_id.find(it.first) == m_last_region_id.end()) {
                 m_last_region_id[it.first] = region_id;
@@ -410,6 +433,7 @@ namespace geopm
             {"POWER", IPlatformIO::agg_sum},
             {"REGION_POWER", IPlatformIO::agg_sum},
             {"POWER_PACKAGE", IPlatformIO::agg_sum},
+            {"POWER_DRAM", IPlatformIO::agg_sum},
             {"FREQUENCY", IPlatformIO::agg_average},
             {"RUNTIME", IPlatformIO::agg_max},
             {"REGION_RUNTIME", IPlatformIO::agg_max},
@@ -418,6 +442,7 @@ namespace geopm
             {"ENERGY", IPlatformIO::agg_sum},
             {"REGION_ENERGY", IPlatformIO::agg_sum},
             {"ENERGY_PACKAGE", IPlatformIO::agg_sum},
+            {"ENERGY_DRAM", IPlatformIO::agg_sum},
             {"EPOCH_ENERGY", IPlatformIO::agg_sum},
             {"IS_CONVERGED", IPlatformIO::agg_and},
             {"IS_UPDATED", IPlatformIO::agg_and},
