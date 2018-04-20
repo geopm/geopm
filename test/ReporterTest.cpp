@@ -163,18 +163,28 @@ TEST_F(ReporterTest, generate)
         EXPECT_CALL(m_application_io, total_count(rid.first))
             .WillOnce(Return(rid.second));
     }
-
     for (auto rid : m_region_energy) {
         EXPECT_CALL(m_platform_io, sample_region_total(M_ENERGY_IDX, rid.first))
             .WillOnce(Return(rid.second));
+        EXPECT_CALL(m_platform_io,
+                    sample_region_total(M_ENERGY_IDX, geopm_region_id_set_mpi(rid.first)))
+            .WillOnce(Return(1.0));
     }
     for (auto rid : m_region_clk_core) {
         EXPECT_CALL(m_platform_io, sample_region_total(M_CLK_CORE_IDX, rid.first))
             .WillOnce(Return(rid.second));
+                EXPECT_CALL(m_platform_io,
+                    sample_region_total(M_CLK_CORE_IDX, geopm_region_id_set_mpi(rid.first)))
+            .WillOnce(Return(rid.second));
+
     }
     for (auto rid : m_region_clk_ref) {
         EXPECT_CALL(m_platform_io, sample_region_total(M_CLK_REF_IDX, rid.first))
             .WillOnce(Return(rid.second));
+        EXPECT_CALL(m_platform_io,
+                    sample_region_total(M_CLK_REF_IDX, geopm_region_id_set_mpi(rid.first)))
+            .WillOnce(Return(rid.second));
+
     }
     EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
     EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
@@ -192,13 +202,13 @@ TEST_F(ReporterTest, generate)
         "Host:\n"
         "Region all2all (\n"
         "	runtime (sec): 33.33\n"
-        "	energy (joules): 777\n"
+        "	energy (joules): 778\n"
         "	frequency (%): 81.81\n"
         "	mpi-runtime (sec): 3.4\n"
         "	count: 20\n"
         "Region model-init (\n"
         "	runtime (sec): 22.11\n"
-        "	energy (joules): 888\n"
+        "	energy (joules): 889\n"
         "	frequency (%): 84.84\n"
         "	mpi-runtime (sec): 5.6\n"
         "	count: 1\n"

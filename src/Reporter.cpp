@@ -126,9 +126,12 @@ namespace geopm
             }
             report << "Region " << region << " (" << region_id << "):" << std::endl;
             report << "\truntime (sec): " << application_io.total_region_runtime(region_id) << std::endl;
-            report << "\tenergy (joules): " << m_platform_io.sample_region_total(m_energy_idx, region_id) << std::endl;
-            double numer = m_platform_io.sample_region_total(m_clk_core_idx, region_id);
-            double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region_id);
+            report << "\tenergy (joules): " << m_platform_io.sample_region_total(m_energy_idx, region_id) +
+                                               m_platform_io.sample_region_total(m_energy_idx, geopm_region_id_set_mpi(region_id)) << std::endl;
+            double numer = m_platform_io.sample_region_total(m_clk_core_idx, region_id) +
+                           m_platform_io.sample_region_total(m_clk_core_idx, geopm_region_id_set_mpi(region_id));
+            double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region_id) +
+                           m_platform_io.sample_region_total(m_clk_ref_idx, geopm_region_id_set_mpi(region_id));
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "\tfrequency (%): " << freq << std::endl;
             report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;
