@@ -49,6 +49,9 @@ namespace geopm
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_last_wait{{0, 0}}
+        , m_num_ascend(0)
+        , m_send_period(10)
+        , m_do_send(false)
     {
         geopm_time(&m_last_wait);
 
@@ -76,13 +79,13 @@ namespace geopm
         m_level = level;
     }
 
-    void MonitorAgent::descend(const std::vector<double> &in_policy,
+    bool MonitorAgent::descend(const std::vector<double> &in_policy,
                                std::vector<std::vector<double> >&out_policy)
     {
-
+        return false;
     }
 
-    void MonitorAgent::ascend(const std::vector<std::vector<double> > &in_sample,
+    bool MonitorAgent::ascend(const std::vector<std::vector<double> > &in_sample,
                               std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
@@ -98,6 +101,7 @@ namespace geopm
             }
             out_sample[sig_idx] = m_agg_func[sig_idx](child_sample);
         }
+        return m_do_send;
     }
 
     void MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
@@ -105,7 +109,7 @@ namespace geopm
 
     }
 
-    void MonitorAgent::sample_platform(std::vector<double> &out_sample)
+    bool MonitorAgent::sample_platform(std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
         if (out_sample.size() != m_num_sample) {
@@ -116,6 +120,9 @@ namespace geopm
         for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
             out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
         }
+        m_do_send = (m_num_ascend % m_send_period == 0);
+        ++m_num_ascend;
+        return m_do_send;
     }
 
     void MonitorAgent::wait(void)
