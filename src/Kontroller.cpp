@@ -201,16 +201,21 @@ namespace geopm
 
     void Kontroller::walk_down(void)
     {
+        bool do_send = false;
         if (m_is_root) {
+            /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
             m_in_policy = m_manager_io_sampler->sample();
+            do_send = true;
         }
         else {
-            m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
+            do_send = m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
         }
-        for (int level = m_num_level_ctl - 1; level != -1; --level) {
-            m_agent[level]->descend(m_in_policy, m_out_policy[level]);
-            m_tree_comm->send_down(level, m_out_policy[level]);
-            m_tree_comm->receive_down(level, m_in_policy);
+        for (int level = m_num_level_ctl - 1; do_send && level != -1; --level) {
+            do_send = m_agent[level]->descend(m_in_policy, m_out_policy[level]);
+            if (do_send) {
+                m_tree_comm->send_down(level, m_out_policy[level]);
+                do_send = m_tree_comm->receive_down(level, m_in_policy);
+            }
         }
         m_agent[0]->adjust_platform(m_in_policy);
         m_platform_io.write_batch();
@@ -220,22 +225,26 @@ namespace geopm
     {
         m_application_io->update(m_comm);
         m_platform_io.read_batch();
-        m_agent[0]->sample_platform(m_out_sample);
+        bool do_send = m_agent[0]->sample_platform(m_out_sample);
         m_agent[0]->trace_values(m_trace_sample);
         m_tracer->update(m_trace_sample, m_application_io->region_entry_exit());
         m_application_io->clear_region_entry_exit();
 
-        for (int level = 0; level != m_num_level_ctl; ++level) {
+        for (int level = 0; do_send && level != m_num_level_ctl; ++level) {
             m_tree_comm->send_up(level, m_out_sample);
-            m_tree_comm->receive_up(level, m_in_sample[level]);
-            m_agent[level]->ascend(m_in_sample[level], m_out_sample);
+            do_send = m_tree_comm->receive_up(level, m_in_sample[level]);
+            if (do_send) {
+                do_send = m_agent[level]->ascend(m_in_sample[level], m_out_sample);
+            }
         }
-        if (!m_is_root) {
-            m_tree_comm->send_up(m_num_level_ctl, m_out_sample);
-        }
-        else {
-            /// @todo At the root of the tree, send signals up to the
-            /// resource manager.
+        if (do_send) {
+            if (!m_is_root) {
+                m_tree_comm->send_up(m_num_level_ctl, m_out_sample);
+            }
+            else {
+                /// @todo At the root of the tree, send signals up to the
+                /// resource manager.
+            }
         }
     }
 
