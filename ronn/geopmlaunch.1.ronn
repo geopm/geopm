@@ -65,10 +65,10 @@ the first `--` from the command line.
 
 ## SUPPORTED LAUNCHERS
   The first positional argument is required and specifies the desired
-  underlying launch mechanism.  Valid values are "srun", "aprun", or "impi".
+  underlying launch mechanism.  Valid values are "srun", "aprun", "impi", or "ompi".
   Additionally the launcher class that supports the resource manager can be
   selected by name; available launcher classes are "SrunLauncher"
-  (SLURM), "AlpsLauncher" (ALPS), "IMPIExecLauncher" (IMPI), or
+  (SLURM), "AlpsLauncher" (ALPS), "IMPIExecLauncher" (IMPI), "OMPIExecLauncher" (OMPI), or
   "SrunTOSSLauncher" (specialization of SLURM for the tri-lab
   operating system stack).  This command line option overrides other
   methods of determining the resource manager / launcher.  This option is
