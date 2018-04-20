@@ -60,12 +60,12 @@ namespace geopm
             BalancingAgent();
             virtual ~BalancingAgent();
             void init(int level) override;
-            void descend(const std::vector<double> &in_policy,
+            bool descend(const std::vector<double> &in_policy,
                          std::vector<std::vector<double> >&out_policy) override;
-            void ascend(const std::vector<std::vector<double> > &in_signal,
+            bool ascend(const std::vector<std::vector<double> > &in_signal,
                         std::vector<double> &out_signal) override;
             void adjust_platform(const std::vector<double> &in_policy) override;
-            void sample_platform(std::vector<double> &out_sample) override;
+            bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::string report_header(void) override;
             std::string report_node(void) override;

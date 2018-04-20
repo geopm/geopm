@@ -42,15 +42,15 @@ class MockAgent : public geopm::IAgent
         MOCK_METHOD1(init,
                      void(int level));
         MOCK_METHOD2(descend,
-                     void(const std::vector<double> &in_policy,
+                     bool(const std::vector<double> &in_policy,
                           std::vector<std::vector<double> >&out_policy));
         MOCK_METHOD2(ascend,
-                     void(const std::vector<std::vector<double> > &in_signal,
+                     bool(const std::vector<std::vector<double> > &in_signal,
                           std::vector<double> &out_signal));
         MOCK_METHOD1(adjust_platform,
                      void(const std::vector<double> &in_policy));
         MOCK_METHOD1(sample_platform,
-                     void(std::vector<double> &out_sample));
+                     bool(std::vector<double> &out_sample));
         MOCK_METHOD0(wait,
                      void(void));
         MOCK_METHOD0(report_header,
