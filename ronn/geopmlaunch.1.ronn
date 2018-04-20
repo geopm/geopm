@@ -95,6 +95,12 @@ listed below.
   environment variables reserved for use by GEOPM and are overwritten
   when using `geopmlaunch`.
 
+* _ompi_, _OMPIExecLauncher_:
+  Wrapper for the Open MPI `mpiexec` job launcher.  The
+  `-rf` and `--rank-file` as well as explictly specifying number of
+  processes with `-H` and `--host` options are reserved for use by GEOPM;
+  do not specify when using `geopmlaunch`.
+
 * _SrunTOSSLauncher_:
   Wrapper for `srun` when used with the Trilab Operating System
   Software stack.  This special launcher was developed to support
