@@ -121,7 +121,8 @@ class TestIntegration(unittest.TestCase):
                     pass
 
     def assertNear(self, a, b, epsilon=0.05):
-        if abs((a - b) / a) >= epsilon:
+        denom = a if a != 0 else 1
+        if abs((a - b) / denom) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
 
     def create_progress_df(self, df):
@@ -642,7 +643,12 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             tt = self._output.get_trace(nn)
 
-            first_epoch_index = tt.loc[tt['region_id'] == '9223372036854775808'][:1].index[0]
+            epoch = '9223372036854775808'
+            # todo: hack to run tests with new controller
+            if os.getenv("GEOPM_AGENT") is not None:
+                epoch = '0x8000000000000000'
+
+            first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
@@ -1028,39 +1034,6 @@ class TestIntegration(unittest.TestCase):
                 if message in line:
                     found = True
         self.assertTrue(found, "runtime error message not found in log")
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_variable_end_time(self):
-        """
-        Check that two ranks on the same node can shutdown at
-        different times without overflowing the table.
-        """
-        raise NotImplementedError
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_power_excursion(self):
-        """
-        When a low power region is followed by a high power region, check
-        that the power consumed at beginning of high power region does
-        not excede the RAPL limit for too long.
-        """
-        raise NotImplementedError
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_short_region_control(self):
-        """
-        Check that power limit is maintained when an application has many
-        short running regions.
-        """
-        raise NotImplementedError
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_mean_power_against_integration(self):
-        """
-        Check that the average of the per sample power is close to the
-        total change in energy divided by the total change in time.
-        """
-        raise NotImplementedError
 
 
 if __name__ == '__main__':

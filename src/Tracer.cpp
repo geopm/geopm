@@ -210,6 +210,7 @@ namespace geopm
                     {"TIME", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_ID#", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
@@ -276,18 +277,17 @@ namespace geopm
     void Tracer::update(const std::vector<double> &agent_values,
                         std::list<std::pair<uint64_t, double> > region_entry_exit)
     {
-#ifdef GEOPM_DEBUG
-        if (m_column_idx.size() == 0) {
-            throw Exception("Tracer::update(): No columns added to trace.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-        if (m_column_idx.size() + agent_values.size() != m_last_telemetry.size()) {
-            throw Exception("Tracer::update(): Last telemetry buffer not sized correctly.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-
         if (m_is_trace_enabled) {
+#ifdef GEOPM_DEBUG
+            if (m_column_idx.size() == 0) {
+                throw Exception("Tracer::update(): No columns added to trace.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+            if (m_column_idx.size() + agent_values.size() != m_last_telemetry.size()) {
+                throw Exception("Tracer::update(): Last telemetry buffer not sized correctly.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
             // save values to be reused for region entry/exit
             size_t col_idx = 0;
             for (; col_idx < m_column_idx.size(); ++col_idx) {
@@ -340,45 +340,60 @@ namespace geopm
     std::string ITracer::pretty_name(const IPlatformIO::m_request_s &col) {
         std::ostringstream result;
         std::string name = col.name;
+        /// @todo These custom names can be removed when integration
+        /// tests are updated to the new code path
+        if (name == "TIME") {
+            name = "seconds";
+        }
+        else if (name == "REGION_PROGRESS") {
+            name = "progress-0";
+        }
+        else if (name == "REGION_RUNTIME") {
+            name = "runtime-0";
+        }
+        else if (name.find("#") == name.length() - 1) {
+            name = name.substr(0, name.length() - 1);
+        }
         std::transform(name.begin(), name.end(), name.begin(),
                        [](unsigned char c){ return std::tolower(c); });
-        result << name << "-";
+        result << name;
         switch(col.domain_type) {
             case IPlatformTopo::M_DOMAIN_BOARD:
-                result << "board";
                 break;
             case IPlatformTopo::M_DOMAIN_PACKAGE:
-                result << "package";
+                result << "-package";
                 break;
             case IPlatformTopo::M_DOMAIN_CORE:
-                result << "core";
+                result << "-core";
                 break;
             case IPlatformTopo::M_DOMAIN_CPU:
-                result << "cpu";
+                result << "-cpu";
                 break;
             case IPlatformTopo::M_DOMAIN_BOARD_MEMORY:
-                result << "board_memory";
+                result << "-board_memory";
                 break;
             case IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY:
-                result << "package_memory";
+                result << "-package_memory";
                 break;
             case IPlatformTopo::M_DOMAIN_BOARD_NIC:
-                result << "board_nic";
+                result << "-board_nic";
                 break;
             case IPlatformTopo::M_DOMAIN_PACKAGE_NIC:
-                result << "package_nic";
+                result << "-package_nic";
                 break;
             case IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR:
-                result << "board_acc";
+                result << "-board_acc";
                 break;
             case IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR:
-                result << "package_acc";
+                result << "-package_acc";
                 break;
             default:
                 throw Exception("Tracer::pretty_name(): unrecognized domain_type",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        result << "-" << col.domain_idx;
+        if (col.domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
+            result << "-" << col.domain_idx;
+        }
         return result.str();
     }
 }
