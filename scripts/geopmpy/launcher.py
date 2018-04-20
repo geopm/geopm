@@ -34,7 +34,8 @@
 """This module provides a way to launch MPI applications using the
 GEOPM runtime by wrapping the call to the system MPI application
 launcher.  The module currently supports wrapping the SLURM 'srun'
-command and the ALPS 'aprun' command.  The primary use of this module
+command, the ALPS 'aprun' command, and 'mpiexec' command provided by
+Open MPI and Intel MPI.  The primary use of this module
 is through the geopmlauncher(1) command line executable which calls
 the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
 page for details about the command line interface.
@@ -53,6 +54,7 @@ import glob
 import re
 import shlex
 import stat
+import tempfile
 
 from geopmpy import __version__
 
@@ -72,6 +74,8 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     factory_dict['impi'] = IMPIExecLauncher
     factory_dict['IMPIExecLauncher'] = IMPIExecLauncher
     factory_dict['SrunTOSSLauncher'] = SrunTOSSLauncher
+    factory_dict['impi'] = OMPIExecLauncher
+    factory_dict['OMPIExecLauncher'] = OMPIExecLauncher
     try:
         return factory_dict[argv[1]](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
@@ -991,6 +995,190 @@ class SrunTOSSLauncher(SrunLauncher):
             result.append('--mpibind=v.' + ','.join(mask_list))
         return result
 
+class OMPIExecLauncher(Launcher):
+    """
+    Launcher derived object for use with Open MPI Project launch
+    application mpiexec.
+    """
+    def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
+                 time_limit=None, job_name=None, node_list=None, host_file=None):
+        """
+        Pass through to Launcher constructor.
+        """
+        super(OMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
+                                              time_limit, job_name, node_list, host_file)
+        self._tmp_files = []
+
+        # it is always 1 for now
+        self.cpu_per_rank = 1
+
+    def run(self, stdout=sys.stdout, stderr=sys.stderr):
+        """
+        Pass through to Launcher run.
+        """
+        try:
+            super(OMPIExecLauncher, self).run(stdout, stderr)
+        except:
+            for ff in self._tmp_files:
+                os.remove(ff)
+
+    def mpiexec(self):
+        """
+        Returns 'mpiexec', the name of the Open MPI Project job launch application.
+        """
+        return 'mpiexec'
+
+    def parse_mpiexec_argv(self):
+        """
+        Parse the subset of mpiexec command line arguments used or
+        manipulated by GEOPM.
+        """
+        parser = SubsetOptionParser()
+        parser.add_argument('-n', dest='num_rank', type=int)
+        parser.add_argument('--host', dest='node_list', type=str)
+        parser.add_argument('-f', '--hostfile', dest='host_file', type=str)
+
+        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
+        try:
+            self.argv_unparsed.remove('--')
+        except ValueError:
+            pass
+
+        if opts.num_rank:
+            self.num_rank = opts.num_rank
+        else:
+            self.num_rank = 1
+        self.node_list = opts.node_list
+        self.host_file = opts.host_file
+        if self.host_file:
+            self.num_node = 0
+            with open(self.host_file) as f:
+                lines = f.readlines()
+                for line in lines:
+                    if len(line) > 0:
+                        self.num_node += 1
+        elif self.node_list:
+            self.num_node = len(self.node_list.split(','))
+        else:
+            self.num_node = 1
+
+        self.cpu_per_rank = None
+        self.timeout = None
+        self.time_limit = None
+        self.job_name = None
+
+    def num_node_option(self):
+        return []
+
+    def mpiexec_argv(self, is_geopmctl):
+        """
+        Returns a list of command line options for underlying job launch
+        application that reflect the state of the Launcher object.
+        """
+        result = []
+
+        if is_geopmctl:
+            # add not to warn on fork messge
+            result.append('--mca mpi_warn_on_fork 0')
+
+        result.extend(self.num_node_option())
+        result.extend(self.num_rank_option(is_geopmctl))
+        result.extend(self.affinity_option(is_geopmctl))
+        result.extend(self.env_var_option(is_geopmctl))
+        result.extend(self.timeout_option())
+        result.extend(self.time_limit_option())
+        result.extend(self.job_name_option())
+        result.extend(self.node_list_option())
+        result.extend(self.host_file_option())
+        result.extend(self.partition_option())
+        return result
+
+
+    #todo look at removing this entirely, else -x entire env dictionary
+    def env_var_option(self, is_geopmctl):
+        env = self.environ()
+        trace = []
+        if 'GEOPM_TRACE' in env:
+            var = 'GEOPM_TRACE=' + env['GEOPM_TRACE']
+            trace = ['-x', var]
+
+        if is_geopmctl:
+            return trace
+
+        result = ['-x', 'LD_PRELOAD="libgeopm.so"']
+        env_vars = ['LD_PRELOAD', 'LD_DYNAMIC_WEAK', 'GEOPM_PMPI_CTL', 'GEOPM_REPORT']
+        for env_var in env_vars:
+            if env_var in env:
+                var = env_var + '=' + env[env_var]
+                result += ['-x', var]
+        result += trace
+        return result
+
+    def affinity_option(self, is_geopmctl):
+        if self.is_geopm_enabled:
+            # Disable other affinity mechanisms
+            aff_list = self.affinity_list(is_geopmctl)
+
+            hostnames = []
+            if self.host_file:
+                with open(self.host_file) as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        hostnames.append(line.split(' ')[0].strip('\n'))
+            elif self.node_list:
+                hostnames = [host.strip('\n') for host in self.node_list.split(',')]
+            else:
+                hostname = socket.gethostname()
+                hostnames = [hostname]
+
+            rank = 0
+            new_file, filename = tempfile.mkstemp()
+            self._tmp_files.append(filename)
+
+            for host in hostnames:
+                for cpu_set in aff_list:
+                    for cpu in cpu_set:
+                        socket_num = cpu // self.core_per_socket
+                        processor = cpu % self.core_per_socket
+                        line = 'rank ' + str(rank) + '=' + host + ' slot=' + str(socket_num) + ':' + str(processor)
+                        rank += 1
+                        os.write(new_file, line)
+                        os.write(new_file, '\n')
+
+            os.close(new_file)
+
+            return ['-rankfile', filename]
+
+        return []
+
+    def timeout_option(self):
+        return []
+
+    def time_limit_option(self):
+        return []
+
+    def job_name_option(self):
+        return []
+
+    def node_list_option(self):
+        """
+        Returns a list containing the --host option for mpiexiec.
+        """
+        if (self.node_list is not None and
+            self.host_file is not None and
+            self.node_list != self.host_file):
+            raise SyntaxError('Node list and host name cannot both be specified.')
+
+        result = []
+        if self.node_list is not None:
+            nodes = self.node_list.split(',')
+            node_list = []
+            for node in nodes:
+                node_list.append(node + ':' + str(self.rank_per_node))
+            result = ['--host', ','.join(node_list)]
+        elif self.host_file is not None:
+            result = ['--hostfile', self.host_file]
+        return result
 
 class IMPIExecLauncher(Launcher):
     """
@@ -1262,9 +1450,9 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 Usage:
       geopmlaunch launcher [launcher options] [GEOPM options]
 
-Possible launcher values:     "srun", "aprun", "impi", "SrunLauncher",
-                              "AlpsLauncher", "IMPIExecLauncher", or
-                              "SrunTOSSLauncher".
+Possible launcher values:     "srun", "aprun", "impi", "ompi", "SrunLauncher",
+                              "AlpsLauncher", "IMPIExecLauncher", "SrunTOSSLauncher",
+                              or "OMPIExecLauncher".
 Possible launcher options:    "-h" , "--help".
 
 GEOPM options:
@@ -1301,7 +1489,8 @@ GEOPM options:
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
-        launch_imp = ["SrunLauncher", "AlpsLauncher", "IMPIExecLauncher", "SrunTOSSLauncher"]
+        launch_imp = ["SrunLauncher", "AlpsLauncher", "IMPIExecLauncher",
+                      "SrunTOSSLauncher", "OMPIExecLauncher"]
         if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
             launcher = factory(sys.argv)
             launcher.run()
