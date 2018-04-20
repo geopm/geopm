@@ -34,7 +34,8 @@
 """This module provides a way to launch MPI applications using the
 GEOPM runtime by wrapping the call to the system MPI application
 launcher.  The module currently supports wrapping the SLURM 'srun'
-command and the ALPS 'aprun' command.  The primary use of this module
+command, the ALPS 'aprun' command, and 'mpiexec' command provided by
+Open MPI and Intel MPI.  The primary use of this module
 is through the geopmlauncher(1) command line executable which calls
 the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
 page for details about the command line interface.
@@ -56,6 +57,9 @@ import stat
 import textwrap
 import io
 import locale
+import socket
+import tempfile
+import traceback
 
 from collections import OrderedDict
 from geopmpy import __version__
@@ -69,7 +73,9 @@ class Factory(object):
                                            ('impi', IMPIExecLauncher),
                                            ('mpiexec.hydra', IMPIExecLauncher),
                                            ('IMPIExecLauncher', IMPIExecLauncher),
-                                           ('SrunTOSSLauncher', SrunTOSSLauncher)])
+                                           ('SrunTOSSLauncher', SrunTOSSLauncher),
+                                           ('ompi', OMPIExecLauncher),
+                                           ('OMPIExecLauncher', OMPIExecLauncher)])
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                time_limit=None, job_name=None, node_list=None, host_file=None,
@@ -1043,6 +1049,183 @@ class SrunTOSSLauncher(SrunLauncher):
             result.append('--mpibind=v.' + ','.join(mask_list))
         return result
 
+class OMPIExecLauncher(Launcher):
+    """
+    Launcher derived object for use with Open MPI project launch
+    application mpiexec.
+    """
+    def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
+                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 reservation=None):
+        """
+        Pass through to Launcher constructor.
+        """
+        super(OMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
+                                              time_limit, job_name, node_list, host_file)
+        self._tmp_files = []
+
+        self.is_slurm_enabled = False
+        if os.getenv('SLURM_NNODES'):
+            self.is_slurm_enabled = True
+        if (self.is_geopm_enabled and
+            self.is_slurm_enabled and
+            self.config.get_ctl() == 'application' and
+            os.getenv('SLURM_NNODES') != str(self.num_node)):
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
+                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+
+    def run(self, stdout=sys.stdout, stderr=sys.stderr):
+        """
+        Pass through to Launcher run.
+        """
+        try:
+            super(OMPIExecLauncher, self).run(stdout, stderr)
+        except:
+            for ff in self._tmp_files:
+                os.remove(ff)
+            raise
+
+    def launcher_command(self):
+        """
+        Returns 'mpiexec', the name of the Open MPI project job launch application.
+        """
+        return 'mpiexec'
+
+    def parse_launcher_argv(self):
+        """
+        Parse the subset of mpiexec command line arguments used or
+        manipulated by GEOPM.
+        """
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument('-n', dest='num_rank', type=int)
+        parser.add_argument('--host', dest='node_list', type=str)
+        parser.add_argument('--hostfile', '--machinefile', dest='host_file', type=str)
+        parser.add_argument('--npernode', dest='rank_per_node', type=int)
+
+        #long form options whose short form options collide with short
+        #form options we care about (short forms we care about {'-n'})
+        long_form_options = ['novm', 'npersocket', 'npernode', 'nolocal', 'nooversubscribe', 'noprefix']
+        for arg_idx in range(len(self.argv_unparsed)):
+            for opt in long_form_options:
+                if self.argv_unparsed[arg_idx].find(opt) != -1 and not self.argv_unparsed[arg_idx].startswith('--'):
+                    self.argv_unparsed[arg_idx] = '--' + opt
+        opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
+        try:
+            self.argv_unparsed.remove('--')
+        except ValueError:
+            pass
+
+        self.host_file = None
+        self.node_list = None
+        if opts.num_rank:
+            self.num_rank = opts.num_rank
+        if opts.rank_per_node:
+            self.rank_per_node = opts.rank_per_node
+        if opts.node_list:
+            self.node_list = opts.node_list
+        elif opts.host_file:
+            self.host_file = opts.host_file
+        self.cpu_per_rank = None
+        self.timeout = None
+        self.time_limit = None
+        self.job_name = None
+        self.reservation = None
+
+    def num_node_option(self):
+        return []
+
+    def launcher_argv(self, is_geopmctl):
+        """
+        Returns a list of command line options for underlying job launch
+        application that reflect the state of the Launcher object.
+        """
+        result = super(OMPIExecLauncher, self).launcher_argv(is_geopmctl)
+
+        if is_geopmctl:
+            # add not to warn on fork messge
+            result.append('--mca mpi_warn_on_fork 0')
+        return result
+
+    def affinity_option(self, is_geopmctl):
+        if self.is_geopm_enabled:
+            # Disable other affinity mechanisms
+            aff_list = self.affinity_list(is_geopmctl)
+            # affinity_list assumes that the second half of the available logical
+            # cpus are hyperthreads.  mpiexec from ompi encodes hyperthreads as
+            # odd numbered cpu id's.  We create a map below to address this mismatch
+            # in location of hyperthreads
+            physical_cores = range(0, self.num_linux_cpu, self.thread_per_core)
+            ht_cores = range(1, self.num_linux_cpu, self.thread_per_core)
+            core_to_slot_map = physical_cores + ht_cores
+
+
+            hostnames = []
+            if self.host_file:
+                with open(self.host_file) as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if len(line) and not line.startswith('#'):
+                            hostnames.append(line.split(' ')[0].strip('\n'))
+            elif self.node_list:
+                hostnames = [host.strip('\n') for host in self.node_list.split(',')]
+            else:
+                hostname = socket.gethostname()
+                hostnames = [hostname]
+
+            rank = 0
+            new_file, filename = tempfile.mkstemp()
+            self._tmp_files.append(filename)
+
+            for host in hostnames:
+                for cpu_set in aff_list:
+                    cpu_str = ''
+                    if len(cpu_set) == 1:
+                        for cpu in cpu_set:
+                            cpu_str = str(core_to_slot_map[cpu])
+                    else:
+                        converted = [str(core_to_slot_map[ii]) for ii in cpu_set]
+                        cpu_str = ','.join(converted)
+
+                        if len(converted) > 18:
+                            print('<geopmpy.launcher> Warning: Due to a bug in OpenMPI, you must request 18 cores per rank or less. cpus_per_rank={}'.format(self.cpu_per_rank))
+
+                    line = 'rank ' + str(rank) + '=' + host + ' slot=' + cpu_str
+                    os.write(new_file, line)
+                    os.write(new_file, '\n')
+                    rank += 1
+
+            os.close(new_file)
+
+            return ['--use-hwthread-cpus', '--rankfile', filename]
+
+        return []
+
+    def node_list_option(self):
+        """
+        Returns a list containing the --host option for mpiexiec.
+        """
+        if (self.node_list is not None and
+            self.host_file is not None and
+            self.node_list != self.host_file):
+            raise SyntaxError('Node list and host name cannot both be specified.')
+
+        result = []
+        if self.node_list is not None:
+            nodes = self.node_list.split(',')
+            node_list = []
+            for node in nodes:
+                node_list.append(node + ':' + str(self.rank_per_node))
+            result = ['--host', ','.join(node_list)]
+        elif self.host_file is not None:
+            result = ['--hostfile', self.host_file]
+        return result
+
+    def node_list_delim(self):
+        """
+        Returns the delimiter that is to be used when constructing
+        a node list string given a list of node names.
+        """
+        return ','
 
 
 class IMPIExecLauncher(Launcher):
