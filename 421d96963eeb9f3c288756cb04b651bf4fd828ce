@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a681fc6_b4e8661b",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "todo region_id \u003d hash(region_id)",
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df8117e5_2a5c31a3",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "look into .at(GEOPM_REGION_ID_MPI)?",
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12c29d40_23bd3966",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "todo region_id \u003d hash(region_id)",
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bfca3bc_f11c8151",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "treat MPI region hint like we do ignore here",
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0310221a_c1c60944",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "if epoch region call last_epoch_time",
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16a977f3_cf1f10a1",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "just throw",
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "96032215_2cd281b6",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "retun m_agg?",
+      "range": {
+        "startLine": 166,
+        "startChar": 15,
+        "endLine": 166,
+        "endChar": 59
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e9d3b61_de3f5da5",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "remove (dup)",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 50
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4723678f_bd7e59c6",
+        "filename": "src/KprofileIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "m_epoch_regulator.last_epoch_time()",
+      "range": {
+        "startLine": 154,
+        "startChar": 48,
+        "endLine": 154,
+        "endChar": 111
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60ab1517_94cced37",
+        "filename": "src/KprofileIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-20T20:52:49Z",
+      "side": 1,
+      "message": "RUNTIME",
+      "range": {
+        "startLine": 75,
+        "startChar": 31,
+        "endLine": 75,
+        "endChar": 35
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
