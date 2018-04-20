@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05443c83_6b8fdb2d",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-20T00:35:58Z",
+      "side": 1,
+      "message": "avoid this copy",
+      "revId": "801f995e50f03d11bee18d65e8daee553bddb1c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f7e641d_1effe35b",
+        "filename": "src/KprofileIOSample.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-20T00:35:58Z",
+      "side": 1,
+      "message": "pull out into clear method with passthrough in applicationio",
+      "revId": "801f995e50f03d11bee18d65e8daee553bddb1c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73ad218e_a78a275c",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-20T00:35:58Z",
+      "side": 1,
+      "message": "set m_is_trace_enabled to false",
+      "revId": "801f995e50f03d11bee18d65e8daee553bddb1c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
