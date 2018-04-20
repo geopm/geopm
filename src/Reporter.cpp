@@ -37,6 +37,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <numeric>
 #include <iostream>
 
 #include "Reporter.hpp"
