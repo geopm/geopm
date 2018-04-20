@@ -43,6 +43,7 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/geopmanalysis \
               scripts/geopmaprun \
               scripts/geopmsrun \
+              scripts/geopmmpirun \
               scripts/geopmplotter \
               scripts/setup.py \
               scripts/MANIFEST.in \
