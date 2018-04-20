@@ -102,9 +102,9 @@ static inline uint64_t geopm_region_id_set_hint(uint64_t hint_type, uint64_t rid
     return (rid | hint_type);
 }
 
-static inline uint64_t geopm_region_id_unset_hint(uint64_t rid)
+static inline uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t rid)
 {
-    return (rid & (~(0xFFULL << 32)));
+    return (rid & (~hint_type));
 }
 
 enum geopm_control_e {
