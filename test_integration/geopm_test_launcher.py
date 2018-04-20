@@ -88,7 +88,12 @@ class TestLauncher(object):
 
     def run(self, test_name):
         self._app_conf.write()
-        self._ctl_conf.write()
+        # todo: hack to run tests with new controller
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            with open(self._ctl_conf.get_path(), "w") as outfile:
+                outfile.write("{}\n")
+        else:
+            self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(datetime.datetime.now()) + '\n')
             outfile.flush()
