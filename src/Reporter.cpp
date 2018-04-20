@@ -67,10 +67,12 @@ namespace geopm
 
     void Reporter::init(void)
     {
-        m_energy_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_platform_io.push_region_signal_total(m_energy_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_pkg_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_dram_idx = m_platform_io.push_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_core_idx = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_platform_io.push_region_signal_total(m_energy_pkg_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_platform_io.push_region_signal_total(m_energy_dram_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_clk_core_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_clk_ref_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
 
@@ -108,32 +110,57 @@ namespace geopm
             master_report << "Policy Mode: deprecated" << std::endl;
             master_report << "Tree Decider: deprecated" << std::endl;
             master_report << "Leaf Decider: deprecated" << std::endl;
-            master_report << "Power Budget: deprecated" << std::endl;
+            master_report << "Power Budget: -1" << std::endl;
         }
         // per-node report
         std::ostringstream report;
         char hostname[NAME_MAX];
         gethostname(hostname, NAME_MAX);
-        report << "\nHost:" << hostname << std::endl;
-        /// @todo order by runtime
+        report << "\nHost: " << hostname << std::endl;
+        /// @todo Put hash only in reports, not full region ID. Current report is wrong
+        /// also should match in trace
+        /// @todo would be more readable with a struct instead of a tuple; also
+        /// might have more than 3 things in case epoch has own set of APIs
+        // vector of region name, id, and total runtime, in descending order by runtime
+        std::vector<std::tuple<std::string, uint64_t, double> > region_ordered;
         auto region_name_set = application_io.region_name_set();
         for (const auto &region : region_name_set) {
-            /// @todo Put hash only in reports, not full region ID. Current report is wrong
-            /// also should match in trace
-            /// for unmarked, epoch, use existing strings and high-order bits for hash
-            /// these two special regions go at the end
             uint64_t region_id = geopm_crc32_str(0, region.c_str());
-            /// @todo If the user defines a region with a name that
-            /// starts with MPI_ it will not be properly accounted for
-            /// in the report.
             if (region.find("MPI_") == 0) {
                 region_id = geopm_region_id_set_mpi(region_id);
             }
-            report << "Region " << region << " (" << region_id << "):" << std::endl;
-            report << "\truntime (sec): " << application_io.total_region_runtime(region_id) << std::endl;
-            report << "\tenergy (joules): " << m_platform_io.sample_region_total(m_energy_idx, region_id) << std::endl;
-            double numer = m_platform_io.sample_region_total(m_clk_core_idx, region_id);
-            double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region_id);
+            region_ordered.emplace_back(region, region_id, application_io.total_region_runtime(region_id));
+        }
+        // sort based on element 2 of the tuple
+        std::sort(region_ordered.begin(), region_ordered.end(),
+                  [] (const std::tuple<std::string, uint64_t, double> &a,
+                      const std::tuple<std::string, uint64_t, double> &b) -> bool {
+                      return std::get<2>(a) >= std::get<2>(b);
+                  });
+        // add unmarked and epoch at the end
+        region_ordered.emplace_back("unmarked-region", GEOPM_REGION_ID_UNMARKED,
+                                    application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED));
+        region_ordered.emplace_back("epoch", GEOPM_REGION_ID_EPOCH,
+                                    application_io.total_epoch_runtime());
+
+
+        for (const auto &region : region_ordered) {
+            std::string region_name = std::get<0>(region);
+            uint64_t region_id = std::get<1>(region);
+            uint64_t mpi_region_id = geopm_region_id_set_mpi(region_id);
+            double runtime = std::get<2>(region);
+            report << "Region " << region_name << " (0x" << std::hex << region_id << std::dec << "):" << std::endl;
+            report << "\truntime (sec): " << runtime << std::endl;
+            report << "\tenergy (joules): "
+                   << m_platform_io.sample_region_total(m_energy_pkg_idx, region_id) +
+                      m_platform_io.sample_region_total(m_energy_pkg_idx, mpi_region_id) +
+                      m_platform_io.sample_region_total(m_energy_dram_idx, region_id) +
+                      m_platform_io.sample_region_total(m_energy_dram_idx, mpi_region_id)
+                   << std::endl;
+            double numer = m_platform_io.sample_region_total(m_clk_core_idx, region_id) +
+                           m_platform_io.sample_region_total(m_clk_core_idx, mpi_region_id);
+            double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region_id) +
+                           m_platform_io.sample_region_total(m_clk_ref_idx, mpi_region_id);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "\tfrequency (%): " << freq << std::endl;
             report << "\tmpi-runtime (sec): " << application_io.total_region_mpi_runtime(region_id) << std::endl;
@@ -145,8 +172,7 @@ namespace geopm
                << "\truntime (sec): " << total_runtime << std::endl
                << "\tenergy (joules): " << -1 << std::endl
                << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
-               << "\tignore-time (sec): " << -1 << std::endl
-               << "\tthrottle time (%): " << -1 << std::endl;
+               << "\tignore-time (sec): " << application_io.total_app_ignore_runtime() << std::endl;
 
         std::string max_memory = get_max_memory();
         report << "\tgeopmctl memory HWM: " << max_memory << std::endl;
@@ -180,6 +206,7 @@ namespace geopm
         if (!rank) {
             report_buffer.back() = '\0';
             master_report << report_buffer.data();
+            master_report << std::endl;
             master_report.close();
         }
     }
