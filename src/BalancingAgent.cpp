@@ -89,7 +89,7 @@ namespace geopm
         m_agg_fn_epoch_runtime = m_platform_io.agg_function("EPOCH_RUNTIME");
     }
 
-    void BalancingAgent::descend(const std::vector<double> &in_message, std::vector<std::vector<double> >&out_message)
+    bool BalancingAgent::descend(const std::vector<double> &in_message, std::vector<std::vector<double> >&out_message)
     {
         if (m_is_converged) {
             double power_budget_in = 100;//m_platform_io.sample(m_power_budget_in_idx);
@@ -98,9 +98,10 @@ namespace geopm
                 m_platform_io.adjust(m_power_budget_out_idx[child_idx], m_power_budget_out[child_idx]);
             }
         }
+        return false;
     }
 
-    void BalancingAgent::ascend(const std::vector<std::vector<double> > &in_message, std::vector<double> &out_message)
+    bool BalancingAgent::ascend(const std::vector<std::vector<double> > &in_message, std::vector<double> &out_message)
     {
         // Read samples from children or from the platform.
         for (int child_idx = 0; child_idx < m_num_children; ++child_idx) {
@@ -125,6 +126,7 @@ namespace geopm
             }
         }
         m_platform_io.adjust(m_is_converged_out_idx, m_is_converged);
+        return false;
     }
 
     void BalancingAgent::adjust_platform(const std::vector<double> &policy)
@@ -132,9 +134,9 @@ namespace geopm
 
     }
 
-    void BalancingAgent::sample_platform(std::vector<double> &sample)
+    bool BalancingAgent::sample_platform(std::vector<double> &sample)
     {
-
+        return false;
     }
 
     void BalancingAgent::wait()
