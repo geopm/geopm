@@ -36,6 +36,7 @@ scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
 scripts/geopmpy/plotter.py
 scripts/geopmpy/version.py.in
+scripts/geopmmpirun
 scripts/geopmsrun
 scripts/Makefile.mk
 scripts/setup.py

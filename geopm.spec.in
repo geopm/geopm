@@ -243,6 +243,7 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{python_sitelib}/*
 %{_bindir}/geopmanalysis
 %{_bindir}/geopmaprun
+%{_bindir}/geopmmpirun
 %{_bindir}/geopmplotter
 %{_bindir}/geopmsrun
 %doc %{_mandir}/man1/geopmanalysis.1.gz

@@ -66,7 +66,8 @@ launching the runtime and postprocessing the output data."""
 scripts = ['geopmanalysis',
            'geopmaprun',
            'geopmplotter',
-           'geopmsrun']
+           'geopmsrun',
+           'geopmmpirun']
 
 classifiers = ['Development Status :: 4 - Beta',
                'License :: OSI Approved :: BSD License',
