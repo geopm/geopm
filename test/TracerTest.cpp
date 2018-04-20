@@ -70,6 +70,7 @@ void TracerTest::SetUp(void)
         {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
@@ -113,8 +114,8 @@ TEST_F(TracerTest, columns)
                                   "# \"leaf_decider\"\n"
                                   "# \"node_name\" : \"" + m_hostname + "\"\n";
     std::string expected_str = expected_header +
-        "time-board-0|region_id#-board-0|region_progress-board-0|energy_package-board-0|"
-        "power_package-board-0|frequency-board-0|extra-board-0|"
+        "seconds|region_id|progress-0|runtime-0|energy_package|"
+        "power_package|frequency|extra|"
         "col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
@@ -145,7 +146,7 @@ TEST_F(TracerTest, update_samples)
     tracer.update(agent_vals, {}); // no additional samples after flush
 
     std::string expected_str = "\n\n\n\n\n\n\n"
-        "5.0e-01|0x3ff8000000000000|2.5|3.5e+00|4.5e+00|5.5e+00|6.7e+00|8.9e+01|7.8e+01\n";
+        "5.0e-01|0x3ff8000000000000|2.5|3.5e+00|4.5e+00|5.5e+00|6.5e+00|7.7e+00|8.9e+01|7.8e+01\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -178,11 +179,11 @@ TEST_F(TracerTest, region_entry_exit)
     tracer.update(agent_vals, short_regions); // no additional samples after flush
     std::string expected_str ="\n\n\n\n\n\n"
         "\n" // header
-        "2.2e+00|0x123|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x123|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x345|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x456|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x345|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x123|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x123|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x345|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x456|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x345|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "\n"; // sample
 
      std::istringstream expected(expected_str);
