@@ -330,11 +330,18 @@ namespace geopm
         std::set<int> cpu_idx;
         m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
 
-        MSRSignal signal = *(ncsm_it->second[*(cpu_idx.begin())]);
+        // Copy of existing signal but map own memory
+        MSRSignal signal {*(ncsm_it->second[*(cpu_idx.begin())])};
         uint64_t offset = signal.offset();
         uint64_t field = 0;
         signal.map_field(&field);
         field = m_msrio->read_msr(*(cpu_idx.begin()), offset);
+        // @todo last value can only get updated with read batch. This means that
+        // multiple calls to read_signal for a 64-bit counter will return 0
+        // unless read_batch is called for those counters.
+        // Alternative it to update last_value here, but that would mean
+        // multiple calls to sample() could return different values if interleaved
+        // with a call to read_signal().
         return signal.sample();
     }
 
