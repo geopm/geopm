@@ -47,6 +47,8 @@ geopmplotter(1)     geopmplotter.1
 geopmpolicy(1)      geopmpolicy.1
 geopmpy_launcher(1) geopmpy_launcher.1
 geopmsrun(1)        geopmsrun.1
+geopmagent(1)       geopmagent.1
+geopmendpoint(1)    geopmendpoint.1
 
 
 #external pages
