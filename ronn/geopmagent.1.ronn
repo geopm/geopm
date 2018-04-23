@@ -1,0 +1,110 @@
+geopmagent(1) -- query agent information and create static policies
+======================================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmagent` [`-a` _AGENT_] [`-p` _POLICY0_,_POLICY1_,...]
+
+## DESCRIPTION
+
+Used to get information about GEOPM agents on a system and create
+static policies for those agents.
+When no options are provided `geopmagent` will display the names of
+all available agents.  When the agent is specified with option `-a`
+but `-p` is not given, `geopmagent` will print names of the agent's
+policies and samples.  If both `-a` and `-p` are provided then
+`geopmagent` will print to standard output a JSON formatted policy
+string corresponding to the policy values specified by the `-p`
+option.  The argument to `-p` is a comma-separated list of policy
+parameters.  To determine the parameter names and ordering
+appropriate for the `-p` option, run `geopmagent` with only the `-a`
+option and inspect the output line beginning with the string "Policy:".
+The JSON formatted string can be
+piped to a file to be used as the `GEOPM_POLICY` as described in
+**geopm(7)** to provide a static input policy for the GEOPM
+controller.  If `-p` is given, but `-a` is not an error is reported.
+
+## OPTIONS
+  * `--help`:
+    Print brief summary of the command line usage information,
+    then exit.
+
+  * `--version`:
+    Print version of **geopm(7)** to standard output, then exit.
+
+  * `-a` _AGENT_:
+    Specify the name of the agent.
+
+  * `-p` _POLICY0_,_POLICY1_,...:
+    The values to be set for each policy in a comma-separated list.
+
+## EXAMPLES
+List all available agents on the system:
+
+    $ geopmagent
+    monitor
+    power_balancing
+    freq_efficient
+
+Get power_balancing agent policy and sample names:
+
+    $ geopmagent -a power_balancing
+    Policy: POWER
+    Sample: POWER,IS_CONVERGED,EPOCH_RUNTIME
+
+Create policy for power_balancing agent with 250 Watts per node power
+budget:
+
+    $ geopmagent -a power_balancing -p 250
+    {"POWER" : 250}
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmpy(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_sched(3)**,
+**geopm_version(3)**,
+**geopmanalysis(1)**,
+**geopmaprun(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
+**geopmplotter(1)**,
+**geopmendpoint(1)**,
+**geopmsrun(1)**
