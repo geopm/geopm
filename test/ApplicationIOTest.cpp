@@ -42,6 +42,8 @@
 #include "Helper.hpp"
 #include "MockProfileSampler.hpp"
 #include "MockKprofileIOSample.hpp"
+#include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 
 using geopm::ApplicationIO;
 using testing::Return;
@@ -53,6 +55,8 @@ class ApplicationIOTest : public ::testing::Test
         std::string m_shm_key = "test_shm";
         MockProfileSampler *m_sampler;
         MockKprofileIOSample *m_pio_sample;
+        MockPlatformIO m_platform_io;
+        MockPlatformTopo m_platform_topo;
         std::unique_ptr<ApplicationIO> m_app_io;
 };
 
@@ -68,7 +72,8 @@ void ApplicationIOTest::SetUp()
     EXPECT_CALL(*m_sampler, capacity());
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, std::move(tmp_s), tmp_pio);
+    m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, std::move(tmp_s), tmp_pio,
+                                                 m_platform_io, m_platform_topo);
 }
 
 TEST_F(ApplicationIOTest, passthrough)

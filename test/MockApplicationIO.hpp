@@ -52,6 +52,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                            double(uint64_t region_id));
         MOCK_CONST_METHOD0(total_app_runtime,
                            double(void));
+        MOCK_CONST_METHOD0(total_app_energy,
+                           double(void));
         MOCK_CONST_METHOD0(total_app_ignore_runtime,
                            double(void));
         MOCK_CONST_METHOD0(total_app_mpi_runtime,
