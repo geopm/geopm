@@ -35,6 +35,11 @@
 #include <mpi.h>
 #include <geopm.h>
 
+#include <string.h>
+#include <limits.h>
+#include <errno.h>
+#include <unistd.h>
+
 #include "tutorial_region.h"
 
 
@@ -54,11 +59,17 @@ int main(int argc, char **argv)
         printf("MPI_COMM_WORLD size: %d\n", size);
     }
 
+    uint64_t ignore_sleep_rid;
     uint64_t sleep_rid;
     uint64_t stream_rid;
     uint64_t dgemm_rid;
     uint64_t all2all_rid;
 
+    if (!err) {
+        err = geopm_prof_region("tutorial_ignore_sleep",
+                                GEOPM_REGION_HINT_IGNORE,
+                                &ignore_sleep_rid);
+    }
     if (!err) {
         err = geopm_prof_region("tutorial_sleep",
                                 GEOPM_REGION_HINT_UNKNOWN,
@@ -80,6 +91,10 @@ int main(int argc, char **argv)
                                 &all2all_rid);
     }
 
+    /// @todo big open with new imp (struggling to understand how it ever worked in legacy)
+    /// how can we possibly provide unskewed last epoch?
+    /// will be hacking prof exit to call final epoch but this will be skewed by what users
+    /// expect to be post epoch (post loop processing)
     int num_iter = 10;
     double sleep_big_o = 1.0;
     double stream0_big_o = 1.0;
@@ -91,8 +106,28 @@ int main(int argc, char **argv)
         printf("Beginning loop of %d iterations.\n", num_iter);
         fflush(stdout);
     }
+    char *env_var = "DO_IGNORE";
+    char *env_string = getenv(env_var);
+    if (env_string != NULL) {
+        err = geopm_prof_enter(ignore_sleep_rid);
+        if (!err) {
+            err = tutorial_sleep(sleep_big_o, 0);
+        }
+        if (!err) {
+            err = geopm_prof_exit(ignore_sleep_rid);
+        }
+    }
     for (int i = 0; !err && i < num_iter; ++i) {
         err = geopm_prof_epoch();
+        if (!err) {
+            err = geopm_prof_enter(ignore_sleep_rid);
+        }
+        if (!err) {
+            err = tutorial_sleep(sleep_big_o, 0);
+        }
+        if (!err) {
+            err = geopm_prof_exit(ignore_sleep_rid);
+        }
         if (!err) {
             err = geopm_prof_enter(sleep_rid);
         }
