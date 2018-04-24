@@ -31,6 +31,7 @@
  */
 
 #include <algorithm>
+#include <iostream>
 
 #include "geopm.h"
 #include "geopm_message.h"
@@ -53,6 +54,7 @@ namespace geopm
         , m_agg_mpi_runtime(m_rank_per_node, 0.0)
         , m_last_epoch_runtime(m_rank_per_node, 0.0)
         , m_agg_runtime(m_rank_per_node, 0.0)
+        , m_pre_epoch_region(m_rank_per_node)
     {
         if (m_rank_per_node <= 0) {
             throw Exception("EpochRuntimeRegulator::EpochRuntimeRegulator(): invalid max rank count", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -81,6 +83,11 @@ namespace geopm
     void EpochRuntimeRegulator::record_entry(uint64_t region_id, int rank, struct geopm_time_s entry_time)
     {
         region_id = geopm_region_id_unset_hint(region_id);
+        if (!m_seen_first_epoch[rank]) {
+            if (m_pre_epoch_region[rank].emplace(region_id).second) {
+                std::cerr << "rank: " << rank << " entering region_id: " << region_id << " prior to first epoch" << std::endl;
+            }
+        }
         auto reg_it = m_rid_regulator_map.emplace(std::piecewise_construct,
                                                   std::forward_as_tuple(region_id),
                                                   std::forward_as_tuple(geopm::make_unique<KruntimeRegulator>
@@ -93,6 +100,7 @@ namespace geopm
         bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
         bool is_mpi = geopm_region_id_is_mpi(region_id);
         region_id = geopm_region_id_unset_hint(region_id);
+        auto pre_epoch_it = m_pre_epoch_region[rank].find(region_id);
         auto reg_it = m_rid_regulator_map.find(region_id);
         if (reg_it == m_rid_regulator_map.end()) {
             throw Exception("EpochRuntimeRegulator::record_exit(): unknown region detected.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -109,10 +117,21 @@ namespace geopm
             m_agg_ignore_runtime[rank] += m_curr_ignore_runtime[rank];
         }
         else if (is_mpi) {
-            m_curr_mpi_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
+            if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
+                m_curr_mpi_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
+            }
+            else {
+                m_pre_epoch_region[rank].erase(pre_epoch_it);
+            }
         }
         else if (is_ignore) {
-            m_curr_ignore_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
+            if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
+                m_curr_ignore_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
+            }
+            else {
+                std::cerr << "rank: " << rank << " entering region_id: " << region_id << " prior after first epoch" << std::endl;
+                m_pre_epoch_region[rank].erase(pre_epoch_it);
+            }
         }
     }
 
@@ -193,6 +212,11 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_app_ignore_time(void) const
     {
+        std::cerr << __func__;
+        for (auto &rt : m_agg_ignore_runtime) {
+            std::cerr << " rt: " << rt;
+        }
+        std::cerr << std::endl;
         return IPlatformIO::agg_average(m_agg_ignore_runtime);
     }
 }

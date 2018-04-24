@@ -35,6 +35,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include <map>
 #include <memory>
 
@@ -95,6 +96,7 @@ namespace geopm
             std::vector<double> m_agg_mpi_runtime;
             std::vector<double> m_last_epoch_runtime;
             std::vector<double> m_agg_runtime;
+            std::vector<std::set<uint64_t> > m_pre_epoch_region;
     };
 }
 
