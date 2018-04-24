@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "810b032f_d5b31344",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-24T18:19:39Z",
+      "side": 1,
+      "message": "remove, debug",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 9
+      },
+      "revId": "59f7b4c8f0f676e577faa554cf0e101a7e7d25e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e940919_744d21c5",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-24T18:19:39Z",
+      "side": 1,
+      "message": "shmem rank check and barrier if GEOMP_AGENT not set\n\nadd /// @todo When removing decider code path, remove this GEOPM_AGENT check",
+      "range": {
+        "startLine": 462,
+        "startChar": 0,
+        "endLine": 466,
+        "endChar": 50
+      },
+      "revId": "59f7b4c8f0f676e577faa554cf0e101a7e7d25e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24302150_d243b902",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-24T18:19:39Z",
+      "side": 1,
+      "message": "Put the try/catch (replaced with find/\u003d\u003dend()) into app_io interfaces and return 0.0.",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 13
+      },
+      "revId": "59f7b4c8f0f676e577faa554cf0e101a7e7d25e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
