@@ -32,7 +32,6 @@
 
 #include <set>
 #include <algorithm>
-#include <fstream>
 
 #include "geopm.h"
 
@@ -82,13 +81,7 @@ namespace geopm
     void KprofileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                   std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
-        static std::ofstream dump_file;
-        dump_file.open("/tmp/profile_table_dump.txt", std::ios::app);
-
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
-            dump_file << "rank: " << sample_it->second.rank << " rid: " << sample_it->second.region_id
-                      << " progress: " << sample_it->second.progress << std::endl;
-
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG
             if (rank_idx_it == m_rank_idx_map.end()) {
@@ -131,11 +124,8 @@ namespace geopm
                 else {
                     m_region_id[local_rank] = region_id;
                 }
-                dump_file << "rank rid set to " << m_region_id[local_rank] << std::endl;
-                m_rank_sample_buffer[local_rank].insert(rank_sample);
             }
         }
-        dump_file.close();
     }
 
     std::vector<double> KprofileIOSample::per_cpu_progress(const struct geopm_time_s &extrapolation_time) const

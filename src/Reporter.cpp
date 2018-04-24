@@ -143,7 +143,7 @@ namespace geopm
         double total_runtime = application_io.total_app_runtime();
         report << "Application Totals:" << std::endl
                << "\truntime (sec): " << total_runtime << std::endl
-               << "\tenergy (joules): " << -1 << std::endl
+               << "\tenergy (joules): " << application_io.total_app_energy() << std::endl
                << "\tmpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
                << "\tignore-time (sec): " << -1 << std::endl
                << "\tthrottle time (%): " << -1 << std::endl;

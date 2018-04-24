@@ -35,6 +35,7 @@
 #include "ApplicationIO.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
 #include "KprofileIOSample.hpp"
 #include "KprofileIOGroup.hpp"
@@ -52,20 +53,26 @@ namespace geopm
     ApplicationIO::ApplicationIO(const std::string &shm_key)
         : ApplicationIO(shm_key,
                         geopm::make_unique<ProfileSampler>(M_SHMEM_REGION_SIZE),
-                        nullptr)
+                        nullptr,
+                        platform_io(), platform_topo())
     {
 
     }
 
     ApplicationIO::ApplicationIO(const std::string &shm_key,
                                  std::unique_ptr<IProfileSampler> sampler,
-                                 std::shared_ptr<IKprofileIOSample> pio_sample)
+                                 std::shared_ptr<IKprofileIOSample> pio_sample,
+                                 IPlatformIO &platform_io,
+                                 IPlatformTopo &platform_topo)
         : m_sampler(std::move(sampler))
         , m_profile_io_sample(pio_sample)
+        , m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rank_per_node(-1)
         , m_epoch_regulator(nullptr)
+        , m_start_energy(NAN)
     {
         connect();
     }
@@ -89,6 +96,8 @@ namespace geopm
                 platform_io().register_iogroup(geopm::make_unique<KprofileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
             }
             m_is_connected = true;
+
+            m_start_energy = current_energy();
         }
     }
 
@@ -202,6 +211,32 @@ namespace geopm
         }
 #endif
         return m_profile_io_sample->total_app_runtime();
+    }
+
+    double ApplicationIO::current_energy(void) const
+    {
+        double energy = 0.0;
+        int num_package = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+        for (int pkg = 0; pkg < num_package; ++pkg) {
+            energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+        }
+        int num_dram = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY);
+        for (int dram = 0; dram < num_dram; ++dram) {
+            energy += m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
+        }
+        return energy;
+    }
+
+    double ApplicationIO::total_app_energy(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return current_energy() - m_start_energy;
     }
 
     double ApplicationIO::total_app_mpi_runtime(void) const
