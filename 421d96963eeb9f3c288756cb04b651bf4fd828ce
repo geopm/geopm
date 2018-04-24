@@ -150,6 +150,30 @@
     },
     {
       "key": {
+        "uuid": "12362296_53f61a30",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-24T18:19:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e9d3b61_de3f5da5",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 50
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4723678f_bd7e59c6",
         "filename": "src/KprofileIOGroup.cpp",
         "patchSetId": 1
@@ -173,6 +197,30 @@
     },
     {
       "key": {
+        "uuid": "9c15a54d_694025a7",
+        "filename": "src/KprofileIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-24T18:19:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4723678f_bd7e59c6",
+      "range": {
+        "startLine": 154,
+        "startChar": 48,
+        "endLine": 154,
+        "endChar": 111
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60ab1517_94cced37",
         "filename": "src/KprofileIOGroup.hpp",
         "patchSetId": 1
@@ -184,6 +232,30 @@
       "writtenOn": "2018-04-20T20:52:49Z",
       "side": 1,
       "message": "RUNTIME",
+      "range": {
+        "startLine": 75,
+        "startChar": 31,
+        "endLine": 75,
+        "endChar": 35
+      },
+      "revId": "421d96963eeb9f3c288756cb04b651bf4fd828ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "786c6159_73d78703",
+        "filename": "src/KprofileIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-04-24T18:19:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60ab1517_94cced37",
       "range": {
         "startLine": 75,
         "startChar": 31,
