@@ -87,6 +87,7 @@ namespace geopm
 
         register_msr_signal("FREQUENCY", "MSR::PERF_STATUS:FREQ");
         register_msr_control("FREQUENCY", "MSR::PERF_CTL:FREQ");
+        register_msr_control("POWER_PACKAGE", "MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT");
 
         register_msr_signal("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
