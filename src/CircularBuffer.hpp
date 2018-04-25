@@ -98,6 +98,10 @@ namespace geopm
             ///
             /// @return Value from the specified buffer index.
             virtual const type& value(const unsigned int index) const = 0;
+            /// @brief Create a vector from the circular buffer contents.
+            ///
+            /// @return Vector containing the circular buffer contents.
+            virtual const std::vector<type> make_vector(void) const = 0;
     };
 
     /// @brief Templated container for a circular buffer implementation.
@@ -123,6 +127,7 @@ namespace geopm
             int capacity(void) const override;
             void insert(const type value) override;
             const type& value(const unsigned int index) const override;
+            const std::vector<type> make_vector(void) const override;
         private:
             /// @brief Vector holding the buffer data.
             std::vector<type> m_buffer;
@@ -221,6 +226,20 @@ namespace geopm
             throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_buffer[(m_head + index) % m_max_size];
+    }
+
+    template <class type>
+    const std::vector<type> CircularBuffer<type>::make_vector(void) const
+    {
+        std::vector<type> result(size());
+        if (m_head == 0) {
+            std::copy(m_buffer.begin(), m_buffer.begin() + m_count, result.begin());
+        }
+        else {
+            std::copy(m_buffer.begin() + m_head, m_buffer.end(), result.begin());
+            std::copy(m_buffer.begin(), m_buffer.begin() + m_head, result.end() - m_head);
+        }
+        return result;
     }
 }
 
