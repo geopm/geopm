@@ -46,6 +46,8 @@ class MockTreeComm : public geopm::ITreeComm
                            int(int level));
         MOCK_CONST_METHOD1(level_size,
                            int(int level));
+        MOCK_CONST_METHOD1(level_num_leaf,
+                           int(int level));
 
         void send_up(int level, const std::vector<double> &sample) override
         {

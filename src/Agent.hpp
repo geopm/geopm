@@ -50,7 +50,8 @@ namespace geopm
             /// @brief Set the level where this Agent is active and push
             ///        signals/controls for that level.
             /// @param [in] level Level of the tree where this agent is active.
-            virtual void init(int level) = 0;
+            /// @param [in] num_leaf Total number of leaves for a given level.
+            virtual void init(int level, int num_leaf) = 0;
             /// @brief Called by Kontroller to split policy for
             ///        children at next level down the tree.
             /// @param [in] in_policy Policy values from the parent.
