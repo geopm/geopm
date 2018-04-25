@@ -33,7 +33,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <iostream>
 #include <string>
 #include <cmath>
 #include <string.h>
@@ -302,7 +301,13 @@ namespace geopm
             std::map<std::string, double> signal_value_map = parse_json();
             m_signals_down.clear();
             for (auto signal : m_signal_names) {
-                m_signals_down.emplace_back(signal_value_map[signal]);
+                try {
+                    m_signals_down.emplace_back(signal_value_map.at(signal));
+                }
+                catch (const std::out_of_range&) {
+                    throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): Signal \"" + signal + "\" not found.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
             }
         }
     }
