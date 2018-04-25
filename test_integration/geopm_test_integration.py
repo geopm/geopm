@@ -121,6 +121,9 @@ class TestIntegration(unittest.TestCase):
                     pass
 
     def assertNear(self, a, b, epsilon=0.05):
+        if a == 0:
+            a += a * epsilon
+            b += b * epsilon
         if abs((a - b) / a) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
 
@@ -642,7 +645,12 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             tt = self._output.get_trace(nn)
 
-            first_epoch_index = tt.loc[tt['region_id'] == '9223372036854775808'][:1].index[0]
+            epoch = '9223372036854775808'
+            # todo: hack to run tests with new controller
+            if os.getenv("GEOPM_AGENT", None) is not None:
+                epoch = '0x8000000000000000'
+
+            first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
