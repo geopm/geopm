@@ -48,17 +48,8 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
     geopmsrun  -N 2 \
                -n 8 \
                --geopm-ctl=process \
-               --geopm-report=tutorial_3_governed_report \
-               --geopm-trace=tutorial_3_governed_trace \
-               --geopm-policy=tutorial_governed_policy.json \
-               -- ./tutorial_3 \
-    && \
-    geopmsrun  -N 2 \
-               -n 8 \
-               --geopm-ctl=process \
                --geopm-report=tutorial_3_balanced_report \
                --geopm-trace=tutorial_3_balanced_trace \
-               --geopm-policy=tutorial_balanced_policy.json \
                -- ./tutorial_3
     err=$?
 

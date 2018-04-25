@@ -41,20 +41,36 @@ namespace geopm
 {
     class IPlatformIO;
     class IPlatformTopo;
-    class ITreeComm;
+    template <class type>
+    class ICircularBuffer;
 
     class BalancingAgent : public IAgent
     {
         public:
-            enum m_policy_mailbox_idx_e {
-                M_POLICY_MAILBOX_POWER,
-                M_NUM_POLICY_MAILBOX,
+            /// @todo May be useful for indexing into the vector of policies or samples.
+            enum m_policy_e {
+                M_POLICY_POWER,
+                M_NUM_POLICY,
             };
-            enum m_sample_mailbox_idx_e {
-                M_SAMPLE_MAILBOX_POWER,
-                M_SAMPLE_MAILBOX_IS_CONVERGED,
-                M_SAMPLE_MAILBOX_EPOCH_RUNTIME,
-                M_NUM_SAMPLE_MAILBOX,
+            enum m_plat_sample_e {
+                M_PLAT_SAMPLE_EPOCH_RUNTIME,
+                M_PLAT_SAMPLE_PKG_POWER,
+                M_PLAT_SAMPLE_DRAM_POWER,
+                M_PLAT_NUM_SAMPLE,
+            };
+            enum m_trace_sample_e {
+                M_TRACE_SAMPLE_EPOCH_RUNTIME,
+                M_TRACE_SAMPLE_PKG_POWER,
+                M_TRACE_SAMPLE_DRAM_POWER,
+                M_TRACE_SAMPLE_IS_CONVERGED,
+                M_TRACE_SAMPLE_PWR_BUDGET,
+                M_TRACE_NUM_SAMPLE,
+            };
+            enum m_sample_e { // Tree samples
+                M_SAMPLE_EPOCH_RUNTIME,
+                M_SAMPLE_POWER,
+                M_SAMPLE_IS_CONVERGED,
+                M_NUM_SAMPLE,
             };
 
             BalancingAgent();
@@ -77,39 +93,56 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            void split_budget(double total_power_budget,
-                              const std::vector<double> &power_used,
-                              const std::vector<double> &runtime,
-                              std::vector<double> &result);
+            void init_platform_io(void);
+            static std::vector<double> split_budget(double avg_power_budget,
+                                                    double min_power_budget,
+                                                    const std::vector<double> &last_budget,
+                                                    const std::vector<double> &last_runtime);
+
+            static std::vector<double> split_budget_helper(double avg_power_budget,
+                                                           double min_power_budget,
+                                                           const std::vector<double> &last_budget,
+                                                           const std::vector<double> &last_runtime);
+            static double runtime_stddev(const std::vector<std::vector<double> > &last_sample);
+
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
-            double m_convergence_guard_band;
-            int m_level;
-            int m_num_children;
-            // signals from parent
-            int m_power_budget_in_idx;
-            // feedback controls to parent
-            int m_power_used_out_idx;
-            int m_runtime_out_idx;
-            int m_is_converged_out_idx;
-            // signals from children
-            int m_power_used_agg_in_idx;
-            int m_runtime_agg_in_idx;
-            int m_is_converged_agg_in_idx;
-            std::vector<int> m_power_used_in_idx;
-            std::vector<int> m_runtime_in_idx;
-            // controls to children
-            std::vector<int> m_power_budget_out_idx;
-            // used to save results of sampling and budget splits
-            // between calls to descend() and ascend()
-            std::vector<double> m_power_used_in;
-            std::vector<double> m_runtime_in;
-            std::vector<double> m_is_converged_in;
-            std::vector<double> m_power_budget_out;
+
+            const double m_convergence_guard_band;
+            int m_level; // Needed in order to determine convergence
+            int m_num_leaf;
             bool m_is_converged;
-            std::function<double(const std::vector<double>&)> m_agg_fn_is_converged;
-            std::function<double(const std::vector<double>&)> m_agg_fn_power;
-            std::function<double(const std::vector<double>&)> m_agg_fn_epoch_runtime;
+
+            int m_updates_per_sample;
+            int m_samples_per_control;
+            double m_lower_bound;
+            double m_upper_bound;
+
+            std::vector<int> m_pio_idx;
+
+            std::vector<int> m_control_idx;
+
+            std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
+
+            double m_last_power_budget_in;
+            double m_last_power_budget_out;
+            std::vector<std::vector<double> > m_last_sample;
+            std::vector<std::vector<double> > m_last_child_policy;
+            std::unique_ptr<ICircularBuffer<double> > m_epoch_runtime_buf;
+            std::vector<double> m_sample;
+
+            double m_last_energy_status;
+            int m_sample_count;
+
+            bool m_is_updated;
+            const double m_convergence_target;
+            int m_num_out_of_range;
+            int m_min_num_converged;
+            int m_num_converged;
+            const double m_magic;
+            const int m_num_sample;
+            double m_last_epoch_runtime;
+
     };
 }
 
