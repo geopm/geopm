@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef GEOPM_SCHED_H_INCLUDE
+#define GEOPM_SCHED_H_INCLUDE
+
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -83,4 +86,6 @@ int geopm_sched_popen(const char *cmd, FILE **fid);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

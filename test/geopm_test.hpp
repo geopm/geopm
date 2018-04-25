@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_TEST_HPP
-#define GEOPM_TEST_HPP
+#ifndef GEOPM_TEST_HPP_INCLUDE
+#define GEOPM_TEST_HPP_INCLUDE
 
 #include <string>
 #include "gtest/gtest.h"
