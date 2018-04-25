@@ -211,7 +211,7 @@ namespace geopm
         std::vector<uint64_t> result(m_cpu_rank.size(), GEOPM_REGION_ID_UNMARKED);
         int cpu_idx = 0;
         for (auto rank : m_cpu_rank) {
-            result[cpu_idx] = m_region_id[rank];
+            result[cpu_idx] = geopm_region_id_unset_hint(m_region_id[rank]);
             ++cpu_idx;
         }
         return result;
