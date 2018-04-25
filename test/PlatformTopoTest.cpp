@@ -51,6 +51,7 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_hsw_lscpu_str;
         std::string m_knl_lscpu_str;
         std::string m_bdx_lscpu_str;
+        std::string m_ppc_lscpu_str;
         bool m_do_unlink;
 };
 
@@ -130,6 +131,28 @@ void PlatformTopoTest::SetUp()
         "NUMA node0 CPU(s):     0x3ffff00003ffff\n"
         "NUMA node1 CPU(s):     0xffffc0000ffffc0000\n"
         "Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch epb cat_l3 cdp_l3 invpcid_single intel_pt spec_ctrl ibpb_support tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm rdt_a rdseed adx smap xsaveopt cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts\n";
+    m_ppc_lscpu_str =
+        "Architecture:          ppc64le\n"
+        "Byte Order:            Little Endian\n"
+        "CPU(s):                160\n"
+        "On-line CPU(s) mask:   0x101010101010101010101010101010101010101\n"
+        "Off-line CPU(s) mask:  0xfefefefefefefefefefefefefefefefefefefefe\n"
+        "Thread(s) per core:    1\n"
+        "Core(s) per socket:    10\n"
+        "Socket(s):             2\n"
+        "NUMA node(s):          2\n"
+        "Model:                 1.0 (pvr 004c 0100)\n"
+        "Model name:            POWER8NVL (raw), altivec supported\n"
+        "CPU max MHz:           4023.0000\n"
+        "CPU min MHz:           2394.0000\n"
+        "Hypervisor vendor:     (null)\n"
+        "Virtualization type:   full\n"
+        "L1d cache:             64K\n"
+        "L1i cache:             32K\n"
+        "L2 cache:              512K\n"
+        "L3 cache:              8192K\n"
+        "NUMA node0 CPU(s):     0x1010101010101010101\n"
+        "NUMA node1 CPU(s):     0x101010101010101010100000000000000000000\n";
     m_do_unlink = false;
 }
 
@@ -188,6 +211,18 @@ TEST_F(PlatformTopoTest, bdx_num_domain)
     EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
     EXPECT_EQ(72, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+}
+
+TEST_F(PlatformTopoTest, ppc_num_domain)
+{
+    write_lscpu(m_ppc_lscpu_str);
+    geopm::PlatformTopo topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(20, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(20, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
     EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
