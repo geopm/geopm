@@ -49,6 +49,7 @@ namespace geopm
             virtual int root_level(void) const = 0;
             virtual int level_rank(int level) const = 0;
             virtual int level_size(int level) const = 0;
+            virtual int level_num_leaf(int level) const = 0;
             virtual void send_up(int level, const std::vector<double> &sample) = 0;
             virtual void send_down(int level, const std::vector<std::vector<double> > &policy) = 0;
             virtual bool receive_up(int level, std::vector<std::vector<double> > &sample) = 0;
@@ -80,6 +81,7 @@ namespace geopm
             int root_level(void) const override;
             int level_rank(int level) const override;
             int level_size(int level) const override;
+            int level_num_leaf(int level) const override;
             void send_down(int level, const std::vector<std::vector<double> > &policy) override;
             void send_up(int level, const std::vector<double> &sample) override;
             bool receive_down(int level, std::vector<double> &policy) override;
