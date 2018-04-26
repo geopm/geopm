@@ -103,13 +103,11 @@ namespace geopm
                             m_epoch_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, local_rank, rank_sample.timestamp);
                         }
                         m_epoch_regulator.record_entry(region_id, local_rank, rank_sample.timestamp);
-                        m_region_entry_exit.emplace_back(geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id), rank_sample.progress);
                     }
                     m_rank_sample_buffer[local_rank].clear();
                 }
                 if (rank_sample.progress == 1.0) {
                     m_epoch_regulator.record_exit(region_id, local_rank, rank_sample.timestamp);
-                    m_region_entry_exit.emplace_back(geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id), rank_sample.progress);
                     uint64_t mpi_parent_rid = geopm_region_id_unset_mpi(region_id);
                     if (m_epoch_regulator.is_regulated(mpi_parent_rid)) {
                         m_region_id[local_rank] = mpi_parent_rid;
@@ -236,11 +234,11 @@ namespace geopm
 
     std::list<std::pair<uint64_t, double> > KprofileIOSample::region_entry_exit(void) const
     {
-        return m_region_entry_exit;
+        return m_epoch_regulator.region_entry_exit();
     }
 
     void KprofileIOSample::clear_region_entry_exit(void)
     {
-        m_region_entry_exit.clear();
+        m_epoch_regulator.clear_region_entry_exit();
     }
 }
