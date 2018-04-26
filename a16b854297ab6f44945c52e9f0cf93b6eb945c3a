@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b33bbab_ee677a06",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "I think we can remove this",
+      "range": {
+        "startLine": 504,
+        "startChar": 64,
+        "endLine": 504,
+        "endChar": 68
+      },
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a5bd54d_be3afb3a",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d74927a3_e2a75e18",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "geopm_region_id_unset_hint",
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebe33a8e_5d350bb8",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "nice to have: remove spaces",
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e52c03e_a6fe4c0d",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "comment so we remember to remove this when we drop old code path",
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2fba61f_8e2e470f",
+        "filename": "test/ReporterTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "should be fine to use spaces instead of tabs",
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a4ea6e7_0b77da79",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T00:59:33Z",
+      "side": 1,
+      "message": "don\u0027t need",
+      "range": {
+        "startLine": 92,
+        "startChar": 34,
+        "endLine": 92,
+        "endChar": 40
+      },
+      "revId": "a16b854297ab6f44945c52e9f0cf93b6eb945c3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
