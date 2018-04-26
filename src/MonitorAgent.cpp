@@ -118,16 +118,15 @@ namespace geopm
         }
 #endif
         bool result = false;
-
-        if (m_num_ascend == M_SEND_PERIOD) {
+        if (m_num_ascend == 0) {
             for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
                 out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
             }
             result = true;
-            m_num_ascend = 0;
         }
-        else {
-            ++m_num_ascend;
+        ++m_num_ascend;
+        if (m_num_ascend == M_SEND_PERIOD) {
+           m_num_ascend = 0;
         }
         return result;
     }
