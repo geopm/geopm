@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31cbd310_530b6d95",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-04-26T19:08:36Z",
+      "side": 1,
+      "message": "Wrap in if do_send",
+      "range": {
+        "startLine": 220,
+        "startChar": 8,
+        "endLine": 221,
+        "endChar": 36
+      },
+      "revId": "62081698ad97dcefef6d126afe868945055863cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4e86d3e_2aff78f5",
+        "filename": "src/MonitorAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-04-26T19:08:36Z",
+      "side": 1,
+      "message": "Does not need to be a member.",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 125,
+        "endChar": 21
+      },
+      "revId": "62081698ad97dcefef6d126afe868945055863cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
