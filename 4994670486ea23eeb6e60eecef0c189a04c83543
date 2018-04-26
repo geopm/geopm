@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c40ebbc_3faa5d19",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T01:12:52Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 31
+      },
+      "revId": "4994670486ea23eeb6e60eecef0c189a04c83543",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ebd28b0_0dfdfedb",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T01:12:52Z",
+      "side": 1,
+      "message": "denom \u003d a if a !\u003d 0 else 1",
+      "revId": "4994670486ea23eeb6e60eecef0c189a04c83543",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7d0a8d_ad15c51c",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T01:12:52Z",
+      "side": 1,
+      "message": "don\u0027t need",
+      "range": {
+        "startLine": 650,
+        "startChar": 38,
+        "endLine": 650,
+        "endChar": 44
+      },
+      "revId": "4994670486ea23eeb6e60eecef0c189a04c83543",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
