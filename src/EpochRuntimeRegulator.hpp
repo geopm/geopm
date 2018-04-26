@@ -38,6 +38,7 @@
 #include <set>
 #include <map>
 #include <memory>
+#include <list>
 
 #include "geopm_time.h"
 #include "geopm_message.h"
@@ -59,13 +60,16 @@ namespace geopm
             virtual bool is_regulated(uint64_t region_id) const = 0;
             virtual std::vector<double> last_epoch_time() const = 0;
             virtual std::vector<double> epoch_count() const = 0;
-
             virtual double total_region_runtime(uint64_t region_id) const = 0;
             virtual double total_region_mpi_time(uint64_t region_id) const = 0;
             virtual double total_epoch_runtime(void) const = 0;
             virtual double total_app_mpi_time(void) const = 0;
             virtual double total_app_ignore_time(void) const = 0;
             virtual int total_count(uint64_t region_id) const = 0;
+            /// @todo this level of pass through will go away once this class is
+            /// merged with ApplicationIO
+            virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
+            virtual void clear_region_entry_exit(void) = 0;
     };
 
     class EpochRuntimeRegulator : public IEpochRuntimeRegulator
@@ -89,6 +93,8 @@ namespace geopm
             double total_app_mpi_time(void) const override;
             double total_app_ignore_time(void) const override;
             int total_count(uint64_t region_id) const override;
+            std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
+            void clear_region_entry_exit(void) override;
         private:
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
             int m_rank_per_node;
@@ -101,6 +107,7 @@ namespace geopm
             std::vector<double> m_last_epoch_runtime;
             std::vector<double> m_agg_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
+            std::list<std::pair<uint64_t, double> > m_region_entry_exit;
     };
 }
 

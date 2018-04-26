@@ -106,7 +106,6 @@ namespace geopm
             ///        stored ProfileSampler data used for
             ///        extrapolation.
             std::vector<uint64_t> m_region_id;
-            std::list<std::pair<uint64_t, double> > m_region_entry_exit;
     };
 }
 

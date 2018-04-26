@@ -103,6 +103,9 @@ namespace geopm
                                                   std::forward_as_tuple(geopm::make_unique<KruntimeRegulator>
                                                                         (m_rank_per_node)));
         reg_it.first->second->record_entry(rank, entry_time);
+        if (region_id != GEOPM_REGION_ID_UNMARKED) {
+            m_region_entry_exit.emplace_back(geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id), 0.0);
+        }
     }
 
     void EpochRuntimeRegulator::record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time)
@@ -145,6 +148,9 @@ namespace geopm
             else {
                 m_pre_epoch_region[rank].erase(pre_epoch_it);
             }
+        }
+        if (region_id != GEOPM_REGION_ID_UNMARKED) {
+            m_region_entry_exit.emplace_back(geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id), 1.0);
         }
     }
 
@@ -228,5 +234,15 @@ namespace geopm
     double EpochRuntimeRegulator::total_app_ignore_time(void) const
     {
         return IPlatformIO::agg_average(m_agg_ignore_runtime);
+    }
+
+    std::list<std::pair<uint64_t, double> > EpochRuntimeRegulator::region_entry_exit(void) const
+    {
+        return m_region_entry_exit;
+    }
+
+    void EpochRuntimeRegulator::clear_region_entry_exit(void)
+    {
+        m_region_entry_exit.clear();
     }
 }
