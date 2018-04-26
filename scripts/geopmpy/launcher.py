@@ -282,8 +282,11 @@ class Config(object):
         String describing environment variables controlled by the
         configuration object.
         """
-        return ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
-                         for (kk, vv) in self.environ().iteritems()])
+        result = ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
+                           for (kk, vv) in self.environ().iteritems()])
+        if (self.omp_num_threads):
+            result += " OMP_NUM_THREADS={}".format(self.omp_num_threads)
+        return result
 
     def __str__(self):
         """
