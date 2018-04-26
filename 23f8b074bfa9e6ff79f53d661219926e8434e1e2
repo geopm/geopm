@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30ab3509_e9bf36c1",
+        "filename": "src/ApplicationIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T01:02:25Z",
+      "side": 1,
+      "message": "M_DOMAIN_BOARD, get rid of for loop",
+      "range": {
+        "startLine": 221,
+        "startChar": 81,
+        "endLine": 221,
+        "endChar": 97
+      },
+      "revId": "23f8b074bfa9e6ff79f53d661219926e8434e1e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6e50b0c_c2795b56",
+        "filename": "src/ApplicationIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-04-26T01:02:25Z",
+      "side": 1,
+      "message": "M_DOMAIN_BOARD",
+      "range": {
+        "startLine": 223,
+        "startChar": 74,
+        "endLine": 223,
+        "endChar": 95
+      },
+      "revId": "23f8b074bfa9e6ff79f53d661219926e8434e1e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
