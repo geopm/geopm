@@ -118,15 +118,18 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         size_t msg_size = sizeof(double) * m_num_send_down;
+        double is_ready = 1.0;
+        m_policy_mailbox[0] = is_ready;
         // Copy message to self for rank zero
-        memcpy(m_policy_mailbox, policy[0].data(), msg_size);
+        memcpy(m_policy_mailbox + 1, policy[0].data(), msg_size);
 
         for (int child_rank = 1; child_rank != m_size; ++child_rank) {
             if (policy[child_rank] != m_policy_last[child_rank]) {
                 m_comm->window_lock(m_policy_window, true, child_rank, 0);
-                m_comm->window_put(policy[child_rank].data(), msg_size, child_rank, 0, m_policy_window);
+                m_comm->window_put(&is_ready, sizeof(double), child_rank, 0, m_policy_window);
+                m_comm->window_put(policy[child_rank].data(), msg_size, child_rank, sizeof(double), m_policy_window);
                 m_comm->window_unlock(m_policy_window, child_rank);
-                m_overhead_send += msg_size;
+                m_overhead_send += sizeof(double) + msg_size;
                 m_policy_last[child_rank] = policy[child_rank];
             }
         }
