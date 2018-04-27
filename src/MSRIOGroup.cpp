@@ -234,6 +234,12 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
+            if (control_name == "POWER_PACKAGE") {
+                write_control("MSR::PKG_POWER_LIMIT:SOFT_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+            }
+            if (control_name == "FREQUENCY") {
+                write_control("MSR::PERF_CTL:ENABLE", domain_type, domain_idx, 1.0);
+            }
             // control_name may be alias, so use active control MSR name
             std::string registered_name = nccm_it->second[*(cpu_idx.begin())]->name();
             if (m_active_control[ii]->name() == registered_name &&
