@@ -160,6 +160,7 @@ namespace geopm
     {
         m_reporter->init();
         setup_trace();
+        m_platform_io.read_batch();
         while (!m_application_io->do_shutdown()) {
             step();
         }
