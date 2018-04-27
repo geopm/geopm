@@ -30,6 +30,7 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
 import os
 import sys
 import unittest
@@ -1028,39 +1029,6 @@ class TestIntegration(unittest.TestCase):
                 if message in line:
                     found = True
         self.assertTrue(found, "runtime error message not found in log")
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_variable_end_time(self):
-        """
-        Check that two ranks on the same node can shutdown at
-        different times without overflowing the table.
-        """
-        raise NotImplementedError
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_power_excursion(self):
-        """
-        When a low power region is followed by a high power region, check
-        that the power consumed at beginning of high power region does
-        not excede the RAPL limit for too long.
-        """
-        raise NotImplementedError
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_short_region_control(self):
-        """
-        Check that power limit is maintained when an application has many
-        short running regions.
-        """
-        raise NotImplementedError
-
-    @unittest.skipUnless(False, 'Not implemented')
-    def test_mean_power_against_integration(self):
-        """
-        Check that the average of the per sample power is close to the
-        total change in energy divided by the total change in time.
-        """
-        raise NotImplementedError
 
 
 if __name__ == '__main__':

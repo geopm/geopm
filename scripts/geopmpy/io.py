@@ -479,7 +479,7 @@ class Report(dict):
         these fields may change.
 
         """
-        (Report._version, Report._profile_name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._power_budget) = \
+        (Report._version, Report._name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._power_budget) = \
             None, None, None, None, None, None
 
     def __init__(self, report_path, offset=0):
@@ -488,6 +488,7 @@ class Report(dict):
         self._offset = offset
         self._version = None
         self._profile_name = None
+        self._agent_name = None
         self._mode = None
         self._tree_decider = None
         self._leaf_decider = None
@@ -510,23 +511,27 @@ class Report(dict):
                     match = re.search(r'^##### geopm (\S+) #####$', line)
                     if match is not None:
                         self._version = match.group(1)
-                elif self._profile_name is None:
+                if self._profile_name is None:
                     match = re.search(r'^Profile: (\S+)$', line)
                     if match is not None:
                         self._profile_name = match.group(1)
-                elif self._mode is None:
+                if self._agent_name is None:
+                    match = re.search(r'^Agent: (\S+)$', line)
+                    if match is not None:
+                        self._agent_name = match.group(1)
+                if self._mode is None:
                     match = re.search(r'^Policy Mode: (\S+)$', line)
                     if match is not None:
                         self._mode = match.group(1)
-                elif self._tree_decider is None:
+                if self._tree_decider is None:
                     match = re.search(r'^Tree Decider: (\S+)$', line)
                     if match is not None:
                         self._tree_decider = match.group(1)
-                elif self._leaf_decider is None:
+                if self._leaf_decider is None:
                     match = re.search(r'^Leaf Decider: (\S+)$', line)
                     if match is not None:
                         self._leaf_decider = match.group(1)
-                elif self._power_budget is None:
+                if self._power_budget is None:
                     match = re.search(r'^Power Budget: (\S+)$', line)
                     if match is not None:
                         self._power_budget = int(match.group(1))
@@ -534,28 +539,31 @@ class Report(dict):
                     match = re.search(r'^Host: (\S+)$', line)
                     if match is not None:
                         self._node_name = match.group(1)
-                elif region_name is None:
-                    match = re.search(r'^Region (\S+) \(([0-9]+)\):', line)
+                if region_name is None:
+                    match = re.search(r'^Region (\S+) \((0x)?([0-9a-fA-F]+)\):', line)
                     if match is not None:
                         region_name = match.group(1)
-                        region_id = match.group(2)
-                elif runtime is None:
+                        if match.group(2) is None:
+                            region_id = match.group(3)
+                        else:
+                            region_id = match.group(2) + match.group(3)
+                if runtime is None:
                     match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
                         runtime = float(match.group(1))
-                elif energy is None:
+                if energy is None:
                     match = re.search(r'^\s+energy.+: ' + float_regex, line)
                     if match is not None:
                         energy = float(match.group(1))
-                elif frequency is None:
+                if frequency is None:
                     match = re.search(r'^\s+frequency.+: ' + float_regex, line)
                     if match is not None:
                         frequency = float(match.group(1))
-                elif mpi_runtime is None:
+                if mpi_runtime is None:
                     match = re.search(r'^\s+mpi-runtime.+: ' + float_regex, line)
                     if match is not None:
                         mpi_runtime = float(match.group(1))
-                elif count is None:
+                if count is None:
                     match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
@@ -566,23 +574,24 @@ class Report(dict):
                     match = re.search(r'^Application Totals:$', line)
                     if match is not None:
                         found_totals = True
-                elif self._total_runtime is None:
-                    match = re.search(r'\s+runtime.+: ' + float_regex, line)
-                    if match is not None:
-                        self._total_runtime = float(match.group(1))
-                elif self._total_energy is None:
-                    match = re.search(r'\s+energy.+: ' + float_regex, line)
-                    if match is not None:
-                        self._total_energy = float(match.group(1))
-                elif self._total_mpi_runtime is None:
-                    match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
-                    if match is not None:
-                        self._total_mpi_runtime = float(match.group(1))
-                elif self._total_ignore_runtime is None:
-                    match = re.search(r'\s+ignore-time.+: ' + float_regex, line)
-                    if match is not None:
-                        self._total_ignore_runtime = float(match.group(1))
-                        break # End of report blob
+                else:
+                    if self._total_runtime is None:
+                        match = re.search(r'\s+runtime.+: ' + float_regex, line)
+                        if match is not None:
+                            self._total_runtime = float(match.group(1))
+                    if self._total_energy is None:
+                        match = re.search(r'\s+energy.+: ' + float_regex, line)
+                        if match is not None:
+                            self._total_energy = float(match.group(1))
+                    if self._total_mpi_runtime is None:
+                        match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
+                        if match is not None:
+                            self._total_mpi_runtime = float(match.group(1))
+                    if self._total_ignore_runtime is None:
+                        match = re.search(r'\s+ignore-time.+: ' + float_regex, line)
+                        if match is not None:
+                            self._total_ignore_runtime = float(match.group(1))
+                            break # End of report blob
 
                 line = fid.readline()
             self._offset = fid.tell()
@@ -755,9 +764,9 @@ class Trace(object):
     """
     def __init__(self, trace_path):
         self._path = trace_path
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id ' : str})
-        self._df.columns = list(map(str.strip, self._df[:0])) # Strip whitespace from column names
-        self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip) # Strip whitespace from region ID's
+        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id': str})  # region_id must be a string because pandas can't handle 64-bit integers
+        self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
+        self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip)  # Strip whitespace from region ID's
         self._version = None
         self._profile_name = None
         self._power_budget = None
@@ -956,7 +965,7 @@ class BenchConf(object):
     """
     def __init__(self, path):
         self._path = path
-        self._loop_count = 1;
+        self._loop_count = 1
         self._region = []
         self._big_o = []
         self._hostname = []
@@ -1067,7 +1076,6 @@ options : {options}
 
     def __str__(self):
         return self.__repr__()
-
 
     def set_tree_decider(self, decider):
         self._options['tree_decider'] = decider
