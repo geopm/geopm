@@ -84,7 +84,8 @@ namespace geopm
             std::string m_report_name;
             IPlatformIO &m_platform_io;
             int m_rank;
-            int m_energy_idx;
+            int m_energy_pkg_idx;
+            int m_energy_dram_idx;
             int m_clk_core_idx;
             int m_clk_ref_idx;
     };
