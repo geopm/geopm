@@ -158,17 +158,17 @@ namespace geopm
 #endif
     }
 
-    std::string BalancingAgent::report_header(void)
+    std::vector<std::pair<std::string, std::string> > BalancingAgent::report_header(void)
     {
-        return "balancing agent";
+        return {};
     }
 
-    std::string BalancingAgent::report_node(void)
+    std::vector<std::pair<std::string, std::string> > BalancingAgent::report_node(void)
     {
-        return "";
+        return {};
     }
 
-    std::map<uint64_t, std::string> BalancingAgent::report_region(void)
+    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > BalancingAgent::report_region(void)
     {
         return {};
     }

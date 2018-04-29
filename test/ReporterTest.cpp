@@ -123,11 +123,11 @@ class ReporterTest : public testing::Test
             {GEOPM_REGION_ID_UNMARKED, 4444},
             {GEOPM_REGION_ID_EPOCH, 0}
         };
-        std::map<uint64_t, std::string> m_region_agent_detail = {
-            {geopm_crc32_str(0, "all2all"), "agent stat 1"},
-            {geopm_crc32_str(0, "model-init"), "agent stat 2"},
-            {GEOPM_REGION_ID_UNMARKED,"agent stat 3"},
-            {GEOPM_REGION_ID_EPOCH, "agent stat 4"}
+        std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_agent_detail = {
+            {geopm_crc32_str(0, "all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
+            {geopm_crc32_str(0, "model-init"), {{"agent stat", "2"}}},
+            {GEOPM_REGION_ID_UNMARKED, {{"agent stat", "3"}}},
+            {GEOPM_REGION_ID_EPOCH, {{"agent stat", "4"}}}
         };
 
 };
@@ -216,47 +216,57 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
     EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
 
+    std::vector<std::pair<std::string, std::string> >  agent_header {
+        {"one", "1"},
+        {"two", "2"} };
+    std::vector<std::pair<std::string, std::string> >  agent_node_report {
+        {"three", "3"},
+        {"four", "4"} };
+
     // Check for labels at start of line but ignore numbers
     // Note that region lines start with tab
     std::string expected = "#####\n"
         "Profile: " + m_profile_name + "\n"
         "Agent: my_agent\n"
-        "Agent header: agent_header\n"
+        "one: 1\n"
+        "two: 2\n"
         "Policy Mode:\n"
         "Tree Decider:\n"
         "Leaf Decider:\n"
         "Power Budget:\n"
         "\n"
         "Host:\n"
-        "Agent details: node_report\n"
+        "three: 3\n"
+        "four: 4\n"
         "Region all2all (\n"
         "    runtime (sec): 33.33\n"
         "    energy (joules): 778\n"
         "    frequency (%): 81.81\n"
         "    mpi-runtime (sec): 3.4\n"
         "    count: 20\n"
-        "    agent stat 1\n"
+        "    agent stat: 1\n"
+        "    agent other stat: 2\n"
         "Region model-init (\n"
         "    runtime (sec): 22.11\n"
         "    energy (joules): 889\n"
         "    frequency (%): 84.84\n"
         "    mpi-runtime (sec): 5.6\n"
         "    count: 1\n"
-        "    agent stat 2\n"
+        "    agent stat: 2\n"
         "Region unmarked-region (\n"
         "    runtime (sec): 12.13\n"
         "    energy (joules): 223\n"
         "    frequency (%): 77.2727\n"
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
-        "    agent stat 3\n"
+        "    agent stat: 3\n"
         "Region epoch (\n"
         "    runtime (sec): 77.7\n"
         "    energy (joules): 1\n"
         "    frequency (%): 0\n"
         "    mpi-runtime (sec): 0\n"
         "    count: 0\n"
-        "    agent stat 4\n"
+        "    agent stat: 4\n"
         "Application Totals:\n"
         "    runtime (sec): 56\n"
         "    energy (joules): 4444\n"
@@ -267,7 +277,7 @@ TEST_F(ReporterTest, generate)
 
     std::istringstream exp_stream(expected);
 
-    m_reporter->generate("my_agent", "agent_header", "node_report", m_region_agent_detail,
+    m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
                          m_application_io,
                          m_comm, m_tree_comm);
     std::ifstream report(m_report_name);

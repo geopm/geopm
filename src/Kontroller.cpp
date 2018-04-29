@@ -168,19 +168,16 @@ namespace geopm
 
     void Kontroller::generate(void)
     {
-        std::string agent_report_header;
+        std::vector<std::pair<std::string, std::string> > agent_report_header;
         if (m_is_root) {
             agent_report_header = m_agent[m_root_level]->report_header();
         }
-        /// @todo why get node reports from each level of the tree?
-        std::ostringstream agent_node_report;
-        for (int level = 0; level < m_max_level; ++level) {
-            agent_node_report << m_agent[level]->report_node();
-        }
+
+        auto agent_node_report = m_agent[0]->report_node();
 
         m_reporter->generate(m_agent_name,
                              agent_report_header,
-                             agent_node_report.str(),
+                             agent_node_report,
                              m_agent[0]->report_region(),
                              *m_application_io,
                              m_comm,

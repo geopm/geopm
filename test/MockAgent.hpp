@@ -54,11 +54,11 @@ class MockAgent : public geopm::IAgent
         MOCK_METHOD0(wait,
                      void(void));
         MOCK_METHOD0(report_header,
-                     std::string(void));
+                     std::vector<std::pair<std::string, std::string> >(void));
         MOCK_METHOD0(report_node,
-                     std::string(void));
+                     std::vector<std::pair<std::string, std::string> >(void));
         MOCK_METHOD0(report_region,
-                     std::map<uint64_t, std::string>(void));
+                     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >(void));
         MOCK_CONST_METHOD0(trace_names,
                            std::vector<std::string>(void));
         MOCK_METHOD1(trace_values,
