@@ -90,7 +90,6 @@ class KontrollerTestMockPlatformIO : public MockPlatformIO
 
     private:
         int m_index = 0;
-
 };
 
 
@@ -116,6 +115,8 @@ class KontrollerTest : public ::testing::Test
 
         int m_num_step = 3;
         std::list<std::pair<uint64_t, double> > m_region_entry_exit;
+        std::vector<std::pair<std::string, std::string> > m_agent_report;
+        std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
 };
 
 void KontrollerTest::SetUp()
@@ -184,10 +185,9 @@ TEST_F(KontrollerTest, single_node)
     }
 
     // generate report and trace
-    EXPECT_CALL(*agent, report_header());
-    EXPECT_CALL(*agent, report_node());
-    std::map<uint64_t, std::string> region_names {};
-    EXPECT_CALL(*agent, report_region()).WillOnce(Return(region_names));
+    EXPECT_CALL(*agent, report_header()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*agent, report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
@@ -252,9 +252,8 @@ TEST_F(KontrollerTest, two_level_controller_1)
     // only root should add header
     EXPECT_CALL(*agent, report_header()).Times(0);
 
-    EXPECT_CALL(*agent, report_node());
-    std::map<uint64_t, std::string> region_names {};
-    EXPECT_CALL(*agent, report_region()).WillOnce(Return(region_names));
+    EXPECT_CALL(*agent, report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
@@ -333,10 +332,9 @@ TEST_F(KontrollerTest, two_level_controller_2)
     for (const auto &agent : m_level_agent) {
         // only root should add header
         EXPECT_CALL(*agent, report_header()).Times(0);
-        EXPECT_CALL(*agent, report_node());
     }
-    std::map<uint64_t, std::string> region_names {};
-    EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(region_names));
+    EXPECT_CALL(*m_level_agent[0], report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
@@ -414,12 +412,9 @@ TEST_F(KontrollerTest, two_level_controller_0)
         kontroller.step();
     }
 
-    EXPECT_CALL(*m_level_agent[root_level], report_header());
-    for (const auto &agent : m_level_agent) {
-        EXPECT_CALL(*agent, report_node());
-    }
-    std::map<uint64_t, std::string> region_names {};
-    EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(region_names));
+    EXPECT_CALL(*m_level_agent[root_level], report_header()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*m_level_agent[0], report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();

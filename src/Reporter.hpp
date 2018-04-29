@@ -57,9 +57,9 @@ namespace geopm
             virtual ~IReporter() = default;
             virtual void init(void) = 0;
             virtual void generate(const std::string &agent_name,
-                                  const std::string &agent_report_header,
-                                  const std::string &agent_node_report,
-                                  const std::map<uint64_t, std::string> &agent_region_report,
+                                  const std::vector<std::pair<std::string, std::string> > &agent_report_header,
+                                  const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                                  const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                                   const IApplicationIO &application_io,
                                   std::shared_ptr<IComm> comm,
                                   const ITreeComm &tree_comm) = 0;
@@ -72,9 +72,9 @@ namespace geopm
             virtual ~Reporter() = default;
             void init(void) override;
             void generate(const std::string &agent_name,
-                          const std::string &agent_report_header,
-                          const std::string &agent_node_report,
-                          const std::map<uint64_t, std::string> &agent_region_report,
+                          const std::vector<std::pair<std::string, std::string> > &agent_report_header,
+                          const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                          const std::map<uint64_t, std::vector<std::pair<std::string, std::string> >> &agent_region_report,
                           const IApplicationIO &application_io,
                           std::shared_ptr<IComm> comm,
                           const ITreeComm &tree_comm) override;

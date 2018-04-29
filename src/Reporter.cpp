@@ -90,9 +90,9 @@ namespace geopm
     }
 
     void Reporter::generate(const std::string &agent_name,
-                            const std::string &agent_report_header,
-                            const std::string &agent_node_report,
-                            const std::map<uint64_t, std::string> &agent_region_report,
+                            const std::vector<std::pair<std::string, std::string> > &agent_report_header,
+                            const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                            const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                             const IApplicationIO &application_io,
                             std::shared_ptr<IComm> comm,
                             const ITreeComm &tree_comm)
@@ -107,7 +107,9 @@ namespace geopm
             master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
             master_report << "Profile: " << application_io.profile_name() << std::endl;
             master_report << "Agent: " << agent_name << std::endl;
-            master_report << "Agent header: " << agent_report_header << std::endl;
+            for (const auto &kv : agent_report_header) {
+                master_report << kv.first << ": " << kv.second << std::endl;
+            }
             master_report << "Policy Mode: deprecated" << std::endl;
             master_report << "Tree Decider: deprecated" << std::endl;
             master_report << "Leaf Decider: deprecated" << std::endl;
@@ -118,7 +120,9 @@ namespace geopm
         char hostname[NAME_MAX];
         gethostname(hostname, NAME_MAX);
         report << "\nHost: " << hostname << std::endl;
-        report << "Agent details: " << agent_node_report << std::endl;
+        for (const auto &kv : agent_node_report) {
+            report << kv.first << ": " << kv.second << std::endl;
+        }
         // vector of region data, in descending order by runtime
         struct region_info {
                 std::string name;
@@ -176,7 +180,9 @@ namespace geopm
             report << "    mpi-runtime (sec): " << application_io.total_region_mpi_runtime(region.id) << std::endl;
             report << "    count: " << region.count << std::endl;
             if (agent_region_report.find(region.id) != agent_region_report.end()) {
-                report << "    " << agent_region_report.at(region.id) << std::endl;
+                for (const auto &kv : agent_region_report.at(region.id)) {
+                    report << "    " << kv.first << ": " << kv.second << std::endl;
+                }
             }
         }
 
