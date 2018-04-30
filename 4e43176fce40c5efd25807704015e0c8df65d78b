@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6ff1e4f_9ccbd151",
+        "filename": "src/CpuinfoIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-30T17:22:07Z",
+      "side": 1,
+      "message": "Don\u0027t think this can be const.",
+      "range": {
+        "startLine": 56,
+        "startChar": 41,
+        "endLine": 56,
+        "endChar": 46
+      },
+      "revId": "4e43176fce40c5efd25807704015e0c8df65d78b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f80fff39_c1c368e8",
+        "filename": "src/CpuinfoIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-30T17:22:07Z",
+      "side": 1,
+      "message": "can\u0027t be const either",
+      "range": {
+        "startLine": 58,
+        "startChar": 96,
+        "endLine": 58,
+        "endChar": 100
+      },
+      "revId": "4e43176fce40c5efd25807704015e0c8df65d78b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7bd5537_16177b9d",
+        "filename": "src/PlatformIO.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-30T17:22:07Z",
+      "side": 1,
+      "message": "not const.",
+      "range": {
+        "startLine": 156,
+        "startChar": 50,
+        "endLine": 156,
+        "endChar": 55
+      },
+      "revId": "4e43176fce40c5efd25807704015e0c8df65d78b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dd05d1a_5c1ccd1b",
+        "filename": "src/PlatformIO.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-30T17:22:07Z",
+      "side": 1,
+      "message": "non-const",
+      "range": {
+        "startLine": 170,
+        "startChar": 83,
+        "endLine": 170,
+        "endChar": 88
+      },
+      "revId": "4e43176fce40c5efd25807704015e0c8df65d78b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5192730_bd8266ef",
+        "filename": "src/PlatformIO.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-30T17:22:07Z",
+      "side": 1,
+      "message": "not const",
+      "range": {
+        "startLine": 201,
+        "startChar": 55,
+        "endLine": 201,
+        "endChar": 60
+      },
+      "revId": "4e43176fce40c5efd25807704015e0c8df65d78b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
