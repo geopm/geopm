@@ -72,8 +72,8 @@ class MockPlatformIO : public geopm::IPlatformIO
                      double(const std::string &signal_name, int domain_type, int domain_idx));
         MOCK_METHOD4(write_control,
                      void(const std::string &control_name, int domain_type, int domain_idx, double setting));
-        MOCK_METHOD1(agg_function,
-                     std::function<double(const std::vector<double> &)>(std::string));
+        MOCK_CONST_METHOD1(agg_function,
+                           std::function<double(const std::vector<double> &)>(std::string));
 };
 
 #endif

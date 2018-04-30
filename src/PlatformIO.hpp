@@ -220,7 +220,7 @@ namespace geopm
             ///        single value.
             /// @param [in] signal_name Name of the signal.
             /// @return A function from vector<double> to double.
-            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) = 0;
+            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const = 0;
             /// @brief Returns the sum of the input operands.
             static double agg_sum(const std::vector<double> &operand);
             /// @brief Returns the average of the input operands.

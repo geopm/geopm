@@ -89,7 +89,7 @@ namespace geopm
                                int domain_type,
                                int domain_idx,
                                double setting) override;
-            std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) override;
+            std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const override;
         private:
             /// @brief Save a high-level signal as a combination of other signals.
             /// @param [in] signal_idx Index a caller can use to refer to this signal.

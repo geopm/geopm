@@ -292,12 +292,17 @@ namespace geopm
         double current_value = 0.0;
         uint64_t curr_rid = geopm_signal_to_field(sample(m_region_id_idx.at(signal_idx)));
         curr_rid = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, curr_rid);
-        const auto &data =  m_region_sample_data[std::make_pair(signal_idx, region_id)];
-        // if currently in this region, add current value to total
-        if (region_id == curr_rid && !isnan(data.last_entry_value)) {
-            current_value = sample(signal_idx) - data.last_entry_value;
+        auto idx = std::make_pair(signal_idx, region_id);
+        if (m_region_sample_data.find(idx) != m_region_sample_data.end()) {
+            const auto &data =  m_region_sample_data.at(idx);
+            current_value += data.total;
+            // if currently in this region, add current value to total
+            if (region_id == curr_rid &&
+                !isnan(data.last_entry_value)) {
+                current_value += sample(signal_idx) - data.last_entry_value;
+            }
         }
-        return current_value + data.total;
+        return current_value;
     }
 
     double PlatformIO::sample_combined(int signal_idx)
@@ -406,7 +411,7 @@ namespace geopm
         }
     }
 
-    std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name)
+    std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
             {"POWER", IPlatformIO::agg_sum},

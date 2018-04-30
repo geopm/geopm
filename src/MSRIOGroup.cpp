@@ -110,17 +110,17 @@ namespace geopm
 
     }
 
-    bool MSRIOGroup::is_valid_signal(const std::string &signal_name)
+    bool MSRIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_name_cpu_signal_map.find(signal_name) != m_name_cpu_signal_map.end();
     }
 
-    bool MSRIOGroup::is_valid_control(const std::string &control_name)
+    bool MSRIOGroup::is_valid_control(const std::string &control_name) const
     {
         return m_name_cpu_control_map.find(control_name) != m_name_cpu_control_map.end();
     }
 
-    int MSRIOGroup::signal_domain_type(const std::string &signal_name)
+    int MSRIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = IPlatformTopo::M_DOMAIN_INVALID;
         auto it = m_name_cpu_signal_map.find(signal_name);
@@ -130,7 +130,7 @@ namespace geopm
         return result;
     }
 
-    int MSRIOGroup::control_domain_type(const std::string &control_name)
+    int MSRIOGroup::control_domain_type(const std::string &control_name) const
     {
         int result = IPlatformTopo::M_DOMAIN_INVALID;
         auto it = m_name_cpu_control_map.find(control_name);

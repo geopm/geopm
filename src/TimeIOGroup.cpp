@@ -49,17 +49,17 @@ namespace geopm
         geopm_time(&m_time_zero);
     }
 
-    bool TimeIOGroup::is_valid_signal(const std::string &signal_name)
+    bool TimeIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_valid_signal_name.find(signal_name) != m_valid_signal_name.end();
     }
 
-    bool TimeIOGroup::is_valid_control(const std::string &control_name)
+    bool TimeIOGroup::is_valid_control(const std::string &control_name) const
     {
         return false;
     }
 
-    int TimeIOGroup::signal_domain_type(const std::string &signal_name)
+    int TimeIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
@@ -68,7 +68,7 @@ namespace geopm
         return result;
     }
 
-    int TimeIOGroup::control_domain_type(const std::string &control_name)
+    int TimeIOGroup::control_domain_type(const std::string &control_name) const
     {
         return PlatformTopo::M_DOMAIN_INVALID;
     }
