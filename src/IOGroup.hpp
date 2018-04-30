@@ -49,20 +49,20 @@ namespace geopm
             ///        supported by the group.
             /// @param [in] signal_name Name of signal to test.
             /// @return True if signal is supported, false otherwise.
-            virtual bool is_valid_signal(const std::string &signal_name) = 0;
+            virtual bool is_valid_signal(const std::string &signal_name) const = 0;
             /// @brief Test if control_name refers to a control
             ///        supported by the group.
             /// @param [in] control_name Name of control to test.
             /// @return True if control is supported, false otherwise.
-            virtual bool is_valid_control(const std::string &control_name) = 0;
+            virtual bool is_valid_control(const std::string &control_name) const = 0;
             /// @brief Query the domain for a named signal.
             /// @param [in] signal_name Name of the signal to query.
             /// @return One of the PlatformTopo::m_domain_e enum values.
-            virtual int signal_domain_type(const std::string &signal_name) = 0;
+            virtual int signal_domain_type(const std::string &signal_name) const = 0;
             /// @brief Query the domain for a named control.
             /// @param [in] control_name Name of the control to query.
             /// @return One of the PlatformTopo::m_domain_e enum values.
-            virtual int control_domain_type(const std::string &control_name) = 0;
+            virtual int control_domain_type(const std::string &control_name) const = 0;
             /// @brief Add a signal to the list of signals that is
             ///        read by read_batch() and sampled by sample().
             /// @param [in] signal_name Name of the signal requested.
@@ -104,7 +104,7 @@ namespace geopm
             /// @param [in] sample_idx The index returned by previous
             ///        call to push_signal().
             /// @return Value of signal in SI units.
-            virtual double sample(int sample_idx) = 0;
+            virtual double sample(int sample_idx) const = 0;
             /// @brief Adjust a setting for a particular control that
             ///        was previously pushed with push_control(). This
             ///        adjustment will be written to the platform on
@@ -128,7 +128,7 @@ namespace geopm
             /// @return The value in SI units of the signal.
             virtual double read_signal(const std::string &signal_name,
                                        int domain_type,
-                                       int domain_idx) = 0;
+                                       int domain_idx) const = 0;
             /// @brief Interpret the setting and write setting to the
             ///        platform.  Does not modify the values stored by
             ///        calling adjust().

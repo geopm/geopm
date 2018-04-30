@@ -153,7 +153,7 @@ namespace geopm
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
             /// @return Signal value measured from the platform in SI units.
-            virtual double sample(int signal_idx) = 0;
+            virtual double sample(int signal_idx) const = 0;
             /// @brief Sample a signal that has been pushed to
             ///        accumlate as per-region values.  Note that
             ///        unlike other signals this is a total
@@ -167,7 +167,7 @@ namespace geopm
             ///        push_region_signal_total to start the accumlation.
             /// @param [in] region_id The region ID to look up data for.
             /// @return Total accumulated value for the signal for one region.
-            virtual double sample_region_total(int signal_idx, uint64_t region_id) = 0;
+            virtual double sample_region_total(int signal_idx, uint64_t region_id) const = 0;
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.  This control will not
             ///        take effect until the next call to
@@ -198,7 +198,7 @@ namespace geopm
             /// @return The value in SI units of the signal.
             virtual double read_signal(const std::string &signal_name,
                                        int domain_type,
-                                       int domain_idx) = 0;
+                                       int domain_idx) const = 0;
             /// @brief Interpret the setting and write setting to the
             ///        platform.  Does not modify the values stored by
             ///        calling adjust().
@@ -220,7 +220,7 @@ namespace geopm
             ///        single value.
             /// @param [in] signal_name Name of the signal.
             /// @return A function from vector<double> to double.
-            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) = 0;
+            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const = 0;
             /// @brief Returns the sum of the input operands.
             static double agg_sum(const std::vector<double> &operand);
             /// @brief Returns the average of the input operands.

@@ -77,19 +77,19 @@ namespace geopm
                              int domain_idx) override;
             int num_signal(void) const override;
             int num_control(void) const override;
-            double sample(int signal_idx) override;
-            double sample_region_total(int signal_idx, uint64_t region_id) override;
+            double sample(int signal_idx) const override;
+            double sample_region_total(int signal_idx, uint64_t region_id) const override;
             void adjust(int control_idx, double setting) override;
             void read_batch(void) override;
             void write_batch(void) override;
             double read_signal(const std::string &signal_name,
                                int domain_type,
-                               int domain_idx) override;
+                               int domain_idx) const override;
             void write_control(const std::string &control_name,
                                int domain_type,
                                int domain_idx,
                                double setting) override;
-            std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) override;
+            std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const override;
         private:
             /// @brief Save a high-level signal as a combination of other signals.
             /// @param [in] signal_idx Index a caller can use to refer to this signal.
@@ -107,7 +107,7 @@ namespace geopm
                                            int domain_type,
                                            int domain_idx);
             /// @brief Sample a combined signal using the saved function and operands.
-            double sample_combined(int signal_idx);
+            double sample_combined(int signal_idx) const;
             bool m_is_active;
             IPlatformTopo &m_platform_topo;
             std::list<std::shared_ptr<IOGroup> > m_iogroup_list;

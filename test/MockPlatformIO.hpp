@@ -58,9 +58,9 @@ class MockPlatformIO : public geopm::IPlatformIO
                            int(void));
         MOCK_CONST_METHOD0(num_control,
                            int(void));
-        MOCK_METHOD1(sample,
+        MOCK_CONST_METHOD1(sample,
                      double(int signal_idx));
-        MOCK_METHOD2(sample_region_total,
+        MOCK_CONST_METHOD2(sample_region_total,
                      double(int signal_idx, uint64_t region_id));
         MOCK_METHOD2(adjust,
                      void(int control_idx, double setting));
@@ -68,11 +68,11 @@ class MockPlatformIO : public geopm::IPlatformIO
                      void(void));
         MOCK_METHOD0(write_batch,
                      void(void));
-        MOCK_METHOD3(read_signal,
+        MOCK_CONST_METHOD3(read_signal,
                      double(const std::string &signal_name, int domain_type, int domain_idx));
         MOCK_METHOD4(write_control,
                      void(const std::string &control_name, int domain_type, int domain_idx, double setting));
-        MOCK_METHOD1(agg_function,
+        MOCK_CONST_METHOD1(agg_function,
                      std::function<double(const std::vector<double> &)>(std::string));
 };
 

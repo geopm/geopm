@@ -270,7 +270,7 @@ namespace geopm
         return m_active_control.size();
     }
 
-    double PlatformIO::sample(int signal_idx)
+    double PlatformIO::sample(int signal_idx) const
     {
         double result = NAN;
         if (signal_idx < 0 || signal_idx >= num_signal()) {
@@ -287,24 +287,29 @@ namespace geopm
         return result;
     }
 
-    double PlatformIO::sample_region_total(int signal_idx, uint64_t region_id)
+    double PlatformIO::sample_region_total(int signal_idx, uint64_t region_id) const
     {
         double current_value = 0.0;
         uint64_t curr_rid = geopm_signal_to_field(sample(m_region_id_idx.at(signal_idx)));
         curr_rid = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, curr_rid);
-        const auto &data =  m_region_sample_data[std::make_pair(signal_idx, region_id)];
-        // if currently in this region, add current value to total
-        if (region_id == curr_rid && !isnan(data.last_entry_value)) {
-            current_value = sample(signal_idx) - data.last_entry_value;
+        auto idx = std::make_pair(signal_idx, region_id);
+        if (m_region_sample_data.find(idx) != m_region_sample_data.end()) {
+            const auto &data =  m_region_sample_data.at(idx);
+            current_value += data.total;
+            // if currently in this region, add current value to total
+            if (region_id == curr_rid &&
+                !isnan(data.last_entry_value)) {
+                current_value += sample(signal_idx) - data.last_entry_value;
+            }
         }
-        return current_value + data.total;
+        return current_value;
     }
 
-    double PlatformIO::sample_combined(int signal_idx)
+    double PlatformIO::sample_combined(int signal_idx) const
     {
         double result = NAN;
         auto &op_func_pair = m_combined_signal.at(signal_idx);
-        std::vector<int> &operand_idx = op_func_pair.first;
+        const std::vector<int> &operand_idx = op_func_pair.first;
         auto &signal = op_func_pair.second;
         std::vector<double> operands(operand_idx.size());
         for (size_t ii = 0; ii < operands.size(); ++ii) {
@@ -367,7 +372,7 @@ namespace geopm
 
     double PlatformIO::read_signal(const std::string &signal_name,
                                    int domain_type,
-                                   int domain_idx)
+                                   int domain_idx) const
     {
         double result = 0.0;
         bool is_found = false;
@@ -406,7 +411,7 @@ namespace geopm
         }
     }
 
-    std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name)
+    std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
             {"POWER", IPlatformIO::agg_sum},
