@@ -156,9 +156,11 @@ namespace geopm
                                   GEOPM_REGION_ID_UNMARKED,
                                   application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
                                   0});
+        /// @todo Epoch runtime for report should include MPI time, but currently it is removed
+        /// from the runtime total.
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_ID_EPOCH,
-                                  application_io.total_epoch_runtime(),
+                                  application_io.total_epoch_runtime() + application_io.total_epoch_mpi_runtime(),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
         for (const auto &region : region_ordered) {
@@ -191,7 +193,7 @@ namespace geopm
                << "    runtime (sec): " << total_runtime << std::endl
                << "    energy (joules): " << application_io.total_app_energy() << std::endl
                << "    mpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
-               << "    ignore-time (sec): " << application_io.total_app_ignore_runtime() << std::endl;
+               << "    ignore-time (sec): " << application_io.total_epoch_ignore_runtime() << std::endl;
 
         std::string max_memory = get_max_memory();
         report << "    geopmctl memory HWM: " << max_memory << std::endl;

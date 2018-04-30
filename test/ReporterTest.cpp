@@ -98,7 +98,7 @@ class ReporterTest : public testing::Test
             {geopm_crc32_str(0, "all2all"), 3.4},
             {geopm_crc32_str(0, "model-init"), 5.6},
             {GEOPM_REGION_ID_UNMARKED, 1.2},
-            {GEOPM_REGION_ID_EPOCH, 0}
+            {GEOPM_REGION_ID_EPOCH, 4.2}
         };
         std::map<uint64_t, double> m_region_count = {
             {geopm_crc32_str(0, "all2all"), 20},
@@ -172,8 +172,9 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_app_runtime()).WillOnce(Return(56));
     EXPECT_CALL(m_application_io, total_app_energy()).WillOnce(Return(4444));
     EXPECT_CALL(m_application_io, total_app_mpi_runtime()).WillOnce(Return(45));
-    EXPECT_CALL(m_application_io, total_app_ignore_runtime()).WillOnce(Return(32));
-    EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(77.7));
+    EXPECT_CALL(m_application_io, total_epoch_ignore_runtime()).WillOnce(Return(32));
+    EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
+    EXPECT_CALL(m_application_io, total_epoch_mpi_runtime()).WillOnce(Return(7.7));
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
     for (auto rid : m_region_runtime) {
         EXPECT_CALL(m_application_io, total_region_runtime(rid.first))
@@ -264,7 +265,7 @@ TEST_F(ReporterTest, generate)
         "    runtime (sec): 77.7\n"
         "    energy (joules): 1\n"
         "    frequency (%): 0\n"
-        "    mpi-runtime (sec): 0\n"
+        "    mpi-runtime (sec): 4.2\n"
         "    count: 0\n"
         "    agent stat: 4\n"
         "Application Totals:\n"
