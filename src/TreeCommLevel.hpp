@@ -45,11 +45,18 @@ namespace geopm
         public:
             ITreeCommLevel() = default;
             virtual ~ITreeCommLevel() = default;
+            /// @brief Returns the rank for this level.
             virtual int level_rank(void) const = 0;
+            /// @brief Send samples up to the parent.
             virtual void send_up(const std::vector<double> &sample) = 0;
+            /// @brief Send policies down to children.
             virtual void send_down(const std::vector<std::vector<double> > &policy) = 0;
+            /// @brief Receive samples up from children.
             virtual bool receive_up(std::vector<std::vector<double> > &sample) = 0;
+            /// @brief Receive policies down from the parent.
             virtual bool receive_down(std::vector<double> &policy) = 0;
+            /// @brief Returns the total number of bytes sent at this
+            ///        level.
             virtual size_t overhead_send(void) const = 0;
     };
 

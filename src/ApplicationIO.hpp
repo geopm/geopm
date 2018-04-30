@@ -53,20 +53,52 @@ namespace geopm
         public:
             IApplicationIO() = default;
             virtual ~IApplicationIO() = default;
+            /// @brief Returns true if the application has indicated
+            ///        it is shutting down.
             virtual bool do_shutdown(void) const = 0;
+            /// @brief Returns the path to the report file.
             virtual std::string report_name(void) const = 0;
+            /// @brief Returns the profile name to be used in the
+            ///        report.
             virtual std::string profile_name(void) const = 0;
+            /// @brief Returns the set of region names recorded by the
+            ///        application.
             virtual std::set<std::string> region_name_set(void) const = 0;
+            /// @brief Returns the total runtime for a region.
+            /// @param [in] region_id The region ID.
             virtual double total_region_runtime(uint64_t region_id) const = 0;
+            /// @brief Returns the total time spent in MPI for a
+            ///        region.
+            /// @param [in] region_id The region ID.
             virtual double total_region_mpi_runtime(uint64_t region_id) const = 0;
+            /// @brief Returns the total application runtime.
             virtual double total_app_runtime(void) const = 0;
+            /// @brief Returns the total application energy.
             virtual double total_app_energy(void) const = 0;
+            /// @brief Returns the total time spent in MPI for the
+            ///        application.
             virtual double total_app_mpi_runtime(void) const = 0;
+            /// @brief Returns the total time spent in ignored regions
+            ///        for the application.
             virtual double total_app_ignore_runtime(void) const = 0;
+            /// @brief Returns the total runtime after the first epoch
+            ///        call.
             virtual double total_epoch_runtime(void) const = 0;
+            /// @brief Returns the total number of times a region was
+            ///        entered.
+            /// @param [in] region_id The region ID.
             virtual int total_count(uint64_t region_id) const = 0;
+            /// @brief Check for updates from the application and
+            ///        adjust totals accordingly.
+            /// @param [in] comm Shared pointer to the comm used by
+            ///        the Controller.
             virtual void update(std::shared_ptr<IComm> comm) = 0;
+            /// @brief Returns the list of all regions entered or
+            ///        exited since the last call to
+            ///        clear_region_entry_exit().
             virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
+            /// @brief Resets the internal list of region entries and
+            ///        exits.
             virtual void clear_region_entry_exit(void) = 0;
     };
 

@@ -45,17 +45,29 @@ namespace geopm
         public:
             ITreeComm() = default;
             virtual ~ITreeComm() = default;
+            /// @brief Returns the number of tree levels controlled by
+            ///        the Controller on this node.
             virtual int num_level_controlled(void) const = 0;
+            /// @brief Returns the level of the root of the tree,
+            ///        which is equal to the number of levels in the
+            ///        tree.
             virtual int root_level(void) const = 0;
+            /// @brief Returns the rank of the given level.
             virtual int level_rank(int level) const = 0;
+            /// @brief Returns the size of the given level.
             virtual int level_size(int level) const = 0;
+            /// @brief Send samples up within a level.
             virtual void send_up(int level, const std::vector<double> &sample) = 0;
+            /// @brief Send policies down to children within a level.
             virtual void send_down(int level, const std::vector<std::vector<double> > &policy) = 0;
+            /// @brief Receive samples from children within a level.
             virtual bool receive_up(int level, std::vector<std::vector<double> > &sample) = 0;
+            /// @brief Receive policies from parents within a level.
             virtual bool receive_down(int level, std::vector<double> &policy) = 0;
+            /// @brief Returns the total number of bytes sent from the
+            ///        entire tree.
             virtual size_t overhead_send(void) const = 0;
-            virtual void broadcast_string(const std::string &str) = 0;
-            virtual std::string broadcast_string(void) = 0;
+            /// @brief Returns the number of children at each level.
             static std::vector<int> fan_out(const std::shared_ptr<IComm> &comm);
         private:
             enum m_tree_comm_const_e {
@@ -85,8 +97,6 @@ namespace geopm
             bool receive_down(int level, std::vector<double> &policy) override;
             bool receive_up(int level, std::vector<std::vector<double> > &sample) override;
             size_t overhead_send(void) const override;
-            void broadcast_string(const std::string &str) override;
-            std::string broadcast_string(void) override;
         private:
             int num_level_controlled(std::vector<int> coords);
             std::vector<std::unique_ptr<ITreeCommLevel> > init_level(
