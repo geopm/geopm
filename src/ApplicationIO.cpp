@@ -201,6 +201,18 @@ namespace geopm
         return m_epoch_regulator->total_epoch_runtime();
     }
 
+    double ApplicationIO::total_epoch_mpi_runtime(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return m_epoch_regulator->total_epoch_mpi_time();
+    }
+
     double ApplicationIO::total_app_runtime(void) const
     {
 #ifdef GEOPM_DEBUG
@@ -251,7 +263,7 @@ namespace geopm
         return m_epoch_regulator->total_app_mpi_time();
     }
 
-    double ApplicationIO::total_app_ignore_runtime(void) const
+    double ApplicationIO::total_epoch_ignore_runtime(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -260,7 +272,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_epoch_regulator->total_app_ignore_time();
+        return m_epoch_regulator->total_epoch_ignore_time();
     }
 
     int ApplicationIO::total_count(uint64_t region_id) const
