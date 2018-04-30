@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a83d0280_88acc6ad",
+        "filename": "src/ApplicationIO.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-04-30T17:46:31Z",
+      "side": 1,
+      "message": "sp",
+      "range": {
+        "startLine": 81,
+        "startChar": 63,
+        "endLine": 81,
+        "endChar": 70
+      },
+      "revId": "8df2a81ac9b55a3532f21147d69b216ccf451b01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
