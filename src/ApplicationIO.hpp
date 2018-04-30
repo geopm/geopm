@@ -79,11 +79,14 @@ namespace geopm
             ///        application.
             virtual double total_app_mpi_runtime(void) const = 0;
             /// @brief Returns the total time spent in ignored regions
-            ///        for the application.
-            virtual double total_app_ignore_runtime(void) const = 0;
+            ///        for the application after the first call to epoch.
+            virtual double total_epoch_ignore_runtime(void) const = 0;
             /// @brief Returns the total runtime after the first epoch
             ///        call.
             virtual double total_epoch_runtime(void) const = 0;
+            /// @brief Returns the total time spent in MPI after the
+            ///        first epoch call.
+            virtual double total_epoch_mpi_runtime(void) const = 0;
             /// @brief Returns the total number of times a region was
             ///        entered.
             /// @param [in] region_id The region ID.
@@ -127,8 +130,9 @@ namespace geopm
             double total_app_runtime(void) const override;
             double total_app_energy(void) const override;
             double total_app_mpi_runtime(void) const override;
-            double total_app_ignore_runtime(void) const override;
+            double total_epoch_ignore_runtime(void) const override;
             double total_epoch_runtime(void) const override;
+            double total_epoch_mpi_runtime(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<IComm> comm) override;
             std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
