@@ -81,17 +81,17 @@ namespace geopm
 
     }
 
-    bool KprofileIOGroup::is_valid_signal(const std::string &signal_name)
+    bool KprofileIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
     }
 
-    bool KprofileIOGroup::is_valid_control(const std::string &control_name)
+    bool KprofileIOGroup::is_valid_control(const std::string &control_name) const
     {
         return false;
     }
 
-    int KprofileIOGroup::signal_domain_type(const std::string &signal_name)
+    int KprofileIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = IPlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
@@ -100,7 +100,7 @@ namespace geopm
         return result;
     }
 
-    int KprofileIOGroup::control_domain_type(const std::string &control_name)
+    int KprofileIOGroup::control_domain_type(const std::string &control_name) const
     {
         return PlatformTopo::M_DOMAIN_INVALID;
     }
@@ -275,7 +275,7 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    int KprofileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    int KprofileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
     {
         if (!is_valid_signal(signal_name)) {
             throw Exception("KprofileIOGroup::check_signal(): signal_name " + signal_name +

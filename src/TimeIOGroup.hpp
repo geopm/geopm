@@ -46,10 +46,10 @@ namespace geopm
         public:
             TimeIOGroup();
             virtual ~TimeIOGroup() = default;
-            bool is_valid_signal(const std::string &signal_name) override;
-            bool is_valid_control(const std::string &control_name) override;
-            int signal_domain_type(const std::string &signal_name) override;
-            int control_domain_type(const std::string &control_name) override;
+            bool is_valid_signal(const std::string &signal_name) const override;
+            bool is_valid_control(const std::string &control_name) const override;
+            int signal_domain_type(const std::string &signal_name) const override;
+            int control_domain_type(const std::string &control_name) const override;
             int push_signal(const std::string &signal_name, int domain_type, int domain_idx)  override;
             int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
             void read_batch(void) override;
