@@ -208,7 +208,7 @@ namespace geopm
         else {
             do_send = m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
         }
-        for (int level = m_num_level_ctl - 1; do_send && level != -1; --level) {
+        for (int level = m_num_level_ctl - 1; level != -1; --level) {
             do_send = m_agent[level]->descend(m_in_policy, m_out_policy[level]);
             if (do_send) {
                 m_tree_comm->send_down(level, m_out_policy[level]);
@@ -230,7 +230,7 @@ namespace geopm
         m_tracer->update(m_trace_sample, m_application_io->region_entry_exit());
         m_application_io->clear_region_entry_exit();
 
-        for (int level = 0; do_send && level != m_num_level_ctl; ++level) {
+        for (int level = 0; level != m_num_level_ctl; ++level) {
             m_tree_comm->send_up(level, m_out_sample);
             do_send = m_tree_comm->receive_up(level, m_in_sample[level]);
             if (do_send) {

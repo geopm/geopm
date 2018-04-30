@@ -277,6 +277,10 @@ namespace geopm
             throw Exception("PlatformIO::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (!m_is_active) {
+            throw Exception("PlatformIO::sample(): read_batch() not called prior to call to sample()",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         auto &group_idx_pair = m_active_signal[signal_idx];
         if (group_idx_pair.first) {
             result = group_idx_pair.first->sample(group_idx_pair.second);
@@ -321,6 +325,10 @@ namespace geopm
             throw Exception("PlatformIO::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (isnan(setting)) {
+            throw Exception("PlatformIO::adjust(): setting is NAN",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         auto &group_idx_pair = m_active_control[control_idx];
         group_idx_pair.first->adjust(group_idx_pair.second, setting);
         m_is_active = true;
@@ -331,6 +339,8 @@ namespace geopm
         for (auto &it : m_iogroup_list) {
             it->read_batch();
         }
+        m_is_active = true;
+
         // aggregate region totals
         for (const auto &it : m_region_id_idx) {
             double value = sample(it.first);
@@ -355,7 +365,6 @@ namespace geopm
                 }
             }
         }
-        m_is_active = true;
     }
 
     void PlatformIO::write_batch(void)

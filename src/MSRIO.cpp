@@ -215,6 +215,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         open_msr_batch();
+#ifdef GEOPM_ENABLE_MSRSAFE_IOCTL_WRITE
         if (m_is_batch_enabled) {
             uint32_t batch_idx = 0;
             for (auto raw_it = raw_value.begin();
@@ -224,7 +225,9 @@ namespace geopm
             }
             msr_ioctl(false);
         }
-        else {
+        else
+#endif
+        {
             uint32_t batch_idx = 0;
             for (auto raw_it = raw_value.begin();
                  batch_idx != m_write_batch.numops;
