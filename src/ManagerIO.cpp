@@ -109,7 +109,7 @@ namespace geopm
         }
     }
 
-    void ManagerIO::adjust(std::vector<double> settings)
+    void ManagerIO::adjust(const std::vector<double> &settings)
     {
         if (settings.size() != m_signal_names.size()) {
             throw Exception("ManagerIO::" + std::string(__func__) + "(): size of settings does not match signal names.",
@@ -337,4 +337,3 @@ namespace geopm
         return m_signal_names;
     }
 }
-

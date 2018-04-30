@@ -57,10 +57,28 @@ namespace geopm
             virtual void update(const struct geopm_policy_message_s &policy) = 0;
 
             // new API
+            /// @brief Set up default columns and add columns to be
+            //         provided by the Agent.
             virtual void columns(const std::vector<std::string> &agent_cols) = 0;
+            /// @brief Update the trace with telemetry samples and
+            ///        region info.  The Tracer samples values for
+            ///        default and environment columns and the
+            ///        remaining signal values are provided by the
+            ///        Agent.
+            /// @param [in] agent_signals Values for signals provided
+            ///        by the agent.
+            /// @param [in] region_entry_exit Entries and exits to
+            ///        regions recorded by the application.  There may
+            ///        be multiple entires and exits for each
+            ///        telemetry sample.
             virtual void update(const std::vector<double> &agent_signals,
                                 std::list<std::pair<uint64_t, double> > region_entry_exit) = 0;
+            /// @brief Write the remaining trace data to the file and
+            ///        stop tracing.
             virtual void flush(void) = 0;
+            /// @brief Returns the column header to be displayed in
+            ///        the trace.  The string is based on the signal
+            ///        name.
             static std::string pretty_name(const IPlatformIO::m_request_s &col);
     };
 

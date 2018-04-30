@@ -193,25 +193,6 @@ namespace geopm
         return result;
     }
 
-    void TreeComm::broadcast_string(const std::string &str)
-    {
-        char buffer[NAME_MAX];
-        if (str.size() >= NAME_MAX) {
-            throw Exception("TreeComm::broadcast_string(): string too long.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        strncpy(buffer, str.c_str(), sizeof(buffer));
-        m_comm->broadcast(buffer, sizeof(buffer), 0);
-    }
-
-    std::string TreeComm::broadcast_string(void)
-    {
-        char buffer[NAME_MAX];
-        m_comm->broadcast(buffer, sizeof(buffer), 0);
-        std::string result(buffer, NAME_MAX - 1);
-        return result;
-    }
-
     std::vector<int> ITreeComm::fan_out(const std::shared_ptr<IComm> &comm)
     {
         std::vector<int> fan_out;

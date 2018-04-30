@@ -69,9 +69,20 @@ namespace geopm
         public:
             IManagerIO() = default;
             virtual ~IManagerIO() = default;
+            /// @brief Set the value for a specific signal or policy
+            ///        to be written.
+            /// @param [in] signal_name Name of the signal or policy.
+            /// @param [in] setting Value to set.
             virtual void adjust(const std::string &signal_name, double setting) = 0;
-            virtual void adjust(std::vector<double> settings) = 0;
+            /// @brief Set values for all signals or policies to be
+            ///        written.
+            /// @param [in] settings Vector of values for each signal
+            ///        or policy, in the expected order.
+            virtual void adjust(const std::vector<double> &settings) = 0;
+            /// @brief Write updated values.
             virtual void write_batch(void) = 0;
+            /// @brief Returns the expected signal or policy names.
+            /// @return Vector of signal or policy names.
             virtual std::vector<std::string> signal_names(void) const = 0;
     };
 
@@ -89,7 +100,7 @@ namespace geopm
 
             ~ManagerIO() = default;
             void adjust(const std::string &signal_name, double setting) override;
-            void adjust(std::vector<double> settings) override; // const std::vector?
+            void adjust(const std::vector<double> &settings) override;
             void write_batch(void);
             std::vector<std::string> signal_names(void) const override;
             static void setup_mutex(pthread_mutex_t &lock);
@@ -111,10 +122,22 @@ namespace geopm
         public:
             IManagerIOSampler() = default;
             virtual ~IManagerIOSampler() = default;
+            /// @brief Read values from the resource manager.
             virtual void read_batch(void) = 0;
+            /// @brief Returns the most recent value for the given
+            ///        signal or policy.
+            /// @param [in] signal_name Name of the signal or policy.
+            /// @return Value of the signal or policy.
             virtual double sample(const std::string &signal_name) const = 0;
+            /// @brief Returns all the latest values.
+            /// @return Vector of signal or policy values.
             virtual std::vector<double> sample(void) const = 0;
+            /// @brief Indicates whether or not the values have been
+            ///        updated.
             virtual bool is_update_available(void) = 0;
+            /// @brief Returns the signal names expected by the
+            ///        resource manager.
+            /// @return Vector of signal names.
             virtual std::vector<std::string> signal_names(void) const = 0;
     };
 
