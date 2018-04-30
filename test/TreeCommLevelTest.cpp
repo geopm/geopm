@@ -198,11 +198,12 @@ TEST_F(TreeCommLevelTest, send_down)
 
     EXPECT_CALL(*m_comm_0, window_lock(_, _, _, _)).Times(m_num_rank - 1);
     EXPECT_CALL(*m_comm_0, window_unlock(_, _)).Times(m_num_rank - 1);
+    EXPECT_CALL(*m_comm_0, window_put(_, sizeof(double), _, _, _)).Times(m_num_rank - 1);
     EXPECT_CALL(*m_comm_0, window_put(_, msg_size, _, _, _)).Times(m_num_rank - 1);
 
     EXPECT_EQ(0u, m_level_rank_0->overhead_send());
     m_level_rank_0->send_down(policy);
-    EXPECT_EQ(msg_size * (m_num_rank - 1), m_level_rank_0->overhead_send());
+    EXPECT_EQ((sizeof(double) + msg_size) * (m_num_rank - 1), m_level_rank_0->overhead_send());
 
     // errors
 #ifdef GEOPM_DEBUG
