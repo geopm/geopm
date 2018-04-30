@@ -63,8 +63,11 @@ namespace geopm
             virtual double total_region_runtime(uint64_t region_id) const = 0;
             virtual double total_region_mpi_time(uint64_t region_id) const = 0;
             virtual double total_epoch_runtime(void) const = 0;
+            /// @brief Returns the total time spent in MPI after the
+            ///        first epoch call.
+            virtual double total_epoch_mpi_time(void) const = 0;
+            virtual double total_epoch_ignore_time(void) const = 0;
             virtual double total_app_mpi_time(void) const = 0;
-            virtual double total_app_ignore_time(void) const = 0;
             virtual int total_count(uint64_t region_id) const = 0;
             /// @todo this level of pass through will go away once this class is
             /// merged with ApplicationIO
@@ -90,8 +93,9 @@ namespace geopm
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_mpi_time(uint64_t region_id) const override;
             double total_epoch_runtime(void) const override;
+            double total_epoch_mpi_time(void) const override;
+            double total_epoch_ignore_time(void) const override;
             double total_app_mpi_time(void) const override;
-            double total_app_ignore_time(void) const override;
             int total_count(uint64_t region_id) const override;
             std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
             void clear_region_entry_exit(void) override;
@@ -101,11 +105,12 @@ namespace geopm
             std::map<uint64_t, std::unique_ptr<IKruntimeRegulator> > m_rid_regulator_map;
             std::vector<bool> m_seen_first_epoch;
             std::vector<double> m_curr_ignore_runtime;
-            std::vector<double> m_agg_ignore_runtime;
+            std::vector<double> m_agg_epoch_ignore_runtime;
             std::vector<double> m_curr_mpi_runtime;
+            std::vector<double> m_agg_epoch_mpi_runtime;
             std::vector<double> m_agg_mpi_runtime;
             std::vector<double> m_last_epoch_runtime;
-            std::vector<double> m_agg_runtime;
+            std::vector<double> m_agg_epoch_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<std::pair<uint64_t, double> > m_region_entry_exit;
     };

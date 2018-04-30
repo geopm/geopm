@@ -48,11 +48,12 @@ namespace geopm
         : m_rank_per_node(rank_per_node)
         , m_seen_first_epoch(m_rank_per_node, false)
         , m_curr_ignore_runtime(m_rank_per_node, 0.0)
-        , m_agg_ignore_runtime(m_rank_per_node, 0.0)
+        , m_agg_epoch_ignore_runtime(m_rank_per_node, 0.0)
         , m_curr_mpi_runtime(m_rank_per_node, 0.0)
+        , m_agg_epoch_mpi_runtime(m_rank_per_node, 0.0)
         , m_agg_mpi_runtime(m_rank_per_node, 0.0)
         , m_last_epoch_runtime(m_rank_per_node, 0.0)
-        , m_agg_runtime(m_rank_per_node, 0.0)
+        , m_agg_epoch_runtime(m_rank_per_node, 0.0)
         , m_pre_epoch_region(m_rank_per_node)
     {
         if (m_rank_per_node <= 0) {
@@ -127,9 +128,9 @@ namespace geopm
             if (m_seen_first_epoch[rank]) {
                 m_last_epoch_runtime[rank] = reg_it->second->per_rank_last_runtime()[rank] -
                                              (m_curr_mpi_runtime[rank] + m_curr_ignore_runtime[rank]);
-                m_agg_runtime[rank] += m_last_epoch_runtime[rank];
-                m_agg_mpi_runtime[rank] += m_curr_mpi_runtime[rank];
-                m_agg_ignore_runtime[rank] += m_curr_ignore_runtime[rank];
+                m_agg_epoch_runtime[rank] += m_last_epoch_runtime[rank];
+                m_agg_epoch_mpi_runtime[rank] += m_curr_mpi_runtime[rank];
+                m_agg_epoch_ignore_runtime[rank] += m_curr_ignore_runtime[rank];
                 m_curr_mpi_runtime[rank] = 0.0;
                 m_curr_ignore_runtime[rank] = 0.0;
             }
@@ -141,6 +142,7 @@ namespace geopm
             else {
                 m_pre_epoch_region[rank].erase(pre_epoch_it);
             }
+            m_agg_mpi_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
         }
         else if (is_ignore) {
             if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
@@ -192,22 +194,30 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_region_runtime(uint64_t region_id) const
     {
+        double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
-            return IPlatformIO::agg_average(m_agg_runtime);
+            result = IPlatformIO::agg_average(m_agg_epoch_runtime);
         }
-
-        return IPlatformIO::agg_average(region_regulator(region_id).per_rank_total_runtime());
+        else {
+            result = IPlatformIO::agg_average(region_regulator(region_id).per_rank_total_runtime());
+        }
+        return result;
     }
 
     double EpochRuntimeRegulator::total_region_mpi_time(uint64_t region_id) const
     {
         double result = 0.0;
-        try {
-            region_id = geopm_region_id_set_mpi(region_id);
-            result = total_region_runtime(region_id);
+        if (region_id == GEOPM_REGION_ID_EPOCH) {
+            result = IPlatformIO::agg_average(m_agg_epoch_mpi_runtime);
         }
-        catch (Exception ex) {
-            /// @todo catch expected exception only
+        else {
+            try {
+                region_id = geopm_region_id_set_mpi(region_id);
+                result = total_region_runtime(region_id);
+            }
+            catch (Exception ex) {
+                /// @todo catch expected exception only
+            }
         }
         return result;
     }
@@ -215,6 +225,21 @@ namespace geopm
     double EpochRuntimeRegulator::total_epoch_runtime(void) const
     {
         return total_region_runtime(GEOPM_REGION_ID_EPOCH);
+    }
+
+    double EpochRuntimeRegulator::total_epoch_mpi_time(void) const
+    {
+        return total_region_mpi_time(GEOPM_REGION_ID_EPOCH);
+    }
+
+    double EpochRuntimeRegulator::total_epoch_ignore_time(void) const
+    {
+        return IPlatformIO::agg_average(m_agg_epoch_ignore_runtime);
+    }
+
+    double EpochRuntimeRegulator::total_app_mpi_time(void) const
+    {
+        return IPlatformIO::agg_average(m_agg_mpi_runtime);
     }
 
     int EpochRuntimeRegulator::total_count(uint64_t region_id) const
@@ -225,16 +250,6 @@ namespace geopm
             result = *std::max_element(rank_count.begin(), rank_count.end());
         }
         return result;
-    }
-
-    double EpochRuntimeRegulator::total_app_mpi_time(void) const
-    {
-        return IPlatformIO::agg_average(m_agg_mpi_runtime);
-    }
-
-    double EpochRuntimeRegulator::total_app_ignore_time(void) const
-    {
-        return IPlatformIO::agg_average(m_agg_ignore_runtime);
     }
 
     std::list<std::pair<uint64_t, double> > EpochRuntimeRegulator::region_entry_exit(void) const
