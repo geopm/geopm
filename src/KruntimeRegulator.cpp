@@ -45,30 +45,33 @@ namespace geopm
         , m_rank_log(m_num_rank, m_log_s {M_TIME_ZERO, 0.0, 0.0, 0})
     {
         if (m_num_rank <= 0) {
-            throw Exception("KruntimeRegulator::KruntimeRegulator(): invalid max rank count", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("KruntimeRegulator::KruntimeRegulator(): invalid max rank count",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
     void KruntimeRegulator::record_entry(int rank, struct geopm_time_s enter_time)
     {
         if (rank < 0 || rank >= m_num_rank) {
-            throw Exception("KruntimeRegulator::record_entry(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("KruntimeRegulator::record_entry(): invalid rank value",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-#ifdef GEOPM_DEBUG
         if (geopm_time_diff(&m_rank_log[rank].enter_time, &M_TIME_ZERO) != 0.0) {
-            throw Exception("KruntimeRegulator::record_entry(): rank re-entry before exit detected", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            throw Exception("KruntimeRegulator::record_entry(): rank re-entry before exit detected",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-#endif
         m_rank_log[rank].enter_time = enter_time;
     }
 
     void KruntimeRegulator::record_exit(int rank, struct geopm_time_s exit_time)
     {
         if (rank < 0 || rank >= m_num_rank) {
-            throw Exception("KruntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("KruntimeRegulator::record_exit(): invalid rank value",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (geopm_time_diff(&m_rank_log[rank].enter_time, &M_TIME_ZERO) == 0.0) {
-            throw Exception("KruntimeRegulator::record_exit(): exit before entry", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("KruntimeRegulator::record_exit(): exit before entry",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         double delta = geopm_time_diff(&m_rank_log[rank].enter_time, &exit_time);
