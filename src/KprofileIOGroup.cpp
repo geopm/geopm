@@ -71,6 +71,7 @@ namespace geopm
         , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_epoch_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_cpu_rank(m_profile_sample->cpu_rank())
     {
 
     }
@@ -151,10 +152,16 @@ namespace geopm
             m_per_cpu_progress = m_profile_sample->per_cpu_progress(read_time);
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
-            m_epoch_runtime = m_epoch_regulator.last_epoch_time();
+            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_time();
+            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
+                m_epoch_runtime[cpu_idx] = per_rank_epoch_runtime[m_cpu_rank[cpu_idx]];
+            }
         }
         if (m_do_read[M_SIGNAL_EPOCH_COUNT]) {
-            m_epoch_count = m_epoch_regulator.epoch_count();
+            std::vector<double> per_rank_epoch_count = m_epoch_regulator.epoch_count();
+            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
+                m_epoch_count[cpu_idx] = per_rank_epoch_count[m_cpu_rank[cpu_idx]];
+            }
         }
         if (m_do_read[M_SIGNAL_RUNTIME]) {
             std::map<uint64_t, std::vector<double> > cache;
