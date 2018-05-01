@@ -169,6 +169,15 @@ struct geopm_prof_message_s {
     double progress;
 };
 
+/// @brief Used to pass information about regions entered and exited
+/// from the application to the tracer.
+struct geopm_region_info_s
+{
+    uint64_t region_id;
+    double progress;
+    double runtime;
+};
+
 /// @brief Structure used to hold MSR telemetry data
 /// collected by the platform.
 struct geopm_msr_message_s {
