@@ -78,6 +78,7 @@ namespace geopm
             virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
             /// @brief Resets the log of region information.
             virtual void clear_region_entry_exit(void) = 0;
+            virtual std::vector<int> cpu_rank(void) = 0;
     };
 
     class KprofileIOSample : public IKprofileIOSample
@@ -94,6 +95,7 @@ namespace geopm
             double total_app_runtime(void) const override;
             std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
             void clear_region_entry_exit(void) override;
+            std::vector<int> cpu_rank(void) override;
         private:
             struct m_rank_sample_s {
                 struct geopm_time_s timestamp;
