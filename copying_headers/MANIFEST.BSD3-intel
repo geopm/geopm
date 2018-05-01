@@ -248,6 +248,7 @@ test/MockControlMessage.hpp
 test/MockGlobalPolicy.hpp
 test/MockIOGroup.hpp
 test/MockKprofileIOSample.hpp
+test/MockManagerIO.hpp
 test/MockManagerIOSampler.hpp
 test/MockPlatform.hpp
 test/MockPlatformImp.hpp
