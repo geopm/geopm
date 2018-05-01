@@ -75,7 +75,7 @@ namespace geopm
             /// @brief Return a list of information about regions seen
             ///        by the application since the last call to
             ///        clear_region_entry_exit().
-            virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
+            virtual std::list<geopm_region_info_s> region_entry_exit(void) const = 0;
             /// @brief Resets the log of region information.
             virtual void clear_region_entry_exit(void) = 0;
             virtual std::vector<int> cpu_rank(void) = 0;
@@ -93,7 +93,7 @@ namespace geopm
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
-            std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
+            std::list<geopm_region_info_s> region_entry_exit(void) const override;
             void clear_region_entry_exit(void) override;
             std::vector<int> cpu_rank(void) override;
         private:

@@ -233,7 +233,7 @@ namespace geopm
         return geopm_time_diff(&m_app_start_time, &curr_time);
     }
 
-    std::list<std::pair<uint64_t, double> > KprofileIOSample::region_entry_exit(void) const
+    std::list<geopm_region_info_s> KprofileIOSample::region_entry_exit(void) const
     {
         return m_epoch_regulator.region_entry_exit();
     }
