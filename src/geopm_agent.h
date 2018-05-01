@@ -141,6 +141,19 @@ int geopm_agent_sample_name(const char *agent_name,
                             size_t sample_name_max,
                             char *sample_name);
 
+/*!
+ *  @brief The list of available agents.
+ *
+ *  @param [in] agent_list_max Number of bytes allocated for the
+ *         agent_list string.
+ *
+ *  @param [out] agent_list Comma seperated list of available agents.
+ *
+ *  @return Zero if agent_list is large enough to hold the list,
+ *          error code otherwise.
+ */
+int geopm_agent_list(size_t agent_list_max, char *agent_list);
+
 #ifdef __cplusplus
 }
 #endif

@@ -61,7 +61,9 @@ namespace geopm
             void load(void);
             const char *report(void) const;
             const char *comm(void) const;
+            const char *endpoint(void) const;
             const char *policy(void) const;
+            const char *sample(void) const;
             const char *shmkey(void) const;
             const char *trace(void) const;
             const char *plugin_path(void) const;
@@ -82,7 +84,9 @@ namespace geopm
             bool get_env(const char *name, int &value) const;
             std::string m_report;
             std::string m_comm;
+            std::string m_endpoint;
             std::string m_policy;
+            std::string m_sample;
             std::string m_agent;
             std::string m_shmkey;
             std::string m_trace;
@@ -119,9 +123,11 @@ namespace geopm
     {
         m_report = "";
         m_comm = "MPIComm";
+        m_endpoint = "";
         m_policy = "";
+        m_sample = "";
         m_agent = "monitor";
-        m_shmkey = "/geopm-shm-" + std::to_string(geteuid());
+        m_shmkey = "/geopm-shm-";
         m_trace = "";
         m_plugin_path = "";
         m_profile = "";
@@ -139,12 +145,31 @@ namespace geopm
 
         (void)get_env("GEOPM_REPORT", m_report);
         (void)get_env("GEOPM_COMM", m_comm);
+        (void)get_env("GEOPM_ENDPOINT", m_endpoint);
         (void)get_env("GEOPM_POLICY", m_policy);
+
         m_do_kontroller = get_env("GEOPM_AGENT", m_agent);
-        (void)get_env("GEOPM_SHMKEY", m_shmkey);
-        if (m_shmkey[0] != '/') {
+
+        if (get_env("GEOPM_SHMKEY", m_shmkey) == true) {
+            m_shmkey = "/geopm-shm-" + m_shmkey;
+        }
+        else {
+            m_shmkey += std::to_string(geteuid());
+        }
+
+        if (m_shmkey[0] != '/') { // Add a '/' if the user forgot
             m_shmkey = "/" + m_shmkey;
         }
+
+        if (m_endpoint.size() > 0 && m_policy.size() > 0) {
+            throw Exception("Environment::" + std::string(__func__) + "(): GEOPM_ENDPOINT and GEOPM_POLICY cannot be specified simultaneously.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        else if (m_endpoint.size() > 0) {
+            m_policy = m_shmkey + "-" + m_endpoint + ".policy";
+            m_sample = m_shmkey + "-" + m_endpoint + ".sample";
+        }
+
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
         if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report.size()) {
@@ -232,9 +257,19 @@ namespace geopm
         return m_comm.c_str();
     }
 
+    const char *Environment::endpoint(void) const
+    {
+        return m_endpoint.c_str();
+    }
+
     const char *Environment::policy(void) const
     {
         return m_policy.c_str();
+    }
+
+    const char *Environment::sample(void) const
+    {
+        return m_sample.c_str();
     }
 
     const char *Environment::agent(void) const
@@ -325,9 +360,19 @@ extern "C"
         geopm::test_environment().load();
     }
 
+    const char *geopm_env_endpoint(void)
+    {
+        return geopm::environment().endpoint();
+    }
+
     const char *geopm_env_policy(void)
     {
         return geopm::environment().policy();
+    }
+
+    const char *geopm_env_sample(void)
+    {
+        return geopm::environment().sample();
     }
 
     const char *geopm_env_agent(void)
