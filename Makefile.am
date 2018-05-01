@@ -31,13 +31,15 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS += -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200112L -DOMPI_SKIP_MPICXX
+AM_CPPFLAGS += -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200809L -DOMPI_SKIP_MPICXX
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmpolicy \
                geopmread \
                geopmwrite \
+               geopmagent \
+               geopmendpoint \
                #end
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
@@ -274,6 +276,8 @@ geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmpolicy_LDADD = libgeopmpolicy.la
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
+geopmagent_LDADD = libgeopmpolicy.la
+geopmendpoint_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MPI_CLIBS)
@@ -303,6 +307,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Decider.cpp \
                             src/Decider.hpp \
                             src/DefaultProfile.cpp \
+                            src/Endpoint.cpp \
+                            src/Endpoint.hpp \
                             src/Environment.cpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
@@ -437,6 +443,23 @@ geopmread_SOURCES = src/geopmread_main.cpp \
                     #end
 geopmwrite_SOURCES = src/geopmwrite_main.cpp \
                      #end
+
+# TODO There are things missing from the policy sources above and from the ctl sources below...
+# Does all this really need to be here?
+geopmagent_SOURCES = src/geopmagent_main.c \
+                     src/geopm_agent.h \
+                     src/geopm_version.h \
+                     src/geopm_error.h \
+                     src/geopm_env.h \
+                     # end
+
+geopmendpoint_SOURCES = src/geopmendpoint_main.c \
+                        src/geopm_agent.h \
+                        src/geopm_endpoint.h \
+                        src/geopm_version.h \
+                        src/geopm_error.h \
+                        src/geopm_env.h \
+                        # end
 
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also

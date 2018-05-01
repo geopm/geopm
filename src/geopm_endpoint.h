@@ -42,10 +42,10 @@ extern "C" {
 struct geopm_endpoint_c;
 
 /*!
- *  @brief Create an endpoint in shared memory for an attaching agent.
+ *  @brief Create an endpoint object for other API functions.
  *
- *  @param [in] endpoint_name Shared memory key substring used create
- *         endpoint that an agent can attach to.
+ *  @param [in] endpoint_name Shared memory key substring used to create
+ *         an endpoint that an agent can attach to.
  *
  *  @param [out] endpoint Opaque pointer to geopm_endpoint_c object,
  *          or NULL upon failure.
@@ -67,6 +67,37 @@ int geopm_endpoint_create(const char *endpoint_name,
  *  @return Zero on success, error code on failure.
  */
 int geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
+
+/*!
+ *  @brief Create shmem regions within the endpoint for policy/sample
+ *         handling.
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ *
+ *  @return Zero on success, error code on failture.
+ */
+int geopm_endpoint_create_shmem(struct geopm_endpoint_c *endpoint);
+
+/*!
+ *  @brief Destroy shmem regions within the endpoint.
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ *
+ *  @return Zero on success, error code on failture.
+ */
+int geopm_endpoint_destroy_shmem(struct geopm_endpoint_c *endpoint);
+
+/*!
+ *  @brief Attach an endpoint to existing shmem regions.
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ *
+ *  @return Zero on success, error code on failture.
+ */
+int geopm_endpoint_shmem_attach(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Check if an agent has attached.

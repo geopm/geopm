@@ -33,6 +33,7 @@
 #ifndef MANAGERIO_HPP_INCLUDE
 #define MANAGERIO_HPP_INCLUDE
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
