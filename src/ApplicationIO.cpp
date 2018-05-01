@@ -295,7 +295,7 @@ namespace geopm
         m_profile_io_sample->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
     }
 
-    std::list<std::pair<uint64_t, double> > ApplicationIO::region_entry_exit(void) const
+    std::list<geopm_region_info_s> ApplicationIO::region_entry_exit(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {

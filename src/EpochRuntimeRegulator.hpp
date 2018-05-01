@@ -68,7 +68,7 @@ namespace geopm
             virtual int total_count(uint64_t region_id) const = 0;
             /// @todo this level of pass through will go away once this class is
             /// merged with ApplicationIO
-            virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
+            virtual std::list<geopm_region_info_s> region_entry_exit(void) const = 0;
             virtual void clear_region_entry_exit(void) = 0;
     };
 
@@ -93,7 +93,7 @@ namespace geopm
             double total_app_mpi_time(void) const override;
             double total_app_ignore_time(void) const override;
             int total_count(uint64_t region_id) const override;
-            std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
+            std::list<geopm_region_info_s> region_entry_exit(void) const override;
             void clear_region_entry_exit(void) override;
         private:
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
@@ -107,7 +107,7 @@ namespace geopm
             std::vector<double> m_last_epoch_runtime;
             std::vector<double> m_agg_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
-            std::list<std::pair<uint64_t, double> > m_region_entry_exit;
+            std::list<geopm_region_info_s> m_region_entry_exit;
     };
 }
 
