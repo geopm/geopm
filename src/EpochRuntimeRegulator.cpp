@@ -106,7 +106,9 @@ namespace geopm
                                                                         (m_rank_per_node)));
         reg_it.first->second->record_entry(rank, entry_time);
         if (region_id != GEOPM_REGION_ID_UNMARKED && rank == 0) {
-            m_region_entry_exit.emplace_back(geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id), 0.0);
+            m_region_info.push_back({geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id),
+                                     0.0,
+                                     IPlatformIO::agg_max(reg_it.first->second->per_rank_last_runtime())});
         }
     }
 
@@ -153,7 +155,9 @@ namespace geopm
             }
         }
         if (region_id != GEOPM_REGION_ID_UNMARKED && rank == 0) {
-            m_region_entry_exit.emplace_back(geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id), 1.0);
+            m_region_info.push_back({geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id),
+                                     1.0,
+                                     IPlatformIO::agg_max(reg_it->second->per_rank_last_runtime())});
         }
     }
 
@@ -252,13 +256,13 @@ namespace geopm
         return result;
     }
 
-    std::list<std::pair<uint64_t, double> > EpochRuntimeRegulator::region_entry_exit(void) const
+    std::list<geopm_region_info_s> EpochRuntimeRegulator::region_info(void) const
     {
-        return m_region_entry_exit;
+        return m_region_info;
     }
 
-    void EpochRuntimeRegulator::clear_region_entry_exit(void)
+    void EpochRuntimeRegulator::clear_region_info(void)
     {
-        m_region_entry_exit.clear();
+        m_region_info.clear();
     }
 }

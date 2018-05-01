@@ -72,7 +72,7 @@ namespace geopm
             ///        be multiple entires and exits for each
             ///        telemetry sample.
             virtual void update(const std::vector<double> &agent_signals,
-                                std::list<std::pair<uint64_t, double> > region_entry_exit) = 0;
+                                std::list<geopm_region_info_s> region_entry_exit) = 0;
             /// @brief Write the remaining trace data to the file and
             ///        stop tracing.
             virtual void flush(void) = 0;
@@ -109,7 +109,7 @@ namespace geopm
 
             void columns(const std::vector<std::string> &agent_cols) override;
             void update(const std::vector<double> &agent_signals,
-                        std::list<std::pair<uint64_t, double> > region_entry_exit) override;
+                        std::list<geopm_region_info_s> region_entry_exit) override;
             void flush(void) override;
         private:
             static std::string hostname(void);
@@ -134,6 +134,7 @@ namespace geopm
             std::vector<double> m_last_telemetry;
             int m_region_id_idx = -1;
             int m_region_progress_idx = -1;
+            int m_region_runtime_idx = -1;
     };
 }
 

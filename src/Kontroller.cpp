@@ -227,8 +227,8 @@ namespace geopm
         m_platform_io.read_batch();
         bool do_send = m_agent[0]->sample_platform(m_out_sample);
         m_agent[0]->trace_values(m_trace_sample);
-        m_tracer->update(m_trace_sample, m_application_io->region_entry_exit());
-        m_application_io->clear_region_entry_exit();
+        m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_application_io->clear_region_info();
 
         for (int level = 0; level != m_num_level_ctl; ++level) {
             m_tree_comm->send_up(level, m_out_sample);

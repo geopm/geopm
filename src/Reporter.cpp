@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream>
+#include <iomanip>
 
 #include "Reporter.hpp"
 #include "PlatformIO.hpp"
@@ -168,7 +169,11 @@ namespace geopm
 
         for (const auto &region : region_ordered) {
             uint64_t mpi_region_id = geopm_region_id_set_mpi(region.id);
-            report << "Region " << region.name << " (0x" << std::hex << region.id << std::dec << "):" << std::endl;
+            report << "Region " << region.name << " (0x" << std::hex
+                   << std::setfill('0') << std::setw(16)
+                   << region.id << std::dec << "):"
+                   << std::setfill('\0') << std::setw(0)
+                   << std::endl;
             report << "    runtime (sec): " << region.runtime << std::endl;
             report << "    energy (joules): "
                    << m_platform_io.sample_region_total(m_energy_pkg_idx, region.id) +

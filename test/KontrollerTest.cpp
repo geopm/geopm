@@ -114,7 +114,7 @@ class KontrollerTest : public ::testing::Test
         MockManagerIOSampler *m_manager_io;
 
         int m_num_step = 3;
-        std::list<std::pair<uint64_t, double> > m_region_entry_exit;
+        std::list<geopm_region_info_s> m_region_info;
         std::vector<std::pair<std::string, std::string> > m_agent_report;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
 };
@@ -166,9 +166,9 @@ TEST_F(KontrollerTest, single_node)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_entry_exit));
-    EXPECT_CALL(*m_application_io, clear_region_entry_exit()).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_info));
+    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     std::vector<double> manager_sample = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)manager_sample.size());
     EXPECT_CALL(*m_manager_io, sample()).Times(m_num_step)
@@ -234,9 +234,9 @@ TEST_F(KontrollerTest, two_level_controller_1)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_entry_exit));
-    EXPECT_CALL(*m_application_io, clear_region_entry_exit()).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_info));
+    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
@@ -311,9 +311,9 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_entry_exit));
-    EXPECT_CALL(*m_application_io, clear_region_entry_exit()).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_info));
+    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
@@ -385,9 +385,9 @@ TEST_F(KontrollerTest, two_level_controller_0)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_entry_exit()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_entry_exit));
-    EXPECT_CALL(*m_application_io, clear_region_entry_exit()).Times(m_num_step);
+    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
+        .WillRepeatedly(Return(m_region_info));
+    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     std::vector<double> manager_sample = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)manager_sample.size());
     EXPECT_CALL(*m_manager_io, sample()).Times(m_num_step)
