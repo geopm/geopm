@@ -241,4 +241,9 @@ namespace geopm
     {
         m_epoch_regulator.clear_region_entry_exit();
     }
+
+    std::vector<int> KprofileIOSample::cpu_rank(void)
+    {
+        return m_cpu_rank;
+    }
 }
