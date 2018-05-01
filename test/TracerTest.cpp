@@ -165,12 +165,12 @@ TEST_F(TracerTest, region_entry_exit)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    std::list<std::pair<uint64_t, double> > short_regions = {
-        {0x123, 0.0},
-        {0x123, 1.0},
-        {0x345, 0.0},
-        {0x456, 1.0},
-        {0x345, 1.0},
+    std::list<geopm_region_info_s> short_regions = {
+        {0x123, 0.0, 3.2},
+        {0x123, 1.0, 3.2},
+        {0x345, 0.0, 3.2},
+        {0x456, 1.0, 3.2},
+        {0x345, 1.0, 3.2},
         {geopm_signal_to_field(2.2), 0.0} // entry into the current region should not be recorded
     };
     tracer.columns(agent_cols);
@@ -179,11 +179,11 @@ TEST_F(TracerTest, region_entry_exit)
     tracer.update(agent_vals, short_regions); // no additional samples after flush
     std::string expected_str ="\n\n\n\n\n\n"
         "\n" // header
-        "2.2e+00|0x123|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x123|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x345|0.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x456|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x345|1.0|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x0000000000000123|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x0000000000000123|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x0000000000000345|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x0000000000000456|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0x0000000000000345|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "\n"; // sample
 
      std::istringstream expected(expected_str);

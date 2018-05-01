@@ -46,6 +46,7 @@
 #include "geopm_env.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
+#include "geopm.h"
 #include "config.h"
 
 using geopm::IPlatformTopo;
@@ -217,6 +218,7 @@ namespace geopm
             // for region entry/exit, make sure region index is known
             m_region_id_idx = 1;
             m_region_progress_idx = 2;
+            m_region_runtime_idx = 3;
 
             // extra columns from environment
             for (const auto &extra : m_env_column) {
@@ -258,9 +260,14 @@ namespace geopm
                 m_buffer << "|";
             }
             if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
-                m_buffer << "0x" << std::hex
-                         << geopm_signal_to_field(m_last_telemetry[idx])
-                         << std::dec;
+                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16);
+                uint64_t value = geopm_signal_to_field(m_last_telemetry[idx]);
+                if (idx == m_region_id_idx) {
+                    // Remove hints from trace
+                    value = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, value);
+                }
+                m_buffer << value;
+                m_buffer << std::setfill('\0') << std::setw(0);
             }
             else if ((int)idx == m_region_progress_idx) {
                 m_buffer << std::setprecision(1) << std::fixed
@@ -275,7 +282,7 @@ namespace geopm
     }
 
     void Tracer::update(const std::vector<double> &agent_values,
-                        std::list<std::pair<uint64_t, double> > region_entry_exit)
+                        std::list<geopm_region_info_s> region_entry_exit)
     {
         if (m_is_trace_enabled) {
 #ifdef GEOPM_DEBUG
@@ -300,6 +307,7 @@ namespace geopm
             // save region id and progress, which will get written over by entry/exit
             double region_id = m_last_telemetry[m_region_id_idx];
             double region_progress = m_last_telemetry[m_region_progress_idx];
+            double region_runtime = m_last_telemetry[m_region_runtime_idx];
 
             // insert samples for region entry/exit
             size_t idx = 0;
@@ -307,11 +315,12 @@ namespace geopm
                 // skip the last region entry if it matches the
                 // sampled telemetry region id and progress
                 if (!((idx == region_entry_exit.size() - 1) &&
-                      region_progress == reg.second &&
-                      reg.second == 0.0 &&
-                      region_id == geopm_field_to_signal(reg.first) )) {
-                    m_last_telemetry[m_region_id_idx] = geopm_field_to_signal(reg.first);
-                    m_last_telemetry[m_region_progress_idx] = reg.second;
+                      region_progress == reg.progress &&
+                      region_progress == 0.0 &&
+                      region_id == geopm_field_to_signal(reg.region_id) )) {
+                    m_last_telemetry[m_region_id_idx] = geopm_field_to_signal(reg.region_id);
+                    m_last_telemetry[m_region_progress_idx] = reg.progress;
+                    m_last_telemetry[m_region_runtime_idx] = reg.runtime;
                     write_line();
                 }
                 ++idx;
@@ -319,6 +328,7 @@ namespace geopm
             // print sampled data last
             m_last_telemetry[m_region_id_idx] = region_id;
             m_last_telemetry[m_region_progress_idx] = region_progress;
+            m_last_telemetry[m_region_runtime_idx] = region_runtime;
             write_line();
         }
 

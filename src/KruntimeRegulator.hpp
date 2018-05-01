@@ -80,7 +80,7 @@ namespace geopm
     class KruntimeRegulator : public IKruntimeRegulator
     {
         public:
-            KruntimeRegulator() = default;
+            KruntimeRegulator() = delete;
             KruntimeRegulator(const KruntimeRegulator &other) = default;
             KruntimeRegulator(int num_rank);
             virtual ~KruntimeRegulator() = default;
