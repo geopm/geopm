@@ -66,7 +66,8 @@ extern "C"
 namespace geopm
 {
     Kontroller::Kontroller(std::shared_ptr<IComm> ppn1_comm,
-                           const std::string &global_policy_path)
+                           const std::string &policy_path,
+                           const std::string &sample_path)
         : Kontroller(ppn1_comm,
                      platform_topo(),
                      platform_io(),
@@ -80,7 +81,8 @@ namespace geopm
                      std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
                      std::unique_ptr<ITracer>(new Tracer()),
                      std::vector<std::unique_ptr<IAgent> >{},
-                     std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(global_policy_path, true)))
+                     std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(policy_path, true)),
+                     std::unique_ptr<IManagerIO>(new ManagerIO(sample_path, false)))
     {
 
     }
@@ -96,7 +98,8 @@ namespace geopm
                            std::unique_ptr<IReporter> reporter,
                            std::unique_ptr<ITracer> tracer,
                            std::vector<std::unique_ptr<IAgent> > level_agent,
-                           std::unique_ptr<IManagerIOSampler> manager_io_sampler)
+                           std::unique_ptr<IManagerIOSampler> manager_io_sampler,
+                           std::unique_ptr<IManagerIO> manager_io)
         : m_comm(comm)
         , m_platform_topo(plat_topo)
         , m_platform_io(plat_io)
@@ -117,6 +120,7 @@ namespace geopm
         , m_in_sample(m_num_level_ctl)
         , m_out_sample(m_num_send_up)
         , m_manager_io_sampler(std::move(manager_io_sampler))
+        , m_manager_io(std::move(manager_io))
     {
         // Three dimensional vector over levels, children, and message
         // index.  These are used as temporary storage when passing
@@ -242,8 +246,8 @@ namespace geopm
                 m_tree_comm->send_up(m_num_level_ctl, m_out_sample);
             }
             else {
-                /// @todo At the root of the tree, send signals up to the
-                /// resource manager.
+                m_manager_io->adjust(m_out_sample);
+                m_manager_io->write_batch();
             }
         }
     }
