@@ -44,7 +44,7 @@ extern "C"
     /// Looks in /dev/shm for any keys starting with "/geopm-shm" or
     /// the GEOPM_SHMKEY environment variable if set.  All matching
     /// keys are unlinked with shm_unlink().
-    void geopm_error_destroy_shmem(void);
+    void geopm_error_shmem_destroy(void);
 }
 
 namespace geopm

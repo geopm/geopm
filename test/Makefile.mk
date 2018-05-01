@@ -155,6 +155,8 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
               test/gtest_links/EnvironmentTest.construction0 \
               test/gtest_links/EnvironmentTest.construction1 \
+              test/gtest_links/EnvironmentTest.construction2 \
+              test/gtest_links/EnvironmentTest.invalid_construction \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
@@ -451,6 +453,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockTracer.hpp \
                           test/MockTreeComm.hpp \
                           test/MockManagerIOSampler.hpp \
+                          test/MockManagerIO.hpp \
                           test/TracerTest.cpp \
                           test/ApplicationIOTest.cpp \
                           test/MockKprofileIOSample.hpp \

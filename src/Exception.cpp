@@ -141,7 +141,7 @@ extern "C"
         }
     }
 
-    void geopm_error_destroy_shmem(void)
+    void geopm_error_shmem_destroy(void)
     {
         int err = 0;
         char err_msg[2 * NAME_MAX];

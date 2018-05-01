@@ -141,7 +141,6 @@ int geopm_agent_sample_name(const char *agent_name,
                             size_t sample_name_max,
                             char *sample_name);
 
-
 /*!
  *  @brief The number of available agents.
  *

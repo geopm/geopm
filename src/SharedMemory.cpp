@@ -48,9 +48,10 @@
 
 namespace geopm
 {
-    SharedMemory::SharedMemory(const std::string &shm_key, size_t size)
+    SharedMemory::SharedMemory(const std::string &shm_key, size_t size, bool persistent)
         : m_shm_key(shm_key)
         , m_size(size)
+        , m_persistent(persistent)
     {
         if (!size) {
             throw Exception("SharedMemory: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -94,7 +95,9 @@ namespace geopm
                                                   errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
 #endif
         }
-        (void) shm_unlink(m_shm_key.c_str());
+        if (m_persistent == false) {
+            (void) shm_unlink(m_shm_key.c_str());
+        }
     }
 
     void *SharedMemory::pointer(void) const

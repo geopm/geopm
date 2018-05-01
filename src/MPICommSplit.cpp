@@ -64,7 +64,7 @@ extern "C"
         try {
             auto tmp_comm = std::unique_ptr<geopm::Comm>(new geopm::MPIComm(comm));
             if (geopm_env_do_kontroller()) {
-                *ctl = (struct geopm_ctl_c *)(new geopm::Kontroller(std::move(tmp_comm), geopm_env_policy()));
+                *ctl = (struct geopm_ctl_c *)(new geopm::Kontroller(std::move(tmp_comm), geopm_env_policy(), geopm_env_sample()));
             }
             else {
                 geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;

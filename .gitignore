@@ -41,6 +41,7 @@
 /geopmagent
 /geopmbench
 /geopmctl
+/geopmendpoint
 /geopmpolicy
 /geopmread
 /geopmwrite

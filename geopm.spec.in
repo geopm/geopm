@@ -181,6 +181,7 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
 %{_bindir}/geopmagent
+%{_bindir}/geopmendpoint
 %dir %{docdir}
 %doc %{docdir}/README
 %doc %{docdir}/COPYING

@@ -111,7 +111,7 @@ extern "C"
         try {
             auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
             if (geopm_env_do_kontroller()) {
-                geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy());
+                geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy(), geopm_env_sample());
                 err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
             }
             else {
@@ -1147,7 +1147,7 @@ namespace geopm
 
     void Controller::reset(void)
     {
-        geopm_error_destroy_shmem();
+        geopm_error_shmem_destroy();
         m_platform->revert_msr_state();
     }
 

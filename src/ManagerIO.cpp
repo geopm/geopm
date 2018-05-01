@@ -135,11 +135,14 @@ namespace geopm
 
     void ManagerIO::write_batch(void)
     {
-        if (m_is_shm_data) {
-            write_shmem();
-        }
-        else {
-            write_file();
+        // Nothing to do if m_path was set to empty string.
+        if (m_path.size() > 0) {
+            if (m_is_shm_data) {
+                write_shmem();
+            }
+            else {
+                write_file();
+            }
         }
     }
 
@@ -352,3 +355,4 @@ namespace geopm
         return m_signal_names;
     }
 }
+

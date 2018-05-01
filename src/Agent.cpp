@@ -377,3 +377,4 @@ int geopm_agent_num_avail(int* num_agent)
 
     return err;
 }
+

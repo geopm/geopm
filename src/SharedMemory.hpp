@@ -74,7 +74,8 @@ namespace geopm
             /// shared memory region.
             /// @param [in] shm_key Shared memory key to create the region.
             /// @param [in] size Size of the region to create.
-            SharedMemory(const std::string &shm_key, size_t size);
+            /// @param [in] persist Flag to control cleanup of region.
+            SharedMemory(const std::string &shm_key, size_t size, bool persistent = false);
             /// @brief Destructor destroys and unlinks the shared memory region.
             virtual ~SharedMemory();
             /// @brief Retrieve a pointer to the shared memory region.
@@ -91,6 +92,8 @@ namespace geopm
             size_t m_size;
             /// @brief Pointer to the region.
             void *m_ptr;
+            /// @brief Flag for cleanup of the region.
+            bool m_persistent;
     };
 
     class SharedMemoryUser : public ISharedMemoryUser
