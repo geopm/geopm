@@ -114,7 +114,7 @@ class KontrollerTest : public ::testing::Test
         MockManagerIOSampler *m_manager_io;
 
         int m_num_step = 3;
-        std::list<std::pair<uint64_t, double> > m_region_entry_exit;
+        std::list<geopm_region_info_s> m_region_entry_exit;
         std::vector<std::pair<std::string, std::string> > m_agent_report;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
 };
