@@ -96,7 +96,7 @@ namespace geopm
             /// @brief Returns the list of all regions entered or
             ///        exited since the last call to
             ///        clear_region_entry_exit().
-            virtual std::list<std::pair<uint64_t, double> > region_entry_exit(void) const = 0;
+            virtual std::list<geopm_region_info_s> region_entry_exit(void) const = 0;
             /// @brief Resets the internal list of region entries and
             ///        exits.
             virtual void clear_region_entry_exit(void) = 0;
@@ -131,7 +131,7 @@ namespace geopm
             double total_epoch_runtime(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<IComm> comm) override;
-            std::list<std::pair<uint64_t, double> > region_entry_exit(void) const override;
+            std::list<geopm_region_info_s> region_entry_exit(void) const override;
             void clear_region_entry_exit(void) override;
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 12288;

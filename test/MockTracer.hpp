@@ -48,7 +48,7 @@ class MockTracer : public geopm::ITracer
                      void(const std::vector<std::string> &agent_cols));
         MOCK_METHOD2(update,
                      void(const std::vector<double> &agent_vals,
-                          std::list<std::pair<uint64_t, double> > region_entry_exit));
+                          std::list<geopm_region_info_s> region_entry_exit));
         MOCK_METHOD0(flush,
                      void(void));
 };
