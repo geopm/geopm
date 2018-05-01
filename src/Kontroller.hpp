@@ -61,10 +61,13 @@ namespace geopm
             ///
             /// @param [in] ppn1_comm The MPI communicator that supports
             ///        the control messages.
-            /// @param [in] global_policy_path Path to the policy in a
+            /// @param [in] policy_path Path to the policy input in a
             ///        file or shared memory.
+            /// @param [in] sample_path Path to the sample output in
+            ///        shared memory.
             Kontroller(std::shared_ptr<Comm> ppn1_comm,
-                       const std::string &global_policy_path);
+                       const std::string &policy_path,
+                       const std::string &sample_path);
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
             Kontroller(std::shared_ptr<Comm> comm,
@@ -78,7 +81,8 @@ namespace geopm
                        std::unique_ptr<IReporter> reporter,
                        std::unique_ptr<ITracer> tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
-                       std::unique_ptr<IManagerIOSampler> manager_io_sampler);
+                       std::unique_ptr<IManagerIOSampler> manager_io_sampler,
+                       std::unique_ptr<IManagerIO> manager_io);
             virtual ~Kontroller();
             /// @brief Run control algorithm.
             ///
@@ -157,6 +161,7 @@ namespace geopm
             std::vector<double> m_trace_sample;
 
             std::unique_ptr<IManagerIOSampler> m_manager_io_sampler;
+            std::unique_ptr<IManagerIO> m_manager_io;
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;

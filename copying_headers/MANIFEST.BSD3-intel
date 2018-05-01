@@ -78,6 +78,8 @@ src/CpuinfoIOGroup.hpp
 src/Decider.cpp
 src/Decider.hpp
 src/DefaultProfile.cpp
+src/Endpoint.cpp
+src/Endpoint.hpp
 src/Environment.cpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
@@ -88,8 +90,10 @@ src/EpochRuntimeRegulator.hpp
 src/Exception.cpp
 src/Exception.hpp
 src/geopm_agent.h
+src/geopmagent_main.c
 src/geopm_ctl.h
 src/geopm_endpoint.h
+src/geopmendpoint_main.c
 src/geopmctl_main.c
 src/geopm_env.h
 src/geopm_error.h
@@ -259,6 +263,7 @@ test/MockEpochRuntimeRegulator.hpp
 test/MockGlobalPolicy.hpp
 test/MockIOGroup.hpp
 test/MockKprofileIOSample.hpp
+test/MockManagerIO.hpp
 test/MockManagerIOSampler.hpp
 test/MockPlatform.hpp
 test/MockPlatformImp.hpp
