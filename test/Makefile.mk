@@ -35,101 +35,17 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
-GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
-              test/gtest_links/PlatformFactoryTest.no_supported_platform \
-              test/gtest_links/PlatformImpTest.platform_get_name \
-              test/gtest_links/PlatformImpTest.platform_get_package \
-              test/gtest_links/PlatformImpTest.platform_get_tile \
-              test/gtest_links/PlatformImpTest.platform_get_cpu \
-              test/gtest_links/PlatformImpTest.platform_get_hyperthreaded \
-              test/gtest_links/PlatformImpTest.cpu_msr_read_write \
-              test/gtest_links/PlatformImpTest.tile_msr_read_write \
-              test/gtest_links/PlatformImpTest.package_msr_read_write \
-              test/gtest_links/PlatformImpTest.msr_write_whitelist \
-              test/gtest_links/PlatformImpTest.negative_read_no_desc \
-              test/gtest_links/PlatformImpTest.negative_write_no_desc \
-              test/gtest_links/PlatformImpTest.negative_read_bad_desc \
-              test/gtest_links/PlatformImpTest.negative_write_bad_desc \
-              test/gtest_links/PlatformImpTest.negative_msr_open \
-              test/gtest_links/PlatformImpTest.negative_msr_write_bad_value \
-              test/gtest_links/PlatformImpTest.int_type_checks \
-              test/gtest_links/PlatformImpTest2.msr_write_restore_read \
-              test/gtest_links/PlatformImpTest2.msr_write_backup_file \
-              test/gtest_links/PlatformImpTest2.msr_restore_modified_value \
-              test/gtest_links/PlatformTopologyTest.cpu_count \
-              test/gtest_links/PlatformTopologyTest.negative_num_domain \
-              test/gtest_links/CircularBufferTest.buffer_size \
+GTEST_TESTS = test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
               test/gtest_links/CircularBufferTest.buffer_capacity \
-              test/gtest_links/GlobalPolicyTest.mode_tdp_balance_static \
-              test/gtest_links/GlobalPolicyTest.mode_freq_uniform_static \
-              test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_static \
-              test/gtest_links/GlobalPolicyTest.mode_perf_balance_dynamic \
-              test/gtest_links/GlobalPolicyTest.mode_freq_uniform_dynamic \
-              test/gtest_links/GlobalPolicyTest.mode_freq_hybrid_dynamic \
-              test/gtest_links/GlobalPolicyTest.plugin_strings \
-              test/gtest_links/GlobalPolicyTestShmem.mode_tdp_balance_static \
-              test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_static \
-              test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_static \
-              test/gtest_links/GlobalPolicyTestShmem.mode_perf_balance_dynamic \
-              test/gtest_links/GlobalPolicyTestShmem.mode_freq_uniform_dynamic \
-              test/gtest_links/GlobalPolicyTestShmem.mode_freq_hybrid_dynamic \
-              test/gtest_links/GlobalPolicyTestShmem.plugin_strings \
-              test/gtest_links/GlobalPolicyTest.invalid_policy \
-              test/gtest_links/GlobalPolicyTest.c_interface \
-              test/gtest_links/GlobalPolicyTest.negative_c_interface \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ProfileIOSampleTest.hello \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
-              test/gtest_links/RegionTest.identifier \
-              test/gtest_links/RegionTest.sample_message \
-              test/gtest_links/RegionTest.signal_last \
-              test/gtest_links/RegionTest.signal_num \
-              test/gtest_links/RegionTest.signal_derivative \
-              test/gtest_links/RegionTest.signal_mean \
-              test/gtest_links/RegionTest.signal_median \
-              test/gtest_links/RegionTest.signal_stddev \
-              test/gtest_links/RegionTest.signal_max \
-              test/gtest_links/RegionTest.signal_min \
-              test/gtest_links/RegionTest.signal_capacity_leaf \
-              test/gtest_links/RegionTest.signal_capacity_tree \
-              test/gtest_links/RegionTest.signal_invalid_entry \
-              test/gtest_links/RegionTest.negative_region_invalid \
-              test/gtest_links/RegionTest.negative_signal_invalid \
-              test/gtest_links/RegionTest.negative_signal_derivative_tree \
-              test/gtest_links/RegionTest.telemetry_timestamp \
               test/gtest_links/SampleRegulatorTest.insert_platform \
               test/gtest_links/SampleRegulatorTest.insert_profile \
               test/gtest_links/SampleRegulatorTest.align_profile \
-              test/gtest_links/PolicyTest.num_domain \
-              test/gtest_links/PolicyTest.region_id \
-              test/gtest_links/PolicyTest.mode \
-              test/gtest_links/PolicyTest.frequency \
-              test/gtest_links/PolicyTest.tdp_percent \
-              test/gtest_links/PolicyTest.affinity \
-              test/gtest_links/PolicyTest.goal \
-              test/gtest_links/PolicyTest.num_max_perf \
-              test/gtest_links/PolicyTest.target \
-              test/gtest_links/PolicyTest.target_updated \
-              test/gtest_links/PolicyTest.target_valid \
-              test/gtest_links/PolicyTest.policy_message \
-              test/gtest_links/PolicyTest.converged \
-              test/gtest_links/PolicyTest.negative_unsized_vector \
-              test/gtest_links/PolicyTest.negative_index_oob \
-              test/gtest_links/BalancingDeciderTest.plugin \
-              test/gtest_links/BalancingDeciderTest.name \
-              test/gtest_links/BalancingDeciderTest.supported \
-              test/gtest_links/BalancingDeciderTest.new_policy_message \
-              test/gtest_links/BalancingDeciderTest.update_policy \
-              test/gtest_links/GoverningDeciderTest.plugin \
-              test/gtest_links/GoverningDeciderTest.decider_is_supported \
-              test/gtest_links/GoverningDeciderTest.name \
-              test/gtest_links/GoverningDeciderTest.1_socket_under_budget \
-              test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
-              test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
-              test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info0 \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info1 \
@@ -144,11 +60,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/EnergyEfficientAgentTest.name \
               test/gtest_links/EnergyEfficientAgentTest.hint \
               test/gtest_links/EnergyEfficientAgentTest.online_mode \
-              test/gtest_links/EfficientFreqDeciderTest.map \
-              test/gtest_links/EfficientFreqDeciderTest.decider_is_supported \
-              test/gtest_links/EfficientFreqDeciderTest.name \
-              test/gtest_links/EfficientFreqDeciderTest.hint \
-              test/gtest_links/EfficientFreqDeciderTest.online_mode \
               test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
@@ -201,13 +112,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.energy_increases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.after_too_many_increase_freq_stays_at_higher \
-              test/gtest_links/EfficientFreqRegionTest.freq_starts_at_maximum \
-              test/gtest_links/EfficientFreqRegionTest.update_ignores_nan_sample \
-              test/gtest_links/EfficientFreqRegionTest.only_changes_freq_after_enough_samples \
-              test/gtest_links/EfficientFreqRegionTest.freq_does_not_go_below_min \
-              test/gtest_links/EfficientFreqRegionTest.performance_decreases_freq_steps_back_up \
-              test/gtest_links/EfficientFreqRegionTest.energy_increases_freq_steps_back_up \
-              test/gtest_links/EfficientFreqRegionTest.after_too_many_increase_freq_stays_at_higher \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
               test/gtest_links/RuntimeRegulatorTest.all_reenter \
@@ -225,10 +129,6 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PlatformTopoTest.parse_error \
               test/gtest_links/PlatformTopoTest.domain_name_to_type \
               test/gtest_links/PlatformTopoTest.domain_type_to_name \
-              test/gtest_links/SingleTreeCommunicatorTest.hello \
-              test/gtest_links/TreeCommunicatorTest.hello \
-              test/gtest_links/TreeCommunicatorTest.send_policy_down \
-              test/gtest_links/TreeCommunicatorTest.send_sample_up \
               test/gtest_links/TimeIOGroupTest.is_valid \
               test/gtest_links/TimeIOGroupTest.push \
               test/gtest_links/TimeIOGroupTest.read_nothing \
@@ -352,28 +252,12 @@ EXTRA_DIST += test/geopm_test.sh \
               # end
 
 test_geopm_test_SOURCES = test/geopm_test.cpp \
-                          test/PlatformFactoryTest.cpp \
-                          test/PlatformImpTest.cpp \
-                          test/PlatformTopologyTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/GlobalPolicyTest.cpp \
                           test/ManagerIOTest.cpp \
                           test/ExceptionTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/SampleRegulatorTest.cpp \
-                          test/RegionTest.cpp \
-                          test/PolicyTest.cpp \
-                          plugin/BalancingDecider.hpp \
-                          plugin/BalancingDecider.cpp \
-                          plugin/BalancingDeciderRegister.cpp \
-                          test/BalancingDeciderTest.cpp \
-                          plugin/GoverningDecider.hpp \
-                          plugin/GoverningDecider.cpp \
-                          plugin/GoverningDeciderRegister.cpp \
-                          test/GoverningDeciderTest.cpp \
-                          plugin/EfficientFreqDecider.hpp \
-                          plugin/EfficientFreqDecider.cpp \
-                          plugin/EfficientFreqDeciderRegister.cpp \
                           src/EnergyEfficientAgent.hpp \
                           src/EnergyEfficientAgent.cpp \
                           test/EnergyEfficientAgentTest.cpp \
@@ -381,7 +265,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
                           test/CpuinfoIOGroupTest.cpp \
-                          test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
                           test/MockEpochRuntimeRegulator.hpp \
@@ -390,9 +273,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockSampleScheduler.hpp \
                           test/MockPlatform.hpp \
                           test/MockProfileSampler.hpp \
-                          test/MockGlobalPolicy.hpp \
-                          test/MockPlatformImp.hpp \
-                          test/MockPlatformTopology.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSharedMemoryUser.hpp \
                           test/SharedMemoryTest.cpp \
@@ -403,9 +283,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PlatformIOTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
-                          plugin/EfficientFreqRegion.hpp \
-                          plugin/EfficientFreqRegion.cpp \
-                          test/EfficientFreqRegionTest.cpp \
                           src/EnergyEfficientRegion.hpp \
                           src/EnergyEfficientRegion.cpp \
                           test/EnergyEfficientRegionTest.cpp \
@@ -415,7 +292,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           tutorial/ModelParse.cpp \
                           tutorial/Imbalancer.cpp \
                           test/PlatformTopoTest.cpp \
-                          test/TreeCommunicatorTest.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/geopm_test.hpp \
