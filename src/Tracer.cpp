@@ -139,6 +139,7 @@ namespace geopm
             }
 
             // Header
+            // @todo remove legacy lines and update Python scripts
             m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
                      << "# \"profile_name\" : \"" << profile_name << "\",\n"
                      << "# \"power_budget\" : -1,\n"

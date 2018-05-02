@@ -131,6 +131,7 @@ namespace geopm
             for (const auto &kv : agent_report_header) {
                 master_report << kv.first << ": " << kv.second << std::endl;
             }
+            // @todo remove and update Python scripts
             master_report << "Policy Mode: deprecated" << std::endl;
             master_report << "Tree Decider: deprecated" << std::endl;
             master_report << "Leaf Decider: deprecated" << std::endl;
