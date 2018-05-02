@@ -40,6 +40,8 @@
 #include <string>
 #include <stdio.h>
 
+int geopm_read_cpuid(void);
+
 namespace geopm
 {
     class IPlatformTopo
