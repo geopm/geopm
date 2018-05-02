@@ -115,33 +115,25 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
             while ((file = fts_read(p_fts)) != NULL) {
                 /// @todo Document the plugin file name requirements
                 ///       in a man page.
-                // Plugin file names must begin with "libgeopmpi_" and
-                // end with ".so" or ".dylib".  Also check that the
-                // library has not already been loaded.
+                // Plugin file names must begin with any of:
+                //      "libgeopmagent_"
+                //      "libgeopmiogroup_"
+                //      "libgeopmcomm_"
+                // and end with either of:
+                //      ".so.GEOPM_ABI_VERSION"
+                //      ".dylib.GEOPM_ABI_VERSION"
+                // Also check that the library has not already been loaded.
                 if (file->fts_info == FTS_F &&
                     (geopm_name_ends_with(file->fts_name, so_suffix) ||
                      geopm_name_ends_with(file->fts_name, ".dylib"))) {
-                    if (geopm_env_do_kontroller()) {
-                        if ((geopm_name_begins_with(file->fts_name, "libgeopmagent_") ||
-                             geopm_name_begins_with(file->fts_name, "libgeopmiogroup_") ||
-                             geopm_name_begins_with(file->fts_name, "libgeopmcomm_")) &&
-                            dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
-                            if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
+                    if ((geopm_name_begins_with(file->fts_name, "libgeopmagent_") ||
+                         geopm_name_begins_with(file->fts_name, "libgeopmiogroup_") ||
+                         geopm_name_begins_with(file->fts_name, "libgeopmcomm_")) &&
+                        dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
+                        if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
-                                fprintf(stderr, "Warning: failed to dlopen plugin %s.\n", file->fts_path);
+                            fprintf(stderr, "Warning: failed to dlopen plugin %s.\n", file->fts_path);
 #endif
-                            }
-                        }
-                    }
-                    else {
-                        if ((geopm_name_begins_with(file->fts_name, "libgeopmpi_") ||
-                             geopm_name_begins_with(file->fts_name, "libgeopmiogroup_")) &&
-                            dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
-                            if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
-#ifdef GEOPM_DEBUG
-                                fprintf(stderr, "Warning: failed to dlopen plugin %s.\n", file->fts_path);
-#endif
-                            }
                         }
                     }
                 }

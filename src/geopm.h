@@ -36,8 +36,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "geopm_policy.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

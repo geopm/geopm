@@ -84,8 +84,6 @@ addons:
     packages:
     - gcc-4.8
     - g++-4.8
-    - libhwloc-common
-    - libhwloc-dev
     - openmpi-bin
     - libopenmpi-dev
     - rpm
