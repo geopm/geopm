@@ -22,6 +22,30 @@
       "revId": "0431816909a09b89b9e1d7facab1ed2d654320be",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8593a13a_dfb862e7",
+        "filename": "src/KprofileIOSample.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-02T18:48:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bce305cf_d6944aae",
+      "range": {
+        "startLine": 98,
+        "startChar": 44,
+        "endLine": 98,
+        "endChar": 49
+      },
+      "revId": "0431816909a09b89b9e1d7facab1ed2d654320be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
