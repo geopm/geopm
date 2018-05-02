@@ -236,7 +236,7 @@ namespace geopm
             void init_ctl_msg(const std::string &sample_key);
             /// @brief Fill in rank affinity list.
             ///
-            /// Uses hwloc to determine the cpuset the current
+            /// Uses PlatformTopo to determine the cpuset the current
             /// process is bound to. This information is used to fill
             /// in a set containing all CPUs we can run on. This is used
             /// to communicate with the geopm runtime the number of ranks

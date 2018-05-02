@@ -59,25 +59,6 @@ AC_ARG_VAR([MPIFC],
 AC_ARG_VAR([MPIF77],
            [MPIF77 the MPI Fortran 77 compiler wrapper used to determine flags required for inclusion of MPI for Fortran 77.])
 
-AC_ARG_WITH([hwloc], [AS_HELP_STRING([--with-hwloc=PATH],
-            [specify directory for installed hwloc package.])])
-if test "x$with_hwloc" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_hwloc/include"
-  LD_LIBRARY_PATH="$with_hwloc/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_hwloc/lib"
-fi
-AC_ARG_WITH([hwloc-include], [AS_HELP_STRING([--with-hwloc-include=PATH],
-            [specify directory for the installed hwloc include files.])])
-if test "x$with_hwloc_include" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_hwloc_include"
-fi
-AC_ARG_WITH([hwloc-lib], [AS_HELP_STRING([--with-hwloc-lib=PATH],
-            [specify directory for installed hwloc library])])
-if test "x$with_hwloc_lib" != x; then
-  LD_LIBRARY_PATH="$with_hwloc_lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_hwloc_lib"
-fi
-
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug], [Build debugging code and compile with -O0 -g])],
 [if test "x$enable_debug" = "xno" ; then
@@ -291,35 +272,6 @@ AC_LANG_POP([C++])
 [MPI_FCLIBS=$MPI_FLIBS]
 [MPI_FLIBS=$MPI_F77LIBS]
 
-# WORK AROUND FOR SLES-12.
-#
-# The version of openmpi installed on SLES-12 has an mpicc wrapper
-# which emits the include flag for the version of hwloc compiled into
-# the mpi library.  This forces the geopm objects which use MPI to be
-# derived from source files that include the openmpi version of the
-# hwloc header.  The geopm objects which do not require MPI will
-# derived from source files that include the system version in
-# /usr/include which is always searched after all non-system -I
-# options have been exhausted.
-#
-# https://gcc.gnu.org/onlinedocs/cpp/System-Headers.html#System-Headers
-#
-# The hwloc interface is based on enums that change frequently with
-# version number (not a great feature) and we would like to use
-# configure to cononicalize the hwloc interface with the
-# GEOPM_HWLOC_HAS_* defines above.  This forces us to use one version
-# of hwloc for MPI and non-MPI objects.  To enable this to be the
-# system version we remove the include path for the openmpi version of
-# hwloc compiled into the mpi library from the MPI_CLFAGS and
-# MPI_CXXFLAGS.
-#
-# I would recommend that in the future SLES either not package hwloc
-# or not allow the mpicc compiler wrapper to emit the include path for
-# the openmpi versioned hwloc.  Alternatively the openmpi hwloc header
-# should be versioned i.e. hwloc.h -> hwloc172.h.
-#
-[MPI_CFLAGS=`echo $MPI_CFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
-[MPI_CXXFLAGS=`echo $MPI_CXXFLAGS | sed 's|-I/usr/lib64/mpi/gcc/openmpi/include/openmpi/opal/mca/hwloc/hwloc[0-9]*/hwloc/include||'`]
 [MPI_FCFLAGS=`echo $MPI_FCFLAGS | sed 's|-lmpigi||'`]
 [MPI_FFFLAGS=`echo $MPI_FFFLAGS | sed 's|-lmpigi||'`]
 
@@ -372,14 +324,6 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
-AC_CHECK_LIB([hwloc], [hwloc_topology_init], [], [
-    echo "missing libhwloc: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-lib"
-    exit -1])
-AC_CHECK_LIB([hwloc], [hwloc_topology_dup], [
-    AC_DEFINE([GEOPM_HWLOC_HAS_TOPOLOGY_DUP], [1], [hwloc supports hwloc_topology_dup.])], [])
-AC_CHECK_HEADER([hwloc.h], [], [
-    echo "missing hwloc.h: <http://www.open-mpi.org/projects/hwloc> use --with-hwloc or --with-hwloc-include"
-    exit -1])
 
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
 AC_CHECK_HEADER([ompt.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [ompt.h is available]) [has_ompt="1"]], [has_ompt="0"])
@@ -426,34 +370,6 @@ AC_TYPE_UINT64_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([clock_gettime dup2 floor getcwd memset mkfifo pow sqrt strdup strstr])
-
-AC_MSG_CHECKING([that hwloc supports HWLOC_OBJ_SOCKET])
-AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[#include <hwloc.h>]],
-            [[hwloc_topology_t m_topo;
-            hwloc_topology_init(&m_topo);
-            hwloc_topology_load(m_topo);
-            int depth = hwloc_get_type_depth(m_topo, HWLOC_OBJ_SOCKET);]])
-],[
-    AC_MSG_RESULT(yes)
-    AC_DEFINE([GEOPM_HWLOC_HAS_SOCKET], [1], [hwloc supports HWLOC_OBJ_SOCKET.])
-],[
-    AC_MSG_RESULT(no)
-])
-
-AC_MSG_CHECKING([that hwloc supports HWLOC_OBJ_L2CACHE])
-AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[#include <hwloc.h>]],
-            [[hwloc_topology_t m_topo;
-            hwloc_topology_init(&m_topo);
-            hwloc_topology_load(m_topo);
-            int size = hwloc_get_nbobjs_by_type(m_topo, HWLOC_OBJ_L2CACHE);]])
-],[
-    AC_MSG_RESULT(yes)
-    AC_DEFINE([GEOPM_HWLOC_HAS_L2CACHE], [1], [hwloc supports HWLOC_OBJ_L2CACHE.])
-],[
-    AC_MSG_RESULT(no)
-])
 
 AC_LANG_PUSH([C++])
 AC_MSG_CHECKING([that double is 64 bits])
