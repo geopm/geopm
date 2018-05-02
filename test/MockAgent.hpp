@@ -48,7 +48,7 @@ class MockAgent : public geopm::IAgent
                      bool(const std::vector<std::vector<double> > &in_signal,
                           std::vector<double> &out_signal));
         MOCK_METHOD1(adjust_platform,
-                     void(const std::vector<double> &in_policy));
+                     bool(const std::vector<double> &in_policy));
         MOCK_METHOD1(sample_platform,
                      bool(std::vector<double> &out_sample));
         MOCK_METHOD0(wait,

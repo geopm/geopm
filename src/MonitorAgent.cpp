@@ -104,9 +104,9 @@ namespace geopm
         return true;
     }
 
-    void MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
+    bool MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-
+        return false;
     }
 
     bool MonitorAgent::sample_platform(std::vector<double> &out_sample)

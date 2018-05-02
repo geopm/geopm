@@ -71,7 +71,8 @@ namespace geopm
             ///        from above.
             /// @param [in] policy Settings for each control in the
             ///        policy.
-            virtual void adjust_platform(const std::vector<double> &policy) = 0;
+            /// @return True if platform was adjusted, false otherwise.
+            virtual bool adjust_platform(const std::vector<double> &policy) = 0;
             /// @brief Sample signals from the platform to be sent up
             ///        the tree.
             /// @param [out] sample Vector of samples, one per signal.

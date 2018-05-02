@@ -62,9 +62,9 @@ namespace geopm
             void init(int level, int num_leaf) override;
             bool descend(const std::vector<double> &in_policy,
                          std::vector<std::vector<double> >&out_policy) override;
-            bool ascend(const std::vector<std::vector<double> > &in_signal,
-                        std::vector<double> &out_signal) override;
-            void adjust_platform(const std::vector<double> &in_policy) override;
+            bool ascend(const std::vector<std::vector<double> > &in_sample,
+                        std::vector<double> &out_sample) override;
+            bool adjust_platform(const std::vector<double> &in_policy) override;
             bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) override;
