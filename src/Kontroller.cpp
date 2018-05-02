@@ -51,17 +51,74 @@
 
 extern "C"
 {
-    static void *geopm_threaded_run(void *args)
+    static int geopm_run_imp(struct geopm_ctl_c *ctl, bool do_print);
+    /// forward declaration instead of include geopm_ctl.h to avoid mpi.h inclusion
+    int geopm_ctl_run(struct geopm_ctl_c *ctl);
+
+    int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
+                          const pthread_attr_t *attr,
+                          pthread_t *thread)
     {
         long err = 0;
-        geopm::Kontroller *ctl = (geopm::Kontroller *)args;
+        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
         try {
-            ctl->run();
+            ctl_obj->pthread(attr, thread);
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+            ctl_obj->abort();
+            err = geopm::exception_handler(std::current_exception(), true);
         }
-        return (void *)err;
+        return err;
+    }
+
+    static void *geopm_threaded_run(void *args)
+    {
+        return (void *) (long) geopm_run_imp((struct geopm_ctl_c *)args, false);
+    }
+
+    int geopmctl_main(const char *policy_config)
+    {
+        int err = 0;
+        try {
+            auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+            geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy());
+            err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), true);
+        }
+        return err;
+    }
+
+    int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
+    {
+        int err = 0;
+        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        try {
+            delete ctl_obj;
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), true);
+        }
+        return err;
+    }
+
+    static int geopm_run_imp(struct geopm_ctl_c *ctl, bool do_print)
+    {
+        int err = 0;
+        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        try {
+            ctl_obj->run();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), do_print);
+        }
+        return err;
+    }
+
+    int geopm_ctl_run(struct geopm_ctl_c *ctl)
+    {
+        return geopm_run_imp(ctl, true);
     }
 }
 
