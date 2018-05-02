@@ -121,15 +121,17 @@ def skip_unless_slurm_batch():
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
-        self._mode = 'dynamic'
-        self._options = {'tree_decider': 'static_policy',
-                         'leaf_decider': 'power_governing',
-                         'platform': 'rapl',
-                         'power_budget': 150}
+        self._old_agent = None
+        self._options = dict()
         self._tmp_files = []
         self._output = None
+        self._old_agent = os.getenv("GEOPM_AGENT")
+        if self._old_agent is not None:
+            del os.environ['GEOPM_AGENT']
 
     def tearDown(self):
+        if self._old_agent is not None:
+            os.environ['GEOPM_AGENT'] = self._old_agent
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
             if self._output is not None:
                 self._output.remove_files()
@@ -169,9 +171,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -192,9 +194,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -209,9 +211,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.set_pmpi_ctl('pthread')
@@ -238,9 +240,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.set_pmpi_ctl('application')
@@ -266,9 +268,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         time.sleep(5)  # Wait a moment to finish cleaning-up from a previous test
@@ -309,9 +311,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -334,9 +336,9 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
         app_conf.append_region('spin', delay)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -361,9 +363,9 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('nested-progress', delay)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -392,9 +394,9 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path,
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                     trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
@@ -437,9 +439,9 @@ class TestIntegration(unittest.TestCase):
         expected_region_runtime = {'spin': spin_big_o, 'sleep': sleep_big_o}
         app_conf.append_region('sleep', sleep_big_o)
         app_conf.append_region('spin', spin_big_o)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, region_barrier=True)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -479,9 +481,9 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -544,9 +546,9 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep-progress', delay)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -572,9 +574,9 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('spin', delay)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -611,9 +613,9 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
         app_conf.set_loop_count(loop_count)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, time_limit=900)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, time_limit=900)
 
         check_successful = True
         while check_successful:
@@ -656,9 +658,6 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
 
-        if os.getenv("GEOPM_AGENT", None) is not None:
-            old_agent = os.getenv("GEOPM_AGENT", None)
-
         fam, mod = get_platform()
         if fam == 6 and mod in (45, 47, 79):
             # set budget for BDX server
@@ -687,11 +686,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
 
-            epoch = '9223372036854775808'
-            # todo: hack to run tests with new controller
-            # eventually this test could also use power signals from the trace
-            if os.getenv("GEOPM_AGENT") is not None:
-                epoch = '0x8000000000000000'
+            epoch = '0x8000000000000000'
 
             first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
@@ -720,11 +715,6 @@ class TestIntegration(unittest.TestCase):
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
 
-        try:
-            os.environ['GEOPM_AGENT'] = old_agent
-        except NameError:
-            pass
-
     @skip_unless_run_long_tests()
     @skip_unless_slurm_batch()
     def test_power_balancer(self):
@@ -737,9 +727,6 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
-
-        if os.getenv("GEOPM_AGENT", None) is not None:
-            old_agent = os.getenv("GEOPM_AGENT", None)
 
         fam, mod = get_platform()
         if fam == 6 and mod in (45, 47, 79):
@@ -829,11 +816,6 @@ class TestIntegration(unittest.TestCase):
                            "governor runtime: {}, balancer runtime: {}, margin: {}".format(
                                agent_runtime['power_governor'], agent_runtime['power_balancer'], margin))
 
-        try:
-            os.environ['GEOPM_AGENT'] = old_agent
-        except NameError:
-            pass
-
     def test_progress_exit(self):
         """
         Check that when we always see progress exit before the next entry.
@@ -851,9 +833,9 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm-progress', big_o)
         app_conf.append_region('spin-progress', big_o)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, region_barrier=True)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -895,9 +877,9 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region(region, big_o)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -928,9 +910,9 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -971,9 +953,9 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('ignore', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -997,9 +979,9 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('stream-unmarked', 1.0)
         app_conf.append_region('dgemm-unmarked', 1.0)
         app_conf.append_region('all2all-unmarked', 1.0)
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
@@ -1067,11 +1049,7 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
-        use_agent = False
-        if os.getenv("GEOPM_AGENT", None) is not None:
-            old_agent = os.getenv("GEOPM_AGENT", None)
-            os.environ['GEOPM_AGENT'] = 'energy_efficient'
-            use_agent = True
+        os.environ['GEOPM_AGENT'] = 'energy_efficient'
 
         # Setup the static policy run
         num_node = 1
@@ -1086,14 +1064,9 @@ class TestIntegration(unittest.TestCase):
                                                                       max_freq=None,
                                                                       enable_turbo=False)
         config = geopmpy.analysis.LaunchConfig(num_rank=num_rank, num_node=num_node,
-                                               use_agent=use_agent, app_argv=app_argv,
+                                               use_agent=True, app_argv=app_argv,
                                                geopm_ctl='process', do_geopm_barrier=False)
         analysis.launch(config)
-
-        try:
-            os.environ['GEOPM_AGENT'] = old_agent
-        except NameError:
-            pass
 
         analysis.find_files()
         parse_output = analysis.parse()
@@ -1145,11 +1118,7 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
-        use_agent = False
-        if os.getenv("GEOPM_AGENT", None) is not None:
-            old_agent = os.getenv("GEOPM_AGENT", None)
-            os.environ['GEOPM_AGENT'] = 'energy_efficient'
-            use_agent = True
+        os.environ['GEOPM_AGENT'] = 'energy_efficient'
 
         # Setup the adaptive policy run
         num_node = 1
@@ -1163,14 +1132,9 @@ class TestIntegration(unittest.TestCase):
                                                                      max_freq=None,
                                                                      enable_turbo=False)
         config = geopmpy.analysis.LaunchConfig(num_rank=num_rank, num_node=num_node,
-                                               use_agent=use_agent, app_argv=app_argv,
+                                               use_agent=True, app_argv=app_argv,
                                                geopm_ctl='process', do_geopm_barrier=False)
         analysis.launch(config)
-
-        try:
-            os.environ['GEOPM_AGENT'] = old_agent
-        except NameError:
-            pass
 
         analysis.find_files()
         parse_output = analysis.parse()
@@ -1197,11 +1161,11 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 30.0)
         app_conf.write()
 
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        ctl_conf.write()
+        agent_conf = geopmpy.io.AgentConf(name + '_ctl.config', self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        agent_conf.write()
 
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_pmpi_ctl("application")
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
