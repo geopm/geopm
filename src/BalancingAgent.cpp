@@ -230,13 +230,16 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        /// @todo Move the below to IAgent::ascend()?  Or similar.
+        bool result = true;
         std::vector<double> child_sample(in_sample.size());
         for (size_t sig_idx = 0; sig_idx < out_sample.size(); ++sig_idx) {
             for (size_t child_idx = 0; child_idx < in_sample.size(); ++child_idx) {
                 child_sample[child_idx] = in_sample[child_idx][sig_idx];
             }
             out_sample[sig_idx] = m_agg_func[sig_idx](child_sample);
+        }
+        if (out_sample[M_SAMPLE_EPOCH_RUNTIME] == 0.0) {
+            result = false;
         }
 
         // Cache the necessary state for descend
@@ -250,7 +253,7 @@ namespace geopm
         }
         m_epoch_runtime_buf->insert(max_value);
 
-        return true;
+        return result;
     }
 
     void BalancingAgent::adjust_platform(const std::vector<double> &in_policy)
