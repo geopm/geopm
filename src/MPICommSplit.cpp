@@ -37,9 +37,7 @@
 #include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "Exception.hpp"
-#include "Controller.hpp"
 #include "Kontroller.hpp"
-#include "GlobalPolicy.hpp"
 #include "Comm.hpp"
 #include "MPIComm.hpp"
 
@@ -58,18 +56,12 @@ extern "C"
         }
     }
 
-    int geopm_ctl_create(struct geopm_policy_c *policy, MPI_Comm comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create(MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;
         try {
             auto tmp_comm = std::unique_ptr<geopm::Comm>(new geopm::MPIComm(comm));
-            if (geopm_env_do_kontroller()) {
-                *ctl = (struct geopm_ctl_c *)(new geopm::Kontroller(std::move(tmp_comm), geopm_env_policy()));
-            }
-            else {
-                geopm::IGlobalPolicy *global_policy = (geopm::IGlobalPolicy *)policy;
-                *ctl = (struct geopm_ctl_c *)(new geopm::Controller(global_policy, std::move(tmp_comm)));
-            }
+            *ctl = (struct geopm_ctl_c *)(new geopm::Kontroller(std::move(tmp_comm), geopm_env_policy()));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception(), true);
@@ -77,9 +69,9 @@ extern "C"
         return err;
     }
 
-    int geopm_ctl_create_f(struct geopm_policy_c *policy, int comm, struct geopm_ctl_c **ctl)
+    int geopm_ctl_create_f(int comm, struct geopm_ctl_c **ctl)
     {
-        return geopm_ctl_create(policy, MPI_Comm_f2c(comm), ctl);
+        return geopm_ctl_create(MPI_Comm_f2c(comm), ctl);
     }
 
     static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_ctl_comm);

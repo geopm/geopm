@@ -60,7 +60,6 @@ int geopm_env_do_trace(void);
 int geopm_env_do_profile(void);
 int geopm_env_profile_timeout(void);
 int geopm_env_debug_attach(void);
-int geopm_env_do_kontroller(void);
 
 #ifdef __cplusplus
 }

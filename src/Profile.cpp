@@ -461,24 +461,11 @@ namespace geopm
 #endif
 
         struct geopm_prof_message_s sample;
-        /// @todo When removing decider code path, remove this do_kontroller check
-        if (!geopm_env_do_kontroller()) {
-            m_shm_comm->barrier();
-            if (!m_shm_rank) {
-                sample.rank = m_rank;
-                sample.region_id = GEOPM_REGION_ID_EPOCH;
-                (void) geopm_time(&(sample.timestamp));
-                sample.progress = 0.0;
-                m_table->insert(sample.region_id, sample);
-            }
-        }
-        else {
-            sample.rank = m_rank;
-            sample.region_id = GEOPM_REGION_ID_EPOCH;
-            (void) geopm_time(&(sample.timestamp));
-            sample.progress = 0.0;
-            m_table->insert(sample.region_id, sample);
-        }
+        sample.rank = m_rank;
+        sample.region_id = GEOPM_REGION_ID_EPOCH;
+        (void) geopm_time(&(sample.timestamp));
+        sample.progress = 0.0;
+        m_table->insert(sample.region_id, sample);
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
