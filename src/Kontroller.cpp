@@ -52,8 +52,11 @@
 
 extern "C"
 {
+    int geopm_ctl_run(struct geopm_ctl_c *ctl);
+
     static void *geopm_threaded_run(void *args)
     {
+        /// @todo why not call geopm_ctl_run?
         long err = 0;
         geopm::Kontroller *ctl = (geopm::Kontroller *)args;
         try {
@@ -63,6 +66,48 @@ extern "C"
             err = geopm::exception_handler(std::current_exception());
         }
         return (void *)err;
+    }
+
+    int geopmctl_main(const char *policy_config)
+    {
+        int err = 0;
+        try {
+            auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+            geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy());
+            err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), true);
+        }
+        return err;
+    }
+
+    int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
+    {
+        int err = 0;
+        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        try {
+            delete ctl_obj;
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), true);
+        }
+        return err;
+    }
+
+    int geopm_ctl_run(struct geopm_ctl_c *ctl)
+    {
+        int err = 0;
+        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        try {
+            ctl_obj->run();
+        }
+        catch (...) {
+            /// @todo need this feature to be added to the Kontroller.
+            //ctl_obj->reset();
+            err = geopm::exception_handler(std::current_exception(), true);
+        }
+        return err;
     }
 }
 

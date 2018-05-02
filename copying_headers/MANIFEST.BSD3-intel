@@ -102,7 +102,6 @@ src/geopm_pmpi.c
 src/geopm_pmpi_fortran.c
 src/geopm_pmpi.h
 src/geopm_policy.h
-src/geopmpolicy_main.c
 src/geopmread_main.cpp
 src/geopm_sched.c
 src/geopm_sched.h
@@ -202,8 +201,6 @@ src/SampleScheduler.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
 src/SignalHandler.cpp
-src/StaticPolicyDecider.cpp
-src/StaticPolicyDecider.hpp
 src/TimeIOGroup.cpp
 src/TimeIOGroup.hpp
 src/Tracer.cpp
@@ -231,12 +228,9 @@ test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
 test/EpochRuntimeRegulatorTest.cpp
 test/ExceptionTest.cpp
-test/geopm_static_modes_test.cpp
-test/geopm_static_modes_test.sh
 test/geopm_test.cpp
 test/geopm_test.hpp
 test/geopm_test.sh
-test/GlobalPolicyTest.cpp
 test/googletest.mk
 test/GoverningDeciderTest.cpp
 test_hw/geopm_time.h
