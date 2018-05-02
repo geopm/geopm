@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "375a80a6_9e3b7422",
+        "filename": "src/MSR.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-02T16:43:59Z",
+      "side": 1,
+      "message": "Mismatch from actual var name.",
+      "range": {
+        "startLine": 116,
+        "startChar": 28,
+        "endLine": 116,
+        "endChar": 38
+      },
+      "revId": "2379e11fcaa9d0d74e9e2c06312f77132c56c320",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f745785_8ce89522",
+        "filename": "src/Reporter.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-02T16:43:59Z",
+      "side": 1,
+      "message": "mismatch",
+      "range": {
+        "startLine": 73,
+        "startChar": 28,
+        "endLine": 73,
+        "endChar": 45
+      },
+      "revId": "2379e11fcaa9d0d74e9e2c06312f77132c56c320",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
