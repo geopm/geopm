@@ -157,18 +157,17 @@ requirements must be met.
 The GEOPM package requires a compiler that supports the MPI 2.2 and
 C++11 standards.  These requirements can be met by using GCC version
 4.7 or greater and installing the openmpi-devel package version 1.7 or
-greater on RHEL or SLES Linux.  Additionally, building the GEOPM
-package requires the hwloc library. Documentation creation including
+greater on RHEL or SLES Linux.  Documentation creation including
 man pages further requires the rubygems package, and the ruby-devel
 package.
 
 RHEL:
 
-    yum install openmpi-devel hwloc-devel ruby-devel rubygems
+    yum install openmpi-devel ruby-devel rubygems
 
 SUSE:
 
-    zypper install openmpi-devel hwloc-devel ruby-devel rubygems
+    zypper install openmpi-devel ruby-devel rubygems
 
 Alternatively these can be installed from source, and an alternate MPI
 implementation to OpenMPI can be selected.  See
@@ -223,18 +222,17 @@ MPI targets are built.
 RUN REQUIREMENTS
 ----------------
 We are targeting SLES12 and RHEL7 distributions for functional runtime
-support.  There are several runtime requirements that can be obtained
-from those distributions including the OpenMPI implementation of MPI
-and the hwloc library.  To install, follow the instructions below for
-your Linux distribution.
+support.  There is a single runtime requirement that can be obtained
+from these distributions for the OpenMPI implementation of MPI.  To install,
+follow the instructions below for your Linux distribution.
 
 RHEL:
 
-    yum install openmpi hwloc
+    yum install openmpi
 
 SUSE:
 
-    zypper install openmpi hwloc
+    zypper install openmpi
 
 ### SYSTEMD CONFIGURATION
 In order for GEOPM to properly use shared memory to communicate between the
