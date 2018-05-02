@@ -36,7 +36,6 @@
 #include "gmock/gmock.h"
 
 #include "EnergyEfficientRegion.hpp"
-#include "Region.hpp"
 #include "Exception.hpp"
 #include "MockPlatformIO.hpp"
 
