@@ -95,7 +95,6 @@ namespace geopm
             bool m_do_profile;
             int m_profile_timeout;
             int m_debug_attach;
-            bool m_do_kontroller;
             std::vector<std::string> m_trace_signal;
     };
 
@@ -132,7 +131,6 @@ namespace geopm
         m_do_profile = false;
         m_profile_timeout = 30;
         m_debug_attach = -1;
-        m_do_kontroller = false;
         m_trace_signal.clear();
 
         std::string tmp_str("");
@@ -140,7 +138,6 @@ namespace geopm
         (void)get_env("GEOPM_REPORT", m_report);
         (void)get_env("GEOPM_COMM", m_comm);
         (void)get_env("GEOPM_POLICY", m_policy);
-        m_do_kontroller = get_env("GEOPM_AGENT", m_agent);
         (void)get_env("GEOPM_SHMKEY", m_shmkey);
         if (m_shmkey[0] != '/') {
             m_shmkey = "/" + m_shmkey;
@@ -311,11 +308,6 @@ namespace geopm
     {
         return m_debug_attach;
     }
-
-    int Environment::do_kontroller(void) const
-    {
-        return m_do_kontroller;
-    }
 }
 
 extern "C"
@@ -407,10 +399,5 @@ extern "C"
     int geopm_env_debug_attach(void)
     {
         return geopm::environment().debug_attach();
-    }
-
-    int geopm_env_do_kontroller(void)
-    {
-        return geopm::environment().do_kontroller();
     }
 }
