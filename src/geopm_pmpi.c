@@ -160,7 +160,6 @@ static int geopm_pmpi_init(const char *exec_name)
     }
 #endif
     if (!err) {
-        struct geopm_policy_c *policy = NULL;
         if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PROCESS) {
             g_is_geopm_pmpi_ctl_enabled = 1;
             int is_ctl;
@@ -176,14 +175,8 @@ static int geopm_pmpi_init(const char *exec_name)
             if (!err && is_ctl) {
                 int ctl_rank;
                 err = PMPI_Comm_rank(g_geopm_comm_world_swap, &ctl_rank);
-                if (!err && !ctl_rank && !geopm_env_do_kontroller()) {
-                    err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
-                    if (!err && policy == NULL) {
-                        err = GEOPM_ERROR_POLICY_NULL;
-                    }
-                }
                 if (!err) {
-                    err = geopm_ctl_create(policy, g_geopm_comm_world_swap, &g_ctl);
+                    err = geopm_ctl_create(g_geopm_comm_world_swap, &g_ctl);
                 }
                 if (!err) {
                     err = geopm_ctl_run(g_ctl);
@@ -217,11 +210,8 @@ static int geopm_pmpi_init(const char *exec_name)
             if (!err && g_ppn1_comm != MPI_COMM_NULL) {
                 int ppn1_rank;
                 err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
-                if (!err && !ppn1_rank && !geopm_env_do_kontroller()) {
-                    err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
-                }
                 if (!err) {
-                    err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
+                    err = geopm_ctl_create(g_ppn1_comm, &g_ctl);
                 }
 #ifndef __APPLE__
                 if (!err) {

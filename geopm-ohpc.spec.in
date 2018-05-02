@@ -34,7 +34,6 @@ Requires:      kmod-msr-safe
 Requires:      msr-safe
 BuildRequires: autoconf
 BuildRequires: automake
-BuildRequires: hwloc-devel
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
 BuildRequires: python
