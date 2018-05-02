@@ -37,6 +37,8 @@
 
 namespace geopm
 {
+    /// @brief IOGroup that provides constants for CPU frequency limits
+    ///        as signals for PlatformIO.
     class CpuinfoIOGroup : public IOGroup
     {
         public:

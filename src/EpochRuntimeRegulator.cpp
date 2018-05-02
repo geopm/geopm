@@ -73,6 +73,7 @@ namespace geopm
     void EpochRuntimeRegulator::init_unmarked_region()
     {
         struct geopm_time_s time;
+        /// @todo This time should come from the application.
         geopm_time(&time);
         for (int rank = 0; rank < m_rank_per_node; ++rank) {
             record_entry(GEOPM_REGION_ID_UNMARKED, rank, time);

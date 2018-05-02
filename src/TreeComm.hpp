@@ -54,18 +54,19 @@ namespace geopm
             virtual int root_level(void) const = 0;
             /// @brief Returns the rank of the given level.
             virtual int level_rank(int level) const = 0;
-            /// @brief Returns the size of the given level.
+            /// @brief Returns the number of children for each parent
+            ///        in the given level.
             virtual int level_size(int level) const = 0;
             /// @brief Number of leaves below a root agent for the level
             ///        contained within the sub-tree.
             virtual int level_num_leaf(int level) const = 0;
-            /// @brief Send samples up within a level.
+            /// @brief Send samples up to the parent within a level.
             virtual void send_up(int level, const std::vector<double> &sample) = 0;
             /// @brief Send policies down to children within a level.
             virtual void send_down(int level, const std::vector<std::vector<double> > &policy) = 0;
             /// @brief Receive samples from children within a level.
             virtual bool receive_up(int level, std::vector<std::vector<double> > &sample) = 0;
-            /// @brief Receive policies from parents within a level.
+            /// @brief Receive policies from the parent within a level.
             virtual bool receive_down(int level, std::vector<double> &policy) = 0;
             /// @brief Returns the total number of bytes sent from the
             ///        entire tree.

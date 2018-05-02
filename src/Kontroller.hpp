@@ -126,6 +126,8 @@ namespace geopm
             /// @param [out] thread Pointer to the POSIX thread that
             ///        is created.
             void pthread(const pthread_attr_t *attr, pthread_t *thread);
+            /// @brief Configure the trace with custom columns from
+            ///        the Agent.
             void setup_trace(void);
         private:
             std::shared_ptr<IComm> m_comm;

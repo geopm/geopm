@@ -47,11 +47,7 @@ namespace geopm
     class IPlatformIO;
     class IPlatformTopo;
 
-    /// @brief Agent used to do sampling only.  The sampled values
-    ///        will be added to the trace.  The signals to be sampled
-    ///        can be customized by setting
-    ///        GEOPM_MONITOR_AGENT_SIGNALS to the comma-separated list
-    ///        of signal names.
+    /// @brief Agent used to do sampling only; no policy will be enforced.
     class MonitorAgent : public IAgent
     {
         public:
