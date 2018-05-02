@@ -44,6 +44,8 @@
 
 namespace geopm
 {
+    /// @brief Implementation of the IComm interface using MPI as the
+    ///        underlying communication mechanism.
     class MPIComm : public IComm
     {
         public:

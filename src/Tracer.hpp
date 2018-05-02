@@ -78,7 +78,12 @@ namespace geopm
             virtual void flush(void) = 0;
             /// @brief Returns the column header to be displayed in
             ///        the trace.  The string is based on the signal
-            ///        name.
+            ///        name.  If the domain type is board, the name
+            ///        only will be used.  Otherwise, the column
+            ///        header includes the name, domain type, and
+            ///        domain index.
+            /// @param [in] col The request structure containing the
+            ///        signal name, domain type, and domain index.
             static std::string pretty_name(const IPlatformIO::m_request_s &col);
     };
 

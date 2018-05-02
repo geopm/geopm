@@ -135,9 +135,9 @@ namespace geopm
             /// @brief Indicates whether or not the values have been
             ///        updated.
             virtual bool is_update_available(void) = 0;
-            /// @brief Returns the signal names expected by the
-            ///        resource manager.
-            /// @return Vector of signal names.
+            /// @brief Returns the signal or policy names expected by
+            ///        the resource manager.
+            /// @return Vector of signal or policy names.
             virtual std::vector<std::string> signal_names(void) const = 0;
     };
 

@@ -50,12 +50,42 @@ namespace geopm
     class IPlatformIO;
     class ITreeComm;
 
+    /// @brief A class used by the Controller to format the report at
+    ///        the end of a run.  Most of the information for the
+    ///        report is passed into the generate() method at the end
+    ///        of a run, however the Reporter is also responsible for
+    ///        pushing some per-region signals to indicate that they
+    ///        should be tracked by the PlatformIO.
     class IReporter
     {
         public:
             IReporter() = default;
             virtual ~IReporter() = default;
+            /// @brief Set up per-region tracking of energy signals
+            ///        and signals used to calculate frequency.
             virtual void init(void) = 0;
+            /// @brief Create a report for this node.  If the node is
+            ///        the root controller, format the header,
+            ///        aggregate all other node reports, and write the
+            ///        report to the file indicated in the
+            ///        environment.
+            /// @param [in] agent_name Name of the Agent.
+            /// @param [in] agent_node_header Optional list of
+            ///             key-value pairs from the agent to be added
+            ///             to the report header.
+            /// @param [in] agent_node_report Optional list of
+            ///             key-value pairs from the agent to be added
+            ///             to the host section of the report.
+            /// @param [in] agent_region_report Optional mapping from
+            ///             region ID to lists of key-value pairs from
+            ///             the agent to be added as additional
+            ///             information about each region.
+            /// @param [in] application_io Reference to the
+            ///             ApplicationIO owned by the controller.
+            /// @param [in] comm Shared pointer to the Comm owned by
+            ///             the controller.
+            /// @param [in] tree_comm Reference to the TreeComm owned
+            ///             by the controller.
             virtual void generate(const std::string &agent_name,
                                   const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                                   const std::vector<std::pair<std::string, std::string> > &agent_node_report,

@@ -113,6 +113,9 @@ namespace geopm
             /// @brief Extract a signal from a raw MSR value.
             /// @param [in] signal_idx Index of the signal bit field.
             /// @param [in] field the 64-bit register value to decode.
+            /// @param [in] last_field Previous value of the MSR.
+            ///        Only relevant if the decode function is
+            ///        m_FUNCTION_OVERFLOW or M_FUNCTION_NORMALIZE_64.
             /// @return The decoded signal in SI units.
             virtual double signal(int signal_idx,
                                   uint64_t field,
@@ -135,6 +138,8 @@ namespace geopm
             ///         defined in the m_domain_e enum
             ///         from the PlatformTopo.hpp header.
             virtual int domain_type(void) const = 0;
+            /// @brief The function used to decode the MSR value as defined
+            ///        in the m_function_e enum.
             virtual int decode_function(int signal_idx) const = 0;
     };
 
