@@ -46,7 +46,6 @@
 #include "PluginFactory.hpp"
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
-#include "ProfileIOGroup.hpp"
 #include "KprofileIOGroup.hpp"
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
@@ -55,7 +54,6 @@
 using geopm::PluginFactory;
 using geopm::IOGroup;
 using geopm::IPlatformTopo;
-using geopm::ProfileIOGroup;
 using geopm::KprofileIOGroup;
 using testing::Return;
 
@@ -94,14 +92,11 @@ void IOGroupTest::SetUp()
     }
 
     // Add IOGroups that are not registered by default
-    // TODO: KprofileIOGroup will override some signals from ProfileIOGroup,
-    // but ProfileIOGroup will be removed soon.
     m_profile_sample = std::make_shared<MockKprofileIOSample>();
     std::vector<int> rank;
     EXPECT_CALL(*m_profile_sample, cpu_rank())
         .WillOnce(Return(rank));
 
-    m_plugins.emplace_back(geopm::make_unique<ProfileIOGroup>(nullptr, nullptr));
     m_plugins.emplace_back(geopm::make_unique<KprofileIOGroup>(m_profile_sample, m_epoch_reg));
 }
 

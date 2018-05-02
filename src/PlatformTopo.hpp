@@ -40,6 +40,12 @@
 #include <string>
 #include <stdio.h>
 
+extern "C"
+{
+    /// @brief Identify host CPU.
+    int geopm_read_cpuid(void);
+}
+
 namespace geopm
 {
     class IPlatformTopo
