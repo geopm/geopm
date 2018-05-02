@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b9e295b4_667274a0",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-02T18:04:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b32b09c6_0c4b10d9",
+      "range": {
+        "startLine": 144,
+        "startChar": 1,
+        "endLine": 144,
+        "endChar": 85
+      },
+      "revId": "ca05fe397a86cedfcada64e393faf451c63c82e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39bb2999_2c8f1fb1",
         "filename": "src/Reporter.cpp",
         "patchSetId": 2
