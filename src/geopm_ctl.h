@@ -38,8 +38,6 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#include "geopm_policy.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,8 +48,7 @@ struct geopm_ctl_c;
 /************************/
 /* OBJECT INSTANTIATION */
 /************************/
-int geopm_ctl_create(struct geopm_policy_c *policy,
-                     MPI_Comm comm,
+int geopm_ctl_create(MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 
 int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
