@@ -129,9 +129,9 @@ namespace geopm
         return false;
     }
 
-    void BalancingAgent::adjust_platform(const std::vector<double> &policy)
+    bool BalancingAgent::adjust_platform(const std::vector<double> &policy)
     {
-
+        return false;
     }
 
     bool BalancingAgent::sample_platform(std::vector<double> &sample)
