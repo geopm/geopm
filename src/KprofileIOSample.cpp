@@ -69,6 +69,7 @@ namespace geopm
     void KprofileIOSample::finalize_unmarked_region()
     {
         struct geopm_time_s time;
+        /// @todo This time should come from the application.
         geopm_time(&time);
         for (int rank = 0; rank < (int)m_region_id.size(); ++rank) {
             if (m_region_id[rank] == GEOPM_REGION_ID_UNMARKED) {

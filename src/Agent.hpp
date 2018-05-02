@@ -92,7 +92,6 @@ namespace geopm
             /// @brief Called by Kontroller to get latest values to be
             ///        added to the trace.
             virtual void trace_values(std::vector<double> &values) = 0;
-
             /// @brief Used to look up the number of values in the
             ///        policy vector sent down the tree for a specific
             ///        Agent.  This should be called with the

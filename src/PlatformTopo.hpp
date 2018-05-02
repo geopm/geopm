@@ -82,7 +82,8 @@ namespace geopm
             /// @brief Number of domains on the platform of a
             ///        particular m_domain_e type.
             virtual int num_domain(int domain_type) const = 0;
-            /// @brief Get the set of Linux logical CPUs associated with the indexed domain
+            /// @brief Get the set of Linux logical CPUs associated
+            ///        with the indexed domain.
             virtual void domain_cpus(int domain_type,
                                      int domain_idx,
                                      std::set<int> &cpu_idx) const = 0;
@@ -99,7 +100,7 @@ namespace geopm
             /// @return The domain type index reserved for the newly
             ///         defined cpu group.
             virtual int define_cpu_group(const std::vector<int> &cpu_domain_idx) = 0;
-            /// @brief Check if one domain type is containd in another.
+            /// @brief Check if one domain type is contained in another.
             /// @param [in] inner_domain The contained domain type.
             /// @param [in] outer_domain The containing domain type.
             /// @return True if the inner_domain is contained within
