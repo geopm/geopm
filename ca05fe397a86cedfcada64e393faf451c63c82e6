@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b32b09c6_0c4b10d9",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-02T16:30:05Z",
+      "side": 1,
+      "message": "Not needed and wrong.  Line 139 handles this.  We want to ensure we don\u0027t pollute epoch mpi time with MPI time prior to epoch call... that is assuming there hasn\u0027t been significant discussion and a change in intended design.",
+      "range": {
+        "startLine": 144,
+        "startChar": 1,
+        "endLine": 144,
+        "endChar": 85
+      },
+      "revId": "ca05fe397a86cedfcada64e393faf451c63c82e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39bb2999_2c8f1fb1",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-02T16:30:05Z",
+      "side": 1,
+      "message": "Comment can be removed with additions to line 163?",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 35
+      },
+      "revId": "ca05fe397a86cedfcada64e393faf451c63c82e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
