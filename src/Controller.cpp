@@ -480,6 +480,8 @@ namespace geopm
 
         connect();
         init_decider();
+        m_sampler->controller_ready();
+
         platform_io().read_batch();
 
         geopm_signal_handler_check();

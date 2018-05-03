@@ -113,9 +113,9 @@ namespace geopm
     {
         std::ostringstream shm_key;
 
-        m_ctl_msg->wait();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->wait(); // M_STATUS_MAP_BEGIN
+        m_ctl_msg->step(); // M_STATUS_MAP_BEGIN
+        m_ctl_msg->wait(); // M_STATUS_MAP_END
 
         std::set<int> rank_set;
         for (int i = 0; i < GEOPM_MAX_NUM_CPU; i++) {
@@ -135,9 +135,13 @@ namespace geopm
             throw Exception("ProfileSampler::initialize(): Application ranks were not listed as running on any CPUs.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
-        m_ctl_msg->step();
+        m_ctl_msg->step(); // M_STATUS_MAP_END
+    }
+
+    void ProfileSampler::controller_ready(void)
+    {
+        m_ctl_msg->wait();  // M_STATUS_SAMPLE_BEGIN
+        m_ctl_msg->step();  // M_STATUS_SAMPLE_BEGIN
     }
 
     int ProfileSampler::rank_per_node(void)
@@ -183,14 +187,14 @@ namespace geopm
                 content_it += rank_length;
                 length += rank_length;
             }
-            if (m_ctl_msg->is_sample_end()) {
+            if (m_ctl_msg->is_sample_end()) {  // M_STATUS_SAMPLE_END
                 comm->barrier();
                 m_ctl_msg->step();
                 while (!m_ctl_msg->is_name_begin() &&
                        !m_ctl_msg->is_shutdown()) {
                     geopm_signal_handler_check();
                 }
-                if (m_ctl_msg->is_name_begin()) {
+                if (m_ctl_msg->is_name_begin()) {  // M_STATUS_NAME_BEGIN
                     region_names();
                 }
             }
@@ -212,19 +216,19 @@ namespace geopm
 
     void ProfileSampler::region_names(void)
     {
-        m_ctl_msg->step();
+        m_ctl_msg->step();  // M_STATUS_NAME_BEGIN
 
         bool is_all_done = false;
         while (!is_all_done) {
-            m_ctl_msg->loop_begin();
-            m_ctl_msg->wait();
+            m_ctl_msg->loop_begin();  // M_STATUS_NAME_LOOP_BEGIN
+            m_ctl_msg->wait();        // M_STATUS_NAME_LOOP_END
             is_all_done = true;
             for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
                 if (!(*it)->name_fill(m_name_set)) {
                     is_all_done = false;
                 }
             }
-            m_ctl_msg->step();
+            m_ctl_msg->step();  // M_STATUS_NAME_LOOP_END
             if (!is_all_done && m_ctl_msg->is_shutdown()) {
                 throw Exception("ProfileSampler::region_names(): Application shutdown while report was being generated", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -237,9 +241,9 @@ namespace geopm
 
         m_do_report = true;
 
-        m_ctl_msg->wait();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->wait();  // M_STATUS_NAME_END
+        m_ctl_msg->step();  // M_STATUS_NAME_END
+        m_ctl_msg->wait();  // M_STATUS_SHUTDOWN
     }
 
     std::set<std::string> ProfileSampler::name_set(void)

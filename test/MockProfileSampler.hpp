@@ -67,6 +67,8 @@ class MockProfileSampler : public geopm::IProfileSampler
             std::string (void));
         MOCK_METHOD0(tprof_table,
             std::shared_ptr<geopm::IProfileThreadTable>(void));
+        MOCK_METHOD0(controller_ready,
+                     void(void));
 };
 
 #endif
