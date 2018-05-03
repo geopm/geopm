@@ -103,6 +103,9 @@ namespace geopm
             /// @brief Resets the internal list of region entries and
             ///        exits.
             virtual void clear_region_info(void) = 0;
+            /// @brief Signal to the application that the Controller
+            ///        is ready to begin receiving samples.
+            virtual void controller_ready(void) = 0;
     };
 
     class IProfileSampler;
@@ -137,6 +140,7 @@ namespace geopm
             void update(std::shared_ptr<IComm> comm) override;
             std::list<geopm_region_info_s> region_info(void) const override;
             void clear_region_info(void) override;
+            void controller_ready(void) override;
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 12288;
 

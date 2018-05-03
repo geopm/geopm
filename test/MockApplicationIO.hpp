@@ -72,6 +72,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                            std::list<geopm_region_info_s>(void));
         MOCK_METHOD0(clear_region_info,
                      void(void));
+        MOCK_METHOD0(controller_ready,
+                     void(void));
 };
 
 #endif

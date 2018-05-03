@@ -151,16 +151,16 @@ namespace geopm
             /// @brief Enum encompassing application and
             /// GEOPM runtime state.
             enum m_status_e {
-                M_STATUS_UNDEFINED = 0,
-                M_STATUS_MAP_BEGIN = 1,
-                M_STATUS_MAP_END = 2,
-                M_STATUS_SAMPLE_BEGIN = 3,
-                M_STATUS_SAMPLE_END = 4,
-                M_STATUS_NAME_BEGIN = 5,
-                M_STATUS_NAME_LOOP_BEGIN = 6,
-                M_STATUS_NAME_LOOP_END = 7,
-                M_STATUS_NAME_END = 8,
-                M_STATUS_SHUTDOWN = 9,
+                M_STATUS_UNDEFINED,
+                M_STATUS_MAP_BEGIN,
+                M_STATUS_MAP_END,
+                M_STATUS_SAMPLE_BEGIN,
+                M_STATUS_SAMPLE_END,
+                M_STATUS_NAME_BEGIN,
+                M_STATUS_NAME_LOOP_BEGIN,
+                M_STATUS_NAME_LOOP_END,
+                M_STATUS_NAME_END,
+                M_STATUS_SHUTDOWN,
                 M_STATUS_ABORT = 9999,
             };
             struct geopm_ctl_message_s &m_ctl_msg;
