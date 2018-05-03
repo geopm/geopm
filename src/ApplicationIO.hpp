@@ -53,6 +53,9 @@ namespace geopm
         public:
             IApplicationIO() = default;
             virtual ~IApplicationIO() = default;
+            /// @brief Connect to the application via
+            ///        shared memory.
+            virtual void connect(void) = 0;
             /// @brief Returns true if the application has indicated
             ///        it is shutting down.
             virtual bool do_shutdown(void) const = 0;
@@ -124,6 +127,7 @@ namespace geopm
                           IPlatformIO &platform_io,
                           IPlatformTopo &platform_topo);
             virtual ~ApplicationIO();
+            void connect(void) override;
             bool do_shutdown(void) const override;
             std::string report_name(void) const override;
             std::string profile_name(void) const override;
@@ -144,7 +148,6 @@ namespace geopm
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 12288;
 
-            void connect(void);
             double current_energy(void) const;
 
             std::unique_ptr<IProfileSampler> m_sampler;
