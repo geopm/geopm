@@ -198,12 +198,23 @@ extern "C"
                           pthread_t *thread)
     {
         long err = 0;
-        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
-        try {
-            ctl_obj->pthread(attr, thread);
+        if (geopm_env_do_kontroller()) {
+            geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+            try {
+                ctl_obj->pthread(attr, thread);
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
         }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), true);
+        else {
+            geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
+            try {
+                ctl_obj->pthread(attr, thread);
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
         }
         return err;
     }

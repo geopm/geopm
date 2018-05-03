@@ -130,6 +130,8 @@ namespace geopm
             ///        the Agent.
             void setup_trace(void);
         private:
+            void init_agents(void);
+
             std::shared_ptr<IComm> m_comm;
             IPlatformTopo &m_platform_topo;
             IPlatformIO &m_platform_io;
