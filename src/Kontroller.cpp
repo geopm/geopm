@@ -128,7 +128,16 @@ namespace geopm
             m_in_sample[level] = std::vector<std::vector<double> >(num_children,
                                                                    std::vector<double>(m_num_send_up));
         }
+    }
 
+    Kontroller::~Kontroller()
+    {
+        geopm_signal_handler_check();
+        geopm_signal_handler_revert();
+    }
+
+    void Kontroller::init_agents(void)
+    {
         if (m_agent.size() == 0) {
             m_agent.push_back(agent_factory().make_plugin(m_agent_name));
             m_agent.back()->init(0, m_tree_comm->level_num_leaf(0));
@@ -150,14 +159,10 @@ namespace geopm
         }
     }
 
-    Kontroller::~Kontroller()
-    {
-        geopm_signal_handler_check();
-        geopm_signal_handler_revert();
-    }
-
     void Kontroller::run(void)
     {
+        m_application_io->connect();
+        init_agents();
         m_reporter->init();
         setup_trace();
         m_application_io->controller_ready();
