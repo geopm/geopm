@@ -238,6 +238,7 @@ test_integration/Makefile.mk
 test/InternalProfile.cpp
 test/InternalProfile.hpp
 test/KontrollerTest.cpp
+test/KruntimeRegulatorTest.cpp
 test/legacy_whitelist.out
 test/Makefile.mk
 test/ManagerIOTest.cpp

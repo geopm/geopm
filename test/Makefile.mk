@@ -306,6 +306,11 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ApplicationIOTest.passthrough \
+              test/gtest_links/KruntimeRegulatorTest.exceptions \
+              test/gtest_links/KruntimeRegulatorTest.all_in_and_out \
+              test/gtest_links/KruntimeRegulatorTest.all_reenter \
+              test/gtest_links/KruntimeRegulatorTest.one_rank_reenter_and_exit \
+              test/gtest_links/KruntimeRegulatorTest.config_rank_then_workers \
               # end
 
 if ENABLE_MPI
@@ -414,6 +419,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/ApplicationIOTest.cpp \
                           test/MockKprofileIOSample.hpp \
                           test/MockProfileIORuntime.hpp \
+                          test/KruntimeRegulatorTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
