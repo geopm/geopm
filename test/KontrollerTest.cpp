@@ -175,7 +175,7 @@ TEST_F(KontrollerTest, single_node)
         .WillRepeatedly(Return(manager_sample));
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
@@ -239,7 +239,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
@@ -316,7 +316,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
@@ -394,7 +394,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
         .WillRepeatedly(Return(manager_sample));
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);

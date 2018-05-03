@@ -51,13 +51,11 @@ class MockTreeComm : public geopm::ITreeComm
 
         void send_up(int level, const std::vector<double> &sample) override
         {
-            std::cout << "tree send up at level " << level << std::endl;
             ++m_num_send;
             m_data_sent_up[level] = sample;
         }
         void send_down(int level, const std::vector<std::vector<double> > &policy) override
         {
-            std::cout << "tree send down at level " << level << std::endl;
             ++m_num_send;
             if (policy.size() == 0) {
                 throw std::runtime_error("MockTreeComm::send_down(): policy vector was wrong size");
@@ -66,7 +64,6 @@ class MockTreeComm : public geopm::ITreeComm
         }
         bool receive_up(int level, std::vector<std::vector<double> > &sample)
         {
-            std::cout << "tree recv up level " << level << std::endl;
             ++m_num_recv;
             if (m_data_sent_up.find(level) == m_data_sent_up.end()) {
                 throw std::runtime_error("MockTreeComm::receive_up(): no data for level " +
@@ -79,7 +76,6 @@ class MockTreeComm : public geopm::ITreeComm
         }
         bool receive_down(int level, std::vector<double> &policy)
         {
-            std::cout << "tree recv down level " << level << std::endl;
             ++m_num_recv;
             if (m_data_sent_down.find(level) == m_data_sent_down.end()) {
                 throw std::runtime_error("MockTreeComm::receive_down(): no data for level " +
