@@ -123,6 +123,7 @@ namespace geopm
                 else {
                     m_region_id[local_rank] = region_id;
                 }
+                m_rank_sample_buffer[local_rank].insert(rank_sample);
             }
         }
     }

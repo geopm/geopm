@@ -101,6 +101,11 @@ namespace geopm
         }
     }
 
+    void ApplicationIO::controller_ready(void)
+    {
+        m_sampler->controller_ready();
+    }
+
     bool ApplicationIO::do_shutdown(void) const
     {
 #ifdef GEOPM_DEBUG

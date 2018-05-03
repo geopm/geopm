@@ -180,14 +180,14 @@ namespace geopm
             }
         }
         free(proc_cpuset);
-
-        m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
     }
 
     void Profile::init_cpu_affinity(int shm_num_rank)
     {
+        m_shm_comm->barrier();
+        m_ctl_msg->step();  // M_STATUS_MAP_BEGIN
+        m_ctl_msg->wait();  // M_STATUS_MAP_BEGIN
+
         for (int i = 0 ; i < shm_num_rank; ++i) {
             if (i == m_shm_rank) {
                 if (i == 0) {
@@ -221,8 +221,8 @@ namespace geopm
             }
         }
         m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->step();  // M_STATUS_MAP_END
+        m_ctl_msg->wait();  // M_STATUS_MAP_END
     }
 
     void Profile::init_tprof_table(const std::string &tprof_key, IPlatformTopo &topo)
@@ -248,8 +248,8 @@ namespace geopm
         }
 
         m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->step();  // M_STATUS_SAMPLE_BEGIN
+        m_ctl_msg->wait();  // M_STATUS_SAMPLE_BEGIN
     }
 
     Profile::~Profile()
@@ -269,8 +269,8 @@ namespace geopm
 #endif
 
         m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->step();  // M_SAMPLE_END
+        m_ctl_msg->wait();  // M_SAMPLE_END
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
@@ -282,7 +282,7 @@ namespace geopm
             print(geopm_env_report(), geopm_env_report_verbosity());
         }
         m_shm_comm->barrier();
-        m_ctl_msg->step();
+        m_ctl_msg->step();  // M_STATUS_SHUTDOWN
         m_shm_comm.reset();
         m_is_enabled = false;
     }
@@ -522,8 +522,8 @@ namespace geopm
         int is_all_done = 0;
 
         m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->step();  // M_STATUS_NAME_BEGIN
+        m_ctl_msg->wait();  // M_STATUS_NAME_BEGIN
 
         size_t buffer_offset = 0;
         size_t buffer_remain = m_table_shmem->size();
@@ -541,18 +541,18 @@ namespace geopm
         buffer_offset += m_prof_name.length() + 1;
         while (!is_all_done) {
             m_shm_comm->barrier();
-            m_ctl_msg->loop_begin();
+            m_ctl_msg->loop_begin();  // M_STATUS_NAME_LOOP_BEGIN
 
             is_done = m_table->name_fill(buffer_offset);
             is_all_done = m_shm_comm->test(is_done);
 
-            m_ctl_msg->step();
-            m_ctl_msg->wait();
+            m_ctl_msg->step();  // M_STATUS_NAME_LOOP_END
+            m_ctl_msg->wait();  // M_STATUS_NAME_LOOP_END
             buffer_offset = 0;
         }
         m_shm_comm->barrier();
-        m_ctl_msg->step();
-        m_ctl_msg->wait();
+        m_ctl_msg->step();  // M_STATUS_NAME_END
+        m_ctl_msg->wait();  // M_STATUS_NAME_END
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_exit;
