@@ -160,10 +160,20 @@ namespace geopm
     {
         m_reporter->init();
         setup_trace();
+        m_application_io->controller_ready();
+
+        m_application_io->update(m_comm);
         m_platform_io.read_batch();
+        m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_application_io->clear_region_info();
+
         while (!m_application_io->do_shutdown()) {
             step();
         }
+        m_application_io->update(m_comm);
+        m_platform_io.read_batch();  
+        m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_application_io->clear_region_info();
         generate();
     }
 
