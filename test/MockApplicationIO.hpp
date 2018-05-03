@@ -38,6 +38,8 @@
 class MockApplicationIO : public geopm::IApplicationIO
 {
     public:
+        MOCK_METHOD0(connect,
+                     void(void));
         MOCK_CONST_METHOD0(do_shutdown,
                            bool(void));
         MOCK_CONST_METHOD0(report_name,

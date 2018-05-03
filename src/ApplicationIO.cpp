@@ -74,7 +74,6 @@ namespace geopm
         , m_epoch_regulator(nullptr)
         , m_start_energy(NAN)
     {
-        connect();
     }
 
     ApplicationIO::~ApplicationIO()

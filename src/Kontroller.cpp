@@ -118,6 +118,16 @@ namespace geopm
         , m_out_sample(m_num_send_up)
         , m_manager_io_sampler(std::move(manager_io_sampler))
     {
+    }
+
+    Kontroller::~Kontroller()
+    {
+        geopm_signal_handler_check();
+        geopm_signal_handler_revert();
+    }
+
+    void Kontroller::init_agents(void)
+    {
         // Three dimensional vector over levels, children, and message
         // index.  These are used as temporary storage when passing
         // messages up and down the tree.
@@ -150,14 +160,10 @@ namespace geopm
         }
     }
 
-    Kontroller::~Kontroller()
-    {
-        geopm_signal_handler_check();
-        geopm_signal_handler_revert();
-    }
-
     void Kontroller::run(void)
     {
+        m_application_io->connect();// controller_ready in connect?
+        init_agents();
         m_reporter->init();
         setup_trace();
         m_application_io->controller_ready();

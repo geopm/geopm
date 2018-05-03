@@ -74,6 +74,7 @@ void ApplicationIOTest::SetUp()
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
     m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, std::move(tmp_s), tmp_pio,
                                                  m_platform_io, m_platform_topo);
+    m_app_io->connect();
 }
 
 TEST_F(ApplicationIOTest, passthrough)
