@@ -88,7 +88,7 @@ namespace geopm
             ///        first epoch call.
             virtual double total_epoch_mpi_runtime(void) const = 0;
             /// @brief Returns the total number of times a region was
-            ///        entered.
+            ///        entered and exited.
             /// @param [in] region_id The region ID.
             virtual int total_count(uint64_t region_id) const = 0;
             /// @brief Check for updates from the application and
