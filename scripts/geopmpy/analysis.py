@@ -204,7 +204,14 @@ class FreqSweepAnalysis(Analysis):
                                        'tree_decider': 'static_policy',
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
-        ctl_conf.write()
+
+        # todo: hack to run tests with new controller
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            with open(ctl_conf.get_path(), "w") as outfile:
+                outfile.write("{}\n")
+        else:
+            ctl_conf.write()
+
         if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
             del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
         if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
@@ -429,7 +436,13 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                                        'tree_decider': 'static_policy',
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
-        ctl_conf.write()
+
+        # todo: hack to run tests with new controller
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            with open(ctl_conf.get_path(), "w") as outfile:
+                outfile.write("{}\n")
+        else:
+            ctl_conf.write()
 
         # Run frequency sweep
         self._sweep_analysis.launch(geopm_ctl, do_geopm_barrier)
@@ -564,7 +577,12 @@ class OnlineBaselineComparisonAnalysis(Analysis):
                                        'tree_decider': 'static_policy',
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
-        ctl_conf.write()
+        # todo: hack to run tests with new controller
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            with open(ctl_conf.get_path(), "w") as outfile:
+                outfile.write("{}\n")
+        else:
+            ctl_conf.write()
 
         # Run frequency sweep
         self._sweep_analysis.launch(geopm_ctl, do_geopm_barrier)
@@ -943,4 +961,3 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
         if args.level > 1:
             process_output = analysis.plot_process(parse_output)
             analysis.plot(process_output)
-
