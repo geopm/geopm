@@ -74,7 +74,7 @@ namespace geopm
         return geopm::make_unique<MonitorAgent>();
     }
 
-    void MonitorAgent::init(int level, int num_leaf)
+    void MonitorAgent::init(int level)
     {
         m_level = level;
     }
