@@ -266,6 +266,11 @@ namespace geopm
         return m_tprof_table;
     }
 
+    void ProfileSampler::abort(void)
+    {
+        m_ctl_msg->abort();
+    }
+
     ProfileRankSampler::ProfileRankSampler(const std::string shm_key, size_t table_size)
         : m_table_shmem(nullptr)
         , m_table(nullptr)

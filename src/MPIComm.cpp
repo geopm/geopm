@@ -44,6 +44,11 @@
 
 #define GEOPM_MPI_COMM_PLUGIN_NAME "MPIComm"
 
+extern "C"
+{
+    int geopm_is_comm_enabled(void);
+}
+
 namespace geopm
 {
     class CommWindow
@@ -74,6 +79,12 @@ namespace geopm
         }
     }
 
+    MPIComm &MPIComm::comm_world(void)
+    {
+        static MPIComm comm_world_singleton;
+        return comm_world_singleton;
+    }
+
     std::string MPIComm::plugin_name(void)
     {
         return GEOPM_MPI_COMM_PLUGIN_NAME;
@@ -81,8 +92,7 @@ namespace geopm
 
     std::unique_ptr<Comm> MPIComm::make_plugin(void)
     {
-        static MPIComm comm_world_singleton;
-        return std::unique_ptr<MPIComm>(new MPIComm(&comm_world_singleton));
+        return std::unique_ptr<MPIComm>(new MPIComm(&(comm_world())));
     }
 
     MPIComm::MPIComm()
@@ -181,15 +191,23 @@ namespace geopm
 
     MPIComm::~MPIComm()
     {
-        for (auto it = m_windows.begin(); it != m_windows.end(); ++it) {
-            delete (CommWindow *) *it;
-        }
-        if (is_valid() && m_comm != MPI_COMM_WORLD) {
-            MPI_Comm_free(&m_comm);
+        tear_down();
+    }
+
+    void MPIComm::tear_down(void)
+    {
+        if (!m_is_torn_down) {
+            for (auto it = m_windows.begin(); it != m_windows.end(); ++it) {
+                delete (CommWindow *) *it;
+            }
+            if (is_valid() && m_comm != MPI_COMM_WORLD) {
+                PMPI_Comm_free(&m_comm);
+            }
+            m_is_torn_down = true;
         }
     }
 
-    std::shared_ptr<Comm> MPIComm::split() const
+    std::shared_ptr<Comm> MPIComm::split(void) const
     {
         return std::make_shared<MPIComm>(this);
     }
@@ -262,7 +280,8 @@ namespace geopm
 
     bool MPIComm::is_valid() const
     {
-        return m_comm != MPI_COMM_NULL;
+        return (geopm_is_comm_enabled()
+                && m_comm != MPI_COMM_NULL);
     }
 
     void MPIComm::alloc_mem(size_t size, void **base)

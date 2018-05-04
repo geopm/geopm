@@ -66,6 +66,11 @@ typedef int                     MPI_Fint;
 
 extern "C"
 {
+    int geopm_is_comm_enabled(void)
+    {
+        return 1;
+    }
+
     int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm)
     {
         return 0;

@@ -129,6 +129,9 @@ namespace geopm
             /// @brief Configure the trace with custom columns from
             ///        the Agent.
             void setup_trace(void);
+            /// @brief Called upon failure to facilitate graceful destruction
+            ///        of the Kontroller and notify application.
+            void abort(void);
         private:
             void init_agents(void);
 
