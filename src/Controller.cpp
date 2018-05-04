@@ -434,6 +434,7 @@ namespace geopm
         delete m_tree_comm;
         delete m_sampler;
         delete m_sample_regulator;
+        std::cout << "finished controller dtor" << std::endl;
     }
 
 
@@ -444,6 +445,7 @@ namespace geopm
         }
 
         if (!m_is_connected) {
+            throw Exception("an exception", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             m_sampler->initialize();
             m_rank_per_node = m_sampler->rank_per_node();
             m_num_mpi_enter.resize(m_rank_per_node, 0);

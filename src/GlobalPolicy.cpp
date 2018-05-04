@@ -430,6 +430,7 @@ namespace geopm
 #endif
             }
         }
+        std::cout << "finished global policy dtor" << std::endl;
     }
 
     int GlobalPolicy::mode(void) const

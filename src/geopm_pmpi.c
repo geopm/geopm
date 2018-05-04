@@ -61,6 +61,8 @@ static pthread_t g_ctl_thread;
 #endif
 
 int geopm_is_pmpi_prof_enabled(void);
+int geopm_default_prof_tear_down(void);
+int geopm_mpi_comm_world_tear_down(void);
 
 #ifndef GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE
 /*
@@ -169,11 +171,15 @@ static int geopm_pmpi_init(const char *exec_name)
                     }
                 }
                 if (!err) {
+                    printf("before create\n");
                     err = geopm_ctl_create(policy, g_geopm_comm_world_swap, &g_ctl);
                 }
                 if (!err) {
+                    printf("before run\n");
                     err = geopm_ctl_run(g_ctl);
                 }
+                printf("before finalize\n");
+                geopm_mpi_comm_world_tear_down();
                 int err_final = MPI_Finalize();
                 err = err ? err : err_final;
                 exit(err);
@@ -276,6 +282,10 @@ static int geopm_pmpi_finalize(void)
         tmp_err = PMPI_Comm_free(&g_ppn1_comm);
         err = err ? err : tmp_err;
     }
+
+    //geopm_default_prof_tear_down();
+    geopm_mpi_comm_world_tear_down();
+
     return err;
 }
 #endif

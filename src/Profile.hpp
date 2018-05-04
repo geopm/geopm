@@ -245,6 +245,7 @@ namespace geopm
             void init_cpu_affinity(int shm_num_rank);
             void init_tprof_table(const std::string &tprof_key, IPlatformTopo &topo);
             void init_table(const std::string &sample_key);
+            void tear_down(void);
         private:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,

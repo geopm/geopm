@@ -30,12 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
+
 #include "geopm_signal_handler.h"
+#include "geopm_time.h"
 #include "ControlMessage.hpp"
-#include "string.h"
 #include "Exception.hpp"
 
 #include "config.h"
+
+// todo remove
+#include <iostream>
 
 namespace geopm
 {
@@ -53,23 +58,41 @@ namespace geopm
     {
         if (m_is_ctl && m_ctl_msg.ctl_status != M_STATUS_SHUTDOWN) {
             m_ctl_msg.ctl_status++;
+            std::cout << "ctl stepped to " << m_ctl_msg.ctl_status << std::endl;
         }
         else if (m_is_writer && m_ctl_msg.app_status != M_STATUS_SHUTDOWN) {
             m_ctl_msg.app_status++;
+            std::cout << "app stepped to " << m_ctl_msg.app_status << std::endl;
         }
     }
 
     void ControlMessage::wait(void)
     {
+        static const double M_WAIT_SEC = 5.0;
+
         if (m_last_status != M_STATUS_SHUTDOWN) {
             ++m_last_status;
         }
-        while (this_status() != m_last_status) {
+        std::cout << "waiting for " << m_last_status << std::endl;
+        geopm_time_s start;
+        geopm_time_s current;
+        geopm_time(&start);
+        current = start;
+        while (this_status() != m_last_status && geopm_time_diff(&start, &current) < M_WAIT_SEC) {
             geopm_signal_handler_check();
             if (this_status() == M_STATUS_ABORT) {
                 throw Exception("ControlMessage::wait(): Abort sent through control message",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
+            geopm_time(&current);
+        }
+        /// @todo This should shutdown more gracefully. For now, stops app hang when controller dies.
+        if (this_status() != m_last_status) {
+            //abort();
+            //std::cerr << "ControlMessage::wait(): Timed out waiting for status " << m_last_status << std::endl;
+            throw Exception("ControlMessage::wait(): Timed out waiting for status " +
+                            std::to_string(m_last_status),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 

@@ -42,8 +42,29 @@
 #include "geopm_mpi_comm_split.h"
 #include "config.h"
 
+// todo remove
+#include <iostream>
+#include <cstdio>
+
 #define GEOPM_MPI_COMM_PLUGIN_NAME "MPIComm"
 
+extern "C"
+{
+
+int geopm_mpi_comm_world_tear_down(void)
+{
+    std::cout << "comm world tear down" << std::endl;
+    int err = 0;
+    try {
+        geopm::MPIComm::comm_world().tear_down();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception());
+    }
+    return err;
+}
+
+}
 namespace geopm
 {
     class CommWindow
@@ -74,6 +95,12 @@ namespace geopm
         }
     }
 
+    MPIComm &MPIComm::comm_world(void)
+    {
+        static MPIComm comm_world_singleton;
+        return comm_world_singleton;
+    }
+
     std::string MPIComm::plugin_name(void)
     {
         return GEOPM_MPI_COMM_PLUGIN_NAME;
@@ -81,8 +108,7 @@ namespace geopm
 
     std::unique_ptr<IComm> MPIComm::make_plugin(void)
     {
-        static MPIComm comm_world_singleton;
-        return std::unique_ptr<MPIComm>(new MPIComm(&comm_world_singleton));
+        return std::unique_ptr<MPIComm>(new MPIComm(&(comm_world())));
     }
 
     MPIComm::MPIComm()
@@ -90,6 +116,7 @@ namespace geopm
         , m_maxdims(1)
         , m_name(plugin_name())
     {
+        std::cout << "create comm world: " << this << std::endl;
     }
 
     MPIComm::MPIComm(MPI_Comm in_comm)
@@ -99,6 +126,7 @@ namespace geopm
     {
         if (in_comm != MPI_COMM_NULL) {
             check_mpi(MPI_Comm_dup(in_comm, &m_comm));
+            std::cout << "comm dup from copy: " << this << std::endl;
         }
     }
 
@@ -109,6 +137,7 @@ namespace geopm
     {
         if (in_comm->is_valid()) {
             check_mpi(MPI_Comm_dup(in_comm->m_comm, &m_comm));
+            std::cout << "comm dup from " << in_comm << " pointer: " << this << std::endl;
         }
     }
 
@@ -181,6 +210,16 @@ namespace geopm
 
     MPIComm::~MPIComm()
     {
+        if (!m_is_torn_down) {
+            tear_down();
+            std::cout << "end of mpi comm dtor: " << this << std::endl;
+            m_is_torn_down = true;
+        }
+    }
+
+    void MPIComm::tear_down(void)
+    {
+        std::cout << "tear down: " << this << std::endl;
         for (auto it = m_windows.begin(); it != m_windows.end(); ++it) {
             delete (CommWindow *) *it;
         }
@@ -189,7 +228,7 @@ namespace geopm
         }
     }
 
-    std::shared_ptr<IComm> MPIComm::split() const
+    std::shared_ptr<IComm> MPIComm::split(void) const
     {
         return std::make_shared<MPIComm>(this);
     }

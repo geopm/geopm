@@ -47,6 +47,8 @@
 #include "ManagerIO.hpp"
 #include "config.h"
 
+//todo remove
+#include <iostream>
 extern "C"
 {
     static void *geopm_threaded_run(void *args)
@@ -134,6 +136,7 @@ namespace geopm
     {
         geopm_signal_handler_check();
         geopm_signal_handler_revert();
+        std::cout << "finished kontroller dtor" << std::endl;
     }
 
     void Kontroller::init_agents(void)
@@ -161,6 +164,7 @@ namespace geopm
 
     void Kontroller::run(void)
     {
+        throw std::runtime_error("kontroller died");
         m_application_io->connect();
         init_agents();
         m_reporter->init();

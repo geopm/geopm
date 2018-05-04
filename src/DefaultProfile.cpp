@@ -225,4 +225,16 @@ extern "C"
         }
         return err;
     }
+
+    int geopm_default_prof_tear_down(void)
+    {
+        int err = 0;
+        try {
+            geopm_default_prof().tear_down();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
 }

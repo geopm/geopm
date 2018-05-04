@@ -577,4 +577,11 @@ namespace geopm
     {
         return m_tprof_table;
     }
+
+    void Profile::tear_down(void)
+    {
+        //shutdown();
+        //m_shm_comm->tear_down();
+        //m_is_enabled = false;
+    }
 }

@@ -80,12 +80,12 @@ int main(int argc, char **argv)
                                 &all2all_rid);
     }
 
-    int num_iter = 10;
-    double sleep_big_o = 1.0;
-    double stream0_big_o = 1.0;
-    double dgemm_big_o = 1.0;
-    double all2all_big_o = 1.0;
-    double stream1_big_o = 1.0;
+    int num_iter = 2;
+    double sleep_big_o = 0.1;
+    double stream0_big_o = 0.1;
+    double dgemm_big_o = 0.1;
+    double all2all_big_o = 0.1;
+    double stream1_big_o = 0.1;
 
     if (!rank) {
         printf("Beginning loop of %d iterations.\n", num_iter);
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
         printf("Completed loop.                    \n");
         fflush(stdout);
     }
-
+    printf("app finalize\n");
     int err_fin = MPI_Finalize();
     err = err ? err : err_fin;
 
