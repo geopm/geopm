@@ -90,7 +90,7 @@ extern "C"
         int is_shm_root = 0;
         int err = geopm_comm_split_imp(comm, tag, &num_node, ppn1_comm, &is_shm_root);
         if (!err && !is_shm_root) {
-            err = MPI_Comm_free(ppn1_comm);
+            err = PMPI_Comm_free(ppn1_comm);
             *ppn1_comm = MPI_COMM_NULL;
         }
         return err;

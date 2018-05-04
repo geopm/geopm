@@ -162,22 +162,32 @@ namespace geopm
     void Kontroller::run(void)
     {
         m_application_io->connect();
+        geopm_signal_handler_check();
         init_agents();
+        geopm_signal_handler_check();
         m_reporter->init();
+        geopm_signal_handler_check();
         setup_trace();
         m_application_io->controller_ready();
+        geopm_signal_handler_check();
 
         m_application_io->update(m_comm);
+        geopm_signal_handler_check();
         m_platform_io.read_batch();
+        geopm_signal_handler_check();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
+        geopm_signal_handler_check();
         m_application_io->clear_region_info();
 
         while (!m_application_io->do_shutdown()) {
             step();
         }
         m_application_io->update(m_comm);
+        geopm_signal_handler_check();
         m_platform_io.read_batch();
+        geopm_signal_handler_check();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
+        geopm_signal_handler_check();
         m_application_io->clear_region_info();
         generate();
     }
@@ -281,5 +291,10 @@ namespace geopm
         auto agent_cols = m_agent[0]->trace_names();
         m_tracer->columns(agent_cols);
         m_trace_sample.resize(agent_cols.size());
+    }
+
+    void Kontroller::abort(void)
+    {
+        m_application_io->abort();
     }
 }
