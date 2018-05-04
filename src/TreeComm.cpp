@@ -155,8 +155,12 @@ namespace geopm
                             GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
         }
 
+        int level_max = level;
+        if (level_max == m_fan_out.size()) {
+            --level_max;
+        }
         int result = 1;
-        for (int level_idx = 0; level_idx < level - 1; ++level_idx) {
+        for (int level_idx = 0; level_idx < level_max; ++level_idx) {
             result *= m_fan_out[level_idx];
         }
         return result;
