@@ -96,11 +96,13 @@ namespace geopm
             void init_platform_io(void);
             static std::vector<double> split_budget(double avg_power_budget,
                                                     double min_power_budget,
+                                                    double median_runtime,
                                                     const std::vector<double> &last_budget,
                                                     const std::vector<double> &last_runtime);
 
             static std::vector<double> split_budget_helper(double avg_power_budget,
                                                            double min_power_budget,
+                                                           double median_runtime,
                                                            const std::vector<double> &last_budget,
                                                            const std::vector<double> &last_runtime);
             static double runtime_stddev(const std::vector<std::vector<double> > &last_sample);

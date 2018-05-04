@@ -33,7 +33,6 @@
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
-#include <iostream>
 
 #include "BalancingAgent.hpp"
 #include "PlatformIO.hpp"
@@ -82,11 +81,6 @@ namespace geopm
 
     void BalancingAgent::init(int level, int num_leaf)
     {
-std::cout << "Balancer construction (Level " << level << ", Leaves " << num_leaf << "):\n"
-          << "\tMin power limit = " << m_lower_bound << std::endl
-          << "\tMax power limit = " << m_upper_bound << std::endl
-          << std::endl;
-
         m_level = level;
         m_num_leaf = num_leaf;
         if (level == 0) {
@@ -154,7 +148,8 @@ std::cout << "Balancer construction (Level " << level << ", Leaves " << num_leaf
                         last_runtime[child_idx] = m_last_sample[child_idx][M_SAMPLE_EPOCH_RUNTIME];
                         last_budget[child_idx] = m_last_child_policy[child_idx][M_POLICY_POWER];
                     }
-                    std::vector<double> budget = split_budget(power_budget_in, m_lower_bound,
+                    double median_runtime = IPlatformIO::agg_median(m_epoch_runtime_buf->make_vector());
+                    std::vector<double> budget = split_budget(power_budget_in, m_lower_bound, median_runtime,
                                                               last_budget, last_runtime);
                     for (int idx = 0; idx != num_children; ++idx) {
                          out_policy[idx][0] = budget[idx];
@@ -290,6 +285,7 @@ std::cout << "Balancer construction (Level " << level << ", Leaves " << num_leaf
     /// @todo Implement this with the refactor of descend()
     std::vector<double> BalancingAgent::split_budget_helper(double avg_power_budget,
                                                             double min_power_budget,
+                                                            double median_runtime,
                                                             const std::vector<double> &last_budget,
                                                             const std::vector<double> &last_runtime)
     {
@@ -306,7 +302,8 @@ std::cout << "Balancer construction (Level " << level << ", Leaves " << num_leaf
 
         for (int child_idx = 0; child_idx != num_children; ++child_idx) {
             double norm_budget = last_budget[child_idx] / avg_last_budget;
-            double norm_runtime = last_runtime[child_idx] / avg_last_runtime;
+            double norm_runtime = (3 * last_runtime[child_idx] + median_runtime) /
+                                  (3 * avg_last_runtime + median_runtime);
             result[child_idx] = avg_power_budget * norm_runtime / norm_budget;
             if (result[child_idx] < min_power_budget) {
                 avg_power_budget -= (min_power_budget - result[child_idx]) /
@@ -319,6 +316,7 @@ std::cout << "Balancer construction (Level " << level << ", Leaves " << num_leaf
 
     std::vector<double> BalancingAgent::split_budget(double avg_power_budget,
                                                      double min_power_budget,
+                                                     double median_runtime,
                                                      const std::vector<double> &last_budget,
                                                      const std::vector<double> &last_runtime)
     {
@@ -346,7 +344,7 @@ std::cout << "Balancer construction (Level " << level << ", Leaves " << num_leaf
             // note last_runtime[sort_idx] == indexed_sorted_last_runtime[child_idx].first
             sorted_last_runtime[child_idx] = last_runtime[sort_idx];
         }
-        std::vector<double> sorted_result = split_budget_helper(avg_power_budget, min_power_budget,
+        std::vector<double> sorted_result = split_budget_helper(avg_power_budget, min_power_budget, median_runtime,
                                                                 sorted_last_budget, sorted_last_runtime);
         std::vector<double> result(num_children);
         for (int child_idx = 0; child_idx != num_children; ++child_idx) {
