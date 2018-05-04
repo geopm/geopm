@@ -90,6 +90,8 @@ namespace geopm
             /// @brief Returns the total time spent in MPI after the
             ///        first epoch call.
             virtual double total_epoch_mpi_runtime(void) const = 0;
+            /// @brief Returns the total energy since the epoch call.
+            virtual double total_epoch_energy(void) const = 0;
             /// @brief Returns the total number of times a region was
             ///        entered and exited.
             /// @param [in] region_id The region ID.
@@ -140,6 +142,7 @@ namespace geopm
             double total_epoch_ignore_runtime(void) const override;
             double total_epoch_runtime(void) const override;
             double total_epoch_mpi_runtime(void) const override;
+            double total_epoch_energy(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<IComm> comm) override;
             std::list<geopm_region_info_s> region_info(void) const override;
