@@ -311,6 +311,11 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/KruntimeRegulatorTest.all_reenter \
               test/gtest_links/KruntimeRegulatorTest.one_rank_reenter_and_exit \
               test/gtest_links/KruntimeRegulatorTest.config_rank_then_workers \
+              test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
+              test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
+              test/gtest_links/EpochRuntimeRegulatorTest.rank_0_enter_exit \
+              test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
+              test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
               # end
 
 if ENABLE_MPI
@@ -420,6 +425,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockKprofileIOSample.hpp \
                           test/MockProfileIORuntime.hpp \
                           test/KruntimeRegulatorTest.cpp \
+                          test/EpochRuntimeRegulatorTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

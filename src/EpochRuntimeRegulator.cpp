@@ -48,7 +48,7 @@ namespace geopm
     EpochRuntimeRegulator::EpochRuntimeRegulator(int rank_per_node,
                                                  IPlatformIO &platform_io,
                                                  IPlatformTopo &platform_topo)
-        : m_rank_per_node(rank_per_node)
+        : m_rank_per_node(rank_per_node < 0 ? 0 : rank_per_node)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_seen_first_epoch(m_rank_per_node, false)
@@ -64,7 +64,8 @@ namespace geopm
         , m_epoch_total_energy(NAN)
     {
         if (m_rank_per_node <= 0) {
-            throw Exception("EpochRuntimeRegulator::EpochRuntimeRegulator(): invalid max rank count", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("EpochRuntimeRegulator::EpochRuntimeRegulator(): invalid max rank count",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_ID_EPOCH),
@@ -120,6 +121,10 @@ namespace geopm
 
     void EpochRuntimeRegulator::record_entry(uint64_t region_id, int rank, struct geopm_time_s entry_time)
     {
+        if (rank < 0 || rank >= m_rank_per_node) {
+            throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         if (!m_seen_first_epoch[rank]) {
             m_pre_epoch_region[rank].insert(region_id);
@@ -138,6 +143,10 @@ namespace geopm
 
     void EpochRuntimeRegulator::record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time)
     {
+        if (rank < 0 || rank >= m_rank_per_node) {
+            throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
         bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
         bool is_mpi = geopm_region_id_is_mpi(region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
@@ -147,9 +156,6 @@ namespace geopm
             throw Exception("EpochRuntimeRegulator::record_exit(): unknown region detected.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         reg_it->second->record_exit(rank, exit_time);
-        if (rank < 0 || rank >= m_rank_per_node) {
-            throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         if (geopm_region_id_is_epoch(region_id)) {
             if (m_seen_first_epoch[rank]) {
                 m_last_epoch_runtime[rank] = reg_it->second->per_rank_last_runtime()[rank] -
