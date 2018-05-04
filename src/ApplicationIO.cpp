@@ -89,7 +89,7 @@ namespace geopm
             m_prof_sample.resize(m_sampler->capacity());
             std::vector<int> cpu_rank = m_sampler->cpu_rank();
             if (m_profile_io_sample == nullptr) {
-                m_epoch_regulator = geopm::make_unique<EpochRuntimeRegulator>(m_rank_per_node);
+                m_epoch_regulator = geopm::make_unique<EpochRuntimeRegulator>(m_rank_per_node, m_platform_io, m_platform_topo);
                 m_epoch_regulator->init_unmarked_region();
                 m_profile_io_sample = std::make_shared<KprofileIOSample>(cpu_rank, *m_epoch_regulator);
                 platform_io().register_iogroup(geopm::make_unique<KprofileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
@@ -215,6 +215,18 @@ namespace geopm
         }
 #endif
         return m_epoch_regulator->total_epoch_mpi_time();
+    }
+
+    double ApplicationIO::total_epoch_energy(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return m_epoch_regulator->total_epoch_energy();
     }
 
     double ApplicationIO::total_app_runtime(void) const
