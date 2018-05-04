@@ -140,10 +140,10 @@ namespace geopm
     {
         if (m_agent.size() == 0) {
             m_agent.push_back(agent_factory().make_plugin(m_agent_name));
-            m_agent.back()->init(0, m_tree_comm->level_num_leaf(0));
+            m_agent.back()->init(0);
             for (int level = 1; level < m_max_level; ++level) {
                 m_agent.push_back(agent_factory().make_plugin(m_agent_name));
-                m_agent.back()->init(level, m_tree_comm->level_num_leaf(level));
+                m_agent.back()->init(level);
             }
         }
 

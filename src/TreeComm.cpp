@@ -148,20 +148,6 @@ namespace geopm
         return m_fan_out[level];
     }
 
-    int TreeComm::level_num_leaf(int level) const
-    {
-        if (level < 0 || level > (int)m_fan_out.size()) {
-            throw Exception("TreeComm::" + std::string(__func__) + "()",
-                            GEOPM_ERROR_LEVEL_RANGE, __FILE__, __LINE__);
-        }
-
-        int result = 1;
-        for (int level_idx = 0; level_idx < level - 1; ++level_idx) {
-            result *= m_fan_out[level_idx];
-        }
-        return result;
-    }
-
     void TreeComm::send_up(int level, const std::vector<double> &sample)
     {
         if (level < 0 || (level != 0 && level >= m_num_level_ctl)) {
