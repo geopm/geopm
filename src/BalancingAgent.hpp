@@ -59,7 +59,7 @@ namespace geopm
 
             BalancingAgent();
             virtual ~BalancingAgent();
-            void init(int level, int num_leaf) override;
+            void init(int level) override;
             bool descend(const std::vector<double> &in_policy,
                          std::vector<std::vector<double> >&out_policy) override;
             bool ascend(const std::vector<std::vector<double> > &in_sample,
