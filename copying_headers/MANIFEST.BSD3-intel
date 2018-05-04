@@ -222,6 +222,7 @@ test/EnergyEfficientRegionTest.cpp
 test/EfficientFreqDeciderTest.cpp
 test/EfficientFreqRegionTest.cpp
 test/EnvironmentTest.cpp
+test/EpochRuntimeRegulatorTest.cpp
 test/ExceptionTest.cpp
 test/geopm_static_modes_test.cpp
 test/geopm_static_modes_test.sh
