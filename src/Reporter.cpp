@@ -129,6 +129,7 @@ namespace geopm
                 std::string name;
                 uint64_t id;
                 double runtime;
+                double energy;
                 int count;
         };
         std::vector<region_info> region_ordered;
@@ -138,11 +139,17 @@ namespace geopm
             if (region.find("MPI_") == 0) {
                 region_id = geopm_region_id_set_mpi(region_id);
             }
+            uint64_t mpi_region_id = geopm_region_id_set_mpi(region_id);
+            double energy = m_platform_io.sample_region_total(m_energy_pkg_idx, region_id) +
+                m_platform_io.sample_region_total(m_energy_pkg_idx, mpi_region_id) +
+                m_platform_io.sample_region_total(m_energy_dram_idx, region_id) +
+                m_platform_io.sample_region_total(m_energy_dram_idx, mpi_region_id);
             int count = application_io.total_count(region_id);
             if (count > 0) {
                 region_ordered.push_back({region,
                                           region_id,
                                           application_io.total_region_runtime(region_id),
+                                          energy,
                                           count});
             }
         }
@@ -153,9 +160,15 @@ namespace geopm
                       return a.runtime >= b.runtime;
                   });
         // add unmarked and epoch at the end
+        uint64_t unmarked_mpi_id = geopm_region_id_set_mpi(GEOPM_REGION_ID_UNMARKED);
+        double energy = m_platform_io.sample_region_total(m_energy_pkg_idx, GEOPM_REGION_ID_UNMARKED) +
+                        m_platform_io.sample_region_total(m_energy_dram_idx, GEOPM_REGION_ID_UNMARKED) +
+                        m_platform_io.sample_region_total(m_energy_pkg_idx, unmarked_mpi_id) +
+                        m_platform_io.sample_region_total(m_energy_dram_idx, unmarked_mpi_id);
         region_ordered.push_back({"unmarked-region",
                                   GEOPM_REGION_ID_UNMARKED,
                                   application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
+                                  energy,
                                   0});
         /// Total epoch runtime for report includes MPI time and
         /// ignore time, but they are removed from the runtime returned
@@ -165,6 +178,7 @@ namespace geopm
                                   application_io.total_epoch_runtime() +
                                   application_io.total_epoch_mpi_runtime() +
                                   application_io.total_epoch_ignore_runtime(),
+                                  application_io.total_epoch_energy(),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
         for (const auto &region : region_ordered) {
@@ -175,12 +189,7 @@ namespace geopm
                    << std::setfill('\0') << std::setw(0)
                    << std::endl;
             report << "    runtime (sec): " << region.runtime << std::endl;
-            report << "    energy (joules): "
-                   << m_platform_io.sample_region_total(m_energy_pkg_idx, region.id) +
-                      m_platform_io.sample_region_total(m_energy_pkg_idx, mpi_region_id) +
-                      m_platform_io.sample_region_total(m_energy_dram_idx, region.id) +
-                      m_platform_io.sample_region_total(m_energy_dram_idx, mpi_region_id)
-                   << std::endl;
+            report << "    energy (joules): " << region.energy << std::endl;
             double numer = m_platform_io.sample_region_total(m_clk_core_idx, region.id) +
                            m_platform_io.sample_region_total(m_clk_core_idx, mpi_region_id);
             double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region.id) +
