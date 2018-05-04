@@ -848,8 +848,14 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             rr = self._output.get_report(nn)
             region_names = rr.keys()
-            self.assertTrue(stream_name in rr)
-            stream_region = rr[stream_name]
+            found = False
+            full_name = stream_name
+            for name in region_names:
+                if stream_name in name:  # account for numbers at end of OMPT region names
+                    found = True
+                    full_name = name
+            self.assertTrue(found)
+            stream_region = rr[full_name]
             self.assertEqual(1, stream_region.get_count())
             if stream_id:
                 self.assertEqual(stream_id, stream_region.get_id())
