@@ -90,6 +90,8 @@ class MockComm : public geopm::Comm
                 const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root));
         MOCK_CONST_METHOD5(window_put,
             void (const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id));
+        MOCK_METHOD0(tear_down,
+            void (void));
 };
 
 #endif

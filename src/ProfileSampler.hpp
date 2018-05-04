@@ -159,6 +159,8 @@ namespace geopm
             /// @brief Signal to the application that the controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
+            /// @brief Signal application of failure.
+            virtual void abort(void) = 0;
     };
 
     /// @brief Retrieves sample data from a single application rank through
@@ -280,6 +282,7 @@ namespace geopm
             std::string profile_name(void) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
             void controller_ready(void) override;
+            void abort(void) override;
         private:
             /// Holds the shared memory region used for application coordination
             /// and control.

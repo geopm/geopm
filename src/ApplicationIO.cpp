@@ -340,4 +340,9 @@ namespace geopm
     {
         m_epoch_regulator->clear_region_info();
     }
+
+    void ApplicationIO::abort(void)
+    {
+        m_sampler->abort();
+    }
 }

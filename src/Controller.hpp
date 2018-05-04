@@ -169,6 +169,9 @@ namespace geopm
             /// all MSR values that GEOPM can alter to the value that was
             /// read at GEOPM startup.
             void reset(void);
+            /// @brief Called upon failure to facilitate graceful destruction
+            ///        of the Controller and notify application.
+            void abort(void);
         private:
             enum m_controller_const_e {
                 M_MAX_FAN_OUT = 16,

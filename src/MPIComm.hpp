@@ -59,8 +59,9 @@ namespace geopm
             MPIComm(const MPIComm *in_comm, std::string tag, int split_type);
             virtual ~MPIComm();
 
-            static std::string plugin_name();
-            static std::unique_ptr<Comm> make_plugin();
+            static std::string plugin_name(void);
+            static std::unique_ptr<Comm> make_plugin(void);
+            static MPIComm &comm_world(void);
 
             virtual std::shared_ptr<Comm> split() const override;
             virtual std::shared_ptr<Comm> split(int color, int key) const override;
@@ -91,6 +92,8 @@ namespace geopm
             virtual void gatherv(const void *send_buf, size_t send_size, void *recv_buf,
                                  const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const override;
             virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const override;
+
+            void tear_down(void) override;
         protected:
             void check_window(size_t window_id) const;
             bool is_valid() const;
@@ -98,6 +101,7 @@ namespace geopm
             size_t m_maxdims;
             std::set<size_t> m_windows;
             const std::string m_name;
+            bool m_is_torn_down = false;
     };
 }
 

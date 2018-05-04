@@ -40,6 +40,8 @@
 #include <string.h>
 #include <vector>
 
+int g_is_mpi_finalized;
+
 typedef int MPI_Op;
 typedef int MPI_Comm;
 typedef int MPI_Datatype;
