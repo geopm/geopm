@@ -39,8 +39,8 @@
 class MockAgent : public geopm::IAgent
 {
     public:
-        MOCK_METHOD2(init,
-                     void(int level, int num_leaf));
+        MOCK_METHOD1(init,
+                     void(int level));
         MOCK_METHOD2(descend,
                      bool(const std::vector<double> &in_policy,
                           std::vector<std::vector<double> >&out_policy));

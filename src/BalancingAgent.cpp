@@ -62,7 +62,7 @@ namespace geopm
 
     }
 
-    void BalancingAgent::init(int level, int num_leaf)
+    void BalancingAgent::init(int level)
     {
         m_level = level;
         if (m_level == 0) {
