@@ -105,6 +105,9 @@ namespace geopm
             ///        with GEOPM_REGION_ID_HINT_IGNORE after the
             ///        first epoch call.
             virtual double total_epoch_ignore_time(void) const = 0;
+            /// @brief Returns the total energy since the first epoch
+            ///        call.
+            virtual double total_epoch_energy(void) const = 0;
             /// @brief Returns the total time spent in MPI calls since
             ///        the start of the application.
             virtual double total_app_mpi_time(void) const = 0;
@@ -123,11 +126,15 @@ namespace geopm
             virtual void clear_region_info(void) = 0;
     };
 
+    class IPlatformIO;
+    class IPlatformTopo;
+
     class EpochRuntimeRegulator : public IEpochRuntimeRegulator
     {
         public:
             EpochRuntimeRegulator() = delete;
-            EpochRuntimeRegulator(int rank_per_node);
+            EpochRuntimeRegulator(int rank_per_node, IPlatformIO &platform_io,
+                                  IPlatformTopo &platform_topo);
             virtual ~EpochRuntimeRegulator();
             virtual void init_unmarked_region() override;
             void epoch(int rank, struct geopm_time_s epoch_time) override;
@@ -137,19 +144,22 @@ namespace geopm
             bool is_regulated(uint64_t region_id) const override;
             std::vector<double> last_epoch_time() const override;
             std::vector<double> epoch_count() const;
-
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_mpi_time(uint64_t region_id) const override;
             double total_epoch_runtime(void) const override;
             double total_epoch_mpi_time(void) const override;
             double total_epoch_ignore_time(void) const override;
+            double total_epoch_energy(void) const override;
             double total_app_mpi_time(void) const override;
             int total_count(uint64_t region_id) const override;
             std::list<geopm_region_info_s> region_info(void) const override;
             void clear_region_info(void) override;
         private:
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
+            double current_energy(void) const;
             int m_rank_per_node;
+            IPlatformIO &m_platform_io;
+            IPlatformTopo &m_platform_topo;
             std::map<uint64_t, std::unique_ptr<IKruntimeRegulator> > m_rid_regulator_map;
             std::vector<bool> m_seen_first_epoch;
             std::vector<double> m_curr_ignore_runtime;
@@ -161,6 +171,8 @@ namespace geopm
             std::vector<double> m_agg_epoch_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;
+            double m_epoch_start_energy;
+            double m_epoch_total_energy;
     };
 }
 

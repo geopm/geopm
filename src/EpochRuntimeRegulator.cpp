@@ -39,13 +39,18 @@
 #include "KruntimeRegulator.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 
 #include "config.h"
 
 namespace geopm
 {
-    EpochRuntimeRegulator::EpochRuntimeRegulator(int rank_per_node)
+    EpochRuntimeRegulator::EpochRuntimeRegulator(int rank_per_node,
+                                                 IPlatformIO &platform_io,
+                                                 IPlatformTopo &platform_topo)
         : m_rank_per_node(rank_per_node)
+        , m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
         , m_seen_first_epoch(m_rank_per_node, false)
         , m_curr_ignore_runtime(m_rank_per_node, 0.0)
         , m_agg_epoch_ignore_runtime(m_rank_per_node, 0.0)
@@ -55,6 +60,8 @@ namespace geopm
         , m_last_epoch_runtime(m_rank_per_node, 0.0)
         , m_agg_epoch_runtime(m_rank_per_node, 0.0)
         , m_pre_epoch_region(m_rank_per_node)
+        , m_epoch_start_energy(NAN)
+        , m_epoch_total_energy(NAN)
     {
         if (m_rank_per_node <= 0) {
             throw Exception("EpochRuntimeRegulator::EpochRuntimeRegulator(): invalid max rank count", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -81,15 +88,32 @@ namespace geopm
         }
     }
 
+    /// @todo temporarily repeated here and in ApplicationIO, until these classes are combined.
+    double EpochRuntimeRegulator::current_energy(void) const
+    {
+        double energy = 0.0;
+        int num_package = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+        for (int pkg = 0; pkg < num_package; ++pkg) {
+            energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+        }
+        int num_dram = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY);
+        for (int dram = 0; dram < num_dram; ++dram) {
+            energy += m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
+        }
+        return energy;
+    }
+
     void EpochRuntimeRegulator::epoch(int rank, struct geopm_time_s epoch_time)
     {
         if (m_seen_first_epoch[rank]) {
             record_exit(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
+            m_epoch_total_energy = current_energy() - m_epoch_start_energy;
         }
         else {
             std::fill(m_curr_mpi_runtime.begin(), m_curr_mpi_runtime.end(), 0.0);
             std::fill(m_curr_ignore_runtime.begin(), m_curr_ignore_runtime.end(), 0.0);
             m_seen_first_epoch[rank] = true;
+            m_epoch_start_energy = current_energy();
         }
         record_entry(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
     }
@@ -239,6 +263,11 @@ namespace geopm
     double EpochRuntimeRegulator::total_epoch_ignore_time(void) const
     {
         return IPlatformIO::agg_average(m_agg_epoch_ignore_runtime);
+    }
+
+    double EpochRuntimeRegulator::total_epoch_energy(void) const
+    {
+        return m_epoch_total_energy;
     }
 
     double EpochRuntimeRegulator::total_app_mpi_time(void) const
