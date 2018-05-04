@@ -139,6 +139,8 @@ namespace geopm
         if (!m_shm_comm) {
             m_rank = comm->rank();
             m_shm_comm = comm->split("prof", Comm::M_COMM_SPLIT_TYPE_SHARED);
+            comm->tear_down();
+            comm.reset();
             m_shm_rank = m_shm_comm->rank();
             shm_num_rank = m_shm_comm->num_rank();
             m_shm_comm->barrier();
@@ -148,7 +150,7 @@ namespace geopm
     void Profile::init_ctl_msg(const std::string &sample_key)
     {
         if (!m_ctl_msg) {
-            m_ctl_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(sample_key, geopm_env_profile_timeout())); // 5 second timeout
+            m_ctl_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(sample_key, geopm_env_profile_timeout()));
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_ctl_shmem->unlink();
@@ -283,6 +285,7 @@ namespace geopm
         }
         m_shm_comm->barrier();
         m_ctl_msg->step();  // M_STATUS_SHUTDOWN
+        m_shm_comm->tear_down();
         m_shm_comm.reset();
         m_is_enabled = false;
     }

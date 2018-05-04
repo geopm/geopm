@@ -162,6 +162,7 @@ extern "C"
                 ctl_obj->run();
             }
             catch (...) {
+                ctl_obj->abort();
                 /// @todo need this feature to be added to the Kontroller.
                 //ctl_obj->reset();
                 err = geopm::exception_handler(std::current_exception(), true);
@@ -173,6 +174,7 @@ extern "C"
                 ctl_obj->run();
             }
             catch (...) {
+                ctl_obj->abort();
                 ctl_obj->reset();
                 err = geopm::exception_handler(std::current_exception(), true);
             }
@@ -188,6 +190,7 @@ extern "C"
             ctl_obj->step();
         }
         catch (...) {
+            ctl_obj->abort();
             err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
@@ -204,6 +207,7 @@ extern "C"
                 ctl_obj->pthread(attr, thread);
             }
             catch (...) {
+                ctl_obj->abort();
                 err = geopm::exception_handler(std::current_exception(), true);
             }
         }
@@ -213,6 +217,7 @@ extern "C"
                 ctl_obj->pthread(attr, thread);
             }
             catch (...) {
+                ctl_obj->abort();
                 err = geopm::exception_handler(std::current_exception(), true);
             }
         }
@@ -445,17 +450,24 @@ namespace geopm
 
         if (!m_is_connected) {
             m_sampler->initialize();
+            geopm_signal_handler_check();
             m_rank_per_node = m_sampler->rank_per_node();
+            geopm_signal_handler_check();
             m_num_mpi_enter.resize(m_rank_per_node, 0);
             m_mpi_enter_time.resize(m_rank_per_node, {{0,0}});
             m_prof_sample.resize(m_sampler->capacity());
             std::vector<int> cpu_rank = m_sampler->cpu_rank();
             m_platform->init_transform(cpu_rank);
+            geopm_signal_handler_check();
             m_sample_regulator = new SampleRegulator(cpu_rank);
+            geopm_signal_handler_check();
             m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank);
+            geopm_signal_handler_check();
             m_profile_io_runtime = std::make_shared<ProfileIORuntime>(cpu_rank);
+            geopm_signal_handler_check();
             platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample,
                                                                               m_profile_io_runtime));
+            geopm_signal_handler_check();
             m_is_connected = true;
         }
     }
@@ -1132,5 +1144,10 @@ namespace geopm
     {
         geopm_error_destroy_shmem();
         m_platform->revert_msr_state();
+    }
+
+    void Controller::abort(void)
+    {
+        m_sampler->abort();
     }
 }

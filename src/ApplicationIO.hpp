@@ -112,6 +112,9 @@ namespace geopm
             /// @brief Signal to the application that the Controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
+            /// @brief Signal to the application that the Controller
+            ///        has failed critically.
+            virtual void abort(void) = 0;
     };
 
     class IProfileSampler;
@@ -150,6 +153,7 @@ namespace geopm
             std::list<geopm_region_info_s> region_info(void) const override;
             void clear_region_info(void) override;
             void controller_ready(void) override;
+            void abort(void) override;
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 12288;
 

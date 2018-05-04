@@ -83,7 +83,7 @@ namespace geopm
         struct geopm_time_s now;
         switch (m_status) {
             case M_STATUS_CLEAR:
-                throw Exception("SampleScheduler::record_exit(): recored_exit() called without prior call to do_sample()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                throw Exception("SampleScheduler::record_exit(): record_exit() called without prior call to do_sample()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 break;
             case M_STATUS_ENTERED:
                 geopm_time(&now);

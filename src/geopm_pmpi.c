@@ -55,7 +55,8 @@ static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
 static MPI_Fint g_geopm_comm_world_swap_f = 0;
 static MPI_Fint g_geopm_comm_world_f = 0;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
-static struct geopm_ctl_c *g_ctl = NULL;
+static __thread struct geopm_ctl_c *g_ctl = NULL;
+int g_is_mpi_finalized;
 #ifndef GEOPM_TEST
 static pthread_t g_ctl_thread;
 #endif
@@ -252,7 +253,7 @@ static int geopm_pmpi_finalize(void)
     int tmp_err = 0;
 
     if (!err && geopm_env_do_profile() &&
-        (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD)) {
+        !g_ctl) {
         err = geopm_prof_shutdown();
     }
 
@@ -327,6 +328,7 @@ int MPI_Finalize(void)
 {
     int err = geopm_pmpi_finalize();
     int err_final = PMPI_Finalize();
+    g_is_mpi_finalized = 1;
     return err ? err : err_final;
 }
 #endif

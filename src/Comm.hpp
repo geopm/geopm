@@ -202,6 +202,10 @@ namespace geopm
             ///
             /// @param [in] window_id The window handle for the target window.
             virtual void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const = 0;
+            /// @brief Clean up resources held by the comm.  This
+            ///        allows static global objects to be cleaned up
+            ///        before the destructor is called.
+            virtual void tear_down(void) = 0;
     };
 
     PluginFactory<Comm>& comm_factory(void);
