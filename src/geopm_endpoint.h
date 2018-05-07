@@ -58,7 +58,7 @@ int geopm_endpoint_create(const char *policy_shmkey,
 /*!
  *  @brief Release resources associated with endpoint.
  *
- *  Additionally call will and send signal to agent that the manager
+ *  Additionally will send a signal to the agent that the manager
  *  is detaching from the policy and will no longer send updates.
  *
  *  @param [in] endpoint Object to be destoryed which was previosly

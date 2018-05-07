@@ -1,0 +1,135 @@
+geopm_agent_c(3) -- geopm mpi job agent management interface
+==============================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+**\#include [<geopm_agent.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_agent.h)**
+
+`Link with -lgeopm`
+
+  * `int geopm_agent_supported(`:
+    `const char *`_agent_name_`);`
+
+  * `int geopm_agent_num_policy(`:
+    `const char *`_agent_name_, <br>
+    `int *`_num_policy_`);`
+
+  * `int geopm_agent_policy_name(`:
+    `const char *`_agent_name_, <br>
+    `int` _policy_idx_, <br>
+    `size_t` _policy_name_max_, <br>
+    `char *`_policy_name_`);`
+
+  * `int geopm_agent_policy_json(`:
+    `const char *`_agent_name_, <br>
+    `const double *`_policy_array_, <br>
+    `size_t` _json_string_max_, <br>
+    `const char *`_json_string_`);`
+
+  * `int geopm_agent_num_sample(`:
+    `const char *`_agent_name_, <br>
+    `int *`_num_sample_`);`
+
+  * `int geopm_agent_sample_name(`:
+    `const char *`_agent_name_, <br>
+    `int` _sample_idx_, <br>
+    `size_t` _sample_name_max_, <br>
+    `char *`_sample_name_`);`
+
+## DESCRIPTION
+The _geopm_agent_c_ interface is used to query GEOPM about agents on a system
+and create static policies for those agents.  The interface currently provides
+the ability to query about specific agent support, the number of policy
+parameters required by an agent, or the number of sample parameters provided by
+an agent by default.  In addition this interface provides a way to create a
+JSON policy configuration file that will be parsed by the GEOPM runtime for
+statically enforcing a job policy.
+
+All functions described in this man page return an error code on failure and
+zero upon success; see [ERRORS][] section below for details.
+
+  * `geopm_agent_supported`():
+    queries GEOPM to determine if the agent in question is supported
+    based on the topology of the system.  Returns zero if an agent is
+    supported, otherwise an error code is returned.
+
+  * `geopm_agent_num_policy`():
+    queries GEOPM for the number of policy parameters required by the specified
+    agent.  Returns zero if an agent is supported, otherwise an error code is
+    returned.
+
+  * `geopm_agent_policy_name`():
+    queries GEOPM for the name of a policy parameter occuring at index
+    _policy_idx_.  Returns zero if an agent is supported, the _policy_idx_ is
+    in range, and the policy name can be stored in the output string
+    (_policy_name_).  Otherwise an error code is returned.
+
+  * `geopm_agent_policy_json`():
+    creates a JSON file based on the provided _policy_array_ that can be used
+    for statically controlling the job policy provided to GEOPM.
+
+  * `geopm_agent_num_sample`():
+    queries GEOPM for the number of sample parameters provided by the specified
+    agent.  Returns zero on success, otherwise an error code is returned.
+
+  * `geopm_agent_sample_name`():
+    queries GEOPM for the name of a sample parameter occuring at index
+    _sample_idx_.  Returns zero if an agent is supported, the _sample_idx_ is
+    in range, and the sample name can be stored in the output string
+    (_sample_name_).  Otherwise an error code is returned.
+
+## ERRORS
+All functions described on this man page return an error code.  See
+**geopm_error(3)** for a full description of the error numbers and how
+to convert them to strings.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmpy(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_prof_c(3)**,
+**geopm_sched(3)**,
+**geopm_version(3)**,
+**geopmanalysis(1)**,
+**geopmaprun(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
+**geopmplotter(1)**,
+**geopmpolicy(1)**,
+**geopmsrun(1)**
+
