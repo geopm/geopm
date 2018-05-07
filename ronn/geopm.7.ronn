@@ -321,9 +321,12 @@ manager selected by the wrapper script.
     option is specified then hyperthreads will be disabled.
 
   * `GEOPM_AGENT`:
-    Used to select the Agent to be used by all Kontrollers.  The Agent
-    will take over the role previously held by Deciders in splitting
-    policy information to be sent to controllers lower in the tree,
+    Used to select Kontroller based GEOPM code flow.  Value specifies
+    the Agent to be used by all Kontrollers.  The Kontroller is a runtime
+    configurable replacement for the Controller (which will be deprecated at
+    some point in a future release, see the future plans secion of this page
+    for details).  The Agent will take over the role previously held by Deciders
+    in splitting policy information to be sent to Controllers lower in the tree,
     and aggregating sampled data up the tree.
 
   * `GEOPM_TRACE_SIGNALS`:
@@ -332,6 +335,12 @@ manager selected by the wrapper script.
     must be formatted as a comma-separated list of valid signal names.
     All custom signals added to the trace will be sampled for the
     entire board.
+
+## FUTURE PLANS
+  * `Deprecation of legacy Controller/Decider implementation`:
+    The Kontroller/Agent code flow that was made available around GEOPM Beta
+    timeframe will completely replace legacy Decider flow.  Note that the Kontroller
+    will be renamed to Controller and by default the monitor agent will be loaded.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
