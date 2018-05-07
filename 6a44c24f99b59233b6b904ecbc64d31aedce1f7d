@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e622e8a_5eecde7b",
+        "filename": "ronn/geopm_monitor_agent.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-07T22:51:12Z",
+      "side": 1,
+      "message": "of",
+      "range": {
+        "startLine": 35,
+        "startChar": 18,
+        "endLine": 35,
+        "endChar": 21
+      },
+      "revId": "6a44c24f99b59233b6b904ecbc64d31aedce1f7d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdd18930_598b4abc",
+        "filename": "ronn/geopm_monitor_agent.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-07T22:51:12Z",
+      "side": 1,
+      "message": "nix",
+      "range": {
+        "startLine": 38,
+        "startChar": 42,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "revId": "6a44c24f99b59233b6b904ecbc64d31aedce1f7d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
