@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83c559f0_d4738933",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-07T20:33:40Z",
+      "side": 1,
+      "message": "Be clearer about what is being deprecated (the Decider code path).  There needs to be some explanation about how this change will be made in the future.  The Kontroller will be renamed Controller and by default the monitor agent will be loaded.  I the we need a dedicated section about the transition from deciders to agents higher up in the man page.",
+      "range": {
+        "startLine": 326,
+        "startChar": 48,
+        "endLine": 327,
+        "endChar": 36
+      },
+      "revId": "bc6f87239ef15bc408a4e869521b3b1799089142",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
