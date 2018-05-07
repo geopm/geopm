@@ -132,6 +132,23 @@ the first `--` from the command line.
   file.  This feature is primarily a debugging tool, and will not
   scale to large node counts due to file system issues.
 
+* `--geopm-trace-signals` signals:
+  A comma-separated list of signal names to be added as columns in the
+  trace.  This option has no effect unless tracing is enabled with
+  `--geopm-trace`.  The signal names must be valid for the platform
+  and will be sampled for the entire node.  Refer to the documentation
+  for GEOPM_TRACE_SIGNALS in **geopm(7)** for a list of valid signal
+  names. For example, the following will add total DRAM energy and
+  power as columns in the trace:
+
+  `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
+
+* `--geopm-agent` agent:
+  Specify the Agent to be used by all Kontrollers.  Available agents
+  are: "monitor", "balancer", and "efficient_freq".  See
+  **geopm_monitor_agent(7)**, **geopm_balancer_agent(7)**, and
+  **geopm_efficient_freq_agent(7)** for descriptions of each agent.
+
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace
   files.  This name can be used to index the data in post-processing.

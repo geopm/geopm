@@ -204,6 +204,49 @@ manager selected by the wrapper script.
     constructed by appending the node's hostname to base name given by
     the environment variable (separated by a '-').
 
+  * `GEOPM_TRACE_SIGNALS`:
+    Used to insert additional columns into the trace beyond the
+    default columns and the columns added by the Agent.  The value
+    must be formatted as a comma-separated list of valid signal names.
+    All custom signals added to the trace will be sampled for the
+    entire node.  For example, the following will add total DRAM
+    energy and power as columns in the trace:
+
+    `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
+
+    The signals available and their descriptions are listed below.
+    "TIME", "REGION_ID#", "REGION_PROGRESS", "REGION_RUNTIME",
+    "ENERGY_PACKAGE", "POWER_PACKAGE", and "FREQUENCY" are included
+    in the trace by default.
+
+    `TIME` - time elaspsed since the beginning of execution. <br>
+    `REGION_ID#` - 64-bit integer region ID that all ranks are
+                   running, including MPI flag if applicable.  If all
+                   ranks are not in the same region, it will be
+                   recorded as unmarked.  Epoch boundaries are
+                   recorded as entry and exit to the epoch region
+                   (0x8000000000000000). <br>
+    `REGION_PROGRESS` - reported progress through the current region. <br>
+    `REGION_RUNTIME` - last recorded runtime for the current region. <br>
+    `ENERGY_PACKAGE` - total energy for all sockets on the node. <br>
+    `POWER_PACKAGE` - total power for all sockets on the node. <br>
+    `FREQUENCY` - average frequency of all cores. <br>
+    `ENERGY_DRAM` - total energy for all DRAM on the node. <br>
+    `POWER_DRAM` - total power for all DRAM on the node. <br>
+    `POWER_PACKAGE_MIN` - minimum setting for package power. <br>
+    `POWER_PACKAGE_MAX` - maximum setting for package power. <br>
+    `CYCLES_THREAD` - clock cycles executed by cores since the
+                      beginning of execution. <br>
+    `CYCLES_REFERENCE` - clock reference cycles since the beginning of
+                         execution. <br>
+
+  * `GEOPM_AGENT`:
+    Used to select the Agent to be used by all Kontrollers.  The Agent
+    will take over the role previously held by Deciders in splitting
+    policy information to be sent to controllers lower in the tree,
+    and aggregating sampled data up the tree.  Available agents are:
+    "monitor", "balancer", and "efficient_freq".
+
   * `GEOPM_SHMKEY`:
     Override the default shared memory key base.  The shared memory
     key base prefixes all shared memory keys used by GEOPM to
@@ -319,19 +362,6 @@ manager selected by the wrapper script.
     the same purpose as the `--geopm-disable-hyperthreads` command line
     option.  If the environment variable is set and/or the command line
     option is specified then hyperthreads will be disabled.
-
-  * `GEOPM_AGENT`:
-    Used to select the Agent to be used by all Kontrollers.  The Agent
-    will take over the role previously held by Deciders in splitting
-    policy information to be sent to controllers lower in the tree,
-    and aggregating sampled data up the tree.
-
-  * `GEOPM_TRACE_SIGNALS`:
-    Used to insert additional columns into the trace beyond the
-    default columns and the columns added by the Agent.  The value
-    must be formatted as a comma-separated list of valid signal names.
-    All custom signals added to the trace will be sampled for the
-    entire board.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
