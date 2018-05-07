@@ -63,6 +63,30 @@ manager to set energy policy control parameters for MPI jobs.  Some
 features of libgeopmpolicy are available through the geopmpolicy
 application including support for static control.
 
+## DEPRECATION NOTICE
+  * `Deprecation of legacy Controller/Decider implementation`:
+    The Kontroller/Agent code flow that was made available around the GEOPM Beta
+    timeframe will completely replace legacy Decider flow.  At the time of introduction
+    the Kontroller was a runtime configurable replacement for the Controller.  The Agent
+    will take over the role previously held by Deciders in splitting policy information to
+    be sent to Agents lower in the tree, and aggregating sampled data up the tree.
+    Note that the Kontroller will be renamed to Controller and by default the monitor agent
+    will be loaded.  This will come to be in some future GEOPM release.
+    There are a few motivations for the changes that are under execution.  Firstly, the desire
+    to provide a simple and flexible interface for abstracting hardware telemety and controls
+    (referred to as signals and controls respectively) and present them to Agents to make meaningful
+    decisions at runtime with less burden on Agent developers.  Secondly, supporting the ability for
+    resource managers to arbitrarily set policies (in place of fixed form JSON policies) and to
+    request feedback from the GEOPM runtime about the running application. Lastly these changes enable
+    the ability to send arbitrary data up and down the tree for full application run feedback and control.
+    For more information regarding these changes and their effects on command line executables see:
+        **geopmagent(1)**
+        **geopmendpoint(1)**
+
+    For more information regarding these changes and their effects on C interfaces:
+        **geopm_agent_c(3)**
+        **geopm_endpoint_c(3)**
+
 ## INTEGRATION WITH PMPI
 Linking to libgeopm will define symbols that intercept the MPI
 interface through PMPI.  This can be disabled with the configure time
