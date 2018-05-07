@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea20ef40_f94986bf",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-07T22:31:34Z",
+      "side": 1,
+      "message": "Add list of signal names",
+      "revId": "301360b46c5560d530671287f4e76abd29926883",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
