@@ -22,6 +22,30 @@
       "revId": "bc6f87239ef15bc408a4e869521b3b1799089142",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "609920b9_e334170c",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-07T20:51:51Z",
+      "side": 1,
+      "message": "Ok, how does this rev look?",
+      "parentUuid": "83c559f0_d4738933",
+      "range": {
+        "startLine": 326,
+        "startChar": 48,
+        "endLine": 327,
+        "endChar": 36
+      },
+      "revId": "bc6f87239ef15bc408a4e869521b3b1799089142",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
