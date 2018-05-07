@@ -246,6 +246,7 @@ class Config(object):
         parser.add_option('--geopm-rm', dest='rm', nargs=1, type='string')
         parser.add_option('--geopm-ctl', dest='ctl', nargs=1, type='string')
         parser.add_option('--geopm-policy', dest='policy', nargs=1, type='string')
+        parser.add_option('--geopm-endpoint', dest='endpoint', nargs=1, type='string')
         parser.add_option('--geopm-report', dest='report', nargs=1, type='string')
         parser.add_option('--geopm-trace', dest='trace', nargs=1, type='string')
         parser.add_option('--geopm-trace-signals', dest='trace_signals', nargs=1, type='string')
@@ -267,6 +268,7 @@ class Config(object):
         self.rm = opts.rm
         self.ctl = opts.ctl
         self.policy = opts.policy
+        self.endpoint = opts.endpoint
         self.report = opts.report
         self.trace = opts.trace
         self.trace_signals = opts.trace_signals
@@ -313,6 +315,8 @@ class Config(object):
             result['GEOPM_AGENT'] = self.agent
         if self.policy:
             result['GEOPM_POLICY'] = self.policy
+        if self.endpoint:
+            result['GEOPM_ENDPOINT'] = self.endpoint
         if self.report:
             result['GEOPM_REPORT'] = self.report
         if self.trace:
