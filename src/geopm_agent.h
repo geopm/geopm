@@ -93,13 +93,18 @@ int geopm_agent_policy_name(const char *agent_name,
  *         supported by the agent, array length is determined by
  *         the geopm_agent_num_policy() function.
  *
- *  @param [in] json_path Path to output file to be created.
+ *  @param [in] json_string_max Number of bytes allocated for
+ *         json_string output.
+ *
+ *  @param [out] json_string Buffer that will be populated with JSON
+ *         that can be used to create a policy file.
  *
  *  @return Zero on success, error code on failure.
  */
 int geopm_agent_policy_json(const char *agent_name,
                             const double *policy_array,
-                            const char *json_path);
+                            size_t json_string_max,
+                            char *json_string);
 
 /*!
  *  @brief The number of sampled paramters provided by agent.

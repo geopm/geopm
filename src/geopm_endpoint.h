@@ -44,15 +44,15 @@ struct geopm_endpoint_c;
 /*!
  *  @brief Create an endpoint in shared memory for an attaching agent.
  *
- *  @param [in] policy_shmkey Shared memory key used create endpoint
- *         that an agent can attach to.
+ *  @param [in] endpoint_name Shared memory key substring used create
+ *         endpoint that an agent can attach to.
  *
  *  @param [out] endpoint Opaque pointer to geopm_endpoint_c object,
  *          or NULL upon failure.
  *
  *  @return Zero on success, error code on failture.
  */
-int geopm_endpoint_create(const char *policy_shmkey,
+int geopm_endpoint_create(const char *endpoint_name,
                           struct geopm_endpoint_c **endpoint);
 
 /*!
