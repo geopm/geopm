@@ -250,30 +250,45 @@ manager selected by the wrapper script.
     and aggregating sampled data up the tree.  Available agents are:
     "monitor", "power_balancer", and "energy_efficient".
 
+  * `GEOPM_POLICY`:
+    Specifies a JSON file path containing the policy.  If the policy
+    is provided through this file, it will only be read once and
+    cannot be changed dynamically.  In this mode, samples will not be
+    provided to the resource manager.  GEOPM_POLICY and GEOPM_ENDPOINT
+    cannot be set simultaneously; refer to the documentation for
+    GEOPM_ENDPOINT for more details.
+
+  * `GEOPM_ENDPOINT`:
+    Combined with GEOPM_SHMKEY, serves as the base name for policy and
+    sample shared memory files used to communicate with the resource
+    manager.  It should not contain the '/' character.  The location
+    for policy values written by the resource manager and read by the
+    Controller will be "/$(GEOPM_SHMKEY)-$(GEOPM_ENDPOINT).policy" and
+    the location for sample values written by the Controller and read
+    by the resource manager will be
+    "/$(GEOPM_SHMKEY)-$(GEOPM_ENDPOINT).sample".  GEOPM_ENDPOINT and
+    GEOPM_POLICY cannot both be set simultaneously; the choice of
+    which to set is determined by whether the Controller should use
+    shared memory to receive policies dynamically from the resource
+    manager, or use a JSON file to read a fixed policy.  One or the
+    other must be set when launching the GEOPM controller through the
+    PMPI interface (see GEOPM_PMPI_CTL environment variable below).
+
   * `GEOPM_SHMKEY`:
     Override the default shared memory key base.  The shared memory
     key base prefixes all shared memory keys used by GEOPM to
     communicate between the compute application and the GEOPM runtime.
     The default key base is '/geopm-shm', this can be overridden by
-    the environment variable.  The base key is extended for each
-    shared memory region used by the runtime.  These keys should be
-    cleaned up by the exception handler in case of an error or OS
-    signal other than SIGKILL.  If the application is killed with
-    SIGKILL or the keys are left behind for any other reason, a simple
-    command to clean up after an aborted job is:
+    the environment variable.  A shared memory key must begin with the
+    '/' character and have no other occurrence of the '/' character.
+    The base key is extended for each shared memory region used by the
+    runtime.  These keys should be cleaned up by the exception handler
+    in case of an error or OS signal other than SIGKILL.  If the
+    application is killed with SIGKILL or the keys are left behind for
+    any other reason, a simple command to clean up after an aborted
+    job is:
 
     `$ test -n "$GEOPM_SHMKEY" && rm -f /dev/shm${GEOPM_SHMKEY}* || rm -f /dev/shm/geopm-shm*`
-
-  * `GEOPM_POLICY`:
-    Defines the default policy. The value is either a shared memory
-    key or JSON file path.  This environment variable must be set when
-    launching the GEOPM controller through the PMPI interface (see
-    GEOPM_PMPI_CTL environment variable below).  A shared memory key
-    must begin with the '/' character and have no other occurrence of
-    the '/' character.  All other values are assumed to refer to a
-    JSON file path.  When using a shared memory policy the resource
-    manager creates the shared memory region and dynamically controls
-    the global policy by modifying the region at runtime.
 
   * `GEOPM_PMPI_CTL`:
     When set to 'process' or 'pthread' this environment variable
