@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "157a923c_29234853",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:50:32Z",
+      "side": 1,
+      "message": "geopm_agent_power_balancer(7)",
+      "parentUuid": "7535f618_cf36f857",
+      "range": {
+        "startLine": 149,
+        "startChar": 33,
+        "endLine": 149,
+        "endChar": 52
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "882cdae4_47ac56ca",
         "filename": "ronn/geopmpy_launcher.1.ronn",
         "patchSetId": 2
@@ -105,6 +129,30 @@
       "writtenOn": "2018-05-08T00:28:13Z",
       "side": 1,
       "message": "geopm_agent_energy_efficient(3)?",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 30
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "150b22c3_cf765242",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:50:32Z",
+      "side": 1,
+      "message": "geopm_agent_energy_efficient(7)",
+      "parentUuid": "882cdae4_47ac56ca",
       "range": {
         "startLine": 150,
         "startChar": 4,
