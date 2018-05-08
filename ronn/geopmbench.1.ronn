@@ -125,16 +125,22 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopmpy(7)**,
+**geopm_agent_c(3)**,
 **geopm_ctl_c(3)**,
+**geopm_endpoint_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
 **geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_sched(3)**,
 **geopm_version(3)**,
+**geopmpy_launcher(1)**
+**geopmagent(1)**,
 **geopmanalysis(1)**,
 **geopmaprun(1)**,
 **geopmctl(1)**,
+**geopmendpoint(1)**,
 **geopmplotter(1)**,
 **geopmpolicy(1)**,
 **geopmsrun(1)**
+
