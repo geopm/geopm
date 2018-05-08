@@ -38,6 +38,10 @@
 class MockIOGroup : public geopm::IOGroup
 {
     public:
+        MOCK_CONST_METHOD0(signal_names,
+                           std::set<std::string>(void));
+        MOCK_CONST_METHOD0(control_names,
+                           std::set<std::string>(void));
         MOCK_CONST_METHOD1(is_valid_signal,
                            bool (const std::string &signal_name));
         MOCK_CONST_METHOD1(is_valid_control,

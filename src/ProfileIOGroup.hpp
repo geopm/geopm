@@ -55,6 +55,8 @@ namespace geopm
                            std::shared_ptr<IProfileIORuntime> profile_runtime,
                            geopm::IPlatformTopo &topo);
             virtual ~ProfileIOGroup() = default;
+            std::set<std::string> signal_names(void) const override;
+            std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
             bool is_valid_control(const std::string &control_name) const override;
             int signal_domain_type(const std::string &signal_name) const override;

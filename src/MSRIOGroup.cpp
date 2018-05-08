@@ -108,7 +108,24 @@ namespace geopm
                 delete ctl_ptr;
             }
         }
+    }
 
+    std::set<std::string> MSRIOGroup::signal_names(void) const
+    {
+        std::set<std::string> result;
+        for (const auto &sv : m_name_cpu_signal_map) {
+            result.insert(sv.first);
+        }
+        return result;
+    }
+
+    std::set<std::string> MSRIOGroup::control_names(void) const
+    {
+        std::set<std::string> result;
+        for (const auto &sv : m_name_cpu_control_map) {
+            result.insert(sv.first);
+        }
+        return result;
     }
 
     bool MSRIOGroup::is_valid_signal(const std::string &signal_name) const

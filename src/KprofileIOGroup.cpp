@@ -81,6 +81,20 @@ namespace geopm
 
     }
 
+    std::set<std::string> KprofileIOGroup::signal_names(void) const
+    {
+        std::set<std::string> result;
+        for (const auto &sv : m_signal_idx_map) {
+            result.insert(sv.first);
+        }
+        return result;
+    }
+
+    std::set<std::string> KprofileIOGroup::control_names(void) const
+    {
+        return {};
+    }
+
     bool KprofileIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();

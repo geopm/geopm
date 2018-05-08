@@ -35,6 +35,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "PluginFactory.hpp"
 
@@ -45,6 +46,12 @@ namespace geopm
         public:
             IOGroup() = default;
             virtual ~IOGroup() = default;
+            /// @brief Returns the names of all signals provided by
+            ///        the IOGroup.
+            virtual std::set<std::string> signal_names(void) const = 0;
+            /// @brief Returns the names of all controls provided by
+            ///        the IOGroup.
+            virtual std::set<std::string> control_names(void) const = 0;
             /// @brief Test if signal_name refers to a signal
             ///        supported by the group.
             /// @param [in] signal_name Name of signal to test.

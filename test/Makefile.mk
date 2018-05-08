@@ -130,6 +130,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.1_socket_over_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
+              test/gtest_links/CpuinfoIOGroupTest.valid_signals \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info0 \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info1 \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info2 \

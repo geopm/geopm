@@ -47,6 +47,8 @@ namespace geopm
                            const std::string &cpu_freq_min_path,
                            const std::string &cpu_freq_max_path);
             virtual ~CpuinfoIOGroup() = default;
+            std::set<std::string> signal_names(void) const override;
+            std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
             bool is_valid_control(const std::string &control_name) const override;
             int signal_domain_type(const std::string &signal_name) const override;

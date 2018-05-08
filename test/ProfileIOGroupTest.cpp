@@ -104,6 +104,13 @@ TEST_F(ProfileIOGroupTest, is_valid)
     // aliases
     EXPECT_TRUE(m_piog.is_valid_signal("REGION_ID#"));
     EXPECT_TRUE(m_piog.is_valid_signal("REGION_PROGRESS"));
+
+    // all provided signals are valid
+    EXPECT_NE(0u, m_piog.signal_names().size());
+    for (const auto &sig : m_piog.signal_names()) {
+        EXPECT_TRUE(m_piog.is_valid_signal(sig));
+    }
+    EXPECT_EQ(0u, m_piog.control_names().size());
 }
 
 TEST_F(ProfileIOGroupTest, domain_type)

@@ -31,6 +31,7 @@
  */
 
 #include <list>
+#include <set>
 #include <memory>
 #include <string>
 #include <algorithm>
@@ -59,10 +60,10 @@ using ::testing::SetArgReferee;
 class PlatformIOTestMockIOGroup : public MockIOGroup
 {
     public:
-        void set_valid_signal_names(std::list<std::string> names) {
+        void set_valid_signal_names(const std::set<std::string> &names) {
             m_valid_signals = names;
         }
-        void set_valid_control_names(std::list<std::string> names) {
+        void set_valid_control_names(const std::set<std::string> &names) {
             m_valid_controls = names;
         }
         bool is_valid_signal(const std::string &signal_name) const override
@@ -77,10 +78,17 @@ class PlatformIOTestMockIOGroup : public MockIOGroup
                              m_valid_controls.end(),
                              control_name) != m_valid_controls.end();
         }
-
+        std::set<std::string> signal_names(void) const override
+        {
+            return m_valid_signals;
+        }
+        std::set<std::string> control_names(void) const override
+        {
+            return m_valid_controls;
+        }
     protected:
-        std::list<std::string> m_valid_signals;
-        std::list<std::string> m_valid_controls;
+        std::set<std::string> m_valid_signals;
+        std::set<std::string> m_valid_controls;
 };
 
 class PlatformIOTest : public ::testing::Test

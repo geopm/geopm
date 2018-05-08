@@ -63,6 +63,8 @@ namespace geopm
             MSRIOGroup();
             MSRIOGroup(IPlatformTopo &platform_topo, std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu);
             virtual ~MSRIOGroup();
+            std::set<std::string> signal_names(void) const override;
+            std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
             bool is_valid_control(const std::string &control_name) const override;
             int signal_domain_type(const std::string &signal_name) const override;

@@ -262,6 +262,12 @@ TEST_F(MSRIOGroupTest, push_signal)
     // pushing same signal for another cpu gives different index
     int inst_idx_1 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_NE(inst_idx_0, inst_idx_1);
+
+    // all provided signals are valid
+    EXPECT_NE(0u, m_msrio_group->signal_names().size());
+    for (const auto &sig : m_msrio_group->signal_names()) {
+        EXPECT_TRUE(m_msrio_group->is_valid_signal(sig));
+    }
 }
 
 TEST_F(MSRIOGroupTest, sample)
@@ -442,6 +448,12 @@ TEST_F(MSRIOGroupTest, push_control)
     // pushing same control gives same index
     int idx2 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(freq_idx_0, idx2);
+
+    // all provided controls are valid
+    EXPECT_NE(0u, m_msrio_group->control_names().size());
+    for (const auto &sig : m_msrio_group->control_names()) {
+        EXPECT_TRUE(m_msrio_group->is_valid_control(sig));
+    }
 }
 
 TEST_F(MSRIOGroupTest, adjust)

@@ -130,6 +130,20 @@ namespace geopm
 
     }
 
+    std::set<std::string> CpuinfoIOGroup::signal_names(void) const
+    {
+        std::set<std::string> result;
+        for (const auto &sv : m_signal_value_map) {
+            result.insert(sv.first);
+        }
+        return result;
+    }
+
+    std::set<std::string> CpuinfoIOGroup::control_names(void) const
+    {
+        return {};
+    }
+
     bool CpuinfoIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_signal_value_map.find(signal_name) != m_signal_value_map.end();

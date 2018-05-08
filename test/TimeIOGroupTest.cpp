@@ -59,6 +59,13 @@ TEST_F(TimeIOGroupTest, is_valid)
     // alias
     EXPECT_TRUE(m_group.is_valid_signal("TIME"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD, m_group.signal_domain_type("TIME"));
+
+    // all provided signals are valid
+    EXPECT_NE(0u, m_group.signal_names().size());
+    for (const auto &sig : m_group.signal_names()) {
+        EXPECT_TRUE(m_group.is_valid_signal(sig));
+    }
+    EXPECT_EQ(0u, m_group.control_names().size());
 }
 
 TEST_F(TimeIOGroupTest, push)
