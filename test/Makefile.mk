@@ -238,6 +238,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOGroupTest.cpuid \
               test/gtest_links/MSRIOGroupTest.register_msr_signal \
               test/gtest_links/MSRIOGroupTest.register_msr_control \
+              test/gtest_links/PlatformIOTest.signal_control_names \
               test/gtest_links/PlatformIOTest.domain_type \
               test/gtest_links/PlatformIOTest.push_signal \
               test/gtest_links/PlatformIOTest.signal_power \

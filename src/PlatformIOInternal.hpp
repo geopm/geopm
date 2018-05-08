@@ -60,6 +60,8 @@ namespace geopm
             /// @brief Virtual destructor for the PlatformIO class.
             virtual ~PlatformIO() = default;
             void register_iogroup(std::shared_ptr<IOGroup> iogroup) override;
+            std::set<std::string> signal_names(void) const override;
+            std::set<std::string> control_names(void) const override;
             int signal_domain_type(const std::string &signal_name) const override;
             int control_domain_type(const std::string &control_name) const override;
             int push_signal(const std::string &signal_name,

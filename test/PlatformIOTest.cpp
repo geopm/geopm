@@ -181,6 +181,19 @@ void PlatformIOTest::SetUp()
     m_platio.reset(new PlatformIO(iogroup_list, m_topo));
 }
 
+TEST_F(PlatformIOTest, signal_control_names)
+{
+    // IOGroup signals and PlatformIO signals
+    std::set<std::string> expected_signals {"TIME", "ENERGY_PACKAGE", "ENERGY_DRAM",
+            "REGION_ID#", "FREQ", "MODE", "POWER_PACKAGE", "POWER_DRAM"};
+    EXPECT_EQ(expected_signals.size(), m_platio->signal_names().size());
+    EXPECT_EQ(expected_signals, m_platio->signal_names());
+
+    std::set<std::string> expected_controls {"FREQ", "MODE"};
+    EXPECT_EQ(expected_controls.size(), m_platio->control_names().size());
+    EXPECT_EQ(expected_controls, m_platio->control_names());
+}
+
 TEST_F(PlatformIOTest, domain_type)
 {
     for (auto &it : m_iogroup_ptr) {

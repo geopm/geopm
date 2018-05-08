@@ -38,6 +38,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <set>
 
 namespace geopm
 {
@@ -55,6 +56,16 @@ namespace geopm
             ///        through the PlatformIO interface.
             /// @param [in] iogroup Shared pointer to the IOGroup.
             virtual void register_iogroup(std::shared_ptr<IOGroup> iogroup) = 0;
+            /// @brief Returns the names of all available signals.
+            ///        This includes all signals and aliases provided
+            ///        by IOGroups as well as signals provided by
+            ///        PlatformIO itself.
+            virtual std::set<std::string> signal_names(void) const = 0;
+            /// @brief Returns the names of all available controls.
+            ///        This includes all controls and aliases provided
+            ///        by IOGroups as well as controls provided by
+            ///        PlatformIO itself.
+            virtual std::set<std::string> control_names(void) const = 0;
             /// @brief Query the domain for a named signal.
             /// @param [in] signal_name The name of the signal.
             /// @return One of the PlatformTopo::m_domain_e values

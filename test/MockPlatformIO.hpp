@@ -41,6 +41,10 @@ class MockPlatformIO : public geopm::IPlatformIO
     public:
         MOCK_METHOD1(register_iogroup,
                      void(std::shared_ptr<geopm::IOGroup> iogroup));
+        MOCK_CONST_METHOD0(signal_names,
+                           std::set<std::string>(void));
+        MOCK_CONST_METHOD0(control_names,
+                           std::set<std::string>(void));
         MOCK_CONST_METHOD1(signal_domain_type,
                            int(const std::string &signal_name));
         MOCK_CONST_METHOD1(control_domain_type,

@@ -82,6 +82,26 @@ namespace geopm
         m_iogroup_list.push_back(iogroup);
     }
 
+    std::set<std::string> PlatformIO::signal_names(void) const
+    {
+        std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM"};
+        for (const auto &io_group : m_iogroup_list) {
+            auto names = io_group->signal_names();
+            result.insert(names.begin(), names.end());
+        }
+        return result;
+    }
+
+    std::set<std::string> PlatformIO::control_names(void) const
+    {
+        std::set<std::string> result;
+        for (const auto &io_group : m_iogroup_list) {
+            auto names = io_group->control_names();
+            result.insert(names.begin(), names.end());
+        }
+        return result;
+    }
+
     int PlatformIO::signal_domain_type(const std::string &signal_name) const
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
