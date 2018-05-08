@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a63b334b_52215f76",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:28:13Z",
+      "side": 1,
+      "message": "If we are going to put this in the trace, perahaps we should explain what the MPI flag is?  I\u0027m not 100% sure we want the high order bits in the trace.",
+      "range": {
+        "startLine": 224,
+        "startChar": 38,
+        "endLine": 224,
+        "endChar": 60
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfca5363_07990317",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:28:13Z",
+      "side": 1,
+      "message": "Can we change these to power_balancer and energy_efficient?",
+      "range": {
+        "startLine": 248,
+        "startChar": 16,
+        "endLine": 248,
+        "endChar": 47
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c503d607_f296f770",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:28:13Z",
+      "side": 1,
+      "message": "name change?",
+      "range": {
+        "startLine": 148,
+        "startChar": 18,
+        "endLine": 148,
+        "endChar": 50
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7535f618_cf36f857",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:28:13Z",
+      "side": 1,
+      "message": "geopm_agent_balancing_decider(3)?",
+      "range": {
+        "startLine": 149,
+        "startChar": 33,
+        "endLine": 149,
+        "endChar": 52
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "882cdae4_47ac56ca",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-08T00:28:13Z",
+      "side": 1,
+      "message": "geopm_agent_energy_efficient(3)?",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 30
+      },
+      "revId": "14d58ff81df3dc961f83cc7548a71bdeb8e9d713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
