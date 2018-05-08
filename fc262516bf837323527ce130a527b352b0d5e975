@@ -187,6 +187,30 @@
     },
     {
       "key": {
+        "uuid": "d38ad767_f886cc1b",
+        "filename": "ronn/geopm_agent_c.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-08T03:19:18Z",
+      "side": 1,
+      "message": "I was trying to say that the topology informs what signals/controls are available and thus whether or not the agent would be supported.",
+      "parentUuid": "f84f554e_af1e1312",
+      "range": {
+        "startLine": 83,
+        "startChar": 17,
+        "endLine": 83,
+        "endChar": 25
+      },
+      "revId": "fc262516bf837323527ce130a527b352b0d5e975",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "abe7a535_758e831f",
         "filename": "ronn/geopm_agent_c.3.ronn",
         "patchSetId": 2
