@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f84f554e_af1e1312",
+        "filename": "ronn/geopm_agent_c.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-08T00:20:24Z",
+      "side": 1,
+      "message": "I\u0027m a little confused by this. Also there might be other reasons for an Agent not to be supported, e.g. missing required signals/controls",
+      "range": {
+        "startLine": 83,
+        "startChar": 17,
+        "endLine": 83,
+        "endChar": 25
+      },
+      "revId": "fc262516bf837323527ce130a527b352b0d5e975",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
