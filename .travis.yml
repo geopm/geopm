@@ -91,3 +91,7 @@ addons:
     - rpm
     - osc
     - python-pip
+
+notifications:
+  slack:
+    secure: i6sNQH8/RbqkqHdYLiQnZxD6slWBryfujn5+VB0KhUgK+f2cBCNzf0c50sfsJg7qWKPfrsDfbpyFqZqVxKLYrlsJPcqm8TmVV3GTQpqIy7AH+EA4LcC4uH7Kj7uFuP6kSjmNo18AHfYcPEgRN1sjEHuoY59Xl/SzlmN9HEvtEQhn9OF5yt+Rj0vF35XR3yefdeP1GaTzz2VNXk/74ojOI87eq3s6oFDAFvdKxew4ooyUwthek8zJT42+qZDQDyxX5eOlOcJe8A9E7HyckUlAOm6+HhG5OxbHbTV0VNAYfve9eVoafp5gK8TYiPREpg1SfmxtgbScyal7YEow9TVJgFM7ls14cUuudyxUxUv5uUua9tpO7qCLkhH7rGA6T/zTT7T5RHPeLf71YTpSW6MGFp/uY7uENMZTU9J20g/BZ6vrrp+hFyhrrkIV8Z6DrOfEvsw1dOql+NHH2w3r0+1/3P1kvn1nCjQypYIw1Z0ep0VsMnaNPBtGYQ6Hjd49UaZkyxJkMgsPSDJ3L/k133u8FpXN3y80GvkktJ3gHVvgFM6W3QYvSB3egq5tqpI5yxg4rOx2VMI1E4Taaz2l9qv8yrQroCV7EnUutneDWfOlnuHUNOht2rqWrID4+xiZmqg+LRUbjyX6kP+6DMMbpNUj0/d9AKXNG/B6CZ2KrOkrkQ8=
