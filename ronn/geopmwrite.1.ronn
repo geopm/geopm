@@ -1,0 +1,137 @@
+geopmwrite(1) -- modify platform state
+======================================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+PRINT ALL CONTROL NAMES <br>
+`geopmwrite`
+
+PRINT DOMAIN NAME AND SIZE <br>
+`geopmwrite` -d [CONTROL_NAME]
+
+WRITE CONTROL <br>
+`geopmwrite` CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
+
+GET HELP OR VERSION <br>
+`geopmwrite` --help | --version
+
+## DESCRIPTION
+
+Provides a command line interface to PlatformIO and PlatformTopo.
+This tool can be used to write hardware/OS state through
+high-level control aliases and query other information
+about the platform such as the type and number of hardware domains.
+Details of the hardware domains can also be inferred from the output
+of **lscpu(1)**.
+
+When run without any arguments, the default behavior is to print a
+summary of available controls.
+
+To write a specific control, `geopmwrite` should be run with four
+arguments.  CONTROL_NAME is the name of the control of interest.
+DOMAIN_TYPE is hardware domain to which the control should be applied.
+DOMAIN_INDEX is used to indicate which instance of the domain to write
+to; indexing starts from 0 and goes up to the domain size - 1.  VALUE
+is the floating-point number in SI units that the control will be
+adjusted to.  Note that currently controls are only defined for their
+native domain.
+
+## OPTIONS
+
+  * `-d`, `--domain`:
+    Print domain of a control if CONTROL_NAME is provided, or print a
+    list of all domains on the system.
+
+  * `-h`, `--help`:
+    Print brief summary of the command line usage information,
+    then exit.
+
+  * `-v`, `--version`:
+    Print version of **geopm(7)** to standard output, then exit.
+
+## EXAMPLES
+
+List domains and size:
+
+    $ geopmwrite -d
+    board                1
+    package              2
+    core                 64
+    cpu                  128
+    board_memory         2
+    package_memory       1
+    board_nic            1
+    package_nic          0
+    board_accelerator    0
+    package_accelerator  0
+
+List all available controls on the system with domain type and number:
+
+    $ geopmwrite
+    FREQUENCY
+    POWER_PACKAGE
+
+Show domain type for POWER_PACKAGE control:
+
+    $ geopmwrite -d POWER_PACKAGE
+    package
+
+Set the frequency of CPU 2 to 1.9 GHz:
+
+    $ geopmwrite FREQUENCY cpu 2 1.9e9
+    $ geopmread FREQUENCY cpu 2
+    1.9e9
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmpy(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_sched(3)**,
+**geopm_version(3)**,
+**geopmagent(1)**,
+**geopmanalysis(1)**,
+**geopmaprun(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
+**geopmendpoint(1)**,
+**geopmplotter(1)**,
+**geopmread(1)**,
+**geopmsrun(1)**,
+**lscpu(1)**
