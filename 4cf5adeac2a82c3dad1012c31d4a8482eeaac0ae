@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0268275d_28108e2a",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-09T16:48:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f291f28_28515b9c",
+      "revId": "4cf5adeac2a82c3dad1012c31d4a8482eeaac0ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7440ea95_e446b980",
         "filename": "src/EnergyEfficientAgent.cpp",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9d2dfbb1_e4589441",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-09T16:48:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7440ea95_e446b980",
+      "revId": "4cf5adeac2a82c3dad1012c31d4a8482eeaac0ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec6e0804_eb7ef6cc",
         "filename": "src/EnergyEfficientRegion.cpp",
         "patchSetId": 6
@@ -50,6 +86,24 @@
       "revId": "4cf5adeac2a82c3dad1012c31d4a8482eeaac0ae",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2da01c76_fc52759b",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-09T16:48:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec6e0804_eb7ef6cc",
+      "revId": "4cf5adeac2a82c3dad1012c31d4a8482eeaac0ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
