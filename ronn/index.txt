@@ -38,6 +38,7 @@ geopm_ctl_c(3)      geopm_ctl_c.3
 geopm_endpoint_c(3) geopm_endpoint_c.3
 geopm_error(3)      geopm_error.3
 geopm_fortran(3)    geopm_fortran.3
+geopmio(1)          geopmio.1
 geopm_policy_c(3)   geopm_policy_c.3
 geopm_prof_c(3)     geopm_prof_c.3
 geopm_sched(3)      geopm_sched.3
@@ -63,3 +64,4 @@ sched_getcpu(3)                 http://linux.die.net/man/3/sched_getcpu
 errno(3)                        http://linux.die.net/man/3/errno
 git-describe(1)                 http://linux.die.net/man/1/git-describe
 ld.so(8)                        http://linux.die.net/man/8/ld.so
+lscpu(1)                        http://linux.die.net/man/1/lscpu
