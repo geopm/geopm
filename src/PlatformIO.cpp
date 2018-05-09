@@ -443,26 +443,23 @@ namespace geopm
     std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
-            {"POWER", IPlatformIO::agg_sum},
             {"REGION_POWER", IPlatformIO::agg_sum},
             {"POWER_PACKAGE", IPlatformIO::agg_sum},
             {"POWER_DRAM", IPlatformIO::agg_sum},
             {"FREQUENCY", IPlatformIO::agg_average},
-            {"RUNTIME", IPlatformIO::agg_max},
             {"REGION_RUNTIME", IPlatformIO::agg_max},
             {"REGION_PROGRESS", IPlatformIO::agg_min},
             {"EPOCH_RUNTIME", IPlatformIO::agg_max},
-            {"ENERGY", IPlatformIO::agg_sum},
-            {"REGION_ENERGY", IPlatformIO::agg_sum},
             {"ENERGY_PACKAGE", IPlatformIO::agg_sum},
             {"ENERGY_DRAM", IPlatformIO::agg_sum},
-            {"EPOCH_ENERGY", IPlatformIO::agg_sum},
             {"IS_CONVERGED", IPlatformIO::agg_and},
             {"IS_UPDATED", IPlatformIO::agg_and},
             {"REGION_ID#", IPlatformIO::agg_region_id},
             {"CYCLES_THREAD", IPlatformIO::agg_average},
             {"CYCLES_REFERENCE", IPlatformIO::agg_average},
-            {"TIME", IPlatformIO::agg_average}
+            {"TIME", IPlatformIO::agg_average},
+            {"POWER_PACKAGE_MIN", IPlatformIO::agg_min},
+            {"POWER_PACKAGE_MAX", IPlatformIO::agg_max}
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
