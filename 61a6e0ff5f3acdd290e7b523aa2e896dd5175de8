@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0b7bb7c_5696d6d4",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-09T18:39:54Z",
+      "side": 1,
+      "message": "don\u0027t need this line?\n\nAll this will go away when limits are passed down the tree.  Command line tool to generate agent config file can have an option to add default values.",
+      "revId": "61a6e0ff5f3acdd290e7b523aa2e896dd5175de8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "649d63f5_f964497d",
+        "filename": "src/EnergyEfficientAgent.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-09T18:39:54Z",
+      "side": 1,
+      "message": "can be const?",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 58
+      },
+      "revId": "61a6e0ff5f3acdd290e7b523aa2e896dd5175de8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efaa25d7_5844a99f",
+        "filename": "src/EnergyEfficientAgent.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-09T18:39:54Z",
+      "side": 1,
+      "message": "needs space",
+      "range": {
+        "startLine": 95,
+        "startChar": 68,
+        "endLine": 95,
+        "endChar": 70
+      },
+      "revId": "61a6e0ff5f3acdd290e7b523aa2e896dd5175de8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd9cf124_57049b03",
+        "filename": "src/geopm_message.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-09T18:39:54Z",
+      "side": 1,
+      "message": "Use GEOPM_MASK_REGION_HINT",
+      "range": {
+        "startLine": 97,
+        "startChar": 18,
+        "endLine": 97,
+        "endChar": 39
+      },
+      "revId": "61a6e0ff5f3acdd290e7b523aa2e896dd5175de8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
