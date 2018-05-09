@@ -100,8 +100,10 @@ ronn_man = man/geopm.7 \
            man/geopm_prof_c.3 \
            man/geopmpy.7 \
            man/geopmpy_launcher.1 \
+           man/geopmread.1 \
            man/geopm_sched.3 \
            man/geopm_version.3 \
+           man/geopmwrite.1 \
            # end
 
 dist_man_MANS = man/geopmaprun.1 \
@@ -163,8 +165,10 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_prof_c.3.ronn \
              ronn/geopmpy.7.ronn \
              ronn/geopmpy_launcher.1.ronn \
+             ronn/geopmread.1.ronn \
              ronn/geopm_sched.3.ronn \
              ronn/geopm_version.3.ronn \
+             ronn/geopmwrite.1.ronn \
              ronn/header.txt \
              ronn/index.txt \
              src/Comm.hpp \

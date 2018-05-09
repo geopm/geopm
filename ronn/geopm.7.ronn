@@ -208,9 +208,9 @@ manager selected by the wrapper script.
     Used to insert additional columns into the trace beyond the
     default columns and the columns added by the Agent.  The value
     must be formatted as a comma-separated list of valid signal names.
-    All custom signals added to the trace will be sampled for the
-    entire node.  For example, the following will add total DRAM
-    energy and power as columns in the trace:
+    All custom signals added to the trace will be sampled and
+    aggregated for the entire node.  For example, the following will
+    add total DRAM energy and power as columns in the trace:
 
     `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
 
@@ -229,8 +229,10 @@ manager selected by the wrapper script.
                    (0x2000000000000000).  Epoch boundaries are
                    recorded as entry and exit to the epoch region
                    (0x8000000000000000). <br>
-    `REGION_PROGRESS` - reported progress through the current region. <br>
-    `REGION_RUNTIME` - last recorded runtime for the current region. <br>
+    `REGION_PROGRESS` - minimum per-rank reported progress through the
+                        current region. <br>
+    `REGION_RUNTIME` - maximum per-rank last recorded runtime for the
+                       current region. <br>
     `ENERGY_PACKAGE` - total energy for all sockets on the node. <br>
     `POWER_PACKAGE` - total power for all sockets on the node. <br>
     `FREQUENCY` - average frequency of all cores. <br>
@@ -238,9 +240,9 @@ manager selected by the wrapper script.
     `POWER_DRAM` - total power for all DRAM on the node. <br>
     `POWER_PACKAGE_MIN` - minimum setting for package power. <br>
     `POWER_PACKAGE_MAX` - maximum setting for package power. <br>
-    `CYCLES_THREAD` - clock cycles executed by cores since the
+    `CYCLES_THREAD` - average clock cycles executed by cores since the
                       beginning of execution. <br>
-    `CYCLES_REFERENCE` - clock reference cycles since the beginning of
+    `CYCLES_REFERENCE` - average clock reference cycles since the beginning of
                          execution. <br>
 
   * `GEOPM_AGENT`:
