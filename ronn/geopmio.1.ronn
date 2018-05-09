@@ -1,0 +1,175 @@
+geopmio(1) -- query platform information and modify hardware state
+======================================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmio` [--version] [--help] [--domain-names] [--num-domain <name>]
+          [--signal-names] [--control-names]
+          [--signal-domain-type <name>] [--control-domain-type <name>]
+          [--read-signal <name> <index>]
+          [--write-control <name> <index> <value>]
+          [--filter <substring>] [--enum]
+
+## DESCRIPTION
+
+Provides a command line interface to PlatformIO and PlatformTopo.
+This tool can be used to read and write hardware/OS state through
+high-level signal and control aliases and query other information
+about the platform such as the type and number of hardware domains.
+
+## OPTIONS
+
+  * `--domain-names`:
+    List all domains on the system.  The domain names are used with
+    other commands to specify the subset of hardware where a signal
+    or control is active.
+
+  * `--num-domains` _DOMAIN_NAME_:
+    Get the number of instances of a domain type on the system.
+    Domain indices for a given domain start at 0.
+
+  * `--signal-names`:
+    List all available signal names on the system.  The list can be
+    constrained by substring using --filter.
+
+  * `--control-names`:
+    List all available control names on the system.  The list can be
+    constrained by substring using --filter.
+
+  * `--signal-domain-type` _SIGNAL_NAME_:
+    Get the native domain for a signal.  The signal can be read for
+    this domain only.
+
+  * `--control-domain-type` _CONTROL_NAME_:
+    Get the native domain for a control.  The control can be written
+    for this domain only.
+
+  * `--read-signal` _SIGNAL_NAME_ _DOMAIN_IDX_:
+    Read the current value of a signal for the given domain index.
+    The domain index must be valid for the native domain of the
+    signal.
+
+  * `--write-control` _CONTROL_NAME_ _DOMAIN_IDX_ _VALUE_:
+    Write a value to a control for a given instance in the domain.
+    The domain index must be valid for the native domain of the
+    control.  The value provided should be a double-precision number.
+
+  * `--filter` _SUBSTRING_:
+    Constrains the list of names returned based on a matching
+    substring.
+
+  * `--help`:
+    Print brief summary of the command line usage information,
+    then exit.
+
+  * `--version`:
+    Print version of **geopm(7)** to standard output, then exit.
+
+## EXAMPLES
+
+List all available domains on the system:
+
+    $ geopmio --domain-names
+    board, package, core, cpu, board_memory, package_memory, \
+    board_nic, package_nic, board_accelerator, package_accelerator
+
+Look up the number of instances of a domain on the system:
+
+     $ geopmio --num-domain package
+     2
+     $ geopmio --num-domain cpu
+     64
+
+List all available signals on the system:
+
+    $ geopmio signal_names
+    TIME, ENERGY_PACKAGE, ENERGY_DRAM, POWER_PACKAGE, POWER_DRAM, FREQUENCY
+
+List all available signals matching a pattern:
+
+    $ geopmio signal_names --filter=DRAM
+    ENERGY_DRAM, POWER_DRAM
+
+List all available controls on the system:
+
+    $ geopmio control_names
+    FREQUENCY, POWER_PACKAGE
+
+List all available controls matching a pattern:
+
+    $ geopmio control_names --filter=FREQ
+    FREQUENCY
+
+Look up the native domain of a signal:
+
+    $ geopmio signal_domain_type ENERGY_PACKAGE
+    package
+    $ geopmio signal_domain_type ENERGY_DRAM
+    board_memory
+
+Look up the domain of a control:
+
+    $ geopmio control_domain_type FREQUENCY
+    cpu
+
+Read the current energy for package 1:
+
+    $ geopmio read_signal ENERGY_PACKAGE 1
+    34567
+
+Set the frequency of CPU 2 to 1.9 GHz:
+
+    $ geopmio write_control FREQUENCY 2 1.9e9
+    $ geopmio read_signal FREQUENCY 2
+    1.9e9
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmpy(7)**,
+**geopm_ctl_c(3)**,
+**geopm_error(3)**,
+**geopm_fortran(3)**,
+**geopm_policy_c(3)**,
+**geopm_prof_c(3)**,
+**geopm_sched(3)**,
+**geopm_version(3)**,
+**geopmanalysis(1)**,
+**geopmaprun(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
+**geopmplotter(1)**,
+**geopmendpoint(1)**,
+**geopmsrun(1)**
