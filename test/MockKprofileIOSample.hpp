@@ -52,14 +52,6 @@ class MockKprofileIOSample : public geopm::IKprofileIOSample {
                            std::vector<double>(uint64_t region_id));
         MOCK_CONST_METHOD0(total_app_runtime,
                            double(void));
-        MOCK_CONST_METHOD0(total_app_mpi_time,
-                           double(void));
-        MOCK_CONST_METHOD1(total_count,
-                           int(uint64_t region_id));
-        MOCK_CONST_METHOD0(region_info,
-                           std::list<geopm_region_info_s>(void));
-        MOCK_METHOD0(clear_region_info,
-                     void(void));
         MOCK_CONST_METHOD0(cpu_rank,
                            std::vector<int>(void));
 };

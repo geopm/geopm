@@ -139,7 +139,7 @@ TEST_F(ApplicationIOTest, passthrough)
                  {0x123, 1.0, 3.2},
                  {0x345, 0.0, 3.2} };
 
-    EXPECT_CALL(*m_pio_sample, region_info())
+    EXPECT_CALL(*m_epoch_regulator, region_info())
         .WillOnce(Return(expected));
     result = m_app_io->region_info();
     EXPECT_EQ(expected.size(), result.size());
@@ -150,6 +150,6 @@ TEST_F(ApplicationIOTest, passthrough)
         ++exp_it;
     }
 
-    EXPECT_CALL(*m_pio_sample, clear_region_info());
+    EXPECT_CALL(*m_epoch_regulator, clear_region_info());
     m_app_io->clear_region_info();
 }

@@ -72,13 +72,6 @@ namespace geopm
             /// @brief Return the total time from the start of the
             ///        application until now.
             virtual double total_app_runtime(void) const = 0;
-
-            /// @brief Return a list of information about regions seen
-            ///        by the application since the last call to
-            ///        clear_region_info().
-            virtual std::list<geopm_region_info_s> region_info(void) const = 0;
-            /// @brief Resets the log of region information.
-            virtual void clear_region_info(void) = 0;
             /// @brief Returns the local-node rank running on each CPU.
             virtual std::vector<int> cpu_rank(void) const = 0;
     };
@@ -95,8 +88,6 @@ namespace geopm
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
-            std::list<geopm_region_info_s> region_info(void) const override;
-            void clear_region_info(void) override;
             std::vector<int> cpu_rank(void) const override;
         private:
             struct m_rank_sample_s {
