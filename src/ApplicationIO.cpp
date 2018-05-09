@@ -333,11 +333,11 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_profile_io_sample->region_info();
+        return m_epoch_regulator->region_info();
     }
 
     void ApplicationIO::clear_region_info(void)
     {
-        m_profile_io_sample->clear_region_info();
+        m_epoch_regulator->clear_region_info();
     }
 }
