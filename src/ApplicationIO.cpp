@@ -53,7 +53,7 @@ namespace geopm
     ApplicationIO::ApplicationIO(const std::string &shm_key)
         : ApplicationIO(shm_key,
                         geopm::make_unique<ProfileSampler>(M_SHMEM_REGION_SIZE),
-                        nullptr,
+                        nullptr, nullptr,
                         platform_io(), platform_topo())
     {
 
@@ -62,6 +62,7 @@ namespace geopm
     ApplicationIO::ApplicationIO(const std::string &shm_key,
                                  std::unique_ptr<IProfileSampler> sampler,
                                  std::shared_ptr<IKprofileIOSample> pio_sample,
+                                 std::unique_ptr<IEpochRuntimeRegulator> epoch_regulator,
                                  IPlatformIO &platform_io,
                                  IPlatformTopo &platform_topo)
         : m_sampler(std::move(sampler))
@@ -71,7 +72,7 @@ namespace geopm
         , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rank_per_node(-1)
-        , m_epoch_regulator(nullptr)
+        , m_epoch_regulator(std::move(epoch_regulator))
         , m_start_energy(NAN)
     {
     }

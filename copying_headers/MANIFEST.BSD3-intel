@@ -245,6 +245,7 @@ test/MockAgent.hpp
 test/MockApplicationIO.hpp
 test/MockComm.hpp
 test/MockControlMessage.hpp
+test/MockEpochRuntimeRegulator.hpp
 test/MockGlobalPolicy.hpp
 test/MockIOGroup.hpp
 test/MockKprofileIOSample.hpp

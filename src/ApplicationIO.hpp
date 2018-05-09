@@ -124,6 +124,7 @@ namespace geopm
             ApplicationIO(const std::string &shm_key,
                           std::unique_ptr<IProfileSampler> sampler,
                           std::shared_ptr<IKprofileIOSample> pio_sample,
+                          std::unique_ptr<IEpochRuntimeRegulator>,
                           IPlatformIO &platform_io,
                           IPlatformTopo &platform_topo);
             virtual ~ApplicationIO();
