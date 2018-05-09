@@ -42,16 +42,18 @@ geopm_policy_c(3)   geopm_policy_c.3
 geopm_prof_c(3)     geopm_prof_c.3
 geopm_sched(3)      geopm_sched.3
 geopm_version(3)    geopm_version.3
+geopmagent(1)       geopmagent.1
 geopmanalysis(1)    geopmanalysis.1
 geopmaprun(1)       geopmaprun.1
 geopmbench(1)       geopmbench.1
 geopmctl(1)         geopmctl.1
+geopmendpoint(1)    geopmendpoint.1
 geopmplotter(1)     geopmplotter.1
 geopmpolicy(1)      geopmpolicy.1
 geopmpy_launcher(1) geopmpy_launcher.1
+geopmread(1)        geopmread.1
 geopmsrun(1)        geopmsrun.1
-geopmagent(1)       geopmagent.1
-geopmendpoint(1)    geopmendpoint.1
+geopmwrite(1)       geopmwrite.1
 
 
 #external pages
@@ -63,3 +65,4 @@ sched_getcpu(3)                 http://linux.die.net/man/3/sched_getcpu
 errno(3)                        http://linux.die.net/man/3/errno
 git-describe(1)                 http://linux.die.net/man/1/git-describe
 ld.so(8)                        http://linux.die.net/man/8/ld.so
+lscpu(1)                        http://linux.die.net/man/1/lscpu
