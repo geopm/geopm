@@ -358,6 +358,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
+                          test/MockEpochRuntimeRegulator.hpp \
                           test/MockProfileTable.hpp \
                           test/MockProfileThreadTable.hpp \
                           test/MockSampleScheduler.hpp \
