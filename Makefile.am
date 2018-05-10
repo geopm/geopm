@@ -35,7 +35,10 @@ AM_CPPFLAGS += -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
-bin_PROGRAMS = geopmpolicy
+bin_PROGRAMS = geopmpolicy \
+               geopmread \
+               geopmwrite \
+               #end
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
@@ -253,9 +256,13 @@ endif
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmpolicy_LDADD = libgeopmpolicy.la
+geopmread_LDADD = libgeopmpolicy.la
+geopmwrite_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MPI_CLIBS)
@@ -414,6 +421,10 @@ geopmpolicy_SOURCES = src/geopmpolicy_main.c \
                       src/geopm_message.h \
                       src/geopm_version.h \
                       # end
+geopmread_SOURCES = src/geopmread_main.cpp \
+                    #end
+geopmwrite_SOURCES = src/geopmwrite_main.cpp \
+                     #end
 
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
