@@ -206,12 +206,22 @@ TEST_F(PlatformIOTest, domain_type)
         if (it->is_valid_control("FREQ")) {
             EXPECT_CALL(*it, control_domain_type("FREQ"));
         }
+        if (it->is_valid_signal("ENERGY_PACKAGE")) {
+            EXPECT_CALL(*it, signal_domain_type("ENERGY_PACKAGE"));
+        }
+        if (it->is_valid_signal("ENERGY_DRAM")) {
+            EXPECT_CALL(*it, signal_domain_type("ENERGY_DRAM"));
+        }
     }
 
     int domain_type = m_platio->signal_domain_type("TIME");
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD, domain_type);
     domain_type = m_platio->signal_domain_type("FREQ");
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, domain_type);
+    domain_type = m_platio->signal_domain_type("POWER_PACKAGE");
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE, domain_type);
+    domain_type = m_platio->signal_domain_type("POWER_DRAM");
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, domain_type);
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->signal_domain_type("INVALID"),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
 

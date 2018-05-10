@@ -182,12 +182,12 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
     EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 
-    // expect same errors on every platform
     /// @todo when implemented, add tests for each platform
-    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_NIC), geopm::Exception);
-    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_NIC), geopm::Exception);
-    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR), geopm::Exception);
-    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR), geopm::Exception);
+    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_NIC));
+    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_NIC));
+    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR));
+    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR));
+
     EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_INVALID), geopm::Exception);
 }
 

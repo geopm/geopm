@@ -1043,5 +1043,81 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(found, "runtime error message not found in log")
 
 
+class TestIntegrationGeopmio(unittest.TestCase):
+    ''' Tests of geopmread and geopmwrite.'''
+    def check_output(self, args, expected):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            line_count = 0
+            for exp in expected:
+                self.assertIn(exp, proc.stdout.readline())
+                line_count += 1
+            for line in proc.stdout:
+                self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            print ex.output
+
+    def check_no_error(self, args):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in proc.stdout:
+                self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            print ex.output
+
+    def test_geopmread_command_line(self):
+        self.exec_name = "geopmread"
+
+        # no args
+        self.check_no_error([])
+
+        # domain flag
+        self.check_output(['-d'], ['board', 'package', 'core', 'cpu',
+                                   'board_memory', 'package_memory',
+                                   'board_nic', 'package_nic',
+                                   'board_accelerator', 'package_accelerator'])
+        self.check_output(['-d', 'TIME'], ['board'])
+
+        # read signal
+        self.check_output(['FREQUENCY', 'package', '0'], ['e+09'])
+
+        # errors
+        read_err = 'domain type and domain index are required'
+        self.check_output(['TIME'], [read_err])
+        self.check_output(['TIME', 'board'], [read_err])
+        self.check_output(['TIME', 'board', 'bad'], ['invalid domain index'])
+        self.check_output(['FREQUENCY', 'package', '111'], ['cannot read signal'])
+        self.check_output(['TIME', 'package', '0'], ['cannot read signal'])
+        self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
+        self.check_output(['-d', 'INVALID'], ['unable to determine signal type'])
+
+    def test_geopmwrite_command_line(self):
+        self.exec_name = "geopmwrite"
+
+        # no args
+        self.check_no_error([])
+
+        # domain flag
+        self.check_output(['-d'], ['board', 'package', 'core', 'cpu',
+                                   'board_memory', 'package_memory',
+                                   'board_nic', 'package_nic',
+                                   'board_accelerator', 'package_accelerator'])
+        self.check_output(['-d', 'FREQUENCY'], ['package'])
+
+        # errors
+        write_err = 'domain type, domain index, and value are required'
+        self.check_output(['FREQUENCY'], [write_err])
+        self.check_output(['FREQUENCY', 'board'], [write_err])
+        self.check_output(['FREQUENCY', 'board', '0'], [write_err])
+        self.check_output(['FREQUENCY', 'board', 'bad', '0'], ['invalid domain index'])
+        self.check_output(['FREQUENCY', 'board', '0', 'bad'], ['invalid write value'])
+        self.check_output(['FREQUENCY', 'package', '111', '0'], ['cannot write control'])
+        self.check_output(['FREQUENCY', 'cpu', '0', '0'], ['cannot write control'])
+        self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
+        self.check_output(['-d', 'INVALID'], ['unable to determine control type'])
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -98,8 +98,7 @@ namespace geopm
             case M_DOMAIN_BOARD_ACCELERATOR:
             case M_DOMAIN_PACKAGE_ACCELERATOR:
                 /// @todo Add support for NIC and accelerators to PlatformTopo.
-                throw Exception("PlatformTopo::num_domain(): no support yet for NIC or ACCELERATOR",
-                                GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                result = 0;
                 break;
             case M_DOMAIN_INVALID:
                 throw Exception("PlatformTopo::num_domain(): invalid domain specified",
