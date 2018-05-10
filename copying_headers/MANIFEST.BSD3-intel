@@ -107,12 +107,14 @@ src/geopm_pmpi_fortran.c
 src/geopm_pmpi.h
 src/geopm_policy.h
 src/geopmpolicy_main.c
+src/geopmread_main.cpp
 src/geopm_sched.c
 src/geopm_sched.h
 src/geopm_signal_handler.h
 src/geopm_time.h
 src/geopm_version.c
 src/geopm_version.h
+src/geopmwrite_main.cpp
 src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
 src/Helper.hpp

@@ -84,6 +84,7 @@ namespace geopm
 
     std::set<std::string> PlatformIO::signal_names(void) const
     {
+        /// @todo better handling for signals provided by PlatformIO
         std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM"};
         for (const auto &io_group : m_iogroup_list) {
             auto names = io_group->signal_names();
@@ -113,6 +114,15 @@ namespace geopm
                 result = (*it)->signal_domain_type(signal_name);
                 is_found = true;
             }
+        }
+        /// @todo better handling for signals provided by PlatformIO
+        if (signal_name == "POWER_PACKAGE") {
+            result = signal_domain_type("ENERGY_PACKAGE");
+            is_found = true;
+        }
+        if (signal_name == "POWER_DRAM") {
+            result = signal_domain_type("ENERGY_DRAM");
+            is_found = true;
         }
         if (!is_found) {
             throw Exception("PlatformIO::signal_domain_type(): signal name \"" +
