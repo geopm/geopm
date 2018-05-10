@@ -41,6 +41,8 @@
 /geopmbench
 /geopmctl
 /geopmpolicy
+/geopmread
+/geopmwrite
 /geopm.o
 /geopm.mod
 /geopm*.spec
