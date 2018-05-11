@@ -367,42 +367,9 @@ namespace geopm
         std::transform(name.begin(), name.end(), name.begin(),
                        [](unsigned char c){ return std::tolower(c); });
         result << name;
-        switch(col.domain_type) {
-            case IPlatformTopo::M_DOMAIN_BOARD:
-                break;
-            case IPlatformTopo::M_DOMAIN_PACKAGE:
-                result << "-package";
-                break;
-            case IPlatformTopo::M_DOMAIN_CORE:
-                result << "-core";
-                break;
-            case IPlatformTopo::M_DOMAIN_CPU:
-                result << "-cpu";
-                break;
-            case IPlatformTopo::M_DOMAIN_BOARD_MEMORY:
-                result << "-board_memory";
-                break;
-            case IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY:
-                result << "-package_memory";
-                break;
-            case IPlatformTopo::M_DOMAIN_BOARD_NIC:
-                result << "-board_nic";
-                break;
-            case IPlatformTopo::M_DOMAIN_PACKAGE_NIC:
-                result << "-package_nic";
-                break;
-            case IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR:
-                result << "-board_acc";
-                break;
-            case IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR:
-                result << "-package_acc";
-                break;
-            default:
-                throw Exception("Tracer::pretty_name(): unrecognized domain_type",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         if (col.domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
-            result << "-" << col.domain_idx;
+            result << "-" << IPlatformTopo::domain_type_to_name(col.domain_type)
+                   << "-" << col.domain_idx;
         }
         return result.str();
     }
