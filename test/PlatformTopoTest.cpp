@@ -448,6 +448,39 @@ TEST_F(PlatformTopoTest, parse_error)
     EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
 }
 
+TEST_F(PlatformTopoTest, domain_type_to_name)
+{
+    EXPECT_THROW(IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_INVALID),
+                 Exception);
+
+    EXPECT_EQ("board", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ("package", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ("core", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ("cpu", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ("board_memory", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ("package_memory", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ("board_nic", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD_NIC));
+    EXPECT_EQ("package_nic", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE_NIC));
+    EXPECT_EQ("board_accelerator", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR));
+    EXPECT_EQ("package_accelerator", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR));
+}
+
+TEST_F(PlatformTopoTest, domain_name_to_type)
+{
+    EXPECT_THROW(IPlatformTopo::domain_name_to_type("unknown"), Exception);
+
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD, IPlatformTopo::domain_name_to_type("board"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE, IPlatformTopo::domain_name_to_type("package"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CORE, IPlatformTopo::domain_name_to_type("core"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::domain_name_to_type("cpu"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, IPlatformTopo::domain_name_to_type("board_memory"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, IPlatformTopo::domain_name_to_type("package_memory"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_NIC, IPlatformTopo::domain_name_to_type("board_nic"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, IPlatformTopo::domain_name_to_type("package_nic"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, IPlatformTopo::domain_name_to_type("board_accelerator"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::domain_name_to_type("package_accelerator"));
+}
+
             /////////////////////////////////////////////////////////////////////////////////////////
             // Notes:
             //

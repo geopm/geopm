@@ -261,6 +261,45 @@ namespace geopm
         return result;
     }
 
+    std::map<int, std::string> IPlatformTopo::m_domain_name_map = {
+        {IPlatformTopo::M_DOMAIN_BOARD, "board"},
+        {IPlatformTopo::M_DOMAIN_PACKAGE, "package"},
+        {IPlatformTopo::M_DOMAIN_CORE, "core"},
+        {IPlatformTopo::M_DOMAIN_CPU, "cpu"},
+        {IPlatformTopo::M_DOMAIN_BOARD_MEMORY, "board_memory"},
+        {IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, "package_memory"},
+        {IPlatformTopo::M_DOMAIN_BOARD_NIC, "board_nic"},
+        {IPlatformTopo::M_DOMAIN_PACKAGE_NIC, "package_nic"},
+        {IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, "board_accelerator"},
+        {IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, "package_accelerator"},
+    };
+
+    std::string IPlatformTopo::domain_type_to_name(int domain_type)
+    {
+        auto it = m_domain_name_map.find(domain_type);
+        if (it == m_domain_name_map.end()) {
+            throw Exception("PlatformTopo::domain_type_to_name(): unrecognized domain_type: " + std::to_string(domain_type),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    int IPlatformTopo::domain_name_to_type(const std::string &name)
+    {
+        int result = M_DOMAIN_INVALID;
+        for (const auto &kv : m_domain_name_map) {
+            if (kv.second == name) {
+                result = kv.first;
+                break;
+            }
+        }
+        if (result == M_DOMAIN_INVALID) {
+            throw Exception("PlatformTopo::domain_name_to_type(): unrecognized domain name: " + name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
     void PlatformTopo::parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
                                    int &num_package,
                                    int &core_per_package,
