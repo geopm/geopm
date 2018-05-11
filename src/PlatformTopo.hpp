@@ -71,6 +71,7 @@ namespace geopm
                 /// @brief Accelerator unit on the package (e.g
                 ///        on-package graphics)
                 M_DOMAIN_PACKAGE_ACCELERATOR,
+                M_NUM_DOMAIN,
                 /// @brief Start of user defined collections of Linux
                 ///        logical CPUs
                 M_DOMAIN_CPU_GROUP_BEGIN = 4096,
@@ -106,6 +107,22 @@ namespace geopm
             /// @return True if the inner_domain is contained within
             ///         the outer_domain.
             virtual bool is_domain_within(int inner_domain, int outer_domain) = 0;
+            /// @brief Convert a domain type enum to a string.
+            /// @param [in] domain_type Domain type from the
+            ///        m_domain_e enum.
+            /// @return Domain name which is the enum name in
+            ///         lowercase with M_DOMAIN_ prefix removed.
+            static std::string domain_type_to_name(int domain_type);
+            /// @brief Convert a domain name to its corresponding
+            ///        enum.
+            /// @param [in] name Domain name which is the enum
+            ///        in lowercase with M_DOMAIN_ prefix removed.
+            /// @return Domain type from the m_domain_e enum.
+            static int domain_name_to_type(const std::string &domain_name);
+        private:
+            static std::map<std::string, int> build_domain_map(void);
+            static const std::vector<std::string> m_domain_name;
+            static const std::map<std::string, int> m_domain_type;
     };
 
     IPlatformTopo &platform_topo(void);
