@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d2ad94e_f2375aad",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-11T18:20:44Z",
+      "side": 1,
+      "message": "Could be a std::vector\u003cstd::string\u003e and just use the M_DOMAIN enum.  Invalid would still have a value, we just wouldn\u0027t use it.\n\nWe\u0027d still need a map to go from the string name to the enum val.",
+      "range": {
+        "startLine": 264,
+        "startChar": 4,
+        "endLine": 264,
+        "endChar": 30
+      },
+      "revId": "927076d5171268793afc51ab009432bd7076d653",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef5d0e50_52a8339d",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-11T18:20:44Z",
+      "side": 1,
+      "message": "Insert M_NUM_DOMAIN here.",
+      "revId": "927076d5171268793afc51ab009432bd7076d653",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0de72d1_b2a1530c",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-11T18:20:44Z",
+      "side": 1,
+      "message": "std::vector\u003cstd::string\u003e",
+      "range": {
+        "startLine": 122,
+        "startChar": 19,
+        "endLine": 122,
+        "endChar": 45
+      },
+      "revId": "927076d5171268793afc51ab009432bd7076d653",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bb9b00c_431ac7c1",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-11T18:20:44Z",
+      "side": 1,
+      "message": "const",
+      "revId": "927076d5171268793afc51ab009432bd7076d653",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e0b9343_4ae876fd",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-11T18:20:44Z",
+      "side": 1,
+      "message": "This can stay.  We\u0027d still throw if M_DOMAIN_INVALID is specified.",
+      "range": {
+        "startLine": 453,
+        "startChar": 32,
+        "endLine": 453,
+        "endChar": 51
+      },
+      "revId": "927076d5171268793afc51ab009432bd7076d653",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
