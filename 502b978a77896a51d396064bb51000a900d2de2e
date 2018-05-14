@@ -1,0 +1,199 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3efa890c_892b7dc0",
+        "filename": "ronn/geopmread.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 40,
+        "startChar": 29,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b2b6b83_df1e08c4",
+        "filename": "ronn/geopmread.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "SIGNAL_NAME, DOMAIN_TYPE, and DOMAIN_INDEX should all be described explicitly in the DESCRIPTION text.",
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a21359f7_b7eee1ab",
+        "filename": "ronn/geopmread.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "Surround with backticks.",
+      "range": {
+        "startLine": 84,
+        "startChar": 39,
+        "endLine": 84,
+        "endChar": 58
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49706947_a3d14c77",
+        "filename": "ronn/geopmread.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "nix",
+      "range": {
+        "startLine": 127,
+        "startChar": 17,
+        "endLine": 127,
+        "endChar": 25
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9a25b83_518ebf37",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "platform",
+      "range": {
+        "startLine": 1,
+        "startChar": 24,
+        "endLine": 1,
+        "endChar": 32
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc0bdaff_2cabe26d",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "Same change as previous w.r.t above CAPS args being described below.",
+      "range": {
+        "startLine": 48,
+        "startChar": 3,
+        "endLine": 48,
+        "endChar": 14
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1262bed_755df4b7",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": ";",
+      "range": {
+        "startLine": 63,
+        "startChar": 14,
+        "endLine": 63,
+        "endChar": 17
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b556a46b_2708073f",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "Mention that the actual values are in SI units for everything.",
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "294c2be4_f9fe22b2",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:27:06Z",
+      "side": 1,
+      "message": "nix this",
+      "range": {
+        "startLine": 461,
+        "startChar": 12,
+        "endLine": 462,
+        "endChar": 55
+      },
+      "revId": "502b978a77896a51d396064bb51000a900d2de2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
