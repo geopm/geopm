@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56a10257_b27703bb",
+        "filename": "src/geopmread_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:52:11Z",
+      "side": 1,
+      "message": "Insert blurb describing SIGNAL_NAME, DOMAIN_TYPE, and DOMAIN_INDEX.",
+      "range": {
+        "startLine": 65,
+        "startChar": 24,
+        "endLine": 65,
+        "endChar": 28
+      },
+      "revId": "5800ba57984110ab3b16d12d2ba76c9b316634e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c0b3dcc_afeab3e9",
+        "filename": "src/geopmread_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:52:11Z",
+      "side": 1,
+      "message": "wsp",
+      "revId": "5800ba57984110ab3b16d12d2ba76c9b316634e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02af4340_18126551",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:52:11Z",
+      "side": 1,
+      "message": "check_no_error?",
+      "range": {
+        "startLine": 1084,
+        "startChar": 8,
+        "endLine": 1084,
+        "endChar": 66
+      },
+      "revId": "5800ba57984110ab3b16d12d2ba76c9b316634e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d8e51f6_f675efb1",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-14T18:52:11Z",
+      "side": 1,
+      "message": "Decorator to force an sbatch needed.",
+      "range": {
+        "startLine": 1096,
+        "startChar": 8,
+        "endLine": 1096,
+        "endChar": 43
+      },
+      "revId": "5800ba57984110ab3b16d12d2ba76c9b316634e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
