@@ -342,6 +342,11 @@ namespace geopm
         mask = m_control_encode[control_idx]->mask();
     }
 
+    uint64_t MSR::mask(int control_idx) const
+    {
+        return m_control_encode[control_idx]->mask();
+    }
+
     int MSR::domain_type(void) const
     {
         return m_domain_type;
@@ -480,10 +485,7 @@ namespace geopm
 
     uint64_t MSRControl::mask(void) const
     {
-        uint64_t result = 0;
-        uint64_t field = 0;
-        m_msr_obj.control(m_control_idx, 0.0, field, result);
-        return result;
+        return m_msr_obj.mask(m_control_idx);
     }
 
     void MSRControl::map_field(uint64_t *field, uint64_t *mask)
@@ -491,5 +493,15 @@ namespace geopm
         m_field_ptr = field;
         m_mask_ptr = mask;
         m_is_field_mapped = true;
+    }
+
+    void MSRControl::save_value(uint64_t value)
+    {
+        m_save_value = value;
+    }
+
+    uint64_t MSRControl::save_value(void)
+    {
+        return m_save_value;
     }
 }
