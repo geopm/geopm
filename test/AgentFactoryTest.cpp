@@ -37,7 +37,7 @@
 
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
-//#include "BalancingAgent.hpp"
+//#include "PowerBalancerAgent.hpp"
 
 using geopm::Agent;
 
@@ -56,12 +56,12 @@ TEST(AgentFactoryTest, static_info_monitor)
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 }
 
-/// @todo Re-enable when BalancingAgent is added
+/// @todo Re-enable when PowerBalancerAgent is added
 #if 0
 TEST(AgentFactoryTest, static_info_balancing)
 {
     auto &factory = geopm::agent_factory();
-    std::string agent_name = geopm::BalancingAgent::plugin_name();
+    std::string agent_name = geopm::PowerBalancerAgent::plugin_name();
     auto &dict = factory.dictionary(agent_name);
     int num_policy = Agent::num_policy(dict);
     int num_sample = Agent::num_sample(dict);

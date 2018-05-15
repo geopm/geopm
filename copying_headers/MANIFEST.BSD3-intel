@@ -62,8 +62,8 @@ src/Agent.cpp
 src/Agent.hpp
 src/ApplicationIO.cpp
 src/ApplicationIO.hpp
-src/BalancingAgent.cpp
-src/BalancingAgent.hpp
+src/PowerBalancerAgent.cpp
+src/PowerBalancerAgent.hpp
 src/CircularBuffer.hpp
 src/CombinedSignal.cpp
 src/CombinedSignal.hpp

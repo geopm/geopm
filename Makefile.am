@@ -276,8 +276,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Agent.hpp \
                             src/ApplicationIO.cpp \
                             src/ApplicationIO.hpp \
-                            src/BalancingAgent.hpp \
-                            src/BalancingAgent.cpp \
+                            src/PowerBalancerAgent.hpp \
+                            src/PowerBalancerAgent.cpp \
                             src/CircularBuffer.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
