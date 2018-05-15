@@ -138,6 +138,7 @@
 /tutorial/contrib
 /tutorial/geopm_time.h
 /tutorial/Exception.hpp
+/tutorial/agent/*.so.*
 /tutorial/iogroup/*.so.*
 /openmp-4.0.0.src.tar.xz
 /openmp-4.0.0.src/*
