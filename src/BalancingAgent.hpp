@@ -41,25 +41,43 @@ namespace geopm
 {
     class IPlatformIO;
     class IPlatformTopo;
-    class ITreeComm;
+    template <class type>
+    class ICircularBuffer;
 
     class BalancingAgent : public Agent
     {
         public:
-            enum m_policy_mailbox_idx_e {
-                M_POLICY_MAILBOX_POWER,
-                M_NUM_POLICY_MAILBOX,
+            /// @todo May be useful for indexing into the vector of policies or samples.
+            enum m_policy_e {
+                M_POLICY_POWER,
+                M_NUM_POLICY,
             };
-            enum m_sample_mailbox_idx_e {
-                M_SAMPLE_MAILBOX_POWER,
-                M_SAMPLE_MAILBOX_IS_CONVERGED,
-                M_SAMPLE_MAILBOX_EPOCH_RUNTIME,
-                M_NUM_SAMPLE_MAILBOX,
+            enum m_plat_signal_e {
+                M_PLAT_SIGNAL_EPOCH_RUNTIME,
+                //M_PLAT_SIGNAL_EPOCH_ENERGY,
+                M_PLAT_SIGNAL_EPOCH_COUNT,
+                M_PLAT_SIGNAL_PKG_POWER,
+                M_PLAT_SIGNAL_DRAM_POWER,
+                M_PLAT_NUM_SIGNAL,
+            };
+            enum m_trace_sample_e {
+                M_TRACE_SAMPLE_EPOCH_RUNTIME,
+                M_TRACE_SAMPLE_PKG_POWER,
+                M_TRACE_SAMPLE_DRAM_POWER,
+                M_TRACE_SAMPLE_IS_CONVERGED,
+                M_TRACE_SAMPLE_PWR_BUDGET,
+                M_TRACE_NUM_SAMPLE,
+            };
+            enum m_sample_e { // Tree samples
+                M_SAMPLE_EPOCH_RUNTIME,
+                M_SAMPLE_POWER,
+                M_SAMPLE_IS_CONVERGED,
+                M_NUM_SAMPLE,
             };
 
             BalancingAgent();
             virtual ~BalancingAgent();
-            void init(int level) override;
+            void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             bool descend(const std::vector<double> &in_policy,
                          std::vector<std::vector<double> >&out_policy) override;
             bool ascend(const std::vector<std::vector<double> > &in_sample,
@@ -77,39 +95,59 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            void split_budget(double total_power_budget,
-                              const std::vector<double> &power_used,
-                              const std::vector<double> &runtime,
-                              std::vector<double> &result);
+            void init_platform_io(void);
+            bool descend_initial_budget(double power_budget_in, std::vector<double> &power_budget_out);
+            bool descend_updated_budget(double power_budget_in, std::vector<double> &power_budget_out);
+            bool descend_updated_runtimes(double power_budget_in, std::vector<double> &power_budget_out);
+            std::vector<double> split_budget(double avg_power_budget);
+            std::vector<double> split_budget_first(double power_budget_in);
+            std::vector<double> split_budget_helper(double avg_power_budget,
+                                                    double min_power_budget,
+                                                    double max_power_budget);
+
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
-            double m_convergence_guard_band;
-            int m_level;
-            int m_num_children;
-            // signals from parent
-            int m_power_budget_in_idx;
-            // feedback controls to parent
-            int m_power_used_out_idx;
-            int m_runtime_out_idx;
-            int m_is_converged_out_idx;
-            // signals from children
-            int m_power_used_agg_in_idx;
-            int m_runtime_agg_in_idx;
-            int m_is_converged_agg_in_idx;
-            std::vector<int> m_power_used_in_idx;
-            std::vector<int> m_runtime_in_idx;
-            // controls to children
-            std::vector<int> m_power_budget_out_idx;
-            // used to save results of sampling and budget splits
-            // between calls to descend() and ascend()
-            std::vector<double> m_power_used_in;
-            std::vector<double> m_runtime_in;
-            std::vector<double> m_is_converged_in;
-            std::vector<double> m_power_budget_out;
+
+            const double m_convergence_guard_band;
+            int m_level; // Needed in order to determine convergence
             bool m_is_converged;
-            std::function<double(const std::vector<double>&)> m_agg_fn_is_converged;
-            std::function<double(const std::vector<double>&)> m_agg_fn_power;
-            std::function<double(const std::vector<double>&)> m_agg_fn_epoch_runtime;
+            bool m_is_sample_stable;
+
+            int m_updates_per_sample;
+            int m_samples_per_control;
+            double m_min_power_budget;
+            double m_max_power_budget;
+
+            std::vector<int> m_pio_idx;
+
+            std::vector<int> m_control_idx;
+
+            std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
+
+            int m_num_children;
+            bool m_is_root;
+            double m_last_power_budget_in;
+            double m_last_power_budget_out;
+            std::vector<double> m_last_runtime0;
+            std::vector<double> m_last_runtime1;
+            std::vector<double> m_last_budget0;
+            std::vector<double> m_last_budget1;
+            std::unique_ptr<ICircularBuffer<double> > m_epoch_runtime_buf;
+            std::unique_ptr<ICircularBuffer<double> > m_epoch_power_buf;
+            std::vector<double> m_sample;
+
+            double m_last_energy_status;
+            int m_sample_count;
+            int m_ascend_count;
+            const int m_ascend_period;
+
+            bool m_is_updated;
+            const double m_convergence_target;
+            int m_num_out_of_range;
+            const int m_min_num_converged;
+            int m_num_converged;
+            int m_last_epoch_count;
+
     };
 }
 
