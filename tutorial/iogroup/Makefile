@@ -30,47 +30,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# This file is sourced by each tutorial script and determines the
-# default environment for the tutorial.  Modify these variables to
-# suit your environment or export them before running the tutorial.
+TUTORIAL_LIB = libgeopmpi_example_iogroup.so.0.0.0
 
-# GEOPM_PREFIX: Where to find lib and include directories for geopm.
-if [ ! "$GEOPM_PREFIX" ]; then
-    GEOPM_PREFIX=$HOME/build/geopm
-fi
+CC ?= gcc
+CXX ?= g++
 
-# GEOPM_RM: The resource manager to use to launch jobs.
-# Options are either 'ALPS' or 'SLURM'.
-if [ ! "$GEOPM_RM" ]; then
-    GEOPM_RM='SLURM'
-fi
+all: $(TUTORIAL_LIB)
 
-# GEOPM_BINDIR: Diretory containing libgeopm.so.
-if [ ! "$GEOPM_BINDIR" ]; then
-    GEOPM_BINDIR=$GEOPM_PREFIX/bin
-fi
+libgeopmpi_example_iogroup.so.0.0.0: ExampleIOGroup.cpp ExampleIOGroup.hpp
+	$(CXX) ExampleIOGroup.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) -o $@
 
-# GEOPM_LIBDIR: Diretory containing libgeopm.so.
-if [ ! "$GEOPM_LIBDIR" ]; then
-    GEOPM_LIBDIR=$GEOPM_PREFIX/lib
-fi
+clean:
+	rm -f $(TUTORIAL_LIB) *.o
 
-# GEOPMPY_PKGDIR: Diretory containing .
-if [ ! "$GEOPMPY_PKGDIR" ]; then
-    GEOPMPY_PKGDIR=$GEOPM_PREFIX/lib/python2.7/site-packages
-fi
-
-# GEOPM_INCLUDEDIR: Directory containing geopm.h.
-if [ ! "$GEOPM_INCLUDEDIR" ]; then
-    GEOPM_INCLUDEDIR=$GEOPM_PREFIX/include
-fi
-
-# GEOPM_CFLAGS: Contains compile options for geopm.
-if [ ! "$GEOPM_CFLAGS" ]; then
-    GEOPM_CFLAGS="-I$GEOPM_INCLUDEDIR"
-fi
-
-# GEOPM_LDFLAGS: Contains link options for geopm.
-if [ ! "$GEOPM_LDFLAGS" ]; then
-    GEOPM_LDFLAGS="-L$GEOPM_LIBDIR -lgeopm"
-fi
+.PHONY: all clean check
