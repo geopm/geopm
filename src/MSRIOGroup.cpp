@@ -93,6 +93,7 @@ namespace geopm
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
 
+        register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
     }
 
