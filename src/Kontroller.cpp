@@ -137,6 +137,7 @@ namespace geopm
     {
         geopm_signal_handler_check();
         geopm_signal_handler_revert();
+        m_platform_io.restore_control();
     }
 
     void Kontroller::init_agents(void)
@@ -174,6 +175,13 @@ namespace geopm
         geopm_signal_handler_check();
         init_agents();
         geopm_signal_handler_check();
+        // save_control() must be called after all IOGroups have been
+        // registered.  The init_agents() method is the last
+        // opportunity for Agent plugin code to register new IOGroups,
+        // so this should be the earliest place we can put
+        // save_control().
+        m_platform_io.save_control();
+        geopm_signal_handler_check();
         m_reporter->init();
         geopm_signal_handler_check();
         setup_trace();
@@ -200,6 +208,7 @@ namespace geopm
         geopm_signal_handler_check();
         m_application_io->clear_region_info();
         generate();
+        m_platform_io.restore_control();
     }
 
     void Kontroller::generate(void)
@@ -306,5 +315,6 @@ namespace geopm
     void Kontroller::abort(void)
     {
         m_application_io->abort();
+        m_platform_io.restore_control();
     }
 }

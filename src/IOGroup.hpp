@@ -152,6 +152,14 @@ namespace geopm
                                        int domain_type,
                                        int domain_idx,
                                        double setting) = 0;
+            /// @brief Save the state of all controls so that any
+            ///        subsequent changes made through the IOGroup
+            ///        can be undone with a call to the restore()
+            ///        method.
+            virtual void save_control(void) = 0;
+            /// @brief Restore all controls to values recorded in
+            ///        previous call to the save() method.
+            virtual void restore_control(void) = 0;
     };
 
     PluginFactory<IOGroup> &iogroup_factory(void);
