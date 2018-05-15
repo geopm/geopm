@@ -130,14 +130,15 @@
 /doc/geopm-plugin-guide.pdf
 *.swp
 *.pyc
-/tutorial/tutorial_[0-9]
 /tutorial/*.o
+/tutorial/tutorial_[0-9]
 /tutorial/tutorial_[0-9]*_report-*
 /tutorial/tutorial_[0-9]*_trace-*
 /tutorial/tutorial_4_imbalance.conf
 /tutorial/contrib
 /tutorial/geopm_time.h
 /tutorial/Exception.hpp
+/tutorial/iogroup/*.so.*
 /openmp-4.0.0.src.tar.xz
 /openmp-4.0.0.src/*
 /openmp/*

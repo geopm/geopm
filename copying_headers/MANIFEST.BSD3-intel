@@ -342,3 +342,8 @@ tutorial/tutorial_build_intel.sh
 tutorial/tutorial_env.sh
 tutorial/tutorial_region.c
 tutorial/tutorial_region.h
+tutorial/iogroup/ExampleIOGroup.cpp
+tutorial/iogroup/ExampleIOGroup.hpp
+tutorial/iogroup/Makefile
+tutorial/iogroup/tutorial_build_gnu.sh
+tutorial/iogroup/tutorial_build_intel.sh
