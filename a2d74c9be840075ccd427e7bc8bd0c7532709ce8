@@ -25,6 +25,52 @@
     },
     {
       "key": {
+        "uuid": "d4b1e097_8ccc2ca0",
+        "filename": "src/BalancingAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T19:04:05Z",
+      "side": 1,
+      "message": "power_balancer",
+      "range": {
+        "startLine": 552,
+        "startChar": 16,
+        "endLine": 552,
+        "endChar": 24
+      },
+      "revId": "a2d74c9be840075ccd427e7bc8bd0c7532709ce8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0a6111b_251b5248",
+        "filename": "src/BalancingAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T19:04:05Z",
+      "side": 1,
+      "message": "PowerBalancerAgent?",
+      "range": {
+        "startLine": 555,
+        "startChar": 28,
+        "endLine": 555,
+        "endChar": 42
+      },
+      "revId": "a2d74c9be840075ccd427e7bc8bd0c7532709ce8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81807388_05e0b9f8",
         "filename": "src/Kontroller.cpp",
         "patchSetId": 1
