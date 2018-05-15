@@ -46,7 +46,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
 
     class IApplicationIO
     {
@@ -101,7 +101,7 @@ namespace geopm
             ///        adjust totals accordingly.
             /// @param [in] comm Shared pointer to the comm used by
             ///        the Controller.
-            virtual void update(std::shared_ptr<IComm> comm) = 0;
+            virtual void update(std::shared_ptr<Comm> comm) = 0;
             /// @brief Returns the list of all regions entered or
             ///        exited since the last call to
             ///        clear_region_info().
@@ -146,7 +146,7 @@ namespace geopm
             double total_epoch_mpi_runtime(void) const override;
             double total_epoch_energy(void) const override;
             int total_count(uint64_t region_id) const override;
-            void update(std::shared_ptr<IComm> comm) override;
+            void update(std::shared_ptr<Comm> comm) override;
             std::list<geopm_region_info_s> region_info(void) const override;
             void clear_region_info(void) override;
             void controller_ready(void) override;

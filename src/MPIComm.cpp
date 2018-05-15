@@ -79,7 +79,7 @@ namespace geopm
         return GEOPM_MPI_COMM_PLUGIN_NAME;
     }
 
-    std::unique_ptr<IComm> MPIComm::make_plugin(void)
+    std::unique_ptr<Comm> MPIComm::make_plugin(void)
     {
         static MPIComm comm_world_singleton;
         return std::unique_ptr<MPIComm>(new MPIComm(&comm_world_singleton));
@@ -189,27 +189,27 @@ namespace geopm
         }
     }
 
-    std::shared_ptr<IComm> MPIComm::split() const
+    std::shared_ptr<Comm> MPIComm::split() const
     {
         return std::make_shared<MPIComm>(this);
     }
 
-    std::shared_ptr<IComm> MPIComm::split(int color, int key) const
+    std::shared_ptr<Comm> MPIComm::split(int color, int key) const
     {
         return std::make_shared<MPIComm>(this, color, key);
     }
 
-    std::shared_ptr<IComm> MPIComm::split(const std::string &tag, int split_type) const
+    std::shared_ptr<Comm> MPIComm::split(const std::string &tag, int split_type) const
     {
         return std::make_shared<MPIComm>(this, tag, split_type);
     }
 
-    std::shared_ptr<IComm> MPIComm::split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const
+    std::shared_ptr<Comm> MPIComm::split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const
     {
         return std::make_shared<MPIComm>(this, dimensions, periods, is_reorder);
     }
 
-    std::shared_ptr<IComm> MPIComm::split_cart(std::vector<int> dimensions) const
+    std::shared_ptr<Comm> MPIComm::split_cart(std::vector<int> dimensions) const
     {
         return split(dimensions, std::vector<int>(dimensions.size(), 0), true);
     }

@@ -47,7 +47,7 @@ class MockReporter : public geopm::IReporter
                           const std::vector<std::pair<std::string, std::string> > &agent_node_report,
                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                           const geopm::IApplicationIO &application_io,
-                          std::shared_ptr<geopm::IComm> comm,
+                          std::shared_ptr<geopm::Comm> comm,
                           const geopm::ITreeComm &tree_comm));
 };
 

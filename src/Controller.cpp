@@ -222,7 +222,7 @@ extern "C"
 
 namespace geopm
 {
-    Controller::Controller(IGlobalPolicy *global_policy, std::unique_ptr<IComm> comm)
+    Controller::Controller(IGlobalPolicy *global_policy, std::unique_ptr<Comm> comm)
         : m_is_node_root(false)
         , m_max_fanout(0)
         , m_global_policy(global_policy)

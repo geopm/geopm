@@ -37,7 +37,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class ITreeCommLevel;
 
     class ITreeComm
@@ -69,7 +69,7 @@ namespace geopm
             ///        entire tree.
             virtual size_t overhead_send(void) const = 0;
             /// @brief Returns the number of children at each level.
-            static std::vector<int> fan_out(const std::shared_ptr<IComm> &comm);
+            static std::vector<int> fan_out(const std::shared_ptr<Comm> &comm);
         private:
             enum m_tree_comm_const_e {
                 M_MAX_FAN_OUT = 16,
@@ -79,10 +79,10 @@ namespace geopm
     class TreeComm : public ITreeComm
     {
         public:
-            TreeComm(std::shared_ptr<IComm> comm,
+            TreeComm(std::shared_ptr<Comm> comm,
                      int num_send_down,
                      int num_send_up);
-            TreeComm(std::shared_ptr<IComm> comm,
+            TreeComm(std::shared_ptr<Comm> comm,
                      const std::vector<int> &fan_out,
                      int num_level_ctl,
                      int num_send_down,
@@ -101,8 +101,8 @@ namespace geopm
         private:
             int num_level_controlled(std::vector<int> coords);
             std::vector<std::unique_ptr<ITreeCommLevel> > init_level(
-                std::shared_ptr<IComm> comm_cart, int root_level);
-            std::shared_ptr<IComm> m_comm;
+                std::shared_ptr<Comm> comm_cart, int root_level);
+            std::shared_ptr<Comm> m_comm;
             /// Tree fan out from root to leaf. Note levels go from
             /// leaf to root
             std::vector<int> m_fan_out;

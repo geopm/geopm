@@ -55,7 +55,6 @@ using geopm::Kontroller;
 using geopm::IPlatformIO;
 using geopm::IPlatformTopo;
 using geopm::ApplicationIO;
-using geopm::IComm;
 using geopm::Agent;
 using testing::NiceMock;
 using testing::_;

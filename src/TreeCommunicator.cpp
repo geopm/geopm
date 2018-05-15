@@ -63,7 +63,7 @@ namespace geopm
     class TreeCommunicatorLevel
     {
         public:
-            TreeCommunicatorLevel(std::shared_ptr<IComm> comm);
+            TreeCommunicatorLevel(std::shared_ptr<Comm> comm);
             virtual ~TreeCommunicatorLevel();
             /// Check sample mailbox for each child and if all are full copy
             /// them into sample and reset values in mailbox, otherwise throw
@@ -86,7 +86,7 @@ namespace geopm
             size_t overhead_send(void);
         private:
             void create_window(void);
-            std::shared_ptr<IComm> m_comm;
+            std::shared_ptr<Comm> m_comm;
             int m_size;
             int m_rank;
             struct geopm_sample_message_s *m_sample_mailbox;
@@ -101,7 +101,7 @@ namespace geopm
     // TreeCommunicator public API's //
     ///////////////////////////////////
 
-    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, std::shared_ptr<IComm> comm)
+    TreeCommunicator::TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, std::shared_ptr<Comm> comm)
         : m_num_node(0)
         , m_fan_out(fan_out)
         , m_global_policy(global_policy)
@@ -141,7 +141,7 @@ namespace geopm
                 key = rank_cart;
             }
             else {
-                color = IComm::M_SPLIT_COLOR_UNDEFINED;
+                color = Comm::M_SPLIT_COLOR_UNDEFINED;
                 key = 0;
             }
 
@@ -247,7 +247,7 @@ namespace geopm
     // TreeCommunicatorLevel API's //
     /////////////////////////////////
 
-    TreeCommunicatorLevel::TreeCommunicatorLevel(std::shared_ptr<IComm> comm)
+    TreeCommunicatorLevel::TreeCommunicatorLevel(std::shared_ptr<Comm> comm)
         : m_comm(comm)
         , m_size(0)
         , m_rank(0)

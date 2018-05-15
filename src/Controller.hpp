@@ -45,7 +45,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class ISampleRegulator;
     class ITreeCommunicator;
     class PlatformFactory;
@@ -57,7 +57,6 @@ namespace geopm
     class IProfileSampler;
     class ITracer;
     class IPolicy;
-    class IComm;
     class RuntimeRegulator;
     class IProfileIOSample;
     class IProfileIORuntime;
@@ -107,7 +106,7 @@ namespace geopm
             ///
             /// @param [in] comm The MPI communicator that supports
             ///        the control messages.
-            Controller(IGlobalPolicy *global_policy, std::unique_ptr<IComm> comm);
+            Controller(IGlobalPolicy *global_policy, std::unique_ptr<Comm> comm);
             /// @brief Controller destructor, virtual.
             virtual ~Controller();
             /// @brief Run control algorithm.
@@ -226,7 +225,7 @@ namespace geopm
             std::vector<struct geopm_time_s> m_mpi_enter_time;
             struct geopm_time_s m_app_start_time;
             double m_counter_energy_start;
-            std::shared_ptr<IComm> m_ppn1_comm;
+            std::shared_ptr<Comm> m_ppn1_comm;
             int m_ppn1_rank;
             std::map<uint64_t, RuntimeRegulator> m_rid_regulator_map;
             std::shared_ptr<IProfileIOSample> m_profile_io_sample;

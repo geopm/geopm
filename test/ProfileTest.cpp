@@ -127,7 +127,7 @@ class ProfileTestComm : public MockComm
         {
             EXPECT_CALL(*this, rank())
                 .WillRepeatedly(testing::Return(world_rank));
-            EXPECT_CALL(*this, split("prof", IComm::M_COMM_SPLIT_TYPE_SHARED))
+            EXPECT_CALL(*this, split("prof", Comm::M_COMM_SPLIT_TYPE_SHARED))
                 .WillOnce(testing::Return(shm_comm));
             EXPECT_CALL(*this, barrier())
                 .WillRepeatedly(testing::Return());

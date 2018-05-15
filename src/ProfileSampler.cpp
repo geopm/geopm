@@ -173,7 +173,7 @@ namespace geopm
         return result;
     }
 
-    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm)
+    void ProfileSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<Comm> comm)
     {
         length = 0;
         if (m_ctl_msg->is_sample_begin() ||

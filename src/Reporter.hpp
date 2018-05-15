@@ -45,7 +45,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class IApplicationIO;
     class IPlatformIO;
     class ITreeComm;
@@ -91,7 +91,7 @@ namespace geopm
                                   const std::vector<std::pair<std::string, std::string> > &agent_node_report,
                                   const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                                   const IApplicationIO &application_io,
-                                  std::shared_ptr<IComm> comm,
+                                  std::shared_ptr<Comm> comm,
                                   const ITreeComm &tree_comm) = 0;
     };
 
@@ -106,7 +106,7 @@ namespace geopm
                           const std::vector<std::pair<std::string, std::string> > &agent_node_report,
                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                           const IApplicationIO &application_io,
-                          std::shared_ptr<IComm> comm,
+                          std::shared_ptr<Comm> comm,
                           const ITreeComm &tree_comm) override;
         private:
             std::string get_max_memory(void);

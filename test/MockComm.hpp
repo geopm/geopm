@@ -35,19 +35,19 @@
 
 #include "Comm.hpp"
 
-class MockComm : public geopm::IComm
+class MockComm : public geopm::Comm
 {
     public:
         MOCK_CONST_METHOD0(split,
-            std::shared_ptr<IComm> (void));
+            std::shared_ptr<Comm> (void));
         MOCK_CONST_METHOD2(split,
-            std::shared_ptr<IComm> (int color, int key));
+            std::shared_ptr<Comm> (int color, int key));
         MOCK_CONST_METHOD2(split,
-            std::shared_ptr<IComm> (const std::string &tag, int split_type));
+            std::shared_ptr<Comm> (const std::string &tag, int split_type));
         MOCK_CONST_METHOD3(split,
-            std::shared_ptr<IComm> (std::vector<int> dimensions, std::vector<int> periods, bool is_reorder));
+            std::shared_ptr<Comm> (std::vector<int> dimensions, std::vector<int> periods, bool is_reorder));
         MOCK_CONST_METHOD1(split_cart,
-            std::shared_ptr<IComm>(std::vector<int> dimensions));
+            std::shared_ptr<Comm>(std::vector<int> dimensions));
         MOCK_CONST_METHOD1(comm_supported,
             bool (const std::string &description));
         MOCK_CONST_METHOD1(cart_rank,

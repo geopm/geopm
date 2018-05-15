@@ -44,9 +44,9 @@
 
 namespace geopm
 {
-    /// @brief Implementation of the IComm interface using MPI as the
+    /// @brief Implementation of the Comm interface using MPI as the
     ///        underlying communication mechanism.
-    class MPIComm : public IComm
+    class MPIComm : public Comm
     {
         public:
             MPIComm();
@@ -60,13 +60,13 @@ namespace geopm
             virtual ~MPIComm();
 
             static std::string plugin_name();
-            static std::unique_ptr<IComm> make_plugin();
+            static std::unique_ptr<Comm> make_plugin();
 
-            virtual std::shared_ptr<IComm> split() const override;
-            virtual std::shared_ptr<IComm> split(int color, int key) const override;
-            virtual std::shared_ptr<IComm> split(const std::string &tag, int split_type) const override;
-            virtual std::shared_ptr<IComm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const override;
-            virtual std::shared_ptr<IComm> split_cart(std::vector<int> dimensions) const override;
+            virtual std::shared_ptr<Comm> split() const override;
+            virtual std::shared_ptr<Comm> split(int color, int key) const override;
+            virtual std::shared_ptr<Comm> split(const std::string &tag, int split_type) const override;
+            virtual std::shared_ptr<Comm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const override;
+            virtual std::shared_ptr<Comm> split_cart(std::vector<int> dimensions) const override;
 
             virtual bool comm_supported(const std::string &description) const override;
 

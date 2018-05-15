@@ -42,7 +42,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class IPlatformTopo;
     class IPlatformIO;
     class IKontrollerIO;
@@ -63,11 +63,11 @@ namespace geopm
             ///        the control messages.
             /// @param [in] global_policy_path Path to the policy in a
             ///        file or shared memory.
-            Kontroller(std::shared_ptr<IComm> ppn1_comm,
+            Kontroller(std::shared_ptr<Comm> ppn1_comm,
                        const std::string &global_policy_path);
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
-            Kontroller(std::shared_ptr<IComm> comm,
+            Kontroller(std::shared_ptr<Comm> comm,
                        IPlatformTopo &plat_topo,
                        IPlatformIO &plat_io,
                        const std::string &agent_name,
@@ -132,7 +132,7 @@ namespace geopm
         private:
             void init_agents(void);
 
-            std::shared_ptr<IComm> m_comm;
+            std::shared_ptr<Comm> m_comm;
             IPlatformTopo &m_platform_topo;
             IPlatformIO &m_platform_io;
             std::string m_agent_name;

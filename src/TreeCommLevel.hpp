@@ -38,7 +38,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
 
     class ITreeCommLevel
     {
@@ -63,7 +63,7 @@ namespace geopm
     class TreeCommLevel : public ITreeCommLevel
     {
         public:
-            TreeCommLevel(std::shared_ptr<IComm> comm, int num_send_up, int num_send_down);
+            TreeCommLevel(std::shared_ptr<Comm> comm, int num_send_up, int num_send_down);
             virtual ~TreeCommLevel();
             int level_rank(void) const override;
             void send_up(const std::vector<double> &sample) override;
@@ -73,7 +73,7 @@ namespace geopm
             size_t overhead_send(void) const override;
         private:
             void create_window();
-            std::shared_ptr<IComm> m_comm;
+            std::shared_ptr<Comm> m_comm;
             int m_size;
             int m_rank;
             double *m_sample_mailbox;
