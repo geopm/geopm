@@ -160,6 +160,16 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
+    void TimeIOGroup::save_control(void)
+    {
+
+    }
+
+    void TimeIOGroup::restore_control(void) const
+    {
+
+    }
+
     std::string TimeIOGroup::plugin_name(void)
     {
         return GEOPM_TIME_IO_GROUP_PLUGIN_NAME;
