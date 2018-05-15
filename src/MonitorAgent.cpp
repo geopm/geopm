@@ -74,7 +74,7 @@ namespace geopm
         return geopm::make_unique<MonitorAgent>();
     }
 
-    void MonitorAgent::init(int level)
+    void MonitorAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         m_level = level;
     }

@@ -34,7 +34,7 @@
 #include "string.h"
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
-#include "BalancingAgent.hpp"
+#include "PowerBalancerAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "config.h"
 
@@ -48,10 +48,10 @@ namespace geopm
                                           MonitorAgent::make_plugin,
                                           Agent::make_dictionary(MonitorAgent::policy_names(),
                                                                   MonitorAgent::sample_names()));
-        g_plugin_factory->register_plugin(BalancingAgent::plugin_name(),
-                                          BalancingAgent::make_plugin,
-                                          Agent::make_dictionary(BalancingAgent::policy_names(),
-                                                                  BalancingAgent::sample_names()));
+        g_plugin_factory->register_plugin(PowerBalancerAgent::plugin_name(),
+                                          PowerBalancerAgent::make_plugin,
+                                          Agent::make_dictionary(PowerBalancerAgent::policy_names(),
+                                                                  PowerBalancerAgent::sample_names()));
         g_plugin_factory->register_plugin(EnergyEfficientAgent::plugin_name(),
                                           EnergyEfficientAgent::make_plugin,
                                           Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
