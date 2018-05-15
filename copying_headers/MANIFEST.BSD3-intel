@@ -342,6 +342,11 @@ tutorial/tutorial_build_intel.sh
 tutorial/tutorial_env.sh
 tutorial/tutorial_region.c
 tutorial/tutorial_region.h
+tutorial/agent/ExampleAgent.cpp
+tutorial/agent/ExampleAgent.hpp
+tutorial/agent/Makefile
+tutorial/agent/tutorial_build_gnu.sh
+tutorial/agent/tutorial_build_intel.sh
 tutorial/iogroup/ExampleIOGroup.cpp
 tutorial/iogroup/ExampleIOGroup.hpp
 tutorial/iogroup/Makefile
