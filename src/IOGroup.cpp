@@ -34,6 +34,7 @@
 #include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
