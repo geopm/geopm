@@ -492,4 +492,14 @@ namespace geopm
         m_mask_ptr = mask;
         m_is_field_mapped = true;
     }
+
+    void MSRControl::save_value(uint64_t value)
+    {
+        m_save_value = value;
+    }
+
+    uint64_t MSRControl::save_value(void)
+    {
+        return m_save_value;
+    }
 }

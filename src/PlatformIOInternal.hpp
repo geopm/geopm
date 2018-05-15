@@ -91,6 +91,8 @@ namespace geopm
                                int domain_type,
                                int domain_idx,
                                double setting) override;
+            void save_control(void) override;
+            void restore_control(void) const override;
             std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const override;
         private:
             /// @brief Save a high-level signal as a combination of other signals.
@@ -127,6 +129,7 @@ namespace geopm
             // map for last region id seen in each signal's domain
             // only used for comparison, so can leave as a double
             std::map<int, uint64_t> m_last_region_id;
+            bool m_do_restore;
     };
 }
 

@@ -261,6 +261,16 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
+    void ProfileIOGroup::save_control(void)
+    {
+
+    }
+
+    void ProfileIOGroup::restore_control(void) const
+    {
+
+    }
+
     int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
     {
         if (!is_valid_signal(signal_name)) {
