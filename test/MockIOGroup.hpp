@@ -66,6 +66,10 @@ class MockIOGroup : public geopm::IOGroup
                      double (const std::string &signal_name, int domain_type, int domain_idx));
         MOCK_METHOD4(write_control,
                      void (const std::string &control_name, int domain_type, int domain_idx, double setting));
+        MOCK_METHOD0(save_control,
+                     void(void));
+        MOCK_METHOD0(restore_control,
+                     void(void));
 };
 
 #endif

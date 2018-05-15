@@ -133,6 +133,12 @@ namespace geopm
                                  double value,
                                  uint64_t &field,
                                  uint64_t &mask) const = 0;
+            /// @brief Get mask given a control index.
+            /// @param [in] control_idx Index of the control bit
+            ///        field.
+            /// @return The write mask to be used when writing the
+            ///         field.
+            virtual uint64_t mask(int control_idx) const = 0;
             /// @brief The type of the domain that the MSR encodes.
             /// @return The domain type that the MSR pertains to as
             ///         defined in the m_domain_e enum
@@ -206,10 +212,19 @@ namespace geopm
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when enforcing
             ///        the control.
-            /// @param [in] Pointer to the memory containing the raw
-            ///        MSR value.
+            /// @param [in] field Pointer to the memory containing the
+            ///        raw MSR value.
+            /// @param [in] mask Pointer to mask that is applied when
+            ///        writing value.
             virtual void map_field(uint64_t *field,
                                    uint64_t *mask) = 0;
+            /// @brief Store a value associated with the control; used
+            ///        in save/restore.
+            /// @param [in] value Value of MSR to be stored.
+            void save_value(uint64_t value);
+            /// @brief Get the value previously stored.
+            /// @param [in] value Stored alue of the MSR.
+            uint64_t save_value(void);
     };
 
     class MSREncode;
@@ -247,6 +262,7 @@ namespace geopm
                          double value,
                          uint64_t &field,
                          uint64_t &mask) const override;
+            uint64_t mask(int control_idx) const override;
             int domain_type(void) const override;
             int decode_function(int signal_idx) const override;
         private:
@@ -330,6 +346,8 @@ namespace geopm
             uint64_t offset(void) const override;
             uint64_t mask(void) const override;
             void map_field(uint64_t *field, uint64_t *mask) override;
+            void save_value(uint64_t value);
+            uint64_t save_value(void);
         private:
             const std::string m_name;
             const IMSR &m_msr_obj;
@@ -339,6 +357,7 @@ namespace geopm
             uint64_t *m_field_ptr;
             uint64_t *m_mask_ptr;
             bool m_is_field_mapped;
+            uint64_t m_save_value;
     };
 
 }

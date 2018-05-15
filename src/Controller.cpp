@@ -61,6 +61,7 @@
 #include "SampleRegulator.hpp"
 #include "TreeCommunicator.hpp"
 #include "Platform.hpp"
+#include "PlatformIO.hpp"
 #include "PlatformFactory.hpp"
 #include "PlatformTopology.hpp"
 #include "ProfileSampler.hpp"
@@ -162,8 +163,7 @@ extern "C"
                 ctl_obj->run();
             }
             catch (...) {
-                /// @todo need this feature to be added to the Kontroller.
-                //ctl_obj->reset();
+                geopm::platform_io().restore_control();
                 err = geopm::exception_handler(std::current_exception(), true);
             }
         }

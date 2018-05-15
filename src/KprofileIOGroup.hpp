@@ -69,6 +69,8 @@ namespace geopm
             void adjust(int control_idx, double setting) override;
             double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
             void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
+            void save_control(void) override;
+            void restore_control(void) override;
             static std::string plugin_name(void);
         private:
             enum m_signal_type {
