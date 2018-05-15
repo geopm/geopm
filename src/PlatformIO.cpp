@@ -35,6 +35,7 @@
 #include <cmath>
 #include <algorithm>
 #include <numeric>
+#include <iostream>
 
 #include "geopm_sched.h"
 #include "geopm_message.h"
@@ -72,7 +73,19 @@ namespace geopm
     {
         if (m_iogroup_list.size() == 0) {
             for (const auto &it : iogroup_factory().plugin_names()) {
-                register_iogroup(iogroup_factory().make_plugin(it));
+                try {
+                    register_iogroup(iogroup_factory().make_plugin(it));
+                }
+                catch (const geopm::Exception &ex) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "<geopm> Warning: failed to load " << it << " IOGroup.  "
+                              << "GEOPM may not work properly unless an alternate "
+                              << "IOGroup plugin is loaded to provide signals/controls "
+                              << "required by the Controller and Agent."
+                              << std::endl;
+                    std::cerr << "The error was: " << ex.what() << std::endl;
+#endif
+                }
             }
         }
     }
@@ -85,6 +98,8 @@ namespace geopm
     std::set<std::string> PlatformIO::signal_names(void) const
     {
         /// @todo better handling for signals provided by PlatformIO
+        /// These depend on ENERGY signals and should not be available
+        /// if ENERGY_PACKAGE and ENERGY_DRAM are not available.
         std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM"};
         for (const auto &io_group : m_iogroup_list) {
             auto names = io_group->signal_names();
