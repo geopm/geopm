@@ -460,6 +460,8 @@ namespace geopm
             {"REGION_RUNTIME", IPlatformIO::agg_max},
             {"REGION_PROGRESS", IPlatformIO::agg_min},
             {"EPOCH_RUNTIME", IPlatformIO::agg_max},
+            {"EPOCH_ENERGY", IPlatformIO::agg_sum},
+            {"EPOCH_COUNT", IPlatformIO::agg_min},
             {"ENERGY_PACKAGE", IPlatformIO::agg_sum},
             {"ENERGY_DRAM", IPlatformIO::agg_sum},
             {"IS_CONVERGED", IPlatformIO::agg_and},
