@@ -50,7 +50,7 @@ namespace geopm
             /// @brief Set the level where this Agent is active and push
             ///        signals/controls for that level.
             /// @param [in] level Level of the tree where this agent is active.
-            virtual void init(int level) = 0;
+            virtual void init(int level, const std::vector<int> &fan_in, bool is_level_root) = 0;
             /// @brief Called by Kontroller to split policy for
             ///        children at next level down the tree.
             /// @param [in] in_policy Policy values from the parent.

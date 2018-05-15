@@ -83,7 +83,7 @@ namespace geopm
         return geopm::make_unique<EnergyEfficientAgent>();
     }
 
-    void EnergyEfficientAgent::init(int level)
+    void EnergyEfficientAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         m_level = level;
     }

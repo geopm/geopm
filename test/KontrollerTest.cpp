@@ -279,8 +279,8 @@ TEST_F(KontrollerTest, two_level_controller_2)
     }
     for (int level = 0; level < num_level_ctl + 1; ++level) {
         auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level));
-        tmp->init(level);
+        EXPECT_CALL(*tmp, init(level, fan_out, true));
+        tmp->init(level, fan_out, true);
         m_level_agent.push_back(tmp);
 
         m_agents.emplace_back(m_level_agent[level]);
@@ -360,8 +360,8 @@ TEST_F(KontrollerTest, two_level_controller_0)
     }
     for (int level = 0; level < num_level_ctl + 1; ++level) {
         auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level));
-        tmp->init(level);
+        EXPECT_CALL(*tmp, init(level, fan_out, true));
+        tmp->init(level, fan_out, true);
         m_level_agent.push_back(tmp);
 
         m_agents.emplace_back(m_level_agent[level]);

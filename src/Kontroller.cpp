@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+#include <cmath>
+
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "geopm_message.h"
@@ -138,12 +141,18 @@ namespace geopm
 
     void Kontroller::init_agents(void)
     {
+        std::vector<int> fan_in(m_tree_comm->root_level());
+        int level = 0;
+        for (auto &it : fan_in) {
+            it = m_tree_comm->level_size(level);
+            ++level;
+        }
         if (m_agent.size() == 0) {
             m_agent.push_back(agent_factory().make_plugin(m_agent_name));
-            m_agent.back()->init(0);
+            m_agent.back()->init(0, fan_in, (0 < m_tree_comm->num_level_controlled()));
             for (int level = 1; level < m_max_level; ++level) {
                 m_agent.push_back(agent_factory().make_plugin(m_agent_name));
-                m_agent.back()->init(level);
+                m_agent.back()->init(level, fan_in, (level < m_tree_comm->num_level_controlled()));
             }
         }
 
@@ -232,7 +241,7 @@ namespace geopm
             }
             do_send = m_tree_comm->receive_down(level, m_in_policy);
         }
-        if (do_send &&
+        if (!std::any_of(m_in_policy.begin(), m_in_policy.end(), [](double val){return isnan(val);}) &&
             m_agent[0]->adjust_platform(m_in_policy)) {
             m_platform_io.write_batch();
         }
