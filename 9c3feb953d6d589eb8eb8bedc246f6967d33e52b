@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc46ed63_c774e372",
+        "filename": "src/IOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T19:10:48Z",
+      "side": 1,
+      "message": "delete me",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 24
+      },
+      "revId": "9c3feb953d6d589eb8eb8bedc246f6967d33e52b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9169640f_585ad3be",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T19:10:48Z",
+      "side": 1,
+      "message": "#ifdef GEOPM_DEBUG",
+      "revId": "9c3feb953d6d589eb8eb8bedc246f6967d33e52b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5a46b2_d82a4d5e",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T19:10:48Z",
+      "side": 1,
+      "message": "will -\u003e may",
+      "range": {
+        "startLine": 81,
+        "startChar": 40,
+        "endLine": 81,
+        "endChar": 44
+      },
+      "revId": "9c3feb953d6d589eb8eb8bedc246f6967d33e52b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
