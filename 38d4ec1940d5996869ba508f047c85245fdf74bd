@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b8c9f85_0617b614",
+        "filename": "src/CircularBuffer.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T17:32:25Z",
+      "side": 1,
+      "message": "Yuck no const return on non-reference.",
+      "range": {
+        "startLine": 130,
+        "startChar": 12,
+        "endLine": 130,
+        "endChar": 18
+      },
+      "revId": "38d4ec1940d5996869ba508f047c85245fdf74bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4f6ea1c_028c0e9c",
+        "filename": "src/CircularBuffer.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T17:32:25Z",
+      "side": 1,
+      "message": "see above",
+      "range": {
+        "startLine": 232,
+        "startChar": 4,
+        "endLine": 232,
+        "endChar": 9
+      },
+      "revId": "38d4ec1940d5996869ba508f047c85245fdf74bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
