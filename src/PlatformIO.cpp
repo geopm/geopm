@@ -457,6 +457,7 @@ namespace geopm
             {"ENERGY_PACKAGE", IPlatformIO::agg_sum},
             {"ENERGY_DRAM", IPlatformIO::agg_sum},
             {"EPOCH_ENERGY", IPlatformIO::agg_sum},
+            {"EPOCH_COUNT", IPlatformIO::agg_min},
             {"IS_CONVERGED", IPlatformIO::agg_and},
             {"IS_UPDATED", IPlatformIO::agg_and},
             {"REGION_ID#", IPlatformIO::agg_region_id},
