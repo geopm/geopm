@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fde6e1c4_6449588c",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-15T17:26:49Z",
+      "side": 1,
+      "message": "These will have to be exceptions since size() is not constexpr.",
+      "parentUuid": "e643ebeb_2c8637c1",
+      "range": {
+        "startLine": 284,
+        "startChar": 32,
+        "endLine": 284,
+        "endChar": 45
+      },
+      "revId": "7a3c93400eafc579d11b6a286609af800badef9a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83d38532_17cf81cc",
         "filename": "src/PlatformTopo.cpp",
         "patchSetId": 3
