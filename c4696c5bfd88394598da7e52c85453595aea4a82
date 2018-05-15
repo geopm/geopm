@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e5a3879_b4e40d53",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-15T22:25:40Z",
+      "side": 1,
+      "message": "another one after this?",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 170,
+        "endChar": 22
+      },
+      "revId": "c4696c5bfd88394598da7e52c85453595aea4a82",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa8d3aad_190fd58f",
+        "filename": "src/MPICommSplit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-15T22:25:40Z",
+      "side": 1,
+      "message": "why is this one PMPI version?  I see some other calls in this file that just use MPI_Comm_free",
+      "revId": "c4696c5bfd88394598da7e52c85453595aea4a82",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9f6e8bd_913057a8",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-15T22:25:40Z",
+      "side": 1,
+      "message": "I would have expected reset() to call the destructor, which calls tear_down()",
+      "range": {
+        "startLine": 142,
+        "startChar": 12,
+        "endLine": 143,
+        "endChar": 25
+      },
+      "revId": "c4696c5bfd88394598da7e52c85453595aea4a82",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
