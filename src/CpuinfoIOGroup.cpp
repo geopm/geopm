@@ -252,6 +252,16 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
+    void CpuinfoIOGroup::save_control(void)
+    {
+
+    }
+
+    void CpuinfoIOGroup::restore_control(void)
+    {
+
+    }
+
     std::string CpuinfoIOGroup::plugin_name(void)
     {
         return GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME;

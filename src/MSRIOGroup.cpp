@@ -397,6 +397,25 @@ namespace geopm
         m_msrio->write_msr(*(cpu_idx.begin()), offset, field, mask);
     }
 
+    void MSRIOGroup::save_control(void)
+    {
+        for (const auto &map_it : m_name_cpu_control_map) {
+            for (MSRControl *ctl_ptr : map_it.second) {
+                ctl_ptr->save_value(m_msrio->read_msr(ctl_ptr->cpu_idx(), ctl_ptr->offset()));
+            }
+        }
+    }
+
+    void MSRIOGroup::restore_control(void)
+    {
+        for (const auto &map_it : m_name_cpu_control_map) {
+            for (MSRControl *ctl_ptr : map_it.second) {
+                m_msrio->write_msr(ctl_ptr->cpu_idx(), ctl_ptr->offset(),
+                                   ctl_ptr->save_value(), ctl_ptr->mask());
+            }
+        }
+    }
+
     std::string MSRIOGroup::msr_whitelist(void) const
     {
         return msr_whitelist(m_cpuid);

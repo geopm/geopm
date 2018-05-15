@@ -70,6 +70,7 @@ namespace geopm
         : m_is_active(false)
         , m_platform_topo(topo)
         , m_iogroup_list(iogroup_list)
+        , m_do_restore(false)
     {
         if (m_iogroup_list.size() == 0) {
             for (const auto &it : iogroup_factory().plugin_names()) {
@@ -92,6 +93,11 @@ namespace geopm
 
     void PlatformIO::register_iogroup(std::shared_ptr<IOGroup> iogroup)
     {
+        if (m_do_restore) {
+            throw Exception("PlatformIO::register_iogroup(): "
+                            "IOGroup cannot be registered after a call to save_control()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         m_iogroup_list.push_back(iogroup);
     }
 
@@ -462,6 +468,27 @@ namespace geopm
         if (!is_found) {
             throw Exception("PlatformIO::write_control(): control name \"" + control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+
+    void PlatformIO::save_control(void)
+    {
+        m_do_restore = true;
+        for (auto it = m_iogroup_list.begin();
+             it != m_iogroup_list.end();
+             ++it) {
+            (*it)->save_control();
+        }
+    }
+
+    void PlatformIO::restore_control(void)
+    {
+        if (m_do_restore) {
+            for (auto it = m_iogroup_list.begin();
+                 it != m_iogroup_list.end();
+                 ++it) {
+                (*it)->restore_control();
+            }
         }
     }
 
