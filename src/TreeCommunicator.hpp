@@ -42,7 +42,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class TreeCommunicatorLevel;
     class IGlobalPolicy;
 
@@ -196,7 +196,7 @@ namespace geopm
             ///
             /// @param [in] comm All ranks in MPI communicator
             ///        participate in the tree.
-            TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, std::shared_ptr<IComm> comm);
+            TreeCommunicator(const std::vector<int> &fan_out, IGlobalPolicy *global_policy, std::shared_ptr<Comm> comm);
             /// @brief TreeCommunicator destructor, virtual.
             virtual ~TreeCommunicator();
             int num_level(void) const override;

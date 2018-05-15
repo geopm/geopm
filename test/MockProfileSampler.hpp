@@ -46,7 +46,7 @@ class MockProfileSampler : public geopm::IProfileSampler
         MOCK_METHOD3(sample,
             void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
                   size_t &length,
-                  std::shared_ptr<geopm::IComm> comm));
+                  std::shared_ptr<geopm::Comm> comm));
         MOCK_METHOD0(do_shutdown,
             bool (void));
         MOCK_METHOD0(do_report,

@@ -48,7 +48,6 @@
 
 using geopm::ITreeCommLevel;
 using geopm::TreeComm;
-using geopm::IComm;
 using testing::_;
 using testing::Return;
 using testing::DoAll;

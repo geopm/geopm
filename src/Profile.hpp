@@ -41,7 +41,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class ISharedMemoryUser;
     class IControlMessage;
     class IPlatformTopo;
@@ -191,7 +191,7 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string &prof_name, std::unique_ptr<IComm> comm);
+            Profile(const std::string &prof_name, std::unique_ptr<Comm> comm);
             /// @brief Profile testable constructor.
             ///
             /// @param [in] prof_name Name associated with the
@@ -220,7 +220,7 @@ namespace geopm
             ///        bypasses shmem creation.
             ///
             /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
-            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<IComm> comm,
+            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
                     std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler);
             /// @brief Profile destructor, virtual.
@@ -232,7 +232,7 @@ namespace geopm
             void epoch(void) override;
             void shutdown(void) override;
             std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
-            void init_prof_comm(std::unique_ptr<IComm> comm, int &shm_num_rank);
+            void init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank);
             void init_ctl_msg(const std::string &sample_key);
             /// @brief Fill in rank affinity list.
             ///
@@ -309,7 +309,7 @@ namespace geopm
             std::list<int> m_cpu_list;
             /// @brief Communicator consisting of the root rank on each
             ///        compute node.
-            std::shared_ptr<IComm> m_shm_comm;
+            std::shared_ptr<Comm> m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
             /// @brief The process's rank in m_shm_comm.

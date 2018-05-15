@@ -71,11 +71,11 @@ namespace geopm
     class DefaultProfile : public Profile
     {
         public:
-            DefaultProfile(const std::string prof_name, std::unique_ptr<IComm> comm);
+            DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm);
             virtual ~DefaultProfile();
     };
 
-    DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<IComm> comm)
+    DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm)
         : Profile(prof_name, std::move(comm))
     {
         g_pmpi_prof_enabled = 1;

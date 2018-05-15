@@ -44,7 +44,7 @@
 namespace geopm
 {
 
-    TreeComm::TreeComm(std::shared_ptr<IComm> comm,
+    TreeComm::TreeComm(std::shared_ptr<Comm> comm,
                        int num_send_down,
                        int num_send_up)
         : TreeComm(comm, fan_out(comm), 0, num_send_down, num_send_up, {})
@@ -52,7 +52,7 @@ namespace geopm
 
     }
 
-    TreeComm::TreeComm(std::shared_ptr<IComm> comm,
+    TreeComm::TreeComm(std::shared_ptr<Comm> comm,
                        const std::vector<int> &fan_out,
                        int num_level_ctl,
                        int num_send_down,
@@ -68,7 +68,7 @@ namespace geopm
         , m_level_ctl(std::move(mock_level))
     {
         if (m_level_ctl.size() == 0) {
-            std::shared_ptr<IComm> comm_cart(comm->split_cart(m_fan_out));
+            std::shared_ptr<Comm> comm_cart(comm->split_cart(m_fan_out));
             m_level_ctl = init_level(comm_cart, m_root_level);
         }
 #ifdef GEOPM_DEBUG
@@ -90,7 +90,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<std::unique_ptr<ITreeCommLevel> > TreeComm::init_level(std::shared_ptr<IComm> comm_cart, int root_level)
+    std::vector<std::unique_ptr<ITreeCommLevel> > TreeComm::init_level(std::shared_ptr<Comm> comm_cart, int root_level)
     {
         std::vector<std::unique_ptr<ITreeCommLevel> > result;
         int rank_cart = comm_cart->rank();
@@ -110,7 +110,7 @@ namespace geopm
                                   m_num_send_up, m_num_send_down));
         }
         for (; level < root_level; ++level) {
-            comm_cart->split(IComm::M_SPLIT_COLOR_UNDEFINED, 0);
+            comm_cart->split(Comm::M_SPLIT_COLOR_UNDEFINED, 0);
         }
         return result;
     }
@@ -193,7 +193,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<int> ITreeComm::fan_out(const std::shared_ptr<IComm> &comm)
+    std::vector<int> ITreeComm::fan_out(const std::shared_ptr<Comm> &comm)
     {
         std::vector<int> fan_out;
         int num_nodes = comm->num_rank();

@@ -42,7 +42,7 @@
 
 namespace geopm
 {
-    class IComm;
+    class Comm;
     class ISharedMemory;
     class IControlMessage;
     class IProfileTable;
@@ -113,7 +113,7 @@ namespace geopm
             /// @param [in] comm Comm object required for barriers in
             ///        handshake with application.
             virtual void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
-                                size_t &length, std::shared_ptr<IComm> comm) = 0;
+                                size_t &length, std::shared_ptr<Comm> comm) = 0;
             /// @brief Check if the application is shutting down.
             ///
             /// Queries the control shared memory region to test if the
@@ -268,7 +268,7 @@ namespace geopm
             /// @return The maximum number of samples that can possibly
             ///         be returned.
             size_t capacity(void) override;
-            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<IComm> comm) override;
+            void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<Comm> comm) override;
             bool do_shutdown(void) override;
             bool do_report(void) override;
             void region_names(void) override;

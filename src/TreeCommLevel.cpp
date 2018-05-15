@@ -41,7 +41,7 @@
 
 namespace geopm
 {
-    TreeCommLevel::TreeCommLevel(std::shared_ptr<IComm> comm, int num_send_up, int num_send_down)
+    TreeCommLevel::TreeCommLevel(std::shared_ptr<Comm> comm, int num_send_up, int num_send_down)
         : m_comm(comm)
         , m_size(comm->num_rank())
         , m_rank(comm->rank())

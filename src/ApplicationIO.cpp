@@ -310,7 +310,7 @@ namespace geopm
         return result;
     }
 
-    void ApplicationIO::update(std::shared_ptr<IComm> comm)
+    void ApplicationIO::update(std::shared_ptr<Comm> comm)
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {

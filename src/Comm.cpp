@@ -43,9 +43,9 @@
 
 namespace geopm
 {
-    PluginFactory<IComm> &comm_factory(void)
+    PluginFactory<Comm> &comm_factory(void)
     {
-        static PluginFactory<IComm> instance;
+        static PluginFactory<Comm> instance;
         return instance;
     }
 }

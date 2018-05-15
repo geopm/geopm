@@ -506,7 +506,7 @@ TEST_F(CommMPIImpTest, mpi_comm_ops)
 
     int color = MPI_UNDEFINED;
     int key = 256;
-    MPICommTestHelper split_comm(&tmp_comm, IComm::M_SPLIT_COLOR_UNDEFINED,key);
+    MPICommTestHelper split_comm(&tmp_comm, Comm::M_SPLIT_COLOR_UNDEFINED,key);
     m_params.push_back(tmp_comm.get_comm_ref());
     m_params.push_back(&color);
     m_params.push_back(&key);
@@ -967,6 +967,6 @@ TEST_F(CommMPIImpTest, mpi_win_ops)
 }
 }
 
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr)
+void geopm_factory_register(struct geopm_factory_c *factory, const geopm::Comm *in_comm, void *dl_ptr)
 {
 }

@@ -74,14 +74,14 @@ int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void
 namespace geopm
 {
     class IDecider;
-    class IComm;
+    class Comm;
 }
 
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Decider object has been created. */
 void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr);
 /// @brief Called within the implementation of geopm_plugin_register()
-///        once implementations of IComm interface has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::IComm *in_comm, void *dl_ptr);
+///        once implementations of Comm interface has been created. */
+void geopm_factory_register(struct geopm_factory_c *factory, const geopm::Comm *in_comm, void *dl_ptr);
 #endif
 #endif

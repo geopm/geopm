@@ -65,7 +65,7 @@
 
 namespace geopm
 {
-    Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<IComm> comm,
+    Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
                      std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                      std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler)
         : m_is_enabled(true)
@@ -128,17 +128,17 @@ namespace geopm
 #endif
     }
 
-    Profile::Profile(const std::string &prof_name, std::unique_ptr<IComm> comm)
+    Profile::Profile(const std::string &prof_name, std::unique_ptr<Comm> comm)
         : Profile(prof_name, geopm_env_shmkey(), std::move(comm), nullptr, platform_topo(), nullptr,
                   nullptr, std::unique_ptr<ISampleScheduler>(new SampleScheduler(0.01)))
     {
     }
 
-    void Profile::init_prof_comm(std::unique_ptr<IComm> comm, int &shm_num_rank)
+    void Profile::init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank)
     {
         if (!m_shm_comm) {
             m_rank = comm->rank();
-            m_shm_comm = comm->split("prof", IComm::M_COMM_SPLIT_TYPE_SHARED);
+            m_shm_comm = comm->split("prof", Comm::M_COMM_SPLIT_TYPE_SHARED);
             m_shm_rank = m_shm_comm->rank();
             shm_num_rank = m_shm_comm->num_rank();
             m_shm_comm->barrier();

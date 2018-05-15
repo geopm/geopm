@@ -69,7 +69,7 @@ class MockApplicationIO : public geopm::IApplicationIO
         MOCK_CONST_METHOD1(total_count,
                            int(uint64_t region_id));
         MOCK_METHOD1(update,
-                     void(std::shared_ptr<geopm::IComm> comm));
+                     void(std::shared_ptr<geopm::Comm> comm));
         MOCK_METHOD0(profile_io_group,
                      std::shared_ptr<geopm::IOGroup>(void));
         MOCK_CONST_METHOD0(region_info,

@@ -65,7 +65,7 @@ extern "C"
 
 namespace geopm
 {
-    Kontroller::Kontroller(std::shared_ptr<IComm> ppn1_comm,
+    Kontroller::Kontroller(std::shared_ptr<Comm> ppn1_comm,
                            const std::string &global_policy_path)
         : Kontroller(ppn1_comm,
                      platform_topo(),
@@ -85,7 +85,7 @@ namespace geopm
 
     }
 
-    Kontroller::Kontroller(std::shared_ptr<IComm> comm,
+    Kontroller::Kontroller(std::shared_ptr<Comm> comm,
                            IPlatformTopo &plat_topo,
                            IPlatformIO &plat_io,
                            const std::string &agent_name,
