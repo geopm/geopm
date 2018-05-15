@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36ca4b19_c93e91fd",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T17:58:08Z",
+      "side": 1,
+      "message": "Add doxygen for new parameters",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 2
+      },
+      "revId": "a2d74c9be840075ccd427e7bc8bd0c7532709ce8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81807388_05e0b9f8",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-15T17:58:08Z",
+      "side": 1,
+      "message": "remove re-declaration (shadowing)",
+      "range": {
+        "startLine": 153,
+        "startChar": 17,
+        "endLine": 153,
+        "endChar": 20
+      },
+      "revId": "a2d74c9be840075ccd427e7bc8bd0c7532709ce8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
