@@ -71,15 +71,15 @@ namespace geopm
                      platform_topo(),
                      platform_io(),
                      geopm_env_agent(),
-                     IAgent::num_policy(agent_factory().dictionary(geopm_env_agent())),
-                     IAgent::num_sample(agent_factory().dictionary(geopm_env_agent())),
+                     Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
+                     Agent::num_sample(agent_factory().dictionary(geopm_env_agent())),
                      std::unique_ptr<ITreeComm>(new TreeComm(ppn1_comm,
-                         IAgent::num_policy(agent_factory().dictionary(geopm_env_agent())),
-                         IAgent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
+                         Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
+                         Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
                      std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
                      std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
                      std::unique_ptr<ITracer>(new Tracer()),
-                     std::vector<std::unique_ptr<IAgent> >{},
+                     std::vector<std::unique_ptr<Agent> >{},
                      std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(global_policy_path, true)))
     {
 
@@ -95,7 +95,7 @@ namespace geopm
                            std::shared_ptr<IApplicationIO> application_io,
                            std::unique_ptr<IReporter> reporter,
                            std::unique_ptr<ITracer> tracer,
-                           std::vector<std::unique_ptr<IAgent> > level_agent,
+                           std::vector<std::unique_ptr<Agent> > level_agent,
                            std::unique_ptr<IManagerIOSampler> manager_io_sampler)
         : m_comm(comm)
         , m_platform_topo(plat_topo)

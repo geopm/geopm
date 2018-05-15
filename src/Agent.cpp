@@ -40,59 +40,59 @@
 
 namespace geopm
 {
-    static PluginFactory<IAgent> *g_plugin_factory;
+    static PluginFactory<Agent> *g_plugin_factory;
     static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
     static void register_built_in_once(void)
     {
         g_plugin_factory->register_plugin(MonitorAgent::plugin_name(),
                                           MonitorAgent::make_plugin,
-                                          IAgent::make_dictionary(MonitorAgent::policy_names(),
+                                          Agent::make_dictionary(MonitorAgent::policy_names(),
                                                                   MonitorAgent::sample_names()));
         g_plugin_factory->register_plugin(BalancingAgent::plugin_name(),
                                           BalancingAgent::make_plugin,
-                                          IAgent::make_dictionary(BalancingAgent::policy_names(),
+                                          Agent::make_dictionary(BalancingAgent::policy_names(),
                                                                   BalancingAgent::sample_names()));
         g_plugin_factory->register_plugin(EnergyEfficientAgent::plugin_name(),
                                           EnergyEfficientAgent::make_plugin,
-                                          IAgent::make_dictionary(EnergyEfficientAgent::policy_names(),
+                                          Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
                                                                   EnergyEfficientAgent::sample_names()));
     }
 
-    PluginFactory<IAgent> &agent_factory(void)
+    PluginFactory<Agent> &agent_factory(void)
     {
-        static PluginFactory<IAgent> instance;
+        static PluginFactory<Agent> instance;
         g_plugin_factory = &instance;
         pthread_once(&g_register_built_in_once, register_built_in_once);
         return instance;
     }
 
-    const std::string IAgent::m_num_sample_string = "NUM_SAMPLE";
-    const std::string IAgent::m_num_policy_string = "NUM_POLICY";
-    const std::string IAgent::m_sample_prefix = "SAMPLE_";
-    const std::string IAgent::m_policy_prefix = "POLICY_";
+    const std::string Agent::m_num_sample_string = "NUM_SAMPLE";
+    const std::string Agent::m_num_policy_string = "NUM_POLICY";
+    const std::string Agent::m_sample_prefix = "SAMPLE_";
+    const std::string Agent::m_policy_prefix = "POLICY_";
 
-    int IAgent::num_sample(const std::map<std::string, std::string> &dictionary)
+    int Agent::num_sample(const std::map<std::string, std::string> &dictionary)
     {
         auto it = dictionary.find(m_num_sample_string);
         if (it == dictionary.end()) {
-            throw Exception("IAgent::num_sample(): "
+            throw Exception("Agent::num_sample(): "
                             "Agent was not registered with plugin factory with the correct dictionary.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         return atoi(it->second.c_str());
     }
-    int IAgent::num_policy(const std::map<std::string, std::string> &dictionary)
+    int Agent::num_policy(const std::map<std::string, std::string> &dictionary)
     {
         auto it = dictionary.find(m_num_policy_string);
         if (it == dictionary.end()) {
-            throw Exception("IAgent::num_policy(): "
+            throw Exception("Agent::num_policy(): "
                             "Agent was not registered with plugin factory with the correct dictionary.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         return atoi(it->second.c_str());
     }
 
-    std::vector<std::string> IAgent::sample_names(const std::map<std::string, std::string> &dictionary)
+    std::vector<std::string> Agent::sample_names(const std::map<std::string, std::string> &dictionary)
     {
         size_t num_names = num_sample(dictionary);
         std::vector<std::string> result(num_names);
@@ -100,7 +100,7 @@ namespace geopm
             std::string key = m_sample_prefix + std::to_string(name_idx);
             auto it = dictionary.find(key);
             if (it == dictionary.end()) {
-                throw Exception("IAgent::send_up_names(): Poorly formatted dictionary, could not find key: " + key,
+                throw Exception("Agent::send_up_names(): Poorly formatted dictionary, could not find key: " + key,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             result[name_idx] = it->second;
@@ -108,7 +108,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<std::string> IAgent::policy_names(const std::map<std::string, std::string> &dictionary)
+    std::vector<std::string> Agent::policy_names(const std::map<std::string, std::string> &dictionary)
     {
         size_t num_names = num_policy(dictionary);
         std::vector<std::string> result(num_names);
@@ -116,7 +116,7 @@ namespace geopm
             std::string key = m_policy_prefix + std::to_string(name_idx);
             auto it = dictionary.find(key);
             if (it == dictionary.end()) {
-                throw Exception("IAgent::send_down_names(): Poorly formatted dictionary, could not find key: " + key,
+                throw Exception("Agent::send_down_names(): Poorly formatted dictionary, could not find key: " + key,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             result[name_idx] = it->second;
@@ -124,7 +124,7 @@ namespace geopm
         return result;
     }
 
-    std::map<std::string, std::string> IAgent::make_dictionary(const std::vector<std::string> &policy_names,
+    std::map<std::string, std::string> Agent::make_dictionary(const std::vector<std::string> &policy_names,
                                                                const std::vector<std::string> &sample_names)
     {
         std::map<std::string, std::string> result;
@@ -164,7 +164,7 @@ int geopm_agent_num_policy(const char *agent_name,
 {
     int err = 0;
     try {
-        *num_policy = geopm::IAgent::num_policy(
+        *num_policy = geopm::Agent::num_policy(
             geopm::agent_factory().dictionary(agent_name));
     }
     catch (geopm::Exception ex) {
@@ -183,7 +183,7 @@ int geopm_agent_num_sample(const char *agent_name,
 {
     int err = 0;
     try {
-        *num_sample = geopm::IAgent::num_sample(
+        *num_sample = geopm::Agent::num_sample(
             geopm::agent_factory().dictionary(agent_name));
     }
     catch (geopm::Exception ex) {
@@ -209,7 +209,7 @@ int geopm_agent_policy_name(const char *agent_name,
     }
     if (!err) {
         try {
-            std::string policy_name_cxx = geopm::IAgent::policy_names(
+            std::string policy_name_cxx = geopm::Agent::policy_names(
                 geopm::agent_factory().dictionary(agent_name))[policy_idx];
             strncpy(policy_name, policy_name_cxx.c_str(), policy_name_max);
         }
@@ -237,7 +237,7 @@ int geopm_agent_sample_name(const char *agent_name,
     }
     if (!err) {
         try {
-            std::string sample_name_cxx = geopm::IAgent::sample_names(
+            std::string sample_name_cxx = geopm::Agent::sample_names(
                 geopm::agent_factory().dictionary(agent_name))[sample_idx];
             strncpy(sample_name, sample_name_cxx.c_str(), sample_name_max);
         }

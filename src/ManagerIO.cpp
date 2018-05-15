@@ -62,8 +62,8 @@ namespace geopm
     ManagerIO::ManagerIO(const std::string &data_path, bool is_policy, const std::string &agent_name)
         : ManagerIO(data_path,
                     nullptr,
-                    is_policy ? IAgent::policy_names(agent_factory().dictionary(agent_name)) :
-                                IAgent::sample_names(agent_factory().dictionary(agent_name)))
+                    is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
+                                Agent::sample_names(agent_factory().dictionary(agent_name)))
     {
     }
 
@@ -192,8 +192,8 @@ namespace geopm
     ManagerIOSampler::ManagerIOSampler(const std::string &data_path, bool is_policy, const std::string &agent_name)
         : ManagerIOSampler(data_path,
                            nullptr,
-                           is_policy ? IAgent::policy_names(agent_factory().dictionary(agent_name)) :
-                                       IAgent::sample_names(agent_factory().dictionary(agent_name)))
+                           is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
+                                       Agent::sample_names(agent_factory().dictionary(agent_name)))
     {
     }
 

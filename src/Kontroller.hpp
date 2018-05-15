@@ -52,7 +52,7 @@ namespace geopm
     class IReporter;
     class ITracer;
     class ITreeComm;
-    class IAgent;
+    class Agent;
 
     class Kontroller
     {
@@ -77,7 +77,7 @@ namespace geopm
                        std::shared_ptr<IApplicationIO> application_io,
                        std::unique_ptr<IReporter> reporter,
                        std::unique_ptr<ITracer> tracer,
-                       std::vector<std::unique_ptr<IAgent> > level_agent,
+                       std::vector<std::unique_ptr<Agent> > level_agent,
                        std::unique_ptr<IManagerIOSampler> manager_io_sampler);
             virtual ~Kontroller();
             /// @brief Run control algorithm.
@@ -145,7 +145,7 @@ namespace geopm
             std::shared_ptr<IApplicationIO> m_application_io;
             std::unique_ptr<IReporter> m_reporter;
             std::unique_ptr<ITracer> m_tracer;
-            std::vector<std::unique_ptr<IAgent> > m_agent;
+            std::vector<std::unique_ptr<Agent> > m_agent;
             const bool m_is_root;
             std::vector<double> m_in_policy;
             std::vector<std::vector<std::vector<double> > > m_out_policy;

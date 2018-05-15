@@ -69,7 +69,7 @@ namespace geopm
         return "monitor";
     }
 
-    std::unique_ptr<IAgent> MonitorAgent::make_plugin(void)
+    std::unique_ptr<Agent> MonitorAgent::make_plugin(void)
     {
         return geopm::make_unique<MonitorAgent>();
     }

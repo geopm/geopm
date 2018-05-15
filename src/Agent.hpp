@@ -42,11 +42,11 @@
 
 namespace geopm
 {
-    class IAgent
+    class Agent
     {
         public:
-            IAgent() = default;
-            virtual ~IAgent() = default;
+            Agent() = default;
+            virtual ~Agent() = default;
             /// @brief Set the level where this Agent is active and push
             ///        signals/controls for that level.
             /// @param [in] level Level of the tree where this agent is active.
@@ -135,7 +135,7 @@ namespace geopm
             static const std::string m_policy_prefix;
     };
 
-    PluginFactory<IAgent> &agent_factory(void);
+    PluginFactory<Agent> &agent_factory(void);
 }
 
 #endif

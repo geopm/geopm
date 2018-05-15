@@ -56,7 +56,7 @@ using geopm::IPlatformIO;
 using geopm::IPlatformTopo;
 using geopm::ApplicationIO;
 using geopm::IComm;
-using geopm::IAgent;
+using geopm::Agent;
 using testing::NiceMock;
 using testing::_;
 using testing::Return;
@@ -110,7 +110,7 @@ class KontrollerTest : public ::testing::Test
         MockReporter *m_reporter;
         MockTracer *m_tracer;
         std::vector<MockAgent*> m_level_agent;
-        std::vector<std::unique_ptr<IAgent> > m_agents;
+        std::vector<std::unique_ptr<Agent> > m_agents;
         MockManagerIOSampler *m_manager_io;
 
         int m_num_step = 3;

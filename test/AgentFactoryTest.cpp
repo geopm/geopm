@@ -39,21 +39,21 @@
 #include "MonitorAgent.hpp"
 //#include "BalancingAgent.hpp"
 
-using geopm::IAgent;
+using geopm::Agent;
 
 TEST(AgentFactoryTest, static_info_monitor)
 {
     auto &factory = geopm::agent_factory();
     std::string agent_name = geopm::MonitorAgent::plugin_name();
     auto &dict = factory.dictionary(agent_name);
-    int num_policy = IAgent::num_policy(dict);
-    int num_sample = IAgent::num_sample(dict);
+    int num_policy = Agent::num_policy(dict);
+    int num_sample = Agent::num_sample(dict);
     EXPECT_EQ(0, num_policy);
     EXPECT_EQ(2, num_sample);
     std::vector<std::string> exp_sample = {"POWER_PACKAGE", "FREQUENCY"};
     std::vector<std::string> exp_policy = {};
-    EXPECT_EQ(exp_sample, IAgent::sample_names(dict));
-    EXPECT_EQ(exp_policy, IAgent::policy_names(dict));
+    EXPECT_EQ(exp_sample, Agent::sample_names(dict));
+    EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 }
 
 /// @todo Re-enable when BalancingAgent is added
@@ -63,13 +63,13 @@ TEST(AgentFactoryTest, static_info_balancing)
     auto &factory = geopm::agent_factory();
     std::string agent_name = geopm::BalancingAgent::plugin_name();
     auto &dict = factory.dictionary(agent_name);
-    int num_policy = IAgent::num_policy(dict);
-    int num_sample = IAgent::num_sample(dict);
+    int num_policy = Agent::num_policy(dict);
+    int num_sample = Agent::num_sample(dict);
     EXPECT_EQ(0, num_policy);
     EXPECT_EQ(0, num_sample);
     std::vector<std::string> exp_sample = {};
     std::vector<std::string> exp_policy = {};
-    EXPECT_EQ(exp_sample, IAgent::sample_names(dict));
-    EXPECT_EQ(exp_policy, IAgent::policy_names(dict));
+    EXPECT_EQ(exp_sample, Agent::sample_names(dict));
+    EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 }
 #endif

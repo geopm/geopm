@@ -49,7 +49,7 @@ namespace geopm
     class IPlatformIO;
     class IPlatformTopo;
 
-    class EnergyEfficientAgent : public IAgent
+    class EnergyEfficientAgent : public Agent
     {
         public:
             EnergyEfficientAgent();
@@ -70,7 +70,7 @@ namespace geopm
             void trace_values(std::vector<double> &values);
 
             static std::string plugin_name(void);
-            static std::unique_ptr<IAgent> make_plugin(void);
+            static std::unique_ptr<Agent> make_plugin(void);
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:

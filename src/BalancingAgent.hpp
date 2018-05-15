@@ -43,7 +43,7 @@ namespace geopm
     class IPlatformTopo;
     class ITreeComm;
 
-    class BalancingAgent : public IAgent
+    class BalancingAgent : public Agent
     {
         public:
             enum m_policy_mailbox_idx_e {
@@ -73,7 +73,7 @@ namespace geopm
             std::vector<std::string> trace_names(void) const override;
             void trace_values(std::vector<double> &values) override;
             static std::string plugin_name(void);
-            static std::unique_ptr<IAgent> make_plugin(void);
+            static std::unique_ptr<Agent> make_plugin(void);
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:

@@ -78,7 +78,7 @@ namespace geopm
         return "energy_efficient";
     }
 
-    std::unique_ptr<IAgent> EnergyEfficientAgent::make_plugin(void)
+    std::unique_ptr<Agent> EnergyEfficientAgent::make_plugin(void)
     {
         return geopm::make_unique<EnergyEfficientAgent>();
     }

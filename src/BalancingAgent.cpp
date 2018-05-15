@@ -188,7 +188,7 @@ namespace geopm
         return "BALANCING";
     }
 
-    std::unique_ptr<IAgent> BalancingAgent::make_plugin(void)
+    std::unique_ptr<Agent> BalancingAgent::make_plugin(void)
     {
         return geopm::make_unique<BalancingAgent>();
     }

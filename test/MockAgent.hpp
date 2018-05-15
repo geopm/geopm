@@ -36,7 +36,7 @@
 #include "Agent.hpp"
 #include "PlatformIO.hpp"
 
-class MockAgent : public geopm::IAgent
+class MockAgent : public geopm::Agent
 {
     public:
         MOCK_METHOD1(init,
