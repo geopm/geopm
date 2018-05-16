@@ -50,6 +50,12 @@
 #include "geopm_mpi_comm_split.h"
 #include "config.h"
 
+#if __INTEL_COMPILER
+#pragma warning (disable:1478)
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
 static MPI_Fint g_geopm_comm_world_swap_f = 0;

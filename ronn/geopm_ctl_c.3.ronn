@@ -45,9 +45,6 @@ geopm_ctl_c(3) -- geopm power controller structure
   * `int geopm_ctl_destroy(`:
     `struct geopm_ctl_c *`_ctl_`);`
 
-  * `int geopm_ctl_step(`:
-    `struct geopm_ctl_c *`_ctl_`);`
-
   * `int geopm_ctl_run(`:
     `struct geopm_ctl_c *`_ctl_`);`
 
@@ -55,6 +52,13 @@ geopm_ctl_c(3) -- geopm power controller structure
     `struct geopm_ctl_c *`_ctl_, <br>
     `const pthread_attr_t *`_attr_, <br>
     `pthread_t *`_thread_`);`
+
+## DEPRECATED INTERFACES
+   After geopm version 0.5.0 the following APIs will be deprecated
+   with no feature replacement.
+
+  * `int geopm_ctl_step(`:
+    `struct geopm_ctl_c *`_ctl_`);`
 
 ## DESCRIPTION
 The geopm_ctl_c structure is used to launch or step the global

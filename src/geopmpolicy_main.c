@@ -46,6 +46,12 @@
 #include "geopm_error.h"
 #include "config.h"
 
+#if __INTEL_COMPILER
+#pragma warning (disable:1478)
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 enum geopmpolicy_const {
     GEOPMPOLICY_EXEC_MODE_CREATE = 0,
     GEOPMPOLICY_EXEC_MODE_ENFORCE = 1,

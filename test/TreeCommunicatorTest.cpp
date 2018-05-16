@@ -45,6 +45,12 @@
 #include "Exception.hpp"
 #include "MockComm.hpp"
 
+#if __INTEL_COMPILER
+#pragma warning (disable:1478)
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class MyGlobalPolicy : public MockGlobalPolicy
 {
     public:

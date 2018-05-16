@@ -50,6 +50,12 @@
 #define NAME_MAX 512
 #endif
 
+#if __INTEL_COMPILER
+#pragma warning (disable:1478)
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 static inline double do_something(int input)
 {
     int i;
@@ -131,5 +137,3 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     return run_something();
 }
-
-

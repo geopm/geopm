@@ -39,6 +39,20 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
 
 `Link with -lgeopmpolicy`
 
+  * `int geopm_platform_msr_save(`:
+    `const char *`_path_`);`
+
+  * `int geopm_platform_msr_restore(`:
+    `const char *`_path_`);`
+
+  * `int geopm_platform_msr_whitelist(`:
+    `FILE *`_file_desc_`);`
+
+## DEPRECATED INTERFACES
+   After geopm version 0.5.0 the following APIs will be deprecated.
+   See **geopm_agent_c(3)** and **geopm_endpoint_c(3)** for details regarding
+   feature replacements.
+
   * `int geopm_policy_create(`:
     `const char *`_in_config_, <br>
     `const char *`_out_config_, <br>
@@ -93,14 +107,6 @@ geopm_policy_c(3) -- geopm mpi job policy management structure
   * `int geopm_policy_enforce_static(`:
     `const struct geopm_policy_c *`_policy_`);`
 
-  * `int geopm_platform_msr_save(`:
-    `const char *`_path_`);`
-
-  * `int geopm_platform_msr_restore(`:
-    `const char *`_path_`);`
-
-  * `int geopm_platform_msr_whitelist(`:
-    `FILE *`_file_desc_`);`
 
 ## DESCRIPTION
 The _geopmpolicy_ library is linked by a system resource manager or

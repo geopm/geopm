@@ -69,46 +69,46 @@ enum geopm_policy_goal_e {
 
 int geopm_policy_create(const char *in_config,
                         const char *out_config,
-                        struct geopm_policy_c **policy);
+                        struct geopm_policy_c **policy) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_policy_destroy(struct geopm_policy_c *policy);
+int geopm_policy_destroy(struct geopm_policy_c *policy) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_power(struct geopm_policy_c *policy,
-                       int power_budget);
+                       int power_budget) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_mode(struct geopm_policy_c *policy,
-                      int mode);
+                      int mode) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_cpu_freq(struct geopm_policy_c *policy,
-                          double cpu_hz);
+                          double cpu_hz) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_full_perf(struct geopm_policy_c *policy,
-                           int num_cpu_full_perf);
+                           int num_cpu_full_perf) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_tdp_percent(struct geopm_policy_c *policy,
-                             double tdp_percent);
+                             double tdp_percent) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_affinity(struct geopm_policy_c *policy,
-                          int affinity);
+                          int affinity) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 int geopm_policy_goal(struct geopm_policy_c *policy,
-                      int goal);
+                      int goal) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_policy_tree_decider(struct geopm_policy_c *policy, const char *description);
+int geopm_policy_tree_decider(struct geopm_policy_c *policy, const char *description) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_policy_leaf_decider(struct geopm_policy_c *policy, const char *description);
+int geopm_policy_leaf_decider(struct geopm_policy_c *policy, const char *description) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_policy_platform(struct geopm_policy_c *policy, const char *description);
+int geopm_policy_platform(struct geopm_policy_c *policy, const char *description) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_policy_write(const struct geopm_policy_c *policy);
+int geopm_policy_write(const struct geopm_policy_c *policy) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_policy_enforce_static(const struct geopm_policy_c *policy);
+int geopm_policy_enforce_static(const struct geopm_policy_c *policy) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_platform_msr_save(const char *path);
+int geopm_platform_msr_save(const char *path) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_platform_msr_restore(const char *path);
+int geopm_platform_msr_restore(const char *path) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_platform_msr_whitelist(FILE *file_desc);
+int geopm_platform_msr_whitelist(FILE *file_desc) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
 #ifdef __cplusplus
 }
