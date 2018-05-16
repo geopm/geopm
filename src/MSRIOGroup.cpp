@@ -240,13 +240,18 @@ namespace geopm
         }
         std::set<int> cpu_idx;
         m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
-
+#ifdef GEOPM_DEBUG
+        if (cpu_idx.size() < 0) {
+            throw Exception("MSRIOGroup::push_control(): no cpus for domain",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
         int result = -1;
         bool is_found = false;
         // Check if control was already pushed
         for (size_t ii = 0; !is_found && ii < m_active_control.size(); ++ii) {
 #ifdef GEOPM_DEBUG
-            if (!m_active_control[ii]) {
+            if (m_active_control[ii].size() == 0 || !m_active_control[ii][0]) {
                 throw Exception("MSRIOGroup::push_control(): NULL MSRControl pointer was saved in active controls",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
@@ -259,8 +264,8 @@ namespace geopm
             }
             // control_name may be alias, so use active control MSR name
             std::string registered_name = nccm_it->second[*(cpu_idx.begin())]->name();
-            if (m_active_control[ii]->name() == registered_name &&
-                m_active_control[ii]->cpu_idx() == *(cpu_idx.begin())) {
+            if (m_active_control[ii][0]->name() == registered_name &&
+                m_active_control[ii][0]->cpu_idx() == *(cpu_idx.begin())) {
                 result = ii;
                 is_found = true;
             }
@@ -268,19 +273,22 @@ namespace geopm
 
         if (!is_found) {
             result = m_active_control.size();
-            m_active_control.push_back(nccm_it->second[*(cpu_idx.begin())]);
-            MSRControl *msr_ctl = m_active_control[result];
+            m_active_control.push_back(std::vector<MSRControl*>());
+            for (auto cpu : cpu_idx) {
+                MSRControl *msr_ctl = nccm_it->second[cpu];
+                m_active_control[result].push_back(msr_ctl);
 #ifdef GEOPM_DEBUG
-            if (!msr_ctl) {
-                throw Exception("MSRIOGroup::push_control(): NULL MSRControl pointer was saved in active controls",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
+                if (!msr_ctl) {
+                    throw Exception("MSRIOGroup::push_control(): NULL MSRControl pointer was saved in active controls",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                }
 #endif
-            uint64_t offset = msr_ctl->offset();
-            uint64_t mask = msr_ctl->mask();
-            m_write_cpu_idx.push_back(*(cpu_idx.begin()));
-            m_write_offset.push_back(offset);
-            m_write_mask.push_back(mask);
+                uint64_t offset = msr_ctl->offset();
+                uint64_t mask = msr_ctl->mask();
+                m_write_cpu_idx.push_back(cpu);
+                m_write_offset.push_back(offset);
+                m_write_mask.push_back(mask);
+            }
             m_is_adjusted.push_back(false);
         }
         return result;
@@ -332,7 +340,9 @@ namespace geopm
         if (!m_is_active) {
             activate();
         }
-        m_active_control[control_idx]->adjust(setting);
+        for (auto control : m_active_control[control_idx]) {
+            control->adjust(setting);
+        }
         m_is_adjusted[control_idx] = true;
     }
 
@@ -386,15 +396,25 @@ namespace geopm
             throw Exception("MSRIOGroup::write_control(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        if (control_name == "POWER_PACKAGE") {
+            write_control("MSR::PKG_POWER_LIMIT:SOFT_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+        }
+        if (control_name == "FREQUENCY") {
+            write_control("MSR::PERF_CTL:ENABLE", domain_type, domain_idx, 1.0);
+        }
+
         std::set<int> cpu_idx;
         m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
-        MSRControl control = *(nccm_it->second[*(cpu_idx.begin())]);
-        uint64_t offset = control.offset();
-        uint64_t field = 0;
-        uint64_t mask = 0;
-        control.map_field(&field, &mask);
-        control.adjust(setting);
-        m_msrio->write_msr(*(cpu_idx.begin()), offset, field, mask);
+        for (auto cpu : cpu_idx) {
+            MSRControl control = *(nccm_it->second[cpu]);
+            uint64_t offset = control.offset();
+            uint64_t field = 0;
+            uint64_t mask = 0;
+            control.map_field(&field, &mask);
+            control.adjust(setting);
+            m_msrio->write_msr(cpu, offset, field, mask);
+        }
     }
 
     std::string MSRIOGroup::msr_whitelist(void) const
@@ -478,11 +498,13 @@ namespace geopm
             ++msr_idx;
         }
         msr_idx = 0;
-        for (auto &msr_ctl : m_active_control) {
-            uint64_t *field_ptr = &(m_write_field[msr_idx]);
-            uint64_t *mask_ptr = &(m_write_mask[msr_idx]);
-            msr_ctl->map_field(field_ptr, mask_ptr);
-            ++msr_idx;
+        for (auto control : m_active_control) {
+            for (auto &msr_ctl : control) {
+                uint64_t *field_ptr = &(m_write_field[msr_idx]);
+                uint64_t *mask_ptr = &(m_write_mask[msr_idx]);
+                msr_ctl->map_field(field_ptr, mask_ptr);
+                ++msr_idx;
+            }
         }
         m_is_active = true;
     }

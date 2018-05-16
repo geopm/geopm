@@ -1118,6 +1118,46 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
         self.check_output(['-d', 'INVALID'], ['unable to determine control type'])
 
+    @skip_unless_slurm_batch()
+    def test_geopmwrite_set_freq(self):
+        def read_current_freq():
+            read_proc = subprocess.Popen(['geopmread', 'FREQUENCY', 'package', '0'],
+                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            freq = read_proc.stdout.readline()
+            freq = float(freq)
+            return freq
+
+        def read_min_max_freq():
+            read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MIN', 'board', '0'],
+                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            min_freq = read_proc.stdout.readline()
+            min_freq = float(int(float(min_freq)/1e8)*1e8)  # convert to multiple of 1e8
+            read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MAX', 'board', '0'],
+                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            max_freq = read_proc.stdout.readline()
+            max_freq = float(int(float(max_freq)/1e8)*1e8)
+            return min_freq, max_freq
+
+        self.exec_name = "geopmwrite"
+
+        old_freq = read_current_freq()
+        self.assertLess(old_freq, 9.0e9)
+        self.assertGreater(old_freq, 0.1e9)
+
+        min_freq, max_freq = read_min_max_freq()
+        # set to min and check
+        self.check_no_error(['FREQUENCY', 'package', '0', str(min_freq)])
+        result = read_current_freq()
+        self.assertEqual(min_freq, result)
+        # set to max and check
+        self.check_no_error(['FREQUENCY', 'package', '0', str(max_freq)])
+        result = read_current_freq()
+        self.assertEqual(max_freq, result)
+
+        self.check_no_error(['FREQUENCY', 'package', '0', str(old_freq)])
+        result = read_current_freq()
+        self.assertEqual(old_freq, result)
+
 
 if __name__ == '__main__':
     unittest.main()
