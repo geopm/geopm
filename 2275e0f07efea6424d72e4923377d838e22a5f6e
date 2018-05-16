@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53f9181e_b4989b60",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-16T18:44:02Z",
+      "side": 1,
+      "message": "another one!",
+      "revId": "2275e0f07efea6424d72e4923377d838e22a5f6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "187ec01d_e9833123",
+        "filename": "src/MPICommSplit.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-16T18:44:02Z",
+      "side": 1,
+      "message": "keep consistent with rest of file",
+      "revId": "2275e0f07efea6424d72e4923377d838e22a5f6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02b6d7c4_e60642be",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-16T18:44:02Z",
+      "side": 1,
+      "message": "wrap in C API, this can be static",
+      "revId": "2275e0f07efea6424d72e4923377d838e22a5f6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
