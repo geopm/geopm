@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d3fed8f_b7209899",
+        "filename": "src/IOGroup.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-16T18:20:55Z",
+      "side": 1,
+      "message": "should be const?",
+      "range": {
+        "startLine": 162,
+        "startChar": 47,
+        "endLine": 162,
+        "endChar": 53
+      },
+      "revId": "d91b991c83393d856dcad7b50844e29a68e3c79a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c424c74_fbcb138b",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-16T18:20:55Z",
+      "side": 1,
+      "message": "comment about consequences of ordering of these calls.  init_agents() may register more IOGroups.  No new signals/controls should be pushed after call to read_batch()",
+      "revId": "d91b991c83393d856dcad7b50844e29a68e3c79a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5405c215_62c26cea",
+        "filename": "src/MSR.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-16T18:20:55Z",
+      "side": 1,
+      "message": "value",
+      "range": {
+        "startLine": 220,
+        "startChar": 41,
+        "endLine": 220,
+        "endChar": 46
+      },
+      "revId": "d91b991c83393d856dcad7b50844e29a68e3c79a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
