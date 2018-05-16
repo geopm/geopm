@@ -136,7 +136,7 @@ namespace geopm
             std::map<std::string, std::vector<MSRControl *> > m_name_cpu_control_map;
             // Pushed signals and controls only
             std::vector<MSRSignal *> m_active_signal;
-            std::vector<MSRControl *> m_active_control;
+            std::vector<std::vector<MSRControl *> > m_active_control;
             // Vectors are over MSRs for all active signals
             std::vector<uint64_t> m_read_field;
             std::vector<int> m_read_cpu_idx;
