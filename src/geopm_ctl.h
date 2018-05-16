@@ -59,7 +59,7 @@ int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 /********************/
 /* POWER MANAGEMENT */
 /********************/
-int geopm_ctl_step(struct geopm_ctl_c *ctl);
+int geopm_ctl_step(struct geopm_ctl_c *ctl) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_ctl_c(3)")));
 
 int geopm_ctl_run(struct geopm_ctl_c *ctl);
 

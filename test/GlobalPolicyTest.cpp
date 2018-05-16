@@ -38,6 +38,12 @@
 #include "Exception.hpp"
 #include "GlobalPolicy.hpp"
 
+#if __INTEL_COMPILER
+#pragma warning (disable:1478)
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class GlobalPolicyTest: public :: testing :: Test
 {
     protected:

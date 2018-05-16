@@ -81,6 +81,12 @@
 #include "Kontroller.hpp"
 #include "config.h"
 
+#if __INTEL_COMPILER
+#pragma warning (disable:1478)
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #ifdef GEOPM_HAS_XMMINTRIN
 #include <xmmintrin.h>
 #endif
