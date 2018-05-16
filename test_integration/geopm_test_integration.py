@@ -1049,12 +1049,16 @@ class TestIntegrationGeopmio(unittest.TestCase):
         try:
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            line_count = 0
             for exp in expected:
-                self.assertIn(exp, proc.stdout.readline())
-                line_count += 1
+                line = proc.stdout.readline()
+                # ignore warnings about multiple plugin load
+                while 'previously registered' in line:
+                    line = proc.stdout.readline()
+                self.assertIn(exp, line)
             for line in proc.stdout:
-                self.assertNotIn('Error', line)
+                # ignore warnings about multiple plugin load
+                if 'previously registered' not in line:
+                    self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
             print ex.output
 
@@ -1063,7 +1067,9 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                self.assertNotIn('Error', line)
+                # ignore warnings about multiple plugin load
+                if 'previously registered' not in line:
+                    self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
             print ex.output
 
