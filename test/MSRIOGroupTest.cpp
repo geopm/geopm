@@ -191,7 +191,8 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_IVT,
         MSRIOGroup::M_CPUID_HSX,
         MSRIOGroup::M_CPUID_BDX,
-        MSRIOGroup::M_CPUID_KNL
+        MSRIOGroup::M_CPUID_KNL,
+        MSRIOGroup::M_CPUID_SKX,
     };
     for (auto id : cpuids) {
         std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);

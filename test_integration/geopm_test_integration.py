@@ -1087,7 +1087,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['-d', 'TIME'], ['board'])
 
         # read signal
-        self.check_no_error(['FREQUENCY', 'package', '0'])
+        self.check_no_error(['TIME', 'board', '0'])
 
         # errors
         read_err = 'domain type and domain index are required'
@@ -1146,26 +1146,29 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         self.exec_name = "geopmwrite"
 
-        read_proc = subprocess.Popen([self.exec_name, '-d', 'FREQUENCY'],
+        read_proc = subprocess.Popen(['geopmread', '-d', 'FREQUENCY'],
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        domain = read_proc.stdout.readline().strip()
-
-        old_freq = read_current_freq(domain)
-        self.assertLess(old_freq, 9.0e9)
-        self.assertGreater(old_freq, 0.1e9)
-
+        read_domain = read_proc.stdout.readline().strip()
+        write_proc = subprocess.Popen([self.exec_name, '-d', 'FREQUENCY'],
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        write_domain = write_proc.stdout.readline().strip()
         min_freq, max_freq = read_min_max_freq()
+
+        old_freq = read_current_freq(read_domain)
+        self.assertLess(old_freq, max_freq * 2)
+        self.assertGreater(old_freq, min_freq - 1e8)
+
         # set to min and check
-        self.check_no_error(['FREQUENCY', 'package', '0', str(min_freq)])
-        result = read_current_freq(domain)
+        self.check_no_error(['FREQUENCY', write_domain, '0', str(min_freq)])
+        result = read_current_freq(read_domain)
         self.assertEqual(min_freq, result)
         # set to max and check
-        self.check_no_error(['FREQUENCY', 'package', '0', str(max_freq)])
-        result = read_current_freq()
+        self.check_no_error(['FREQUENCY', write_domain, '0', str(max_freq)])
+        result = read_current_freq(read_domain)
         self.assertEqual(max_freq, result)
 
-        self.check_no_error(['FREQUENCY', 'package', '0', str(old_freq)])
-        result = read_current_freq(domain)
+        self.check_no_error(['FREQUENCY', write_domain, '0', str(old_freq)])
+        result = read_current_freq(read_domain)
         self.assertEqual(old_freq, result)
 
 

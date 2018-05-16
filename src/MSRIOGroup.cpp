@@ -54,6 +54,7 @@ namespace geopm
     const MSR *msr_knl(size_t &num_msr);
     const MSR *msr_hsx(size_t &num_msr);
     const MSR *msr_snb(size_t &num_msr);
+    const MSR *msr_skx(size_t &num_msr);
     static const MSR *init_msr_arr(int cpu_id, size_t &arr_size);
 
     MSRIOGroup::MSRIOGroup()
@@ -671,6 +672,9 @@ namespace geopm
             case MSRIOGroup::M_CPUID_SNB:
             case MSRIOGroup::M_CPUID_IVT:
                 msr_arr = msr_snb(arr_size);
+                break;
+            case MSRIOGroup::M_CPUID_SKX:
+	        msr_arr = msr_skx(arr_size);
                 break;
             default:
                 throw Exception("MSRIOGroup: Unsupported CPUID",
