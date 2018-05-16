@@ -144,6 +144,7 @@ src/MSRIOGroup.cpp
 src/MSRIOGroup.hpp
 src/MSRIO.hpp
 src/msr_knl.cpp
+src/msr_skx.cpp
 src/msr_snb.cpp
 src/OMPT.cpp
 src/OMPT.hpp
