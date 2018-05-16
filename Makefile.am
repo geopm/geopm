@@ -340,6 +340,7 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/MSRIOGroup.hpp \
                             src/msr_hsx.cpp \
                             src/msr_knl.cpp \
+                            src/msr_skx.cpp \
                             src/msr_snb.cpp \
                             src/OMPT.cpp \
                             src/OMPT.hpp \

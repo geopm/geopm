@@ -58,6 +58,7 @@ namespace geopm
                 M_CPUID_HSX = 0x63F,
                 M_CPUID_BDX = 0x64F,
                 M_CPUID_KNL = 0x657,
+                M_CPUID_SKX = 0x655,
             };
 
             MSRIOGroup();
