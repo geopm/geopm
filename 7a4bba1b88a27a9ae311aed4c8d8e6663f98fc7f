@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbf5a3fe_48dcefe7",
+        "filename": "src/geopm_policy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-17T16:51:02Z",
+      "side": 1,
+      "message": "Fix this before release to match man page.",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 150
+      },
+      "revId": "7a4bba1b88a27a9ae311aed4c8d8e6663f98fc7f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
