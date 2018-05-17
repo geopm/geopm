@@ -140,7 +140,7 @@ void EnergyEfficientAgentTest::SetUp()
                GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_IGNORE,
                GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_UNKNOWN};
     m_expected_freqs = {m_freq_min, m_freq_max, m_freq_min, m_freq_max, m_freq_min};
-    m_sample.resize(2);
+    m_sample.resize(3);
 
     ASSERT_EQ(m_mapped_freqs.size(), m_region_names.size());
     ASSERT_EQ(m_mapped_freqs.size(), m_region_hash.size());
@@ -176,7 +176,8 @@ TEST_F(EnergyEfficientAgentTest, map)
 
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
-            .WillOnce(Return(geopm_field_to_signal(m_region_hash[x])));
+            .Times(2)
+            .WillRepeatedly(Return(geopm_field_to_signal(m_region_hash[x])));
         m_agent->sample_platform(m_sample);
         EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, m_mapped_freqs[x])).Times(M_NUM_CPU);
         m_agent->adjust_platform({});
@@ -200,7 +201,8 @@ TEST_F(EnergyEfficientAgentTest, hint)
 
     for (size_t x = 0; x < m_hints.size(); x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
-            .WillOnce(Return(geopm_field_to_signal(
+            .Times(2)
+            .WillRepeatedly(Return(geopm_field_to_signal(
                 geopm_region_id_set_hint(m_hints[x], 0x1234))));
         double expected_freq = NAN;
         switch(m_hints[x]) {
@@ -257,7 +259,8 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
         {
             // within EfficientFreqRegion
             EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
-                .WillOnce(Return(geopm_region_id_set_hint(m_hints[x], m_region_hash[x])));
+                .Times(2)
+                .WillRepeatedly(Return(geopm_region_id_set_hint(m_hints[x], m_region_hash[x])));
             EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(2);
             EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX)).Times(2);
 

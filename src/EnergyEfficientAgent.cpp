@@ -54,21 +54,18 @@ namespace geopm
     EnergyEfficientAgent::EnergyEfficientAgent(IPlatformIO &plat_io, IPlatformTopo &topo)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , M_FREQ_MIN(cpu_freq_min())
-        , M_FREQ_MAX(cpu_freq_max())
+        , m_freq_min(cpu_freq_min())
+        , m_freq_max(cpu_freq_max())
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
         , M_SEND_PERIOD(10)
         , m_last_freq(NAN)
         , m_curr_adapt_freq(NAN)
         , m_last_wait{{0, 0}}
-        , m_runtime_idx(-1)
-        , m_pkg_energy_idx(-1)
-        , m_dram_energy_idx(-1)
     {
         parse_env_map();
-        const char* env_freq_adapt_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
-        if (env_freq_adapt_str) {
-            m_is_adaptive = true;
+        const char* env_freq_online_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
+        if (env_freq_online_str) {
+            m_is_online = true;
         }
         init_platform_io();
     }
@@ -91,7 +88,18 @@ namespace geopm
     bool EnergyEfficientAgent::descend(const std::vector<double> &in_policy,
                                        std::vector<std::vector<double> >&out_policy)
     {
-        return true;
+        bool result = false;
+
+        if (m_freq_min != in_policy[M_POLICY_FREQ_MIN] ||
+            m_freq_max != in_policy[M_POLICY_FREQ_MAX]) {
+            m_freq_min = isnan(in_policy[M_POLICY_FREQ_MIN]) ? cpu_freq_min() : in_policy[M_POLICY_FREQ_MIN];
+            m_freq_max = isnan(in_policy[M_POLICY_FREQ_MAX]) ? cpu_freq_max() : in_policy[M_POLICY_FREQ_MAX];
+            for (auto &eer : m_region_map) {
+                eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
+            }
+            result = true;
+        }
+        return result;
     }
 
     bool EnergyEfficientAgent::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -129,12 +137,12 @@ namespace geopm
         if (it != m_rid_freq_map.end()) {
             freq = it->second;
         }
-        else if (m_is_adaptive) {
+        else if (m_is_online) {
             if (!isnan(m_curr_adapt_freq)) {
                 freq = m_curr_adapt_freq;
             }
             else {
-                freq = M_FREQ_MAX - M_FREQ_STEP;
+                freq = m_freq_max - M_FREQ_STEP;
             }
         }
         else {
@@ -143,20 +151,20 @@ namespace geopm
                 case GEOPM_REGION_HINT_MEMORY:
                 case GEOPM_REGION_HINT_NETWORK:
                 case GEOPM_REGION_HINT_IO:
-                    freq = M_FREQ_MIN;
+                    freq = m_freq_min;
                     break;
 
                 // Hints for maximum CPU frequency
                 case GEOPM_REGION_HINT_COMPUTE:
                 case GEOPM_REGION_HINT_SERIAL:
                 case GEOPM_REGION_HINT_PARALLEL:
-                    freq = M_FREQ_MAX;
+                    freq = m_freq_max;
                     break;
                 // Hint Inconclusive
                 //case GEOPM_REGION_HINT_UNKNOWN:
                 //case GEOPM_REGION_HINT_IGNORE:
                 default:
-                    freq = M_FREQ_MIN;
+                    freq = m_freq_min;
                     break;
             }
         }
@@ -183,8 +191,8 @@ namespace geopm
             out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
         }
         int num_domain = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_CPU);
-        uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_region_id_idx));
-        if (m_is_adaptive) {
+        const uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_ID]));
+        if (m_is_online) {
             if (current_region_id != GEOPM_REGION_ID_UNMARKED &&
                 current_region_id != GEOPM_REGION_ID_UNDEFINED) {
                 bool is_region_boundary = m_last_region_id != current_region_id;
@@ -195,12 +203,12 @@ namespace geopm
                         auto tmp = m_region_map.emplace(
                             current_region_id,
                             std::unique_ptr<EnergyEfficientRegion>(
-                                new EnergyEfficientRegion(m_platform_io, M_FREQ_MIN,
-                                    M_FREQ_MAX, M_FREQ_STEP,
+                                new EnergyEfficientRegion(m_platform_io, m_freq_min,
+                                    m_freq_max, M_FREQ_STEP,
                                     num_domain,
-                                    m_runtime_idx,
-                                    m_pkg_energy_idx,
-                                    m_dram_energy_idx)));
+                                    m_signal_idx[M_SIGNAL_RUNTIME],
+                                    m_signal_idx[M_SIGNAL_PKG_ENERGY],
+                                    m_signal_idx[M_SIGNAL_DRAM_ENERGY])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_entry();
@@ -214,12 +222,12 @@ namespace geopm
                         auto tmp = m_region_map.emplace(
                             m_last_region_id,
                             std::unique_ptr<EnergyEfficientRegion>(
-                                new EnergyEfficientRegion(m_platform_io, M_FREQ_MIN,
-                                    M_FREQ_MAX, M_FREQ_STEP,
+                                new EnergyEfficientRegion(m_platform_io, m_freq_min,
+                                    m_freq_max, M_FREQ_STEP,
                                     num_domain,
-                                    m_runtime_idx,
-                                    m_pkg_energy_idx,
-                                    m_dram_energy_idx)));
+                                    m_signal_idx[M_SIGNAL_RUNTIME],
+                                    m_signal_idx[M_SIGNAL_PKG_ENERGY],
+                                    m_signal_idx[M_SIGNAL_DRAM_ENERGY])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_exit();
@@ -243,12 +251,12 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::policy_names(void)
     {
-        return {};
+        return {"FREQ_MIN", "FREQ_MAX"};
     }
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
     {
-        return {"ENERGY_PACKAGE", "ENERGY_DRAM"};
+        return {"ENERGY_PACKAGE", "ENERGY_DRAM", "FREQUENCY"};
     }
 
     std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_header(void)
@@ -334,30 +342,25 @@ namespace geopm
         }
         m_num_sample = m_sample_idx.size();
 
-        uint64_t freq_domain_type = m_platform_io.control_domain_type("FREQUENCY");
-        if (freq_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
-            throw Exception("EnergyEfficientAgent: Platform does not support frequency control",
-                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        const int freq_ctl_domain_type = m_platform_io.control_domain_type("FREQUENCY");
+        const int num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
+        for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
+            m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
+                                                               freq_ctl_domain_type, ctl_dom_idx));
         }
-        uint32_t num_freq_domain = m_platform_topo.num_domain(freq_domain_type);
-        if (!num_freq_domain) {
-            throw Exception("EnergyEfficientAgent: Platform does not support frequency control",
-                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-        }
-        for (uint32_t dom_idx = 0; dom_idx != num_freq_domain; ++dom_idx) {
-            int control_idx = m_platform_io.push_control("FREQUENCY", freq_domain_type, dom_idx);
-            if (control_idx < 0) {
-                throw Exception("EnergyEfficientAgent: Failed to enable frequency control in the platform.",
-                                GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        std::vector<std::string> signal_names = {"REGION_ID#", "REGION_RUNTIME",
+                                                 "ENERGY_PACKAGE", "ENERGY_DRAM",};
+        size_t signal = 0;
+        m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
+                                                         IPlatformTopo::M_DOMAIN_BOARD,
+                                                         0));
+        if (m_is_online) {
+            // All signals needed for adaptive mode
+            for (signal = 1; signal < signal_names.size(); ++signal) {
+                m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
+                                                                 IPlatformTopo::M_DOMAIN_BOARD,
+                                                                 0));
             }
-            m_control_idx.push_back(control_idx);
-        }
-        m_region_id_idx = m_platform_io.push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0);
-
-        if (m_is_adaptive) {
-            m_runtime_idx = m_platform_io.push_signal("REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-            m_pkg_energy_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-            m_dram_energy_idx = m_platform_io.push_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         }
     }
 
