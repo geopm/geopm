@@ -191,6 +191,7 @@ TUTORIAL_DIST = tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
                 tutorial/agent/example_config.json \
                 tutorial/agent/Makefile \
+                tutorial/agent/README.md \
                 tutorial/agent/tutorial_build_gnu.sh \
                 tutorial/agent/tutorial_build_intel.sh \
                 tutorial/contrib/json11/json11.cpp \
@@ -204,6 +205,7 @@ TUTORIAL_DIST = tutorial/agent/ExampleAgent.cpp \
                 tutorial/iogroup/ExampleIOGroup.cpp \
                 tutorial/iogroup/ExampleIOGroup.hpp \
                 tutorial/iogroup/Makefile \
+                tutorial/iogroup/README.md \
                 tutorial/iogroup/tutorial_build_gnu.sh \
                 tutorial/iogroup/tutorial_build_intel.sh \
                 tutorial/Makefile \
