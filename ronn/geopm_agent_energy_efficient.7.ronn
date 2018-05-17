@@ -1,4 +1,4 @@
-geopm_agent_monitor(7) -- agent implementation that enforces no policies
+geopm_agent_energy_efficient(7) -- agent for saving energy
 ======================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
@@ -32,34 +32,69 @@ geopm_agent_monitor(7) -- agent implementation that enforces no policies
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-An implementation of the Agent interface that enforces no policies and
-is intended for application tracing and profiling only.
+
+The goal of this Agent is to save energy without degrading performance
+beyond an acceptable limit.  It achieves this by setting frequencies
+per region so that memory- and I/O-bound regions run at lower
+frequencies without increasing runtime but CPU-bound regions are still
+run at high frequencies.
+
+There are two modes available: offline and online.  In the offline
+mode, the best frequencies for each region are specified in the
+environment variable `GEOPM_EFFICIENT_FREQ_RID_MAP`.  If a frequency
+for a region is not specified, the region hint will be used and the
+frequency will be set to either the minimum or maximum.  These
+best-fit frequencies can be determined by running the application once
+at each available frequency and checking the performance of each
+region; this frequency sweep is available as an analysis type for
+`geopmanalysis` described in **geopmanalysis(1)**.  The online mode
+finds the optimal frequency for each region dynamically by measuring
+the performance of each region and reducing the frequency as long as
+the performance is still within acceptable limits. It also avoids
+reducing frequency if energy would increase (due to performance loss
+in a frequency-sensitive region). Up to 10% performance loss is
+allowed.  Enable the online mode by setting
+`GEOPM_EFFICIENT_FREQ_ONLINE` and unsetting
+`GEOPM_EFFICIENT_FREQ_RID_MAP`.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 
 * Agent Name:
-  Set the `GEOPM_AGENT` environment varible to "monitor" and the
-  Kontroller will select the Monitor Agent for its control
-  handler.
+  Set the `GEOPM_AGENT` environment varible to "energy_efficient" and
+  the Kontroller will select the EnergyEfficientAgent for its
+  control handler.
 
 * Samples Ascending:
-  The Monitor agent sends board power and CPU frequency up the tree.
-  The board power and CPU frequency signals are aggregated via sum and
-  average respectively as they ascend up the tree.
+
+  `ENERGY_PACKAGE`: Total energy from the packages across all nodes.
+
+  `ENERGY_DRAM`: Total energy from DRAM across all nodes.
+
+  `FREQUENCY`: The average frequency across nodes.
 
 * Policies Descending:
-  N/A
+  The minimum and maximum frequency are passed down as policies.
+  Setting both to the same value can be used to force the entire
+  application to run at one frequency.
+
+  `FREQ_MIN`: The minimum frequency that the algorithm is allowed to
+              choose for any region.
+
+  `FREQ_MAX`: The maximum frequency that the algorithm is allowed to
+              choose for any region.
 
 * Tracing Modifications:
   N/A
 
 * Report Modifiers:
-  N/A
+  The per-node final frequency for each region is added to the report.
+  This reflects the settings from the map or hint in offline mode, or
+  the learned best frequency determined by the online mode.
 
 * Control Loop Gate:
-  The Monitor agent gates the Kontroller's control loop to a cadence
-  of 5ms.  This agent propagates its ascending signals up the tree
-  every 50ms.
+  The agent gates the Kontroller's control loop to a cadence of 5ms.
+  This agent propagates its ascending signals up the tree every 50ms
+  (10 control cycles).
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
@@ -67,7 +102,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopmpy(7)**,
-**geopm_agent_energy_efficient(7)**,
+**geopm_agent_monitor(7)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,

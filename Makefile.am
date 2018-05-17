@@ -88,6 +88,7 @@ endif
 ronn_man = man/geopm.7 \
            man/geopmagent.1 \
            man/geopm_agent_c.3 \
+           man/geopm_agent_energy_efficient.7 \
            man/geopm_agent_monitor.7 \
            man/geopmanalysis.1 \
            man/geopmbench.1 \
@@ -152,6 +153,7 @@ EXTRA_DIST = .gitignore \
              README.md \
              ronn/geopmagent.1.ronn \
              ronn/geopm_agent_c.3.ronn \
+             ronn/geopm_agent_energy_efficient.7.ronn \
              ronn/geopm_agent_monitor.7.ronn \
              ronn/geopmendpoint.1.ronn \
              ronn/geopm_endpoint_c.3.ronn \
