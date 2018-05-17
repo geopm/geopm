@@ -205,11 +205,7 @@ class FreqSweepAnalysis(Analysis):
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
 
-        # todo: hack to run tests with new controller
-        if os.getenv("GEOPM_AGENT", None) is not None:
-            with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
-        else:
+        if os.getenv("GEOPM_AGENT", None) is None:
             ctl_conf.write()
 
         if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
@@ -224,6 +220,9 @@ class FreqSweepAnalysis(Analysis):
                 report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
                 trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
                 self._report_paths.append(report_path)
+                if os.getenv("GEOPM_AGENT", None) is not None:
+                    with open(ctl_conf.get_path(), "w") as outfile:
+                        outfile.write("{\"FREQ_MIN\" : %f, \"FREQ_MAX\" : %f}\n" % (freq, freq))
                 if self._app_argv and not os.path.exists(report_path):
                     os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(freq)
                     os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(freq)
@@ -437,10 +436,11 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
 
-        # todo: hack to run tests with new controller
+        self._min_freq = min(sys_freq_avail())
+        self._max_freq = max(sys_freq_avail())
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                outfile.write("{\"FREQ_MIN\" : %f, \"FREQ_MAX\" : %f}\n" % (self._min_freq, self._max_freq))
         else:
             ctl_conf.write()
 
@@ -463,8 +463,6 @@ class OfflineBaselineComparisonAnalysis(Analysis):
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
             self._report_paths.append(report_path)
 
-            self._min_freq = min(sys_freq_avail())
-            self._max_freq = max(sys_freq_avail())
             if self._app_argv and not os.path.exists(report_path):
                 os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
                 os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
@@ -577,11 +575,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
                                        'tree_decider': 'static_policy',
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
-        # todo: hack to run tests with new controller
-        if os.getenv("GEOPM_AGENT", None) is not None:
-            with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
-        else:
+        if os.getenv("GEOPM_AGENT", None) is None:
             ctl_conf.write()
 
         # Run frequency sweep
@@ -601,6 +595,9 @@ class OnlineBaselineComparisonAnalysis(Analysis):
             freqs = sys_freq_avail() # freqs contains a list of available system frequencies in ascending order
             self._min_freq = freqs[0]
             self._max_freq = freqs[-1] if self._enable_turbo else freqs[-2]
+            if os.getenv("GEOPM_AGENT", None) is not None:
+                with open(ctl_conf.get_path(), "w") as outfile:
+                    outfile.write("{\"FREQ_MIN\" : %f, \"FREQ_MAX\" : %f}\n" % (self._min_freq, self._max_freq))
             if self._app_argv and not os.path.exists(report_path):
                 os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
                 os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
