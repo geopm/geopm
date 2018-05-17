@@ -91,9 +91,9 @@ class EnergyEfficientRegionTest : public ::testing::Test
         EnergyEfficientRegionTest();
         void SetUp();
         void TearDown();
-        double m_freq_min = 1800000000.0;
-        double m_freq_max = 2200000000.0;
-        double m_freq_step = 100000000.0;
+        double m_freq_min = 1.8e9;
+        double m_freq_max = 2.2e9;
+        double m_freq_step = 100e6;
         int m_base_samples = 3;
         int m_num_domain = 1;
 
@@ -130,13 +130,13 @@ void EnergyEfficientRegionTest::sample_to_set_baseline()
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(m_freq_max, m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(m_freq_max, m_freq_region.freq());
     }
 }
 
 TEST_F(EnergyEfficientRegionTest, freq_starts_at_maximum)
 {
-    ASSERT_EQ(m_freq_max, m_freq_region.freq());
+    ASSERT_DOUBLE_EQ(m_freq_max, m_freq_region.freq());
 }
 
 TEST_F(EnergyEfficientRegionTest, update_ignores_nan_sample)
@@ -167,7 +167,7 @@ TEST_F(EnergyEfficientRegionTest, only_changes_freq_after_enough_samples)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(m_freq_region.freq(), m_freq_max - (i*m_freq_step));
+        EXPECT_DOUBLE_EQ(m_freq_region.freq(), m_freq_max - (i*m_freq_step));
     }
 
     double end = m_freq_region.freq();
@@ -213,7 +213,7 @@ TEST_F(EnergyEfficientRegionTest, performance_decreases_freq_steps_back_up)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(expected[i], m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(expected[i], m_freq_region.freq());
     }
 }
 
@@ -233,7 +233,7 @@ TEST_F(EnergyEfficientRegionTest, energy_increases_freq_steps_back_up)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(expected[i], m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(expected[i], m_freq_region.freq());
     }
 }
 
@@ -250,7 +250,7 @@ TEST_F(EnergyEfficientRegionTest, after_too_many_increase_freq_stays_at_higher)
     m_freq_region.update_entry();
     m_platform_io.run_region();
     m_freq_region.update_exit();
-    EXPECT_EQ(higher_freq, m_freq_region.freq());
+    EXPECT_DOUBLE_EQ(higher_freq, m_freq_region.freq());
 
     // raise and lower bandwidth and alternate freq
     for (size_t i = 0; i < max_increase; ++i) {
@@ -259,13 +259,13 @@ TEST_F(EnergyEfficientRegionTest, after_too_many_increase_freq_stays_at_higher)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(lower_freq, m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(lower_freq, m_freq_region.freq());
         // raise freq
         m_platform_io.set_runtime(5);
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(higher_freq, m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(higher_freq, m_freq_region.freq());
     }
 
     // freq should stay at higher
@@ -274,12 +274,12 @@ TEST_F(EnergyEfficientRegionTest, after_too_many_increase_freq_stays_at_higher)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(higher_freq, m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(higher_freq, m_freq_region.freq());
 
         m_platform_io.set_runtime(5);
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(higher_freq, m_freq_region.freq());
+        EXPECT_DOUBLE_EQ(higher_freq, m_freq_region.freq());
     }
 }
