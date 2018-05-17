@@ -187,7 +187,13 @@ EXTRA_DIST = .gitignore \
              geopm-tutorial.tar.gz \
              # end
 
-TUTORIAL_DIST = tutorial/contrib/json11/json11.cpp \
+TUTORIAL_DIST = tutorial/agent/ExampleAgent.cpp \
+                tutorial/agent/ExampleAgent.hpp \
+                tutorial/agent/example_config.json \
+                tutorial/agent/Makefile \
+                tutorial/agent/tutorial_build_gnu.sh \
+                tutorial/agent/tutorial_build_intel.sh \
+                tutorial/contrib/json11/json11.cpp \
                 tutorial/contrib/json11/json11.hpp \
                 tutorial/contrib/json11/LICENSE.txt \
                 tutorial/contrib/json11/README.md \
@@ -195,6 +201,11 @@ TUTORIAL_DIST = tutorial/contrib/json11/json11.cpp \
                 tutorial/geopm_time.h \
                 tutorial/Imbalancer.cpp \
                 tutorial/imbalancer.h \
+                tutorial/iogroup/ExampleIOGroup.cpp \
+                tutorial/iogroup/ExampleIOGroup.hpp \
+                tutorial/iogroup/Makefile \
+                tutorial/iogroup/tutorial_build_gnu.sh \
+                tutorial/iogroup/tutorial_build_intel.sh \
                 tutorial/Makefile \
                 tutorial/ModelApplication.cpp \
                 tutorial/ModelApplication.hpp \

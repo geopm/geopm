@@ -30,14 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_LIB = libgeopmpi_example_agent.so
+TUTORIAL_LIB = libgeopmpi_example_agent.so.0.0.0
 
 CC ?= gcc
 CXX ?= g++
 
 all: $(TUTORIAL_LIB)
 
-libgeopmpi_example_agent.so: ExampleAgent.cpp ExampleAgent.hpp
+libgeopmpi_example_agent.so.0.0.0: ExampleAgent.cpp ExampleAgent.hpp
 	$(CXX) ExampleAgent.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) -o $@
 
 clean:

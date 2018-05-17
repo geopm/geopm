@@ -184,7 +184,14 @@ GEOPM_PLUGIN_PATH).
 
 Specify the ExampleAgent as the Agent for the Controller by setting
 GEOPM_AGENT=example.  The name of the Agent should match the name
-returned by plugin_name() used for registration.  The tutorials on
-running GEOPM found in the parent directory ($GEOPM_ROOT/tutorial)
-provide a good starting point for quickly running GEOPM with a simple
-benchmark application, geopmbench.
+returned by plugin_name() used for registration.  This Agent requires
+values for two policies listed in policy_names(); these are provided
+in example_config.json.  Pass this configuration file to launcher with
+the --geopm-policy option or by setting
+GEOPM_POLICY=example_config.json.
+
+TODO: run script
+
+The tutorials on running GEOPM found in the parent directory
+($GEOPM_ROOT/tutorial) provide a good starting point for quickly
+running GEOPM with a simple benchmark application, geopmbench.
