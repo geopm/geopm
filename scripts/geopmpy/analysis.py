@@ -42,6 +42,7 @@ import socket
 import geopmpy.io
 import geopmpy.launcher
 import geopmpy.plotter
+import subprocess
 from geopmpy import __version__
 
 import pandas
@@ -104,6 +105,24 @@ def all_region_data_pretty(combined_df):
         rs += '{}\n'.format(df)
     rs += '-' * 120 + '\n'
     return rs
+
+def read_stdout_line(stdout):
+    # todo: ignore warnings about multiple plugin load
+    line = stdout.readline()
+    while 'previously registered' in line:
+        line = stdout.readline()
+    return line.strip()
+
+def read_min_max_freq():
+    read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MIN', 'board', '0'],
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    min_freq = read_stdout_line(read_proc.stdout)
+    min_freq = float(int(float(min_freq)/1e8)*1e8)  # convert to multiple of 1e8
+    read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MAX', 'board', '0'],
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    max_freq = read_stdout_line(read_proc.stdout)
+    max_freq = float(int(float(max_freq)/1e8)*1e8)
+    return min_freq, max_freq
 
 
 class Analysis(object):
@@ -208,7 +227,8 @@ class FreqSweepAnalysis(Analysis):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                min_freq, max_freq = read_min_max_freq()
+                outfile.write("{\"FREQ_MIN\" : %f, \"FREQ_MAX\" : %f}\n" % (min_freq, max_freq))
         else:
             ctl_conf.write()
 
@@ -440,7 +460,8 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                min_freq, max_freq = read_min_max_freq()
+                outfile.write("{\"FREQ_MIN\" : %f, \"FREQ_MAX\" : %f}\n" % (min_freq, max_freq))
         else:
             ctl_conf.write()
 
@@ -580,7 +601,8 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                min_freq, max_freq = read_min_max_freq()
+                outfile.write("{\"FREQ_MIN\" : %f, \"FREQ_MAX\" : %f}\n" % (min_freq, max_freq))
         else:
             ctl_conf.write()
 
