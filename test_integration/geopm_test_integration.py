@@ -867,9 +867,9 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
-    @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx()
-    @skip_unless_cpufreq()
+    #@skip_unless_run_long_tests()
+    #@skip_unless_platform_bdx()
+    #@skip_unless_cpufreq()
     def test_plugin_efficient_freq_offline(self):
         """
         Test of the EfficientFreqDecider offline auto mode.
@@ -928,9 +928,9 @@ class TestIntegration(unittest.TestCase):
         self.assertLess(0.0, energy_savings_epoch)
         self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
 
-    @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx()
-    @skip_unless_cpufreq()
+    #@skip_unless_run_long_tests()
+    #@skip_unless_platform_bdx()
+    #@skip_unless_cpufreq()
     def test_plugin_efficient_freq_online(self):
         """
         Test of the EfficientFreqDecider online auto mode.
