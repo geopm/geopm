@@ -161,7 +161,7 @@ the first `--` from the command line.
   Specify the Agent to be used by all Kontrollers.  Available agents
   are: "monitor", "power_balancer", and "energy_efficient".  See
   **geopm_agent_monitor(7)**, **geopm_agent_power_balancer(7)**, and
-  **geopm_agent_efficient(7)** for descriptions of each agent.
+  **geopm_agent_energy_efficient(7)** for descriptions of each agent.
 
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace

@@ -1,0 +1,118 @@
+geopm_agent_energy_efficient(7) -- agent for saving energy
+======================================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## DESCRIPTION
+
+The goal of this Agent is to save energy without degrading performance
+beyond an acceptable limit.  It achieves this by setting frequencies
+per region so that memory- and I/O-bound regions run at lower
+frequencies without increasing runtime but CPU-bound regions are still
+run at high frequencies.
+
+There are two modes available: offline and online.  In the offline
+mode, the best frequencies for each region are specified in the
+environment variable `GEOPM_EFFICIENT_FREQ_RID_MAP`.  If a frequency
+for a region is not specified, the region hint will be used and the
+frequency will be set to either the minimum or maximum available
+frequency.  See **geopm_prof_c(3)** for the list of region hints.
+These best-fit frequencies can be determined by running the
+application once at each available frequency and checking the
+performance of each region; this frequency sweep is available as an
+analysis type for `geopmanalysis` described in **geopmanalysis(1)**.
+The online mode finds the optimal frequency for each region
+dynamically by measuring the performance of each region and reducing
+the frequency as long as the performance is still within acceptable
+limits.  The performance metric used is the maximum of the runtimes
+reported by each rank for the last execution of the region in question
+(lower is better).  It also avoids reducing frequency if energy would
+increase (due to performance loss in a frequency-sensitive region). Up
+to 10% performance loss is allowed.  Enable the online mode by setting
+`GEOPM_EFFICIENT_FREQ_ONLINE` and unsetting
+`GEOPM_EFFICIENT_FREQ_RID_MAP`.
+
+## WARNING: NOT IMPLEMENTED
+The EnergyEfficientAgent is not yet implemented as described here.
+The Agent is a work in progress, and this warning message will be
+updated when it is completed.
+
+## AGENT BEHAVIOR HIGHLIGHTS
+
+* `Agent Name`:
+  Set the `GEOPM_AGENT` environment variable to "energy_efficient" and
+  the Kontroller will select the EnergyEfficientAgent for its control
+  handler.  See **geopm(7)** for more information about environment
+  variables.
+
+* `Ordered Policies Descending`:
+  The minimum and maximum frequency are passed down as policies.
+  Setting both to the same value can be used to force the entire
+  application to run at one frequency.
+
+  `FREQ_MIN`: The minimum frequency that the algorithm is allowed to
+              choose for any region.
+
+  `FREQ_MAX`: The maximum frequency that the algorithm is allowed to
+              choose for any region.
+
+* `Ordered Samples Ascending`:
+
+  `ENERGY_PACKAGE`: Total energy from the packages across all nodes.
+
+  `ENERGY_DRAM`: Total energy from DRAM across all nodes.
+
+  `FREQUENCY`: The average frequency across nodes.
+
+* `Tracing Modifications`:
+  N/A
+
+* `Report Modifiers`:
+  The per-node final frequency for each region is added to the report.
+  This reflects the settings from the map or hint in offline mode, or
+  the learned best frequency determined by the online mode.
+
+* `Control Loop Gate`:
+  The agent gates the Kontroller's control loop to a cadence of 5ms.
+  This agent propagates its ascending signals up the tree every 50ms
+  (10 control cycles).
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_agent_monitor(7)**,
+**geopm_agent_power_balancer(7)**,
+**geopm_agent_c(3)**,
+**geopm_proc_c(3)**,
+**geopmagent(1)**,
+**geopmanalysis(1)**
