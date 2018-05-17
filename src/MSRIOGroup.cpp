@@ -70,6 +70,7 @@ namespace geopm
         , m_msrio(std::move(msrio))
         , m_cpuid(cpuid)
         , m_name_prefix(plugin_name() + "::")
+        , m_per_cpu_restore(m_num_cpu)
     {
         size_t num_msr = 0;
         const MSR *msr_arr = init_msr_arr(cpuid, num_msr);
@@ -419,22 +420,37 @@ namespace geopm
 
     void MSRIOGroup::save_control(void)
     {
-        for (const auto &map_it : m_name_cpu_control_map) {
-            for (MSRControl *ctl_ptr : map_it.second) {
-                ctl_ptr->save_value(ctl_ptr->mask() &
-                                    (m_msrio->read_msr(ctl_ptr->cpu_idx(),
-                                                       ctl_ptr->offset())));
+        for (const auto &pair_it : m_name_cpu_control_map) {
+            for (MSRControl *ctl_ptr : pair_it.second) {
+                auto it = m_per_cpu_restore[ctl_ptr->cpu_idx()].find(ctl_ptr->offset());
+                if (it == m_per_cpu_restore[ctl_ptr->cpu_idx()].end()) {
+                    struct m_restore_s restore {.value = m_msrio->read_msr(ctl_ptr->cpu_idx(),
+                                                                           ctl_ptr->offset()),
+                                                .mask = ctl_ptr->mask()};
+                    m_per_cpu_restore[ctl_ptr->cpu_idx()].emplace(ctl_ptr->offset(), restore);
+                }
+                else {
+                    it->second.mask &= ctl_ptr->mask();
+                }
+            }
+        }
+        for (auto &map_it : m_per_cpu_restore) {
+            for (auto &pair_it : map_it) {
+                pair_it.second.value &= pair_it.second.mask;
             }
         }
     }
 
     void MSRIOGroup::restore_control(void)
     {
-        for (const auto &map_it : m_name_cpu_control_map) {
-            for (MSRControl *ctl_ptr : map_it.second) {
-                m_msrio->write_msr(ctl_ptr->cpu_idx(), ctl_ptr->offset(),
-                                   ctl_ptr->save_value(), ctl_ptr->mask());
+        int cpu_idx = 0;
+        for (const auto &map_it : m_per_cpu_restore) {
+            for (const auto &pair_it : map_it) {
+                m_msrio->write_msr(cpu_idx, pair_it.first,
+                                   pair_it.second.value,
+                                   pair_it.second.mask);
             }
+            ++cpu_idx;
         }
     }
 
