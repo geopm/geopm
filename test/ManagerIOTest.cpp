@@ -217,7 +217,10 @@ ManagerIOSamplerTest::ManagerIOSamplerTest()
                  << tab << "\"FREQUENCY_MAX\" : 2300000000," << std::endl
                  << tab << "\"FREQUENCY_MIN\" : 1200000000," << std::endl
                  << tab << "\"PI\" : 3.14159265," << std::endl
-                 << tab << "\"GHZ\" : 2.3e9" << std::endl
+                 << tab << "\"GHZ\" : 2.3e9," << std::endl
+                 << tab << "\"DEFAULT1\" : \"NAN\"," << std::endl
+                 << tab << "\"DEFAULT2\" : \"nan\"," << std::endl
+                 << tab << "\"DEFAULT3\" : \"NaN\"" << std::endl
                  << "}" << std::endl;
     m_valid_json = valid_json.str();
 
@@ -253,13 +256,17 @@ void ManagerIOSamplerTest::TearDown()
 
 TEST_F(ManagerIOSamplerTest, parse_json_file)
 {
-    std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI"};
+    std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
+                                             "DEFAULT1", "DEFAULT2", "DEFAULT3"};
     ManagerIOSampler gp(m_json_file_path, nullptr, signal_names);
 
     EXPECT_EQ(400, gp.sample("POWER_MAX"));
     EXPECT_EQ(2.3e9, gp.sample("FREQUENCY_MAX"));
     EXPECT_EQ(1.2e9, gp.sample("FREQUENCY_MIN"));
     EXPECT_EQ(3.14159265, gp.sample("PI"));
+    EXPECT_TRUE(std::isnan(gp.sample("DEFAULT1")));
+    EXPECT_TRUE(std::isnan(gp.sample("DEFAULT2")));
+    EXPECT_TRUE(std::isnan(gp.sample("DEFAULT3")));
 }
 
 TEST_F(ManagerIOSamplerTest, negative_parse_json_file)

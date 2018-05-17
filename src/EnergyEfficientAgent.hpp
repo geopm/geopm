@@ -74,16 +74,31 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
+            bool update_freq_range(const std::vector<double> &in_policy);
             double cpu_freq_min(void) const;
             double cpu_freq_max(void) const;
             double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
             void parse_env_map(void);
 
+            enum m_policy_e {
+                M_POLICY_FREQ_MIN,
+                M_POLICY_FREQ_MAX,
+                M_NUM_POLICY,
+            };
+
+            enum m_signal_e {
+                M_SIGNAL_REGION_ID,
+                M_SIGNAL_RUNTIME,
+                M_SIGNAL_PKG_ENERGY,
+                M_SIGNAL_DRAM_ENERGY,
+                M_NUM_SIGNAL,
+            };
+
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
-            const double M_FREQ_MIN;
-            const double M_FREQ_MAX;
+            double m_freq_min;
+            double m_freq_max;
             const double M_FREQ_STEP;
             const size_t M_SEND_PERIOD;
             std::vector<int> m_control_idx;
@@ -91,19 +106,17 @@ namespace geopm
             double m_curr_adapt_freq;
             std::map<uint64_t, double> m_rid_freq_map;
             // for online adaptive mode
-            bool m_is_adaptive = false;
+            bool m_is_online = false;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
             std::vector<int> m_sample_idx;
+            std::vector<int> m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             size_t m_num_sample;
-            int m_level;
+            int m_level = -1;
+            int m_num_children = 0;
             uint64_t m_last_region_id = 0;
             size_t m_num_ascend = 0;
-            int m_region_id_idx;
-            int m_runtime_idx;
-            int m_pkg_energy_idx;
-            int m_dram_energy_idx;
     };
 }
 
