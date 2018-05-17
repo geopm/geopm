@@ -474,6 +474,10 @@ AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /d
 AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
 AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
 
+if test ! -z "$CC" && $CC --version | grep icc > /dev/null; then
+  AC_DEFINE([GEOPM_INTEL_COMPILER], [], [Using Intel compiler])
+fi
+
 AC_MSG_CHECKING([for support for MPI-3 standard])
 AC_COMPILE_IFELSE([
     AC_LANG_SOURCE(
