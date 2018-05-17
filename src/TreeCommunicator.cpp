@@ -52,8 +52,8 @@
 #include "Comm.hpp"
 #include "config.h"
 
-#if __INTEL_COMPILER
-#pragma warning (disable:1478)
+#ifdef __INTEL_COMPILER
+#pragma warning disable 1786
 #else   /// GNU build
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
