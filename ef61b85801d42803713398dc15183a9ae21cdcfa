@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96247552_50b4057c",
+        "filename": "src/geopm_ctl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-17T02:19:14Z",
+      "side": 1,
+      "message": "could have a ; here after 0.5.0. No need to block the patch if there are no other changes",
+      "revId": "ef61b85801d42803713398dc15183a9ae21cdcfa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
