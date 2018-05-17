@@ -104,11 +104,11 @@ int geopm_policy_write(const struct geopm_policy_c *policy) __attribute__ ((depr
 
 int geopm_policy_enforce_static(const struct geopm_policy_c *policy) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
 
-int geopm_platform_msr_save(const char *path) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
+int geopm_platform_msr_save(const char *path);
 
-int geopm_platform_msr_restore(const char *path) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
+int geopm_platform_msr_restore(const char *path);
 
-int geopm_platform_msr_whitelist(FILE *file_desc) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0 see geopm_policy_c(3)")));
+int geopm_platform_msr_whitelist(FILE *file_desc);
 
 #ifdef __cplusplus
 }
