@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98d72747_7831c72c",
+        "filename": "src/msr_skx.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-17T17:11:12Z",
+      "side": 1,
+      "message": "May need more TURBO_RATIO_LIMIT2 entries based on maximum number of cores on any SKX SKU.",
+      "revId": "84289c0c4f72939985732e8aa15f76a8f51df1cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
