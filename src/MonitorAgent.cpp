@@ -148,7 +148,7 @@ namespace geopm
 
     std::vector<std::string> MonitorAgent::sample_names(void)
     {
-        return {"POWER_PACKAGE", "FREQUENCY"};;
+        return {"POWER_PACKAGE", "FREQUENCY"};
     }
 
     std::vector<std::pair<std::string, std::string> > MonitorAgent::report_header(void) const
