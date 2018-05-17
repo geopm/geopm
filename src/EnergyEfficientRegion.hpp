@@ -33,6 +33,8 @@
 #ifndef ENERGYEFFICIENTREGION_HPP_INCLUDE
 #define ENERGYEFFICIENTREGION_HPP_INCLUDE
 
+#include <map>
+#include <set>
 #include <vector>
 
 #include "geopm_time.h"
@@ -53,6 +55,7 @@ namespace geopm
                                   int dram_energy_idx);
             virtual ~EnergyEfficientRegion() = default;
             double freq(void) const;
+            void update_freq_range(double freq_min, double freq_max, double freq_step);
             void update_entry(void);
             void update_exit(void);
         private:
@@ -62,21 +65,27 @@ namespace geopm
             virtual double energy_metric();
 
             IPlatformIO &m_platform_io;
-            const size_t M_NUM_FREQ;
             size_t m_curr_idx;
+            double m_curr_freq = NAN;
             double m_target = 0.0;
             const double M_PERF_MARGIN = 0.10;  // up to 10% degradation allowed
             const double M_ENERGY_MARGIN = 0.025;
             const size_t M_MIN_BASE_SAMPLE = 4;
 
-            std::vector<size_t> m_num_increase;
-            const size_t M_MAX_INCREASE = 4;
-            bool m_is_learning = true;
+            bool m_is_learning;
+            struct m_freq_ctx_s {
+                size_t num_increase;
+                double perf_max;
+                double energy_min;
+                size_t num_sample;
+            };
 
-            std::vector<double> m_allowed_freq;
-            std::vector<double> m_perf_max;
-            std::vector<double> m_energy_min;
-            std::vector<size_t> m_num_sample;
+            std::map<size_t, struct m_freq_ctx_s> m_freq_ctx_map;
+            const size_t M_MAX_INCREASE = 4;
+
+            double m_freq_step;
+            std::set<double> m_allowed_freq;
+            double m_curr_freq_max;
             double m_start_energy = 0.0;
 
             int m_runtime_idx;
