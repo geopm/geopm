@@ -32,50 +32,42 @@ geopm_agent_monitor(7) -- agent implementation that enforces no policies
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-An implementation of the Agent interface that enforces no policies and is intended
-for application tracing and profiling only.
+An implementation of the Agent interface that enforces no policies and
+is intended for application tracing and profiling only.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 
-* Agent Name:
-  Set the `GEOPM_AGENT` environment varible to "monitor" and the Kontroller instances
-  will select the Monitor Agent for its control handler.
+* `Agent Name`:
+  Set the `GEOPM_AGENT` environment variable to "monitor" and the
+  Kontroller will select the Monitor Agent for its control handler.
+  See **geopm(7)** for more information about environment variables.
 
-* Signals Ascending:
-  The Monitor agent sends board power and CPU frequency up the tree.  The board power
-  and CPU frequency signals are aggregated via sum and average respectively as they
-  ascend up the tree.
-
-* Controls Descending:
+* `Ordered Policies Descending`:
   N/A
 
-* Tracing Modifications:
+* `Ordered Samples Ascending`:
+
+  `POWER_PACKAGE`: Total power of the package(s) across all nodes.
+
+  `FREQUENCY`: The average frequency across nodes.
+
+* `Tracing Modifications`:
   N/A
 
-* Report Modifiers:
+* `Report Modifiers`:
   N/A
 
-* Control Loop Gate:
-  The Monitor agent gates the Kontroller's control loop to a cadence of 5ms.  This agent
-  propogates its ascending signals up the tree every 50ms.
+* `Control Loop Gate`:
+  The Monitor agent gates the Kontroller's control loop to a cadence
+  of 5ms.  This agent propagates its ascending signals up the tree
+  every 50ms.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
-**geopmpy(7)**,
-**geopm_ctl_c(3)**,
-**geopm_error(3)**,
-**geopm_fortran(3)**,
-**geopm_policy_c(3)**,
-**geopm_prof_c(3)**,
-**geopm_sched(3)**,
-**geopm_version(3)**,
-**geopmanalysis(1)**,
-**geopmaprun(1)**,
-**geopmbench(1)**,
-**geopmctl(1)**,
-**geopmplotter(1)**,
-**geopmendpoint(1)**,
-**geopmsrun(1)**
+**geopm_agent_energy_efficient(7)**,
+**geopm_agent_power_balancer(7)**,
+**geopm_agent_c(3)**,
+**geopmagent(1)**
