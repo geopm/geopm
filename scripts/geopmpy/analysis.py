@@ -208,7 +208,9 @@ class FreqSweepAnalysis(Analysis):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                # todo: interface with geopmagent and geopmread (cpuinfiogroup signals)
+                #       these values are for mr-fusion
+                outfile.write('{"FREQ_MIN" : 1.0e9, "FREQ_MAX" : 1.5e9}\n')
         else:
             ctl_conf.write()
 
@@ -440,7 +442,9 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                # todo: interface with geopmagent and geopmread (cpuinfiogroup signals)
+                #       these values are for mr-fusion
+                outfile.write('{"FREQ_MIN" : 1.0e9, "FREQ_MAX" : 1.5e9}\n')
         else:
             ctl_conf.write()
 
@@ -580,7 +584,9 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                # todo: interface with geopmagent and geopmread (cpuinfiogroup signals)
+                #       these values are for mr-fusion
+                outfile.write('{"FREQ_MIN" : 1.0e9, "FREQ_MAX" : 1.5e9}\n')
         else:
             ctl_conf.write()
 

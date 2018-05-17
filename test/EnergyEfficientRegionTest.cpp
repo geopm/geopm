@@ -93,9 +93,9 @@ class EnergyEfficientRegionTest : public ::testing::Test
         EnergyEfficientRegionTest();
         void SetUp();
         void TearDown();
-        double m_freq_min = 1800000000.0;
-        double m_freq_max = 2200000000.0;
-        double m_freq_step = 100000000.0;
+        double m_freq_min = 1.8e9;
+        double m_freq_max = 2.2e9;
+        double m_freq_step = 1.0e6;
         int m_base_samples = 3;
 
         StubPlatformIO m_platform_io;
@@ -168,18 +168,18 @@ TEST_F(EnergyEfficientRegionTest, only_changes_freq_after_enough_samples)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(m_freq_region.freq(), m_freq_max - (i*m_freq_step));
+        EXPECT_EQ(m_freq_region.freq(), m_freq_max - (i * m_freq_step));
     }
 
     double end = m_freq_region.freq();
-    ASSERT_EQ(end, m_freq_max - (3*m_freq_step));
+    ASSERT_EQ(end, m_freq_max - (3 * m_freq_step));
 }
 
 
 TEST_F(EnergyEfficientRegionTest, freq_does_not_go_below_min)
 {
     // run more times than the number of frequencies
-    size_t num_steps = 5 + (size_t)(ceil((m_freq_max-m_freq_min)/m_freq_step));
+    size_t num_steps = 5 + (size_t)(ceil((m_freq_max - m_freq_min) / m_freq_step));
 
     m_platform_io.set_runtime(2); // not senstive to freq
 
@@ -193,9 +193,35 @@ TEST_F(EnergyEfficientRegionTest, freq_does_not_go_below_min)
         EXPECT_LT(m_freq_region.freq(), start);
     }
 
-    double end = m_freq_region.freq();
-    ASSERT_EQ(end, m_freq_min);
+    ASSERT_EQ(m_freq_min, m_freq_region.freq());
 
+    double updated_min = m_freq_min + m_freq_step;
+    m_freq_region.update_freq_range(updated_min, m_freq_max, m_freq_step);
+    ASSERT_EQ(updated_min, m_freq_region.freq());
+}
+
+TEST_F(EnergyEfficientRegionTest, freq_does_not_go_above_max)
+{
+    // 90% target will be 3.3
+    m_platform_io.set_runtime(3);
+
+    sample_to_set_baseline();
+
+    std::vector<time_t> samples {3, 3, 5};
+    double updated_max = m_freq_max - m_freq_step * 2;
+    std::vector<double> expected {m_freq_max - m_freq_step,
+                                  m_freq_max - m_freq_step * 2,
+                                  updated_max};
+    for (size_t i = 0; i < samples.size(); ++i) {
+        if (i == 2) {
+            m_freq_region.update_freq_range(m_freq_min, updated_max, m_freq_step);
+        }
+        m_platform_io.set_runtime(samples[i]);
+        m_freq_region.update_entry();
+        m_platform_io.run_region();
+        m_freq_region.update_exit();
+        EXPECT_EQ(expected[i], m_freq_region.freq());
+    }
 }
 
 TEST_F(EnergyEfficientRegionTest, performance_decreases_freq_steps_back_up)
@@ -207,7 +233,7 @@ TEST_F(EnergyEfficientRegionTest, performance_decreases_freq_steps_back_up)
 
     std::vector<time_t> samples {3, 3, 5};
     std::vector<double> expected {m_freq_max - m_freq_step,
-                                  m_freq_max - m_freq_step*2,
+                                  m_freq_max - m_freq_step * 2,
                                   m_freq_max - m_freq_step};
     for (size_t i = 0; i < samples.size(); ++i) {
         m_platform_io.set_runtime(samples[i]);
@@ -227,7 +253,7 @@ TEST_F(EnergyEfficientRegionTest, energy_increases_freq_steps_back_up)
 
     std::vector<time_t> samples {1, 1, 5};
     std::vector<double> expected {m_freq_max - m_freq_step,
-                                  m_freq_max - m_freq_step*2,
+                                  m_freq_max - m_freq_step * 2,
                                   m_freq_max - m_freq_step};
     for (size_t i = 0; i < samples.size(); ++i) {
         m_platform_io.set_energy(samples[i]);
@@ -246,7 +272,7 @@ TEST_F(EnergyEfficientRegionTest, after_too_many_increase_freq_stays_at_higher)
 
     size_t max_increase = 4;
     double higher_freq = m_freq_max - m_freq_step;
-    double lower_freq = m_freq_max - m_freq_step*2;
+    double lower_freq = m_freq_max - m_freq_step * 2;
     // run once to step down from max
     m_freq_region.update_entry();
     m_platform_io.run_region();
