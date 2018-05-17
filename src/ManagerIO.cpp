@@ -225,6 +225,16 @@ namespace geopm
             if (obj.second.type() == Json::NUMBER) {
                 signal_value_map.emplace(obj.first, obj.second.number_value());
             }
+            else if (obj.second.type() == Json::STRING) {
+                std::string tmp_val = obj.second.string_value();
+                if (tmp_val.compare("NAN") == 0 || tmp_val.compare("NaN") == 0 || tmp_val.compare("nan") == 0) {
+                    signal_value_map.emplace(obj.first, NAN);
+                }
+                else {
+                    throw Exception("Json::" + std::string(__func__)  + ": unsupported type or malformed json config file",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+            }
             else {
                 throw Exception("Json::" + std::string(__func__)  + ": unsupported type or malformed json config file",
                                 GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
