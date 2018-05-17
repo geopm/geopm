@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "705c1257_ef0e896c",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-17T02:16:51Z",
+      "side": 1,
+      "message": "\"Firstly, the desire\" --\u003e \"The first is\"",
+      "parentUuid": "a04f51ec_d9078632",
+      "range": {
+        "startLine": 75,
+        "startChar": 75,
+        "endLine": 75,
+        "endChar": 82
+      },
+      "revId": "8dc0eeda2121dc54f4d89e27323c36e83870b642",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d3e5e12_af94531d",
         "filename": "ronn/geopm.7.ronn",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-07T23:04:35Z",
       "side": 1,
       "message": "the need to support",
+      "range": {
+        "startLine": 78,
+        "startChar": 74,
+        "endLine": 78,
+        "endChar": 84
+      },
+      "revId": "8dc0eeda2121dc54f4d89e27323c36e83870b642",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f6ff108_8059a4bb",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-17T02:16:51Z",
+      "side": 1,
+      "message": "\"supporting the ability for\" --\u003e \"it allows for\"",
+      "parentUuid": "7d3e5e12_af94531d",
       "range": {
         "startLine": 78,
         "startChar": 74,
