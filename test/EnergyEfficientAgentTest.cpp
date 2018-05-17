@@ -80,6 +80,7 @@ class EnergyEfficientAgentTest : public :: testing :: Test
         std::vector<uint64_t> m_region_hash;
         std::vector<double> m_mapped_freqs;
         std::vector<double> m_sample;
+        std::vector<double> m_default_policy;
         double m_freq_min;
         double m_freq_max;
         std::unique_ptr<MockPlatformIO> m_platform_io;
@@ -133,6 +134,7 @@ void EnergyEfficientAgentTest::SetUp()
     m_region_names = {"mapped_region0", "mapped_region1", "mapped_region2", "mapped_region3", "mapped_region4"};
     m_region_hash = {0xeffa9a8d, 0x4abb08f3, 0xa095c880, 0x5d45afe, 0x71243e97};
     m_mapped_freqs = {m_freq_max, 2100000000.0, 2000000000.0, 1900000000.0, m_freq_min};
+    m_default_policy = {m_freq_min, m_freq_max};
 
     m_hints = {GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_MEMORY,
                GEOPM_REGION_HINT_SERIAL, GEOPM_REGION_HINT_NETWORK,
@@ -179,7 +181,7 @@ TEST_F(EnergyEfficientAgentTest, map)
             .WillOnce(Return(geopm_field_to_signal(m_region_hash[x])));
         m_agent->sample_platform(m_sample);
         EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, m_mapped_freqs[x])).Times(M_NUM_CPU);
-        m_agent->adjust_platform({});
+        m_agent->adjust_platform(m_default_policy);
     }
 }
 
@@ -225,7 +227,7 @@ TEST_F(EnergyEfficientAgentTest, hint)
         }
         EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, expected_freq)).Times(M_NUM_CPU);
         m_agent->sample_platform(m_sample);
-        m_agent->adjust_platform({});
+        m_agent->adjust_platform(m_default_policy);
     }
 }
 
@@ -264,7 +266,7 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
             EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, _)).Times(M_NUM_CPU);
 
             m_agent->sample_platform(m_sample);
-            m_agent->adjust_platform({});
+            m_agent->adjust_platform(m_default_policy);
         }
     }
 

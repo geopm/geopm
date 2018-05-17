@@ -55,21 +55,18 @@ namespace geopm
     EnergyEfficientAgent::EnergyEfficientAgent(IPlatformIO &plat_io, IPlatformTopo &topo)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , M_FREQ_MIN(cpu_freq_min())
-        , M_FREQ_MAX(cpu_freq_max())
+        , m_freq_min(cpu_freq_min())
+        , m_freq_max(cpu_freq_max())
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
         , M_SEND_PERIOD(10)
         , m_last_freq(NAN)
         , m_curr_adapt_freq(NAN)
         , m_last_wait{{0, 0}}
-        , m_runtime_idx(-1)
-        , m_pkg_energy_idx(-1)
-        , m_dram_energy_idx(-1)
     {
         parse_env_map();
-        const char* env_freq_adapt_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
-        if (env_freq_adapt_str) {
-            m_is_adaptive = true;
+        const char* env_freq_online_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
+        if (env_freq_online_str) {
+            m_is_online = true;
         }
         init_platform_io();
     }
@@ -87,12 +84,70 @@ namespace geopm
     void EnergyEfficientAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         m_level = level;
+        if (fan_in.size() == 0) {
+            m_num_children = 0;
+        }
+        else {
+            m_num_children = fan_in[level];
+        }
     }
 
+    bool EnergyEfficientAgent::update_freq_range(const std::vector<double> &in_policy)
+    {
+#ifdef GEOPM_DEBUG
+        if (in_policy.size() != M_NUM_POLICY) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): in_policy vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        bool result = false;
+        double target_freq_min = isnan(in_policy[M_POLICY_FREQ_MIN]) ? cpu_freq_min() : in_policy[M_POLICY_FREQ_MIN];
+        double target_freq_max = isnan(in_policy[M_POLICY_FREQ_MAX]) ? cpu_freq_max() : in_policy[M_POLICY_FREQ_MAX];
+        if (target_freq_min > target_freq_max) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): invalid frequency bounds.",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if (m_freq_min != target_freq_min ||
+            m_freq_max != target_freq_max) {
+            m_freq_min = target_freq_min;
+            m_freq_max = target_freq_max;
+            if (m_freq_min > m_last_freq) {
+                m_last_freq = m_freq_min;
+            }
+            else if (m_freq_max < m_last_freq) {
+                m_last_freq = m_freq_max;
+            }
+            for (auto &eer : m_region_map) {
+                eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
+            }
+            result = true;
+        }
+        return result;
+    }
     bool EnergyEfficientAgent::descend(const std::vector<double> &in_policy,
                                        std::vector<std::vector<double> >&out_policy)
     {
-        return true;
+#ifdef GEOPM_DEBUG
+        if (out_policy.size() != m_num_children) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): out_policy vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        bool result = update_freq_range(in_policy);
+
+        if (result) {
+            for (auto &child_policy : out_policy) {
+#ifdef GEOPM_DEBUG
+        if (child_policy.size() != M_NUM_POLICY) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+                child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
+                child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
+            }
+        }
+        return result;
     }
 
     bool EnergyEfficientAgent::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -100,7 +155,7 @@ namespace geopm
     {
 #ifdef GEOPM_DEBUG
         if (out_sample.size() != m_num_sample) {
-            throw Exception("EnergyEfficientAgent::ascend(): out_sample vector not correctly sized.",
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): out_sample vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
@@ -124,18 +179,19 @@ namespace geopm
 
     bool EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
     {
+        update_freq_range(in_policy);
         bool result = false;
         double freq = m_last_freq;
         auto it = m_rid_freq_map.find(geopm_region_id_hash(m_last_region_id));
         if (it != m_rid_freq_map.end()) {
             freq = it->second;
         }
-        else if (m_is_adaptive) {
+        else if (m_is_online) {
             if (!std::isnan(m_curr_adapt_freq)) {
                 freq = m_curr_adapt_freq;
             }
             else {
-                freq = M_FREQ_MAX - M_FREQ_STEP;
+                freq = m_freq_max - M_FREQ_STEP;
             }
         }
         else {
@@ -144,20 +200,20 @@ namespace geopm
                 case GEOPM_REGION_HINT_MEMORY:
                 case GEOPM_REGION_HINT_NETWORK:
                 case GEOPM_REGION_HINT_IO:
-                    freq = M_FREQ_MIN;
+                    freq = m_freq_min;
                     break;
 
                 // Hints for maximum CPU frequency
                 case GEOPM_REGION_HINT_COMPUTE:
                 case GEOPM_REGION_HINT_SERIAL:
                 case GEOPM_REGION_HINT_PARALLEL:
-                    freq = M_FREQ_MAX;
+                    freq = m_freq_max;
                     break;
                 // Hint Inconclusive
                 //case GEOPM_REGION_HINT_UNKNOWN:
                 //case GEOPM_REGION_HINT_IGNORE:
                 default:
-                    freq = M_FREQ_MIN;
+                    freq = m_freq_min;
                     break;
             }
         }
@@ -176,15 +232,15 @@ namespace geopm
     {
 #ifdef GEOPM_DEBUG
         if (out_sample.size() != m_num_sample) {
-            throw Exception("EnergyEfficientAgent::sample_platform(): out_sample vector not correctly sized.",
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): out_sample vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
         for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
             out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
         }
-        uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_region_id_idx));
-        if (m_is_adaptive) {
+        const uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_ID]));
+        if (m_is_online) {
             if (current_region_id != GEOPM_REGION_ID_UNMARKED &&
                 current_region_id != GEOPM_REGION_ID_UNDEFINED) {
                 bool is_region_boundary = m_last_region_id != current_region_id;
@@ -195,11 +251,11 @@ namespace geopm
                         auto tmp = m_region_map.emplace(
                             current_region_id,
                             std::unique_ptr<EnergyEfficientRegion>(
-                                new EnergyEfficientRegion(m_platform_io, M_FREQ_MIN,
-                                    M_FREQ_MAX, M_FREQ_STEP,
-                                    m_runtime_idx,
-                                    m_pkg_energy_idx,
-                                    m_dram_energy_idx)));
+                                new EnergyEfficientRegion(m_platform_io, m_freq_min,
+                                    m_freq_max, M_FREQ_STEP,
+                                    m_signal_idx[M_SIGNAL_RUNTIME],
+                                    m_signal_idx[M_SIGNAL_PKG_ENERGY],
+                                    m_signal_idx[M_SIGNAL_DRAM_ENERGY])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_entry();
@@ -213,11 +269,11 @@ namespace geopm
                         auto tmp = m_region_map.emplace(
                             m_last_region_id,
                             std::unique_ptr<EnergyEfficientRegion>(
-                                new EnergyEfficientRegion(m_platform_io, M_FREQ_MIN,
-                                    M_FREQ_MAX, M_FREQ_STEP,
-                                    m_runtime_idx,
-                                    m_pkg_energy_idx,
-                                    m_dram_energy_idx)));
+                                new EnergyEfficientRegion(m_platform_io, m_freq_min,
+                                    m_freq_max, M_FREQ_STEP,
+                                    m_signal_idx[M_SIGNAL_RUNTIME],
+                                    m_signal_idx[M_SIGNAL_PKG_ENERGY],
+                                    m_signal_idx[M_SIGNAL_DRAM_ENERGY])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_exit();
@@ -241,7 +297,7 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::policy_names(void)
     {
-        return {};
+        return {"FREQ_MIN", "FREQ_MAX"};
     }
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
@@ -258,18 +314,23 @@ namespace geopm
     {
         std::vector<std::pair<std::string, std::string> > result;
         std::ostringstream oss;
-        if (m_region_map.size() > 0) {
-            for (const auto &region : m_region_map) {
-                oss << region.first << ":" << region.second->freq() << " ";
-            }
+        for (const auto &region : m_region_map) {
+            oss << region.first << ":" << region.second->freq() << " ";
         }
-        result.push_back({"Final freq map", oss.str()});
+        if (m_region_map.size()) {
+            result.push_back({"Final freq map", oss.str()});
+        }
         return result;
     }
 
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
-        return {};
+        std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
+        for (const auto &region : m_region_map) {
+            result[region.first] = {std::make_pair("REQUESTED_FREQUENCY", std::to_string(region.second->freq()))};
+        }
+
+        return result;
     }
 
     std::vector<std::string> EnergyEfficientAgent::trace_names(void) const
@@ -289,7 +350,7 @@ namespace geopm
         if (sig_name == "CPUINFO::FREQ_MIN") {
             if (domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
                 if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == IPlatformTopo::M_DOMAIN_INVALID) {
-                    throw Exception("EnergyEfficientAgent: unable to parse min and sticker frequencies.",
+                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unable to parse min and sticker frequencies.",
                                     GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
                 }
             }
@@ -300,7 +361,7 @@ namespace geopm
         else if (sig_name == "CPUINFO::FREQ_MAX") {
             if (domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
                 if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == IPlatformTopo::M_DOMAIN_INVALID) {
-                    throw Exception("EnergyEfficientAgent: unable to parse max and sticker frequencies.",
+                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unable to parse max and sticker frequencies.",
                                     GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
                 }
                 result = sticker_freq + M_FREQ_STEP;
@@ -314,7 +375,7 @@ namespace geopm
         }
 #ifdef GEOPM_DEBUG
         else {
-            throw Exception("EnergyEfficientAgent: requested invalid signal name.",
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): requested invalid signal name.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
@@ -332,30 +393,25 @@ namespace geopm
         }
         m_num_sample = m_sample_idx.size();
 
-        uint64_t freq_domain_type = m_platform_io.control_domain_type("FREQUENCY");
-        if (freq_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
-            throw Exception("EnergyEfficientAgent: Platform does not support frequency control",
-                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        const int freq_ctl_domain_type = m_platform_io.control_domain_type("FREQUENCY");
+        const int num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
+        for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
+            m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
+                                                               freq_ctl_domain_type, ctl_dom_idx));
         }
-        uint32_t num_freq_domain = m_platform_topo.num_domain(freq_domain_type);
-        if (!num_freq_domain) {
-            throw Exception("EnergyEfficientAgent: Platform does not support frequency control",
-                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-        }
-        for (uint32_t dom_idx = 0; dom_idx != num_freq_domain; ++dom_idx) {
-            int control_idx = m_platform_io.push_control("FREQUENCY", freq_domain_type, dom_idx);
-            if (control_idx < 0) {
-                throw Exception("EnergyEfficientAgent: Failed to enable frequency control in the platform.",
-                                GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+        std::vector<std::string> signal_names = {"REGION_ID#", "REGION_RUNTIME",
+                                                 "ENERGY_PACKAGE", "ENERGY_DRAM",};
+        size_t signal = 0;
+        m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
+                                                         IPlatformTopo::M_DOMAIN_BOARD,
+                                                         0));
+        if (m_is_online) {
+            // All signals needed for adaptive mode
+            for (signal = 1; signal < signal_names.size(); ++signal) {
+                m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
+                                                                 IPlatformTopo::M_DOMAIN_BOARD,
+                                                                 0));
             }
-            m_control_idx.push_back(control_idx);
-        }
-        m_region_id_idx = m_platform_io.push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0);
-
-        if (m_is_adaptive) {
-            m_runtime_idx = m_platform_io.push_signal("REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-            m_pkg_energy_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-            m_dram_energy_idx = m_platform_io.push_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         }
     }
 
