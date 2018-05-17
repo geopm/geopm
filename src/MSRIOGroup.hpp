@@ -120,6 +120,10 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
+            struct m_restore_s {
+                uint64_t value;
+                uint64_t mask;
+            };
             void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
             void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
 
@@ -149,6 +153,7 @@ namespace geopm
             std::vector<uint64_t> m_write_offset;
             std::vector<uint64_t> m_write_mask;
             const std::string m_name_prefix;
+            std::vector<std::map<uint64_t, m_restore_s> > m_per_cpu_restore;
     };
 }
 
