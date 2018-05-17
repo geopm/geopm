@@ -124,14 +124,6 @@ timed_region
 Simple example that uses the GEOPM progress interface to report
 progress through timed regions.
 
-threaded_step_example
----------------------
-Example using the GEOPM thread profiling interface while running the
-controller by stepping the algorithm in the primary compute
-application.  Both of these features: threaded profiling and running
-the controller without a separate thread are not features that are
-frequently used, nor are these features covered in the tutorials.
-
 synthetic_benchmark
 -------------------
 Synthetic benchmark that shows how GEOPM can correct work imbalance
