@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sstream>
+
 #include "geopm_agent.h"
 #include "string.h"
 #include "Agent.hpp"
@@ -157,6 +159,9 @@ int geopm_agent_supported(const char *agent_name)
             err = ex.err_value();
         }
     }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
     return err;
 }
 int geopm_agent_num_policy(const char *agent_name,
@@ -174,6 +179,9 @@ int geopm_agent_num_policy(const char *agent_name,
         else {
             err = ex.err_value();
         }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
     }
     return err;
 }
@@ -194,6 +202,9 @@ int geopm_agent_num_sample(const char *agent_name,
             err = ex.err_value();
         }
     }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
     return err;
 }
 
@@ -204,14 +215,19 @@ int geopm_agent_policy_name(const char *agent_name,
 {
     int num_policy;
     int err = geopm_agent_num_policy(agent_name, &num_policy);
-    if (!err && (policy_idx <= 0 || policy_idx >= num_policy)) {
+    if (!err && (policy_idx < 0 || policy_idx >= num_policy)) {
         err = GEOPM_ERROR_INVALID;
     }
     if (!err) {
         try {
             std::string policy_name_cxx = geopm::Agent::policy_names(
                 geopm::agent_factory().dictionary(agent_name))[policy_idx];
-            strncpy(policy_name, policy_name_cxx.c_str(), policy_name_max);
+            if (policy_name_cxx.size() >= policy_name_max) {
+                err = E2BIG;
+            }
+            if (!err) {
+                strncpy(policy_name, policy_name_cxx.c_str(), policy_name_max);
+            }
         }
         catch (geopm::Exception ex) {
             if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -220,6 +236,9 @@ int geopm_agent_policy_name(const char *agent_name,
             else {
                 err = ex.err_value();
             }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), false);
         }
     }
     return err;
@@ -232,14 +251,19 @@ int geopm_agent_sample_name(const char *agent_name,
 {
     int num_sample;
     int err = geopm_agent_num_sample(agent_name, &num_sample);
-    if (!err && (sample_idx <= 0 || sample_idx >= num_sample)) {
+    if (!err && (sample_idx < 0 || sample_idx >= num_sample)) {
         err = GEOPM_ERROR_INVALID;
     }
     if (!err) {
         try {
             std::string sample_name_cxx = geopm::Agent::sample_names(
                 geopm::agent_factory().dictionary(agent_name))[sample_idx];
-            strncpy(sample_name, sample_name_cxx.c_str(), sample_name_max);
+            if (sample_name_cxx.size() >= sample_name_max) {
+                err = E2BIG;
+            }
+            if (!err) {
+                strncpy(sample_name, sample_name_cxx.c_str(), sample_name_max);
+            }
         }
         catch (geopm::Exception ex) {
             if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -249,6 +273,9 @@ int geopm_agent_sample_name(const char *agent_name,
                 err = ex.err_value();
             }
         }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), false);
+        }
     }
     return err;
 
@@ -256,7 +283,69 @@ int geopm_agent_sample_name(const char *agent_name,
 
 int geopm_agent_policy_json(const char *agent_name,
                             const double *policy_array,
-                            const char *json_path)
+                            size_t json_string_max,
+                            char *json_string)
 {
-    return GEOPM_ERROR_NOT_IMPLEMENTED;
+    int num_policy;
+    int err = geopm_agent_num_policy(agent_name, &num_policy);
+
+    std::stringstream output_str;
+    char policy_name[json_string_max];
+    try {
+        if (!err) {
+            output_str << "{";
+            for (int i = 0; !err && i < num_policy; ++i) {
+                if (i > 0) {
+                    output_str << ",";
+                }
+                err = geopm_agent_policy_name(agent_name, i, json_string_max, policy_name);
+                output_str << "\"" << policy_name << "\" : " << policy_array[i];
+            }
+            output_str << "}";
+        }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+
+    if (!err) {
+        strncpy(json_string, output_str.str().c_str(), json_string_max);
+    }
+    return err;
 }
+
+int geopm_agent_name(int agent_idx,
+                     size_t agent_name_max,
+                     char *agent_name)
+{
+    int err = 0;
+    try {
+        std::vector<std::string> agent_names = geopm::agent_factory().plugin_names();
+        if (agent_names.at(agent_idx).size() >= agent_name_max) {
+            err = GEOPM_ERROR_INVALID;
+        }
+        if (!err) {
+            strncpy(agent_name, agent_names.at(agent_idx).c_str(), agent_name_max);
+        }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+
+    return err;
+}
+
+int geopm_agent_num_avail(int* num_agent)
+{
+    int err = 0;
+    try {
+        std::vector<std::string> agent_names = geopm::agent_factory().plugin_names();
+        *num_agent = agent_names.size();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+
+    return err;
+}
+
