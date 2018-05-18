@@ -90,9 +90,7 @@ namespace geopm
 
     double EfficientFreqDecider::get_limit(const std::string &sig_name)
     {
-        /*const*/ int domain_type = m_platform_io.signal_domain_type(sig_name);
-        /// @todo delete line below once PlatformIO supports control for non-CPU domains.
-        domain_type = IPlatformTopo::M_DOMAIN_CPU;
+        const int domain_type = m_platform_io.signal_domain_type(sig_name);
         double result = NAN;
         const double sticker_freq = m_platform_io.read_signal("CPUINFO::FREQ_STICKER", domain_type, 0);
         if (sig_name == "CPUINFO::FREQ_MIN") {
@@ -138,8 +136,6 @@ namespace geopm
             throw Exception("EfficientFreqDecider: Platform does not support frequency control",
                             GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
         }
-        /// @todo delete line below once PlatformIO supports control for non-CPU domains.
-        freq_domain_type = IPlatformTopo::M_DOMAIN_CPU;
         uint32_t num_freq_domain = m_platform_topo.num_domain(freq_domain_type);
         if (!num_freq_domain) {
             throw Exception("EfficientFreqDecider: Platform does not support frequency control",
