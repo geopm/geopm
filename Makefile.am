@@ -90,6 +90,7 @@ ronn_man = man/geopm.7 \
            man/geopmagent.1 \
            man/geopm_agent_c.3 \
            man/geopm_agent_monitor.7 \
+           man/geopm_agent_power_balancer.7 \
            man/geopmanalysis.1 \
            man/geopmbench.1 \
            man/geopmctl.1 \
@@ -154,6 +155,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopmagent.1.ronn \
              ronn/geopm_agent_c.3.ronn \
              ronn/geopm_agent_monitor.7.ronn \
+             ronn/geopm_agent_power_balancer.7.ronn \
              ronn/geopmendpoint.1.ronn \
              ronn/geopm_endpoint_c.3.ronn \
              ronn/geopm.7.ronn \
