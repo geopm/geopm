@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "347d261a_2a1d49e9",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-18T00:06:58Z",
+      "side": 1,
+      "message": "there needs to be a setter for the controller to call:\n\nvoid Endpoint::agent_name(const std::string \u0026name)",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9589315d_e2e00f31",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-18T00:06:58Z",
+      "side": 1,
+      "message": "What if an agent hasn\u0027t yet attached to the shared memory. There should be a check if name is zero length, and be sure to init it to \u0027\\0\u0027",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0146dfa4_0b050f4a",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-18T00:06:58Z",
+      "side": 1,
+      "message": "Why is setup_mutex public?",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "344618c9_49ece224",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-18T00:06:58Z",
+      "side": 1,
+      "message": "The C API\u0027s provide a way to determine if an Agent is attached to the endpoint.  Is the intention for this function to call agent_name() and catch the exception?",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d75f2ec_64345fe4",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-18T00:06:58Z",
+      "side": 1,
+      "message": "Can we put this logic in the Endpoint?",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
