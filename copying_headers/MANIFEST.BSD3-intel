@@ -87,6 +87,7 @@ src/EpochRuntimeRegulator.hpp
 src/Exception.cpp
 src/Exception.hpp
 src/geopm_agent.h
+src/geopmagent_main.c
 src/geopm_ctl.h
 src/geopm_endpoint.h
 src/geopmctl_main.c

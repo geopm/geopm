@@ -38,11 +38,22 @@ geopm_endpoint_c(3) -- geopm mpi job management interface
 `Link with -lgeopmpolicy`
 
   * `int geopm_endpoint_create(`:
-    `const char *`_endpoint_name_, <br>
     `struct geopm_endpoint_c **`_endpoint_`);`
 
   * `int geopm_endpoint_destroy(`:
     `struct geopm_endpoint_c *`_endpoint_`);`
+
+  * `int geopm_endpoint_shmem_create(`:
+    `struct geopm_endpoint_c *`_endpoint_, <br>
+    `const char *`_endpoint_name_`);`
+
+  * `int geopm_endpoint_shmem_destroy(`:
+    `struct geopm_endpoint_c *`_endpoint_, <br>
+    `const char *`_endpoint_name_`);`
+
+  * `int geopm_endpoint_shmem_attach(`:
+    `struct geopm_endpoint_c *`_endpoint_, <br>
+    `const char *`_endpoint_name_`);`
 
   * `int geopm_endpoint_agent(`:
     `struct geopm_endpoint_c *`_endpoint_, <br>
@@ -91,17 +102,32 @@ zero upon success; see [ERRORS][] section below for details.
 
 
   * `geopm_endpoint_create`():
-    will create an endpoint in shared memory for an attaching agent.
-    _endpoint_name_ specifies a substring that is used in the shared memory
-    key.  The endpoint is stored in _endpoint_ and will be used with other
-    functions in this interface.  This will return zero on success indicating
-    that the _endpoint_ struct can now be used.  _endpoint_ will also be NULL
-    if an error occurs.
+    will create an endpoint object.  This object will hold the necessary state
+    for interfacing with the shmem regions.  The endpoint is stored in
+    _endpoint_ and will be used with other functions in this interface.  This
+    will return zero on success indicating that the _endpoint_ struct can now be
+    used.  It will return an error code of EEXIST if the shmem regions already
+    exist. _endpoint_ will also be NULL if an error occurs.
 
   * `geopm_endpoint_destroy`():
-    will release resources associated with _endpoint_.  This will
-    additionally send a signal to the agent that the manager is detaching and
-    no longer requires sample updates.
+    will release resources associated with _endpoint_.    This will return zero
+    on success indicating that the shmem regions were removed.  Otherwise an
+    error code is returned.  This function will not delete any shmem regions.
+
+  * `geopm_endpoint_shmem_create`():
+    will create shmem regions for passing policies to the Agent, and reading
+    samples from the Agent.  These regions will have a substring of the shmem
+    key that matches _endpoint_name_.  These shmem regions are managed by the
+    endpoint.  This will return zero on success indicating that the shmem
+    regions were successfully created.  If the shmem key already exists, an
+    error code of EEXIST is returned.
+
+  * `geopm_endpoint_shmem_destroy`():
+    will release shmem regions containing the substring _endpoint_name_.  This
+    will additionally send a signal to the agent that the manager is detaching
+    and no longer requires sample updates.  This will return zero on success
+    indicating that the shmem regions were removed.  Otherwise an error code is
+    returned.
 
   * `geopm_endpoint_agent`():
     checks to see if an agent specified by _agent_name_ has attached to the
@@ -109,7 +135,8 @@ zero upon success; see [ERRORS][] section below for details.
     _agent_name_max_.  Returns zero if the endpoint has an agent attached and
     the agent's name can be stored in the _agent_name_ buffer.  Otherwise an
     error code is returned.  If no agent has attached, error code
-    GEOPM_ERROR_NO_AGENT is returned.
+    GEOPM_ERROR_NO_AGENT is returned.  If no shmem region has been attached to
+    the endpoint an error code is returned.
 
   * `geopm_endpoint_num_node`():
     provides the number of nodes contained within the _endpoint_ in _num_node_.

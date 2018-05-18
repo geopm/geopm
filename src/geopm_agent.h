@@ -141,6 +141,36 @@ int geopm_agent_sample_name(const char *agent_name,
                             size_t sample_name_max,
                             char *sample_name);
 
+
+/*!
+ *  @brief The number of available agents.
+ *
+ *  @param [out] num_agent The number of agents currently available.
+ *
+ *  @return Zero if no error occured.  Otherwise the error code will be returned.
+ */
+int geopm_agent_num_avail(int *num_agent);
+
+/*!
+ *  @brief The name of a specific agent.
+ *
+ *  @param [in] agent_idx The index of the agent in question.
+ *
+ *  @param [in] agent_name_max Number of bytes allocated for the
+ *              agent_name string.
+ *
+ *  @param [out] agent_name The name of the agent parameter provided
+ *         by the indexed entry when the geopm_endpoint_num_agent()
+ *         function is called.  String is unmodified if an error
+ *         condition occurs.
+ *
+ *  @return Zero if agent_name is large enough to hold the name,
+ *          error code otherwise.
+ */
+int geopm_agent_name(int agent_idx,
+                     size_t agent_name_max,
+                     char *agent_name);
+
 #ifdef __cplusplus
 }
 #endif

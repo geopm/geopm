@@ -37,7 +37,7 @@
 #include <memory>
 #include <string>
 #include <functional>
-#include <forward_list>
+#include <vector>
 
 #include "Exception.hpp"
 
@@ -88,13 +88,13 @@ namespace geopm
             /// @brief Returns a list of all valid plugin names
             ///        registered with the factory.
             /// @return List of valid plugin names.
-            std::forward_list<std::string> plugin_names(void)
+            std::vector<std::string> plugin_names(void)
             {
-                std::forward_list<std::string> result;
-                for (auto it = m_name_func_map.rbegin();
-                     it != m_name_func_map.rend();
+                std::vector<std::string> result;
+                for (auto it = m_name_func_map.begin();
+                     it != m_name_func_map.end();
                      ++it) {
-                    result.push_front(it->first);
+                    result.push_back(it->first);
                 }
                 return result;
             }
