@@ -62,14 +62,14 @@ namespace geopm
                 {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 16,
-                      .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                      .domain    = IPlatformTopo::M_DOMAIN_CORE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_HZ,
                       .scalar    = 1e8}},
                  {"ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 33,
-                      .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                      .domain    = IPlatformTopo::M_DOMAIN_CORE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}}}),
