@@ -36,6 +36,9 @@
 #include "Exception.hpp"
 #include "config.h"
 
+///@todo
+#include <iostream>
+
 namespace geopm
 {
 
@@ -75,8 +78,10 @@ namespace geopm
                                    std::make_tuple(freq_ctx_stub));
         }
         m_curr_freq_max = freq;
+        std::cout << __func__ << " m_curr_freq_max(" << m_curr_freq_max << ")" << std::endl;
         ///@todo need logic here to find new curr_freq based on bounds
         m_curr_freq = m_curr_freq_max - m_freq_step;
+        std::cout << __func__ << " m_curr_freq(" << m_curr_freq << ")" << std::endl;
     }
 
     double EnergyEfficientRegion::perf_metric()
@@ -85,6 +90,7 @@ namespace geopm
         if (isnan(runtime)) {
             runtime = 0.0;
         }
+        std::cout << __func__ << " return(" << -1.0 * runtime << ")" << std::endl;
         // Higher is better for performance, so negate
         return -1.0 * runtime;
     }
@@ -94,11 +100,13 @@ namespace geopm
         double total_energy = 0.0;
         total_energy += m_platform_io.sample(m_pkg_energy_idx);
         total_energy += m_platform_io.sample(m_dram_energy_idx);
+        std::cout << __func__ << " return(" << total_energy << ")" << std::endl;
         return total_energy;
     }
 
     double EnergyEfficientRegion::freq(void) const
     {
+        std::cout << __func__ << " return(" << m_curr_freq << ")" << std::endl;
         return m_curr_freq;
     }
 
@@ -111,6 +119,7 @@ namespace geopm
     {
         auto &curr_freq_ctx = m_freq_ctx_map[m_curr_freq];
         auto step_up_freq_ctx_it = m_freq_ctx_map.find(m_curr_freq + m_freq_step);
+        std::cout << __func__ << " m_curr_freq(" << m_curr_freq << ")";
         if (curr_freq_ctx.is_learning) {
             double perf = perf_metric();
             double energy = energy_metric() - m_start_energy;
@@ -118,12 +127,14 @@ namespace geopm
                 if (curr_freq_ctx.num_sample == 0 ||
                     curr_freq_ctx.perf_max < perf) {
                     curr_freq_ctx.perf_max = perf;
+                std::cout << "\t.perf_max(" << curr_freq_ctx.perf_max << ")" << std::endl;
                 }
                 if (curr_freq_ctx.num_sample == 0 ||
                     curr_freq_ctx.energy_min > energy) {
                     curr_freq_ctx.energy_min = energy;
                 }
                 ++curr_freq_ctx.num_sample;
+                std::cout << "\t.num_sample(" << curr_freq_ctx.num_sample << ")" << std::endl;
             }
 
             if (curr_freq_ctx.num_sample > 0) {
@@ -133,9 +144,11 @@ namespace geopm
 
                     if (curr_freq_ctx.perf_max > 0.0) {
                         m_target = (1.0 - M_PERF_MARGIN) * curr_freq_ctx.perf_max;
+                        std::cout << "m_target(" << m_target << ")" << std::endl;
                     }
                     else {
                         m_target = (1.0 + M_PERF_MARGIN) * curr_freq_ctx.perf_max;
+                        std::cout << "m_target(" << m_target << ")" << std::endl;
                     }
                 }
 
@@ -164,6 +177,7 @@ namespace geopm
                         }
                     }
                 }
+                std::cout << "do_increase(" << do_increase << ")" << std::endl;
                 if (do_increase) {
                     // Performance degraded too far; increase freq
                     ++curr_freq_ctx.num_increase;
@@ -173,6 +187,7 @@ namespace geopm
                         curr_freq_ctx.is_learning = false;
                     }
                     m_curr_freq += m_freq_step;
+                    std::cout << "m_curr_freq(" << m_curr_freq << ")" << std::endl;
                 }
             }
         }
