@@ -33,6 +33,7 @@
 geopm(7)            geopm.7
 geopm_agent_energy_efficient(7)  geopm_agent_energy_efficient.7
 geopm_agent_monitor(7)  geopm_agent_monitor.7
+geopm_agent_power_balancer(7)  geopm_agent_power_balancer.7
 geopmpy(7)          geopmpy.7
 geopm_agent_c(3)    geopm_agent_c.3
 geopm_ctl_c(3)      geopm_ctl_c.3
