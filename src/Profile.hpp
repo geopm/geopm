@@ -115,7 +115,7 @@ namespace geopm
             ///         Profile::exit(), Profile::progress and
             ///         Profile::sample() to associate these calls with
             ///         the registered region.
-            virtual uint64_t region(const std::string region_name, long hint) = 0;
+            virtual uint64_t region(const std::string region_name, long hint) const = 0;
             /// @brief Mark a region entry point.
             ///
             /// Called to denote the beginning of region of code that

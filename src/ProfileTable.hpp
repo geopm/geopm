@@ -76,7 +76,7 @@ namespace geopm
             ///
             /// @param [in] name String which is to be mapped to the
             ///        key.
-            virtual uint64_t key(const std::string &name) = 0;
+            virtual uint64_t key(const std::string &name) const = 0;
             /// @brief Insert a value into the table.
             ///
             /// Once the name has been registered with a call to key()

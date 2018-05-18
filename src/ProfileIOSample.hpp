@@ -49,8 +49,8 @@ namespace geopm
             virtual ~IProfileIOSample() = default;
             virtual void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) = 0;
-            virtual std::vector<uint64_t> per_cpu_region_id(void) = 0;
-            virtual std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) = 0;
+            virtual std::vector<uint64_t> per_cpu_region_id(void) const = 0;
+            virtual std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const = 0;
     };
 
     class ProfileIOSample : public IProfileIOSample

@@ -47,11 +47,11 @@ namespace geopm
             virtual ~ISharedMemory() = default;
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
-            virtual void *pointer(void) = 0;
+            virtual void *pointer(void) const = 0;
             /// @brief Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
-            virtual std::string key(void) = 0;
-            virtual size_t size(void) = 0;
+            virtual std::string key(void) const = 0;
+            virtual size_t size(void) const = 0;
     };
 
     /// @brief This class encapsulates attaching to inter-process shared memory.
@@ -61,9 +61,9 @@ namespace geopm
             ISharedMemoryUser() = default;
             ISharedMemoryUser(const ISharedMemoryUser &other) = default;
             virtual ~ISharedMemoryUser() = default;
-            virtual void *pointer(void) = 0;
-            virtual std::string key(void) = 0;
-            virtual size_t size(void) = 0;
+            virtual void *pointer(void) const = 0;
+            virtual std::string key(void) const = 0;
+            virtual size_t size(void) const = 0;
             virtual void unlink(void) = 0;
     };
 

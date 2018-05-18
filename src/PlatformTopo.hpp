@@ -106,7 +106,7 @@ namespace geopm
             /// @param [in] outer_domain The containing domain type.
             /// @return True if the inner_domain is contained within
             ///         the outer_domain.
-            virtual bool is_domain_within(int inner_domain, int outer_domain) = 0;
+            virtual bool is_domain_within(int inner_domain, int outer_domain) const = 0;
             /// @brief Convert a domain type enum to a string.
             /// @param [in] domain_type Domain type from the
             ///        m_domain_e enum.
