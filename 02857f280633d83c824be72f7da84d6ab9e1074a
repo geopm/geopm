@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "7fa9535e_5d109711",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "still needed?",
+      "range": {
+        "startLine": 34,
+        "startChar": 9,
+        "endLine": 34,
+        "endChar": 19
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca777dee_9e3c15dd",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "json11 also has a dump method in case you don\u0027t want to do this formatting yourself.",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "347d261a_2a1d49e9",
         "filename": "src/Endpoint.cpp",
         "patchSetId": 7
@@ -70,6 +110,29 @@
     },
     {
       "key": {
+        "uuid": "50d5c616_14bef85d",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "This is slightly different from what\u0027s documented in geopm(7) for GEOPM_SHMKEY",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 9
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d75f2ec_64345fe4",
         "filename": "src/Environment.cpp",
         "patchSetId": 7
@@ -84,6 +147,189 @@
       "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302dbb97_33260d24",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "maybe these don\u0027t need to be separate APIs anymore",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 44
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20086102_a76a20cf",
+        "filename": "src/geopm_agent.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "separated",
+      "range": {
+        "startLine": 150,
+        "startChar": 34,
+        "endLine": 150,
+        "endChar": 43
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "627238e2_eb356748",
+        "filename": "src/geopm_endpoint.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "failure, more below",
+      "range": {
+        "startLine": 78,
+        "startChar": 43,
+        "endLine": 78,
+        "endChar": 51
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e15d6bf_edbd3cc6",
+        "filename": "src/geopmagent_main.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "maximum of 10 policies?  I guess we should mention this somewhere in the documentation for the Agent class.",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb86bd63_dd202aa1",
+        "filename": "src/geopmagent_main.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "check policy_count is not out of bounds",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f4861ba_6ba19f75",
+        "filename": "src/geopmagent_main.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "surprised this is legal in C",
+      "range": {
+        "startLine": 214,
+        "startChar": 16,
+        "endLine": 214,
+        "endChar": 50
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "236e81b5_775ecd12",
+        "filename": "src/geopmendpoint_main.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "maybe do_create, do_destroy, etc",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 24
+      },
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7810581_81a8763b",
+        "filename": "src/geopmendpoint_main.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "same comment, check this is not out of bounds",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98cc3a55_a441729e",
+        "filename": "src/geopmendpoint_main.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-18T00:30:48Z",
+      "side": 1,
+      "message": "also need to check this is \u003c\u003d DOUBLE_LENGTH",
+      "revId": "02857f280633d83c824be72f7da84d6ab9e1074a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
