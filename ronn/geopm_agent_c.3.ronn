@@ -66,6 +66,14 @@ geopm_agent_c(3) -- geopm mpi job agent management interface
     `size_t` _sample_name_max_, <br>
     `char *`_sample_name_`);`
 
+  * `int geopm_agent_num_avail(`:
+    `int *`_num_agent_`);`
+
+  * `int geopm_agent_name(`:
+    `int` _agent_idx_, <br>
+    `size_t` _agent_name_max_, <br>
+    `char *`_agent_name_`);`
+
 ## DESCRIPTION
 The _geopm_agent_c_ interface is used to query GEOPM about agents on a system
 and create static policies for those agents.  The interface provides
@@ -113,6 +121,17 @@ zero upon success; see [ERRORS][] section below for details.
     in _sample_name_max_.  Returns zero if an agent is supported, the
     _sample_idx_ is in range, and the sample name can be stored in the output
     string (_sample_name_).  Otherwise an error code is returned.
+
+  * `geopm_agent_num_avail`():
+    queries GEOPM for the number of currently available agents.  The output
+    is stored in _num_agent_.  This always returns 0.
+
+  * `geopm_agent_name`():
+    queries GEOPM for the name of the agent occuring at index _agent_idx_.  The
+    result is stored in _agent_name_.  The number of bytes reserved for the
+    output string is specified in _agent_name_max_.  Returns zero if the
+    _agent_idx_ is in range, and the agent name can be stored in the output
+    string (_agent_name_).  Otherwise an error code is returned.
 
 ## ERRORS
 All functions described on this man page return an error code.  See
