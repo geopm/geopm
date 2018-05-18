@@ -83,7 +83,7 @@ namespace geopm
         }
     }
 
-    std::vector<double> ProfileIOSample::per_cpu_progress(const struct geopm_time_s &extrapolation_time)
+    std::vector<double> ProfileIOSample::per_cpu_progress(const struct geopm_time_s &extrapolation_time) const
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
         std::vector<double> rank_progress = per_rank_progress(extrapolation_time);
@@ -95,7 +95,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<double> ProfileIOSample::per_rank_progress(const struct geopm_time_s &extrapolation_time)
+    std::vector<double> ProfileIOSample::per_rank_progress(const struct geopm_time_s &extrapolation_time) const
     {
         double delta;
         double factor;
@@ -152,7 +152,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<uint64_t> ProfileIOSample::per_cpu_region_id(void)
+    std::vector<uint64_t> ProfileIOSample::per_cpu_region_id(void) const
     {
         std::vector<uint64_t> result(m_cpu_rank.size(), GEOPM_REGION_ID_UNMARKED);
         int cpu_idx = 0;

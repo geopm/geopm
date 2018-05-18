@@ -80,31 +80,31 @@ namespace geopm
             /// @param [in] cpu_idx Linux logical CPU index.
             ///
             /// @return Returns the MPI rank running on the given CPU.
-            virtual int cpu_rank(int cpu_idx) = 0;
+            virtual int cpu_rank(int cpu_idx) const = 0;
             /// @brief Used by Controller to query if application has
             /// begun sampling.
             ///
             /// @return Returns true if application has begun putting
             /// samples in the table and false otherwise.
-            virtual bool is_sample_begin(void) = 0;
+            virtual bool is_sample_begin(void) const = 0;
             /// @brief Used by Controller to query if application has
             /// stopped sampling.
             ///
             /// @return Returns true if application has stopped
             /// putting samples in the table and false otherwise.
-            virtual bool is_sample_end(void) = 0;
+            virtual bool is_sample_end(void) const = 0;
             /// @brief Used by Controller to query if application has
             /// begun sending region names.
             ///
             /// @return Returns true if application has begun sending
             /// region names across the table and false otherwise.
-            virtual bool is_name_begin(void) = 0;
+            virtual bool is_name_begin(void) const = 0;
             /// @brief Used by Controller to query if application is
             /// ready to shutdown.
             ///
             /// @return Returns true if application is ready to
             /// shutdown and false otherwise.
-            virtual bool is_shutdown(void) = 0;
+            virtual bool is_shutdown(void) const = 0;
             /// @brief Used to synchronize passing region names across
             /// the table.
             ///
@@ -140,14 +140,14 @@ namespace geopm
             void wait() override;
             void abort(void) override;
             void cpu_rank(int cpu_idx, int rank) override;
-            int cpu_rank(int cpu_idx) override;
-            bool is_sample_begin(void) override;
-            bool is_sample_end(void) override;
-            bool is_name_begin(void) override;
-            bool is_shutdown(void) override;
+            int cpu_rank(int cpu_idx) const override;
+            bool is_sample_begin(void) const override;
+            bool is_sample_end(void) const override;
+            bool is_name_begin(void) const override;
+            bool is_shutdown(void) const override;
             void loop_begin(void) override;
         protected:
-            int this_status();
+            int this_status() const;
             /// @brief Enum encompassing application and
             /// GEOPM runtime state.
             enum m_status_e {

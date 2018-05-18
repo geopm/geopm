@@ -39,25 +39,25 @@ class MockControlMessage : public geopm::IControlMessage
 {
     public:
         MOCK_METHOD0(step,
-                void (void));
+                     void (void));
         MOCK_METHOD0(wait,
-                void (void));
+                     void (void));
         MOCK_METHOD0(abort,
-                void (void));
+                     void (void));
         MOCK_METHOD2(cpu_rank,
-                void (int cpu_idx, int rank));
-        MOCK_METHOD1(cpu_rank,
-                int (int cpu_idx));
-        MOCK_METHOD0(is_sample_begin,
-                bool (void));
-        MOCK_METHOD0(is_sample_end,
-                bool (void));
-        MOCK_METHOD0(is_name_begin,
-                bool (void));
-        MOCK_METHOD0(is_shutdown,
-                bool (void));
+                     void (int cpu_idx, int rank));
+        MOCK_CONST_METHOD1(cpu_rank,
+                           int (int cpu_idx));
+        MOCK_CONST_METHOD0(is_sample_begin,
+                           bool (void));
+        MOCK_CONST_METHOD0(is_sample_end,
+                           bool (void));
+        MOCK_CONST_METHOD0(is_name_begin,
+                           bool (void));
+        MOCK_CONST_METHOD0(is_shutdown,
+                           bool (void));
         MOCK_METHOD0(loop_begin,
-                void (void));
+                     void (void));
 };
 
 #endif

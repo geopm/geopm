@@ -504,17 +504,17 @@ namespace geopm
         return result;
     }
 
-    std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_header(void)
+    std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_header(void) const
     {
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_node(void)
+    std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_node(void) const
     {
         return {};
     }
 
-    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > PowerBalancerAgent::report_region(void)
+    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > PowerBalancerAgent::report_region(void) const
     {
         return {};
     }

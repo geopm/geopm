@@ -106,7 +106,7 @@ namespace geopm
             /// @param [in] outer_domain The containing domain type.
             /// @return True if the inner_domain is contained within
             ///         the outer_domain.
-            virtual bool is_domain_within(int inner_domain, int outer_domain) = 0;
+            virtual bool is_domain_within(int inner_domain, int outer_domain) const = 0;
             /// @brief Convert a domain type enum to a string.
             /// @param [in] domain_type Domain type from the
             ///        m_domain_e enum.
@@ -140,7 +140,7 @@ namespace geopm
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             int define_cpu_group(const std::vector<int> &cpu_domain_idx) override;
-            bool is_domain_within(int inner_domain, int outer_domain) override;
+            bool is_domain_within(int inner_domain, int outer_domain) const override;
         private:
             void lscpu(std::map<std::string, std::string> &lscpu_map);
             void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,

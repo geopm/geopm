@@ -75,7 +75,7 @@ namespace geopm
             ///        constructor function used to create the object.
             /// @return A unique_ptr to the created object.  The
             ///         caller owns the created object.
-            std::unique_ptr<T> make_plugin(const std::string &plugin_name)
+            std::unique_ptr<T> make_plugin(const std::string &plugin_name) const
             {
                 auto it = m_name_func_map.find(plugin_name);
                 if (it == m_name_func_map.end()) {
@@ -88,7 +88,7 @@ namespace geopm
             /// @brief Returns a list of all valid plugin names
             ///        registered with the factory.
             /// @return List of valid plugin names.
-            std::vector<std::string> plugin_names(void)
+            std::vector<std::string> plugin_names(void) const
             {
                 std::vector<std::string> result;
                 for (auto it = m_name_func_map.begin();
@@ -103,7 +103,7 @@ namespace geopm
             ///        registered, throws an exception.
             /// @param [in] plugin_name Name of the registered type.
             /// @return Dictionary of metadata.
-            const std::map<std::string, std::string> &dictionary(const std::string &plugin_name)
+            const std::map<std::string, std::string> &dictionary(const std::string &plugin_name) const
             {
                 auto it = m_dictionary.find(plugin_name);
                 if (it == m_dictionary.end()) {

@@ -225,7 +225,7 @@ namespace geopm
         return result;
     }
 
-    bool PlatformTopo::is_domain_within(int inner_domain, int outer_domain)
+    bool PlatformTopo::is_domain_within(int inner_domain, int outer_domain) const
     {
         bool result = false;
         static const std::set<int> package_domain = {

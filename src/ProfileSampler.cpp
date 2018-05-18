@@ -144,12 +144,12 @@ namespace geopm
         m_ctl_msg->step();  // M_STATUS_SAMPLE_BEGIN
     }
 
-    int ProfileSampler::rank_per_node(void)
+    int ProfileSampler::rank_per_node(void) const
     {
         return m_rank_per_node;
     }
 
-    std::vector<int> ProfileSampler::cpu_rank(void)
+    std::vector<int> ProfileSampler::cpu_rank(void) const
     {
         uint32_t num_cpu = geopm_sched_num_cpu();
         std::vector<int> result(num_cpu);
@@ -164,7 +164,7 @@ namespace geopm
         return result;
     }
 
-    size_t ProfileSampler::capacity(void)
+    size_t ProfileSampler::capacity(void) const
     {
         size_t result = 0;
         for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
@@ -204,12 +204,12 @@ namespace geopm
         }
     }
 
-    bool ProfileSampler::do_shutdown(void)
+    bool ProfileSampler::do_shutdown(void) const
     {
         return m_ctl_msg->is_shutdown();
     }
 
-    bool ProfileSampler::do_report(void)
+    bool ProfileSampler::do_report(void) const
     {
         return m_do_report;
     }
@@ -246,22 +246,22 @@ namespace geopm
         m_ctl_msg->wait();  // M_STATUS_SHUTDOWN
     }
 
-    std::set<std::string> ProfileSampler::name_set(void)
+    std::set<std::string> ProfileSampler::name_set(void) const
     {
         return m_name_set;
     }
 
-    std::string ProfileSampler::report_name(void)
+    std::string ProfileSampler::report_name(void) const
     {
         return m_report_name;
     }
 
-    std::string ProfileSampler::profile_name(void)
+    std::string ProfileSampler::profile_name(void) const
     {
         return m_profile_name;
     }
 
-    std::shared_ptr<IProfileThreadTable> ProfileSampler::tprof_table(void)
+    std::shared_ptr<IProfileThreadTable> ProfileSampler::tprof_table(void) const
     {
         return m_tprof_table;
     }
@@ -284,7 +284,7 @@ namespace geopm
         m_table = geopm::make_unique<ProfileTable>(m_table_shmem->size(), m_table_shmem->pointer());
     }
 
-    size_t ProfileRankSampler::capacity(void)
+    size_t ProfileRankSampler::capacity(void) const
     {
         return m_table->capacity();
     }
@@ -312,12 +312,12 @@ namespace geopm
         return m_is_name_finished;
     }
 
-    void ProfileRankSampler::report_name(std::string &report_str)
+    void ProfileRankSampler::report_name(std::string &report_str) const
     {
         report_str = m_report_name;
     }
 
-    void ProfileRankSampler::profile_name(std::string &prof_str)
+    void ProfileRankSampler::profile_name(std::string &prof_str) const
     {
         prof_str = m_prof_name;
     }

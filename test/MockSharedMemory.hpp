@@ -52,16 +52,15 @@ class MockSharedMemory : public geopm::ISharedMemory
 
         virtual ~MockSharedMemory() = default;
 
-        MOCK_METHOD0(pointer,
-                void *(void));
-        MOCK_METHOD0(key,
-                std::string (void));
-        MOCK_METHOD0(size,
-                size_t (void));
+        MOCK_CONST_METHOD0(pointer,
+                           void *(void));
+        MOCK_CONST_METHOD0(key,
+                           std::string (void));
+        MOCK_CONST_METHOD0(size,
+                           size_t (void));
 
     protected:
         std::vector<char> m_buffer;
 };
 
 #endif
-

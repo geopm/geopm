@@ -44,10 +44,10 @@ class MockProfileIOSample : public geopm::IProfileIOSample
         MOCK_METHOD2(update,
                      void(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                           std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end));
-        MOCK_METHOD0(per_cpu_region_id,
-                     std::vector<uint64_t>(void));
-        MOCK_METHOD1(per_cpu_progress,
-                     std::vector<double>(const struct geopm_time_s &extrapolation_time));
+        MOCK_CONST_METHOD0(per_cpu_region_id,
+                           std::vector<uint64_t>(void));
+        MOCK_CONST_METHOD1(per_cpu_progress,
+                           std::vector<double>(const struct geopm_time_s &extrapolation_time));
 };
 
 #endif

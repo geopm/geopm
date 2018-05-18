@@ -151,17 +151,17 @@ namespace geopm
         return {"POWER_PACKAGE", "FREQUENCY"};;
     }
 
-    std::vector<std::pair<std::string, std::string> > MonitorAgent::report_header(void)
+    std::vector<std::pair<std::string, std::string> > MonitorAgent::report_header(void) const
     {
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > MonitorAgent::report_node(void)
+    std::vector<std::pair<std::string, std::string> > MonitorAgent::report_node(void) const
     {
         return {};
     }
 
-    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > MonitorAgent::report_region(void)
+    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > MonitorAgent::report_region(void) const
     {
         return {};
     }

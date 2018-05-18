@@ -251,12 +251,12 @@ namespace geopm
         return {"ENERGY_PACKAGE", "ENERGY_DRAM"};
     }
 
-    std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_header(void)
+    std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_header(void) const
     {
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_node(void)
+    std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_node(void) const
     {
         std::vector<std::pair<std::string, std::string> > result;
         std::ostringstream oss;
@@ -269,7 +269,7 @@ namespace geopm
         return result;
     }
 
-    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void)
+    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
         return {};
     }

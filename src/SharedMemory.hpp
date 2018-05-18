@@ -47,11 +47,11 @@ namespace geopm
             virtual ~ISharedMemory() = default;
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
-            virtual void *pointer(void) = 0;
+            virtual void *pointer(void) const = 0;
             /// @brief Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
-            virtual std::string key(void) = 0;
-            virtual size_t size(void) = 0;
+            virtual std::string key(void) const = 0;
+            virtual size_t size(void) const = 0;
     };
 
     /// @brief This class encapsulates attaching to inter-process shared memory.
@@ -61,9 +61,9 @@ namespace geopm
             ISharedMemoryUser() = default;
             ISharedMemoryUser(const ISharedMemoryUser &other) = default;
             virtual ~ISharedMemoryUser() = default;
-            virtual void *pointer(void) = 0;
-            virtual std::string key(void) = 0;
-            virtual size_t size(void) = 0;
+            virtual void *pointer(void) const = 0;
+            virtual std::string key(void) const = 0;
+            virtual size_t size(void) const = 0;
             virtual void unlink(void) = 0;
     };
 
@@ -79,11 +79,11 @@ namespace geopm
             virtual ~SharedMemory();
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
-            void *pointer(void) override;
+            void *pointer(void) const override;
             /// @brief Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
-            std::string key(void) override;
-            size_t size(void) override;
+            std::string key(void) const override;
+            size_t size(void) const override;
         private:
             /// @brief Shared memory key for the region.
             std::string m_shm_key;
@@ -111,9 +111,9 @@ namespace geopm
             SharedMemoryUser(const std::string &shm_key);
             /// Destructor detaches from shared memory region.
             virtual ~SharedMemoryUser();
-            void *pointer(void) override;
-            std::string key(void) override;
-            size_t size(void) override;
+            void *pointer(void) const override;
+            std::string key(void) const override;
+            size_t size(void) const override;
             void unlink(void) override;
         private:
             /// Shared memory key for the region.

@@ -97,17 +97,17 @@ namespace geopm
         (void) shm_unlink(m_shm_key.c_str());
     }
 
-    void *SharedMemory::pointer(void)
+    void *SharedMemory::pointer(void) const
     {
         return m_ptr;
     }
 
-    std::string SharedMemory::key(void)
+    std::string SharedMemory::key(void) const
     {
         return m_shm_key;
     }
 
-    size_t SharedMemory::size(void)
+    size_t SharedMemory::size(void) const
     {
         return m_size;
     }
@@ -202,17 +202,17 @@ namespace geopm
         }
     }
 
-    void *SharedMemoryUser::pointer(void)
+    void *SharedMemoryUser::pointer(void) const
     {
         return m_ptr;
     }
 
-    std::string SharedMemoryUser::key(void)
+    std::string SharedMemoryUser::key(void) const
     {
         return m_shm_key;
     }
 
-    size_t SharedMemoryUser::size(void)
+    size_t SharedMemoryUser::size(void) const
     {
         return m_size;
     }

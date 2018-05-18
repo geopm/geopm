@@ -103,32 +103,32 @@ namespace geopm
         m_ctl_msg.cpu_rank[cpu_idx] = rank;
     }
 
-    int ControlMessage::cpu_rank(int cpu_idx)
+    int ControlMessage::cpu_rank(int cpu_idx) const
     {
         return m_ctl_msg.cpu_rank[cpu_idx];
     }
 
-    bool ControlMessage::is_sample_begin(void)
+    bool ControlMessage::is_sample_begin(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_SAMPLE_BEGIN);
     }
 
-    bool ControlMessage::is_sample_end(void)
+    bool ControlMessage::is_sample_end(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_SAMPLE_END);
     }
 
-    bool ControlMessage::is_name_begin(void)
+    bool ControlMessage::is_name_begin(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_NAME_BEGIN);
     }
 
-    bool ControlMessage::is_shutdown(void)
+    bool ControlMessage::is_shutdown(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_SHUTDOWN);
     }
 
-    int ControlMessage::this_status()
+    int ControlMessage::this_status() const
     {
         return (m_is_ctl ? m_ctl_msg.app_status : m_ctl_msg.ctl_status);
     }

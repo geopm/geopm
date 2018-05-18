@@ -41,32 +41,32 @@
 class MockProfileSampler : public geopm::IProfileSampler
 {
     public:
-        MOCK_METHOD0(capacity,
-            size_t (void));
+        MOCK_CONST_METHOD0(capacity,
+                     size_t (void));
         MOCK_METHOD3(sample,
-            void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
-                  size_t &length,
-                  std::shared_ptr<geopm::Comm> comm));
-        MOCK_METHOD0(do_shutdown,
-            bool (void));
-        MOCK_METHOD0(do_report,
-            bool (void));
+                     void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
+                           size_t &length,
+                           std::shared_ptr<geopm::Comm> comm));
+        MOCK_CONST_METHOD0(do_shutdown,
+                     bool (void));
+        MOCK_CONST_METHOD0(do_report,
+                           bool (void));
         MOCK_METHOD0(region_names,
-            void (void));
+                     void (void));
         MOCK_METHOD0(initialize,
-            void (void));
-        MOCK_METHOD0(rank_per_node,
-            int (void));
-        MOCK_METHOD0(cpu_rank,
-            std::vector<int> (void));
-        MOCK_METHOD0(name_set,
-            std::set<std::string> (void));
-        MOCK_METHOD0(report_name,
-            std::string (void));
-        MOCK_METHOD0(profile_name,
-            std::string (void));
-        MOCK_METHOD0(tprof_table,
-            std::shared_ptr<geopm::IProfileThreadTable>(void));
+                     void (void));
+        MOCK_CONST_METHOD0(rank_per_node,
+                           int (void));
+        MOCK_CONST_METHOD0(cpu_rank,
+                           std::vector<int> (void));
+        MOCK_CONST_METHOD0(name_set,
+                           std::set<std::string> (void));
+        MOCK_CONST_METHOD0(report_name,
+                           std::string (void));
+        MOCK_CONST_METHOD0(profile_name,
+                           std::string (void));
+        MOCK_CONST_METHOD0(tprof_table,
+                           std::shared_ptr<geopm::IProfileThreadTable>(void));
         MOCK_METHOD0(controller_ready,
                      void(void));
         MOCK_METHOD0(abort,

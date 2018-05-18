@@ -72,7 +72,7 @@ namespace geopm
             ///
             /// @return The maximum number of samples that can possibly
             ///         be returned.
-            virtual size_t capacity(void) = 0;
+            virtual size_t capacity(void) const = 0;
             /// @brief Retrieve region names from the application process.
             ///
             /// Coordinates with the application process to retrieve the
@@ -82,8 +82,8 @@ namespace geopm
             /// @return Returns true if finished retrieving names from the
             ///         application, else returns false.
             virtual bool name_fill(std::set<std::string> &name_set) = 0;
-            virtual void report_name(std::string &report_str) = 0;
-            virtual void profile_name(std::string &prof_str) = 0;
+            virtual void report_name(std::string &report_str) const = 0;
+            virtual void profile_name(std::string &prof_str) const = 0;
     };
 
     class IProfileSampler
@@ -97,7 +97,7 @@ namespace geopm
             ///
             /// @return The maximum number of samples that can possibly
             ///         be returned.
-            virtual size_t capacity(void) = 0;
+            virtual size_t capacity(void) const = 0;
             /// @brief Returns the samples present in all the per-rank
             ///        hash tables.
             ///
@@ -121,12 +121,12 @@ namespace geopm
             ///
             /// @return Return true if application is shutting down, else
             ///         returns false.
-            virtual bool do_shutdown(void) = 0;
+            virtual bool do_shutdown(void) const = 0;
             /// @brief Generate a post-run report for a single node.
             ///
             /// Generates a post-run report by telling each ProfileRankSampler
             /// to dump its per-region statistics to a file descriptor.
-            virtual bool do_report(void) = 0;
+            virtual bool do_report(void) const = 0;
             virtual void region_names(void) = 0;
             /// @brief Initialize shared memory regions.
             ///
@@ -138,7 +138,7 @@ namespace geopm
             ///
             /// @return number of mpi ranks
             /// running on the node.
-            virtual int rank_per_node(void) = 0;
+            virtual int rank_per_node(void) const = 0;
             /// @brief Retrieve a vector to the affinities of all
             ///        application ranks.
             ///
@@ -151,11 +151,11 @@ namespace geopm
             /// @return Vector to be filled with the MPI rank for each
             ///         Linux CPU, set to -1 if no MPI rank is
             ///         affinitized.
-            virtual std::vector<int> cpu_rank(void) = 0;
-            virtual std::set<std::string> name_set(void) = 0;
-            virtual std::string report_name(void) = 0;
-            virtual std::string profile_name(void) = 0;
-            virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) = 0;
+            virtual std::vector<int> cpu_rank(void) const = 0;
+            virtual std::set<std::string> name_set(void) const = 0;
+            virtual std::string report_name(void) const = 0;
+            virtual std::string profile_name(void) const = 0;
+            virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) const = 0;
             /// @brief Signal to the application that the controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
@@ -203,11 +203,11 @@ namespace geopm
             ///
             /// @param [out] length The number of samples that were inserted.
             void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length) override;
-            size_t capacity(void) override;
+            size_t capacity(void) const override;
             bool name_fill(std::set<std::string> &name_set) override;
-            void report_name(std::string &report_str) override;
-            void profile_name(std::string &prof_str) override;
-            std::shared_ptr<IProfileThreadTable> tprof_table(void);
+            void report_name(std::string &report_str) const override;
+            void profile_name(std::string &prof_str) const override;
+            std::shared_ptr<IProfileThreadTable> tprof_table(void) const;
         private:
             /// Holds the shared memory region used for sampling from the
             /// application process.
@@ -269,18 +269,18 @@ namespace geopm
             ///
             /// @return The maximum number of samples that can possibly
             ///         be returned.
-            size_t capacity(void) override;
+            size_t capacity(void) const override;
             void sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<Comm> comm) override;
-            bool do_shutdown(void) override;
-            bool do_report(void) override;
+            bool do_shutdown(void) const override;
+            bool do_report(void) const override;
             void region_names(void) override;
             void initialize(void) override;
-            int rank_per_node(void) override;
-            std::vector<int> cpu_rank(void) override;
-            std::set<std::string> name_set(void) override;
-            std::string report_name(void) override;
-            std::string profile_name(void) override;
-            std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
+            int rank_per_node(void) const override;
+            std::vector<int> cpu_rank(void) const override;
+            std::set<std::string> name_set(void) const override;
+            std::string report_name(void) const override;
+            std::string profile_name(void) const override;
+            std::shared_ptr<IProfileThreadTable> tprof_table(void) const override;
             void controller_ready(void) override;
             void abort(void) override;
         private:
