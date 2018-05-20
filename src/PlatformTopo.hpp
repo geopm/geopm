@@ -120,9 +120,12 @@ namespace geopm
             /// @return Domain type from the m_domain_e enum.
             static int domain_name_to_type(const std::string &domain_name);
         private:
-            static std::map<std::string, int> build_domain_map(void);
-            static const std::vector<std::string> m_domain_name;
-            static const std::map<std::string, int> m_domain_type;
+            //static std::map<std::string, int> build_domain_map(const std::string &domain_name);
+            //static const std::vector<std::string> m_domain_name;
+            //static const std::map<std::string, int> m_domain_type;
+            static std::vector<std::string> domain_names(void);
+            static std::map<std::string, int> domain_types(void);
+
     };
 
     IPlatformTopo &platform_topo(void);

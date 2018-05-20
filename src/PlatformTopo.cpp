@@ -260,6 +260,7 @@ namespace geopm
         return result;
     }
 
+    /*
     const std::vector<std::string> IPlatformTopo::m_domain_name = {
         "invalid",
         "board",
@@ -272,9 +273,10 @@ namespace geopm
         "package_nic",
         "board_accelerator",
         "package_accelerator",
-    };
+        };
 
-    const std::map<std::string, int> IPlatformTopo::m_domain_type = build_domain_map();
+    bool is_domain_type_built = false;
+    //const std::map<std::string, int> IPlatformTopo::m_domain_type = build_domain_map();
 
     std::map<std::string, int> IPlatformTopo::build_domain_map(void)
     {
@@ -296,6 +298,46 @@ namespace geopm
         }
         return result;
     }
+    */
+
+    std::vector<std::string> IPlatformTopo::domain_names(void)
+    {
+        return {
+            "invalid",
+                "board",
+                "package",
+                "core",
+                "cpu",
+                "board_memory",
+                "package_memory",
+                "board_nic",
+                "package_nic",
+                "board_accelerator",
+                "package_accelerator",
+                };
+    }
+
+    std::map<std::string, int> IPlatformTopo::domain_types(void)
+    {
+        std::map<std::string, int> result;
+        int domain_type = M_DOMAIN_INVALID;
+        auto names = domain_names();
+        for (const auto &name : names) {
+            result[name] = domain_type;
+            ++domain_type;
+        }
+        if (names.size() != M_NUM_DOMAIN) {
+            throw Exception("IPlatformTopo::m_domain_name has incorrect size.  "
+                            "Domains must match m_domain_e in number and order.",
+                            GEOPM_ERROR_LOGIC);
+        }
+        if (result.size() != M_NUM_DOMAIN) {
+            throw Exception("IPlatformTopo::m_domain_type has incorrect size.  "
+                            "Domain type mapping must match m_domain_name.",
+                            GEOPM_ERROR_LOGIC);
+        }
+        return result;
+    }
 
     std::string IPlatformTopo::domain_type_to_name(int domain_type)
     {
@@ -303,11 +345,12 @@ namespace geopm
             throw Exception("PlatformTopo::domain_type_to_name(): unrecognized domain_type: " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_domain_name[domain_type];
+        return domain_names()[domain_type];
     }
 
     int IPlatformTopo::domain_name_to_type(const std::string &domain_name)
     {
+        auto m_domain_type = domain_types();
         auto it = m_domain_type.find(domain_name);
         if (it == m_domain_type.end()) {
             throw Exception("PlatformTopo::domain_name_to_type(): unrecognized domain_name: " + domain_name,
