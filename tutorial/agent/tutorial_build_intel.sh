@@ -38,7 +38,7 @@ if [ ! "$OMP_FLAGS" ]; then
 fi
 
 # link with geopmpolicy since MPI is not required
-GEOPM_LDFLAGS="-L$GEOPM_LIBDIR -lgeopmpolicy -pthread -fPIC -shared"
+GEOPM_LDFLAGS="-L$GEOPM_LIBDIR -lgeopmpolicy -pthread -fPIC -shared -rdynamic"
 
 make \
 CC=icc CXX=icpc \

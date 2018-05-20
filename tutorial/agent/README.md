@@ -186,12 +186,21 @@ Specify the ExampleAgent as the Agent for the Controller by setting
 GEOPM_AGENT=example.  The name of the Agent should match the name
 returned by plugin_name() used for registration.  This Agent requires
 values for two policies listed in policy_names(); these are provided
-in example_config.json.  Pass this configuration file to launcher with
+in example_policy.json.  Pass this configuration file to launcher with
 the --geopm-policy option or by setting
-GEOPM_POLICY=example_config.json.
+GEOPM_POLICY=example_config.json.  Be sure that both the ExampleIO
+plugin and the ExampleAgent plugin are in GEOPM_PLUGIN_PATH.
 
-TODO: run script
+An example run script is provided in agent_tutorial.sh.  It uses the
+geopmbench application.  Before running, build and install GEOPM and
+make sure that both plugins are built using the tutorial_build_*.sh
+script in each folder.  During the run, the idle percent will be
+printed to either standard out or standard error, depending on whether
+it falls within the bounds set in example_policy.json.  The run script
+redirects standard out/error to separate files.
 
-The tutorials on running GEOPM found in the parent directory
-($GEOPM_ROOT/tutorial) provide a good starting point for quickly
-running GEOPM with a simple benchmark application, geopmbench.
+After the run completes, inspect the report and trace files generated.
+The report should show that the agent used was "example" and you should see
+the agent-specific details in the header and node sections of the report.
+The trace should have additional columns for the utilization percents and
+the signals read by the agent as returned by trace_values().

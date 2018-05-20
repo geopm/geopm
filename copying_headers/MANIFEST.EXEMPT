@@ -65,6 +65,7 @@ tutorial/README.md
 tutorial/tutorial_6_config.json
 tutorial/tutorial_balanced_policy.json
 tutorial/tutorial_governed_policy.json
+tutorial/agent/agent_tutorial_config.json
+tutorial/agent/example_policy.json
 tutorial/agent/README.md
-tutorial/agent/example_config.json
 tutorial/iogroup/README.md

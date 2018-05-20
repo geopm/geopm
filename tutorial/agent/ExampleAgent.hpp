@@ -58,9 +58,9 @@ namespace geopm
             bool adjust_platform(const std::vector<double> &in_policy) override;
             bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
-            std::vector<std::pair<std::string, std::string> > report_header(void) override;
-            std::vector<std::pair<std::string, std::string> > report_node(void) override;
-            std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) override;
+            std::vector<std::pair<std::string, std::string> > report_header(void) const override;
+            std::vector<std::pair<std::string, std::string> > report_node(void) const override;
+            std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
             std::vector<std::string> trace_names(void) const override;
             void trace_values(std::vector<double> &values) override;
 
@@ -87,9 +87,9 @@ namespace geopm
             // Signals read in sample_platform()
             enum m_plat_signal_e {
                 M_PLAT_SIGNAL_USER,
-                M_PLAT_SIGNAL_NICE,
                 M_PLAT_SIGNAL_SYSTEM,
                 M_PLAT_SIGNAL_IDLE,
+                M_PLAT_SIGNAL_NICE,
                 M_NUM_PLAT_SIGNAL
             };
             // Controls written in adjust_platform()
@@ -104,7 +104,6 @@ namespace geopm
 
             std::vector<int> m_signal_idx;
             std::vector<int> m_control_idx;
-            std::vector<double> m_last_policy;
             std::vector<double> m_last_sample;
             std::vector<double> m_last_signal;
 

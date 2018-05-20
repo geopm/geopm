@@ -343,6 +343,7 @@ tutorial/tutorial_build_intel.sh
 tutorial/tutorial_env.sh
 tutorial/tutorial_region.c
 tutorial/tutorial_region.h
+tutorial/agent/agent_tutorial.sh
 tutorial/agent/ExampleAgent.cpp
 tutorial/agent/ExampleAgent.hpp
 tutorial/agent/Makefile

@@ -188,9 +188,11 @@ EXTRA_DIST = .gitignore \
              geopm-tutorial.tar.gz \
              # end
 
-TUTORIAL_DIST = tutorial/agent/ExampleAgent.cpp \
+TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
+                tutorial/agent/agent_tutorial_config.json \
+                tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
-                tutorial/agent/example_config.json \
+                tutorial/agent/example_policy.json \
                 tutorial/agent/Makefile \
                 tutorial/agent/README.md \
                 tutorial/agent/tutorial_build_gnu.sh \
