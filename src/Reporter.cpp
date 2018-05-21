@@ -70,8 +70,8 @@ namespace geopm
     {
         m_energy_pkg_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_energy_dram_idx = m_platform_io.push_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_core_idx = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_ref_idx = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_core_idx = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_CPU, 0);
+        m_clk_ref_idx = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_CPU, 0);
         m_platform_io.push_region_signal_total(m_energy_pkg_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_energy_dram_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_clk_core_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);

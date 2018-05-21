@@ -279,8 +279,7 @@ namespace geopm
 
     void PlatformIO::push_region_signal_total(int signal_idx, int domain_type, int domain_idx)
     {
-        int rid_idx = push_signal("REGION_ID#", domain_type, domain_idx);
-        m_region_id_idx[signal_idx] = rid_idx;
+        m_region_id_idx[signal_idx] = push_signal("REGION_ID#", domain_type, domain_idx);
     }
 
     int PlatformIO::push_control(const std::string &control_name,
