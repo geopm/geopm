@@ -128,6 +128,7 @@ namespace geopm
                 break;
             case IMSR::M_FUNCTION_NORMALIZE_64:
                 result = sub_field - last_value;
+                break;
             default:
                 break;
         }
@@ -370,6 +371,24 @@ namespace geopm
         , m_signal_last(0)
         , m_is_field_mapped(false)
         , m_is_sample_once(true)
+        , m_is_raw(false)
+    {
+
+    }
+
+    MSRSignal::MSRSignal(const IMSR &msr_obj,
+                         int domain_type,
+                         int cpu_idx)
+        : m_name(msr_obj.name() + "#")
+        , m_msr_obj(msr_obj)
+        , m_domain_type(domain_type)
+        , m_cpu_idx(cpu_idx)
+        , m_signal_idx(0)
+        , m_field_ptr(nullptr)
+        , m_signal_last(0)
+        , m_is_field_mapped(false)
+        , m_is_sample_once(true)
+        , m_is_raw(true)
     {
 
     }
@@ -384,6 +403,7 @@ namespace geopm
         , m_signal_last(other.m_signal_last)
         , m_is_field_mapped(false)
         , m_is_sample_once(other.m_is_sample_once)
+        , m_is_raw(other.m_is_raw)
     {
 
     }
@@ -410,13 +430,16 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        double result = m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_signal_last);
-        if (m_msr_obj.decode_function(m_signal_idx) == IMSR::M_FUNCTION_OVERFLOW) {
-            m_signal_last = *m_field_ptr;
-        }
-        else if (m_is_sample_once && m_msr_obj.decode_function(m_signal_idx) == IMSR::M_FUNCTION_NORMALIZE_64) {
-            m_signal_last = *m_field_ptr;
-            result = 0.0;
+        double result = *m_field_ptr;
+        if (!m_is_raw) {
+            result = m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_signal_last);
+            if (m_msr_obj.decode_function(m_signal_idx) == IMSR::M_FUNCTION_OVERFLOW) {
+                m_signal_last = *m_field_ptr;
+            }
+            else if (m_is_sample_once && m_msr_obj.decode_function(m_signal_idx) == IMSR::M_FUNCTION_NORMALIZE_64) {
+                m_signal_last = *m_field_ptr;
+                result = 0.0;
+            }
         }
         m_is_sample_once = false;
         return result;
