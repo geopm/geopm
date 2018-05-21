@@ -308,16 +308,16 @@ TEST_F(MSRIOGroupTest, sample)
     double inst_0 = m_msrio_group->sample(inst_idx_0);
     double inst_1 = m_msrio_group->sample(inst_idx_1);
     EXPECT_EQ(1.1e9, freq_0);
-    EXPECT_EQ(0, inst_0);
-    EXPECT_EQ(0, inst_1);
+    EXPECT_EQ(1234, inst_0);
+    EXPECT_EQ(5678, inst_1);
 
     // sample again without read should get same value
     freq_0 = m_msrio_group->sample(freq_idx_0);
     inst_0 = m_msrio_group->sample(inst_idx_0);
     inst_1 = m_msrio_group->sample(inst_idx_1);
     EXPECT_EQ(1.1e9, freq_0);
-    EXPECT_EQ(0, inst_0);
-    EXPECT_EQ(0, inst_1);
+    EXPECT_EQ(1234, inst_0);
+    EXPECT_EQ(5678, inst_1);
 
     // read_batch sees updated values
     value = 0xC00;
@@ -335,8 +335,8 @@ TEST_F(MSRIOGroupTest, sample)
     inst_1 = m_msrio_group->sample(inst_idx_1);
     EXPECT_EQ(1.2e9, freq_0);
     // note that 64-bit counters are normalized to first sample
-    EXPECT_EQ(87654 - 1234, inst_0);
-    EXPECT_EQ(65432 - 5678, inst_1);
+    EXPECT_EQ(87654, inst_0);
+    EXPECT_EQ(65432, inst_1);
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0),
                                GEOPM_ERROR_INVALID, "cannot push a signal after read_batch");
@@ -349,8 +349,8 @@ TEST_F(MSRIOGroupTest, read_signal)
 {
     EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _, _)).Times(1);
     EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(1);
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_CPU, _, _)).Times(3);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(3);
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_CPU, _, _)).Times(2);
+    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2);
 
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd_0);
@@ -362,22 +362,18 @@ TEST_F(MSRIOGroupTest, read_signal)
     double freq_0 = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(1.3e9, freq_0);
 
-    // @todo read_batch and sample is required for last value of 64-bit counter to work
     value = 7777;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
-    int idx = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
-    m_msrio_group->read_batch();
-    m_msrio_group->sample(idx);
 
     double inst_0 = m_msrio_group->read_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
     // 64-bit counters are normalized to first sample
-    EXPECT_EQ(0, inst_0);
+    EXPECT_EQ(7777, inst_0);
     value = 8888;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
     inst_0 = m_msrio_group->read_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
-    EXPECT_EQ(1111, inst_0);
+    EXPECT_EQ(8888, inst_0);
 
     close(fd_0);
 }
@@ -649,7 +645,7 @@ TEST_F(MSRIOGroupTest, register_msr_signal)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::BAD:BAD"),
                                GEOPM_ERROR_INVALID, "msr_name could not be found");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::PERF_STATUS:BAD"),
-                               GEOPM_ERROR_INVALID, "field_name could not be found");
+                               GEOPM_ERROR_INVALID, "field_name: BAD could not be found");
 }
 
 TEST_F(MSRIOGroupTest, register_msr_control)
@@ -663,6 +659,6 @@ TEST_F(MSRIOGroupTest, register_msr_control)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::BAD:BAD"),
                                GEOPM_ERROR_INVALID, "msr_name could not be found");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::PERF_STATUS:BAD"),
-                               GEOPM_ERROR_INVALID, "field_name could not be found");
+                               GEOPM_ERROR_INVALID, "field_name: BAD could not be found");
 
 }
