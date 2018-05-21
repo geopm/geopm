@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "111ec69d_b99eab14",
+        "filename": "tutorial/agent/ExampleAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-21T17:51:31Z",
+      "side": 1,
+      "message": "Add another enum that describes what goes into the trace rather than using the m_plat_signal_e enum for two different purposes.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 14
+      },
+      "revId": "f6c94af7cff27a8534b68febf9ce2ccf736c6314",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a9c1fb5_665eb6d0",
         "filename": "tutorial/agent/agent_tutorial.sh",
         "patchSetId": 1
