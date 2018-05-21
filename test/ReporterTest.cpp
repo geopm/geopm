@@ -36,6 +36,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockApplicationIO.hpp"
@@ -73,6 +74,7 @@ class ReporterTest : public testing::Test
 {
     protected:
         enum {
+            M_TIME_IDX,
             M_ENERGY_PKG_IDX,
             M_ENERGY_DRAM_IDX,
             M_CLK_CORE_IDX,
@@ -104,6 +106,12 @@ class ReporterTest : public testing::Test
             {geopm_crc32_str(0, "all2all"), 20},
             {geopm_crc32_str(0, "model-init"), 1},
             {GEOPM_REGION_ID_EPOCH, 0}
+        };
+        std::map<uint64_t, double> m_region_rt = {
+            {geopm_crc32_str(0, "all2all"), 555},
+            {geopm_crc32_str(0, "model-init"), 333},
+            {GEOPM_REGION_ID_UNMARKED, 444},
+            {GEOPM_REGION_ID_EPOCH, 666}
         };
         std::map<uint64_t, double> m_region_energy = {
             {geopm_crc32_str(0, "all2all"), 777},
@@ -138,6 +146,9 @@ ReporterTest::ReporterTest()
     ON_CALL(m_application_io, region_name_set())
         .WillByDefault(Return(m_region_set));
 
+    EXPECT_CALL(m_platform_io, push_signal("TIME", _, _))
+        .WillOnce(Return(M_TIME_IDX));
+    EXPECT_CALL(m_platform_io, push_region_signal_total(M_TIME_IDX, _, _));
     EXPECT_CALL(m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
         .WillOnce(Return(M_ENERGY_PKG_IDX));
     EXPECT_CALL(m_platform_io, push_region_signal_total(M_ENERGY_PKG_IDX, _, _));
@@ -176,6 +187,9 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
     EXPECT_CALL(m_application_io, total_epoch_mpi_runtime()).WillOnce(Return(7.0));
     EXPECT_CALL(m_application_io, total_epoch_energy()).WillOnce(Return(8888));
+    EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .Times(4)
+        .WillRepeatedly(Return(1.0));
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
     for (auto rid : m_region_runtime) {
         EXPECT_CALL(m_application_io, total_region_runtime(rid.first))
@@ -188,6 +202,15 @@ TEST_F(ReporterTest, generate)
     for (auto rid : m_region_count) {
         EXPECT_CALL(m_application_io, total_count(rid.first))
             .WillOnce(Return(rid.second));
+    }
+    for (auto rid : m_region_rt) {
+        EXPECT_CALL(m_platform_io, sample_region_total(M_TIME_IDX, rid.first))
+            .WillOnce(Return(rid.second));
+        if (rid.first != GEOPM_REGION_ID_UNMARKED && rid.first != GEOPM_REGION_ID_EPOCH) {
+            EXPECT_CALL(m_platform_io,
+                        sample_region_total(M_TIME_IDX, geopm_region_id_set_mpi(rid.first)))
+                .WillOnce(Return(0.5));
+        }
     }
     for (auto rid : m_region_energy) {
         EXPECT_CALL(m_platform_io, sample_region_total(M_ENERGY_PKG_IDX, rid.first))
@@ -242,30 +265,38 @@ TEST_F(ReporterTest, generate)
         "four: 4\n"
         "Region all2all (\n"
         "    runtime (sec): 33.33\n"
+        "    sync-runtime (sec): 555.5\n"
         "    energy (joules): 778\n"
         "    frequency (%): 81.81\n"
+        "    frequency (Hz): 0.818182\n"
         "    mpi-runtime (sec): 3.4\n"
         "    count: 20\n"
         "    agent stat: 1\n"
         "    agent other stat: 2\n"
         "Region model-init (\n"
         "    runtime (sec): 22.11\n"
+        "    sync-runtime (sec): 333.5\n"
         "    energy (joules): 889\n"
         "    frequency (%): 84.84\n"
+        "    frequency (Hz): 0.848485\n"
         "    mpi-runtime (sec): 5.6\n"
         "    count: 1\n"
         "    agent stat: 2\n"
         "Region unmarked-region (\n"
         "    runtime (sec): 12.13\n"
+        "    sync-runtime (sec): 444\n"
         "    energy (joules): 223\n"
         "    frequency (%): 77.2727\n"
+        "    frequency (Hz): 0.772727\n"
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
         "    agent stat: 3\n"
         "Region epoch (\n"
         "    runtime (sec): 77.7\n"
+        "    sync-runtime (sec): 666\n"
         "    energy (joules): 8888\n"
         "    frequency (%): 0\n"
+        "    frequency (Hz): 0\n"
         "    mpi-runtime (sec): 4.2\n"
         "    count: 0\n"
         "    agent stat: 4\n"
