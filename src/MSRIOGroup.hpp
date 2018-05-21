@@ -127,6 +127,7 @@ namespace geopm
             };
             void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
             void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
+            void enable_fixed_counters(void);
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);

@@ -46,6 +46,7 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "geopm_sched.h"
+#include "geopm_hash.h"
 #include "config.h"
 
 #define  GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct MSRIO::m_msr_batch_array)
@@ -173,11 +174,16 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 break;
+            case IMSR::M_FUNCTION_OVERFLOW:
+                result = (uint64_t)value;
+                break;
+            case IMSR::M_FUNCTION_NORMALIZE_64:
+                result = geopm_signal_to_field(value);
+                break;
             default:
-                throw Exception("MSR::encode(): unimplemented scale function",
+                throw Exception("MSR::encode(): unimplemented scale function: " + std::to_string(m_function),
                                 GEOPM_ERROR_NOT_IMPLEMENTED,  __FILE__, __LINE__);
                 break;
-
         }
         result = (result << m_shift) & m_mask;
         return result;

@@ -97,6 +97,8 @@ namespace geopm
 
         register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
+
+        enable_fixed_counters();
     }
 
     MSRIOGroup::~MSRIOGroup()
@@ -638,7 +640,7 @@ namespace geopm
         const IMSR &msr_obj = name_msr_it->second;
         int control_idx = msr_obj.control_index(field_name);
         if (control_idx == -1) {
-            throw Exception("MSRIOGroup::register_msr_control(): field_name could not be found",
+            throw Exception("MSRIOGroup::register_msr_control(): field_name: " + field_name + " could not be found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -655,6 +657,27 @@ namespace geopm
     std::unique_ptr<IOGroup> MSRIOGroup::make_plugin(void)
     {
         return geopm::make_unique<MSRIOGroup>();
+    }
+
+    void MSRIOGroup::enable_fixed_counters(void)
+    {
+        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+
+            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+
+            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+
+            write_control("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0.0);
+            write_control("MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0.0);
+            write_control("MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0.0);
+        }
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)
