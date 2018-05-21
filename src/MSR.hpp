@@ -291,6 +291,11 @@ namespace geopm
                       int domain_type,
                       int cpu_idx,
                       int signal_idx);
+            /// @brief Constructor for an MSRSignal corresponding to the raw
+            ///        value of the entire MSR.
+            MSRSignal(const IMSR &msr_obj,
+                      int domain_type,
+                      int cpu_idx);
             /// @brief Copy constructor.  After copying, map field
             ///        must be called again on the new MSRSignal.
             MSRSignal(const MSRSignal &other);
@@ -312,6 +317,7 @@ namespace geopm
             uint64_t m_field_last;
             uint64_t m_num_overflow;
             bool m_is_field_mapped;
+            bool m_is_raw;
     };
 
     class MSRControl : public IMSRControl
