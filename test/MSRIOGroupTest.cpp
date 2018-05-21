@@ -45,6 +45,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm_sched.h"
+#include "geopm_hash.h"
 #include "PlatformTopo.hpp"
 #include "MSRIO.hpp"
 #include "Exception.hpp"
@@ -67,12 +68,13 @@ class MSRIOGroupTest : public :: testing :: Test
         std::vector<std::string> m_test_dev_path;
         std::unique_ptr<geopm::MSRIOGroup> m_msrio_group;
         MockPlatformTopo m_topo;
+        int m_num_cpu = 16;
 };
 
 class MockMSRIO : public geopm::MSRIO
 {
     public:
-        MockMSRIO();
+        MockMSRIO(int num_cpu);
         virtual ~MockMSRIO();
         std::vector<std::string> test_dev_paths();
     protected:
@@ -86,9 +88,9 @@ class MockMSRIO : public geopm::MSRIO
         std::vector<std::string> m_test_dev_path;
 };
 
-MockMSRIO::MockMSRIO()
+MockMSRIO::MockMSRIO(int num_cpu)
    : M_MAX_OFFSET(4096)
-   , m_num_cpu(16)
+   , m_num_cpu(num_cpu)
 {
     union field_u {
         uint64_t field;
@@ -153,17 +155,23 @@ void MockMSRIO::msr_batch_path(std::string &path)
 
 void MSRIOGroupTest::SetUp()
 {
-    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
+    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
     m_test_dev_path = msrio->test_dev_paths();
     ON_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).WillByDefault(Return(1));
-    ON_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).WillByDefault(Return(256));
+    ON_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
     // only domain indices 0 and 1 are used by this test
     ON_CALL(m_topo, domain_cpus(_, 0, _))
         .WillByDefault(SetArgReferee<2>(std::set<int>{0}));
     ON_CALL(m_topo, domain_cpus(_, 1, _))
         .WillByDefault(SetArgReferee<2>(std::set<int>{1}));
 
-    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(m_topo, std::move(msrio), 0x657, 16)); // KNL cpuid
+    // expectations for write_control() inside enable_fixed_counters()
+    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+        .Times(m_num_cpu * 15); // 15 enable bits to set
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_CPU, _, _))
+        .Times(m_num_cpu * 15);
+
+    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(m_topo, std::move(msrio), 0x657, m_num_cpu)); // KNL cpuid
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -195,9 +203,15 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_SKX,
     };
     for (auto id : cpuids) {
-        std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
+        std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
         try {
-            MSRIOGroup(m_topo, std::move(msrio), id, 4);
+            // expectations for write_control() inside enable_fixed_counters()
+            EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+                .Times(m_num_cpu * 15); // 15 enable bits to set
+            EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_CPU, _, _))
+                .Times(m_num_cpu * 15);
+
+            MSRIOGroup(m_topo, std::move(msrio), id, m_num_cpu);
         }
         catch (const std::exception &ex) {
             FAIL() << "Could not construct MSRIOGroup for cpuid 0x"
@@ -206,8 +220,8 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     }
 
     // unsupported cpuid
-    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO);
-    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, 4),
+    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, m_num_cpu),
                                GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }
 
@@ -340,6 +354,36 @@ TEST_F(MSRIOGroupTest, sample)
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0),
                                GEOPM_ERROR_INVALID, "cannot push a signal after read_batch");
+
+    close(fd_0);
+    close(fd_1);
+}
+
+TEST_F(MSRIOGroupTest, sample_raw)
+{
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_CPU, _, _)).Times(2);
+    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2);
+
+    int inst_idx_0 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0#",
+                                                IPlatformTopo::M_DOMAIN_CPU, 0);
+    int inst_idx_1 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0#",
+                                                IPlatformTopo::M_DOMAIN_CPU, 1);
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    int fd_1 = open(m_test_dev_path[1].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+    ASSERT_NE(-1, fd_1);
+    uint64_t value = 0xB000D000F0001234;
+    size_t num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
+    ASSERT_EQ(num_write, sizeof(value));
+    value = 0xB000D000F0001235;
+    num_write = pwrite(fd_1, &value, sizeof(value), 0x309);
+    ASSERT_EQ(num_write, sizeof(value));
+
+    m_msrio_group->read_batch();
+    uint64_t inst_0 = geopm_signal_to_field(m_msrio_group->sample(inst_idx_0));
+    uint64_t inst_1 = geopm_signal_to_field(m_msrio_group->sample(inst_idx_1));
+    EXPECT_EQ(0xB000D000F0001234, inst_0);
+    EXPECT_EQ(0xB000D000F0001235, inst_1);
 
     close(fd_0);
     close(fd_1);
