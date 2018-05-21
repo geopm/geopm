@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2a9c1fb5_665eb6d0",
+        "filename": "tutorial/agent/agent_tutorial.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-21T17:47:30Z",
+      "side": 1,
+      "message": "Tabs are bad mkay",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 1
+      },
+      "revId": "f6c94af7cff27a8534b68febf9ce2ccf736c6314",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "43d4c455_3d31b1a1",
         "filename": "tutorial/agent/agent_tutorial.sh",
         "patchSetId": 1
@@ -22,6 +45,29 @@
       "revId": "f6c94af7cff27a8534b68febf9ce2ccf736c6314",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0713f548_cbef9ef1",
+        "filename": "tutorial/agent/tutorial_build_intel.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-21T17:47:30Z",
+      "side": 1,
+      "message": "maybe drop?",
+      "range": {
+        "startLine": 41,
+        "startChar": 69,
+        "endLine": 41,
+        "endChar": 77
+      },
+      "revId": "f6c94af7cff27a8534b68febf9ce2ccf736c6314",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
