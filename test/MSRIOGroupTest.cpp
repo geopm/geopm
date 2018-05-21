@@ -345,6 +345,36 @@ TEST_F(MSRIOGroupTest, sample)
     close(fd_1);
 }
 
+TEST_F(MSRIOGroupTest, sample_raw)
+{
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_CPU, _, _)).Times(2);
+    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2);
+
+    int inst_idx_0 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0#",
+                                                IPlatformTopo::M_DOMAIN_CPU, 0);
+    int inst_idx_1 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0#",
+                                                IPlatformTopo::M_DOMAIN_CPU, 1);
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    int fd_1 = open(m_test_dev_path[1].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+    ASSERT_NE(-1, fd_1);
+    uint64_t value = 0xB000D000F0001234;
+    size_t num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
+    ASSERT_EQ(num_write, sizeof(value));
+    value = 0xB000D000F0001235;
+    num_write = pwrite(fd_1, &value, sizeof(value), 0x309);
+    ASSERT_EQ(num_write, sizeof(value));
+
+    m_msrio_group->read_batch();
+    double inst_0 = m_msrio_group->sample(inst_idx_0);
+    double inst_1 = m_msrio_group->sample(inst_idx_1);
+    EXPECT_EQ(0xB000D000F0001234, inst_0);
+    EXPECT_EQ(0xB000D000F0001235, inst_1);
+
+    close(fd_0);
+    close(fd_1);
+}
+
 TEST_F(MSRIOGroupTest, read_signal)
 {
     EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _, _)).Times(1);
