@@ -1176,8 +1176,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.assertEqual(max_freq, result)
 
         self.check_no_error(['FREQUENCY', write_domain, '0', str(old_freq)])
-        result = read_current_freq(read_domain)
-        self.assertEqual(old_freq, result)
 
 
 if __name__ == '__main__':
