@@ -68,10 +68,12 @@ namespace geopm
 
     void Reporter::init(void)
     {
+        m_region_bulk_runtime_idx = m_platform_io.push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_energy_pkg_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_energy_dram_idx = m_platform_io.push_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_core_idx = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_platform_io.push_region_signal_total(m_region_bulk_runtime_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_energy_pkg_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_energy_dram_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_platform_io.push_region_signal_total(m_clk_core_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
@@ -128,7 +130,8 @@ namespace geopm
         struct region_info {
                 std::string name;
                 uint64_t id;
-                double runtime;
+                double per_rank_avg_runtime;
+                double bulk_sync_runtime;
                 double energy;
                 int count;
         };
@@ -141,14 +144,17 @@ namespace geopm
             }
             uint64_t mpi_region_id = geopm_region_id_set_mpi(region_id);
             double energy = m_platform_io.sample_region_total(m_energy_pkg_idx, region_id) +
-                m_platform_io.sample_region_total(m_energy_pkg_idx, mpi_region_id) +
-                m_platform_io.sample_region_total(m_energy_dram_idx, region_id) +
-                m_platform_io.sample_region_total(m_energy_dram_idx, mpi_region_id);
+                            m_platform_io.sample_region_total(m_energy_pkg_idx, mpi_region_id) +
+                            m_platform_io.sample_region_total(m_energy_dram_idx, region_id) +
+                            m_platform_io.sample_region_total(m_energy_dram_idx, mpi_region_id);
+            double bulk_sync_runtime = m_platform_io.sample_region_total(m_region_bulk_runtime_idx, region_id) +
+                                       m_platform_io.sample_region_total(m_region_bulk_runtime_idx, mpi_region_id);
             int count = application_io.total_count(region_id);
             if (count > 0) {
                 region_ordered.push_back({region,
                                           region_id,
                                           application_io.total_region_runtime(region_id),
+                                          bulk_sync_runtime,
                                           energy,
                                           count});
             }
@@ -157,7 +163,7 @@ namespace geopm
         std::sort(region_ordered.begin(), region_ordered.end(),
                   [] (const region_info &a,
                       const region_info &b) -> bool {
-                      return a.runtime >= b.runtime;
+                      return a.per_rank_avg_runtime >= b.per_rank_avg_runtime;
                   });
         // add unmarked and epoch at the end
         uint64_t unmarked_mpi_id = geopm_region_id_set_mpi(GEOPM_REGION_ID_UNMARKED);
@@ -168,6 +174,7 @@ namespace geopm
         region_ordered.push_back({"unmarked-region",
                                   GEOPM_REGION_ID_UNMARKED,
                                   application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
+                                  m_platform_io.sample_region_total(m_region_bulk_runtime_idx, GEOPM_REGION_ID_EPOCH),
                                   energy,
                                   0});
         /// Total epoch runtime for report includes MPI time and
@@ -178,6 +185,7 @@ namespace geopm
                                   application_io.total_epoch_runtime() +
                                   application_io.total_epoch_mpi_runtime() +
                                   application_io.total_epoch_ignore_runtime(),
+                                  m_platform_io.sample_region_total(m_region_bulk_runtime_idx, GEOPM_REGION_ID_EPOCH),
                                   application_io.total_epoch_energy(),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
@@ -188,7 +196,8 @@ namespace geopm
                    << region.id << std::dec << "):"
                    << std::setfill('\0') << std::setw(0)
                    << std::endl;
-            report << "    runtime (sec): " << region.runtime << std::endl;
+            report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
+            report << "    sync-runtime (sec): " << region.bulk_sync_runtime << std::endl;
             report << "    energy (joules): " << region.energy << std::endl;
             double numer = m_platform_io.sample_region_total(m_clk_core_idx, region.id) +
                            m_platform_io.sample_region_total(m_clk_core_idx, mpi_region_id);
@@ -196,6 +205,7 @@ namespace geopm
                            m_platform_io.sample_region_total(m_clk_ref_idx, mpi_region_id);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
+            report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
             report << "    mpi-runtime (sec): " << application_io.total_region_mpi_runtime(region.id) << std::endl;
             report << "    count: " << region.count << std::endl;
             if (agent_region_report.find(region.id) != agent_region_report.end()) {

@@ -36,6 +36,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockApplicationIO.hpp"
@@ -176,6 +177,9 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
     EXPECT_CALL(m_application_io, total_epoch_mpi_runtime()).WillOnce(Return(7.0));
     EXPECT_CALL(m_application_io, total_epoch_energy()).WillOnce(Return(8888));
+    EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .Times(4)
+        .WillRepeatedly(Return(1.0));
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
     for (auto rid : m_region_runtime) {
         EXPECT_CALL(m_application_io, total_region_runtime(rid.first))
@@ -242,8 +246,10 @@ TEST_F(ReporterTest, generate)
         "four: 4\n"
         "Region all2all (\n"
         "    runtime (sec): 33.33\n"
+        "    sync-runtime (sec): 0\n"
         "    energy (joules): 778\n"
         "    frequency (%): 81.81\n"
+        "    frequency (Hz): 0.818182\n"
         "    mpi-runtime (sec): 3.4\n"
         "    count: 20\n"
         "    agent stat: 1\n"
@@ -252,6 +258,7 @@ TEST_F(ReporterTest, generate)
         "    runtime (sec): 22.11\n"
         "    energy (joules): 889\n"
         "    frequency (%): 84.84\n"
+        "    frequency (Hz): 0.848485\n"
         "    mpi-runtime (sec): 5.6\n"
         "    count: 1\n"
         "    agent stat: 2\n"
@@ -259,6 +266,7 @@ TEST_F(ReporterTest, generate)
         "    runtime (sec): 12.13\n"
         "    energy (joules): 223\n"
         "    frequency (%): 77.2727\n"
+        "    frequency (Hz): 0.772727\n"
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
         "    agent stat: 3\n"
@@ -266,6 +274,7 @@ TEST_F(ReporterTest, generate)
         "    runtime (sec): 77.7\n"
         "    energy (joules): 8888\n"
         "    frequency (%): 0\n"
+        "    frequency (Hz): 0\n"
         "    mpi-runtime (sec): 4.2\n"
         "    count: 0\n"
         "    agent stat: 4\n"
