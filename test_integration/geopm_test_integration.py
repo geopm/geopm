@@ -1051,12 +1051,13 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for exp in expected:
                 line = proc.stdout.readline()
-                # ignore warnings about multiple plugin load
+                # todo: ignore warnings about multiple plugin load
+                # should be fixed when plugins are no longer installed
                 while 'previously registered' in line:
                     line = proc.stdout.readline()
                 self.assertIn(exp, line)
             for line in proc.stdout:
-                # ignore warnings about multiple plugin load
+                # todo: ignore warnings about multiple plugin load
                 if 'previously registered' not in line:
                     self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
@@ -1067,7 +1068,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                # ignore warnings about multiple plugin load
+                # todo: ignore warnings about multiple plugin load
                 if 'previously registered' not in line:
                     self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
@@ -1126,21 +1127,28 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
     @skip_unless_slurm_batch()
     def test_geopmwrite_set_freq(self):
+        def read_stdout_line(stdout):
+            # todo: ignore warnings about multiple plugin load
+            line = stdout.readline()
+            while 'previously registered' in line:
+                line = stdout.readline()
+            return line.strip()
+
         def read_current_freq(domain):
             read_proc = subprocess.Popen(['geopmread', 'FREQUENCY', domain, '0'],
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            freq = read_proc.stdout.readline()
+            freq = read_stdout_line(read_proc.stdout)
             freq = float(freq)
             return freq
 
         def read_min_max_freq():
             read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MIN', 'board', '0'],
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            min_freq = read_proc.stdout.readline()
+            min_freq = read_stdout_line(read_proc.stdout)
             min_freq = float(int(float(min_freq)/1e8)*1e8)  # convert to multiple of 1e8
             read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MAX', 'board', '0'],
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            max_freq = read_proc.stdout.readline()
+            max_freq = read_stdout_line(read_proc.stdout)
             max_freq = float(int(float(max_freq)/1e8)*1e8)
             return min_freq, max_freq
 
@@ -1148,10 +1156,10 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         read_proc = subprocess.Popen(['geopmread', '-d', 'FREQUENCY'],
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        read_domain = read_proc.stdout.readline().strip()
+        read_domain = read_stdout_line(read_proc.stdout)
         write_proc = subprocess.Popen([self.exec_name, '-d', 'FREQUENCY'],
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        write_domain = write_proc.stdout.readline().strip()
+        write_domain = read_stdout_line(write_proc.stdout)
         min_freq, max_freq = read_min_max_freq()
 
         old_freq = read_current_freq(read_domain)
