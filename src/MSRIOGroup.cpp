@@ -40,6 +40,7 @@
 #include <iostream>
 
 #include "geopm_sched.h"
+#include "geopm_hash.h"
 #include "Exception.hpp"
 #include "MSR.hpp"
 #include "MSRIOGroup.hpp"
@@ -86,6 +87,7 @@ namespace geopm
             for (int idx = 0; idx < msr_ptr->num_control(); idx++) {
                 register_msr_control(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->control_name(idx));
             }
+            register_raw_msr_signal(msr_ptr->name(), *msr_ptr);
         }
 
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
@@ -100,6 +102,32 @@ namespace geopm
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
 
         enable_fixed_counters();
+    }
+
+    void MSRIOGroup::register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr)
+    {
+
+        // Insert the signal name with an empty vector into the map
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<MSRSignal *> >(m_name_prefix + msr_name + "#", {}));
+        // Get reference to the per-cpu signal vector
+        std::vector <MSRSignal *> &cpu_signal = (*(ins_ret.first)).second;
+        // Check to see if the signal name has already been registered
+        if (!ins_ret.second) {
+            throw Exception("MSRIOGroup::register_raw_msr_signal(): msr_name " + msr_name +
+                            " was previously registered.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto name_msr_it = m_name_msr_map.find(msr_name);
+        if (name_msr_it == m_name_msr_map.end()) {
+            throw Exception("MSRIOGroup::register_raw_msr_signal(): msr_name could not be found: " + msr_name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        const IMSR &msr_obj = name_msr_it->second;
+        cpu_signal.resize(m_num_cpu, nullptr);
+        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+            cpu_signal[cpu_idx] = new MSRSignal(msr_obj, msr_obj.domain_type(),
+                                                cpu_idx);
+        }
     }
 
     MSRIOGroup::~MSRIOGroup()

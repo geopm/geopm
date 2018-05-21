@@ -373,6 +373,24 @@ namespace geopm
         , m_field_last(0)
         , m_num_overflow(0)
         , m_is_field_mapped(false)
+        , m_is_raw(false)
+    {
+
+    }
+
+    MSRSignal::MSRSignal(const IMSR &msr_obj,
+                         int domain_type,
+                         int cpu_idx)
+        : m_name(msr_obj.name() + "#")
+        , m_msr_obj(msr_obj)
+        , m_domain_type(domain_type)
+        , m_cpu_idx(cpu_idx)
+        , m_signal_idx(0)
+        , m_field_ptr(nullptr)
+        , m_field_last(0)
+        , m_num_overflow(0)
+        , m_is_field_mapped(false)
+        , m_is_raw(true)
     {
 
     }
@@ -387,6 +405,7 @@ namespace geopm
         , m_field_last(other.m_field_last)
         , m_num_overflow(other.m_num_overflow)
         , m_is_field_mapped(false)
+        , m_is_raw(other.m_is_raw)
     {
 
     }
@@ -412,8 +431,13 @@ namespace geopm
             throw Exception("MSRSignal::sample(): must call map() method before sample() can be called",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        double result = m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_field_last, m_num_overflow);
+        double result = NAN;
+        if (!m_is_raw) {
+            result = m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_field_last, m_num_overflow);
+        }
+        else {
+            result = geopm_field_to_signal(*m_field_ptr);
+        }
         return result;
     }
 

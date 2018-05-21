@@ -45,6 +45,7 @@
 #include "geopm_version.h"
 #include "geopm_error.h"
 #include "geopm_env.h"
+#include "geopm_hash.h"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
@@ -162,7 +163,14 @@ int main(int argc, char **argv)
                     int idx = platform_io.push_signal(signal_name, domain_type, domain_idx);
                     platform_io.read_batch();
                     double result = platform_io.sample(idx);
-                    std::cout << result << std::endl;
+                    if (signal_name.find("#") == std::string::npos) {
+                        std::cout << result << std::endl;
+                    }
+                    else {
+                        // signals with # in the name are hex fields
+                        std::cout << "0x" << std::hex << std::setfill('0') << std::setw(16)
+                                  << geopm_signal_to_field(result) << std::endl;
+                    }
                 }
                 catch (const geopm::Exception &ex) {
                     std::cerr << "Error: cannot read signal: " << ex.what() << std::endl;

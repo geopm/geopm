@@ -240,6 +240,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOGroupTest.signal_error \
               test/gtest_links/MSRIOGroupTest.push_signal \
               test/gtest_links/MSRIOGroupTest.sample \
+              test/gtest_links/MSRIOGroupTest.sample_raw \
               test/gtest_links/MSRIOGroupTest.read_signal \
               test/gtest_links/MSRIOGroupTest.signal_alias \
               test/gtest_links/MSRIOGroupTest.control_error \
