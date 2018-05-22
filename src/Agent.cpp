@@ -227,6 +227,7 @@ int geopm_agent_policy_name(const char *agent_name,
             }
             if (!err) {
                 strncpy(policy_name, policy_name_cxx.c_str(), policy_name_max);
+                policy_name[policy_name_max - 1] = '\0';
             }
         }
         catch (geopm::Exception ex) {
@@ -263,6 +264,7 @@ int geopm_agent_sample_name(const char *agent_name,
             }
             if (!err) {
                 strncpy(sample_name, sample_name_cxx.c_str(), sample_name_max);
+                sample_name[sample_name_max - 1] = '\0';
             }
         }
         catch (geopm::Exception ex) {
@@ -314,6 +316,7 @@ int geopm_agent_policy_json(const char *agent_name,
         }
         if (!err) {
             strncpy(json_string, output_str.str().c_str(), json_string_max);
+            json_string[json_string_max - 1] = '\0';
         }
     }
     return err;
@@ -331,6 +334,7 @@ int geopm_agent_name(int agent_idx,
         }
         if (!err) {
             strncpy(agent_name, agent_names.at(agent_idx).c_str(), agent_name_max);
+            agent_name[agent_name_max - 1] = '\0';
         }
     }
     catch (...) {
