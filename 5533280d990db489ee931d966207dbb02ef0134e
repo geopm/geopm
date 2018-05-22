@@ -1,0 +1,360 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4587712d_ab654b2b",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "sp",
+      "range": {
+        "startLine": 41,
+        "startChar": 61,
+        "endLine": 41,
+        "endChar": 69
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b5c61a6_02da1b5a",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "many",
+      "range": {
+        "startLine": 45,
+        "startChar": 13,
+        "endLine": 45,
+        "endChar": 16
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51e80fe4_fec9b14a",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 48,
+        "startChar": 52,
+        "endLine": 48,
+        "endChar": 63
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f213c84c_b2184038",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "This",
+      "range": {
+        "startLine": 65,
+        "startChar": 67,
+        "endLine": 65,
+        "endChar": 70
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb55ab78_a808d0ef",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "emphasize this to the maxxxxxxx",
+      "range": {
+        "startLine": 66,
+        "startChar": 11,
+        "endLine": 66,
+        "endChar": 28
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea17614e_4a776613",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "aggregate",
+      "range": {
+        "startLine": 82,
+        "startChar": 59,
+        "endLine": 82,
+        "endChar": 68
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47dadb15_b552ebb5",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "Mention the default values here (i.e. when NaN is allowed to be set in the policy to invoke the default value).",
+      "range": {
+        "startLine": 89,
+        "startChar": 28,
+        "endLine": 89,
+        "endChar": 29
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b109533b_4f6eacc8",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "wsp",
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "826bc9b1_60c99600",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "Provide default.  Explain bounds a bit.",
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db98a5e9_f53f053c",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "Explain this bottom up.  Leaf handling vs. tree aggregation, etc.  This should really be done for both sides (ascending / descending) to drive home Tree and aggregation concepts.",
+      "range": {
+        "startLine": 106,
+        "startChar": 51,
+        "endLine": 106,
+        "endChar": 52
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beab7c78_d2953329",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "sp",
+      "range": {
+        "startLine": 112,
+        "startChar": 41,
+        "endLine": 112,
+        "endChar": 54
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d4ed135_80bdfb43",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "Fantasy land.",
+      "range": {
+        "startLine": 115,
+        "startChar": 32,
+        "endLine": 117,
+        "endChar": 54
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6b5704c_890d3878",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "measurement",
+      "range": {
+        "startLine": 129,
+        "startChar": 39,
+        "endLine": 129,
+        "endChar": 49
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "620de662_1a8608bb",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "derp",
+      "range": {
+        "startLine": 133,
+        "startChar": 36,
+        "endLine": 133,
+        "endChar": 46
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ee5cdf9_076eb29c",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "For example, on KNL this is around 5ms.",
+      "range": {
+        "startLine": 153,
+        "startChar": 55,
+        "endLine": 153,
+        "endChar": 56
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92b1637d_79224404",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-22T18:20:42Z",
+      "side": 1,
+      "message": "i.e.",
+      "range": {
+        "startLine": 153,
+        "startChar": 33,
+        "endLine": 153,
+        "endChar": 36
+      },
+      "revId": "5533280d990db489ee931d966207dbb02ef0134e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
