@@ -326,14 +326,8 @@ to libmpi.so to the LD_LIBRARY_PATH environment variable at runtime.
 
 TESTING
 -------
-From within the source code directory, tests can be executed with the
-"make check" target.  Some tests must be run as MPI applications, and
-in order support these tests you must define the "MPIEXEC" environment
-variable to whatever is appropriate for your your MPI runtime (default
-is mpiexec).  The tests assume that this application will respect the
-'-n' flag to set the number of MPI processes.  Note that '-n' is defined
-by the MPI standard.  Each MPI dependent test is run with 16 MPI
-processes.
+From within the source code directory, unit tests can be executed with the
+"make check" target.
 
 STATUS
 ------

@@ -14,9 +14,6 @@ copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.MIT-dropbox
 copying_headers/MANIFEST.NAS
-doc/geopm-plugin-guide.tex
-doc/leaf-figure.pdf
-doc/tree-figure.pdf
 dox/Doxyfile
 examples/amg2013/README
 examples/comd/README
