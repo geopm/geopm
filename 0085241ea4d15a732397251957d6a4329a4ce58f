@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f054a5b_3e9b99be",
+        "filename": "ChangeLog",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-23T22:53:02Z",
+      "side": 1,
+      "message": "s.",
+      "range": {
+        "startLine": 9,
+        "startChar": 40,
+        "endLine": 9,
+        "endChar": 42
+      },
+      "revId": "0085241ea4d15a732397251957d6a4329a4ce58f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38d385eb_b004a58e",
+        "filename": "ChangeLog",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-23T22:53:02Z",
+      "side": 1,
+      "message": "used",
+      "range": {
+        "startLine": 23,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 10
+      },
+      "revId": "0085241ea4d15a732397251957d6a4329a4ce58f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "905f70d7_40e197a1",
+        "filename": "ChangeLog",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-23T22:53:02Z",
+      "side": 1,
+      "message": "The tutorials have",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 16
+      },
+      "revId": "0085241ea4d15a732397251957d6a4329a4ce58f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
