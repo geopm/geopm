@@ -143,7 +143,7 @@ namespace geopm
             const IKruntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
             std::vector<double> last_epoch_time() const override;
-            std::vector<double> epoch_count() const;
+            std::vector<double> epoch_count() const override;
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_mpi_time(uint64_t region_id) const override;
             double total_epoch_runtime(void) const override;

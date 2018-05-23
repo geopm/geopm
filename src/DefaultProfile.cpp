@@ -89,7 +89,7 @@ namespace geopm
 
 static geopm::DefaultProfile &geopm_default_prof(void)
 {
-    static geopm::DefaultProfile default_prof(geopm_env_profile(), std::move(geopm::comm_factory().make_plugin(geopm_env_comm())));
+    static geopm::DefaultProfile default_prof(geopm_env_profile(), geopm::comm_factory().make_plugin(geopm_env_comm()));
     return default_prof;
 }
 

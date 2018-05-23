@@ -95,7 +95,6 @@ namespace geopm
             bool m_do_read_runtime = false;
             bool m_is_batch_read = false;
             std::vector<struct m_signal_config> m_active_signal;
-            struct geopm_time_s m_read_time;
             std::vector<uint64_t> m_per_cpu_region_id;
             std::vector<double> m_per_cpu_progress;
             std::vector<double> m_per_cpu_runtime;

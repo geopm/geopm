@@ -89,6 +89,7 @@ namespace geopm
             virtual ~Decider() = default;
             virtual void bound(double upper_bound, double lower_bound) override;
             virtual bool update_policy(const struct geopm_policy_message_s &policy_msg, IPolicy &curr_policy) override;
+            virtual bool update_policy(IRegion &curr_region, IPolicy &curr_policy) override = 0;
         protected:
             /// @brief Save the last known power budget
             double m_last_power_budget;

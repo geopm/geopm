@@ -182,7 +182,6 @@ namespace geopm
         for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
             out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
         }
-        int num_domain = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_CPU);
         uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_region_id_idx));
         if (m_is_adaptive) {
             if (current_region_id != GEOPM_REGION_ID_UNMARKED &&
@@ -197,7 +196,6 @@ namespace geopm
                             std::unique_ptr<EnergyEfficientRegion>(
                                 new EnergyEfficientRegion(m_platform_io, M_FREQ_MIN,
                                     M_FREQ_MAX, M_FREQ_STEP,
-                                    num_domain,
                                     m_runtime_idx,
                                     m_pkg_energy_idx,
                                     m_dram_energy_idx)));
@@ -216,7 +214,6 @@ namespace geopm
                             std::unique_ptr<EnergyEfficientRegion>(
                                 new EnergyEfficientRegion(m_platform_io, M_FREQ_MIN,
                                     M_FREQ_MAX, M_FREQ_STEP,
-                                    num_domain,
                                     m_runtime_idx,
                                     m_pkg_energy_idx,
                                     m_dram_energy_idx)));

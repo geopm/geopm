@@ -47,7 +47,7 @@ namespace geopm
     {
         public:
             EnergyEfficientRegion(IPlatformIO &platform_io, double freq_min,
-                                  double freq_max, double freq_step, int num_domain,
+                                  double freq_max, double freq_step,
                                   int runtime_idx,
                                   int pkg_energy_idx,
                                   int dram_energy_idx);
@@ -78,7 +78,6 @@ namespace geopm
             std::vector<double> m_energy_min;
             std::vector<size_t> m_num_sample;
             double m_start_energy = 0.0;
-            int m_num_domain;
 
             int m_runtime_idx;
             int m_pkg_energy_idx;

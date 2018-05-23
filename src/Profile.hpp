@@ -283,9 +283,6 @@ namespace geopm
             /// @brief Holds the number of ranks that enter a region in
             ///        order to keep track of nested regions.
             int m_num_enter;
-            /// @brief Holds the count of progress reports in order to
-            ///        create a sample when the count reaches some sample limit.
-            int m_num_progress;
             /// @brief Holds the rank's current progress in the region.
             double m_progress;
             /// @brief Attaches to the shared memory region for
@@ -314,14 +311,14 @@ namespace geopm
             int m_rank;
             /// @brief The process's rank in m_shm_comm.
             int m_shm_rank;
-            /// @brief Tracks the first call to epoch.
-            bool m_is_first_sync;
             uint64_t m_parent_region;
             double m_parent_progress;
             int m_parent_num_enter;
+#ifdef GEOPM_OVERHEAD
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+#endif
     };
 }
 

@@ -102,7 +102,6 @@ class KontrollerTest : public ::testing::Test
         int m_num_send_up = 4;
         int m_num_send_down = 2;
         std::shared_ptr<MockComm> m_comm;
-        MockPlatformTopo m_topo;
         KontrollerTestMockPlatformIO m_platform_io;
         std::shared_ptr<MockApplicationIO> m_application_io;
         MockTreeComm *m_tree_comm;
@@ -146,7 +145,7 @@ TEST_F(KontrollerTest, single_node)
         .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
         .WillOnce(Return(root_level));
-    Kontroller kontroller(m_comm, m_topo, m_platform_io,
+    Kontroller kontroller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -209,7 +208,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     auto agent = new MockAgent();
     m_agents.emplace_back(agent);
 
-    Kontroller kontroller(m_comm, m_topo, m_platform_io,
+    Kontroller kontroller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -286,7 +285,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     }
     ASSERT_EQ(2u, m_level_agent.size());
 
-    Kontroller kontroller(m_comm, m_topo, m_platform_io,
+    Kontroller kontroller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -367,7 +366,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     }
     ASSERT_EQ(3u, m_level_agent.size());
 
-    Kontroller kontroller(m_comm, m_topo, m_platform_io,
+    Kontroller kontroller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
