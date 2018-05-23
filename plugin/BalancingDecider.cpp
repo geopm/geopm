@@ -154,6 +154,11 @@ namespace geopm
                     curr_policy.target(GEOPM_REGION_ID_EPOCH, iter->first, curr_target);
                     double last_percentage = curr_target / m_last_power_budget;
                     median = curr_region.median(iter->first, GEOPM_SAMPLE_TYPE_RUNTIME);
+                    if (sum == 0) {
+                        throw Exception("BalancingDecider::" + std::string(__func__) + "(): " +
+                                        "Divide by zero detected.",
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
                     percentage[iter->first] = (((mean * m_slope_modifier) + median) * last_percentage) / sum;
                     total += percentage[iter->first];
                 }
@@ -162,6 +167,11 @@ namespace geopm
                 int power_sum = 0;
                 double runtime_sum = 0.0;
                 for (auto iter = runtime.begin(); iter != runtime.end(); ++iter) {
+                    if (total == 0) {
+                        throw Exception("BalancingDecider::" + std::string(__func__) + "(): " +
+                                        "Divide by zero detected.",
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
                     double target = (percentage[iter->first] / total) * pool;
                     if (target < m_lower_bound) {
                         target = m_lower_bound;
