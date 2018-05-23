@@ -72,7 +72,6 @@ namespace geopm
         , m_prof_name(prof_name)
         , m_curr_region_id(0)
         , m_num_enter(0)
-        , m_num_progress(0)
         , m_progress(0.0)
         , m_ctl_shmem(nullptr)
         , m_ctl_msg(std::move(ctl_msg))
@@ -84,13 +83,14 @@ namespace geopm
         , m_shm_comm(nullptr)
         , m_rank(0)
         , m_shm_rank(0)
-        , m_is_first_sync(true)
         , m_parent_region(0)
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
+#ifdef GEOPM_OVERHEAD
         , m_overhead_time(0.0)
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
+#endif
     {
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;

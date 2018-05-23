@@ -102,7 +102,7 @@ namespace geopm
             ~ManagerIO() = default;
             void adjust(const std::string &signal_name, double setting) override;
             void adjust(const std::vector<double> &settings) override;
-            void write_batch(void);
+            void write_batch(void) override;
             std::vector<std::string> signal_names(void) const override;
             static void setup_mutex(pthread_mutex_t &lock);
 

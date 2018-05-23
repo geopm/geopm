@@ -68,7 +68,6 @@ namespace geopm
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
             Kontroller(std::shared_ptr<Comm> comm,
-                       IPlatformTopo &plat_topo,
                        IPlatformIO &plat_io,
                        const std::string &agent_name,
                        int num_send_up,
@@ -136,7 +135,6 @@ namespace geopm
             void init_agents(void);
 
             std::shared_ptr<Comm> m_comm;
-            IPlatformTopo &m_platform_topo;
             IPlatformIO &m_platform_io;
             std::string m_agent_name;
             const int m_num_send_down;

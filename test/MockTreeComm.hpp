@@ -60,7 +60,7 @@ class MockTreeComm : public geopm::ITreeComm
             }
             m_data_sent_down[level] = policy[0]; /// @todo slightly wrong
         }
-        bool receive_up(int level, std::vector<std::vector<double> > &sample)
+        bool receive_up(int level, std::vector<std::vector<double> > &sample) override
         {
             ++m_num_recv;
             if (m_data_sent_up.find(level) == m_data_sent_up.end()) {
@@ -72,7 +72,7 @@ class MockTreeComm : public geopm::ITreeComm
             }
             return true;
         }
-        bool receive_down(int level, std::vector<double> &policy)
+        bool receive_down(int level, std::vector<double> &policy) override
         {
             ++m_num_recv;
             if (m_data_sent_down.find(level) == m_data_sent_down.end()) {

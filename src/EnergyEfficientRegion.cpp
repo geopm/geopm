@@ -40,7 +40,7 @@ namespace geopm
 
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
                                                  double freq_min, double freq_max,
-                                                 double freq_step, int num_domain,
+                                                 double freq_step,
                                                  int runtime_idx,
                                                  int pkg_energy_idx,
                                                  int dram_energy_idx)
@@ -52,7 +52,6 @@ namespace geopm
         , m_perf_max(M_NUM_FREQ, 0)
         , m_energy_min(M_NUM_FREQ, 0)
         , m_num_sample(M_NUM_FREQ, 0)
-        , m_num_domain(num_domain)
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
         , m_dram_energy_idx(dram_energy_idx)

@@ -245,7 +245,7 @@ namespace geopm
         std::set<int> cpu_idx;
         m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
 #ifdef GEOPM_DEBUG
-        if (cpu_idx.size() < 0) {
+        if (cpu_idx.size() == 0) {
             throw Exception("MSRIOGroup::push_control(): no cpus for domain",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }

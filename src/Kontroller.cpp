@@ -71,7 +71,6 @@ namespace geopm
     Kontroller::Kontroller(std::shared_ptr<Comm> ppn1_comm,
                            const std::string &global_policy_path)
         : Kontroller(ppn1_comm,
-                     platform_topo(),
                      platform_io(),
                      geopm_env_agent(),
                      Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
@@ -89,7 +88,6 @@ namespace geopm
     }
 
     Kontroller::Kontroller(std::shared_ptr<Comm> comm,
-                           IPlatformTopo &plat_topo,
                            IPlatformIO &plat_io,
                            const std::string &agent_name,
                            int num_send_down,
@@ -101,7 +99,6 @@ namespace geopm
                            std::vector<std::unique_ptr<Agent> > level_agent,
                            std::unique_ptr<IManagerIOSampler> manager_io_sampler)
         : m_comm(comm)
-        , m_platform_topo(plat_topo)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
         , m_num_send_down(num_send_down)

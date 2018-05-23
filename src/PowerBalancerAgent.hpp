@@ -108,7 +108,6 @@ namespace geopm
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
 
-            const double m_convergence_guard_band;
             int m_level; // Needed in order to determine convergence
             bool m_is_converged;
             bool m_is_sample_stable;

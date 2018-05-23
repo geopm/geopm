@@ -69,7 +69,6 @@ namespace geopm
         , m_profile_io_sample(pio_sample)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
-        , m_do_shutdown(false)
         , m_is_connected(false)
         , m_rank_per_node(-1)
         , m_epoch_regulator(std::move(epoch_regulator))

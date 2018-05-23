@@ -154,8 +154,8 @@ namespace geopm
             auto level_comm = comm_cart->split(color, key);
             if (level_comm->num_rank()) {
                 ++m_num_level;
-                m_level.push_back(std::move(std::unique_ptr<TreeCommunicatorLevel>
-                                            (new TreeCommunicatorLevel(level_comm))));
+                m_level.push_back(std::unique_ptr<TreeCommunicatorLevel>
+                                            (new TreeCommunicatorLevel(level_comm)));
             }
 
             if (coords[depth] != 0) {

@@ -95,7 +95,6 @@ class EnergyEfficientRegionTest : public ::testing::Test
         double m_freq_max = 2200000000.0;
         double m_freq_step = 100000000.0;
         int m_base_samples = 3;
-        int m_num_domain = 1;
 
         StubPlatformIO m_platform_io;
         EnergyEfficientRegion m_freq_region;
@@ -104,10 +103,10 @@ class EnergyEfficientRegionTest : public ::testing::Test
 };
 
 EnergyEfficientRegionTest::EnergyEfficientRegionTest()
-    : m_freq_region(m_platform_io, m_freq_min, m_freq_max, m_freq_step, m_num_domain,
-                    {StubPlatformIO::RUNTIME},
-                    {StubPlatformIO::ENERGY_PKG},
-                    {StubPlatformIO::ENERGY_DRAM})
+    : m_freq_region(m_platform_io, m_freq_min, m_freq_max, m_freq_step,
+                    StubPlatformIO::RUNTIME,
+                    StubPlatformIO::ENERGY_PKG,
+                    StubPlatformIO::ENERGY_DRAM)
 {
 
 }

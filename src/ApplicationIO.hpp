@@ -168,7 +168,6 @@ namespace geopm
             // Per rank vector counting number of entries into MPI.
             std::vector<uint64_t> m_num_mpi_enter;
             std::vector<bool> m_is_epoch_changed;
-            bool m_do_shutdown;
             bool m_is_connected;
             int m_rank_per_node;
             std::unique_ptr<IEpochRuntimeRegulator> m_epoch_regulator;

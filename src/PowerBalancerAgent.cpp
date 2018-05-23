@@ -48,7 +48,6 @@ namespace geopm
     PowerBalancerAgent::PowerBalancerAgent()
         : m_platform_io(platform_io())
         , m_platform_topo(platform_topo())
-        , m_convergence_guard_band(0.5)
         , m_level(-1)
         , m_is_converged(false)
         , m_is_sample_stable(false)

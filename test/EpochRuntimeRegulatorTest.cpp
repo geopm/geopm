@@ -93,10 +93,10 @@ TEST_F(EpochRuntimeRegulatorTest, unknown_region)
     EXPECT_FALSE(m_regulator.is_regulated(region_id));
     GEOPM_EXPECT_THROW_MESSAGE(m_regulator.region_regulator(region_id),
                                GEOPM_ERROR_RUNTIME, "unknown region detected");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(region_id, 0, {1,1}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(region_id, 0, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "unknown region detected");
 
-    m_regulator.record_entry(region_id, 0, {1,1});
+    m_regulator.record_entry(region_id, 0, {{1,1}});
     EXPECT_TRUE(m_regulator.is_regulated(region_id));
 }
 
@@ -134,7 +134,7 @@ TEST_F(EpochRuntimeRegulatorTest, all_ranks_enter_exit)
     uint64_t region_id = 0x98765432;
     geopm_time_s start {{1, 0}};
     geopm_time_s end[M_NUM_RANK] = {
-        {10, 0}, {12, 0}
+        {{10, 0}}, {{12, 0}}
     };
 
     for (int rank = 0; rank < M_NUM_RANK; ++rank) {
@@ -159,24 +159,24 @@ TEST_F(EpochRuntimeRegulatorTest, epoch_runtime)
         .Times(num_memory * 6);
 
     uint64_t region_id = 0x98765432;
-    m_regulator.record_entry(region_id, 0, {1, 0});
-    m_regulator.record_entry(region_id, 1, {1, 0});
-    m_regulator.record_exit(region_id, 0, {2, 0});
-    m_regulator.record_exit(region_id, 1, {2, 0});
-    m_regulator.epoch(0, {2, 0});
-    m_regulator.epoch(1, {2, 0});
-    m_regulator.record_entry(region_id, 0, {2, 0});
-    m_regulator.record_entry(region_id, 1, {2, 0});
-    m_regulator.record_exit(region_id, 0, {3, 0});
-    m_regulator.record_exit(region_id, 1, {3, 0});
-    m_regulator.epoch(0, {3, 0});
-    m_regulator.epoch(1, {3, 0});
-    m_regulator.record_entry(region_id, 0, {3, 0});
-    m_regulator.record_entry(region_id, 1, {3, 0});
-    m_regulator.record_exit(region_id, 0, {4, 0});
-    m_regulator.record_exit(region_id, 1, {4, 0});
-    m_regulator.epoch(0, {4, 0});
-    m_regulator.epoch(1, {4, 0});
+    m_regulator.record_entry(region_id, 0, {{1, 0}});
+    m_regulator.record_entry(region_id, 1, {{1, 0}});
+    m_regulator.record_exit(region_id, 0, {{2, 0}});
+    m_regulator.record_exit(region_id, 1, {{2, 0}});
+    m_regulator.epoch(0, {{2, 0}});
+    m_regulator.epoch(1, {{2, 0}});
+    m_regulator.record_entry(region_id, 0, {{2, 0}});
+    m_regulator.record_entry(region_id, 1, {{2, 0}});
+    m_regulator.record_exit(region_id, 0, {{3, 0}});
+    m_regulator.record_exit(region_id, 1, {{3, 0}});
+    m_regulator.epoch(0, {{3, 0}});
+    m_regulator.epoch(1, {{3, 0}});
+    m_regulator.record_entry(region_id, 0, {{3, 0}});
+    m_regulator.record_entry(region_id, 1, {{3, 0}});
+    m_regulator.record_exit(region_id, 0, {{4, 0}});
+    m_regulator.record_exit(region_id, 1, {{4, 0}});
+    m_regulator.epoch(0, {{4, 0}});
+    m_regulator.epoch(1, {{4, 0}});
 
     EXPECT_EQ(3, m_regulator.total_count(region_id));
     EXPECT_EQ(2, m_regulator.total_count(GEOPM_REGION_ID_EPOCH));
