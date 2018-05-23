@@ -20,6 +20,12 @@ do not use the geopmpy.launcher launch wrapper which was introduced
 prior to the v0.3.0 alpha release.  The tutorial scripts have been
 updated to use the launcher, but the videos have not.
 
+As some of the tutorials involve OpenMP directly or make use of OpenMP
+through other library calls (e.g. DGEMM), the OMP_NUM_THREADS environment
+variable must be set properly prior to invoking one of the tutorial scripts.
+Since the default is 1 for this variable, some tutorials will take an
+exceptionally long time if this is not specified properly.
+
 Building the tutorials
 ----------------------
 A simple Makefile which is not part of the GEOPM autotools build
