@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc543438_7a5d9bc4",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-23T17:32:49Z",
+      "side": 1,
+      "message": "ref to where these are talked about **geopm_prof_c(3)**",
+      "range": {
+        "startLine": 45,
+        "startChar": 35,
+        "endLine": 45,
+        "endChar": 46
+      },
+      "revId": "3e29d46432449d80e6ad104fc7cb8a96205cb83b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b3a377b_85cf9977",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-23T17:32:49Z",
+      "side": 1,
+      "message": "Would be nice to define this a bit.  It\u0027s the maximum runtime reported by each rank for the last execution of the region in question",
+      "range": {
+        "startLine": 48,
+        "startChar": 45,
+        "endLine": 48,
+        "endChar": 56
+      },
+      "revId": "3e29d46432449d80e6ad104fc7cb8a96205cb83b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e3036c_f3f6e4f3",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-23T17:32:49Z",
+      "side": 1,
+      "message": "geopm_prof_c",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 11
+      },
+      "revId": "3e29d46432449d80e6ad104fc7cb8a96205cb83b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "502a0ef9_854bbe64",
+        "filename": "ronn/geopm_agent_monitor.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-23T17:32:49Z",
+      "side": 1,
+      "message": "compute nodes",
+      "range": {
+        "startLine": 50,
+        "startChar": 60,
+        "endLine": 50,
+        "endChar": 65
+      },
+      "revId": "3e29d46432449d80e6ad104fc7cb8a96205cb83b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3c0f8b8_6ba672aa",
+        "filename": "ronn/geopm_agent_monitor.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-23T17:32:49Z",
+      "side": 1,
+      "message": "The average CPU frequency across all of the compute nodes.\n\nSame change above.",
+      "range": {
+        "startLine": 52,
+        "startChar": 3,
+        "endLine": 52,
+        "endChar": 12
+      },
+      "revId": "3e29d46432449d80e6ad104fc7cb8a96205cb83b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6873489_4eb0bbf8",
+        "filename": "ronn/index.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-23T17:32:49Z",
+      "side": 1,
+      "message": "preserve the tabular alignment",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "3e29d46432449d80e6ad104fc7cb8a96205cb83b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
