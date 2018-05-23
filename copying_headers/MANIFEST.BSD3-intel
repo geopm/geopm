@@ -2,7 +2,6 @@ autogen.sh
 configure.ac
 copying_headers/test-dist
 copying_headers/test-license
-doc/Makefile.mk
 examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch
 examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch
 examples/fft/Makefile.mk

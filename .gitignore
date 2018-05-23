@@ -124,11 +124,6 @@
 /test_integration/geopm_test_integration
 /test_integration/geopm_test_integration.pyc
 /VERSION
-/doc/*.aux
-/doc/*.bbl
-/doc/*.blg
-/doc/*.log
-/doc/geopm-plugin-guide.pdf
 *.swp
 *.pyc
 /tutorial/*.o
