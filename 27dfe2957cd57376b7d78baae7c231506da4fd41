@@ -1,0 +1,216 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "540e01f4_84786baf",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "Slack",
+      "range": {
+        "startLine": 5,
+        "startChar": 6,
+        "endLine": 5,
+        "endChar": 11
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b56f4ba7_3b74828b",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "We might want to make it clear somewhere that most of the changes under \"updated features\" apply to the new code path, not necessarily the old code path.",
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52e46e39_f3983924",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "the Comm object",
+      "range": {
+        "startLine": 22,
+        "startChar": 102,
+        "endLine": 22,
+        "endChar": 106
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82222679_be13fd9b",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "proposed, and will be implemented?",
+      "range": {
+        "startLine": 28,
+        "startChar": 44,
+        "endLine": 28,
+        "endChar": 64
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "910dc39c_7ab00822",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": ",",
+      "range": {
+        "startLine": 34,
+        "startChar": 28,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a195092_e7dd8338",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "CpuinfoIOGroup, ProfileIOGroup should be mentioned also",
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a60f7e8_99d6aea6",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": ",",
+      "range": {
+        "startLine": 39,
+        "startChar": 83,
+        "endLine": 39,
+        "endChar": 84
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26d3260a_7efa893e",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "factory",
+      "range": {
+        "startLine": 52,
+        "startChar": 66,
+        "endLine": 52,
+        "endChar": 73
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4fb94da_89192af9",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "could be moved up with the other IOGroups",
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27ee36c0_304c2fca",
+        "filename": "ChangeLog",
+        "patchSetId": 6
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-05-23T21:51:49Z",
+      "side": 1,
+      "message": "cerr\nOr standard error",
+      "range": {
+        "startLine": 136,
+        "startChar": 47,
+        "endLine": 136,
+        "endChar": 50
+      },
+      "revId": "27dfe2957cd57376b7d78baae7c231506da4fd41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
