@@ -72,7 +72,6 @@ endif
 if ENABLE_MPI
 if ENABLE_SCHED
     noinst_PROGRAMS += examples/synthetic_benchmark \
-                       examples/print_affinity \
                        # end
     examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
     examples_synthetic_benchmark_LDADD = libgeopm.la $(MPI_CXXLIBS)
@@ -86,6 +85,7 @@ if ENABLE_MPI
 if ENABLE_OPENMP
 if ENABLE_SCHED
     noinst_PROGRAMS += examples/simple_prof_c \
+                       examples/print_affinity \
                        #end
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
     examples_simple_prof_c_LDADD = libgeopm.la $(MPI_CXXLIBS)

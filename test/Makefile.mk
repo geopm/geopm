@@ -461,6 +461,10 @@ if GEOPM_DISABLE_NULL_PTR
     test_geopm_test_CFLAGS += -fno-delete-null-pointer-checks
     test_geopm_test_CXXFLAGS += -fno-delete-null-pointer-checks
 endif
+if GEOPM_DISABLE_INCONSISTENT_OVERRIDE
+    test_geopm_test_CFLAGS += -Wno-inconsistent-missing-override
+    test_geopm_test_CXXFLAGS += -Wno-inconsistent-missing-override
+endif
 if ENABLE_OPENMP
     test_geopm_static_modes_test_SOURCES = test/geopm_static_modes_test.cpp
     test_geopm_static_modes_test_LDADD = libgeopmpolicy.la
