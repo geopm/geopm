@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bf0fe89_34192ded",
+        "filename": "tutorial/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-23T22:59:16Z",
+      "side": 1,
+      "message": "what does \"properly mean\"?  I do not believe that there is any mechanism to set it to 1.  By default it will be number of online CPUs.  The launcher script makes a guess as to what it should be, and it seems to be guessing wrong (I believe it sets it to 16 when using 4 MPI ranks per node on mr-fusion when hyperthreading is disabled).",
+      "range": {
+        "startLine": 25,
+        "startChar": 17,
+        "endLine": 26,
+        "endChar": 42
+      },
+      "revId": "42c2a32f354f7ed6a5de4826c1aa67f1bd0c1da6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
