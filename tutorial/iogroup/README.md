@@ -37,7 +37,7 @@ further in the section on registration.
   /proc/stat.  "EXAMPLE::USER_TIME" represents the CPU time spent in
   user mode.  "EXAMPLE::NICE_TIME" represents the CPU time spent in
   user mode with low priority.  "EXAMPLE::SYSTEM_TIME" represents
-  the time spend in system mode.  "EXAMPLE::IDLE_TIME" represents
+  the CPU time spent in system mode.  "EXAMPLE::IDLE_TIME" represents
   the CPU idle time.  This IOGroup also provides aliases to these
   two signals for convenience, "USER_TIME" and "IDLE_TIME"
   respectively.  All four names are returned as signal names.
@@ -75,8 +75,8 @@ further in the section on registration.
   the raw bits from MSRs, and sample() converts them into SI units.
 
 * sample():
-  Converts the value previously read by read_batch() to a number and
-  returns it.
+  Converts the string value previously read by read_batch() to a number
+  and returns it.
 
 * read_signal():
   Provides a value for the signal immediately by parsing /proc/stat
