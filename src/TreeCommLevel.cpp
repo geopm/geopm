@@ -172,10 +172,11 @@ namespace geopm
         }
 
         is_complete = is_complete &&
-                      !std::any_of(sample.begin(), sample.end(),
+                      std::none_of(sample.begin(), sample.end(),
                                    [](const std::vector<double> &vec)
                                    {
-                                       return std::any_of(vec.begin(), vec.end(), isnan);
+                                       return std::any_of(vec.begin(), vec.end(),
+                                                          [](double val){return std::isnan(val);});
                                    });
         return is_complete;
     }
@@ -195,7 +196,8 @@ namespace geopm
             m_comm->window_unlock(m_policy_window, m_rank);
         }
         is_complete = is_complete &&
-                      !std::any_of(policy.begin(), policy.end(), isnan);
+                      std::none_of(policy.begin(), policy.end(),
+                                   [](double val){return std::isnan(val);});
         return is_complete;
     }
 

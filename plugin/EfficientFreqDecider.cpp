@@ -292,7 +292,7 @@ namespace geopm
 
             }
         }
-        if (isnan(result)) {
+        if (std::isnan(result)) {
             result = get_limit("CPUINFO::FREQ_MIN");
         }
 
@@ -311,7 +311,7 @@ namespace geopm
 
             }
         }
-        if (isnan(result)) {
+        if (std::isnan(result)) {
             result = get_limit("CPUINFO::FREQ_MAX");
         }
 

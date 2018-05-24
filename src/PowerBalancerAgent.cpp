@@ -134,7 +134,7 @@ namespace geopm
     bool PowerBalancerAgent::descend_initial_budget(double power_budget_in, std::vector<double> &power_budget_out)
     {
         bool result = false;
-        if (!isnan(power_budget_in)) {
+        if (!std::isnan(power_budget_in)) {
             // First time down the tree, send the same budget to all children.
             std::fill(power_budget_out.begin(), power_budget_out.end(), power_budget_in);
             m_last_budget0 = power_budget_out;
@@ -214,7 +214,7 @@ namespace geopm
         double power_budget_in = policy_in[M_POLICY_POWER];
         std::vector<double> power_budget_out(m_num_children, NAN);
 
-        if (isnan(m_last_power_budget_in)) {
+        if (std::isnan(m_last_power_budget_in)) {
             // Haven't yet recieved a budget split for the first time
             result = descend_initial_budget(power_budget_in, power_budget_out);
         }
@@ -278,7 +278,7 @@ namespace geopm
         std::vector<double> this_runtime(m_num_children);
         for (int child_idx = 0; child_idx < m_num_children; ++child_idx) {
             this_runtime[child_idx] = in_sample[child_idx][M_SAMPLE_EPOCH_RUNTIME];
-            if (isnan(this_runtime[child_idx]) ||
+            if (std::isnan(this_runtime[child_idx]) ||
                 this_runtime[child_idx] == m_last_runtime0[child_idx]) {
                 do_update = false;
             }
@@ -297,7 +297,7 @@ namespace geopm
             throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): one control was expected.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        if (isnan(in_policy[M_POLICY_POWER])) {
+        if (std::isnan(in_policy[M_POLICY_POWER])) {
             throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy is NAN.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
@@ -306,7 +306,7 @@ namespace geopm
         bool result = false;
         double dram_power = m_sample[M_PLAT_SIGNAL_DRAM_POWER];
         // Check that we have enough samples (two) to measure DRAM power
-        if (isnan(dram_power)) {
+        if (std::isnan(dram_power)) {
             dram_power = 0.0;
         }
         // If the budget has changed, or we have seen the same budget
@@ -465,7 +465,7 @@ namespace geopm
         }
 
         std::vector<double> result(m_num_children);
-        if (std::any_of(m_last_budget1.begin(), m_last_budget1.end(), isnan)) {
+        if (std::any_of(m_last_budget1.begin(), m_last_budget1.end(), [](double val) {return std::isnan(val);})) {
             result = split_budget_first(avg_power_budget);
         }
         else if (avg_power_budget == m_min_power_budget) {

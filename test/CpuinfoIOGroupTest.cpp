@@ -35,6 +35,7 @@
 #include <fstream>
 #include <map>
 #include <memory>
+#include <cmath>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -245,7 +246,7 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info4)
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
     double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
-    EXPECT_TRUE(isnan(freq));
+    EXPECT_TRUE(std::isnan(freq));
 }
 
 TEST_F(CpuinfoIOGroupTest, parse_cpu_info5)

@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <time.h>
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <string.h>
 #include <mpi.h>

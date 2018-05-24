@@ -31,6 +31,7 @@
  */
 #include <memory>
 #include <numeric>
+#include <cmath>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -277,7 +278,7 @@ TEST_F(TreeCommLevelTest, receive_up_incomplete)
     EXPECT_FALSE(m_level_rank_0->receive_up(sample_out));
     for (const auto &ss : sample_out) {
         for (auto tt : ss) {
-            EXPECT_TRUE(isnan(tt));
+            EXPECT_TRUE(std::isnan(tt));
         }
     }
 }
@@ -324,12 +325,12 @@ TEST_F(TreeCommLevelTest, receive_down_incomplete)
     std::vector<double> policy_out;
     EXPECT_FALSE(m_level_rank_0->receive_down(policy_out));
     for (auto pp : policy_out) {
-        EXPECT_TRUE(isnan(pp));
+        EXPECT_TRUE(std::isnan(pp));
     }
 
     policy_out = {};
     EXPECT_FALSE(m_level_rank_1->receive_down(policy_out));
     for (auto pp : policy_out) {
-        EXPECT_TRUE(isnan(pp));
+        EXPECT_TRUE(std::isnan(pp));
     }
 }
