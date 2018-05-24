@@ -75,13 +75,13 @@ geopm_agent_c(3) -- geopm mpi job agent management interface
     `char *`_agent_name_`);`
 
 ## DESCRIPTION
-The _geopm_agent_c_ interface is used to query GEOPM about agents on a system
-and create static policies for those agents.  The interface provides
-the ability to query about specific types of supported agents, the policy
-parameters required by an agent, and the sample parameters provided by
-an agent.  In addition this interface provides a way to create a
-JSON policy configuration file that will be parsed by the GEOPM runtime for
-statically enforcing a job policy.
+The _geopm_agent_c_ interface is used to query GEOPM about agents on a
+system and create static policies for those agents.  The interface
+provides the ability to query about specific types of supported
+agents, the policy parameters required by an agent, and the sample
+parameters provided by an agent.  In addition, this interface provides
+a way to create a JSON policy configuration file that will be parsed
+by the GEOPM runtime for statically enforcing a job policy.
 
 All functions described in this man page return an error code on failure and
 zero upon success; see [ERRORS][] section below for details.
@@ -96,7 +96,7 @@ zero upon success; see [ERRORS][] section below for details.
     supported, otherwise an error code is returned.
 
   * `geopm_agent_policy_name`():
-    queries GEOPM for the name of a policy parameter occuring at index
+    queries GEOPM for the name of a policy parameter occurring at index
     _policy_idx_ for _agent_name_.  The result is stored in _policy_name_.  The
     number of bytes reserved for the output string is specified in
     _policy_name_max_.  Returns zero if an agent is supported, the _policy_idx_
@@ -115,7 +115,7 @@ zero upon success; see [ERRORS][] section below for details.
     an error code is returned.
 
   * `geopm_agent_sample_name`():
-    queries GEOPM for the name of a sample parameter occuring at index
+    queries GEOPM for the name of a sample parameter occurring at index
     _sample_idx_ for _agent_name_.  The output is stored in the _sample_name_
     buffer.  The number of bytes allocated for the output buffer is specified
     in _sample_name_max_.  Returns zero if an agent is supported, the
@@ -128,7 +128,7 @@ zero upon success; see [ERRORS][] section below for details.
     an error code is returned.
 
   * `geopm_agent_name`():
-    queries GEOPM for the name of the agent occuring at index _agent_idx_.  The
+    queries GEOPM for the name of the agent occurring at index _agent_idx_.  The
     result is stored in _agent_name_.  The number of bytes reserved for the
     output string is specified in _agent_name_max_.  Returns zero if the
     _agent_idx_ is in range, and the agent name can be stored in the output
