@@ -1134,8 +1134,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
                 line = stdout.readline()
             return line.strip()
 
-        def read_current_freq(domain):
-            read_proc = subprocess.Popen(['geopmread', 'FREQUENCY', domain, '0'],
+        def read_current_freq(domain, signal='FREQUENCY'):
+            read_proc = subprocess.Popen(['geopmread', signal, domain, '0'],
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             freq = read_stdout_line(read_proc.stdout)
             freq = float(freq)
@@ -1162,7 +1162,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         write_domain = read_stdout_line(write_proc.stdout)
         min_freq, max_freq = read_min_max_freq()
 
-        old_freq = read_current_freq(read_domain)
+        old_freq = read_current_freq(read_domain, 'MSR::PERF_CTL:FREQ')
         self.assertLess(old_freq, max_freq * 2)
         self.assertGreater(old_freq, min_freq - 1e8)
 
