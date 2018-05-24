@@ -130,7 +130,7 @@ namespace geopm
             freq = it->second;
         }
         else if (m_is_adaptive) {
-            if (!isnan(m_curr_adapt_freq)) {
+            if (!std::isnan(m_curr_adapt_freq)) {
                 freq = m_curr_adapt_freq;
             }
             else {
@@ -405,7 +405,7 @@ namespace geopm
 
             }
         }
-        if (isnan(result)) {
+        if (std::isnan(result)) {
             result = get_limit("CPUINFO::FREQ_MIN");
         }
 
@@ -424,7 +424,7 @@ namespace geopm
 
             }
         }
-        if (isnan(result)) {
+        if (std::isnan(result)) {
             result = get_limit("CPUINFO::FREQ_MAX");
         }
 

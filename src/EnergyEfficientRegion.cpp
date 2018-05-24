@@ -68,7 +68,7 @@ namespace geopm
     double EnergyEfficientRegion::perf_metric()
     {
         double runtime = m_platform_io.sample(m_runtime_idx);
-        if (isnan(runtime)) {
+        if (std::isnan(runtime)) {
             runtime = 0.0;
         }
         // Higher is better for performance, so negate
@@ -98,7 +98,7 @@ namespace geopm
         if (m_is_learning) {
             double perf = perf_metric();
             double energy = energy_metric() - m_start_energy;
-            if (!isnan(perf) && !isnan(energy)) {
+            if (!std::isnan(perf) && !std::isnan(energy)) {
                 if (m_num_sample[m_curr_idx] == 0 ||
                     m_perf_max[m_curr_idx] < perf) {
                     m_perf_max[m_curr_idx] = perf;

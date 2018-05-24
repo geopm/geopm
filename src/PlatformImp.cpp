@@ -38,9 +38,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
-#include <math.h>
 #include <float.h>
 
+#include <cmath>
 #include <sstream>
 #include <fstream>
 #include <iomanip>

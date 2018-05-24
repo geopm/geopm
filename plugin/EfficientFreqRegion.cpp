@@ -92,7 +92,7 @@ namespace geopm
         if (m_is_learning) {
             double perf = perf_metric();
             double energy = energy_metric() - m_start_energy;
-            if (!isnan(perf) && !isnan(energy)) {
+            if (!std::isnan(perf) && !std::isnan(energy)) {
                 if (m_num_sample[m_curr_idx] == 0 ||
                     m_perf_max[m_curr_idx] < perf) {
                     m_perf_max[m_curr_idx] = perf;

@@ -36,7 +36,7 @@
 #include <cpuid.h>
 #include <iostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <float.h>
 
