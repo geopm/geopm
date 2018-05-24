@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <algorithm>
 #include <iterator>
@@ -66,7 +66,7 @@ namespace geopm
         double result = NAN;
         const std::string key = "model name";
         std::ifstream cpuinfo_file(read_str);
-        while (isnan(result) && cpuinfo_file.good()) {
+        while (std::isnan(result) && cpuinfo_file.good()) {
             std::string line;
             std::getline(cpuinfo_file, line);
             if (line.find(key) == 0 && line.find(':') != std::string::npos) {
@@ -158,7 +158,7 @@ namespace geopm
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            if (isnan(m_signal_value_map.find(signal_name)->second)) {
+            if (std::isnan(m_signal_value_map.find(signal_name)->second)) {
                 result = PlatformTopo::M_DOMAIN_INVALID;
             }
             else {

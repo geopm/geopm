@@ -140,7 +140,7 @@ namespace geopm
 #endif
         double idle_percent = m_last_sample[M_SAMPLE_IDLE_PCT];
         if (std::isnan(idle_percent) ||
-            std::any_of(in_policy.begin(), in_policy.end(), isnan)) {
+            std::any_of(in_policy.begin(), in_policy.end(), std::isnan)) {
             return false;
         }
 
@@ -181,10 +181,10 @@ namespace geopm
         out_sample[M_SAMPLE_IDLE_PCT] = m_last_sample[M_SAMPLE_IDLE_PCT];
 
         // Update mix and max for the report
-        if (isnan(m_min_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] < m_min_idle) {
+        if (std::isnan(m_min_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] < m_min_idle) {
             m_min_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
         }
-        if (isnan(m_max_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] > m_max_idle) {
+        if (std::isnan(m_max_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] > m_max_idle) {
             m_max_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
         }
         return true;

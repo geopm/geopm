@@ -35,6 +35,7 @@
 #include <memory>
 #include <string>
 #include <algorithm>
+#include <cmath>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 

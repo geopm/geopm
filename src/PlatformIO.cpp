@@ -352,7 +352,7 @@ namespace geopm
             current_value += data.total;
             // if currently in this region, add current value to total
             if (region_id == curr_rid &&
-                !isnan(data.last_entry_value)) {
+                !std::isnan(data.last_entry_value)) {
                 current_value += sample(signal_idx) - data.last_entry_value;
             }
         }
@@ -380,7 +380,7 @@ namespace geopm
             throw Exception("PlatformIO::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (isnan(setting)) {
+        if (std::isnan(setting)) {
             throw Exception("PlatformIO::adjust(): setting is NAN",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
