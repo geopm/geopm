@@ -30,14 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_LIB = libgeopmpi_example_iogroup.so.0.0.0
+TUTORIAL_LIB = libgeopmiogroup_example_iogroup.so.0.0.0
 
 CC ?= gcc
 CXX ?= g++
 
 all: $(TUTORIAL_LIB)
 
-libgeopmpi_example_iogroup.so.0.0.0: ExampleIOGroup.cpp ExampleIOGroup.hpp
+libgeopmiogroup_example_iogroup.so.0.0.0: ExampleIOGroup.cpp ExampleIOGroup.hpp
 	$(CXX) ExampleIOGroup.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) -o $@
 
 clean:

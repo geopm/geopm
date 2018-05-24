@@ -187,8 +187,10 @@ GEOPM_AGENT=example.  The name of the Agent should match the name
 returned by plugin_name() used for registration.  This Agent requires
 values for two policies listed in policy_names(); these are provided
 in example_policy.json.  Pass this configuration file to launcher with
-the --geopm-policy option or by setting
-GEOPM_POLICY=example_config.json.  Be sure that both the ExampleIO
+the --geopm-policy option or by setting GEOPM_POLICY=example_config.json.
+Note that to be recognized as a agent plugin, the shared library
+filename must begin with "libgeopmagent_" and end in
+".so.0.0.0".  Be sure that both the ExampleIO
 plugin and the ExampleAgent plugin are in GEOPM_PLUGIN_PATH.
 
 An example run script is provided in agent_tutorial.sh.  It uses the
