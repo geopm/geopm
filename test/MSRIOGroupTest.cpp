@@ -533,8 +533,8 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, control_alias)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(3);
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _, _)).Times(3);
+    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _, _)).Times(2);
     int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx);
     int alias = m_msrio_group->push_control("FREQUENCY", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
