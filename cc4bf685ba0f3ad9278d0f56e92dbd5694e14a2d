@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e30d5bb3_ab0a3ff0",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-05-24T18:41:06Z",
+      "side": 1,
+      "message": "update this to print current freq of each observed region",
+      "range": {
+        "startLine": 282,
+        "startChar": 8,
+        "endLine": 282,
+        "endChar": 18
+      },
+      "revId": "cc4bf685ba0f3ad9278d0f56e92dbd5694e14a2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
