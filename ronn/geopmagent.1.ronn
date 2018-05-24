@@ -38,21 +38,20 @@ geopmagent(1) -- query agent information and create static policies
 ## DESCRIPTION
 
 Used to get information about GEOPM agents on a system and create
-static policies for those agents.
-When no options are provided `geopmagent` will display the names of
-all available agents.  When the agent is specified with option `-a`
-but `-p` is not given, `geopmagent` will print names of the agent's
-policies and samples.  If both `-a` and `-p` are provided then
-`geopmagent` will print to standard output a JSON formatted policy
-string corresponding to the policy values specified by the `-p`
-option.  The argument to `-p` is a comma-separated list of policy
-parameters.  To determine the parameter names and ordering
-appropriate for the `-p` option, run `geopmagent` with only the `-a`
-option and inspect the output line beginning with the string "Policy:".
-The JSON formatted string can be
-piped to a file to be used as the `GEOPM_POLICY` as described in
-**geopm(7)** to provide a static input policy for the GEOPM
-controller.  If `-p` is given, but `-a` is not an error is reported.
+static policies for those agents.  When no options are provided,
+`geopmagent` will display the names of all available agents.  When the
+agent is specified with option `-a` but `-p` is not given,
+`geopmagent` will print names of the agent's policies and samples.  If
+both `-a` and `-p` are provided then `geopmagent` will print to
+standard output a JSON formatted policy string corresponding to the
+policy values specified by the `-p` option.  The argument to `-p` is a
+comma-separated list of policy parameters.  To determine the parameter
+names and ordering appropriate for the `-p` option, run `geopmagent`
+with only the `-a` option and inspect the output line beginning with
+the string "Policy:".  The JSON formatted string can be piped to a
+file to be used as the `GEOPM_POLICY` as described in **geopm(7)** to
+provide a static input policy for the GEOPM controller.  If `-p` is
+given but `-a` is not, an error is reported.
 
 ## OPTIONS
   * `--help`:
@@ -72,20 +71,20 @@ controller.  If `-p` is given, but `-a` is not an error is reported.
 List all available agents on the system:
 
     $ geopmagent
+    energy_efficient
     monitor
-    power_balancing
-    freq_efficient
+    power_balancer
 
 Get power_balancing agent policy and sample names:
 
-    $ geopmagent -a power_balancing
+    $ geopmagent -a power_balancer
     Policy: POWER
     Sample: POWER,IS_CONVERGED,EPOCH_RUNTIME
 
-Create policy for power_balancing agent with 250 Watts per node power
+Create policy for power_balancer agent with 250 Watts per node power
 budget:
 
-    $ geopmagent -a power_balancing -p 250
+    $ geopmagent -a power_balancer -p 250
     {"POWER" : 250}
 
 ## COPYRIGHT
