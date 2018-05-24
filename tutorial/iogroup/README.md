@@ -37,7 +37,7 @@ further in the section on registration.
   /proc/stat.  "EXAMPLE::USER_TIME" represents the CPU time spent in
   user mode.  "EXAMPLE::NICE_TIME" represents the CPU time spent in
   user mode with low priority.  "EXAMPLE::SYSTEM_TIME" represents
-  the time spend in system mode.  "EXAMPLE::IDLE_TIME" represents
+  the CPU time spent in system mode.  "EXAMPLE::IDLE_TIME" represents
   the CPU idle time.  This IOGroup also provides aliases to these
   two signals for convenience, "USER_TIME" and "IDLE_TIME"
   respectively.  All four names are returned as signal names.
@@ -75,8 +75,8 @@ further in the section on registration.
   the raw bits from MSRs, and sample() converts them into SI units.
 
 * sample():
-  Converts the value previously read by read_batch() to a number and
-  returns it.
+  Converts the string value previously read by read_batch() to a number
+  and returns it.
 
 * read_signal():
   Provides a value for the signal immediately by parsing /proc/stat
@@ -153,8 +153,8 @@ GEOPM_PLUGIN_PATH).
 The ExampleIOGroup plugin is built by running tutorial_build_gnu.sh or
 tutorial_build_intel.sh.  The plugin will be loaded with the
 geopmpolicy library if it is found in a directory in
-GEOPM_PLUGIN_PATH.  Note that to be recognized as a plugin, the
-filename must begin with "libgeopmpi_" and end in
+GEOPM_PLUGIN_PATH.  Note that to be recognized as an iogroup plugin, the
+filename must begin with "libgeopmiogroup_" and end in
 ".so.0.0.0".  Add the current directory (containing the
 .so file) to GEOPM_PLUGIN_PATH as follows:
 

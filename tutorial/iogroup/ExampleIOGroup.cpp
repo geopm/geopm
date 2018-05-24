@@ -40,7 +40,6 @@
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
-#include "config.h"
 
 using geopm::Exception;
 using geopm::IPlatformTopo;
