@@ -33,7 +33,7 @@ global application performance within a power bound.  The root of the control
 hierarchy tree can communicate through shared memory with the system resource
 management daemon to extend the hierarchy above the individual MPI job level
 and enable management of system power resources for multiple MPI jobs and
-multiple users by the system resource manager.  The geopm package provides the
+multiple users by the system resource manager.  The GEOPM package provides the
 libgeopm library, the libgeopmpolicy library, the geopmctl application and the
 geopmpolicy application.  The libgeopm library can be called within MPI
 applications to enable application feedback for informing the control
@@ -51,16 +51,16 @@ TRAVIS CI
 ---------
 [![Build Status](https://travis-ci.org/geopm/geopm.svg)](https://travis-ci.org/geopm/geopm)
 
-The geopm public github project has been integrated with Travis
+The GEOPM public GitHub project has been integrated with Travis
 continuous integration.
 
 http://travis-ci.org/geopm/geopm
 
 All pull requests will be built and tested automatically by Travis.
-Additionally, pushes to the public dev and master branches which pass
+Additionally, pushes to the public dev and master branches that pass
 testing in Travis will trigger build and test in the OpenSUSE Build
 System (OBS) for a variety of Linux distributions.  These provide yum
-and zypper repositories which can be used to install the geopm
+and zypper repositories which can be used to install the GEOPM
 software.
 
 INSTALL
@@ -69,7 +69,7 @@ The products of OBS triggered by Travis CI can be installed directly
 on a number of Linux distributions through yum or zypper.  Build and
 test are currently passing on CentOS 7, RHEL 7, SLES 12, SLES 12-1,
 Fedora 21, Fedora 22 and Fedora 23.  Release 0.2.0 is the first to
-include distribution on OBS.  Pushes to the github public master
+include distribution on OBS.  Pushes to the GitHub public master
 branch are done only after a release has been tagged, and these tagged
 releases are published in yum and zypper repositories at the link
 below:
@@ -84,11 +84,11 @@ at the link below:
 
 http://download.opensuse.org/repositories/home:/cmcantalupo:/geopm-dev
 
-Use of these repositories should be helpful for developers of geopm
+Use of these repositories should be helpful for developers of GEOPM
 who are willing to update the installed version frequently.
 
 ### Red Hat
-To install the yum repository follow the commands below.  Select the
+To install the yum repository, follow the commands below.  Select the
 DISTRO appropriate for you system.  Select the BRANCH as "geopm" or
 "geopm-dev" to follow either the "master" or "dev" branches of
 repository hosted at <http://github.com/geopm/geopm>.
@@ -107,7 +107,7 @@ with yum:
     sudo yum install geopm # For headers install geopm-devel
 
 To bring the system up to date with the tip of the public master or
-dev branch on github (depending on which "BRANCH" was selected when
+dev branch on GitHub (depending on which "BRANCH" was selected when
 the yum repository was added:
 
     sudo yum update geopm # For headers update geopm-devel
@@ -132,7 +132,7 @@ geopm with zypper:
     sudo zypper install geopm # For headers install geopm-devel
 
 To bring the system up to date with the tip of the public master or
-dev branch on github (depending on which "BRANCH" was selected when
+dev branch on GitHub (depending on which "BRANCH" was selected when
 the zypper repository was added:
 
     sudo zypper update geopm # For headers update geopm-devel
@@ -140,8 +140,8 @@ the zypper repository was added:
 PYTHON INSTALL
 --------------
 The GEOPM python tools are packaged in the RPMs described above, but
-they are also available from PYPI as the `geopmpy` package.  For
-example to install the geopmpy package into your home directory run
+they are also available from PyPI as the `geopmpy` package.  For
+example, to install the geopmpy package into your home directory, run
 the following command:
 
     pip install --user geopmpy
@@ -151,15 +151,15 @@ the full GEOPM runtime.
 
 BUILD REQUIREMENTS
 ------------------
-In order to build the geopm package from source, the below
+In order to build the GEOPM package from source, the below
 requirements must be met.
 
-The geopm package requires a compiler that supports the MPI 2.2 and
+The GEOPM package requires a compiler that supports the MPI 2.2 and
 C++11 standards.  These requirements can be met by using GCC version
 4.7 or greater and installing the openmpi-devel package version 1.7 or
-greater on RHEL or SLES Linux.  Additionally building the geopm
+greater on RHEL or SLES Linux.  Additionally, building the GEOPM
 package requires the hwloc library. Documentation creation including
-manpages further requires the rubygems package, and the ruby-devel
+man pages further requires the rubygems package, and the ruby-devel
 package.
 
 RHEL:
@@ -225,7 +225,7 @@ RUN REQUIREMENTS
 We are targeting SLES12 and RHEL7 distributions for functional runtime
 support.  There are several runtime requirements that can be obtained
 from those distributions including the OpenMPI implementation of MPI
-and the hwloc library.  To install follow the instructions below for
+and the hwloc library.  To install, follow the instructions below for
 your Linux distribution.
 
 RHEL:
@@ -248,16 +248,16 @@ information can be found [here](https://superuser.com/a/1179962).
 
 ### MSR DRIVER
 The msr-safe kernel driver must be loaded at runtime to
-support user level read and write of white-listed MSRs.  The source
+support user-level read and write of white-listed MSRs.  The source
 code for the driver can be found here:
 <https://github.com/scalability-llnl/msr-safe>.
 
-Alternately you can run geopm as root with the standard msr driver loaded:
+Alternately, you can run GEOPM as root with the standard msr driver loaded:
 
     modprobe msr
 
 Note that other Linux mechanisms for power management can interfere
-with geopm, and these must be disabled.  We suggest the following:
+with GEOPM, and these must be disabled.  We suggest the following:
 
     echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
@@ -265,7 +265,7 @@ and adding "intel_pstate=disable" to the kernel command line through
 grub2.
 
 ### GEOPM MPI LAUNCH WRAPPER
-The GEOPM package installs two commands: "geopmsrun" and "geopmaprun"
+The GEOPM package installs two commands, "geopmsrun" and "geopmaprun",
 which are wrappers for the MPI launch commands "srun" and "aprun"
 respectively.  These wrappers enable exactly the same command line
 interface as the underlying launch command, but the wrapper extends
@@ -280,7 +280,7 @@ documented in the geopmsrun(1) and geopmaprun(1) man pages.
 
 If your system uses an MPI launch command other than "srun" or
 "aprun", or if your application requires some specialized use of these
-commands, then check the geopm_aprun(3) / geopm_srun(3) man page
+commands, then check the geopmaprun(1) / geopmsrun(1) man page
 description of the "--geopm-rm" option which selects from other
 available launch mechanisms.  If the launch mechanism for your system
 is not implemented, then affinity requirements must be enforced by the
@@ -337,13 +337,13 @@ from the community.  The runtime implements the infrastructure and
 basic features targeted for GEOPM version 1.0.  We do not anticipate
 changes to application facing interfaces of our libraries or the
 command line interfaces of our executables until after version 1.0.
-Before the beta release we will change the way signals and controls
-are interfaced to decider plugins.  These changes will enable easier
-and more efficient extension of signals and controls as well as
-support for multiple domain definitions where signals and controls
-pertain.  We will also be expanding our integration test feature
-coverage, and our unit test line coverage before beta release.  See
-TODO file for links to descriptions of forthcoming work.
+The beta release 0.5 introduces substantial changes to the interface
+between the Controller and Agent (formerly Decider) plugins.  These
+changes enable easier and more efficient extension of signals and
+controls as well as support for multiple domain definitions where
+signals and controls pertain.  Refer to the ChangeLog for more details
+on these changes.  See TODO file for links to descriptions of
+forthcoming work.
 
 Test coverage is incomplete.  The line coverage results from gcov as
 reported by gcovr for the latest release can be found here:
