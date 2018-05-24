@@ -1,18 +1,18 @@
 CONTRIBUTING
 ============
-This file describes how to contribute to the geopm project.  All
+This file describes how to contribute to the GEOPM project.  All
 feedback is appreciated.
 
 BUG REPORT
 ----------
-Please file an issue on our github site for any bug observed:
+Please file an issue on our GitHub site for any bug observed:
 
 https://github.com/geopm/geopm/issues
 
 If possible, please reproduce issue with the --enable-debug option
 passed to configure at build time and then report any error messages
-emitted by geopm at run time.  Please provide the version of geopm
-that produced the problem.  The geopm version can be found by running
+emitted by GEOPM at run time.  Please provide the version of GEOPM
+that produced the problem.  The GEOPM version can be found by running
 the command
 
     geopmpolicy --version
@@ -21,18 +21,18 @@ Providing code that is small and reproduces the issue is nice to have.
 
 FEATURE REQUEST
 ---------------
-Please submit a issue on github for any feature requests.
+Please submit a issue on GitHub for any feature requests.
 
 CHANGE REQUEST
 --------------
 There are two ways to submit a change request.  Opening a pull request
-on github from a fork of geopm is preferred for most cases.  It is
-also acceptable to submit a change request directly to gerrithub, and
+on GitHub from a fork of GEOPM is preferred for most cases.  It is
+also acceptable to submit a change request directly to GerritHub, and
 this is the workflow for maintainers and active developers.
 
-### Github pull request
-All pull requests to the geopm/geopm repository on github will
-automatically be submitted to travis-ci for unit testing.  The link
+### GitHub pull request
+All pull requests to the geopm/geopm repository on GitHub will
+automatically be submitted to Travis CI for unit testing.  The link
 for creating a pull request is here:
 
 https://github.com/geopm/geopm/pulls
@@ -41,33 +41,35 @@ and the link to the results of the unit testing is here:
 
 https://travis-ci.org/geopm/geopm
 
-If the tests pass in travis-ci then the pull request will be brought
-into gerrithub for review by the geopm maintainers.  Including a
-Change-id: and Signed-off-by: line in the commit message is
+If the tests pass in Travis CI then the pull request will be brought
+into GerritHub for review by the GEOPM maintainers.  Including a
+Change-Id: and Signed-off-by: line in the commit message is
 appreciated, but not required (they will be added for you by the
-maintainers).  The link for the gerrithub reviews is here:
+maintainers).  The link for the GerritHub reviews is here:
 
 https://review.gerrithub.io/#/q/project:geopm/geopm
 
-We encourage users and developers of the geopm software to participate
-in our code review process through gerrithub.  When the request passes
-review the change will be integrated into the geopm development branch
-on github through a gerrit submission.
+We encourage users and developers of the GEOPM software to participate
+in our code review process through GerritHub.  When the request passes
+review the change will be integrated into the GEOPM development branch
+on GitHub through a Gerrit submission.
 
-### Gerrithub review request
-It is also possible to submit a change request directly to gerrithub.
+### GerritHub review request
+
+It is also possible to submit a change request directly to GerritHub.
 This is the primary workflow of active developers.  When using this
-method please include a Change-id: and Signed-off-by: line in the
-commit message.  The geopm gerrit server information can be found
-here:
+method please include a Change-Id: and Signed-off-by: line in the
+commit message; Change-Id is automatically added when you clone from
+GerritHub with the commit-msg hook.  The GEOPM Gerrit server
+information can be found here:
 
 https://review.gerrithub.io/#/admin/projects/geopm/geopm
 
 Our process for requesting a patch to be reviewed/merged through
-gerrit is:
+Gerrit is:
 
 1.  The patch owner submits the patch to Gerrit.  Please refer to the
-    gerrit documentation on how to create review request.
+    Gerrit documentation on how to create review request.
     See <https://review.gerrithub.io/Documentation/intro-quick.html>.
 2.  The patch owner marks the patch CR+1 (code review) and V+1
     (verified) when complete.  CR+1 signifies that the code compiles,
@@ -88,7 +90,7 @@ gerrit is:
 
 TEST INSTRUCTIONS
 -----------------
-To launch the geopm unit tests run the following command in the geopm
+To launch the GEOPM unit tests, run the following command in the geopm
 directory:
 
     make check
@@ -102,7 +104,7 @@ the lcov package available here:
 
 http://ltp.sourceforge.net/coverage/lcov.php
 
-The geopm build must be configured with the "--enable-coverage" option.  Then
+The GEOPM build must be configured with the "--enable-coverage" option.  Then
 simply run
 
     make coverage
@@ -116,7 +118,7 @@ Any help in increasing code coverage levels is appreciated.
 
 CODING STYLE
 ------------
-Code formatting can be corrected to conform to the geopm standard
+Code formatting can be corrected to conform to the GEOPM standard
 using astyle with the following options:
 
     astyle --style=linux --indent=spaces=4 -y -S -C -N
@@ -136,7 +138,7 @@ necessary to use a global (primarily for C code) please scope them
 statically to the compilation unit.
 
 Avoid preprocessor macros as much as possible (use enum not #define).
-Preprocesssor usage should be reserved for expressing configure time
+Preprocessor usage should be reserved for expressing configure time
 options.
 
 Introducing a new file requires a license comment in its header with a
@@ -146,3 +148,17 @@ can be tested by running the copying_headers/test_license script after
 committing the new file to git, removing the geopm/MANIFEST file and
 running the autogen.sh script.  Files for which a license comment is
 not appropriate should be listed in copying_headers/MANIFEST.EXEMPT.
+Any new installed files should also be added geopm.spec.in.
+
+Introducing a new man page requires changes in multiple files:
+1. The build target (man page) should be added to ronn_man in
+   Makefile.am.
+2. The ronn source file should be added to EXTRA_DIST in Makefile.am.
+3. The ronn source file should be added to MANIFEST.EXEMPT as
+   described above.
+4. The gzipped installed man page should be listed in the %files section of
+   geopm.spec.in.
+5. A link from the man page name to the man page file should be added
+   to ronn/index.txt.
+6. A link to the new man page should be added to the SEE ALSO section of
+   geopm.7.ronn and any other related man pages.
