@@ -41,6 +41,7 @@
 #include "CircularBuffer.hpp"
 #include "KruntimeRegulator.hpp"
 #include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -51,6 +52,10 @@ namespace geopm
     {
         // This object is created when app connects
         geopm_time(&m_app_start_time);
+
+        // Ths following is necessary because all other usages of "time zero" query the TimeIOGroup.
+        double elapsed = platform_io().read_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
+        geopm_time_add(&m_app_start_time, elapsed * -1, &m_app_start_time);
 
         m_rank_idx_map = ProfileIO::rank_to_node_local_rank(cpu_rank);
         m_cpu_rank = ProfileIO::rank_to_node_local_rank_per_cpu(cpu_rank);
