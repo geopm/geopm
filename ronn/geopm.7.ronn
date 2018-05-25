@@ -174,9 +174,7 @@ exclusively by the launcher command line options.  The launcher script
 sets the environment variables described in this section according to
 the options specified on the command line.  Direct use of these
 environment variables is only recommended when launching the GEOPM
-runtime without **geopmsrun(1)** or **geopmaprun(1)**.  The one
-exception is `GEOPM_RM` which can be used to control the resource
-manager selected by the wrapper script.
+runtime without **geopmsrun(1)** or **geopmaprun(1)**.
 
   * `LD_DYNAMIC_WEAK`:
     When dynamically linking an application to libgeopm for any
