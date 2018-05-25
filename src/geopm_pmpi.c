@@ -265,6 +265,7 @@ static int geopm_pmpi_finalize(void)
 
     if (!err && geopm_env_do_profile() &&
         !g_ctl) {
+        PMPI_Barrier(g_geopm_comm_world_swap);
         err = geopm_prof_shutdown();
     }
 
