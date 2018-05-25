@@ -1,5 +1,5 @@
-geopmplotter(1) -- geopm plotting application
-==============================================
+geopmplotter(1) -- visualize reports and traces
+===============================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()

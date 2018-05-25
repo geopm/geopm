@@ -1,5 +1,5 @@
-geopm_ctl_c(3) -- geopm power controller structure
-==================================================
+geopm_ctl_c(3) -- geopm runtime control thread
+==============================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()

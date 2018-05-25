@@ -1,5 +1,5 @@
-geopmanalysis(1) -- geopm analysis application
-==============================================
+geopmanalysis(1) -- run benchmarks and visualize results
+========================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()

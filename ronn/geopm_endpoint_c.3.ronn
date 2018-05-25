@@ -1,5 +1,5 @@
-geopm_endpoint_c(3) -- geopm mpi job management interface
-==============================================================
+geopm_endpoint_c(3) -- dynamic policy control for resource management
+=====================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()

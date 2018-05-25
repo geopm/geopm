@@ -1,5 +1,5 @@
-geopmctl(1) -- geopm runtime mpi application
-============================================
+geopmctl(1) -- geopm runtime control application
+================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
