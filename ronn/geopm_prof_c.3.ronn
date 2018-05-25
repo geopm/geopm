@@ -1,5 +1,5 @@
-geopm_prof_c(3) -- geopm application profiling structure
-========================================================
+geopm_prof_c(3) -- application profiling interfaces
+===================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
