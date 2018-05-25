@@ -1,5 +1,5 @@
-geopmpy_launcher(1) -- geopm application launch wrapper
-======================================================================
+geopmpy_launcher(1) -- application launch wrapper
+=================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()

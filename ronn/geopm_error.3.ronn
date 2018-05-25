@@ -1,5 +1,5 @@
-geopm_error(3) -- geopm error handling
-======================================
+geopm_error(3) -- error code descriptions
+=========================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
