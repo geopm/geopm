@@ -463,7 +463,7 @@ new signal and control mechanisms for an Agent to read and write.  The
 Agent plugin enables a user to add new monitor and control algorithms
 to the GEOPM runtime.  MPI use by the GEOPM runtime which is not
 linked by application has been completely encapsulated in Comm object.
-A tutorial has been extended with two new directories: tutorial/agent
+The tutorial has been extended with two new directories: tutorial/agent
 and tutorial/iogroup.  The tutorial/iogroup directory documents how to
 write an IOGroup plugin.  The tutorial/agent directory documents how
 to write an Agent plugin.
