@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "756a165a_611dcbff",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-30T21:45:58Z",
+      "side": 1,
+      "message": "Needs to always be in search path, not only in the case where the user has not provided the environment variable.",
+      "range": {
+        "startLine": 127,
+        "startChar": 24,
+        "endLine": 127,
+        "endChar": 41
+      },
+      "revId": "ddcb4c2c1df91b68e3c24aaad3987e2534fc3c12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
