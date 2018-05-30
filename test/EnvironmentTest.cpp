@@ -43,6 +43,8 @@ extern const char *program_invocation_name;
 #include "geopm_env.h"
 #include "Exception.hpp"
 
+#include "config.h"
+
 extern "C"
 {
     void geopm_env_load(void);
@@ -142,7 +144,8 @@ TEST_F(EnvironmentTest, construction0)
     EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
     EXPECT_EQ("/" + m_shmkey, std::string(geopm_env_shmkey()));
     EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
-    EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
+    std::string exp_path = std::string(GEOPM_PLUGIN_PATH) + std::string(":") + m_plugin_path;
+    EXPECT_EQ(exp_path, std::string(geopm_env_plugin_path()));
     EXPECT_EQ(m_report, std::string(geopm_env_report()));
     EXPECT_EQ(m_profile, std::string(geopm_env_profile()));
     EXPECT_EQ(m_report_verbosity, geopm_env_report_verbosity());
@@ -178,7 +181,8 @@ TEST_F(EnvironmentTest, construction1)
     EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
     EXPECT_EQ(default_shmkey, std::string(geopm_env_shmkey()));
     EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
-    EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
+    std::string exp_path = std::string(GEOPM_PLUGIN_PATH) + std::string(":") + m_plugin_path;
+    EXPECT_EQ(exp_path, std::string(geopm_env_plugin_path()));
     EXPECT_EQ(m_report, std::string(geopm_env_report()));
     EXPECT_EQ(m_profile, std::string(geopm_env_profile()));
     EXPECT_EQ(m_report_verbosity, geopm_env_report_verbosity());
