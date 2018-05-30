@@ -123,7 +123,9 @@ namespace geopm
         m_agent = "monitor";
         m_shmkey = "/geopm-shm-" + std::to_string(geteuid());
         m_trace = "";
-        m_plugin_path = "";
+        /// @todo revert to "" post beta
+        m_plugin_path = GEOPM_PLUGIN_PATH;
+        std::string user_plugin_path = "";
         m_profile = "";
         m_report_verbosity = 0;
         m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
@@ -146,7 +148,10 @@ namespace geopm
             m_shmkey = "/" + m_shmkey;
         }
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
-        (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
+        (void)get_env("GEOPM_PLUGIN_PATH", user_plugin_path);
+        if (user_plugin_path.size() > 0) {
+            m_plugin_path = m_plugin_path + ":" + user_plugin_path;
+        }
         if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report.size()) {
             m_report_verbosity = 1;
         }
