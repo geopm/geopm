@@ -46,7 +46,7 @@ package and `aprun` from the ALPS package.  The GEOPM package installs
 the `geopmsrun` and `geopmaprun` executables which run the
 geopmpy.launcher.main() method in the geopmpy python package.  These
 interfaces extend the resource manager's job launch application with
-GEOPM specific flags.  All application launch options accepted by the
+GEOPM-specific flags.  All application launch options accepted by the
 underlying launch application (e.g. `srun` or `aprun`) can be passed
 to the GEOPM launch wrapper with the exception of CPU affinity related
 options.  The wrapper script reinterprets the command line to set
@@ -55,7 +55,7 @@ launch application.  The reinterpreted command line is echoed to
 standard output by the script before execution.  The wrapper sets
 environment variables used by GEOPM which are described in
 **geopm(7)**, sets process CPU affinity to meet the requirements of
-GEOPM and extends the allocation to have reserved CPUs and extra
+GEOPM, and extends the allocation to have reserved CPUs and extra
 processes as required by the GEOPM runtime.
 
 Note: the primary compute executable and its command line options must
@@ -98,8 +98,8 @@ the first `--` from the command line.
   systems affinitizing one extra CPU to the MPI process that threads
   out the controller may be not be possible resulting in running the
   GEOPM controller on the same CPU as the main compute application.
-  The _application_ method of launch is not compatible with `aprun`
-  and with `srun` the call must be made inside of an existing
+  The _application_ method of launch is not compatible with `aprun`;
+  with `srun`, the call must be made inside of an existing
   allocation made with salloc or sbatch and the command must request
   all of the compute nodes assigned to the allocation. Note: if the
   `--geopm-ctl` option is not specified the launcher script simply
@@ -135,7 +135,14 @@ the first `--` from the command line.
   run if this option is given.  The report contains information about
   runtimes, MPI usage, and power consumption.  The report is broken
   down by region if the application has been annotated with the GEOPM
-  region interface.
+  region interface.  Note that the sampled values for 'energy' and
+  'sync-runtime' are added to the total for a region only when all
+  ranks are in a region; otherwise they are added to the unmarked
+  region.  The epoch region and application total energy are not
+  calculated by sampling but rather through start and end values.
+  When comparing energy and time values from the report, care should
+  be taken to use 'runtime' in the case of epoch and application totals,
+  and 'sync-runtime' for all other regions.
 
 * `--geopm-trace` path:
   The base name of the trace files generated if this option is

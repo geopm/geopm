@@ -94,7 +94,7 @@ application including support for static control.
 
 **geopm_agent_energy_efficient(7)**: Agent for saving energy
 
-**geopm_agent_power_balancer(7)**: Agent optimizes performance under a power cap
+**geopm_agent_power_balancer(7)**: Agent that optimizes performance under a power cap
 
 ## RUNTIME CONTROL
 
@@ -130,7 +130,7 @@ option `--disable-pmpi`, but is enabled by default.  See
 `LD_DYNAMIC_WEAK` environment variable description below for the
 runtime requirements of the PMPI design.  When using the GEOPM PMPI
 interposition other profilers which use the same method will be in
-conflict.  The GEOPM runtime can create a application performance
+conflict.  The GEOPM runtime can create an application performance
 profile report and a trace of the application runtime.  As such, GEOPM
 serves the role of an application profiler in addition to management
 of power resources.  The report and trace generation are controlled by
@@ -139,17 +139,17 @@ description below.
 
 ## INTEGRATION WITH OMPT
 When the OpenMP runtime compiled with GEOPM supports the OMPT
-interface, GEOPM will use the OMPT callbacks wrap OpenMP parallel
+interface, GEOPM will use the OMPT callbacks to wrap OpenMP parallel
 regions with calls to `geopm_prof_enter()` and `geopm_prof_exit()`.
-In this way any OpenMP parallel region not within another application
-defined region will be reported to the GEOPM runtime.  This will
-appear in the report as a region name beginning with "[OMPT]" and
-referencing the object file and function name containing the OpenMP
-parallel region e.g.
+In this way, any OpenMP parallel region not within another
+application-defined region will be reported to the GEOPM runtime.
+This will appear in the report as a region name beginning with
+"[OMPT]" and referencing the object file and function name containing
+the OpenMP parallel region e.g.
 
 `[OMPT]tutorial_6:geopm::StreamModelRegion::run()`
 
-To expressly enable this feature pass the `--enable-ompt` configure
+To expressly enable this feature, pass the `--enable-ompt` configure
 flag at GEOPM build time.  This will build and install the LLVM OpenMP
 runtime configured to support OMPT if the default OpenMP runtime does
 not support the OMPT callbacks.  Note that your compiler must be
@@ -177,16 +177,16 @@ application should be launched in parallel.
 
 There are legacy methods for launching the runtime programmatically.
 These are documented in **geopm_ctl_c(3)**, but are deprecated as an
-application facing interface because their use within an application
+application-facing interface because their use within an application
 is incompatible with the GEOPM launcher script.
 
 ## PLOTTING REPORT AND TRACE DATA
-Please see the **geopmplotter(1)** and **geopmanalysis(1)**
-man pages for information about the
-data analysis tools available for visualizing the data contained in
-the GEOPM report and trace files.  The report file is intended to be
-human readable, and the trace file format can be easily parsed by a
-wide variety of analysis applications.
+Please see the **geopmplotter(1)** and **geopmanalysis(1)** man pages
+for information about the data analysis tools available for
+visualizing the data contained in the GEOPM report and trace files.
+The report file is intended to be human readable, and the trace file
+format can be easily parsed by a wide variety of analysis
+applications.
 
 ## INTERPRETING THE REPORT
 If the `GEOPM_REPORT` environment variable is set then a report will
