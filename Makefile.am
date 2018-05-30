@@ -335,7 +335,7 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_hash.h \
                             src/geopm_message.c \
                             src/geopm_message.h \
-                            src/geopm_plugin.c \
+                            src/geopm_plugin.cpp \
                             src/geopm_plugin.h \
                             src/geopm_sched.c \
                             src/geopm_sched.h \
