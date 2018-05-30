@@ -34,7 +34,6 @@
 #include <algorithm>
 
 #include "geopm_message.h"
-#include "geopm_plugin.h"
 #include "Policy.hpp"
 #include "Region.hpp"
 #include "BalancingDecider.hpp"

@@ -44,6 +44,12 @@
 #include "KNLPlatformImp.hpp"
 #include "config.h"
 
+#ifdef __INTEL_COMPILER
+#pragma warning disable 1786
+#else   /// GNU build
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 int geopm_read_cpuid(void)
 {
     uint32_t key = 1; //processor features

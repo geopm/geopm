@@ -66,7 +66,7 @@ struct geopm_plugin_description_s {
 /*! @brief Declaration for function which must be defined by a plugin
            implementor which will register the plugin for the type
            specified. */
-int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr);
+int geopm_plugin_register(int plugin_type, struct geopm_factory_c *factory, void *dl_ptr) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0")));
 
 #ifdef __cplusplus
 }
@@ -79,9 +79,9 @@ namespace geopm
 
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once the Decider object has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr);
+void geopm_factory_register(struct geopm_factory_c *factory, geopm::IDecider *decider, void *dl_ptr) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0")));
 /// @brief Called within the implementation of geopm_plugin_register()
 ///        once implementations of Comm interface has been created. */
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::Comm *in_comm, void *dl_ptr);
+void geopm_factory_register(struct geopm_factory_c *factory, const geopm::Comm *in_comm, void *dl_ptr) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0")));
 #endif
 #endif
