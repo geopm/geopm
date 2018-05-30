@@ -22,6 +22,30 @@
       "revId": "6920f97d55849d65323839a68ddc28b43d8d1756",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75ebf5f7_f6110a9b",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-05-30T23:32:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6504adb2_18867dcd",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 43
+      },
+      "revId": "6920f97d55849d65323839a68ddc28b43d8d1756",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
