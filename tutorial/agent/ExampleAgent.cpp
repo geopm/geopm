@@ -44,22 +44,13 @@ using geopm::IPlatformIO;
 using geopm::IPlatformTopo;
 
 // Registers this Agent with the Agent factory, making it visible
-// to the Controller
-static void register_example_once(void)
+// to the Controller when the plugin is first loaded.
+static void __attribute__((constructor)) example_agent_load(void)
 {
     geopm::agent_factory().register_plugin(ExampleAgent::plugin_name(),
                                            ExampleAgent::make_plugin,
                                            Agent::make_dictionary(ExampleAgent::policy_names(),
                                                                   ExampleAgent::sample_names()));
-}
-
-// Ensures registration only happens once.
-static pthread_once_t g_register_example_once = PTHREAD_ONCE_INIT;
-
-// Runs when the plugin is first loaded.
-static void __attribute__((constructor)) example_agent_load(void)
-{
-    pthread_once(&g_register_example_once, register_example_once);
 }
 
 ExampleAgent::ExampleAgent()
@@ -124,10 +115,9 @@ bool ExampleAgent::adjust_platform(const std::vector<double> &in_policy)
     assert(in_policy.size() == M_NUM_POLICY);
     double idle_percent = m_last_sample[M_SAMPLE_IDLE_PCT];
     if (std::isnan(idle_percent) ||
-        std::any_of(in_policy.begin(), in_policy.end(), [](double x) { return std::isnan(x); })) {
+        std::any_of(in_policy.begin(), in_policy.end(), [](double val) { return std::isnan(val); })) {
         return false;
     }
-
     if (idle_percent < in_policy[M_POLICY_LOW_THRESH]) {
         m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
     }

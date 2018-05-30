@@ -31,6 +31,7 @@
 #
 
 TUTORIAL_LIB = libgeopmiogroup_example_iogroup.so.0.0.0
+GEOPM_PLUGIN_FLAGS=-fPIC -shared
 
 CC ?= gcc
 CXX ?= g++
@@ -38,7 +39,7 @@ CXX ?= g++
 all: $(TUTORIAL_LIB)
 
 libgeopmiogroup_example_iogroup.so.0.0.0: ExampleIOGroup.cpp ExampleIOGroup.hpp
-	$(CXX) ExampleIOGroup.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) -o $@
+	$(CXX) ExampleIOGroup.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) -o $@
 
 clean:
 	rm -f $(TUTORIAL_LIB) *.o
