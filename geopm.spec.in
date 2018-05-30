@@ -35,7 +35,7 @@ Release: 1
 License: BSD-3-Clause
 Group: System Environment/Libraries
 Vendor: Intel Corporation
-URL: http://geopm.github.io
+URL: https://geopm.github.io
 Source0: geopm.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc-c++
