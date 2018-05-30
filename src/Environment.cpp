@@ -123,7 +123,8 @@ namespace geopm
         m_agent = "monitor";
         m_shmkey = "/geopm-shm-" + std::to_string(geteuid());
         m_trace = "";
-        m_plugin_path = "";
+        /// @todo revert to "" post beta
+        m_plugin_path = GEOPM_PLUGIN_PATH;
         m_profile = "";
         m_report_verbosity = 0;
         m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
