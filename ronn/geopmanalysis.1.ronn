@@ -36,12 +36,13 @@ geopmanalysis(1) -- run application and visualize results
 `geopmanalysis` -t _ANALYSIS_TYPE_ -n _NUM_RANK_ -N _NUM_NODE_ [_OPTIONS_] -- _EXEC_ [_EXEC_ARGS_]
 
 ## DESCRIPTION
-Used to run applications and analyze results for specific GEOPM use cases.
-An application must be launched at least once to generate report files. When using
-geopmanalysis to launch applications, it must be run within an allocation to
-ensure that all runs use the same set of nodes. Once all the required reports
-have been generated, the analysis can be rerun without needing an allocation
-using the `--skip-launch` option.
+Used to run applications and analyze results for specific GEOPM use
+cases.  An application must be launched at least once to generate
+report files. When using geopmanalysis to launch applications, it must
+be run within an allocation to ensure that all runs use the same set
+of nodes. Once all the required reports have been generated, the
+analysis can be rerun without needing an allocation using the
+`--skip-launch` option.
 
 
 ## OPTIONS
@@ -50,17 +51,20 @@ using the `--skip-launch` option.
   Show help message and exit.
 
 * `-t`, `--analysis-type` _freq_sweep_|_balancer_|_offline_|_online_|_stream_mix_:
-  The type of analysis to perform. _balancer_ analysis is not yet implemented.
+  The type of analysis to perform. _balancer_ analysis is not yet
+  implemented.
 
 * `-n`, `--num-rank` _NUM_RANKS_:
-  Total number of application ranks to launch with. Because geopmanalysis
-  uses the GEOPM launch method "process" there will be one extra rank launched
-  per node in addition to the number of application ranks specified by this option.
+  Total number of application ranks to launch with. Because
+  geopmanalysis uses the GEOPM launch method "process" there will be
+  one extra rank launched per node in addition to the number of
+  application ranks specified by this option.
 
 * `-N`, `--num-node` _NUM_NODES_:
-  Number of compute nodes to launch onto.  Note that this option is `not` propagated
-  to the underlying launch application; for instance if ALPS is the application
-  launch backend, this option does not specify the number of ranks per node.
+  Number of compute nodes to launch onto.  Note that this option is
+  `not` propagated to the underlying launch application; for instance
+  if ALPS is the application launch backend, this option does not
+  specify the number of ranks per node.
 
 * `-o`, `--output-dir` _OUTPUT_DIR_:
   The output directory for reports, traces, and plots (default: '.').
@@ -91,41 +95,50 @@ using the `--skip-launch` option.
   process, pthread, or application (default 'process').
 
 * `--iterations` _NUM_ITERATIONS_:
-  Number of iterations to perform for every type of analysis.  E.g. for the
-  OfflineFrequencyAnalysis, _NUM_ITERATIONS_ runs will be performed at every
-  available frequency.  The data is averaged together prior to evaluating what
-  the best per-region frequency is. (default: _1_)
+  Number of iterations to perform for every type of analysis.
+  E.g. for the OfflineFrequencyAnalysis, _NUM_ITERATIONS_ runs will be
+  performed at every available frequency.  The data is averaged
+  together prior to evaluating what the best per-region frequency
+  is. (default: _1_)
 
 * `--enable-turbo`:
-  When calculating the best per region frequencies, this flag sipulates that frequencies
-  in the turbo range should be considered.  By default, this flag is not set meaning
-  frequencies in the turbo range are not considered.
+  When calculating the best per region frequencies, this flag
+  stipulates that frequencies in the turbo range should be considered.
+  By default, this flag is not set meaning frequencies in the turbo
+  range are not considered.
 
 ## EXAMPLES
-  Once the geopmpy modules are installed, you can invoke this utility directly from
-  the command line.  You can either run the utility from inside a directory containing
-  data, or from a remote directory.  Some examples follow:
+  Once the geopmpy modules are installed, you can invoke this utility
+  directly from the command line.  You can either run the utility from
+  inside a directory containing data, or from a remote directory.
+  Some examples follow:
 
-  The _freq_sweep_ analysis type runs the application once at each available frequency
-  on the platform. The reports generated from this analysis can be used for other types
-  of analysis. The output from the frequency sweep is a mapping of the best-fit frequency
-  for each region that saves energy while not letting the runtime increase more than 10%.
+  The _freq_sweep_ analysis type runs the application once at each
+  available frequency on the platform. The reports generated from this
+  analysis can be used for other types of analysis. The output from
+  the frequency sweep is a mapping of the best-fit frequency for each
+  region that saves energy while not letting the runtime increase more
+  than 10%.
 
     geopmanalysis -n1 -N1 -t freq_sweep -p myprof -o myprof -- ./build/bin/geopmbench config.json
 
-  The _offline_ analysis type runs a frequency sweep (if reports are not already present)
-  to determine the best-fit frequency for each region of the application. Then it runs the
-  application using the EfficientFreqDecider plugin, which uses this mapping to change the
-  frequency when entering each reagion. The _online_ analysis type is similar except that
-  it determines the best-fit frequency through online training.
+  The _offline_ analysis type runs a frequency sweep (if reports are
+  not already present) to determine the best-fit frequency for each
+  region of the application. Then it runs the application using the
+  EfficientFreqDecider plugin, which uses this mapping to change the
+  frequency when entering each region. The _online_ analysis type is
+  similar except that it determines the best-fit frequency through
+  online training.
 
     geopmanalysis -n1 -N1 -t offline -p myprof -o myprof -- ./build/bin/geopmbench config.json
 
-  The _stream_mix_ analysis type uses the geopmbench application and varies the ratio
-  between the runtimes of the stream and dgemm regions from around 20% stream to around 80%
-  stream. For each ratio, it launches a frequency sweep and the offline and online analysis
-  modes described above. The resulting analysis produces plots comparing the runtime and
-  energy savings of the different plugin modes at each stream mix ratio.
+  The _stream_mix_ analysis type uses the geopmbench application and
+  varies the ratio between the runtimes of the stream and dgemm
+  regions from around 20% stream to around 80% stream. For each ratio,
+  it launches a frequency sweep and the offline and online analysis
+  modes described above. The resulting analysis produces plots
+  comparing the runtime and energy savings of the different plugin
+  modes at each stream mix ratio.
 
     geopmanalysis -n1 -N1 -t stream_mix -p myprof -o myprof -- ./build/bin/geopmbench config.json
 
