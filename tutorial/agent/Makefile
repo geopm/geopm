@@ -31,6 +31,7 @@
 #
 
 TUTORIAL_LIB = libgeopmagent_example_agent.so.0.0.0
+GEOPM_PLUGIN_FLAGS=-fPIC -shared
 
 CC ?= gcc
 CXX ?= g++
@@ -38,7 +39,7 @@ CXX ?= g++
 all: $(TUTORIAL_LIB)
 
 libgeopmagent_example_agent.so.0.0.0: ExampleAgent.cpp ExampleAgent.hpp
-	$(CXX) ExampleAgent.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) -o $@
+	$(CXX) ExampleAgent.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) -o $@
 
 clean:
 	rm -f $(TUTORIAL_LIB) *.o
