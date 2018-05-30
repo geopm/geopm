@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6504adb2_18867dcd",
+        "filename": "geopm-ohpc.spec.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-05-30T23:25:48Z",
+      "side": 1,
+      "message": "https://geopm.github.io",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 43
+      },
+      "revId": "6920f97d55849d65323839a68ddc28b43d8d1756",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
