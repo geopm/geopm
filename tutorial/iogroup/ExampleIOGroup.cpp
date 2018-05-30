@@ -45,20 +45,11 @@ using geopm::Exception;
 using geopm::IPlatformTopo;
 
 // Registers this IOGroup with the IOGroup factory, making it visible
-// to PlatformIO
-static void register_example_once(void)
+// to PlatformIO when the plugin is first loaded.
+static void __attribute__((constructor)) example_iogroup_load(void)
 {
     geopm::iogroup_factory().register_plugin(ExampleIOGroup::plugin_name(),
                                              ExampleIOGroup::make_plugin);
-}
-
-// Ensures registration only happens once.
-static pthread_once_t g_register_example_once = PTHREAD_ONCE_INIT;
-
-// Runs when the plugin is first loaded.
-static void __attribute__((constructor)) example_iogroup_load(void)
-{
-    pthread_once(&g_register_example_once, register_example_once);
 }
 
 // Set up mapping between signal and control names and corresponding indices

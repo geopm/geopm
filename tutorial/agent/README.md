@@ -77,8 +77,10 @@ descend():
 adjust_platform():
 
   If the utilization is out of bounds, the Agent uses the STDERR
-  signal to print a warning.  Otherwise, it uses the STDOUT signal to
-  print the current idle percent.
+  signal to print the value.  Otherwise, it uses the STDOUT signal to
+  print the current idle percent.  Both controls will be written on
+  every iteration of the control loop, but only one will be adjusted
+  with a new value.
 
 
 3. Samples
@@ -93,7 +95,7 @@ the tree.
 
 sample_platform():
 
-  Collect time spent in each mode using the ExampleIOGroup signals
+  Collects time spent in each mode using the ExampleIOGroup signals
   USER_TIME, NICE_TIME, SYSTEM_TIME, and IDLE_TIME.  The utilization
   is calculated as the percentage of IDLE_TIME compared to the
   total.  Note that the output vector is owned by the Controller and
@@ -144,6 +146,7 @@ report_region():
   information can use this method to extend the region sections of
   the report.
 
+
 5. Control loop cadence
 -----------------------
 
@@ -159,24 +162,26 @@ slightly more or less time than the previous one.
 6. Set up registration on plugin load
 -------------------------------------
 
-In order to be available as the Agent type in the Controller, an Agent must
-be registered with the Agent factory.  The factory is a singleton
+In order to be available as the Agent type in the Controller, an Agent
+must be registered with the Agent factory.  The factory is a singleton
 and can be accessed with the agent_factory() method.  The
-register_plugin() method of the factory takes three arguments: the name
-of the plugin ("example"), a pointer to a function that returns a
-unique_ptr to a new object of the plugin type, and a dictionary containing the
-policy names and sample used in the Agent's interaction with the resource manager.
-In this example,
+register_plugin() method of the factory takes three arguments: the
+name of the plugin ("example"), a pointer to a function that returns a
+unique_ptr to a new object of the plugin type, and a dictionary
+containing the policy names and sample used in the Agent's interaction
+with the resource manager.  In this example,
 ExampleAgent::plugin_name() provides the first argument, and
-ExampleAgent::make_plugin is used as the second.  The dictionary is constructed
-using a helper method from the Agent base class, make_dictionary(), and uses
-policy_names() and sample_names() to provide the values.
+ExampleAgent::make_plugin is used as the second.  The dictionary is
+constructed using a helper method from the Agent base class,
+make_dictionary(), and uses policy_names() and sample_names() to
+provide the values.
 
 ExampleAgent is registered at the time the plugin is loaded by GEOPM
-in the example_agent_load() method at the top of the file.  GEOPM
-will automatically try to load any plugins it finds in the plugin path
+in the example_agent_load() method at the top of the file.  GEOPM will
+automatically try to load any plugins it finds in the plugin path
 (discussed in the man page for geopm(7) under the description of
-GEOPM_PLUGIN_PATH).
+GEOPM_PLUGIN_PATH).  Do not link any of the GEOPM libraries into the
+plugin shared object; this will cause a circular link dependency.
 
 
 7. Run with GEOPM

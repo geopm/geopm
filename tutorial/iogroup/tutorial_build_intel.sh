@@ -37,8 +37,7 @@ if [ ! "$OMP_FLAGS" ]; then
     OMP_FLAGS="-qopenmp"
 fi
 
-# link with geopmpolicy since MPI is not required
-GEOPM_LDFLAGS="-L$GEOPM_LIBDIR -lgeopmpolicy -pthread -fPIC -shared"
+GEOPM_LDFLAGS=
 
 make \
 CC=icc CXX=icpc \
