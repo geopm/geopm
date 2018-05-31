@@ -98,7 +98,7 @@ src/geopm_hash.h
 src/geopm_message.c
 src/geopm_message.h
 src/geopm_mpi_comm_split.h
-src/geopm_plugin.cpp
+src/geopm_plugin.c
 src/geopm_plugin.h
 src/geopm_pmpi.c
 src/geopm_pmpi_fortran.c
