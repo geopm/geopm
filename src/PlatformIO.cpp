@@ -508,8 +508,8 @@ namespace geopm
             {"IS_CONVERGED", IPlatformIO::agg_and},
             {"IS_UPDATED", IPlatformIO::agg_and},
             {"REGION_ID#", IPlatformIO::agg_region_id},
-            {"CYCLES_THREAD", IPlatformIO::agg_average},
-            {"CYCLES_REFERENCE", IPlatformIO::agg_average},
+            {"CYCLES_THREAD", IPlatformIO::agg_sum},
+            {"CYCLES_REFERENCE", IPlatformIO::agg_sum},
             {"TIME", IPlatformIO::agg_average},
             {"POWER_PACKAGE_MIN", IPlatformIO::agg_min},
             {"POWER_PACKAGE_MAX", IPlatformIO::agg_max}

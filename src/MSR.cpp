@@ -92,6 +92,14 @@ namespace geopm
     {
         if (m_num_bit == 64) {
             m_mask = ~0ULL;
+            if (m_function == IMSR::M_FUNCTION_OVERFLOW) {
+                throw Exception("MSREncode::MSREncode(): M_FUNCTION_OVERFLOW is not valid for 64 bit counters.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        else if (m_num_bit < 64 && m_function == IMSR::M_FUNCTION_NORMALIZE_64){
+            throw Exception("MSREncode::MSREncode(): M_FUNCTION_NORMALIZE_64 is not valid for non 64 bit counters.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
@@ -101,7 +109,7 @@ namespace geopm
         uint64_t sub_field = (field & m_mask) >> m_shift;
         uint64_t float_y, float_z;
         int num_overflow;
-        uint64_t max;
+        uint64_t overflow_val;
         switch (m_function) {
             case IMSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X
@@ -115,13 +123,13 @@ namespace geopm
                 result = (1ULL << float_y) * (1.0 + float_z / 4.0);
                 break;
             case IMSR::M_FUNCTION_OVERFLOW:
-                max = (1ULL << m_num_bit) - 1;
-                num_overflow = last_value / (max + 1);  // max + 1 in case last value is max
-                last_value = last_value - (max * num_overflow);
+                overflow_val = 1ULL << m_num_bit;                            // Value at 1st overflow
+                num_overflow = last_value / overflow_val;
+                last_value = last_value - (overflow_val - 1) * num_overflow; // subtract max bit field value * overflows
                 result = sub_field;
-                if (result < last_value) {
+                if (result < last_value) {                                   // an overflow has occured
                     ++num_overflow;
-                    result = result + (max * num_overflow);
+                    result = result + overflow_val * num_overflow; // overflow_val here to force incrementing of end_bit + 1
                 }
                 break;
             case IMSR::M_FUNCTION_SCALE:

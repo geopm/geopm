@@ -190,6 +190,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.write_batch \
               test/gtest_links/MSRTest.msr \
+              test/gtest_links/MSRTest.msr_bad \
               test/gtest_links/MSRTest.msr_overflow \
               test/gtest_links/MSRTest.msr_64_bit \
               test/gtest_links/MSRTest.msr_signal \
