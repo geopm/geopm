@@ -234,25 +234,53 @@ TEST_F(MSRTest, msr_overflow)
                          .units     = IMSR::M_UNITS_NONE,
                          .scalar    = 1.0});
     MSR msr("msr4", 0, {signal}, {});
+    // Signal is 4 bits wide, max is 0b1111 = 0xF = 15.
+    // On overflow, add 0x10, not 0xF.
+
     double last_value = 0.0;
 
     // no overflow
     double raw_value = msr.signal(0, 5, last_value);
     EXPECT_DOUBLE_EQ(5.0, raw_value);
 
-
     // overflowed
     last_value = 10;
     double of_value = msr.signal(0, 5, last_value);
-    EXPECT_DOUBLE_EQ(20.0, of_value);  // 5 + (16 -1)
+    EXPECT_DOUBLE_EQ(21.0, of_value);  // 5 + 16
 
     // multiple overflow
     last_value = 25;
     of_value = msr.signal(0, 6, last_value);
-    EXPECT_DOUBLE_EQ(36.0, of_value);  // 6 + 15 + 15
+    EXPECT_DOUBLE_EQ(38.0, of_value);  // 6 + 16 + 16
     last_value = 39;
     of_value = msr.signal(0, 7, last_value);
-    EXPECT_DOUBLE_EQ(52.0, of_value);  // 7 + 15 + 15 + 15
+    EXPECT_DOUBLE_EQ(55.0, of_value);  // 7 + 16 + 16 + 16
+
+    // Test with real counter values
+    auto signal2 = std::pair<std::string, struct IMSR::m_encode_s>
+                      ("sig42", (struct IMSR::m_encode_s) {
+                          .begin_bit = 0,
+                          .end_bit   = 48,
+                          .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                          .function  = IMSR::M_FUNCTION_OVERFLOW,
+                          .units     = IMSR::M_UNITS_NONE,
+                          .scalar    = 1.0});
+    MSR msr2("msr42", 0, {signal2}, {});
+
+    last_value = 0;
+    uint64_t input_value = 0xFFFFFF27AAE8;
+    of_value = msr2.signal(0, input_value, last_value);
+    EXPECT_DOUBLE_EQ((double)input_value, of_value);
+
+    // Setup funky rollover
+    last_value = input_value;
+    input_value = 0xFFFF000DD5D0;
+    uint64_t expected_value = input_value + pow(2, 48);
+
+    of_value = msr2.signal(0, input_value, last_value);
+    EXPECT_DOUBLE_EQ((double)expected_value, of_value);
+    std::cout << "Actual is : 0x" << std::hex << (uint64_t)of_value << std::endl;
+    std::cout << "Expected is : 0x" << std::hex << expected_value << std::endl;
 }
 
 TEST_F(MSRTest, msr_64_bit)

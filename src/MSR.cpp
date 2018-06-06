@@ -121,7 +121,7 @@ namespace geopm
                 result = sub_field;
                 if (result < last_value) {
                     ++num_overflow;
-                    result = result + (max * num_overflow);
+                    result = result + ((max + 1) * num_overflow);
                 }
                 break;
             case IMSR::M_FUNCTION_SCALE:
