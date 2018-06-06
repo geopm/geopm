@@ -1162,7 +1162,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         write_domain = read_stdout_line(write_proc.stdout)
         min_freq, max_freq = read_min_max_freq()
 
-        old_freq = read_current_freq(read_domain, 'MSR::PERF_CTL:FREQ')
+        old_freq = read_current_freq(write_domain, 'MSR::PERF_CTL:FREQ')
         self.assertLess(old_freq, max_freq * 2)
         self.assertGreater(old_freq, min_freq - 1e8)
 
