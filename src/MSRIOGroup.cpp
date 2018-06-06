@@ -662,18 +662,21 @@ namespace geopm
             write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
             write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
             write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
             write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
             write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
             write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
             write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
             write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
             write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0.0);
-            write_control("MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0.0);
-            write_control("MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0.0);
+            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
         }
     }
 
