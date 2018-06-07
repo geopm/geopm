@@ -298,7 +298,7 @@ int geopm_agent_policy_json(const char *agent_name,
             output_str << "{";
             for (int i = 0; !err && i < num_policy; ++i) {
                 if (i > 0) {
-                    output_str << ",";
+                    output_str << ", ";
                 }
                 err = geopm_agent_policy_name(agent_name, i, json_string_max, policy_name);
                 output_str << "\"" << policy_name << "\" : " << policy_array[i];
@@ -357,4 +357,3 @@ int geopm_agent_num_avail(int* num_agent)
 
     return err;
 }
-

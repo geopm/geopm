@@ -49,7 +49,9 @@ namespace geopm
         public:
             /// @todo May be useful for indexing into the vector of policies or samples.
             enum m_policy_e {
-                M_POLICY_POWER,
+                M_POLICY_POWER_AVERAGE,
+                M_POLICY_POWER_MIN,
+                M_POLICY_POWER_MAX,
                 M_NUM_POLICY,
             };
             enum m_plat_signal_e {
@@ -99,6 +101,7 @@ namespace geopm
             bool descend_initial_budget(double power_budget_in, std::vector<double> &power_budget_out);
             bool descend_updated_budget(double power_budget_in, std::vector<double> &power_budget_out);
             bool descend_updated_runtimes(double power_budget_in, std::vector<double> &power_budget_out);
+            bool descend_fixed_budget(std::vector<double> &power_budget_out);
             std::vector<double> split_budget(double avg_power_budget);
             std::vector<double> split_budget_first(double power_budget_in);
             std::vector<double> split_budget_helper(double avg_power_budget,
@@ -114,6 +117,8 @@ namespace geopm
 
             int m_updates_per_sample;
             int m_samples_per_control;
+            double m_min_power_setting;
+            double m_max_power_setting;
             double m_min_power_budget;
             double m_max_power_budget;
 

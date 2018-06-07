@@ -53,8 +53,10 @@ namespace geopm
         , m_is_sample_stable(false)
         , m_updates_per_sample(5)
         , m_samples_per_control(10)
-        , m_min_power_budget(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
-        , m_max_power_budget(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_min_power_budget(m_min_power_setting)
+        , m_max_power_budget(m_max_power_setting)
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_num_children(0)
         , m_is_root(false)
@@ -137,6 +139,7 @@ namespace geopm
         if (!std::isnan(power_budget_in)) {
             // First time down the tree, send the same budget to all children.
             std::fill(power_budget_out.begin(), power_budget_out.end(), power_budget_in);
+            m_last_power_budget_in = power_budget_in;
             m_last_budget0 = power_budget_out;
             m_is_updated = true;
             result = true;
@@ -146,6 +149,13 @@ namespace geopm
 
     bool PowerBalancerAgent::descend_updated_budget(double power_budget_in, std::vector<double> &power_budget_out)
     {
+        if (power_budget_in > m_max_power_budget) {
+            power_budget_in = m_max_power_budget;
+        }
+        else if (power_budget_in < m_min_power_budget) {
+            power_budget_in = m_min_power_budget;
+        }
+
         double factor = power_budget_in / IPlatformIO::agg_average(m_last_budget0);
         for (auto &it : power_budget_out) {
             it *= factor;
@@ -203,25 +213,53 @@ namespace geopm
         return result;
     }
 
+    bool PowerBalancerAgent::descend_fixed_budget(std::vector<double> &power_budget_out)
+    {
+        // For governing, set all children to fixed budget
+        std::fill(power_budget_out.begin(), power_budget_out.end(), m_min_power_budget);
+        m_last_power_budget_in = m_min_power_budget;
+        m_last_budget0 = power_budget_out;
+        return true;
+    }
+
     bool PowerBalancerAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
     {
-        if (policy_in.size() > 1) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): only one power budget was expected.",
+        if (policy_in.size() != M_NUM_POLICY) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): number of policies was different from expected.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 
         bool result = false;
-        double power_budget_in = policy_in[M_POLICY_POWER];
+        double power_budget_in = policy_in[M_POLICY_POWER_AVERAGE];
+        double power_budget_min = policy_in[M_POLICY_POWER_MIN];
+        double power_budget_max = policy_in[M_POLICY_POWER_MAX];
         std::vector<double> power_budget_out(m_num_children, NAN);
 
         if (std::isnan(m_last_power_budget_in)) {
             // Haven't yet recieved a budget split for the first time
             result = descend_initial_budget(power_budget_in, power_budget_out);
         }
-        else if (m_last_power_budget_in != power_budget_in) {
+        else if (m_last_power_budget_in != power_budget_in ||
+                 m_min_power_budget != power_budget_min ||
+                 m_max_power_budget != power_budget_max) {
+            if (!std::isnan(power_budget_min)) {
+                m_min_power_budget = power_budget_min;
+            }
+            else {
+                m_min_power_budget = m_min_power_setting;
+            }
+            if (!std::isnan(power_budget_max)) {
+                m_max_power_budget = power_budget_max;
+            }
+            else {
+                m_max_power_budget = m_max_power_setting;
+            }
             // The incoming power budget has changed, restart the
             // algorithm
             result = descend_updated_budget(power_budget_in, power_budget_out);
+        }
+        else if (m_min_power_budget == m_max_power_budget) {
+            result = descend_fixed_budget(power_budget_out);
         }
         else if (m_ascend_count == 1) {
             // Not the first descent and the runtimes may have been
@@ -230,7 +268,9 @@ namespace geopm
         }
         // Convert power budget vector into a vector of policy vectors
         for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-            policy_out[child_idx][M_POLICY_POWER] = power_budget_out[child_idx];
+            policy_out[child_idx][M_POLICY_POWER_AVERAGE] = power_budget_out[child_idx];
+            policy_out[child_idx][M_POLICY_POWER_MIN] = m_min_power_budget;
+            policy_out[child_idx][M_POLICY_POWER_MAX] = m_max_power_budget;
         }
         return result;
     }
@@ -297,7 +337,7 @@ namespace geopm
             throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): one control was expected.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        if (std::isnan(in_policy[M_POLICY_POWER])) {
+        if (std::isnan(in_policy[M_POLICY_POWER_AVERAGE])) {
             throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy is NAN.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
@@ -312,13 +352,13 @@ namespace geopm
         // If the budget has changed, or we have seen the same budget
         // for m_samples_per_control samples, then update the
         // power limits.
-        if (m_last_power_budget_out != in_policy[M_POLICY_POWER] || m_sample_count == 0) {
+        if (m_last_power_budget_out != in_policy[M_POLICY_POWER_AVERAGE] || m_sample_count == 0) {
             double num_pkg = m_control_idx.size();
-            double target_pkg_power = (in_policy[M_POLICY_POWER] - dram_power) / num_pkg;
+            double target_pkg_power = (in_policy[M_POLICY_POWER_AVERAGE] - dram_power) / num_pkg;
             for (auto ctl_idx : m_control_idx) {
                 m_platform_io.adjust(ctl_idx, target_pkg_power);
             }
-            m_last_power_budget_out = in_policy[M_POLICY_POWER];
+            m_last_power_budget_out = in_policy[M_POLICY_POWER_AVERAGE];
             result = true;
         }
         m_sample_count++;
@@ -554,7 +594,7 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::policy_names(void)
     {
-        return {"POWER"};
+        return {"POWER_AVERAGE", "POWER_MINIMUM", "POWER_MAXIMUM"};
     }
 
     std::vector<std::string> PowerBalancerAgent::sample_names(void)
