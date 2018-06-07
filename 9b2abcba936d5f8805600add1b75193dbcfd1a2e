@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e284237_d9487a7d",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-06-07T17:42:46Z",
+      "side": 1,
+      "message": "maybe this should throw instead",
+      "revId": "9b2abcba936d5f8805600add1b75193dbcfd1a2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49b886af_554f44cf",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-06-07T17:42:46Z",
+      "side": 1,
+      "message": "should be in GEOPM_DEBUG",
+      "revId": "9b2abcba936d5f8805600add1b75193dbcfd1a2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4281c69f_8cf904af",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-06-07T17:42:46Z",
+      "side": 1,
+      "message": "look into making a vector for policies using enum",
+      "range": {
+        "startLine": 122,
+        "startChar": 12,
+        "endLine": 123,
+        "endChar": 38
+      },
+      "revId": "9b2abcba936d5f8805600add1b75193dbcfd1a2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
