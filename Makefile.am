@@ -92,6 +92,7 @@ ronn_man = man/geopm.7 \
            man/geopm_agent_energy_efficient.7 \
            man/geopm_agent_monitor.7 \
            man/geopm_agent_power_balancer.7 \
+           man/geopm_agent_power_governor.7 \
            man/geopmanalysis.1 \
            man/geopmbench.1 \
            man/geopmctl.1 \
@@ -158,6 +159,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_agent_energy_efficient.7.ronn \
              ronn/geopm_agent_monitor.7.ronn \
              ronn/geopm_agent_power_balancer.7.ronn \
+             ronn/geopm_agent_power_governor.7.ronn \
              ronn/geopmendpoint.1.ronn \
              ronn/geopm_endpoint_c.3.ronn \
              ronn/geopm.7.ronn \
@@ -299,6 +301,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/ApplicationIO.hpp \
                             src/PowerBalancerAgent.hpp \
                             src/PowerBalancerAgent.cpp \
+                            src/PowerGovernorAgent.hpp \
+                            src/PowerGovernorAgent.cpp \
                             src/CircularBuffer.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
