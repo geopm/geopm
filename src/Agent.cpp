@@ -37,6 +37,7 @@
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
+#include "PowerGovernorAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "config.h"
 
@@ -54,6 +55,10 @@ namespace geopm
                                           PowerBalancerAgent::make_plugin,
                                           Agent::make_dictionary(PowerBalancerAgent::policy_names(),
                                                                   PowerBalancerAgent::sample_names()));
+        g_plugin_factory->register_plugin(PowerGovernorAgent::plugin_name(),
+                                          PowerGovernorAgent::make_plugin,
+                                          Agent::make_dictionary(PowerGovernorAgent::policy_names(),
+                                                                  PowerGovernorAgent::sample_names()));
         g_plugin_factory->register_plugin(EnergyEfficientAgent::plugin_name(),
                                           EnergyEfficientAgent::make_plugin,
                                           Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
@@ -357,4 +362,3 @@ int geopm_agent_num_avail(int* num_agent)
 
     return err;
 }
-
