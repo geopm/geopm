@@ -173,6 +173,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_energy_efficient(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
+**geopm_agent_power_governor(7)**,
 **geopm_agent_c(3)**,
 **geopm_error(3)**,
 **geopmagent(1)**,

@@ -59,8 +59,6 @@ src/Agent.cpp
 src/Agent.hpp
 src/ApplicationIO.cpp
 src/ApplicationIO.hpp
-src/PowerBalancerAgent.cpp
-src/PowerBalancerAgent.hpp
 src/CircularBuffer.hpp
 src/CombinedSignal.cpp
 src/CombinedSignal.hpp
@@ -165,6 +163,10 @@ src/Policy.cpp
 src/PolicyFlags.cpp
 src/PolicyFlags.hpp
 src/Policy.hpp
+src/PowerBalancerAgent.cpp
+src/PowerBalancerAgent.hpp
+src/PowerGovernorAgent.cpp
+src/PowerGovernorAgent.hpp
 src/Profile.cpp
 src/Profile.hpp
 src/ProfileIO.cpp
@@ -246,6 +248,7 @@ test_integration/Makefile.mk
 test/InternalProfile.cpp
 test/InternalProfile.hpp
 test/KontrollerTest.cpp
+test/KontrollerPowerGovernorTest.cpp
 test/KruntimeRegulatorTest.cpp
 test/legacy_whitelist.out
 test/Makefile.mk
@@ -294,6 +297,7 @@ test/PlatformTopologyTest.cpp
 test/PlatformTopoTest.cpp
 test/pmpi_mock.c
 test/PolicyTest.cpp
+test/PowerGovernorAgentTest.cpp
 test/ProfileIOGroupTest.cpp
 test/ProfileIOSampleTest.cpp
 test/ProfileTableTest.cpp
