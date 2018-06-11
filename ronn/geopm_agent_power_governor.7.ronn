@@ -1,5 +1,5 @@
-geopm_agent_monitor(7) -- agent implementation that enforces no policies
-========================================================================
+geopm_agent_power_governor(7) -- agent enforces a power cap
+==============================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
@@ -32,36 +32,59 @@ geopm_agent_monitor(7) -- agent implementation that enforces no policies
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-An implementation of the Agent interface that enforces no policies and
-is intended for application tracing and profiling only.
+
+The PowerGovernorAgent is designed to enforce a per-compute-node power
+cap by varying the package power limit in response to the measured
+DRAM power.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "monitor" and the
-  Kontroller will select the Monitor Agent for its control handler.
-  See **geopm(7)** for more information about environment variables.
+  Set the `GEOPM_AGENT` environment variable to "power_governor" and
+  the Kontroller instances will select the PowerGovernorAgent for
+  its control handler.  See **geopm(7)** for more information about
+  environment variables.
 
 * `Ordered Policies Descending`:
-  N/A
+
+  `POWER`: Sets the average power cap per compute node in
+                   units of Watts.
 
 * `Ordered Samples Ascending`:
 
-  `POWER_PACKAGE`: Total power of the package(s) across all compute
-                   nodes.
+  `POWER_MAXIMUM`: Maximum power excursion in Watts measured over the
+                   last epoch.  The maximum power excursion is
+                   determined by differencing energy values across the
+                   time window provided by the policy.
 
-  `FREQUENCY`: The average CPU frequency across all compute nodes.
+  `IS_CONVERGED`: Will be 1.0 if the power policy has been
+                  enforced and the power consumption by all nodes is
+                  within the assigned limits, otherwise it will be
+                  0.0.
 
 * `Tracing Modifications`:
-  N/A
+
+  `power_package`: Instantaneous power measurement of all processor
+                   packages on each compute node averaged over all
+                   compute nodes allocated to the application.
+
+  `power_dram`: Instantaneous power measurement of all DRAM modules in
+                each compute node averaged over all compute nodes
+                allocated to the application.
+
+  `power_budget`: Power budget assigned to the compute node associated
+                  with the trace file at time of sampling.
+
 
 * `Report Modifiers`:
   N/A
 
 * `Control Loop Gate`:
-  The Monitor agent gates the Kontroller's control loop to a cadence
-  of 5ms.  This agent propagates its ascending signals up the tree
-  every 50ms.
+  The agent gates the Kontroller's control loop to a cadence of 5
+  updates to the POWER_PACKAGE platform signal.  This agent propagates
+  its ascending signals up the tree every 50 updates to the
+  POWER_PACKAGE platform signal (i.e. 10 control cycles).  For
+  example, on KNL this is around 5ms.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
@@ -69,11 +92,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopm_agent_energy_efficient(7)**,
+**geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
-**geopm_agent_power_governor(7)**,
 **geopm_agent_c(3)**,
-**geopm_endpoint_c(3)**,
-**geopmagent(1)**,
-**geopmaprun(1)**,
-**geopmendpoint(1)**,
-**geopmsrun(1)**
+**geopm_prof_c(3)**,
+**geopmagent(1)**
