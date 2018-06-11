@@ -91,7 +91,7 @@ class TestLauncher(object):
         # todo: hack to run tests with new controller
         if os.getenv("GEOPM_AGENT", None) is not None:
             with open(self._ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
+                outfile.write("{\"POWER\": " + str(self._ctl_conf._options['power_budget']) + "}\n")
         else:
             self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:
