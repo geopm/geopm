@@ -96,6 +96,8 @@ application including support for static control.
 
 **geopm_agent_power_balancer(7)**: Agent that optimizes performance under a power cap
 
+**geopm_agent_power_governor(7)**: Agent that enforces a power cap
+
 ## RUNTIME CONTROL
 
 **geopm_ctl_c(3)**: GEOPM runtime control thread
@@ -308,7 +310,8 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
     will take over the role previously held by Deciders in splitting
     policy information to be sent to controllers lower in the tree,
     and aggregating sampled data up the tree.  Available agents are:
-    "monitor", "power_balancer", and "energy_efficient".
+    "monitor", "power_balancer", "power_governor", and
+    "energy_efficient".
 
   * `GEOPM_POLICY`:
     Specifies a JSON file path containing the policy.  If the policy
@@ -494,6 +497,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_energy_efficient(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
+**geopm_agent_power_governor(7)**,
 **geopm_agent_c(3)**,
 **geopm_ctl_c(3)**,
 **geopm_endpoint_c(3)**,
