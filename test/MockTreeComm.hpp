@@ -52,6 +52,10 @@ class MockTreeComm : public geopm::ITreeComm
             ++m_num_send;
             m_data_sent_up[level] = sample;
         }
+        void send_up_mock_child(int level, int child_idx, const std::vector<double> &sample)
+        {
+            m_data_sent_up_child[{level, child_idx}] = sample;
+        }
         void send_down(int level, const std::vector<std::vector<double> > &policy) override
         {
             ++m_num_send;
@@ -62,23 +66,28 @@ class MockTreeComm : public geopm::ITreeComm
         }
         bool receive_up(int level, std::vector<std::vector<double> > &sample) override
         {
-            ++m_num_recv;
             if (m_data_sent_up.find(level) == m_data_sent_up.end()) {
-                throw std::runtime_error("MockTreeComm::receive_up(): no data for level " +
-                                         std::to_string(level));
+                return false;
             }
+            ++m_num_recv;
+            int child_idx = 0;
             for (auto &vec : sample) {
-                vec = m_data_sent_up.at(level);
+                if (m_data_sent_up_child.find({level, child_idx}) != m_data_sent_up_child.end()) {
+                    vec = m_data_sent_up_child.at({level, child_idx});
+                }
+                else {
+                    vec = m_data_sent_up.at(level);
+                }
+                ++child_idx;
             }
             return true;
         }
         bool receive_down(int level, std::vector<double> &policy) override
         {
-            ++m_num_recv;
             if (m_data_sent_down.find(level) == m_data_sent_down.end()) {
-                throw std::runtime_error("MockTreeComm::receive_down(): no data for level " +
-                                         std::to_string(level));
+                return false;
             }
+            ++m_num_recv;
             policy = m_data_sent_down.at(level);
             return true;
         }
@@ -100,6 +109,8 @@ class MockTreeComm : public geopm::ITreeComm
         // map from level -> last sent data
         std::map<int, std::vector<double> > m_data_sent_up;
         std::map<int, std::vector<double> > m_data_sent_down;
+        // map from level, child -> last sent data
+        std::map<std::pair<int, int>, std::vector<double> > m_data_sent_up_child;
         int m_num_send = 0;
         int m_num_recv = 0;
 };
