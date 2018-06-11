@@ -166,8 +166,10 @@ the first `--` from the command line.
 
 * `--geopm-agent` agent:
   Specify the Agent to be used by all Kontrollers.  Available agents
-  are: "monitor", "power_balancer", and "energy_efficient".  See
-  **geopm_agent_monitor(7)**, **geopm_agent_power_balancer(7)**, and
+  are: "monitor", "power_balancer", "power_governor", and
+  "energy_efficient".  See **geopm_agent_monitor(7)**,
+  **geopm_agent_power_balancer(7)**,
+  **geopm_agent_power_governor(7)**, and
   **geopm_agent_energy_efficient(7)** for descriptions of each agent.
 
 * `--geopm-profile` name:
@@ -250,6 +252,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_energy_efficient(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
+**geopm_agent_power_governor(7)**,
 **geopm_error(3)**,
 **geopmctl(1)**,
 **geopmpolicy(1)**
