@@ -630,7 +630,9 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path,
+                                                    trace_path, time_limit=900,
+                                                    region_barrier=False)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
@@ -646,6 +648,7 @@ class TestIntegration(unittest.TestCase):
 
             epoch = '9223372036854775808'
             # todo: hack to run tests with new controller
+            # eventually this test could also use power signals from the trace
             if os.getenv("GEOPM_AGENT") is not None:
                 epoch = '0x8000000000000000'
 

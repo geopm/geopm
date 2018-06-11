@@ -213,6 +213,7 @@ namespace geopm
                     {"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
@@ -361,6 +362,13 @@ namespace geopm
         else if (name == "REGION_RUNTIME") {
             name = "runtime-0";
         }
+        else if (name == "ENERGY_PACKAGE") {
+            name = "pkg_energy-0";
+        }
+        else if (name == "ENERGY_DRAM") {
+            name = "dram_energy-0";
+        }
+
         else if (name.find("#") == name.length() - 1) {
             name = name.substr(0, name.length() - 1);
         }
