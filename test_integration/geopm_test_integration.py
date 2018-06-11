@@ -630,7 +630,8 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path,
+                                                    trace_path, time_limit=900)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
@@ -646,6 +647,7 @@ class TestIntegration(unittest.TestCase):
 
             epoch = '9223372036854775808'
             # todo: hack to run tests with new controller
+            # eventually this test could also use power signals from the trace
             if os.getenv("GEOPM_AGENT") is not None:
                 epoch = '0x8000000000000000'
 
@@ -906,6 +908,10 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            old_agent = os.getenv("GEOPM_AGENT", None)
+            os.environ['GEOPM_AGENT'] = 'energy_efficient'
+
         # Setup the static policy run
         num_node = 1
         num_rank = 4
@@ -918,6 +924,12 @@ class TestIntegration(unittest.TestCase):
                                                                       app_argv,
                                                                       verbose=True)
         analysis.launch()
+
+        try:
+            os.environ['GEOPM_AGENT'] = old_agent
+        except NameError:
+            pass
+
         parse_output = analysis.parse()
         process_output = analysis.report_process(parse_output)
         analysis.report(process_output)
@@ -967,6 +979,10 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            old_agent = os.getenv("GEOPM_AGENT", None)
+            os.environ['GEOPM_AGENT'] = 'energy_efficient'
+
         # Setup the adaptive policy run
         num_node = 1
         num_rank = 4
@@ -978,6 +994,12 @@ class TestIntegration(unittest.TestCase):
                                                                      app_argv,
                                                                      verbose=True)
         analysis.launch()
+
+        try:
+            os.environ['GEOPM_AGENT'] = old_agent
+        except NameError:
+            pass
+
         parse_output = analysis.parse()
         process_output = analysis.report_process(parse_output)
         analysis.report(process_output)
