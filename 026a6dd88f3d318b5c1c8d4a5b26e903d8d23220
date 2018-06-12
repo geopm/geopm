@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b61f760_43137f74",
+        "filename": "src/MSR.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-12T18:16:31Z",
+      "side": 1,
+      "message": "We should throw if someone tries to set an MSR to OVERFLOW and it\u0027s \u003e\u003d 64 bits wide.",
+      "range": {
+        "startLine": 118,
+        "startChar": 16,
+        "endLine": 118,
+        "endChar": 46
+      },
+      "revId": "026a6dd88f3d318b5c1c8d4a5b26e903d8d23220",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "076530fc_931f53ea",
+        "filename": "src/MSR.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-12T18:16:31Z",
+      "side": 1,
+      "message": "max + 1?  Depends on if I want the size of the MSR, or the mask.",
+      "range": {
+        "startLine": 120,
+        "startChar": 43,
+        "endLine": 120,
+        "endChar": 46
+      },
+      "revId": "026a6dd88f3d318b5c1c8d4a5b26e903d8d23220",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fed4612_98fc4df5",
+        "filename": "src/msr_hsx.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-12T18:16:31Z",
+      "side": 1,
+      "message": "Are these correct?  Verify these are actually 64 bits.",
+      "range": {
+        "startLine": 731,
+        "startChar": 22,
+        "endLine": 731,
+        "endChar": 37
+      },
+      "revId": "026a6dd88f3d318b5c1c8d4a5b26e903d8d23220",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5208e1dd_3cc61610",
+        "filename": "test/MSRTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-12T18:16:31Z",
+      "side": 1,
+      "message": "Use the stream operator to put some extra information in here.",
+      "range": {
+        "startLine": 281,
+        "startChar": 54,
+        "endLine": 281,
+        "endChar": 55
+      },
+      "revId": "026a6dd88f3d318b5c1c8d4a5b26e903d8d23220",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
