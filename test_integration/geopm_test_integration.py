@@ -614,7 +614,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        loop_count = 500
+        loop_count = 50#0
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
@@ -630,7 +630,7 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
         self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path, time_limit=900, region_barrier=True)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
@@ -646,10 +646,12 @@ class TestIntegration(unittest.TestCase):
 
             epoch = '9223372036854775808'
             # todo: hack to run tests with new controller
+            # eventually this test could also use power signals from the trace
             if os.getenv("GEOPM_AGENT") is not None:
                 epoch = '0x8000000000000000'
 
             first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
+            print first_epoch_index
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
