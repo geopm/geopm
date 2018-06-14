@@ -223,7 +223,17 @@ namespace geopm
 
             // extra columns from environment
             for (const auto &extra : m_env_column) {
-                base_columns.push_back({extra, IPlatformTopo::M_DOMAIN_BOARD, 0});
+                int domain = IPlatformTopo::M_DOMAIN_BOARD;
+                // if a column cannot be aggregated to board, use the native domain
+                // with index 0
+                try {
+                    m_platform_io.agg_function(extra);
+                }
+                catch (Exception) {
+                    domain = m_platform_io.signal_domain_type(extra);
+                }
+
+                base_columns.push_back({extra, domain, 0});
             }
 
             // set up columns to be sampled by Tracer
