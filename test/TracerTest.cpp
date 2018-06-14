@@ -86,6 +86,8 @@ void TracerTest::SetUp(void)
     for (auto cc : m_extra_cols) {
         EXPECT_CALL(m_platform_io, push_signal(cc, IPlatformTopo::M_DOMAIN_BOARD, 0))
             .WillOnce(Return(idx));
+        EXPECT_CALL(m_platform_io, agg_function(cc))
+            .WillOnce(Return(IPlatformIO::agg_sum));
         ++idx;
     }
 }
