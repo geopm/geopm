@@ -614,7 +614,7 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
-        loop_count = 50#0
+        loop_count = 50
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
@@ -674,7 +674,6 @@ class TestIntegration(unittest.TestCase):
         for node_name, power_data in all_power_data.iteritems():
             # Allow for overages of 2% at the 75th percentile.
             self.assertGreater(self._options['power_budget'] * 1.02, power_data['combined_power'].quantile(.75))
-
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
 
