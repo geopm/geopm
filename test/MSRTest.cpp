@@ -206,7 +206,9 @@ TEST_F(MSRTest, msr)
         for (int signal_idx = 0; signal_idx < msr->num_signal(); signal_idx++) {
             EXPECT_EQ(m_signal_names[signal_idx], msr->signal_name(signal_idx)) << "signal_idx: " << signal_idx;
             EXPECT_EQ(signal_idx, msr->signal_index(m_signal_names[signal_idx])) << "signal_idx: " << signal_idx;
-            double value = msr->signal(signal_idx, m_signal_field, 0);
+            uint64_t field_last = 0;
+            uint64_t num_overflow = 0;
+            double value = msr->signal(signal_idx, m_signal_field, field_last, num_overflow);
             EXPECT_DOUBLE_EQ(m_expected_sig_values[signal_idx], value) << "signal_idx: " << signal_idx;
         }
 
@@ -234,51 +236,22 @@ TEST_F(MSRTest, msr_overflow)
                          .units     = IMSR::M_UNITS_NONE,
                          .scalar    = 1.0});
     MSR msr("msr4", 0, {signal}, {});
-    double last_value = 0.0;
+    uint64_t last_field = 0;
+    uint64_t num_overflow = 0;
 
     // no overflow
-    double raw_value = msr.signal(0, 5, last_value);
+    double raw_value = msr.signal(0, 5, last_field, num_overflow);
     EXPECT_DOUBLE_EQ(5.0, raw_value);
 
-
     // overflowed
-    last_value = 10;
-    double of_value = msr.signal(0, 5, last_value);
-    EXPECT_DOUBLE_EQ(20.0, of_value);  // 5 + (16 -1)
+    double of_value = msr.signal(0, 4, last_field, num_overflow);
+    EXPECT_DOUBLE_EQ(20.0, of_value);  // 4 + 16
 
     // multiple overflow
-    last_value = 25;
-    of_value = msr.signal(0, 6, last_value);
-    EXPECT_DOUBLE_EQ(36.0, of_value);  // 6 + 15 + 15
-    last_value = 39;
-    of_value = msr.signal(0, 7, last_value);
-    EXPECT_DOUBLE_EQ(52.0, of_value);  // 7 + 15 + 15 + 15
-}
-
-TEST_F(MSRTest, msr_64_bit)
-{
-    auto signal = std::pair<std::string, struct IMSR::m_encode_s>
-                     ("sig5", (struct IMSR::m_encode_s) {
-                         .begin_bit = 0,
-                         .end_bit   = 64,
-                         .domain    = IPlatformTopo::M_DOMAIN_CPU,
-                         .function  = IMSR::M_FUNCTION_NORMALIZE_64,
-                         .units     = IMSR::M_UNITS_NONE,
-                         .scalar    = 1.0});
-    MSR msr("msr5", 0, {signal}, {});
-    // history must be stored in signal
-    MSRSignal sig(msr, IPlatformTopo::M_DOMAIN_CPU, 0, 0);
-    uint64_t signal_field = 0x5555666677778888;
-    sig.map_field(&signal_field);
-    double result = sig.sample();
-    EXPECT_EQ(0.0, result);
-    // future samples should use same baseline
-    signal_field = 0x5555666677779999;
-    result = sig.sample();
-    EXPECT_DOUBLE_EQ(0x1111, result);
-    signal_field = 0x555566667777aaaa;
-    result = sig.sample();
-    EXPECT_DOUBLE_EQ(0x2222, result);
+    of_value = msr.signal(0, 3, last_field, num_overflow);
+    EXPECT_DOUBLE_EQ(35.0, of_value);  // 3 + 2 * 16
+    of_value = msr.signal(0, 2, last_field, num_overflow);
+    EXPECT_DOUBLE_EQ(50.0, of_value);  // 2 + 3 * 16
 }
 
 TEST_F(MSRTest, msr_signal)

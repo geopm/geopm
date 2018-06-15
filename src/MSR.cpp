@@ -62,17 +62,18 @@ namespace geopm
             MSREncode(const struct IMSR::m_encode_s &msre);
             MSREncode(int begin_bit, int end_bit, int function, double scalar);
             virtual ~MSREncode() = default;
-            double decode(uint64_t field, uint64_t last_value);
+            double decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow);
             uint64_t encode(double value);
             uint64_t mask(void);
             int decode_function(void);
         private:
             const int m_function;
             int m_shift;
+            int m_num_bit;
             uint64_t m_mask;
+            uint64_t m_subfield_max;
             double m_scalar;
             double m_inverse;
-            int m_num_bit;
     };
 
 
@@ -85,55 +86,52 @@ namespace geopm
     MSREncode::MSREncode(int begin_bit, int end_bit, int function, double scalar)
         : m_function(function)
         , m_shift(begin_bit)
+        , m_num_bit(end_bit - begin_bit)
         , m_mask(((1ULL << (end_bit - begin_bit)) - 1) << begin_bit)
+        , m_subfield_max((1ULL << m_num_bit) - 1)
         , m_scalar(scalar)
         , m_inverse(1.0 / scalar)
-        , m_num_bit(end_bit - begin_bit)
     {
-        if (m_num_bit == 64) {
-            m_mask = ~0ULL;
+#ifdef GEOPM_DEBUG
+        if (m_num_bit >= 64) {
+            throw Exception("MSREncode: 64 bit fields are not supported.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
+#endif
     }
 
-    double MSREncode::decode(uint64_t field, uint64_t last_value)
+    double MSREncode::decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow)
     {
         double result = NAN;
-        uint64_t sub_field = (field & m_mask) >> m_shift;
+        uint64_t subfield = (field & m_mask) >> m_shift;
+        uint64_t subfield_last = (last_field & m_mask) >> m_shift;
         uint64_t float_y, float_z;
-        int num_overflow;
-        uint64_t max;
         switch (m_function) {
             case IMSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X
-                result = 1.0 / (1ULL << sub_field);
+                result = 1.0 / (1ULL << subfield);
                 break;
             case IMSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
                 // Y in bits [0:5) and Z in bits [5:7)
-                float_y = sub_field & 0x1F;
-                float_z = sub_field >> 5;
+                float_y = subfield & 0x1F;
+                float_z = subfield >> 5;
                 result = (1ULL << float_y) * (1.0 + float_z / 4.0);
                 break;
             case IMSR::M_FUNCTION_OVERFLOW:
-                max = (1ULL << m_num_bit) - 1;
-                num_overflow = last_value / (max + 1);  // max + 1 in case last value is max
-                last_value = last_value - (max * num_overflow);
-                result = sub_field;
-                if (result < last_value) {
+                if (subfield_last > subfield) {
                     ++num_overflow;
-                    result = result + (max * num_overflow);
                 }
+                result = subfield + ((m_subfield_max + 1.0) * num_overflow);
                 break;
             case IMSR::M_FUNCTION_SCALE:
-                result = sub_field;
-                break;
-            case IMSR::M_FUNCTION_NORMALIZE_64:
-                result = sub_field - last_value;
+                result = subfield;
                 break;
             default:
                 break;
         }
         result *= m_scalar;
+        last_field = field;
         return result;
     }
 
@@ -177,9 +175,6 @@ namespace geopm
                 break;
             case IMSR::M_FUNCTION_OVERFLOW:
                 result = (uint64_t)value;
-                break;
-            case IMSR::M_FUNCTION_NORMALIZE_64:
-                result = geopm_signal_to_field(value);
                 break;
             default:
                 throw Exception("MSR::encode(): unimplemented scale function: " + std::to_string(m_function),
@@ -327,13 +322,14 @@ namespace geopm
 
     double MSR::signal(int signal_idx,
                        uint64_t field,
-                       uint64_t last_field) const
+                       uint64_t &last_field,
+                       uint64_t &num_overflow) const
     {
         if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("MSR::signal(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_encode[signal_idx]->decode(field, last_field);
+        return m_signal_encode[signal_idx]->decode(field, last_field, num_overflow);
     }
 
     void MSR::control(int control_idx,
@@ -374,9 +370,9 @@ namespace geopm
         , m_cpu_idx(cpu_idx)
         , m_signal_idx(signal_idx)
         , m_field_ptr(nullptr)
-        , m_signal_last(0)
+        , m_field_last(0)
+        , m_num_overflow(0)
         , m_is_field_mapped(false)
-        , m_is_sample_once(true)
     {
 
     }
@@ -388,9 +384,9 @@ namespace geopm
         , m_cpu_idx(other.m_cpu_idx)
         , m_signal_idx(other.m_signal_idx)
         , m_field_ptr(nullptr)
-        , m_signal_last(other.m_signal_last)
+        , m_field_last(other.m_field_last)
+        , m_num_overflow(other.m_num_overflow)
         , m_is_field_mapped(false)
-        , m_is_sample_once(other.m_is_sample_once)
     {
 
     }
@@ -417,15 +413,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        double result = m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_signal_last);
-        if (m_msr_obj.decode_function(m_signal_idx) == IMSR::M_FUNCTION_OVERFLOW) {
-            m_signal_last = *m_field_ptr;
-        }
-        else if (m_is_sample_once && m_msr_obj.decode_function(m_signal_idx) == IMSR::M_FUNCTION_NORMALIZE_64) {
-            m_signal_last = *m_field_ptr;
-            result = 0.0;
-        }
-        m_is_sample_once = false;
+        double result = m_msr_obj.signal(m_signal_idx, *m_field_ptr, m_field_last, m_num_overflow);
         return result;
     }
 
