@@ -49,10 +49,11 @@ from geopmpy import __version__
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
 except subprocess.CalledProcessError:
-    os.environ['COLUMNS'] = "120"
+    os.environ['COLUMNS'] = "200"
 
 pandas.set_option('display.width', int(os.environ['COLUMNS']))
 pandas.set_option('display.max_colwidth', 80)
+pandas.set_option('max_columns', 100)
 
 
 class AppOutput(object):

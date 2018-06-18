@@ -358,8 +358,6 @@ class FreqSweepAnalysis(Analysis):
         # Calculate power and kwh
         p = pandas.Series(means_df['energy'] / means_df['runtime'], name='power')
         means_df = pandas.concat([means_df, p], axis=1)
-        kwh = pandas.Series((means_df['runtime'] / 3600) * (means_df['power'] / 1000), name='kwh')
-        means_df = pandas.concat([means_df, kwh], axis=1)
 
         # Modify column order so that runtime bound occurs just after runtime
         cols = means_df.columns.tolist()
@@ -386,12 +384,6 @@ def baseline_comparison(parse_output, comp_name):
     baseline_means_df = pandas.concat([baseline_means_df, p], axis=1)
     p = pandas.Series(comp_means_df['energy'] / comp_means_df['runtime'], name='power')
     comp_means_df = pandas.concat([comp_means_df, p], axis=1)
-
-    # Add kwh column
-    kwh = pandas.Series((baseline_means_df['runtime'] / 3600) * (baseline_means_df['power'] / 1000), name='kwh')
-    baseline_means_df = pandas.concat([baseline_means_df, kwh], axis=1)
-    kwh = pandas.Series((comp_means_df['runtime'] / 3600) * (comp_means_df['power'] / 1000), name='kwh')
-    comp_means_df = pandas.concat([comp_means_df, kwh], axis=1)
 
     # Calculate energy savings
     es = pandas.Series((baseline_means_df['energy'] - comp_means_df['energy'].reset_index('name', drop=True))\
