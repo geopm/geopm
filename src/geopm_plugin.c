@@ -125,7 +125,7 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
                         if ((geopm_name_begins_with(file->fts_name, "libgeopmagent_") ||
                              geopm_name_begins_with(file->fts_name, "libgeopmiogroup_") ||
                              geopm_name_begins_with(file->fts_name, "libgeopmcomm_")) &&
-                             dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
+                            dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
                             if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
                                 fprintf(stderr, "Warning: failed to dlopen plugin %s.\n", file->fts_path);
@@ -134,7 +134,8 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
                         }
                     }
                     else {
-                        if (geopm_name_begins_with(file->fts_name, "libgeopmpi_") &&
+                        if ((geopm_name_begins_with(file->fts_name, "libgeopmpi_") ||
+                             geopm_name_begins_with(file->fts_name, "libgeopmiogroup_")) &&
                             dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
                             if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
