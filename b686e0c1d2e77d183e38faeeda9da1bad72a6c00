@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7b95f00_b34213ce",
+        "filename": "src/EnergyEfficientAgent.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-18T18:05:52Z",
+      "side": 1,
+      "message": "Strip out sending any samples up the tree.  The feature should be implemented by default for the epoch region.  Currently the frequency fields in the reports is showing 0 for the epoch achieved frequency.  The reports should show the proper average frequency achieved for the epoch region.",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 28
+      },
+      "revId": "b686e0c1d2e77d183e38faeeda9da1bad72a6c00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
