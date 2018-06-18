@@ -124,7 +124,8 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
                     if (geopm_env_do_kontroller()) {
                         if ((geopm_name_begins_with(file->fts_name, "libgeopmagent_") ||
                              geopm_name_begins_with(file->fts_name, "libgeopmiogroup_") ||
-                             geopm_name_begins_with(file->fts_name, "libgeopmcomm_")) &&
+                             geopm_name_begins_with(file->fts_name, "libgeopmcomm_") ||
+                             geopm_name_begins_with(file->fts_name, "libgeopmpi_")) &&
                              dlopen(file->fts_path, RTLD_NOLOAD) == NULL) {
                             if (NULL == dlopen(file->fts_path, RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG

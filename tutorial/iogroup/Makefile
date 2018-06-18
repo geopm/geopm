@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_LIB = libgeopmiogroup_example_iogroup.so.0.0.0
+TUTORIAL_LIB = libgeopmpi_example_iogroup.so.0.0.0
 GEOPM_PLUGIN_FLAGS=-fPIC -shared
 
 CC ?= gcc
@@ -38,7 +38,7 @@ CXX ?= g++
 
 all: $(TUTORIAL_LIB)
 
-libgeopmiogroup_example_iogroup.so.0.0.0: ExampleIOGroup.cpp ExampleIOGroup.hpp
+libgeopmpi_example_iogroup.so.0.0.0: ExampleIOGroup.cpp ExampleIOGroup.hpp
 	$(CXX) ExampleIOGroup.cpp $(CXXFLAGS) -I../../src -I ../.. $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) -o $@
 
 clean:
