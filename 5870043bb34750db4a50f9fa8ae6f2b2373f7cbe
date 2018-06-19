@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e31a97e_54c84965",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T18:25:12Z",
+      "side": 1,
+      "message": "The old GoverningDecider has filtering logic for the dram power.  It calculates upper and lower bounds for the power value.  If the current value read for DRAM power is outside these bounds, only then do we calculate a new budget for the children.\n\nWe may want this functionality if it\u0027s determined that we\u0027re setting a new RAPL budget too often.",
+      "range": {
+        "startLine": 235,
+        "startChar": 33,
+        "endLine": 235,
+        "endChar": 87
+      },
+      "revId": "5870043bb34750db4a50f9fa8ae6f2b2373f7cbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1044923_19334242",
+        "filename": "test/KontrollerPowerGovernorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T18:25:12Z",
+      "side": 1,
+      "message": "Having an expectation on the lower bound would be good as well.",
+      "range": {
+        "startLine": 266,
+        "startChar": 8,
+        "endLine": 266,
+        "endChar": 17
+      },
+      "revId": "5870043bb34750db4a50f9fa8ae6f2b2373f7cbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d1af0ac_e67b1b1b",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T18:25:12Z",
+      "side": 1,
+      "message": "The old launcher has this false by default.  Not needed.",
+      "range": {
+        "startLine": 635,
+        "startChar": 52,
+        "endLine": 635,
+        "endChar": 72
+      },
+      "revId": "5870043bb34750db4a50f9fa8ae6f2b2373f7cbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
