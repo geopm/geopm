@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "c797dbea_37684250",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T23:28:52Z",
+      "side": 1,
+      "message": "Not needed.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 29
+      },
+      "revId": "41d9312df065c417db33fb5a5836c42b3f7d2a12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95407737_79d415c5",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T23:28:52Z",
+      "side": 1,
+      "message": "They policy cannot be final here.  Lines 248-249 depend on the min and max being set to the same value in order for the frequency sweeps to occur.  We\u0027d have to write the policy inside the \"for freq in freqs:\" loop and set max and min to freq.",
+      "range": {
+        "startLine": 230,
+        "startChar": 16,
+        "endLine": 231,
+        "endChar": 96
+      },
+      "revId": "41d9312df065c417db33fb5a5836c42b3f7d2a12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "80dd24a3_9658b207",
         "filename": "src/EnergyEfficientAgent.cpp",
         "patchSetId": 9

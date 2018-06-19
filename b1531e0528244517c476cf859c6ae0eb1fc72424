@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59cb6466_65d584a2",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T23:28:52Z",
+      "side": 0,
+      "message": "This needs to be preserved in the policy that\u0027s loaded with the new code path so that sweeping over the frequencies works properly.",
+      "range": {
+        "startLine": 228,
+        "startChar": 20,
+        "endLine": 229,
+        "endChar": 70
+      },
+      "revId": "b1531e0528244517c476cf859c6ae0eb1fc72424",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1789460f_6aedb2ce",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T23:28:52Z",
+      "side": 0,
+      "message": "These should be used when we want to set the actual frequency min/maxes.",
+      "range": {
+        "startLine": 466,
+        "startChar": 12,
+        "endLine": 467,
+        "endChar": 50
+      },
+      "revId": "b1531e0528244517c476cf859c6ae0eb1fc72424",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
