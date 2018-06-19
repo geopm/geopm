@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80dd24a3_9658b207",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T23:09:16Z",
+      "side": 1,
+      "message": "std::isnan",
+      "range": {
+        "startLine": 104,
+        "startChar": 33,
+        "endLine": 104,
+        "endChar": 38
+      },
+      "revId": "41d9312df065c417db33fb5a5836c42b3f7d2a12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1225cd56_2b81ba92",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-06-19T23:09:16Z",
+      "side": 1,
+      "message": "This cannot go here because of the logic in the top of adjust platform.",
+      "range": {
+        "startLine": 114,
+        "startChar": 13,
+        "endLine": 119,
+        "endChar": 13
+      },
+      "revId": "41d9312df065c417db33fb5a5836c42b3f7d2a12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
