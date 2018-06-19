@@ -101,8 +101,8 @@ namespace geopm
         }
 #endif
         bool result = false;
-        double target_freq_min = isnan(in_policy[M_POLICY_FREQ_MIN]) ? cpu_freq_min() : in_policy[M_POLICY_FREQ_MIN];
-        double target_freq_max = isnan(in_policy[M_POLICY_FREQ_MAX]) ? cpu_freq_max() : in_policy[M_POLICY_FREQ_MAX];
+        double target_freq_min = std::isnan(in_policy[M_POLICY_FREQ_MIN]) ? cpu_freq_min() : in_policy[M_POLICY_FREQ_MIN];
+        double target_freq_max = std::isnan(in_policy[M_POLICY_FREQ_MAX]) ? cpu_freq_max() : in_policy[M_POLICY_FREQ_MAX];
         if (target_freq_min > target_freq_max) {
             throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): invalid frequency bounds.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -111,12 +111,6 @@ namespace geopm
             m_freq_max != target_freq_max) {
             m_freq_min = target_freq_min;
             m_freq_max = target_freq_max;
-            if (m_freq_min > m_last_freq) {
-                m_last_freq = m_freq_min;
-            }
-            else if (m_freq_max < m_last_freq) {
-                m_last_freq = m_freq_max;
-            }
             for (auto &eer : m_region_map) {
                 eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
             }
@@ -220,6 +214,14 @@ namespace geopm
         }
 
         if (freq != m_last_freq) {
+            /// freq initialized to m_last_freq but frequency bounds may have changed since
+            /// the time of the caching.  Need to make sure when we're within our bounds
+            if (m_freq_min > freq) {
+                freq = m_freq_min;
+            }
+            else if (m_freq_max < freq) {
+                freq = m_freq_max;
+            }
             for (auto ctl_idx : m_control_idx) {
                 m_platform_io.adjust(ctl_idx, freq);
             }
