@@ -41,6 +41,7 @@ import math
 
 import geopm_context
 import geopmpy.launcher
+import geopmpy.analysis
 from geopmpy.launcher import resource_manager
 
 
@@ -89,9 +90,17 @@ class TestLauncher(object):
     def run(self, test_name):
         self._app_conf.write()
         # todo: hack to run tests with new controller
-        if os.getenv("GEOPM_AGENT", None) is not None:
+        if os.getenv("GEOPM_AGENT", None) == 'power_governor':
             with open(self._ctl_conf.get_path(), "w") as outfile:
                 outfile.write("{\"POWER\": " + str(self._ctl_conf._options['power_budget']) + "}\n")
+        elif os.getenv("GEOPM_AGENT", None) == 'energy_efficient':
+            with open(self._ctl_conf.get_path(), "w") as outfile:
+                freqs = geopmpy.analysis.sys_freq_avail()
+                max_non_turbo = freqs[-2]
+                outfile.write("{{\"FREQ_MIN\" : {0}, \"FREQ_MAX\" : {0}}}\n".format(max_non_turbo))
+        elif os.getenv('GEOPM_AGENT', None) is not None:
+            with open(self._ctl_conf.get_path(), "w") as outfile:
+                outfile.write("{}\n")
         else:
             self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:

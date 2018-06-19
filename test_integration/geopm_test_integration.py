@@ -869,6 +869,225 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
+    @skip_unless_cpufreq()
+    @skip_unless_slurm_batch()
+    def test_energy_counters(self):
+        """
+        Test the energy counters.
+        """
+        name = 'test_counters'
+        loop_count = 10
+        dgemm_bigo = 20.25
+        dgemm_bigo_jlse = 35.647
+        dgemm_bigo_quartz = 29.12
+        hostname = socket.gethostname()
+        if hostname.endswith('.alcf.anl.gov'):
+            dgemm_bigo = dgemm_bigo_jlse
+        else:
+            dgemm_bigo = dgemm_bigo_quartz
+
+        app_conf_name = name + '_app.config'
+        app_conf = geopmpy.io.BenchConf(app_conf_name)
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('dgemm', dgemm_bigo)
+
+        num_node = 1
+        num_rank = 4
+
+        freqs = geopmpy.analysis.sys_freq_avail()
+        max_non_turbo = freqs[-2]
+        os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(max_non_turbo)
+        os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(max_non_turbo)
+
+        # Setup run with new code
+        os.environ['GEOPM_AGENT'] = 'energy_efficient'
+        report_path = name + '_new.report'
+        trace_path = name + '_new.trace'
+
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name + '_new')
+
+        new_output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = new_output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+
+        # Setup run with old code
+        del os.environ['GEOPM_AGENT']
+        report_path = name + '_old.report'
+        trace_path = name + '_old.trace'
+        self._options['power_budget'] = 350
+        self._options['tree_decider'] = 'static_policy'
+        self._options['leaf_decider'] = 'efficient_freq'
+
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name + '_old')
+
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+
+        # Compare data gathered from old code path and new
+        for nn in node_names:
+            rro = self._output.get_report(nn)
+            rrn = new_output.get_report(nn)
+            self.assertNear(rro['dgemm']['runtime'], rrn['dgemm']['runtime'], 0.10)    # 10% variabiliy
+            self.assertNear(rro['dgemm']['frequency'], rrn['dgemm']['frequency'], 0.1) # 1% for frequencies
+            self.assertNear(rro['dgemm']['energy'], rrn['dgemm']['energy'], 0.10)
+
+
+    @skip_unless_cpufreq()
+    @skip_unless_slurm_batch()
+    def test_consistency_legacy(self):
+        """
+        Test the energy counters.
+        """
+        name = 'test_counters'
+        loop_count = 10
+        dgemm_bigo = 20.25
+        dgemm_bigo_jlse = 35.647
+        dgemm_bigo_quartz = 29.12
+        hostname = socket.gethostname()
+        if hostname.endswith('.alcf.anl.gov'):
+            dgemm_bigo = dgemm_bigo_jlse
+        else:
+            dgemm_bigo = dgemm_bigo_quartz
+
+        app_conf_name = name + '_app.config'
+        app_conf = geopmpy.io.BenchConf(app_conf_name)
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('dgemm', dgemm_bigo)
+
+        num_node = 1
+        num_rank = 4
+
+        freqs = geopmpy.analysis.sys_freq_avail()
+        max_non_turbo = freqs[-2]
+        os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(max_non_turbo)
+        os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(max_non_turbo)
+
+        # Setup run with new code
+        os.environ['GEOPM_AGENT'] = 'energy_efficient'
+        report_path = name + '_new.report'
+        trace_path = name + '_new.trace'
+
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name + '_new')
+
+        new_output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = new_output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+
+        # Setup run with old code
+        del os.environ['GEOPM_AGENT']
+        report_path = name + '_old.report'
+        trace_path = name + '_old.trace'
+        self._options['power_budget'] = 350
+        self._options['tree_decider'] = 'static_policy'
+        self._options['leaf_decider'] = 'efficient_freq'
+
+        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
+        self._tmp_files.append(ctl_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name + '_old')
+
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(num_node, len(node_names))
+
+        # Compare data energy gathered in the report vs. energy gathered in the trace
+        for nn in node_names:
+            # Old code path
+            rro = self._output.get_report(nn)
+            tto = self._output.get_trace(nn)
+
+            pkg_energy_cols = [s for s in tto.keys() if 'pkg_energy' in s]
+            dram_energy_cols = [s for s in tto.keys() if 'dram_energy' in s]
+
+            ttor = tto.set_index(['region_id'], append=True).groupby(level=['region_id'])
+
+            for region_name, region_data in rro.iteritems():
+                data = ttor.get_group(region_data.get_id())
+                # Build a df with only the first region entry and the exit.
+                last_index = 0
+                filtered_df = pandas.DataFrame()
+                row_list = []
+                progress_1s = data['progress-0'].loc[data['progress-0'] == 1]
+                cols = ['seconds', 'progress-0'] + pkg_energy_cols + dram_energy_cols
+                for index, junk in progress_1s.iteritems():
+                    row = data.ix[last_index:index].head(1)
+                    row_list += [row[cols]]
+                    row = data.ix[last_index:index].tail(1)
+                    row_list += [row[cols]]
+                    last_index = index[0] + 1  # Set the next starting index to be one past where we are
+                filtered_df = pandas.concat(row_list)
+                filtered_df = filtered_df.diff()
+                # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
+                # case where 1 - 0 = 1 for the progress column.
+                filtered_df = filtered_df.loc[filtered_df['progress-0'] == 1]
+
+                trace_region_energy = 0
+                for pc, dc in zip(pkg_energy_cols, dram_energy_cols):
+                    trace_region_energy += filtered_df[pc].sum() + filtered_df[dc].sum()
+
+                trace_region_runtime = filtered_df['seconds'].sum()
+
+                self.assertNear(region_data['energy'], trace_region_energy, 0.01)
+                self.assertNear(region_data['runtime'], trace_region_runtime, 0.01)
+
+            # New code path:
+            rro = new_output.get_report(nn)
+            tto = new_output.get_trace(nn)
+
+            pkg_energy_cols = [s for s in tto.keys() if 'pkg_energy' in s]
+            dram_energy_cols = [s for s in tto.keys() if 'dram_energy' in s]
+
+            ttor = tto.set_index(['region_id'], append=True).groupby(level=['region_id'])
+
+            for region_name, region_data in rro.iteritems():
+                data = ttor.get_group(region_data.get_id())
+                # Build a df with only the first region entry and the exit.
+                last_index = 0
+                filtered_df = pandas.DataFrame()
+                row_list = []
+                progress_1s = data['progress-0'].loc[data['progress-0'] == 1]
+                cols = ['seconds', 'progress-0'] + pkg_energy_cols + dram_energy_cols
+                for index, junk in progress_1s.iteritems():
+                    row = data.ix[last_index:index].head(1)
+                    row_list += [row[cols]]
+                    row = data.ix[last_index:index].tail(1)
+                    row_list += [row[cols]]
+                    last_index = index[0] + 1  # Set the next starting index to be one past where we are
+                filtered_df = pandas.concat(row_list)
+                filtered_df = filtered_df.diff()
+                # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
+                # case where 1 - 0 = 1 for the progress column.
+                filtered_df = filtered_df.loc[filtered_df['progress-0'] == 1]
+
+                trace_region_energy = 0
+                for pc, dc in zip(pkg_energy_cols, dram_energy_cols):
+                    trace_region_energy += filtered_df[pc].sum() + filtered_df[dc].sum()
+
+                trace_region_runtime = filtered_df['seconds'].sum()
+
+                self.assertNear(region_data['energy'], trace_region_energy, 0.01)
+                self.assertNear(region_data['runtime'], trace_region_runtime, 0.01)
+
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
