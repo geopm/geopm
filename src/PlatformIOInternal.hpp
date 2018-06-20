@@ -38,6 +38,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <tuple>
 
 #include "PlatformIO.hpp"
 #include "CombinedSignal.hpp"
@@ -117,6 +118,8 @@ namespace geopm
             std::list<std::shared_ptr<IOGroup> > m_iogroup_list;
             std::vector<std::pair<IOGroup *, int> > m_active_signal;
             std::vector<std::pair<IOGroup *, int> > m_active_control;
+            std::map<std::tuple<std::string, int, int>, int> m_existing_signal;
+            std::map<std::tuple<std::string, int, int>, int> m_existing_control;
             std::map<int, std::pair<std::vector<int>,
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
             std::map<int, int> m_region_id_idx;
