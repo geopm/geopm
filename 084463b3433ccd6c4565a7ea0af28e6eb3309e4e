@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9514caaf_be147614",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-06-20T16:45:01Z",
+      "side": 1,
+      "message": "I wonder if this might not be better in analysis.py itself.  These analysis types only work with the energy efficent agent anyway.",
+      "range": {
+        "startLine": 911,
+        "startChar": 0,
+        "endLine": 913,
+        "endChar": 58
+      },
+      "revId": "084463b3433ccd6c4565a7ea0af28e6eb3309e4e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
