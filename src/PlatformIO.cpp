@@ -182,21 +182,31 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = -1;
-        for (auto it = m_iogroup_list.rbegin();
-             result == -1 && it != m_iogroup_list.rend();
-             ++it) {
-            if ((*it)->is_valid_signal(signal_name) &&
-                (*it)->signal_domain_type(signal_name) == domain_type) {
-                int group_signal_idx = (*it)->push_signal(signal_name, domain_type, domain_idx);
-                result = m_active_signal.size();
-                m_active_signal.emplace_back((*it).get(), group_signal_idx);
+        auto sig_tup = std::make_tuple(signal_name, domain_type, domain_idx);
+        auto sig_tup_it = m_existing_signal.find(sig_tup);
+        if (sig_tup_it != m_existing_signal.end()) {
+            result = sig_tup_it->second;
+        }
+        if (result == -1) {
+            for (auto it = m_iogroup_list.rbegin();
+                 result == -1 && it != m_iogroup_list.rend();
+                 ++it) {
+                if ((*it)->is_valid_signal(signal_name) &&
+                    (*it)->signal_domain_type(signal_name) == domain_type) {
+                    int group_signal_idx = (*it)->push_signal(signal_name, domain_type, domain_idx);
+                    result = m_active_signal.size();
+                    m_existing_signal[sig_tup] = result;
+                    m_active_signal.emplace_back((*it).get(), group_signal_idx);
+                }
             }
         }
         if (result == -1 && signal_name.find("POWER") != std::string::npos) {
             result = push_signal_power(signal_name, domain_type, domain_idx);
+            m_existing_signal[sig_tup] = result;
         }
         if (result == -1) {
             result = push_signal_convert_domain(signal_name, domain_type, domain_idx);
+            m_existing_signal[sig_tup] = result;
         }
         if (result == -1) {
             throw Exception("PlatformIO::push_signal(): no support for signal name \"" +
@@ -291,15 +301,23 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = -1;
-        bool is_found = false;
-        for (auto it = m_iogroup_list.rbegin();
-             !is_found && it != m_iogroup_list.rend();
-             ++it) {
-            if ((*it)->is_valid_control(control_name)) {
-                int group_control_idx = (*it)->push_control(control_name, domain_type, domain_idx);
-                result = m_active_control.size();
-                m_active_control.emplace_back((*it).get(), group_control_idx);
-                is_found = true;
+        auto ctl_tup = std::make_tuple(control_name, domain_type, domain_idx);
+        auto ctl_tup_it = m_existing_control.find(ctl_tup);
+        if (ctl_tup_it != m_existing_control.end()) {
+            result = ctl_tup_it->second;
+        }
+        if (result == -1) {
+            bool is_found = false;
+            for (auto it = m_iogroup_list.rbegin();
+                 !is_found && it != m_iogroup_list.rend();
+                 ++it) {
+                if ((*it)->is_valid_control(control_name)) {
+                    int group_control_idx = (*it)->push_control(control_name, domain_type, domain_idx);
+                    result = m_active_control.size();
+                    m_existing_control[ctl_tup] = result;
+                    m_active_control.emplace_back((*it).get(), group_control_idx);
+                    is_found = true;
+                }
             }
         }
         if (result == -1) {

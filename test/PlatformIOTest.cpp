@@ -252,6 +252,7 @@ TEST_F(PlatformIOTest, push_signal)
     EXPECT_EQ(0, idx);
     idx = m_platio->push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(1, idx);
+    EXPECT_EQ(idx, m_platio->push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0));
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("INVALID", IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
 
@@ -273,27 +274,27 @@ TEST_F(PlatformIOTest, signal_power)
     for (auto &it : m_iogroup_ptr) {
         if (it->is_valid_signal("TIME")) {
             EXPECT_CALL(*it, push_signal("TIME", _, _))
-                .Times(2);
+                .Times(1);
             EXPECT_CALL(*it, signal_domain_type("TIME"))
-                .Times(2);
+                .Times(1);
         }
         if (it->is_valid_signal("ENERGY_PACKAGE")) {
             EXPECT_CALL(*it, push_signal("ENERGY_PACKAGE", _, _))
-                .Times(2);
+                .Times(1);
             EXPECT_CALL(*it, signal_domain_type("ENERGY_PACKAGE"))
-                .Times(2);
+                .Times(1);
         }
         if (it->is_valid_signal("ENERGY_DRAM")) {
             EXPECT_CALL(*it, push_signal("ENERGY_DRAM", _, _))
-                .Times(2);
+                .Times(1);
             EXPECT_CALL(*it, signal_domain_type("ENERGY_DRAM"))
-                .Times(2);
+                .Times(1);
         }
         if (it->is_valid_signal("REGION_ID#")) {
             EXPECT_CALL(*it, push_signal("REGION_ID#", _, _))
-                .Times(2 *  M_NUM_CPU);
+                .Times(1 *  M_NUM_CPU);
             EXPECT_CALL(*it, signal_domain_type("REGION_ID#"))
-                .Times(3 *  M_NUM_CPU);
+                .Times(2 *  M_NUM_CPU);
         }
     }
 
@@ -361,6 +362,7 @@ TEST_F(PlatformIOTest, push_control)
 
     int idx = m_platio->push_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(0, idx);
+    EXPECT_EQ(idx, m_platio->push_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, 0));
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_control("INVALID", IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
 
@@ -408,8 +410,8 @@ TEST_F(PlatformIOTest, sample_region_total)
             EXPECT_CALL(*it, signal_domain_type("TIME"));
         }
         if (it->is_valid_signal("REGION_ID#")) {
-            EXPECT_CALL(*it, push_signal(_, _, _)).Times(4 + 4);
-            EXPECT_CALL(*it, signal_domain_type("REGION_ID#")).Times(4 + 4 + 4);
+            EXPECT_CALL(*it, push_signal(_, _, _)).Times(4);
+            EXPECT_CALL(*it, signal_domain_type("REGION_ID#")).Times(4 + 4);
         }
     }
     // region id signal is per cpu, so needs to be aggregated for both package and board

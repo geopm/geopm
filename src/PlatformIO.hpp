@@ -91,7 +91,9 @@ namespace geopm
             ///        platform.
             /// @return Index of signal when sample() method is called
             ///         or throws if the signal is not valid
-            ///         on the platform.
+            ///         on the platform.  Returned signal index will be
+            ///         repeated for each unique tuple of push_signal
+            ///         input parameters.
             virtual int push_signal(const std::string &signal_name,
                                     int domain_type,
                                     int domain_idx) = 0;
@@ -149,7 +151,9 @@ namespace geopm
             ///        the set of domains of the same type on the
             ///        platform.
             /// @return Index of the control if the requested control
-            ///         is valid, otherwise throws.
+            ///         is valid, otherwise throws.  Returned control index
+            ///         will be repeated for each unique tuple of the push_control
+            ///         input parameters.
             virtual int push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx) = 0;
