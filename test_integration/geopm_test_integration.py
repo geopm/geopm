@@ -621,11 +621,11 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         fam, mod = get_platform()
         if fam == 6 and mod in (45, 47, 79):
-            # set budget for BDX server or IVB
-            self._options['power_budget'] = 240
+            # set budget for BDX server
+            self._options['power_budget'] = 300
         elif fam == 6 and mod == 87:
             # budget for KNL
-            self._options['power_budget'] = 150
+            self._options['power_budget'] = 200
         else:
             self._options['power_budget'] = 200
         ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
