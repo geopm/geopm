@@ -570,9 +570,7 @@ namespace geopm
         tmp = msr_read(GEOPM_DOMAIN_PACKAGE, 0, "RAPL_POWER_UNIT");
         m_power_units_inv = (double)(1 << (tmp & 0xF));
         m_energy_units = 1.0 / (double)(1 << ((tmp >> 8)  & 0x1F));
-        if (m_dram_energy_units == 0.0) {
-            m_dram_energy_units = m_energy_units;
-        }
+        m_dram_energy_units = m_energy_units;
         double time_units = 1.0 / (double)(1 << ((tmp >> 16) & 0xF));
 
         for (int i = 1; i < m_num_package; i++) {
