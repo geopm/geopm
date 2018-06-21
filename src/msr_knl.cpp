@@ -84,21 +84,21 @@ namespace geopm
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_LOG_HALF,
                       .units     = IMSR::M_UNITS_WATTS,
-                      .scalar    = 8.0}}, // Signal is 1.0 because the units should be 0.125 Watts
+                      .scalar    = 1.0}},
                  {"ENERGY", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
                       .end_bit   = 13,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_LOG_HALF,
                       .units     = IMSR::M_UNITS_JOULES,
-                      .scalar    = 1.6384e4}}, // Signal is 1.0 because the units should be 6.103515625e-05 Joules.
+                      .scalar    = 1.0}},
                  {"TIME", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 20,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_LOG_HALF,
                       .units     = IMSR::M_UNITS_SECONDS,
-                      .scalar    = 1.024e3}}}, // Signal is 1.0 because the units should be 9.765625e-04 seconds.
+                      .scalar    = 1.0}}},
                 {}),
             MSR("PKG_POWER_LIMIT", 0x610,
                 {},
