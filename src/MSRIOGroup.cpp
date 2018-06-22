@@ -37,6 +37,7 @@
 #include <utility>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "geopm_sched.h"
 #include "Exception.hpp"
@@ -446,9 +447,14 @@ namespace geopm
         int cpu_idx = 0;
         for (const auto &map_it : m_per_cpu_restore) {
             for (const auto &pair_it : map_it) {
-                m_msrio->write_msr(cpu_idx, pair_it.first,
-                                   pair_it.second.value,
-                                   pair_it.second.mask);
+                try {
+                    m_msrio->write_msr(cpu_idx, pair_it.first,
+                                       pair_it.second.value,
+                                       pair_it.second.mask);
+                }
+                catch (Exception e) {
+                    std::cerr << e.what() << std::endl;
+                }
             }
             ++cpu_idx;
         }
