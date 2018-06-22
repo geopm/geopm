@@ -921,7 +921,7 @@ class SrunLauncher(Launcher):
             help_msg, err = pid.communicate()
             if help_msg.find('--mpibind') != -1:
                 result.append('--mpibind=off')
-            if help_msg.find('--cpu_bind') != -1:
+            if help_msg.find('--cpu_bind') != -1 or help_msg.find('--cpu-bind') != -1:
                 num_mask = len(aff_list)
                 mask_zero = ['0' for ii in range(self.num_linux_cpu)]
                 mask_list = []
@@ -931,7 +931,10 @@ class SrunLauncher(Launcher):
                         mask[self.num_linux_cpu - 1 - cpu] = '1'
                     mask = '0x{:x}'.format(int(''.join(mask), 2))
                     mask_list.append(mask)
-                result.append('--cpu_bind')
+                if help_msg.find('--cpu_bind') != -1:
+                    result.append('--cpu_bind')
+                elif help_msg.find('--cpu-bind') != -1:
+                    result.append('--cpu-bind')
                 result.append('v,mask_cpu:' + ','.join(mask_list))
             else:
                 raise RuntimeError('SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
