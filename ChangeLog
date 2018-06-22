@@ -1,3 +1,11 @@
+* Sat June 23 2018 Brad Geltz <brad.geltz@intel.com> v0.5.1
+- GEOPM beta hotfix release!
+- Introduce the PowerGovernorAgent.  This agent is implemented and fully featured.
+- Restoring the MSR values at the end of a run is now best effort since the system whitelist may prevent the write from being allowed.
+- Allow min/max frequencies to be specified in the EnergyEfficientAgent's policy.
+- Fix geopmread usages for tutorial.
+- Fix MSR overflow logic, performance counter initialization, and MSR encode/decode functions.
+- Fix integration tests for geopmwrite use cases.
 * Wed May 30 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.5.0
 - GEOPM beta release!
 - Community updates:
