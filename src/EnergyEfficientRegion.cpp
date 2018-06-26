@@ -75,7 +75,7 @@ namespace geopm
                                    std::make_tuple(freq_ctx_stub));
         }
         m_curr_freq_max = freq;
-        if (isnan(m_curr_freq)) {
+        if (std::isnan(m_curr_freq)) {
             m_is_learning = true;
             m_curr_freq = m_curr_freq_max;
         } else if (m_curr_freq < *m_allowed_freq.begin()) {
