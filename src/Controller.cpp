@@ -525,7 +525,7 @@ namespace geopm
                 m_tree_comm->get_policy(level, policy);
                 err = 0;
             }
-            catch (Exception ex) {
+            catch (Exception& ex) {
                 if (ex.err_value() != GEOPM_ERROR_POLICY_UNKNOWN) {
                     throw ex;
                 }
@@ -635,7 +635,7 @@ namespace geopm
                     }
                     is_converged = m_policy[level]->is_converged(GEOPM_REGION_ID_EPOCH);
                 }
-                catch (geopm::Exception ex) {
+                catch (geopm::Exception& ex) {
                     if (ex.err_value() != GEOPM_ERROR_SAMPLE_INCOMPLETE) {
                         throw ex;
                     }

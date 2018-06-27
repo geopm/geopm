@@ -438,7 +438,7 @@ namespace geopm
                         uint64_t rid = geopm_crc32_str(0, rid_str.c_str());
                         m_rid_freq_map[rid] = freq;
                     }
-                    catch (std::invalid_argument) {
+                    catch (std::invalid_argument&) {
 
                     }
                 }
@@ -461,7 +461,7 @@ namespace geopm
             try {
                 result = std::stod(env_efficient_freq_min);
             }
-            catch (std::invalid_argument) {
+            catch (std::invalid_argument&) {
 
             }
         }
@@ -480,7 +480,7 @@ namespace geopm
             try {
                 result = std::stod(env_efficient_freq_max);
             }
-            catch (std::invalid_argument) {
+            catch (std::invalid_argument&) {
 
             }
         }

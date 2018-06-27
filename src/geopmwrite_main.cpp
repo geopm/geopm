@@ -156,7 +156,7 @@ int main(int argc, char **argv)
             try {
                 domain_idx = std::stoi(pos_args[2]);
             }
-            catch (std::invalid_argument) {
+            catch (std::invalid_argument&) {
                 std::cerr << "Error: invalid domain index.\n" << std::endl;
                 err = EINVAL;
             }
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
                 try {
                     write_value = std::stod(pos_args[3]);
                 }
-                catch (std::invalid_argument) {
+                catch (std::invalid_argument&) {
                     std::cerr << "Error: invalid write value.\n" << std::endl;
                     err = EINVAL;
                 }
