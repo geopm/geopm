@@ -109,7 +109,7 @@ TEST_F(PlatformFactoryTest, no_supported_platform)
     try {
         p = m_platform_fact.platform("rapl", true);
     }
-    catch (geopm::Exception e) {
+    catch (geopm::Exception& e) {
         thrown = e.err_value();
     }
     ASSERT_TRUE(p == NULL);

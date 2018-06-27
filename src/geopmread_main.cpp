@@ -152,7 +152,7 @@ int main(int argc, char **argv)
             try {
                 domain_idx = std::stoi(pos_args[2]);
             }
-            catch (std::invalid_argument) {
+            catch (std::invalid_argument&) {
                 std::cerr << "Error: invalid domain index.\n" << std::endl;
                 err = EINVAL;
             }

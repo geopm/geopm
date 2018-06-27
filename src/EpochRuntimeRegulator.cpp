@@ -249,7 +249,7 @@ namespace geopm
                 region_id = geopm_region_id_set_mpi(region_id);
                 result = total_region_runtime(region_id);
             }
-            catch (Exception ex) {
+            catch (Exception& ex) {
                 /// @todo catch expected exception only
             }
         }
