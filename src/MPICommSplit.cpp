@@ -124,7 +124,7 @@ extern "C"
             try {
                 shmem = new geopm::SharedMemory(shmem_key.str(), sizeof(int));
             }
-            catch (geopm::Exception ex) {
+            catch (const geopm::Exception &ex) {
                 if (ex.err_value() != EEXIST) {
                     throw ex;
                 }

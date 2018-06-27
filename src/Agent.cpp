@@ -156,7 +156,7 @@ int geopm_agent_supported(const char *agent_name)
     try {
         auto tmp = geopm::agent_factory().dictionary(agent_name);
     }
-    catch (geopm::Exception ex) {
+    catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
             err = GEOPM_ERROR_NO_AGENT;
         }
@@ -177,7 +177,7 @@ int geopm_agent_num_policy(const char *agent_name,
         *num_policy = geopm::Agent::num_policy(
             geopm::agent_factory().dictionary(agent_name));
     }
-    catch (geopm::Exception ex) {
+    catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
             err = GEOPM_ERROR_NO_AGENT;
         }
@@ -199,7 +199,7 @@ int geopm_agent_num_sample(const char *agent_name,
         *num_sample = geopm::Agent::num_sample(
             geopm::agent_factory().dictionary(agent_name));
     }
-    catch (geopm::Exception ex) {
+    catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
             err = GEOPM_ERROR_NO_AGENT;
         }
@@ -235,7 +235,7 @@ int geopm_agent_policy_name(const char *agent_name,
                 policy_name[policy_name_max - 1] = '\0';
             }
         }
-        catch (geopm::Exception ex) {
+        catch (const geopm::Exception &ex) {
             if (ex.err_value() == GEOPM_ERROR_INVALID) {
                 err = GEOPM_ERROR_NO_AGENT;
             }
@@ -272,7 +272,7 @@ int geopm_agent_sample_name(const char *agent_name,
                 sample_name[sample_name_max - 1] = '\0';
             }
         }
-        catch (geopm::Exception ex) {
+        catch (const geopm::Exception &ex) {
             if (ex.err_value() == GEOPM_ERROR_INVALID) {
                 err = GEOPM_ERROR_NO_AGENT;
             }

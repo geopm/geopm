@@ -108,7 +108,7 @@ namespace geopm
             init_tprof_table(tprof_key, topo);
             init_table(sample_key);
         }
-        catch (Exception ex) {
+        catch (const Exception &ex) {
             if (!m_rank) {
                 std::cerr << "Warning: <geopm> Controller handshake failed, running without geopm." << std::endl;
                 int err = ex.err_value();

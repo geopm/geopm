@@ -452,7 +452,7 @@ namespace geopm
                                        pair_it.second.value,
                                        pair_it.second.mask);
                 }
-                catch (Exception e) {
+                catch (const Exception &e) {
                     std::cerr << e.what() << std::endl;
                 }
             }

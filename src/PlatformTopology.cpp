@@ -102,7 +102,7 @@ namespace geopm
         try {
             result = hwloc_get_nbobjs_by_type(m_topo, hwloc_domain(domain_type));
         }
-        catch (Exception ex) {
+        catch (const Exception &ex) {
             if (ex.err_value() != GEOPM_ERROR_INVALID) {
                 throw ex;
             }
