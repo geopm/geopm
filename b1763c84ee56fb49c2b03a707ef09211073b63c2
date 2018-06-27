@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01f38c1_fe1df06e",
+        "filename": "plugin/EfficientFreqDecider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-06-27T17:56:18Z",
+      "side": 1,
+      "message": "We usually put a space between type and \u0026 or *.",
+      "range": {
+        "startLine": 184,
+        "startChar": 47,
+        "endLine": 184,
+        "endChar": 49
+      },
+      "revId": "b1763c84ee56fb49c2b03a707ef09211073b63c2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe1366cd_d621d8d9",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-06-27T17:56:18Z",
+      "side": 1,
+      "message": "catch (const geopm::Exception \u0026ex) {\n\nShould be const ref?",
+      "range": {
+        "startLine": 159,
+        "startChar": 11,
+        "endLine": 159,
+        "endChar": 31
+      },
+      "revId": "b1763c84ee56fb49c2b03a707ef09211073b63c2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
