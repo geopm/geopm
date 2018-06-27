@@ -73,7 +73,7 @@ TEST_F(PlatformTopologyTest, negative_num_domain)
     try {
         val = m_topo.num_domain(HWLOC_OBJ_TYPE_MAX);
     }
-    catch (geopm::Exception e) {
+    catch (geopm::Exception& e) {
         thrown = e.err_value();
     }
 
