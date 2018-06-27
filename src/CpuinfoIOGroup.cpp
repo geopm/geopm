@@ -54,7 +54,7 @@ namespace geopm
             try {
                 result = 1e3 * std::stod(line);
             }
-            catch (std::invalid_argument) {
+            catch (const std::invalid_argument &) {
 
             }
         }
@@ -100,7 +100,7 @@ namespace geopm
                         try {
                             result = unit_factor[unit_idx] * std::stod(value_str);
                         }
-                        catch (std::invalid_argument) {
+                        catch (const std::invalid_argument &) {
 
                         }
                     }

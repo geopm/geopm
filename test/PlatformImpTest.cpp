@@ -631,7 +631,7 @@ TEST_F(PlatformImpTest, negative_read_no_desc)
     try {
         (void) m_platform->msr_read(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name);
     }
-    catch(geopm::Exception e) {
+    catch(const geopm::Exception &e) {
         thrown = e.err_value();
     }
 
@@ -647,7 +647,7 @@ TEST_F(PlatformImpTest, negative_write_no_desc)
     try {
         m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, (NUM_CPU+2), name, value);
     }
-    catch(geopm::Exception e) {
+    catch(const geopm::Exception &e) {
         thrown = e.err_value();
     }
 
@@ -664,7 +664,7 @@ TEST_F(PlatformImpTest, negative_read_bad_desc)
     try {
         (void) m_platform->msr_read(geopm::GEOPM_DOMAIN_CPU, NUM_CPU, name);
     }
-    catch(std::runtime_error e) {
+    catch(const std::runtime_error &e) {
         thrown = 1;
     }
 
@@ -680,7 +680,7 @@ TEST_F(PlatformImpTest, negative_write_bad_desc)
     try {
         m_platform->msr_write(geopm::GEOPM_DOMAIN_CPU, NUM_CPU, name, value);
     }
-    catch(std::runtime_error e) {
+    catch(const std::runtime_error &e) {
         thrown = 1;
     }
 
@@ -695,7 +695,7 @@ TEST_F(PlatformImpTest, negative_msr_open)
     try {
         p.msr_open(5000);
     }
-    catch(geopm::Exception e) {
+    catch(const geopm::Exception &e) {
         thrown = 1;
     }
 
@@ -716,7 +716,7 @@ TEST_F(PlatformImpTest, parse_topology)
     try {
         m_platform->parse_hw_topology();
     }
-    catch(std::system_error e) {
+    catch(const std::system_error &e) {
         thrown = 1;
     }
 

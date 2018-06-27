@@ -227,7 +227,7 @@ TEST_F(PolicyTest, negative_unsized_vector)
     try {
         m_policy->update(13, target);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -235,7 +235,7 @@ TEST_F(PolicyTest, negative_unsized_vector)
     try {
         m_policy->target(13, target);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -243,7 +243,7 @@ TEST_F(PolicyTest, negative_unsized_vector)
     try {
         m_policy->policy_message(13, m_policy_message, child_msg);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -256,7 +256,7 @@ TEST_F(PolicyTest, negative_index_oob)
     try {
         m_policy->update(13, m_num_domain + 1, target);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -264,7 +264,7 @@ TEST_F(PolicyTest, negative_index_oob)
     try {
         m_policy->target(13, m_num_domain + 1, target);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);

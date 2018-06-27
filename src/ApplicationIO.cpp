@@ -170,7 +170,7 @@ namespace geopm
         try {
             result = m_epoch_regulator->total_region_runtime(region_id);
         }
-        catch (Exception ex) {
+        catch (const Exception &ex) {
         }
         return result;
     }
@@ -188,7 +188,7 @@ namespace geopm
         try {
             result = m_epoch_regulator->total_region_mpi_time(region_id);
         }
-        catch (Exception ex) {
+        catch (const Exception &ex) {
         }
         return result;
     }
@@ -304,7 +304,7 @@ namespace geopm
         try {
             result = m_epoch_regulator->total_count(region_id);
         }
-        catch (Exception ex) {
+        catch (const Exception &ex) {
         }
         return result;
     }

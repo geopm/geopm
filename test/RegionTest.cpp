@@ -422,7 +422,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->mean(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -430,7 +430,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->median(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -438,7 +438,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->std_deviation(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -446,7 +446,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->min(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -454,7 +454,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->max(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -462,7 +462,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->derivative(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -470,7 +470,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->num_sample(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -478,7 +478,7 @@ TEST_F(RegionTest, negative_region_invalid)
     try {
         m_tree_region->signal(2, GEOPM_TELEMETRY_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -490,7 +490,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->mean(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -498,7 +498,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->median(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -506,7 +506,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->std_deviation(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -514,7 +514,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->min(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -522,7 +522,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->max(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -530,7 +530,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->derivative(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -538,7 +538,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->num_sample(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -546,7 +546,7 @@ TEST_F(RegionTest, negative_signal_invalid)
     try {
         m_tree_region->signal(0, GEOPM_NUM_TELEMETRY_TYPE + 1);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_INVALID, thrown);
@@ -558,7 +558,7 @@ TEST_F(RegionTest, negative_signal_derivative_tree)
     try {
         m_tree_region->derivative(0, GEOPM_SAMPLE_TYPE_RUNTIME);
     }
-    catch (geopm::Exception e) {
+    catch (const geopm::Exception &e) {
         thrown = e.err_value();
     }
     EXPECT_EQ(GEOPM_ERROR_NOT_IMPLEMENTED, thrown);
