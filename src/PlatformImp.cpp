@@ -450,7 +450,8 @@ namespace geopm
             }
 
             char tmp_path_template[NAME_MAX];
-            strncpy(tmp_path_template, path, NAME_MAX);
+            tmp_path_template[NAME_MAX - 1] = '\0';
+            strncpy(tmp_path_template, path, NAME_MAX - 1);
             int fd = mkstemp(tmp_path_template);
             if (fd == -1) {
                 std::ostringstream message;
