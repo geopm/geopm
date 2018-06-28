@@ -54,9 +54,10 @@ the type and number of hardware domains.  Details of the hardware
 domains can also be inferred from the output of **lscpu(1)**.
 
 When run without any arguments, the default behavior is to print a
-summary of available signals.  Some signals, namely the region-related
-signals, are only relevant when using GEOPM to run an application and
-will not yield useful values when sampled with `geopmread`.
+summary of available signals.  Signal names ending in # represent the
+raw bits of MSRs without any interpretation and will be printed in
+hex.  This feature is mainly useful for debugging; for profiling, the
+signal aliases should be preferred.
 
 To read a specific signal, `geopmread` should be run with the three
 arguments.  SIGNAL_NAME is the name of the signal of interest.
@@ -85,9 +86,11 @@ contained in parents of its parent domain.
 ++`board_accelerator` - domain for accelerators on the board
 
 The aggregation functions used for each signal are described in
-**geopm(7)** under the description for `GEOPM_TRACE_SIGNALS`.  The same
-functions are used to aggregate signals in the trace into the board
-domain.
+**geopm(7)** under the description for `GEOPM_TRACE_SIGNALS`.  The
+same functions are used to aggregate signals in the trace into the
+board domain.  Note that not all signals have aggregation functions,
+and if a signal is not readable at board domain, it cannot be printed
+in the trace.
 
 ## OPTIONS
 
