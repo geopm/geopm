@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     char file[GEOPMPOLICY_STRING_LENGTH] = {0};
     char mode_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char option_string[GEOPMPOLICY_STRING_LENGTH] = {0};
-    char copy_string[GEOPMPOLICY_STRING_LENGTH] = {0};
+    char copy_string[2 * GEOPMPOLICY_STRING_LENGTH] = {0};
     char error_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     FILE *infile = NULL;
     FILE *outfile = NULL;
@@ -242,12 +242,12 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     if (file[0] == '/') {
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
-                        strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
+                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
                     }
                     else {
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
-                        strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
+                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
                     }
                 }
             }
@@ -292,13 +292,13 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     if (file[0] == '/') {
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
-                        strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
+                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
                     }
                     else {
                         printf("file = %s\n",file);
-                        snprintf(copy_string, GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
-                        strncpy(file, copy_string, GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
+                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
                         printf("file = %s\n",file);
                     }
                 }

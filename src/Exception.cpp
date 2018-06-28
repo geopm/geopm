@@ -144,7 +144,7 @@ extern "C"
     void geopm_error_destroy_shmem(void)
     {
         int err = 0;
-        char err_msg[NAME_MAX];
+        char err_msg[2 * NAME_MAX];
         DIR *did = opendir("/dev/shm");
         if (did &&
             strlen(geopm_env_shmkey()) &&
@@ -161,7 +161,7 @@ extern "C"
                     strncpy(shm_key + 1, entry->d_name, NAME_MAX - 2);
                     err = shm_unlink(shm_key);
                     if (err) {
-                        snprintf(err_msg, NAME_MAX, "Warning: <geopm> unable to unlink \"%s\"", shm_key);
+                        snprintf(err_msg, 2 * NAME_MAX, "Warning: <geopm> unable to unlink \"%s\"", shm_key);
                         perror(err_msg);
                     }
                 }
