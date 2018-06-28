@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc45cbdb_99be17a9",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-06-28T17:36:53Z",
+      "side": 1,
+      "message": "const Exception \u0026",
+      "range": {
+        "startLine": 232,
+        "startChar": 23,
+        "endLine": 232,
+        "endChar": 32
+      },
+      "revId": "ec290f57824f7c5657a238e11ffbb364daefc549",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
