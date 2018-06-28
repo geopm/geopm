@@ -121,9 +121,7 @@ namespace geopm
         , m_is_initialized(other.m_is_initialized)
         , M_MSR_SAVE_FILE_PATH(other.M_MSR_SAVE_FILE_PATH)
     {
-        // Copy C string for m_msr_path
-        m_msr_path[NAME_MAX - 1] = '\0';
-        strncpy(m_msr_path, other.m_msr_path, NAME_MAX - 1);
+        memcpy(m_msr_path, other.m_msr_path, NAME_MAX);
     }
 
 
@@ -450,7 +448,8 @@ namespace geopm
             }
 
             char tmp_path_template[NAME_MAX];
-            strncpy(tmp_path_template, path, NAME_MAX);
+            tmp_path_template[NAME_MAX - 1] = '\0';
+            strncpy(tmp_path_template, path, NAME_MAX - 1);
             int fd = mkstemp(tmp_path_template);
             if (fd == -1) {
                 std::ostringstream message;
