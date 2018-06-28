@@ -328,8 +328,8 @@ namespace geopm
 
         while (buffer_remain) {
             tmp_name[NAME_MAX - 1] = '\0';
-            strncpy(tmp_name, buffer_ptr, NAME_MAX);
-            if (tmp_name[NAME_MAX - 1] != '\0') {
+            char *end_ptr = strncpy(tmp_name, buffer_ptr, NAME_MAX - 1);
+            if (end_ptr == tmp_name + NAME_MAX - 1) {
                 throw Exception("ProfileTable::name_set(): key string is too long", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             if (strlen(tmp_name)) {
