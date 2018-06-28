@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13d2af1c_bd3e311b",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-06-28T23:29:15Z",
+      "side": 1,
+      "message": "This seems to be the only change necessary.  I\u0027m not sure if the slow filesystem was causing my tests to use old versions of the code.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 9
+      },
+      "revId": "b18973c29f356d7abfc0f8baf9c20b38bbce2e02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
