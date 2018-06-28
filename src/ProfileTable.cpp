@@ -321,26 +321,21 @@ namespace geopm
 
     bool ProfileTable::name_set(size_t header_offset, std::set<std::string> &name)
     {
-        char tmp_name[NAME_MAX];
-        bool result = false;
+        bool result = (((char *)m_table)[m_buffer_size - 1] == '\1');
         size_t buffer_remain = m_buffer_size - header_offset - 1;
         char *buffer_ptr = (char *)m_table + header_offset;
 
         while (buffer_remain) {
-            tmp_name[NAME_MAX - 1] = '\0';
-            strncpy(tmp_name, buffer_ptr, NAME_MAX);
-            if (tmp_name[NAME_MAX - 1] != '\0') {
-                throw Exception("ProfileTable::name_set(): key string is too long", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            size_t name_len = strnlen(buffer_ptr, buffer_remain);
+            if (name_len == buffer_remain) {
+                throw Exception("ProfileTable::name_set(): buffer missing null termination", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            if (strlen(tmp_name)) {
-                name.insert(std::string(tmp_name));
-                buffer_remain -= strlen(tmp_name) + 1;
-                buffer_ptr += strlen(tmp_name) + 1;
+            if (name_len) {
+                name.insert(std::string(buffer_ptr));
+                buffer_remain -= name_len + 1;
+                buffer_ptr += name_len + 1;
             }
             else {
-                if (buffer_ptr[buffer_remain] == (char) 1) {
-                    result = true;
-                }
                 buffer_remain = 0;
             }
         }
