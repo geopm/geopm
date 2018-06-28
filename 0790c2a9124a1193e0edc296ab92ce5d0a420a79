@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fc1a7e3_b9fe551c",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-06-28T22:16:40Z",
+      "side": 1,
+      "message": "Think if we are going to use push_back, this +1 should be removed.",
+      "range": {
+        "startLine": 246,
+        "startChar": 105,
+        "endLine": 246,
+        "endChar": 109
+      },
+      "revId": "0790c2a9124a1193e0edc296ab92ce5d0a420a79",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
