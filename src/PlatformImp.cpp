@@ -123,7 +123,11 @@ namespace geopm
     {
         // Copy C string for m_msr_path
         m_msr_path[NAME_MAX - 1] = '\0';
-        strncpy(m_msr_path, other.m_msr_path, NAME_MAX - 1);
+        strncpy(m_msr_path, other.m_msr_path, NAME_MAX);
+        if (m_msr_path[NAME_MAX - 1] != '\0') {
+            throw Exception("PlatformImp: copy constructor: m_msr_path input value not null terminated.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
 
@@ -450,7 +454,8 @@ namespace geopm
             }
 
             char tmp_path_template[NAME_MAX];
-            strncpy(tmp_path_template, path, NAME_MAX);
+            tmp_path_template[NAME_MAX - 1] = '\0';
+            strncpy(tmp_path_template, path, NAME_MAX - 1);
             int fd = mkstemp(tmp_path_template);
             if (fd == -1) {
                 std::ostringstream message;
