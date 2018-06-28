@@ -100,11 +100,14 @@ namespace geopm
                             std::shared_ptr<Comm> comm,
                             const ITreeComm &tree_comm)
     {
-        std::ofstream master_report(application_io.report_name());
-        if (!master_report.good()) {
-            throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         int rank = comm->rank();
+        std::ofstream master_report;
+        if (!rank) {
+            master_report.open(application_io.report_name());
+            if (!master_report.good()) {
+                throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
         // make header
         if (!rank) {
             master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
@@ -241,7 +244,7 @@ namespace geopm
 
         if (!rank) {
             int full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
-            report_buffer.resize(full_report_size);
+            report_buffer.resize(full_report_size, '\0');
             buffer_displacement[0] = 0;
             for (int i = 1; i < num_ranks; ++i) {
                 buffer_displacement[i] = buffer_displacement[i-1] + buffer_size_array[i-1];
@@ -249,10 +252,9 @@ namespace geopm
         }
 
         comm->gatherv((void *) (report.str().data()), sizeof(char) * buffer_size,
-                             (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
+                      (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
 
         if (!rank) {
-            report_buffer.back() = '\0';
             master_report << report_buffer.data();
             master_report << std::endl;
             master_report.close();
