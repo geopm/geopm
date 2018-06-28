@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9c66283_6f10aca7",
+        "filename": "src/geopmpolicy_main.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-06-28T18:32:23Z",
+      "side": 1,
+      "message": "2 * GEOPMPOLICY_STRING_LENGTH",
+      "range": {
+        "startLine": 73,
+        "startChar": 14,
+        "endLine": 73,
+        "endChar": 39
+      },
+      "revId": "a08491ec63a20f90f08832cd41a4746979baf877",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
