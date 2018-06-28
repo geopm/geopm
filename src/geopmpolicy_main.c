@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     char file[2 * GEOPMPOLICY_STRING_LENGTH] = {0};
     char mode_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     char option_string[GEOPMPOLICY_STRING_LENGTH] = {0};
-    char copy_string[2 * GEOPMPOLICY_STRING_LENGTH] = {0};
+    char copy_string[4 * GEOPMPOLICY_STRING_LENGTH] = {0};
     char error_string[GEOPMPOLICY_STRING_LENGTH] = {0};
     FILE *infile = NULL;
     FILE *outfile = NULL;
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 
     if (!err && exec_mode == GEOPMPOLICY_EXEC_MODE_RESTORE) {
         if (strlen(file) == 0) {
-            snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
+            snprintf(file, sizeof(file), "/tmp/.geopm_msr_restore.log");
         }
         else {
             //Make sure we are using tempfs to keep these files local to the machine
@@ -242,12 +242,12 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     if (file[0] == '/') {
-                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
-                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, sizeof(copy_string), "/tmp%s", file);
+                        strncpy(file, copy_string, sizeof(file) - 1);
                     }
                     else {
-                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
-                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, sizeof(copy_string), "/tmp/%s", file);
+                        strncpy(file, copy_string, sizeof(file) - 1);
                     }
                 }
             }
@@ -281,7 +281,7 @@ int main(int argc, char** argv)
         char* pdir;
 
         if (strlen(file) == 0) {
-            snprintf(file, GEOPMPOLICY_STRING_LENGTH, "/tmp/.geopm_msr_restore.log");
+            snprintf(file, sizeof(file), "/tmp/.geopm_msr_restore.log");
         }
         else {
             //Make sure we are using tempfs to keep these files local to the machine
@@ -292,13 +292,13 @@ int main(int argc, char** argv)
                 }
                 if (!err) {
                     if (file[0] == '/') {
-                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp%s", file);
-                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, sizeof(copy_string), "/tmp%s", file);
+                        strncpy(file, copy_string, sizeof(file) - 1);
                     }
                     else {
                         printf("file = %s\n",file);
-                        snprintf(copy_string, 2 * GEOPMPOLICY_STRING_LENGTH, "/tmp/%s", file);
-                        strncpy(file, copy_string, 2 * GEOPMPOLICY_STRING_LENGTH);
+                        snprintf(copy_string, sizeof(copy_string), "/tmp/%s", file);
+                        strncpy(file, copy_string, sizeof(file) - 1);
                         printf("file = %s\n",file);
                     }
                 }
