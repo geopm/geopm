@@ -127,6 +127,10 @@ when it is completed.
                   within the assigned limits, otherwise it will be
                   0.0.
 
+  `POWER_AVERAGE_ENFORCED`: Enforced power limit averaged over all compute nodes.
+                  This value corresponds to the `POWER_AVERAGE` policy field and
+                  is expected to match unless the policy is unachievable.
+
 * `Tracing Modifications`:
 
   `epoch_runtime`: Time interval in seconds between the last two epoch
