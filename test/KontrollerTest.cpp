@@ -322,14 +322,12 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(*m_manager_io, sample()).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
-    EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
@@ -406,7 +404,6 @@ TEST_F(KontrollerTest, two_level_controller_0)
     kontroller.setup_trace();
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
-    EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
@@ -417,7 +414,6 @@ TEST_F(KontrollerTest, two_level_controller_0)
         .WillRepeatedly(Return(manager_sample));
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);

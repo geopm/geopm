@@ -36,6 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "PowerGovernorAgent.hpp"
+#include "MockPowerGovernor.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "Helper.hpp"
@@ -43,7 +44,11 @@
 using geopm::PowerGovernorAgent;
 using geopm::IPlatformTopo;
 using ::testing::_;
+using ::testing::AtLeast;
 using ::testing::Return;
+using ::testing::DoAll;
+using ::testing::SaveArg;
+using ::testing::SetArgReferee;
 
 class PowerGovernorAgentTest : public ::testing::Test
 {
@@ -57,8 +62,10 @@ class PowerGovernorAgentTest : public ::testing::Test
         void check_result(const std::vector<double> &expected,
                           const std::vector<double> &result);
 
+        std::unique_ptr<MockPowerGovernor> m_power_gov;
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
+        double m_val_cache = 0.0;
         double m_energy_package = 0.0;
         double m_power_min = 50;
         double m_power_max = 300;
@@ -74,7 +81,8 @@ class PowerGovernorAgentTest : public ::testing::Test
 void PowerGovernorAgentTest::SetUp(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
-        .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
+        .Times(AtLeast(1))
+        .WillRepeatedly(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
         .WillOnce(Return(m_num_package));
     // Warning: if ENERGY_PACKAGE does not return updated values,
@@ -91,21 +99,22 @@ void PowerGovernorAgentTest::SetUp(void)
         .WillOnce(Return(m_power_max));
 
     m_fan_in = {2, 2};
-
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo);
+    m_power_gov = std::unique_ptr<MockPowerGovernor>(new MockPowerGovernor());
 }
 
 void PowerGovernorAgentTest::set_up_leaf(void)
 {
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
-        .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, _))
-        .Times(m_num_package);
-
     EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_POWER_PACKAGE));
     EXPECT_CALL(m_platform_io, push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_POWER_DRAM));
+    EXPECT_CALL(*m_power_gov, init_platform_io());
+    EXPECT_CALL(*m_power_gov, sample_platform())
+        .Times(AtLeast(0));
+    EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
+        .Times(AtLeast(0))
+        .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache), Return(true)));
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, std::move(m_power_gov));
 }
 
 // check if containers are equal, including NAN
@@ -125,6 +134,7 @@ void PowerGovernorAgentTest::check_result(const std::vector<double> &expected,
 
 TEST_F(PowerGovernorAgentTest, wait)
 {
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->init(1, m_fan_in, false);
     EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", _, _)).Times(m_updates_per_sample);
     m_agent->wait();
@@ -135,22 +145,21 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
     set_up_leaf();
     m_agent->init(0, m_fan_in, false);
     // initial power budget
-    EXPECT_CALL(m_platform_io, adjust(_, _)).Times(m_num_package);
     m_agent->adjust_platform({100});
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(50.5));
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(30.2));
-    std::vector<double> out_sample {NAN, NAN};
-    std::vector<double> expected {NAN, NAN};
+    std::vector<double> out_sample {NAN, NAN, NAN};
+    std::vector<double> expected {NAN, NAN, NAN};
 
     for (int i = 0; i < m_min_num_converged; ++i) {
         m_agent->sample_platform(out_sample);
         check_result(expected, out_sample);
     }
 
-    expected = {80.7, true};
+    expected = {80.7, true, 0.0};
     m_agent->sample_platform(out_sample);
     check_result(expected, out_sample);
 }
@@ -169,13 +178,11 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
         .WillRepeatedly(Return(5.5));
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(1)
         .WillRepeatedly(Return(dram_power));
-    std::vector<double> out_sample {NAN, NAN};
+    std::vector<double> out_sample {NAN, NAN, NAN};
     m_agent->sample_platform(out_sample);
 
     // adjust will be called once within m_samples_per_control control loops
     {
-        EXPECT_CALL(m_platform_io, adjust(_, (power_budget - dram_power)/m_num_package))
-            .Times(m_num_package);
         for (int i = 0; i < m_samples_per_control; ++i) {
             m_agent->adjust_platform(policy);
         }
@@ -186,8 +193,6 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
         for (int i = 0; i < m_samples_per_control; ++i) {
             power_budget += 1;
             policy = {power_budget};
-            EXPECT_CALL(m_platform_io, adjust(_, (power_budget - dram_power)/m_num_package))
-               .Times(m_num_package);
             m_agent->adjust_platform(policy);
         }
     }
@@ -195,10 +200,11 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
 
 TEST_F(PowerGovernorAgentTest, ascend)
 {
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->init(1, m_fan_in, false);
 
-    std::vector<std::vector<double> > in_sample {{2.2, false}, {3.3, true}};
-    std::vector<double> out_sample {NAN, NAN};
+    std::vector<std::vector<double> > in_sample {{2.2, false, 1.0}, {3.3, true, 2.0}};
+    std::vector<double> out_sample {NAN, NAN, NAN};
     // always false if not converged
     for (int i = 0; i < m_ascend_period * 2; ++i) {
         EXPECT_FALSE(m_agent->ascend(in_sample, out_sample));
@@ -207,7 +213,7 @@ TEST_F(PowerGovernorAgentTest, ascend)
     // once per m_ascend_period if converged
     in_sample = {{2.3, true}, {3.4, true}};
     // average of power samples
-    std::vector<double> expected {(2.3 + 3.4)/2.0, true};
+    std::vector<double> expected {(2.3 + 3.4)/2.0, true, 1.5};
     EXPECT_TRUE(m_agent->ascend(in_sample, out_sample));
     check_result(expected, out_sample);
     for (int i = 1; i < m_ascend_period; ++i) {
@@ -218,6 +224,7 @@ TEST_F(PowerGovernorAgentTest, ascend)
 
 TEST_F(PowerGovernorAgentTest, descend)
 {
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<double> policy_in;

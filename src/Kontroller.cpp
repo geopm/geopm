@@ -112,10 +112,10 @@ namespace geopm
         , m_tracer(std::move(tracer))
         , m_agent(std::move(level_agent))
         , m_is_root(m_num_level_ctl == m_root_level)
-        , m_in_policy(m_num_send_down)
+        , m_in_policy(m_num_send_down, NAN)
         , m_out_policy(m_num_level_ctl)
         , m_in_sample(m_num_level_ctl)
-        , m_out_sample(m_num_send_up)
+        , m_out_sample(m_num_send_up, NAN)
         , m_manager_io_sampler(std::move(manager_io_sampler))
     {
         // Three dimensional vector over levels, children, and message
@@ -124,9 +124,9 @@ namespace geopm
         for (int level = 0; level != m_num_level_ctl; ++level) {
             int num_children = m_tree_comm->level_size(level);
             m_out_policy[level] = std::vector<std::vector<double> >(num_children,
-                                                                    std::vector<double>(m_num_send_down));
+                                                                    std::vector<double>(m_num_send_down, NAN));
             m_in_sample[level] = std::vector<std::vector<double> >(num_children,
-                                                                   std::vector<double>(m_num_send_up));
+                                                                   std::vector<double>(m_num_send_up, NAN));
         }
     }
 

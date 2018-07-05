@@ -43,6 +43,7 @@ namespace geopm
     class IPlatformTopo;
     template <class type>
     class ICircularBuffer;
+    class IPowerGovernor;
 
     class PowerBalancerAgent : public Agent
     {
@@ -107,22 +108,15 @@ namespace geopm
 
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
-
             int m_level; // Needed in order to determine convergence
             bool m_is_converged;
             bool m_is_sample_stable;
-
             int m_updates_per_sample;
-            int m_samples_per_control;
             double m_min_power_budget;
             double m_max_power_budget;
-
+            std::unique_ptr<IPowerGovernor> m_power_gov;
             std::vector<int> m_pio_idx;
-
-            std::vector<int> m_control_idx;
-
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
-
             int m_num_children;
             bool m_is_root;
             double m_last_power_budget_in;
@@ -134,19 +128,16 @@ namespace geopm
             std::unique_ptr<ICircularBuffer<double> > m_epoch_runtime_buf;
             std::unique_ptr<ICircularBuffer<double> > m_epoch_power_buf;
             std::vector<double> m_sample;
-
             double m_last_energy_status;
-            int m_sample_count;
             int m_ascend_count;
             const int m_ascend_period;
-
             bool m_is_updated;
             const double m_convergence_target;
             int m_num_out_of_range;
             const int m_min_num_converged;
             int m_num_converged;
             int m_last_epoch_count;
-
+            double m_adjusted_power;
     };
 }
 

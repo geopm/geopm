@@ -43,6 +43,7 @@ namespace geopm
     class IPlatformTopo;
     template <class type>
     class ICircularBuffer;
+    class IPowerGovernor;
 
     class PowerGovernorAgent : public Agent
     {
@@ -65,11 +66,12 @@ namespace geopm
             enum m_sample_e { // Tree samples
                 M_SAMPLE_POWER,
                 M_SAMPLE_IS_CONVERGED,
+                M_SAMPLE_POWER_ENFORCED,
                 M_NUM_SAMPLE,
             };
 
             PowerGovernorAgent();
-            PowerGovernorAgent(IPlatformIO &platform_io, IPlatformTopo &platform_topo);
+            PowerGovernorAgent(IPlatformIO &platform_io, IPlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov);
             virtual ~PowerGovernorAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             bool descend(const std::vector<double> &in_policy,
@@ -97,21 +99,17 @@ namespace geopm
             int m_level;
             bool m_is_converged;
             bool m_is_sample_stable;
-            int m_samples_per_control;
             double m_min_power_setting;
             double m_max_power_setting;
-            std::vector<double> m_policy;
+            std::unique_ptr<IPowerGovernor> m_power_gov;
             std::vector<int> m_pio_idx;
-            std::vector<int> m_control_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             int m_num_children;
             double m_last_power_budget;
             std::unique_ptr<ICircularBuffer<double> > m_epoch_power_buf;
-            std::unique_ptr<ICircularBuffer<double> > m_dram_power_buf;
             std::vector<double> m_sample;
             int m_updates_per_sample;
             double m_last_energy_status;
-            int m_sample_count;
             int m_ascend_count;
             const int m_ascend_period;
             const double m_convergence_target;
@@ -119,6 +117,7 @@ namespace geopm
             const int m_min_num_converged;
             int m_num_converged;
             int m_num_pkg;
+            double m_adjusted_power;
     };
 }
 
