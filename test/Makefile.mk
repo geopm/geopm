@@ -330,15 +330,14 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_0_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
+              test/gtest_links/PowerGovernorTest.govern \
+              test/gtest_links/PowerGovernorTest.govern_min \
+              test/gtest_links/PowerGovernorTest.govern_max \
               test/gtest_links/PowerGovernorAgentTest.wait \
               test/gtest_links/PowerGovernorAgentTest.sample_platform \
               test/gtest_links/PowerGovernorAgentTest.adjust_platform \
               test/gtest_links/PowerGovernorAgentTest.ascend \
               test/gtest_links/PowerGovernorAgentTest.descend \
-              test/gtest_links/KontrollerPowerGovernorTest.single_node \
-              test/gtest_links/KontrollerPowerGovernorTest.two_level_controller_1 \
-              test/gtest_links/KontrollerPowerGovernorTest.two_level_controller_2 \
-              test/gtest_links/KontrollerPowerGovernorTest.two_level_controller_0 \
               # end
 
 if ENABLE_MPI
@@ -390,6 +389,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockIOGroup.hpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
+                          test/MockPowerGovernor.hpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/EfficientFreqDeciderTest.cpp \
                           test/MockComm.hpp \
@@ -456,8 +456,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockProfileIORuntime.hpp \
                           test/KruntimeRegulatorTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
+                          test/PowerGovernorTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
-                          test/KontrollerPowerGovernorTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
