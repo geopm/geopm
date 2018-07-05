@@ -35,6 +35,7 @@
 #include <algorithm>
 
 #include "PowerGovernorAgent.hpp"
+#include "PowerGovernor.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
@@ -60,13 +61,13 @@ namespace geopm
         , m_samples_per_control(10)
         , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_power_gov(geopm::make_unique<PowerGovernor> (m_platform_io, m_platform_topo))
         , m_policy(M_NUM_POLICY, NAN)
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_agg_func(M_NUM_SAMPLE)
         , m_num_children(0)
         , m_last_power_budget(NAN)
         , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
-        , m_dram_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_updates_per_sample(5)
         , m_last_energy_status(0.0)
@@ -82,10 +83,7 @@ namespace geopm
 
     }
 
-    PowerGovernorAgent::~PowerGovernorAgent()
-    {
-
-    }
+    PowerGovernorAgent::~PowerGovernorAgent() = default;
 
     void PowerGovernorAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
     {
@@ -108,6 +106,7 @@ namespace geopm
 
     void PowerGovernorAgent::init_platform_io(void)
     {
+        m_power_gov->init_platform_io();
         // Setup signals
         m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_pio_idx[M_PLAT_SIGNAL_DRAM_POWER] = m_platform_io.push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
@@ -117,16 +116,6 @@ namespace geopm
         if (pkg_pwr_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): Platform does not support package power control",
                             GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-        }
-
-        for(int i = 0; i < m_num_pkg; ++i) {
-            int control_idx = m_platform_io.push_control("POWER_PACKAGE", pkg_pwr_domain_type, i);
-            if (control_idx < 0) {
-                throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): Failed to enable package power control"
-                                " in the platform.",
-                                GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
-            }
-            m_control_idx.push_back(control_idx);
         }
     }
 
@@ -145,8 +134,7 @@ namespace geopm
 
         bool result = false;
         double power_budget_in = policy_in[M_POLICY_POWER];
-        double num_pkg = m_num_pkg;
-        double per_package_budget_in = power_budget_in / num_pkg;
+        double per_package_budget_in = power_budget_in / m_num_pkg;
 
         if (per_package_budget_in > m_max_power_setting ||
             per_package_budget_in < m_min_power_setting) {
@@ -165,7 +153,6 @@ namespace geopm
                 policy_out[child_idx][M_POLICY_POWER] = power_budget_in;
             }
             m_epoch_power_buf->clear();
-            m_dram_power_buf->clear();
             m_is_converged = false;
             result = true;
         }
@@ -233,23 +220,7 @@ namespace geopm
         // for m_samples_per_control samples, then update the
         // power limits.
         if (m_last_power_budget != in_policy[M_POLICY_POWER] || m_sample_count == 0) {
-            // TODO: sanity check beyond NAN; if DRAM power is too large, target below can go negative
-            double dram_power =  IPlatformIO::agg_max(m_dram_power_buf->make_vector());
-            // Check that we have enough samples (two) to measure DRAM power
-            if (std::isnan(dram_power)) {
-                dram_power = 0.0;
-            }
-            double num_pkg = m_control_idx.size();
-            double target_pkg_power = (in_policy[M_POLICY_POWER] - dram_power) / num_pkg;
-            if (target_pkg_power < m_min_power_setting) {
-                target_pkg_power = m_min_power_setting;
-            }
-            else if (target_pkg_power > m_max_power_setting) {
-                target_pkg_power = m_max_power_setting;
-            }
-            for (auto ctl_idx : m_control_idx) {
-                m_platform_io.adjust(ctl_idx, target_pkg_power);
-            }
+            m_power_gov->adjust_platform(in_policy[M_POLICY_POWER]);
             m_last_power_budget = in_policy[M_POLICY_POWER];
             result = true;
         }
@@ -269,6 +240,7 @@ namespace geopm
         }
 #endif
         bool result = false;
+        m_power_gov->sample_platform();
         // Populate sample vector by reading from PlatformIO
         for (int sample_idx = 0; sample_idx < M_PLAT_NUM_SIGNAL; ++sample_idx) {
             m_sample[sample_idx] = m_platform_io.sample(m_pio_idx[sample_idx]);
@@ -277,7 +249,6 @@ namespace geopm
         /// @todo should use EPOCH_ENERGY signal which doesn't currently exist
         if (!std::isnan(m_sample[M_PLAT_SIGNAL_PKG_POWER]) && !std::isnan(m_sample[M_PLAT_SIGNAL_DRAM_POWER])) {
             m_epoch_power_buf->insert(m_sample[M_PLAT_SIGNAL_PKG_POWER] + m_sample[M_PLAT_SIGNAL_DRAM_POWER]);
-            m_dram_power_buf->insert(m_sample[M_PLAT_SIGNAL_DRAM_POWER]);
         }
         // If we have observed more than m_min_num_converged epoch
         // calls then send median filtered power values up the tree.

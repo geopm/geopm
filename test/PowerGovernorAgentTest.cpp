@@ -74,9 +74,11 @@ class PowerGovernorAgentTest : public ::testing::Test
 void PowerGovernorAgentTest::SetUp(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
-        .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
+        .Times(2)   /// once for Agent, once for Governor subclass
+        .WillRepeatedly(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
-        .WillOnce(Return(m_num_package));
+        .Times(2)   /// once for Agent, once for Governor subclass
+        .WillRepeatedly(Return(m_num_package));
     // Warning: if ENERGY_PACKAGE does not return updated values,
     // PowerGovernorAgent::wait() will loop forever.
     m_energy_package = 555.5;
@@ -86,9 +88,11 @@ void PowerGovernorAgentTest::SetUp(void)
                 }));
 
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
-        .WillOnce(Return(m_power_min));
+        .Times(2)   /// once for Agent, once for Governor subclass
+        .WillRepeatedly(Return(m_power_min));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
-        .WillOnce(Return(m_power_max));
+        .Times(2)   /// once for Agent, once for Governor subclass
+        .WillRepeatedly(Return(m_power_max));
 
     m_fan_in = {2, 2};
 
@@ -105,7 +109,8 @@ void PowerGovernorAgentTest::set_up_leaf(void)
     EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_POWER_PACKAGE));
     EXPECT_CALL(m_platform_io, push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_POWER_DRAM));
+        .Times(2)   /// once for Agent, once for Governor subclass
+        .WillRepeatedly(Return(M_SIGNAL_POWER_DRAM));
 }
 
 // check if containers are equal, including NAN
@@ -140,7 +145,7 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(50.5));
-    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(m_min_num_converged + 1)
+    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(2 * (m_min_num_converged + 1))
         .WillRepeatedly(Return(30.2));
     std::vector<double> out_sample {NAN, NAN};
     std::vector<double> expected {NAN, NAN};
@@ -167,14 +172,14 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
     // sample once to get dram power
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(1)
         .WillRepeatedly(Return(5.5));
-    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(1)
+    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(2)
         .WillRepeatedly(Return(dram_power));
     std::vector<double> out_sample {NAN, NAN};
     m_agent->sample_platform(out_sample);
 
     // adjust will be called once within m_samples_per_control control loops
     {
-        EXPECT_CALL(m_platform_io, adjust(_, (power_budget - dram_power)/m_num_package))
+        EXPECT_CALL(m_platform_io, adjust(_, _))
             .Times(m_num_package);
         for (int i = 0; i < m_samples_per_control; ++i) {
             m_agent->adjust_platform(policy);
@@ -186,7 +191,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
         for (int i = 0; i < m_samples_per_control; ++i) {
             power_budget += 1;
             policy = {power_budget};
-            EXPECT_CALL(m_platform_io, adjust(_, (power_budget - dram_power)/m_num_package))
+            EXPECT_CALL(m_platform_io, adjust(_, _))
                .Times(m_num_package);
             m_agent->adjust_platform(policy);
         }
