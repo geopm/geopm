@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "015856e3_815059ed",
+        "filename": "src/PlatformIO.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-10T17:26:27Z",
+      "side": 1,
+      "message": "Maybe something like \"The same signal index will always be returned for a given unique set of input parameters.\"",
+      "revId": "271a8c2ed313a6ece7dc117141f4270341b128ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
