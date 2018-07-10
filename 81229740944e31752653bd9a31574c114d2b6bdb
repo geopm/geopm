@@ -16,6 +16,24 @@
       "revId": "81229740944e31752653bd9a31574c114d2b6bdb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f2c1dea_cc366798",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-10T18:19:19Z",
+      "side": 0,
+      "message": "No.  Clearing history is counter intuitive to the objective of holding this history.",
+      "parentUuid": "c73c49ae_c66a39f7",
+      "revId": "81229740944e31752653bd9a31574c114d2b6bdb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
