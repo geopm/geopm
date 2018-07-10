@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb0bf578_e3dfaf95",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-10T17:44:54Z",
+      "side": 1,
+      "message": "Probably should not insert the sample if it returns NAN",
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fc81291_aa8640f7",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-10T17:44:54Z",
+      "side": 1,
+      "message": "subtracting",
+      "range": {
+        "startLine": 55,
+        "startChar": 64,
+        "endLine": 55,
+        "endChar": 74
+      },
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff98c6d7_8b74e2ac",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-10T17:44:54Z",
+      "side": 1,
+      "message": "I didn\u0027t see a unit test for this but it\u0027s also not used by the agents (yet)",
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "581b247e_9170e094",
+        "filename": "test/PowerGovernorAgentTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-10T17:44:54Z",
+      "side": 1,
+      "message": "I think it would be nicer to mock the PowerGovernor object and remove these details from the Agent test.",
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

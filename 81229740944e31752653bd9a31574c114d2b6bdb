@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c73c49ae_c66a39f7",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-10T17:44:54Z",
+      "side": 0,
+      "message": "Does PowerGovernor need a reset method to handle this?",
+      "revId": "81229740944e31752653bd9a31574c114d2b6bdb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
