@@ -154,7 +154,7 @@ class SubsetOptionParser(optparse.OptionParser):
             if argv[idx] == '--':
                 unfiltered.extend(argv[idx:])
                 exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER','')
-                if exec_wrapper not in unfiltered:
+                if exec_wrapper not in unfiltered and exec_wrapper != '':
                     unfiltered.insert(1, exec_wrapper)
                 break
             is_found = False
