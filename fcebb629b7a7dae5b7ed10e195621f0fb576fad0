@@ -22,6 +22,121 @@
       "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a73e88_d7916ccc",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T17:47:03Z",
+      "side": 1,
+      "message": "change",
+      "range": {
+        "startLine": 75,
+        "startChar": 32,
+        "endLine": 75,
+        "endChar": 63
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f3f31bc_9e92f865",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T17:47:03Z",
+      "side": 1,
+      "message": "init -1.  GEOPM_LOGIC_ERROR if m_dram_sig_idx \u003d\u003d -1",
+      "range": {
+        "startLine": 83,
+        "startChar": 49,
+        "endLine": 83,
+        "endChar": 63
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1696641c_8837edf4",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T17:47:03Z",
+      "side": 1,
+      "message": "if m_control_idx.size() \u003d\u003d 0 logic err",
+      "range": {
+        "startLine": 92,
+        "startChar": 9,
+        "endLine": 92,
+        "endChar": 16
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62ea06a9_9620f904",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T17:47:03Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 43
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d32a90d6_a709e66f",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T17:47:03Z",
+      "side": 1,
+      "message": "cant use members YET",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 127
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
