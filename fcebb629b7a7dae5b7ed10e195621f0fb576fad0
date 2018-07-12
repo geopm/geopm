@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "50075d07_75f03d6f",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:51:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "24695bcc_bfccc629",
+      "range": {
+        "startLine": 60,
+        "startChar": 71,
+        "endLine": 60,
+        "endChar": 92
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37a73e88_d7916ccc",
         "filename": "src/PowerGovernor.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93955b29_41620ed6",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:51:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37a73e88_d7916ccc",
+      "range": {
+        "startLine": 75,
+        "startChar": 32,
+        "endLine": 75,
+        "endChar": 63
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "62b3f4ed_527b879c",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:51:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f3f31bc_9e92f865",
+      "range": {
+        "startLine": 83,
+        "startChar": 49,
+        "endLine": 83,
+        "endChar": 63
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1696641c_8837edf4",
         "filename": "src/PowerGovernor.cpp",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e4f82b1_a57c198c",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:51:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1696641c_8837edf4",
+      "range": {
+        "startLine": 92,
+        "startChar": 9,
+        "endLine": 92,
+        "endChar": 16
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "d02d7109_d901cd12",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:51:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62ea06a9_9620f904",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 43
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d32a90d6_a709e66f",
         "filename": "src/PowerGovernorAgent.cpp",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20e2eaaa_04445976",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:51:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d32a90d6_a709e66f",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 127
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
