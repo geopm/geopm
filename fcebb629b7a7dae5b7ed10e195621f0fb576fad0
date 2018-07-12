@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24695bcc_bfccc629",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T16:59:30Z",
+      "side": 1,
+      "message": "Heads up, 10 now instead of 16.",
+      "range": {
+        "startLine": 60,
+        "startChar": 71,
+        "endLine": 60,
+        "endChar": 92
+      },
+      "revId": "fcebb629b7a7dae5b7ed10e195621f0fb576fad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
