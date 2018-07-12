@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c6049e83_b6f56b69",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb0bf578_e3dfaf95",
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1fc81291_aa8640f7",
         "filename": "src/PowerGovernor.hpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2018-07-10T17:44:54Z",
       "side": 1,
       "message": "subtracting",
+      "range": {
+        "startLine": 55,
+        "startChar": 64,
+        "endLine": 55,
+        "endChar": 74
+      },
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0b90fb8_5d6120ea",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fc81291_aa8640f7",
       "range": {
         "startLine": 55,
         "startChar": 64,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "0127422c_26dc9684",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff98c6d7_8b74e2ac",
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "581b247e_9170e094",
         "filename": "test/PowerGovernorAgentTest.cpp",
         "patchSetId": 1
@@ -70,6 +130,24 @@
       "writtenOn": "2018-07-10T17:44:54Z",
       "side": 1,
       "message": "I think it would be nicer to mock the PowerGovernor object and remove these details from the Agent test.",
+      "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c58636e_846f8a04",
+        "filename": "test/PowerGovernorAgentTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-12T21:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "581b247e_9170e094",
       "revId": "ab99948384cbd642ca95bfd7385d36d0148e6aa8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
