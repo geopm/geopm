@@ -48,6 +48,7 @@ namespace geopm
             /// @brief Returns the number of tree levels controlled by
             ///        the Controller on this node.
             virtual int num_level_controlled(void) const = 0;
+            virtual int max_level(void) const = 0;
             /// @brief Returns the level of the root of the tree,
             ///        which is equal to the number of levels in the
             ///        tree.
@@ -90,6 +91,7 @@ namespace geopm
                      std::vector<std::unique_ptr<ITreeCommLevel> > mock_level);
             virtual ~TreeComm();
             int num_level_controlled(void) const override;
+            int max_level(void) const override;
             int root_level(void) const override;
             int level_rank(int level) const override;
             int level_size(int level) const override;
@@ -107,8 +109,10 @@ namespace geopm
             /// leaf to root
             std::vector<int> m_fan_out;
             int m_root_level;
-            /// Number of levels this rank participates in
+            /// Number of levels the rank controls
             int m_num_level_ctl;
+            /// Number of levels this rank participates in, including its parent
+            int m_max_level;
             /// @brief Number of nodes in the job.
             int m_num_node;
             int m_num_send_down;
