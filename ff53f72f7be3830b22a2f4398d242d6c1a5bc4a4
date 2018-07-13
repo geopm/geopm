@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3d982ee_bf210794",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-13T17:42:20Z",
+      "side": 1,
+      "message": "May want to print warning if different than policy.  Add tree sample \"POWER_LIMIT_AVG\" populating with this value.",
+      "range": {
+        "startLine": 216,
+        "startChar": 15,
+        "endLine": 216,
+        "endChar": 28
+      },
+      "revId": "ff53f72f7be3830b22a2f4398d242d6c1a5bc4a4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
