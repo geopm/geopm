@@ -365,14 +365,14 @@ TEST_F(KontrollerPowerGovernorTest, two_level_controller_2)
                                      power_dram);
 
 
-    for (int level = 0; level < num_level_ctl; ++level) {
+    for (int level = 0; level < num_level_ctl + 1; ++level) {
         auto tmp = new PowerGovernorAgent(m_platform_io, m_platform_topo);
         tmp->init(level, fan_out, true);
         m_level_agent.push_back(tmp);
 
         m_agents.emplace_back(m_level_agent[level]);
     }
-    ASSERT_EQ(1u, m_level_agent.size());
+    ASSERT_EQ(2u, m_level_agent.size());
 
     // should not interact with manager io
     EXPECT_CALL(*m_manager_io, sample()).Times(0);
@@ -441,14 +441,14 @@ TEST_F(KontrollerPowerGovernorTest, two_level_controller_0)
     m_platform_io.add_varying_signal({"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
                                      power_dram);
 
-    for (int level = 0; level < num_level_ctl; ++level) {
+    for (int level = 0; level < num_level_ctl + 1; ++level) {
         auto tmp = new PowerGovernorAgent(m_platform_io, m_platform_topo);
         tmp->init(level, fan_out, true);
         m_level_agent.push_back(tmp);
 
         m_agents.emplace_back(m_level_agent[level]);
     }
-    ASSERT_EQ(2u, m_level_agent.size());
+    ASSERT_EQ(3u, m_level_agent.size());
 
     Kontroller kontroller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
