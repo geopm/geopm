@@ -89,16 +89,20 @@ namespace geopm
 
     void PowerGovernorAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
     {
+        if (level > fan_in.size()) {
+            throw Exception("PowerGovernorAgent::init(): invalid level for given fan_in.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         m_level = level;
         if (m_level == 0) {
             init_platform_io(); // Only do this at the leaf level.
         }
 
-        if (fan_in.size() == 0) {
-            m_num_children = 1;
+        if (level == 0) {
+            m_num_children = 0;
         }
         else {
-            m_num_children = fan_in[level];
+            m_num_children = fan_in[level - 1];
         }
 
         // Setup sample aggregation for data going up the tree
