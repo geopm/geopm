@@ -293,6 +293,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/TreeCommLevelTest.receive_down_complete \
               test/gtest_links/TreeCommLevelTest.receive_down_incomplete \
               test/gtest_links/TreeCommTest.geometry \
+              test/gtest_links/TreeCommTest.geometry_nonroot \
               test/gtest_links/TreeCommTest.send_receive \
               test/gtest_links/TreeCommTest.overhead_send \
               test/gtest_links/MonitorAgentTest.fixed_signal_list \
