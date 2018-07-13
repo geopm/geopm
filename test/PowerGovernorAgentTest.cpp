@@ -135,8 +135,8 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
     set_up_leaf();
     m_agent->init(0, m_fan_in, false);
     // initial power budget
-    std::vector<std::vector<double> > policy_out {{NAN}, {NAN}};
-    EXPECT_TRUE(m_agent->descend({100}, policy_out));
+    EXPECT_CALL(m_platform_io, adjust(_, _)).Times(m_num_package);
+    m_agent->adjust_platform({100});
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(50.5));
