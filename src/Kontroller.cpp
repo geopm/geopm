@@ -146,9 +146,7 @@ namespace geopm
             ++level;
         }
         if (m_agent.size() == 0) {
-            m_agent.push_back(agent_factory().make_plugin(m_agent_name));
-            m_agent.back()->init(0, fan_in, (0 < m_tree_comm->num_level_controlled()));
-            for (level = 1; level < m_max_level; ++level) {
+            for (level = 0; level < m_max_level; ++level) {
                 m_agent.push_back(agent_factory().make_plugin(m_agent_name));
                 m_agent.back()->init(level, fan_in, (level < m_tree_comm->num_level_controlled()));
             }
@@ -249,7 +247,7 @@ namespace geopm
         else {
             do_send = m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
         }
-        for (int level = m_num_level_ctl - 1; level != -1; --level) {
+        for (int level = m_num_level_ctl - 1; level > -1; --level) {
             if (do_send) {
                 do_send = m_agent[level]->descend(m_in_policy, m_out_policy[level]);
             }
@@ -274,7 +272,7 @@ namespace geopm
         m_tracer->update(m_trace_sample, m_application_io->region_info());
         m_application_io->clear_region_info();
 
-        for (int level = 0; level != m_num_level_ctl; ++level) {
+        for (int level = 0; level < m_num_level_ctl; ++level) {
             if (do_send) {
                 m_tree_comm->send_up(level, m_out_sample);
             }

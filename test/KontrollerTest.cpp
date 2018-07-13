@@ -60,7 +60,7 @@ using testing::NiceMock;
 using testing::_;
 using testing::Return;
 using testing::AtLeast;
-
+using testing::ContainerEq;
 
 class KontrollerTestMockPlatformIO : public MockPlatformIO
 {
@@ -131,6 +131,8 @@ void KontrollerTest::SetUp()
     m_reporter = new MockReporter();
     m_tracer = new MockTracer();
 
+    // called during clean up
+    EXPECT_CALL(m_platform_io, restore_control());
 }
 
 TEST_F(KontrollerTest, single_node)
@@ -225,6 +227,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     // mock parent sending to this child
     std::vector<std::vector<double> > policy = {{1, 2}, {3, 4}};
     m_tree_comm->send_down(num_level_ctl, policy);
+    m_tree_comm->reset_spy();
 
     // should not interact with manager io
     EXPECT_CALL(*m_manager_io, sample()).Times(0);
@@ -256,8 +259,14 @@ TEST_F(KontrollerTest, two_level_controller_1)
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 
-    EXPECT_NE(0, m_tree_comm->num_send());
-    EXPECT_NE(0, m_tree_comm->num_recv());
+    std::set<int> send_down_levels {};
+    std::set<int> recv_down_levels {0};
+    std::set<int> send_up_levels {0};
+    std::set<int> recv_up_levels {};
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
 }
 
 // controller with leaf and tree responsibilities, but not at the root
@@ -302,6 +311,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     // mock parent sending to this child
     std::vector<std::vector<double> > policy = {{1, 2}, {3, 4}};
     m_tree_comm->send_down(num_level_ctl, policy);
+    m_tree_comm->reset_spy();
 
     // should not interact with manager io
     EXPECT_CALL(*m_manager_io, sample()).Times(0);
@@ -337,8 +347,14 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 
-    EXPECT_NE(0, m_tree_comm->num_send());
-    EXPECT_NE(0, m_tree_comm->num_recv());
+    std::set<int> send_down_levels {0};
+    std::set<int> recv_down_levels {1, 0};
+    std::set<int> send_up_levels {0, 1};
+    std::set<int> recv_up_levels {0};
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
 }
 
 // controller with responsibilities at all levels of the tree
@@ -417,6 +433,12 @@ TEST_F(KontrollerTest, two_level_controller_0)
     EXPECT_CALL(*m_tracer, flush());
     kontroller.generate();
 
-    EXPECT_NE(0, m_tree_comm->num_send());
-    EXPECT_NE(0, m_tree_comm->num_recv());
+    std::set<int> send_down_levels {1, 0};
+    std::set<int> recv_down_levels {1, 0};
+    std::set<int> send_up_levels {0, 1};
+    std::set<int> recv_up_levels {0, 1};
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
 }
