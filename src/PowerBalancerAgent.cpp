@@ -37,6 +37,7 @@
 
 #include "PowerGovernor.hpp"
 #include "PowerBalancerAgent.hpp"
+#include "PowerBalancer.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
@@ -51,32 +52,38 @@ namespace geopm
         : m_platform_io(platform_io())
         , m_platform_topo(platform_topo())
         , m_level(-1)
-        , m_is_converged(false)
-        , m_is_sample_stable(false)
-        , m_updates_per_sample(5)
         , m_min_power_budget(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_max_power_budget(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_power_gov(nullptr)
+        , m_power_balancer(nullptr)
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
+        , m_agg_func {
+              IPlatformIO::agg_min, // M_SAMPLE_STEP_COUNT
+              IPlatformIO::agg_and, // M_SAMPLE_IS_STEP_COMPLETE
+              IPlatformIO::agg_max, // M_SAMPLE_MAX_EPOCH_RUNTIME
+              IPlatformIO::agg_sum, // M_SAMPLE_SUM_POWER_SLACK
+          }
         , m_num_children(0)
-        , m_is_root(false)
-        , m_last_power_budget_in(NAN)
-        , m_last_power_budget_out(NAN)
-        , m_epoch_runtime_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
-        , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
-        , m_sample(M_PLAT_NUM_SIGNAL)
-        , m_last_energy_status(0.0)
-        , m_ascend_count(0)
-        , m_ascend_period(10)
-        , m_is_updated(false)
-        , m_convergence_target(0.01)
-        , m_num_out_of_range(0)
-        , m_min_num_converged(15)
-        , m_num_converged(0)
+        , m_is_level_root(false)
+        , m_is_tree_root(false)
         , m_last_epoch_count(0)
-        , m_adjusted_power(0.0)
+        , m_step_count(M_STEP_MEASURE_RUNTIME)
+        , m_is_step_complete(false)
+        , m_runtime(0.0)
+        , m_power_slack(0.0)
+        , m_last_wait{{0,0}}
+        , M_WAIT_SEC(0.005)
+        , m_sample(M_NUM_SAMPLE, NAN)
+        , m_policy(M_NUM_POLICY, NAN)
+        , m_num_node(0)
     {
-
+#ifdef GEOPM_DEBUG
+        if (m_agg_func.size() != M_NUM_SAMPLE) {
+            throw Exception("PowerBalancerAgent(): aggregation function vector is not the size of the policy vector",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        geopm_time(&m_last_wait);
     }
 
     PowerBalancerAgent::~PowerBalancerAgent() = default;
@@ -84,18 +91,24 @@ namespace geopm
     void PowerBalancerAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
     {
         m_level = level;
+        m_is_level_root = is_root;
+        m_is_tree_root = (level == (int)fan_in.size() && is_root);
+        m_num_node = 1.0;
         if (m_level == 0) {
+            // Only do this at the leaf level.
             if (nullptr == m_power_gov) {
                 m_power_gov = geopm::make_unique<PowerGovernor> (m_platform_io, m_platform_topo);
             }
-            init_platform_io(); // Only do this at the leaf level.
+            init_platform_io();
+            m_power_balancer = geopm::make_unique<PowerBalancer>();
+            m_num_children = 1;
         }
-        m_num_children = fan_in[level];
-        m_is_root = is_root;
-        m_last_runtime0.resize(m_num_children, NAN);
-        m_last_runtime1.resize(m_num_children, NAN);
-        m_last_budget0.resize(m_num_children, NAN);
-        m_last_budget1.resize(m_num_children, NAN);
+        else {
+            m_num_children = fan_in[level - 1];
+            for (auto fi : fan_in) {
+                m_num_node *= fi;
+            }
+        }
     }
 
     void PowerBalancerAgent::init_platform_io(void)
@@ -103,197 +116,156 @@ namespace geopm
         m_power_gov->init_platform_io();
         // Setup signals
         m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME] = m_platform_io.push_signal("EPOCH_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        //m_pio_idx[M_PLAT_SIGNAL_EPOCH_ENERGY] = m_platform_io.push_signal("EPOCH_ENERGY", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT] = m_platform_io.push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_DRAM_POWER] = m_platform_io.push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
-
-        // Setup sample aggregation for data going up the tree
-        m_agg_func.push_back(IPlatformIO::agg_max);     // EPOCH_RUNTIME
-        m_agg_func.push_back(IPlatformIO::agg_average); // POWER
-        m_agg_func.push_back(IPlatformIO::agg_and);     // IS_CONVERGED
-        m_agg_func.push_back(IPlatformIO::agg_average); // POWER_ENFORCED
     }
 
-
-
-    bool PowerBalancerAgent::descend_initial_budget(double power_budget_in, std::vector<double> &power_budget_out)
+    int PowerBalancerAgent::step(size_t step_count)
     {
-        bool result = false;
-        if (!std::isnan(power_budget_in)) {
-            // First time down the tree, send the same budget to all children.
-            std::fill(power_budget_out.begin(), power_budget_out.end(), power_budget_in);
-            m_last_budget0 = power_budget_out;
-            m_is_updated = true;
-            result = true;
-        }
-        return result;
+        return (step_count % M_NUM_STEP);
     }
 
-    bool PowerBalancerAgent::descend_updated_budget(double power_budget_in, std::vector<double> &power_budget_out)
+    int PowerBalancerAgent::step(void)
     {
-        double factor = power_budget_in / IPlatformIO::agg_average(m_last_budget0);
-        for (auto &it : power_budget_out) {
-            it *= factor;
-        }
-        m_last_budget0 = power_budget_out;
-        std::fill(m_last_budget1.begin(), m_last_budget1.end(), NAN);
-        m_epoch_runtime_buf->clear();
-        m_epoch_power_buf->clear();
-        return true;
-    }
-
-    bool PowerBalancerAgent::descend_updated_runtimes(double power_budget_in, std::vector<double> &power_budget_out)
-    {
-        bool result = false;
-        if (m_is_sample_stable) {
-            // All children have reported convergance in ascend().
-            double stddev_child_runtime = IPlatformIO::agg_stddev(m_last_runtime0);
-            // We are out of bounds increment out of range counter
-            if (m_is_converged && (stddev_child_runtime > m_convergence_target)) {
-                ++m_num_out_of_range;
-            }
-            // We are within bounds.
-            else if (!m_is_converged && (stddev_child_runtime < m_convergence_target)) {
-                m_num_out_of_range = 0;
-                ++m_num_converged;
-                if (m_num_converged >= m_min_num_converged) {
-                    m_is_converged = true;
-                }
-            }
-            if (m_num_out_of_range >= m_min_num_converged) {
-                // All children have reported that they have
-                // converged (m_is_sample_stable), but the
-                // relative runtimes between the children is not
-                // small enough.
-
-                // Reset counter of number of unique samples that
-                // have been passed up that reported convergence.
-                m_is_converged  = false;
-                m_num_converged = 0;
-                m_num_out_of_range = 0;
-                power_budget_out = split_budget(power_budget_in);
-                // Store the budget history
-                m_last_budget1 = m_last_budget0;
-                m_last_budget0 = power_budget_out;
-                // Clear the runtime and power histories since
-                // they reflect the previous budget.
-                m_epoch_runtime_buf->clear();
-                m_epoch_power_buf->clear();
-                // The budget is new, so send it down the tree.
-                m_is_updated = true;
-                result = true;
-            }
-        }
-        m_last_power_budget_in = power_budget_in;
-        return result;
+        return step(m_step_count);
     }
 
     bool PowerBalancerAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
     {
-        if (policy_in.size() > 1) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): only one power budget was expected.",
+#ifdef GEOPM_DEBUG
+        if (policy_in.size() != M_NUM_POLICY ||
+            policy_out.size() != (size_t)m_num_children) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-
-        bool result = false;
-        double power_budget_in = policy_in[M_POLICY_POWER];
-        std::vector<double> power_budget_out(m_num_children, NAN);
-
-        if (std::isnan(m_last_power_budget_in)) {
-            // Haven't yet recieved a budget split for the first time
-            result = descend_initial_budget(power_budget_in, power_budget_out);
+#endif
+        bool is_step_changed = (policy_in[M_POLICY_STEP_COUNT] != m_step_count);
+        if (is_step_changed && m_level != 0) {
+            // Don't change m_step_count for level zero agents until
+            // adjust_platform is called.
+            m_step_count = policy_in[M_POLICY_STEP_COUNT];
+            m_is_step_complete = false;
         }
-        else if (m_last_power_budget_in != power_budget_in) {
-            // The incoming power budget has changed, restart the
-            // algorithm
-            result = descend_updated_budget(power_budget_in, power_budget_out);
+        if (is_step_changed) {
+            // Copy the input policy directly into each child's
+            // policy.
+            for (auto &po : policy_out) {
+                po = policy_in;
+            }
         }
-        else if (m_ascend_count == 1) {
-            // Not the first descent and the runtimes may have been
-            // updated.
-            result = descend_updated_runtimes(power_budget_in, power_budget_out);
-        }
-        // Convert power budget vector into a vector of policy vectors
-        for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-            policy_out[child_idx][M_POLICY_POWER] = power_budget_out[child_idx];
-        }
-        return result;
+        return is_step_changed;
     }
 
 
     bool PowerBalancerAgent::ascend(const std::vector<std::vector<double> > &in_sample, std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
-        if (out_sample.size() != M_NUM_SAMPLE) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): out_sample vector not correctly sized.",
+        if (in_sample.size() != (size_t)m_num_children ||
+            out_sample.size() != M_NUM_SAMPLE) {
+            throw Exception("PowerBalancerAgent::ascend(): sample vectors not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
         bool result = false;
-        m_is_sample_stable = std::all_of(in_sample.begin(), in_sample.end(),
-            [](const std::vector<double> &val)
-            {
-                return val[M_SAMPLE_IS_CONVERGED];
-            });
-
-        // If all children report that they are converged for the last
-        // ascend period times, then agregate the samples and send
-        // them up the tree.
-        if (m_is_sample_stable && m_ascend_count == 0) {
+        aggregate_sample(in_sample, m_agg_func, out_sample);
+        if (!m_is_step_complete && out_sample[M_SAMPLE_IS_STEP_COMPLETE]) {
+            // Method returns true if all children have completed the step
+            // for the first time.
             result = true;
-            std::vector<double> child_sample(m_num_children);
-            for (size_t sig_idx = 0; sig_idx < out_sample.size(); ++sig_idx) {
-                for (int child_idx = 0; child_idx < m_num_children; ++child_idx) {
-                    child_sample[child_idx] = in_sample[child_idx][sig_idx];
+            if (out_sample[M_SAMPLE_STEP_COUNT] == m_step_count) {
+                if (m_is_tree_root) {
+                    update_policy(out_sample);
                 }
-                out_sample[sig_idx] = m_agg_func[sig_idx](child_sample);
             }
-        }
-        // Increment the ascend counter if the children are stable.
-        if (m_is_sample_stable) {
-            ++m_ascend_count;
-            if (m_ascend_count == m_ascend_period) {
-                m_ascend_count = 0;
+            else {
+                throw Exception("PowerBalancerAgent::ascend(): sample recieved has true for step complete field, "
+                                "but the step_count does not match the agent's current step_count.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-        }
-
-        // If we see a new runtime reported from all of the children,
-        // then update the history.
-        bool do_update = true;
-        std::vector<double> this_runtime(m_num_children);
-        for (int child_idx = 0; child_idx < m_num_children; ++child_idx) {
-            this_runtime[child_idx] = in_sample[child_idx][M_SAMPLE_EPOCH_RUNTIME];
-            if (std::isnan(this_runtime[child_idx]) ||
-                this_runtime[child_idx] == m_last_runtime0[child_idx]) {
-                do_update = false;
-            }
-        }
-        if (do_update) {
-            m_last_runtime1 = m_last_runtime0;
-            m_last_runtime0 = this_runtime;
         }
         return result;
+    }
+
+    void PowerBalancerAgent::update_policy(const std::vector<double> &sample)
+    {
+        if (m_step_count != m_policy[M_POLICY_STEP_COUNT]) {
+            throw Exception("PowerBalancerAgent::update_policy(): sample passed does not match current step_count.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        switch (m_step_count) {
+            case M_STEP_SEND_DOWN_LIMIT:
+                m_policy[M_POLICY_POWER_CAP] = 0.0;
+                break;
+            case M_STEP_SEND_UP_RUNTIME:
+                m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = sample[M_SAMPLE_MAX_EPOCH_RUNTIME];
+                break;
+            case M_STEP_SEND_UP_EXCESS:
+                m_policy[M_POLICY_POWER_SLACK] = sample[M_SAMPLE_SUM_POWER_SLACK] / m_num_node;
+                break;
+            default:
+                break;
+        }
+        ++m_step_count;
+        m_policy[M_POLICY_STEP_COUNT] = m_step_count;
     }
 
     bool PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): one control was expected.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-        if (std::isnan(in_policy[M_POLICY_POWER])) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy is NAN.",
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vector incorrectly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-
-        bool result = m_power_gov->adjust_platform(in_policy[M_POLICY_POWER], m_adjusted_power);
-        if (m_adjusted_power > in_policy[M_POLICY_POWER]) {
-            std::cerr << "Warning: <geopm> PowerBalancerAgent node over budget.  Power policy: " << in_policy[M_POLICY_POWER] << "W power enforced: " << m_adjusted_power << "W" << std::endl;
+        /// @todo Add functions somewhere that hold the logic for
+        ///       determining if we are getting a new power cap.
+        bool is_step_changed = (in_policy[M_POLICY_STEP_COUNT] != m_step_count);
+        if (is_step_changed &&
+            in_policy[M_POLICY_STEP_COUNT] == M_STEP_SEND_DOWN_LIMIT &&
+            in_policy[M_POLICY_POWER_CAP] != 0.0) {
+            // New power cap from resource manager, reset
+            // algorithm.
+            m_step_count = M_STEP_SEND_DOWN_LIMIT;
+            m_power_balancer->power_cap(in_policy[M_POLICY_POWER_CAP]);
+            m_is_step_complete = true;
         }
-        m_last_power_budget_out = in_policy[M_POLICY_POWER];
+        else if (is_step_changed &&
+                 m_is_step_complete &&
+                 m_step_count + 1 == in_policy[M_POLICY_STEP_COUNT]) {
+            // Advance a step
+            ++m_step_count;
+            m_is_step_complete = false;
+            switch (step()) {
+                case M_STEP_SEND_DOWN_RUNTIME:
+                    m_power_balancer->target_runtime(in_policy[M_POLICY_MAX_EPOCH_RUNTIME]);
+                    break;
+                case M_STEP_SEND_DOWN_LIMIT:
+                    if (m_step_count != M_STEP_SEND_DOWN_LIMIT) {
+                        // Not a new power cap so adjust power cap up
+                        // by the slack amount.
+                        m_power_balancer->power_cap(m_power_balancer->power_limit() + in_policy[M_POLICY_POWER_SLACK]);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (is_step_changed) {
+            throw Exception("PowerBalancerAgent::adjust_platform(): The policy step is out of sync with the agent step or first policy received had a zero power cap.",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        double actual_limit = 0.0;
+        double request_limit = m_power_balancer->power_limit();
+        bool result = m_power_gov->adjust_platform(request_limit, actual_limit);
+        if (actual_limit != request_limit) {
+            if (step() == M_STEP_REDUCE_LIMIT) {
+                m_power_balancer->achieved_limit(actual_limit);
+            }
+            // Warn if this is a new power cap and it is too low.
+            else if (m_step_count == M_STEP_SEND_DOWN_LIMIT) {
+                std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of " << request_limit << " Watts could not be maintained." << std::endl;
+            }
+        }
         return result;
     }
 
@@ -306,172 +278,45 @@ namespace geopm
         }
 #endif
         bool result = false;
-        m_power_gov->sample_platform();
-        // Populate sample vector by reading from PlatformIO
-        for (int sample_idx = 0; sample_idx < M_PLAT_NUM_SIGNAL; ++sample_idx) {
-            m_sample[sample_idx] = m_platform_io.sample(m_pio_idx[sample_idx]);
-        }
-
+        int epoch_count = m_platform_io.sample(m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT]);
         // If all of the ranks have observed a new epoch then update
-        // the circular buffers that hold the history.
-        if (m_sample[M_PLAT_SIGNAL_EPOCH_COUNT] != m_last_epoch_count) {
-            m_epoch_runtime_buf->insert(m_sample[M_PLAT_SIGNAL_EPOCH_RUNTIME]);
-            //m_epoch_power_buf->insert(m_sample[M_PLAT_SIGNAL_EPOCH_ENERGY] / m_sample[M_PLAT_SIGNAL_EPOCH_RUNTIME]);
-
-            /// @todo fix me, should be as above, but we need the
-            /// EPOCH_ENERGY signal which doens't currently exist
-            m_epoch_power_buf->insert(m_sample[M_PLAT_SIGNAL_EPOCH_RUNTIME]);
-
-            // If we have observed more than m_min_num_converged epoch
-            // calls then send median filtered time and power values
-            // up the tree.
-            if (m_epoch_runtime_buf->size() > m_min_num_converged) {
-                out_sample[M_SAMPLE_EPOCH_RUNTIME] = IPlatformIO::agg_median(m_epoch_runtime_buf->make_vector());
-                out_sample[M_SAMPLE_POWER] = IPlatformIO::agg_median(m_epoch_power_buf->make_vector());
-                out_sample[M_SAMPLE_IS_CONVERGED] = true; //(out_sample[M_SAMPLE_POWER] < 1.01 * m_last_power_budget_in);
-                out_sample[M_SAMPLE_POWER_ENFORCED] = m_adjusted_power;
-                result = true;
+        // the power_balancer.
+        if (epoch_count != m_last_epoch_count &&
+            !m_is_step_complete) {
+            double epoch_runtime = m_platform_io.sample(m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME]);
+            switch (step()) {
+                case M_STEP_MEASURE_RUNTIME:
+                    m_is_step_complete = m_power_balancer->is_runtime_stable(epoch_runtime);
+                    m_runtime = m_power_balancer->runtime_sample();
+                    result = m_is_step_complete;
+                    break;
+                case M_STEP_REDUCE_LIMIT:
+                    m_is_step_complete = m_power_balancer->is_target_met(epoch_runtime);
+                    m_power_slack = m_power_balancer->power_cap() - m_power_balancer->power_limit();
+                    result = m_is_step_complete;
+                    break;
+                default:
+                    break;
             }
-            m_last_epoch_count = m_sample[M_PLAT_SIGNAL_EPOCH_COUNT];
+            m_last_epoch_count = epoch_count;
         }
+        m_power_gov->sample_platform();
+        out_sample[M_SAMPLE_STEP_COUNT] = m_step_count;
+        out_sample[M_SAMPLE_IS_STEP_COMPLETE] = m_is_step_complete;
+        out_sample[M_SAMPLE_MAX_EPOCH_RUNTIME] = m_runtime;
+        out_sample[M_SAMPLE_SUM_POWER_SLACK] = m_power_slack;
+        m_sample = out_sample;
         return result;
     }
 
-    void PowerBalancerAgent::wait()
-    {
-        // Wait for updates to the energy status register
-        double curr_energy_status = 0;
 
-        for (int i = 0; i < m_updates_per_sample; ++i) {
-            do  {
-                curr_energy_status = m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            }
-            while (m_last_energy_status == curr_energy_status);
-            m_last_energy_status = curr_energy_status;
+    void PowerBalancerAgent::wait(void)    {
+        geopm_time_s current_time;
+        do {
+            geopm_time(&current_time);
         }
-    }
-
-    std::vector<double> PowerBalancerAgent::split_budget_first(double power_budget_in)
-    {
-        std::vector<double> budget(m_num_children);
-        // We have only one sample, so move our budget a small amount
-        // to measure measure slope of runtime vs. power.
-        double median_runtime = IPlatformIO::agg_median(m_last_runtime0);
-        double total_target = 0.0;
-        for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-            if (m_last_runtime0[child_idx] < median_runtime) {
-                budget[child_idx] = m_last_budget0[child_idx] - 10;
-            }
-            else if (m_last_runtime0[child_idx] >= median_runtime) {
-                 budget[child_idx] = m_last_budget0[child_idx] + 10;
-            }
-            total_target += budget[child_idx];
-        }
-        // In corner cases we may have to modulate the power a bit to
-        // stay at the limit.
-        if (power_budget_in * m_num_children != total_target) {
-            double delta = power_budget_in - total_target / m_num_children;
-            for (auto &it : budget) {
-                it += delta;
-            }
-        }
-        return budget;
-    }
-
-    std::vector<double> PowerBalancerAgent::split_budget_helper(double avg_power_budget,
-                                                            double min_power_budget,
-                                                            double max_power_budget)
-    {
-        // Fit a line to runtime as a function of budget for each
-        // child.  Find the budget value for each child such that the
-        // projected runtime is uniform given the linear model.
-        //
-        // sum(result) = avg_power_budget * m_num_children
-        // time[i] = time[j] for all i and j
-        //
-        // m[i] = (m_last_runtime1[i] - m_last_runtime0[i]) / (m_last_budget1[i] - m_last_budget0[i])
-        // b[i] = m_last_budget0[i] - m_last_runtime0[i] / m[i]
-        //
-        // time = m[i] * result[i] + b[i]
-        // result[i] = (time - b[i]) / m[i]
-        // avg_power_budget * m_num_children = sum((time - b[i]) / m[i])
-        //                                 = time * sum(1/m[i]) - sum(b[i] / m[i])
-        // time = avg_power_budget * m_num_children / (sum(1/m[i]) - sum(b[i] / m[i]))
-        // result[i] = ((avg_power_budget * m_num_children / (sum(1/m[i]) - sum(b[i] / m[i]))) - b[i]) / m[i]
-
-        std::vector<double> result(m_num_children);
-        std::vector<double> mm(m_num_children);
-        std::vector<double> bb(m_num_children);
-        double inv_m_sum = 0.0;
-        double ratio_sum = 0.0;
-        for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-            mm[child_idx] = (m_last_runtime1[child_idx] - m_last_runtime0[child_idx]) /
-                            (m_last_budget1[child_idx] - m_last_budget0[child_idx]);
-            bb[child_idx] = m_last_budget0[child_idx] - m_last_runtime0[child_idx] / mm[child_idx];
-            inv_m_sum += 1.0 / mm[child_idx];
-            ratio_sum += bb[child_idx] / mm[child_idx];
-        }
-        for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-            result[child_idx] = ((avg_power_budget * m_num_children /
-                           (inv_m_sum - ratio_sum)) - bb[child_idx]) / mm[child_idx];
-            if (result[child_idx] < min_power_budget) {
-                result[child_idx] = min_power_budget;
-            }
-            else if (result[child_idx] > max_power_budget) {
-                result[child_idx] = max_power_budget;
-            }
-            double pool = avg_power_budget * (m_num_children - child_idx) - result[child_idx];
-            if (child_idx != m_num_children - 1) {
-                avg_power_budget = pool / (m_num_children - child_idx - 1);
-            }
-        }
-        return result;
-    }
-
-    std::vector<double> PowerBalancerAgent::split_budget(double avg_power_budget)
-    {
-        if (avg_power_budget < m_min_power_budget) {
-            throw Exception("PowerBalancerAgent::split_budget(): ave_power_budget less than min_power_budget.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        std::vector<double> result(m_num_children);
-        if (std::any_of(m_last_budget1.begin(), m_last_budget1.end(), [](double val) {return std::isnan(val);})) {
-            result = split_budget_first(avg_power_budget);
-        }
-        else if (avg_power_budget == m_min_power_budget) {
-            std::fill(result.begin(), result.end(), m_min_power_budget);
-        }
-        else if (m_epoch_runtime_buf->size() < m_min_num_converged) {
-            result = m_last_budget0;
-        }
-        else {
-            std::vector<std::pair<double, int> > indexed_sorted_last_runtime(m_num_children);
-            for (int idx = 0; idx != m_num_children; ++idx) {
-                indexed_sorted_last_runtime[idx] = std::make_pair(m_last_runtime0[idx], idx);
-            }
-            std::sort(indexed_sorted_last_runtime.begin(), indexed_sorted_last_runtime.end());
-            // note last_runtime[sort_idx] == indexed_sorted_last_runtime[child_idx].first
-            std::vector<double> sorted_last_budget0(m_num_children);
-            std::vector<double> sorted_last_budget1(m_num_children);
-            std::vector<double> sorted_last_runtime0(m_num_children);
-            std::vector<double> sorted_last_runtime1(m_num_children);
-            for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-                int sort_idx = indexed_sorted_last_runtime[child_idx].second;
-                sorted_last_budget0[child_idx] = m_last_budget0[sort_idx];
-                sorted_last_budget1[child_idx] = m_last_budget1[sort_idx];
-                sorted_last_runtime0[child_idx] = m_last_runtime0[sort_idx];
-                sorted_last_runtime1[child_idx] = m_last_runtime1[sort_idx];
-            }
-            std::vector<double> sorted_result = split_budget_helper(avg_power_budget,
-                                                                    m_min_power_budget,
-                                                                    m_max_power_budget);
-            for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-                int sort_idx = indexed_sorted_last_runtime[child_idx].second;
-                result[child_idx] = sorted_result[sort_idx];
-            }
-        }
-        return result;
+        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
+        geopm_time(&m_last_wait);
     }
 
     std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_header(void) const
@@ -492,10 +337,7 @@ namespace geopm
     std::vector<std::string> PowerBalancerAgent::trace_names(void) const
     {
         return {"epoch_runtime",
-                "power_package",
-                "power_dram",
-                "is_converged",
-                "power_budget"};
+                "power_limit"};
     }
 
     void PowerBalancerAgent::trace_values(std::vector<double> &values)
@@ -505,12 +347,13 @@ namespace geopm
             throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): values vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
+        if (m_level != 0) {
+            throw Exception("PowerBalancerAgent::trace_values(): called on non-leaf agent.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
 #endif
         values[M_TRACE_SAMPLE_EPOCH_RUNTIME] = m_sample[M_PLAT_SIGNAL_EPOCH_RUNTIME];
-        values[M_TRACE_SAMPLE_PKG_POWER] = m_sample[M_PLAT_SIGNAL_PKG_POWER];
-        values[M_TRACE_SAMPLE_DRAM_POWER] = m_sample[M_PLAT_SIGNAL_DRAM_POWER];
-        values[M_TRACE_SAMPLE_IS_CONVERGED] = m_is_converged;
-        values[M_TRACE_SAMPLE_PWR_BUDGET] = m_last_power_budget_out;
+        values[M_TRACE_SAMPLE_POWER_LIMIT] = m_power_balancer->power_limit();
     }
 
     std::string PowerBalancerAgent::plugin_name(void)
@@ -525,11 +368,17 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::policy_names(void)
     {
-        return {"POWER"};
+        return {"STEP_COUNT",
+                "POWER_CAP",
+                "MAX_EPOCH_RUNTIME",
+                "POWER_SLACK"};
     }
 
     std::vector<std::string> PowerBalancerAgent::sample_names(void)
     {
-        return {"EPOCH_RUNTIME", "POWER", "IS_CONVERGED", "POWER_AVERAGE_ENFORCED"};
+        return {"STEP_COUNT",
+                "IS_STEP_COMPLETE",
+                "MAX_EPOCH_RUNTIME",
+                "SUM_POWER_SLACK"};
     }
 }
