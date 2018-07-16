@@ -148,6 +148,21 @@ namespace geopm
         result[m_num_policy_string] = std::to_string(policy_names.size());
         return result;
     }
+
+    void Agent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                 std::vector<double> &out_sample,
+                                 const std::vector<std::function<double(const std::vector<double>&)> > &agg_func)
+    {
+        size_t num_children = in_sample.size();
+        std::vector<double> child_sample(num_children);
+        for (size_t sig_idx = 0; sig_idx < out_sample.size(); ++sig_idx) {
+            for (size_t child_idx = 0; child_idx < num_children; ++child_idx) {
+                child_sample[child_idx] = in_sample[child_idx][sig_idx];
+            }
+            out_sample[sig_idx] = agg_func[sig_idx](child_sample);
+        }
+    }
+
 }
 
 int geopm_agent_supported(const char *agent_name)
