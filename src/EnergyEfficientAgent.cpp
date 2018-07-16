@@ -156,13 +156,7 @@ namespace geopm
 #endif
         bool result = false;
         if (m_num_ascend == 0) {
-            std::vector<double> child_sample(in_sample.size());
-            for (size_t sig_idx = 0; sig_idx < m_num_sample; ++sig_idx) {
-                for (size_t child_idx = 0; child_idx < in_sample.size(); ++child_idx) {
-                    child_sample[child_idx] = in_sample[child_idx][sig_idx];
-                }
-                out_sample[sig_idx] = m_agg_func[sig_idx](child_sample);
-            }
+            aggregate_sample(in_sample, m_agg_func, out_sample);
             result = true;
         }
         ++m_num_ascend;
