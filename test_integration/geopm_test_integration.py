@@ -724,7 +724,7 @@ class TestIntegration(unittest.TestCase):
             report_path = '{}.report'.format(run_name)
             trace_path = '{}.trace'.format(run_name)
             launcher = geopm_test_launcher.TestLauncher(app_conf, conf_dict[agent], report_path,
-                                                        trace_path, time_limit=900, region_barrier=True)
+                                                        trace_path, time_limit=2700, region_barrier=True)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
