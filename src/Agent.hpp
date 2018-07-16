@@ -64,25 +64,30 @@ namespace geopm
             /// @param [in] in_policy Policy values from the parent.
             /// @param [out] out_policy Vector of policies to be sent
             ///        to each child.
+            /// @return True if out_policy has been updated since last call.
             virtual bool descend(const std::vector<double> &in_policy,
                                  std::vector<std::vector<double> >&out_policy) = 0;
-            /// @brief Aggregate signals from children for the next
+            /// @brief Aggregate samples from children for the next
             ///        level up the tree.
-            /// @param [in] in_signal Vector of signal vectors, one
+            /// @param [in] in_sample Vector of sample vectors, one
             ///        from each child.
-            /// @param [out] out_signal Aggregated signal values to be
+            /// @param [out] out_sample Aggregated sample values to be
             ///        sent up to the parent.
-            virtual bool ascend(const std::vector<std::vector<double> > &in_signal,
-                                std::vector<double> &out_signal) = 0;
+            /// @return True if out_sample has been updated since last
+            ///         call.
+            virtual bool ascend(const std::vector<std::vector<double> > &in_sample,
+                                std::vector<double> &out_sample) = 0;
             /// @brief Adjust the platform settings based the policy
             ///        from above.
             /// @param [in] policy Settings for each control in the
             ///        policy.
             /// @return True if platform was adjusted, false otherwise.
             virtual bool adjust_platform(const std::vector<double> &policy) = 0;
-            /// @brief Sample signals from the platform to be sent up
+            /// @brief Sample samples from the platform to be sent up
             ///        the tree.
-            /// @param [out] sample Vector of samples, one per signal.
+            /// @param [out] sample Vector of samples, one per sample.
+            /// @return True if sample has been updated since last
+            ///         call.
             virtual bool sample_platform(std::vector<double> &sample) = 0;
             /// @brief Called by Kontroller to wait for sample period
             ///        to elapse.  This controls the cadence of the
@@ -136,6 +141,20 @@ namespace geopm
             ///        to be passed to this method.
             static std::map<std::string, std::string> make_dictionary(const std::vector<std::string> &policy_names,
                                                                       const std::vector<std::string> &sample_names);
+            /// @brief Generically aggregate a vector of samples given
+            ///        a vector of aggregation functions.  This helper
+            ///        function applies a different aggregation
+            ///        function to each sample element while
+            ///        aggregating across child samples.
+            /// @param [in] in_sample Vector over children of the
+            ///        sample vector recieved from each child.
+            /// @param [out] out_sample Sample vector resulting from
+            ///        the aggregation across child samples.
+            /// @param [in] agg_func A vector over agent samples of
+            ///        the aggregation function that is applied.
+            static void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                         std::vector<double> &out_sample,
+                                         const std::vector<std::function<double(const std::vector<double>&)> > &agg_func);
         private:
             static const std::string m_num_sample_string;
             static const std::string m_num_policy_string;
