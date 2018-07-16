@@ -94,13 +94,8 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        std::vector<double> child_sample(in_sample.size());
-        for (size_t sig_idx = 0; sig_idx < m_num_sample; ++sig_idx) {
-            for (size_t child_idx = 0; child_idx < in_sample.size(); ++child_idx) {
-                child_sample[child_idx] = in_sample[child_idx][sig_idx];
-            }
-            out_sample[sig_idx] = m_agg_func[sig_idx](child_sample);
-        }
+        aggregate_sample(in_sample, m_agg_func, out_sample);
+        /// @todo should we check if the out_sample has changed before returning true?
         return true;
     }
 
