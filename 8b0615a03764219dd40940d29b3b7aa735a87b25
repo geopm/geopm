@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3999335e_35d0343c",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1a06ce30_fb55d3bd",
+      "range": {
+        "startLine": 150,
+        "startChar": 37,
+        "endLine": 150,
+        "endChar": 45
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a6ea460_290ea7e3",
         "filename": "src/Agent.hpp",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-07-16T22:43:49Z",
       "side": 1,
       "message": "Maybe out param should go last?",
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2fffdd7_1023eaa5",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6a6ea460_290ea7e3",
       "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "4154f177_1a159240",
+        "filename": "src/PowerBalancer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "I think this is okay in the case where we increased the power limit because we went one step too far.",
+      "parentUuid": "37b2b387_eeab81d4",
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fe8288f_ce80f1c5",
         "filename": "src/PowerBalancer.hpp",
         "patchSetId": 1
@@ -70,6 +130,30 @@
       "writtenOn": "2018-07-16T22:43:49Z",
       "side": 1,
       "message": "be",
+      "range": {
+        "startLine": 84,
+        "startChar": 44,
+        "endLine": 84,
+        "endChar": 45
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1b1a018c_979ea468",
+        "filename": "src/PowerBalancer.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2fe8288f_ce80f1c5",
       "range": {
         "startLine": 84,
         "startChar": 44,
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "71d2d67f_3fc3a6d2",
+        "filename": "src/PowerBalancer.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6c9ebfcf_38e5093f",
+      "range": {
+        "startLine": 107,
+        "startChar": 41,
+        "endLine": 107,
+        "endChar": 42
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8318bce_87bb148c",
         "filename": "src/PowerBalancerAgent.cpp",
         "patchSetId": 1
@@ -116,6 +224,24 @@
       "writtenOn": "2018-07-16T22:43:49Z",
       "side": 1,
       "message": "Didn\u0027t this move into PowerGovernor?",
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebbf29db_da9d3d15",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Yes I don\u0027t think this is used...will delete.",
+      "parentUuid": "d8318bce_87bb148c",
       "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -162,6 +288,30 @@
     },
     {
       "key": {
+        "uuid": "9689f9d9_6e4ec629",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "No, perhaps a better comment is required.  Note that the switch is on step() which applies the modulus to the m_step_count.  If step() \u003d\u003d M_STEP_SEND_DOWN_LIMIT then it is the first trip down, not a trip to add in slack.",
+      "parentUuid": "5ac39acb_7499a16e",
+      "range": {
+        "startLine": 228,
+        "startChar": 16,
+        "endLine": 229,
+        "endChar": 65
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac30b457_9364b25b",
         "filename": "src/PowerBalancerAgent.cpp",
         "patchSetId": 1
@@ -173,6 +323,30 @@
       "writtenOn": "2018-07-16T22:43:49Z",
       "side": 1,
       "message": "received",
+      "range": {
+        "startLine": 239,
+        "startChar": 135,
+        "endLine": 239,
+        "endChar": 144
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bb65134_9cd3f8c3",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ac30b457_9364b25b",
       "range": {
         "startLine": 239,
         "startChar": 135,
@@ -208,6 +382,30 @@
     },
     {
       "key": {
+        "uuid": "2072bb27_023d0e48",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Same as above.  Perhaps I should add a method called is_new_cap().",
+      "parentUuid": "700ec3e3_0f878b7e",
+      "range": {
+        "startLine": 251,
+        "startChar": 21,
+        "endLine": 251,
+        "endChar": 33
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f0222f1_87141cad",
         "filename": "src/PowerBalancerAgent.hpp",
         "patchSetId": 1
@@ -231,6 +429,30 @@
     },
     {
       "key": {
+        "uuid": "851f4a63_4143334e",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1f0222f1_87141cad",
+      "range": {
+        "startLine": 81,
+        "startChar": 48,
+        "endLine": 81,
+        "endChar": 56
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b2cdb6f_77ccff6b",
         "filename": "src/PowerBalancerAgent.hpp",
         "patchSetId": 1
@@ -242,6 +464,30 @@
       "writtenOn": "2018-07-16T22:43:49Z",
       "side": 1,
       "message": "redistribution",
+      "range": {
+        "startLine": 102,
+        "startChar": 48,
+        "endLine": 102,
+        "endChar": 63
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c1a4c61_e169568e",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8b2cdb6f_77ccff6b",
       "range": {
         "startLine": 102,
         "startChar": 48,

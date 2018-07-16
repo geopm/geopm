@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2c6722e4_e99a0330",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 0,
+      "message": "It is now in the constructor.  init_platform_io only gets called at level 0, so having the aggregation functions set up only for level 0 is a problem.",
+      "parentUuid": "6d782bb1_d0faba47",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 73
+      },
+      "revId": "532dd50988a93752df7463ab2b279726edc550f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4465340b_f87d85dd",
         "filename": "src/PowerBalancerAgent.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-07-16T23:08:09Z",
       "side": 0,
       "message": "Lost this too.",
+      "range": {
+        "startLine": 533,
+        "startChar": 58,
+        "endLine": 533,
+        "endChar": 82
+      },
+      "revId": "532dd50988a93752df7463ab2b279726edc550f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f329b38_47b63636",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 0,
+      "message": "The samples are now different, what do you mean?",
+      "parentUuid": "4465340b_f87d85dd",
       "range": {
         "startLine": 533,
         "startChar": 58,

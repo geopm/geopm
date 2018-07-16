@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de52a685_9b3b6635",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-16T23:29:12Z",
+      "side": 1,
+      "message": "m_agg_func is now const.",
+      "revId": "583854d4843ccaa7a1d76635577918a272b73362",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
