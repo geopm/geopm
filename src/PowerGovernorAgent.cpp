@@ -197,13 +197,7 @@ namespace geopm
         // them up the tree.
         if (m_is_sample_stable && m_ascend_count == 0) {
             result = true;
-            std::vector<double> child_sample(m_num_children);
-            for (size_t sig_idx = 0; sig_idx < out_sample.size(); ++sig_idx) {
-                for (int child_idx = 0; child_idx < m_num_children; ++child_idx) {
-                    child_sample[child_idx] = in_sample[child_idx][sig_idx];
-                }
-                out_sample[sig_idx] = m_agg_func[sig_idx](child_sample);
-            }
+            aggregate_sample(in_sample, m_agg_func, out_sample);
         }
         // Increment the ascend counter if the children are stable.
         if (m_is_sample_stable) {
