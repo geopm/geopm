@@ -22,6 +22,30 @@
       "revId": "72f97a14ec23462f34ddee83e07edc20b532e878",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "261d4a2d_fbf151fb",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-17T22:20:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1948b331_d9e9d5d9",
+      "range": {
+        "startLine": 236,
+        "startChar": 11,
+        "endLine": 236,
+        "endChar": 22
+      },
+      "revId": "72f97a14ec23462f34ddee83e07edc20b532e878",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
