@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7432c2d6_b48099f6",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3999335e_35d0343c",
+      "range": {
+        "startLine": 150,
+        "startChar": 37,
+        "endLine": 150,
+        "endChar": 45
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a6ea460_290ea7e3",
         "filename": "src/Agent.hpp",
         "patchSetId": 1
@@ -78,6 +102,24 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "6a6ea460_290ea7e3",
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a8aec49_627059ce",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2fffdd7_1023eaa5",
       "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -166,6 +208,30 @@
     },
     {
       "key": {
+        "uuid": "84b26ade_1c2d64f0",
+        "filename": "src/PowerBalancer.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b1a018c_979ea468",
+      "range": {
+        "startLine": 84,
+        "startChar": 44,
+        "endLine": 84,
+        "endChar": 45
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c9ebfcf_38e5093f",
         "filename": "src/PowerBalancer.hpp",
         "patchSetId": 1
@@ -213,6 +279,30 @@
     },
     {
       "key": {
+        "uuid": "7b1bf7bb_d24a900c",
+        "filename": "src/PowerBalancer.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71d2d67f_3fc3a6d2",
+      "range": {
+        "startLine": 107,
+        "startChar": 41,
+        "endLine": 107,
+        "endChar": 42
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8318bce_87bb148c",
         "filename": "src/PowerBalancerAgent.cpp",
         "patchSetId": 1
@@ -242,6 +332,24 @@
       "side": 1,
       "message": "Yes I don\u0027t think this is used...will delete.",
       "parentUuid": "d8318bce_87bb148c",
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "109a47cc_32e73e72",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebbf29db_da9d3d15",
       "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -359,6 +467,30 @@
     },
     {
       "key": {
+        "uuid": "53704c77_339cb09c",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bb65134_9cd3f8c3",
+      "range": {
+        "startLine": 239,
+        "startChar": 135,
+        "endLine": 239,
+        "endChar": 144
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "700ec3e3_0f878b7e",
         "filename": "src/PowerBalancerAgent.cpp",
         "patchSetId": 1
@@ -453,6 +585,30 @@
     },
     {
       "key": {
+        "uuid": "27aa95dd_fb596a82",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "851f4a63_4143334e",
+      "range": {
+        "startLine": 81,
+        "startChar": 48,
+        "endLine": 81,
+        "endChar": 56
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b2cdb6f_77ccff6b",
         "filename": "src/PowerBalancerAgent.hpp",
         "patchSetId": 1
@@ -488,6 +644,30 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "8b2cdb6f_77ccff6b",
+      "range": {
+        "startLine": 102,
+        "startChar": 48,
+        "endLine": 102,
+        "endChar": 63
+      },
+      "revId": "8b0615a03764219dd40940d29b3b7aa735a87b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d2d0787_596f67e0",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-17T01:21:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c1a4c61_e169568e",
       "range": {
         "startLine": 102,
         "startChar": 48,
