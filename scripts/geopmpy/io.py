@@ -1099,3 +1099,33 @@ options : {options}
                'options' : self._options}
         with open(self._path, 'w') as fid:
             json.dump(obj, fid)
+
+
+class AgentConf(object):
+    """The GEOPM agent configuration parameters.
+
+    This class contains all the parameters necessary to run the GEOPM
+    agent with a workload.
+
+    Attributes:
+        path: The output path for this configuration file.
+        options: A dict of the options for this agent.
+
+    """
+    def __init__(self, path, options):
+        self._path = path
+        self._options = options
+
+    def __repr__(self):
+        return json.dumps(self._options)
+
+    def __str__(self):
+        return self.__repr__()
+
+    def get_path(self):
+        return self._path
+
+    def write(self):
+        """Write the current config to a file."""
+        with open(self._path, 'w') as fid:
+            json.dump(self._options, fid)

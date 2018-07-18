@@ -89,9 +89,13 @@ class TestLauncher(object):
     def run(self, test_name):
         self._app_conf.write()
         # todo: hack to run tests with new controller
-        if os.getenv("GEOPM_AGENT", None) is not None:
+        if os.getenv("GEOPM_AGENT", None) == 'power_governor':
             with open(self._ctl_conf.get_path(), "w") as outfile:
                 outfile.write("{\"POWER\": " + str(self._ctl_conf._options['power_budget']) + "}\n")
+        elif os.getenv("GEOPM_AGENT", None) == 'power_balancer':
+            with open(self._ctl_conf.get_path(), "w") as outfile:
+                outfile.write("{\"POWER_CAP\": " + str(self._ctl_conf._options['power_budget']) +
+                              ", \"STEP_COUNT\": 0.0, \"MAX_EPOCH_RUNTIME\": 0.0, \"POWER_SLACK\": 0.0}\n")
         else:
             self._ctl_conf.write()
         with open(test_name + '.log', 'a') as outfile:

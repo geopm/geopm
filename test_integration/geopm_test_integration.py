@@ -63,12 +63,17 @@ def skip_unless_cpufreq():
 
 
 def get_platform():
-    with open('/proc/cpuinfo') as fid:
-        for line in fid.readlines():
-            if line.startswith('cpu family\t:'):
-                fam = int(line.split(':')[1])
-            if line.startswith('model\t\t:'):
-                mod = int(line.split(':')[1])
+    hostname = socket.gethostname()
+    if hostname.startswith('theta'):
+        fam = 6
+        mod = 87
+    else:
+        with open('/proc/cpuinfo') as fid:
+            for line in fid.readlines():
+                if line.startswith('cpu family\t:'):
+                    fam = int(line.split(':')[1])
+                if line.startswith('model\t\t:'):
+                    mod = int(line.split(':')[1])
     return fam, mod
 
 
@@ -677,6 +682,100 @@ class TestIntegration(unittest.TestCase):
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
+
+    @skip_unless_run_long_tests()
+    def test_power_balancer(self):
+        name = 'test_power_balancer'
+        num_node = 4
+        num_rank = 16
+        loop_count = 500
+        margin = 0.05 # Balancer must out-perform governor by 5%
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.append_region('dgemm', 8.0)
+        app_conf.set_loop_count(loop_count)
+
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            old_agent = os.getenv("GEOPM_AGENT", None)
+
+        fam, mod = get_platform()
+        if fam == 6 and mod in (45, 47, 79):
+            # set budget for BDX server
+            power_budget = 300
+        elif fam == 6 and mod == 87:
+            # budget for KNL
+            power_budget = 200
+        else:
+            power_budget = 200
+        self._options = {'power_budget': power_budget}
+        gov_agent_conf_path = name + '_gov_ctl.config'
+        bal_agent_conf_path = name + '_bal_ctl.config'
+        self._tmp_files.append(gov_agent_conf_path)
+        self._tmp_files.append(bal_agent_conf_path)
+        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._options)
+        bal_agent_conf = geopmpy.io.AgentConf(bal_agent_conf_path, self._options)
+
+        agent_list = ['power_governor', 'power_balancer']
+        conf_dict = {'power_governor': gov_agent_conf, 'power_balancer': bal_agent_conf}
+        agent_runtime = dict()
+        for agent in agent_list:
+            os.environ['GEOPM_AGENT'] = agent
+            run_name = '{}_{}'.format(name, agent)
+            report_path = '{}.report'.format(run_name)
+            trace_path = '{}.trace'.format(run_name)
+            launcher = geopm_test_launcher.TestLauncher(app_conf, conf_dict[agent], report_path,
+                                                        trace_path, time_limit=900, region_barrier=True)
+            launcher.set_num_node(num_node)
+            launcher.set_num_rank(num_rank)
+            launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
+            launcher.run(run_name)
+
+            self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+            node_names = self._output.get_node_names()
+            self.assertEqual(num_node, len(node_names))
+
+            all_power_data = {}
+            # Total power consumed will be Socket(s) + DRAM
+            for nn in node_names:
+                tt = self._output.get_trace(nn)
+                epoch = '0x8000000000000000'
+
+                first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
+                epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
+
+                power_data = epoch_dropped_data.filter(regex='energy')
+                power_data['seconds'] = epoch_dropped_data['seconds']
+                power_data = power_data.diff().dropna()
+                power_data.rename(columns={'seconds': 'elapsed_time'}, inplace=True)
+                power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
+
+                pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
+                dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
+                power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
+                power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
+                power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
+
+                pandas.set_option('display.width', 100)
+                launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
+
+
+            runtime = 0
+            node_names = self._output.get_node_names()
+            for node_name in node_names:
+                report = self._output.get_report(node_name)
+                this_runtime = report['epoch'].get_runtime()
+                if this_runtime > runtime:
+                    runtime = this_runtime
+            agent_runtime[agent] = runtime
+
+        self.assertGreater((1.0 - margin) * agent_runtime['power_governor'],
+                           agent_runtime['power_balancer'])
+
+        try:
+            os.environ['GEOPM_AGENT'] = old_agent
+        except NameError:
+            pass
+
 
     def test_progress_exit(self):
         """
