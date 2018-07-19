@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fd813f9_630c6535",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "Delete double sample.  Discuss PlatformIO signal conversion into an agent sample.",
+      "range": {
+        "startLine": 86,
+        "startChar": 30,
+        "endLine": 86,
+        "endChar": 37
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c87cabfc_807e07bf",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "WT sample",
+      "range": {
+        "startLine": 88,
+        "startChar": 29,
+        "endLine": 88,
+        "endChar": 70
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0157b6a9_905c461f",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "method?",
+      "range": {
+        "startLine": 146,
+        "startChar": 23,
+        "endLine": 146,
+        "endChar": 31
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e3ca1e8_44dbc76c",
+        "filename": "src/PowerBalancer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "NAN?",
+      "range": {
+        "startLine": 50,
+        "startChar": 27,
+        "endLine": 50,
+        "endChar": 30
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caffefd9_04721b2e",
+        "filename": "src/PowerBalancer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "m_is_target_met should be in if test.",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 47
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73d9f727_4b7e3e26",
+        "filename": "src/PowerBalancer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 98,
+        "startChar": 40,
+        "endLine": 98,
+        "endChar": 59
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "310f9d69_4dea5f6f",
+        "filename": "src/PowerBalancer.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "const function, fix all of these.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 11
+      },
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b34de99d_8afa5a2b",
+        "filename": "src/PowerBalancer.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-19T18:30:37Z",
+      "side": 1,
+      "message": "Add dox",
+      "revId": "65a6ad4cf7deae5fdb787345a5430f2b3d77a0e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
