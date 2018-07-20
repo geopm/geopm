@@ -51,6 +51,8 @@ import StringIO
 import itertools
 import glob
 import re
+import shlex
+import stat
 
 from geopmpy import __version__
 
@@ -594,11 +596,27 @@ class Launcher(object):
         Determine the topology of the compute nodes that the job will be
         launched on.  This is used to inform CPU affinity assignment.
         """
-        argv = ['dummy', 'lscpu']
+
+        tmp_script = 'geopm-init-topo.sh'
+        tmp_script_txt = """\
+#!/bin/bash
+if [ ! -e /tmp/geopm-lscpu.log ]; then
+    lscpu --hex > /tmp/geopm-lscpu.log && chmod a+rw /tmp/geopm-lscpu.log
+fi
+"""
+        with open(tmp_script, 'w') as fid:
+            fid.write(tmp_script_txt)
+        os.chmod(tmp_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
+
+        argv = shlex.split("dummy -- ./{}".format(tmp_script))
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
+        launcher = factory(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
+        launcher.run()
+        os.remove(tmp_script)
+        argv = shlex.split("dummy -- lscpu --hex")
         launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
