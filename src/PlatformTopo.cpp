@@ -55,7 +55,9 @@ namespace geopm
     }
 
     PlatformTopo::PlatformTopo(const std::string &lscpu_file_name)
-        : m_lscpu_file_name(lscpu_file_name)
+        : M_LSCPU_FILE_NAME("/tmp/geopm-lscpu.log")
+        , M_TEST_LSCPU_FILE_NAME(lscpu_file_name)
+        , m_do_fclose(true)
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -418,18 +420,22 @@ namespace geopm
     FILE *PlatformTopo::open_lscpu(void)
     {
         FILE *result = nullptr;
-        if (m_lscpu_file_name.size()) {
-            result = fopen(m_lscpu_file_name.c_str(), "r");
+        if (M_TEST_LSCPU_FILE_NAME.size()) {
+            result = fopen(M_TEST_LSCPU_FILE_NAME.c_str(), "r");
             if (!result) {
-                throw Exception("PlatformTopo::open_lscpu(): Could not open lscpu file",
+                throw Exception("PlatformTopo::open_lscpu(): Could not open test lscpu file",
                                 errno ? errno : GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         else {
-            int err = geopm_sched_popen("lscpu -x", &result);
-            if (err) {
-                throw Exception("PlatformTopo::open_lscpu(): Could not popen lscpu command",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            result = fopen(M_LSCPU_FILE_NAME.c_str(), "r");
+            if (!result) {
+                int err = geopm_sched_popen("lscpu -x", &result);
+                if (err) {
+                    throw Exception("PlatformTopo::open_lscpu(): Could not popen lscpu command",
+                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                m_do_fclose = false;
             }
         }
         return result;
@@ -437,7 +443,7 @@ namespace geopm
 
     void PlatformTopo::close_lscpu(FILE *fid)
     {
-        if (m_lscpu_file_name.size()) {
+        if (m_do_fclose) {
             int err = fclose(fid);
             if (err) {
                 throw Exception("PlatformTopo::close_lscpu(): Could not fclose lscpu file",

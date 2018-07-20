@@ -152,7 +152,9 @@ namespace geopm
             FILE *open_lscpu(void);
             void close_lscpu(FILE *fid);
 
-            const std::string m_lscpu_file_name;
+            const std::string M_LSCPU_FILE_NAME;
+            const std::string M_TEST_LSCPU_FILE_NAME;
+            bool m_do_fclose;
             int m_num_package;
             int m_core_per_package;
             int m_thread_per_core;
