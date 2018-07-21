@@ -50,7 +50,7 @@
 #include "Helper.hpp"
 
 #include "config.h"
-
+#include "test/InternalProfile.hpp"
 namespace geopm
 {
     IPlatformIO &platform_io(void)
@@ -364,14 +364,17 @@ namespace geopm
         double current_value = 0.0;
         uint64_t curr_rid = geopm_signal_to_field(sample(m_region_id_idx.at(signal_idx)));
         curr_rid = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, curr_rid);
-        auto idx = std::make_pair(signal_idx, region_id);
-        if (m_region_sample_data.find(idx) != m_region_sample_data.end()) {
-            const auto &data =  m_region_sample_data.at(idx);
-            current_value += data.total;
-            // if currently in this region, add current value to total
-            if (region_id == curr_rid &&
-                !std::isnan(data.last_entry_value)) {
-                current_value += sample(signal_idx) - data.last_entry_value;
+        //auto idx = std::make_pair(signal_idx, region_id);
+        if (m_region_sample_data.find(signal_idx) != m_region_sample_data.end()) {
+            const auto &data =  m_region_sample_data.at(signal_idx);
+            auto data2 = data.find(region_id);
+            if (data2 != data.end()) {
+                current_value += data2->second.total;
+                // if currently in this region, add current value to total
+                if (region_id == curr_rid &&
+                    !std::isnan(data2->second.last_entry_value)) {
+                    current_value += sample(signal_idx) - data2->second.last_entry_value;
+                }
             }
         }
         return current_value;
@@ -410,10 +413,12 @@ namespace geopm
     void PlatformIO::read_batch(void)
     {
         for (auto &it : m_iogroup_list) {
+            ip_enter(*(it->signal_names().begin()));
             it->read_batch();
+            ip_exit(*(it->signal_names().begin()));
         }
         m_is_active = true;
-
+        ip_enter("region total");
         // aggregate region totals
         for (const auto &it : m_region_id_idx) {
             double value = sample(it.first);
@@ -423,21 +428,26 @@ namespace geopm
             if (m_last_region_id.find(it.first) == m_last_region_id.end()) {
                 m_last_region_id[it.first] = region_id;
                 // set start value for first region to be recording this signal
-                m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+                //m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+                m_region_sample_data[it.first][region_id].last_entry_value = value;
             }
             else {
                 uint64_t last_rid = m_last_region_id[it.first];
                 // region boundary
                 if (region_id != last_rid) {
                     // add entry to new region
-                    m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+                    m_region_sample_data[it.first][region_id].last_entry_value = value;
                     // update total for previous region
-                    m_region_sample_data[std::make_pair(it.first, last_rid)].total +=
-                        value - m_region_sample_data.at(std::make_pair(it.first, last_rid)).last_entry_value;
+                    //m_region_sample_data[std::make_pair(it.first, last_rid)].total +=
+                    //    value - m_region_sample_data.at(std::make_pair(it.first, last_rid)).last_entry_value;
+                    m_region_sample_data[it.first][last_rid].total +=
+                        value - m_region_sample_data.at(it.first).at(last_rid).last_entry_value;
+
                     m_last_region_id[it.first] = region_id;
                 }
             }
         }
+        ip_exit("region total");
     }
 
     void PlatformIO::write_batch(void)

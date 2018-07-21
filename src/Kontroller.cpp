@@ -49,7 +49,8 @@
 #include "TreeComm.hpp"
 #include "ManagerIO.hpp"
 #include "config.h"
-
+#include "test/InternalProfile.cpp"
+#include <iostream>
 extern "C"
 {
     static void *geopm_threaded_run(void *args)
@@ -208,6 +209,7 @@ namespace geopm
 
     void Kontroller::generate(void)
     {
+        std::cout << ip_report() << std::endl;
         std::vector<std::pair<std::string, std::string> > agent_report_header;
         if (m_is_root) {
             agent_report_header = m_agent[m_root_level]->report_header();
@@ -238,6 +240,7 @@ namespace geopm
 
     void Kontroller::walk_down(void)
     {
+        ip_enter("walk_down root");
         bool do_send = false;
         if (m_is_root) {
             /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
@@ -247,6 +250,8 @@ namespace geopm
         else {
             do_send = m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
         }
+        ip_exit("walk_down root");
+        ip_enter("walk_down levels");
         for (int level = m_num_level_ctl - 1; level > -1; --level) {
             if (do_send) {
                 do_send = m_agent[level + 1]->descend(m_in_policy, m_out_policy[level]);
@@ -256,22 +261,35 @@ namespace geopm
             }
             do_send = m_tree_comm->receive_down(level, m_in_policy);
         }
+        ip_exit("walk_down levels");
+        ip_enter("walk_down adjust");
         if (std::none_of(m_in_policy.begin(), m_in_policy.end(),
                          [](double val){return std::isnan(val);}) &&
             m_agent[0]->adjust_platform(m_in_policy)) {
             m_platform_io.write_batch();
         }
+        ip_exit("walk_down adjust");
     }
 
     void Kontroller::walk_up(void)
     {
+        ip_enter("walk_up app_io update");
         m_application_io->update(m_comm);
+        ip_exit("walk_up app_io update");
+        //ip_enter("walk_up read_batch");
         m_platform_io.read_batch();
+        //ip_exit("walk_up read_batch");
+        ip_enter("walk_up sample_platform");
         bool do_send = m_agent[0]->sample_platform(m_out_sample);
+        ip_exit("walk_up sample_platform");
+        ip_enter("walk_up trace_values");
         m_agent[0]->trace_values(m_trace_sample);
+        ip_exit("walk_up trace_values");
+        ip_enter("walk_up tracer update");
         m_tracer->update(m_trace_sample, m_application_io->region_info());
         m_application_io->clear_region_info();
-
+        ip_exit("walk_up tracer update");
+        ip_enter("walk_up levels");
         for (int level = 0; level < m_num_level_ctl; ++level) {
             if (do_send) {
                 m_tree_comm->send_up(level, m_out_sample);
@@ -281,6 +299,8 @@ namespace geopm
                 do_send = m_agent[level + 1]->ascend(m_in_sample[level], m_out_sample);
             }
         }
+        ip_exit("walk_up_levels");
+        ip_enter("walk_up root");
         if (do_send) {
             if (!m_is_root) {
                 m_tree_comm->send_up(m_num_level_ctl, m_out_sample);
@@ -290,6 +310,7 @@ namespace geopm
                 /// resource manager.
             }
         }
+        ip_exit("walk_up root");
     }
 
     void Kontroller::pthread(const pthread_attr_t *attr, pthread_t *thread)

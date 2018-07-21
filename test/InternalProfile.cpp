@@ -91,9 +91,11 @@ namespace geopm
     std::string InternalProfile::report(void)
     {
         std::ostringstream result;
-        result << "region-name | time | count \n";
+        result << "region-name | time | count | average\n";
         for (auto it = m_region_map.begin(); it != m_region_map.end(); ++it) {
-            result << it->first << " | " << it->second.total_time << " | " << it->second.count << "\n";
+            result << it->first << " | " << it->second.total_time
+                   << " | " << it->second.count
+                   << " | " << it->second.total_time / it->second.count << "\n";
         }
         result << "\n";
         return result.str();

@@ -68,7 +68,6 @@ namespace geopm
         , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_updates_per_sample(5)
-        , m_last_energy_status(0.0)
         , m_ascend_count(0)
         , m_ascend_period(10)
         , m_convergence_target(0.01)
@@ -77,6 +76,8 @@ namespace geopm
         , m_num_converged(0)
         , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE")))
         , m_adjusted_power(0.0)
+        , m_last_wait{{0, 0}}
+        , M_WAIT_SEC(0.005)
     {
 
     }
@@ -267,16 +268,12 @@ namespace geopm
 
     void PowerGovernorAgent::wait()
     {
-        // Wait for updates to the energy status register
-        double curr_energy_status = 0;
-
-        for (int i = 0; i < m_updates_per_sample; ++i) {
-            do  {
-                curr_energy_status = m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            }
-            while (m_last_energy_status == curr_energy_status);
-            m_last_energy_status = curr_energy_status;
+        geopm_time_s current_time;
+        do {
+            geopm_time(&current_time);
         }
+        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
+        geopm_time(&m_last_wait);
     }
 
     std::vector<std::pair<std::string, std::string> > PowerGovernorAgent::report_header(void) const

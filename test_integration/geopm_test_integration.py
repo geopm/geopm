@@ -107,7 +107,7 @@ class TestIntegration(unittest.TestCase):
         self._options = {'tree_decider': 'static_policy',
                          'leaf_decider': 'power_governing',
                          'platform': 'rapl',
-                         'power_budget': 150}
+                         'power_budget': 200}
         self._tmp_files = []
         self._output = None
 

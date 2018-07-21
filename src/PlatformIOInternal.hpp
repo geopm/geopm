@@ -37,6 +37,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <functional>
 #include <tuple>
 
@@ -120,18 +121,19 @@ namespace geopm
             std::vector<std::pair<IOGroup *, int> > m_active_control;
             std::map<std::tuple<std::string, int, int>, int> m_existing_signal;
             std::map<std::tuple<std::string, int, int>, int> m_existing_control;
-            std::map<int, std::pair<std::vector<int>,
+            std::unordered_map<int, std::pair<std::vector<int>,
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
-            std::map<int, int> m_region_id_idx;
+            std::unordered_map<int, int> m_region_id_idx;
             struct m_region_data_s
             {
                 double total = 0.0;
                 double last_entry_value = NAN;
             };
-            std::map<std::pair<int, uint64_t>, m_region_data_s> m_region_sample_data;
+            //std::unordered_map<std::pair<int, uint64_t>, m_region_data_s> m_region_sample_data;
+            std::unordered_map<int, std::unordered_map<uint64_t, m_region_data_s> > m_region_sample_data;
             // map for last region id seen in each signal's domain
             // only used for comparison, so can leave as a double
-            std::map<int, uint64_t> m_last_region_id;
+            std::unordered_map<int, uint64_t> m_last_region_id;
             bool m_do_restore;
     };
 }
