@@ -722,6 +722,8 @@ class TestIntegration(unittest.TestCase):
                     self.assertEqual(0, len(negative_progress))
 
     @skip_unless_run_long_tests()
+    @unittest.skipUnless(os.getenv("GEOPM_AGENT") is None or os.getenv("GEOPM_AGENT") == "monitor",
+                         "test_sample_rate must be run with the MonitorAgent.")
     def test_sample_rate(self):
         """
         Check that sample rate is regular and fast.
