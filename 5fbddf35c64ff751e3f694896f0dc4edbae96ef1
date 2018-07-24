@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d14e5d4_3959dd7f",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-24T00:15:21Z",
+      "side": 1,
+      "message": "IPowerGovernor",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "5fbddf35c64ff751e3f694896f0dc4edbae96ef1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92dbe145_c29f650b",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-24T00:15:21Z",
+      "side": 1,
+      "message": "const member CAPS",
+      "range": {
+        "startLine": 178,
+        "startChar": 82,
+        "endLine": 178,
+        "endChar": 92
+      },
+      "revId": "5fbddf35c64ff751e3f694896f0dc4edbae96ef1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b46e1ae_befcef7f",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-24T00:15:21Z",
+      "side": 1,
+      "message": "const members first?",
+      "range": {
+        "startLine": 188,
+        "startChar": 12,
+        "endLine": 188,
+        "endChar": 18
+      },
+      "revId": "5fbddf35c64ff751e3f694896f0dc4edbae96ef1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
