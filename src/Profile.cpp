@@ -389,10 +389,6 @@ namespace geopm
 
         // if we are leaving the outer most nesting of our current region
         if (!m_num_enter) {
-            if (!geopm_region_id_is_mpi(region_id) &&
-                geopm_env_do_region_barrier()) {
-                m_shm_comm->barrier();
-            }
             if (geopm_region_id_is_mpi(region_id)) {
                 m_curr_region_id = geopm_region_id_set_mpi(m_parent_region);
             }
@@ -408,6 +404,12 @@ namespace geopm
                 m_parent_progress = 0.0;
                 m_parent_num_enter = 0;
             }
+
+            if (!geopm_region_id_is_mpi(region_id) &&
+                geopm_env_do_region_barrier()) {
+                m_shm_comm->barrier();
+            }
+
         }
 
 #ifdef GEOPM_OVERHEAD
