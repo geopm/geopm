@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5234a1a9_5159bd7c",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-07-25T23:09:03Z",
+      "side": 1,
+      "message": "Wondering if we want/are able to replace this whole block with some generic calls to geopmagent.  Not sure if it\u0027s possible to abstract this all away, but it\u0027d be nice if we didn\u0027t have to have a big block of code here for every possible agent.",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 37
+      },
+      "revId": "b9c44ade2ceea7a36c0c463bd34322e5d5f81931",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
