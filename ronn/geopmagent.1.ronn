@@ -66,6 +66,8 @@ given but `-a` is not, an error is reported.
 
   * `-p` _POLICY0_,_POLICY1_,...:
     The values to be set for each policy in a comma-separated list.
+    If the agent does not require any policy values this option must
+    be specified as "None" or "none".
 
 ## EXAMPLES
 List all available agents on the system:
@@ -87,6 +89,11 @@ budget:
 
     $ geopmagent -a power_balancer -p 250
     {"POWER" : 250}
+
+Create policy for monitor agent which does not require any policies.
+
+    $ geopmagent -a monitor -p None
+    {}
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
