@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "073c4bb3_1e465e26",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-07-25T21:03:56Z",
+      "side": 1,
+      "message": "I\u0027m confused, this block already exists here.  Why would we need to repeat it?",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 0
+      },
+      "revId": "a8f3d74136cbb0eff267c2643fcce278af7e60a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
