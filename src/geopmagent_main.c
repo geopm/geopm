@@ -207,7 +207,12 @@ int main(int argc, char **argv)
             err = EINVAL;
         }
 
+        int num_policy = 0;
         if (!err) {
+            err = geopm_agent_num_policy(agent_ptr, &num_policy);
+        }
+
+        if (!err && num_policy) {
             int policy_count = 0;
             char *tok = strtok(policy_vals_ptr, ",");
             while (!err && tok != NULL) {
@@ -217,20 +222,14 @@ int main(int argc, char **argv)
                 }
                 tok = strtok(NULL, ",");
             }
-
-            if (!err) {
-                int num_policy = 0;
-                err = geopm_agent_num_policy(agent_ptr, &num_policy);
-                if (num_policy != policy_count) {
-                    fprintf(stderr, "Error: Number of policies read from command line does not match agent.\n");
-                    err = EINVAL;
-                }
+            if (!err && num_policy != policy_count) {
+                fprintf(stderr, "Error: Number of policies read from command line does not match agent.\n");
+                err = EINVAL;
             }
-
-            if(!err) {
-                err = geopm_agent_policy_json(agent_ptr, policy_vals, sizeof(output_str), output_str);
-                printf("%s\n", output_str);
-            }
+        }
+        if(!err) {
+            err = geopm_agent_policy_json(agent_ptr, policy_vals, sizeof(output_str), output_str);
+            printf("%s\n", output_str);
         }
     }
 
