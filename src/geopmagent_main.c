@@ -158,6 +158,7 @@ int main(int argc, char **argv)
         if (!err) {
             err = geopm_agent_num_policy(agent_ptr, &output_num);
         }
+
         if (!err) {
             printf("Policy: ");
             for (int i = 0; !err && i < output_num; ++i) {
@@ -181,6 +182,7 @@ int main(int argc, char **argv)
         if (!err) {
             err = geopm_agent_num_sample(agent_ptr, &output_num);
         }
+
         if (!err) {
             printf("Sample: ");
             for (int i = 0; !err && i < output_num; ++i) {
@@ -200,37 +202,43 @@ int main(int argc, char **argv)
             }
         }
     }
-    else if (!err) { // if (agent_ptr != NULL && policy_vals_ptr != NULL)
+    else if (!err) {
 
         if (agent_ptr == NULL) {
             fprintf(stderr, "Error: Agent (-a) must be specified to create a policy.\n");
             err = EINVAL;
         }
 
+        int num_policy = 0;
         if (!err) {
-            int policy_count = 0;
-            char *tok = strtok(policy_vals_ptr, ",");
-            while (!err && tok != NULL) {
-                policy_vals[policy_count++] = atof(tok);
-                if (policy_count > GEOPMAGENT_DOUBLE_LENGTH) {
-                    err = E2BIG;
-                }
-                tok = strtok(NULL, ",");
-            }
+            err = geopm_agent_num_policy(agent_ptr, &num_policy);
+        }
 
-            if (!err) {
-                int num_policy = 0;
-                err = geopm_agent_num_policy(agent_ptr, &num_policy);
-                if (num_policy != policy_count) {
+        if (!err) {
+            if (num_policy) {
+                int policy_count = 0;
+                char *tok = strtok(policy_vals_ptr, ",");
+                while (!err && tok != NULL) {
+                    policy_vals[policy_count++] = atof(tok);
+                    if (policy_count > GEOPMAGENT_DOUBLE_LENGTH) {
+                        err = E2BIG;
+                    }
+                    tok = strtok(NULL, ",");
+                }
+                if (!err && num_policy != policy_count) {
                     fprintf(stderr, "Error: Number of policies read from command line does not match agent.\n");
                     err = EINVAL;
                 }
             }
-
-            if(!err) {
-                err = geopm_agent_policy_json(agent_ptr, policy_vals, sizeof(output_str), output_str);
-                printf("%s\n", output_str);
+            else if (strncmp(policy_vals_ptr, "none", 4) != 0 &&
+                     strncmp(policy_vals_ptr, "None", 4) != 0) {
+                fprintf(stderr, "Error: Must specify \"None\" for the parameter option if agent takes no parameters.\n");
+                err = EINVAL;
             }
+        }
+        if(!err) {
+            err = geopm_agent_policy_json(agent_ptr, policy_vals, sizeof(output_str), output_str);
+            printf("%s\n", output_str);
         }
     }
 
@@ -241,4 +249,3 @@ int main(int argc, char **argv)
 
     return err;
 }
-
