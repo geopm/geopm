@@ -408,6 +408,12 @@ namespace geopm
                 m_parent_progress = 0.0;
                 m_parent_num_enter = 0;
             }
+
+            if (!geopm_region_id_is_mpi(region_id) &&
+                geopm_env_do_region_barrier()) {
+                m_shm_comm->barrier();
+            }
+
         }
 
 #ifdef GEOPM_OVERHEAD
