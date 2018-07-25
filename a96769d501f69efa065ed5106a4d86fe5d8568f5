@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "caeae4e4_a8b0065b",
+        "filename": "src/geopmagent_main.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-07-25T21:07:50Z",
+      "side": 0,
+      "message": "What did this comment ever do to you? :p",
+      "range": {
+        "startLine": 203,
+        "startChar": 21,
+        "endLine": 203,
+        "endChar": 73
+      },
+      "revId": "a96769d501f69efa065ed5106a4d86fe5d8568f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
