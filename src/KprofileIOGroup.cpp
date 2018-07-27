@@ -178,6 +178,7 @@ namespace geopm
             }
         }
         if (m_do_read[M_SIGNAL_RUNTIME]) {
+            // look up the region for each cpu and cache the per-cpu runtimes for that region
             std::map<uint64_t, std::vector<double> > cache;
             for (auto rid : m_per_cpu_region_id) {
                 // add runtimes for each region if not already present
@@ -188,6 +189,8 @@ namespace geopm
                                   std::forward_as_tuple(m_profile_sample->per_cpu_runtime(rid)));
                 }
             }
+            // look up the last runtime for a cpu given its current region
+            // we assume ranks don't move between cpus
             for (size_t cpu = 0; cpu < m_per_cpu_runtime.size(); ++cpu) {
                 m_per_cpu_runtime[cpu] = cache.at(m_per_cpu_region_id[cpu])[cpu];
             }
