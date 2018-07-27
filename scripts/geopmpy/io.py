@@ -501,7 +501,7 @@ class Report(dict):
         self._node_name = None
 
         found_totals = False
-        (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None
+        (region_name, region_id, runtime, sync_runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None, None
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
@@ -552,6 +552,10 @@ class Report(dict):
                     match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
                         runtime = float(match.group(1))
+                if sync_runtime is None:
+                    match = re.search(r'^\s+sync-runtime.+: ' + float_regex, line)
+                    if match is not None:
+                        sync_runtime = float(match.group(1))
                 if energy is None:
                     match = re.search(r'^\s+energy.+: ' + float_regex, line)
                     if match is not None:
@@ -568,9 +572,9 @@ class Report(dict):
                     match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
-                        self[region_name] = Region(region_name, region_id, runtime, energy, frequency, mpi_runtime, count)
-                        (region_name, region_id, runtime, energy, frequency, mpi_runtime, count) = \
-                            None, None, None, None, None, None, None
+                        self[region_name] = Region(region_name, region_id, runtime, sync_runtime, energy, frequency, mpi_runtime, count)
+                        (region_name, region_id, runtime, sync_runtime, energy, frequency, mpi_runtime, count) = \
+                            None, None, None, None, None, None, None, None
                 if not found_totals:
                     match = re.search(r'^Application Totals:$', line)
                     if match is not None:
@@ -694,11 +698,12 @@ class Region(dict):
         count: The number of times this region has been entered.
 
     """
-    def __init__(self, name, rid, runtime, energy, frequency, mpi_runtime, count):
+    def __init__(self, name, rid, runtime, sync_runtime, energy, frequency, mpi_runtime, count):
         super(Region, self).__init__()
         self['name'] = name
         self['id'] = rid
         self['runtime'] = float(runtime)
+        self['sync_runtime'] = float(sync_runtime) if sync_runtime is not None else runtime
         self['energy'] = float(energy)
         self['frequency'] = float(frequency)
         self['mpi_runtime'] = float(mpi_runtime)
@@ -708,6 +713,7 @@ class Region(dict):
         template = """\
 {name} ({rid})
   runtime     : {runtime}
+  sync-runtime : {sync_runtime}
   energy      : {energy}
   frequency   : {frequency}
   mpi-runtime : {mpi_runtime}
@@ -716,6 +722,7 @@ class Region(dict):
         return template.format(name=self['name'],
                                rid=self['id'],
                                runtime=self['runtime'],
+                               sync_runtime=self['sync_runtime'],
                                energy=self['energy'],
                                frequency=self['frequency'],
                                mpi_runtime=self['mpi_runtime'],
@@ -732,6 +739,9 @@ class Region(dict):
 
     def get_runtime(self):
         return self['runtime']
+
+    def get_sync_runtime(self):
+        return self['sync_runtime']
 
     def get_energy(self):
         return self['energy']

@@ -328,7 +328,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/KruntimeRegulatorTest.config_rank_then_workers \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
-              test/gtest_links/EpochRuntimeRegulatorTest.rank_0_enter_exit \
+              test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
               test/gtest_links/PowerGovernorTest.govern \

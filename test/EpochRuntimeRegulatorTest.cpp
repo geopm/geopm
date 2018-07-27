@@ -100,19 +100,25 @@ TEST_F(EpochRuntimeRegulatorTest, unknown_region)
     EXPECT_TRUE(m_regulator.is_regulated(region_id));
 }
 
-TEST_F(EpochRuntimeRegulatorTest, rank_0_enter_exit)
+TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
 {
     uint64_t region_id = 0x98765432;
-    geopm_time_s start {{1, 0}};
-    geopm_time_s end {{11, 0}};
+    geopm_time_s start0 {{1, 0}};
+    geopm_time_s start1 {{2, 1}};
+    geopm_time_s end0 {{11, 0}};
+    geopm_time_s end1 {{12, 1}};
 
-    m_regulator.record_entry(region_id, 0, start);
-    m_regulator.record_exit(region_id, 0, end);
+    m_regulator.record_entry(region_id, 0, start0);
+    m_regulator.record_entry(region_id, 1, start1);
+    m_regulator.record_exit(region_id, 0, end0);
+    m_regulator.record_exit(region_id, 1, end1);
     auto region_info = m_regulator.region_info();
-    EXPECT_EQ(2u, region_info.size());
-     std::vector<double> expected_progress = {0.0, 1.0};
+    ASSERT_EQ(2u, region_info.size());
+    std::vector<double> expected_progress = {0.0, 1.0};
     std::vector<double> expected_runtime = {0.0, 10.0};
     size_t idx = 0;
+    // region info should be based on last entry and first exit
+    // for time all the ranks were in the region
     for (const auto &info : region_info) {
         EXPECT_EQ(region_id, info.region_id);
         EXPECT_EQ(expected_progress[idx], info.progress);
@@ -122,9 +128,9 @@ TEST_F(EpochRuntimeRegulatorTest, rank_0_enter_exit)
     EXPECT_EQ(1, m_regulator.total_count(region_id));
 
     m_regulator.clear_region_info();
-    // other ranks do not change region info list
-    m_regulator.record_entry(region_id, 1, start);
-    m_regulator.record_exit(region_id, 1, end);
+    // single ranks do not change region info list
+    m_regulator.record_entry(region_id, 0, start0);
+    m_regulator.record_exit(region_id, 0, end0);
     region_info = m_regulator.region_info();
     EXPECT_EQ(0u, region_info.size());
 }
