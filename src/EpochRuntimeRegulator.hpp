@@ -173,6 +173,7 @@ namespace geopm
             std::list<geopm_region_info_s> m_region_info;
             double m_epoch_start_energy;
             double m_epoch_total_energy;
+            std::map<uint64_t, int> m_region_rank_count;
     };
 }
 
