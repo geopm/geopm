@@ -356,7 +356,9 @@ class TestIntegration(unittest.TestCase):
         trace_path = name + '.trace'
         num_node = 4
         num_rank = 16
+        loop_count = 1
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        app_conf.set_loop_count(loop_count)
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
@@ -376,7 +378,6 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             report = self._output.get_report(nn)
             trace = self._output.get_trace(nn)
-            self.assertNear(trace.iloc[-1]['seconds'], report.get_runtime())
 
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.set_index(['region_id'], append=True)
@@ -385,7 +386,11 @@ class TestIntegration(unittest.TestCase):
                 if region_name != 'unmarked-region' and region_data.get_runtime() != 0:
                     trace_data = tt.get_group((region_data.get_id()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
-                    self.assertNear(trace_elapsed_time, region_data.get_runtime())
+                    if region_name == 'epoch':
+                        self.assertNear(trace_elapsed_time, region_data.get_runtime())
+                    else:
+                        # compare with time when all ranks are in the region
+                        self.assertNear(trace_elapsed_time, region_data.get_sync_runtime())
 
     def test_runtime_regulator(self):
         name = 'test_runtime_regulator'
@@ -435,7 +440,7 @@ class TestIntegration(unittest.TestCase):
 
     @skip_unless_run_long_tests()
     def test_region_runtimes(self):
-        name = 'test_region_runtime'
+        name = 'test_region_runtimes'
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 4
@@ -496,7 +501,7 @@ class TestIntegration(unittest.TestCase):
                 if region.get_id() != 0 and region.get_count() > 1:
                     if write_regions:
                         launcher.write_log(name, 'Region {} is {}.'.format(region.get_id(), region_name))
-                    self.assertNear(region.get_runtime(),
+                    self.assertNear(region.get_sync_runtime(),
                                     region_times[nn][region.get_id()]['seconds'].sum())
             write_regions = False
 

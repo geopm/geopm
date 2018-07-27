@@ -266,6 +266,8 @@ namespace geopm
                 if ((int)idx == m_region_id_idx) {
                     // Remove hints from trace
                     value = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, value);
+                    // Remove MPI bit in trace
+                    value = geopm_region_id_unset_mpi(value);
                 }
                 m_buffer << value;
                 m_buffer << std::setfill('\0') << std::setw(0);

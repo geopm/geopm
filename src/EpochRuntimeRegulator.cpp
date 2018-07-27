@@ -134,10 +134,17 @@ namespace geopm
                                                   std::forward_as_tuple(geopm::make_unique<KruntimeRegulator>
                                                                         (m_rank_per_node)));
         reg_it.first->second->record_entry(rank, entry_time);
-        if (region_id != GEOPM_REGION_ID_UNMARKED && rank == 0) {
-            m_region_info.push_back({geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id),
-                                     0.0,
-                                     IPlatformIO::agg_max(reg_it.first->second->per_rank_last_runtime())});
+
+        if (!geopm_region_id_is_nested(region_id)) {
+            // initialize count to 0 or look up existing count
+            auto count_it = m_region_rank_count.emplace(region_id, 0);
+            ++count_it.first->second;
+            // only log entry when all ranks have entered
+            if (count_it.first->second == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
+                m_region_info.push_back({region_id,
+                                         0.0,
+                                         IPlatformIO::agg_max(reg_it.first->second->per_rank_last_runtime())});
+            }
         }
     }
 
@@ -184,10 +191,16 @@ namespace geopm
                 m_pre_epoch_region[rank].erase(pre_epoch_it);
             }
         }
-        if (region_id != GEOPM_REGION_ID_UNMARKED && rank == 0) {
-            m_region_info.push_back({geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id),
-                                     1.0,
-                                     IPlatformIO::agg_max(reg_it->second->per_rank_last_runtime())});
+
+        if (!geopm_region_id_is_nested(region_id)) {
+            auto count_it = m_region_rank_count.emplace(region_id, 0);
+            // only log exit when first rank exits
+            if (count_it.first->second == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
+                m_region_info.push_back({region_id,
+                                         1.0,
+                                         IPlatformIO::agg_max(reg_it->second->per_rank_last_runtime())});
+            }
+            --count_it.first->second;
         }
     }
 
