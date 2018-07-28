@@ -909,8 +909,8 @@ class SrunLauncher(Launcher):
         self.partition = opts.partition
 
         if (self.is_geopm_enabled and
-            any(aa.startswith('--cpu_bind') for aa in self.argv)):
-            raise SyntaxError('The option --cpu_bind must not be specified, this is controlled by geopm_srun.')
+            any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
+            raise SyntaxError('The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
 
     def mpiexec(self):
         """
@@ -943,19 +943,23 @@ class SrunLauncher(Launcher):
             if help_msg.find('--mpibind') != -1:
                 result.append('--mpibind=off')
             if help_msg.find('--cpu_bind') != -1:
-                num_mask = len(aff_list)
-                mask_zero = ['0' for ii in range(self.num_linux_cpu)]
-                mask_list = []
-                for cpu_set in aff_list:
-                    mask = list(mask_zero)
-                    for cpu in cpu_set:
-                        mask[self.num_linux_cpu - 1 - cpu] = '1'
-                    mask = '0x{:x}'.format(int(''.join(mask), 2))
-                    mask_list.append(mask)
-                result.append('--cpu_bind')
-                result.append('v,mask_cpu:' + ','.join(mask_list))
+                bind_cmd='--cpu_bind'
+            elif help_msg.find('--cpu-bind') != -1:
+                bind_cmd='--cpu-bind'
             else:
                 raise RuntimeError('SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
+
+            num_mask = len(aff_list)
+            mask_zero = ['0' for ii in range(self.num_linux_cpu)]
+            mask_list = []
+            for cpu_set in aff_list:
+                mask = list(mask_zero)
+                for cpu in cpu_set:
+                    mask[self.num_linux_cpu - 1 - cpu] = '1'
+                mask = '0x{:x}'.format(int(''.join(mask), 2))
+                mask_list.append(mask)
+            result.append(bind_cmd)
+            result.append('v,mask_cpu:' + ','.join(mask_list))
 
         return result
 
