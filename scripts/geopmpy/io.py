@@ -887,7 +887,7 @@ class Trace(object):
               'epoch' is false?
 
         """
-        epoch_rid = '9223372036854775808'
+        epoch_rid = '0x8000000000000000' if '0x' in trace_df['region_id'].iloc[0] else '9223372036854775808'
 
         if epoch:
             tmp_df = trace_df.loc[trace_df['region_id'] == epoch_rid]
