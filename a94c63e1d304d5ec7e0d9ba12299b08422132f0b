@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f333f9e0_188a4afd",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-30T21:58:24Z",
+      "side": 1,
+      "message": "[\u00270\u0027]*5",
+      "revId": "a94c63e1d304d5ec7e0d9ba12299b08422132f0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
