@@ -1,0 +1,12 @@
+Verified+1: <fsp@intel.com>
+Verified+1: Brad Geltz <brad.geltz@intel.com>
+Code-Review+1: Brad Geltz <brad.geltz@intel.com>
+Code-Review+1: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Code-Review+1: Diana Guttman <diana.r.guttman@intel.com>
+Code-Review+2: Brandon Baker <brandon.baker@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Brandon Baker <brandon.baker@intel.com>
+Submitted-at: Mon, 30 Jul 2018 23:31:22 +0000
+Reviewed-on: https://review.gerrithub.io/420685
+Project: geopm/geopm
+Branch: refs/heads/dev
