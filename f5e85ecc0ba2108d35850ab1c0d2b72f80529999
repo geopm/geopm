@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a082483_473cb9b8",
+        "filename": "test/MPIInterfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-30T23:48:46Z",
+      "side": 1,
+      "message": "For some reason the compiler was complaining about uninitialized variable on mcfly.  I don\u0027t know why it didn\u0027t show up before.",
+      "parentUuid": "6f1751b1_bd4d495d",
+      "range": {
+        "startLine": 213,
+        "startChar": 20,
+        "endLine": 213,
+        "endChar": 33
+      },
+      "revId": "f5e85ecc0ba2108d35850ab1c0d2b72f80529999",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2db9dbc3_08c930c7",
         "filename": "test_integration/geopm_test_integration.py",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-07-30T23:29:58Z",
       "side": 1,
       "message": "What is the default behavior that we are correcting here?",
+      "range": {
+        "startLine": 359,
+        "startChar": 8,
+        "endLine": 359,
+        "endChar": 22
+      },
+      "revId": "f5e85ecc0ba2108d35850ab1c0d2b72f80529999",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3e82393_2aae1f1e",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-30T23:48:46Z",
+      "side": 1,
+      "message": "The default is still 1.  We probably don\u0027t need this; I was experimenting with checking the last region runtime.  In that case, the loop count has to be 1.",
+      "parentUuid": "2db9dbc3_08c930c7",
       "range": {
         "startLine": 359,
         "startChar": 8,
