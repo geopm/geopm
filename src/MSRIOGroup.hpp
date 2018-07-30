@@ -157,6 +157,7 @@ namespace geopm
             std::vector<uint64_t> m_write_mask;
             const std::string m_name_prefix;
             std::vector<std::map<uint64_t, m_restore_s> > m_per_cpu_restore;
+            bool m_is_fixed_enabled;
     };
 }
 
