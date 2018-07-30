@@ -74,6 +74,7 @@ namespace geopm
         , m_cpuid(cpuid)
         , m_name_prefix(plugin_name() + "::")
         , m_per_cpu_restore(m_num_cpu)
+        , m_is_fixed_enabled(false)
     {
         size_t num_msr = 0;
         const MSR *msr_arr = init_msr_arr(cpuid, num_msr);
@@ -100,13 +101,10 @@ namespace geopm
 
         register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
-
-        enable_fixed_counters();
     }
 
     void MSRIOGroup::register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr)
     {
-
         // Insert the signal name with an empty vector into the map
         auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<MSRSignal *> >(m_name_prefix + msr_name + "#", {}));
         // Get reference to the per-cpu signal vector
@@ -197,6 +195,9 @@ namespace geopm
         if (m_is_active) {
             throw Exception("MSRIOGroup::push_signal(): cannot push a signal after read_batch() or adjust() has been called.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (!m_is_fixed_enabled) {
+            enable_fixed_counters();
         }
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it == m_name_cpu_signal_map.end()) {
@@ -378,6 +379,9 @@ namespace geopm
 
     double MSRIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
+        if (!m_is_fixed_enabled) {
+            enable_fixed_counters();
+        }
         auto ncsm_it = m_name_cpu_signal_map.find(signal_name);
         if (ncsm_it == m_name_cpu_signal_map.end()) {
             throw Exception("MSRIOGroup::read_signal(): signal name \"" +
@@ -712,6 +716,7 @@ namespace geopm
             write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
             write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
         }
+        m_is_fixed_enabled = true;
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)
