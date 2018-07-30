@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f1751b1_bd4d495d",
+        "filename": "test/MPIInterfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-30T23:29:58Z",
+      "side": 1,
+      "message": "Out param of Comm_dup.  Is this to appease Klockworks?",
+      "range": {
+        "startLine": 213,
+        "startChar": 20,
+        "endLine": 213,
+        "endChar": 33
+      },
+      "revId": "f5e85ecc0ba2108d35850ab1c0d2b72f80529999",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2db9dbc3_08c930c7",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-07-30T23:29:58Z",
+      "side": 1,
+      "message": "What is the default behavior that we are correcting here?",
+      "range": {
+        "startLine": 359,
+        "startChar": 8,
+        "endLine": 359,
+        "endChar": 22
+      },
+      "revId": "f5e85ecc0ba2108d35850ab1c0d2b72f80529999",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
