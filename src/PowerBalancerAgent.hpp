@@ -45,7 +45,7 @@ namespace geopm
     template <class type>
     class ICircularBuffer;
     class IPowerBalancer;
-    class PowerGovernor;
+    class IPowerGovernor;
 
     class PowerBalancerAgent : public Agent
     {
@@ -129,6 +129,10 @@ namespace geopm
                 /// @brief The sum of all slack power available from
                 ///        children below the agent.
                 M_SAMPLE_SUM_POWER_SLACK,
+                /// @brief Smallest difference between maximum power
+                ///        limit and current power limit for any node
+                ///        below.
+                M_SAMPLE_MIN_POWER_HEADROOM,
                 /// @brief Number of elements in a sample vector.
                 M_NUM_SAMPLE,
             };
@@ -172,7 +176,7 @@ namespace geopm
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             int m_level;
-            std::unique_ptr<PowerGovernor> m_power_gov;
+            std::unique_ptr<IPowerGovernor> m_power_gov;
             std::unique_ptr<IPowerBalancer> m_power_balancer;
             std::vector<int> m_pio_idx;
             const std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
@@ -184,6 +188,8 @@ namespace geopm
             double m_root_cap;
             double m_runtime;
             double m_power_slack;
+            double m_power_headroom;
+            const double M_POWER_MAX;
             struct geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
             std::vector<double> m_policy;
