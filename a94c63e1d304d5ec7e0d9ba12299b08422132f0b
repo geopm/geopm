@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3b9ff90_c8e9252a",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-07-31T18:22:54Z",
+      "side": 0,
+      "message": "? put back\nalso might want to diff first and last trace sample in case it doesn\u0027t start at 0",
+      "revId": "a94c63e1d304d5ec7e0d9ba12299b08422132f0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
