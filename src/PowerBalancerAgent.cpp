@@ -35,7 +35,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "PowerGovernor.hpp"
+#include "PowerGovernorCPU.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerBalancer.hpp"
 #include "PlatformIO.hpp"
@@ -59,6 +59,7 @@ namespace geopm
               IPlatformIO::agg_min, // M_SAMPLE_STEP_COUNT
               IPlatformIO::agg_max, // M_SAMPLE_MAX_EPOCH_RUNTIME
               IPlatformIO::agg_sum, // M_SAMPLE_SUM_POWER_SLACK
+              IPlatformIO::agg_min, // M_SAMPLE_MIN_POWER_HEADROOM
           }
         , m_num_children(0)
         , m_is_tree_root(false)
@@ -68,6 +69,9 @@ namespace geopm
         , m_root_cap(NAN)
         , m_runtime(0.0)
         , m_power_slack(0.0)
+        , m_power_headroom(0.0)
+        , M_POWER_MAX(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
+                      m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_last_wait{{0,0}}
         , M_WAIT_SEC(0.005)
         , m_policy(M_NUM_POLICY, NAN)
@@ -98,7 +102,7 @@ namespace geopm
         if (m_level == 0) {
             // Only do this at the leaf level.
             if (nullptr == m_power_gov) {
-                m_power_gov = geopm::make_unique<PowerGovernor> (m_platform_io, m_platform_topo);
+                m_power_gov = geopm::make_unique<PowerGovernorCPU>(m_platform_io, m_platform_topo);
             }
             init_platform_io();
             m_power_balancer = geopm::make_unique<PowerBalancer>();
@@ -223,6 +227,8 @@ namespace geopm
             throw Exception("PowerBalancerAgent::update_policy(): sample passed does not match current step_count.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        double slack = NAN;
+        double head = NAN;
         switch (step()) {
             case M_STEP_SEND_DOWN_LIMIT:
                 m_policy[M_POLICY_POWER_CAP] = 0.0;
@@ -231,7 +237,9 @@ namespace geopm
                 m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = sample[M_SAMPLE_MAX_EPOCH_RUNTIME];
                 break;
             case M_STEP_REDUCE_LIMIT:
-                m_policy[M_POLICY_POWER_SLACK] = sample[M_SAMPLE_SUM_POWER_SLACK] / m_num_node;
+                slack = sample[M_SAMPLE_SUM_POWER_SLACK] / m_num_node;
+                head = sample[M_SAMPLE_MIN_POWER_HEADROOM];
+                m_policy[M_POLICY_POWER_SLACK] = slack < head ? slack : head;
                 break;
             default:
                 break;
@@ -319,6 +327,7 @@ namespace geopm
                 case M_STEP_REDUCE_LIMIT:
                     m_is_step_complete = m_power_balancer->is_target_met(epoch_runtime);
                     m_power_slack = m_power_balancer->power_slack();
+                    m_power_headroom = M_POWER_MAX - m_power_balancer->power_limit();
                     break;
                 default:
                     break;
@@ -329,6 +338,7 @@ namespace geopm
         out_sample[M_SAMPLE_STEP_COUNT] = m_step_count;
         out_sample[M_SAMPLE_MAX_EPOCH_RUNTIME] = m_runtime;
         out_sample[M_SAMPLE_SUM_POWER_SLACK] = m_power_slack;
+        out_sample[M_SAMPLE_MIN_POWER_HEADROOM] = m_power_headroom;
         return m_is_step_complete;
     }
 
