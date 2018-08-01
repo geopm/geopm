@@ -273,6 +273,7 @@ test/MockPlatformIO.hpp
 test/MockPlatformTopo.hpp
 test/MockPlatformTopology.hpp
 test/MockPolicy.hpp
+test/MockPowerBalancer.hpp
 test/MockPowerGovernor.hpp
 test/MockProfileIORuntime.hpp
 test/MockProfileIOSample.hpp
@@ -304,6 +305,7 @@ test/PlatformTopologyTest.cpp
 test/PlatformTopoTest.cpp
 test/pmpi_mock.c
 test/PolicyTest.cpp
+test/PowerBalancerAgentTest.cpp
 test/PowerBalancerTest.cpp
 test/PowerGovernorTest.cpp
 test/PowerGovernorAgentTest.cpp

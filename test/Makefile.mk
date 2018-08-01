@@ -330,6 +330,10 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
+              test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
+              test/gtest_links/PowerBalancerAgentTest.tree_root_agent \
+              test/gtest_links/PowerBalancerAgentTest.tree_agent \
+              test/gtest_links/PowerBalancerAgentTest.leaf_agent \
               test/gtest_links/PowerBalancerTest.power_cap \
               test/gtest_links/PowerBalancerTest.is_runtime_stable \
               test/gtest_links/PowerBalancerTest.balance \
@@ -394,6 +398,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockIOGroup.hpp \
                           test/MockRegion.hpp \
                           test/MockPolicy.hpp \
+                          test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/EfficientFreqDeciderTest.cpp \
@@ -461,6 +466,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockProfileIORuntime.hpp \
                           test/KruntimeRegulatorTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
+                          test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
