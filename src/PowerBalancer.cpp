@@ -42,8 +42,14 @@
 namespace geopm
 {
     PowerBalancer::PowerBalancer()
-        : M_MIN_TRIAL_DELTA(0.125)
-        , M_NUM_SAMPLE(5)
+        : PowerBalancer(0.125, 5)
+    {
+
+    }
+
+    PowerBalancer::PowerBalancer(double trial_delta, int num_sample)
+        : M_MIN_TRIAL_DELTA(trial_delta)
+        , M_NUM_SAMPLE(num_sample)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
         , m_target_runtime(NAN)
