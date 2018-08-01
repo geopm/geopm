@@ -149,6 +149,10 @@ namespace geopm
             };
 
             PowerBalancerAgent();
+            PowerBalancerAgent(IPlatformIO &platform_io,
+                               IPlatformTopo &platform_topo,
+                               std::unique_ptr<IPowerGovernor> power_governor,
+                               std::unique_ptr<IPowerBalancer> power_balancer);
             virtual ~PowerBalancerAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             bool descend(const std::vector<double> &in_policy,

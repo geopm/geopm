@@ -49,11 +49,20 @@
 namespace geopm
 {
     PowerBalancerAgent::PowerBalancerAgent()
-        : m_platform_io(platform_io())
-        , m_platform_topo(platform_topo())
+        : PowerBalancerAgent(platform_io(), platform_topo(), nullptr, nullptr)
+    {
+
+    }
+
+    PowerBalancerAgent::PowerBalancerAgent(IPlatformIO &platform_io,
+                                           IPlatformTopo &platform_topo,
+                                           std::unique_ptr<IPowerGovernor> power_governor,
+                                           std::unique_ptr<IPowerBalancer> power_balancer)
+        : m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
         , m_level(-1)
-        , m_power_gov(nullptr)
-        , m_power_balancer(nullptr)
+        , m_power_gov(std::move(power_governor))
+        , m_power_balancer(std::move(power_balancer))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_agg_func {
               IPlatformIO::agg_min, // M_SAMPLE_STEP_COUNT
