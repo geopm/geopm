@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "51ddfd17_84bf69a2",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-01T22:29:54Z",
+      "side": 1,
+      "message": "Can\u0027t we just use M_STEP_IMP[step()] instead of m_step?  This way we don\u0027t have to call assign_step?",
+      "range": {
+        "startLine": 175,
+        "startChar": 17,
+        "endLine": 175,
+        "endChar": 35
+      },
+      "revId": "56d68e44b628c9ee22ec27bf21551fa8ae67ac1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c96fcf60_1c7f7fb3",
         "filename": "src/PowerBalancerAgent.hpp",
         "patchSetId": 1
@@ -18,6 +41,29 @@
         "startChar": 0,
         "endLine": 37,
         "endChar": 19
+      },
+      "revId": "56d68e44b628c9ee22ec27bf21551fa8ae67ac1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ce9ce18_3908e75b",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-01T22:29:54Z",
+      "side": 1,
+      "message": "Why not a std::vector\u003c\u0026IStep\u003e and point them to the concrete values in init?",
+      "range": {
+        "startLine": 194,
+        "startChar": 32,
+        "endLine": 194,
+        "endChar": 54
       },
       "revId": "56d68e44b628c9ee22ec27bf21551fa8ae67ac1c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
