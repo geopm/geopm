@@ -256,13 +256,37 @@ Alternately, you can run GEOPM as root with the standard msr driver loaded:
 
     modprobe msr
 
+### LINUX POWER MANAGEMENT
 Note that other Linux mechanisms for power management can interfere
-with GEOPM, and these must be disabled.  We suggest the following:
+with GEOPM, and these must be disabled.  We suggest disabling the
+intel_pstate kernel driver by modifying the kernel command line
+through grub2 or the boot loader on your system by adding:
+
+    "intel_pstate=disable"
+
+The cpufreq driver will be enabled when the intel_pstate driver is
+disabed.  The cpufreq driver has several modes controlled by the
+scaling_governor sysfs entry.  When the performance mode is selected,
+the driver will not interfere with GEOPM.  For SLURM based systems the
+[GEOPM launch wrappers](#geopm-mpi-launch-wrapper) will attempt to set
+the scaling governor to "performance".  This alleviates the need to
+manually set the governor.  Older versions of SLURM require the
+desired governors to be explicitly listed in /etc/slurm.conf.  In
+particular, SLURM 15.x requires the following option:
+
+    CpuFreqGovernors=OnDemand,Performance
+
+More information on the slurm.conf file can be found
+[here](https://slurm.schedmd.com/slurm.conf.html).
+Non-SLURM systems must still set the scaling governor through some
+other mechanism to ensure proper GEOPM behavior.  The following
+command will set the governor to performance:
 
     echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
-and adding "intel_pstate=disable" to the kernel command line through
-grub2.
+See kernel documentation
+[here](https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt)
+for more information.
 
 ### GEOPM MPI LAUNCH WRAPPER
 The GEOPM package installs two commands, "geopmsrun" and "geopmaprun",
