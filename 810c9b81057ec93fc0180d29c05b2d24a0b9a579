@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ed72e7ab_4be603c9",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-01T17:18:28Z",
+      "side": 1,
+      "message": "Fixed.  Changing the meaning of runtime breaks other integration tests; this change should be in a different patch.",
+      "parentUuid": "7671bd3d_fa5934f5",
+      "range": {
+        "startLine": 706,
+        "startChar": 84,
+        "endLine": 706,
+        "endChar": 85
+      },
+      "revId": "810c9b81057ec93fc0180d29c05b2d24a0b9a579",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5cf3dd4_a62855e4",
         "filename": "src/EpochRuntimeRegulator.cpp",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2018-07-31T18:22:54Z",
       "side": 1,
       "message": "some parens would be nice",
+      "revId": "810c9b81057ec93fc0180d29c05b2d24a0b9a579",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7a2080b_d049e24f",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-01T17:18:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5cf3dd4_a62855e4",
       "revId": "810c9b81057ec93fc0180d29c05b2d24a0b9a579",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "28049f3d_2abf982e",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-01T17:18:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea730b9f_3b91be7a",
+      "revId": "810c9b81057ec93fc0180d29c05b2d24a0b9a579",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83c82839_4b8b9ab8",
         "filename": "test/EpochRuntimeRegulatorTest.cpp",
         "patchSetId": 3
@@ -70,6 +130,30 @@
       "writtenOn": "2018-07-31T18:22:54Z",
       "side": 1,
       "message": "could be rank 0 to be safe",
+      "range": {
+        "startLine": 132,
+        "startChar": 40,
+        "endLine": 132,
+        "endChar": 41
+      },
+      "revId": "810c9b81057ec93fc0180d29c05b2d24a0b9a579",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb8a4d47_3257772c",
+        "filename": "test/EpochRuntimeRegulatorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-01T17:18:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83c82839_4b8b9ab8",
       "range": {
         "startLine": 132,
         "startChar": 40,
