@@ -121,6 +121,29 @@
     },
     {
       "key": {
+        "uuid": "29d4394f_d7f01184",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-01T23:36:26Z",
+      "side": 1,
+      "message": "intent to (",
+      "range": {
+        "startLine": 153,
+        "startChar": 23,
+        "endLine": 153,
+        "endChar": 28
+      },
+      "revId": "56d68e44b628c9ee22ec27bf21551fa8ae67ac1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2ce9ce18_3908e75b",
         "filename": "src/PowerBalancerAgent.hpp",
         "patchSetId": 1
