@@ -301,6 +301,7 @@ test/PlatformTopologyTest.cpp
 test/PlatformTopoTest.cpp
 test/pmpi_mock.c
 test/PolicyTest.cpp
+test/PowerBalancerTest.cpp
 test/PowerGovernorTest.cpp
 test/PowerGovernorAgentTest.cpp
 test/ProfileIOGroupTest.cpp
