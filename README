@@ -264,6 +264,18 @@ with GEOPM, and these must be disabled.  We suggest the following:
 and adding "intel_pstate=disable" to the kernel command line through
 grub2.
 
+The [GEOPM launch wrappers](#geopm-mpi-launch-wrapper) will attempt to set
+the scaling governor for SLURM based systems to "performance".  This alleviates
+the need to manually set the governor.  Older versions of SLURM require the
+desired governors to be explicitly listed in /etc/slurm.conf.  In particular,
+SLURM 15.x requires the following option:
+
+    CpuFreqGovernors=OnDemand,Performance
+
+More information on the slurm.conf file can be found [here](https://slurm.schedmd.com/slurm.conf.html).
+Non-SLURM systems must still set the scaling governor through some other mechanism
+to ensure proper GEOPM behavior.
+
 ### GEOPM MPI LAUNCH WRAPPER
 The GEOPM package installs two commands, "geopmsrun" and "geopmaprun",
 which are wrappers for the MPI launch commands "srun" and "aprun"
