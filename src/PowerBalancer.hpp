@@ -137,6 +137,8 @@ namespace geopm
     class PowerBalancer : public IPowerBalancer
     {
         public:
+            /// @brief Construct a testable PowerBalancer object.
+            PowerBalancer(double trial_delta, int num_sample);
             /// @brief Construct a PowerBalancer object.
             PowerBalancer();
             /// @brief Destroy a PowerBalancer object.
