@@ -752,6 +752,7 @@ fi
         result.extend(self.node_list_option())
         result.extend(self.host_file_option())
         result.extend(self.partition_option())
+        result.extend(self.performance_governor_option())
         return result
 
     def num_node_option(self):
@@ -823,6 +824,13 @@ fi
         """
         Returns a list containing the command line options specifiying the
         compute node partition for the job to run on.
+        """
+        return []
+
+    def performance_governor_option(self):
+        """
+        Returns a list containing the command line options specifying
+        that the Linux power governor should be set to performance.
         """
         return []
 
@@ -1017,6 +1025,9 @@ class SrunLauncher(Launcher):
         if self.partition is not None:
             result = ['-p', self.partition]
         return result
+
+    def performance_governor_option(self):
+        return ['--cpu-freq=Performance']
 
     def get_idle_nodes(self):
         """
