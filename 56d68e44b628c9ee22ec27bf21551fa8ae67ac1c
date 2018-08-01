@@ -68,6 +68,30 @@
       "revId": "56d68e44b628c9ee22ec27bf21551fa8ae67ac1c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7378a434_5b137bfc",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-01T22:41:34Z",
+      "side": 1,
+      "message": "Actually a vector\u003cconst \u0026IStep\u003e.  In general the IStep and derived objects should all be const (hence the upper case).",
+      "parentUuid": "2ce9ce18_3908e75b",
+      "range": {
+        "startLine": 194,
+        "startChar": 32,
+        "endLine": 194,
+        "endChar": 54
+      },
+      "revId": "56d68e44b628c9ee22ec27bf21551fa8ae67ac1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
