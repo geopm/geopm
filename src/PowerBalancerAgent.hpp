@@ -119,6 +119,11 @@ namespace geopm
             enum m_trace_sample_e {
                 M_TRACE_SAMPLE_EPOCH_RUNTIME,
                 M_TRACE_SAMPLE_POWER_LIMIT,
+                M_TRACE_SAMPLE_POLICY_POWER_CAP,
+                M_TRACE_SAMPLE_POLICY_STEP_COUNT,
+                M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
+                M_TRACE_SAMPLE_POLICY_POWER_SLACK,
+                M_TRACE_SAMPLE_POLICY_POWER_LIMIT,
                 M_TRACE_NUM_SAMPLE,
             };
 
@@ -192,6 +197,7 @@ namespace geopm
                     void inc_step_count();
                     size_t step(void) const;
                     const std::vector<std::shared_ptr<const IStep> > M_STEP_IMP;
+                    std::vector<double> m_policy;
                     size_t m_step_count;
                     bool m_is_step_complete;
             };
@@ -262,7 +268,6 @@ namespace geopm
                 protected:
                     const std::vector<std::function<double(const std::vector<double>&)> > M_AGG_FUNC;
                     const int M_NUM_CHILDREN;
-                    std::vector<double> m_policy;
             };
 
             class RootRole : public TreeRole {
@@ -303,6 +308,7 @@ namespace geopm
                     std::unique_ptr<IPowerBalancer> m_power_balancer;
                     int m_last_epoch_count;
                     double m_runtime;
+                    double m_actual_limit;
                     double m_power_slack;
             };
     };
