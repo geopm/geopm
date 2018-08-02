@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "84093710_0760520f",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-02T21:26:23Z",
+      "side": 1,
+      "message": "Not conditional in legacy implementation: https://github.com/geopm/geopm/blob/dev/src/PowerBalancerAgent.cpp#L220-L240",
+      "parentUuid": "a21c5b32_ee2b4c02",
+      "revId": "39ae374aa2ef05aec09772cb3edf35d8dc2c4112",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d426a78_1242cece",
         "filename": "src/PowerBalancerAgent.cpp",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2018-08-02T21:14:20Z",
       "side": 1,
       "message": "rather than this having a side effect and return value, it might be clearer to do this in two lines, i.e. call reset(), then assign step_count() to the policy.  Then reset() doesn\u0027t need to return anything.",
+      "range": {
+        "startLine": 393,
+        "startChar": 44,
+        "endLine": 393,
+        "endChar": 51
+      },
+      "revId": "39ae374aa2ef05aec09772cb3edf35d8dc2c4112",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca93c20e_d4dec76d",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-02T21:26:23Z",
+      "side": 1,
+      "message": "Meh.  I like this better as we get this done in a single line.  I don\u0027t think being explicit buys us much.  If you\u0027ve got stronger argument you\u0027d like provide I\u0027m all ears.",
+      "parentUuid": "7d426a78_1242cece",
       "range": {
         "startLine": 393,
         "startChar": 44,
