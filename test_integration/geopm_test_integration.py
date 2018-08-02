@@ -500,7 +500,10 @@ class TestIntegration(unittest.TestCase):
                 if region.get_id() != 0 and region.get_count() > 1:
                     if write_regions:
                         launcher.write_log(name, 'Region {} is {}.'.format(region.get_id(), region_name))
-                    self.assertNear(region.get_sync_runtime(),
+                    runtime = region.get_sync_runtime()
+                    if region_name == 'epoch':
+                        runtime = region.get_runtime()
+                    self.assertNear(runtime,
                                     region_times[nn][region.get_id()]['seconds'].sum())
             write_regions = False
 
