@@ -55,6 +55,7 @@ namespace geopm
                 std::make_shared<MeasureRuntimeStep>(),
                 std::make_shared<ReduceLimitStep>()
             })
+        , m_policy(M_NUM_POLICY, NAN)
         , m_step_count(std::numeric_limits<std::size_t>::max())
         , m_is_step_complete(true)
     {
@@ -189,6 +190,7 @@ namespace geopm
         , m_power_balancer(std::move(power_balancer))
         , m_last_epoch_count(0)
         , m_runtime(0.0)
+        , m_actual_limit(NAN)
         , m_power_slack(0.0)
     {
         if (nullptr == m_power_governor) {
@@ -218,6 +220,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        m_policy = in_policy;
         if (in_policy[M_POLICY_POWER_CAP] != 0.0) {
             // New power cap from resource manager, reset
             // algorithm.
@@ -231,14 +234,13 @@ namespace geopm
             step_imp().pre_adjust(*this, in_policy);
         }
 
-        double actual_limit = 0.0;
         bool result = false;
         // Request the power limit from the balancer
         double request_limit = m_power_balancer->power_limit();
         if (!std::isnan(request_limit) && request_limit != 0.0) {
-            result = m_power_governor->adjust_platform(request_limit, actual_limit);
-            if (result && actual_limit != request_limit) {
-                step_imp().post_adjust(*this, in_policy[M_POLICY_POWER_CAP], actual_limit);
+            result = m_power_governor->adjust_platform(request_limit, m_actual_limit);
+            if (result && m_actual_limit != request_limit) {
+                step_imp().post_adjust(*this, in_policy[M_POLICY_POWER_CAP], m_actual_limit);
             }
         }
         return result;
@@ -270,20 +272,31 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::LeafRole::trace_names(void) const
     {
-        return {"epoch_runtime",
-                "power_limit"};
+        return {"epoch_runtime",            // M_TRACE_SAMPLE_EPOCH_RUNTIME
+                "power_limit",              // M_TRACE_SAMPLE_POWER_LIMIT
+                "policy_power_cap",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
+                "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
+                "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
+                "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
+                "policy_power_limit"        // M_TRACE_SAMPLE_POLICY_POWER_LIMIT
+               };
     }
 
     void PowerBalancerAgent::LeafRole::trace_values(std::vector<double> &values)
     {
 #ifdef GEOPM_DEBUG
-        if (values.size() != M_TRACE_NUM_SAMPLE) { // Everything sampled from the platform plus convergence (and the power budget soon...)
+        if (values.size() != M_TRACE_NUM_SAMPLE) { // Everything sampled from the platform, latest policy values, and actual power limit
             throw Exception("PowerBalancerAgent::LeafRole::" + std::string(__func__) + "(): values vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
         values[M_TRACE_SAMPLE_EPOCH_RUNTIME] = m_power_balancer->runtime_sample();
         values[M_TRACE_SAMPLE_POWER_LIMIT] = m_power_balancer->power_limit();
+        values[M_TRACE_SAMPLE_POLICY_POWER_CAP] = m_policy[M_POLICY_POWER_CAP];
+        values[M_TRACE_SAMPLE_POLICY_STEP_COUNT] = m_policy[M_POLICY_STEP_COUNT];
+        values[M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME] = m_policy[M_POLICY_MAX_EPOCH_RUNTIME];
+        values[M_TRACE_SAMPLE_POLICY_POWER_SLACK] = m_policy[M_POLICY_POWER_SLACK];
+        values[M_TRACE_SAMPLE_POLICY_POWER_LIMIT] = m_actual_limit;
     }
 
     PowerBalancerAgent::TreeRole::TreeRole(int level, const std::vector<int> &fan_in)
@@ -294,7 +307,6 @@ namespace geopm
               IPlatformIO::agg_sum, // M_SAMPLE_SUM_POWER_SLACK
           })
         , M_NUM_CHILDREN(fan_in[level - 1])
-        , m_policy(M_NUM_POLICY, NAN)
     {
 #ifdef GEOPM_DEBUG
         if (M_AGG_FUNC.size() != M_NUM_SAMPLE) {
