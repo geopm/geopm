@@ -210,7 +210,7 @@ void MPIInterfaceTest::comm_swap_check(int line)
 TEST_F(MPIInterfaceTest, geopm_api)
 {
     // TODO GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE testing
-    MPI_Comm comm, result;
+    MPI_Comm comm = MPI_COMM_NULL, result;
     MPI_Comm_dup(MPI_COMM_WORLD, &comm);
     result = geopm_swap_comm_world(comm);
     EXPECT_EQ(result, comm);
