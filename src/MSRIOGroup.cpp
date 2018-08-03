@@ -292,6 +292,8 @@ namespace geopm
 #endif
             if (control_name == "POWER_PACKAGE") {
                 write_control("MSR::PKG_POWER_LIMIT:SOFT_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+                double min_power = read_signal("POWER_PACKAGE_MIN", domain_type, domain_idx);
+                write_control("POWER_PACKAGE", domain_type, domain_idx, min_power);
             }
             // control_name may be alias, so use active control MSR name
             std::string registered_name = nccm_it->second[*(cpu_idx.begin())]->name();
@@ -305,6 +307,10 @@ namespace geopm
         if (!is_found) {
             result = m_active_control.size();
             m_active_control.push_back(std::vector<MSRControl*>());
+            if (control_name == "POWER_PACKAGE") {
+                // for power only set the first cpu in the package; others are lowered
+                cpu_idx = {*cpu_idx.begin()};
+            }
             for (auto cpu : cpu_idx) {
                 MSRControl *msr_ctl = nccm_it->second[cpu];
                 m_active_control[result].push_back(msr_ctl);

@@ -99,6 +99,19 @@ def skip_unless_config_enable(feature):
     return lambda func: func
 
 
+def skip_unless_optimized():
+    path = os.path.join(
+           os.path.dirname(
+            os.path.dirname(
+             os.path.realpath(__file__))),
+           'config.log')
+    with open(path) as fid:
+        for line in fid.readlines():
+            if line.startswith("enable_debug='1'"):
+                return unittest.skip("This performance test cannot be run when GEOPM is configured with --enable-debug")
+    return lambda func: func
+
+
 def skip_unless_slurm_batch():
     if 'SLURM_NODELIST' not in os.environ:
         return unittest.skip('Requires SLURM batch session.')
@@ -828,6 +841,7 @@ class TestIntegration(unittest.TestCase):
                     self.assertEqual(0, len(negative_progress))
 
     @skip_unless_run_long_tests()
+    @skip_unless_optimized()
     def test_sample_rate(self):
         """
         Check that sample rate is regular and fast.
