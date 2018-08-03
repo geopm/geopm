@@ -305,6 +305,10 @@ namespace geopm
         if (!is_found) {
             result = m_active_control.size();
             m_active_control.push_back(std::vector<MSRControl*>());
+            if (control_name == "POWER_PACKAGE") {
+                // for power only set the first cpu in the package; others are lowered
+                cpu_idx = {*cpu_idx.begin()};
+            }
             for (auto cpu : cpu_idx) {
                 MSRControl *msr_ctl = nccm_it->second[cpu];
                 m_active_control[result].push_back(msr_ctl);
