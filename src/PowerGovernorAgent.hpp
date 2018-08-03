@@ -36,6 +36,7 @@
 #include <vector>
 
 #include "Agent.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -118,6 +119,8 @@ namespace geopm
             int m_num_converged;
             int m_num_pkg;
             double m_adjusted_power;
+            geopm_time_s m_last_wait;
+            const double M_WAIT_SEC;
     };
 }
 
