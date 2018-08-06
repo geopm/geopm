@@ -704,6 +704,7 @@ class TestIntegration(unittest.TestCase):
             # TODO Checks to see how much power was left on the table?
 
     @skip_unless_run_long_tests()
+    @skip_unless_slurm_batch()
     def test_power_balancer(self):
         name = 'test_power_balancer'
         num_node = 4
