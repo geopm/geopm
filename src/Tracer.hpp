@@ -98,6 +98,8 @@ namespace geopm
             Tracer();
             Tracer(const std::string &file_path,
                    const std::string &hostname,
+                   const std::string &agent,
+                   const std::string &profile_name,
                    bool do_trace,
                    IPlatformIO &platform_io,
                    const std::vector<std::string> &env_column,

@@ -58,6 +58,8 @@ class TracerTest : public ::testing::Test
         MockPlatformIO m_platform_io;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
+        std::string m_agent = "myagent";
+        std::string m_profile = "myprofile";
         std::vector<IPlatformIO::m_request_s> m_default_cols;
         std::vector<std::string> m_extra_cols;
 };
@@ -100,7 +102,7 @@ void check_trace(std::istream &expected, std::istream &result);
 
 TEST_F(TracerTest, columns)
 {
-    Tracer tracer(m_path, m_hostname, true, m_platform_io, m_extra_cols, 1);
+    Tracer tracer(m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
 
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
@@ -109,11 +111,12 @@ TEST_F(TracerTest, columns)
     tracer.flush();
 
     std::string expected_header = "# \"geopm_version\"\n"
-                                  "# \"profile_name\"\n"
-                                  "# \"power_budget\"\n"
-                                  "# \"tree_decider\"\n"
-                                  "# \"leaf_decider\"\n"
-                                  "# \"node_name\" : \"" + m_hostname + "\"\n";
+                                  "# \"profile_name\" : \"" + m_profile + "\"\n" +
+                                  "# \"power_budget\"\n" +
+                                  "# \"tree_decider\"\n" +
+                                  "# \"leaf_decider\"\n" +
+                                  "# \"node_name\" : \"" + m_hostname + "\"\n" +
+                                  "# \"agent\" : \"" + m_agent + "\"\n";
     std::string expected_str = expected_header +
         "seconds|region_id|progress-0|runtime-0|pkg_energy-0|dram_energy-0|"
         "power_package|frequency|extra|"
@@ -126,7 +129,7 @@ TEST_F(TracerTest, columns)
 
 TEST_F(TracerTest, update_samples)
 {
-    Tracer tracer(m_path, m_hostname, true, m_platform_io, m_extra_cols, 1);
+    Tracer tracer(m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
@@ -146,7 +149,7 @@ TEST_F(TracerTest, update_samples)
     tracer.flush();
     tracer.update(agent_vals, {}); // no additional samples after flush
 
-    std::string expected_str = "\n\n\n\n\n\n\n"
+    std::string expected_str = "\n\n\n\n\n\n\n\n"
         "5.0e-01|0x3ff8000000000000|2.5|3.5e+00|4.5e+00|5.5e+00|6.5e+00|7.5e+00|8.7e+00|8.9e+01|7.8e+01\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
@@ -156,7 +159,7 @@ TEST_F(TracerTest, update_samples)
 
 TEST_F(TracerTest, region_entry_exit)
 {
-    Tracer tracer(m_path, m_hostname, true, m_platform_io, m_extra_cols, 1);
+    Tracer tracer(m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_extra_cols.size())
         .WillOnce(Return(2.2))  // time
         .WillOnce(Return(2.2))  // region id
@@ -178,7 +181,7 @@ TEST_F(TracerTest, region_entry_exit)
     tracer.update(agent_vals, short_regions);
     tracer.flush();
     tracer.update(agent_vals, short_regions); // no additional samples after flush
-    std::string expected_str ="\n\n\n\n\n\n"
+    std::string expected_str ="\n\n\n\n\n\n\n"
         "\n" // header
         "2.2e+00|0x0000000000000123|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "2.2e+00|0x0000000000000123|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
