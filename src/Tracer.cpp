@@ -95,7 +95,8 @@ namespace geopm
     }
 
     Tracer::Tracer()
-        : Tracer(geopm_env_trace(), hostname(), geopm_env_do_trace(), platform_io(),
+        : Tracer(geopm_env_trace(), hostname(), geopm_env_agent(),
+                 geopm_env_profile(), geopm_env_do_trace(), platform_io(),
                  {}, 16)
     {
 
@@ -103,6 +104,8 @@ namespace geopm
 
     Tracer::Tracer(const std::string &file_path,
                    const std::string &hostname,
+                   const std::string &agent,
+                   const std::string &profile_name,
                    bool do_trace,
                    IPlatformIO &platform_io,
                    const std::vector<std::string> &env_column,
@@ -137,11 +140,12 @@ namespace geopm
 
             // Header
             m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
-                     << "# \"profile_name\" : \"TODO\",\n"
+                     << "# \"profile_name\" : \"" << profile_name << "\",\n"
                      << "# \"power_budget\" : -1,\n"
                      << "# \"tree_decider\" : \"static_policy\",\n"
                      << "# \"leaf_decider\" : \"power_governing\",\n"
-                     << "# \"node_name\" : \"" << m_hostname << "\"\n";
+                     << "# \"node_name\" : \"" << m_hostname << "\",\n"
+                     << "# \"agent\" : \"" << agent << "\"\n";
         }
     }
 
