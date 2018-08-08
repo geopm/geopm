@@ -49,26 +49,20 @@ using ::testing::Return;
 class PowerGovernorTest : public ::testing::Test
 {
     protected:
-        enum {
-            M_SIGNAL_POWER_DRAM,
-        };
         void SetUp(void);
 
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         const double M_PKG_POWER_MIN = 50;
         const double M_PKG_POWER_MAX = 300;
+        const double M_PKG_POWER_WIN = 0.015;
         int m_num_package = 2;
-        const int M_SAMPLES_PER_CONTROL = 3;
         std::vector<double> m_expected_power;
         std::unique_ptr<PowerGovernor> m_governor;
 };
 
 void PowerGovernorTest::SetUp(void)
 {
-    EXPECT_CALL(m_platform_io, push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0))
-        .Times(1)
-        .WillOnce(Return(M_SIGNAL_POWER_DRAM));
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
         .Times(1)
         .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
@@ -84,47 +78,39 @@ void PowerGovernorTest::SetUp(void)
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MAX));
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", IPlatformTopo::M_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
+        .Times(1);
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", IPlatformTopo::M_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
+        .Times(1);
 
-    m_governor = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo, M_SAMPLES_PER_CONTROL);
+    m_governor = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);
     m_governor->init_platform_io();
 }
 
 TEST_F(PowerGovernorTest, govern)
 {
-    std::vector<double> dram_energy;
-    dram_energy = {10.0, 20.0, 30.0, 40.0, 50.0};
+    m_governor->sample_platform();
+    double node_power_set = 0.0;
+    double node_power_request = m_num_package * (M_PKG_POWER_MAX - 1);
+    EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MAX - 1)).Times(m_num_package);
+    EXPECT_TRUE(m_governor->adjust_platform(node_power_request, node_power_set));
+    EXPECT_DOUBLE_EQ(node_power_request, node_power_set);
 
-    for (size_t x = 0; x < dram_energy.size(); ++x) {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM))
-            .Times(1)
-            .WillOnce(Return(dram_energy[x]));
-        if (!(x % M_SAMPLES_PER_CONTROL)) {
-            double cur_max = *std::max_element(dram_energy.begin(), dram_energy.begin() + x + 1);
-            double expect = (M_PKG_POWER_MAX - cur_max) / m_num_package;
-            EXPECT_CALL(m_platform_io, adjust(_, expect))
-                .Times(m_num_package);
-        }
+    node_power_request = m_num_package * M_PKG_POWER_MAX;
+    node_power_set = 0.0;
+    EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MAX)).Times(m_num_package);
+    EXPECT_TRUE(m_governor->adjust_platform(node_power_request, node_power_set));
+    EXPECT_DOUBLE_EQ(node_power_request, node_power_set);
 
-        m_governor->sample_platform();
-        double node_power_set = 0.0;
-        bool result = m_governor->adjust_platform(M_PKG_POWER_MAX, node_power_set);
-        EXPECT_EQ(!(x % M_SAMPLES_PER_CONTROL), result);
-        if (result) {
-            EXPECT_EQ(M_PKG_POWER_MAX, node_power_set);
-        }
-        else {
-            EXPECT_EQ(0.0, node_power_set);
-        }
-    }
+    node_power_set = 0.0;
+    EXPECT_FALSE(m_governor->adjust_platform(node_power_request, node_power_set));
+    EXPECT_EQ(0.0, node_power_set);
 }
 
 TEST_F(PowerGovernorTest, govern_min)
 {
     /// min budget
     {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM))
-            .Times(1)
-            .WillOnce(Return(NAN));
         EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MIN))
             .Times(m_num_package);
 
@@ -159,9 +145,6 @@ TEST_F(PowerGovernorTest, govern_max)
 {
     /// max budget
     {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM))
-            .Times(1)
-            .WillOnce(Return(NAN));
         EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MAX))
             .Times(m_num_package);
 
