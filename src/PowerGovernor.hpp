@@ -75,7 +75,14 @@ namespace geopm
             void sample_platform(void) override;
             bool adjust_platform(double node_power_request, double &node_power_actual);
             void set_power_bounds(double min_pkg_power, double max_pkg_power) override;
+        protected:
+            mutable double m_last_node_power_setting;
         private:
+            virtual void overage_warning(void);
+            virtual void init_platform_io_dram(void);
+            virtual double measure_dram_power(void);
+            virtual bool do_adjust_power(double node_power_request);
+
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             const int M_SAMPLES_PER_CONTROL;
@@ -89,7 +96,6 @@ namespace geopm
             int m_dram_sig_idx;
             std::vector<int> m_control_idx;
             std::unique_ptr<ICircularBuffer<double> > m_dram_power_buf;
-            mutable double m_last_node_power_setting;
             double m_max_power_excursion;
     };
 }
