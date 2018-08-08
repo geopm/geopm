@@ -104,10 +104,35 @@ through an outer loop in the application, the "epoch".
     identify the region.  The _hint_ is one of the values given by the
     geopm_region_hint_e enum defined in _geopm.h_ which determines the
     initial control settings.  The following hints are supported:
-    `GEOPM_REGION_HINT_UNKNOWN`, `GEOPM_REGION_HINT_COMPUTE`,
-    `GEOPM_REGION_HINT_MEMORY`, `GEOPM_REGION_HINT_NETWORK`,
-    `GEOPM_REGION_HINT_IO`, `GEOPM_REGION_HINT_SERIAL`,
-    `GEOPM_REGION_HINT_PARALLEL`, `GEOPM_REGION_HINT_IGNORE`.
+
+    `GEOPM_REGION_HINT_UNKNOWN`: <br>
+    Default value, provides no hint to the runtime.
+
+    `GEOPM_REGION_HINT_COMPUTE`: <br>
+    Compute limited region.
+
+    `GEOPM_REGION_HINT_MEMORY`: <br>
+    Memory bandwidth bound region.
+
+    `GEOPM_REGION_HINT_NETWORK`: <br>
+    Inter-node network dominated region, default for unnested MPI
+    calls.
+
+    `GEOPM_REGION_HINT_IO`: <br>
+    Disk input/output dominated region.
+
+    `GEOPM_REGION_HINT_SERIAL`: <br>
+    Calculation that is not executed by a multi-threaded process (may
+    be multi-process).
+
+    `GEOPM_REGION_HINT_PARALLEL`: <br>
+    Calculation that is executed by a multi-threaded process in a
+    hybrid thread/process paralellism (e.g. MPI + OpenMP).
+
+    `GEOPM_REGION_HINT_IGNORE`: <br>
+    Do not include time spent in ignore regions when calculating epoch
+    runtime, this should be applied to application start up, shutdown,
+    or events that do not happen on every trip through the outer loop.
 
   * `geopm_prof_enter`():
     is called by the compute application to mark the beginning of the
@@ -137,9 +162,9 @@ through an outer loop in the application, the "epoch".
     different MPI ranks is interpreted as an imbalance to be corrected
     by the runtime.  This function may be called at different places
     in an application, but it should not be used to mark a loop that
-    is nested inside of another loop which is also marked.  It is
-    important to note that this call acts as a barrier between ranks
-    running within the same compute node.
+    is nested inside of another loop which is also marked.  All calls
+    to `geopm_prof_epoch`() made inside of a user defined region with
+    the `GEOPM_REGION_HINT_IGNORE` hint bit set will be ignored.
 
   * `geopm_tprof_init`():
     resets the thread profile table which extends the functionality of
