@@ -35,7 +35,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "PowerGovernorCPU.hpp"
+#include "PowerGovernor.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerBalancer.hpp"
 #include "PlatformIO.hpp"
@@ -71,7 +71,7 @@ namespace geopm
         , m_power_slack(0.0)
         , m_power_headroom(0.0)
         , M_POWER_MAX(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
-                      m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+                      m_platform_io.read_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_last_wait{{0,0}}
         , M_WAIT_SEC(0.005)
         , m_policy(M_NUM_POLICY, NAN)
@@ -102,7 +102,7 @@ namespace geopm
         if (m_level == 0) {
             // Only do this at the leaf level.
             if (nullptr == m_power_gov) {
-                m_power_gov = geopm::make_unique<PowerGovernorCPU>(m_platform_io, m_platform_topo);
+                m_power_gov = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);
             }
             init_platform_io();
             m_power_balancer = geopm::make_unique<PowerBalancer>();

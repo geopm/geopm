@@ -101,6 +101,7 @@ namespace geopm
 
         register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
+        register_msr_control("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
     }
 
     void MSRIOGroup::register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr)
@@ -290,9 +291,6 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-            if (control_name == "POWER_PACKAGE") {
-                write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
-            }
             // control_name may be alias, so use active control MSR name
             std::string registered_name = nccm_it->second[*(cpu_idx.begin())]->name();
             if (m_active_control[ii][0]->name() == registered_name &&
@@ -306,6 +304,7 @@ namespace geopm
             result = m_active_control.size();
             m_active_control.push_back(std::vector<MSRControl*>());
             if (control_name == "POWER_PACKAGE") {
+                write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
                 // for power only set the first cpu in the package; others are lowered
                 cpu_idx = {*cpu_idx.begin()};
             }
