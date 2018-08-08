@@ -34,7 +34,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "PowerGovernor.hpp"
+#include "PowerGovernorCPU.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
@@ -95,7 +95,7 @@ namespace geopm
         m_level = level;
         if (m_level == 0) {
             if (nullptr == m_power_gov) {
-                m_power_gov = geopm::make_unique<PowerGovernor>(platform_io(), platform_topo());
+                m_power_gov = geopm::make_unique<PowerGovernorCPU>(platform_io(), platform_topo());
             }
             init_platform_io(); // Only do this at the leaf level.
         }
