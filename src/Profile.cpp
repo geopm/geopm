@@ -449,7 +449,9 @@ namespace geopm
 
     void Profile::epoch(void)
     {
-        if (!m_is_enabled) {
+        if (!m_is_enabled ||
+            geopm_region_id_hint_is_equal(m_curr_region_id,
+                                          GEOPM_REGION_HINT_IGNORE)) {
             return;
         }
 
