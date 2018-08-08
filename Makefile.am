@@ -303,6 +303,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/ApplicationIO.hpp \
                             src/PowerGovernor.hpp \
                             src/PowerGovernor.cpp \
+                            src/PowerGovernorCPU.hpp \
+                            src/PowerGovernorCPU.cpp \
                             src/PowerBalancer.hpp \
                             src/PowerBalancer.cpp \
                             src/PowerBalancerAgent.hpp \
