@@ -51,7 +51,8 @@ namespace geopm
     }
 
     PowerGovernor::PowerGovernor(IPlatformIO &platform_io, IPlatformTopo &platform_topo, int samples_per_control)
-        : m_platform_io(platform_io)
+        : m_last_node_power_setting(NAN)
+        , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , M_SAMPLES_PER_CONTROL(samples_per_control)
         , m_sample_count(-1)
@@ -63,12 +64,16 @@ namespace geopm
         , m_max_pkg_power_policy(M_MAX_PKG_POWER_SETTING)
         , m_dram_sig_idx(-1)
         , m_dram_power_buf(geopm::make_unique<CircularBuffer<double> >(M_SAMPLES_PER_CONTROL))
-        , m_last_node_power_setting(NAN)
         , m_max_power_excursion(0.0)
     {
     }
 
     PowerGovernor::~PowerGovernor()
+    {
+        overage_warning();
+    }
+
+    void PowerGovernor::overage_warning(void)
     {
         if (m_max_power_excursion != 0.0) {
             char hostname[NAME_MAX];
@@ -84,11 +89,16 @@ namespace geopm
 
     void PowerGovernor::init_platform_io(void)
     {
-        m_dram_sig_idx = m_platform_io.push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        init_platform_io_dram();
         for(int i = 0; i < m_num_pkg; ++i) {
             int control_idx = m_platform_io.push_control("POWER_PACKAGE", m_pkg_pwr_domain_type, i);
             m_control_idx.push_back(control_idx);
         }
+    }
+
+    void PowerGovernor::init_platform_io_dram(void)
+    {
+        m_dram_sig_idx = m_platform_io.push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
     }
 
     void PowerGovernor::sample_platform(void)
@@ -116,12 +126,7 @@ namespace geopm
 #endif
         bool result = false;
         if (!std::isnan(node_power_request)) {
-            // TODO: sanity check beyond NAN; if DRAM power is too large, target below can go negative
-            double dram_power =  IPlatformIO::agg_max(m_dram_power_buf->make_vector());
-            // Check that we have enough samples (two) to measure DRAM power
-            if (std::isnan(dram_power)) {
-                dram_power = 0.0;
-            }
+            double dram_power = measure_dram_power();
             double target_pkg_power = (node_power_request - dram_power) / m_num_pkg;
             if (target_pkg_power < m_min_pkg_power_policy) {
                 target_pkg_power = m_min_pkg_power_policy;
@@ -129,7 +134,7 @@ namespace geopm
             else if (target_pkg_power > m_max_pkg_power_policy) {
                 target_pkg_power = m_max_pkg_power_policy;
             }
-            if (!m_sample_count || m_last_node_power_setting != node_power_request) {
+            if (do_adjust_power(node_power_request)) {
                 for (auto ctl_idx : m_control_idx) {
                     m_platform_io.adjust(ctl_idx, target_pkg_power);
                 }
@@ -143,6 +148,22 @@ namespace geopm
             }
         }
         return result;
+    }
+
+    double PowerGovernor::measure_dram_power(void)
+    {
+        // TODO: sanity check beyond NAN; if DRAM power is too large, target below can go negative
+        double dram_power =  IPlatformIO::agg_max(m_dram_power_buf->make_vector());
+        // Check that we have enough samples (two) to measure DRAM power
+        if (std::isnan(dram_power)) {
+            dram_power = 0.0;
+        }
+        return dram_power;
+    }
+
+    bool PowerGovernor::do_adjust_power(double node_power_request)
+    {
+        return (!m_sample_count || m_last_node_power_setting != node_power_request);
     }
 
     void PowerGovernor::set_power_bounds(double min_pkg_power, double max_pkg_power)
