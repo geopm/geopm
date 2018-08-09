@@ -42,21 +42,23 @@
 namespace geopm
 {
     PowerBalancer::PowerBalancer()
-        : PowerBalancer(0.125, 5)
+        : PowerBalancer(0.125, 0.5)
     {
 
     }
 
-    PowerBalancer::PowerBalancer(double trial_delta, int num_sample)
+    PowerBalancer::PowerBalancer(double trial_delta, double measure_duration)
         : M_MIN_TRIAL_DELTA(trial_delta)
-        , M_NUM_SAMPLE(num_sample)
+        , M_MEASURE_DURATION(measure_duration)
+        , M_MIN_NUM_SAMPLE(3)
+        , m_num_sample(0)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
         , m_target_runtime(NAN)
         , m_trial_delta(8.0)
         , m_runtime_sample(NAN)
         , m_is_target_met(false)
-        , m_runtime_buffer(make_unique<CircularBuffer<double> >(M_NUM_SAMPLE))
+        , m_runtime_buffer(make_unique<CircularBuffer<double> >(0))
     {
 
     }
@@ -82,16 +84,37 @@ namespace geopm
     bool PowerBalancer::is_runtime_stable(double measured_runtime)
     {
         bool result = false;
-        m_runtime_buffer->insert(measured_runtime);
-        if (m_runtime_buffer->size() == m_runtime_buffer->capacity()) {
-            result = true;
+        if (m_runtime_buffer->size() == 0) {
+            m_runtime_vec.push_back(measured_runtime);
+            if (IPlatformIO::agg_sum(m_runtime_vec) > M_MEASURE_DURATION) {
+                m_num_sample = m_runtime_vec.size();
+                if (m_num_sample < M_MIN_NUM_SAMPLE) {
+                    m_num_sample = M_MIN_NUM_SAMPLE;
+                }
+                m_runtime_buffer->set_capacity(m_num_sample);
+                for (auto it : m_runtime_vec) {
+                    m_runtime_buffer->insert(it);
+                }
+                m_runtime_vec.resize(0);
+            }
+        }
+        else {
+            m_runtime_buffer->insert(measured_runtime);
+            if (m_runtime_buffer->size() == m_runtime_buffer->capacity()) {
+                result = true;
+            }
         }
         return result;
     }
 
     double PowerBalancer::runtime_sample(void)
     {
-        m_runtime_sample = IPlatformIO::agg_median(m_runtime_buffer->make_vector());
+        if (m_runtime_buffer->size() != 0) {
+            m_runtime_sample = IPlatformIO::agg_median(m_runtime_buffer->make_vector());
+        }
+        else {
+            m_runtime_sample = IPlatformIO::agg_median(m_runtime_vec);
+        }
         return m_runtime_sample;
     }
 
