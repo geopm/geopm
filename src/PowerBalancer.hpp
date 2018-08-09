@@ -138,7 +138,7 @@ namespace geopm
     {
         public:
             /// @brief Construct a testable PowerBalancer object.
-            PowerBalancer(double trial_delta, int num_sample);
+            PowerBalancer(double trial_delta, int num_sample, double measure_duration);
             /// @brief Construct a PowerBalancer object.
             PowerBalancer();
             /// @brief Destroy a PowerBalancer object.
@@ -154,7 +154,9 @@ namespace geopm
             double power_slack(void) override;
         private:
             const double M_MIN_TRIAL_DELTA;
-            const int M_NUM_SAMPLE;
+            const int M_MIN_NUM_SAMPLE;
+            const double M_MIN_DURATION;
+            int m_num_sample;
             // @brief Maximum power as set in last global budget
             //        increase.
             double m_power_cap;
@@ -166,6 +168,7 @@ namespace geopm
             double m_runtime_sample;
             bool m_is_target_met;
             std::unique_ptr<ICircularBuffer<double> > m_runtime_buffer;
+            std::vector<double> m_runtime_vec;
     };
 }
 
