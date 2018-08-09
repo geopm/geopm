@@ -434,9 +434,6 @@ namespace geopm
         if (control_name == "POWER_PACKAGE") {
             write_control("MSR::PKG_POWER_LIMIT:SOFT_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
-        if (control_name == "FREQUENCY") {
-            write_control("MSR::PERF_CTL:ENABLE", domain_type, domain_idx, 1.0);
-        }
 
         std::set<int> cpu_idx;
         m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
