@@ -39,6 +39,7 @@ import os
 import glob
 from collections import defaultdict
 import socket
+import json
 import geopmpy.io
 import geopmpy.launcher
 import geopmpy.plotter
@@ -112,13 +113,14 @@ class Analysis(object):
     reports and/or logs. Implementations should define how to launch experiments,
     parse and process the output, and process text reports or graphical plots.
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True, iterations=1):
+    def __init__(self, name, output_dir, num_rank, num_node, agent, app_argv, verbose=True, iterations=1):
         self._name = name
         self._output_dir = output_dir
         self._verbose = verbose
         self._iterations = iterations
         self._num_rank = num_rank
         self._num_node = num_node
+        self._agent = agent
         self._app_argv = app_argv
         self._report_paths = []
         self._trace_paths = []
@@ -192,8 +194,8 @@ class FreqSweepAnalysis(Analysis):
     frequency, finds the lowest frequency for each region at which the performance
     will not be degraded by more than a given margin.
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True, iterations=1, enable_turbo=False):
-        super(FreqSweepAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, verbose, iterations)
+    def __init__(self, name, output_dir, num_rank, num_node, agent, app_argv, verbose=True, iterations=1, enable_turbo=False):
+        super(FreqSweepAnalysis, self).__init__(name, output_dir, num_rank, num_node, agent, app_argv, verbose, iterations)
         self._perf_margin = 0.1
         self._enable_turbo = enable_turbo
 
@@ -205,7 +207,7 @@ class FreqSweepAnalysis(Analysis):
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
 
-        if os.getenv("GEOPM_AGENT", None) is None:
+        if not self._agent:
             ctl_conf.write()
 
         if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
@@ -220,7 +222,7 @@ class FreqSweepAnalysis(Analysis):
                 report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
                 trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
                 self._report_paths.append(report_path)
-                if os.getenv("GEOPM_AGENT", None) is not None:
+                if self._agent:
                     with open(ctl_conf.get_path(), "w") as outfile:
                         outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n".format(freq, freq))
                 if self._app_argv and not os.path.exists(report_path):
@@ -233,6 +235,8 @@ class FreqSweepAnalysis(Analysis):
                                      '--geopm-profile', profile_name]
                     if do_geopm_barrier:
                         argv.append('--geopm-barrier')
+                    if self._agent:
+                        argv.append('--geopm-agent=energy_efficient')
                     argv.append('--')
                     argv.extend(self._app_argv)
                     launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
@@ -287,7 +291,7 @@ class FreqSweepAnalysis(Analysis):
             if not self._enable_turbo and (freq, profile_name) == freq_pname[0]:
                 continue
 
-            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :], ].groupby(level='region')
+            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ].groupby(level='region')
             for region, region_df in region_mean_runtime:
 
                 runtime = region_df['runtime'].mean()
@@ -318,7 +322,7 @@ class FreqSweepAnalysis(Analysis):
         freqs = []
         for freq, profile_name in freq_pname:
             freqs.append(freq)
-            freq_df = df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :], ]
+            freq_df = df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ]
 
             region_mean_runtime = freq_df.groupby(level='region')['runtime'].mean()
             region_mean_energy = freq_df.groupby(level='region')['energy'].mean()
@@ -369,7 +373,7 @@ class FreqSweepAnalysis(Analysis):
 def baseline_comparison(parse_output, comp_name):
     """Used to compare a set of runs for a profile of interest to a baseline profile including verbose data.
     """
-    comp_df = parse_output.loc[pandas.IndexSlice[:, comp_name, :, :, :, :, :, :], ]
+    comp_df = parse_output.loc[pandas.IndexSlice[:, comp_name, :, :, :, :, :, :, :], ]
     baseline_df = parse_output.loc[parse_output.index.get_level_values('name') != comp_name]
     baseline_df = profile_to_freq_mhz(baseline_df)
 
@@ -403,16 +407,24 @@ class OfflineBaselineComparisonAnalysis(Analysis):
     compared.  Uses baseline comparison function to do analysis.
 
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True, iterations=1, enable_turbo=False):
-        super(OfflineBaselineComparisonAnalysis, self).__init__(name,
-                                                                output_dir,
-                                                                num_rank,
-                                                                num_node,
-                                                                app_argv,
-                                                                verbose,
-                                                                iterations)
-        self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, num_rank,
-                                                 num_node, app_argv, verbose, iterations, enable_turbo)
+    def __init__(self, name, output_dir, num_rank, num_node, agent, app_argv, verbose=True, iterations=1, enable_turbo=False):
+        super(OfflineBaselineComparisonAnalysis, self).__init__(name=name,
+                                                                output_dir=output_dir,
+                                                                num_rank=num_rank,
+                                                                num_node=num_node,
+                                                                agent=agent,
+                                                                app_argv=app_argv,
+                                                                verbose=verbose,
+                                                                iterations=iterations)
+        self._sweep_analysis = FreqSweepAnalysis(name=self._name,
+                                                 output_dir=output_dir,
+                                                 num_rank=num_rank,
+                                                 num_node=num_node,
+                                                 agent=agent,
+                                                 app_argv=app_argv,
+                                                 verbose=verbose,
+                                                 iterations=iterations,
+                                                 enable_turbo=enable_turbo)
         self._enable_turbo = enable_turbo
         self._sweep_parse_output = None
         self._freq_pnames = []
@@ -430,7 +442,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
 
         self._min_freq = min(sys_freq_avail())
         self._max_freq = max(sys_freq_avail())
-        if os.getenv("GEOPM_AGENT", None) is not None:
+        if self._agent:
             with open(ctl_conf.get_path(), "w") as outfile:
                 outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n".format(self._min_freq, self._max_freq))
         else:
@@ -465,6 +477,8 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                                  '--geopm-profile', profile_name]
                 if do_geopm_barrier:
                     argv.append('--geopm-barrier')
+                if self._agent:
+                    argv.append('--geopm-agent=energy_efficient')
                 argv.append('--')
                 argv.extend(self._app_argv)
                 launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
@@ -544,16 +558,24 @@ class OnlineBaselineComparisonAnalysis(Analysis):
     compared.  Uses baseline comparison class to do analysis.
 
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True, iterations=1, enable_turbo=False):
-        super(OnlineBaselineComparisonAnalysis, self).__init__(name,
-                                                               output_dir,
-                                                               num_rank,
-                                                               num_node,
-                                                               app_argv,
-                                                               verbose,
-                                                               iterations)
-        self._sweep_analysis = FreqSweepAnalysis(self._name, output_dir, num_rank,
-                                                 num_node, app_argv, verbose, iterations, enable_turbo)
+    def __init__(self, name, output_dir, num_rank, num_node, agent, app_argv, verbose=True, iterations=1, enable_turbo=False):
+        super(OnlineBaselineComparisonAnalysis, self).__init__(name=name,
+                                                               output_dir=output_dir,
+                                                               num_rank=num_rank,
+                                                               num_node=num_node,
+                                                               agent=agent,
+                                                               app_argv=app_argv,
+                                                               verbose=verbose,
+                                                               iterations=iterations)
+        self._sweep_analysis = FreqSweepAnalysis(name=self._name,
+                                                 output_dir=output_dir,
+                                                 num_rank=num_rank,
+                                                 num_node=num_node,
+                                                 agent=agent,
+                                                 app_argv=app_argv,
+                                                 verbose=verbose,
+                                                 iterations=iterations,
+                                                 enable_turbo=enable_turbo)
         self._enable_turbo = enable_turbo
         self._freq_pnames = []
 
@@ -567,7 +589,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
                                        'tree_decider': 'static_policy',
                                        'leaf_decider': 'efficient_freq',
                                        'platform': 'rapl'})
-        if os.getenv("GEOPM_AGENT", None) is None:
+        if not self._agent:
             ctl_conf.write()
 
         # Run frequency sweep
@@ -584,10 +606,10 @@ class OnlineBaselineComparisonAnalysis(Analysis):
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
             self._report_paths.append(report_path)
 
-            freqs = sys_freq_avail() # freqs contains a list of available system frequencies in ascending order
+            freqs = sys_freq_avail()  # freqs contains a list of available system frequencies in ascending order
             self._min_freq = freqs[0]
             self._max_freq = freqs[-1] if self._enable_turbo else freqs[-2]
-            if os.getenv("GEOPM_AGENT", None) is not None:
+            if self._agent:
                 with open(ctl_conf.get_path(), "w") as outfile:
                     outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n".format(self._min_freq, self._max_freq))
             if self._app_argv and not os.path.exists(report_path):
@@ -600,6 +622,8 @@ class OnlineBaselineComparisonAnalysis(Analysis):
                                  '--geopm-profile', profile_name]
                 if do_geopm_barrier:
                     argv.append('--geopm-barrier')
+                if self._agent:
+                    argv.append('--geopm-agent=energy_efficient')
                 argv.append('--')
                 argv.extend(self._app_argv)
                 launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node)
@@ -673,8 +697,15 @@ class StreamDgemmMixAnalysis(Analysis):
        online mode are compared to the run a sticker frequency.
 
     """
-    def __init__(self, name, output_dir, num_rank, num_node, app_argv, verbose=True, iterations=1, enable_turbo=False):
-        super(StreamDgemmMixAnalysis, self).__init__(name, output_dir, num_rank, num_node, app_argv, verbose, iterations)
+    def __init__(self, name, output_dir, num_rank, num_node, agent, app_argv, verbose=True, iterations=1, enable_turbo=False):
+        super(StreamDgemmMixAnalysis, self).__init__(name=name,
+                                                     output_dir=output_dir,
+                                                     num_rank=num_rank,
+                                                     num_node=num_node,
+                                                     agent=agent,
+                                                     app_argv=app_argv,
+                                                     verbose=verbose,
+                                                     iterations=iterations)
 
         self._enable_turbo = enable_turbo
         self._sweep_analysis = {}
@@ -714,33 +745,35 @@ class StreamDgemmMixAnalysis(Analysis):
                 app_path = "geopmbench"
             app_argv = [app_path, app_conf_name]
             # Analysis class that runs the frequency sweep (will append _freq_XXXX to name)
-            self._sweep_analysis[ratio_idx] = FreqSweepAnalysis(name,
-                                                                self._output_dir,
-                                                                self._num_rank,
-                                                                self._num_node,
-                                                                app_argv,
-                                                                self._verbose,
-                                                                self._iterations,
-                                                                self._enable_turbo)
+            self._sweep_analysis[ratio_idx] = FreqSweepAnalysis(name=name,
+                                                                output_dir=self._output_dir,
+                                                                num_rank=self._num_rank,
+                                                                num_node=self._num_node,
+                                                                agent=self._agent,
+                                                                app_argv=app_argv,
+                                                                verbose=self._verbose,
+                                                                iterations=self._iterations,
+                                                                enable_turbo=self._enable_turbo)
             # Analysis class that includes a full sweep plus the plugin run with freq map
-            self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(name,
-                                                                                  self._output_dir,
-                                                                                  self._num_rank,
-                                                                                  self._num_node,
-                                                                                  app_argv,
-                                                                                  self._verbose,
-                                                                                  self._iterations,
-                                                                                  self._enable_turbo)
+            self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(name=name,
+                                                                                  output_dir=self._output_dir,
+                                                                                  num_rank=self._num_rank,
+                                                                                  num_node=self._num_node,
+                                                                                  agent=self._agent,
+                                                                                  app_argv=app_argv,
+                                                                                  verbose=self._verbose,
+                                                                                  iterations=self._iterations,
+                                                                                  enable_turbo=self._enable_turbo)
             # Analysis class that runs the online plugin
-            self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(name,
-                                                                                self._output_dir,
-                                                                                self._num_rank,
-                                                                                self._num_node,
-                                                                                app_argv,
-                                                                                self._verbose,
-                                                                                self._iterations,
-                                                                                self._enable_turbo)
-
+            self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(name=name,
+                                                                                output_dir=self._output_dir,
+                                                                                num_rank=self._num_rank,
+                                                                                num_node=self._num_node,
+                                                                                agent=self._agent,
+                                                                                app_argv=app_argv,
+                                                                                verbose=self._verbose,
+                                                                                iterations=self._iterations,
+                                                                                enable_turbo=self._enable_turbo)
 
     def launch(self, geopm_ctl='process', do_geopm_barrier=False):
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
@@ -780,21 +813,21 @@ class StreamDgemmMixAnalysis(Analysis):
             best_fit_freq = optimal_freq['epoch']
             best_fit_name = fixed_freq_name(name, best_fit_freq)
 
-            baseline_df = df.loc[pandas.IndexSlice[:, baseline_name, :, :, :, :, :, :], ]
+            baseline_df = df.loc[pandas.IndexSlice[:, baseline_name, :, :, :, :, :, :, :], ]
 
-            best_fit_df = df.loc[pandas.IndexSlice[:, best_fit_name, :, :, :, :, :, :], ]
+            best_fit_df = df.loc[pandas.IndexSlice[:, best_fit_name, :, :, :, :, :, :, :], ]
             combo_df = baseline_df.append(best_fit_df)
             comp_df = baseline_comparison(combo_df, best_fit_name)
             offline_app_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             offline_app_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
-            offline_df = df.loc[pandas.IndexSlice[:, name + '_offline', :, :, :, :, :, :], ]
+            offline_df = df.loc[pandas.IndexSlice[:, name + '_offline', :, :, :, :, :, :, :], ]
             combo_df = baseline_df.append(offline_df)
             comp_df = baseline_comparison(combo_df, name + '_offline')
             offline_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             offline_phase_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
-            online_df = df.loc[pandas.IndexSlice[:, name + '_online', :, :, :, :, :, :], ]
+            online_df = df.loc[pandas.IndexSlice[:, name + '_online', :, :, :, :, :, :, :], ]
             combo_df = baseline_df.append(online_df)
             comp_df = baseline_comparison(combo_df, name + '_online')
             online_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
@@ -856,6 +889,7 @@ geopmanalysis - Used to run applications and analyze results for specific
                         level 0: run application and generate reports and traces only
                         level 1: print analysis of report and trace data (default)
                         level 2: create plots from report and trace data
+  -a, --use-agent       temporary option that enables the new agent code path
   -s, --skip-launch     do not launch jobs, only analyze existing data
   -v, --verbose         Print verbose debugging information.
   --geopm-ctl           launch type for the GEOPM controller.  Available
@@ -898,6 +932,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store', default='')
     parser.add_argument('-l', '--level',
                         action='store', default=1, type=int)
+    parser.add_argument('-a', '--use-agent', dest='use_agent',
+                        action='store_true', default=False)
     parser.add_argument('app_argv', metavar='APP_ARGV',
                         action='store', nargs='*')
     parser.add_argument('-s', '--skip-launch', dest='skip_launch',
@@ -915,14 +951,18 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     if args.analysis_type not in analysis_type_map:
         raise SyntaxError('Analysis type: "{}" unrecognized.'.format(args.analysis_type))
 
-    analysis = analysis_type_map[args.analysis_type](args.profile_prefix,
-                                                     args.output_dir,
-                                                     args.num_rank,
-                                                     args.num_node,
-                                                     args.app_argv,
-                                                     args.verbose,
-                                                     args.iterations,
-                                                     args.enable_turbo)
+    if os.getenv("GEOPM_AGENT", None) is not None:
+        raise RuntimeError('Use --use-agent option instead of environment variable to enable agent code path.')
+
+    analysis = analysis_type_map[args.analysis_type](name=args.profile_prefix,
+                                                     output_dir=args.output_dir,
+                                                     num_rank=args.num_rank,
+                                                     num_node=args.num_node,
+                                                     agent=args.use_agent,
+                                                     app_argv=args.app_argv,
+                                                     verbose=args.verbose,
+                                                     iterations=args.iterations,
+                                                     enable_turbo=args.enable_turbo)
 
     if args.skip_launch:
         analysis.find_files()

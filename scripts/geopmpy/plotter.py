@@ -114,6 +114,7 @@ class Config(object):
         self.write_csv = write_csv
         self.output_types = output_types
         self.verbose = verbose
+        self.use_agent = False
 
         # Indexing params
         self.min_drop = min_drop
@@ -152,7 +153,10 @@ class Config(object):
         if tgt_plugin is None:
             tgt_plugin = self.tgt_plugin
 
-        decider_list = df.index.get_level_values('tree_decider').unique().tolist()
+        if self.use_agent:
+            decider_list = df.index.get_level_values('agent').unique().tolist()
+        else:
+            decider_list = df.index.get_level_values('tree_decider').unique().tolist()
         if ref_plugin is not None and ref_plugin not in decider_list:
             raise LookupError('Reference plugin {} not found in dataframe!'.format(ref_plugin))
         if tgt_plugin is not None and tgt_plugin not in decider_list:
@@ -1295,4 +1299,3 @@ def main(argv):
             if len(report_df) == 0:
                 raise LookupError('No data present for the requested report plot.')
             globals()[plot_func_name](report_df, report_config)
-

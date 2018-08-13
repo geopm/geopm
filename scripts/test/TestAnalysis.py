@@ -53,11 +53,12 @@ version = '0.3.0'
 power_budget = 400
 tree_decider = 'static'
 leaf_decider = 'simple'
+agent = 'energy_efficient'
 node_name = 'mynode'
 
 # for input data frame
 index_names = ['version', 'name', 'power_budget', 'tree_decider',
-               'leaf_decider', 'node_name', 'iteration', 'region']
+               'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
 numeric_cols = ['count', 'energy', 'frequency', 'mpi_runtime', 'runtime', 'id']
 gen_val = {
     'count': 1,
@@ -87,7 +88,7 @@ def make_mock_sweep_report_df(name_prefix, freqs, best_fit_freq, best_fit_perf,
                 for region in regions:
                     gen_val['id'] = region_id[region]  # return unique region id
                     index = (version, prof_name, power_budget, tree_decider,
-                             leaf_decider, node_name, it, region)
+                             leaf_decider, agent, node_name, it, region)
                     value = gen_val[col]
                     # force best performance for requested best fit freq
                     if col == 'runtime':
@@ -117,7 +118,7 @@ def make_mock_report_df(name_prefix, metric, metric_perf):
             for region in regions:
                 gen_val['id'] = region_id[region]  # return unique region id
                 index = (version, name_prefix, power_budget, tree_decider,
-                         leaf_decider, node_name, it, region)
+                         leaf_decider, agent, node_name, it, region)
                 value = gen_val[col]
                 if col == metric:
                     value = metric_perf[region]
@@ -194,15 +195,37 @@ class TestAnalysis(unittest.TestCase):
         if g_skip_analysis_test:
             self.skipTest(g_skip_analysis_ex)
         self._name_prefix = 'prof'
+        self._use_agent = False
         self._freqs = [1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9]
         self._min_freq = min(self._freqs)
         self._max_freq = max(self._freqs)
         self._step_freq = 100e6
         self._mid_freq = self._max_freq - self._step_freq*2
-        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(self._name_prefix, '.', 2, 3, 'args', enable_turbo=True)
-        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
-        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(self._name_prefix, '.', 2, 3, 'args')
-        self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(self._name_prefix, '.', 2, 3, 'args')
+        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(name=self._name_prefix,
+                                                                  output_dir='.',
+                                                                  num_rank=2,
+                                                                  num_node=3,
+                                                                  agent=self._use_agent,
+                                                                  app_argv='args',
+                                                                  enable_turbo=True)
+        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(name=self._name_prefix,
+                                                                                    output_dir='.',
+                                                                                    num_rank=2,
+                                                                                    num_node=3,
+                                                                                    agent=self._use_agent,
+                                                                                    app_argv='args')
+        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(name=self._name_prefix,
+                                                                                  output_dir='.',
+                                                                                  num_rank=2,
+                                                                                  num_node=3,
+                                                                                  agent=self._use_agent,
+                                                                                  app_argv='args')
+        self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(name=self._name_prefix,
+                                                                     output_dir='.',
+                                                                     num_rank=2,
+                                                                     num_node=3,
+                                                                     agent=self._use_agent,
+                                                                     app_argv='args')
         self._tmp_files = []
 
     def tearDown(self):
