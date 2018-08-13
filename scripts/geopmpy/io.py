@@ -364,7 +364,7 @@ class IndexTracker(object):
 
         """
         index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()), run_output.get_power_budget(),
-                 run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_node_name())
+                 run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_agent(), run_output.get_node_name())
 
         if index not in self._run_outputs.keys():
             self._run_outputs[index] = 1
@@ -392,8 +392,10 @@ class IndexTracker(object):
                 count of how many times this experiment has been seen.
 
         """
-        key = (run_output.get_version(), os.path.basename(run_output.get_profile_name()), run_output.get_power_budget(),
-               run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_node_name())
+        key = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
+               run_output.get_power_budget(),
+               run_output.get_tree_decider(), run_output.get_leaf_decider(),
+               run_output.get_agent(), run_output.get_node_name())
 
         return key + (self._run_outputs[key], )
 
@@ -419,15 +421,15 @@ class IndexTracker(object):
         self._check_increment(run_output)
 
         itl = []
-        index_names = ['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'node_name', 'iteration']
+        index_names = ['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'agent', 'node_name', 'iteration']
 
         if type(run_output) is Report:
             index_names.append('region')
-            for region in sorted(run_output.keys()): # Pandas sorts the keys when a DF is created
-                itl.append(self._get_base_index(run_output) + (region, )) # Append region to the existing tuple
-        else: # Trace file index
+            for region in sorted(run_output.keys()):  # Pandas sorts the keys when a DF is created
+                itl.append(self._get_base_index(run_output) + (region, ))  # Append region to the existing tuple
+        else:  # Trace file index
             index_names.append('index')
-            for ii in range(len(run_output.get_df())): # Append the integer index to the DataFrame index
+            for ii in range(len(run_output.get_df())):  # Append the integer index to the DataFrame index
                 itl.append(self._get_base_index(run_output) + (ii, ))
 
         mi = pandas.MultiIndex.from_tuples(itl, names=index_names)
@@ -471,6 +473,7 @@ class Report(dict):
     _mode = None
     _tree_decider = None
     _leaf_decider = None
+    _agent = None
     _power_budget = None
 
     @staticmethod
@@ -480,8 +483,8 @@ class Report(dict):
         these fields may change.
 
         """
-        (Report._version, Report._name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._power_budget) = \
-            None, None, None, None, None, None
+        (Report._version, Report._name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._agent, Report._power_budget) = \
+            None, None, None, None, None, None, None
 
     def __init__(self, report_path, offset=0):
         super(Report, self).__init__()
@@ -489,7 +492,7 @@ class Report(dict):
         self._offset = offset
         self._version = None
         self._profile_name = None
-        self._agent_name = None
+        self._agent = None
         self._mode = None
         self._tree_decider = None
         self._leaf_decider = None
@@ -516,10 +519,10 @@ class Report(dict):
                     match = re.search(r'^Profile: (\S+)$', line)
                     if match is not None:
                         self._profile_name = match.group(1)
-                if self._agent_name is None:
+                if self._agent is None:
                     match = re.search(r'^Agent: (\S+)$', line)
                     if match is not None:
-                        self._agent_name = match.group(1)
+                        self._agent = match.group(1)
                 if self._mode is None:
                     match = re.search(r'^Policy Mode: (\S+)$', line)
                     if match is not None:
@@ -632,6 +635,13 @@ class Report(dict):
             Report._leaf_decider = self._leaf_decider
         else:
             raise SyntaxError('Unable to parse leaf_decider information from report!')
+        if self._agent is None and Report._agent:
+            self._agent = Report._agent
+        elif self._agent:
+            Report._agent = self._agent
+        else:
+            # todo: add exception here
+            pass  # Old code path will not have agent information
         if self._power_budget is None and Report._power_budget:
             self._power_budget = Report._power_budget
         elif self._power_budget:
@@ -678,6 +688,9 @@ class Report(dict):
 
     def get_leaf_decider(self):
         return self._leaf_decider
+
+    def get_agent(self):
+        return self._agent
 
     def get_power_budget(self):
         return self._power_budget
@@ -773,7 +786,7 @@ class Trace(object):
         trace_path: The path to the trace file to parse.
 
     """
-    def __init__(self, trace_path):
+    def __init__(self, trace_path, use_agent=False):
         self._path = trace_path
         self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id': str})  # region_id must be a string because pandas can't handle 64-bit integers
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
@@ -783,7 +796,9 @@ class Trace(object):
         self._power_budget = None
         self._tree_decider = None
         self._leaf_decider = None
+        self._agent = None
         self._node_name = None
+        self._use_agent = use_agent
         self._parse_header(trace_path)
 
     def __repr__(self):
@@ -845,6 +860,8 @@ class Trace(object):
             self._power_budget = dd['power_budget']
             self._tree_decider = dd['tree_decider']
             self._leaf_decider = dd['leaf_decider']
+            if self._use_agent:
+                self._agent = dd['agent']
             self._node_name = dd['node_name']
         except KeyError:
             raise SyntaxError('Trace file header could not be parsed!')
@@ -866,6 +883,9 @@ class Trace(object):
 
     def get_power_budget(self):
         return self._power_budget
+
+    def get_agent(self):
+        return self._agent
 
     def get_node_name(self):
         return self._node_name
@@ -914,7 +934,7 @@ class Trace(object):
         traces_list = []
         for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
             filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider',
-                                       'node_name', 'iteration']):
+                                       'agent', 'node_name', 'iteration']):
             df = df.reset_index(level='index')
             df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
             df = df.set_index('index', append=True)
@@ -956,6 +976,7 @@ class Trace(object):
             median_df_index.append(median_df.index.get_level_values('power_budget').unique()[0])
             median_df_index.append(median_df.index.get_level_values('tree_decider').unique()[0])
             median_df_index.append(median_df.index.get_level_values('leaf_decider').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('agent').unique()[0])
             median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])
             sys.stdout.write('Median DF index = ({})...\n'.format(' '.join(str(s) for s in median_df_index)))
             sys.stdout.flush()
