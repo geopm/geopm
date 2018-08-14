@@ -32,8 +32,10 @@
 #
 
 import os
+import sys
 import unittest
 from collections import defaultdict
+from StringIO import StringIO
 try:
     import pandas
     import geopm_context
@@ -190,42 +192,26 @@ def get_expected_app_freqs(best_fit):
     return expected_df
 
 
-class TestAnalysis(unittest.TestCase):
+class TestFreqSweepAnalysis(unittest.TestCase):
     def setUp(self):
         if g_skip_analysis_test:
             self.skipTest(g_skip_analysis_ex)
         self._name_prefix = 'prof'
-        self._use_agent = False
+        self._use_agent = True
         self._freqs = [1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9]
         self._min_freq = min(self._freqs)
         self._max_freq = max(self._freqs)
         self._step_freq = 100e6
         self._mid_freq = self._max_freq - self._step_freq*2
-        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(name=self._name_prefix,
-                                                                  output_dir='.',
-                                                                  num_rank=2,
-                                                                  num_node=3,
-                                                                  agent=self._use_agent,
-                                                                  app_argv='args',
-                                                                  enable_turbo=True)
-        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(name=self._name_prefix,
-                                                                                    output_dir='.',
-                                                                                    num_rank=2,
-                                                                                    num_node=3,
-                                                                                    agent=self._use_agent,
-                                                                                    app_argv='args')
-        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(name=self._name_prefix,
-                                                                                  output_dir='.',
-                                                                                  num_rank=2,
-                                                                                  num_node=3,
-                                                                                  agent=self._use_agent,
-                                                                                  app_argv='args')
-        self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(name=self._name_prefix,
-                                                                     output_dir='.',
-                                                                     num_rank=2,
-                                                                     num_node=3,
-                                                                     agent=self._use_agent,
-                                                                     app_argv='args')
+        config = {'profile_prefix': self._name_prefix, 'output_dir': '.',
+                  'verbose': True, 'iterations': 1,
+                  'min_freq': self._min_freq, 'max_freq': self._max_freq,
+                  'enable_turbo': True}
+        self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(**config)
+        config['enable_turbo'] = False
+        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(**config)
+        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(**config)
+        self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(**config)
         self._tmp_files = []
 
     def tearDown(self):
@@ -268,7 +254,7 @@ class TestAnalysis(unittest.TestCase):
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
 
-        energy_result = self._offline_analysis.report_process(parse_out)
+        energy_result = self._offline_analysis.summary_process(parse_out)
         expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
@@ -298,7 +284,7 @@ class TestAnalysis(unittest.TestCase):
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
 
-        energy_result = self._online_analysis.report_process(parse_out)
+        energy_result = self._online_analysis.summary_process(parse_out)
 
         expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
@@ -352,7 +338,7 @@ class TestAnalysis(unittest.TestCase):
 
         parse_output = all_reports
         parse_output.sort_index(ascending=True, inplace=True)
-        energy_result, runtime_result, app_freq_df = self._mix_analysis.report_process(parse_output)
+        energy_result, runtime_result, app_freq_df = self._mix_analysis.summary_process(parse_output)
 
         expected_columns = expected_energy_df.columns
         expected_index = expected_energy_df.index
@@ -362,7 +348,14 @@ class TestAnalysis(unittest.TestCase):
         self.assertEqual(len(expected_index), len(result_index))
         self.assertTrue((expected_columns == result_columns).all())
         self.assertTrue((expected_index == result_index).all())
-        self.assertTrue((expected_energy_df == energy_result).all().all())
+        try:
+            self.assertTrue((expected_energy_df == energy_result).all().all())
+        except AssertionError:
+            sys.stderr.write('\nResult:\n')
+            sys.stderr.write(energy_result.to_string())
+            sys.stderr.write('\nExpected:\n')
+            sys.stderr.write(expected_energy_df.to_string())
+            self.assertTrue((expected_energy_df == energy_result).all().all())
 
 
 if __name__ == '__main__':
