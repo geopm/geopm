@@ -1045,20 +1045,24 @@ class TestIntegration(unittest.TestCase):
         num_rank = 4
         # Runs frequency sweep, generates best-fit frequency mapping, and
         # runs with the plugin in offline mode.
-        analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(name,
-                                                                      '.',
-                                                                      num_rank,
-                                                                      num_node,
-                                                                      use_agent,
-                                                                      app_argv,
-                                                                      verbose=True)
-        analysis.launch()
+        analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(profile_prefix=name,
+                                                                      output_dir='.',
+                                                                      iterations=1,
+                                                                      verbose=True,
+                                                                      min_freq=None,
+                                                                      max_freq=None,
+                                                                      enable_turbo=False)
+        config = geopmpy.analysis.LaunchConfig(num_rank=num_rank, num_node=num_node,
+                                               use_agent=use_agent, app_argv=app_argv,
+                                               geopm_ctl='process', do_geopm_barrier=False)
+        analysis.launch(config)
 
         try:
             os.environ['GEOPM_AGENT'] = old_agent
         except NameError:
             pass
 
+        analysis.find_files()
         parse_output = analysis.parse()
         process_output = analysis.report_process(parse_output)
         analysis.report(process_output)
@@ -1118,20 +1122,24 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         # Runs frequency sweep and runs with the plugin in online mode.
-        analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(name,
-                                                                     '.',
-                                                                     num_rank,
-                                                                     num_node,
-                                                                     use_agent,
-                                                                     app_argv,
-                                                                     verbose=True)
-        analysis.launch()
+        analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(profile_prefix=name,
+                                                                     output_dir='.',
+                                                                     iterations=1,
+                                                                     verbose=True,
+                                                                     min_freq=None,
+                                                                     max_freq=None,
+                                                                     enable_turbo=False)
+        config = geopmpy.analysis.LaunchConfig(num_rank=num_rank, num_node=num_node,
+                                               use_agent=use_agent, app_argv=app_argv,
+                                               geopm_ctl='process', do_geopm_barrier=False)
+        analysis.launch(config)
 
         try:
             os.environ['GEOPM_AGENT'] = old_agent
         except NameError:
             pass
 
+        analysis.find_files()
         parse_output = analysis.parse()
         process_output = analysis.report_process(parse_output)
         analysis.report(process_output)
