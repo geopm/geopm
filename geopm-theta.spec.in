@@ -1,0 +1,113 @@
+%define pname geopm
+%define PNAME GEOPM
+%define install_prefix  /soft/perftools/%{pname}/%{pname}-%{version}
+%define module_prefix   /soft/environment/modules/modulefiles/%{pname}
+%define module_name     %{version}
+
+Name:          %{pname}
+Summary:       Global Extensible Open Power Manager
+Version:       @VERSION@
+Release:       1
+License:       BSD-3-Clause
+Group:         System Environment/Libraries
+URL:           https://geopm.github.io
+Source0:       https://github.com/geopm/geopm/releases/download/v%{version}/geopm-%{version}.tar.gz
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: hwloc-devel
+BuildRequires: libtool
+BuildRequires: libtool-ltdl-devel
+BuildRequires: python
+BuildRequires: python-devel
+BuildRequires: unzip
+BuildRequires: openssh
+
+%description
+Global Extensible Open Power Manager (GEOPM) is an extensible power
+management framework targeting high performance computing.  The library can be
+extended to support new control algorithms and new hardware power management
+features.  The GEOPM package provides built in features ranging from static
+management of power policy for each individual compute node, to dynamic
+coordination of power policy and performance across all of the compute nodes
+hosting one MPI job on a portion of a distributed computing system.  The
+dynamic coordination is implemented as a hierarchical control system for
+scalable communication and decentralized control.  The hierarchical control
+system can optimize for various objective functions including maximizing
+global application performance within a power bound.  The root of the control
+hierarchy tree can communicate through shared memory with the system resource
+management daemon to extend the hierarchy above the individual MPI job level
+and enable management of system power resources for multiple MPI jobs and
+multiple users by the system resource manager.  The GEOPM package provides the
+libgeopm library, the libgeopmpolicy library, the geopmctl application and the
+geopmpolicy application.  The libgeopm library can be called within MPI
+applications to enable application feedback for informing the control
+decisions.  If modification of the target application is not desired then the
+geopmctl application can be run concurrently with the target application.  In
+this case, target application feedback is inferred by querying the hardware
+through Model Specific Registers (MSRs).  With either method (libgeopm or
+geopmctl), the control hierarchy tree writes processor power policy through
+MSRs to enact policy decisions.  The libgeopmpolicy library is used by a
+resource manager to set energy policy control parameters for MPI jobs.  Some
+features of libgeopmpolicy are available through the geopmpolicy application
+including support for static control.
+
+%prep
+
+%setup -q -n %{pname}-%{version}
+
+%build
+test -f configure || ./autogen.sh
+./configure --prefix=%{install_prefix} \
+            || ( cat config.log && false )
+%{__make}
+
+
+%install
+%{__make} DESTDIR=%{buildroot} install
+rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
+        find %{buildroot}/%{install_prefix} -name '*.la'; \
+        find %{buildroot}/%{install_prefix} -name 'geopm_launcher.1*')
+
+# Module file
+# OpenHPC module file
+%{__mkdir_p} %{buildroot}%{module_prefix}
+%{__cat} << EOF > %{buildroot}/%{module_prefix}/%{version}
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the %{pname} package built with the intel compiler"
+puts stderr "toolchain and the cray mpich MPI stack."
+puts stderr "\nVersion %{version}\n"
+
+}
+module-whatis "Name: %{pname}"
+module-whatis "Version: %{version}"
+module-whatis "Category: perftools"
+module-whatis "Description: %{summary}"
+module-whatis "URL %{url}"
+
+set     version             %{version}
+
+prepend-path    PATH                %{install_prefix}/bin
+prepend-path    PYTHONPATH          %{install_prefix}/lib/python2.7/site-packages
+prepend-path    INCLUDE             %{install_prefix}/include
+prepend-path    LD_LIBRARY_PATH     %{install_prefix}/lib
+prepend-path    MANPATH             %{install_prefix}/share/man
+
+setenv          %{PNAME}_DIR        %{install_prefix}
+setenv          %{PNAME}_BIN        %{install_prefix}/bin
+setenv          %{PNAME}_LIB        %{install_prefix}/lib
+setenv          %{PNAME}_INC        %{install_prefix}/include
+
+EOF
+
+%files
+%defattr(-,root,root,-)
+%{install_prefix}/*
+%{module_prefix}/*
+
+%changelog
+* Wed Aug 15 2018 <christopher.m.cantalupo@intel.com> v0.5.1
+- Initial commit.

@@ -148,6 +148,8 @@ EXTRA_DIST = .gitignore \
              dox/Doxyfile \
              geopm-ohpc.spec.in \
              geopm-ohpc.spec \
+             geopm-theta.spec.in \
+             geopm-theta.spec \
              geopm.spec.in \
              geopm.spec \
              Makefile.am \
@@ -540,6 +542,13 @@ rpm: dist
 	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm.tar.gz
 	cp geopm.spec $(rpm_topdir)/SPECS/geopm.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm.spec
+
+rpm-theta: dist
+	mkdir -p $(rpm_topdir)/SOURCES
+	mkdir -p $(rpm_topdir)/SPECS
+	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/
+	cp geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
+	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
 if ENABLE_DOC
 
