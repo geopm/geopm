@@ -99,7 +99,7 @@ namespace geopm
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
 
-        register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT");
+        register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
     }
 
@@ -291,7 +291,7 @@ namespace geopm
             }
 #endif
             if (control_name == "POWER_PACKAGE") {
-                write_control("MSR::PKG_POWER_LIMIT:SOFT_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+                write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
             }
             // control_name may be alias, so use active control MSR name
             std::string registered_name = nccm_it->second[*(cpu_idx.begin())]->name();
@@ -436,7 +436,7 @@ namespace geopm
         }
 
         if (control_name == "POWER_PACKAGE") {
-            write_control("MSR::PKG_POWER_LIMIT:SOFT_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+            write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
         std::set<int> cpu_idx;
