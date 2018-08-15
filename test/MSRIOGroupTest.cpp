@@ -485,7 +485,7 @@ TEST_F(MSRIOGroupTest, push_control)
     // push valid controls
     int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
-    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(1, power_idx);
 
     // pushing same control gives same index
@@ -505,7 +505,7 @@ TEST_F(MSRIOGroupTest, adjust)
     EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _, _)).Times(2);
 
     int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
                                "called before all controls were adjusted");
@@ -569,7 +569,7 @@ TEST_F(MSRIOGroupTest, write_control)
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x1E00ULL, (value & 0xFF00));
 
-    m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:SOFT_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0, 300);
+    m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0, 300);
     num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x960ULL, (value & 0x7FFF));

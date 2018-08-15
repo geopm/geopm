@@ -102,56 +102,56 @@ namespace geopm
                 {}),
             MSR("PKG_POWER_LIMIT", 0x610,
                 {},
-                {{"SOFT_POWER_LIMIT", (struct IMSR::m_encode_s) {
+                {{"PL1_POWER_LIMIT", (struct IMSR::m_encode_s) {
                       .begin_bit = 0,
                       .end_bit   = 15,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"SOFT_LIMIT_ENABLE", (struct IMSR::m_encode_s) {
+                 {"PL1_LIMIT_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 15,
                       .end_bit   = 16,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"SOFT_CLAMP_ENABLE", (struct IMSR::m_encode_s) {
+                 {"PL1_CLAMP_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 17,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"SOFT_TIME_WINDOW", (struct IMSR::m_encode_s) {
+                 {"PL1_TIME_WINDOW", (struct IMSR::m_encode_s) {
                       .begin_bit = 17,
                       .end_bit   = 24,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
                       .scalar    = 9.765625e-04}},
-                 {"HARD_POWER_LIMIT", (struct IMSR::m_encode_s) {
+                 {"PL2_POWER_LIMIT", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
                       .end_bit   = 47,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_WATTS,
                       .scalar    = 1.25e-1}},
-                 {"HARD_LIMIT_ENABLE", (struct IMSR::m_encode_s) {
+                 {"PL2_LIMIT_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 47,
                       .end_bit   = 48,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"HARD_CLAMP_ENABLE", (struct IMSR::m_encode_s) {
+                 {"PL2_CLAMP_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 48,
                       .end_bit   = 49,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}},
-                 {"HARD_TIME_WINDOW", (struct IMSR::m_encode_s) {
+                 {"PL2_TIME_WINDOW", (struct IMSR::m_encode_s) {
                       .begin_bit = 49,
                       .end_bit   = 56,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
