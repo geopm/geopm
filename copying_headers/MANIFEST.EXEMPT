@@ -26,6 +26,7 @@ examples/nekbone/README
 examples/qbox/README
 examples/README.md
 geopm-ohpc.spec.in
+geopm-theta.spec.in
 .gitignore
 MANIFEST
 pull_request_template.md
