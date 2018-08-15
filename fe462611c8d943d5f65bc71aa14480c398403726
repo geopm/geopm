@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4017681d_ad78bd78",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-15T18:35:47Z",
+      "side": 1,
+      "message": "I think we can delete this check, always non-zero or nan",
+      "range": {
+        "startLine": 206,
+        "startChar": 39,
+        "endLine": 206,
+        "endChar": 62
+      },
+      "revId": "fe462611c8d943d5f65bc71aa14480c398403726",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9da9557e_00e0fb96",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-15T18:35:47Z",
+      "side": 1,
+      "message": "I think this code is specific to the reduce limit step, and can be moved into that class implementation.",
+      "range": {
+        "startLine": 223,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 9
+      },
+      "revId": "fe462611c8d943d5f65bc71aa14480c398403726",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
