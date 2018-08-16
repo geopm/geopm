@@ -50,6 +50,8 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
                -n 8 \
                --geopm-preload \
                --geopm-ctl=process \
+               --geopm-agent=monitor \
+               --geopm-policy=monitor_policy.json \
                --geopm-report=tutorial_0_report \
                --geopm-trace=tutorial_0_trace \
                -- ./tutorial_0
@@ -60,15 +62,19 @@ elif [ "$GEOPM_RM" == "ALPS" ]; then
                -n 8 \
                --geopm-preload \
                --geopm-ctl=process \
+               --geopm-agent=monitor \
+               --geopm-policy=monitor_policy.json \
                --geopm-report=tutorial_0_report \
                --geopm-trace=tutorial_0_trace \
                -- ./tutorial_0
     err=$?
 elif [ $MPIEXEC ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
+    GEOPM_AGENT="monitor" \
     LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
+    GEOPM_POLICY=monitor_policy.json \
     GEOPM_REPORT=tutorial_0_report \
     GEOPM_TRACE=tutorial_0_trace \
     $MPIEXEC \
