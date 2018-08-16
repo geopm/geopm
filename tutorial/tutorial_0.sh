@@ -46,29 +46,35 @@ export LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH
 # create trace files
 if [ "$GEOPM_RM" == "SLURM" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
+    GEOPM_AGENT="monitor" \
     geopmsrun  -N 2 \
                -n 8 \
                --geopm-preload \
                --geopm-ctl=process \
+               --geopm-policy=monitor_policy.json \
                --geopm-report=tutorial_0_report \
                --geopm-trace=tutorial_0_trace \
                -- ./tutorial_0
     err=$?
 elif [ "$GEOPM_RM" == "ALPS" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
+    GEOPM_AGENT="monitor" \
     geopmaprun -N 4 \
                -n 8 \
                --geopm-preload \
                --geopm-ctl=process \
+               --geopm-policy=monitor_policy.json \
                --geopm-report=tutorial_0_report \
                --geopm-trace=tutorial_0_trace \
                -- ./tutorial_0
     err=$?
 elif [ $MPIEXEC ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
+    GEOPM_AGENT="monitor" \
     LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
+    GEOPM_POLICY=monitor_policy.json \
     GEOPM_REPORT=tutorial_0_report \
     GEOPM_TRACE=tutorial_0_trace \
     $MPIEXEC \

@@ -54,6 +54,7 @@ fi
 
 if [ "$GEOPM_RM" == "SLURM" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
+    GEOPM_AGENT="power_governor" \
     geopmsrun  -N 2 \
                -n 8 \
                --geopm-ctl=process \
@@ -62,6 +63,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
                --geopm-policy=tutorial_governed_policy.json \
                -- ./tutorial_4 \
     && \
+    GEOPM_AGENT="power_balancer" \
     geopmsrun  -N 2 \
                -n 8 \
                --geopm-ctl=process \
@@ -72,6 +74,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
     err=$?
 elif [ "$GEOPM_RM" == "ALPS" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
+    GEOPM_AGENT="power_governor" \
     geopmaprun -N 4 \
                -n 8 \
                --geopm-ctl=process \
@@ -80,6 +83,7 @@ elif [ "$GEOPM_RM" == "ALPS" ]; then
                --geopm-policy=tutorial_governed_policy.json \
                -- ./tutorial_4 \
     && \
+    GEOPM_AGENT="power_balancer" \
     geopmaprun -N 4 \
                -n 8 \
                --geopm-ctl=process \
@@ -89,6 +93,7 @@ elif [ "$GEOPM_RM" == "ALPS" ]; then
                -- ./tutorial_4
     err=$?
 elif [ $MPIEXEC ]; then
+    GEOPM_AGENT="power_governor" \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
     GEOPM_REPORT=tutorial_4_governed_report \
@@ -96,6 +101,7 @@ elif [ $MPIEXEC ]; then
     GEOPM_POLICY=tutorial_governed_policy.json \
     $MPIEXEC ./tutorial_4 \
     && \
+    GEOPM_AGENT="power_balancer" \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
     GEOPM_REPORT=tutorial_4_balanced_report \
