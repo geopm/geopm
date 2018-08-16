@@ -64,6 +64,7 @@ test/default_policy.json
 test_integration/README.md
 TODO
 tutorial/README.md
+tutorial/monitor_policy.json
 tutorial/tutorial_6_config.json
 tutorial/tutorial_balanced_policy.json
 tutorial/tutorial_governed_policy.json
