@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b27a1269_4729b412",
+        "filename": "README",
+        "patchSetId": 15
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-16T22:30:44Z",
+      "side": 1,
+      "message": "now there is only one, so drop the language about several.",
+      "range": {
+        "startLine": 225,
+        "startChar": 10,
+        "endLine": 226,
+        "endChar": 28
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e38bb7ea_0ddfd424",
+        "filename": "README",
+        "patchSetId": 15
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-16T22:30:44Z",
+      "side": 1,
+      "message": "clean up whitespace",
+      "range": {
+        "startLine": 226,
+        "startChar": 68,
+        "endLine": 226,
+        "endChar": 110
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d503e2ac_6bf37ce7",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-16T22:30:44Z",
+      "side": 1,
+      "message": "Is this function just copy/pasted code.",
+      "range": {
+        "startLine": 75,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 45
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dea517d1_8e67c16f",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-16T22:30:44Z",
+      "side": 1,
+      "message": "extern(\"C\")",
+      "range": {
+        "startLine": 43,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 27
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

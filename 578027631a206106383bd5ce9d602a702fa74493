@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6262cc49_a9f46a22",
+        "filename": "src/geopm_plugin.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-16T22:30:44Z",
+      "side": 0,
+      "message": "Document that geopmpi_ is not a valid prefix anymore?",
+      "range": {
+        "startLine": 137,
+        "startChar": 69,
+        "endLine": 137,
+        "endChar": 80
+      },
+      "revId": "578027631a206106383bd5ce9d602a702fa74493",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
