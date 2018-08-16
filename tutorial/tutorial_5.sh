@@ -48,6 +48,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
     geopmsrun  -N 2 \
                -n 8 \
                --geopm-ctl=process \
+               --geopm-agent=monitor \
                --geopm-report=tutorial_5_report \
                --geopm-trace=tutorial_5_trace \
                -- ./tutorial_5
@@ -57,12 +58,14 @@ elif [ "$GEOPM_RM" == "ALPS" ]; then
     geopmaprun -N 4 \
                -n 8 \
                --geopm-ctl=process \
+               --geopm-agent=monitor \
                --geopm-report=tutorial_5_report \
                --geopm-trace=tutorial_5_trace \
                -- ./tutorial_5
     err=$?
 elif [ $MPIEXEC ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
+    GEOPM_AGENT="monitor" \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
     GEOPM_REPORT=tutorial_5_report \
