@@ -993,9 +993,9 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
-    def test_plugin_efficient_freq_offline(self):
+    def test_agent_energy_efficient_offline(self):
         """
-        Test of the EfficientFreqDecider offline auto mode.
+        Test of the EnergyEfficientAgent offline auto mode.
         """
         name = 'test_plugin_efficient_freq_offline'
         loop_count = 10
@@ -1029,9 +1029,11 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
+        use_agent = False
         if os.getenv("GEOPM_AGENT", None) is not None:
             old_agent = os.getenv("GEOPM_AGENT", None)
             os.environ['GEOPM_AGENT'] = 'energy_efficient'
+            use_agent = True
 
         # Setup the static policy run
         num_node = 1
@@ -1042,6 +1044,7 @@ class TestIntegration(unittest.TestCase):
                                                                       '.',
                                                                       num_rank,
                                                                       num_node,
+                                                                      use_agent,
                                                                       app_argv,
                                                                       verbose=True)
         analysis.launch()
@@ -1064,11 +1067,11 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
-    def test_plugin_efficient_freq_online(self):
+    def test_agent_energy_efficient_online(self):
         """
-        Test of the EfficientFreqDecider online auto mode.
+        Test of the EnergyEfficientAgent online auto mode.
         """
-        name = 'test_plugin_efficient_freq_online'
+        name = 'test_agent_energy_efficient_online'
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -1100,9 +1103,11 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
+        use_agent = False
         if os.getenv("GEOPM_AGENT", None) is not None:
             old_agent = os.getenv("GEOPM_AGENT", None)
             os.environ['GEOPM_AGENT'] = 'energy_efficient'
+            use_agent = True
 
         # Setup the adaptive policy run
         num_node = 1
@@ -1112,6 +1117,7 @@ class TestIntegration(unittest.TestCase):
                                                                      '.',
                                                                      num_rank,
                                                                      num_node,
+                                                                     use_agent,
                                                                      app_argv,
                                                                      verbose=True)
         analysis.launch()
