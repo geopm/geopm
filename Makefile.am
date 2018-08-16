@@ -226,6 +226,7 @@ TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
                 tutorial/ModelParse.hpp \
                 tutorial/ModelRegion.cpp \
                 tutorial/ModelRegion.hpp \
+                tutorial/monitor_policy.json \
                 tutorial/README.md \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
