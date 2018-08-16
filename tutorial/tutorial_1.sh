@@ -50,6 +50,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
                -n 8 \
                --geopm-preload \
                --geopm-ctl=process \
+               --geopm-policy=monitor_policy.json \
                --geopm-report=tutorial_1_report \
                --geopm-trace=tutorial_1_trace \
                -- ./tutorial_1
@@ -60,6 +61,7 @@ elif [ "$GEOPM_RM" == "ALPS" ]; then
                -n 8 \
                --geopm-preload \
                --geopm-ctl=process \
+               --geopm-policy=monitor_policy.json \
                --geopm-report=tutorial_1_report \
                --geopm-trace=tutorial_1_trace \
                -- ./tutorial_1
@@ -69,6 +71,7 @@ elif [ $MPIEXEC ]; then
     LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
+    GEOPM_POLICY=monitor_policy.json \
     GEOPM_REPORT=tutorial_1_report \
     GEOPM_TRACE=tutorial_1_trace \
     $MPIEXEC \
