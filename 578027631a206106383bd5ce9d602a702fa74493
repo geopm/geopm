@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bbb336e_4839e4f3",
+        "filename": "tutorial/tutorial_0.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-17T18:01:50Z",
+      "side": 1,
+      "message": "use --geopm-agent, not environment variable when using the launcher",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 25
+      },
+      "revId": "578027631a206106383bd5ce9d602a702fa74493",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "111ec93a_39393933",
+        "filename": "tutorial/tutorial_0.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-17T18:01:50Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 15
+      },
+      "revId": "578027631a206106383bd5ce9d602a702fa74493",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
