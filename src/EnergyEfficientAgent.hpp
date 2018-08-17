@@ -91,7 +91,6 @@ namespace geopm
                 M_SIGNAL_REGION_ID,
                 M_SIGNAL_RUNTIME,
                 M_SIGNAL_PKG_ENERGY,
-                M_SIGNAL_DRAM_ENERGY,
                 M_NUM_SIGNAL,
             };
 

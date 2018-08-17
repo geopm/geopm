@@ -59,8 +59,6 @@ namespace geopm
                 M_PLAT_NUM_SIGNAL,
             };
             enum m_trace_sample_e {
-                M_TRACE_SAMPLE_PKG_POWER,
-                M_TRACE_SAMPLE_DRAM_POWER,
                 M_TRACE_SAMPLE_PWR_BUDGET,
                 M_TRACE_NUM_SAMPLE,
             };
@@ -110,7 +108,6 @@ namespace geopm
             std::unique_ptr<ICircularBuffer<double> > m_epoch_power_buf;
             std::vector<double> m_sample;
             int m_updates_per_sample;
-            double m_last_energy_status;
             int m_ascend_count;
             const int m_ascend_period;
             const double m_convergence_target;
