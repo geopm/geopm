@@ -544,7 +544,7 @@ class Report(dict):
                     if match is not None:
                         self._node_name = match.group(1)
                 if region_name is None:
-                    match = re.search(r'^Region (\S+) \((0x)?([0-9a-fA-F]+)\):', line)
+                    match = re.search(r'^Region ([^\(]+) \((0x)?([0-9a-fA-F]+)\):', line)
                     if match is not None:
                         region_name = match.group(1)
                         if match.group(2) is None:
