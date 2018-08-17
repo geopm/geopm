@@ -72,7 +72,8 @@ namespace geopm
         , m_is_connected(false)
         , m_rank_per_node(-1)
         , m_epoch_regulator(std::move(epoch_regulator))
-        , m_start_energy(NAN)
+        , m_start_energy_pkg(NAN)
+        , m_start_energy_dram(NAN)
     {
     }
 
@@ -96,7 +97,8 @@ namespace geopm
             }
             m_is_connected = true;
 
-            m_start_energy = current_energy();
+            m_start_energy_pkg = current_energy_pkg();
+            m_start_energy_dram = current_energy_dram();
         }
     }
 
@@ -217,7 +219,7 @@ namespace geopm
         return m_epoch_regulator->total_epoch_mpi_time();
     }
 
-    double ApplicationIO::total_epoch_energy(void) const
+    double ApplicationIO::total_epoch_energy_pkg(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -226,7 +228,19 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_epoch_regulator->total_epoch_energy();
+        return m_epoch_regulator->total_epoch_energy_pkg();
+    }
+
+    double ApplicationIO::total_epoch_energy_dram(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return m_epoch_regulator->total_epoch_energy_dram();
     }
 
     double ApplicationIO::total_app_runtime(void) const
@@ -241,13 +255,19 @@ namespace geopm
         return m_profile_io_sample->total_app_runtime();
     }
 
-    double ApplicationIO::current_energy(void) const
+    double ApplicationIO::current_energy_pkg(void) const
     {
         double energy = 0.0;
         int num_package = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
         for (int pkg = 0; pkg < num_package; ++pkg) {
             energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
         }
+        return energy;
+   }
+
+    double ApplicationIO::current_energy_dram(void) const
+    {
+        double energy = 0.0;
         int num_dram = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY);
         for (int dram = 0; dram < num_dram; ++dram) {
             energy += m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
@@ -255,7 +275,7 @@ namespace geopm
         return energy;
     }
 
-    double ApplicationIO::total_app_energy(void) const
+    double ApplicationIO::total_app_energy_pkg(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -264,7 +284,19 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return current_energy() - m_start_energy;
+        return current_energy_pkg() - m_start_energy_pkg;
+    }
+
+    double ApplicationIO::total_app_energy_dram(void) const
+    {
+#ifdef GEOPM_DEBUG
+        if (!m_is_connected) {
+            throw Exception("ApplicationIO::" + std::string(__func__) +
+                            " called before connect().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return current_energy_dram() - m_start_energy_dram;
     }
 
     double ApplicationIO::total_app_mpi_runtime(void) const
