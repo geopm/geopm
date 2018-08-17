@@ -53,6 +53,7 @@ class PowerBalancerTest : public ::testing::Test
         double calc_rt(void);
         double calc_rt(double power_limit);
 
+        const double M_CONTROL_LATENCY = 0.045;
         const double M_POWER_CAP = 300;
         const double M_TRIAL_DELTA = 1.0;
         const size_t M_NUM_SAMPLE = 3;
@@ -62,7 +63,7 @@ class PowerBalancerTest : public ::testing::Test
 
 void PowerBalancerTest::SetUp(void)
 {
-    m_balancer = geopm::make_unique<PowerBalancer>(M_TRIAL_DELTA, M_NUM_SAMPLE, M_MEASURE_DURATION);
+    m_balancer = geopm::make_unique<PowerBalancer>(M_CONTROL_LATENCY, M_TRIAL_DELTA, M_NUM_SAMPLE, M_MEASURE_DURATION);
     m_balancer->power_cap(M_POWER_CAP);
 }
 
