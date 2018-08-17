@@ -16,6 +16,24 @@
       "revId": "0d25ad0b7c9fbcafbd43aa3c9c62651b2e256d6b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dcbc7d5b_54634e9e",
+        "filename": "tutorial/tutorial_0.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-17T21:25:12Z",
+      "side": 1,
+      "message": "This is intended to go in before killing legacy.  The legacy behavior is that without specifying a decider by default you get static; and the same is true for post legacy but the default will be replaced by the monitor.  Your objection to this change is valid and the addition of this json file and explicit policy declaration should be moved to the killing a legacy patch.  That\u0027s assuming that another solution for agents requiring no policy is put it place.",
+      "parentUuid": "7b0babc6_117b8263",
+      "revId": "0d25ad0b7c9fbcafbd43aa3c9c62651b2e256d6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
