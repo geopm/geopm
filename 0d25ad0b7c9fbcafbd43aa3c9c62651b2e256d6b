@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b0babc6_117b8263",
+        "filename": "tutorial/tutorial_0.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-17T21:01:27Z",
+      "side": 1,
+      "message": "without --geopm-agent\u003d\"monitor\", I think this will still use the old code path, unless this is going in after the other patch.",
+      "revId": "0d25ad0b7c9fbcafbd43aa3c9c62651b2e256d6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
