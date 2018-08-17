@@ -177,11 +177,13 @@ make_dictionary(), and uses policy_names() and sample_names() to
 provide the values.
 
 ExampleAgent is registered at the time the plugin is loaded by GEOPM
-in the example_agent_load() method at the top of the file.  GEOPM will
-automatically try to load any plugins it finds in the plugin path
-(discussed in the man page for geopm(7) under the description of
-GEOPM_PLUGIN_PATH).  Do not link any of the GEOPM libraries into the
-plugin shared object; this will cause a circular link dependency.
+in the example_agent_load() method at the top of the file; the
+constructor attribute indicates that this method will run at plugin
+load time.  GEOPM will automatically try to load any plugins it finds
+in the plugin path (discussed in the man page for geopm(7) under the
+description of GEOPM_PLUGIN_PATH).  Do not link any of the GEOPM
+libraries into the plugin shared object; this will cause a circular
+link dependency.
 
 
 7. Run with GEOPM
