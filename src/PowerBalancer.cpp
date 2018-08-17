@@ -41,19 +41,22 @@
 
 namespace geopm
 {
-    PowerBalancer::PowerBalancer()
-        : PowerBalancer(0.125, 5, 0.25)
+    PowerBalancer::PowerBalancer(double ctl_latency)
+        : PowerBalancer(ctl_latency, 0.125, 5, 0.25)
     {
 
     }
 
-    PowerBalancer::PowerBalancer(double trial_delta, int num_sample, double measure_duration)
-        : M_MIN_TRIAL_DELTA(trial_delta)
+    PowerBalancer::PowerBalancer(double ctl_latency, double trial_delta, int num_sample, double measure_duration)
+        : M_CONTROL_LATENCY(ctl_latency)
+        , M_MIN_TRIAL_DELTA(trial_delta)
         , M_MIN_NUM_SAMPLE(num_sample)
         , M_MIN_DURATION(measure_duration)
         , m_num_sample(0)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
+        , m_power_limit_last(NAN)
+        , m_power_limit_change_time{{0,0}}
         , m_target_runtime(NAN)
         , m_trial_delta(8.0)
         , m_runtime_sample(NAN)
@@ -76,15 +79,31 @@ namespace geopm
         return m_power_cap;
     }
 
+    void PowerBalancer::power_limit_adjusted(double limit)
+    {
+        if (m_power_limit_last != limit) {
+            geopm_time(&m_power_limit_change_time);
+            m_power_limit_last = limit;
+        }
+    }
+
     double PowerBalancer::power_limit(void) const
     {
         return m_power_limit;
     }
 
+    bool PowerBalancer::is_limit_stable(void)
+    {
+        struct geopm_time_s curr_time = {{0,0}};
+        geopm_time(&curr_time);
+        return (geopm_time_diff(&m_power_limit_change_time, &curr_time) > M_CONTROL_LATENCY);
+    }
+
     bool PowerBalancer::is_runtime_stable(double measured_runtime)
     {
         bool result = false;
-        if (m_runtime_buffer->size() == 0) {
+        bool is_stable = is_limit_stable();
+        if (is_stable && m_runtime_buffer->size() == 0) {
             m_runtime_vec.push_back(measured_runtime);
             if (IPlatformIO::agg_sum(m_runtime_vec) > M_MIN_DURATION) {
                 m_num_sample = m_runtime_vec.size();
@@ -101,7 +120,7 @@ namespace geopm
                 m_runtime_vec.resize(0);
             }
         }
-        else {
+        else if (is_stable) {
             m_runtime_buffer->insert(measured_runtime);
             if (m_runtime_buffer->size() == m_runtime_buffer->capacity()) {
                 result = true;
