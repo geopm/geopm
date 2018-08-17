@@ -219,6 +219,7 @@ namespace geopm
                     {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"POWER_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
                     {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
             m_region_id_idx = 1;

@@ -209,7 +209,7 @@ class AppOutput(object):
         """
         # Build and index the DF
         rdf = pandas.DataFrame(rr).T.drop('name', 1)
-        numeric_cols = ['count', 'energy', 'frequency', 'mpi_runtime', 'runtime']
+        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime']
         rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
 
         # Add extra index info
@@ -498,13 +498,14 @@ class Report(dict):
         self._leaf_decider = None
         self._power_budget = None
         self._total_runtime = None
-        self._total_energy = None
+        self._total_energy_pkg = None
+        self._total_energy_dram = None
         self._total_ignore_runtime = None
         self._total_mpi_runtime = None
         self._node_name = None
 
         found_totals = False
-        (region_name, region_id, runtime, sync_runtime, energy, frequency, mpi_runtime, count) = None, None, None, None, None, None, None, None
+        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count) = None, None, None, None, None, None, None, None, None
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
@@ -559,10 +560,14 @@ class Report(dict):
                     match = re.search(r'^\s+sync-runtime.+: ' + float_regex, line)
                     if match is not None:
                         sync_runtime = float(match.group(1))
-                if energy is None:
-                    match = re.search(r'^\s+energy.+: ' + float_regex, line)
+                if energy_pkg is None:
+                    match = re.search(r'^\s+package-energy.+: ' + float_regex, line)
                     if match is not None:
-                        energy = float(match.group(1))
+                        energy_pkg = float(match.group(1))
+                if energy_dram is None:
+                    match = re.search(r'^\s+dram-energy.+: ' + float_regex, line)
+                    if match is not None:
+                        energy_dram = float(match.group(1))
                 if frequency is None:
                     match = re.search(r'^\s+frequency.+: ' + float_regex, line)
                     if match is not None:
@@ -575,9 +580,9 @@ class Report(dict):
                     match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
-                        self[region_name] = Region(region_name, region_id, runtime, sync_runtime, energy, frequency, mpi_runtime, count)
-                        (region_name, region_id, runtime, sync_runtime, energy, frequency, mpi_runtime, count) = \
-                            None, None, None, None, None, None, None, None
+                        self[region_name] = Region(region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count)
+                        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count) = \
+                            None, None, None, None, None, None, None, None, None
                 if not found_totals:
                     match = re.search(r'^Application Totals:$', line)
                     if match is not None:
@@ -587,10 +592,14 @@ class Report(dict):
                         match = re.search(r'\s+runtime.+: ' + float_regex, line)
                         if match is not None:
                             self._total_runtime = float(match.group(1))
-                    if self._total_energy is None:
-                        match = re.search(r'\s+energy.+: ' + float_regex, line)
+                    if self._total_energy_pkg is None:
+                        match = re.search(r'\s+package-energy.+: ' + float_regex, line)
                         if match is not None:
-                            self._total_energy = float(match.group(1))
+                            self._total_energy_pkg = float(match.group(1))
+                    if self._total_energy_dram is None:
+                        match = re.search(r'\s+dram-energy.+: ' + float_regex, line)
+                        if match is not None:
+                            self._total_energy_dram = float(match.group(1))
                     if self._total_mpi_runtime is None:
                         match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
                         if match is not None:
@@ -650,7 +659,7 @@ class Report(dict):
             raise SyntaxError('Unable to parse power_budget information from report!')
 
         if (len(line) != 0 and (region_name is not None or not found_totals or
-            None in (self._total_runtime, self._total_energy, self._total_ignore_runtime, self._total_mpi_runtime))):
+            None in (self._total_runtime, self._total_energy_pkg, self.total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
     def get_profile_name(self):
@@ -671,8 +680,11 @@ class Report(dict):
     def get_mpi_runtime(self):
         return self._total_mpi_runtime
 
-    def get_energy(self):
-        return self._total_energy
+    def get_energy_pkg(self):
+        return self._total_energy_pkg
+
+    def get_energy_dram(self):
+        return self._total_energy_dram
 
     def get_node_name(self):
         return self._node_name
@@ -703,7 +715,10 @@ class Region(dict):
         name: The name of the region.
         rid: The numeric ID of the region.
         runtime: The accumulated time of the region in seconds.
-        energy: The accumulated energy from this region in Joules.
+        energy_pkg: The accumulated package energy from this region in
+                    Joules.
+        energy_dram: The accumulated dram energy from this region in
+                     Joules.
         frequency: The average frequency achieved during this region
                    in terms of percent of sticker frequency.
         mpi_runtime: The accumulated time in this region executing MPI
@@ -711,13 +726,14 @@ class Region(dict):
         count: The number of times this region has been entered.
 
     """
-    def __init__(self, name, rid, runtime, sync_runtime, energy, frequency, mpi_runtime, count):
+    def __init__(self, name, rid, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count):
         super(Region, self).__init__()
         self['name'] = name
         self['id'] = rid
         self['runtime'] = float(runtime)
         self['sync_runtime'] = float(sync_runtime) if sync_runtime is not None else runtime
-        self['energy'] = float(energy)
+        self['energy_pkg'] = float(energy_pkg)
+        self['energy_dram'] = float(energy_dram)
         self['frequency'] = float(frequency)
         self['mpi_runtime'] = float(mpi_runtime)
         self['count'] = int(count)
@@ -727,7 +743,8 @@ class Region(dict):
 {name} ({rid})
   runtime     : {runtime}
   sync-runtime : {sync_runtime}
-  energy      : {energy}
+  package-energy : {energy_pkg}
+  dram-energy : {energy_dram}
   frequency   : {frequency}
   mpi-runtime : {mpi_runtime}
   count       : {count}
@@ -736,7 +753,8 @@ class Region(dict):
                                rid=self['id'],
                                runtime=self['runtime'],
                                sync_runtime=self['sync_runtime'],
-                               energy=self['energy'],
+                               energy_pkg=self['energy_pkg'],
+                               energy_dram=self['energy_dram'],
                                frequency=self['frequency'],
                                mpi_runtime=self['mpi_runtime'],
                                count=self['count'])
@@ -756,8 +774,11 @@ class Region(dict):
     def get_sync_runtime(self):
         return self['sync_runtime']
 
-    def get_energy(self):
-        return self['energy']
+    def get_energy_pkg(self):
+        return self['energy_pkg']
+
+    def get_energy_dram(self):
+        return self['energy_dram']
 
     def get_frequency(self):
         return self['frequency']

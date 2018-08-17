@@ -67,7 +67,6 @@ class EnergyEfficientAgentTest : public :: testing :: Test
             RUNTIME_IDX,
             FREQ_IDX,
             ENERGY_PKG_IDX,
-            ENERGY_DRAM_IDX,
         };
 
         void SetUp();
@@ -112,8 +111,6 @@ void EnergyEfficientAgentTest::SetUp()
         .WillByDefault(Return(RUNTIME_IDX));
     ON_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
         .WillByDefault(Return(ENERGY_PKG_IDX));
-    ON_CALL(*m_platform_io, push_signal("ENERGY_DRAM", _, _))
-        .WillByDefault(Return(ENERGY_DRAM_IDX));
     ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
         .WillByDefault(Return(FREQ_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
@@ -142,7 +139,7 @@ void EnergyEfficientAgentTest::SetUp()
                GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_IGNORE,
                GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_UNKNOWN};
     m_expected_freqs = {m_freq_min, m_freq_max, m_freq_min, m_freq_max, m_freq_min};
-    m_sample.resize(2);
+    m_sample.resize(1);
 
     ASSERT_EQ(m_mapped_freqs.size(), m_region_names.size());
     ASSERT_EQ(m_mapped_freqs.size(), m_region_hash.size());
@@ -172,9 +169,6 @@ TEST_F(EnergyEfficientAgentTest, map)
     EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX))
         .Times(M_NUM_REGIONS)
         .WillRepeatedly(Return(8888));
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX))
-        .Times(M_NUM_REGIONS)
-        .WillRepeatedly(Return(10000));
 
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
@@ -196,9 +190,6 @@ TEST_F(EnergyEfficientAgentTest, hint)
     EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX))
         .Times(m_hints.size())
         .WillRepeatedly(Return(8888));
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX))
-        .Times(m_hints.size())
-        .WillRepeatedly(Return(10000));
 
     for (size_t x = 0; x < m_hints.size(); x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
@@ -251,7 +242,6 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
         EXPECT_CALL(*m_platform_io, push_control("FREQUENCY", _, _)).Times(M_NUM_CPU);
         EXPECT_CALL(*m_platform_io, push_signal("REGION_RUNTIME", _, _)).Times(1);
         EXPECT_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _)).Times(2);
-        EXPECT_CALL(*m_platform_io, push_signal("ENERGY_DRAM", _, _)).Times(2);
 
         // reset agent with new settings
         m_agent = geopm::make_unique<EnergyEfficientAgent>(*m_platform_io, *m_platform_topo);
@@ -261,7 +251,6 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
             EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
                 .WillOnce(Return(geopm_region_id_set_hint(m_hints[x], m_region_hash[x])));
             EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(2);
-            EXPECT_CALL(*m_platform_io, sample(ENERGY_DRAM_IDX)).Times(2);
 
             EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, _)).Times(M_NUM_CPU);
 
