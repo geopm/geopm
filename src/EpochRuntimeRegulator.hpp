@@ -105,9 +105,12 @@ namespace geopm
             ///        with GEOPM_REGION_ID_HINT_IGNORE after the
             ///        first epoch call.
             virtual double total_epoch_ignore_time(void) const = 0;
-            /// @brief Returns the total energy since the first epoch
-            ///        call.
-            virtual double total_epoch_energy(void) const = 0;
+            /// @brief Returns the total package energy since the
+            ///        first epoch call.
+            virtual double total_epoch_energy_pkg(void) const = 0;
+            /// @brief Returns the total dram energy since the first
+            ///        epoch call.
+            virtual double total_epoch_energy_dram(void) const = 0;
             /// @brief Returns the total time spent in MPI calls since
             ///        the start of the application.
             virtual double total_app_mpi_time(void) const = 0;
@@ -149,14 +152,16 @@ namespace geopm
             double total_epoch_runtime(void) const override;
             double total_epoch_mpi_time(void) const override;
             double total_epoch_ignore_time(void) const override;
-            double total_epoch_energy(void) const override;
+            double total_epoch_energy_pkg(void) const override;
+            double total_epoch_energy_dram(void) const override;
             double total_app_mpi_time(void) const override;
             int total_count(uint64_t region_id) const override;
             std::list<geopm_region_info_s> region_info(void) const override;
             void clear_region_info(void) override;
         private:
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
-            double current_energy(void) const;
+            double current_energy_pkg(void) const;
+            double current_energy_dram(void) const;
             int m_rank_per_node;
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
@@ -171,8 +176,10 @@ namespace geopm
             std::vector<double> m_agg_epoch_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;
-            double m_epoch_start_energy;
-            double m_epoch_total_energy;
+            double m_epoch_start_energy_pkg;
+            double m_epoch_start_energy_dram;
+            double m_epoch_total_energy_pkg;
+            double m_epoch_total_energy_dram;
             std::map<uint64_t, int> m_region_rank_count;
     };
 }
