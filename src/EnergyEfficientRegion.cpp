@@ -44,12 +44,10 @@ namespace geopm
                                                  double freq_min, double freq_max,
                                                  double freq_step,
                                                  int runtime_idx,
-                                                 int pkg_energy_idx,
-                                                 int dram_energy_idx)
+                                                 int pkg_energy_idx)
         : m_platform_io(platform_io)
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
-        , m_dram_energy_idx(dram_energy_idx)
     {
         update_freq_range(freq_min, freq_max, freq_step);
     }
@@ -103,10 +101,7 @@ namespace geopm
 
     double EnergyEfficientRegion::energy_metric()
     {
-        double total_energy = 0.0;
-        total_energy += m_platform_io.sample(m_pkg_energy_idx);
-        total_energy += m_platform_io.sample(m_dram_energy_idx);
-        return total_energy;
+        return m_platform_io.sample(m_pkg_energy_idx);
     }
 
     double EnergyEfficientRegion::freq(void) const
