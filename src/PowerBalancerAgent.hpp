@@ -194,6 +194,7 @@ namespace geopm
             const double M_WAIT_SEC;
             std::vector<double> m_policy;
             int m_num_node;
+            double M_STABILITY_FACTOR;
     };
 }
 
