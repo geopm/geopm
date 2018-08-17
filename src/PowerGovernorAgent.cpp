@@ -68,7 +68,6 @@ namespace geopm
         , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_updates_per_sample(5)
-        , m_last_energy_status(0.0)
         , m_ascend_count(0)
         , m_ascend_period(10)
         , m_convergence_target(0.01)
@@ -289,9 +288,7 @@ namespace geopm
 
     std::vector<std::string> PowerGovernorAgent::trace_names(void) const
     {
-        return {"power_package",
-                "power_dram",
-                "power_budget"};
+        return {"power_budget"};
     }
 
     void PowerGovernorAgent::trace_values(std::vector<double> &values)
@@ -302,8 +299,6 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        values[M_TRACE_SAMPLE_PKG_POWER] = m_sample[M_PLAT_SIGNAL_PKG_POWER];
-        values[M_TRACE_SAMPLE_DRAM_POWER] = m_sample[M_PLAT_SIGNAL_DRAM_POWER];
         values[M_TRACE_SAMPLE_PWR_BUDGET] = m_last_power_budget;
     }
 

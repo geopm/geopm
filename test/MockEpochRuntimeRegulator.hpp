@@ -68,7 +68,9 @@ class MockEpochRuntimeRegulator : public geopm::IEpochRuntimeRegulator {
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_ignore_time,
                            double(void));
-        MOCK_CONST_METHOD0(total_epoch_energy,
+        MOCK_CONST_METHOD0(total_epoch_energy_pkg,
+                           double(void));
+        MOCK_CONST_METHOD0(total_epoch_energy_dram,
                            double(void));
         MOCK_CONST_METHOD0(total_app_mpi_time,
                            double(void));
