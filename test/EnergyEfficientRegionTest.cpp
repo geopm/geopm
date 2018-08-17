@@ -107,8 +107,7 @@ class EnergyEfficientRegionTest : public ::testing::Test
 EnergyEfficientRegionTest::EnergyEfficientRegionTest()
     : m_freq_region(m_platform_io, m_freq_min, m_freq_max, m_freq_step,
                     StubPlatformIO::RUNTIME,
-                    StubPlatformIO::ENERGY_PKG,
-                    StubPlatformIO::ENERGY_DRAM)
+                    StubPlatformIO::ENERGY_PKG)
 {
 
 }

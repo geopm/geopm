@@ -180,13 +180,15 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, profile_name());
     EXPECT_CALL(m_application_io, region_name_set());
     EXPECT_CALL(m_application_io, total_app_runtime()).WillOnce(Return(56));
-    EXPECT_CALL(m_application_io, total_app_energy()).WillOnce(Return(4444));
+    EXPECT_CALL(m_application_io, total_app_energy_pkg()).WillOnce(Return(2222));
+    EXPECT_CALL(m_application_io, total_app_energy_dram()).WillOnce(Return(2222));
     EXPECT_CALL(m_application_io, total_app_mpi_runtime()).WillOnce(Return(45));
     EXPECT_CALL(m_application_io, total_epoch_ignore_runtime()).Times(2)
         .WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
     EXPECT_CALL(m_application_io, total_epoch_mpi_runtime()).WillOnce(Return(7.0));
-    EXPECT_CALL(m_application_io, total_epoch_energy()).WillOnce(Return(8888));
+    EXPECT_CALL(m_application_io, total_epoch_energy_pkg()).WillOnce(Return(4444));
+    EXPECT_CALL(m_application_io, total_epoch_energy_dram()).WillOnce(Return(4444));
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
@@ -266,7 +268,8 @@ TEST_F(ReporterTest, generate)
         "Region all2all (\n"
         "    runtime (sec): 33.33\n"
         "    sync-runtime (sec): 555.5\n"
-        "    energy (joules): 778\n"
+        "    package-energy (joules): 389\n"
+        "    dram-energy (joules): 389\n"
         "    frequency (%): 81.81\n"
         "    frequency (Hz): 0.818182\n"
         "    mpi-runtime (sec): 3.4\n"
@@ -276,7 +279,8 @@ TEST_F(ReporterTest, generate)
         "Region model-init (\n"
         "    runtime (sec): 22.11\n"
         "    sync-runtime (sec): 333.5\n"
-        "    energy (joules): 889\n"
+        "    package-energy (joules): 444.5\n"
+        "    dram-energy (joules): 444.5\n"
         "    frequency (%): 84.84\n"
         "    frequency (Hz): 0.848485\n"
         "    mpi-runtime (sec): 5.6\n"
@@ -285,7 +289,8 @@ TEST_F(ReporterTest, generate)
         "Region unmarked-region (\n"
         "    runtime (sec): 12.13\n"
         "    sync-runtime (sec): 444\n"
-        "    energy (joules): 223\n"
+        "    package-energy (joules): 111.5\n"
+        "    dram-energy (joules): 111.5\n"
         "    frequency (%): 77.2727\n"
         "    frequency (Hz): 0.772727\n"
         "    mpi-runtime (sec): 1.2\n"
@@ -294,7 +299,8 @@ TEST_F(ReporterTest, generate)
         "Region epoch (\n"
         "    runtime (sec): 77.7\n"
         "    sync-runtime (sec): 666\n"
-        "    energy (joules): 8888\n"
+        "    package-energy (joules): 4444\n"
+        "    dram-energy (joules): 4444\n"
         "    frequency (%): 0\n"
         "    frequency (Hz): 0\n"
         "    mpi-runtime (sec): 4.2\n"
@@ -302,7 +308,8 @@ TEST_F(ReporterTest, generate)
         "    agent stat: 4\n"
         "Application Totals:\n"
         "    runtime (sec): 56\n"
-        "    energy (joules): 4444\n"
+        "    package-energy (joules): 2222\n"
+        "    dram-energy (joules): 2222\n"
         "    mpi-runtime (sec): 45\n"
         "    ignore-time (sec): 0.7\n"
         "    geopmctl memory HWM:\n"
