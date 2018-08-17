@@ -251,8 +251,7 @@ namespace geopm
                                 new EnergyEfficientRegion(m_platform_io, m_freq_min,
                                     m_freq_max, M_FREQ_STEP,
                                     m_signal_idx[M_SIGNAL_RUNTIME],
-                                    m_signal_idx[M_SIGNAL_PKG_ENERGY],
-                                    m_signal_idx[M_SIGNAL_DRAM_ENERGY])));
+                                    m_signal_idx[M_SIGNAL_PKG_ENERGY])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_entry();
@@ -269,8 +268,7 @@ namespace geopm
                                 new EnergyEfficientRegion(m_platform_io, m_freq_min,
                                     m_freq_max, M_FREQ_STEP,
                                     m_signal_idx[M_SIGNAL_RUNTIME],
-                                    m_signal_idx[M_SIGNAL_PKG_ENERGY],
-                                    m_signal_idx[M_SIGNAL_DRAM_ENERGY])));
+                                    m_signal_idx[M_SIGNAL_PKG_ENERGY])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_exit();
@@ -299,7 +297,7 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
     {
-        return {"ENERGY_PACKAGE", "ENERGY_DRAM"};
+        return {"ENERGY_PACKAGE"};
     }
 
     std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_header(void) const
