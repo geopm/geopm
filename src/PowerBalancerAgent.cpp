@@ -76,6 +76,7 @@ namespace geopm
         , M_WAIT_SEC(0.005)
         , m_policy(M_NUM_POLICY, NAN)
         , m_num_node(0)
+        , M_STABILITY_FACTOR(3.0)
     {
 #ifdef GEOPM_DEBUG
         if (m_agg_func.size() != M_NUM_SAMPLE) {
@@ -105,7 +106,7 @@ namespace geopm
                 m_power_gov = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);
             }
             init_platform_io();
-            m_power_balancer = geopm::make_unique<PowerBalancer>();
+            m_power_balancer = geopm::make_unique<PowerBalancer>(M_STABILITY_FACTOR * m_power_gov->power_package_time_window());
             m_num_children = 1;
         }
         else {
@@ -291,6 +292,7 @@ namespace geopm
         double request_limit = m_power_balancer->power_limit();
         if (!std::isnan(request_limit) && request_limit != 0.0) {
             result = m_power_gov->adjust_platform(request_limit, actual_limit);
+            m_power_balancer->power_limit_adjusted(request_limit);
             if (result && actual_limit != request_limit) {
                 if (step() == M_STEP_REDUCE_LIMIT) {
                     m_power_balancer->achieved_limit(actual_limit);

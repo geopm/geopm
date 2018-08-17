@@ -64,9 +64,11 @@ namespace geopm
             /// @return True if platform adjustments have been made, false otherwise.
             virtual bool adjust_platform(double node_power_request, double &node_power_actual) = 0;
             /// @brief Sets min and max package bounds.
-            /// @param min_pkg_power Minimum package power.
-            /// @param max_pkg_power Maximum package power.
+            /// @param [in] min_pkg_power Minimum package power.
+            /// @param [in] max_pkg_power Maximum package power.
             virtual void set_power_bounds(double min_pkg_power, double max_pkg_power) = 0;
+            /// @brief Get the time window for controling package power.
+            /// @return Time window in units of seconds.
             virtual double power_package_time_window(void) const = 0;
     };
 
