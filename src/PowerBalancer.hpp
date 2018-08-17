@@ -35,6 +35,8 @@
 
 #include <memory>
 
+#include "geopm_time.h"
+
 namespace geopm
 {
     /// @brief Stay within a power cap but redistribute power to
@@ -68,6 +70,10 @@ namespace geopm
             ///        this node.
             /// @return The current power limit in units of Watts.
             virtual double power_limit(void) const = 0;
+            /// @brief Notify power balancer that a new limit has been
+            ///        set with the governor.
+            /// @param limit limit that was set.
+            virtual void power_limit_adjusted(double limit) = 0;
             /// @brief Update the object with a runtime measured under
             ///        the current power limit and test if the current
             ///        runtime sample is reliable such that a call
@@ -138,14 +144,15 @@ namespace geopm
     {
         public:
             /// @brief Construct a testable PowerBalancer object.
-            PowerBalancer(double trial_delta, int num_sample, double measure_duration);
+            PowerBalancer(double ctl_latency, double trial_delta, int num_sample, double measure_duration);
             /// @brief Construct a PowerBalancer object.
-            PowerBalancer();
+            PowerBalancer(double ctl_latency);
             /// @brief Destroy a PowerBalancer object.
             virtual ~PowerBalancer() = default;
             void power_cap(double cap) override;
             double power_cap(void) const override;
             double power_limit(void) const override;
+            void power_limit_adjusted(double limit) override;
             bool is_runtime_stable(double measured_runtime) override;
             double runtime_sample(void) override;
             void target_runtime(double largest_runtime) override;
@@ -153,6 +160,9 @@ namespace geopm
             void achieved_limit(double achieved) override;
             double power_slack(void) override;
         private:
+            bool is_limit_stable(void);
+
+            const double M_CONTROL_LATENCY;
             const double M_MIN_TRIAL_DELTA;
             const int M_MIN_NUM_SAMPLE;
             const double M_MIN_DURATION;
@@ -163,6 +173,8 @@ namespace geopm
             // @brief Current power limit to get to target runtime
             //        which may be lower than the cap.
             double m_power_limit;
+            double m_power_limit_last;
+            struct geopm_time_s m_power_limit_change_time;
             double m_target_runtime;
             double m_trial_delta;
             double m_runtime_sample;

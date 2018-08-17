@@ -46,6 +46,7 @@ class MockPowerGovernor : public geopm::IPowerGovernor
                      bool(double node_power_request, double &node_power_actual));
         MOCK_METHOD2(set_power_bounds,
                      void(double min_pkg_power, double max_pkg_power));
+        MOCK_CONST_METHOD0(power_package_time_window, double(void));
 };
 
 #endif
