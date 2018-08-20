@@ -363,8 +363,10 @@ class IndexTracker(object):
             run_output: The Report or Trace object to be tracked.
 
         """
-        index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()), run_output.get_power_budget(),
-                 run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_agent(), run_output.get_node_name())
+        index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
+                 run_output.get_power_budget(),
+                 run_output.get_tree_decider(), run_output.get_leaf_decider(),
+                 run_output.get_agent(), run_output.get_node_name())
 
         if index not in self._run_outputs.keys():
             self._run_outputs[index] = 1
@@ -953,7 +955,7 @@ class Trace(object):
 
         # Reset 'index' to be 0 to the length of the unique trace files
         traces_list = []
-        for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
+        for (version, name, power_budget, tree_decider, leaf_decider, agent, node_name, iteration), df in \
             filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider',
                                        'agent', 'node_name', 'iteration']):
             df = df.reset_index(level='index')
@@ -989,7 +991,7 @@ class Trace(object):
         idx = pandas.IndexSlice
         et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
         median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
-        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, median_index],]
+        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, :, median_index], ]
         if config.verbose:
             median_df_index = []
             median_df_index.append(median_df.index.get_level_values('version').unique()[0])
