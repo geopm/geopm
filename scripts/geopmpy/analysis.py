@@ -40,7 +40,10 @@ import glob
 from collections import defaultdict
 import socket
 import json
+import math
+import numpy
 import pandas
+import subprocess
 
 import matplotlib
 matplotlib.use('Agg')
@@ -71,6 +74,28 @@ class LaunchConfig(object):
         self.app_argv = app_argv
         self.geopm_ctl = geopm_ctl
         self.do_geopm_barrier = do_geopm_barrier
+
+
+def find_hot_region_name(report_df):
+    return report_df.groupby('region')['runtime'].mean().sort_values(ascending=False).drop(['epoch', 'unmarked-region']).index[0]
+
+
+def load_report_or_cache(report_paths, report_h5_name):
+    try:
+        report_df = pandas.read_hdf(report_h5_name, 'table')
+    except IOError:
+        sys.stderr.write('WARNING: No HDF5 files detected.  Data will be saved to {}.\n'
+                         .format(report_h5_name))
+        output = geopmpy.io.AppOutput(report_paths, None, verbose=True)
+        try:
+            sys.stdout.write('Generating HDF5 files... ')
+            report_df = output.get_report_df()
+            report_df.to_hdf(report_h5_name, 'table')
+            sys.stdout.write('Done.\n')
+        except ImportError:
+            sys.stderr.write('Warning: unable to write HDF5 file.\n')
+    assert report_df is not None
+    return report_df
 
 
 class Analysis(object):
@@ -134,7 +159,10 @@ class Analysis(object):
         """
         Load any necessary data from the application result files into memory for analysis.
         """
-        return geopmpy.io.AppOutput(self._report_paths, self._trace_paths, verbose=self._verbose).get_report_df()
+        # move to common place.  should be able to reuse for any analysis
+        report_h5_name = self._name + '_report.h5'  # TODO: fix name
+        report_df = load_report_or_cache(self._report_paths, report_h5_name)
+        return report_df
 
     def plot_process(self, parse_output):
         """
@@ -159,6 +187,569 @@ class Analysis(object):
         Generate graphical plots of the results.
         """
         raise NotImplementedError('Analysis base class does not implement the plot() method')
+
+
+class PowerSweepAnalysis(Analysis):
+    """
+    Runs the application under a range of socket power limits.  Used
+    by other analysis types to run either the PowerGovernorAgent or
+    the PowerBalancerAgent.
+    """
+
+    @staticmethod
+    def add_options(parser):
+        """
+        Set up options supported by the analysis type.
+        """
+        parser.add_argument('--min-power', dest='min_power',
+                            type=int, default=None)
+        parser.add_argument('--max-power', dest='max_power',
+                            type=int, default=None)
+        parser.add_argument('--step-power', dest='step_power',
+                            type=int, default=10)
+
+    @staticmethod
+    def sys_power_avail():
+        # TODO: this would be nicer with PlatformIO python API
+        proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_MIN', 'package', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        min_power = int(proc.stdout.readline().strip())
+        proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_TDP', 'package', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        tdp_power = int(proc.stdout.readline().strip())
+        proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_MAX', 'package', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        max_power = int(proc.stdout.readline().strip())
+
+        return min_power, tdp_power, max_power
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Power sweep analysis: """ + PowerSweepAnalysis.__doc__ + """
+  Options for PowerSweepAnalysis:
+
+  --min-power           Minimum power limit to use for sweep. Default uses system minimum or minimum found in parsed data.
+  --max-power           Maximum power limit to use for sweep. Default uses system maximum or maximum found in parsed data.
+  --step-power          Step size of power limits used in sweep.  Default is 10W.
+"""
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+                 min_power, max_power, step_power, agent_type='power_governor'):
+        super(PowerSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        self._min_power = min_power
+        self._max_power = max_power
+        self._step_power = step_power
+        self._agent_type = agent_type
+
+    def try_launch(self, profile_name, tag, iteration, ctl_conf, config, agent=None):
+        # tag is used to differentiate output files for governor and balancer.  profile name will be the same.
+        report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(tag, iteration))
+        trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(tag, iteration))
+        self._report_paths.append(report_path)
+        self._trace_paths.append(trace_path+'*')
+
+        if config.app_argv and not os.path.exists(report_path):
+            argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
+                             '--geopm-policy', ctl_conf.get_path(),
+                             '--geopm-report', report_path,
+                             '--geopm-trace', trace_path,
+                             '--geopm-profile', profile_name]
+            if config.do_geopm_barrier:
+                argv.append('--geopm-barrier')
+            if agent:
+                argv.append('--geopm-agent=' + agent)
+            argv.append('--')
+            argv.extend(config.app_argv)
+            launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
+            launcher.run()
+        elif os.path.exists(report_path):
+            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+        else:
+            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+
+    def launch(self, config):
+        sys_min, sys_tdp, sys_max = PowerSweepAnalysis.sys_power_avail()
+        if self._min_power is None or self._min_power < sys_min:
+            # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
+            self._min_power = max(int(0.5 * sys_tdp), sys_min)
+            self._min_power = int(self._step_power * math.ceil(float(self._min_power)/self._step_power))
+            sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified min_power; using default minimum: {}.\n".format(self._min_power))
+        if self._max_power is None or self._max_power > sys_max:
+            self._max_power = sys_tdp
+            sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_power; using system TDP: {}.\n".format(self._max_power))
+
+        power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        for power_cap in power_caps:
+            agent = None
+            # governor runs
+            ctl_conf = geopmpy.io.CtlConf(os.path.join(self._output_dir, self._name + '_ctl.config'),
+                                          'dynamic',
+                                          {'tree_decider': 'static_policy',
+                                           'leaf_decider': 'power_governing',
+                                           'platform': 'rapl',
+                                           'power_budget': power_cap})
+            if not config.agent:
+                ctl_conf.write()
+            else:
+                # todo: clean up
+                with open(ctl_conf.get_path(), "w") as outfile:
+                    if self._agent_type == 'power_governor':
+                        outfile.write("{\"POWER\": " + str(ctl_conf._options['power_budget']) + "}\n")
+                    elif self._agent_type == 'power_balancer':
+                        outfile.write("{\"POWER_CAP\": " + str(ctl_conf._options['power_budget']) + ", " +
+                                      "\"STEP_COUNT\":0, \"MAX_EPOCH_RUNTIME\":0, \"POWER_SLACK\":0}\n")
+                    else:
+                        raise RuntimeError('<geopmpy>: Unsupported agent type for power sweep: {}'.format(self._agent_type))
+                agent = self._agent_type
+
+            for iteration in range(self._iterations):
+                profile_name = self._name + '_' + str(power_cap)
+                self.try_launch(profile_name, self._agent_type, iteration, ctl_conf, config, agent)
+
+
+class BalancerAnalysis(Analysis):
+    """
+    Runs the application under a given range of power caps using both the governor
+    and the balancer.  Compares the performance of the two agents at each power cap.
+    """
+
+    @staticmethod
+    def add_options(parser):
+        """
+        Set up options supported by the analysis type.
+        """
+        PowerSweepAnalysis.add_options(parser)
+        parser.add_argument('--metric', default='runtime')
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Balancer analysis: """ + BalancerAnalysis.__doc__ + """
+  Options for BalancerAnalysis:
+
+  --metric              Metric to use for comparison (runtime, power, or energy).
+
+""" + PowerSweepAnalysis.help_text()
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power, metric):
+        super(BalancerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        # self._power_caps = range(min_power, max_power+step_power, step_power)
+        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power, max_power, step_power, 'power_governor')
+        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power, max_power, step_power, 'power_balancer')
+        self._metric = metric
+        if self._metric == 'energy':
+            self._metric = 'energy_pkg'
+
+        self._min_power = min_power
+        self._max_power = max_power
+        # TODO:
+        self._use_agent = True
+
+    # todo: why does each analysis need to define this?
+    # a: in case of special naming convention like freq sweep
+    def find_files(self, search_pattern='*report'):
+        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
+        # todo: fix search pattern parameter
+        trace_glob = os.path.join(self._output_dir, self._name + '*trace*')
+        #trace_glob = None
+        self.set_data_paths(glob.glob(report_glob), glob.glob(trace_glob))
+        self._use_agent = True  # TODO: detect
+
+    def launch(self, config):
+        self._governor_power_sweep.launch(config)
+        self._balancer_power_sweep.launch(config)
+
+    def summary_process(self, parse_output):
+        sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
+
+    def summary(self, process_output):
+        return ""
+
+    def plot_process(self, parse_output):
+        def extract_index_from_profile(df):
+            # Pull the power budget out of the profile name ('name' index field)
+            profile_name_map = {}
+            names_list = df.index.get_level_values('name').unique().tolist()
+            #names_list = numpy.unique(df.index.values)  #.tolist()
+            for name in names_list:
+                # The profile name is currently set to: ${ITERATION}_${POWER_BUDGET}
+                profile_name_map.update({name: int(name.split('_')[-1])})
+            df = df.rename(profile_name_map)
+            #df.index = df.index.set_names('power_budget', level='name')
+            return df
+
+        report_df = parse_output
+
+        report_df = extract_index_from_profile(report_df)
+
+        idx = pandas.IndexSlice
+        df = pandas.DataFrame()
+
+        reference = 'static_policy'
+        target = 'power_balancing'
+        if self._use_agent:
+            reference = 'power_governor'
+            target = 'power_balancer'
+             # TODO: have a separate power analysis?
+            if self._metric == 'power':
+                rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'energy_pkg']
+                rgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'runtime']
+                reference_g = (rge / rgr).groupby(level='name')
+            else:
+                reference_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'],
+                                        self._metric].groupby(level='name')
+        else:
+            if self._metric == 'power':
+                rge = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
+                                        'energy_pkg'].groupby(level='power_budget')
+                rgr = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
+                                        'runtime'].groupby(level='power_budget')
+                reference_g = rge / rgr
+            else:
+                reference_g = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
+                                        self._metric].groupby(level='power_budget')
+
+        df['reference_mean'] = reference_g.mean()
+        df['reference_max'] = reference_g.max()
+        df['reference_min'] = reference_g.min()
+        if self._use_agent:
+            if self._metric == 'power':
+                tge = report_df.loc[idx[:, :, :, :, :, target, :, :, 'epoch'], 'energy_pkg']
+                tgr = report_df.loc[idx[:, :, :, :, :, target, :, :, 'epoch'], 'runtime']
+                target_g = (tge / tgr).groupby(level='name')
+            else:
+                target_g = report_df.loc[idx[:, :, :, :, :, target, :, :, 'epoch'],
+                                         self._metric].groupby(level='name')
+        else:
+            if self._metric == 'power':
+                tge = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
+                                    'energy_pkg']#.groupby(level='power_budget')
+                tgr = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
+                                    'runtime']#.groupby(level='power_budget')
+                target_g = (tge / tgr).groupby(level='power_budget')
+            else:
+                target_g = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
+                                         self._metric].groupby(level='power_budget')
+
+        df['target_mean'] = target_g.mean()
+        df['target_max'] = target_g.max()
+        df['target_min'] = target_g.min()
+
+        # TODO: add to config options
+        self._normalize = True
+        self._speedup = False
+        if self._normalize and not self._speedup:  # Normalize the data against the rightmost reference bar
+            df /= df['reference_mean'].iloc[-1]
+
+        # if config.speedup:  # Plot the inverse of the target data to show speedup as a positive change
+        #     df = df.div(df['reference_mean'], axis='rows')
+        #     df['target_mean'] = 1 / df['target_mean']
+        #     df['target_max'] = 1 / df['target_max']
+        #     df['target_min'] = 1 / df['target_min']
+
+        # Convert the maxes and mins to be deltas from the mean; required for the errorbar API
+        df['reference_max_delta'] = df['reference_max'] - df['reference_mean']
+        df['reference_min_delta'] = df['reference_mean'] - df['reference_min']
+        df['target_max_delta'] = df['target_max'] - df['target_mean']
+        df['target_min_delta'] = df['target_mean'] - df['target_min']
+
+        return df
+
+    def plot(self, process_output):
+        config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
+        config.output_types = ['png']
+        config.verbose = True
+        config.datatype = self._metric
+        config.speedup = self._speedup
+        config.normalize = self._normalize
+        config.profile_name = self._name
+        if self._use_agent:
+            config.tgt_plugin = 'power_balancer'
+            config.ref_plugin = 'power_governor'
+            config.use_agent = True
+        geopmpy.plotter.generate_bar_plot_comparison(process_output, config)
+
+
+# todo: check whether this is supposed to use governor, or monitor with
+# fixed package power. if governor ignores dram, it might not matter.
+# TODO: use epoch frequency instead of hot region
+class NodeEfficiencyAnalysis(Analysis):
+    """
+    Generates a histogram per power cap of the frequency achieved in the hot
+    region of the application across nodes.
+    Use 25 MHz bucket size for now, but make this a configuration parameter.
+    """
+
+    @staticmethod
+    def add_options(parser):
+        """
+        Set up options supported by the analysis type.
+        """
+        PowerSweepAnalysis.add_options(parser)
+        parser.add_argument('--min-freq', dest='min_freq',
+                            type=float, default=0.5e9)
+        parser.add_argument('--max-freq', dest='max_freq',
+                            type=float, default=3.0e9)
+        parser.add_argument('--step-freq', dest='step_freq',
+                            type=float, default=0.1e9)
+        parser.add_argument('--sticker-freq', dest='sticker_freq',
+                            type=float, default=None)
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Node efficiency analysis: """ + NodeEfficiencyAnalysis.__doc__ + """
+  Options for NodeEfficiencyAnalysis:
+
+  --min-freq            Minimum frequency to display for plotting.  Default is 0.5 GHz.
+  --max-freq            Maximum frequency to display for plotting.  Default is 3.0 GHz.
+  --step-freq           Size of frequency bins to use for plotting.  Default is 100 MHz.
+  --sticker-freq        Sticker frequency of the system where data was collected.
+                        If not provided, the current system sticker frequency will be used.
+
+""" + PowerSweepAnalysis.help_text()
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+                 min_power, max_power, step_power,
+                 min_freq, max_freq, step_freq, sticker_freq):
+        super(NodeEfficiencyAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power=min_power, max_power=max_power,
+                                                        step_power=step_power, agent_type='power_governor')
+        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power=min_power, max_power=max_power,
+                                                        step_power=step_power, agent_type='power_balancer')
+
+        self._min_freq = min_freq
+        self._max_freq = max_freq
+        self._step_freq = step_freq
+        if not sticker_freq:
+            sticker_freq = NodeEfficiencyAnalysis._find_sticker_freq()
+        self._sticker_freq = sticker_freq
+        self._min_power = min_power
+        self._max_power = max_power
+        self._step_power = step_power
+
+    def launch(self, config):
+        self._governor_power_sweep.launch(config)
+        self._balancer_power_sweep.launch(config)
+
+    def summary_process(self, parse_output):
+        # TODO: temporarily skip balancer if we don't have the data. or make agent configurable
+        report_df = parse_output  # load_report_or_cache(self._report_paths, "node_efficiency.h5")  # TODO: fix name
+        profiles = [int(pc.split('_')[-1]) for pc in report_df.index.get_level_values('name')]
+        if not self._min_power:
+            self._min_power = min(profiles)
+        if not self._max_power:
+            self._max_power = max(profiles)
+
+        self._power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        gov_freq_data = {}
+        bal_freq_data = {}
+        for target_power in self._power_caps:
+            profile = self._name + "_" + str(target_power)
+
+            region_of_interest = find_hot_region_name(report_df)  # TODO: change to epoch
+            # version name power_budget tree_decider leaf_decider agent node_name iteration region
+            gov_freq_data[target_power] = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, "power_governor", :, :, region_of_interest], ]\
+                                                   .groupby('node_name').mean()['frequency'].sort_values()
+            bal_freq_data[target_power] = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, "power_balancer", :, :, region_of_interest], ]\
+                                                   .groupby('node_name').mean()['frequency'].sort_values()
+            # convert percent to GHz frequency based on sticker
+            gov_freq_data[target_power] *= 0.01 * self._sticker_freq / 1e9
+            bal_freq_data[target_power] *= 0.01 * self._sticker_freq / 1e9
+
+        return gov_freq_data, bal_freq_data
+
+    def summary(self, process_output):
+        gov_freq_data, bal_freq_data = process_output
+        for target_power in self._power_caps:
+            gov_data = gov_freq_data[target_power].to_string()
+            bal_data = bal_freq_data[target_power].to_string()
+            sys.stdout.write('Achieved frequencies at {}W with PowerGovernorAgent:\n'.format(target_power))
+            sys.stdout.write(gov_data + '\n')
+            sys.stdout.write('Achieved frequencies at {}W with PowerBalancerAgent:\n'.format(target_power))
+            sys.stdout.write(bal_data + '\n')
+            # TODO: this is here to be consumed by another script that characterizes subsets of nodes.
+            # range of nodes could also be an input option
+            with open(os.path.join(self._output_dir, "gov_freq_{}.data".format(target_power)), "w") as outfile:
+                outfile.write(gov_freq_data[target_power].to_string())
+            with open(os.path.join(self._output_dir, "bal_freq_{}.data".format(target_power)), "w") as outfile:
+                outfile.write(bal_freq_data[target_power].to_string())
+        sys.stdout.write('Achieved frequencies summary written to {}/*.data.'.format(self._output_dir))
+
+    def plot_process(self, parse_output):
+        return self.summary_process(parse_output)
+
+    def plot(self, process_output):
+        all_gov_data, all_bal_data = process_output
+
+        config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
+        config.output_types = ['png']
+        config.verbose = True
+        config.min_drop = self._min_freq / 1e9
+        config.max_drop = (self._max_freq - self._step_freq) / 1e9
+        bin_size = self._step_freq / 1e9
+
+        for target_power in self._power_caps:
+            gov_data = all_gov_data[target_power]
+            bal_data = all_bal_data[target_power]
+            #profile = self._name + "_" + str(target_power)
+
+            config.profile_name = self._name + "@" + str(target_power) + "W Governor"
+            geopmpy.plotter.generate_histogram(gov_data, config, 'frequency',
+                                               bin_size, 3)
+            config.profile_name = self._name + "@" + str(target_power) + "W Balancer"
+            geopmpy.plotter.generate_histogram(bal_data, config, 'frequency',
+                                               bin_size, 3)
+
+    @staticmethod
+    def _find_sticker_freq():
+        # TODO: this would be nicer with PlatformIO python API
+        proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_STICKER', 'board', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = proc.wait()
+        if res != 0:
+            cont = True
+            err = ""
+            while cont:
+                line = proc.stderr.readline()
+                if line:
+                    err += line
+                else:
+                    cont = False
+            raise RuntimeError("Unable to determine sticker_freq: " + err)
+        return float(proc.stdout.readline().strip())
+
+
+# TODO: figure out where to put print_run_stats.  this function could be report and
+# histogram could be the plot
+# Note: there is also a generate_power_plot method in plotter; see what overlaps.
+
+class NodePowerAnalysis(Analysis):
+    """
+    Generates a histogram of the achieved package power across nodes when the
+    application is run without a power cap.
+    """
+
+    @staticmethod
+    def add_options(parser):
+        """
+        Set up options supported by the analysis type.
+        """
+        # TODO: these have the same name as PowerSweepAnalysis, but different purpose.
+        parser.add_argument('--min-power', dest='min_power',
+                            type=int, default=120)
+        parser.add_argument('--max-power', dest='max_power',
+                            type=int, default=200)
+        parser.add_argument('--step-power', dest='step_power',
+                            type=int, default=10)
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Node power analysis: """ + NodePowerAnalysis.__doc__ + """
+  Options for NodePowerAnalysis:
+
+  --min-power           Minimum power to display for plotting.  Default is 120W.
+  --max-power           Maximum power to display for plotting.  Default is 200W.
+  --step-power          Size of power bins to use for plotting.  Default is 10W.
+
+"""
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power):
+        super(NodePowerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+
+        # min and max are only used for plot xaxis, not for launch
+        self._min_power = min_power
+        self._max_power = max_power
+        self._step_power = step_power
+        self._profile_name = self._name + '_' + str(self._max_power)  # '_nocap'  # TODO
+
+    def launch(self, config):
+        agent = monitor
+        ctl_conf = geopmpy.io.CtlConf(os.path.join(self._output_dir, self._name + '_ctl.config'),
+                                      'dynamic',
+                                      {'tree_decider': 'static_policy',
+                                       'leaf_decider': 'static_policy',
+                                       'platform': 'rapl',
+                                       'power_budget': power_cap})
+        if not config.agent:
+            ctl_conf.write()
+        else:
+            # todo: clean up
+            with open(ctl_conf.get_path(), "w") as outfile:
+                    outfile.write("{}\n")
+
+        for iteration in range(self._iterations):
+            report_path = os.path.join(self._output_dir, self._profile_name + '_{}.report'.format(iteration))
+            trace_path = os.path.join(self._output_dir, self._profile_name + '_{}.trace'.format(iteration))
+            self._report_paths.append(report_path)
+            self._trace_paths.append(trace_path+'*')
+
+            if config.app_argv and not os.path.exists(report_path):
+                argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
+                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-report', report_path,
+                                 '--geopm-trace', trace_path,
+                                 '--geopm-profile', profile_name]
+                if config.do_geopm_barrier:
+                    argv.append('--geopm-barrier')
+                if agent:
+                    argv.append('--geopm-agent=' + agent)
+                argv.append('--')
+                argv.extend(config.app_argv)
+                launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
+                launcher.run()
+            elif os.path.exists(report_path):
+                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+            else:
+                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+
+    def summary_process(self, parse_output):
+        sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
+
+    def summary(self, process_output):
+        pass
+
+    def plot_process(self, parse_output):
+        report_df = parse_output   # load_report_or_cache(self._report_paths, "node_power.h5")  # TODO: fix name
+
+        #profile = self._name + "_" + str(self._max_power)  # "_nocap"
+        profile = self._profile_name
+
+        region_of_interest = 'epoch'
+        energy_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['energy_pkg'].sort_values()
+        runtime_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['runtime'].sort_values()
+        power_data = energy_data / runtime_data
+        power_data = power_data.sort_values()
+        return power_data
+
+    def plot(self, process_output):
+        config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
+        config.output_types = ['png']
+        config.verbose = True
+        config.profile_name = self._name
+        config.min_drop = self._min_power
+        config.max_drop = self._max_power - self._step_power
+
+        bin_size = self._step_power
+        geopmpy.plotter.generate_histogram(process_output, config, 'power',
+                                           bin_size, 0)
+
+
+class FrequencyRangeAnalysis(Analysis):
+    """
+    Show the range of achieved frequencies at each power cap.
+    x axis is power cap, y axis is frequency with a bar from min to max across nodes.
+    """
+    pass
 
 
 class FreqSweepAnalysis(Analysis):
@@ -219,11 +810,11 @@ class FreqSweepAnalysis(Analysis):
         sys_min, sys_max = FreqSweepAnalysis.sys_freq_avail()
         if self._min_freq is None or self._min_freq < sys_min:
             if self._verbose:
-                sys.stderr.write("<geopmpy>: Warning: Invalid min_freq; using system minimum: {}.\n".format(sys_min))
+                sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified min_freq; using system minimum: {}.\n".format(sys_min))
             self._min_freq = sys_min
         if self._max_freq is None or self._max_freq > sys_max:
             if self._verbose:
-                sys.stderr.write("<geopmpy>: Warning: Invalid max_freq; using system maximum: {}.\n".format(sys_max))
+                sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_freq; using system maximum: {}.\n".format(sys_max))
             self._max_freq = sys_max
         num_step = 1 + int((self._max_freq - self._min_freq) / FreqSweepAnalysis.step_freq)
         freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
@@ -950,7 +1541,8 @@ Usage: {argv_0} [-h|--help] [--version]
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
-  ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix.
+  ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix,
+                        balancer, node_efficiency, node_power
 
   -h, --help            show this help message and exit
   -t, --analysis-type   type of analysis to perform. Available
@@ -977,16 +1569,20 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     analysis_type_map = {'freq_sweep': FreqSweepAnalysis,
                          'offline': OfflineBaselineComparisonAnalysis,
                          'online': OnlineBaselineComparisonAnalysis,
-                         'stream_mix': StreamDgemmMixAnalysis}
+                         'stream_mix': StreamDgemmMixAnalysis,
+                         'power_sweep': PowerSweepAnalysis,
+                         'balancer': BalancerAnalysis,
+                         'node_efficiency': NodeEfficiencyAnalysis,
+                         'node_power': NodePowerAnalysis}
 
     if '--help' in argv or '-h' in argv:
         sys.stdout.write(help_str)
         if len(argv) >= 2 and argv[0] in analysis_type_map:
             sys.stdout.write(analysis_type_map[argv[0]].help_text())
-        exit(0)
+        return 0
     if '--version' in argv:
         sys.stdout.write(version_str)
-        exit(0)
+        return 0
 
     if os.getenv("GEOPM_AGENT", None) is not None:
         raise RuntimeError('Use --use-agent option instead of environment variable to enable agent code path.')
@@ -994,7 +1590,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     if len(argv) < 1:
         sys.stderr.write("<geopmpy> Error: analysis type is required.\n")
         sys.stderr.write(help_str)
-        exit(1)
+        return 1
     analysis_type = argv[0]
     argv = argv[1:]
 
@@ -1076,3 +1672,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     if do_plot:
         process_output = analysis.plot_process(parse_output)
         analysis.plot(process_output)
+
+    return 0

@@ -35,5 +35,5 @@ import sys
 import geopmpy.analysis
 
 if __name__ == '__main__':
-    geopmpy.analysis.main(sys.argv[1:])
-
+    err = geopmpy.analysis.main(sys.argv[1:])
+    sys.exit(err)

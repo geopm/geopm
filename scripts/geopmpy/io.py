@@ -44,7 +44,7 @@ import sys
 import subprocess
 from natsort import natsorted
 from geopmpy import __version__
-
+import code
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
@@ -363,8 +363,10 @@ class IndexTracker(object):
             run_output: The Report or Trace object to be tracked.
 
         """
-        index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()), run_output.get_power_budget(),
-                 run_output.get_tree_decider(), run_output.get_leaf_decider(), run_output.get_agent(), run_output.get_node_name())
+        index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
+                 run_output.get_power_budget(),
+                 run_output.get_tree_decider(), run_output.get_leaf_decider(),
+                 run_output.get_agent(), run_output.get_node_name())
 
         if index not in self._run_outputs.keys():
             self._run_outputs[index] = 1
@@ -658,6 +660,9 @@ class Report(dict):
         else:
             raise SyntaxError('Unable to parse power_budget information from report!')
 
+        # TODO: temporary hack to use old data
+        if self._total_energy_dram is None:
+            self._total_energy_dram = 0
         if (len(line) != 0 and (region_name is not None or not found_totals or
             None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
@@ -733,7 +738,7 @@ class Region(dict):
         self['runtime'] = float(runtime)
         self['sync_runtime'] = float(sync_runtime) if sync_runtime is not None else runtime
         self['energy_pkg'] = float(energy_pkg)
-        self['energy_dram'] = float(energy_dram)
+        self['energy_dram'] = float(energy_dram) if energy_dram is not None else 0
         self['frequency'] = float(frequency)
         self['mpi_runtime'] = float(mpi_runtime)
         self['count'] = int(count)
@@ -807,7 +812,7 @@ class Trace(object):
         trace_path: The path to the trace file to parse.
 
     """
-    def __init__(self, trace_path, use_agent=False):
+    def __init__(self, trace_path, use_agent=True):
         self._path = trace_path
         self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id': str})  # region_id must be a string because pandas can't handle 64-bit integers
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
@@ -945,15 +950,17 @@ class Trace(object):
         else:
             tmp_df = trace_df
 
-        filtered_df = tmp_df.filter(regex=column_regex)
+        filtered_df = tmp_df.filter(regex=column_regex).copy()
         filtered_df['elapsed_time'] = tmp_df['seconds']
         filtered_df = filtered_df.diff()
         # The following drops all 0's and the negative sample when traversing between 2 trace files.
         filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
+        #code.interact(local=dict(globals(), **locals()))
 
         # Reset 'index' to be 0 to the length of the unique trace files
         traces_list = []
-        for (version, name, power_budget, tree_decider, leaf_decider, node_name, iteration), df in \
+        #filtered_df = filtered_df.reset_index(level='agent', drop=True)
+        for (version, name, power_budget, tree_decider, leaf_decider, agent, node_name, iteration), df in \
             filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider',
                                        'agent', 'node_name', 'iteration']):
             df = df.reset_index(level='index')
@@ -989,7 +996,7 @@ class Trace(object):
         idx = pandas.IndexSlice
         et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
         median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
-        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, median_index],]
+        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, :, median_index], ]
         if config.verbose:
             median_df_index = []
             median_df_index.append(median_df.index.get_level_values('version').unique()[0])

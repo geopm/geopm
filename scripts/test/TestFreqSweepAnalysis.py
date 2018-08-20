@@ -35,6 +35,7 @@ import os
 import sys
 import unittest
 from collections import defaultdict
+from StringIO import StringIO
 try:
     import pandas
     import geopm_context
@@ -191,7 +192,7 @@ def get_expected_app_freqs(best_fit):
     return expected_df
 
 
-class TestAnalysis(unittest.TestCase):
+class TestFreqSweepAnalysis(unittest.TestCase):
     def setUp(self):
         if g_skip_analysis_test:
             self.skipTest(g_skip_analysis_ex)
@@ -355,6 +356,7 @@ class TestAnalysis(unittest.TestCase):
             sys.stderr.write('\nExpected:\n')
             sys.stderr.write(expected_energy_df.to_string())
             self.assertTrue((expected_energy_df == energy_result).all().all())
+
 
 if __name__ == '__main__':
     unittest.main()
