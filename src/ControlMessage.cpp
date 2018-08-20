@@ -31,6 +31,8 @@
  */
 
 #include <string.h>
+#include <unistd.h>
+#include <limits.h>
 
 #include "geopm_signal_handler.h"
 #include "geopm_env.h"
@@ -79,8 +81,16 @@ namespace geopm
             }
         }
         if (this_status() != m_last_status) {
-            throw Exception("ControlMessage::wait(): Timed out waiting for status " +
-                            std::to_string(m_last_status),
+            char hostname[NAME_MAX];
+            int err = gethostname(hostname, NAME_MAX);
+            std::string hostname_str = "";
+            if (!err) {
+                hostname_str = std::string(hostname);
+            }
+            throw Exception("ControlMessage::wait(): " + hostname_str +
+                            " : is_ctl=" + std::to_string(m_is_ctl) +
+                            " : is_writer=" + std::to_string(m_is_writer) +
+                            " : Timed out waiting for status " + std::to_string(m_last_status),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
