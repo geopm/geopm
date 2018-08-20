@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "fe36bb2b_25e4f479",
+        "filename": "README",
+        "patchSetId": 15
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-20T15:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b27a1269_4729b412",
+      "range": {
+        "startLine": 225,
+        "startChar": 10,
+        "endLine": 226,
+        "endChar": 28
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b0655e_ff0b7d0c",
+        "filename": "README",
+        "patchSetId": 15
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-20T15:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e38bb7ea_0ddfd424",
+      "range": {
+        "startLine": 226,
+        "startChar": 68,
+        "endLine": 226,
+        "endChar": 110
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d503e2ac_6bf37ce7",
         "filename": "src/Kontroller.cpp",
         "patchSetId": 15
@@ -59,6 +107,30 @@
       "writtenOn": "2018-08-16T22:30:44Z",
       "side": 1,
       "message": "Is this function just copy/pasted code.",
+      "range": {
+        "startLine": 75,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 45
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efed8326_be84c1d2",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-20T15:58:22Z",
+      "side": 1,
+      "message": "This is properly implemented.  The difference is the way exceptions are being handled in threaded vs. application mode.",
+      "parentUuid": "d503e2ac_6bf37ce7",
       "range": {
         "startLine": 75,
         "startChar": 11,
@@ -91,6 +163,30 @@
       "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d88624b_2a2c1317",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-08-20T15:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dea517d1_8e67c16f",
+      "range": {
+        "startLine": 43,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 27
+      },
+      "revId": "ef938d35cdbb44cae4d25d56393421c35decb2db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
