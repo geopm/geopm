@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17fa1a94_bfb81be5",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-20T17:50:15Z",
+      "side": 1,
+      "message": "that",
+      "range": {
+        "startLine": 394,
+        "startChar": 17,
+        "endLine": 394,
+        "endChar": 18
+      },
+      "revId": "e435dcbbe5b370c353991f950b7ce2276a15a453",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
