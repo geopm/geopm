@@ -55,6 +55,10 @@ init():
   Agents might have different behavior depending on their role in the
   tree.
 
+  Care must be taken to ensure all IOGroup plugins that the agent depends on
+  are loaded prior to calling init().  See Section 3 - "Set up registration on
+  plugin load" in the IOGroup tutorial [README](../iogroup/README.md) for more
+  information.
 
 2. Policies
 -----------

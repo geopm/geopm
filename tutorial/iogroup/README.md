@@ -128,7 +128,7 @@ further in the section on registration.
   latest value to standard error.
 
 
-2. Set up registration on plugin load
+3. Set up registration on plugin load
 -------------------------------------
 
 In order to be visible to PlatformIO and used by Agents, IOGroups must
@@ -149,8 +149,19 @@ description of GEOPM_PLUGIN_PATH).  Do not link any of the GEOPM
 libraries into the plugin shared object; this will cause a circular
 link dependency.
 
+The Controller will make an effort to save and restore all of the values
+exposed by an IOGroup that has implemented the save_control() and
+restore_control() methods.  The only built-in IOGroup with this functionality
+is the MSRIOGroup.
 
-3. Build and install
+The save_control() method is implemented so that one must register all desired
+IOGroups prior to the invocation of save_control().  Once save_control() has
+been called, an error is raised if additional IOGroups are registered.  Since
+save_control happens before the agent's init() method is called, care must be
+taken to ensure all IOGroup plugins that the agent depends on are loaded prior
+to calling init().
+
+4. Build and install
 --------------------
 
 The ExampleIOGroup plugin is built by running tutorial_build_gnu.sh or
@@ -167,7 +178,7 @@ An alternative is to install the plugin by copying the .so file into
 the GEOPM install directory into <GEOPM_INSTALL_DIR>/lib/geopm.
 
 
-4. Run with geopmread and geopmwrite
+5. Run with geopmread and geopmwrite
 ------------------------------------
 
 Running `geopmread` with no arguments will print out a list of all
