@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12d6d7da_e26eb317",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T15:27:09Z",
+      "side": 0,
+      "message": "Does this need to be removed in the header?",
+      "range": {
+        "startLine": 255,
+        "startChar": 49,
+        "endLine": 255,
+        "endChar": 69
+      },
+      "revId": "1c8477c9a88f21fec649aaf5dd5f7d7539669348",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "443b1fbe_fda62c30",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T15:27:09Z",
+      "side": 1,
+      "message": "DRAM",
+      "range": {
+        "startLine": 720,
+        "startChar": 37,
+        "endLine": 720,
+        "endChar": 41
+      },
+      "revId": "e0bdd29320c39747341b7a39962ceab7248f17e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
