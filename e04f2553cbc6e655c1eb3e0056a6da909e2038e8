@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5fdb110_9b8ed90d",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T15:37:55Z",
+      "side": 1,
+      "message": "This should have an alias too, if Agents are going to use it.",
+      "revId": "e04f2553cbc6e655c1eb3e0056a6da909e2038e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c51a0e3_740a2314",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T15:37:55Z",
+      "side": 1,
+      "message": "Maybe just remove this.  We can always put it back later.",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "e04f2553cbc6e655c1eb3e0056a6da909e2038e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
