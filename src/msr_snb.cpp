@@ -262,7 +262,6 @@ namespace geopm
                       .scalar    = 1.0}}},
                 {}),
             MSR("MISC_ENABLE", 0x1A0,
-                {},
                 {{"ENHANCED_SPEEDSTEP_TECH_ENABLE", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
                       .end_bit   = 17,
@@ -276,7 +275,8 @@ namespace geopm
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
                       .units     = IMSR::M_UNITS_NONE,
-                      .scalar    = 1.0}}}),
+                      .scalar    = 1.0}}},
+                {}),
             MSR("TEMPERATURE_TARGET", 0x1A2,
                 {{"DIGITAL_READOUT", (struct IMSR::m_encode_s) {
                       .begin_bit = 16,
