@@ -19,6 +19,46 @@
     },
     {
       "key": {
+        "uuid": "d6db62d7_bc3145f9",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-21T19:14:10Z",
+      "side": 1,
+      "message": "Make this a function of target_pkg_power not node_power_request.",
+      "range": {
+        "startLine": 99,
+        "startChar": 16,
+        "endLine": 99,
+        "endChar": 63
+      },
+      "revId": "e04f2553cbc6e655c1eb3e0056a6da909e2038e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb8852d3_33ea70a9",
+        "filename": "src/PowerGovernor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-21T19:14:10Z",
+      "side": 1,
+      "message": "Need to set m_last_node_power_setting to NAN here.",
+      "revId": "e04f2553cbc6e655c1eb3e0056a6da909e2038e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7c51a0e3_740a2314",
         "filename": "src/PowerGovernor.hpp",
         "patchSetId": 3
