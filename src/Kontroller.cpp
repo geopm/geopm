@@ -168,14 +168,9 @@ namespace geopm
     {
         m_application_io->connect();
         geopm_signal_handler_check();
-        init_agents();
-        geopm_signal_handler_check();
-        // save_control() must be called after all IOGroups have been
-        // registered.  The init_agents() method is the last
-        // opportunity for Agent plugin code to register new IOGroups,
-        // so this should be the earliest place we can put
-        // save_control().
         m_platform_io.save_control();
+        geopm_signal_handler_check();
+        init_agents();
         geopm_signal_handler_check();
         m_reporter->init();
         geopm_signal_handler_check();
