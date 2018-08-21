@@ -55,6 +55,17 @@ init():
   Agents might have different behavior depending on their role in the
   tree.
 
+  The Controller will make an effort to save and restore all of the values
+  exposed by an IOGroup that has implemented the save_control() and
+  restore_control() methods.  The only built-in IOGroup with this functionality
+  is the MSRIOGroup.
+
+  The save_control() is implemented so that one must register all desired
+  IOGroups prior to the invocation of save_control().  Once save_control() has
+  been called, an error is raised if additional IOGroups are registered.  Since
+  save_control happens before the agent's init() method is called, care must be
+  taken to ensure all IOGroup plugins that the agent depends on are loaded
+  prior to calling init().
 
 2. Policies
 -----------
