@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba667e37_3bf1d189",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T21:11:35Z",
+      "side": 1,
+      "message": "algorithm",
+      "range": {
+        "startLine": 57,
+        "startChar": 41,
+        "endLine": 57,
+        "endChar": 49
+      },
+      "revId": "f9ff6731a21cf9f94ea8cd67240cff7d1b8cc74e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
