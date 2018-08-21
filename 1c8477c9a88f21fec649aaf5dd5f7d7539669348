@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d26649b_3b275137",
+        "filename": "src/PowerBalancer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T15:32:16Z",
+      "side": 1,
+      "message": "geopm_time_since :)",
+      "revId": "1c8477c9a88f21fec649aaf5dd5f7d7539669348",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
