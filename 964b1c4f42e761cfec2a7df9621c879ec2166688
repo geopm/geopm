@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b99e955c_0a161a9b",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-21T18:16:19Z",
+      "side": 1,
+      "message": "--max-freq",
+      "range": {
+        "startLine": 196,
+        "startChar": 2,
+        "endLine": 196,
+        "endChar": 11
+      },
+      "revId": "964b1c4f42e761cfec2a7df9621c879ec2166688",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
