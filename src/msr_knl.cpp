@@ -434,6 +434,22 @@ namespace geopm
                       .units     = IMSR::M_UNITS_NONE,
                       .scalar    = 1.0}}},
                 {}),
+            MSR("MISC_ENABLE", 0x1A0,
+                {{"ENHANCED_SPEEDSTEP_TECH_ENABLE", (struct IMSR::m_encode_s) {
+                      .begin_bit = 16,
+                      .end_bit   = 17,
+                      .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_NONE,
+                      .scalar    = 1.0}},
+                {"TURBO_MODE_DISABLE", (struct IMSR::m_encode_s) {
+                      .begin_bit = 38,
+                      .end_bit   = 39,
+                      .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_NONE,
+                      .scalar    = 1.0}}},
+                {}),
             /// @todo Define all the other MSRs.
         };
         num_msr = sizeof(instance) / sizeof(MSR);
