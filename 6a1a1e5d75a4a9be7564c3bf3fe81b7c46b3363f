@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd29a9f6_d1fb51e4",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-22T17:26:23Z",
+      "side": 1,
+      "message": "self._total_energy_dram",
+      "range": {
+        "startLine": 662,
+        "startChar": 66,
+        "endLine": 662,
+        "endChar": 88
+      },
+      "revId": "6a1a1e5d75a4a9be7564c3bf3fe81b7c46b3363f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
