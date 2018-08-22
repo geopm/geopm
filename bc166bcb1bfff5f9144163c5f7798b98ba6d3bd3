@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c419213_e6636faf",
+        "filename": "tutorial/agent/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-22T17:41:21Z",
+      "side": 1,
+      "message": "This would be better in the controls section of the IOGroup tutorial.",
+      "revId": "bc166bcb1bfff5f9144163c5f7798b98ba6d3bd3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c93558b_d792c578",
+        "filename": "tutorial/agent/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-22T17:41:21Z",
+      "side": 1,
+      "message": "This part can stay here",
+      "range": {
+        "startLine": 66,
+        "startChar": 67,
+        "endLine": 68,
+        "endChar": 26
+      },
+      "revId": "bc166bcb1bfff5f9144163c5f7798b98ba6d3bd3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
