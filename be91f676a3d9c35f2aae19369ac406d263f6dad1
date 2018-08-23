@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68b357ef_5b5afcef",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:45:28Z",
+      "side": 1,
+      "message": "this probably belongs in io.py.  Would be nice if it happened in AppOutput constructor",
+      "revId": "be91f676a3d9c35f2aae19369ac406d263f6dad1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1eb4a382_32176857",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:45:28Z",
+      "side": 1,
+      "message": "need to make sure we run with default settings for package power and rapl window, or use POWER_PACKAGE_MAX instead of TDP with smaller window",
+      "revId": "be91f676a3d9c35f2aae19369ac406d263f6dad1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
