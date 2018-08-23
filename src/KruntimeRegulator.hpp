@@ -97,7 +97,7 @@ namespace geopm
                 struct geopm_time_s enter_time;
                 double last_runtime;
                 double total_runtime;
-                size_t count;
+                int count;
             };
             int m_num_rank;
             std::vector<struct m_log_s> m_rank_log;

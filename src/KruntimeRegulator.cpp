@@ -42,7 +42,7 @@ namespace geopm
 
     KruntimeRegulator::KruntimeRegulator(int num_rank)
         : m_num_rank(num_rank)
-        , m_rank_log(m_num_rank, m_log_s {M_TIME_ZERO, 0.0, 0.0, 0})
+        , m_rank_log(m_num_rank, m_log_s {M_TIME_ZERO, 0.0, 0.0, -1})
     {
         if (m_num_rank <= 0) {
             throw Exception("KruntimeRegulator::KruntimeRegulator(): invalid max rank count",
@@ -61,6 +61,9 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_rank_log[rank].enter_time = enter_time;
+        if (m_rank_log[rank].count == -1) {
+            m_rank_log[rank].count = 0;
+        }
     }
 
     void KruntimeRegulator::record_exit(int rank, struct geopm_time_s exit_time)
