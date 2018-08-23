@@ -698,7 +698,7 @@ class TestIntegration(unittest.TestCase):
 
         for node_name, power_data in all_power_data.iteritems():
             # Allow for overages of 2% at the 75th percentile.
-            self.assertGreater(self._options['power_budget'] * 1.02, power_data['combined_power'].quantile(.75))
+            self.assertGreater(self._options['power_budget'] * 1.02, power_data['socket_power'].quantile(.75))
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
@@ -710,7 +710,7 @@ class TestIntegration(unittest.TestCase):
         num_node = 4
         num_rank = 16
         loop_count = 500
-        margin = 0.05 # Balancer must out-perform governor by 5%
+        margin = 0.05  # Balancer must out-perform governor by 5%
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
@@ -722,12 +722,12 @@ class TestIntegration(unittest.TestCase):
         fam, mod = get_platform()
         if fam == 6 and mod in (45, 47, 79):
             # set budget for BDX server
-            power_budget = 300
+            power_budget = 200
         elif fam == 6 and mod == 87:
             # budget for KNL
-            power_budget = 200
+            power_budget = 130
         else:
-            power_budget = 200
+            power_budget = 130
         self._options = {'power_budget': power_budget}
         gov_agent_conf_path = name + '_gov_ctl.config'
         bal_agent_conf_path = name + '_bal_ctl.config'
@@ -755,7 +755,6 @@ class TestIntegration(unittest.TestCase):
             node_names = self._output.get_node_names()
             self.assertEqual(num_node, len(node_names))
 
-            all_power_data = {}
             # Total power consumed will be Socket(s) + DRAM
             for nn in node_names:
                 tt = self._output.get_trace(nn)
@@ -779,24 +778,30 @@ class TestIntegration(unittest.TestCase):
                 pandas.set_option('display.width', 100)
                 launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
 
-
-            runtime = 0
+            min_runtime = float('nan')
+            max_runtime = float('nan')
             node_names = self._output.get_node_names()
             for node_name in node_names:
                 report = self._output.get_report(node_name)
                 this_runtime = report['epoch'].get_runtime()
-                if this_runtime > runtime:
-                    runtime = this_runtime
-            agent_runtime[agent] = runtime
+                if not this_runtime <= max_runtime:
+                    max_runtime = this_runtime
+                if not this_runtime >= min_runtime:
+                    min_runtime = this_runtime
+            if agent == 'power_governor':
+                margin = (max_runtime - min_runtime) / max_runtime / 4.0
+
+            agent_runtime[agent] = max_runtime
 
         self.assertGreater((1.0 - margin) * agent_runtime['power_governor'],
-                           agent_runtime['power_balancer'])
+                           agent_runtime['power_balancer'],
+                           "governor runtime: {}, balancer runtime: {}, margin: {}".format(
+                               agent_runtime['power_governor'], agent_runtime['power_balancer'], margin))
 
         try:
             os.environ['GEOPM_AGENT'] = old_agent
         except NameError:
             pass
-
 
     def test_progress_exit(self):
         """
