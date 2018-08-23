@@ -31,7 +31,6 @@
  */
 #ifndef GEOPM_HASH_H_INCLUDE
 #define GEOPM_HASH_H_INCLUDE
-#endif
 
 #include <stdint.h>
 #include <smmintrin.h>
@@ -73,4 +72,6 @@ static inline double geopm_field_to_signal(uint64_t field)
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -189,6 +189,8 @@ src/ProfileThread.cpp
 src/ProfileThread.hpp
 src/RAPLPlatform.cpp
 src/RAPLPlatform.hpp
+src/RegionAggregator.cpp
+src/RegionAggregator.hpp
 src/Region.cpp
 src/Region.hpp
 src/Reporter.cpp
@@ -308,6 +310,7 @@ test/ProfileIOGroupTest.cpp
 test/ProfileIOSampleTest.cpp
 test/ProfileTableTest.cpp
 test/ProfileTest.cpp
+test/RegionAggregatorTest.cpp
 test/RegionTest.cpp
 test/ReporterTest.cpp
 test/RuntimeRegulatorTest.cpp
