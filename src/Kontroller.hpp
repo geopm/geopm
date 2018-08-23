@@ -54,6 +54,8 @@ namespace geopm
     class ITreeComm;
     class Agent;
 
+    class RegionAggregator;
+
     class Kontroller
     {
         public:
