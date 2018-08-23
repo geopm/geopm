@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97ef75d8_6fe8d832",
+        "filename": "ronn/geopmanalysis.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:07:44Z",
+      "side": 1,
+      "message": "mention recommendation to use unique output folders for each analysis",
+      "revId": "0486d151b3be42d67bf3a075de74601734610963",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63ddec30_fa20e589",
+        "filename": "ronn/geopmanalysis.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:07:44Z",
+      "side": 1,
+      "message": "common options",
+      "revId": "0486d151b3be42d67bf3a075de74601734610963",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59e93104_3281af7c",
+        "filename": "ronn/geopmanalysis.1.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:07:44Z",
+      "side": 1,
+      "message": "Mention settings such as sticker freq that might differ if doing analysis on a different system from where launch was run.",
+      "revId": "0486d151b3be42d67bf3a075de74601734610963",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fcd5058_b12bbd35",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:07:44Z",
+      "side": 1,
+      "message": "test with putty and see if this is still needed.",
+      "revId": "0486d151b3be42d67bf3a075de74601734610963",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e3ad5f6_5d83ad0b",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:07:44Z",
+      "side": 1,
+      "message": "leave this out",
+      "range": {
+        "startLine": 957,
+        "startChar": 36,
+        "endLine": 957,
+        "endChar": 46
+      },
+      "revId": "0486d151b3be42d67bf3a075de74601734610963",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b03b7e6_c3685248",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1007,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-23T19:07:44Z",
+      "side": 1,
+      "message": "print available types",
+      "revId": "0486d151b3be42d67bf3a075de74601734610963",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
