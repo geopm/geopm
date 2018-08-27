@@ -47,7 +47,6 @@ namespace geopm
 {
     class Comm;
     class IApplicationIO;
-    class IPlatformIO;
     class ITreeComm;
 
     /// @brief A class used by the Controller to format the report at
@@ -95,10 +94,14 @@ namespace geopm
                                   const ITreeComm &tree_comm) = 0;
     };
 
+    class IPlatformIO;
+    class IRegionAggregator;
+
     class Reporter : public IReporter
     {
         public:
-            Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank);
+            Reporter(const std::string &report_name, IPlatformIO &platform_io,
+                     IRegionAggregator &agg, int rank);
             virtual ~Reporter() = default;
             void init(void) override;
             void generate(const std::string &agent_name,
@@ -113,6 +116,7 @@ namespace geopm
 
             std::string m_report_name;
             IPlatformIO &m_platform_io;
+            IRegionAggregator &m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;
             int m_energy_pkg_idx;

@@ -30,30 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKKPROFILEIOSAMPLE_HPP_INCLUDE
-#define MOCKKPROFILEIOSAMPLE_HPP_INCLUDE
+#ifndef MOCKREGIONAGGREGATOR_HPP_INCLUDE
+#define MOCKREGIONAGGREGATOR_HPP_INCLUDE
 
-#include "KprofileIOSample.hpp"
-#include "geopm_message.h"
+#include "RegionAggregator.hpp"
 
-class MockKprofileIOSample : public geopm::IKprofileIOSample {
+class MockRegionAggregator : public geopm::IRegionAggregator
+{
     public:
-        MOCK_METHOD0(finalize_unmarked_region,
-                           void(void));
-        MOCK_METHOD2(update,
-                     bool(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin, std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end));
-        MOCK_CONST_METHOD0(per_cpu_region_id,
-                           std::vector<uint64_t>(void));
-        MOCK_CONST_METHOD1(per_cpu_progress,
-                           std::vector<double>(const struct geopm_time_s &extrapolation_time));
-        MOCK_CONST_METHOD1(per_cpu_runtime,
-                           std::vector<double>(uint64_t region_id));
-        MOCK_CONST_METHOD1(per_rank_runtime,
-                           std::vector<double>(uint64_t region_id));
-        MOCK_CONST_METHOD0(total_app_runtime,
-                           double(void));
-        MOCK_CONST_METHOD0(cpu_rank,
-                           std::vector<int>(void));
+        MOCK_METHOD3(push_signal_total, int(const std::string &signal_idx,
+                                            int domain_type,
+                                            int domain_idx));
+        MOCK_METHOD2(sample_total, double(int signal_idx, uint64_t region_id));
+        MOCK_METHOD0(read_batch, void(void));
+        MOCK_METHOD0(start_epoch, void(void));
 };
-
 #endif
