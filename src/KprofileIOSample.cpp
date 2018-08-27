@@ -84,9 +84,10 @@ namespace geopm
         }
     }
 
-    void KprofileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+    bool KprofileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                   std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
+        bool saw_epoch = false;
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG
@@ -99,6 +100,7 @@ namespace geopm
             uint64_t region_id = sample_it->second.region_id;
             if (geopm_region_id_is_epoch(region_id)) {
                 m_epoch_regulator.epoch(local_rank, sample_it->second.timestamp);
+                saw_epoch = true;
             }
             else {
                 struct m_rank_sample_s rank_sample { .timestamp = sample_it->second.timestamp,
@@ -131,6 +133,7 @@ namespace geopm
                 m_rank_sample_buffer[local_rank].insert(rank_sample);
             }
         }
+        return saw_epoch;
     }
 
     std::vector<double> KprofileIOSample::per_cpu_progress(const struct geopm_time_s &extrapolation_time) const

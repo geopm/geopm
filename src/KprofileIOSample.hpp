@@ -53,7 +53,8 @@ namespace geopm
             virtual void finalize_unmarked_region() = 0;
             /// @brief Update internal state with a batch of samples from the
             ///        application.
-            virtual void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+            /// @return Whether or not an epoch() call was seen.
+            virtual bool update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) = 0;
             /// @brief Return the region ID that each CPU is running,
             ///        which is the region of the rank running on that
@@ -82,7 +83,7 @@ namespace geopm
             KprofileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator);
             virtual ~KprofileIOSample();
             void finalize_unmarked_region() override;
-            void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+            bool update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
             std::vector<uint64_t> per_cpu_region_id(void) const override;
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;

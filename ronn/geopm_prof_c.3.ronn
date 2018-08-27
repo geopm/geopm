@@ -130,8 +130,8 @@ through an outer loop in the application, the "epoch".
     hybrid thread/process paralellism (e.g. MPI + OpenMP).
 
     `GEOPM_REGION_HINT_IGNORE`: <br>
-    Do not include time spent in ignore regions when calculating epoch
-    runtime, this should be applied to application start up, shutdown,
+    Time spent in ignore regions is not included when calculating epoch
+    runtime.  This should be applied to application start up, shutdown,
     or events that do not happen on every trip through the outer loop.
 
   * `geopm_prof_enter`():
@@ -164,7 +164,11 @@ through an outer loop in the application, the "epoch".
     in an application, but it should not be used to mark a loop that
     is nested inside of another loop which is also marked.  All calls
     to `geopm_prof_epoch`() made inside of a user defined region with
-    the `GEOPM_REGION_HINT_IGNORE` hint bit set will be ignored.
+    the `GEOPM_REGION_HINT_IGNORE` hint bit set will be ignored.  The
+    time calculated for the epoch does not include time spent in MPI
+    regions or regions marked with `GEOPM_REGION_HINT_IGNORE`.
+    Similarly, the other statistics in the report for the epoch region
+    exclude these types of regions.
 
   * `geopm_tprof_init`():
     resets the thread profile table which extends the functionality of

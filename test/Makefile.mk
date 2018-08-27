@@ -466,6 +466,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PowerGovernorTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/RegionAggregatorTest.cpp \
+                          test/MockRegionAggregator.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

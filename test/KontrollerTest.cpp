@@ -42,6 +42,7 @@
 
 #include "MockPlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockRegionAggregator.hpp"
 #include "MockComm.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockManagerIOSampler.hpp"
@@ -104,6 +105,7 @@ class KontrollerTest : public ::testing::Test
         std::shared_ptr<MockComm> m_comm;
         KontrollerTestMockPlatformIO m_platform_io;
         std::shared_ptr<MockApplicationIO> m_application_io;
+        MockRegionAggregator *m_agg;
         MockTreeComm *m_tree_comm;
         MockReporter *m_reporter;
         MockTracer *m_tracer;
@@ -126,6 +128,7 @@ void KontrollerTest::SetUp()
 
     m_comm = std::make_shared<MockComm>();
     m_application_io = std::make_shared<MockApplicationIO>();
+    m_agg = new MockRegionAggregator();
     m_tree_comm = new MockTreeComm();
     m_manager_io = new MockManagerIOSampler();
     m_reporter = new MockReporter();
@@ -148,6 +151,7 @@ TEST_F(KontrollerTest, single_node)
     EXPECT_CALL(*m_tree_comm, root_level())
         .WillOnce(Return(root_level));
     Kontroller kontroller(m_comm, m_platform_io,
+                          std::unique_ptr<MockRegionAggregator>(m_agg),
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -165,6 +169,7 @@ TEST_F(KontrollerTest, single_node)
     // step
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
+    EXPECT_CALL(*m_agg, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
@@ -214,6 +219,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     m_agents.emplace_back(agent);
 
     Kontroller kontroller(m_comm, m_platform_io,
+                          std::unique_ptr<MockRegionAggregator>(m_agg),
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -237,6 +243,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
+    EXPECT_CALL(*m_agg, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
@@ -300,6 +307,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     ASSERT_EQ(2u, m_level_agent.size());
 
     Kontroller kontroller(m_comm, m_platform_io,
+                          std::unique_ptr<MockRegionAggregator>(m_agg),
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -322,6 +330,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(*m_manager_io, sample()).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
+    EXPECT_CALL(*m_agg, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
@@ -390,6 +399,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     ASSERT_EQ(3u, m_level_agent.size());
 
     Kontroller kontroller(m_comm, m_platform_io,
+                          std::unique_ptr<MockRegionAggregator>(m_agg),
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -404,6 +414,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     kontroller.setup_trace();
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
+    EXPECT_CALL(*m_agg, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
