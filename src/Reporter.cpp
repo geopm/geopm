@@ -58,9 +58,11 @@
 
 namespace geopm
 {
-    Reporter::Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank)
+    Reporter::Reporter(const std::string &report_name, IPlatformIO &platform_io,
+                       IRegionAggregator &agg, int rank)
         : m_report_name(report_name)
         , m_platform_io(platform_io)
+        , m_aggregator(agg)
         , m_rank(rank)
     {
 
@@ -68,16 +70,11 @@ namespace geopm
 
     void Reporter::init(void)
     {
-        m_region_bulk_runtime_idx = m_platform_io.push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_pkg_idx = m_platform_io.push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_dram_idx = m_platform_io.push_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_core_idx = m_platform_io.push_signal("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_ref_idx = m_platform_io.push_signal("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_platform_io.push_region_signal_total(m_region_bulk_runtime_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_platform_io.push_region_signal_total(m_energy_pkg_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_platform_io.push_region_signal_total(m_energy_dram_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_platform_io.push_region_signal_total(m_clk_core_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_platform_io.push_region_signal_total(m_clk_ref_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_region_bulk_runtime_idx = m_region_agg.push_signal_total("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_pkg_idx = m_region_agg.push_signal_total("ENERGY_PACKAGE"xs, IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_dram_idx = m_region_agg.push_signal_total("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_core_idx = m_region_agg.push_signal_total("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_ref_idx = m_region_agg.push_signal_total("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
 
         if (!m_rank) {
             // check if report file can be created
@@ -144,13 +141,18 @@ namespace geopm
             if (region.find("MPI_") == 0) {
                 region_id = geopm_region_id_set_mpi(region_id);
             }
+
+            double energy_pkg = m_region_agg.sample_total(m_energy_pkg_idx, region_id);
+            double energy_dram = m_region_agg.sample_total(m_energy_dram_idx, region_id);
+            double bulk_sync_runtime = m_region_agg.sample_total(m_region_bulk_runtime_idx, region_id);
             uint64_t mpi_region_id = geopm_region_id_set_mpi(region_id);
-            double energy_pkg = m_platform_io.sample_region_total(m_energy_pkg_idx, region_id) +
-                                m_platform_io.sample_region_total(m_energy_pkg_idx, mpi_region_id);
-            double energy_dram = m_platform_io.sample_region_total(m_energy_dram_idx, region_id) +
-                                 m_platform_io.sample_region_total(m_energy_dram_idx, mpi_region_id);
-            double bulk_sync_runtime = m_platform_io.sample_region_total(m_region_bulk_runtime_idx, region_id) +
-                                       m_platform_io.sample_region_total(m_region_bulk_runtime_idx, mpi_region_id);
+            // Don't add MPI again if region is already MPI
+            if (mpi_region_id != region_id) {
+                energy_pkg += m_region_agg.sample_total(m_energy_pkg_idx, mpi_region_id);
+                energy_dram += m_region_agg.sample_total(m_energy_dram_idx, mpi_region_id);
+                bulk_sync_runtime += m_region_agg.sample_total(m_region_bulk_runtime_idx, mpi_region_id);
+            }
+
             int count = application_io.total_count(region_id);
             if (count > 0) {
                 region_ordered.push_back({region,
@@ -170,14 +172,14 @@ namespace geopm
                   });
         // add unmarked and epoch at the end
         uint64_t unmarked_mpi_id = geopm_region_id_set_mpi(GEOPM_REGION_ID_UNMARKED);
-        double energy_pkg = m_platform_io.sample_region_total(m_energy_pkg_idx, GEOPM_REGION_ID_UNMARKED) +
-                            m_platform_io.sample_region_total(m_energy_pkg_idx, unmarked_mpi_id);
-        double energy_dram = m_platform_io.sample_region_total(m_energy_dram_idx, GEOPM_REGION_ID_UNMARKED) +
-                             m_platform_io.sample_region_total(m_energy_dram_idx, unmarked_mpi_id);
+        double energy_pkg = m_region_agg.sample_total(m_energy_pkg_idx, GEOPM_REGION_ID_UNMARKED) +
+                            m_region_agg.sample_total(m_energy_pkg_idx, unmarked_mpi_id);
+        double energy_dram = m_region_agg.sample_total(m_energy_dram_idx, GEOPM_REGION_ID_UNMARKED) +
+                             m_region_agg.sample_total(m_energy_dram_idx, unmarked_mpi_id);
         region_ordered.push_back({"unmarked-region",
                                   GEOPM_REGION_ID_UNMARKED,
                                   application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
-                                  m_platform_io.sample_region_total(m_region_bulk_runtime_idx, GEOPM_REGION_ID_UNMARKED),
+                                  m_region_agg.sample_total(m_region_bulk_runtime_idx, GEOPM_REGION_ID_UNMARKED),
                                   energy_pkg,
                                   energy_dram,
                                   0});
@@ -186,12 +188,10 @@ namespace geopm
         /// by the API.
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_ID_EPOCH,
-                                  application_io.total_epoch_runtime() +
-                                  application_io.total_epoch_mpi_runtime() +
-                                  application_io.total_epoch_ignore_runtime(),
-                                  m_platform_io.sample_region_total(m_region_bulk_runtime_idx, GEOPM_REGION_ID_EPOCH),
-                                  application_io.total_epoch_energy_pkg(),
-                                  application_io.total_epoch_energy_dram(),
+                                  application_io.total_epoch_runtime(),
+                                  m_region_agg.sample_total(m_region_bulk_runtime_idx, GEOPM_REGION_ID_EPOCH),
+                                  m_region_agg.sample_total(m_energy_pkg_index, GEOPM_REGION_ID_EPOCH),
+                                  m_region_agg.sample_total(m_energy_dram_idx, GEOPM_REGION_ID_EPOCH),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
         for (const auto &region : region_ordered) {
@@ -205,10 +205,10 @@ namespace geopm
             report << "    sync-runtime (sec): " << region.bulk_sync_runtime << std::endl;
             report << "    package-energy (joules): " << region.energy_pkg << std::endl;
             report << "    dram-energy (joules): " << region.energy_dram << std::endl;
-            double numer = m_platform_io.sample_region_total(m_clk_core_idx, region.id) +
-                           m_platform_io.sample_region_total(m_clk_core_idx, mpi_region_id);
-            double denom = m_platform_io.sample_region_total(m_clk_ref_idx, region.id) +
-                           m_platform_io.sample_region_total(m_clk_ref_idx, mpi_region_id);
+            double numer = m_region_agg.sample_total(m_clk_core_idx, region.id) +
+                           m_region_agg.sample_total(m_clk_core_idx, mpi_region_id);
+            double denom = m_region_agg.sample_total(m_clk_ref_idx, region.id) +
+                           m_region_agg.sample_total(m_clk_ref_idx, mpi_region_id);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;

@@ -39,6 +39,7 @@
 #include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockRegionAggregator.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
 #include "MockTreeComm.hpp"
@@ -85,6 +86,7 @@ class ReporterTest : public testing::Test
         std::string m_report_name = "test_reporter.out";
 
         MockPlatformIO m_platform_io;
+        MockRegionAggregator m_agg;
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
         MockTreeComm m_tree_comm;
@@ -163,7 +165,7 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(m_platform_io, push_region_signal_total(M_CLK_CORE_IDX, _, _));
 
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, 0);
+    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, m_agg, 0);
     m_reporter->init();
 }
 
