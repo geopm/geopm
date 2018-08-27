@@ -48,6 +48,7 @@
 #include "Agent.hpp"
 #include "TreeComm.hpp"
 #include "ManagerIO.hpp"
+#include "RegionAggregator.hpp"
 #include "config.h"
 
 extern "C"
@@ -72,6 +73,7 @@ namespace geopm
                            const std::string &global_policy_path)
         : Kontroller(ppn1_comm,
                      platform_io(),
+                     nullptr,
                      geopm_env_agent(),
                      Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
                      Agent::num_sample(agent_factory().dictionary(geopm_env_agent())),
@@ -79,7 +81,7 @@ namespace geopm
                          Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
                          Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
                      std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
-                     std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
+                     nullptr,
                      std::unique_ptr<ITracer>(new Tracer()),
                      std::vector<std::unique_ptr<Agent> >{},
                      std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(global_policy_path, true)))
@@ -89,6 +91,7 @@ namespace geopm
 
     Kontroller::Kontroller(std::shared_ptr<Comm> comm,
                            IPlatformIO &plat_io,
+                           std::unique_ptr<IRegionAggregator> agg,
                            const std::string &agent_name,
                            int num_send_down,
                            int num_send_up,
@@ -100,6 +103,7 @@ namespace geopm
                            std::unique_ptr<IManagerIOSampler> manager_io_sampler)
         : m_comm(comm)
         , m_platform_io(plat_io)
+        , m_region_agg(std::move(agg))
         , m_agent_name(agent_name)
         , m_num_send_down(num_send_down)
         , m_num_send_up(num_send_up)
@@ -127,6 +131,14 @@ namespace geopm
                                                                     std::vector<double>(m_num_send_down, NAN));
             m_in_sample[level] = std::vector<std::vector<double> >(num_children,
                                                                    std::vector<double>(m_num_send_up, NAN));
+        }
+
+        if (m_region_agg == nullptr) {
+            m_region_agg.reset(new RegionAggregator(m_platform_io));
+        }
+        if (m_reporter == nullptr) {
+            m_reporter.reset(new Reporter(geopm_env_report(), m_platform_io,
+                                          *m_region_agg, m_comm->rank()));
         }
     }
 
@@ -260,8 +272,12 @@ namespace geopm
 
     void Kontroller::walk_up(void)
     {
-        m_application_io->update(m_comm);
+        bool saw_epoch = m_application_io->update(m_comm);
+        if (saw_epoch) {
+            m_region_agg->start_epoch();
+        }
         m_platform_io.read_batch();
+        m_region_agg->read_batch();
         bool do_send = m_agent[0]->sample_platform(m_out_sample);
         m_agent[0]->trace_values(m_trace_sample);
         m_tracer->update(m_trace_sample, m_application_io->region_info());
