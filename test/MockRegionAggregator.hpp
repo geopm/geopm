@@ -30,26 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
+#ifndef MOCKREGIONAGGREGATOR_HPP_INCLUDE
+#define MOCKREGIONAGGREGATOR_HPP_INCLUDE
 
-#include "Reporter.hpp"
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
+#include "RegionAggregator.hpp"
 
-class MockReporter : public geopm::IReporter
+class MockRegionAggregator : public geopm::IRegionAggregator
 {
     public:
         MOCK_METHOD0(init, void(void));
-        MOCK_METHOD0(update, void(void));
-        MOCK_METHOD7(generate,
-                     void(const std::string &agent_name,
-                          const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-                          const std::vector<std::pair<std::string, std::string> > &agent_node_report,
-                          const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
-                          const geopm::IApplicationIO &application_io,
-                          std::shared_ptr<geopm::Comm> comm,
-                          const geopm::ITreeComm &tree_comm));
+        MOCK_METHOD3(push_signal_total, int(const std::string &signal_idx,
+                                            int domain_type,
+                                            int domain_idx));
+        MOCK_METHOD2(sample_total, double(int signal_idx, uint64_t region_id));
+        MOCK_METHOD0(read_batch, void(void));
 };
-
 #endif

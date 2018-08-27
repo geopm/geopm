@@ -279,6 +279,7 @@ test/MockProfileIOSample.hpp
 test/MockProfileSampler.hpp
 test/MockProfileTable.hpp
 test/MockProfileThreadTable.hpp
+test/MockRegionAggregator.hpp
 test/MockRegion.hpp
 test/MockReporter.hpp
 test/MockRuntimeRegulator.hpp
