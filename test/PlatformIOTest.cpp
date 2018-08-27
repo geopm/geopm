@@ -258,7 +258,6 @@ TEST_F(PlatformIOTest, push_signal)
 
     EXPECT_EQ(2, m_platio->num_signal());
 
-    // TODO: test of push_region_signal_total
     // TODO: test of push_combined_signal
 
     m_platio->read_batch();
@@ -395,82 +394,6 @@ TEST_F(PlatformIOTest, sample)
     EXPECT_DOUBLE_EQ(1.0, time);
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(-1), GEOPM_ERROR_INVALID, "signal_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(10), GEOPM_ERROR_INVALID, "signal_idx out of range");
-}
-
-TEST_F(PlatformIOTest, sample_region_total)
-{
-    // expectations for push
-    for (auto &it : m_iogroup_ptr) {
-        if (it->is_valid_signal("ENERGY_PACKAGE")) {
-            EXPECT_CALL(*it, push_signal(_, _, _));
-            EXPECT_CALL(*it, signal_domain_type("ENERGY_PACKAGE"));
-        }
-        if (it->is_valid_signal("TIME")) {
-            EXPECT_CALL(*it, push_signal(_, _, _));
-            EXPECT_CALL(*it, signal_domain_type("TIME"));
-        }
-        if (it->is_valid_signal("REGION_ID#")) {
-            EXPECT_CALL(*it, push_signal(_, _, _)).Times(4);
-            EXPECT_CALL(*it, signal_domain_type("REGION_ID#")).Times(4 + 4);
-        }
-    }
-    // region id signal is per cpu, so needs to be aggregated for both package and board
-    EXPECT_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _));
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_BOARD, 0, _));
-    EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _)).Times(4 + 4);
-
-    int nrg_idx = m_platio->push_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-    int time_idx = m_platio->push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-
-    m_platio->push_region_signal_total(nrg_idx, IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-    m_platio->push_region_signal_total(time_idx, IPlatformTopo::M_DOMAIN_BOARD, 0);
-
-    uint64_t rid1 = 0x444;
-    uint64_t rid2 = 0x555;
-    double rid1sig = geopm_field_to_signal(rid1);
-    double rid2sig = geopm_field_to_signal(rid2);
-
-    // expected return values and counts for each iteration
-    // sample count: 4 times for each signal in sample_total, 4 times in read_batch for each signal = 24
-    // note that these counts will change if number of CPUs per domain changes
-    int rid_sample_count = 24;
-    // rid 1 enters at batch 0 and exits at batch 2
-    // rid 2 enters at batch 2 and exits at batch 4
-    // rid 1 enters at batch 4 and is still running at batch 5
-    std::vector<double> energy = {100, 200, 300, 400, 500, 600};
-    std::vector<double> time = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-    std::vector<double> region = {rid1sig, rid1sig, rid2sig, rid2sig, rid1sig};
-    std::vector<double> exp_rid1_nrg  = {0, 100, 200, 200, 200, 300};
-    std::vector<double> exp_rid1_time = {0, 1.0, 2.0, 2.0, 2.0, 3.0};
-    std::vector<double> exp_rid2_nrg  = {0, 0, 0, 100, 200, 200};
-    std::vector<double> exp_rid2_time = {0, 0, 0, 1.0, 2.0, 2.0};
-    int num_batch = region.size();
-
-    for (int batch = 0; batch < num_batch; ++batch) {
-        for (auto &it : m_iogroup_ptr) {
-            if (it->is_valid_signal("ENERGY_PACKAGE")) {
-                EXPECT_CALL(*it, sample(0)).Times(2)
-                    .WillRepeatedly(Return(energy[batch]));
-            }
-            if (it->is_valid_signal("TIME")) {
-                EXPECT_CALL(*it, sample(0)).Times(2)
-                    .WillRepeatedly(Return(time[batch]));
-            }
-            if (it->is_valid_signal("REGION_ID#")) {
-                EXPECT_CALL(*it, sample(0)).Times(rid_sample_count)
-                    .WillRepeatedly(Return(region[batch]));
-            }
-            EXPECT_CALL(*it, read_batch());
-        }
-        m_platio->read_batch();
-
-        EXPECT_EQ(exp_rid1_nrg[batch], m_platio->sample_region_total(nrg_idx, rid1));
-        EXPECT_EQ(exp_rid1_time[batch], m_platio->sample_region_total(time_idx, rid1));
-        EXPECT_EQ(exp_rid2_nrg[batch], m_platio->sample_region_total(nrg_idx, rid2));
-        EXPECT_EQ(exp_rid2_time[batch], m_platio->sample_region_total(time_idx, rid2));
-    }
 }
 
 TEST_F(PlatformIOTest, adjust)

@@ -287,11 +287,6 @@ namespace geopm
         m_combined_signal[signal_idx] = std::move(tmp);
     }
 
-    void PlatformIO::push_region_signal_total(int signal_idx, int domain_type, int domain_idx)
-    {
-        m_region_id_idx[signal_idx] = push_signal("REGION_ID#", domain_type, domain_idx);
-    }
-
     int PlatformIO::push_control(const std::string &control_name,
                                  int domain_type,
                                  int domain_idx)
@@ -359,24 +354,6 @@ namespace geopm
         return result;
     }
 
-    double PlatformIO::sample_region_total(int signal_idx, uint64_t region_id)
-    {
-        double current_value = 0.0;
-        uint64_t curr_rid = geopm_signal_to_field(sample(m_region_id_idx.at(signal_idx)));
-        curr_rid = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, curr_rid);
-        auto idx = std::make_pair(signal_idx, region_id);
-        if (m_region_sample_data.find(idx) != m_region_sample_data.end()) {
-            const auto &data =  m_region_sample_data.at(idx);
-            current_value += data.total;
-            // if currently in this region, add current value to total
-            if (region_id == curr_rid &&
-                !std::isnan(data.last_entry_value)) {
-                current_value += sample(signal_idx) - data.last_entry_value;
-            }
-        }
-        return current_value;
-    }
-
     double PlatformIO::sample_combined(int signal_idx)
     {
         double result = NAN;
@@ -413,31 +390,6 @@ namespace geopm
             it->read_batch();
         }
         m_is_active = true;
-
-        // aggregate region totals
-        for (const auto &it : m_region_id_idx) {
-            double value = sample(it.first);
-            uint64_t region_id = geopm_signal_to_field(sample(it.second));
-            region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
-            // first time sampling this signal
-            if (m_last_region_id.find(it.first) == m_last_region_id.end()) {
-                m_last_region_id[it.first] = region_id;
-                // set start value for first region to be recording this signal
-                m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
-            }
-            else {
-                uint64_t last_rid = m_last_region_id[it.first];
-                // region boundary
-                if (region_id != last_rid) {
-                    // add entry to new region
-                    m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
-                    // update total for previous region
-                    m_region_sample_data[std::make_pair(it.first, last_rid)].total +=
-                        value - m_region_sample_data.at(std::make_pair(it.first, last_rid)).last_entry_value;
-                    m_last_region_id[it.first] = region_id;
-                }
-            }
-        }
     }
 
     void PlatformIO::write_batch(void)

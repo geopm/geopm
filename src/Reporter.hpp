@@ -47,7 +47,6 @@ namespace geopm
 {
     class Comm;
     class IApplicationIO;
-    class IPlatformIO;
     class ITreeComm;
 
     /// @brief A class used by the Controller to format the report at
@@ -64,6 +63,9 @@ namespace geopm
             /// @brief Set up per-region tracking of energy signals
             ///        and signals used to calculate frequency.
             virtual void init(void) = 0;
+            /// @brief Read values from PlatformIO to update
+            ///        aggregated samples.
+            virtual void update(void) = 0;
             /// @brief Create a report for this node.  If the node is
             ///        the root controller, format the header,
             ///        aggregate all other node reports, and write the
@@ -95,12 +97,18 @@ namespace geopm
                                   const ITreeComm &tree_comm) = 0;
     };
 
+    class IPlatformIO;
+    class IRegionAggregator;
+
     class Reporter : public IReporter
     {
         public:
             Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank);
+            Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank,
+                     std::unique_ptr<IRegionAggregator> agg);
             virtual ~Reporter() = default;
             void init(void) override;
+            void update(void) override;
             void generate(const std::string &agent_name,
                           const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                           const std::vector<std::pair<std::string, std::string> > &agent_node_report,
@@ -113,6 +121,7 @@ namespace geopm
 
             std::string m_report_name;
             IPlatformIO &m_platform_io;
+            std::unique_ptr<IRegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;
             int m_energy_pkg_idx;

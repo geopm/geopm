@@ -68,9 +68,6 @@ namespace geopm
             int push_signal(const std::string &signal_name,
                             int domain_type,
                             int domain_idx) override;
-            void push_region_signal_total(int signal_idx,
-                                          int domain_type,
-                                          int domain_idx) override;
             int push_combined_signal(const std::string &signal_name,
                                      int domain_type,
                                      int domain_idx,
@@ -81,7 +78,6 @@ namespace geopm
             int num_signal(void) const override;
             int num_control(void) const override;
             double sample(int signal_idx) override;
-            double sample_region_total(int signal_idx, uint64_t region_id) override;
             void adjust(int control_idx, double setting) override;
             void read_batch(void) override;
             void write_batch(void) override;
@@ -122,16 +118,6 @@ namespace geopm
             std::map<std::tuple<std::string, int, int>, int> m_existing_control;
             std::map<int, std::pair<std::vector<int>,
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
-            std::map<int, int> m_region_id_idx;
-            struct m_region_data_s
-            {
-                double total = 0.0;
-                double last_entry_value = NAN;
-            };
-            std::map<std::pair<int, uint64_t>, m_region_data_s> m_region_sample_data;
-            // map for last region id seen in each signal's domain
-            // only used for comparison, so can leave as a double
-            std::map<int, uint64_t> m_last_region_id;
             bool m_do_restore;
     };
 }
