@@ -39,6 +39,7 @@
 #include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockRegionAggregator.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
 #include "MockTreeComm.hpp"
@@ -85,6 +86,7 @@ class ReporterTest : public testing::Test
         std::string m_report_name = "test_reporter.out";
 
         MockPlatformIO m_platform_io;
+        MockRegionAggregator m_agg;
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
         MockTreeComm m_tree_comm;
@@ -94,7 +96,7 @@ class ReporterTest : public testing::Test
         std::map<uint64_t, double> m_region_runtime = {
             {geopm_crc32_str(0, "all2all"), 33.33},
             {geopm_crc32_str(0, "model-init"), 22.11},
-            {GEOPM_REGION_ID_UNMARKED, 12.13},
+            {GEOPM_REGION_ID_UNMARKED, 12.13}
         };
         std::map<uint64_t, double> m_region_mpi_time = {
             {geopm_crc32_str(0, "all2all"), 3.4},
@@ -117,18 +119,19 @@ class ReporterTest : public testing::Test
             {geopm_crc32_str(0, "all2all"), 777},
             {geopm_crc32_str(0, "model-init"), 888},
             {GEOPM_REGION_ID_UNMARKED, 222},
+            {GEOPM_REGION_ID_EPOCH, 334}
         };
         std::map<uint64_t, double> m_region_clk_core = {
             {geopm_crc32_str(0, "all2all"), 4545},
             {geopm_crc32_str(0, "model-init"), 5656},
             {GEOPM_REGION_ID_UNMARKED, 3434},
-            {GEOPM_REGION_ID_EPOCH, 0}
+            {GEOPM_REGION_ID_EPOCH, 7878}
         };
         std::map<uint64_t, double> m_region_clk_ref = {
             {geopm_crc32_str(0, "all2all"), 5555},
             {geopm_crc32_str(0, "model-init"), 6666},
             {GEOPM_REGION_ID_UNMARKED, 4444},
-            {GEOPM_REGION_ID_EPOCH, 0}
+            {GEOPM_REGION_ID_EPOCH, 8888}
         };
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_agent_detail = {
             {geopm_crc32_str(0, "all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
@@ -136,7 +139,6 @@ class ReporterTest : public testing::Test
             {GEOPM_REGION_ID_UNMARKED, {{"agent stat", "3"}}},
             {GEOPM_REGION_ID_EPOCH, {{"agent stat", "4"}}}
         };
-
 };
 
 ReporterTest::ReporterTest()
@@ -146,24 +148,19 @@ ReporterTest::ReporterTest()
     ON_CALL(m_application_io, region_name_set())
         .WillByDefault(Return(m_region_set));
 
-    EXPECT_CALL(m_platform_io, push_signal("TIME", _, _))
+    EXPECT_CALL(m_agg, push_signal_total("TIME", _, _))
         .WillOnce(Return(M_TIME_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal_total(M_TIME_IDX, _, _));
-    EXPECT_CALL(m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
+    EXPECT_CALL(m_agg, push_signal_total("ENERGY_PACKAGE", _, _))
         .WillOnce(Return(M_ENERGY_PKG_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal_total(M_ENERGY_PKG_IDX, _, _));
-    EXPECT_CALL(m_platform_io, push_signal("ENERGY_DRAM", _, _))
+    EXPECT_CALL(m_agg, push_signal_total("ENERGY_DRAM", _, _))
         .WillOnce(Return(M_ENERGY_DRAM_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal_total(M_ENERGY_DRAM_IDX, _, _));
-    EXPECT_CALL(m_platform_io, push_signal("CYCLES_REFERENCE", _, _))
+    EXPECT_CALL(m_agg, push_signal_total("CYCLES_REFERENCE", _, _))
         .WillOnce(Return(M_CLK_REF_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal_total(M_CLK_REF_IDX, _, _));
-    EXPECT_CALL(m_platform_io, push_signal("CYCLES_THREAD", _, _))
+    EXPECT_CALL(m_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
-    EXPECT_CALL(m_platform_io, push_region_signal_total(M_CLK_CORE_IDX, _, _));
 
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, 0);
+    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, m_agg, 0);
     m_reporter->init();
 }
 
@@ -186,9 +183,6 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_epoch_ignore_runtime()).Times(2)
         .WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
-    EXPECT_CALL(m_application_io, total_epoch_mpi_runtime()).WillOnce(Return(7.0));
-    EXPECT_CALL(m_application_io, total_epoch_energy_pkg()).WillOnce(Return(4444));
-    EXPECT_CALL(m_application_io, total_epoch_energy_dram()).WillOnce(Return(4444));
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
@@ -206,38 +200,31 @@ TEST_F(ReporterTest, generate)
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_rt) {
-        EXPECT_CALL(m_platform_io, sample_region_total(M_TIME_IDX, rid.first))
+        EXPECT_CALL(m_agg, sample_total(M_TIME_IDX, rid.first))
             .WillOnce(Return(rid.second));
-        if (rid.first != GEOPM_REGION_ID_UNMARKED && rid.first != GEOPM_REGION_ID_EPOCH) {
-            EXPECT_CALL(m_platform_io,
-                        sample_region_total(M_TIME_IDX, geopm_region_id_set_mpi(rid.first)))
-                .WillOnce(Return(0.5));
-        }
+        EXPECT_CALL(m_agg, sample_total(M_TIME_IDX, geopm_region_id_set_mpi(rid.first)))
+            .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_energy) {
-        EXPECT_CALL(m_platform_io, sample_region_total(M_ENERGY_PKG_IDX, rid.first))
+        EXPECT_CALL(m_agg, sample_total(M_ENERGY_PKG_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(m_platform_io,
-                    sample_region_total(M_ENERGY_PKG_IDX, geopm_region_id_set_mpi(rid.first)))
+        EXPECT_CALL(m_agg, sample_total(M_ENERGY_PKG_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(0.5));
-        EXPECT_CALL(m_platform_io, sample_region_total(M_ENERGY_DRAM_IDX, rid.first))
+        EXPECT_CALL(m_agg, sample_total(M_ENERGY_DRAM_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(m_platform_io,
-                    sample_region_total(M_ENERGY_DRAM_IDX, geopm_region_id_set_mpi(rid.first)))
+        EXPECT_CALL(m_agg, sample_total(M_ENERGY_DRAM_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_clk_core) {
-        EXPECT_CALL(m_platform_io, sample_region_total(M_CLK_CORE_IDX, rid.first))
+        EXPECT_CALL(m_agg, sample_total(M_CLK_CORE_IDX, rid.first))
             .WillOnce(Return(rid.second));
-                EXPECT_CALL(m_platform_io,
-                    sample_region_total(M_CLK_CORE_IDX, geopm_region_id_set_mpi(rid.first)))
+        EXPECT_CALL(m_agg, sample_total(M_CLK_CORE_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_ref) {
-        EXPECT_CALL(m_platform_io, sample_region_total(M_CLK_REF_IDX, rid.first))
+        EXPECT_CALL(m_agg, sample_total(M_CLK_REF_IDX, rid.first))
             .WillOnce(Return(rid.second));
-        EXPECT_CALL(m_platform_io,
-                    sample_region_total(M_CLK_REF_IDX, geopm_region_id_set_mpi(rid.first)))
+        EXPECT_CALL(m_agg, sample_total(M_CLK_REF_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(rid.second));
     }
     EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
@@ -297,15 +284,16 @@ TEST_F(ReporterTest, generate)
         "    count: 0\n"
         "    agent stat: 3\n"
         "Region epoch (\n"
-        "    runtime (sec): 77.7\n"
+        "    runtime (sec): 70\n"
         "    sync-runtime (sec): 666\n"
-        "    package-energy (joules): 4444\n"
-        "    dram-energy (joules): 4444\n"
-        "    frequency (%): 0\n"
-        "    frequency (Hz): 0\n"
+        "    package-energy (joules): 167\n"
+        "    dram-energy (joules): 167\n"
+        "    frequency (%): 88.6364\n"
+        "    frequency (Hz): 0.886364\n"
         "    mpi-runtime (sec): 4.2\n"
         "    count: 0\n"
         "    agent stat: 4\n"
+        "    epoch-ignore-runtime (sec): 0.7\n"
         "Application Totals:\n"
         "    runtime (sec): 56\n"
         "    package-energy (joules): 2222\n"

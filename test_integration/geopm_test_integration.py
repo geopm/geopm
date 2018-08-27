@@ -399,7 +399,7 @@ class TestIntegration(unittest.TestCase):
                     trace_data = tt.get_group((region_data.get_id()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     if region_name == 'epoch':
-                        self.assertNear(trace_elapsed_time, region_data.get_runtime())
+                        self.assertNear(trace_elapsed_time, region_data.get_runtime() + region_data.get_mpi_runtime())
                     else:
                         # compare with time when all ranks are in the region
                         self.assertNear(trace_elapsed_time, region_data.get_sync_runtime())

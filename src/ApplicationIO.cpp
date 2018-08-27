@@ -341,7 +341,7 @@ namespace geopm
         return result;
     }
 
-    void ApplicationIO::update(std::shared_ptr<Comm> comm)
+    bool ApplicationIO::update(std::shared_ptr<Comm> comm)
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -352,7 +352,8 @@ namespace geopm
 #endif
         size_t length = 0;
         m_sampler->sample(m_prof_sample, length, comm);
-        m_profile_io_sample->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
+        bool saw_epoch = m_profile_io_sample->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
+        return saw_epoch;
     }
 
     std::list<geopm_region_info_s> ApplicationIO::region_info(void) const

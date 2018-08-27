@@ -53,8 +53,7 @@ namespace geopm
     class ITracer;
     class ITreeComm;
     class Agent;
-
-    class RegionAggregator;
+    class IRegionAggregator;
 
     class Kontroller
     {
@@ -71,6 +70,7 @@ namespace geopm
             ///        versions of internal objects.
             Kontroller(std::shared_ptr<Comm> comm,
                        IPlatformIO &plat_io,
+                       std::unique_ptr<IRegionAggregator> agg,
                        const std::string &agent_name,
                        int num_send_up,
                        int num_send_down,
@@ -138,6 +138,7 @@ namespace geopm
 
             std::shared_ptr<Comm> m_comm;
             IPlatformIO &m_platform_io;
+            std::unique_ptr<IRegionAggregator> m_region_agg;
             std::string m_agent_name;
             const int m_num_send_down;
             const int m_num_send_up;
