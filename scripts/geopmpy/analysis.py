@@ -325,21 +325,21 @@ class FreqSweepAnalysis(Analysis):
             freq_df = df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ]
 
             region_mean_runtime = freq_df.groupby(level='region')['runtime'].mean()
-            region_mean_energy = freq_df.groupby(level='region')['energy'].mean()
+            region_mean_energy = freq_df.groupby(level='region')['energy_pkg'].mean()
 
             data.append([region_mean_runtime[region],
                          region_mean_energy[region]])
 
         return pandas.DataFrame(data,
                                 index=freqs,
-                                columns=['runtime', 'energy'])
+                                columns=['runtime', 'energy_pkg'])
 
     def _region_means_df(self, report_df):
         idx = pandas.IndexSlice
 
         report_df = profile_to_freq_mhz(report_df)
 
-        cols = ['energy', 'runtime', 'mpi_runtime', 'frequency', 'count']
+        cols = ['energy_pkg', 'runtime', 'mpi_runtime', 'frequency', 'count']
 
         means_df = report_df.groupby(['region', 'freq_mhz'])[cols].mean()
         # Define ref_freq to be three steps back from the end of the list.  The end of the list should always be
@@ -347,8 +347,8 @@ class FreqSweepAnalysis(Analysis):
         ref_freq = report_df.index.get_level_values('freq_mhz').unique().tolist()[-4]
 
         # Calculate the energy/runtime comparisons against the ref_freq
-        ref_energy = means_df.loc[idx[:, ref_freq], ]['energy'].reset_index(level='freq_mhz', drop=True)
-        es = pandas.Series((means_df['energy'] - ref_energy) / ref_energy, name='DCEngVar_%')
+        ref_energy = means_df.loc[idx[:, ref_freq], ]['energy_pkg'].reset_index(level='freq_mhz', drop=True)
+        es = pandas.Series((means_df['energy_pkg'] - ref_energy) / ref_energy, name='DCEngVar_%')
         means_df = pandas.concat([means_df, es], axis=1)
 
         ref_runtime = means_df.loc[idx[:, ref_freq], ]['runtime'].reset_index(level='freq_mhz', drop=True)
@@ -359,7 +359,7 @@ class FreqSweepAnalysis(Analysis):
         means_df = pandas.concat([means_df, bs], axis=1)
 
         # Calculate power and kwh
-        p = pandas.Series(means_df['energy'] / means_df['runtime'], name='power')
+        p = pandas.Series(means_df['energy_pkg'] / means_df['runtime'], name='power')
         means_df = pandas.concat([means_df, p], axis=1)
 
         # Modify column order so that runtime bound occurs just after runtime
@@ -378,19 +378,19 @@ def baseline_comparison(parse_output, comp_name):
     baseline_df = profile_to_freq_mhz(baseline_df)
 
     # Reduce the data
-    cols = ['energy', 'runtime', 'mpi_runtime', 'frequency', 'count']
+    cols = ['energy_pkg', 'runtime', 'mpi_runtime', 'frequency', 'count']
     baseline_means_df = baseline_df.groupby(['region', 'freq_mhz'])[cols].mean()
     comp_means_df = comp_df.groupby(['region', 'name'])[cols].mean()
 
     # Add power column
-    p = pandas.Series(baseline_means_df['energy'] / baseline_means_df['runtime'], name='power')
+    p = pandas.Series(baseline_means_df['energy_pkg'] / baseline_means_df['runtime'], name='power')
     baseline_means_df = pandas.concat([baseline_means_df, p], axis=1)
-    p = pandas.Series(comp_means_df['energy'] / comp_means_df['runtime'], name='power')
+    p = pandas.Series(comp_means_df['energy_pkg'] / comp_means_df['runtime'], name='power')
     comp_means_df = pandas.concat([comp_means_df, p], axis=1)
 
     # Calculate energy savings
-    es = pandas.Series((baseline_means_df['energy'] - comp_means_df['energy'].reset_index('name', drop=True))\
-                       / baseline_means_df['energy'], name='energy_savings') * 100
+    es = pandas.Series((baseline_means_df['energy_pkg'] - comp_means_df['energy_pkg'].reset_index('name', drop=True))\
+                       / baseline_means_df['energy_pkg'], name='energy_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, es], axis=1)
 
     # Calculate runtime savings
