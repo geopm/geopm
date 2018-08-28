@@ -87,6 +87,7 @@ namespace geopm
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
 #ifdef GEOPM_OVERHEAD
+        , m_reduce_comm(geopm::comm_factory().make_plugin(geopm_env_comm()))
         , m_overhead_time(0.0)
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
@@ -569,8 +570,8 @@ namespace geopm
                                      m_overhead_time,
                                      m_overhead_time_shutdown};
         double max_overhead[3] = {};
-        MPI_Reduce(overhead_buffer, max_overhead, 3,
-                   MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+        m_reduce_comm->reduce_max(overhead_buffer, max_overhead, 3, 0);
+
         if (!m_rank) {
             std::cout << "GEOPM startup (seconds):  " << max_overhead[0] << std::endl;
             std::cout << "GEOPM runtime (seconds):  " << max_overhead[1] << std::endl;
