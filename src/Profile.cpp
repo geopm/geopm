@@ -68,6 +68,16 @@ namespace geopm
     Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
                      std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                      std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler)
+        : Profile(prof_name, key_base, std::move(comm), std::move(ctl_msg), topo,
+                  std::move(table), t_table, std::move(scheduler), nullptr)
+    {
+
+    }
+
+    Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
+                     std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler,
+                     std::shared_ptr<Comm> reduce_comm)
         : m_is_enabled(true)
         , m_prof_name(prof_name)
         , m_curr_region_id(0)
@@ -86,15 +96,17 @@ namespace geopm
         , m_parent_region(0)
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
-#ifdef GEOPM_OVERHEAD
+        , m_reduce_comm(reduce_comm)
         , m_overhead_time(0.0)
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
-#endif
     {
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
+        if (m_reduce_comm == nullptr) {
+            m_reduce_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+        }
 #endif
         std::string sample_key(key_base + "-sample");
         std::string tprof_key(key_base + "-tprof");
@@ -569,8 +581,8 @@ namespace geopm
                                      m_overhead_time,
                                      m_overhead_time_shutdown};
         double max_overhead[3] = {};
-        MPI_Reduce(overhead_buffer, max_overhead, 3,
-                   MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+        m_reduce_comm->reduce_max(overhead_buffer, max_overhead, 3, 0);
+
         if (!m_rank) {
             std::cout << "GEOPM startup (seconds):  " << max_overhead[0] << std::endl;
             std::cout << "GEOPM runtime (seconds):  " << max_overhead[1] << std::endl;
