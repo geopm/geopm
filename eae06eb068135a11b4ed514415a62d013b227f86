@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8098807_5b00e31f",
+        "filename": "src/Kontroller.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-28T00:17:45Z",
+      "side": 1,
+      "message": "Does this belong here? RegionAggregator isn\u0027t referenced anywhere else in this header.",
+      "revId": "eae06eb068135a11b4ed514415a62d013b227f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e3e966b_e903503a",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-28T00:17:45Z",
+      "side": 1,
+      "message": "If there is an MPI region within a user defined region then the MPI bit may or may not be set for the same region id.  Doesn\u0027t the logic here assume that the MPI bit is bound to the region ID?",
+      "range": {
+        "startLine": 104,
+        "startChar": 12,
+        "endLine": 104,
+        "endChar": 41
+      },
+      "revId": "eae06eb068135a11b4ed514415a62d013b227f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a35fe15_c9b08892",
+        "filename": "src/RegionAggregator.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-28T00:17:45Z",
+      "side": 1,
+      "message": "Need a \n\nIRegionAggregator() \u003d default\n\ndefault constructor, right?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 27
+      },
+      "revId": "eae06eb068135a11b4ed514415a62d013b227f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba149057_57c9e963",
+        "filename": "src/RegionAggregator.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-28T00:17:45Z",
+      "side": 1,
+      "message": "Maybe time is a more obvious example?",
+      "range": {
+        "startLine": 58,
+        "startChar": 43,
+        "endLine": 58,
+        "endChar": 49
+      },
+      "revId": "eae06eb068135a11b4ed514415a62d013b227f86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
