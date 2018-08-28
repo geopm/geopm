@@ -59,10 +59,10 @@ node_name = 'mynode'
 # for input data frame
 index_names = ['version', 'name', 'power_budget', 'tree_decider',
                'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
-numeric_cols = ['count', 'energy', 'frequency', 'mpi_runtime', 'runtime', 'id']
+numeric_cols = ['count', 'energy_pkg', 'frequency', 'mpi_runtime', 'runtime', 'id']
 gen_val = {
     'count': 1,
-    'energy': 14000.0,
+    'energy_pkg': 14000.0,
     'frequency': 1e9,
     'mpi_runtime': 10,
     'runtime': 50,
@@ -260,16 +260,16 @@ class TestAnalysis(unittest.TestCase):
 
         sweep_reports = make_mock_sweep_report_df(self._name_prefix, self._freqs,
                                                   best_fit_freq, best_fit_perf,
-                                                  'energy', best_fit_metric_perf,
+                                                  'energy_pkg', best_fit_metric_perf,
                                                   baseline_freq, baseline_metric_perf)
 
         prof_name = self._name_prefix + '_offline'
-        single_run_report = make_mock_report_df(prof_name, 'energy', optimal_metric_perf)
+        single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
 
         energy_result = self._offline_analysis.report_process(parse_out)
-        expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy',
+        expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
 
@@ -290,17 +290,17 @@ class TestAnalysis(unittest.TestCase):
 
         sweep_reports = make_mock_sweep_report_df(self._name_prefix, self._freqs,
                                                   best_fit_freq, best_fit_perf,
-                                                  'energy', best_fit_metric_perf,
+                                                  'energy_pkg', best_fit_metric_perf,
                                                   baseline_freq, baseline_metric_perf)
 
         prof_name = self._name_prefix + '_online'
-        single_run_report = make_mock_report_df(prof_name, 'energy', optimal_metric_perf)
+        single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
 
         energy_result = self._online_analysis.report_process(parse_out)
 
-        expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy',
+        expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
 
@@ -326,10 +326,10 @@ class TestAnalysis(unittest.TestCase):
             self._tmp_files.append(name + '_app.config')
             sweep_reports = make_mock_sweep_report_df(name, self._freqs,
                                                       best_fit_freq, best_fit_perf,
-                                                      'energy', best_fit_metric_perf,
+                                                      'energy_pkg', best_fit_metric_perf,
                                                       baseline_freq, baseline_metric_perf)
-            offline_report = make_mock_report_df(name+'_offline', 'energy', offline_metric_perf)
-            online_report = make_mock_report_df(name+'_online', 'energy', online_metric_perf)
+            offline_report = make_mock_report_df(name+'_offline', 'energy_pkg', offline_metric_perf)
+            online_report = make_mock_report_df(name+'_online', 'energy_pkg', online_metric_perf)
 
             all_reports = all_reports.append(sweep_reports)
             all_reports = all_reports.append(offline_report)
@@ -345,7 +345,7 @@ class TestAnalysis(unittest.TestCase):
                 profile_names.append(profile_name)
                 metric_perfs[profile_name] = perfs[ii]
 
-            energy_df = get_expected_mix_output_df(profile_names, 'energy',
+            energy_df = get_expected_mix_output_df(profile_names, 'energy_pkg',
                                                    baseline_metric_perf,
                                                    metric_perfs)
             expected_energy_df = expected_energy_df.append(energy_df, ignore_index=True)
