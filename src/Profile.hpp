@@ -223,6 +223,11 @@ namespace geopm
             Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
                     std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler);
+            /// @brief Test constructor.
+            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
+                    std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                    std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler,
+                    std::shared_ptr<Comm> reduce_comm);
             /// @brief Profile destructor, virtual.
             virtual ~Profile();
             uint64_t region(const std::string region_name, long hint) override;
@@ -314,11 +319,10 @@ namespace geopm
             uint64_t m_parent_region;
             double m_parent_progress;
             int m_parent_num_enter;
-#ifdef GEOPM_OVERHEAD
+            std::shared_ptr<Comm> m_reduce_comm;
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
-#endif
     };
 }
 
