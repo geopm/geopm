@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2e24aa3_08b52cd3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-29T01:58:18Z",
+      "side": 1,
+      "message": "delete, gerrithub picked up the other changeid below.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 56
+      },
+      "revId": "7a0dff1c04d67fab2fc1131571bc428b8f5b10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a98b7e45_5a0fb8ec",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-29T01:58:18Z",
+      "side": 1,
+      "message": "A comment in the header that the index is a pair of the platformio base index for the signal and the region_id.  I\u0027ve been wondering what that would end up being since I read the header.  The pair is nice because you don\u0027t have to implement \u003c operator, but a comment would help to clarify what it is.",
+      "range": {
+        "startLine": 84,
+        "startChar": 34,
+        "endLine": 84,
+        "endChar": 55
+      },
+      "revId": "7a0dff1c04d67fab2fc1131571bc428b8f5b10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ac0e142_0e908d0e",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-29T01:58:18Z",
+      "side": 1,
+      "message": "optimization nit: store the return value from m_region_sample_data.find(idx) and avoid the second map lookup.",
+      "range": {
+        "startLine": 86,
+        "startChar": 53,
+        "endLine": 86,
+        "endChar": 60
+      },
+      "revId": "7a0dff1c04d67fab2fc1131571bc428b8f5b10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "756c73a2_db177a03",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-29T01:58:18Z",
+      "side": 1,
+      "message": "do we just want the hash: geopm_region_id_hash()?  I think the other bits are stripped off by the signal anyway, but I\u0027m not 100%.",
+      "range": {
+        "startLine": 103,
+        "startChar": 24,
+        "endLine": 103,
+        "endChar": 50
+      },
+      "revId": "7a0dff1c04d67fab2fc1131571bc428b8f5b10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02d0de08_d863221d",
+        "filename": "src/RegionAggregator.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-29T01:58:18Z",
+      "side": 1,
+      "message": "signal_name, not signal_idx",
+      "range": {
+        "startLine": 71,
+        "startChar": 61,
+        "endLine": 71,
+        "endChar": 71
+      },
+      "revId": "7a0dff1c04d67fab2fc1131571bc428b8f5b10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f2cccf3_2dab3a32",
+        "filename": "src/geopm_hash.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-08-29T01:58:18Z",
+      "side": 1,
+      "message": "Jez, maybe we need to switch to \"#pragma once\".  Thanks for the fix.",
+      "range": {
+        "startLine": 77,
+        "startChar": 1,
+        "endLine": 77,
+        "endChar": 6
+      },
+      "revId": "7a0dff1c04d67fab2fc1131571bc428b8f5b10f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
