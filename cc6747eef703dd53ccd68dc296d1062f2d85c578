@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96a3d67a_b62ce0be",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-30T22:08:46Z",
+      "side": 1,
+      "message": "could be const",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 5
+      },
+      "revId": "cc6747eef703dd53ccd68dc296d1062f2d85c578",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6b42471_1899af70",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-30T22:08:46Z",
+      "side": 1,
+      "message": "could be a log error?",
+      "range": {
+        "startLine": 362,
+        "startChar": 0,
+        "endLine": 366,
+        "endChar": 13
+      },
+      "revId": "cc6747eef703dd53ccd68dc296d1062f2d85c578",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "75b7e59d_2ac6950b",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-30T22:08:46Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 425,
+        "startChar": 12,
+        "endLine": 425,
+        "endChar": 16
+      },
+      "revId": "cc6747eef703dd53ccd68dc296d1062f2d85c578",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e91171f_aa5db21f",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-08-30T22:08:46Z",
+      "side": 1,
+      "message": "wtf",
+      "range": {
+        "startLine": 444,
+        "startChar": 0,
+        "endLine": 447,
+        "endChar": 9
+      },
+      "revId": "cc6747eef703dd53ccd68dc296d1062f2d85c578",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
