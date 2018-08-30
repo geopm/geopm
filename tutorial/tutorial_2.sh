@@ -47,7 +47,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmsrun  -N 2 \
                -n 8 \
-               --geopm-ctl=process \
+               --geopm-ctl=pthread \
                --geopm-report=tutorial_2_report \
                --geopm-trace=tutorial_2_trace \
                -- ./tutorial_2

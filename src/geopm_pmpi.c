@@ -212,7 +212,7 @@ static int geopm_pmpi_init(const char *exec_name)
             if (!err && g_ppn1_comm != MPI_COMM_NULL) {
                 int ppn1_rank;
                 err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
-                if (!err && !ppn1_rank) {
+                if (!err && !ppn1_rank && !geopm_env_do_kontroller()) {
                     err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
                 }
                 if (!err) {
