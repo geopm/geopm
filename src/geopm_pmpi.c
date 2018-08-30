@@ -61,7 +61,7 @@ static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
 static MPI_Fint g_geopm_comm_world_swap_f = 0;
 static MPI_Fint g_geopm_comm_world_f = 0;
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
-static __thread struct geopm_ctl_c *g_ctl = NULL;
+static struct geopm_ctl_c *g_ctl = NULL;
 static int g_is_mpi_finalized = 0;
 #ifndef GEOPM_TEST
 static pthread_t g_ctl_thread;
@@ -212,7 +212,7 @@ static int geopm_pmpi_init(const char *exec_name)
             if (!err && g_ppn1_comm != MPI_COMM_NULL) {
                 int ppn1_rank;
                 err = MPI_Comm_rank(g_ppn1_comm, &ppn1_rank);
-                if (!err && !ppn1_rank) {
+                if (!err && !ppn1_rank && !geopm_env_do_kontroller()) {
                     err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
                 }
                 if (!err) {
@@ -264,7 +264,8 @@ static int geopm_pmpi_finalize(void)
     int tmp_err = 0;
 
     if (!err && geopm_env_do_profile() &&
-        !g_ctl) {
+        (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD))
+    {
         PMPI_Barrier(g_geopm_comm_world_swap);
         err = geopm_prof_shutdown();
     }
