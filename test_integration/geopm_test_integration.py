@@ -184,7 +184,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace(nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skip("TODO: check if MPI was built with threading support")
+    @unittest.skipUnless('mr-fusion' in socket.gethostname(), "This test only enabled on known working systems.")
     def test_report_and_trace_generation_pthread(self):
         name = 'test_report_and_trace_generation_pthread'
         report_path = name + '.report'
