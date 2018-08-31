@@ -212,15 +212,17 @@ namespace geopm
 
             // default columns
             std::vector<IPlatformIO::m_request_s> base_columns({
-                    {"TIME", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_ID#", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"POWER_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}});
+                    {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
             m_region_id_idx = 1;
             m_region_progress_idx = 2;
