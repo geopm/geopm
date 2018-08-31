@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e19380c_961bb3ec",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-08-31T17:58:35Z",
+      "side": 1,
+      "message": "Drop #ifdef for non comm vars.  Add #else to set m_reduce_comm to NULL.",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 21
+      },
+      "revId": "584d26b6ff372a44aed2a9f575496bbeb25cc85a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df416341_a633d160",
+        "filename": "src/Profile.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-08-31T17:58:35Z",
+      "side": 1,
+      "message": "Will introduce \"variable not used\" style errors from CLANG.",
+      "range": {
+        "startLine": 318,
+        "startChar": 12,
+        "endLine": 320,
+        "endChar": 44
+      },
+      "revId": "584d26b6ff372a44aed2a9f575496bbeb25cc85a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
