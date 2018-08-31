@@ -145,6 +145,8 @@ static int geopm_pmpi_init(const char *exec_name)
 {
     int rank;
     int err = 0;
+    g_geopm_comm_world_swap_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
+    g_geopm_comm_world_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
     PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #ifdef GEOPM_DEBUG
     if (geopm_env_debug_attach() == rank) {
@@ -169,7 +171,6 @@ static int geopm_pmpi_init(const char *exec_name)
             else {
                 g_geopm_comm_world_swap = tmp_comm;
                 g_geopm_comm_world_swap_f = PMPI_Comm_c2f(g_geopm_comm_world_swap);
-                g_geopm_comm_world_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
             }
             if (!err && is_ctl) {
                 int ctl_rank;
