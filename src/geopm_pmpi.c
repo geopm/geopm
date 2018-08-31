@@ -58,8 +58,8 @@
 
 static int g_is_geopm_pmpi_ctl_enabled = 0;
 static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
-static MPI_Fint g_geopm_comm_world_swap_f = 0;
-static MPI_Fint g_geopm_comm_world_f = 0;
+static MPI_Fint g_geopm_comm_world_swap_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
+static MPI_Fint g_geopm_comm_world_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
 static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
 static struct geopm_ctl_c *g_ctl = NULL;
 static int g_is_mpi_finalized = 0;
@@ -169,7 +169,6 @@ static int geopm_pmpi_init(const char *exec_name)
             else {
                 g_geopm_comm_world_swap = tmp_comm;
                 g_geopm_comm_world_swap_f = PMPI_Comm_c2f(g_geopm_comm_world_swap);
-                g_geopm_comm_world_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
             }
             if (!err && is_ctl) {
                 int ctl_rank;
