@@ -1,0 +1,8 @@
+Verified+1: <fsp@intel.com>
+Code-Review+2: Brad Geltz <brad.geltz@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Brad Geltz <brad.geltz@intel.com>
+Submitted-at: Fri, 31 Aug 2018 17:44:45 +0000
+Reviewed-on: https://review.gerrithub.io/423576
+Project: geopm/geopm
+Branch: refs/heads/dev
