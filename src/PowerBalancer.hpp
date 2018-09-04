@@ -85,14 +85,15 @@ namespace geopm
             ///         runtime for an epoch can be made with the
             ///         runtime_sample() method, and false otherwise.
             virtual bool is_runtime_stable(double measured_runtime) = 0;
+            /// @brief Return the expected execution time of an application
+            ///        epoch under the current power limit.
+            virtual double runtime_sample(void) const = 0;
             /// @brief Sample the measured runtimes under the current
             ///        power cap in the first phase of execution.
             ///        This measurement will be aggregated across all
             ///        compute nodes to find the largest runtime
             ///        measured.
-            /// @return The expected execution time of an application
-            ///         epoch under the current power limit.
-            virtual double runtime_sample(void) = 0;
+            virtual void calculate_runtime_sample(void) = 0;
             /// @param Set the target runtime which is the largest
             ///        epoch execution time measured by any compute
             ///        node since the application began or the last
@@ -154,7 +155,8 @@ namespace geopm
             double power_limit(void) const override;
             void power_limit_adjusted(double limit) override;
             bool is_runtime_stable(double measured_runtime) override;
-            double runtime_sample(void) override;
+            double runtime_sample(void) const override;
+            void calculate_runtime_sample(void) override;
             void target_runtime(double largest_runtime) override;
             bool is_target_met(double measured_runtime) override;
             void achieved_limit(double achieved) override;
@@ -166,6 +168,7 @@ namespace geopm
             const double M_MIN_TRIAL_DELTA;
             const int M_MIN_NUM_SAMPLE;
             const double M_MIN_DURATION;
+            const double M_RUNTIME_FRACTION;
             int m_num_sample;
             // @brief Maximum power as set in last global budget
             //        increase.

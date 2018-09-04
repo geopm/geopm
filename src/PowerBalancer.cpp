@@ -52,6 +52,7 @@ namespace geopm
         , M_MIN_TRIAL_DELTA(trial_delta)
         , M_MIN_NUM_SAMPLE(num_sample)
         , M_MIN_DURATION(measure_duration)
+        , M_RUNTIME_FRACTION(0.02)
         , m_num_sample(0)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
@@ -127,7 +128,12 @@ namespace geopm
         return result;
     }
 
-    double PowerBalancer::runtime_sample(void)
+    double PowerBalancer::runtime_sample(void) const
+    {
+        return m_runtime_sample;
+    }
+
+    void PowerBalancer::calculate_runtime_sample(void)
     {
         if (m_runtime_buffer->size() != 0) {
             m_runtime_sample = IPlatformIO::agg_median(m_runtime_buffer->make_vector());
@@ -135,13 +141,12 @@ namespace geopm
         else {
             m_runtime_sample = IPlatformIO::agg_median(m_runtime_vec);
         }
-        return m_runtime_sample;
     }
 
     void PowerBalancer::target_runtime(double largest_runtime)
     {
-        m_target_runtime = largest_runtime;
-        if (m_runtime_sample == largest_runtime) {
+        m_target_runtime = largest_runtime * (1 - M_RUNTIME_FRACTION);
+        if (m_runtime_sample > m_target_runtime) {
             m_is_target_met = true;
         }
         else {
@@ -153,7 +158,7 @@ namespace geopm
     {
         if (!m_is_target_met &&
             is_runtime_stable(measured_runtime)) {
-            if (runtime_sample() > m_target_runtime) {
+            if (m_runtime_sample > m_target_runtime) {
                 if (m_power_limit != m_power_cap) {
                     m_power_limit += m_trial_delta;
                 }

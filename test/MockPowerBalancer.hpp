@@ -47,8 +47,10 @@ class MockPowerBalancer : public geopm::IPowerBalancer {
                      void(double limit));
         MOCK_METHOD1(is_runtime_stable,
                      bool(double measured_runtime));
-        MOCK_METHOD0(runtime_sample,
-                     double(void));
+        MOCK_CONST_METHOD0(runtime_sample,
+                           double(void));
+        MOCK_METHOD0(calculate_runtime_sample,
+                     void(void));
         MOCK_METHOD1(target_runtime,
                      void(double largest_runtime));
         MOCK_METHOD1(is_target_met,

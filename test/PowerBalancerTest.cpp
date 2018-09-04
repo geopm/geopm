@@ -100,12 +100,12 @@ TEST_F(PowerBalancerTest, balance)
     while (!m_balancer->is_runtime_stable(calc_rt())) {
     }
 
-    const std::vector<double> power_targets = {280, 275.45};
-    const std::vector<double> exp_step = {4, 6};
-    const std::vector<double> exp_limit = {284, 276};
+    const std::vector<double> power_targets = {280, 265.45};
+    const std::vector<double> exp_step = {3, 6};
+    const std::vector<double> exp_limit = {292, 276};
     const std::vector<double> ach_limit = {M_POWER_CAP + 5.0, 260};
     const std::vector<double> exp_limit2 = {300, 276};
-    const std::vector<double> exp_slack = {16, 24};
+    const std::vector<double> exp_slack = {8, 24};
     const std::vector<std::vector<double> > exp_sample = {{3.42466, 3.42466, 3.52113,
                                                            3.52113, 3.62319, 3.62319},
                                                           {3.33333, 3.42466, 3.42466,
@@ -129,6 +129,7 @@ TEST_F(PowerBalancerTest, balance)
             ++num_step;
             if (!is_target_met) {
                 while (!m_balancer->is_runtime_stable(calc_rt())) {
+                    m_balancer->calculate_runtime_sample();
                     EXPECT_NEAR(*curr_exp_sample, m_balancer->runtime_sample(), 1e-5);
                     curr_exp_sample++;
                 }

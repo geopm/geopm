@@ -143,7 +143,7 @@ namespace geopm
         : Role()
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
-        , M_POWER_MAX(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
+        , m_power_max(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
                       m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_power_governor(std::move(power_governor))
@@ -189,6 +189,9 @@ namespace geopm
             // algorithm.
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
             m_power_balancer->power_cap(in_policy[M_POLICY_POWER_CAP]);
+            if (in_policy[M_POLICY_POWER_CAP] > m_power_max) {
+                m_power_max = in_policy[M_POLICY_POWER_CAP];
+            }
             m_is_step_complete = true;
         }
         else if (in_policy[M_POLICY_STEP_COUNT] != m_step_count) {
@@ -466,9 +469,11 @@ namespace geopm
         // the power_balancer.
         if (epoch_count != role.m_last_epoch_count &&
             !role.m_is_step_complete) {
+
             double epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]);
-            role.m_runtime = role.m_power_balancer->runtime_sample();
             role.m_is_step_complete = role.m_power_balancer->is_runtime_stable(epoch_runtime);
+            role.m_power_balancer->calculate_runtime_sample();
+            role.m_runtime = role.m_power_balancer->runtime_sample();
             role.m_last_epoch_count = epoch_count;
         }
     }
@@ -497,10 +502,12 @@ namespace geopm
         // the power_balancer.
         if (epoch_count != role.m_last_epoch_count &&
             !role.m_is_step_complete) {
+
             double epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]);
             role.m_power_slack = role.m_power_balancer->power_cap() - role.m_power_balancer->power_limit();
+            role.m_power_balancer->calculate_runtime_sample();
             role.m_is_step_complete = role.m_power_balancer->is_target_met(epoch_runtime);
-            role.m_power_headroom = role.M_POWER_MAX - role.m_power_balancer->power_limit();
+            role.m_power_headroom = role.m_power_max - role.m_power_balancer->power_limit();
             role.m_last_epoch_count = epoch_count;
         }
     }

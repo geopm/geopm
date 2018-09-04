@@ -379,6 +379,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
 
     EXPECT_CALL(*m_power_bal, achieved_limit(actual_limit));
     EXPECT_CALL(*m_power_bal, target_runtime(epoch_rt[0]));
+    EXPECT_CALL(*m_power_bal, calculate_runtime_sample()).Times(2);
     EXPECT_CALL(*m_power_bal, runtime_sample())
         .WillRepeatedly(Return(epoch_rt[0]));
     EXPECT_CALL(*m_power_bal, is_runtime_stable(epoch_rt[0]))

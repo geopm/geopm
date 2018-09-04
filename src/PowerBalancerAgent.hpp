@@ -303,7 +303,7 @@ namespace geopm
 
                     IPlatformIO &m_platform_io;
                     IPlatformTopo &m_platform_topo;
-                    const double M_POWER_MAX;
+                    double m_power_max;
                     std::vector<int> m_pio_idx;
                     std::unique_ptr<IPowerGovernor> m_power_governor;
                     std::unique_ptr<IPowerBalancer> m_power_balancer;
