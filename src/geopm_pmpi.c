@@ -197,7 +197,11 @@ static int geopm_pmpi_init(const char *exec_name)
             pthread_attr_t thread_attr;
 #ifndef __APPLE__
             int num_cpu = geopm_sched_num_cpu();
-            cpu_set_t *cpu_set = CPU_ALLOC(num_cpu);
+
+            size_t cpu_set_size = CPU_ALLOC_SIZE(num_cpu) > sizeof(cpu_set_t) ?
+                                  CPU_ALLOC_SIZE(num_cpu) : sizeof(cpu_set_t);
+
+            cpu_set_t *cpu_set = calloc(cpu_set_size, sizeof(char));
 #endif
             if (!err) {
                 err = PMPI_Query_thread(&mpi_thread_level);
@@ -240,7 +244,7 @@ static int geopm_pmpi_init(const char *exec_name)
                 }
             }
 #ifndef __APPLE__
-            CPU_FREE(cpu_set);
+            free(cpu_set);
 #endif
         }
         if (!err && geopm_env_do_profile()) {
