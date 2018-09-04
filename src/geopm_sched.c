@@ -181,7 +181,10 @@ static void geopm_proc_cpuset_once(void)
     uint32_t *proc_cpuset = NULL;
     FILE *fid = NULL;
 
-    g_proc_cpuset = CPU_ALLOC(num_cpu);
+    size_t cpu_set_size = CPU_ALLOC_SIZE(num_cpu) > sizeof(cpu_set_t) ?
+                          CPU_ALLOC_SIZE(num_cpu) : sizeof(cpu_set_t);
+
+    g_proc_cpuset = calloc(cpu_set_size, sizeof(char));
     if (g_proc_cpuset == NULL) {
         err = ENOMEM;
     }
@@ -235,7 +238,11 @@ static void geopm_proc_cpuset_once(void)
     pthread_t tid;
     pthread_attr_t attr;
 
-    g_proc_cpuset = CPU_ALLOC(num_cpu);
+    size_t cpu_set_size = CPU_ALLOC_SIZE(num_cpu) > sizeof(cpu_set_t) ?
+                          CPU_ALLOC_SIZE(num_cpu) : sizeof(cpu_set_t);
+
+    g_proc_cpuset = calloc(cpu_set_size, sizeof(char));
+
     if (g_proc_cpuset == NULL) {
         err = ENOMEM;
     }
