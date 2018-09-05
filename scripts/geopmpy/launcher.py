@@ -944,6 +944,7 @@ class SrunLauncher(Launcher):
             # Disable other affinity mechanisms
             self.environ_ext['KMP_AFFINITY'] = 'disabled'
             self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+            self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             aff_list = self.affinity_list(is_geopmctl)
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1060,6 +1061,7 @@ class SrunTOSSLauncher(SrunLauncher):
             # Disable other affinity mechanisms
             self.environ_ext['KMP_AFFINITY'] = 'disabled'
             self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+            self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             aff_list = self.affinity_list(is_geopmctl)
             mask_list = [range_str(cpu_set) for cpu_set in aff_list]
@@ -1137,6 +1139,7 @@ class IMPIExecLauncher(Launcher):
             # Disable other affinity mechanisms
             self.environ_ext['KMP_AFFINITY'] = 'disabled'
             self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+            self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             aff_list = self.affinity_list(is_geopmctl)
             num_mask = len(aff_list)
@@ -1273,6 +1276,7 @@ class AprunLauncher(Launcher):
             # Disable other affinity mechanisms
             self.environ_ext['KMP_AFFINITY'] = 'disabled'
             self.environ_ext['MV2_ENABLE_AFFINITY'] = '0'
+            self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             result.append('--cpu-binding')
             aff_list = self.affinity_list(is_geopmctl)
