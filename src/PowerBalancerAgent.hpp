@@ -166,8 +166,8 @@ namespace geopm
                     virtual std::vector<std::string> trace_names(void) const;
                     virtual void trace_values(std::vector<double> &values);
                 protected:
-                    int step(size_t step_count);
-                    int step(void);
+                    int step(size_t step_count) const;
+                    int step(void) const;
                     const IStep& step_imp();
 
                     enum m_step_e {
@@ -195,7 +195,6 @@ namespace geopm
 
                     Role();
                     virtual ~Role();
-                    int step(void) const;
                     const std::vector<std::shared_ptr<const IStep> > M_STEP_IMP;
                     std::vector<double> m_policy;
                     int m_step_count;
