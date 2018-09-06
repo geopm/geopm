@@ -123,12 +123,12 @@ namespace geopm
 #endif
     }
 
-    int PowerBalancerAgent::Role::step(size_t step_count)
+    int PowerBalancerAgent::Role::step(size_t step_count) const
     {
         return (step_count % M_NUM_STEP);
     }
 
-    int PowerBalancerAgent::Role::step(void)
+    int PowerBalancerAgent::Role::step(void) const
     {
         return step(m_step_count);
     }
@@ -209,11 +209,11 @@ namespace geopm
         bool result = false;
         // Request the power limit from the balancer
         double request_limit = m_power_balancer->power_limit();
-        if (!std::isnan(request_limit)) {
+        if (!std::isnan(request_limit) && request_limit != 0.0) {
             result = m_power_governor->adjust_platform(request_limit, m_actual_limit);
             m_power_balancer->power_limit_adjusted(request_limit);
             if (result && m_actual_limit != request_limit) {
-                step_imp().post_adjust(*this, in_policy[M_POLICY_POWER_CAP], m_actual_limit);
+                step_imp().notify_achieved_limit(*this, in_policy[M_POLICY_POWER_CAP], m_actual_limit);
             }
         }
         return result;
@@ -368,7 +368,6 @@ namespace geopm
 
     PowerBalancerAgent::RootRole::~RootRole() = default;
 
-
     bool PowerBalancerAgent::RootRole::ascend(const std::vector<std::vector<double> > &in_sample,
             std::vector<double> &out_sample)
     {
@@ -433,12 +432,15 @@ namespace geopm
         role.m_is_step_complete = true;
     }
 
-    void PowerBalancerAgent::SendDownLimitStep::post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
+    static void warn_achieved_limit(double policy_limit, double actual_limit)
     {
-        if (policy_limit != 0.0) {
-            std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
-                << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
-        }
+        std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
+                  << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
+    }
+
+    void PowerBalancerAgent::SendDownLimitStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
+    {
+        warn_achieved_limit(policy_limit, actual_limit);
     }
 
     void PowerBalancerAgent::SendDownLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -454,12 +456,9 @@ namespace geopm
     {
     }
 
-    void PowerBalancerAgent::MeasureRuntimeStep::post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
+    void PowerBalancerAgent::MeasureRuntimeStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
     {
-        if (policy_limit != 0.0) {
-            std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
-                << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
-        }
+        warn_achieved_limit(policy_limit, actual_limit);
     }
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -490,7 +489,7 @@ namespace geopm
         role.m_power_balancer->target_runtime(in_policy[PowerBalancerAgent::M_POLICY_MAX_EPOCH_RUNTIME]);
     }
 
-    void PowerBalancerAgent::ReduceLimitStep::post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
+    void PowerBalancerAgent::ReduceLimitStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
     {
         role.m_power_balancer->achieved_limit(actual_limit);
     }

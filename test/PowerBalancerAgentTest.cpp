@@ -119,11 +119,13 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, {NAN, NAN, NAN, NAN});
     std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
 
+#ifdef GEOPM_DEBUG
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(in_policy), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(out_sample), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_names(), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
-    std::vector<double> trace_data ;
+    std::vector<double> trace_data;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(trace_data), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
+#endif
 
     int ctl_step = 0;
     double curr_cap = 300;
@@ -143,16 +145,20 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
 
+#ifdef GEOPM_DEBUG
     std::vector<std::vector<double> > inv_out_policy = {};
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend({}, out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend(in_policy, inv_out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
+#endif
     desc_ret = m_agent->descend(in_policy, out_policy);
     EXPECT_EQ(exp_descend_ret, desc_ret);
     EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
+#ifdef GEOPM_DEBUG
     std::vector<double> inv_out_sample = {};
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->ascend({}, out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->ascend(in_sample, inv_out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
+#endif
     ascend_ret = m_agent->ascend(in_sample, out_sample);
     EXPECT_EQ(exp_ascend_ret, ascend_ret);
     EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
@@ -233,11 +239,13 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, {NAN, NAN, NAN, NAN});
     std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
 
+#ifdef GEOPM_DEBUG
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(in_policy), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(out_sample), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_names(), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
-    std::vector<double> trace_data ;
+    std::vector<double> trace_data;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(trace_data), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
+#endif
 
     int ctl_step = 0;
     double curr_cap = 300;
@@ -257,16 +265,20 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 0.0};
 
+#ifdef GEOPM_DEBUG
     std::vector<std::vector<double> > inv_out_policy = {};
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend({}, out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend(in_policy, inv_out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
+#endif
     desc_ret = m_agent->descend(in_policy, out_policy);
     EXPECT_EQ(exp_descend_ret, desc_ret);
     EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
+#ifdef GEOPM_DEBUG
     std::vector<double> inv_out_sample = {};
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->ascend({}, out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->ascend(in_sample, inv_out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
+#endif
     ascend_ret = m_agent->ascend(in_sample, out_sample);
     EXPECT_EQ(exp_ascend_ret, ascend_ret);
     EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
@@ -402,14 +414,16 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     std::vector<double> exp_out_sample;
 
     std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, {NAN, NAN, NAN, NAN});
-    std::vector<double> err_trace_vals, err_out_sample;
     std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
 
+#ifdef GEOPM_DEBUG
+    std::vector<double> err_trace_vals, err_out_sample;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(err_trace_vals), GEOPM_ERROR_LOGIC, "values vector not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform({}), GEOPM_ERROR_LOGIC, "policy vector incorrectly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(err_out_sample), GEOPM_ERROR_LOGIC, "out_sample vector not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend({} ,out_policy), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->ascend({}, out_sample), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
+#endif
 
     int ctl_step = 0;
     double curr_cap = 300;
