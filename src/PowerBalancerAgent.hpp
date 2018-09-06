@@ -166,8 +166,8 @@ namespace geopm
                     virtual std::vector<std::string> trace_names(void) const;
                     virtual void trace_values(std::vector<double> &values);
                 protected:
-                    int step(size_t step_count);
-                    int step(void);
+                    int step(size_t step_count) const;
+                    int step(void) const;
                     const IStep& step_imp();
 
                     enum m_step_e {
@@ -195,7 +195,6 @@ namespace geopm
 
                     Role();
                     virtual ~Role();
-                    int step(void) const;
                     const std::vector<std::shared_ptr<const IStep> > M_STEP_IMP;
                     std::vector<double> m_policy;
                     int m_step_count;
@@ -220,7 +219,7 @@ namespace geopm
                     virtual ~IStep() = default;
                     virtual void update_policy(RootRole &role, const std::vector<double> &sample) const = 0;
                     virtual void pre_adjust(LeafRole &role, const std::vector<double> &in_policy) const = 0;
-                    virtual void post_adjust(LeafRole &role, double policy_limit, double actual_limit) const = 0;
+                    virtual void notify_achieved_limit(LeafRole &role, double policy_limit, double actual_limit) const = 0;
                     virtual void sample_platform(LeafRole &role) const = 0;
             };
 
@@ -230,7 +229,7 @@ namespace geopm
                    ~SendDownLimitStep() = default;
                    void update_policy(PowerBalancerAgent::RootRole &role, const std::vector<double> &sample) const;
                    void pre_adjust(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const;
-                   void post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const;
+                   void notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const;
                    void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
@@ -240,7 +239,7 @@ namespace geopm
                     ~MeasureRuntimeStep() = default;
                     void update_policy(PowerBalancerAgent::RootRole &role, const std::vector<double> &sample) const;
                     void pre_adjust(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const;
-                    void post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const;
+                    void notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const;
                     void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
@@ -250,7 +249,7 @@ namespace geopm
                     ~ReduceLimitStep() = default;
                     void update_policy(PowerBalancerAgent::RootRole &role, const std::vector<double> &sample) const;
                     void pre_adjust(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const;
-                    void post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const;
+                    void notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const;
                     void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
