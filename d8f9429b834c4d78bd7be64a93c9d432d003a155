@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e73c30fa_aa6fd344",
+        "filename": "src/ControlMessage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-09-06T22:22:16Z",
+      "side": 1,
+      "message": "-\u003e tmp?",
+      "range": {
+        "startLine": 93,
+        "startChar": 56,
+        "endLine": 93,
+        "endChar": 77
+      },
+      "revId": "d8f9429b834c4d78bd7be64a93c9d432d003a155",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
