@@ -123,12 +123,12 @@ namespace geopm
 #endif
     }
 
-    int PowerBalancerAgent::Role::step(size_t step_count)
+    int PowerBalancerAgent::Role::step(size_t step_count) const
     {
         return (step_count % M_NUM_STEP);
     }
 
-    int PowerBalancerAgent::Role::step(void)
+    int PowerBalancerAgent::Role::step(void) const
     {
         return step(m_step_count);
     }
@@ -209,7 +209,7 @@ namespace geopm
         bool result = false;
         // Request the power limit from the balancer
         double request_limit = m_power_balancer->power_limit();
-        if (!std::isnan(request_limit)) {
+        if (!std::isnan(request_limit) && request_limit != 0.0) {
             result = m_power_governor->adjust_platform(request_limit, m_actual_limit);
             m_power_balancer->power_limit_adjusted(request_limit);
             if (result && m_actual_limit != request_limit) {
@@ -368,7 +368,6 @@ namespace geopm
 
     PowerBalancerAgent::RootRole::~RootRole() = default;
 
-
     bool PowerBalancerAgent::RootRole::ascend(const std::vector<std::vector<double> > &in_sample,
             std::vector<double> &out_sample)
     {
@@ -433,12 +432,17 @@ namespace geopm
         role.m_is_step_complete = true;
     }
 
-    void PowerBalancerAgent::SendDownLimitStep::post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
+    static void post_adjust_imp(double policy_limit, double actual_limit)
     {
         if (policy_limit != 0.0) {
             std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
                 << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
         }
+    }
+
+    void PowerBalancerAgent::SendDownLimitStep::post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
+    {
+        post_adjust_imp(policy_limit, actual_limit);
     }
 
     void PowerBalancerAgent::SendDownLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -456,10 +460,7 @@ namespace geopm
 
     void PowerBalancerAgent::MeasureRuntimeStep::post_adjust(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
     {
-        if (policy_limit != 0.0) {
-            std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
-                << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
-        }
+        post_adjust_imp(policy_limit, actual_limit);
     }
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
