@@ -123,12 +123,12 @@ namespace geopm
 #endif
     }
 
-    int PowerBalancerAgent::Role::step(size_t step_count)
+    int PowerBalancerAgent::Role::step(size_t step_count) const
     {
         return (step_count % M_NUM_STEP);
     }
 
-    int PowerBalancerAgent::Role::step(void)
+    int PowerBalancerAgent::Role::step(void) const
     {
         return step(m_step_count);
     }
@@ -368,7 +368,6 @@ namespace geopm
 
     PowerBalancerAgent::RootRole::~RootRole() = default;
 
-
     bool PowerBalancerAgent::RootRole::ascend(const std::vector<std::vector<double> > &in_sample,
             std::vector<double> &out_sample)
     {
@@ -437,7 +436,7 @@ namespace geopm
     {
         if (policy_limit != 0.0) {
             std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
-                << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
+                      << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
         }
     }
 
