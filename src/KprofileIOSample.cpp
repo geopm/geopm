@@ -234,9 +234,7 @@ namespace geopm
 
     double KprofileIOSample::total_app_runtime(void) const
     {
-        geopm_time_s curr_time{{0, 0}};
-        geopm_time(&curr_time);
-        return geopm_time_diff(&m_app_start_time, &curr_time);
+        return geopm_time_since(&m_app_start_time);
     }
 
     std::vector<int> KprofileIOSample::cpu_rank(void) const

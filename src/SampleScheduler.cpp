@@ -46,7 +46,6 @@ namespace geopm
     bool SampleScheduler::do_sample(void)
     {
         bool result = true;
-        struct geopm_time_s now;
         switch (m_status) {
             case M_STATUS_CLEAR:
                 geopm_time(&m_entry_time);
@@ -57,8 +56,7 @@ namespace geopm
                 if (m_sample_time == -1.0) {
                     throw Exception("SampleScheduler::do_sample(): do_sample() called twice without call to record_exit()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
-                geopm_time(&now);
-                m_work_time = geopm_time_diff(&m_entry_time, &now);
+                m_work_time = geopm_time_since(&m_entry_time);
                 m_sample_stride = (size_t)(m_sample_time/(m_overhead_frac * m_work_time)) + 1;
                 m_sample_count = 0;
                 m_status = M_STATUS_READY;
@@ -80,14 +78,12 @@ namespace geopm
     }
     void SampleScheduler::record_exit(void)
     {
-        struct geopm_time_s now;
         switch (m_status) {
             case M_STATUS_CLEAR:
                 throw Exception("SampleScheduler::record_exit(): record_exit() called without prior call to do_sample()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 break;
             case M_STATUS_ENTERED:
-                geopm_time(&now);
-                m_sample_time = geopm_time_diff(&m_entry_time, &now);
+                m_sample_time = geopm_time_since(&m_entry_time);
                 break;
             case M_STATUS_READY:
                 break;

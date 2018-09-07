@@ -49,7 +49,6 @@
 
 #include "geopm.h"
 #include "geopm_message.h"
-#include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
 #include "geopm_env.h"

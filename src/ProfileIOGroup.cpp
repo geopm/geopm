@@ -37,6 +37,7 @@
 #include "ProfileIORuntime.hpp"
 #include "Exception.hpp"
 #include "geopm_hash.h"
+#include "geopm_time.h"
 #include "config.h"
 
 #define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"

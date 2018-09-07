@@ -107,9 +107,7 @@ namespace geopm
     void TimeIOGroup::read_batch(void)
     {
         if (m_is_signal_pushed) {
-            geopm_time_s time_curr;
-            geopm_time(&time_curr);
-            m_time_curr = geopm_time_diff(&m_time_zero, &time_curr);
+            m_time_curr = geopm_time_since(&m_time_zero);
         }
         m_is_batch_read = true;
     }
@@ -149,9 +147,7 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        geopm_time_s time_curr;
-        geopm_time(&time_curr);
-        return geopm_time_diff(&m_time_zero, &time_curr);
+        return geopm_time_since(&m_time_zero);
     }
 
     void TimeIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)

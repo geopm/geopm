@@ -94,9 +94,7 @@ namespace geopm
 
     bool PowerBalancer::is_limit_stable(void)
     {
-        struct geopm_time_s curr_time = {{0,0}};
-        geopm_time(&curr_time);
-        return (geopm_time_diff(&m_power_limit_change_time, &curr_time) > M_CONTROL_LATENCY);
+        return (geopm_time_since(&m_power_limit_change_time) > M_CONTROL_LATENCY);
     }
 
     bool PowerBalancer::is_runtime_stable(double measured_runtime)
