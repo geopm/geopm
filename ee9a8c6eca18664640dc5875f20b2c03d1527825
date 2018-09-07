@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55d6b712_d8825977",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-07T22:28:58Z",
+      "side": 1,
+      "message": "move to next line; also fix --geopm-disable-hyperthreads",
+      "revId": "ee9a8c6eca18664640dc5875f20b2c03d1527825",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "499bf534_452fc91c",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-07T22:28:58Z",
+      "side": 1,
+      "message": "this is not implemented; remove or wait until implemented.",
+      "revId": "ee9a8c6eca18664640dc5875f20b2c03d1527825",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
