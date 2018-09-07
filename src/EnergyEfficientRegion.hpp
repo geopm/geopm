@@ -37,8 +37,6 @@
 #include <set>
 #include <vector>
 
-#include "geopm_time.h"
-
 namespace geopm
 {
 

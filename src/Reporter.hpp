@@ -41,8 +41,6 @@
 #include <memory>
 #include <vector>
 
-#include "geopm_time.h"
-
 namespace geopm
 {
     class Comm;

@@ -282,10 +282,8 @@ namespace geopm
     void EnergyEfficientAgent::wait(void)
     {
         static double M_WAIT_SEC = 0.005;
-        geopm_time_s current_time;
-        geopm_time(&current_time);
-        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC) {
-            geopm_time(&current_time);
+        while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
+
         }
         geopm_time(&m_last_wait);
     }

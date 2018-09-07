@@ -150,14 +150,10 @@ namespace geopm
         }
         else {
             struct geopm_time_s begin_time;
-            struct geopm_time_s curr_time;
-
             geopm_time(&begin_time);
-            curr_time = begin_time;
-            while (shm_id < 0 && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
+            while (shm_id < 0 && geopm_time_since(&begin_time) < (double)timeout) {
                 geopm_signal_handler_check();
                 shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
-                geopm_time(&curr_time);
             }
             if (shm_id < 0) {
                 std::ostringstream ex_str;
@@ -165,13 +161,12 @@ namespace geopm
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
-            while (!m_size && geopm_time_diff(&begin_time, &curr_time) < (double)timeout) {
+            while (!m_size && geopm_time_since(&begin_time) < (double)timeout) {
                 geopm_signal_handler_check();
                 err = fstat(shm_id, &stat_struct);
                 if (!err) {
                     m_size = stat_struct.st_size;
                 }
-                geopm_time(&curr_time);
             }
             if (!m_size) {
                 (void) close(shm_id);

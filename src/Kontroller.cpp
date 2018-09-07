@@ -36,7 +36,6 @@
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "geopm_message.h"
-#include "geopm_time.h"
 #include "Kontroller.hpp"
 #include "ApplicationIO.hpp"
 #include "Reporter.hpp"

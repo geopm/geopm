@@ -36,7 +36,6 @@
 #include <set>
 #include <string>
 
-#include "geopm_time.h"
 #include "IOGroup.hpp"
 
 namespace geopm

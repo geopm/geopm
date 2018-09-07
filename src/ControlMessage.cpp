@@ -70,16 +70,13 @@ namespace geopm
             ++m_last_status;
         }
         geopm_time_s start;
-        geopm_time_s current;
         geopm_time(&start);
-        current = start;
-        while (this_status() != m_last_status && geopm_time_diff(&start, &current) < M_WAIT_SEC) {
+        while (this_status() != m_last_status && geopm_time_since(&start) < M_WAIT_SEC) {
             geopm_signal_handler_check();
             if (this_status() == M_STATUS_ABORT) {
                 throw Exception("ControlMessage::wait(): Abort sent through control message",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            geopm_time(&current);
         }
         if (this_status() != m_last_status) {
             throw Exception("ControlMessage::wait(): Timed out waiting for status " +

@@ -263,11 +263,9 @@ namespace geopm
 
     void PowerGovernorAgent::wait()
     {
-        geopm_time_s current_time;
-        do {
-            geopm_time(&current_time);
+        while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
+
         }
-        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
         geopm_time(&m_last_wait);
     }
 

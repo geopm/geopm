@@ -134,9 +134,7 @@ namespace geopm
             m_is_enabled = false;
         }
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time_startup = geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time_startup = geopm_time_since(&overhead_entry);
 #endif
     }
 
@@ -287,9 +285,7 @@ namespace geopm
         m_ctl_msg->wait();  // M_SAMPLE_END
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time_shutdown = geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time_shutdown = geopm_time_since(&overhead_entry);
 #endif
 
         if (geopm_env_report_verbosity()) {
@@ -318,9 +314,7 @@ namespace geopm
         result = geopm_region_id_set_hint(hint, result);
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
         return result;
@@ -371,9 +365,7 @@ namespace geopm
         }
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
     }
@@ -425,9 +417,7 @@ namespace geopm
         }
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
     }
@@ -452,9 +442,7 @@ namespace geopm
         }
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
     }
@@ -493,9 +481,7 @@ namespace geopm
         }
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
     }
@@ -519,9 +505,7 @@ namespace geopm
         m_table->insert(m_curr_region_id, sample);
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
     }
@@ -574,9 +558,7 @@ namespace geopm
         m_ctl_msg->wait();  // M_STATUS_NAME_END
 
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_exit;
-        geopm_time(&overhead_exit);
-        m_overhead_time += geopm_time_diff(&overhead_entry, &overhead_exit);
+        m_overhead_time += geopm_time_since(&overhead_entry);
         double overhead_buffer[3] = {m_overhead_time_startup,
                                      m_overhead_time,
                                      m_overhead_time_shutdown};
