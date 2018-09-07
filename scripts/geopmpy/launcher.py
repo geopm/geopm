@@ -1344,10 +1344,14 @@ GEOPM options:
       --geopm-ctl=ctl         use geopm runtime and launch geopm with the
                               "ctl" method, one of "process", "pthread" or
                               "application"
+      --geopm-agent=agent     specify the agent to be used
       --geopm-policy=pol      use the geopm policy file or shared memory
                               region "pol"
       --geopm-report=path     create geopm report files with base name "path"
       --geopm-trace=path      create geopm trace files with base name "path"
+      --geopm-trace-signals=signals
+                              comma-separated list of signals to add as columns
+                              in the trace
       --geopm-profile=name    set the name of the profile in the report and
                               trace to "name"
       --geopm-shmkey=key      use shared memory keys for geopm starting with
@@ -1360,7 +1364,8 @@ GEOPM options:
       --geopm-barrier         apply node local barriers when application enters
                               or exits a geopm region
       --geopm-preload         use LD_PRELOAD to link libgeopm.so at runtime
-      --geopm-disable-hyperthreads   do not allow pinning to HTs
+      --geopm-disable-hyperthreads
+                              do not allow pinning to HTs
 
 """
 
