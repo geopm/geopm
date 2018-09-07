@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5337cc60_0eb8e276",
+        "filename": "ronn/geopmanalysis.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-07T22:48:53Z",
+      "side": 1,
+      "message": "If doing skip launch, force all system-derived options to be specified.",
+      "revId": "b6c11194acd1e15276cc5fd04fdd4d315266de79",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "323a1985_e8784dc2",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-07T22:48:53Z",
+      "side": 1,
+      "message": "remove me",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 21
+      },
+      "revId": "b6c11194acd1e15276cc5fd04fdd4d315266de79",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
