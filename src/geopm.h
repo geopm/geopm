@@ -33,6 +33,7 @@
 #ifndef GEOPM_H_INCLUDE
 #define GEOPM_H_INCLUDE
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "geopm_policy.h"
