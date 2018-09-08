@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cstddef>
+
 #include "geopm.h"
 #include "geopm_message.h"
 #include "geopm_hash.h"
@@ -37,6 +39,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {
