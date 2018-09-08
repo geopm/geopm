@@ -40,6 +40,8 @@
 #include "geopm_message.h"
 #include "geopm_hash.h"
 
+#include "config.h"
+
 namespace geopm
 {
     double Agg::sum(const std::vector<double> &operand)
