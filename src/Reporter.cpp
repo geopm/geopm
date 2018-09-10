@@ -111,10 +111,15 @@ namespace geopm
                             std::shared_ptr<Comm> comm,
                             const ITreeComm &tree_comm)
     {
+        std::string report_name(application_io.report_name());
+        if (report_name.size() == 0) {
+            return;
+        }
+
         int rank = comm->rank();
         std::ofstream master_report;
         if (!rank) {
-            master_report.open(application_io.report_name());
+            master_report.open(report_name);
             if (!master_report.good()) {
                 throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
