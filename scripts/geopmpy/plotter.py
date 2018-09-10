@@ -357,16 +357,26 @@ def generate_bar_plot(report_df, config):
     idx = pandas.IndexSlice
     df = pandas.DataFrame()
 
-    reference_g = report_df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
-                                    config.min_drop:config.max_drop, config.ref_plugin, :, :, :, 'epoch'],
-                                config.datatype].groupby(level='power_budget')
+    if config.use_agent:
+        reference_g = report_df.loc[idx[config.ref_version:config.ref_version, :,
+                                    :, :, :, config.ref_plugin, :, :, 'epoch'],
+                                    config.datatype].groupby(level='name')
+    else:
+        reference_g = report_df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
+                                    config.min_drop:config.max_drop, config.ref_plugin, :, :, :, :, 'epoch'],
+                                    config.datatype].groupby(level='power_budget')
     df['reference_mean'] = reference_g.mean()
     df['reference_max'] = reference_g.max()
     df['reference_min'] = reference_g.min()
 
-    target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                                 config.min_drop:config.max_drop, config.tgt_plugin, :, :, :, 'epoch'],
-                             config.datatype].groupby(level='power_budget')
+    if config.use_agent:
+        target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, :,
+                                 :, :, :, config.tgt_plugin, :, :, 'epoch'],
+                                 config.datatype].groupby(level='name')
+    else:
+        target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
+                                 config.min_drop:config.max_drop, config.tgt_plugin, :, :, :, :, 'epoch'],
+                                 config.datatype].groupby(level='power_budget')
     df['target_mean'] = target_g.mean()
     df['target_max'] = target_g.max()
     df['target_min'] = target_g.min()
@@ -430,7 +440,8 @@ def generate_bar_plot(report_df, config):
                 zorder=10)
 
     ax.set_xticks(index)
-    ax.set_xticklabels(df.index)
+    xlabels = [tick.split('_')[-1] for tick in df.index]
+    ax.set_xticklabels(xlabels)
     ax.set_xlabel('Per-Node Socket+DRAM Power Limit (W)')
 
     ylabel = config.datatype.title()
@@ -697,8 +708,8 @@ def generate_power_plot(trace_df, config):
     if config.verbose:
         sys.stdout.write('Grouping data...\n')
         sys.stdout.flush()
-    for (version, name, power_budget, tree_decider, leaf_decider), df in \
-            trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
+    for (version, name, power_budget, tree_decider, leaf_decider, agent), df in \
+            trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'agent']):
 
         # Diff the energy counters and determine the median iteration (if multiple runs)
         median_df = geopmpy.io.Trace.get_median_df(df, 'energy', config)
@@ -707,7 +718,7 @@ def generate_power_plot(trace_df, config):
         dram_energy_cols = [s for s in median_df.keys() if 'dram_energy' in s]
         median_df['socket_power'] = median_df[pkg_energy_cols].sum(axis=1) / median_df['elapsed_time']
         median_df['dram_power'] = median_df[dram_energy_cols].sum(axis=1) / median_df['elapsed_time']
-        median_df['combined_power'] = median_df['socket_power'] + median_df['dram_power']
+        median_df['combined_power'] = median_df['socket_power']
 
         # Begin plot setup
         node_names = df.index.get_level_values('node_name').unique().tolist()
@@ -717,7 +728,7 @@ def generate_power_plot(trace_df, config):
         f, ax = plt.subplots()
 
         for node_name in natsorted(node_names):
-            node_df = median_df.loc[idx[:, :, :, :, :, node_name], ]
+            node_df = median_df.loc[idx[:, :, :, :, :, :, node_name], ]
 
             if node_name == config.focus_node:
                 plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
@@ -749,11 +760,11 @@ def generate_power_plot(trace_df, config):
 
         plt.title('{} Iteration Power\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-        legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5, 0], ncol=4,
-                            shadow=True, fancybox=True, fontsize=config.legend_fontsize)
-        for l in legend.legendHandles:
-            l.set_linewidth(2.0)
-        legend.set_zorder(11)
+        # legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5, 0], ncol=4,
+        #                     shadow=True, fancybox=True, fontsize=config.legend_fontsize)
+        # for l in legend.legendHandles:
+        #     l.set_linewidth(2.0)
+        # legend.set_zorder(11)
         plt.tight_layout()
         ax.set_ylim(ax.get_ylim()[0] * .93, ax.get_ylim()[1])
 
