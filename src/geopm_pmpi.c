@@ -36,6 +36,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 
 #ifndef GEOPM_TEST
 #include <mpi.h>
@@ -204,6 +205,9 @@ static int geopm_pmpi_init(const char *exec_name)
                                   CPU_ALLOC_SIZE(num_cpu) : sizeof(cpu_set_t);
 
             cpu_set_t *cpu_set = calloc(cpu_set_size, sizeof(char));
+            if (NULL == cpu_set) {
+                err = ENOMEM;
+            }
 #endif
             if (!err) {
                 err = PMPI_Query_thread(&mpi_thread_level);
