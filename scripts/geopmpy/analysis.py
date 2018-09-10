@@ -107,6 +107,24 @@ def all_region_data_pretty(combined_df):
     return rs
 
 
+def load_report_or_cache(report_paths, report_h5_name):
+    try:
+        report_df = pandas.read_hdf(report_h5_name, 'report')
+    except IOError:
+        sys.stderr.write('WARNING: No HDF5 files detected.  Data will be saved to {}.\n'
+                         .format(report_h5_name))
+        output = geopmpy.io.AppOutput(report_paths, None, verbose=True)
+        try:
+            sys.stdout.write('Generating HDF5 files... ')
+            report_df = output.get_report_df()
+            report_df.to_hdf(report_h5_name, 'report')
+            sys.stdout.write('Done.\n')
+        except ImportError:
+            sys.stderr.write('Warning: unable to write HDF5 file.\n')
+    assert report_df is not None
+    return report_df
+
+
 class Analysis(object):
     """
     Base class for different types of analysis that use the data from geopm
@@ -157,7 +175,10 @@ class Analysis(object):
         """
         Load any necessary data from the application result files into memory for analysis.
         """
-        return geopmpy.io.AppOutput(self._report_paths, self._trace_paths, verbose=self._verbose)
+        # move to common place.  should be able to reuse for any analysis
+        report_h5_name = self._name + '_report.h5'  # TODO: fix name
+        report_df = load_report_or_cache(self._report_paths, report_h5_name)
+        return report_df
 
     def plot_process(self, parse_output):
         """
