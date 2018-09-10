@@ -310,6 +310,8 @@ class Config(object):
         """
         result = {'LD_DYNAMIC_WEAK': 'true',
                   'OMP_PROC_BIND': 'true'}
+        if self.ctl == 'pthread':
+            result['MPICH_MAX_THREAD_SAFETY'] = 'multiple'
         if self.ctl in ('process', 'pthread'):
             result['GEOPM_PMPI_CTL'] = self.ctl
         if self.profile:
