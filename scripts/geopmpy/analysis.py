@@ -40,7 +40,10 @@ import glob
 from collections import defaultdict
 import socket
 import json
+import math
+import numpy
 import pandas
+import subprocess
 
 import geopmpy.io
 import geopmpy.launcher
@@ -81,8 +84,8 @@ def load_report_or_cache(report_paths, report_h5_name):
             report_df = output.get_report_df()
             report_df.to_hdf(report_h5_name, 'report')
             sys.stdout.write('Done.\n')
-        except ImportError:
-            sys.stderr.write('Warning: unable to write HDF5 file.\n')
+        except ImportError as error:
+            sys.stderr.write('Warning: unable to write HDF5 file: {}\n'.format(str(error)))
     assert report_df is not None
     return report_df
 
@@ -176,6 +179,168 @@ class Analysis(object):
         Generate graphical plots of the results.
         """
         raise NotImplementedError('Analysis base class does not implement the plot() method')
+
+
+class PowerSweepAnalysis(Analysis):
+    """
+    Runs the application under a range of socket power limits.  Used
+    by other analysis types to run either the PowerGovernorAgent or
+    the PowerBalancerAgent.
+    """
+
+    @staticmethod
+    def add_options(parser, enforce_required):
+        """
+        Set up options supported by the analysis type.
+        """
+        req_default = {'default': None}
+        if enforce_required:
+            req_default = {'required': True}
+        parser.add_argument('--min-power', dest='min_power',
+                            type=int, **req_default)
+        parser.add_argument('--max-power', dest='max_power',
+                            type=int, **req_default)
+        parser.add_argument('--step-power', dest='step_power',
+                            type=int, default=10)
+        parser.add_argument('--agent-type', dest='agent_type',
+                            type=str, default='power_governor')
+
+    @staticmethod
+    def sys_power_avail():
+        # TODO: this would be nicer with PlatformIO python API
+        proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_MIN', 'package', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        min_power = int(proc.stdout.readline().strip())
+        proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_TDP', 'package', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        tdp_power = int(proc.stdout.readline().strip())
+        proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_MAX', 'package', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        max_power = int(proc.stdout.readline().strip())
+
+        return min_power, tdp_power, max_power
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Power sweep analysis: """ + PowerSweepAnalysis.__doc__ + """
+  Options for PowerSweepAnalysis:
+
+  --min-power           Minimum power limit to use for sweep. Default uses system minimum.
+  --max-power           Maximum power limit to use for sweep. Default uses system maximum.
+  --step-power          Step size of power limits used in sweep.  Default is 10W.
+  --agent-type          Specify which agent to use.  Default is power_governor.
+"""
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+                 min_power, max_power, step_power, agent_type='power_governor'):
+        super(PowerSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        self._min_power = min_power
+        self._max_power = max_power
+        self._step_power = step_power
+        self._agent_type = agent_type
+
+    def try_launch(self, profile_name, tag, iteration, ctl_conf, config, agent=None):
+        # tag is used to differentiate output files for governor and balancer.  profile name will be the same.
+        report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(tag, iteration))
+        trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(tag, iteration))
+        self._report_paths.append(report_path)
+        self._trace_paths.append(trace_path+'*')
+
+        if config.app_argv and not os.path.exists(report_path):
+            argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
+                             '--geopm-policy', ctl_conf.get_path(),
+                             '--geopm-report', report_path,
+                             '--geopm-trace', trace_path,
+                             '--geopm-profile', profile_name]
+            if config.do_geopm_barrier:
+                argv.append('--geopm-barrier')
+            if agent:
+                argv.append('--geopm-agent=' + agent)
+            argv.append('--')
+            argv.extend(config.app_argv)
+            launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
+            launcher.run()
+        elif os.path.exists(report_path):
+            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+        else:
+            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+
+    def launch(self, config):
+        sys_min, sys_tdp, sys_max = PowerSweepAnalysis.sys_power_avail()
+        if self._min_power is None or self._min_power < sys_min:
+            # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
+            self._min_power = max(int(0.5 * sys_tdp), sys_min)
+            self._min_power = int(self._step_power * math.ceil(float(self._min_power)/self._step_power))
+            sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified min_power; using default minimum: {}.\n".format(self._min_power))
+        if self._max_power is None or self._max_power > sys_max:
+            self._max_power = sys_tdp
+            sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_power; using system TDP: {}.\n".format(self._max_power))
+
+        power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        for power_cap in power_caps:
+            agent = None
+            # governor runs
+            ctl_conf = geopmpy.io.CtlConf(os.path.join(self._output_dir, self._name + '_ctl.config'),
+                                          'dynamic',
+                                          {'tree_decider': 'static_policy',
+                                           'leaf_decider': 'power_governing',
+                                           'platform': 'rapl',
+                                           'power_budget': power_cap})
+            if not config.agent:
+                ctl_conf.write()
+            else:
+                # todo: clean up
+                with open(ctl_conf.get_path(), "w") as outfile:
+                    if self._agent_type == 'power_governor':
+                        outfile.write("{\"POWER\": " + str(ctl_conf._options['power_budget']) + "}\n")
+                    elif self._agent_type == 'power_balancer':
+                        outfile.write("{\"POWER_CAP\": " + str(ctl_conf._options['power_budget']) + ", " +
+                                      "\"STEP_COUNT\":0, \"MAX_EPOCH_RUNTIME\":0, \"POWER_SLACK\":0}\n")
+                    else:
+                        raise RuntimeError('<geopmpy>: Unsupported agent type for power sweep: {}'.format(self._agent_type))
+                agent = self._agent_type
+
+            for iteration in range(self._iterations):
+                profile_name = self._name + '_' + str(power_cap)
+                self.try_launch(profile_name, self._agent_type, iteration, ctl_conf, config, agent)
+
+    @staticmethod
+    def extract_index_from_profile(df):
+        # Pull the power budget out of the profile name ('name' index field)
+        profile_name_map = {}
+        names_list = df.index.get_level_values('name').unique().tolist()
+        for name in names_list:
+            # The profile name is currently set to: ${NAME}_${POWER_BUDGET}
+            profile_name_map.update({name: int(name.split('_')[-1])})
+        df = df.rename(profile_name_map)
+        return df
+
+    def summary_process(self, parse_output):
+        df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        idx = pandas.IndexSlice
+        # profile name has been changed to power cap
+        df = df.loc[idx[:, self._min_power:self._max_power, :, :, :,
+                        self._agent_type, :, :, 'epoch'], ]
+        summary = pandas.DataFrame()
+        for col in ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram', 'frequency']:
+            summary[col] = df[col].groupby(level='name').mean()
+        summary.index.rename('power cap', inplace=True)
+        return summary
+
+    def summary(self, process_output):
+        rs = 'Summary for {} with {} agent\n'.format(self._name, self._agent_type)
+        rs += process_output.to_string()
+        sys.stdout.write(rs + '\n')
+
+    def plot_process(self, parse_output):
+        sys.stdout.write("<geopmpy>: Warning: No plot implemented for this analysis type.\n")
+
+    def plot(self, process_output):
+        pass
 
 
 class FreqSweepAnalysis(Analysis):
@@ -970,7 +1135,8 @@ Usage: {argv_0} [-h|--help] [--version]
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
-  ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix.
+  ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix,
+                        power_sweep.
 
   -h, --help            show this help message and exit
   -t, --analysis-type   type of analysis to perform. Available
@@ -997,7 +1163,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     analysis_type_map = {'freq_sweep': FreqSweepAnalysis,
                          'offline': OfflineBaselineComparisonAnalysis,
                          'online': OnlineBaselineComparisonAnalysis,
-                         'stream_mix': StreamDgemmMixAnalysis}
+                         'stream_mix': StreamDgemmMixAnalysis,
+                         'power_sweep': PowerSweepAnalysis}
 
     if '--help' in argv or '-h' in argv:
         sys.stdout.write(help_str)
@@ -1007,8 +1174,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     if '--version' in argv:
         sys.stdout.write(version_str)
         return 0
+
     if os.getenv("GEOPM_AGENT", None) is not None:
         raise RuntimeError('Use --use-agent option instead of environment variable to enable agent code path.')
+
     if len(argv) < 1:
         sys.stderr.write("<geopmpy> Error: analysis type is required.\n")
         sys.stderr.write(help_str)
