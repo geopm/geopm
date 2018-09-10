@@ -288,9 +288,7 @@ namespace geopm
         m_overhead_time_shutdown = geopm_time_since(&overhead_entry);
 #endif
 
-        if (geopm_env_report_verbosity()) {
-            print(geopm_env_report(), geopm_env_report_verbosity());
-        }
+        print(geopm_env_report());
         m_shm_comm->barrier();
         m_ctl_msg->step();  // M_STATUS_SHUTDOWN
         m_shm_comm->tear_down();
@@ -510,7 +508,7 @@ namespace geopm
 
     }
 
-    void Profile::print(const std::string file_name, int depth)
+    void Profile::print(const std::string file_name)
     {
         if (!m_is_enabled || !m_table_shmem) {
             return;

@@ -69,7 +69,6 @@ namespace geopm
             const char *agent(void) const;
             const char *trace_signal(int index) const;
             int num_trace_signal(void) const;
-            int report_verbosity(void) const;
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
             int do_trace(void) const;
@@ -88,7 +87,6 @@ namespace geopm
             std::string m_trace;
             std::string m_plugin_path;
             std::string m_profile;
-            int m_report_verbosity;
             int m_pmpi_ctl;
             bool m_do_region_barrier;
             bool m_do_trace;
@@ -125,7 +123,6 @@ namespace geopm
         m_trace = "";
         m_plugin_path = "";
         m_profile = "";
-        m_report_verbosity = 0;
         m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
         m_do_region_barrier = false;
         m_do_trace = false;
@@ -147,9 +144,6 @@ namespace geopm
         }
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
-        if (!get_env("GEOPM_REPORT_VERBOSITY", m_report_verbosity) && m_report.size()) {
-            m_report_verbosity = 1;
-        }
         m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
         (void)get_env("GEOPM_PROFILE_TIMEOUT", m_profile_timeout);
         if (get_env("GEOPM_PMPI_CTL", tmp_str)) {
@@ -277,11 +271,6 @@ namespace geopm
         return m_trace_signal.size();
     }
 
-    int Environment::report_verbosity(void) const
-    {
-        return m_report_verbosity;
-    }
-
     int Environment::pmpi_ctl(void) const
     {
         return m_pmpi_ctl;
@@ -372,11 +361,6 @@ extern "C"
     int geopm_env_num_trace_signal(void)
     {
         return geopm::environment().num_trace_signal();
-    }
-
-    int geopm_env_report_verbosity(void)
-    {
-        return geopm::environment().report_verbosity();
     }
 
     int geopm_env_pmpi_ctl(void)

@@ -186,7 +186,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_no_report_and_trace_generation(self):
-        name = 'test_report_and_trace_generation'
+        name = 'test_no_report_and_trace_generation'
         num_node = 4
         num_rank = 16
         app_conf = geopmpy.io.BenchConf(name + '_app.config')

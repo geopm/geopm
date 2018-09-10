@@ -272,13 +272,7 @@ namespace geopm
             ///        output report.  There may be suffixes appended
             ///        to this name if multiple files are created.
             ///
-            /// @param [in] verbosity Gives the verbosity level for
-            ///        the report. If zero is given, no report is
-            ///        generated.  In the future reports with higher
-            ///        verbosity level will include more details about
-            ///        the run.  Currently there is just one type of
-            ///        report created.
-            void print(const std::string file_name, int verbosity);
+            void print(const std::string file_name);
             bool m_is_enabled;
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
