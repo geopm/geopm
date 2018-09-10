@@ -199,7 +199,6 @@ ProfileTest::ProfileTest()
 
     setenv("GEOPM_REGION_BARRIER", "1", 1);
     setenv("GEOPM_PROFILE_TIMEOUT", "1", 1);
-    setenv("GEOPM_REPORT_VERBOSITY", "1", 1);
     geopm_env_load();
 }
 
@@ -207,7 +206,6 @@ ProfileTest::~ProfileTest()
 {
     unsetenv("GEOPM_REGION_BARRIER");
     unsetenv("GEOPM_PROFILE_TIMEOUT");
-    unsetenv("GEOPM_REPORT_VERBOSITY");
 }
 
 TEST_F(ProfileTest, region)
