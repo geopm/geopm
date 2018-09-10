@@ -49,6 +49,7 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/test/TestAffinity.py \
               scripts/test/TestAnalysisCommandLine.py \
               scripts/test/TestFreqSweepAnalysis.py \
+              scripts/test/TestPowerSweepAnalysis.py \
               scripts/test/TestSubsetOptionParser.py \
               scripts/test/geopm_context.py \
               scripts/test/__init__.py \
@@ -80,6 +81,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_offline_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
+               scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
                scripts/test/pytest_links/TestSubsetOptionParser.test_all_param_unknown \
                scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
                scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_arg_overlap \
