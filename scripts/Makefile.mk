@@ -48,6 +48,7 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/MANIFEST.in \
               scripts/test/TestAffinity.py \
               scripts/test/TestAnalysisCommandLine.py \
+              scripts/test/TestBalancerAnalysis.py \
               scripts/test/TestPowerSweepAnalysis.py \
               scripts/test/TestSubsetOptionParser.py \
               scripts/test/geopm_context.py \
@@ -76,6 +77,9 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_no_alloc \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_only \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_plot_summary \
+               scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_runtime \
+               scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_energy \
+               scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_power \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_offline_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
