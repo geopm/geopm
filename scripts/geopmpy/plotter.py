@@ -188,8 +188,10 @@ class ReportConfig(Config):
         self.yspan = yspan
         self.units = {
             'energy': 'J',
+            'energy_pkg': 'J',
             'runtime': 's',
             'frequency': '% of sticker',
+            'power': 'W',
         }
 
 
@@ -456,6 +458,132 @@ def generate_bar_plot(report_df, config):
     ax.grid(axis='y', linestyle='--', color='black')
 
     plt.title('{} {} Comparison{}'.format(config.profile_name, config.datatype.title(), config.misc_text), y=1.02)
+    plt.margins(0.02, 0.01)
+    plt.axis('tight')
+    plt.legend(shadow=True, fancybox=True, fontsize=config.legend_fontsize, loc='best').set_zorder(11)
+    plt.tight_layout()
+
+    if config.speedup:
+        # Check yspan before setting to ensure span is > speedup
+        abs_max_val = max(abs(df['target_mean'].max()), abs(df['target_mean'].min()))
+        abs_max_val = abs(abs_max_val - 1)
+        if abs_max_val > config.yspan:
+            yspan = abs_max_val * 1.1
+        else:
+            yspan = config.yspan
+        ax.set_ylim(1 - yspan, 1 + yspan)
+    else:
+        ymax = ax.get_ylim()[1]
+        ymax *= 1.1
+        ax.set_ylim(0, ymax)
+
+    # Write data/plot files
+    file_name = '{}_{}_comparison'.format(config.profile_name.lower().replace(' ', '_'), config.datatype)
+    if config.speedup:
+        file_name += '_speeudp'
+    if config.verbose:
+        sys.stdout.write('Writing:\n')
+    if config.write_csv:
+        full_path = os.path.join(config.output_dir, '{}.csv'.format(file_name))
+        df.T.to_csv(full_path)
+        if config.verbose:
+            sys.stdout.write('    {}\n'.format(full_path))
+    for ext in config.output_types:
+        full_path = os.path.join(config.output_dir, '{}.{}'.format(file_name, ext))
+        plt.savefig(full_path)
+        if config.verbose:
+            sys.stdout.write('    {}\n'.format(full_path))
+    sys.stdout.flush()
+
+    if config.show:
+        plt.show(block=config.block)
+
+    if config.shell:
+        code.interact(local=dict(globals(), **locals()))
+
+    plt.close()
+
+
+# Same as above plot, but pandas logic has been moved to analysis.py
+# some cosmetic changes August 2018
+def generate_bar_plot_comparison(df, config):
+    # TODO: fix in analysis.py
+    if 'nekbone' in config.profile_name:
+        config.profile_name = config.profile_name.replace('nekbone', 'Nekbone')
+    elif 'dgemm' in config.profile_name:
+        config.profile_name = config.profile_name.replace('dgemm', 'DGEMM')
+    elif 'minife' in config.profile_name:
+        config.profile_name = config.profile_name.replace('minife', 'MiniFE')
+    elif 'amg' in config.profile_name:
+        config.profile_name = config.profile_name.replace('amg', 'AMG')
+
+    # Begin plot setup
+    f, ax = plt.subplots()
+    bar_width = 0.35
+    index = numpy.arange(min(len(df['target_mean']), len(df['reference_mean'])))
+
+    plt.bar(index - bar_width / 2,
+            df['reference_mean'],
+            width=bar_width,
+            color='blue',
+            align='center',
+            label=config.ref_plugin.replace('_', ' ').title(),
+            zorder=3)
+
+    ax.errorbar(index - bar_width / 2,
+                df['reference_mean'],
+                xerr=None,
+                yerr=(df['reference_min_delta'], df['reference_max_delta']),
+                fmt=' ',
+                label='',
+                color='r',
+                elinewidth=2,
+                capthick=2,
+                zorder=10)
+
+    plt.bar(index + bar_width / 2,
+            df['target_mean'],
+            width=bar_width,
+            color='cyan',
+            align='center',
+            label=config.tgt_plugin.replace('_', ' ').title(),
+            zorder=3)  # Forces grid lines to be drawn behind the bar
+
+    ax.errorbar(index + bar_width / 2,
+                df['target_mean'],
+                xerr=None,
+                yerr=(df['target_min_delta'], df['target_max_delta']),
+                fmt=' ',
+                label='',
+                color='r',
+                elinewidth=2,
+                capthick=2,
+                zorder=10)
+
+    ax.set_xticks(index)
+    xlabels = df.index
+    ax.set_xticklabels(xlabels)
+    ax.set_xlabel('Average Node Power Limit (W)')
+
+    if config.datatype == 'energy_pkg':
+        title_datatype = 'Energy'
+    else:
+        title_datatype = config.datatype.title()
+
+    ylabel = title_datatype
+    if config.normalize and not config.speedup:
+        ylabel = 'Normalized {}'.format(ylabel)
+    elif not config.normalize and not config.speedup:
+        units_label = config.units.get(config.datatype)
+        ylabel = '{}{}'.format(ylabel, ' ({})'.format(units_label) if units_label else '')
+    else:  # if config.speedup:
+        ylabel = 'Normalized Speed-up'
+    ax.set_ylabel(ylabel)
+
+    ax.grid(axis='y', linestyle='--', color='black')
+
+    plt.title('{}: {} Decreases from Power Balancing{}'.format(config.profile_name, title_datatype, config.misc_text), y=1.02)
+
     plt.margins(0.02, 0.01)
     plt.axis('tight')
     plt.legend(shadow=True, fancybox=True, fontsize=config.legend_fontsize, loc='best').set_zorder(11)
