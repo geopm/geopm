@@ -55,6 +55,7 @@ scripts/test/geopmpy_test.sh
 scripts/test/__init__.py
 scripts/test/TestAffinity.py
 scripts/test/TestAnalysisCommandLine.py
+scripts/test/TestBalancerAnalysis.py
 scripts/test/TestFreqSweepAnalysis.py
 scripts/test/TestPowerSweepAnalysis.py
 scripts/test/TestSubsetOptionParser.py

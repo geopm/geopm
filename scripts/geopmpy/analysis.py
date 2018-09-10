@@ -72,6 +72,7 @@ class LaunchConfig(object):
         self.geopm_ctl = geopm_ctl
         self.do_geopm_barrier = do_geopm_barrier
 
+
 def load_report_or_cache(report_paths, report_h5_name):
     try:
         report_df = pandas.read_hdf(report_h5_name, 'report')
@@ -341,6 +342,157 @@ class PowerSweepAnalysis(Analysis):
 
     def plot(self, process_output):
         pass
+
+
+class BalancerAnalysis(Analysis):
+    """
+    Runs the application under a given range of power caps using both the governor
+    and the balancer.  Compares the performance of the two agents at each power cap.
+    """
+
+    @staticmethod
+    def add_options(parser, enforce_required):
+        """
+        Set up options supported by the analysis type.
+        """
+        PowerSweepAnalysis.add_options(parser, enforce_required)
+        parser.add_argument('--metric', default='runtime')
+        parser.add_argument('--normalize', default=False)
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Balancer analysis: """ + BalancerAnalysis.__doc__ + """
+  Options for BalancerAnalysis:
+
+  --metric              Metric to use for comparison (runtime, power, or energy).
+  --normalize           Whether to normalize results to governor at highest power budget.
+
+""" + PowerSweepAnalysis.help_text()
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+                 min_power, max_power, step_power, metric, normalize):
+        super(BalancerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power, max_power, step_power, 'power_governor')
+        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power, max_power, step_power, 'power_balancer')
+        self._metric = metric
+        if self._metric == 'energy':
+            self._metric = 'energy_pkg'
+        self._normalize = normalize
+
+        self._min_power = min_power
+        self._max_power = max_power
+        # TODO:
+        self._use_agent = True
+
+    # todo: why does each analysis need to define this?
+    # a: in case of special naming convention like freq sweep
+    def find_files(self, search_pattern='*report'):
+        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
+        # todo: fix search pattern parameter
+        trace_glob = os.path.join(self._output_dir, self._name + '*trace*')
+        self.set_data_paths(glob.glob(report_glob), glob.glob(trace_glob))
+        self._use_agent = True  # TODO: detect
+
+    def launch(self, config):
+        self._governor_power_sweep.launch(config)
+        self._balancer_power_sweep.launch(config)
+
+    def summary_process(self, parse_output):
+        sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
+
+    def summary(self, process_output):
+        pass
+
+    def plot_process(self, parse_output):
+        report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        idx = pandas.IndexSlice
+        df = pandas.DataFrame()
+
+        reference = 'static_policy'
+        target = 'power_balancing'
+        if self._use_agent:
+            reference = 'power_governor'
+            target = 'power_balancer'
+            # TODO: have a separate power analysis?
+            if self._metric == 'power':
+                rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'energy_pkg']
+                rgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'runtime']
+                reference_g = (rge / rgr).groupby(level='name')
+            else:
+                reference_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'],
+                                            self._metric].groupby(level='name')
+        else:
+            if self._metric == 'power':
+                rge = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
+                                    'energy_pkg'].groupby(level='power_budget')
+                rgr = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
+                                    'runtime'].groupby(level='power_budget')
+                reference_g = rge / rgr
+            else:
+                reference_g = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
+                                            self._metric].groupby(level='power_budget')
+
+        df['reference_mean'] = reference_g.mean()
+        df['reference_max'] = reference_g.max()
+        df['reference_min'] = reference_g.min()
+        if self._use_agent:
+            if self._metric == 'power':
+                tge = report_df.loc[idx[:, :, :, :, :, target, :, :, 'epoch'], 'energy_pkg']
+                tgr = report_df.loc[idx[:, :, :, :, :, target, :, :, 'epoch'], 'runtime']
+                target_g = (tge / tgr).groupby(level='name')
+            else:
+                target_g = report_df.loc[idx[:, :, :, :, :, target, :, :, 'epoch'],
+                                         self._metric].groupby(level='name')
+        else:
+            if self._metric == 'power':
+                tge = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
+                                    'energy_pkg']#.groupby(level='power_budget')
+                tgr = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
+                                    'runtime']#.groupby(level='power_budget')
+                target_g = (tge / tgr).groupby(level='power_budget')
+            else:
+                target_g = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
+                                         self._metric].groupby(level='power_budget')
+
+        df['target_mean'] = target_g.mean()
+        df['target_max'] = target_g.max()
+        df['target_min'] = target_g.min()
+
+        # TODO: add to config options
+        self._speedup = False
+        if self._normalize and not self._speedup:  # Normalize the data against the rightmost reference bar
+            df /= df['reference_mean'].iloc[-1]
+
+        # if config.speedup:  # Plot the inverse of the target data to show speedup as a positive change
+        #     df = df.div(df['reference_mean'], axis='rows')
+        #     df['target_mean'] = 1 / df['target_mean']
+        #     df['target_max'] = 1 / df['target_max']
+        #     df['target_min'] = 1 / df['target_min']
+
+        # Convert the maxes and mins to be deltas from the mean; required for the errorbar API
+        df['reference_max_delta'] = df['reference_max'] - df['reference_mean']
+        df['reference_min_delta'] = df['reference_mean'] - df['reference_min']
+        df['target_max_delta'] = df['target_max'] - df['target_mean']
+        df['target_min_delta'] = df['target_mean'] - df['target_min']
+
+        return df
+
+    def plot(self, process_output):
+        config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
+        config.output_types = ['png']
+        config.verbose = True
+        config.datatype = self._metric
+        config.speedup = self._speedup
+        config.normalize = self._normalize
+        config.profile_name = self._name
+        if self._use_agent:
+            config.tgt_plugin = 'power_balancer'
+            config.ref_plugin = 'power_governor'
+            config.use_agent = True
+        geopmpy.plotter.generate_bar_plot_comparison(process_output, config)
 
 
 class FreqSweepAnalysis(Analysis):
@@ -1136,7 +1288,7 @@ geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
   ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix,
-                        power_sweep.
+                        power_sweep, balancer.
 
   -h, --help            show this help message and exit
   -t, --analysis-type   type of analysis to perform. Available
@@ -1164,7 +1316,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                          'offline': OfflineBaselineComparisonAnalysis,
                          'online': OnlineBaselineComparisonAnalysis,
                          'stream_mix': StreamDgemmMixAnalysis,
-                         'power_sweep': PowerSweepAnalysis}
+                         'power_sweep': PowerSweepAnalysis,
+                         'balancer': BalancerAnalysis}
 
     if '--help' in argv or '-h' in argv:
         sys.stdout.write(help_str)
