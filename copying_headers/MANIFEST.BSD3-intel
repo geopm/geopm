@@ -49,11 +49,13 @@ scripts/geopmpy/version.py.in
 scripts/geopmsrun
 scripts/Makefile.mk
 scripts/setup.py
+scripts/test/analysis_helper.py
 scripts/test/geopm_context.py
 scripts/test/geopmpy_test.sh
 scripts/test/__init__.py
 scripts/test/TestAffinity.py
-scripts/test/TestAnalysis.py
+scripts/test/TestAnalysisCommandLine.py
+scripts/test/TestFreqSweepAnalysis.py
 scripts/test/TestSubsetOptionParser.py
 src/Agent.cpp
 src/Agent.hpp
