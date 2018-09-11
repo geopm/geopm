@@ -666,6 +666,118 @@ class NodeEfficiencyAnalysis(Analysis):
         return float(proc.stdout.readline().strip())
 
 
+class NodePowerAnalysis(Analysis):
+    """
+    Generates a histogram of the achieved package power across nodes when the
+    application is run without a power cap.
+    """
+
+    @staticmethod
+    def add_options(parser, enforce_required):
+        """
+        Set up options supported by the analysis type.
+        """
+        # TODO: these have the same name as PowerSweepAnalysis, but different purpose.
+        parser.add_argument('--min-power', dest='min_power',
+                            type=int, default=120)
+        parser.add_argument('--max-power', dest='max_power',
+                            type=int, default=200)
+        parser.add_argument('--step-power', dest='step_power',
+                            type=int, default=10)
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Node power analysis: {}
+  Options for NodePowerAnalysis:
+  --min-power           Minimum power to display for plotting.  Default is 120W.
+  --max-power           Maximum power to display for plotting.  Default is 200W.
+  --step-power          Size of power bins to use for plotting.  Default is 10W.
+""".format(NodePowerAnalysis.__doc__)
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power):
+        super(NodePowerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+
+        # min and max are only used for plot xaxis, not for launch
+        self._min_power = min_power
+        self._max_power = max_power
+        self._step_power = step_power
+        self._profile_name = self._name + '_' + str(self._max_power)  # '_nocap'  # TODO
+
+    def launch(self, config):
+        agent = 'monitor'
+        ctl_conf = geopmpy.io.CtlConf(os.path.join(self._output_dir, self._name + '_ctl.config'),
+                                      'dynamic',
+                                      {'tree_decider': 'static_policy',
+                                       'leaf_decider': 'static_policy',
+                                       'platform': 'rapl',
+                                       'power_budget': self._max_power})
+        if not config.agent:
+            ctl_conf.write()
+        else:
+            # todo: clean up
+            with open(ctl_conf.get_path(), "w") as outfile:
+                    outfile.write("{}\n")
+
+        for iteration in range(self._iterations):
+            report_path = os.path.join(self._output_dir, self._profile_name + '_{}.report'.format(iteration))
+            trace_path = os.path.join(self._output_dir, self._profile_name + '_{}.trace'.format(iteration))
+            self._report_paths.append(report_path)
+            self._trace_paths.append(trace_path+'*')
+
+            if config.app_argv and not os.path.exists(report_path):
+                argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
+                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-report', report_path,
+                                 '--geopm-trace', trace_path,
+                                 '--geopm-profile', profile_name]
+                if config.do_geopm_barrier:
+                    argv.append('--geopm-barrier')
+                if agent:
+                    argv.append('--geopm-agent=' + agent)
+                argv.append('--')
+                argv.extend(config.app_argv)
+                launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
+                launcher.run()
+            elif os.path.exists(report_path):
+                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+            else:
+                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+
+    def summary_process(self, parse_output):
+        sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
+
+    def summary(self, process_output):
+        pass
+
+    def plot_process(self, parse_output):
+        report_df = parse_output
+
+        profile = self._profile_name
+
+        region_of_interest = 'epoch'
+        energy_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['energy_pkg'].sort_values()
+        runtime_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['runtime'].sort_values()
+        power_data = energy_data / runtime_data
+        power_data = power_data.sort_values()
+        power_data = pandas.DataFrame(power_data, columns=['power'])
+        return power_data
+
+    # Note: there is also a generate_power_plot method in plotter.
+    def plot(self, process_output):
+        config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
+        config.output_types = ['png']
+        config.verbose = True
+        config.profile_name = self._name
+        config.min_drop = self._min_power
+        config.max_drop = self._max_power - self._step_power
+
+        bin_size = self._step_power
+
+        geopmpy.plotter.generate_histogram(process_output, config, 'power',
+                                           bin_size, 0)
+
+
 class FreqSweepAnalysis(Analysis):
     """
     Runs the application at each available frequency. Compared to the baseline
@@ -1456,7 +1568,8 @@ geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
   ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix,
-                        power_sweep, balancer, node_efficiency.
+                        power_sweep, balancer, node_efficiency,
+                        node_power.
 
   -h, --help            show this help message and exit
   -t, --analysis-type   type of analysis to perform
@@ -1485,7 +1598,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                          'stream_mix': StreamDgemmMixAnalysis,
                          'power_sweep': PowerSweepAnalysis,
                          'balancer': BalancerAnalysis,
-                         'node_efficiency': NodeEfficiencyAnalysis}
+                         'node_efficiency': NodeEfficiencyAnalysis,
+                         'node_power': NodePowerAnalysis}
 
     if '--help' in argv or '-h' in argv:
         sys.stdout.write(help_str)
