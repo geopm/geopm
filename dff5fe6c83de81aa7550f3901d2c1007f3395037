@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e00e4bed_00b5d56c",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:32:29Z",
+      "side": 1,
+      "message": "check if legend is \u003e 20 nodes, then don\u0027t print it",
+      "revId": "dff5fe6c83de81aa7550f3901d2c1007f3395037",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
