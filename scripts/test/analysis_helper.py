@@ -31,8 +31,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys
-import geopmpy.analysis
-if __name__ == '__main__':
-    err = geopmpy.analysis.main(sys.argv[1:])
-    sys.exit(err)
+try:
+    import pandas
+    import geopm_context
+    import geopmpy.analysis
+    g_skip_analysis_test = False
+    g_skip_analysis_ex = None
+except ImportError as ex:
+    g_skip_analysis_test = True
+    g_skip_analysis_ex = "Warning, analysis and plotting requires the pandas and matplotlib modules to be installed: {}".format(ex)
