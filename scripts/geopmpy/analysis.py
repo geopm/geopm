@@ -495,6 +495,155 @@ class BalancerAnalysis(Analysis):
         geopmpy.plotter.generate_bar_plot_comparison(process_output, config)
 
 
+class NodeEfficiencyAnalysis(Analysis):
+    """
+    Generates a histogram per power cap of the frequency achieved in the hot
+    region of the application across nodes.
+    Use 25 MHz bucket size for now, but make this a configuration parameter.
+    """
+
+    @staticmethod
+    def add_options(parser):
+        """
+        Set up options supported by the analysis type.
+        """
+        PowerSweepAnalysis.add_options(parser)
+        parser.add_argument('--min-freq', dest='min_freq',
+                            type=float, default=0.5e9)
+        parser.add_argument('--max-freq', dest='max_freq',
+                            type=float, default=3.0e9)
+        parser.add_argument('--step-freq', dest='step_freq',
+                            type=float, default=0.1e9)
+        parser.add_argument('--sticker-freq', dest='sticker_freq',
+                            type=float, default=None)
+
+    # TODO : have this return left and right columns to be formatted by caller
+    @staticmethod
+    def help_text():
+        return """  Node efficiency analysis: """ + NodeEfficiencyAnalysis.__doc__ + """
+  Options for NodeEfficiencyAnalysis:
+  --min-freq            Minimum frequency to display for plotting.  Default is 0.5 GHz.
+  --max-freq            Maximum frequency to display for plotting.  Default is 3.0 GHz.
+  --step-freq           Size of frequency bins to use for plotting.  Default is 100 MHz.
+  --sticker-freq        Sticker frequency of the system where data was collected.
+                        If not provided, the current system sticker frequency will be used.
+""" + PowerSweepAnalysis.help_text()
+
+    # TODO: use configured agent type
+    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+                 min_power, max_power, step_power,
+                 min_freq, max_freq, step_freq, sticker_freq):
+        super(NodeEfficiencyAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power=min_power, max_power=max_power,
+                                                        step_power=step_power, agent_type='power_governor')
+        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+                                                        min_power=min_power, max_power=max_power,
+                                                        step_power=step_power, agent_type='power_balancer')
+
+        self._min_freq = min_freq
+        self._max_freq = max_freq
+        self._step_freq = step_freq
+        if not sticker_freq:
+            sticker_freq = NodeEfficiencyAnalysis._find_sticker_freq()
+        self._sticker_freq = sticker_freq
+        self._min_power = min_power
+        self._max_power = max_power
+        self._step_power = step_power
+
+    def launch(self, config):
+        self._governor_power_sweep.launch(config)
+        self._balancer_power_sweep.launch(config)
+
+    def summary_process(self, parse_output):
+        report_df = parse_output  # load_report_or_cache(self._report_paths, "node_efficiency.h5")  # TODO: fix name
+        profiles = [int(pc.split('_')[-1]) for pc in report_df.index.get_level_values('name')]
+        if not self._min_power:
+            self._min_power = min(profiles)
+        if not self._max_power:
+            self._max_power = max(profiles)
+
+        self._power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        gov_freq_data = {}
+        bal_freq_data = {}
+        for target_power in self._power_caps:
+            profile = self._name + "_" + str(target_power)
+
+            region_of_interest = 'epoch'
+            # version name power_budget tree_decider leaf_decider agent node_name iteration region
+            gov_freq_data[target_power] = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, "power_governor", :, :, region_of_interest], ]\
+                                                   .groupby('node_name').mean()['frequency'].sort_values()
+            bal_freq_data[target_power] = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, "power_balancer", :, :, region_of_interest], ]\
+                                                   .groupby('node_name').mean()['frequency'].sort_values()
+            # convert percent to GHz frequency based on sticker
+            gov_freq_data[target_power] *= 0.01 * self._sticker_freq / 1e9
+            bal_freq_data[target_power] *= 0.01 * self._sticker_freq / 1e9
+            gov_freq_data[target_power] = pandas.DataFrame(gov_freq_data[target_power])
+            bal_freq_data[target_power] = pandas.DataFrame(bal_freq_data[target_power])
+
+        return gov_freq_data, bal_freq_data
+
+    def summary(self, process_output):
+        gov_freq_data, bal_freq_data = process_output
+        for target_power in self._power_caps:
+            gov_data = gov_freq_data[target_power].to_string()
+            bal_data = bal_freq_data[target_power].to_string()
+            sys.stdout.write('Achieved frequencies at {}W with PowerGovernorAgent:\n'.format(target_power))
+            sys.stdout.write(gov_data + '\n')
+            sys.stdout.write('Achieved frequencies at {}W with PowerBalancerAgent:\n'.format(target_power))
+            sys.stdout.write(bal_data + '\n')
+            # TODO: this is here to be consumed by another script that characterizes subsets of nodes.
+            # range of nodes could also be an input option
+            with open(os.path.join(self._output_dir, "gov_freq_{}.data".format(target_power)), "w") as outfile:
+                outfile.write(gov_freq_data[target_power].to_string())
+            with open(os.path.join(self._output_dir, "bal_freq_{}.data".format(target_power)), "w") as outfile:
+                outfile.write(bal_freq_data[target_power].to_string())
+        sys.stdout.write('Achieved frequencies summary written to {}/*.data.'.format(self._output_dir))
+
+    def plot_process(self, parse_output):
+        return self.summary_process(parse_output)
+
+    def plot(self, process_output):
+        all_gov_data, all_bal_data = process_output
+
+        config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
+        config.output_types = ['png']
+        config.verbose = True
+        config.min_drop = self._min_freq / 1e9
+        config.max_drop = (self._max_freq - self._step_freq) / 1e9
+        bin_size = self._step_freq / 1e9
+
+        for target_power in self._power_caps:
+            gov_data = all_gov_data[target_power]
+            bal_data = all_bal_data[target_power]
+            #profile = self._name + "_" + str(target_power)
+
+            config.profile_name = self._name + "@" + str(target_power) + "W Governor"
+            geopmpy.plotter.generate_histogram(gov_data, config, 'frequency',
+                                               bin_size, 3)
+            config.profile_name = self._name + "@" + str(target_power) + "W Balancer"
+            geopmpy.plotter.generate_histogram(bal_data, config, 'frequency',
+                                               bin_size, 3)
+
+    @staticmethod
+    def _find_sticker_freq():
+        # TODO: this would be nicer with PlatformIO python API
+        proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_STICKER', 'board', '0'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = proc.wait()
+        if res != 0:
+            cont = True
+            err = ""
+            while cont:
+                line = proc.stderr.readline()
+                if line:
+                    err += line
+                else:
+                    cont = False
+            raise RuntimeError("Unable to determine sticker_freq: " + err)
+        return float(proc.stdout.readline().strip())
+
+
 class FreqSweepAnalysis(Analysis):
     """
     Runs the application at each available frequency. Compared to the baseline
@@ -1288,7 +1437,7 @@ geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
   ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix,
-                        power_sweep, balancer.
+                        power_sweep, balancer, node_efficiency.
 
   -h, --help            show this help message and exit
   -t, --analysis-type   type of analysis to perform. Available
@@ -1317,7 +1466,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                          'online': OnlineBaselineComparisonAnalysis,
                          'stream_mix': StreamDgemmMixAnalysis,
                          'power_sweep': PowerSweepAnalysis,
-                         'balancer': BalancerAnalysis}
+                         'balancer': BalancerAnalysis,
+                         'node_efficiency': NodeEfficiencyAnalysis}
 
     if '--help' in argv or '-h' in argv:
         sys.stdout.write(help_str)

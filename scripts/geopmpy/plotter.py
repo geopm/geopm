@@ -1223,6 +1223,79 @@ def generate_freq_plot(trace_df, config):
             plt.close()
 
 
+def generate_histogram(data, config, label, bin_size, xprecision):
+    config.fontsize = 12
+    config.fig_size = (8, 4)
+
+    # TODO: fix in analysis.py
+    if 'nekbone' in config.profile_name:
+        config.profile_name = config.profile_name.replace('nekbone', 'Nekbone')
+    elif 'dgemm' in config.profile_name:
+        config.profile_name = config.profile_name.replace('dgemm', 'DGEMM')
+    elif 'minife' in config.profile_name:
+        config.profile_name = config.profile_name.replace('minife', 'MiniFE')
+
+    if label.lower() == 'power':
+        axis_units = 'W'
+        title_units = 'W'
+        range_factor = 1
+        title = '{}: Histogram of Power (No Capping)'.format(config.profile_name)
+        bar_color = 'red'
+    elif label.lower() == 'frequency':
+        axis_units = 'GHz'
+        title_units = 'MHz'
+        range_factor = 1000
+        title = '{} Histogram of Achieved Frequency'.format(config.profile_name)
+        bar_color = 'blue'
+    else:
+        raise RuntimeError("<geopmpy>: Unknown type for histogram: {}".format(label))
+
+    plt.figure(figsize=config.fig_size)
+    bins = [round(bb*bin_size, 3) for bb in range(int(config.min_drop/bin_size), int(config.max_drop/bin_size)+2)]
+    n, bins, patches = plt.hist(data, rwidth=0.8, bins=bins, color=bar_color)
+    for n, b in zip(n, bins):
+        plt.annotate(int(n) if int(n) != 0 else "", xy=(b+bin_size/2.0, n+2.5),
+                     horizontalalignment='center',
+                     fontsize=config.fontsize-4)
+    min_max_range = (max(data) - min(data)) * range_factor
+    mean = data.mean()
+
+    n = len(data)
+    trim_pct = 0.05
+    trimmed_data = data[int(n*trim_pct):n-int(trim_pct*n)]
+    trimmed_min_max = (max(trimmed_data) - min(trimmed_data)) * range_factor
+    plt.title('{}\nMin-max Var.: {} {}; {}% Min-max Var.: {} {}; Mean: {} {}'
+              .format(title, round(min_max_range, 3), title_units,
+                      int((1.0-(trim_pct*2))*100), round(trimmed_min_max, 3), title_units,
+                      round(mean, 3), title_units),
+              fontsize=config.fontsize)
+    plt.xlabel('{} ({})'.format(label.title(), axis_units), fontsize=config.fontsize)
+    plt.ylabel('Node Count', fontsize=config.fontsize)
+    plt.xticks([b+bin_size/2.0 for b in bins],
+               [' [{start:.{prec}f}, {end:.{prec}f})'.format(start=b, end=b+bin_size, prec=xprecision) for b in bins],
+               rotation='vertical',
+               fontsize=config.fontsize-4)
+    _, ylabels = plt.yticks()
+    plt.setp(ylabels, fontsize=config.fontsize-4)
+
+    plt.margins(0.02, 0.2)
+    plt.axis('tight')
+
+    plt.tight_layout()
+    output_dir = 'figures'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    filename = '{}_{}_histo'.format(config.profile_name.replace('@', '_').replace(' ', '_'), label)
+    # todo: could be a method
+    for ext in config.output_types:
+        full_path = os.path.join(config.output_dir, '{}.{}'.format(filename, ext))
+        plt.savefig(full_path)
+        if config.verbose:
+            sys.stdout.write('    {}\n'.format(full_path))
+    plt.close()
+
+
 def main(argv):
     report_plots = {'debug', 'box', 'bar'}
     trace_plots = {'debug', 'power', 'epoch', 'freq'}
