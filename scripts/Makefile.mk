@@ -83,6 +83,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
                scripts/test/pytest_links/TestNodeEfficiencyAnalysis.test_node_efficiency_process \
+               scripts/test/pytest_links/TestNodePowerAnalysis.test_node_power_process \
                scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
                scripts/test/pytest_links/TestSubsetOptionParser.test_all_param_unknown \
                scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
