@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5614a183_bc2b7d0e",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:05:49Z",
+      "side": 1,
+      "message": "*proc_cpuset",
+      "range": {
+        "startLine": 191,
+        "startChar": 46,
+        "endLine": 191,
+        "endChar": 54
+      },
+      "revId": "814c8cc3025c6aca5edb08c5f242dc6850e018e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c584d13b_e2dd2545",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:05:49Z",
+      "side": 1,
+      "message": "some comments would be nice",
+      "revId": "814c8cc3025c6aca5edb08c5f242dc6850e018e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e886601c_980dedb8",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:05:49Z",
+      "side": 1,
+      "message": "CPU_SET_S",
+      "range": {
+        "startLine": 329,
+        "startChar": 12,
+        "endLine": 329,
+        "endChar": 19
+      },
+      "revId": "814c8cc3025c6aca5edb08c5f242dc6850e018e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "787fcf6b_8a4b5fd1",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:05:49Z",
+      "side": 1,
+      "message": "CPU_SET_S",
+      "range": {
+        "startLine": 365,
+        "startChar": 8,
+        "endLine": 365,
+        "endChar": 15
+      },
+      "revId": "814c8cc3025c6aca5edb08c5f242dc6850e018e8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
