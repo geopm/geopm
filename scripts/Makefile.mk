@@ -47,7 +47,8 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/setup.py \
               scripts/MANIFEST.in \
               scripts/test/TestAffinity.py \
-              scripts/test/TestAnalysis.py \
+              scripts/test/TestAnalysisCommandLine.py \
+              scripts/test/TestFreqSweepAnalysis.py \
               scripts/test/TestSubsetOptionParser.py \
               scripts/test/geopm_context.py \
               scripts/test/__init__.py \
@@ -67,10 +68,18 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_10 \
                scripts/test/pytest_links/TestAffinity.test_affinity_11 \
                scripts/test/pytest_links/TestAffinity.test_affinity_12 \
-               scripts/test/pytest_links/TestAnalysis.test_region_freq_map \
-               scripts/test/pytest_links/TestAnalysis.test_offline_baseline_comparison_report \
-               scripts/test/pytest_links/TestAnalysis.test_online_baseline_comparison_report \
-               scripts/test/pytest_links/TestAnalysis.test_stream_dgemm_mix_report \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_no_args \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_bad_type \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_help \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_help_custom \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_missing_param \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_no_alloc \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_only \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_plot_summary \
+               scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \
+               scripts/test/pytest_links/TestFreqSweepAnalysis.test_offline_baseline_comparison_report \
+               scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
+               scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
                scripts/test/pytest_links/TestSubsetOptionParser.test_all_param_unknown \
                scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
                scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_arg_overlap \

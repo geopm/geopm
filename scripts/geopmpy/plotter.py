@@ -560,11 +560,9 @@ def generate_best_freq_plot_sc17(data, name, output_dir):
     for i in range(num_series):
         shift = start_shift + (i * bar_width)
         series_data = data[cols[i]]
-        print series_data
         bottom, top = zip(*series_data)
         bottom = numpy.asarray(bottom)
         top = numpy.asarray(top)
-        print 'topbotom', top, bottom
         top = (top - bottom) + 5e6
         ax.bar(index + shift,
                top,
@@ -606,7 +604,7 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
            label='offline auto application best-fit',
            zorder=3)
 
-    line_data = data['dgemm']
+    line_data = data['tutorial_dgemm']
     ax.plot(index,
             line_data,
             color='orange',
@@ -614,7 +612,7 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
             linestyle='--',
             zorder=3)
 
-    line_data = data['stream']
+    line_data = data['tutorial_stream']
     ax.plot(index,
             line_data,
             color='blue',
@@ -642,7 +640,7 @@ def generate_runtime_energy_plot(df, name, output_dir='.'):
     """
     f, ax = plt.subplots()
 
-    ax.plot(df.index, df['energy'], color='DarkBlue', label='Energy', marker='o', linestyle='-')
+    ax.plot(df.index, df['energy_pkg'], color='DarkBlue', label='Energy', marker='o', linestyle='-')
     ax.set_xlabel('Frequency (GHz)')
     ax.set_ylabel('Energy (J)')
 
