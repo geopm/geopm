@@ -32,7 +32,32 @@
 #
 
 import sys
-import geopmpy.analysis
-if __name__ == '__main__':
-    err = geopmpy.analysis.main(sys.argv[1:])
-    sys.exit(err)
+
+try:
+    import pandas
+    import geopm_context
+    import geopmpy.analysis
+    g_skip_analysis_test = False
+    g_skip_analysis_ex = None
+except ImportError as ex:
+    g_skip_analysis_test = True
+    g_skip_analysis_ex = "Warning, analysis and plotting requires the pandas and matplotlib modules to be installed: {}".format(ex)
+
+
+def compare_dataframe(test, expected_df, result):
+    expected_columns = expected_df.columns
+    expected_index = expected_df.index
+    result_columns = result.columns
+    result_index = result.index
+    test.assertEqual(len(expected_columns), len(result_columns))
+    test.assertEqual(len(expected_index), len(result_index))
+    test.assertTrue((expected_columns == result_columns).all())
+    test.assertTrue((expected_index == result_index).all())
+    try:
+        pandas.testing.assert_frame_equal(expected_df, result)
+    except AssertionError:
+        sys.stderr.write('\nResult:\n')
+        sys.stderr.write(result.to_string())
+        sys.stderr.write('\nExpected:\n')
+        sys.stderr.write(expected_df.to_string())
+        pandas.testing.assert_frame_equal(expected_df, result)
