@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f51828f0_1f6b48db",
+        "filename": "scripts/Makefile.mk",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:49:28Z",
+      "side": 1,
+      "message": "missing TestFreqSweepAnalysis.py",
+      "revId": "e80d773d419eadbeeae93b16137e6f28eadc2e9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c600b777_7456fb27",
+        "filename": "scripts/test/TestAnalysisCommandLine.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:49:28Z",
+      "side": 1,
+      "message": "use class decorator to skip",
+      "revId": "e80d773d419eadbeeae93b16137e6f28eadc2e9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "539b6130_807dfe67",
+        "filename": "scripts/test/TestFreqSweepAnalysis.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:49:28Z",
+      "side": 1,
+      "message": "not needed",
+      "revId": "e80d773d419eadbeeae93b16137e6f28eadc2e9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0225c84_eae9e52d",
+        "filename": "scripts/test/TestFreqSweepAnalysis.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-11T18:49:28Z",
+      "side": 1,
+      "message": "use analysis_helper",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 131
+      },
+      "revId": "e80d773d419eadbeeae93b16137e6f28eadc2e9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
