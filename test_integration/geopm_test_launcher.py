@@ -45,7 +45,7 @@ from geopmpy.launcher import resource_manager
 
 
 class TestLauncher(object):
-    def __init__(self, app_conf, ctl_conf, report_path,
+    def __init__(self, app_conf, ctl_conf, report_path=None,
                  trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False):
         self._app_conf = app_conf
         self._ctl_conf = ctl_conf
@@ -109,8 +109,9 @@ class TestLauncher(object):
             exec_path = os.path.join(source_dir, '.libs', 'geopmbench')
             argv = ['dummy', '--geopm-ctl', self._pmpi_ctl,
                              '--geopm-policy', self._ctl_conf.get_path(),
-                             '--geopm-report', self._report_path,
                              '--geopm-profile', test_name]
+            if self._report_path is not None:
+                argv.extend(['--geopm-report', self._report_path])
             if self._trace_path is not None:
                 argv.extend(['--geopm-trace', self._trace_path])
             if self._region_barrier:
