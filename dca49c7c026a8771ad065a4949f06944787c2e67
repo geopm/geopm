@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a8ec54c_ca1c2b29",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-13T17:43:46Z",
+      "side": 1,
+      "message": "fix name",
+      "revId": "dca49c7c026a8771ad065a4949f06944787c2e67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
