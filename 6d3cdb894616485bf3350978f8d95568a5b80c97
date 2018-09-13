@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a1302b2_9cf17c14",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-13T18:41:27Z",
+      "side": 1,
+      "message": "could use map for second argument to replace\n\ndon\u0027t need if checks at all",
+      "range": {
+        "startLine": 511,
+        "startChar": 0,
+        "endLine": 518,
+        "endChar": 71
+      },
+      "revId": "6d3cdb894616485bf3350978f8d95568a5b80c97",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
