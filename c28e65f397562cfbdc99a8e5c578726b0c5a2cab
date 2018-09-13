@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d24211e0_e79173aa",
+        "filename": "src/geopm_sched.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-13T17:25:02Z",
+      "side": 1,
+      "message": ":O",
+      "range": {
+        "startLine": 316,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 1
+      },
+      "revId": "c28e65f397562cfbdc99a8e5c578726b0c5a2cab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
