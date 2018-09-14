@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a297788_6e5df250",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-14T17:43:44Z",
+      "side": 1,
+      "message": "epoch",
+      "range": {
+        "startLine": 500,
+        "startChar": 73,
+        "endLine": 501,
+        "endChar": 10
+      },
+      "revId": "51e45edcbf503766013894e04d5f7de803f14177",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c4921e3_adf3a111",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-14T17:43:44Z",
+      "side": 1,
+      "message": "inconsistent",
+      "range": {
+        "startLine": 502,
+        "startChar": 8,
+        "endLine": 502,
+        "endChar": 14
+      },
+      "revId": "51e45edcbf503766013894e04d5f7de803f14177",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a977f8c9_6e1d2108",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-14T17:43:44Z",
+      "side": 1,
+      "message": "use format()",
+      "range": {
+        "startLine": 528,
+        "startChar": 49,
+        "endLine": 528,
+        "endChar": 85
+      },
+      "revId": "51e45edcbf503766013894e04d5f7de803f14177",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
