@@ -184,7 +184,6 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace(nn)
             self.assertNotEqual(0, len(trace))
 
-
     def test_no_report_and_trace_generation(self):
         name = 'test_no_report_and_trace_generation'
         num_node = 4
@@ -941,7 +940,7 @@ class TestIntegration(unittest.TestCase):
             self.assertEqual(0, rr['dgemm'].get_mpi_runtime())
 
     def test_ignore_runtime(self):
-        name = 'test_ignore_runtimes'
+        name = 'test_ignore_runtime'
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 4
@@ -1079,8 +1078,8 @@ class TestIntegration(unittest.TestCase):
 
         analysis.find_files()
         parse_output = analysis.parse()
-        process_output = analysis.report_process(parse_output)
-        analysis.report(process_output)
+        process_output = analysis.summary_process(parse_output)
+        analysis.summary(process_output)
         sticker_freq_idx = process_output.loc['epoch'].index[-2]
         energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
         runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]
@@ -1156,8 +1155,8 @@ class TestIntegration(unittest.TestCase):
 
         analysis.find_files()
         parse_output = analysis.parse()
-        process_output = analysis.report_process(parse_output)
-        analysis.report(process_output)
+        process_output = analysis.summary_process(parse_output)
+        analysis.summary(process_output)
         sticker_freq_idx = process_output.loc['epoch'].index[-2]
         energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
         runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]

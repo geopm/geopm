@@ -73,7 +73,13 @@ class LaunchConfig(object):
         self.do_geopm_barrier = do_geopm_barrier
 
 
-def load_report_or_cache(report_paths, report_h5_name):
+def load_report_or_cache(report_paths, report_h5_name, supress_hdf5):
+    # TODO: temporary until this is implemented properly in the AppOutput
+    if supress_hdf5:
+        output = geopmpy.io.AppOutput(report_paths, None, verbose=True)
+        report_df = output.get_report_df()
+        return report_df
+
     try:
         report_df = pandas.read_hdf(report_h5_name, 'report')
     except IOError:
@@ -148,13 +154,13 @@ class Analysis(object):
             if trace_paths is not None:
                 self._trace_paths.extend(trace_paths)
 
-    def parse(self):
+    def parse(self, supress_hdf5=False):
         """
         Load any necessary data from the application result files into memory for analysis.
         """
         # move to common place.  should be able to reuse for any analysis
         report_h5_name = self._name + '_report.h5'  # TODO: fix name
-        report_df = load_report_or_cache(self._report_paths, report_h5_name)
+        report_df = load_report_or_cache(self._report_paths, report_h5_name, supress_hdf5)
         return report_df
 
     def plot_process(self, parse_output):
@@ -898,8 +904,8 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         construction time.
         """
         # each keeps track of only their own report paths, so need to combine parses
-        sweep_output = self._sweep_analysis.parse()
-        app_output = super(OfflineBaselineComparisonAnalysis, self).parse()
+        sweep_output = self._sweep_analysis.parse(supress_hdf5=True)
+        app_output = super(OfflineBaselineComparisonAnalysis, self).parse(supress_hdf5=True)
         self._sweep_parse_output = sweep_output
 
         # Print the region frequency map
@@ -1047,8 +1053,8 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         construction time.
         """
         # each keeps track of only their own report paths, so need to combine parses
-        sweep_output = self._sweep_analysis.parse()
-        app_output = super(OnlineBaselineComparisonAnalysis, self).parse()
+        sweep_output = self._sweep_analysis.parse(supress_hdf5=True)
+        app_output = super(OnlineBaselineComparisonAnalysis, self).parse(supress_hdf5=True)
         parse_output = sweep_output
 
         # Print the region frequency map
