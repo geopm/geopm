@@ -340,10 +340,6 @@ class Config(object):
             result['GEOPM_DEBUG_ATTACH'] = self.debug_attach
         if self.barrier:
             result['GEOPM_REGION_BARRIER'] = 'true'
-        if self.preload:
-            result['LD_PRELOAD'] = ':'.join((ll for ll in
-                                             ('libgeopm.so', os.getenv('LD_PRELOAD'))
-                                             if ll is not None))
         if self.omp_num_threads:
             result['OMP_NUM_THREADS'] = self.omp_num_threads
 
@@ -395,6 +391,12 @@ class Config(object):
         Returns the geopm shared memory key base.
         """
         return self.shmkey
+
+    def get_preload(self):
+        """
+        Returns True/False if the geopm preload option was specified or not.
+        """
+        return self.preload
 
     def check_launcher(self, rm):
         if not (self.rm is None or rm == self.rm or
@@ -748,6 +750,7 @@ fi
         result.extend(self.num_node_option())
         result.extend(self.num_rank_option(is_geopmctl))
         result.extend(self.affinity_option(is_geopmctl))
+        result.extend(self.preload_option())
         result.extend(self.timeout_option())
         result.extend(self.time_limit_option())
         result.extend(self.job_name_option())
@@ -784,6 +787,12 @@ fi
         Returns a list containing the command line options specifying the
         the CPU affinity for each MPI process on a compute node.
         """
+        return []
+
+    def preload_option(self):
+        self.environ_ext['LD_PRELOAD'] = ':'.join((ll for ll in
+                                                   ('libgeopm.so', os.getenv('LD_PRELOAD'))
+                                                   if ll is not None))
         return []
 
     def timeout_option(self):
@@ -1315,6 +1324,14 @@ class AprunLauncher(Launcher):
             result = ['-l', self.host_file]
         return result
 
+    def preload_option(self):
+        result = []
+        if self.config and self.config.get_preload():
+            value = ':'.join((ll for ll in
+                              ('libgeopm.so', os.getenv('LD_PRELOAD'))
+                              if ll is not None))
+            result = ['-e',  "LD_PRELOAD='{}'".format(value)]
+        return result
 
 def main():
     """
