@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9790e9e8_a3ce6818",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-18T17:47:07Z",
+      "side": 1,
+      "message": "early return is bad",
+      "revId": "797ab74b58afb08f91b3c734617e420cf0fc1f9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
