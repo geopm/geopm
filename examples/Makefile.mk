@@ -31,8 +31,9 @@
 
 EXTRA_DIST += examples/README.md \
               examples/example_policy.json \
-              examples/amg2013/0001-Adding-geopm-markup-to-AMG.patch \
-              examples/amg2013/README \
+              examples/amg/0001-Adding-geopm-markup-to-AMG.patch \
+              examples/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch \
+              examples/amg/README \
               examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
               examples/comd/README \
               examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
