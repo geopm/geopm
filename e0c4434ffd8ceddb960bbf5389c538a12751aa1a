@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed93f3b8_3eb102b8",
+        "filename": "examples/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-18T22:01:19Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 52,
+        "startChar": 41,
+        "endLine": 52,
+        "endChar": 48
+      },
+      "revId": "e0c4434ffd8ceddb960bbf5389c538a12751aa1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53880d9f_73901386",
+        "filename": "examples/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-18T22:01:19Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 59,
+        "startChar": 29,
+        "endLine": 59,
+        "endChar": 36
+      },
+      "revId": "e0c4434ffd8ceddb960bbf5389c538a12751aa1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
