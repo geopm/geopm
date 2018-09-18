@@ -146,11 +146,12 @@ class TestIntegration(unittest.TestCase):
 
     def create_progress_df(self, df):
         # Build a df with only the first region entry and the exit.
+        df = df.reset_index(drop=True)
         last_index = 0
         filtered_df = pandas.DataFrame()
         row_list = []
         progress_1s = df['progress-0'].loc[df['progress-0'] == 1]
-        for index, junk in progress_1s.iteritems():
+        for index, _ in progress_1s.iteritems():
             row = df.loc[last_index:index].head(1)
             row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
             row = df.loc[last_index:index].tail(1)
@@ -179,9 +180,9 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
-            report = self._output.get_report(nn)
+            report = self._output.get_report_data(node_name=nn)
             self.assertNotEqual(0, len(report))
-            trace = self._output.get_trace(nn)
+            trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
     def test_no_report_and_trace_generation(self):
@@ -220,9 +221,9 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
-            report = self._output.get_report(nn)
+            report = self._output.get_report_data(node_name=nn)
             self.assertNotEqual(0, len(report))
-            trace = self._output.get_trace(nn)
+            trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
     @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS",
@@ -249,9 +250,9 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
-            report = self._output.get_report(nn)
+            report = self._output.get_report_data(node_name=nn)
             self.assertNotEqual(0, len(report))
-            trace = self._output.get_trace(nn)
+            trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
     @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
@@ -277,14 +278,11 @@ class TestIntegration(unittest.TestCase):
         launcher.write_log(name, 'Idle nodes : {nodes}'.format(nodes=idle_nodes))
         launcher.write_log(name, 'Alloc\'d  nodes : {nodes}'.format(nodes=alloc_nodes))
         node_names = []
-        reports = {}
         for nn in idle_nodes_copy:
             launcher.set_node_list(nn.split())  # Hack to convert string to list
             try:
                 launcher.run(name)
                 node_names += nn.split()
-                oo = geopmpy.io.AppOutput(report_path)
-                reports[nn] = oo.get_report(nn)
             except subprocess.CalledProcessError as e:
                 if e.returncode == 1 and nn not in launcher.get_idle_nodes():
                     launcher.write_log(name, '{node} has disappeared from the idle list!'.format(node=nn))
@@ -292,14 +290,15 @@ class TestIntegration(unittest.TestCase):
                 else:
                     launcher.write_log(name, 'Return code = {code}'.format(code=e.returncode))
                     raise e
+            ao = geopmpy.io.AppOutput(report_path, do_cache=False)
+            sleep_data = ao.get_report_data(node_name=nn, region='sleep')
+            app_data = ao.get_app_total_data(node_name=nn)
+            self.assertNotEqual(0, len(sleep_data))
+            self.assertNear(delay, sleep_data['runtime'].item())
+            self.assertGreater(app_data['runtime'].item(), sleep_data['runtime'].item())
+            self.assertEqual(1, sleep_data['count'].item())
 
         self.assertEqual(len(node_names), len(idle_nodes))
-        for nn in node_names:
-            report = reports[nn]
-            self.assertNotEqual(0, len(report))
-            self.assertNear(delay, report['sleep'].get_runtime())
-            self.assertGreater(report.get_runtime(), report['sleep'].get_runtime())
-            self.assertEqual(1, report['sleep'].get_count())
 
     def test_runtime(self):
         name = 'test_runtime'
@@ -320,9 +319,10 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            self.assertNear(delay, rr['sleep'].get_runtime())
-            self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
+            report = self._output.get_report_data(node_name=nn, region='sleep')
+            app_total = self._output.get_app_total_data(node_name=nn)
+            self.assertNear(delay, report['runtime'].item())
+            self.assertGreater(app_total['runtime'].item(), report['runtime'].item())
 
     def test_runtime_epoch(self):
         name = 'test_runtime_epoch'
@@ -344,9 +344,11 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            total_runtime = rr['sleep'].get_runtime() + rr['spin'].get_runtime()
-            self.assertNear(total_runtime, rr['epoch'].get_runtime())
+            spin_data = self._output.get_report_data(node_name=nn, region='spin')
+            sleep_data = self._output.get_report_data(node_name=nn, region='sleep')
+            epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
+            total_runtime = sleep_data['runtime'].item() + spin_data['runtime'].item()
+            self.assertNear(total_runtime, epoch_data['runtime'].item())
 
     def test_runtime_nested(self):
         name = 'test_runtime_nested'
@@ -369,13 +371,15 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(num_node, len(node_names))
         for nn in node_names:
-            rr = self._output.get_report(nn)
+            spin_data = self._output.get_report_data(node_name=nn, region='spin')
+            epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
+            app_totals = self._output.get_app_total_data(node_name=nn)
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
-            self.assertNear(2 * loop_count * delay, rr['spin'].get_runtime())
-            self.assertNear(rr['spin'].get_runtime(), rr['epoch'].get_runtime(), epsilon=0.01)
-            self.assertGreater(rr.get_mpi_runtime(), 0)
-            self.assertGreater(0.1, rr.get_mpi_runtime())
-            self.assertEqual(loop_count, rr['spin'].get_count())
+            self.assertNear(2 * loop_count * delay, spin_data['runtime'].item())
+            self.assertNear(spin_data['runtime'].item(), epoch_data['runtime'].item(), epsilon=0.01)
+            self.assertGreater(app_totals['mpi-runtime'].item(), 0)
+            self.assertGreater(0.1, app_totals['mpi-runtime'].item())
+            self.assertEqual(loop_count, spin_data['count'].item())
 
     def test_trace_runtimes(self):
         name = 'test_trace_runtimes'
@@ -399,24 +403,24 @@ class TestIntegration(unittest.TestCase):
         self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
-
+        regions = self._output.get_region_names()
         for nn in node_names:
-            report = self._output.get_report(nn)
-            trace = self._output.get_trace(nn)
-            self.assertNear(trace.iloc[-1]['seconds'], report.get_runtime())
-
+            trace = self._output.get_trace_data(node_name=nn)
+            app_totals = self._output.get_app_total_data(node_name=nn)
+            self.assertNear(trace.iloc[-1]['seconds'], app_totals['runtime'].item())
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
-            for region_name, region_data in report.iteritems():
-                if region_name != 'unmarked-region' and region_data.get_runtime() != 0:
-                    trace_data = tt.get_group((region_data.get_id()))
+            for region_name in regions:
+                region_data = self._output.get_report_data(node_name=nn, region=region_name)
+                if region_name != 'unmarked-region' and region_data['runtime'].item() != 0:
+                    trace_data = tt.get_group((region_data['id'].item()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     if region_name == 'epoch':
-                        self.assertNear(trace_elapsed_time, region_data.get_runtime())
+                        self.assertNear(trace_elapsed_time, region_data['runtime'].item())
                     else:
                         # compare with time when all ranks are in the region
-                        self.assertNear(trace_elapsed_time, region_data.get_sync_runtime())
+                        self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item())
 
     def test_runtime_regulator(self):
         name = 'test_runtime_regulator'
@@ -443,19 +447,18 @@ class TestIntegration(unittest.TestCase):
         self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
-
+        regions = self._output.get_region_names()
         for nn in node_names:
-            report = self._output.get_report(nn)
-            trace = self._output.get_trace(nn)
-            self.assertNear(trace.iloc[-1]['seconds'], report.get_runtime())
-
+            app_totals = self._output.get_app_total_data(node_name=nn)
+            trace = self._output.get_trace_data(node_name=nn)
+            self.assertNear(trace.iloc[-1]['seconds'], app_totals['runtime'].item())
             tt = trace.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
-
-            for region_name, region_data in report.iteritems():
-                if region_name not in ['unmarked-region', 'model-init', 'epoch'] and region_data.get_runtime() != 0:
-                    trace_data = tt.get_group((region_data.get_id()))
-                    filtered_df = self.create_progress_df(trace_data.reset_index('region_id', drop=True))
+            for region_name in regions:
+                region_data = self._output.get_report_data(node_name=nn, region=region_name)
+                if region_name not in ['unmarked-region', 'model-init', 'epoch'] and region_data['runtime'].item() != 0:
+                    trace_data = tt.get_group(region_data['id'].item())
+                    filtered_df = self.create_progress_df(trace_data)
                     first_time = False
                     for index, df in filtered_df.iterrows():
                         if df['progress-0'] == 1:
@@ -490,22 +493,10 @@ class TestIntegration(unittest.TestCase):
         # Calculate region times from traces
         region_times = collections.defaultdict(lambda: collections.defaultdict(dict))
         for nn in node_names:
-            tt = self._output.get_trace(nn).set_index(['region_id'], append=True).groupby(level=['region_id'])
+            tt = self._output.get_trace_data(node_name=nn).set_index(['region_id'], append=True).groupby(level=['region_id'])
 
             for region_id, data in tt:
-                # Build a df with only the first region entry and the exit.
-                last_index = 0
-                filtered_df = pandas.DataFrame()
-                row_list = []
-                progress_1s = data['progress-0'].loc[data['progress-0'] == 1]
-                for index, junk in progress_1s.iteritems():
-                    row = data.ix[last_index:index].head(1)
-                    row_list += [row[['seconds', 'progress-0']]]
-                    row = data.ix[last_index:index].tail(1)
-                    row_list += [row[['seconds', 'progress-0']]]
-                    last_index = index[0] + 1  # Set the next starting index to be one past where we are
-                filtered_df = pandas.concat(row_list)
-
+                filtered_df = self.create_progress_df(data)
                 filtered_df = filtered_df.diff()
                 # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
                 # case where 1 - 0 = 1 for the progress column.
@@ -520,24 +511,27 @@ class TestIntegration(unittest.TestCase):
             launcher.write_log(name, '{}'.format('-' * 80))
 
         # Loop through the reports to see if the region runtimes line up with what was calculated from the trace files above.
+        regions = self._output.get_region_names()
         write_regions = True
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            for region_name, region in rr.iteritems():
-                if region.get_id() != 0 and region.get_count() > 1:
+            for region_name in regions:
+                rr = self._output.get_report_data(node_name=nn, region=region_name)
+                if rr['id'].item() != 0 and rr['count'].item() > 1:
                     if write_regions:
-                        launcher.write_log(name, 'Region {} is {}.'.format(region.get_id(), region_name))
-                    runtime = region.get_sync_runtime()
+                        launcher.write_log(name, 'Region {} is {}.'.format(rr['id'].item(), region_name))
+                    runtime = rr['sync_runtime'].item()
                     if region_name == 'epoch':
-                        runtime = region.get_runtime()
+                        runtime = rr['runtime'].item()
                     self.assertNear(runtime,
-                                    region_times[nn][region.get_id()]['seconds'].sum())
+                                    region_times[nn][rr['id'].item()]['seconds'].sum())
             write_regions = False
 
         # Test to ensure every region detected in the trace is captured in the report.
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            report_ids = [rr[ii].get_id() for ii in rr]
+            report_ids = []
+            for region_name in regions:
+                rr = self._output.get_report_data(node_name=nn, region=region_name)
+                report_ids.append(rr['id'].item())
             for region_id in region_times[nn].keys():
                 self.assertTrue(region_id in report_ids, msg='Report from {} missing region_id {}'.format(nn, region_id))
 
@@ -560,10 +554,11 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            self.assertNear(delay, rr['sleep'].get_runtime())
-            self.assertGreater(rr.get_runtime(), rr['sleep'].get_runtime())
-            self.assertEqual(1, rr['sleep'].get_count())
+            sleep_data = self._output.get_report_data(node_name=nn, region='sleep')
+            app_total = self._output.get_app_total_data(node_name=nn)
+            self.assertNear(delay, sleep_data['runtime'].item())
+            self.assertGreater(app_total['runtime'].item(), sleep_data['runtime'].item())
+            self.assertEqual(1, sleep_data['count'].item())
 
     def test_count(self):
         name = 'test_count'
@@ -587,10 +582,11 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            self.assertNear(delay * loop_count, rr['spin'].get_runtime())
-            self.assertEqual(loop_count, rr['spin'].get_count())
-            self.assertEqual(loop_count, rr['epoch'].get_count())
+            spin_data = self._output.get_report_data(node_name=nn, region='spin')
+            epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
+            self.assertNear(delay * loop_count, spin_data['runtime'].item())
+            self.assertEqual(loop_count, spin_data['count'].item())
+            self.assertEqual(loop_count, epoch_data['count'].item())
 
         # TODO Trace file parsing + analysis
 
@@ -638,11 +634,12 @@ class TestIntegration(unittest.TestCase):
                 node_names = self._output.get_node_names()
                 self.assertEqual(len(node_names), num_node)
                 for nn in node_names:
-                    rr = self._output.get_report(nn)
-                    self.assertEqual(loop_count, rr['dgemm'].get_count())
-                    self.assertEqual(loop_count, rr['all2all'].get_count())
-                    self.assertGreater(rr['dgemm'].get_runtime(), 0.0)
-                    self.assertGreater(rr['all2all'].get_runtime(), 0.0)
+                    dgemm_data = self._output.get_report_data(node_name=nn, region='dgemm')
+                    all2all_data = self._output.get_report_data(node_name=nn, region='all2all')
+                    self.assertEqual(loop_count, dgemm_data['count'].item())
+                    self.assertEqual(loop_count, all2all_data['count'].item())
+                    self.assertGreater(dgemm_data['runtime'].item(), 0.0)
+                    self.assertGreater(all2all_data['runtime'].item(), 0.0)
                 num_node *= 2
                 self._output.remove_files()
 
@@ -682,7 +679,7 @@ class TestIntegration(unittest.TestCase):
         all_power_data = {}
         # Total power consumed will be Socket(s) + DRAM
         for nn in node_names:
-            tt = self._output.get_trace(nn)
+            tt = self._output.get_trace_data(node_name=nn)
 
             epoch = '9223372036854775808'
             # todo: hack to run tests with new controller
@@ -771,7 +768,7 @@ class TestIntegration(unittest.TestCase):
 
             # Total power consumed will be Socket(s) + DRAM
             for nn in node_names:
-                tt = self._output.get_trace(nn)
+                tt = self._output.get_trace_data(node_name=nn)
                 epoch = '0x8000000000000000'
 
                 first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
@@ -796,8 +793,8 @@ class TestIntegration(unittest.TestCase):
             max_runtime = float('nan')
             node_names = self._output.get_node_names()
             for node_name in node_names:
-                report = self._output.get_report(node_name)
-                this_runtime = report['epoch'].get_runtime()
+                epoch_data = self._output.get_report_data(node_name=node_name, region='epoch')
+                this_runtime = epoch_data['runtime'].item()
                 if not this_runtime <= max_runtime:
                     max_runtime = this_runtime
                 if not this_runtime >= min_runtime:
@@ -846,11 +843,9 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(num_node, len(node_names))
 
         for nn in node_names:
-            tt = self._output.get_trace(nn)
-
+            tt = self._output.get_trace_data(node_name=nn)
             tt = tt.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
-
             for region_id, data in tt:
                 tmp = data['progress-0'].diff()
                 # Look for changes in progress that are more negative
@@ -891,7 +886,7 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(num_node, len(node_names))
 
         for nn in node_names:
-            tt = self._output.get_trace(nn)
+            tt = self._output.get_trace_data(node_name=nn)
             delta_t = tt['seconds'].diff()
             delta_t = delta_t.loc[delta_t != 0]
             self.assertGreater(max_mean, delta_t.mean())
@@ -924,20 +919,26 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            self.assertEqual(0, rr['unmarked-region'].get_count())
+            all2all_data = self._output.get_report_data(node_name=nn, region='all2all')
+            sleep_data = self._output.get_report_data(node_name=nn, region='sleep')
+            dgemm_data = self._output.get_report_data(node_name=nn, region='dgemm')
+            unmarked_data = self._output.get_report_data(node_name=nn, region='unmarked-region')
+            epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
+            app_total = self._output.get_app_total_data(node_name=nn)
+            self.assertEqual(0, unmarked_data['count'].item())
             # Since MPI time is is counted if any rank on a node is in
             # an MPI call, but region time is counted only when all
             # ranks on a node are in a region, we must use the
             # unmarked-region time as our error term when comparing
             # MPI time and all2all time.
-            mpi_epsilon = max(rr['unmarked-region'].get_runtime() / rr['all2all'].get_mpi_runtime(), 0.05)
-            self.assertNear(rr['all2all'].get_mpi_runtime(), rr['all2all'].get_runtime(), mpi_epsilon)
-            self.assertEqual(rr['all2all'].get_mpi_runtime(), rr['epoch'].get_mpi_runtime())
-            self.assertEqual(rr['all2all'].get_mpi_runtime(), rr.get_mpi_runtime())
-            self.assertEqual(0, rr['unmarked-region'].get_mpi_runtime())
-            self.assertEqual(0, rr['sleep'].get_mpi_runtime())
-            self.assertEqual(0, rr['dgemm'].get_mpi_runtime())
+            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
+            self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
+            self.assertEqual(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
+            # TODO: inconsistent; can we just use _ everywhere?
+            self.assertEqual(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
+            self.assertEqual(0, unmarked_data['mpi_runtime'].item())
+            self.assertEqual(0, sleep_data['mpi_runtime'].item())
+            self.assertEqual(0, dgemm_data['mpi_runtime'].item())
 
     def test_ignore_runtime(self):
         name = 'test_ignore_runtime'
@@ -961,8 +962,9 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            self.assertEqual(rr['ignore'].get_runtime(), rr.get_ignore_runtime())
+            ignore_data = self._output.get_report_data(node_name=nn, region='ignore')
+            app_data = self._output.get_app_total_data(node_name=nn)
+            self.assertEqual(ignore_data['runtime'].item(), app_data['ignore-runtime'].item())
 
     @skip_unless_config_enable('ompt')
     def test_unmarked_ompt(self):
@@ -986,26 +988,23 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         stream_id = None
-        stream_name = '[OMPT]geopmbench:geopm::StreamModelRegion::run()'
+        region_names = self._output.get_region_names()
+        stream_name = [key for key in region_names if key.lower().find('stream') != -1][0]
         for nn in node_names:
-            rr = self._output.get_report(nn)
-            region_names = rr.keys()
+            stream_data = self._output.get_report_data(node_name=nn, region=stream_name)
             found = False
-            full_name = stream_name
             for name in region_names:
                 if stream_name in name:  # account for numbers at end of OMPT region names
                     found = True
-                    full_name = name
             self.assertTrue(found)
-            stream_region = rr[full_name]
-            self.assertEqual(1, stream_region.get_count())
+            self.assertEqual(1, stream_data['count'].item())
             if stream_id:
-                self.assertEqual(stream_id, stream_region.get_id())
+                self.assertEqual(stream_id, stream_data['id'].item())
             else:
-                stream_id = stream_region.get_id()
+                stream_id = stream_data['id'].item()
             ompt_regions = [key for key in region_names if key.startswith('[OMPT]')]
             self.assertLessEqual(2, len(ompt_regions))
-            self.assertTrue(('MPI_Alltoall' in rr))
+            self.assertTrue(('MPI_Alltoall' in region_names))
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 

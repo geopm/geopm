@@ -79,15 +79,16 @@ class AppOutput(object):
         verbose: A bool to control whether verbose output is printed to stdout.
 
     """
-    def __init__(self, reports=None, traces=None, dir_name='.', verbose=False):
+
+    def __init__(self, reports=None, traces=None, dir_name='.', verbose=False, do_cache=True):
         self._reports = {}
         self._reports_df = pandas.DataFrame()
         self._traces = {}
         self._traces_df = pandas.DataFrame()
         self._all_paths = []
-        self._reports_df_list = []
-        self._traces_df_list = []
         self._index_tracker = IndexTracker()
+        self._node_names = None
+        self._region_names = None
 
         if reports:
             if type(reports) is str:
@@ -102,52 +103,37 @@ class AppOutput(object):
 
             self._all_paths.extend(report_paths)
 
-            # Create a dict of <NODE_NAME> : <REPORT_OBJ>; Create DF
-            files = 0
-            filesize = 0
-            for rp in report_paths: # Get report count for verbose progress
-                filesize += os.stat(rp).st_size
-                with open(rp, 'r') as fid:
-                    for line in fid:
-                        if re.findall(r'Host:', line):
-                            files += 1
+            if do_cache:
+                # unique cache name based on report files in this list
+                paths_str = str(report_paths)
+                report_h5_name = os.path.join(dir_name, 'report_{}.h5'.format(hash(paths_str)))
+                self._all_paths.append(report_h5_name)
 
-            filesize = '{}KiB'.format(filesize/1024)
-            fileno = 1
-            for rp in report_paths:
-                # Parse the first report
-                rr_size = os.stat(rp).st_size
-                rr = Report(rp)
-                if verbose:
-                    sys.stdout.write('\rParsing report {} of {} ({}).. '.format(fileno, files, filesize))
-                    sys.stdout.flush()
-                fileno += 1
-                self.add_report_df(rr)
-                self._reports[rr.get_node_name()] = rr
+                try:
+                    # load dataframes from cache
+                    self._reports_df = pandas.read_hdf(report_h5_name, 'report')
+                    self._app_reports_df = pandas.read_hdf(report_h5_name, 'app_report')
+                    if verbose:
+                        sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
+                except IOError as err:
+                    sys.stderr.write('WARNING: report HDF5 file not detected.  Data will be saved to {}.\n'
+                                     .format(report_h5_name))
+                    self.parse_reports(report_paths, verbose)
 
-                # Parse the remaining reports in this file
-                while (rr.get_last_offset() != rr_size):
-                    rr = Report(rp, rr.get_last_offset())
-                    if rr.get_node_name() is not None:
-                        self.add_report_df(rr)
-                        self._reports[rr.get_node_name()] = rr
+                    # Cache report dataframe
+                    try:
                         if verbose:
-                            sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
-                            sys.stdout.flush()
-                        fileno += 1
-                Report.reset_vars() # If we've reached the end of a report, reset the static vars
-            if verbose:
-                sys.stdout.write('Done.\n')
-                sys.stdout.flush()
+                            sys.stdout.write('Generating HDF5 files... ')
+                            self._reports_df.to_hdf(report_h5_name, 'report', format='table')
+                            self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
+                    except ImportError as error:
+                        sys.stderr.write('Warning: unable to write HDF5 file: {}\n'.format(str(error)))
 
-            if verbose:
-                sys.stdout.write('Creating combined reports DF... ')
-                sys.stdout.flush()
-            self._reports_df = pandas.concat(self._reports_df_list)
-            self._reports_df = self._reports_df.sort_index(ascending=True)
-            if verbose:
-                sys.stdout.write('Done.\n')
-                sys.stdout.flush()
+                    if verbose:
+                        sys.stdout.write('Done.\n')
+                        sys.stdout.flush()
+            else:
+                self.parse_reports(report_paths, verbose)
 
         if traces:
             if type(traces) is str:
@@ -162,31 +148,113 @@ class AppOutput(object):
 
             self._all_paths.extend(trace_paths)
             self._index_tracker.reset()
-            # Create a dict of <NODE_NAME> : <TRACE_DATAFRAME>
-            fileno = 1
-            filesize = 0
-            for tp in trace_paths: # Get size of all trace files
-                filesize += os.stat(tp).st_size
-            filesize = '{}MiB'.format(filesize/1024/1024)
-            for tp in trace_paths:
+
+            if do_cache:
+                # unique cache name based on trace files in this list
+                paths_str = str(trace_paths)
+                trace_h5_name = os.path.join(dir_name, 'trace_{}.h5'.format(hash(paths_str)))
+                self._all_paths.append(trace_h5_name)
+
+                try:
+                    self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
+                    if verbose:
+                        sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
+                except IOError as err:
+                    sys.stderr.write('WARNING: trace HDF5 file not detected.  Data will be saved to {}.\n'
+                                     .format(trace_h5_name))
+
+                    self.parse_traces(trace_paths, verbose)
+                    # Cache traces dataframe
+                    try:
+                        if verbose:
+                            sys.stdout.write('Generating HDF5 files... ')
+                        self._traces_df.to_hdf(trace_h5_name, 'trace')
+                    except ImportError as error:
+                        sys.stderr.write('Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+
+                    if verbose:
+                        sys.stdout.write('Done.\n')
+                        sys.stdout.flush()
+            else:
+                self.parse_traces(trace_paths, verbose)
+
+    def parse_reports(self, report_paths, verbose):
+        reports_df_list = []
+        reports_app_df_list = []
+        files = 0
+        filesize = 0
+        for rp in report_paths:  # Get report count for verbose progress
+            filesize += os.stat(rp).st_size
+            with open(rp, 'r') as fid:
+                for line in fid:
+                    if re.findall(r'Host:', line):
+                        files += 1
+
+        filesize = '{}KiB'.format(filesize/1024)
+        fileno = 1
+
+        for rp in report_paths:
+            # Parse the first report
+            if verbose:
+                sys.stdout.write('\rParsing report {} of {} ({}).. '.format(fileno, files, filesize))
+                sys.stdout.flush()
+
+            rr_size = os.stat(rp).st_size
+            rr = Report(rp)
+            self.add_report_df(rr, reports_df_list, reports_app_df_list)
+            fileno += 1
+
+            # Parse the remaining reports in this file
+            while (rr.get_last_offset() != rr_size):
                 if verbose:
-                    sys.stdout.write('\rParsing trace file {} of {} ({})... '.format(fileno, len(trace_paths), filesize))
+                    sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
                     sys.stdout.flush()
-                fileno += 1
-                tt = Trace(tp)
-                self._traces[tt.get_node_name()] = tt.get_df() # Basic dict assumes one node per trace
-                self.add_trace_df(tt) # Handles multiple traces per node
+                rr = Report(rp, rr.get_last_offset())
+                if rr.get_node_name() is not None:
+                    self.add_report_df(rr, reports_df_list, reports_app_df_list)
+                    # TODO: add application total
+                    fileno += 1
+            Report.reset_vars()  # If we've reached the end of a report, reset the static vars
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+        if verbose:
+            sys.stdout.write('Creating combined reports DF... ')
+            sys.stdout.flush()
+        self._reports_df = pandas.concat(reports_df_list)
+        self._reports_df = self._reports_df.sort_index(ascending=True)
+        self._app_reports_df = pandas.concat(reports_app_df_list)
+        self._app_reports_df = self._app_reports_df.sort_index(ascending=True)
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+    def parse_traces(self, trace_paths, verbose):
+        traces_df_list = []
+        fileno = 1
+        filesize = 0
+        for tp in trace_paths:  # Get size of all trace files
+            filesize += os.stat(tp).st_size
+        filesize = '{}MiB'.format(filesize/1024/1024)
+        for tp in trace_paths:
             if verbose:
-                sys.stdout.write('Done.\n')
+                sys.stdout.write('\rParsing trace file {} of {} ({})... '.format(fileno, len(trace_paths), filesize))
                 sys.stdout.flush()
-            if verbose:
-                sys.stdout.write('Creating combined traces DF... ')
-                sys.stdout.flush()
-            self._traces_df = pandas.concat(self._traces_df_list)
-            self._traces_df = self._traces_df.sort_index(ascending=True)
-            if verbose:
-                sys.stdout.write('Done.\n')
-                sys.stdout.flush()
+            fileno += 1
+            tt = Trace(tp)
+            self.add_trace_df(tt, traces_df_list)  # Handles multiple traces per node
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+        if verbose:
+            sys.stdout.write('Creating combined traces DF... ')
+            sys.stdout.flush()
+        self._traces_df = pandas.concat(traces_df_list)
+        self._traces_df = self._traces_df.sort_index(ascending=True)
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
 
     def remove_files(self):
         """Deletes all files currently tracked by this object."""
@@ -196,7 +264,7 @@ class AppOutput(object):
             except OSError:
                 pass
 
-    def add_report_df(self, rr):
+    def add_report_df(self, rr, reports_df_list, reports_app_df_list):
         """Adds a report DataFrame to the tracking list.
 
         The report tracking list is used to create the combined
@@ -209,14 +277,27 @@ class AppOutput(object):
         """
         # Build and index the DF
         rdf = pandas.DataFrame(rr).T.drop('name', 1)
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime']
+        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'sync_runtime']
         rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
 
         # Add extra index info
-        rdf = rdf.set_index(self._index_tracker.get_multiindex(rr))
-        self._reports_df_list.append(rdf)
+        index = self._index_tracker.get_multiindex(rr)
+        rdf = rdf.set_index(index)
+        reports_df_list.append(rdf)
 
-    def add_trace_df(self, tt):
+        # Save application totals
+        app = {'runtime': rr.get_runtime(),
+               'energy-package': rr.get_energy_pkg(),
+               'energy-dram': rr.get_energy_dram(),
+               'mpi-runtime': rr.get_mpi_runtime(),
+               'ignore-runtime': rr.get_ignore_runtime()}
+        index = index.droplevel('region').drop_duplicates()
+        app_df = pandas.DataFrame(app, index=index)
+        numeric_cols = app.keys()
+        app_df[numeric_cols] = app_df[numeric_cols].apply(pandas.to_numeric)
+        reports_app_df_list.append(app_df)
+
+    def add_trace_df(self, tt, traces_df_list):
         """Adds a trace DataFrame to the tracking list.
 
         The report tracking list is used to create the combined
@@ -228,9 +309,9 @@ class AppOutput(object):
                 tracking list.
 
         """
-        tdf = tt.get_df()
+        tdf = tt.get_df()  # TODO: this needs numeric cols optimization
         tdf = tdf.set_index(self._index_tracker.get_multiindex(tt))
-        self._traces_df_list.append(tdf)
+        traces_df_list.append(tdf)
 
     def get_node_names(self):
         """Returns the names of the nodes detected in the parse report files.
@@ -247,56 +328,37 @@ class AppOutput(object):
         to get a combined DataFrame of all the data.
 
         """
-        return self._reports.keys()
+        if self._node_names is None:
+            self._node_names = self._reports_df.index.get_level_values('node_name').unique().tolist()
+        return self._node_names
 
-    def get_report(self, node_name):
-        """Getter for the current Report object in the _reports Dictionary.
+    def get_region_names(self):
+        if self._region_names is None:
+            self._region_names = self._reports_df.index.get_level_values('region').unique().tolist()
+        return self._region_names
 
-        Note that this is only useful for a single experiment's
-        dataset.  The _reports dictionary is populated from every
-        report file that was globbed, so if you have multiple
-        iterations of an experiment the last set of reports parsed
-        will be contained in this dictionary.  Additionally, if
-        different nodes were used with different experiment iterations
-        then this dictionary will not have consistent data.
+    def get_report_data(self, node_name=None, region=None):
+        idx = pandas.IndexSlice
+        df = self._reports_df
+        if node_name is not None:
+            df = df.loc[idx[:, :, :, :, :, :, node_name, :, :], ]
+        if region is not None:
+            df = df.loc[idx[:, :, :, :, :, :, :, :, region], ]
+        return df
 
-        If analysis of all of the data is desired, use get_report_df()
-        to get a combined DataFrame of all the data.
+    def get_app_total_data(self, node_name=None):
+        idx = pandas.IndexSlice
+        df = self._app_reports_df
+        if node_name is not None:
+            df = df.loc[idx[:, :, :, :, :, :, node_name, :], ]
+        return df
 
-        Args:
-            node_name: The name of the node to use as a key in the
-                       _reports Dictionary.
-
-        Returns:
-            Report: The object for this node_name.
-
-        """
-        return self._reports[node_name]
-
-    def get_trace(self, node_name):
-        """Getter for the current Trace object in the _traces Dictonary.
-
-        Note that this is only useful for a single experiment's
-        dataset.  The _traces dictionary is populated from every trace
-        file that was globbed, so if you have multiple iterations of
-        an experiment the last set of traces parsed will be contained
-        in this dictionary.  Additionally, if different nodes were
-        used with different experiment iterations then this dictionary
-        will not have consistent data.
-
-        If analysis of all of the data is desired, use get_trace_df()
-        to get a combined DataFrame of all the data.
-
-        Args:
-
-            node_name: The name of the node to use as a key in the
-                       _traces Dictionary.
-
-        Returns:
-            Trace: The object for this node_name.
-
-        """
-        return self._traces[node_name]
+    def get_trace_data(self, node_name=None):
+        idx = pandas.IndexSlice
+        df = self._traces_df
+        if node_name is not None:
+            df = df.loc[idx[:, :, :, :, :, :, node_name, :, :], ]
+        return df
 
     def get_report_df(self):
         """Getter for the combined DataFrame of all report files parsed.
@@ -665,15 +727,32 @@ class Report(dict):
             None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
+    # Fields used for dataframe construction only
     def get_profile_name(self):
         return self._profile_name
 
     def get_version(self):
         return self._version
 
-    def get_path(self):
-        return self._path
+    def get_tree_decider(self):
+        return self._tree_decider
 
+    def get_leaf_decider(self):
+        return self._leaf_decider
+
+    def get_agent(self):
+        return self._agent
+
+    def get_power_budget(self):
+        return self._power_budget
+
+    def get_node_name(self):
+        return self._node_name
+
+    def get_last_offset(self):
+        return self._offset
+
+    # Application totals
     def get_runtime(self):
         return self._total_runtime
 
@@ -688,27 +767,6 @@ class Report(dict):
 
     def get_energy_dram(self):
         return self._total_energy_dram
-
-    def get_node_name(self):
-        return self._node_name
-
-    def get_last_offset(self):
-        return self._offset
-
-    def get_mode(self):
-        return self._mode
-
-    def get_tree_decider(self):
-        return self._tree_decider
-
-    def get_leaf_decider(self):
-        return self._leaf_decider
-
-    def get_agent(self):
-        return self._agent
-
-    def get_power_budget(self):
-        return self._power_budget
 
 
 class Region(dict):
