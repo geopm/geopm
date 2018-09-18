@@ -41,6 +41,7 @@ EXTRA_DIST += examples/README.md \
               examples/minife/README \
               examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch \
               examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch \
+              examples/nekbone/0003-Increase-problem-size-for-Theta.patch \
               examples/nekbone/README \
               examples/qbox/README \
               examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
