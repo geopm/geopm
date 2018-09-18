@@ -17,5 +17,6 @@ Installation:
 4. Patch nekbone with the patch utility:
     patch -p1 < ../0001-Optimized-nekbone-code-for-Intel-hardware.patch
     patch -p1 < ../0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch
+    patch -p1 < ../0003-Increase-problem-size-for-Theta.patch
 
 5. Profit.
