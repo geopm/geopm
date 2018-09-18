@@ -1,6 +1,6 @@
-From 4e8acba5ebf953eee85cdcf22cb9f50f7304a6a3 Mon Sep 17 00:00:00 2001
-From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
-Date: Thu, 10 Nov 2016 11:32:13 -0800
+From 23af5a280b84ddb34fde3ce5764376a7112f9951 Mon Sep 17 00:00:00 2001
+From: Diana Guttman <diana.r.guttman@intel.com>
+Date: Tue, 18 Sep 2018 21:43:42 +0000
 Subject: [PATCH] Adding geopm markup to CORAL version of miniFE.
 
 #  Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation
@@ -35,12 +35,13 @@ Subject: [PATCH] Adding geopm markup to CORAL version of miniFE.
 #
 
 Signed-off-by: Steve S. Sylvester <steve.s.sylvester@intel.com>
+Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
 ---
  src/Makefile                   | 14 ++++++++------
- src/SparseMatrix_functions.hpp | 20 ++++++++++++++++++++
- src/Vector_functions.hpp       | 20 ++++++++++++++++++++
+ src/SparseMatrix_functions.hpp | 24 ++++++++++++++++++++++++
+ src/Vector_functions.hpp       | 24 ++++++++++++++++++++++++
  src/cg_solve.hpp               |  7 +++++++
- 4 files changed, 55 insertions(+), 6 deletions(-)
+ 4 files changed, 63 insertions(+), 6 deletions(-)
 
 diff --git a/src/Makefile b/src/Makefile
 index 461bdde..0ef6065 100644
@@ -79,7 +80,7 @@ index 461bdde..0ef6065 100644
  
  include make_targets
 diff --git a/src/SparseMatrix_functions.hpp b/src/SparseMatrix_functions.hpp
-index 876f4ad..38a2582 100644
+index 876f4ad..b598181 100644
 --- a/src/SparseMatrix_functions.hpp
 +++ b/src/SparseMatrix_functions.hpp
 @@ -43,6 +43,10 @@
@@ -93,19 +94,21 @@ index 876f4ad..38a2582 100644
  #ifdef MINIFE_HAVE_TBB
  #include <LockingMatrix.hpp>
  #endif
-@@ -515,6 +519,11 @@ void operator()(MatrixType& A,
+@@ -515,6 +519,13 @@ void operator()(MatrixType& A,
          ScalarType* ycoefs                        = &y.coefs[0];
          const ScalarType beta                     = 0;
  
 +#ifndef NO_GEOPM
-+        uint64_t R_ID;
-+        geopm_prof_region( "PHASE_MATVEC", GEOPM_REGION_HINT_COMPUTE, &R_ID);
++        static uint64_t R_ID = 0;
++        if (R_ID == 0) {
++            geopm_prof_region( "PHASE_MATVEC", GEOPM_REGION_HINT_COMPUTE, &R_ID);
++        }
 +        geopm_prof_enter( R_ID);
 +#endif
          #pragma omp parallel for
          for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
                  const MINIFE_GLOBAL_ORDINAL row_start = Arowoffsets[row];
-@@ -529,6 +538,9 @@ void operator()(MatrixType& A,
+@@ -529,6 +540,9 @@ void operator()(MatrixType& A,
  
                  ycoefs[row] = sum;
          }
@@ -115,19 +118,21 @@ index 876f4ad..38a2582 100644
  }
  };
  #elif defined(MINIFE_ELL_MATRIX)
-@@ -553,6 +565,11 @@ void operator()(MatrixType& A,
+@@ -553,6 +567,13 @@ void operator()(MatrixType& A,
          ScalarType* ycoefs = &y.coefs[0];
    ScalarType beta = 0;
  
 +#ifndef NO_GEOPM
-+  uint64_t R_ID;
-+  geopm_prof_region( "PHASE_MATVEC", GEOPM_REGION_HINT_COMPUTE, &R_ID);
++  static uint64_t R_ID = 0;
++  if (R_ID == 0) {
++      geopm_prof_region( "PHASE_MATVEC", GEOPM_REGION_HINT_COMPUTE, &R_ID);
++  }
 +  geopm_prof_enter( R_ID);
 +#endif
    #pragma omp parallel for
    for(int row=0; row<n; ++row) {
      ScalarType sum = beta*ycoefs[row];
-@@ -566,6 +583,9 @@ void operator()(MatrixType& A,
+@@ -566,6 +587,9 @@ void operator()(MatrixType& A,
  
      ycoefs[row] = sum;
    }
@@ -138,7 +143,7 @@ index 876f4ad..38a2582 100644
  };
  #endif
 diff --git a/src/Vector_functions.hpp b/src/Vector_functions.hpp
-index cdf9b15..9dee368 100644
+index cdf9b15..4f54069 100644
 --- a/src/Vector_functions.hpp
 +++ b/src/Vector_functions.hpp
 @@ -36,6 +36,10 @@
@@ -152,19 +157,21 @@ index cdf9b15..9dee368 100644
  #ifdef MINIFE_HAVE_TBB
  #include <LockingVector.hpp>
  #endif
-@@ -152,6 +156,11 @@ void
+@@ -152,6 +156,13 @@ void
    const ScalarType*  ycoefs = &y.coefs[0];
          ScalarType*  wcoefs = &w.coefs[0];
  
 +#ifndef NO_GEOPM
-+  uint64_t R_ID;
-+  geopm_prof_region( "PHASE_WAXPBY", GEOPM_REGION_HINT_MEMORY, &R_ID);
++  static uint64_t R_ID = 0;
++  if (R_ID == 0) {
++    geopm_prof_region( "PHASE_WAXPBY", GEOPM_REGION_HINT_MEMORY, &R_ID);
++  }
 +  geopm_prof_enter( R_ID);
 +#endif
    if(beta == 0.0) {
  	if(alpha == 1.0) {
    		#pragma omp parallel for
-@@ -177,6 +186,9 @@ void
+@@ -177,6 +188,9 @@ void
    		}
    	}
    }
@@ -174,13 +181,15 @@ index cdf9b15..9dee368 100644
  
  #ifdef MINIFE_DEBUG_OPENMP
    std::cout << "Finished WAXPBY." << std::endl;
-@@ -245,10 +257,18 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
+@@ -245,10 +259,20 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
    const Scalar*  ycoefs = &y.coefs[0];
    MINIFE_SCALAR result = 0;
  
 +#ifndef NO_GEOPM
-+  uint64_t R_ID;
-+  geopm_prof_region( "PHASE_DOT", GEOPM_REGION_HINT_MEMORY, &R_ID);
++  static uint64_t R_ID = 0;
++  if (R_ID == 0) {
++    geopm_prof_region( "PHASE_DOT", GEOPM_REGION_HINT_MEMORY, &R_ID);
++  }
 +  geopm_prof_enter( R_ID);
 +#endif
    #pragma omp parallel for reduction(+:result)
@@ -219,5 +228,5 @@ index 69812c4..d43c6cd 100644
        TICK(); waxpby(one, r, zero, r, p); TOCK(tWAXPY);
      }
 -- 
-1.8.3.1
+2.12.3
 
