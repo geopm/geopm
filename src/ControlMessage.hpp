@@ -163,6 +163,7 @@ namespace geopm
                 M_STATUS_SHUTDOWN,
                 M_STATUS_ABORT = 9999,
             };
+            const double M_WAIT_SEC;
             struct geopm_ctl_message_s &m_ctl_msg;
             bool m_is_ctl;
             bool m_is_writer;

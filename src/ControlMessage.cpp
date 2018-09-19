@@ -46,12 +46,42 @@ namespace geopm
 {
 
     ControlMessage::ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
-        : m_ctl_msg(ctl_msg)
+        : M_WAIT_SEC(geopm_env_profile_timeout())
+        , m_ctl_msg(ctl_msg)
         , m_is_ctl(is_ctl)
         , m_is_writer(is_writer)
         , m_last_status(M_STATUS_UNDEFINED)
     {
-        memset(&m_ctl_msg, 0, sizeof(geopm_ctl_message_s));
+        if (!is_ctl && is_writer) {
+            memset(&m_ctl_msg, 0, sizeof(geopm_ctl_message_s));
+        }
+        else {
+            bool is_init = false;
+            geopm_time_s start;
+            geopm_time(&start);
+            while (!is_init && geopm_time_since(&start) < M_WAIT_SEC) {
+                geopm_signal_handler_check();
+                if (this_status() == M_STATUS_ABORT) {
+                    throw Exception("ControlMessage::wait(): Abort sent through control message",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                is_init = (m_ctl_msg.app_status == 0 ||
+                           m_ctl_msg.app_status == M_STATUS_MAP_BEGIN);
+            }
+            if (!is_init) {
+                char hostname[NAME_MAX];
+                int err = gethostname(hostname, NAME_MAX);
+                std::string hostname_str = "";
+                if (!err) {
+                    hostname_str = std::string(hostname);
+                }
+                throw Exception("ControlMessage::wait(): " + hostname_str +
+                                " : is_ctl=" + std::to_string(m_is_ctl) +
+                                " : is_writer=" + std::to_string(m_is_writer) +
+                                " : Timed out waiting for status " + std::to_string(m_last_status),
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
     }
 
     void ControlMessage::step(void)
@@ -66,8 +96,6 @@ namespace geopm
 
     void ControlMessage::wait(void)
     {
-        static const double M_WAIT_SEC = geopm_env_profile_timeout();
-
         if (m_last_status != M_STATUS_SHUTDOWN) {
             ++m_last_status;
         }
