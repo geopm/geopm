@@ -33,38 +33,47 @@
 #include "gtest/gtest.h"
 #include "ControlMessage.hpp"
 
-class ControlMessageTest: public geopm::ControlMessage, public testing::Test
+using geopm::ControlMessage;
+enum control_message_test_e {
+    M_STATUS_UNDEFINED = geopm::ControlMessage::M_STATUS_UNDEFINED,
+    M_STATUS_MAP_BEGIN = geopm::ControlMessage::M_STATUS_MAP_BEGIN,
+    M_STATUS_MAP_END = geopm::ControlMessage::M_STATUS_MAP_END,
+    M_STATUS_SAMPLE_BEGIN = geopm::ControlMessage::M_STATUS_SAMPLE_BEGIN,
+    M_STATUS_SAMPLE_END = geopm::ControlMessage::M_STATUS_SAMPLE_END,
+    M_STATUS_NAME_BEGIN = geopm::ControlMessage::M_STATUS_NAME_BEGIN,
+    M_STATUS_NAME_LOOP_BEGIN = geopm::ControlMessage::M_STATUS_NAME_LOOP_BEGIN,
+    M_STATUS_NAME_LOOP_END = geopm::ControlMessage::M_STATUS_NAME_LOOP_END,
+    M_STATUS_NAME_END = geopm::ControlMessage::M_STATUS_NAME_END,
+    M_STATUS_SHUTDOWN = geopm::ControlMessage::M_STATUS_SHUTDOWN,
+    M_STATUS_ABORT = geopm::ControlMessage::M_STATUS_ABORT,
+};
+
+
+class ControlMessageTest: public testing::Test
 {
     public:
-        ControlMessageTest();
-        virtual ~ControlMessageTest();
+        ControlMessageTest() = default;
+        virtual ~ControlMessageTest() = default;
     protected:
         void SetUp();
         void TearDown();
         struct geopm_ctl_message_s m_test_ctl_msg_buffer;
         geopm::ControlMessage *m_test_ctl_msg;
         geopm::ControlMessage *m_test_app_msg;
+        geopm::ControlMessage *m_test_app_noop_msg;
 };
 
-ControlMessageTest::ControlMessageTest()
-    : geopm::ControlMessage(m_test_ctl_msg_buffer, false, false)
-{
-
-}
-
-ControlMessageTest::~ControlMessageTest()
-{
-
-}
 
 void ControlMessageTest::SetUp()
 {
-    m_test_ctl_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, true, true);
     m_test_app_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, false, true);
+    m_test_ctl_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, true, true);
+    m_test_app_noop_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, false, false);
 }
 
 void ControlMessageTest::TearDown()
 {
+    delete m_test_app_noop_msg;
     delete m_test_app_msg;
     delete m_test_ctl_msg;
 }
@@ -105,7 +114,7 @@ TEST_F(ControlMessageTest, wait)
     m_test_app_msg->step();
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.app_status);
-    step();
+    m_test_app_noop_msg->step();
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.app_status);
     // Wait all three controller messages
@@ -115,7 +124,7 @@ TEST_F(ControlMessageTest, wait)
     m_test_app_msg->wait();
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.app_status);
-    wait();
+    m_test_app_noop_msg->wait();
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_BEGIN, m_test_ctl_msg_buffer.app_status);
     // Step again
@@ -125,7 +134,7 @@ TEST_F(ControlMessageTest, wait)
     m_test_app_msg->step();
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.app_status);
-    step();
+    m_test_app_noop_msg->step();
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.app_status);
     // Wait again
@@ -135,7 +144,7 @@ TEST_F(ControlMessageTest, wait)
     m_test_app_msg->wait();
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.app_status);
-    wait();
+    m_test_app_noop_msg->wait();
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.ctl_status);
     ASSERT_EQ(M_STATUS_MAP_END, m_test_ctl_msg_buffer.app_status);
 }

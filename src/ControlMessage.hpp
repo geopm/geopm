@@ -146,8 +146,6 @@ namespace geopm
             bool is_name_begin(void) const override;
             bool is_shutdown(void) const override;
             void loop_begin(void) override;
-        protected:
-            int this_status() const;
             /// @brief Enum encompassing application and
             /// GEOPM runtime state.
             enum m_status_e {
@@ -163,6 +161,9 @@ namespace geopm
                 M_STATUS_SHUTDOWN,
                 M_STATUS_ABORT = 9999,
             };
+        private:
+            int this_status() const;
+            const double M_WAIT_SEC;
             struct geopm_ctl_message_s &m_ctl_msg;
             bool m_is_ctl;
             bool m_is_writer;
