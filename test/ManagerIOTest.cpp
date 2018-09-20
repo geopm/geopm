@@ -274,6 +274,10 @@ TEST_F(ManagerIOSamplerTest, negative_parse_json_file)
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
     GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler(m_json_file_path_bad, nullptr, signal_names),
                                GEOPM_ERROR_FILE_PARSE, "unsupported type or malformed json config file");
+
+    // Don't parse if Agent doesn't require any policies
+    const std::vector<std::string> signal_names_empty;
+    ManagerIOSampler("", nullptr, signal_names_empty);
 }
 
 TEST_F(ManagerIOSamplerTest, parse_shm)
@@ -391,4 +395,3 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     EXPECT_EQ(4.4, gp.sample("FOUR"));
     EXPECT_EQ(5.5, gp.sample("FIVE"));
 }
-

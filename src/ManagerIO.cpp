@@ -308,15 +308,17 @@ namespace geopm
             read_shmem();
         }
         else {
-            std::map<std::string, double> signal_value_map = parse_json();
-            m_signals_down.clear();
-            for (auto signal : m_signal_names) {
-                try {
-                    m_signals_down.emplace_back(signal_value_map.at(signal));
-                }
-                catch (const std::out_of_range&) {
-                    throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): Signal \"" + signal + "\" not found.",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (m_signal_names.size() > 0) {
+                std::map<std::string, double> signal_value_map = parse_json();
+                m_signals_down.clear();
+                for (auto signal : m_signal_names) {
+                    try {
+                        m_signals_down.emplace_back(signal_value_map.at(signal));
+                    }
+                    catch (const std::out_of_range&) {
+                        throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): Signal \"" + signal + "\" not found.",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
                 }
             }
         }
