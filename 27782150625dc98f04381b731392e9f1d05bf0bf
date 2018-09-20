@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cd27053_40e7aa5f",
+        "filename": "examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch",
+        "patchSetId": 1
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-09-20T18:22:18Z",
+      "side": 1,
+      "message": "This is theta specific, and pointing to a privledged directory.  Also hwloc is installed to /usr/lib64 on Theta.",
+      "range": {
+        "startLine": 463,
+        "startChar": 0,
+        "endLine": 463,
+        "endChar": 59
+      },
+      "revId": "27782150625dc98f04381b731392e9f1d05bf0bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
