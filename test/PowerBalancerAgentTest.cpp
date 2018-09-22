@@ -405,6 +405,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     std::vector<double> err_trace_vals, err_out_sample;
     std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
 
+    // TODO: needs to be wrapped in GEOPM_DEBUG
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(err_trace_vals), GEOPM_ERROR_LOGIC, "values vector not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform({}), GEOPM_ERROR_LOGIC, "policy vector incorrectly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(err_out_sample), GEOPM_ERROR_LOGIC, "out_sample vector not correctly sized.");

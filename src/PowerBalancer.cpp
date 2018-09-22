@@ -104,9 +104,13 @@ namespace geopm
         bool is_stable = is_limit_stable();
         if (is_stable && m_runtime_buffer->size() == 0) {
             m_runtime_vec.push_back(measured_runtime);
+            // once we have samples with enough total duration, convert vec to buffer
             if (IPlatformIO::agg_sum(m_runtime_vec) > M_MIN_DURATION) {
                 m_num_sample = m_runtime_vec.size();
                 if (m_num_sample < M_MIN_NUM_SAMPLE) {
+                    // causes buffer capacity to be at least M_MIN_NUM_SAMPLE.
+                    // a few more samples into buffer will be needed before
+                    // this function returns true
                     m_num_sample = M_MIN_NUM_SAMPLE;
                 }
                 else {
