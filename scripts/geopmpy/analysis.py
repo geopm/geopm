@@ -410,10 +410,81 @@ class BalancerAnalysis(Analysis):
         self._balancer_power_sweep.launch(config)
 
     def summary_process(self, parse_output):
-        sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
+        report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        report_df['power'] = report_df['energy_pkg'] / report_df['runtime']
+        report_df.reset_index(['power_budget', 'tree_decider', 'leaf_decider'], drop=True, inplace=True)
+        report_df.index = report_df.index.set_names('power_budget', level='name')
+
+        # Data reduction - mean (if running more than 1 iteration, noop otherwise)
+        mean_report_df = report_df.groupby(['power_budget', 'agent', 'node_name', 'region']).mean()
+        mean_report_df = mean_report_df[['frequency', 'power', 'runtime', 'mpi_runtime', 'energy_pkg', 'count']]
+
+        summary_df = mean_report_df.groupby(['power_budget', 'agent', 'region']).mean() # node_name not in group
+
+        return report_df, mean_report_df, summary_df
 
     def summary(self, process_output):
-        pass
+        report_df, mean_report_df, summary_df = process_output
+        idx = pandas.IndexSlice
+        pandas.set_option('display.max_rows', None)
+
+        if self._verbose:
+            sys.stdout.write('Writing {}... '.format(os.path.join(self._output_dir, 'balancer.log')))
+            sys.stdout.flush()
+        with open(os.path.join(self._output_dir, 'balancer.log'), 'w') as out_file:
+            """
+            Writes epoch statistics for the Governor vs. Balancer comparisons.
+            Results are aggregated so that all iterations and all nodes are averaged together.
+            """
+            epoch_report = summary_df.loc[idx[:, :, 'epoch'], ]
+            out_file.write('=' * 80 + '\n')
+            out_file.write('Governor stats :\n{}\n\n{}\nBalancer stats:\n{}\n\n'.format(
+                           epoch_report.loc[idx[:, 'power_governor', :], ],
+                           '-' * 80,
+                           epoch_report.loc[idx[:, 'power_balancer', :], ]))
+            out_file.write('=' * 80 + '\n\n')
+
+            # Calculate percentage improvements
+            a = epoch_report.loc[idx[:, 'power_governor', :], ['runtime', 'energy_pkg']].reset_index(level='agent', drop=True)
+            b = epoch_report.loc[idx[:, 'power_balancer', :], ['runtime', 'energy_pkg']].reset_index(level='agent', drop=True)
+            improvement = (a - b) / a # Result * 100 is percentage
+
+            out_file.write('Balancer vs. Governor Improvement:\n\n{}\n\n'.format(improvement))
+        if self._verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+        if self._verbose:
+            sys.stdout.write('Writing {}... '.format(os.path.join(self._output_dir, 'per_node.log')))
+            sys.stdout.flush()
+        with open(os.path.join(self._output_dir, 'per_node.log'), 'w') as out_file:
+            """
+            Writes the per_budget/per-region/all-nodes means to the log file.
+            Writes the per-budget/per-node/per-region means to the log file.
+            """
+            out_file.write('All node Summary :\n{}\n\n'.format(summary_df))
+            out_file.write('-' * 80 + '\n\n')
+            out_file.write('Per-node / per-region stats :\n{}\n\n'.format(mean_report_df))
+            out_file.write('=' * 80 + '\n\n')
+        if self._verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+        if self._verbose:
+            sys.stdout.write('Writing {}... '.format(os.path.join(self._output_dir, 'per_region.log')))
+            sys.stdout.flush()
+        with open(os.path.join(self._output_dir, 'per_region.log'), 'w') as out_file:
+            """
+            Writes the per-budget/per-agent/per-region detailed stats to the log file.
+                This includes mean, std, min, max, and the standard quartiles.
+            """
+            for (power_budget, region, agent), df in report_df.groupby(['power_budget', 'region', 'agent']):
+                out_file.write('=' * 80 + '\n\n')
+                out_file.write('{} W : Agent = {} : Region = {}\n'.format(power_budget, agent, region))
+                out_file.write('{}\n\n'.format(df.describe()))
+        if self._verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
 
     def plot_process(self, parse_output):
         report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
