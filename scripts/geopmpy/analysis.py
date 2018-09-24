@@ -363,7 +363,8 @@ class BalancerAnalysis(Analysis):
         """
         PowerSweepAnalysis.add_options(parser, enforce_required)
         parser.add_argument('--metric', default='runtime')
-        parser.add_argument('--normalize', default=False)
+        parser.add_argument('--normalize', action='store_true', default=False)
+        parser.add_argument('--speedup', action='store_true', default=False)
 
     # TODO : have this return left and right columns to be formatted by caller
     @staticmethod
@@ -373,11 +374,12 @@ class BalancerAnalysis(Analysis):
 
   --metric              Metric to use for comparison (runtime, power, or energy).
   --normalize           Whether to normalize results to governor at highest power budget.
+  --speedup             Plot the inverse of the target data to show speedup as a positive change.
 
 {}""".format(BalancerAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
     def __init__(self, profile_prefix, output_dir, verbose, iterations,
-                 min_power, max_power, step_power, metric, normalize):
+                 min_power, max_power, step_power, metric, normalize, speedup):
         super(BalancerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
         self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
                                                         min_power, max_power, step_power, 'power_governor')
@@ -387,6 +389,7 @@ class BalancerAnalysis(Analysis):
         if self._metric == 'energy':
             self._metric = 'energy_pkg'
         self._normalize = normalize
+        self._speedup = speedup
 
         self._min_power = min_power
         self._max_power = max_power
@@ -467,8 +470,6 @@ class BalancerAnalysis(Analysis):
         df['target_max'] = target_g.max()
         df['target_min'] = target_g.min()
 
-        # TODO: add to config options
-        self._speedup = False
         if self._normalize and not self._speedup:  # Normalize the data against the rightmost reference bar
             df /= df['reference_mean'].iloc[-1]
 
