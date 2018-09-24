@@ -130,7 +130,7 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_runtime(self):
         metric = 'runtime'
         report_df = self.make_mock_report_df()
-        analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False,
+        analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
         result = analysis.plot_process(report_df)
         expected_df = self.make_expected_summary_df(metric)
@@ -139,7 +139,7 @@ class TestBalancerAnalysis(unittest.TestCase):
 
     def test_balancer_plot_process_energy(self):
         report_df = self.make_mock_report_df()
-        analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False,
+        analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False, speedup=False,
                                                      **self._config)
         result = analysis.plot_process(report_df)
         expected_df = self.make_expected_summary_df('energy_pkg')
@@ -149,7 +149,7 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_power(self):
         metric = 'power'
         report_df = self.make_mock_report_df()
-        analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False,
+        analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
         result = analysis.plot_process(report_df)
         expected_df = self.make_expected_summary_df(metric)

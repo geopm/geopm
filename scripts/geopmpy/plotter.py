@@ -606,7 +606,9 @@ def generate_bar_plot_comparison(df, config):
     # Write data/plot files
     file_name = '{}_{}_comparison'.format(config.profile_name.lower().replace(' ', '_'), config.datatype)
     if config.speedup:
-        file_name += '_speeudp'
+        file_name += '_speedup'
+    elif config.normalize:
+        file_name += '_normalized'
     if config.verbose:
         sys.stdout.write('Writing:\n')
     if config.write_csv:
