@@ -79,7 +79,7 @@ namespace geopm
             static std::vector<int> fan_out(const std::shared_ptr<Comm> &comm);
         private:
             enum m_tree_comm_const_e {
-                M_MAX_FAN_OUT = 16,
+                M_MAX_FAN_OUT = 2,
             };
     };
 

@@ -52,18 +52,23 @@ fi
 # create a report file
 # create trace files
 
+geopmagent -a power_governor -p 150 > tutorial_governed_policy.json
+geopmagent -a power_balancer -p 150,0,0,0 > tutorial_balanced_policy.json
+
 if [ "$GEOPM_RM" == "SLURM" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
-    geopmsrun  -N 2 \
-               -n 8 \
+    geopmsrun  -N 8 \
+               -n 16 \
+	       --geopm-agent=power_governor \
                --geopm-ctl=process \
                --geopm-report=tutorial_4_governed_report \
                --geopm-trace=tutorial_4_governed_trace \
                --geopm-policy=tutorial_governed_policy.json \
                -- ./tutorial_4 \
     && \
-    geopmsrun  -N 2 \
-               -n 8 \
+    geopmsrun  -N 8 \
+               -n 16 \
+	       --geopm-agent=power_balancer \
                --geopm-ctl=process \
                --geopm-report=tutorial_4_balanced_report \
                --geopm-trace=tutorial_4_balanced_trace \
