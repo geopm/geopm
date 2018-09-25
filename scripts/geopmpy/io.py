@@ -92,12 +92,12 @@ class AppOutput(object):
 
         if reports:
             if type(reports) is str:
-                report_glob = os.path.join(dir_name, reports)
+                report_glob = reports
                 report_paths = natsorted(glob.glob(report_glob))
                 if len(report_paths) == 0:
                     raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
             elif type(reports) is list:
-                report_paths = [os.path.join(dir_name, path) for path in reports]
+                report_paths = reports
             else:
                 raise TypeError('AppOutput: reports must be a list of paths or a glob pattern')
 
@@ -137,12 +137,12 @@ class AppOutput(object):
 
         if traces:
             if type(traces) is str:
-                trace_glob = os.path.join(dir_name, traces)
+                trace_glob = traces
                 trace_paths = natsorted(glob.glob(trace_glob))
                 if len(trace_paths) == 0:
                     raise RuntimeError('No trace files found with pattern {}.'.format(trace_glob))
             elif type(traces) is list:
-                trace_paths = [os.path.join(dir_name, path) for path in traces]
+                trace_paths = traces
             else:
                 raise TypeError('AppOutput: traces must be a list of paths or a glob pattern')
 
@@ -192,27 +192,23 @@ class AppOutput(object):
 
         filesize = '{}KiB'.format(filesize/1024)
         fileno = 1
-
         for rp in report_paths:
             # Parse the first report
-            if verbose:
-                sys.stdout.write('\rParsing report {} of {} ({}).. '.format(fileno, files, filesize))
-                sys.stdout.flush()
-
             rr_size = os.stat(rp).st_size
             rr = Report(rp)
-            self.add_report_df(rr, reports_df_list, reports_app_df_list)
+            if verbose:
+                sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
+                sys.stdout.flush()
             fileno += 1
-
+            self.add_report_df(rr, reports_df_list, reports_app_df_list)
             # Parse the remaining reports in this file
             while (rr.get_last_offset() != rr_size):
-                if verbose:
-                    sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
-                    sys.stdout.flush()
                 rr = Report(rp, rr.get_last_offset())
                 if rr.get_node_name() is not None:
                     self.add_report_df(rr, reports_df_list, reports_app_df_list)
-                    # TODO: add application total
+                    if verbose:
+                        sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
+                        sys.stdout.flush()
                     fileno += 1
             Report.reset_vars()  # If we've reached the end of a report, reset the static vars
         if verbose:
