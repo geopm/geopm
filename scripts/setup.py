@@ -82,7 +82,8 @@ install_requires = ['pandas>=0.19.2',
                     'natsort',
                     'matplotlib',
                     'cycler',
-                    'tables']
+                    'tables',
+                    'psutil']
 
 setup(name='geopmpy',
       version=__version__,

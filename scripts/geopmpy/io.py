@@ -42,6 +42,7 @@ import glob
 import json
 import sys
 import subprocess
+import psutil
 from natsort import natsorted
 from geopmpy import __version__
 
@@ -133,7 +134,7 @@ class AppOutput(object):
                     if verbose:
                         sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
                 except IOError as err:
-                    sys.stderr.write('WARNING: report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
+                    sys.stderr.write('<geopmpy>: Warning: report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
                                      .format(report_h5_name))
                     self.parse_reports(report_paths, verbose)
 
@@ -144,7 +145,7 @@ class AppOutput(object):
                             self._reports_df.to_hdf(report_h5_name, 'report', format='table')
                             self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
                     except ImportError as error:
-                        sys.stderr.write('Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+                        sys.stderr.write('<geopmy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
 
                     if verbose:
                         sys.stdout.write('Done.\n')
@@ -193,7 +194,7 @@ class AppOutput(object):
                     if verbose:
                         sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
                 except IOError as err:
-                    sys.stderr.write('WARNING: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
+                    sys.stderr.write('<geopmpy> Warning: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
                                      .format(trace_h5_name))
 
                     self.parse_traces(trace_paths, verbose)
@@ -203,7 +204,7 @@ class AppOutput(object):
                             sys.stdout.write('Generating HDF5 files... ')
                         self._traces_df.to_hdf(trace_h5_name, 'trace')
                     except ImportError as error:
-                        sys.stderr.write('Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+                        sys.stderr.write('<geopmpy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
 
                     if verbose:
                         sys.stdout.write('Done.\n')
@@ -265,7 +266,14 @@ class AppOutput(object):
         filesize = 0
         for tp in trace_paths:  # Get size of all trace files
             filesize += os.stat(tp).st_size
+        # Abort if traces are too large
+        avail_mem = psutil.virtual_memory().available
+        if filesize > avail_mem / 2:
+            sys.stderr.write('<geopmpy> Warning: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
+            return
+
         filesize = '{}MiB'.format(filesize/1024/1024)
+
         for tp in trace_paths:
             if verbose:
                 sys.stdout.write('\rParsing trace file {} of {} ({})... '.format(fileno, len(trace_paths), filesize))
