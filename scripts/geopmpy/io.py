@@ -105,6 +105,12 @@ class AppOutput(object):
 
             if do_cache:
                 # unique cache name based on report files in this list
+                # if all reports share a directory, put cache there
+                dirs = set()
+                for rr in report_paths:
+                    dirs.add(rr)
+                dirs = list(dirs)
+                h5_dir = dirs[0] if len(dirs) == 1 else '.'
                 paths_str = str(report_paths)
                 report_h5_name = os.path.join(dir_name, 'report_{}.h5'.format(hash(paths_str)))
                 self._all_paths.append(report_h5_name)
@@ -162,6 +168,11 @@ class AppOutput(object):
 
             if do_cache:
                 # unique cache name based on trace files in this list
+                dirs = set()
+                for rr in trace_paths:
+                    dirs.add(rr)
+                dirs = list(dirs)
+                h5_dir = dirs[0] if len(dirs) == 1 else '.'
                 paths_str = str(trace_paths)
                 trace_h5_name = os.path.join(dir_name, 'trace_{}.h5'.format(hash(paths_str)))
                 self._all_paths.append(trace_h5_name)
@@ -214,27 +225,23 @@ class AppOutput(object):
 
         filesize = '{}KiB'.format(filesize/1024)
         fileno = 1
-
         for rp in report_paths:
             # Parse the first report
-            if verbose:
-                sys.stdout.write('\rParsing report {} of {} ({}).. '.format(fileno, files, filesize))
-                sys.stdout.flush()
-
             rr_size = os.stat(rp).st_size
             rr = Report(rp)
-            self.add_report_df(rr, reports_df_list, reports_app_df_list)
+            if verbose:
+                sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
+                sys.stdout.flush()
             fileno += 1
-
+            self.add_report_df(rr, reports_df_list, reports_app_df_list)
             # Parse the remaining reports in this file
             while (rr.get_last_offset() != rr_size):
-                if verbose:
-                    sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
-                    sys.stdout.flush()
                 rr = Report(rp, rr.get_last_offset())
                 if rr.get_node_name() is not None:
                     self.add_report_df(rr, reports_df_list, reports_app_df_list)
-                    # TODO: add application total
+                    if verbose:
+                        sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
+                        sys.stdout.flush()
                     fileno += 1
             Report.reset_vars()  # If we've reached the end of a report, reset the static vars
         if verbose:

@@ -73,30 +73,6 @@ class LaunchConfig(object):
         self.do_geopm_barrier = do_geopm_barrier
 
 
-def load_report_or_cache(report_paths, report_h5_name, supress_hdf5):
-    # TODO: temporary until this is implemented properly in the AppOutput
-    if supress_hdf5:
-        output = geopmpy.io.AppOutput(report_paths, None, verbose=True)
-        report_df = output.get_report_df()
-        return report_df
-
-    try:
-        report_df = pandas.read_hdf(report_h5_name, 'report')
-    except IOError:
-        sys.stderr.write('WARNING: No HDF5 files detected.  Data will be saved to {}.\n'
-                         .format(report_h5_name))
-        output = geopmpy.io.AppOutput(report_paths, None, verbose=True)
-        try:
-            sys.stdout.write('Generating HDF5 files... ')
-            report_df = output.get_report_df()
-            report_df.to_hdf(report_h5_name, 'report')
-            sys.stdout.write('Done.\n')
-        except ImportError as error:
-            sys.stderr.write('Warning: unable to write HDF5 file: {}\n'.format(str(error)))
-    assert report_df is not None
-    return report_df
-
-
 class Analysis(object):
     """
     Base class for different types of analysis that use the data from geopm
@@ -139,8 +115,8 @@ class Analysis(object):
         Uses the output dir and any custom naming convention to load the report and trace data
         produced by launch.
         """
-        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
-        self.set_data_paths(glob.glob(report_glob))
+        report_glob = self._name + search_pattern
+        self.set_data_paths(report_glob)
 
     def set_data_paths(self, report_paths, trace_paths=None):
         """
@@ -154,14 +130,12 @@ class Analysis(object):
             if trace_paths is not None:
                 self._trace_paths.extend(trace_paths)
 
-    def parse(self, supress_hdf5=False):
+    def parse(self):
         """
         Load any necessary data from the application result files into memory for analysis.
         """
-        # move to common place.  should be able to reuse for any analysis
-        report_h5_name = self._name + '_report.h5'  # TODO: fix name
-        report_df = load_report_or_cache(self._report_paths, report_h5_name, supress_hdf5)
-        return report_df
+        output = geopmpy.io.AppOutput(self._report_paths, None, dir_name=self._output_dir, verbose=True)
+        return output.get_report_df()
 
     def plot_process(self, parse_output):
         """
@@ -646,7 +620,7 @@ class NodeEfficiencyAnalysis(Analysis):
         self._balancer_power_sweep.launch(config)
 
     def summary_process(self, parse_output):
-        report_df = parse_output  # load_report_or_cache(self._report_paths, "node_efficiency.h5")  # TODO: fix name
+        report_df = parse_output
         profiles = [int(pc.split('_')[-1]) for pc in report_df.index.get_level_values('name')]
         if not self._min_power:
             self._min_power = min(profiles)
@@ -1253,8 +1227,8 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         construction time.
         """
         # each keeps track of only their own report paths, so need to combine parses
-        sweep_output = self._sweep_analysis.parse(supress_hdf5=True)
-        app_output = super(OfflineBaselineComparisonAnalysis, self).parse(supress_hdf5=True)
+        sweep_output = self._sweep_analysis.parse()
+        app_output = super(OfflineBaselineComparisonAnalysis, self).parse()
         self._sweep_parse_output = sweep_output
 
         # Print the region frequency map
@@ -1401,8 +1375,8 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         construction time.
         """
         # each keeps track of only their own report paths, so need to combine parses
-        sweep_output = self._sweep_analysis.parse(supress_hdf5=True)
-        app_output = super(OnlineBaselineComparisonAnalysis, self).parse(supress_hdf5=True)
+        sweep_output = self._sweep_analysis.parse()
+        app_output = super(OnlineBaselineComparisonAnalysis, self).parse()
         parse_output = sweep_output
 
         # Print the region frequency map
