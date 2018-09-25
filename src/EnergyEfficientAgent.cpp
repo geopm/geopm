@@ -33,6 +33,8 @@
 #include <sstream>
 #include <cmath>
 
+#include "contrib/json11/json11.hpp"
+
 #include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_message.h"
@@ -43,6 +45,8 @@
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "config.h"
+
+using json11::Json;
 
 namespace geopm
 {
@@ -413,32 +417,20 @@ namespace geopm
         const char* env_freq_rid_map_str = getenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
         if (env_freq_rid_map_str) {
             std::string full_str(env_freq_rid_map_str);
-            size_t begin_pos = 0;
-            size_t colon_pos = full_str.find(':');
-            while (colon_pos != std::string::npos) {
-                size_t comma_pos = full_str.find(',', colon_pos);
-                if (comma_pos == std::string::npos) {
-                    comma_pos = full_str.size();
+            std::string err;
+            Json root = Json::parse(full_str, err);
+            if (!err.empty() || !root.is_object()) {
+                throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            }
+            for (const auto &obj : root.object_items()) {
+                if (obj.second.type() != Json::NUMBER) {
+                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
+                                    ": Region best-fit frequency must be a number",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                std::string rid_str = full_str.substr(begin_pos, colon_pos - begin_pos);
-                std::string freq_str = full_str.substr(colon_pos + 1, comma_pos - colon_pos - 1);
-                if (!rid_str.empty() && !freq_str.empty()) {
-                    try {
-                        double freq = std::stod(freq_str);
-                        uint64_t rid = geopm_crc32_str(0, rid_str.c_str());
-                        m_rid_freq_map[rid] = freq;
-                    }
-                    catch (const std::invalid_argument &) {
-
-                    }
-                }
-                if (comma_pos < full_str.size()) {
-                    begin_pos = comma_pos + 1;
-                    colon_pos = full_str.find(':', begin_pos);
-                }
-                else {
-                    colon_pos = std::string::npos;
-                }
+                uint64_t rid = geopm_crc32_str(0, obj.first.c_str());
+                m_rid_freq_map[rid] = obj.second.number_value();
             }
         }
     }

@@ -146,9 +146,14 @@ void EnergyEfficientAgentTest::SetUp()
     ASSERT_EQ(m_mapped_freqs.size(), m_expected_freqs.size());
 
     std::stringstream ss;
+    ss << "{";
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
-        ss << m_region_names[x] << ":" << m_mapped_freqs[x] << ",";
+        ss << "\"" << m_region_names[x] << "\": " << m_mapped_freqs[x];
+        if (x != M_NUM_REGIONS-1) {
+            ss << ", ";
+        }
     }
+    ss << "}";
 
     setenv("GEOPM_EFFICIENT_FREQ_MIN", std::to_string(m_freq_min).c_str(), 1);
     setenv("GEOPM_EFFICIENT_FREQ_MAX", std::to_string(m_freq_max).c_str(), 1);
