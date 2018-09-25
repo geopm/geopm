@@ -317,6 +317,7 @@ int MPI_Init(int *argc, char **argv[])
     else {
         err = PMPI_Init(argc, argv);
     }
+    PMPI_Barrier(MPI_COMM_WORLD);
     if (!err) {
         if (argv && *argv && **argv && strlen(**argv)) {
             err = geopm_pmpi_init(**argv);
