@@ -303,7 +303,7 @@ class AppOutput(object):
         """
         # Build and index the DF
         rdf = pandas.DataFrame(rr).T.drop('name', 1)
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'sync_runtime']
+        numeric_cols = ['count', 'package-energy', 'dram-energy', 'frequency', 'mpi-runtime', 'runtime', 'sync-runtime']
         rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
 
         # Add extra index info
@@ -818,11 +818,11 @@ class Region(dict):
         self['name'] = name
         self['id'] = rid
         self['runtime'] = float(runtime)
-        self['sync_runtime'] = float(sync_runtime) if sync_runtime is not None else runtime
-        self['energy_pkg'] = float(energy_pkg)
-        self['energy_dram'] = float(energy_dram) if energy_dram is not None else 0
+        self['sync-runtime'] = float(sync_runtime) if sync_runtime is not None else runtime
+        self['package-energy'] = float(energy_pkg)
+        self['dram-energy'] = float(energy_dram) if energy_dram is not None else 0
         self['frequency'] = float(frequency)
-        self['mpi_runtime'] = float(mpi_runtime)
+        self['mpi-runtime'] = float(mpi_runtime)
         self['count'] = int(count)
 
     def __repr__(self):
@@ -839,11 +839,11 @@ class Region(dict):
         return template.format(name=self['name'],
                                rid=self['id'],
                                runtime=self['runtime'],
-                               sync_runtime=self['sync_runtime'],
-                               energy_pkg=self['energy_pkg'],
-                               energy_dram=self['energy_dram'],
+                               sync_runtime=self['sync-runtime'],
+                               energy_pkg=self['package-energy'],
+                               energy_dram=self['dram-energy'],
                                frequency=self['frequency'],
-                               mpi_runtime=self['mpi_runtime'],
+                               mpi_runtime=self['mpi-runtime'],
                                count=self['count'])
 
     def __str__(self):
@@ -859,19 +859,19 @@ class Region(dict):
         return self['runtime']
 
     def get_sync_runtime(self):
-        return self['sync_runtime']
+        return self['sync-runtime']
 
     def get_energy_pkg(self):
-        return self['energy_pkg']
+        return self['package-energy']
 
     def get_energy_dram(self):
-        return self['energy_dram']
+        return self['dram-energy']
 
     def get_frequency(self):
         return self['frequency']
 
     def get_mpi_runtime(self):
-        return self['mpi_runtime']
+        return self['mpi-runtime']
 
     def get_count(self):
         return self['count']

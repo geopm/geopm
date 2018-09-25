@@ -307,7 +307,7 @@ class PowerSweepAnalysis(Analysis):
         df = df.loc[idx[:, self._min_power:self._max_power, :, :, :,
                         self._agent_type, :, :, 'epoch'], ]
         summary = pandas.DataFrame()
-        for col in ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram', 'frequency']:
+        for col in ['count', 'runtime', 'mpi-runtime', 'package-energy', 'dram-energy', 'frequency']:
             summary[col] = df[col].groupby(level='name').mean()
         summary.index.rename('power cap', inplace=True)
         return summary
@@ -359,7 +359,7 @@ class BalancerAnalysis(Analysis):
                                                         min_power, max_power, step_power, 'power_balancer')
         self._metric = metric
         if self._metric == 'energy':
-            self._metric = 'energy_pkg'
+            self._metric = 'package-energy'
         self._normalize = normalize
 
         self._min_power = min_power
@@ -398,7 +398,7 @@ class BalancerAnalysis(Analysis):
             target = 'power_balancer'
             # TODO: have a separate power analysis?
             if self._metric == 'power':
-                rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'energy_pkg']
+                rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'package-energy']
                 rgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'runtime']
                 reference_g = (rge / rgr).groupby(level='name')
             else:
@@ -407,7 +407,7 @@ class BalancerAnalysis(Analysis):
         else:
             if self._metric == 'power':
                 rge = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
-                                    'energy_pkg'].groupby(level='power_budget')
+                                    'package-energy'].groupby(level='power_budget')
                 rgr = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
                                     'runtime'].groupby(level='power_budget')
                 reference_g = rge / rgr
@@ -420,7 +420,7 @@ class BalancerAnalysis(Analysis):
         df['reference_min'] = reference_g.min()
         if self._use_agent:
             if self._metric == 'power':
-                tge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'energy_pkg']
+                tge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'package-energy']
                 tgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'runtime']
                 target_g = (tge / tgr).groupby(level='name')
             else:
@@ -429,7 +429,7 @@ class BalancerAnalysis(Analysis):
         else:
             if self._metric == 'power':
                 tge = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
-                                    'energy_pkg']
+                                    'package-energy']
                 tgr = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
                                     'runtime']
                 target_g = (tge / tgr).groupby(level='power_budget')
@@ -730,7 +730,7 @@ class NodePowerAnalysis(Analysis):
         profile = self._profile_name
 
         region_of_interest = 'epoch'
-        energy_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['energy_pkg'].sort_values()
+        energy_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['package-energy'].sort_values()
         runtime_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['runtime'].sort_values()
         power_data = energy_data / runtime_data
         power_data = power_data.sort_values()
@@ -930,21 +930,21 @@ class FreqSweepAnalysis(Analysis):
             freq_df = df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ]
 
             region_mean_runtime = freq_df.groupby(level='region')['runtime'].mean()
-            region_mean_energy = freq_df.groupby(level='region')['energy_pkg'].mean()
+            region_mean_energy = freq_df.groupby(level='region')['package-energy'].mean()
 
             data.append([region_mean_runtime[region],
                          region_mean_energy[region]])
 
         return pandas.DataFrame(data,
                                 index=freqs,
-                                columns=['runtime', 'energy_pkg'])
+                                columns=['runtime', 'package-energy'])
 
     def _region_means_df(self, report_df):
         idx = pandas.IndexSlice
 
         report_df = FreqSweepAnalysis.profile_to_freq_mhz(report_df)
 
-        cols = ['energy_pkg', 'runtime', 'mpi_runtime', 'frequency', 'count']
+        cols = ['package-energy', 'runtime', 'mpi-runtime', 'frequency', 'count']
 
         means_df = report_df.groupby(['region', 'freq_mhz'])[cols].mean()
         # Define ref_freq to be three steps back from the end of the list.  The end of the list should always be
@@ -952,8 +952,8 @@ class FreqSweepAnalysis(Analysis):
         ref_freq = report_df.index.get_level_values('freq_mhz').unique().tolist()[-4]
 
         # Calculate the energy/runtime comparisons against the ref_freq
-        ref_energy = means_df.loc[idx[:, ref_freq], ]['energy_pkg'].reset_index(level='freq_mhz', drop=True)
-        es = pandas.Series((means_df['energy_pkg'] - ref_energy) / ref_energy, name='DCEngVar_%')
+        ref_energy = means_df.loc[idx[:, ref_freq], ]['package-energy'].reset_index(level='freq_mhz', drop=True)
+        es = pandas.Series((means_df['package-energy'] - ref_energy) / ref_energy, name='DCEngVar_%')
         means_df = pandas.concat([means_df, es], axis=1)
 
         ref_runtime = means_df.loc[idx[:, ref_freq], ]['runtime'].reset_index(level='freq_mhz', drop=True)
@@ -964,7 +964,7 @@ class FreqSweepAnalysis(Analysis):
         means_df = pandas.concat([means_df, bs], axis=1)
 
         # Calculate power and kwh
-        p = pandas.Series(means_df['energy_pkg'] / means_df['runtime'], name='power')
+        p = pandas.Series(means_df['package-energy'] / means_df['runtime'], name='power')
         means_df = pandas.concat([means_df, p], axis=1)
 
         # Modify column order so that runtime bound occurs just after runtime
@@ -1030,19 +1030,19 @@ def baseline_comparison(parse_output, comp_name):
     baseline_df = FreqSweepAnalysis.profile_to_freq_mhz(baseline_df)
 
     # Reduce the data
-    cols = ['energy_pkg', 'runtime', 'mpi_runtime', 'frequency', 'count']
+    cols = ['package-energy', 'runtime', 'mpi-runtime', 'frequency', 'count']
     baseline_means_df = baseline_df.groupby(['region', 'freq_mhz'])[cols].mean()
     comp_means_df = comp_df.groupby(['region', 'name'])[cols].mean()
 
     # Add power column
-    p = pandas.Series(baseline_means_df['energy_pkg'] / baseline_means_df['runtime'], name='power')
+    p = pandas.Series(baseline_means_df['package-energy'] / baseline_means_df['runtime'], name='power')
     baseline_means_df = pandas.concat([baseline_means_df, p], axis=1)
-    p = pandas.Series(comp_means_df['energy_pkg'] / comp_means_df['runtime'], name='power')
+    p = pandas.Series(comp_means_df['package-energy'] / comp_means_df['runtime'], name='power')
     comp_means_df = pandas.concat([comp_means_df, p], axis=1)
 
     # Calculate energy savings
-    es = pandas.Series((baseline_means_df['energy_pkg'] - comp_means_df['energy_pkg'].reset_index('name', drop=True))\
-                       / baseline_means_df['energy_pkg'], name='energy_savings') * 100
+    es = pandas.Series((baseline_means_df['package-energy'] - comp_means_df['package-energy'].reset_index('name', drop=True))\
+                       / baseline_means_df['package-energy'], name='energy_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, es], axis=1)
 
     # Calculate runtime savings
