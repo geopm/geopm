@@ -109,6 +109,17 @@ class AppOutput(object):
                 report_h5_name = os.path.join(dir_name, 'report_{}.h5'.format(hash(paths_str)))
                 self._all_paths.append(report_h5_name)
 
+                # check if cache is older than reports
+                if os.path.exists(report_h5_name):
+                    cache_mod_time = os.path.getmtime(report_h5_name)
+                    regen_cache = False
+                    for report_file in report_paths:
+                        mod_time = os.path.getmtime(report_file)
+                        if mod_time > cache_mod_time:
+                            regen_cache = True
+                    if regen_cache:
+                        os.remove(report_h5_name)
+
                 try:
                     # load dataframes from cache
                     self._reports_df = pandas.read_hdf(report_h5_name, 'report')
@@ -116,7 +127,7 @@ class AppOutput(object):
                     if verbose:
                         sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
                 except IOError as err:
-                    sys.stderr.write('WARNING: report HDF5 file not detected.  Data will be saved to {}.\n'
+                    sys.stderr.write('WARNING: report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
                                      .format(report_h5_name))
                     self.parse_reports(report_paths, verbose)
 
@@ -155,12 +166,23 @@ class AppOutput(object):
                 trace_h5_name = os.path.join(dir_name, 'trace_{}.h5'.format(hash(paths_str)))
                 self._all_paths.append(trace_h5_name)
 
+                # check if cache is older than traces
+                if os.path.exists(trace_h5_name):
+                    cache_mod_time = os.path.getmtime(trace_h5_name)
+                    regen_cache = False
+                    for trace_file in trace_paths:
+                        mod_time = os.path.getmtime(trace_file)
+                        if mod_time > cache_mod_time:
+                            regen_cache = True
+                    if regen_cache:
+                        os.remove(trace_h5_name)
+
                 try:
                     self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
                     if verbose:
                         sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
                 except IOError as err:
-                    sys.stderr.write('WARNING: trace HDF5 file not detected.  Data will be saved to {}.\n'
+                    sys.stderr.write('WARNING: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
                                      .format(trace_h5_name))
 
                     self.parse_traces(trace_paths, verbose)
