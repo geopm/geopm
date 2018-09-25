@@ -42,6 +42,7 @@ import glob
 import json
 import sys
 import subprocess
+import psutil
 from natsort import natsorted
 from geopmpy import __version__
 
@@ -254,7 +255,14 @@ class AppOutput(object):
         filesize = 0
         for tp in trace_paths:  # Get size of all trace files
             filesize += os.stat(tp).st_size
+        # Abort if traces are too large
+        avail_mem = psutil.virtual_memory().available
+        if filesize > avail_mem / 2:
+            sys.stderr.write('WARNING: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
+            return
+
         filesize = '{}MiB'.format(filesize/1024/1024)
+
         for tp in trace_paths:
             if verbose:
                 sys.stdout.write('\rParsing trace file {} of {} ({})... '.format(fileno, len(trace_paths), filesize))
