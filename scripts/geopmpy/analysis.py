@@ -891,7 +891,7 @@ class FreqSweepAnalysis(Analysis):
             sys.stdout.write(all_region_data_pretty(process_output['means_df']))
 
         region_freq_str = self._region_freq_str(process_output['region_freq_map'])
-        sys.stdout.write('Region frequency map: \n    {}\n'.format(region_freq_str.replace(',', '\n    ')))
+        sys.stdout.write(self._region_freq_str_pretty(process_output['region_freq_map']))
 
     def plot_process(self, parse_output):
         regions = parse_output.index.get_level_values('region').unique().tolist()
@@ -939,10 +939,13 @@ class FreqSweepAnalysis(Analysis):
         """
         Format the mapping of region names to their best-fit frequencies.
         """
-        result = ['{}:{}'.format(key, value)
-                  for (key, value) in region_freq_map.iteritems()]
-        result = ','.join(result)
-        return result
+        return json.dumps(region_freq_map)
+
+    def _region_freq_str_pretty(self, region_freq_map):
+        s = '\nRegion frequency map: \n'
+        for k, v in region_freq_map.iteritems():
+            s += '    {}: {}\n'.format(k, v)
+        return s
 
     def _runtime_energy_sweep(self, df, region):
         freq_pname = FreqSweepAnalysis.get_freq_profiles(df, self._name)
@@ -1135,9 +1138,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         process_output = self._sweep_analysis.summary_process(parse_output)
         region_freq_str = self._sweep_analysis._region_freq_str(process_output['region_freq_map'])
         if self._verbose:
-            # TODO: seems like a lot of output even for verbose
-            # self._sweep_analysis.summary(process_output)
-            sys.stdout.write('Region frequency map: \n    {}\n'.format(region_freq_str.replace(',', '\n    ')))
+            sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(process_output['region_freq_map']))
 
         # Run offline frequency decider
         for iteration in range(self._iterations):
@@ -1187,7 +1188,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         # Print the region frequency map
         sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
         region_freq_str = self._sweep_analysis._region_freq_str(sweep_summary_process['region_freq_map'])
-        sys.stdout.write('Region frequency map: \n    {}\n\n'.format(region_freq_str.replace(',', '\n    ')))
+        sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']))
 
         self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(self._sweep_parse_output, self._sweep_analysis._name)
 
@@ -1335,7 +1336,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         # Print the region frequency map
         sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
         region_freq_str = self._sweep_analysis._region_freq_str(sweep_summary_process['region_freq_map'])
-        sys.stdout.write('Region frequency map: \n    {}\n\n'.format(region_freq_str.replace(',', '\n    ')))
+        sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']))
 
         self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output, self._sweep_analysis._name)
         parse_output = parse_output.append(app_output)
