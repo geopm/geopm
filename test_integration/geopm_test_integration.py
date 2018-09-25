@@ -90,6 +90,8 @@ def skip_unless_config_enable(feature):
             os.path.dirname(
              os.path.realpath(__file__))),
            'config.log')
+    if not os.path.exists(path):
+        return unittest.skip("config.log not found.")
     with open(path) as fid:
         for line in fid.readlines():
             if line.startswith("enable_{}='0'".format(feature)):
@@ -105,6 +107,8 @@ def skip_unless_optimized():
             os.path.dirname(
              os.path.realpath(__file__))),
            'config.log')
+    if not os.path.exists(path):
+        return unittest.skip("config.log not found.")
     with open(path) as fid:
         for line in fid.readlines():
             if line.startswith("enable_debug='1'"):
@@ -420,7 +424,7 @@ class TestIntegration(unittest.TestCase):
                         self.assertNear(trace_elapsed_time, region_data['runtime'].item())
                     else:
                         # compare with time when all ranks are in the region
-                        self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item())
+                        self.assertNear(trace_elapsed_time, region_data['sync-runtime'].item())
 
     def test_runtime_regulator(self):
         name = 'test_runtime_regulator'
@@ -519,7 +523,7 @@ class TestIntegration(unittest.TestCase):
                 if rr['id'].item() != 0 and rr['count'].item() > 1:
                     if write_regions:
                         launcher.write_log(name, 'Region {} is {}.'.format(rr['id'].item(), region_name))
-                    runtime = rr['sync_runtime'].item()
+                    runtime = rr['sync-runtime'].item()
                     if region_name == 'epoch':
                         runtime = rr['runtime'].item()
                     self.assertNear(runtime,
@@ -940,14 +944,13 @@ class TestIntegration(unittest.TestCase):
             # ranks on a node are in a region, we must use the
             # unmarked-region time as our error term when comparing
             # MPI time and all2all time.
-            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
-            self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
-            self.assertEqual(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
-            # TODO: inconsistent; can we just use _ everywhere?
-            self.assertEqual(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
-            self.assertEqual(0, unmarked_data['mpi_runtime'].item())
-            self.assertEqual(0, sleep_data['mpi_runtime'].item())
-            self.assertEqual(0, dgemm_data['mpi_runtime'].item())
+            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi-runtime'].item(), 0.05)
+            self.assertNear(all2all_data['mpi-runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
+            self.assertEqual(all2all_data['mpi-runtime'].item(), epoch_data['mpi-runtime'].item())
+            self.assertEqual(all2all_data['mpi-runtime'].item(), app_total['mpi-runtime'].item())
+            self.assertEqual(0, unmarked_data['mpi-runtime'].item())
+            self.assertEqual(0, sleep_data['mpi-runtime'].item())
+            self.assertEqual(0, dgemm_data['mpi-runtime'].item())
 
     def test_ignore_runtime(self):
         name = 'test_ignore_runtime'
