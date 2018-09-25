@@ -316,6 +316,7 @@ int MPI_Init(int *argc, char **argv[])
     }
     else {
         err = PMPI_Init(argc, argv);
+        MPI_Barrier(MPI_COMM_WORLD);
     }
     if (!err) {
         if (argv && *argv && **argv && strlen(**argv)) {
