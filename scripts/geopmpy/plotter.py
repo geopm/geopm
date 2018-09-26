@@ -1277,7 +1277,7 @@ def generate_histogram(data, config, label, bin_size, xprecision):
     trimmed_min_max = (max(trimmed_data) - min(trimmed_data)) * range_factor
     plt.title('{}\nMin-max Var.: {} {}; {}% Min-max Var.: {} {}; Mean: {} {}'
               .format(title, round(min_max_range, 3), title_units,
-                      int((1.0-(trim_pct*2))*100), round(trimmed_min_max, 3), title_units,
+                      int((trim_pct)*100), round(trimmed_min_max, 3), title_units,
                       round(mean, 3), title_units),
               fontsize=config.fontsize)
     plt.xlabel('{} ({})'.format(label.title(), axis_units), fontsize=config.fontsize)
