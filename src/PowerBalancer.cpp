@@ -56,7 +56,6 @@ namespace geopm
         , m_num_sample(0)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
-        , m_power_limit_last(NAN)
         , m_power_limit_change_time{{0,0}}
         , m_target_runtime(NAN)
         , m_trial_delta(8.0)
@@ -80,11 +79,18 @@ namespace geopm
         return m_power_cap;
     }
 
-    void PowerBalancer::power_limit_adjusted(double limit)
+    void PowerBalancer::power_limit_adjusted(double actual_limit)
     {
-        if (m_power_limit_last != limit) {
+        // m_power_limit starts as the requested limit.  actual limit is what the governor returned.
+        if (actual_limit > m_power_limit) {
+            // we hit the minimum, so stop lowering
+            m_is_target_met = true;
+        }
+
+        if (m_power_limit != actual_limit) {
             geopm_time(&m_power_limit_change_time);
-            m_power_limit_last = limit;
+            m_power_limit = actual_limit;
+            m_runtime_buffer->clear();
         }
     }
 
@@ -159,8 +165,11 @@ namespace geopm
         if (!m_is_target_met &&
             is_runtime_stable(measured_runtime)) {
             if (m_runtime_sample > m_target_runtime) {
-                if (m_power_limit != m_power_cap) {
+                if (m_power_limit < m_power_cap) {
                     m_power_limit += m_trial_delta;
+                    if (m_power_limit > m_power_cap) {
+                        m_power_limit = m_power_cap;
+                    }
                 }
                 m_is_target_met = true;
             }
@@ -170,20 +179,6 @@ namespace geopm
             m_runtime_buffer->clear();
         }
         return m_is_target_met;
-    }
-
-    void PowerBalancer::achieved_limit(double achieved)
-    {
-        if (!std::isnan(m_target_runtime) &&
-            achieved > m_power_limit + m_trial_delta) {
-            int num_delta = (achieved - m_power_limit) / m_trial_delta;
-            m_power_limit += num_delta * m_trial_delta;
-            if (m_power_limit > m_power_cap) {
-                m_power_limit = m_power_cap;
-            }
-            m_runtime_buffer->clear();
-            m_is_target_met = true;
-        }
     }
 
     double PowerBalancer::power_slack(void)
