@@ -122,13 +122,6 @@ namespace geopm
             ///         redistributed, and false if more trials are
             ///         required.
             virtual bool is_target_met(double measured_runtime) = 0;
-            /// @brief Update with the limit that the power governor
-            ///        was able to achieve.  When this is higher than
-            ///        the current power limit, then the limit will
-            ///        not be lowered further.
-            /// @param achieved The power limit in units of Watts that
-            ///        was effectively enforced by the governor.
-            virtual void achieved_limit(double achieved) = 0;
             /// @brief Query the difference between the last power cap
             ///        setting and the current power limit.  If this
             ///        method is called and it returns zero then the
@@ -159,7 +152,6 @@ namespace geopm
             void calculate_runtime_sample(void) override;
             void target_runtime(double largest_runtime) override;
             bool is_target_met(double measured_runtime) override;
-            void achieved_limit(double achieved) override;
             double power_slack(void) override;
         private:
             bool is_limit_stable(void);
@@ -176,7 +168,6 @@ namespace geopm
             // @brief Current power limit to get to target runtime
             //        which may be lower than the cap.
             double m_power_limit;
-            double m_power_limit_last;
             struct geopm_time_s m_power_limit_change_time;
             double m_target_runtime;
             double m_trial_delta;
