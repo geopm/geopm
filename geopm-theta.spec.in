@@ -57,12 +57,24 @@ including support for static control.
 
 %build
 test -f configure || ./autogen.sh
+CC='cc -dynamic' \
+CXX='CC -dynamic' \
+MPICC='cc -dynamic' \
+MPICXX='CC -dynamic' \
+FC='ftn' \
+F77='ftn' \
+CFLAGS='-xCORE-AVX2' \
+CXXFLAGS='-xCORE-AVX2' \
+FCFLAGS='-dynamic -xCORE-AVX2' \
+FFLAGS='-dynamic -xCORE-AVX2' \
 ./configure --prefix=%{install_prefix} \
             || ( cat config.log && false )
 %{__make}
 
 
 %install
+pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python2.7/site-packages \
+            pandas natsort matplotlib cycler tables
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
         find %{buildroot}/%{install_prefix} -name '*.la'; \
@@ -86,7 +98,9 @@ module-whatis "Name: %{pname}"
 module-whatis "Version: %{version}"
 module-whatis "Category: perftools"
 module-whatis "Description: %{summary}"
-module-whatis "URL %{url}"
+module-whatis "URL: %{url}"
+module-whatis "ALCF Theta tutorial: https://github.com/geopm/theta-tutorial"
+module-whatis "ALCF Theta guide: https://github.com/geopm/theta-tutorial/blob/master/QUICKSTART.md"
 
 set     version             %{version}
 
