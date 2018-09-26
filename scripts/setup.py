@@ -81,7 +81,8 @@ classifiers = ['Development Status :: 3 - Alpha',
 install_requires = ['pandas>=0.19.2',
                     'natsort',
                     'matplotlib',
-                    'cycler']
+                    'cycler',
+                    'tables']
 
 setup(name='geopmpy',
       version=__version__,
