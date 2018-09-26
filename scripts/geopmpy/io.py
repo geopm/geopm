@@ -327,7 +327,10 @@ class AppOutput(object):
                'energy-package': rr.get_energy_pkg(),
                'energy-dram': rr.get_energy_dram(),
                'mpi-runtime': rr.get_mpi_runtime(),
-               'ignore-runtime': rr.get_ignore_runtime()}
+               'ignore-runtime': rr.get_ignore_runtime(),
+               'memory-hwm': rr.get_memory_hwm(),
+               'network-bw': rr.get_network_bw()
+              }
         index = index.droplevel('region').drop_duplicates()
         app_df = pandas.DataFrame(app, index=index)
         numeric_cols = app.keys()
@@ -383,6 +386,7 @@ class AppOutput(object):
             df = df.loc[idx[:, :, :, :, :, :, :, :, region], ]
         return df
 
+    # TODO Call this from outside code to get totals
     def get_app_total_data(self, node_name=None):
         idx = pandas.IndexSlice
         df = self._app_reports_df
@@ -601,6 +605,8 @@ class Report(dict):
         self._total_energy_dram = None
         self._total_ignore_runtime = None
         self._total_mpi_runtime = None
+        self._total_memory_hwm = None
+        self._total_network_bw = None
         self._node_name = None
 
         found_totals = False
@@ -707,6 +713,14 @@ class Report(dict):
                         match = re.search(r'\s+ignore-time.+: ' + float_regex, line)
                         if match is not None:
                             self._total_ignore_runtime = float(match.group(1))
+                    if self._total_memory_hwm is None:
+                        match = re.search(r'\s+geopmctl memory HWM: ' + float_regex + ' kB$', line)
+                        if match is not None:
+                            self._total_memory_hwm = float(match.group(1))
+                    if self._total_network_bw is None:
+                        match = re.search(r'\s+geopmctl network BW.+: ' + float_regex, line)
+                        if match is not None:
+                            self._total_network_bw = float(match.group(1))
                             break # End of report blob
 
                 line = fid.readline()
@@ -804,6 +818,12 @@ class Report(dict):
 
     def get_energy_dram(self):
         return self._total_energy_dram
+
+    def get_memory_hwm(self):
+        return self._total_memory_hwm
+
+    def get_network_bw(self):
+        return self._total_network_bw
 
 
 class Region(dict):
