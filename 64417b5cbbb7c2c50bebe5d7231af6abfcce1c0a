@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aaa59e6_9068284b",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-26T21:31:13Z",
+      "side": 1,
+      "message": "need to add this and \u0027tables\u0027 to setup.py",
+      "revId": "64417b5cbbb7c2c50bebe5d7231af6abfcce1c0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd192105_6c7844a4",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-09-26T21:31:13Z",
+      "side": 1,
+      "message": "\u003cgeopmpy\u003e: Warning:\n\nAlso fix above",
+      "range": {
+        "startLine": 261,
+        "startChar": 30,
+        "endLine": 261,
+        "endChar": 38
+      },
+      "revId": "64417b5cbbb7c2c50bebe5d7231af6abfcce1c0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
