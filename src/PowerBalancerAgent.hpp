@@ -274,7 +274,7 @@ namespace geopm
                 friend class MeasureRuntimeStep;
                 friend class ReduceLimitStep;
                 public:
-                    RootRole(int level, const std::vector<int> &fan_in);
+                    RootRole(int level, const std::vector<int> &fan_in, double min_power, double max_power);
                     virtual ~RootRole();
                     bool descend(const std::vector<double> &in_policy,
                                  std::vector<std::vector<double> >&out_policy) override;
@@ -283,6 +283,8 @@ namespace geopm
                 private:
                     const int M_NUM_NODE;
                     double m_root_cap;
+                    const double M_MIN_PKG_POWER_SETTING;
+                    const double M_MAX_PKG_POWER_SETTING;
             };
 
             class LeafRole : public Role {

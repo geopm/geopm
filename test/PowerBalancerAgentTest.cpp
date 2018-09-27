@@ -106,6 +106,15 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     int level = 2;
     int num_children = M_FAN_IN[level - 1];
 
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(50));
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(200));
+    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
+        .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillOnce(Return(2));
+
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
