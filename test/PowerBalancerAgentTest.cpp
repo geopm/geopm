@@ -395,10 +395,9 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
         .Times(4)
         .WillRepeatedly(DoAll(SetArgReferee<1>(actual_limit), Return(true)));
     m_power_bal = geopm::make_unique<MockPowerBalancer>();
-    EXPECT_CALL(*m_power_bal, power_limit_adjusted(300.0))
+    EXPECT_CALL(*m_power_bal, power_limit_adjusted(actual_limit))
         .Times(4);
 
-    EXPECT_CALL(*m_power_bal, achieved_limit(actual_limit));
     EXPECT_CALL(*m_power_bal, target_runtime(epoch_rt[0]));
     EXPECT_CALL(*m_power_bal, calculate_runtime_sample()).Times(2);
     EXPECT_CALL(*m_power_bal, runtime_sample())

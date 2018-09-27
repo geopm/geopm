@@ -142,8 +142,8 @@ TEST_F(PowerBalancerTest, balance)
         EXPECT_GT(m_balancer->power_limit(), target_power);
         EXPECT_LT(m_balancer->power_limit(), M_POWER_CAP + M_TRIAL_DELTA);
 
-        m_balancer->achieved_limit(ach_limit[x]);
-        EXPECT_EQ(exp_limit2[x], m_balancer->power_limit());
+        m_balancer->power_limit_adjusted(ach_limit[x]);
+        EXPECT_EQ(ach_limit[x], m_balancer->power_limit());
 
         if (x < power_targets.size() - 1) {
             SetUp();

@@ -154,6 +154,7 @@ namespace geopm
         , m_power_slack(0.0)
         , m_power_headroom(0.0)
         , M_STABILITY_FACTOR(3.0)
+        , m_is_out_of_bounds(false)
     {
         if (nullptr == m_power_governor) {
             m_power_governor = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);
@@ -203,7 +204,7 @@ namespace geopm
                                 "with the agent step or first policy received had a zero power cap.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            step_imp().pre_adjust(*this, in_policy);
+            step_imp().enter_step(*this, in_policy);
         }
 
         bool result = false;
@@ -211,9 +212,11 @@ namespace geopm
         double request_limit = m_power_balancer->power_limit();
         if (!std::isnan(request_limit) && request_limit != 0.0) {
             result = m_power_governor->adjust_platform(request_limit, m_actual_limit);
-            m_power_balancer->power_limit_adjusted(request_limit);
-            if (result && m_actual_limit != request_limit) {
-                step_imp().notify_achieved_limit(*this, in_policy[M_POLICY_POWER_CAP], m_actual_limit);
+            if (request_limit < m_actual_limit) {
+                m_is_out_of_bounds = true;
+            }
+            if (result) {
+                m_power_balancer->power_limit_adjusted(m_actual_limit);
             }
         }
         return result;
@@ -434,15 +437,10 @@ namespace geopm
         role.m_policy[PowerBalancerAgent::M_POLICY_POWER_CAP] = 0.0;
     }
 
-    void PowerBalancerAgent::SendDownLimitStep::pre_adjust(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
+    void PowerBalancerAgent::SendDownLimitStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
     {
         role.m_power_balancer->power_cap(role.m_power_balancer->power_limit() + in_policy[PowerBalancerAgent::M_POLICY_POWER_SLACK]);
         role.m_is_step_complete = true;
-    }
-
-    void PowerBalancerAgent::SendDownLimitStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
-    {
-
     }
 
     void PowerBalancerAgent::SendDownLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -454,13 +452,8 @@ namespace geopm
         role.m_policy[PowerBalancerAgent::M_POLICY_MAX_EPOCH_RUNTIME] = sample[PowerBalancerAgent::M_SAMPLE_MAX_EPOCH_RUNTIME];
     }
 
-    void PowerBalancerAgent::MeasureRuntimeStep::pre_adjust(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
+    void PowerBalancerAgent::MeasureRuntimeStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
     {
-    }
-
-    void PowerBalancerAgent::MeasureRuntimeStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
-    {
-
     }
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -486,14 +479,9 @@ namespace geopm
         role.m_policy[PowerBalancerAgent::M_POLICY_POWER_SLACK] = slack < head ? slack : head;
     }
 
-    void PowerBalancerAgent::ReduceLimitStep::pre_adjust(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
+    void PowerBalancerAgent::ReduceLimitStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
     {
         role.m_power_balancer->target_runtime(in_policy[PowerBalancerAgent::M_POLICY_MAX_EPOCH_RUNTIME]);
-    }
-
-    void PowerBalancerAgent::ReduceLimitStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
-    {
-        role.m_power_balancer->achieved_limit(actual_limit);
     }
 
     void PowerBalancerAgent::ReduceLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -507,7 +495,9 @@ namespace geopm
             double epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]);
             role.m_power_slack = role.m_power_balancer->power_cap() - role.m_power_balancer->power_limit();
             role.m_power_balancer->calculate_runtime_sample();
-            role.m_is_step_complete = role.m_power_balancer->is_target_met(epoch_runtime);
+            role.m_is_step_complete = role.m_power_balancer->is_target_met(epoch_runtime) ||
+                                      role.m_is_out_of_bounds;
+            role.m_is_out_of_bounds = false;
             role.m_power_headroom = role.m_power_max - role.m_power_balancer->power_limit();
             role.m_last_epoch_count = epoch_count;
         }
