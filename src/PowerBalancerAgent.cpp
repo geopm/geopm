@@ -144,7 +144,7 @@ namespace geopm
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_power_max(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
-                      m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+                      m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))

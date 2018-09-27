@@ -371,7 +371,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
 
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
         .WillOnce(Return(M_NUM_PKGS));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, _))
         .WillOnce(Return(M_POWER_PACKAGE_MAX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
