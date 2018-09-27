@@ -244,7 +244,9 @@ namespace geopm
                 "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
-                "policy_power_limit"        // M_TRACE_SAMPLE_POLICY_POWER_LIMIT
+                "policy_power_limit",       // M_TRACE_SAMPLE_POLICY_POWER_LIMIT
+                "headroom",                 // M_TRACE_SAMPLE_HEADROOM
+                "power_max"                 // M_TRACE_SAMPLE_POWER_MAX
                };
     }
 
@@ -263,6 +265,8 @@ namespace geopm
         values[M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME] = m_policy[M_POLICY_MAX_EPOCH_RUNTIME];
         values[M_TRACE_SAMPLE_POLICY_POWER_SLACK] = m_policy[M_POLICY_POWER_SLACK];
         values[M_TRACE_SAMPLE_POLICY_POWER_LIMIT] = m_actual_limit;
+        values[M_TRACE_SAMPLE_HEADROOM] = m_power_headroom;
+        values[M_TRACE_SAMPLE_POWER_MAX] = m_power_max;
     }
 
     PowerBalancerAgent::TreeRole::TreeRole(int level, const std::vector<int> &fan_in)
