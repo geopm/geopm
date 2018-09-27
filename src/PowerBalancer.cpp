@@ -56,7 +56,6 @@ namespace geopm
         , m_num_sample(0)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
-        , m_power_limit_last(NAN)
         , m_power_limit_change_time{{0,0}}
         , m_target_runtime(NAN)
         , m_trial_delta(8.0)
@@ -80,11 +79,18 @@ namespace geopm
         return m_power_cap;
     }
 
-    void PowerBalancer::power_limit_adjusted(double limit)
+    void PowerBalancer::power_limit_adjusted(double actual_limit)
     {
-        if (m_power_limit_last != limit) {
+        // m_power_limit starts as the requested limit.  actual limit is what the governor returned.
+        if (actual_limit > m_power_limit) {
+            // we hit the minimum, so stop lowering
+            m_is_target_met = true;
+        }
+
+        if (m_power_limit != actual_limit) {
             geopm_time(&m_power_limit_change_time);
-            m_power_limit_last = limit;
+            m_power_limit = actual_limit;
+            m_runtime_buffer->clear();
         }
     }
 
@@ -101,7 +107,7 @@ namespace geopm
     bool PowerBalancer::is_runtime_stable(double measured_runtime)
     {
         bool result = false;
-        bool is_stable = is_limit_stable();
+        bool is_stable = is_limit_stable() && !std::isnan(measured_runtime);
         if (is_stable && m_runtime_buffer->size() == 0) {
             m_runtime_vec.push_back(measured_runtime);
             if (IPlatformIO::agg_sum(m_runtime_vec) > M_MIN_DURATION) {
@@ -156,11 +162,21 @@ namespace geopm
 
     bool PowerBalancer::is_target_met(double measured_runtime)
     {
+#ifdef GEOPM_DEBUG
+        if (std::isnan(measured_runtime)) {
+            throw Exception("PowerBalancer::" + std::string(__func__) +
+                            "Encountered NAN for sampled epoch runtime.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
         if (!m_is_target_met &&
             is_runtime_stable(measured_runtime)) {
             if (m_runtime_sample > m_target_runtime) {
-                if (m_power_limit != m_power_cap) {
+                if (m_power_limit < m_power_cap) {
                     m_power_limit += m_trial_delta;
+                    if (m_power_limit > m_power_cap) {
+                        m_power_limit = m_power_cap;
+                    }
                 }
                 m_is_target_met = true;
             }
@@ -170,20 +186,6 @@ namespace geopm
             m_runtime_buffer->clear();
         }
         return m_is_target_met;
-    }
-
-    void PowerBalancer::achieved_limit(double achieved)
-    {
-        if (!std::isnan(m_target_runtime) &&
-            achieved > m_power_limit + m_trial_delta) {
-            int num_delta = (achieved - m_power_limit) / m_trial_delta;
-            m_power_limit += num_delta * m_trial_delta;
-            if (m_power_limit > m_power_cap) {
-                m_power_limit = m_power_cap;
-            }
-            m_runtime_buffer->clear();
-            m_is_target_met = true;
-        }
     }
 
     double PowerBalancer::power_slack(void)
