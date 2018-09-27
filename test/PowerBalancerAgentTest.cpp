@@ -347,15 +347,17 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     int level = 0;
     int num_children = 1;
     int counter = 0;
-    std::vector<double> trace_vals(7, NAN);
-    std::vector<double> exp_trace_vals(7, NAN);
+    std::vector<double> trace_vals(9, NAN);
+    std::vector<double> exp_trace_vals(9, NAN);
     const std::vector<std::string> trace_cols = {"epoch_runtime",
                                                  "power_limit",
                                                  "policy_power_cap",
                                                  "policy_step_count",
                                                  "policy_max_epoch_runtime",
                                                  "policy_power_slack",
-                                                 "policy_power_limit"};
+                                                 "policy_power_limit",
+                                                 "headroom",
+                                                 "power_max"};
     std::vector<double> epoch_rt = {2.0, 2.19};
 
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))

@@ -128,6 +128,8 @@ namespace geopm
                 M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
                 M_TRACE_SAMPLE_POLICY_POWER_SLACK,
                 M_TRACE_SAMPLE_POLICY_POWER_LIMIT,
+                M_TRACE_SAMPLE_HEADROOM,
+                M_TRACE_SAMPLE_POWER_MAX,
                 M_TRACE_NUM_SAMPLE,
             };
 
