@@ -361,10 +361,13 @@ namespace geopm
         return num_node;
     }
 
-    PowerBalancerAgent::RootRole::RootRole(int level, const std::vector<int> &fan_in)
+    PowerBalancerAgent::RootRole::RootRole(int level, const std::vector<int> &fan_in,
+                                           double min_power, double max_power)
         : TreeRole(level, fan_in)
         , M_NUM_NODE(calc_num_node(fan_in))
         , m_root_cap(NAN)
+        , M_MIN_PKG_POWER_SETTING(min_power)
+        , M_MAX_PKG_POWER_SETTING(max_power)
     {
         m_step_count = M_STEP_SEND_DOWN_LIMIT;
         m_is_step_complete = false;
@@ -406,6 +409,11 @@ namespace geopm
             m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
             m_policy[M_POLICY_POWER_SLACK] = 0.0;
             m_root_cap = in_policy[M_POLICY_POWER_CAP];
+            if (m_root_cap > M_MAX_PKG_POWER_SETTING ||
+                m_root_cap < M_MIN_PKG_POWER_SETTING) {
+                throw Exception("PowerBalancerAgent::descend(): invalid power budget: " + std::to_string(m_root_cap),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             result = true;
         }
         else if (m_step_count + 1 == m_policy[M_POLICY_STEP_COUNT]) {
@@ -436,15 +444,9 @@ namespace geopm
         role.m_is_step_complete = true;
     }
 
-    static void warn_achieved_limit(double policy_limit, double actual_limit)
-    {
-        std::cerr << "Warning: <geopm> PowerBalancerAgent: per node power cap of "
-                  << policy_limit << " Watts could not be maintained (request=" << actual_limit << ");" << std::endl;
-    }
-
     void PowerBalancerAgent::SendDownLimitStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
     {
-        warn_achieved_limit(policy_limit, actual_limit);
+
     }
 
     void PowerBalancerAgent::SendDownLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -462,7 +464,7 @@ namespace geopm
 
     void PowerBalancerAgent::MeasureRuntimeStep::notify_achieved_limit(PowerBalancerAgent::LeafRole &role, double policy_limit, double actual_limit) const
     {
-        warn_achieved_limit(policy_limit, actual_limit);
+
     }
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
@@ -545,10 +547,12 @@ namespace geopm
                             "(): single node job detected, user power_governor.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        bool is_tree_root;
-        is_tree_root = (level == (int)fan_in.size());
+        bool is_tree_root = (level == (int)fan_in.size());
         if (is_tree_root) {
-            m_role = std::make_shared<RootRole>(level, fan_in);
+            int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE"));
+            double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+            double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+            m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power);
         }
         else if (level == 0) {
             m_role = std::make_shared<LeafRole>(m_platform_io, m_platform_topo, std::move(m_power_governor), std::move(m_power_balancer));
