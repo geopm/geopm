@@ -42,6 +42,7 @@
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "MSR.hpp"
 #include "MSRIOGroup.hpp"
 #include "MSRIO.hpp"
@@ -90,6 +91,18 @@ namespace geopm
             }
             register_raw_msr_signal(msr_ptr->name(), *msr_ptr);
         }
+
+        // Set up aggregation functions for MSRs
+        // Aliases will lookup and use the agg_function for their underlying MSR
+        /// @todo These functions should come from the MSR structs in msr_*.cpp
+        m_func_map["MSR::PERF_STATUS:FREQ"] = Agg::average;
+        m_func_map["MSR::PKG_ENERGY_STATUS:ENERGY"] = Agg::sum;
+        m_func_map["MSR::DRAM_ENERGY_STATUS:ENERGY"] = Agg::sum;
+        m_func_map["MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"] = Agg::sum;
+        m_func_map["MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"] = Agg::sum;
+        m_func_map["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::expect_same;
+        m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::expect_same;
+        m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::expect_same;
 
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
         register_msr_signal("ENERGY_PACKAGE",    "MSR::PKG_ENERGY_STATUS:ENERGY");
@@ -633,6 +646,9 @@ namespace geopm
             cpu_signal[cpu_idx] = new MSRSignal(msr_obj, msr_obj.domain_type(),
                                                 cpu_idx, signal_idx);
         }
+
+        // Set up aggregation for the alias
+        m_func_map[signal_name] = agg_function(msr_name_field);
     }
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
@@ -718,6 +734,21 @@ namespace geopm
             write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
         }
         m_is_fixed_enabled = true;
+    }
+
+    std::function<double(const std::vector<double> &)> MSRIOGroup::agg_function(const std::string &signal_name) const
+    {
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("MSRIOIOGroup::agg_function(): signal_name " + signal_name +
+                            " not valid for MSRIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::function<double(const std::vector<double> &)> result = Agg::select_first;
+        auto it = m_func_map.find(signal_name);
+        if (it != m_func_map.end()) {
+            result = it->second;
+        }
+        return result;
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)

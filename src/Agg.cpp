@@ -166,4 +166,19 @@ namespace geopm
         }
         return result;
     }
+
+    double Agg::expect_same(const std::vector<double> &operand)
+    {
+        double value = NAN;
+        if (operand.size() > 0) {
+            value = operand[0];
+        }
+        for (auto vv : operand) {
+            if (vv != value) {
+                value = NAN;
+                break;
+            }
+        }
+        return value;
+    }
 }

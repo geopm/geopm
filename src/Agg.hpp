@@ -76,6 +76,11 @@ namespace geopm
             ///        ignores other values.  If the vector is empty,
             ///        returns 0.0.
             static double select_first(const std::vector<double> &operand);
+            /// @brief Returns the common value if all values are the same,
+            ///        or NAN otherwise.  This function should not be used
+            ///        to aggregate values that may be interpreted as NAN
+            ///        such as raw register values.
+            static double expect_same(const std::vector<double> &operand);
     };
 }
 

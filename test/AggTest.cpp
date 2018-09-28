@@ -57,6 +57,9 @@ TEST(AggTest, agg_function)
     EXPECT_NEAR(stddev, Agg::stddev(data), 0.001);
     EXPECT_EQ(16.0, Agg::select_first(data));
 
+    EXPECT_TRUE(std::isnan(Agg::expect_same({2.0, 2.0, 3.0, 2.0})));
+    EXPECT_EQ(5.5, Agg::expect_same({5.5, 5.5, 5.5}));
+
     EXPECT_EQ(1.0, Agg::logical_and({1.0, 1.0}));
     EXPECT_EQ(0.0, Agg::logical_and({1.0, 1.0, 0.0}));
     EXPECT_EQ(1.0, Agg::logical_or({1.0, 1.0}));

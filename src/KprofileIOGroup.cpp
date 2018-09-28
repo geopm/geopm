@@ -37,6 +37,7 @@
 #include "KruntimeRegulator.hpp"
 #include "KprofileIOSample.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "geopm_hash.h"
 #include "geopm_time.h"
 #include "config.h"
@@ -301,6 +302,30 @@ namespace geopm
     void KprofileIOGroup::restore_control(void)
     {
 
+    }
+
+    std::function<double(const std::vector<double> &)> KprofileIOGroup::agg_function(const std::string &signal_name) const
+    {
+        static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
+            {"REGION_RUNTIME", Agg::max},
+            {"KPROFILE::REGION_RUNTIME", Agg::max},
+            {"REGION_PROGRESS", Agg::min},
+            {"KPROFILE::REGION_PROGRESS", Agg::min},
+            {"REGION_ID#", Agg::region_id},
+            {"KPROFILE::REGION_ID#", Agg::region_id},
+            {"EPOCH_RUNTIME", Agg::max},
+            {"KPROFILE::EPOCH_RUNTIME", Agg::max},
+            {"EPOCH_ENERGY", Agg::sum},
+            {"KPROFILE::EPOCH_ENERGY", Agg::sum},
+            {"EPOCH_COUNT", Agg::min},
+            {"KPROFILE::EPOCH_COUNT", Agg::min}
+        };
+        auto it = fn_map.find(signal_name);
+        if (it == fn_map.end()) {
+            throw Exception("KprofileIOGroup::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
     }
 
     int KprofileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const

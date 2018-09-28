@@ -40,6 +40,7 @@
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 
 using geopm::Exception;
 using geopm::IPlatformTopo;
@@ -367,6 +368,18 @@ void ExampleIOGroup::save_control(void)
 void ExampleIOGroup::restore_control(void)
 {
 
+}
+
+// Hint to Agent about how to aggregate signals from this IOGroup
+std::function<double(const std::vector<double> &)> ExampleIOGroup::agg_function(const std::string &signal_name) const
+{
+    if (!is_valid_signal(signal_name)) {
+        throw Exception("ExampleIOGroup:agg_function(): " + signal_name +
+                        "not valid for ExampleIOGroup",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    // All signals will be aggregated as an average
+    return geopm::Agg::average;
 }
 
 // Name used for registration with the IOGroup factory
