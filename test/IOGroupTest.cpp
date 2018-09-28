@@ -126,3 +126,14 @@ TEST_F(IOGroupTest, control_names_are_valid)
         }
     }
 }
+
+TEST_F(IOGroupTest, signals_have_agg_functions)
+{
+    std::vector<double> data {5.5, 6.6, 7.8, 9.0};
+    for (const auto &group : m_plugins) {
+        auto signal_names = group->signal_names();
+        for (auto name : signal_names) {
+            EXPECT_NO_THROW(group->agg_function(name)) << name;
+        }
+    }
+}
