@@ -351,6 +351,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/IOGroupTest.signal_names_are_valid \
               test/gtest_links/IOGroupTest.control_names_are_valid \
+              test/gtest_links/IOGroupTest.signals_have_agg_functions \
               # end
 
 if ENABLE_MPI

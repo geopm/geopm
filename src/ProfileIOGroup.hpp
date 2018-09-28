@@ -70,6 +70,7 @@ namespace geopm
             void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
             void save_control(void) override;
             void restore_control(void) override;
+            std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
             static std::string plugin_name(void);
         private:
             enum m_signal_type {
