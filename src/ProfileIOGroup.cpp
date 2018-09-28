@@ -36,6 +36,7 @@
 #include "ProfileIOSample.hpp"
 #include "ProfileIORuntime.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "geopm_hash.h"
 #include "geopm_time.h"
 #include "config.h"
@@ -270,6 +271,24 @@ namespace geopm
     void ProfileIOGroup::restore_control(void)
     {
 
+    }
+
+    std::function<double(const std::vector<double> &)> ProfileIOGroup::agg_function(const std::string &signal_name) const
+    {
+        static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
+            {"REGION_RUNTIME", Agg::max},
+            {"PROFILE::REGION_RUNTIME", Agg::max},
+            {"REGION_PROGRESS", Agg::min},
+            {"PROFILE::REGION_PROGRESS", Agg::min},
+            {"REGION_ID#", Agg::region_id},
+            {"PROFILE::REGION_ID#", Agg::region_id}
+        };
+        auto it = fn_map.find(signal_name);
+        if (it == fn_map.end()) {
+            throw Exception("ProfileIOGroup::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
     }
 
     int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
