@@ -70,6 +70,8 @@ class MockIOGroup : public geopm::IOGroup
                      void(void));
         MOCK_METHOD0(restore_control,
                      void(void));
+        MOCK_CONST_METHOD1(agg_function,
+                           std::function<double(const std::vector<double> &)> (const std::string &signal_name));
 };
 
 #endif
