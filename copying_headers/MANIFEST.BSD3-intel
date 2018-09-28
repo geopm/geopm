@@ -65,6 +65,8 @@ scripts/test/TestPowerSweepAnalysis.py
 scripts/test/TestSubsetOptionParser.py
 src/Agent.cpp
 src/Agent.hpp
+src/Agg.cpp
+src/Agg.hpp
 src/ApplicationIO.cpp
 src/ApplicationIO.hpp
 src/CircularBuffer.hpp
@@ -227,6 +229,7 @@ src/TreeCommunicator.hpp
 src/XeonPlatformImp.cpp
 src/XeonPlatformImp.hpp
 test/AgentFactoryTest.cpp
+test/AggTest.cpp
 test/ApplicationIOTest.cpp
 test/BalancingDeciderTest.cpp
 test/CircularBufferTest.cpp

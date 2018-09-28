@@ -299,16 +299,10 @@ endif
 
 libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Agent.hpp \
+                            src/Agg.cpp \
+                            src/Agg.hpp \
                             src/ApplicationIO.cpp \
                             src/ApplicationIO.hpp \
-                            src/PowerGovernor.hpp \
-                            src/PowerGovernor.cpp \
-                            src/PowerBalancer.hpp \
-                            src/PowerBalancer.cpp \
-                            src/PowerBalancerAgent.hpp \
-                            src/PowerBalancerAgent.cpp \
-                            src/PowerGovernorAgent.hpp \
-                            src/PowerGovernorAgent.cpp \
                             src/CircularBuffer.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
@@ -393,6 +387,14 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Policy.hpp \
                             src/PolicyFlags.cpp \
                             src/PolicyFlags.hpp \
+                            src/PowerGovernor.hpp \
+                            src/PowerGovernor.cpp \
+                            src/PowerBalancer.hpp \
+                            src/PowerBalancer.cpp \
+                            src/PowerBalancerAgent.hpp \
+                            src/PowerBalancerAgent.cpp \
+                            src/PowerGovernorAgent.hpp \
+                            src/PowerGovernorAgent.cpp \
                             src/Profile.cpp \
                             src/Profile.hpp \
                             src/ProfileIO.cpp \
