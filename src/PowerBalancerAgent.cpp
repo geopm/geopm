@@ -493,10 +493,10 @@ namespace geopm
             !role.m_is_step_complete) {
 
             double epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]);
-            role.m_power_slack = role.m_power_balancer->power_cap() - role.m_power_balancer->power_limit();
             role.m_power_balancer->calculate_runtime_sample();
-            role.m_is_step_complete = role.m_power_balancer->is_target_met(epoch_runtime) ||
-                                      role.m_is_out_of_bounds;
+            role.m_is_step_complete = role.m_is_out_of_bounds ||
+                                      role.m_power_balancer->is_target_met(epoch_runtime);
+            role.m_power_slack = role.m_power_balancer->power_slack();
             role.m_is_out_of_bounds = false;
             role.m_power_headroom = role.m_power_max - role.m_power_balancer->power_limit();
             role.m_last_epoch_count = epoch_count;
