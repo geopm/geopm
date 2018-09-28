@@ -34,6 +34,7 @@
 #include "TimeIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "config.h"
 
 #define GEOPM_TIME_IO_GROUP_PLUGIN_NAME "TIME"
@@ -174,5 +175,15 @@ namespace geopm
     std::unique_ptr<IOGroup> TimeIOGroup::make_plugin(void)
     {
         return std::unique_ptr<IOGroup>(new TimeIOGroup);
+    }
+
+    std::function<double(const std::vector<double> &)> TimeIOGroup::agg_function(const std::string &signal_name) const
+    {
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("TimeIOGroup:agg_function(): " + signal_name +
+                            "not valid for TimeIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return Agg::average;
     }
 }
