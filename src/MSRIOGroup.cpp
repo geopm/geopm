@@ -42,6 +42,7 @@
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "MSR.hpp"
 #include "MSRIOGroup.hpp"
 #include "MSRIO.hpp"
@@ -718,6 +719,31 @@ namespace geopm
             write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
         }
         m_is_fixed_enabled = true;
+    }
+
+    std::function<double(const std::vector<double> &)> MSRIOGroup::agg_function(const std::string &signal_name) const
+    {
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("MSRIOIOGroup::agg_function(): signal_name " + signal_name +
+                            " not valid for MSRIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::function<double(const std::vector<double> &)> result = Agg::select_first;
+
+        static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
+            {"FREQUENCY", Agg::average},
+            {"ENERGY_PACKAGE", Agg::sum},
+            {"ENERGY_DRAM", Agg::sum},
+            {"CYCLES_THREAD", Agg::sum},
+            {"CYCLES_REFERENCE", Agg::sum},
+            {"POWER_PACKAGE_MIN", Agg::min},
+            {"POWER_PACKAGE_MAX", Agg::max}
+        };
+        auto it = fn_map.find(signal_name);
+        if (it == fn_map.end()) {
+            result = it->second;
+        }
+        return result;
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)

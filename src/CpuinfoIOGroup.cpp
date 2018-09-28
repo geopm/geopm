@@ -39,6 +39,7 @@
 #include "CpuinfoIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "config.h"
 
 #define GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME "CPUINFO"
@@ -273,6 +274,23 @@ namespace geopm
     {
 
     }
+
+    std::function<double(const std::vector<double> &)> CpuinfoIOGroup::agg_function(const std::string &signal_name) const
+    {
+        static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
+            {"CPUINFO::FREQ_MIN", Agg::min},
+            {"CPUINFO::FREQ_STICKER", Agg::select_first},
+            {"CPUINFO::FREQ_MAX", Agg::max},
+            {"CPUINFO::FREQ_STEP", Agg::select_first}
+        };
+        auto it = fn_map.find(signal_name);
+        if (it == fn_map.end()) {
+            throw Exception("CpuinfoIOGroup::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
 
     std::string CpuinfoIOGroup::plugin_name(void)
     {
