@@ -347,6 +347,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/PowerGovernorAgentTest.descend \
               test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/RegionAggregatorTest.epoch_total \
+              test/gtest_links/AggTest.agg_function \
               # end
 
 if ENABLE_MPI
@@ -472,6 +473,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/RegionAggregatorTest.cpp \
                           test/MockRegionAggregator.hpp \
+                          test/AggTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \
