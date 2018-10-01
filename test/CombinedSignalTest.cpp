@@ -34,8 +34,8 @@
 #include "gtest/gtest.h"
 
 #include "CombinedSignal.hpp"
-#include "PlatformIO.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 
 using geopm::CombinedSignal;
 using geopm::PerRegionDerivativeCombinedSignal;
@@ -55,7 +55,7 @@ TEST(CombinedSignalTest, sample_sum)
 
 TEST(CombinedSignalTest, sample_max)
 {
-    CombinedSignal comb_signal {geopm::IPlatformIO::agg_max};
+    CombinedSignal comb_signal {geopm::Agg::max};
     std::vector<double> values = {0.0};
     double result = comb_signal.sample(values);
     EXPECT_DOUBLE_EQ(0.0, result);

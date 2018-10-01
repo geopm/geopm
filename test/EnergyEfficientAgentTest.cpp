@@ -45,6 +45,7 @@
 #include "EnergyEfficientAgent.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "PlatformTopo.hpp"
@@ -114,9 +115,9 @@ void EnergyEfficientAgentTest::SetUp()
     ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
         .WillByDefault(Return(FREQ_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
-        .WillByDefault(Return(IPlatformIO::agg_max));
+        .WillByDefault(Return(geopm::Agg::max));
     EXPECT_CALL(*m_platform_io, agg_function(_))
-        .WillRepeatedly(Return(IPlatformIO::agg_max));
+        .WillRepeatedly(Return(geopm::Agg::max));
 
     // calls in constructor
     EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(1));

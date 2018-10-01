@@ -40,7 +40,7 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "CircularBuffer.hpp"
-
+#include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -107,9 +107,9 @@ namespace geopm
         }
 
         // Setup sample aggregation for data going up the tree
-        m_agg_func[M_SAMPLE_POWER] = IPlatformIO::agg_average;
-        m_agg_func[M_SAMPLE_IS_CONVERGED] = IPlatformIO::agg_and;
-        m_agg_func[M_SAMPLE_POWER_ENFORCED] = IPlatformIO::agg_average;
+        m_agg_func[M_SAMPLE_POWER] = Agg::average;
+        m_agg_func[M_SAMPLE_IS_CONVERGED] = Agg::logical_and;
+        m_agg_func[M_SAMPLE_POWER_ENFORCED] = Agg::average;
     }
 
     void PowerGovernorAgent::init_platform_io(void)
@@ -252,7 +252,7 @@ namespace geopm
         // If we have observed more than m_min_num_converged epoch
         // calls then send median filtered power values up the tree.
         if (m_epoch_power_buf->size() > m_min_num_converged) {
-            double median = IPlatformIO::agg_median(m_epoch_power_buf->make_vector());
+            double median = Agg::median(m_epoch_power_buf->make_vector());
             out_sample[M_SAMPLE_POWER] = median;
             out_sample[M_SAMPLE_IS_CONVERGED] = (median <= m_last_power_budget); // todo might want fudge factor
             out_sample[M_SAMPLE_POWER_ENFORCED] = m_adjusted_power;

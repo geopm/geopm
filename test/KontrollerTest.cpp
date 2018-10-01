@@ -50,6 +50,7 @@
 #include "MockReporter.hpp"
 #include "MockTracer.hpp"
 #include "Helper.hpp"
+#include "Agg.hpp"
 
 using geopm::Kontroller;
 using geopm::IPlatformIO;
@@ -68,7 +69,7 @@ class KontrollerTestMockPlatformIO : public MockPlatformIO
         KontrollerTestMockPlatformIO()
         {
             ON_CALL(*this, agg_function(_))
-                .WillByDefault(Return(IPlatformIO::agg_sum));
+                .WillByDefault(Return(geopm::Agg::sum));
 
             // any other "unsupported" signals
             ON_CALL(*this, push_signal(_, _, _))
