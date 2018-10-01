@@ -38,6 +38,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
+#include "Agg.hpp"
 
 using geopm::Agent;
 using geopm::IPlatformIO;
@@ -104,7 +105,7 @@ bool ExampleAgent::ascend(const std::vector<std::vector<double> > &in_sample,
         for (size_t child_idx = 0; child_idx < in_sample.size(); ++child_idx) {
             child_sample[child_idx] = in_sample[child_idx][sample_idx];
         }
-        out_sample[sample_idx] = IPlatformIO::agg_average(child_sample);
+        out_sample[sample_idx] = geopm::Agg::average(child_sample);
     }
     return true;
 }

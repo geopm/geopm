@@ -48,6 +48,7 @@
 #include "TimeIOGroup.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "Agg.hpp"
 
 #include "config.h"
 
@@ -463,148 +464,22 @@ namespace geopm
 
     std::function<double(const std::vector<double> &)> PlatformIO::agg_function(std::string signal_name) const
     {
-        static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
-            {"REGION_POWER", IPlatformIO::agg_sum},
-            {"POWER_PACKAGE", IPlatformIO::agg_sum},
-            {"POWER_DRAM", IPlatformIO::agg_sum},
-            {"FREQUENCY", IPlatformIO::agg_average},
-            {"REGION_RUNTIME", IPlatformIO::agg_max},
-            {"REGION_PROGRESS", IPlatformIO::agg_min},
-            {"EPOCH_RUNTIME", IPlatformIO::agg_max},
-            {"EPOCH_ENERGY", IPlatformIO::agg_sum},
-            {"EPOCH_COUNT", IPlatformIO::agg_min},
-            {"ENERGY_PACKAGE", IPlatformIO::agg_sum},
-            {"ENERGY_DRAM", IPlatformIO::agg_sum},
-            {"IS_CONVERGED", IPlatformIO::agg_and},
-            {"IS_UPDATED", IPlatformIO::agg_and},
-            {"REGION_ID#", IPlatformIO::agg_region_id},
-            {"CYCLES_THREAD", IPlatformIO::agg_sum},
-            {"CYCLES_REFERENCE", IPlatformIO::agg_sum},
-            {"TIME", IPlatformIO::agg_average},
-            {"POWER_PACKAGE_MIN", IPlatformIO::agg_min},
-            {"POWER_PACKAGE_MAX", IPlatformIO::agg_max}
-        };
-        auto it = fn_map.find(signal_name);
-        if (it == fn_map.end()) {
+        // Special signals from PlatformIO
+        // TODO: find a better way to track these
+        if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
+            return Agg::sum;
+        }
+        // Find the most recently loaded IOGroup that provides the signal
+        auto it = m_iogroup_list.rbegin();
+        for (; it != m_iogroup_list.rend(); ++it) {
+            if ((*it)->is_valid_signal(signal_name)) {
+                break;
+            }
+        }
+        if (it == m_iogroup_list.rend()) {
             throw Exception("PlatformIO::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second;
-    }
-
-    double IPlatformIO::agg_sum(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size()) {
-            result = std::accumulate(operand.begin(), operand.end(), 0.0);
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_average(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size()) {
-            result = agg_sum(operand) / operand.size();
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_median(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        size_t num_op = operand.size();
-        if (num_op) {
-            size_t mid_idx = num_op / 2;
-            bool is_even = ((num_op % 2) == 0);
-            std::vector<double> operand_sorted(operand);
-            std::sort(operand_sorted.begin(), operand_sorted.end());
-            result = operand_sorted[mid_idx];
-            if (is_even) {
-                result += operand_sorted[mid_idx - 1];
-                result /= 2.0;
-            }
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_and(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size()) {
-            result = std::all_of(operand.begin(), operand.end(),
-                                 [](double it) {return (it != 0.0);});
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_or(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size()) {
-            result = std::any_of(operand.begin(), operand.end(),
-                                 [](double it) {return (it != 0.0);});
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_region_id(const std::vector<double> &operand)
-    {
-        uint64_t common_rid = GEOPM_REGION_ID_UNDEFINED;
-        if (operand.size()) {
-            for (const auto &it : operand) {
-                uint64_t it_rid = geopm_signal_to_field(it);
-                if (it_rid != GEOPM_REGION_ID_UNDEFINED &&
-                    common_rid == GEOPM_REGION_ID_UNDEFINED) {
-                    common_rid = it_rid;
-                }
-                if (common_rid != GEOPM_REGION_ID_UNDEFINED &&
-                    it_rid != GEOPM_REGION_ID_UNDEFINED &&
-                    it_rid != common_rid) {
-                    common_rid = GEOPM_REGION_ID_UNMARKED;
-                    break;
-                }
-            }
-        }
-        return geopm_field_to_signal(common_rid);
-    }
-
-    double IPlatformIO::agg_min(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size()) {
-            result = *std::min_element(operand.begin(), operand.end());
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_max(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size()) {
-            result = *std::max_element(operand.begin(), operand.end());
-        }
-        return result;
-    }
-
-    double IPlatformIO::agg_stddev(const std::vector<double> &operand)
-    {
-        double result = NAN;
-        if (operand.size() > 1) {
-            double sum_squared = agg_sum(operand);
-            sum_squared *= sum_squared;
-            std::vector<double> operand_squared(operand);
-            for (auto &it : operand_squared) {
-                it *= it;
-            }
-            double sum_squares = agg_sum(operand_squared);
-            double aa = 1.0 / (operand.size() - 1);
-            double bb = aa / operand.size();
-            result = std::sqrt(aa * sum_squares - bb * sum_squared);
-        }
-        else if (operand.size() == 1) {
-            result = 0.0;
-        }
-        return result;
+        return (*it)->agg_function(signal_name);
     }
 }
