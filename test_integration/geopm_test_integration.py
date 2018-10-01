@@ -655,6 +655,10 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
+
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            old_agent = os.getenv("GEOPM_AGENT", None)
+
         fam, mod = get_platform()
         if fam == 6 and mod in (45, 47, 79):
             # set budget for BDX server
@@ -664,55 +668,68 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         else:
             self._options['power_budget'] = 200
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path,
-                                                    trace_path, time_limit=900)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
-        launcher.run(name)
+        gov_agent_conf_path = name + '_gov_ctl.config'
+        bal_agent_conf_path = name + '_bal_ctl.config'
+        self._tmp_files.append(gov_agent_conf_path)
+        self._tmp_files.append(bal_agent_conf_path)
+        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._options)
+        bal_agent_conf = geopmpy.io.AgentConf(bal_agent_conf_path, self._options)
+        agent_list = ['power_governor', 'power_balancer']
+        conf_dict = {'power_governor': gov_agent_conf, 'power_balancer': bal_agent_conf}
 
-        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
-        node_names = self._output.get_node_names()
-        self.assertEqual(num_node, len(node_names))
-        all_power_data = {}
-        # Total power consumed will be Socket(s) + DRAM
-        for nn in node_names:
-            tt = self._output.get_trace_data(node_name=nn)
+        for agent in agent_list:
+            os.environ['GEOPM_AGENT'] = agent
+            run_name = '{}_{}'.format(name, agent)
+            report_path = '{}.report'.format(run_name)
+            trace_path = '{}.trace'.format(run_name)
+            launcher = geopm_test_launcher.TestLauncher(app_conf, conf_dict[agent], report_path,
+                                                        trace_path, time_limit=900)
+            launcher.set_num_node(num_node)
+            launcher.set_num_rank(num_rank)
+            launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
+            launcher.run(name)
 
-            epoch = '9223372036854775808'
-            # todo: hack to run tests with new controller
-            # eventually this test could also use power signals from the trace
-            if os.getenv("GEOPM_AGENT") is not None:
-                epoch = '0x8000000000000000'
+            self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+            node_names = self._output.get_node_names()
+            self.assertEqual(num_node, len(node_names))
+            all_power_data = {}
+            # Total power consumed will be Socket(s) + DRAM
+            for nn in node_names:
+                tt = self._output.get_trace_data(node_name=nn)
 
-            first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
-            epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
+                epoch = '9223372036854775808'
+                # todo: hack to run tests with new controller
+                # eventually this test could also use power signals from the trace
+                if os.getenv("GEOPM_AGENT") is not None:
+                    epoch = '0x8000000000000000'
 
-            power_data = epoch_dropped_data.filter(regex='energy')
-            power_data['seconds'] = epoch_dropped_data['seconds']
-            power_data = power_data.diff().dropna()
-            power_data.rename(columns={'seconds': 'elapsed_time'}, inplace=True)
-            power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
+                first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
+                epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
-            pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
-            power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
-            power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
-            power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
+                power_data = epoch_dropped_data.filter(regex='energy')
+                power_data['seconds'] = epoch_dropped_data['seconds']
+                power_data = power_data.diff().dropna()
+                power_data.rename(columns={'seconds': 'elapsed_time'}, inplace=True)
+                power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-            pandas.set_option('display.width', 100)
-            launcher.write_log(name, 'Power stats from {} :\n{}'.format(nn, power_data.describe()))
+                pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
+                dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
+                power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
+                power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
+                power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
 
-            all_power_data[nn] = power_data
+                pandas.set_option('display.width', 100)
+                launcher.write_log(name, 'Power stats from {} :\n{}'.format(nn, power_data.describe()))
 
-        for node_name, power_data in all_power_data.iteritems():
-            # Allow for overages of 2% at the 75th percentile.
-            self.assertGreater(self._options['power_budget'] * 1.02, power_data['socket_power'].quantile(.75))
+                all_power_data[nn] = power_data
 
-            # TODO Checks on the maximum power computed during the run?
-            # TODO Checks to see how much power was left on the table?
+            for node_name, power_data in all_power_data.iteritems():
+                # Allow for overages of 2% at the 75th percentile.
+                self.assertGreater(self._options['power_budget'] * 1.02, power_data['socket_power'].quantile(.75),
+                                   "{} agent failed to maintain power cap.".format(agent))
+
+                # TODO Checks on the maximum power computed during the run?
+                # TODO Checks to see how much power was left on the table?
 
     @skip_unless_run_long_tests()
     @skip_unless_slurm_batch()
@@ -766,6 +783,7 @@ class TestIntegration(unittest.TestCase):
             node_names = self._output.get_node_names()
             self.assertEqual(num_node, len(node_names))
 
+            power_limits = []
             # Total power consumed will be Socket(s) + DRAM
             for nn in node_names:
                 tt = self._output.get_trace_data(node_name=nn)
@@ -788,6 +806,14 @@ class TestIntegration(unittest.TestCase):
 
                 pandas.set_option('display.width', 100)
                 launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
+
+                # Get final power limit set on the node
+                if agent == 'power_balancer':
+                    power_limits.append(epoch_dropped_data['power_limit'][-1])
+
+            if agent == 'power_balancer':
+                avg_power_limit = sum(power_limits) / len(power_limits)
+                self.assertTrue(avg_power_limit <= power_budget)
 
             min_runtime = float('nan')
             max_runtime = float('nan')
