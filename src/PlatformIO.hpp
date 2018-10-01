@@ -204,37 +204,7 @@ namespace geopm
             ///        single value.
             /// @param [in] signal_name Name of the signal.
             /// @return A function from vector<double> to double.
-            virtual std::function<double(const std::vector<double> &)> agg_function(std::string signal_name) const = 0;
-            /// @brief Returns the sum of the input operands.
-            static double agg_sum(const std::vector<double> &operand);
-            /// @brief Returns the average of the input operands.
-            static double agg_average(const std::vector<double> &operand);
-            /// @brief Returns the median of the input operands.
-            static double agg_median(const std::vector<double> &operand);
-            /// @brief Returns the output of AND over all the operands
-            ///        where 0.0 is false and all other values are
-            ///        true.
-            static double agg_and(const std::vector<double> &operand);
-            /// @brief Returns the output of OR over all the operands
-            ///        where 0.0 is false and all other values are
-            ///        true.
-            static double agg_or(const std::vector<double> &operand);
-            /// @brief Returns the minimum value from the input
-            ///        operands.
-            static double agg_min(const std::vector<double> &operand);
-            /// @brief Returns the maximum value from the input
-            ///        operands.
-            static double agg_max(const std::vector<double> &operand);
-            /// @brief Returns the standard deviation of the input
-            ///        operands.
-            static double agg_stddev(const std::vector<double> &operand);
-            /// @brief If all operands are the same, returns the
-            ///        common value.  Otherwise, returns
-            ///        GEOPM_REGION_ID_UNMARKED.  This is intended for
-            ///        situations where all ranks in a domain must be
-            ///        in the same region to exert control for that
-            ///        region.
-            static double agg_region_id(const std::vector<double> &operand);
+            virtual std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const = 0;
             /// @brief Structure describing the values required to
             ///        push a signal or control.
             struct m_request_s {
