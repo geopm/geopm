@@ -40,6 +40,7 @@
 #include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
+#include "Agg.hpp"
 
 #include "config.h"
 
@@ -154,7 +155,7 @@ namespace geopm
             if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
                 m_region_info.push_back({region_id,
                                          0.0,
-                                         IPlatformIO::agg_max(reg_it.first->second->per_rank_last_runtime())});
+                                         Agg::max(reg_it.first->second->per_rank_last_runtime())});
             }
         }
     }
@@ -210,7 +211,7 @@ namespace geopm
             if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
                 m_region_info.push_back({region_id,
                                          1.0,
-                                         IPlatformIO::agg_max(reg_it->second->per_rank_last_runtime())});
+                                         Agg::max(reg_it->second->per_rank_last_runtime())});
             }
             --num_ranks;
         }
@@ -255,10 +256,10 @@ namespace geopm
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
-            result = IPlatformIO::agg_average(m_agg_epoch_runtime);
+            result = Agg::average(m_agg_epoch_runtime);
         }
         else {
-            result = IPlatformIO::agg_average(region_regulator(region_id).per_rank_total_runtime());
+            result = Agg::average(region_regulator(region_id).per_rank_total_runtime());
         }
         return result;
     }
@@ -267,7 +268,7 @@ namespace geopm
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
-            result = IPlatformIO::agg_average(m_agg_epoch_mpi_runtime);
+            result = Agg::average(m_agg_epoch_mpi_runtime);
         }
         else {
             try {
@@ -293,7 +294,7 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_epoch_ignore_time(void) const
     {
-        return IPlatformIO::agg_average(m_agg_epoch_ignore_runtime);
+        return Agg::average(m_agg_epoch_ignore_runtime);
     }
 
     double EpochRuntimeRegulator::total_epoch_energy_pkg(void) const
@@ -308,7 +309,7 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_app_mpi_time(void) const
     {
-        return IPlatformIO::agg_average(m_agg_mpi_runtime);
+        return Agg::average(m_agg_mpi_runtime);
     }
 
     int EpochRuntimeRegulator::total_count(uint64_t region_id) const
