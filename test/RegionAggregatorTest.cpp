@@ -38,6 +38,7 @@
 #include "RegionAggregator.hpp"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
+#include "Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "geopm.h"
 #include "geopm_hash.h"
@@ -130,7 +131,7 @@ TEST_F(RegionAggregatorTest, sample_total)
     std::vector<double> rid_pkg_0(num_sample);
     std::vector<double> rid_pkg_1(num_sample);
     std::vector<double> rid_board(num_sample);
-    auto agg = IPlatformIO::agg_region_id;
+    auto agg = geopm::Agg::region_id;
     // set up regions for larger domains
     // 2 CPU per package, 2 packages, 1 board
     for (int idx = 0; idx < num_sample; ++idx) {

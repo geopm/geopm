@@ -37,6 +37,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "Helper.hpp"
+#include "Agg.hpp"
 
 using geopm::IPlatformTopo;
 using geopm::IPlatformIO;
@@ -82,9 +83,9 @@ void MonitorAgentTest::SetUp()
     // does not necessarily match PlatformIO, but Agent should call
     // these and use whatever function is returned
     EXPECT_CALL(m_platform_io, agg_function("POWER_PACKAGE"))
-        .WillOnce(Return(IPlatformIO::agg_sum));
+        .WillOnce(Return(geopm::Agg::sum));
     EXPECT_CALL(m_platform_io, agg_function("FREQUENCY"))
-        .WillOnce(Return(IPlatformIO::agg_average));
+        .WillOnce(Return(geopm::Agg::average));
 
     m_agent = geopm::make_unique<MonitorAgent>(m_plat_io_ref, m_plat_topo_ref);
 }

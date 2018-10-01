@@ -35,7 +35,7 @@
 
 #include "PowerBalancer.hpp"
 #include "CircularBuffer.hpp"
-#include "PlatformIO.hpp"
+#include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -110,7 +110,7 @@ namespace geopm
         bool is_stable = is_limit_stable() && !std::isnan(measured_runtime);
         if (is_stable && m_runtime_buffer->size() == 0) {
             m_runtime_vec.push_back(measured_runtime);
-            if (IPlatformIO::agg_sum(m_runtime_vec) > M_MIN_DURATION) {
+            if (Agg::sum(m_runtime_vec) > M_MIN_DURATION) {
                 m_num_sample = m_runtime_vec.size();
                 if (m_num_sample < M_MIN_NUM_SAMPLE) {
                     m_num_sample = M_MIN_NUM_SAMPLE;
@@ -142,10 +142,10 @@ namespace geopm
     void PowerBalancer::calculate_runtime_sample(void)
     {
         if (m_runtime_buffer->size() != 0) {
-            m_runtime_sample = IPlatformIO::agg_median(m_runtime_buffer->make_vector());
+            m_runtime_sample = Agg::median(m_runtime_buffer->make_vector());
         }
         else {
-            m_runtime_sample = IPlatformIO::agg_median(m_runtime_vec);
+            m_runtime_sample = Agg::median(m_runtime_vec);
         }
     }
 

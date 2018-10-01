@@ -34,15 +34,15 @@
 #include <numeric>
 #include <algorithm>
 
-#include "PlatformIO.hpp"
 #include "CombinedSignal.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "config.h"
 
 namespace geopm
 {
     CombinedSignal::CombinedSignal()
-        : CombinedSignal(IPlatformIO::agg_sum)
+        : CombinedSignal(Agg::sum)
     {
 
     }

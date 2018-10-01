@@ -47,6 +47,7 @@
 #include "PlatformIOInternal.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "Agg.hpp"
 #include "geopm_test.hpp"
 
 using geopm::IOGroup;
@@ -135,6 +136,8 @@ void PlatformIOTest::SetUp()
     tmp->set_valid_signal_names({"REGION_ID#"});
     ON_CALL(*tmp, signal_domain_type("REGION_ID#"))
         .WillByDefault(Return(IPlatformTopo::M_DOMAIN_CPU));
+    ON_CALL(*tmp, agg_function("REGION_ID#"))
+        .WillByDefault(Return(geopm::Agg::region_id));
 
     // IOGroups with signals and controls
     tmp = std::make_shared<PlatformIOTestMockIOGroup>();
@@ -294,6 +297,7 @@ TEST_F(PlatformIOTest, signal_power)
                 .Times(1 *  M_NUM_CPU);
             EXPECT_CALL(*it, signal_domain_type("REGION_ID#"))
                 .Times(2 *  M_NUM_CPU);
+            EXPECT_CALL(*it, agg_function("REGION_ID#")).Times(2);
         }
     }
 
@@ -462,32 +466,11 @@ TEST_F(PlatformIOTest, read_signal_override)
 
 TEST_F(PlatformIOTest, agg_function)
 {
-    std::vector<double> data {16, 2, 4, 9, 128, 32, 4, 64};
-    double sum = 259;
-    double average = 32.375;
-    double median = 12.5;
-    double min = 2;
-    double max = 128;
-    double stddev = 43.902;
-    EXPECT_DOUBLE_EQ(sum, IPlatformIO::agg_sum(data));
-    EXPECT_DOUBLE_EQ(average, IPlatformIO::agg_average(data));
-    EXPECT_DOUBLE_EQ(median, IPlatformIO::agg_median(data));
-    EXPECT_DOUBLE_EQ(4, IPlatformIO::agg_median({4}));
-    EXPECT_DOUBLE_EQ(4, IPlatformIO::agg_median({2, 4, 6}));
-    EXPECT_DOUBLE_EQ(min, IPlatformIO::agg_min(data));
-    EXPECT_DOUBLE_EQ(max, IPlatformIO::agg_max(data));
-    EXPECT_NEAR(stddev, IPlatformIO::agg_stddev(data), 0.001);
-
-    EXPECT_EQ(1.0, IPlatformIO::agg_and({1.0, 1.0}));
-    EXPECT_EQ(0.0, IPlatformIO::agg_and({1.0, 1.0, 0.0}));
-    EXPECT_EQ(1.0, IPlatformIO::agg_or({1.0, 1.0}));
-    EXPECT_EQ(1.0, IPlatformIO::agg_or({1.0, 1.0, 0.0}));
-    EXPECT_EQ(0.0, IPlatformIO::agg_or({0.0, 0.0}));
-
-    EXPECT_EQ(geopm_field_to_signal(GEOPM_REGION_ID_UNMARKED),
-              IPlatformIO::agg_region_id({5, 6, 7}));
-    EXPECT_EQ(77,
-              IPlatformIO::agg_region_id({77, 77, geopm_field_to_signal(GEOPM_REGION_ID_UNDEFINED), 77}));
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("REGION_ID#")) {
+            EXPECT_CALL(*it, agg_function("REGION_ID#"));
+        }
+    }
 
     auto region_id_func = m_platio->agg_function("REGION_ID#");
     EXPECT_EQ(geopm_field_to_signal(GEOPM_REGION_ID_UNMARKED),
@@ -497,5 +480,4 @@ TEST_F(PlatformIOTest, agg_function)
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->agg_function("INVALID"),
                                GEOPM_ERROR_INVALID, "unknown how to aggregate");
-
 }

@@ -42,7 +42,7 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "CircularBuffer.hpp"
-
+#include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -271,10 +271,10 @@ namespace geopm
     PowerBalancerAgent::TreeRole::TreeRole(int level, const std::vector<int> &fan_in)
         : Role()
         , M_AGG_FUNC({
-              IPlatformIO::agg_min, // M_SAMPLE_STEP_COUNT
-              IPlatformIO::agg_max, // M_SAMPLE_MAX_EPOCH_RUNTIME
-              IPlatformIO::agg_sum, // M_SAMPLE_SUM_POWER_SLACK
-              IPlatformIO::agg_min, // M_SAMPLE_MIN_POWER_HEADROOM
+              Agg::min, // M_SAMPLE_STEP_COUNT
+              Agg::max, // M_SAMPLE_MAX_EPOCH_RUNTIME
+              Agg::sum, // M_SAMPLE_SUM_POWER_SLACK
+              Agg::min, // M_SAMPLE_MIN_POWER_HEADROOM
           })
         , M_NUM_CHILDREN(fan_in[level - 1])
     {
