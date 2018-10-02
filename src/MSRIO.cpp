@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <limits.h>
+
 #include <sstream>
 #include <map>
 
@@ -80,10 +82,13 @@ namespace geopm
         uint64_t result = 0;
         size_t num_read = pread(msr_desc(cpu_idx), &result, sizeof(result), offset);
         if (num_read != sizeof(result)) {
+            char hostname[NAME_MAX];
+            gethostname(hostname, NAME_MAX);
             std::ostringstream err_str;
-            err_str << "MSRIO::read_msr(): pread() failed at offset 0x" << std::hex << offset
+            err_str << "MSRIO::read_msr(): Host: " << hostname
+                    << ": pread() failed at offset 0x" << std::hex << offset
                     << " system error: " << strerror(errno);
-            throw Exception(err_str.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+            throw Exception(err_str.str(), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
         return result;
     }
