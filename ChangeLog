@@ -1,3 +1,114 @@
+* Tue Oct 02 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.0
+- Stabilized Agent code path.
+- Last release with Decider/Platform/PlatformImp support.
+- Modified implementations and interfaces:
+- Modify PowerGovernor to ignore DRAM power and tune parameters for power balancer.
+- Profile larger set of MPI functions including non-blocking routines.
+- Removed push_region_signal_total() and sample_region_total() from PlatformIO.
+- This functionality is available to Agents by creating an instance of RegionAggregator.
+- Redesigned geopmanalysis command line interface so that the first argument selects the analysis type.
+- Add options to geopmanalysis for min and max frequency for frequency sweep analysis types.
+- Remove geopmanalysis --level option and replace with --summary and --plot.
+- This allows summaries and/or plots to be generated separately.
+- Add option to use agent code path to geopmanalysis (use_agent).
+- Change EnergyEfficientAgent frequency map to use JSON format.
+- Introducing GEOPM_EXEC_WRAPPER environment variable useful for inserting a debugger into the integration tests.
+- Reuse same idx val for repeated pushes of signals/controls.
+- Cat lscpu output to /tmp prior to running job and avoid popen call inside of MPI app.
+- Change PowerGovernorAgent::wait() to use time instead of RAPL updates.
+- Get rid of C-string from ProfileTable implementation.
+- Add max_level() to TreeComm.
+- Introducing the PowerGovernor class.
+- Introducing Agent::aggregate_sample() static helper function for Agents.
+- Add agent field to io.py dataframe index.  Note: this will break compatibility with scripts that use the old index.
+- Rename RAPL related MSR names: SOFT_POWER_LIMIT to PL1_POWER_LIMIT and HARD_POWER_LIMIT to PL2_POWER_LIMIT.
+- Add geopm_time_since() method.
+- Update the analysis.py energy references.
+- Add RegionAggregator class for per-region signal totals.
+- Update Reporter to use RegionAggregator.
+- Changed region counts to start at -1 before first entry.
+- Get rid of unused and undocumented environment variable GEOPM_REPORT_VERBOSITY.
+- Modify launcher to set LD_PRELOAD only for application.
+- Change some AppOutput methods to return pandas Dataframes instead of Report/Region objects.
+- Add barrier in MPI_Init prior to GEOPM startup.
+- Have RootRole throw if bad power cap is set.
+- Updated features:
+- Introducing the new PowerBalancer agent with many commits since v0.5.1 that tweak the algorithm.
+- Ignore epoch calls when made inside of a region marked with the ignore hint.
+- Add MSRIOGroup signals that return the raw value of an MSR.
+- Use slurm option to select the performance power governor when using GEOPM.
+- Add a spec file for building GEOPM for ALCF Theta.
+- Add profile name and agent to trace header.
+- Add CYCLES_THREAD and CYCLES_REFERENCE to trace.
+- Add Agent support in python scripts.
+- Add CORAL 2 version of AMG to examples.
+- Update markup for miniFE example to set region ID once per region.
+- Update nekbone patches for scaling studies.
+- Suppress OMP warnings in launcher when using Intel toolchain.
+- Add PowerSweepAnalysis type to geopmanalysis.
+- Add BalancerAnalysis type to geopmanalysis.
+- Add NodeEfficiencyAnalysis type to geopmanalysis.
+- Add NodePowerAnalysis type to geopmanalysis.
+- Introduce a plotter method to generate histograms.
+- Have ManagerIO skip policy file parsing if agent has no policies.
+- Add HDF5 caching for parsed reports and traces to io.py.
+- Add summary features to analysis where summarized data is written to files in ascii tables.
+- Updated and extended integration tests:
+- Updates to integration tests to support the Agent / PlatformIO code path are a major feature of this release.
+- Adding back integration test for power balancer with increased time limit.
+- Automatically infer architecture based on hostname.
+- Add monitor as available agent to run integration tests.
+- Use regular runtime for epoch in test_region_runtimes.
+- Require balancer test to run in an allocation.
+- Checks average power limit across nodes is under cap in test_power_balancer.
+- Add integration test that runs GEOPM, but does not generate reports.
+- Updates to documentation:
+- Add documentation to the README about the scaling_governor.
+- Add documentation of constructor attribute for plugins to geopm(7) man page.
+- Add documentation for hint ignore interaction with geopm_prof_epoch().
+- Add documentation for all of the supported region hints.
+- Remove documentation about node barrier enforced by epoch call, this is no longer true.
+- Remove reference to MPIEXEC from spec file.
+- Add missing launcher options to help text.
+- Updated unit tests:
+- Add PowerBalancer unit tests.
+- Add PowerBalancerAgent unit tests.
+- Add analysis.py unit tests.
+- Add more detailed checks of TreeComm calls to KontrollerTest.
+- Add tests of geopmanalysis CLI.
+- Fix tests for ControlMessage.
+- Bug fixes:
+- Fix catch-value warning from GCC 8.
+- Fix possible C string truncation.
+- Fix for null characters sometimes appearing in report header.
+- Fix string sizing for strncpy and snprintf for gnu8.
+- Fix null termination in case of string overflow.
+- Fix in PowerGovernorAgent where fan_in could be accessed out of bounds.
+- Fix Kontroller index into Agent array; the level 0 Agent should not do descend() or ascend().
+- Fix issue where second region runtime is longer than first: move region exit barrier after call to sample.
+- Fix geopmagent so it can create empty json files.
+- Fix launcher to handle --cpu-bind as well as --cpu_bind.
+- Fix failure to restore fixed counter MSRs at end of GEOPM runtime.
+- Fix epoch region ID detection in io.py.
+- Fix for test_trace_runtimes with agent code path.
+- Fix performance issue: if power will be controlled, adjust one CPU per package.
+- Fix EnergyEfficientAgent init().
+- Fix issue where geopm would try to restore MSR MISC_ENABLE which is read only.
+- Fix test_power_consumption to measure socket power only.
+- Fix order of MSR save / agent init() to avoid failure to restore time window setting.
+- Fix --enable-overhead configure option
+- Fix pthread launch for Agent code path.
+- Fix Fortran comm initialization.
+- Fix handling of bad OMP masks.
+- Fix for klocwork error: missing null check.
+- Fix pthread launch when using MPICH by enabling MPI_THREAD_MULTIPLE in environment.
+- Fix pthread launch issue in Cray Linux by using secure versions of the CPU_SET macros.
+- Fix hang when runtime is active but report has not been requested.
+- Fix python scripts to support old data missing separate dram energy in report.
+- Fix python scripts to handle new agent field in parsed header.
+- Fix race in ControlMessage that could cause hang at GEOPM runtime start up.
+- Fix for ompt region names in Reporter.
+- Fix issue where slack was calculated prior to adding in extra power in PowerBalancingAgent.
 * Sat Jun 23 2018 Brad Geltz <brad.geltz@intel.com> v0.5.1
 - GEOPM beta hotfix release!
 - Introduce the PowerGovernorAgent.  This agent is implemented and fully featured.
