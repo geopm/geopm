@@ -1,0 +1,9 @@
+Verified+1: Diana Guttman <diana.r.guttman@intel.com>
+Code-Review+2: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Code-Review+1: Diana Guttman <diana.r.guttman@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Submitted-at: Wed, 03 Oct 2018 22:58:30 +0000
+Reviewed-on: https://review.gerrithub.io/427813
+Project: geopm/geopm
+Branch: refs/heads/dev
