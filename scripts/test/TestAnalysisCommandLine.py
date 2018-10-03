@@ -37,6 +37,7 @@ import unittest
 from collections import defaultdict
 from StringIO import StringIO
 from analysis_helper import *
+import geopmpy
 
 
 class MockAnalysis(geopmpy.analysis.Analysis):
