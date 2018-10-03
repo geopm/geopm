@@ -1,4 +1,4 @@
-From 84dff29b9faf076ec40942bfb9ff6f9f05f55c37 Mon Sep 17 00:00:00 2001
+From c85f3d5f9368a2ae1e47a5dc0ada286d5a14e17c Mon Sep 17 00:00:00 2001
 From: Diana Guttman <diana.r.guttman@intel.com>
 Date: Tue, 18 Sep 2018 21:23:35 +0000
 Subject: [PATCH] Adding geopm markup to CORAL 2 AMG.
@@ -37,9 +37,9 @@ Subject: [PATCH] Adding geopm markup to CORAL 2 AMG.
 Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
 ---
  Makefile.include |  3 ++-
- krylov/pcg.c     | 20 ++++++++++++++++
+ krylov/pcg.c     | 24 +++++++++++++++++++
  test/amg.c       | 72 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 92 insertions(+), 3 deletions(-)
+ 3 files changed, 96 insertions(+), 3 deletions(-)
 
 diff --git a/Makefile.include b/Makefile.include
 index b73ccce..ec2f9b1 100644
@@ -58,7 +58,7 @@ index b73ccce..ec2f9b1 100644
 -
 +INCLUDE_LFLAGS += -L$(HOME)/build/geopm/lib -lgeopm -dynamic
 diff --git a/krylov/pcg.c b/krylov/pcg.c
-index 2492dae..a591be7 100644
+index 2492dae..06de01e 100644
 --- a/krylov/pcg.c
 +++ b/krylov/pcg.c
 @@ -33,6 +33,10 @@
@@ -86,7 +86,7 @@ index 2492dae..a591be7 100644
     (pcg_data -> converged) = 0;
  
     (*(pcg_functions->CommInfo))(A,&my_id,&num_procs);
-@@ -476,6 +487,15 @@ hypre_PCGSolve( void *pcg_vdata,
+@@ -476,8 +487,18 @@ hypre_PCGSolve( void *pcg_vdata,
        }
     }
  
@@ -94,14 +94,27 @@ index 2492dae..a591be7 100644
 +   geopm_prof_exit(region_id);
 +#endif
 +
-+#ifdef GEOPM
-+   geopm_prof_region("PCGSolveLoop", 0, &region_id);
-+   geopm_prof_enter(region_id);
-+#endif
-+
     while ((i+1) <= max_iter)
     {
++#ifdef GEOPM
++       geopm_prof_epoch();
++       geopm_prof_region("PCGSolveLoop", 0, &region_id);
++       geopm_prof_enter(region_id);
++#endif
++
        /*--------------------------------------------------------------------
+        * the core CG calculations...
+        *--------------------------------------------------------------------*/
+@@ -711,6 +732,9 @@ hypre_PCGSolve( void *pcg_vdata,
+       else
+          (*(pcg_functions->CopyVector))(s, p);
+    }
++#ifdef GEOPM
++    geopm_prof_exit(region_id);
++#endif
+ 
+    /*--------------------------------------------------------------------
+     * Finish up with some outputs.
 diff --git a/test/amg.c b/test/amg.c
 index fb5ccb5..9c606f9 100644
 --- a/test/amg.c
