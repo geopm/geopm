@@ -766,6 +766,7 @@ class TestIntegration(unittest.TestCase):
             node_names = self._output.get_node_names()
             self.assertEqual(num_node, len(node_names))
 
+            power_limits = []
             # Total power consumed will be Socket(s) + DRAM
             for nn in node_names:
                 tt = self._output.get_trace_data(node_name=nn)
@@ -788,6 +789,14 @@ class TestIntegration(unittest.TestCase):
 
                 pandas.set_option('display.width', 100)
                 launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
+
+                # Get final power limit set on the node
+                if agent == 'power_balancer':
+                    power_limits.append(epoch_dropped_data['power_limit'][-1])
+
+            if agent == 'power_balancer':
+                avg_power_limit = sum(power_limits) / len(power_limits)
+                self.assertTrue(avg_power_limit <= power_budget)
 
             min_runtime = float('nan')
             max_runtime = float('nan')
