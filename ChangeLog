@@ -1,3 +1,529 @@
+* Tue Oct 02 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.0
+- Stablized Agent code path.
+- Last release with Decider/Platform/PlatformImp support.
+
+
+################# FIXME: GELOW IS RAW GIT LOG #################
+
+    Fix issue where slack was calculated prior to adding in extra power.
+    
+    Change-Id: I04ed1715bd56d1eae11f7f543ebd057a47601d74
+
+
+    Change m_power_max to package max instead of TDP.
+    
+    - At higher power budgets, some nodes may benefit from extra power
+      above TDP, depending on application characteristics.
+    
+    Change-Id: Id258be93209a1e063d68e6bfb619137ca982ba54
+
+
+    Refactor feedback of actual power limit into PowerBalancer.
+    
+    - Rename pre_adjust() to enter_step().
+    - Remove notify_achieved_limit() and move functionality of
+      PowerBalancer::achieved_limit() into power_limit_adjusted().
+    - Fix a problem where the request limit could go below the minimum and
+      become negative.
+    
+    Change-Id: I2faae86782f9f0c897d7a83d7d151109bf451d7f
+
+
+    Have RootRole throw if bad power cap is set.
+    
+    - DRAM power is no longer being used for governing, so the only way to
+      get a bad power cap is for the incoming policy to have an
+      out-of-bounds value.
+    
+    Change-Id: Id4a792ca0e1e9a286f0a54575647ab7c9165a41c
+
+
+    Install missing python modules for theta.
+    
+    - Set flags for configure appropriate for theta.
+    
+    Change-Id: Icdb735f2374906d2dbf6c728e8ed66edc6cdbedd
+
+
+    Add dependency of python on tables package.
+    
+    Change-Id: I5f78351f1cefcadf4248a8bc092311cbf20d73cc
+
+
+    Updates to PowerBalancerAgent addressing review.
+    
+    Change-Id: I2b9fb6c3f6a69c3be59c405f6e607af6d3b9c44f
+
+
+    Add barrier in MPI_Init after MPI handoff to GEOPM.
+    
+    Change-Id: I2a5f180aea3c692e42d339507281623117657d58
+
+
+    Update markup for miniFE example to set region ID once per region.
+    
+    Change-Id: I41d4702fbf3cf4b0859717867809742b33e63890
+
+
+    Add CORAL 2 version of AMG to examples.
+    
+    Change-Id: I60cd86422ed9185ed7ecf203ec1c2234dedb62ec
+
+
+    Populate summary*() methods for BalancerAnalysis.
+    
+    - summary_process() reduces data from multi-iteration experiments and
+      repurposes the profile name column as the power_budget.
+    - summary() writes 3 output files: balancer.log, per_node.log, and
+      per_region.log.
+        + balancer.log - Contains top level means from the epoch
+        region.  Compares the Governoring Agent vs. the Balancer on runtime
+        and energy.
+        + per_node.log - Contains per region means for all nodes
+        together and also per_node.
+        + per_region.log - Contains full statistics for each region for all
+        nodes together per power budget per agent.
+    
+    Change-Id: I096b9fd79afac0e55c79036e5aa75ffb24502822
+
+
+    Fix analysis.py options.
+    
+    - '--normalize' no longer requires an argument.
+    - Add handling for '--speedup'.
+    - Fix plotter typo.
+    - Add '_normalized' to corresponding plots.
+    
+    Change-Id: I00150e5fd766225264ef412dba27a740d412c98f
+
+
+    Change EnergyEfficientAgent frequency map to use JSON format.
+    
+    - GEOPM_EFFICIENT_FREQ_RID_MAP is now expected to be a JSON string.
+    - Update documentation for the agent to describe the format.
+    - Fixes #364.
+    
+    Change-Id: Ibfdf0cd045b74687bbe0f4293cdd36e3c95ddb59
+
+
+    Re-parse reports and traces if HDF5 cache is older than the inputs.
+    
+    Change-Id: I5f8e9fb6a1b11dd8367659da00c8f8cf9c94a61d
+
+
+    Fix for trimmed min-max variation in histogram title.
+    
+    Change-Id: I405cd09cf284e81df45c96b561d77fcf3c311d8f
+
+
+    Add HDF5 caching for parsed reports and traces to io.py.
+    
+    - Change some AppOutput methods to return pandas Dataframes instead of
+      Report/Region objects.
+    - Update integration tests to use new interfaces.
+    - Note: if parsing is changed or fresh data from a new experiment
+      should be used, h5 files should be removed and regenerated.
+    
+    Change-Id: Ib143f835bd54f8b17fd1a5d45e404cd29a3e0ad1
+
+
+    Fix for ompt region names in Reporter.
+    
+    Change-Id: I338685d64692ee5731d4c273fc3bc6625bb759f7
+
+
+    Have ManagerIO skip policy file parsing if agent has no policies.
+    
+    Change-Id: If14eae05a7f591aef73f214642621af0893a3fd8
+
+
+    Update nekbone patches for scaling studies.
+    
+    Change-Id: I3ffd343dc986a07922023e35ff1816eb7d980774
+
+
+    Fix race in ControlMessage.
+    
+    - Controller would overwrite application's status when
+      constructing the control message.
+    - The controller would then wait for the application's message
+      that it had overwritten and it would time out.
+    - Fix tests to not inherit from the class it is testing.
+    - Race was introduced when the unit tests were originally added.
+    
+    Change-Id: I301ad2d38e111c09d74c47828a51a261aecc2966
+
+
+    Add NodePowerAnalysis and tests.
+    
+    - Part of #359.
+    
+    Change-Id: Iaf3641134aab3fcad8c787c9c59ce0aa7d40b6be
+
+
+    Add NodeEfficiencyAnalysis and tests.
+    
+    - Introduce a plotter method to generate histograms.
+    - Part of #359.
+    
+    Change-Id: I14394a9cd969f9851919235bbc3845ce8ef996da
+
+
+    Modify launcher to set LD_PRELOAD only for application.
+    
+    - For aprun use the -e command line option and for srun
+      use the --export option.
+    
+    Change-Id: Iaf63b7aab5854d91075b1bb00e90c0eb8dd5ff90
+
+
+    Temporary fix for integration tests.
+    
+    - Fix for names of summary_process() and summary().
+    - Don't cache results with HDF5 for energy efficient agent
+      analysis types.  Data is parsed in multiple steps.
+    - Change test_ignore_runtime filename to match test name.
+    
+    Change-Id: I19a2af883b7ba02550fe03205e2dbbd76fcf2533
+
+
+    Add missing launcher options to help text.
+    
+    Change-Id: Id6b4a297bd6cdfde797a85fdb1d8e95ac8ca5077
+
+
+    Add BalancerAnalysis and tests.
+    
+    - Resolves #358.
+    
+    Change-Id: I5acc8bc5bc7af6103e9524f60ce4961e4a78bab7
+
+
+    Add PowerSweepAnalysis and tests.
+    
+    Change-Id: I40c8216096c2a0746ab033c52096c342d4c39782
+
+
+    Fixes to io and plotter.
+    
+    - Support for old data missing separate dram energy in report.
+    - Fix some places to handle new agent field in parsed header.
+    
+    Change-Id: Ic619cc5073f8b5a175e3bf7f7241c5ad155e397f
+
+
+    Refactor Analysis constructor arguments.
+    
+    - Analysis type is the first argument and is required unless doing
+      --help or --version.
+    - Each Analysis class has a method to set up the arguments it expects.
+    - Move launch-related options to be passed to launch into an object.
+    - Add options for min and max frequency for frequency sweep analysis
+      types.  If not provided, sys_freq_avail() will be used for launch.
+      These options are required for --skip-launch.
+    - Rename report_process() and report() to summary_process() and summary().
+    - Remove --level option and replace with --summary and --plot.  This
+      allows summaries and/or plots to be generated separately.
+    - Add tests of analysis CLI.
+    - Rename TestAnalysis to TestFreqSweepAnalysis.
+    - Resolves #356.
+    
+    Change-Id: I15a91f7cae1daae14e085f096c83684019d03d0e
+
+
+    Fix hang when runtime is active but report has not been requested.
+    
+    - Fixes #347.
+    - Get rid of unused and undocumented environment variable
+      GEOPM_REPORT_VERBOSITY.
+    
+    Change-Id: I4776ef98e47cf0ac43bc824bfa6468d3e2d26c0c
+
+
+    Add integration test that runs GEOPM, but does not generate reports.
+    
+    Change-Id: I28eecac63b0a61e21171ede05ae23c10cc58a6e8
+
+
+    Use secure versions of the CPU_SET macros.
+    
+    - Also a bit of clean up.
+    
+    Change-Id: I188ff6db32d3374975a3c0188292181b1a65fbe8
+
+
+    Add HDF5 caching to Analysis parse().
+    
+    - Resolves #357.
+    
+    Change-Id: I0438c6f100e5f17654b8afa6c1730e92b5bb76b6
+
+
+    Set MPICH environment variable to enable MPI_THREAD_MULTIPLE.
+    
+    - If launching controller as pthread enable the controller thread
+      to use MPI if using MPICH.
+    - Fixes #345
+    
+    Change-Id: I0113556fcb111108e22fdd240a10bd5b5bc47682
+
+
+    Fix for klocwork error: missing null check.
+    
+    Change-Id: Ie2ba0e452bbe9c4f6d9192a3ec624e66f56bb533
+
+
+    Fix handling of bad OMP masks.
+    
+    - Fixes #346.
+    
+    Change-Id: Ia5a5138d396599da40881d9783d7ea32f032541e
+
+
+    Fix Fortran comm initialization.
+    
+    Change-Id: I76642d4afdaee6c3593480c4ec500633b22240f2
+
+
+    Add hostname, etc. to ControlMessage wait() error.
+    
+    Change-Id: I4faa6b150259a830c9607afd4789e6b372e65270
+
+
+    Suppress OMP warnings with Intel toolchain.
+    
+    Change-Id: I031fd82e773587032e0bb08012600b3f87211433
+
+
+    Tweaks to PowerBalancer algorithm.
+    
+    - Move update to m_runtime_sample into separate function from getter.
+    - Maintain power setting for nodes within 2% of worst runtime.
+    
+    Change-Id: I87a59c69b2226426e0d9f98e1366404c591ac903
+
+
+    PowerBalancerAgent unit tests.
+    
+    - Add test constructor to PowerBalancerAgent.
+    - Fixes #310.
+    
+    Change-Id: I9d543cc018af22b2fc6b01dac122ae142b8643f3
+
+
+    Augment trace columns of the PowerBalancerAgent.
+    
+    - Add last received policy values to the trace.
+    - Add enforced power limit to the trace.
+    - Fixes #316.
+    
+    Change-Id: I52994b0167a1bb3d5cbbdc31577012a928fe6bf8
+
+
+    New PowerBalancerAgent implementation.
+    
+    - Now with 100% more GoF.
+    - Fixes #311.
+    
+    Change-Id: I3543494c9193d56def6872c2a6d2d47ad7cae16e
+
+
+    Enable pthread launch test on mr-fusion.
+    
+    Change-Id: Ic71d7b0256e5fd10bb157adfdbb0b0a4f65d19e6
+
+
+    Replace some usages of geopm_time_diff with geopm_time_since.
+    
+    - Removed unneeded #includes of geopm_time.h
+    
+    Change-Id: Ia1e01fbc35010eec3610346aded6ccbe9ac50f84
+
+
+    Add CYCLES_THREAD and CYCLES_REFERENCE to trace.
+    
+    - Allows more accurate achieved frequency to be calculated from the
+      trace.
+    
+    Change-Id: I6b7edd1dfa7b1ae8842ceadcb78e8708d3d85b8b
+
+
+    Fix pthread launch for new code path.
+    
+    - Fixes #344.
+    
+    Change-Id: I474c6f2203fd08d359308d80697a2a5eb650983e
+
+
+    Fix --enable-overhead.
+    
+    - Add test constructor to Profile.
+    
+    Change-Id: I4cd2bf701bdd686868592279db14b7e348e0da62
+
+
+    Add test constructor to PowerBalancerAgent.
+    
+    Change-Id: I963cc7d4e354e8c4535c448d1505491a03c91500
+
+
+    Update Reporter to use RegionAggregator.
+    
+    - Reporter owns the RegionAggregator.
+    - Add Reporter::update() method that calls RegionAggregator's
+      read_batch().
+    - Removed push_region_signal_total() and sample_region_total()
+      from PlatformIO.  This functionality is available to Agents
+      by creating an instance of RegionAggregator.
+    
+    Change-Id: Iaf86338855e547812a3616b36055e9dba5657187
+
+
+    Add RegionAggregator class for per-region signal totals.
+    
+    - Signals are aggregated for epoch region after calling start_epoch().
+      MPI and ignore regions are included in the epoch.
+    - Related methods of PlatformIO will be removed in a future patch.
+    - Changed region counts to start at -1.  This means that EPOCH_COUNT
+      will be -1 before the first epoch, 0 during the first epoch, and 1
+      after the first epoch has exited.
+    - Fix a problem with include guard in geopm_hash.h.
+    
+    Change-Id: Ib76bcb5ea116ab3ffad5c9b8ab678472de4e9e4b
+
+
+    Fix analysis.py unit tests.
+    
+    Change-Id: I6f0b89ae156c1a44236bbfd9e004ef5aee2bfea2
+
+
+    Update the analysis.py energy references.
+    
+    Change-Id: I36dfad48cd583fd991b369f03561f5dd80b2478e
+
+
+    Fix order of MSR save / agent init().
+    
+    - Since agents may call write_control() in their init() method, saving
+      the MSR values after init() has been called leads to improper restore
+      values at the end of execution.
+    - This addresses the issue of the time window, now being set in the
+      governor's init_platform_io method, being restored improperly.
+    
+    Change-Id: Ia4a821b3a24dc245d70b5115370c015fe5a933ed
+
+
+    Remove all occurances of power or energy that do not specifiy package or dram.
+    
+    Change-Id: Id9625febb27e6d969da6a3b9ed16b9474cb39126
+
+
+    Fix test_power_consumption.
+    
+    - Power budget is only for socket.
+    - Some tweaks to power cap for test_power_governor.
+    
+    Change-Id: I5bfef280bc5cc54750a86cdf3ee48096bc79ab72
+
+
+    Ignore samples that are made less than 3 time windows away from a change to the power limit.
+    
+    Change-Id: Idc85fef21fa0f110f7d0eaacd7347d0562538fec
+
+
+    Modify PowerGovernor to ignore DRAM power and tune parameters for power balancer.
+    
+    - Use TDP for M_POWER_MAX.
+    - Increase measure duration to 250 ms.
+    - Set tau to 15ms for POWER_PACKAGE control.
+    - Add the POWER_PACKAGE_TIME_WINDOW setting to governor.
+    - Get rid of the setter in the MSRIOGroup.
+    - Add getter to PowerGovernor.
+    
+    Change-Id: Ic389bd382420003160d7fd4c953154b7db411815
+
+    
+################# FIXME: ABOVE IS RAW GIT LOG #################
+
+
++ Updates to documentation:
+  - Add documentation about raw MSR signals.
+  - Add documentation to the README about the scaling_governor.
+  - Add documentation for hint ignore interaction with geopm_prof_epoch().
+  - Add documentation for all of the supported region hints.
+  - Remove documentation about node barrier enforced by epoch call,
+    this is no longer true.
+  - Remove reference to MPIEXEC from spec file.
+  - Add documentation of constructor attribute for plugins to geopm(7)
+    man page.
+
++ Modified implementations and interfaces:
+  - Get rid of C-string from ProfileTable implementation.
+  - Reuse same idx val for repeated pushes of signals/controls.
+  - Introducing GEOPM_EXEC_WRAPPER environment variable useful for
+    insering a debugger into the integration tests.
+  - Add max_level() to TreeComm.
+  - Introducing the PowerGovernor class.
+  - Introducing Agent::aggregate_sample() static helper function for
+    Agents.
+  - Cat lscpu output to /tmp prior to running job and avoid popen call
+    inside of MPI app.
+  - Change PowerGovernorAgent::wait() to use time instead of RAPL
+    updates.
+  - Add option to use agent code path to geopmanalysis (use_agent).
+  - Add agent field to io.py dataframe index.  This will break
+    compatibility with scripts that use the old index.
+  - Rename RAPL related MSR names: SOFT_POWER_LIMIT to PL1_POWER_LIMIT
+    and HARD_POWER_LIMIT to PL2_POWER_LIMIT.
+  - Add geopm_time_since() method.
+
++ Updated features:
+  - Ignore epoch calls when made inside of a region marked with the ignore hint.
+  - Add MSRIOGroup signals that return the raw value of an MSR.
+  - Introducing the new PowerBalancer agent with many commits since
+    v0.5.1 that tweak the agorithm.
+  - Use slurm option to select the performance power governor when using GEOPM.
+  - Add profile name and agent to trace header.
+  - Add Agent support in python scripts.
+  - Add a spec file for building GEOPM for ALCF Theta.
+
++ Updated and extended integration tests:
+  - Updates to integration tests to support the Agent / PlatformIO
+    code path are a major feature of this release.
+  - Adding back integration test for power balancer with increased time limit.
+  - Automatically infer architecture based on hostname.
+  - Add monitor as available agent to run integration tests.
+  - Use regular runtime for epoch in test_region_runtimes.
+  - Require balancer test to run in an allocation.
+
++ Updated unit tests:
+  - Add more detailed checks of TreeComm calls to KontrollerTest.
+  - Implemented unit tests for PowerBalancer class.
+
++ Bug fixes:
+  - Fix catch-value warning from GCC 8.
+  - Fix possible C string truncation.
+  - Fix for null characters sometimes appearing in report header.
+  - Fix string sizing for strncpy and snprintf for gnu8.
+  - Fix null termination in case of string overflow.
+  - Fix in PowerGovernorAgent where fan_in could be accessed out of
+    bounds.
+  - Fix Kontroller index into Agent array; the level 0 Agent should
+    not do descend() or ascend().
+  - Fix issue where second region runtime is longer than first: move
+    region exit barrier after call to sample.
+  - Fix geopmagent so it can create empty json files.
+  - Fix launcher to handle --cpu-bind as well as --cpu_bind.
+  - Fix failure to restore fixed counter MSRs at end of GEOPM runtime.
+  - Fix epoch region ID detection in io.py.
+  - Fix for test_trace_runtimes with agent code path.
+  - Fix performance issue: if power will be controlled, adjust one CPU per package.
+  - Fix EnergyEfficientAgent init().
+  - Fix issue where geopm would try to restore MSR MISC_ENABLE which is read only.
+
+
+
+
 * Sat Jun 23 2018 Brad Geltz <brad.geltz@intel.com> v0.5.1
 - GEOPM beta hotfix release!
 - Introduce the PowerGovernorAgent.  This agent is implemented and fully featured.
