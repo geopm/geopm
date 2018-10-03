@@ -1,3 +1,6 @@
+* Tue Oct 02 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.0
+- Stablized Agent code path.
+- Last release with Decider/Platform/PlatformImp support.
 * Sat Jun 23 2018 Brad Geltz <brad.geltz@intel.com> v0.5.1
 - GEOPM beta hotfix release!
 - Introduce the PowerGovernorAgent.  This agent is implemented and fully featured.
