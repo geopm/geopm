@@ -57,24 +57,27 @@ including support for static control.
 
 %build
 test -f configure || ./autogen.sh
-CC='cc -dynamic' \
-CXX='CC -dynamic' \
-MPICC='cc -dynamic' \
-MPICXX='CC -dynamic' \
-FC='ftn' \
-F77='ftn' \
-CFLAGS='-xCORE-AVX2' \
-CXXFLAGS='-xCORE-AVX2' \
+CRAYPE_LINK_TYPE=dynamic \
+CC=cc \
+CXX=CC \
+MPICC=cc \
+MPICXX=CC \
+FC=ftn \
+F77=ftn \
+CFLAGS='-dynamic -xCORE-AVX2' \
+CXXFLAGS='-dynamic -xCORE-AVX2' \
 FCFLAGS='-dynamic -xCORE-AVX2' \
 FFLAGS='-dynamic -xCORE-AVX2' \
 ./configure --prefix=%{install_prefix} \
             || ( cat config.log && false )
+CRAYPE_LINK_TYPE=dynamic \
 %{__make}
 
 
 %install
 pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python2.7/site-packages \
             pandas natsort matplotlib cycler tables
+CRAYPE_LINK_TYPE=dynamic \
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
         find %{buildroot}/%{install_prefix} -name '*.la'; \
