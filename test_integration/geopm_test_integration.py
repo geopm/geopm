@@ -98,10 +98,10 @@ def get_platform():
     return fam, mod
 
 
-def skip_unless_platform_bdx():
+def skip_unless_platform_bdx_skx():
     fam, mod = get_platform()
-    if fam != 6 or mod not in (45, 47, 79):
-        return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
+    if fam != 6 or mod not in (45, 47, 79, 85):
+        return unittest.skip("Performance test is tuned for BDX or SKX server, The family {}, model {} is not supported.".format(fam, mod))
     return lambda func: func
 
 
@@ -1056,6 +1056,9 @@ class TestIntegration(unittest.TestCase):
         if hostname.endswith('.alcf.anl.gov'):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
+        elif hostname.startswith('mcfly'):
+            dgemm_bigo = 42.0
+            stream_bigo = 1.75
         else:
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
@@ -1116,7 +1119,7 @@ class TestIntegration(unittest.TestCase):
                     self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
 
     @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx()
+    @skip_unless_platform_bdx_skx()
     @skip_unless_cpufreq()
     def test_agent_energy_efficient_online(self):
         """
@@ -1145,6 +1148,9 @@ class TestIntegration(unittest.TestCase):
         if hostname.endswith('.alcf.anl.gov'):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
+        elif hostname.startswith('mcfly'):
+            dgemm_bigo = 42.0
+            stream_bigo = 1.75
         else:
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
