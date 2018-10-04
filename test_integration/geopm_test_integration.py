@@ -110,10 +110,10 @@ def get_platform():
     return fam, mod
 
 
-def skip_unless_platform_bdx():
+def skip_unless_platform_bdx_skx():
     fam, mod = get_platform()
-    if fam != 6 or mod not in (45, 47, 79):
-        return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
+    if fam != 6 or mod not in (45, 47, 79, 85):
+        return unittest.skip("Performance test is tuned for BDX or SKX server, The family {}, model {} is not supported.".format(fam, mod))
     return lambda func: func
 
 
@@ -1081,6 +1081,9 @@ class TestIntegration(unittest.TestCase):
         if hostname.endswith('.alcf.anl.gov'):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
+        elif hostname.startswith('mcfly'):
+            dgemm_bigo = 42.0
+            stream_bigo = 1.75
         else:
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
@@ -1121,6 +1124,7 @@ class TestIntegration(unittest.TestCase):
     @skip_unless_run_long_tests()
     @skip_unless_cpufreq()
     @skip_unless_slurm_batch()
+    @skip_unless_platform_bdx_skx()
     def test_agent_energy_efficient(self):
         """
         Test of the EnergyEfficientAgent.
@@ -1133,7 +1137,7 @@ class TestIntegration(unittest.TestCase):
         self._agent = "energy_efficient"
         num_node = 1
         num_rank = 4
-        loop_count = 25
+        loop_count = 200
         dgemm_bigo = 20.25
         stream_bigo = 1.449
         dgemm_bigo_jlse = 35.647
