@@ -44,6 +44,7 @@
 #include "Exception.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "PlatformTopo.hpp"
+#include "geopm_test.hpp"
 
 using geopm::IPlatformTopo;
 using geopm::CpuinfoIOGroup;
@@ -98,9 +99,8 @@ TEST_F(CpuinfoIOGroupTest, valid_signals)
     EXPECT_EQ(0u, freq_limits.control_names().size());
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info0)
+TEST_F(CpuinfoIOGroupTest, parse_sticker_with_at)
 {
-    // with @
     const std::string cpuinfo_str =
         "processor       : 254\n"
         "vendor_id       : GenuineIntel\n"
@@ -136,9 +136,8 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info0)
     EXPECT_DOUBLE_EQ(1.3e9, freq);
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info1)
+TEST_F(CpuinfoIOGroupTest, parse_sticker_without_at)
 {
-    // without @
     const std::string cpuinfo_str =
         "processor       : 255\n"
         "vendor_id       : GenuineIntel\n"
@@ -174,9 +173,8 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info1)
     EXPECT_DOUBLE_EQ(1.2e9, freq);
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info2)
+TEST_F(CpuinfoIOGroupTest, parse_sticker_with_ghz_space)
 {
-    // without @ with space
     const std::string cpuinfo_str =
         "processor       : 255\n"
         "vendor_id       : GenuineIntel\n"
@@ -212,9 +210,8 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info2)
     EXPECT_DOUBLE_EQ(1.1e9, freq);
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info3)
+TEST_F(CpuinfoIOGroupTest, parse_sticker_missing_newline)
 {
-    // missing newline
     const std::string cpuinfo_str =
         "processor       : 255\n"
         "vendor_id       : GenuineIntel\n"
@@ -230,9 +227,8 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info3)
     EXPECT_DOUBLE_EQ(1.1e9, freq);
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info4)
+TEST_F(CpuinfoIOGroupTest, parse_error_no_sticker)
 {
-    // missing number
     const std::string cpuinfo_str =
         "processor       : 255\n"
         "vendor_id       : GenuineIntel\n"
@@ -244,14 +240,13 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info4)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
-    EXPECT_TRUE(std::isnan(freq));
+    GEOPM_EXPECT_THROW_MESSAGE(
+        CpuinfoIOGroup(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path),
+        GEOPM_ERROR_INVALID, "Invalid frequency");
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info5)
+TEST_F(CpuinfoIOGroupTest, parse_sticker_multiple_ghz)
 {
-    // multiple GHz
     std::string cpuinfo_str =
         "processor       : 255\n"
         "vendor_id       : GenuineIntel\n"
@@ -268,9 +263,8 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info5)
     EXPECT_DOUBLE_EQ(1.5e9, freq);
 }
 
-TEST_F(CpuinfoIOGroupTest, parse_cpu_info6)
+TEST_F(CpuinfoIOGroupTest, parse_sticker_multiple_model_name)
 {
-    // with model name foobar
     const std::string cpuinfo_str =
         "processor       : 254\n"
         "vendor_id       : GenuineIntel\n"
@@ -309,7 +303,6 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_info6)
 
 TEST_F(CpuinfoIOGroupTest, parse_cpu_freq)
 {
-    // with model name foobar
     const std::string cpuinfo_str =
         "processor       : 254\n"
         "vendor_id       : GenuineIntel\n"
@@ -350,7 +343,6 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_freq)
 
 TEST_F(CpuinfoIOGroupTest, plugin)
 {
-    // with model name foobar
     const std::string cpuinfo_str =
         "processor       : 254\n"
         "vendor_id       : GenuineIntel\n"
@@ -383,4 +375,31 @@ TEST_F(CpuinfoIOGroupTest, plugin)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     EXPECT_EQ("CPUINFO", CpuinfoIOGroup(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path).plugin_name());
+}
+
+
+TEST_F(CpuinfoIOGroupTest, parse_error_sticker_bad_path)
+{
+    const std::string cpuinfo_str =
+        "processor       : 255\n"
+        "vendor_id       : GenuineIntel\n"
+        "cpu family      : 6\n"
+        "model           : 87\n"
+        "model name      : Intel(R) Genuine Intel(R) CPU 0000 1.10GHz";
+
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
+    cpuinfo_stream << cpuinfo_str;
+    cpuinfo_stream.close();
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        CpuinfoIOGroup("/bad/path", m_cpufreq_min_path, m_cpufreq_max_path),
+        GEOPM_ERROR_RUNTIME, "Failed to open");
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        CpuinfoIOGroup(m_cpuinfo_path, "/bad/path", m_cpufreq_max_path),
+        GEOPM_ERROR_RUNTIME, "Failed to open");
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        CpuinfoIOGroup(m_cpuinfo_path, m_cpufreq_min_path, "/bad/path"),
+        GEOPM_ERROR_RUNTIME, "Failed to open");
 }

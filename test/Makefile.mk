@@ -131,15 +131,16 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/GoverningDeciderTest.2_socket_under_budget \
               test/gtest_links/GoverningDeciderTest.2_socket_over_budget \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info0 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info1 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info2 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info3 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info4 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info5 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_info6 \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_at \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_ghz_space \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_missing_newline \
+              test/gtest_links/CpuinfoIOGroupTest.parse_error_no_sticker \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_ghz \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_model_name \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
+              test/gtest_links/CpuinfoIOGroupTest.parse_error_sticker_bad_path \
               test/gtest_links/EnergyEfficientAgentTest.map \
               test/gtest_links/EnergyEfficientAgentTest.name \
               test/gtest_links/EnergyEfficientAgentTest.hint \
