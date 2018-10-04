@@ -31,6 +31,8 @@
  */
 
 #include <cmath>
+#include <cstring>
+
 #include <fstream>
 #include <algorithm>
 #include <iterator>
@@ -54,9 +56,14 @@ namespace geopm
             try {
                 result = 1e3 * std::stod(line);
             }
-            catch (const std::invalid_argument &) {
-
+            catch (const std::invalid_argument &ex) {
+                throw Exception("Invalid frequency: " + std::string(ex.what()),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+        }
+        else {
+            throw Exception("Failed to open " + read_str + ": " + strerror(errno),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return result;
     }
@@ -66,6 +73,10 @@ namespace geopm
         double result = NAN;
         const std::string key = "model name";
         std::ifstream cpuinfo_file(read_str);
+        if (!cpuinfo_file.good()) {
+            throw Exception("Failed to open " + read_str + ": " + strerror(errno),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         while (std::isnan(result) && cpuinfo_file.good()) {
             std::string line;
             std::getline(cpuinfo_file, line);
@@ -100,8 +111,9 @@ namespace geopm
                         try {
                             result = unit_factor[unit_idx] * std::stod(value_str);
                         }
-                        catch (const std::invalid_argument &) {
-
+                        catch (const std::invalid_argument &ex) {
+                            throw Exception("Invalid frequency: " + std::string(ex.what()),
+                                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                         }
                     }
                 }
