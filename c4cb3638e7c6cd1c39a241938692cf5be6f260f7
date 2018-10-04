@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d936b2d8_eb00645a",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "Can remove; documentation for new feature in this release",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 42
+      },
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1457636e_a8a39327",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "before the first entry",
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f06c802d_81c551c0",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "can remove; correction to patch on previous line.",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 31
+      },
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b433ba27_383f9044",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "can remove; this was a correction to the patch on previous line",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 31
+      },
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "939adebd_b951d56d",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "can remove; part of feature on previous line",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 69
+      },
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8136f972_16571751",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "can remove; tests for new classes introduced in this release",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 30
+      },
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf16fe3f_cab86d46",
+        "filename": "ChangeLog",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-04T15:29:08Z",
+      "side": 1,
+      "message": "can remove; fixes for new features introduced in this release",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 53
+      },
+      "revId": "c4cb3638e7c6cd1c39a241938692cf5be6f260f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
