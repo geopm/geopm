@@ -37,7 +37,7 @@ set auto-load safe-path $LD_LIBRARY_PATH
 
 # optional configuration settings
 #set logging on
-#set logging file geopm.gdb.log
+#set logging file geopm-$HOSTNAME-$VALGRIND_PID.gdb.log
 
 define unit_test
     r --gtest_break_on_failure --gtest_catch_exceptions=0 --gtest_filter=$arg0

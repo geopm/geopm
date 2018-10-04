@@ -29,17 +29,33 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# needed because I don't have LD_LIBRARY_PATH proper yet
+set auto-load safe-path /
 source .gdbinit.geopm
 
-# TODO 1 Triage configuration
+# TODO
+# triage config
 # configure breakpoints
 #b [ SourceFileName:LineNumber | FunctionName | InstructionAddress ]
 #commands
-# [bt | list | print | ect.]
+# [bt | list | ect.]
 #end
+b EnergyEfficientAgent.cpp:280
+commands
+print /x current_region_hash
+print \n
+end
 
-# TODO 2 Triage
+b EnergyEfficientAgent.cpp:239
+commands
+print /x m_last_region.first
+print /f m_last_region.second
+print \n
+end
+
+# TODO
+# triage
 # execute test of interest using
 # the unit_test method defined in
 # .gdbinit.geopm
-#unit_test TestClassName.TestName
+unit_test EfficientFreqAgentTest.map

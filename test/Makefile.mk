@@ -29,13 +29,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-check_PROGRAMS += $(cat) geopm_test.list \
+#todo convert test_bins output to .list format
+test_bins       = $(cat) geopm_test.list \
                   # end
 
 if ENABLE_MPI
-check_PROGRAMS += $(cat) geopm_mpi_test.list \
+test_bins		 += $(cat) geopm_mpi_test.list \
                   # end
 endif
+
+check_PROGRAMS += $(test_bins) \
+                  # end
 
 #test_env = "LD_LIBRARY_PATH=.libs:openmp/lib:$LD_LIBRARY_PATH"
 
