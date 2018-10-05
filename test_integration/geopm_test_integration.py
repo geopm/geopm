@@ -1124,7 +1124,7 @@ class TestIntegration(unittest.TestCase):
         launcher_argv.extend(temp_launcher.num_rank_option(False))
         launcher_argv.extend(temp_launcher.num_node_option())
 
-        loop_count = 10
+        loop_count = 25
         dgemm_bigo = 20.25
         stream_bigo = 1.449
         dgemm_bigo_jlse = 35.647
