@@ -75,10 +75,9 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            bool update_freq_range(const std::vector<double> &in_policy);
+            bool update_policy(const std::vector<double> &policy);
             double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
-            void parse_env_map(void);
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
@@ -86,14 +85,22 @@ namespace geopm
                 M_NUM_POLICY,
             };
 
+            enum m_sample_e {
+                M_SAMPLE_ENERGY_PACKAGE,
+                M_SAMPLE_FREQUENCY,
+                M_NUM_SAMPLE,
+            };
+
             enum m_signal_e {
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_RUNTIME,
-                M_SIGNAL_PKG_ENERGY,
                 M_NUM_SIGNAL,
             };
 
+            const int M_PRECISION;
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             double m_freq_min;
@@ -102,19 +109,15 @@ namespace geopm
             const size_t M_SEND_PERIOD;
             std::vector<int> m_control_idx;
             double m_last_freq;
-            double m_curr_adapt_freq;
-            std::map<uint64_t, double> m_hash_freq_map;
-            // for online adaptive mode
-            bool m_is_online;
+            std::pair<uint64_t, uint64_t> m_last_region;
+            std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
             std::vector<int> m_sample_idx;
             std::vector<int> m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
-            size_t m_num_sample;
             int m_level;
             int m_num_children;
-            std::pair<uint64_t, uint64_t>  m_last_region;
             size_t m_num_ascend;
     };
 }
