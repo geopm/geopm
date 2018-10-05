@@ -37,6 +37,8 @@
 #include <set>
 #include <vector>
 
+#include "CircularBuffer.hpp"
+
 namespace geopm
 {
 
@@ -62,28 +64,26 @@ namespace geopm
             virtual double energy_metric();
 
             IPlatformIO &m_platform_io;
-            size_t m_curr_idx;
-            double m_curr_freq = NAN;
-            double m_target = 0.0;
-            const double M_PERF_MARGIN = 0.10;  // up to 10% degradation allowed
-            const double M_ENERGY_MARGIN = 0.025;
-            const size_t M_MIN_BASE_SAMPLE = 4;
+            double m_curr_freq;
+            double m_target;
+            const double M_PERF_MARGIN;
+            const double M_ENERGY_MARGIN;
+            const size_t M_MIN_BASE_SAMPLE;
 
             bool m_is_learning;
             struct m_freq_ctx_s {
                 size_t num_increase;
-                double perf_max;
-                double energy_min;
-                size_t num_sample;
+                CircularBuffer<double> perf;
+                CircularBuffer<double> energy;
             };
 
             std::map<size_t, struct m_freq_ctx_s> m_freq_ctx_map;
-            const size_t M_MAX_INCREASE = 4;
+            const size_t M_MAX_INCREASE;
 
             double m_freq_step;
             std::set<double> m_allowed_freq;
             double m_curr_freq_max;
-            double m_start_energy = 0.0;
+            double m_start_energy;
 
             int m_runtime_idx;
             int m_pkg_energy_idx;
