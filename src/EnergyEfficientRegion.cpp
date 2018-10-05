@@ -31,6 +31,7 @@
  */
 #include <cmath>
 
+#include "Agg.hpp"
 #include "EnergyEfficientRegion.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
@@ -49,6 +50,7 @@ namespace geopm
         , m_platform_io(platform_io)
         , m_curr_freq(NAN)
         , m_target(0.0)
+        , m_is_learning(true)
         , m_start_energy(0.0)
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
@@ -60,10 +62,8 @@ namespace geopm
     {
         /// @todo m_freq_step == freq_step else we have to re-key our map
         ///       or make m_freq_step const
-        const struct m_freq_ctx_s freq_ctx_stub = {.num_increase = 0,
-                                                   .perf_max = 0.0,
-                                                   .energy_min = 0.0,
-                                                   .num_sample = 0,};
+
+        const struct m_freq_ctx_s freq_ctx_stub = {.num_increase = 0};
         // set up allowed frequency range
         m_freq_step = freq_step;
         double num_freq_step = 1 + (size_t)(ceil((freq_max - freq_min) / m_freq_step));
@@ -72,9 +72,11 @@ namespace geopm
         for (double step = 0; step < num_freq_step; ++step) {
             freq = freq_min + (step * m_freq_step);
             m_allowed_freq.insert(freq);
-            m_freq_ctx_map.emplace(std::piecewise_construct,
+            auto it = m_freq_ctx_map.emplace(std::piecewise_construct,
                                    std::make_tuple(freq / m_freq_step),
                                    std::make_tuple(freq_ctx_stub));
+            it.first->second.perf.set_capacity(M_MIN_BASE_SAMPLE);
+            it.first->second.energy.set_capacity(M_MIN_BASE_SAMPLE);
         }
         m_curr_freq_max = freq;
         if (std::isnan(m_curr_freq)) {
@@ -124,42 +126,35 @@ namespace geopm
             double energy = energy_metric() - m_start_energy;
             if (!std::isnan(perf) && !std::isnan(energy) &&
                 perf != 0.0 && energy != 0.0) {
-                // find the max perf and min energy for this frequency
-                // TODO: would be nicer to keep a circular buffer of values for perf
-                if (curr_freq_ctx.num_sample == 0 ||
-                    curr_freq_ctx.perf_max < perf) {
-                    curr_freq_ctx.perf_max = perf;
-                }
-                if (curr_freq_ctx.num_sample == 0 ||
-                    curr_freq_ctx.energy_min > energy) {
-                    curr_freq_ctx.energy_min = energy;
-                }
-                ++curr_freq_ctx.num_sample;
+                curr_freq_ctx.perf.insert(perf);
+                curr_freq_ctx.energy.insert(energy);
             }
-
-            if (curr_freq_ctx.num_sample > 0) {
-                if (curr_freq_ctx.num_sample >= M_MIN_BASE_SAMPLE &&
+            double med_perf = Agg::median(curr_freq_ctx.perf.make_vector());
+            double med_energy = Agg::median(curr_freq_ctx.energy.make_vector());
+            if (curr_freq_ctx.perf.size() > 0) {
+                if ((size_t) curr_freq_ctx.perf.size() >= M_MIN_BASE_SAMPLE &&
                     m_target == 0.0 &&
                     m_curr_freq == m_curr_freq_max) {
 
-                    if (curr_freq_ctx.perf_max > 0.0) {
-                        m_target = (1.0 - M_PERF_MARGIN) * curr_freq_ctx.perf_max;
+                    if (med_perf > 0.0) {
+                        m_target = (1.0 - M_PERF_MARGIN) * med_perf;
                     }
                     else {
-                        m_target = (1.0 + M_PERF_MARGIN) * curr_freq_ctx.perf_max;
+                        m_target = (1.0 + M_PERF_MARGIN) * med_perf;
                     }
                 }
 
                 bool do_increase = false;
                 // assume best min energy is at highest freq if energy follows cpu-bound
                 // pattern; otherwise, energy should decrease with frequency.
-                auto step_up_freq_ctx = step_up_freq_ctx_it->second;
+                const auto &step_up_freq_ctx = step_up_freq_ctx_it->second;
                 if (m_curr_freq != m_curr_freq_max &&
-                    step_up_freq_ctx.energy_min < (1.0 - M_ENERGY_MARGIN) * curr_freq_ctx.energy_min) {
+                    Agg::median(step_up_freq_ctx.energy.make_vector()) <
+                    (1.0 - M_ENERGY_MARGIN) * med_energy) {
                     do_increase = true;
                 }
                 else if (m_target != 0.0) {
-                    if (curr_freq_ctx.perf_max > m_target) {
+                    if (med_perf > m_target) {
                         double next_freq = m_curr_freq - m_freq_step;
                         if (m_allowed_freq.find(next_freq) != m_allowed_freq.end()) {
                             // Performance is in range; lower frequency
