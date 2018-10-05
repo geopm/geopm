@@ -37,6 +37,8 @@
 #include <set>
 #include <vector>
 
+#include "CircularBuffer.hpp"
+
 namespace geopm
 {
 
@@ -72,13 +74,11 @@ namespace geopm
             bool m_is_learning;
             struct m_freq_ctx_s {
                 size_t num_increase;
-                double perf_max;
-                double energy_min;
-                size_t num_sample;
+                CircularBuffer<double> perf;
+                CircularBuffer<double> energy;
             };
 
             std::map<size_t, struct m_freq_ctx_s> m_freq_ctx_map;
-
             double m_freq_step;
             std::set<double> m_allowed_freq;
             double m_curr_freq_max;
