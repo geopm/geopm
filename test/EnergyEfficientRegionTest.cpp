@@ -46,13 +46,11 @@ class StubPlatformIO : public MockPlatformIO
     public:
         StubPlatformIO()
         {
-            m_values[ENERGY_PKG] = 0.0;
             m_values[RUNTIME] = NAN;
         }
         virtual ~StubPlatformIO() {}
 
         enum mock_signal_idx_e {
-            ENERGY_PKG,
             RUNTIME,
         };
 
@@ -61,18 +59,10 @@ class StubPlatformIO : public MockPlatformIO
         {
             m_values[RUNTIME] = t;
         }
-        void set_energy(double e)
-        {
-            m_mock_region_energy = e;
-        }
 
         // increase mocked energy
         void run_region()
         {
-            if (std::isnan(m_values.at(ENERGY_PKG))) {
-                throw std::runtime_error("Mock energy was not given a value.");
-            }
-            m_values[ENERGY_PKG] += m_mock_region_energy;
         }
 
         double sample(int signal_idx) override
@@ -81,7 +71,6 @@ class StubPlatformIO : public MockPlatformIO
         }
     private:
         std::map<int, double> m_values;
-        double m_mock_region_energy = 0.0;
 };
 
 class EnergyEfficientRegionTest : public ::testing::Test
@@ -103,8 +92,8 @@ class EnergyEfficientRegionTest : public ::testing::Test
 
 EnergyEfficientRegionTest::EnergyEfficientRegionTest()
     : m_freq_region(m_platform_io,
-                    StubPlatformIO::RUNTIME,
-                    StubPlatformIO::ENERGY_PKG)
+                    m_freq_min, m_freq_max, m_freq_step,
+                    StubPlatformIO::RUNTIME)
 {
 
 }
@@ -113,7 +102,6 @@ void EnergyEfficientRegionTest::SetUp()
 {
     ASSERT_NE(m_freq_min, m_freq_max);
     ASSERT_NE(0, m_freq_step);
-    m_platform_io.set_energy(1);
     m_freq_region.update_freq_range(m_freq_min, m_freq_max, m_freq_step);
 }
 
@@ -245,16 +233,13 @@ TEST_F(EnergyEfficientRegionTest, performance_decreases_freq_steps_back_up)
 TEST_F(EnergyEfficientRegionTest, energy_increases_freq_steps_back_up)
 {
     m_platform_io.set_runtime(3);
-    m_platform_io.set_energy(1);
 
     sample_to_set_baseline();
 
-    std::vector<time_t> samples {1, 1, 5};
     std::vector<double> expected {m_freq_max - m_freq_step,
                                   m_freq_max - m_freq_step * 2,
                                   m_freq_max - m_freq_step};
-    for (size_t i = 0; i < samples.size(); ++i) {
-        m_platform_io.set_energy(samples[i]);
+    for (size_t i = 0; i < expected.size(); ++i) {
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
