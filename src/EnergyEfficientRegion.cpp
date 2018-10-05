@@ -39,7 +39,6 @@
 
 namespace geopm
 {
-
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
                                                  int runtime_idx,
                                                  int pkg_energy_idx)
@@ -90,9 +89,6 @@ namespace geopm
     double EnergyEfficientRegion::perf_metric()
     {
         double runtime = m_platform_io.sample(m_runtime_idx);
-        if (std::isnan(runtime)) {
-            runtime = 0.0;
-        }
         // Higher is better for performance, so negate
         return -1.0 * runtime;
     }
@@ -119,7 +115,10 @@ namespace geopm
         if (m_is_learning) {
             double perf = perf_metric();
             double energy = energy_metric() - m_start_energy;
-            if (!std::isnan(perf) && !std::isnan(energy)) {
+            if (!std::isnan(perf) && !std::isnan(energy) &&
+                perf != 0.0 && energy != 0.0) {
+                // find the max perf and min energy for this frequency
+                // TODO: would be nicer to keep a circular buffer of values for perf
                 if (curr_freq_ctx.num_sample == 0 ||
                     curr_freq_ctx.perf_max < perf) {
                     curr_freq_ctx.perf_max = perf;
@@ -167,6 +166,7 @@ namespace geopm
                         }
                     }
                 }
+
                 if (do_increase) {
                     // Performance degraded too far; increase freq
                     ++curr_freq_ctx.num_increase;

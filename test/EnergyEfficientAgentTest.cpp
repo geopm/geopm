@@ -200,7 +200,7 @@ TEST_F(EnergyEfficientAgentTest, hint)
     for (size_t x = 0; x < m_hints.size(); x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
             .WillOnce(Return(geopm_field_to_signal(
-                geopm_region_id_set_hint(m_hints[x], 0x1234))));
+                geopm_region_id_set_hint(m_hints[x], 0x1234 + x))));
         double expected_freq = NAN;
         switch(m_hints[x]) {
             // Hints for low CPU frequency
