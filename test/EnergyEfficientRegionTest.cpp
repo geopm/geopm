@@ -48,14 +48,12 @@ class StubPlatformIO : public MockPlatformIO
         StubPlatformIO()
         {
             m_values[ENERGY_PKG] = 0.0;
-            m_values[ENERGY_DRAM] = 0.0;
             m_values[RUNTIME] = NAN;
         }
         virtual ~StubPlatformIO() {}
 
         enum mock_signal_idx_e {
             ENERGY_PKG,
-            ENERGY_DRAM,
             RUNTIME,
         };
 
@@ -95,7 +93,7 @@ class EnergyEfficientRegionTest : public ::testing::Test
         void TearDown();
         double m_freq_min = 1.8e9;
         double m_freq_max = 2.2e9;
-        double m_freq_step = 1.0e6;
+        double m_freq_step = 1.0e8;
         int m_base_samples = 3;
 
         StubPlatformIO m_platform_io;
@@ -116,6 +114,7 @@ void EnergyEfficientRegionTest::SetUp()
 {
     ASSERT_NE(m_freq_min, m_freq_max);
     ASSERT_NE(0, m_freq_step);
+    m_platform_io.set_energy(1);
 }
 
 void EnergyEfficientRegionTest::TearDown()
@@ -167,7 +166,7 @@ TEST_F(EnergyEfficientRegionTest, only_changes_freq_after_enough_samples)
         m_freq_region.update_entry();
         m_platform_io.run_region();
         m_freq_region.update_exit();
-        EXPECT_EQ(m_freq_region.freq(), m_freq_max - (i * m_freq_step));
+        EXPECT_EQ(m_freq_max - (i * m_freq_step), m_freq_region.freq());
     }
 
     double end = m_freq_region.freq();

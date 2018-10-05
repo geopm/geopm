@@ -137,10 +137,10 @@ namespace geopm
         if (result) {
             for (auto &child_policy : out_policy) {
 #ifdef GEOPM_DEBUG
-        if (child_policy.size() != M_NUM_POLICY) {
-            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
+                if (child_policy.size() != M_NUM_POLICY) {
+                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                }
 #endif
                 child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
                 child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
@@ -209,6 +209,7 @@ namespace geopm
                     freq = m_freq_min;
                     break;
             }
+            m_rid_freq_map[geopm_region_id_hash(m_last_region_id)] = freq;
         }
 
         if (freq != m_last_freq) {
@@ -312,7 +313,7 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
         std::ostringstream oss;
         for (const auto &region : m_region_map) {
-            oss << region.first << ":" << region.second->freq() << " ";
+            oss << std::hex << region.first << ":" << std::dec << region.second->freq() << " ";
         }
         if (m_region_map.size()) {
             result.push_back({"Final freq map", oss.str()});
@@ -323,8 +324,15 @@ namespace geopm
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
+        // If region is in this map, online learning was used to set frequency
         for (const auto &region : m_region_map) {
-            result[region.first] = {std::make_pair("REQUESTED_FREQUENCY", std::to_string(region.second->freq()))};
+            result[geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region.first)] =
+                {std::make_pair("REQUESTED_ONLINE_FREQUENCY", std::to_string(region.second->freq()))};
+        }
+        // If region is in this map, offline static frequency or hint was used
+        for (const auto &region : m_rid_freq_map) {
+            result[geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region.first)] =
+                {std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second))};
         }
 
         return result;

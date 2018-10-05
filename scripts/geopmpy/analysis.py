@@ -1322,7 +1322,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         # Run frequency sweep
         self._sweep_analysis.launch(config)
         self._min_freq = self._sweep_analysis._min_freq
-        self._max_freq = self._sweep_analysis._min_freq
+        self._max_freq = self._sweep_analysis._max_freq
 
         # Run online frequency decider
         for iteration in range(self._iterations):
