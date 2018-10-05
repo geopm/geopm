@@ -611,10 +611,6 @@ class NodeEfficiencyAnalysis(Analysis):
         for target_power in self._power_caps:
             gov_data = gov_freq_data[target_power].to_string()
             bal_data = bal_freq_data[target_power].to_string()
-            #sys.stdout.write('Achieved frequencies at {}W with PowerGovernorAgent:\n'.format(target_power))
-            #sys.stdout.write(gov_data + '\n')
-            #sys.stdout.write('Achieved frequencies at {}W with PowerBalancerAgent:\n'.format(target_power))
-            #sys.stdout.write(bal_data + '\n')
             # TODO: this is here to be consumed by another script that characterizes subsets of nodes.
             # range of nodes could also be an input option
             with open(os.path.join(self._output_dir, "gov_freq_{}.data".format(target_power)), "w") as outfile:
@@ -639,8 +635,6 @@ class NodeEfficiencyAnalysis(Analysis):
         for target_power in self._power_caps:
             gov_data = all_gov_data[target_power]
             bal_data = all_bal_data[target_power]
-            #profile = self._name + "_" + str(target_power)
-
             config.profile_name = self._name + "@" + str(target_power) + "W Governor"
             geopmpy.plotter.generate_histogram(gov_data, config, 'frequency',
                                                bin_size, 3)
@@ -838,8 +832,6 @@ class FreqSweepAnalysis(Analysis):
                 agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
                 agent_conf.write()
                 if config.app_argv and not os.path.exists(report_path):
-                    os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(freq)
-                    os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(freq)
                     argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
                                      '--geopm-agent', agent_conf.get_agent(),
                                      '--geopm-policy', agent_conf.get_path(),
@@ -1240,7 +1232,7 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         # Run frequency sweep
         self._sweep_analysis.launch(config)
         self._min_freq = self._sweep_analysis._min_freq
-        self._max_freq = self._sweep_analysis._min_freq
+        self._max_freq = self._sweep_analysis._max_freq
 
         # Run online frequency agent
         for iteration in range(self._iterations):
@@ -1258,8 +1250,6 @@ class OnlineBaselineComparisonAnalysis(Analysis):
             agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
             agent_conf.write()
             if config.app_argv and not os.path.exists(report_path):
-                os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
-                os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
                                  '--geopm-agent', agent_conf.get_agent(),
                                  '--geopm-policy', agent_conf.get_path(),
