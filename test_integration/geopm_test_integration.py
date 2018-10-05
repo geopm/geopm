@@ -1036,7 +1036,7 @@ class TestIntegration(unittest.TestCase):
         Test of the EnergyEfficientAgent offline auto mode.
         """
         name = 'test_plugin_efficient_freq_offline'
-        loop_count = 10
+        loop_count = 100
         dgemm_bigo = 20.25
         stream_bigo = 1.449
         dgemm_bigo_jlse = 35.647
@@ -1126,6 +1126,9 @@ class TestIntegration(unittest.TestCase):
         if hostname.endswith('.alcf.anl.gov'):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
+        elif hostname.startswith('mcfly'):
+            dgemm_bigo = 42.0
+            stream_bigo = 1.7
         else:
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
@@ -1154,7 +1157,7 @@ class TestIntegration(unittest.TestCase):
 
         # Setup the adaptive policy run
         num_node = 1
-        num_rank = 4
+        num_rank = 1
         # Runs frequency sweep and runs with the plugin in online mode.
         analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(profile_prefix=name,
                                                                      output_dir='.',
