@@ -206,7 +206,7 @@ namespace geopm
                 //case GEOPM_REGION_HINT_UNKNOWN:
                 //case GEOPM_REGION_HINT_IGNORE:
                 default:
-                    freq = m_freq_min;
+                    freq = m_freq_max;
                     break;
             }
             m_rid_freq_map[geopm_region_id_hash(m_last_region_id)] = freq;
@@ -316,8 +316,16 @@ namespace geopm
             oss << std::hex << region.first << ":" << std::dec << region.second->freq() << " ";
         }
         if (m_region_map.size()) {
-            result.push_back({"Final freq map", oss.str()});
+            result.push_back({"Final online freq map", oss.str()});
         }
+        oss.str("");
+        for (const auto &region : m_rid_freq_map) {
+            oss << std::hex << region.first << ":" << std::dec << region.second << " ";
+        }
+        if (m_rid_freq_map.size()) {
+            result.push_back({"Final offline/hint freq map", oss.str()});
+        }
+
         return result;
     }
 
@@ -326,13 +334,25 @@ namespace geopm
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
         // If region is in this map, online learning was used to set frequency
         for (const auto &region : m_region_map) {
-            result[geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region.first)] =
-                {std::make_pair("REQUESTED_ONLINE_FREQUENCY", std::to_string(region.second->freq()))};
+            if (geopm_region_id_is_mpi(region.first)) {
+                result[geopm_region_id_hash(region.first)] =
+                    {std::make_pair("REQUESTED_ONLINE_MPI_FREQUENCY", std::to_string(region.second->freq()))};
+            }
+            else {
+                result[geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region.first)] =
+                    {std::make_pair("REQUESTED_ONLINE_FREQUENCY", std::to_string(region.second->freq()))};
+            }
         }
         // If region is in this map, offline static frequency or hint was used
         for (const auto &region : m_rid_freq_map) {
-            result[geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region.first)] =
-                {std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second))};
+            if (geopm_region_id_is_mpi(region.first)) {
+                result[geopm_region_id_hash(region.first)] =
+                    {std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second))};
+            }
+            else {
+                result[geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region.first)] =
+                    {std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second))};
+            }
         }
 
         return result;
