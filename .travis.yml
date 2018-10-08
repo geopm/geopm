@@ -44,7 +44,7 @@ before_install:
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
-    - pip install --user pandas natsort matplotlib
+    - pip install --user pandas natsort matplotlib cycler tables psutil
 
 install:
     - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran --enable-debug
