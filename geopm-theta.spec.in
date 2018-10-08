@@ -74,7 +74,7 @@ FFLAGS='-dynamic -xCORE-AVX2' \
 
 %install
 pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python2.7/site-packages \
-            pandas natsort matplotlib cycler tables
+            pandas natsort matplotlib cycler tables psutil
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
         find %{buildroot}/%{install_prefix} -name '*.la'; \
