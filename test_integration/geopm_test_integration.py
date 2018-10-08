@@ -417,7 +417,7 @@ class TestIntegration(unittest.TestCase):
             tt = tt.groupby(level=['region_id'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
-                if region_name != 'unmarked-region' and region_data['runtime'].item() != 0:
+                if region_name not in ('unmarked-region', 'model-init') and region_data['runtime'].item() != 0:
                     trace_data = tt.get_group((region_data['id'].item()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     if region_name == 'epoch':
