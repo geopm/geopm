@@ -1052,26 +1052,16 @@ def baseline_comparison(parse_output, comp_name):
     return baseline_means_df
 
 
-class OfflineBaselineComparisonAnalysis(Analysis):
+class EnergyEfficientAgentAnalysis(Analysis):
     """
-    Compares the energy efficiency plugin in offline mode to the
-    baseline at sticker frequency.  Launches freq sweep and run to be
-    compared.  Uses baseline comparison function to do analysis.
+    Common functionality for analysis of any mode of the EnergyEfficientAgent.
     """
-
-    @staticmethod
-    def add_options(parser, enforce_required):
-        FreqSweepAnalysis.add_options(parser, enforce_required)
-
-    @staticmethod
-    def help_text():
-        return "  Offline analysis: {}\n{}".format(OfflineBaselineComparisonAnalysis.__doc__, FreqSweepAnalysis.help_text())
-
     def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
-        super(OfflineBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
-                                                                output_dir=output_dir,
-                                                                verbose=verbose,
-                                                                iterations=iterations)
+        super(EnergyEfficientAgentAnalysis, self).__init__(profile_prefix=profile_prefix,
+                                                           output_dir=output_dir,
+                                                           verbose=verbose,
+                                                           iterations=iterations)
+
         self._sweep_analysis = FreqSweepAnalysis(profile_prefix=self._name,
                                                  output_dir=output_dir,
                                                  verbose=verbose,
@@ -1080,7 +1070,6 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                                                  max_freq=max_freq,
                                                  enable_turbo=enable_turbo)
         self._enable_turbo = enable_turbo
-        self._sweep_parse_output = None
         self._freq_pnames = []
         self._min_freq = min_freq
         self._max_freq = max_freq
@@ -1097,21 +1086,16 @@ class OfflineBaselineComparisonAnalysis(Analysis):
 
         # Run frequency sweep
         self._sweep_analysis.launch(config)
+
+        # Set up min and max frequency
         self._min_freq = self._sweep_analysis._min_freq
         self._max_freq = self._sweep_analysis._max_freq
-        self._sweep_analysis.find_files()
-        parse_output = self._sweep_analysis.parse()
-        process_output = self._sweep_analysis.summary_process(parse_output)
-        region_freq_str = self._sweep_analysis._region_freq_str(process_output['region_freq_map'])
-        if self._verbose:
-            sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(process_output['region_freq_map']))
 
-        # Run offline frequency agent
+        # Run selected mode for EnergyEfficientAgent
+        self._setup_mode_environment()
+
+        profile_name = self._name + '_' + self._mode
         for iteration in range(self._iterations):
-            os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP'] = region_freq_str
-            if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
-                del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
-            profile_name = self._name + '_offline'
             report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
 
@@ -1134,7 +1118,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                 raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def find_files(self):
-        super(OfflineBaselineComparisonAnalysis, self).find_files('*_offline*.report')
+        super(EnergyEfficientAgentAnalysis, self).find_files('*_{}*.report'.format(self._mode))
         self._sweep_analysis.find_files()
 
     def parse(self):
@@ -1145,7 +1129,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         """
         # each keeps track of only their own report paths, so need to combine parses
         sweep_output = self._sweep_analysis.parse()
-        app_output = super(OfflineBaselineComparisonAnalysis, self).parse()
+        app_output = super(EnergyEfficientAgentAnalysis, self).parse()
         parse_output = sweep_output
         self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output, self._sweep_analysis._name)
         parse_output = parse_output.append(app_output)
@@ -1153,16 +1137,16 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         return sweep_output, parse_output
 
     def summary_process(self, parse_output):
-        sweep_output, offline_output = parse_output
-        comp_name = self._name + '_offline'
-        baseline_comp_df = baseline_comparison(offline_output, comp_name)
+        sweep_output, comp_output = parse_output
+        comp_name = self._name + '_' + self._mode
+        baseline_comp_df = baseline_comparison(comp_output, comp_name)
         sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
         sweep_means_df = self._sweep_analysis._region_means_df(sweep_output)
         return sweep_summary_process, sweep_means_df, baseline_comp_df
 
     def summary(self, process_output):
         sweep_summary_process, sweep_means_df, comp_df = process_output
-        name = self._name + '_offline'
+        name = self._name + '_' + self._mode
         ref_freq_idx = 0 if self._enable_turbo else 1
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
@@ -1181,7 +1165,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
             rs += '=' * 120 + '\n'
             rs += all_region_data_pretty(sweep_means_df)
             rs += '=' * 120 + '\n'
-            rs += 'Offline Analysis Data\n'
+            rs += '{} Analysis Data\n'.format(self._mode.title())
             rs += '=' * 120 + '\n'
             rs += all_region_data_pretty(comp_df)
             sys.stdout.write(rs + '\n')
@@ -1193,7 +1177,38 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         pass
 
 
-class OnlineBaselineComparisonAnalysis(Analysis):
+class OfflineBaselineComparisonAnalysis(EnergyEfficientAgentAnalysis):
+    """
+    Compares the energy efficiency plugin in offline mode to the
+    baseline at sticker frequency.  Launches freq sweep and run to be
+    compared.  Uses baseline comparison function to do analysis.
+    """
+
+    @staticmethod
+    def add_options(parser, enforce_required):
+        FreqSweepAnalysis.add_options(parser, enforce_required)
+
+    @staticmethod
+    def help_text():
+        return "  Offline analysis: {}\n{}".format(OfflineBaselineComparisonAnalysis.__doc__, FreqSweepAnalysis.help_text())
+
+    def __init__(self, **kwargs):
+        super(OfflineBaselineComparisonAnalysis, self).__init__(**kwargs)
+        self._mode = "offline"
+
+    def _setup_mode_environment(self):
+        self._sweep_analysis.find_files()
+        parse_output = self._sweep_analysis.parse()
+        process_output = self._sweep_analysis.summary_process(parse_output)
+        region_freq_str = self._sweep_analysis._region_freq_str(process_output['region_freq_map'])
+        if self._verbose:
+            sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(process_output['region_freq_map']))
+        os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP'] = region_freq_str
+        if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
+
+
+class OnlineBaselineComparisonAnalysis(EnergyEfficientAgentAnalysis):
     """
     Compares the energy efficiency plugin in online mode to the
     baseline at sticker frequency.  Launches freq sweep and run to be
@@ -1208,120 +1223,40 @@ class OnlineBaselineComparisonAnalysis(Analysis):
     def help_text():
         return "  Online analysis: {}\n{}".format(OnlineBaselineComparisonAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
-        super(OnlineBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
-                                                               output_dir=output_dir,
-                                                               verbose=verbose,
-                                                               iterations=iterations)
-        self._sweep_analysis = FreqSweepAnalysis(profile_prefix=self._name,
-                                                 output_dir=output_dir,
-                                                 verbose=verbose,
-                                                 iterations=iterations,
-                                                 min_freq=min_freq,
-                                                 max_freq=max_freq,
-                                                 enable_turbo=enable_turbo)
-        self._enable_turbo = enable_turbo
-        self._freq_pnames = []
-        self._min_freq = min_freq
-        self._max_freq = max_freq
+    def __init__(self, **kwargs):
+        super(OnlineBaselineComparisonAnalysis, self).__init__(**kwargs)
+        self._mode = "online"
 
-    def launch(self, config):
-        """
-        Run the frequency sweep, then run the desired comparison configuration.
-        """
-        # Run frequency sweep
-        self._sweep_analysis.launch(config)
-        self._min_freq = self._sweep_analysis._min_freq
-        self._max_freq = self._sweep_analysis._max_freq
+    def _setup_mode_environment(self):
+        os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
+        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
 
-        # Run online frequency agent
-        for iteration in range(self._iterations):
-            os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
-            if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
-                del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
 
-            profile_name = self._name + '_online'
-            report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
-            trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
+class HintBaselineComparisonAnalysis(EnergyEfficientAgentAnalysis):
+    """
+    Compares the energy efficiency plugin using hints to the
+    baseline at sticker frequency.  Launches freq sweep and run to be
+    compared.  Uses baseline comparison function to do analysis.
+    """
 
-            options = {'agent': 'energy_efficient',
-                       'frequency_min': self._min_freq,
-                       'frequency_max': self._max_freq}
-            agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
-            agent_conf.write()
-            if config.app_argv and not os.path.exists(report_path):
-                argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-agent', agent_conf.get_agent(),
-                                 '--geopm-policy', agent_conf.get_path(),
-                                 '--geopm-report', report_path,
-                                 '--geopm-trace', trace_path,
-                                 '--geopm-profile', profile_name]
-                if config.do_geopm_barrier:
-                    argv.append('--geopm-barrier')
-                argv.append('--')
-                argv.extend(config.app_argv)
-                launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
-                launcher.run()
-            elif os.path.exists(report_path):
-                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-            else:
-                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+    @staticmethod
+    def add_options(parser, enforce_required):
+        FreqSweepAnalysis.add_options(parser, enforce_required)
 
-    def find_files(self):
-        super(OnlineBaselineComparisonAnalysis, self).find_files('*_online*.report')
-        self._sweep_analysis.find_files()
+    @staticmethod
+    def help_text():
+        return "  Energy efficient hint analysis: {}\n{}".format(HintBaselineComparisonAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def parse(self):
-        """
-        Combines reports from the sweep with other reports to be
-        compared, which are determined by the profile name passed at
-        construction time.
-        """
-        # each keeps track of only their own report paths, so need to combine parses
-        sweep_output = self._sweep_analysis.parse()
-        app_output = super(OnlineBaselineComparisonAnalysis, self).parse()
-        parse_output = sweep_output
+    def __init__(self, **kwargs):
+        super(HintBaselineComparisonAnalysis, self).__init__(**kwargs)
+        self._mode = "hint"
 
-        # Print the region frequency map
-        sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
-        region_freq_str = self._sweep_analysis._region_freq_str(sweep_summary_process['region_freq_map'])
-        sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']))
-
-        self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output, self._sweep_analysis._name)
-        parse_output = parse_output.append(app_output)
-        parse_output.sort_index(ascending=True, inplace=True)
-        return parse_output
-
-    def summary_process(self, parse_output):
-        comp_name = self._name + '_online'
-        baseline_comp_df = baseline_comparison(parse_output, comp_name)
-        return baseline_comp_df
-
-    def summary(self, process_output):
-        name = self._name + '_online'
-        ref_freq_idx = 0 if self._enable_turbo else 1
-        ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
-
-        rs = 'Summary for {}\n\n'.format(name)
-        rs += 'Energy Decrease compared to {} MHz: {:.2f}%\n'.format(ref_freq, process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
-        rs += 'Runtime Decrease compared to {} MHz: {:.2f}%\n\n'.format(ref_freq, process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
-        rs += 'Epoch data:\n'
-        rs += str(process_output.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
-        rs += '-' * 120 + '\n'
-        sys.stdout.write(rs + '\n')
-
-        if self._verbose:
-            rs = '=' * 120 + '\n'
-            rs += 'Online Analysis Data\n'
-            rs += '=' * 120 + '\n'
-            rs += all_region_data_pretty(process_output)
-            sys.stdout.write(rs)
-
-    def plot_process(self, parse_output):
-        sys.stdout.write("<geopmpy>: Warning: No plot implemented for this analysis type.\n")
-
-    def plot(self, process_output):
-        pass
+    def _setup_mode_environment(self):
+        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
+        if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
+            del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
 
 
 class StreamDgemmMixAnalysis(Analysis):
@@ -1517,7 +1452,7 @@ Usage: {argv_0} [-h|--help] [--version]
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
-  ANALYSIS_TYPE values: freq_sweep, offline, online, stream_mix,
+  ANALYSIS_TYPE values: freq_sweep, offline, online, hint, stream_mix,
                         power_sweep, balancer, node_efficiency,
                         node_power.
 
@@ -1545,6 +1480,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     analysis_type_map = {'freq_sweep': FreqSweepAnalysis,
                          'offline': OfflineBaselineComparisonAnalysis,
                          'online': OnlineBaselineComparisonAnalysis,
+                         'hint': HintBaselineComparisonAnalysis,
                          'stream_mix': StreamDgemmMixAnalysis,
                          'power_sweep': PowerSweepAnalysis,
                          'balancer': BalancerAnalysis,
