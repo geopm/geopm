@@ -134,11 +134,12 @@ void EnergyEfficientAgentTest::SetUp()
     m_mapped_freqs = {m_freq_max, 2100000000.0, 2000000000.0, 1900000000.0, m_freq_min};
     m_default_policy = {m_freq_min, m_freq_max};
 
+    // order of hints should alternate between min and max expected frequency
     m_hints = {GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_MEMORY,
                GEOPM_REGION_HINT_SERIAL, GEOPM_REGION_HINT_NETWORK,
                GEOPM_REGION_HINT_PARALLEL, GEOPM_REGION_HINT_IO,
-               GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_IGNORE,
-               GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_UNKNOWN};
+               GEOPM_REGION_HINT_IGNORE, GEOPM_REGION_HINT_NETWORK,
+               GEOPM_REGION_HINT_UNKNOWN};
     m_expected_freqs = {m_freq_min, m_freq_max, m_freq_min, m_freq_max, m_freq_min};
     m_sample.resize(1);
 
@@ -207,19 +208,19 @@ TEST_F(EnergyEfficientAgentTest, hint)
             case GEOPM_REGION_HINT_MEMORY:
             case GEOPM_REGION_HINT_NETWORK:
             case GEOPM_REGION_HINT_IO:
-                expected_freq = 1.8e9;
+                expected_freq = m_freq_min;
                 break;
             // Hints for maximum CPU frequency
             case GEOPM_REGION_HINT_COMPUTE:
             case GEOPM_REGION_HINT_SERIAL:
             case GEOPM_REGION_HINT_PARALLEL:
-                expected_freq = 2.2e9;
+                expected_freq = m_freq_max;
                 break;
             // Hint Inconclusive
             //case GEOPM_REGION_HINT_UNKNOWN:
             //case GEOPM_REGION_HINT_IGNORE:
             default:
-                expected_freq = 1.8e9;
+                expected_freq = m_freq_max;
                 break;
         }
         EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, expected_freq)).Times(M_NUM_CPU);
