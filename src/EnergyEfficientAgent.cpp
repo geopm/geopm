@@ -206,7 +206,7 @@ namespace geopm
                 //case GEOPM_REGION_HINT_UNKNOWN:
                 //case GEOPM_REGION_HINT_IGNORE:
                 default:
-                    freq = m_freq_min;
+                    freq = m_freq_max;
                     break;
             }
             // @todo: does not support using the same region name with different hints
@@ -315,8 +315,16 @@ namespace geopm
             oss << std::hex << region.first << ":" << std::dec << region.second->freq() << " ";
         }
         if (m_region_map.size()) {
-            result.push_back({"Final freq map", oss.str()});
+            result.push_back({"Final online freq map", oss.str()});
         }
+        oss.str("");
+        for (const auto &region : m_rid_freq_map) {
+            oss << std::hex << region.first << ":" << std::dec << region.second << " ";
+        }
+        if (m_rid_freq_map.size()) {
+            result.push_back({"Final offline/hint freq map", oss.str()});
+        }
+
         return result;
     }
 
