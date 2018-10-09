@@ -424,7 +424,7 @@ namespace geopm
 
         loop_count(big_o_in);
 
-        m_array_len = (size_t)(5e8 * big_o_in / m_loop_count);
+        m_array_len = (size_t)(5e8 * big_o_in);
         if (big_o_in && m_big_o != big_o_in) {
             int err = posix_memalign((void **)&m_array_a, m_align, m_array_len * sizeof(double));
             if (!err) {
@@ -454,16 +454,20 @@ namespace geopm
                 std::cout << "Executing " << m_array_len * m_loop_count << " array length stream triadd."  << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
+            size_t block_size = m_array_len / m_loop_count;
+            double scalar = 3.0;
             for (uint64_t i = 0; i < m_loop_count; ++i) {
                 ModelRegionBase::loop_enter(i);
-
-                double scalar = 3.0;
 #pragma omp parallel for
-                for (size_t i = 0; i < m_array_len; ++i) {
-                    m_array_a[i] = m_array_b[i] + scalar * m_array_c[i];
+                for (size_t j = 0; j < block_size; ++j) {
+                    m_array_a[i * block_size + j] = m_array_b[i * block_size + j] + scalar * m_array_c[i * block_size + j];
                 }
 
                 ModelRegionBase::loop_exit();
+            }
+            size_t remainder = m_array_len % block_size;
+            for (uint64_t j = 0; j < remainder; ++j) {
+                m_array_a[m_loop_count * block_size + j] = m_array_b[m_loop_count * block_size + j] + scalar * m_array_c[m_loop_count * block_size + j];
             }
             ModelRegionBase::region_exit();
         }
