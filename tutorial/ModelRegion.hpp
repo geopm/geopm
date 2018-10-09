@@ -54,7 +54,7 @@ namespace geopm
             virtual void big_o(double big_o_in) = 0;
             virtual void run(void) = 0;
         protected:
-            virtual void loop_count(double big_o_in);
+            virtual void num_progress_updates(double big_o_in);
             std::string m_name;
             double m_big_o;
             int m_verbosity;
@@ -62,7 +62,7 @@ namespace geopm
             bool m_do_imbalance;
             bool m_do_progress;
             bool m_do_unmarked;
-            uint64_t m_loop_count;
+            uint64_t m_num_progress_updates;
             double m_norm;
     };
 
