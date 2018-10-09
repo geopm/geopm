@@ -112,7 +112,7 @@ namespace geopm
         , m_do_imbalance(false)
         , m_do_progress(false)
         , m_do_unmarked(false)
-        , m_loop_count(1)
+        , m_num_progress_updates(1)
         , m_norm(1.0)
     {
 
@@ -133,18 +133,18 @@ namespace geopm
         return m_big_o;
     }
 
-    void ModelRegionBase::loop_count(double big_o_in)
+    void ModelRegionBase::num_progress_updates(double big_o_in)
     {
         if (!m_do_progress) {
-            m_loop_count = 1;
+            m_num_progress_updates = 1;
         }
         else if (big_o_in > 1.0) {
-            m_loop_count = (uint64_t)(100.0 * big_o_in);
+            m_num_progress_updates = (uint64_t)(100.0 * big_o_in);
         }
         else {
-            m_loop_count = 100;
+            m_num_progress_updates = 100;
         }
-        m_norm = 1.0 / m_loop_count;
+        m_norm = 1.0 / m_num_progress_updates;
     }
 
     int ModelRegionBase::region(uint64_t hint)
@@ -214,8 +214,8 @@ namespace geopm
 
     void SleepModelRegion::big_o(double big_o_in)
     {
-        loop_count(big_o_in);
-        double seconds = big_o_in / m_loop_count;
+        num_progress_updates(big_o_in);
+        double seconds = big_o_in / m_num_progress_updates;
         m_delay = {(time_t)(seconds),
                    (long)((seconds - (time_t)(seconds)) * 1E9)};
 
@@ -229,7 +229,7 @@ namespace geopm
                 std::cout << "Executing " << m_big_o << " second sleep."  << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
-            for (uint64_t i = 0 ; i < m_loop_count; ++i) {
+            for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
                 int err;
 #ifdef __APPLE__
@@ -270,8 +270,8 @@ namespace geopm
 
     void SpinModelRegion::big_o(double big_o_in)
     {
-        loop_count(big_o_in);
-        m_delay = big_o_in / m_loop_count;
+        num_progress_updates(big_o_in);
+        m_delay = big_o_in / m_num_progress_updates;
         m_big_o = big_o_in;
     }
 
@@ -282,7 +282,7 @@ namespace geopm
                 std::cout << "Executing " << m_big_o << " second spin."  << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
-            for (uint64_t i = 0 ; i < m_loop_count; ++i) {
+            for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
 
                 double timeout = 0.0;
@@ -333,9 +333,9 @@ namespace geopm
             free(m_matrix_a);
         }
 
-        loop_count(big_o_in);
+        num_progress_updates(big_o_in);
 
-        m_matrix_size = (int)pow(4e9 * big_o_in / m_loop_count, 1.0/3.0);
+        m_matrix_size = (int)pow(4e9 * big_o_in / m_num_progress_updates, 1.0/3.0);
         if (big_o_in && m_big_o != big_o_in) {
             size_t mem_size = sizeof(double) * (m_matrix_size * (m_matrix_size + m_pad_size));
             int err = posix_memalign((void **)&m_matrix_a, m_pad_size, mem_size);
@@ -363,10 +363,10 @@ namespace geopm
         if (m_big_o != 0.0) {
             if (m_verbosity) {
                 std::cout << "Executing " << m_matrix_size << " x " << m_matrix_size << " DGEMM "
-                          << m_loop_count << " times." << std::endl << std::flush;
+                          << m_num_progress_updates << " times." << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
-            for (uint64_t i = 0; i < m_loop_count; ++i) {
+            for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
 
                 int M = m_matrix_size;
@@ -422,9 +422,9 @@ namespace geopm
             free(m_array_a);
         }
 
-        loop_count(big_o_in);
+        num_progress_updates(big_o_in);
 
-        m_array_len = (size_t)(5e8 * big_o_in / m_loop_count);
+        m_array_len = (size_t)(5e8 * big_o_in);
         if (big_o_in && m_big_o != big_o_in) {
             int err = posix_memalign((void **)&m_array_a, m_align, m_array_len * sizeof(double));
             if (!err) {
@@ -451,19 +451,26 @@ namespace geopm
     {
         if (m_big_o != 0.0) {
             if (m_verbosity) {
-                std::cout << "Executing " << m_array_len * m_loop_count << " array length stream triadd."  << std::endl << std::flush;
+                std::cout << "Executing " << m_array_len * m_num_progress_updates << " array length stream triadd."  << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
-            for (uint64_t i = 0; i < m_loop_count; ++i) {
+            size_t block_size = m_array_len / m_num_progress_updates;
+            double scalar = 3.0;
+            for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
-
-                double scalar = 3.0;
 #pragma omp parallel for
-                for (size_t i = 0; i < m_array_len; ++i) {
-                    m_array_a[i] = m_array_b[i] + scalar * m_array_c[i];
+                for (size_t j = 0; j < block_size; ++j) {
+                    m_array_a[i * block_size + j] = m_array_b[i * block_size + j] + scalar * m_array_c[i * block_size + j];
                 }
 
                 ModelRegionBase::loop_exit();
+            }
+            size_t remainder = m_array_len;
+            if (block_size != 0) {
+                remainder = m_array_len % block_size;
+            }
+            for (uint64_t j = 0; j < remainder; ++j) {
+                m_array_a[m_num_progress_updates * block_size + j] = m_array_b[m_num_progress_updates * block_size + j] + scalar * m_array_c[m_num_progress_updates * block_size + j];
             }
             ModelRegionBase::region_exit();
         }
@@ -505,7 +512,7 @@ namespace geopm
             free(m_send_buffer);
         }
 
-        loop_count(big_o_in);
+        num_progress_updates(big_o_in);
 
         int err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
         if (err) {
@@ -513,7 +520,7 @@ namespace geopm
                             err, __FILE__, __LINE__);
         }
 
-        if (m_loop_count > 1) {
+        if (m_num_progress_updates > 1) {
             m_num_send = 1048576; //1MB
         }
         else {
@@ -544,10 +551,10 @@ namespace geopm
         if (m_big_o != 0) {
             if (m_verbosity) {
                 std::cout << "Executing " << m_num_send << " byte buffer all2all "
-                          << m_loop_count << " times."  << std::endl << std::flush;
+                          << m_num_progress_updates << " times."  << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
-            for (uint64_t i = 0; i < m_loop_count; ++i) {
+            for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
 
                 double timeout = 0.0;
@@ -566,7 +573,7 @@ namespace geopm
                     if (!m_rank) {
                         (void)geopm_time(&curr);
                         timeout = geopm_time_diff(&start, &curr);
-                        if (timeout > (m_big_o / m_loop_count)) {
+                        if (timeout > (m_big_o / m_num_progress_updates)) {
                             loop_done = 1;
                         }
                     }
@@ -610,7 +617,7 @@ namespace geopm
                 std::cout << "Executing " << m_spin_region.m_big_o << " second spin."  << std::endl << std::flush;
             }
             (void)geopm_prof_enter(m_spin_region.m_region_id);
-            for (uint64_t i = 0 ; i < m_spin_region.m_loop_count; ++i) {
+            for (uint64_t i = 0 ; i < m_spin_region.m_num_progress_updates; ++i) {
                 if (m_spin_region.m_do_imbalance) {
                     (void)imbalancer_enter();
                 }
@@ -634,9 +641,9 @@ namespace geopm
         if (m_all2all_region.m_big_o != 0) {
             if (m_all2all_region.m_verbosity) {
                 std::cout << "Executing " << m_all2all_region.m_num_send << " byte buffer all2all "
-                          << m_all2all_region.m_loop_count << " times."  << std::endl << std::flush;
+                          << m_all2all_region.m_num_progress_updates << " times."  << std::endl << std::flush;
             }
-            for (uint64_t i = 0; i < m_all2all_region.m_loop_count; ++i) {
+            for (uint64_t i = 0; i < m_all2all_region.m_num_progress_updates; ++i) {
                 if (m_all2all_region.m_do_imbalance) {
                     (void)imbalancer_enter();
                 }
@@ -663,7 +670,7 @@ namespace geopm
             if (m_spin_region.m_verbosity) {
                 std::cout << "Executing " << m_spin_region.m_big_o << " second spin #2."  << std::endl << std::flush;
             }
-            for (uint64_t i = 0 ; i < m_spin_region.m_loop_count; ++i) {
+            for (uint64_t i = 0 ; i < m_spin_region.m_num_progress_updates; ++i) {
                 if (m_spin_region.m_do_imbalance) {
                     (void)imbalancer_enter();
                 }
@@ -707,8 +714,8 @@ namespace geopm
 
     void IgnoreModelRegion::big_o(double big_o_in)
     {
-        loop_count(big_o_in);
-        double seconds = big_o_in / m_loop_count;
+        num_progress_updates(big_o_in);
+        double seconds = big_o_in / m_num_progress_updates;
         m_delay = {(time_t)(seconds),
                    (long)((seconds - (time_t)(seconds)) * 1E9)};
 
@@ -722,7 +729,7 @@ namespace geopm
                 std::cout << "Executing ignored " << m_big_o << " second sleep."  << std::endl << std::flush;
             }
             ModelRegionBase::region_enter();
-            for (uint64_t i = 0 ; i < m_loop_count; ++i) {
+            for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
 
                 int err;
