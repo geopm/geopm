@@ -323,6 +323,8 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+#pragma omp master
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -365,7 +367,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
-
+} // #pragma omp master
     }
 
     void Profile::exit(uint64_t region_id)
@@ -373,6 +375,8 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+#pragma omp master
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -417,7 +421,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
-
+} // #pragma omp master
     }
 
     void Profile::progress(uint64_t region_id, double fraction)
@@ -452,6 +456,8 @@ namespace geopm
                                           GEOPM_REGION_HINT_IGNORE)) {
             return;
         }
+#pragma omp master
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -481,6 +487,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
+} //#pragma omp master
 
     }
 
