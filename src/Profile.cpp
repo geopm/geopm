@@ -301,13 +301,16 @@ namespace geopm
         if (!m_is_enabled) {
             return 0;
         }
+        uint64_t result = 0;
+#pragma omp single
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
 #endif
 
-        uint64_t result = m_table->key(region_name);
+        result = m_table->key(region_name);
         /// Record hint when registering a region.
         result = geopm_region_id_set_hint(hint, result);
 
@@ -315,6 +318,7 @@ namespace geopm
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
 
+} // #pragma omp single
         return result;
     }
 
@@ -323,6 +327,8 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+#pragma omp master
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -365,7 +371,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
-
+} // #pragma omp master
     }
 
     void Profile::exit(uint64_t region_id)
@@ -373,6 +379,8 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+#pragma omp master
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -417,7 +425,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
-
+} // #pragma omp master
     }
 
     void Profile::progress(uint64_t region_id, double fraction)
@@ -425,7 +433,8 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
-
+#pragma omp master
+{
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
@@ -442,7 +451,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
-
+} // #pragma omp master
     }
 
     void Profile::epoch(void)
@@ -452,6 +461,8 @@ namespace geopm
                                           GEOPM_REGION_HINT_IGNORE)) {
             return;
         }
+#pragma omp master
+{
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
@@ -481,6 +492,7 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
+} //#pragma omp master
 
     }
 
