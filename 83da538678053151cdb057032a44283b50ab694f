@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aa1e8e9_71739008",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-11T00:17:19Z",
+      "side": 1,
+      "message": "const \u0026",
+      "range": {
+        "startLine": 465,
+        "startChar": 80,
+        "endLine": 465,
+        "endChar": 92
+      },
+      "revId": "83da538678053151cdb057032a44283b50ab694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a8900a4_5df2d90f",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-11T00:17:19Z",
+      "side": 1,
+      "message": "/// @todo",
+      "range": {
+        "startLine": 468,
+        "startChar": 8,
+        "endLine": 468,
+        "endChar": 16
+      },
+      "revId": "83da538678053151cdb057032a44283b50ab694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
