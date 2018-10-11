@@ -942,9 +942,9 @@ class TestIntegration(unittest.TestCase):
             # MPI time and all2all time.
             mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
             self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
-            self.assertEqual(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
+            self.assertNear(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
             # TODO: inconsistent; can we just use _ everywhere?
-            self.assertEqual(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
+            self.assertNear(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
             self.assertEqual(0, unmarked_data['mpi_runtime'].item())
             self.assertEqual(0, sleep_data['mpi_runtime'].item())
             self.assertEqual(0, dgemm_data['mpi_runtime'].item())
