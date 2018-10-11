@@ -1731,6 +1731,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
         elif 'COBALT_NODEFILE' in os.environ:
             with open(os.getenv('COBALT_NODEFILE')) as fid:
                 num_node = len(fid.readlines())
+        elif 'COBALT_JOBSIZE' in os.environ:
+            num_node = int(os.getenv('COBALT_JOBSIZE'))
         else:
             num_node = -1
         if num_node != launch_options['num_node']:
