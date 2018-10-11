@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd51ee34_ff5e62fc",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-11T00:55:17Z",
+      "side": 1,
+      "message": "const \u0026",
+      "range": {
+        "startLine": 299,
+        "startChar": 29,
+        "endLine": 299,
+        "endChar": 47
+      },
+      "revId": "c48d4557d57195b5f349a3a827ff0ba2c8858772",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f48373cb_45983c88",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-11T00:55:17Z",
+      "side": 1,
+      "message": "m_table-\u003ekey is already protected by locking, so get rid of omp single.",
+      "revId": "c48d4557d57195b5f349a3a827ff0ba2c8858772",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
