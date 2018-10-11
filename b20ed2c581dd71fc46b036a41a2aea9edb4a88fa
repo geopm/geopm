@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "136a03c5_f3385cc5",
+        "filename": "tutorial/ModelRegion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-11T00:28:31Z",
+      "side": 1,
+      "message": "num_progress_updates",
+      "range": {
+        "startLine": 136,
+        "startChar": 26,
+        "endLine": 136,
+        "endChar": 36
+      },
+      "revId": "b20ed2c581dd71fc46b036a41a2aea9edb4a88fa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb47ec2f_3a1b236b",
+        "filename": "tutorial/ModelRegion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-11T00:28:31Z",
+      "side": 1,
+      "message": "avoid block size 0",
+      "revId": "b20ed2c581dd71fc46b036a41a2aea9edb4a88fa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
