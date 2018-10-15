@@ -99,11 +99,11 @@ class ProfileTestProfileTable : public MockProfileTable
 {
     public:
         ProfileTestProfileTable(std::function<uint64_t (const std::string &)> key_lambda,
-                std::function<void (uint64_t key, const struct geopm_prof_message_s &value)> insert_lambda)
+                std::function<void (const struct geopm_prof_message_s &value)> insert_lambda)
         {
             EXPECT_CALL(*this, key(testing::_))
                 .WillRepeatedly(testing::Invoke(key_lambda));
-            EXPECT_CALL(*this, insert(testing::_, testing::_))
+            EXPECT_CALL(*this, insert(testing::_))
                 .WillRepeatedly(testing::Invoke(insert_lambda));
             EXPECT_CALL(*this, name_fill(testing::_))
                 .WillRepeatedly(testing::Return(true));
@@ -220,7 +220,7 @@ TEST_F(ProfileTest, region)
             EXPECT_EQ(region_name, name);
             return expected_rid;
         };
-        auto insert_lambda = [] (uint64_t key, const struct geopm_prof_message_s &value)
+        auto insert_lambda = [] (const struct geopm_prof_message_s &value)
         {
         };
         m_table = geopm::make_unique<ProfileTestProfileTable>(key_lambda, insert_lambda);
@@ -253,9 +253,8 @@ TEST_F(ProfileTest, enter_exit)
         EXPECT_EQ(region_name, name);
         return expected_rid;
     };
-    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (uint64_t key, const struct geopm_prof_message_s &value)
+    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (const struct geopm_prof_message_s &value)
     {
-        EXPECT_EQ(expected_rid, key);
         EXPECT_EQ(world_rank, value.rank);
         EXPECT_EQ(expected_rid, value.region_id);
         EXPECT_EQ(prog_fraction, value.progress);
@@ -319,9 +318,8 @@ TEST_F(ProfileTest, progress)
         EXPECT_EQ(region_name, name);
         return expected_rid;
     };
-    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (uint64_t key, const struct geopm_prof_message_s &value)
+    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (const struct geopm_prof_message_s &value)
     {
-        EXPECT_EQ(expected_rid, key);
         EXPECT_EQ(world_rank, value.rank);
         EXPECT_EQ(expected_rid, value.region_id);
         EXPECT_EQ(prog_fraction, value.progress);
@@ -362,9 +360,8 @@ TEST_F(ProfileTest, epoch)
         EXPECT_EQ(region_name, name);
         return expected_rid;
     };
-    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (uint64_t key, const struct geopm_prof_message_s &value)
+    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (const struct geopm_prof_message_s &value)
     {
-        EXPECT_EQ(expected_rid, key);
         EXPECT_EQ(world_rank, value.rank);
         EXPECT_EQ(expected_rid, value.region_id);
         EXPECT_EQ(prog_fraction, value.progress);
@@ -393,7 +390,7 @@ TEST_F(ProfileTest, shutdown)
     {
         return (uint64_t) 0;
     };
-    auto insert_lambda = [] (uint64_t key, const struct geopm_prof_message_s &value)
+    auto insert_lambda = [] (const struct geopm_prof_message_s &value)
     {
     };
 
@@ -431,9 +428,8 @@ TEST_F(ProfileTest, tprof_table)
         EXPECT_EQ(region_name, name);
         return expected_rid;
     };
-    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (uint64_t key, const struct geopm_prof_message_s &value)
+    auto insert_lambda = [world_rank, &expected_rid, &prog_fraction] (const struct geopm_prof_message_s &value)
     {
-        EXPECT_EQ(expected_rid, key);
         EXPECT_EQ(world_rank, value.rank);
         EXPECT_EQ(expected_rid, value.region_id);
         EXPECT_EQ(prog_fraction, value.progress);

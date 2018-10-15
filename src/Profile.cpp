@@ -467,7 +467,7 @@ namespace geopm
                 sample.region_id = GEOPM_REGION_ID_EPOCH;
                 (void) geopm_time(&(sample.timestamp));
                 sample.progress = 0.0;
-                m_table->insert(sample.region_id, sample);
+                m_table->insert(sample);
             }
         }
         else {
@@ -475,7 +475,7 @@ namespace geopm
             sample.region_id = GEOPM_REGION_ID_EPOCH;
             (void) geopm_time(&(sample.timestamp));
             sample.progress = 0.0;
-            m_table->insert(sample.region_id, sample);
+            m_table->insert(sample);
         }
 
 #ifdef GEOPM_OVERHEAD
@@ -500,7 +500,7 @@ namespace geopm
         sample.region_id = m_curr_region_id;
         (void) geopm_time(&(sample.timestamp));
         sample.progress = m_progress;
-        m_table->insert(m_curr_region_id, sample);
+        m_table->insert(sample);
 
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);

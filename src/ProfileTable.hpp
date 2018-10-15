@@ -88,15 +88,12 @@ namespace geopm
             /// hashed to the same entry in the table, the entry will
             /// be emptied of it's current data which will be lost.
             ///
-            /// @param [in] key The value returned by key() when the
-            ///        name was registered.
-            ///
             /// @param [in] value Entry that is to be inserted into
             ///        the table.
             ///
             /// @return Returns the 64 bit hash used to reference the
             ///         name in other ProfileTable methods.
-            virtual void insert(uint64_t key, const struct geopm_prof_message_s &value) = 0;
+            virtual void insert(const struct geopm_prof_message_s &value) = 0;
             /// @brief Maximum number of entries the table can hold.
             ///
             /// Returns the upper bound on the number of values that
@@ -190,29 +187,23 @@ namespace geopm
             /// ProfileTable destructor, virtual.
             virtual ~ProfileTable() = default;
             uint64_t key(const std::string &name) override;
-            void insert(uint64_t key, const struct geopm_prof_message_s &value) override;
+            void insert(const struct geopm_prof_message_s &value) override;
             size_t capacity(void) const override;
             size_t size(void) const override;
             void dump(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content, size_t &length) override;
             bool name_fill(size_t header_offset) override;
             bool name_set(size_t header_offset, std::set<std::string> &name) override;
         private:
-            virtual bool sticky(const struct geopm_prof_message_s &value);
-            enum {
-                M_TABLE_DEPTH_MAX = 16,
-            };
-            /// @brief structure to hold state for a single table entry.
-            struct table_entry_s {
+             /// @brief structure to hold state for a single table entry.
+            struct table_s {
                 pthread_mutex_t lock;
-                uint64_t key[M_TABLE_DEPTH_MAX];
-                struct geopm_prof_message_s value[M_TABLE_DEPTH_MAX];
+                size_t max_size;
+                size_t curr_size;
+                struct geopm_prof_message_s *value;
             };
-            size_t hash(uint64_t key) const;
-            size_t table_length(size_t buffer_size) const;
-            size_t m_buffer_size;
-            size_t m_table_length;
-            uint64_t m_mask;
-            struct table_entry_s *m_table;
+            struct geopm_prof_message_s *m_table_value;
+            const size_t m_buffer_size;
+            struct table_s *m_table;
             pthread_mutex_t m_key_map_lock;
             std::map<const std::string, uint64_t> m_key_map;
             std::set<uint64_t> m_key_set;
