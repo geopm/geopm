@@ -40,8 +40,8 @@ class MockProfileTable : public geopm::IProfileTable
     public:
         MOCK_METHOD1(key,
                 uint64_t (const std::string &name));
-        MOCK_METHOD2(insert,
-                void (uint64_t key, const struct geopm_prof_message_s &value));
+        MOCK_METHOD1(insert,
+                void (const struct geopm_prof_message_s &value));
         MOCK_CONST_METHOD0(capacity,
                 size_t (void));
         MOCK_CONST_METHOD0(size,

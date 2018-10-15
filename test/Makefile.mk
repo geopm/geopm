@@ -81,6 +81,7 @@ GTEST_TESTS = test/gtest_links/PlatformFactoryTest.platform_register \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ProfileIOSampleTest.hello \
               test/gtest_links/ProfileTableTest.hello \
+              test/gtest_links/ProfileTableTest.overfill \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/RegionTest.identifier \
